@@ -6,10 +6,12 @@ use arc_swap::ArcSwap;
 use chrono::{DateTime, TimeZone, Utc};
 use tokio::sync::RwLock;
 use tokio::time::{interval, MissedTickBehavior};
-use tracing::{info, warn};
+use tracing::{debug, warn};
 
 use crate::metrics::MetricsCollector;
-use super::repository::{SiteConfigDataSource, SiteConfigRecord, SiteConfigRepositoryError};
+use crate::postgres::PostgresError;
+use crate::utils::spawn_supervised;
+use super::repository::{SiteConfigDataSource, SiteConfigRecord};
 
 const CACHE_NAME: &str = "site_config";
 const HEALTH_CHECK_INTERVAL: StdDuration = StdDuration::from_secs(30);
@@ -51,7 +53,7 @@ impl From<SiteConfigRecord> for SiteConfig {
 #[derive(Debug, thiserror::Error)]
 pub enum SiteConfigError {
     #[error(transparent)]
-    Repository(#[from] SiteConfigRepositoryError),
+    Postgres(#[from] PostgresError),
 }
 
 pub struct SiteConfigCache {
@@ -124,7 +126,7 @@ impl SiteConfigCache {
         *self.last_full_refresh_at.write().await = Some(Utc::now());
         self.update_last_seen(max_updated).await;
         self.mark_refresh_success().await;
-        info!(count = count, "site-config cache fully refreshed");
+        debug!(count = count, "site-config cache fully refreshed");
         Ok(())
     }
 
@@ -163,7 +165,7 @@ impl SiteConfigCache {
         let updated = updates.len();
         self.update_last_seen(max_updated).await;
         self.mark_refresh_success().await;
-        info!(updated = updated, "site-config cache partially refreshed");
+        debug!(updated = updated, "site-config cache partially refreshed");
         Ok(())
     }
 
@@ -190,9 +192,23 @@ impl SiteConfigCache {
     }
 
     fn spawn_refresh_tasks(self: &Arc<Self>) {
-        tokio::spawn(Self::partial_refresh_loop(Arc::clone(self)));
-        tokio::spawn(Self::full_refresh_loop(Arc::clone(self)));
-        tokio::spawn(Self::health_monitor_loop(Arc::clone(self)));
+        let this = Arc::clone(self);
+        spawn_supervised("site_config_cache_partial_refresh", move || {
+            let this = Arc::clone(&this);
+            async move { Self::partial_refresh_loop(this).await }
+        });
+
+        let this = Arc::clone(self);
+        spawn_supervised("site_config_cache_full_refresh", move || {
+            let this = Arc::clone(&this);
+            async move { Self::full_refresh_loop(this).await }
+        });
+
+        let this = Arc::clone(self);
+        spawn_supervised("site_config_cache_health", move || {
+            let this = Arc::clone(&this);
+            async move { Self::health_monitor_loop(this).await }
+        });
     }
 
     async fn partial_refresh_loop(this: Arc<Self>) {

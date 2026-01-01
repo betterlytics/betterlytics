@@ -46,6 +46,28 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
+
+  --animate-shake: shake 0.4s ease-in-out;
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
 }
 
 :root {
@@ -287,26 +309,28 @@
       transform: translateX(-50%);
     }
   }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
   }
-  
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-      transform: scale(1);
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
     }
-    to {
-      opacity: 0;
-      transform: scale(0.8);
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-3px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(3px);
     }
   }
 }

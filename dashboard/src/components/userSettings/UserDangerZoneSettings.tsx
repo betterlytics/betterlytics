@@ -1,26 +1,15 @@
 'use client';
 
-import { useTransition, useState, useEffect } from 'react';
+import { useTransition, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
-import { Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { DestructiveActionDialog } from '@/components/dialogs';
 import { toast } from 'sonner';
 import SettingsCard from '@/components/SettingsCard';
 import { useTranslations } from 'next-intl';
-import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 
 interface UserDangerZoneSettingsProps {
   formData: UserSettingsUpdate;
@@ -31,29 +20,7 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [countdown, setCountdown] = useState(5);
-  const [canDelete, setCanDelete] = useState(false);
   const t = useTranslations('components.userSettings.danger');
-
-  useEffect(() => {
-    if (isDialogOpen) {
-      setCountdown(5);
-      setCanDelete(false);
-
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            setCanDelete(true);
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [isDialogOpen]);
 
   const handleDeleteAccount = async () => {
     if (!session?.user?.id) {
@@ -85,55 +52,37 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
             </div>
           </div>
 
-          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant='destructive'
-                disabled={isPending}
-                className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
-              >
-                {isPending ? (
-                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                ) : (
-                  <Trash2 className='mr-2 h-4 w-4' />
-                )}
-                {t('delete')}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className='flex items-center gap-2'>
-                  <AlertTriangle className='text-destructive h-5 w-5' />
-                  {t('dialog.title')}
-                </AlertDialogTitle>
-                <AlertDialogDescription>{t('dialog.description')}</AlertDialogDescription>
-              </AlertDialogHeader>
+          <Button
+            variant='destructive'
+            disabled={isPending}
+            onClick={() => setIsDialogOpen(true)}
+            className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
+          >
+            <Trash2 className='mr-2 h-4 w-4' />
+            {t('delete')}
+          </Button>
 
-              <div className='text-muted-foreground space-y-2 text-sm'>
-                <ul className='list-inside list-disc space-y-1'>
-                  <li>{t('dialog.li1')}</li>
-                  <li>{t('dialog.li2')}</li>
-                  <li>{t('dialog.li3')}</li>
-                  <li>{t('dialog.li4')}</li>
-                </ul>
-              </div>
-
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
-                  {t('dialog.cancel')}
-                </AlertDialogCancel>
-                <AlertDialogAction asChild>
-                  <CountdownButton
-                    onClick={handleDeleteAccount}
-                    isPending={isPending}
-                    disabled={isPending || !canDelete}
-                  >
-                    {canDelete ? t('dialog.confirm') : `${t('dialog.confirm')} (${countdown})`}
-                  </CountdownButton>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <DestructiveActionDialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            title={t('dialog.title')}
+            description={t('dialog.description')}
+            cancelLabel={t('dialog.cancel')}
+            confirmLabel={t('dialog.confirm')}
+            onConfirm={handleDeleteAccount}
+            isPending={isPending}
+            countdownSeconds={5}
+            showIcon
+          >
+            <div className='text-muted-foreground space-y-2 text-sm'>
+              <ul className='list-inside list-disc space-y-1'>
+                <li>{t('dialog.li1')}</li>
+                <li>{t('dialog.li2')}</li>
+                <li>{t('dialog.li3')}</li>
+                <li>{t('dialog.li4')}</li>
+              </ul>
+            </div>
+          </DestructiveActionDialog>
         </div>
       </SettingsCard>
     </div>

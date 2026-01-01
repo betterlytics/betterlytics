@@ -633,6 +633,7 @@
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
           "CredentialsSignin": "Email o password non validi. Controlla le tue credenziali e riprova.",
+          "OAuthAccountNotLinked": "Esiste già un account con questa email. Accedi con la tua email e password.",
           "default": "Si è verificato un errore durante l'accesso. Riprova."
         },
         "cta": {
@@ -1080,7 +1081,13 @@
       "events": "Eventi",
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
       "webVitals": "Web Vitals",
-      "sessionReplay": "Replay sessioni"
+      "sessionReplay": "Replay sessioni",
+      "monitoring": "Monitoraggio",
+      "categories": {
+        "analytics": "Analisi",
+        "behavior": "Comportamento",
+        "observability": "Osservabilità"
+      }
     },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",
@@ -1134,6 +1141,364 @@
       "description": "Aggiungi una nuova dashboard"
     }
   },
+  "monitoring": {
+    "status": {
+      "paused": "In pausa",
+      "preparing": "In preparazione",
+      "up": "Online",
+      "degraded": "Degradato",
+      "down": "Offline"
+    },
+    "checkStatus": {
+      "ok": "OK",
+      "warn": "Avviso",
+      "failed": "Fallito"
+    },
+    "incidentStatus": {
+      "ongoing": "In corso",
+      "resolved": "Risolto"
+    },
+    "latency": {
+      "paused": "In pausa",
+      "fast": "Veloce",
+      "elevated": "Elevata",
+      "slow": "Lenta",
+      "noData": "Nessun dato ancora"
+    },
+    "ssl": {
+      "valid": "Valido",
+      "expiringSoon": "In scadenza",
+      "expired": "Scaduto",
+      "error": "Errore",
+      "notChecked": "Non verificato",
+      "badgeValid": "Certificato valido",
+      "badgeExpiringSoon": "Certificato in scadenza",
+      "badgeExpired": "Certificato scaduto",
+      "badgeError": "Errore certificato",
+      "badgeNotChecked": "Certificato non verificato"
+    },
+    "labels": {
+      "noData": "Nessun dato",
+      "uptimeSuffix": "uptime",
+      "recommended": "consigliato",
+      "daysLeft": "{count, plural, one {{count}g rimanente} other {{count}g rimanenti}}",
+      "hoursLeft": "{count, plural, one {{count}h rimanente} other {{count}h rimanenti}}",
+      "daysLeftFull": "{count, plural, one {Scade tra {count} giorno} other {Scade tra {count} giorni}}",
+      "hoursLeftFull": "{count, plural, one {Scade tra {count} ora} other {Scade tra {count} ore}}"
+    },
+    "actions": {
+      "pause": "Metti in pausa monitor",
+      "resume": "Riprendi monitor",
+      "pausing": "Pausa in corso...",
+      "resuming": "Ripresa in corso..."
+    }
+  },
+  "monitor": {
+    "reason": {
+      "ok": "Sito operativo",
+      "tls_handshake_failed": "Handshake SSL/TLS fallito",
+      "tls_missing_certificate": "Certificato SSL non trovato",
+      "tls_expired": "Il certificato SSL è scaduto",
+      "tls_expiring_soon": "Certificato SSL in scadenza",
+      "tls_parse_error": "Impossibile analizzare il certificato SSL",
+      "tls_hostname_mismatch": "Il certificato SSL non corrisponde al nome host",
+      "tls_untrusted_ca": "Certificato SSL emesso da CA non attendibile",
+      "tls_not_yet_valid": "Il certificato SSL non è ancora valido",
+      "tls_revoked": "Il certificato SSL è stato revocato",
+      "tls_self_signed": "Il certificato SSL è autofirmato",
+      "tls_connection_failed": "Connessione SSL fallita",
+      "http_4xx": "Il server ha restituito un errore client",
+      "http_5xx": "Il server ha restituito un errore server",
+      "http_other": "Codice di stato HTTP inatteso",
+      "http_timeout": "Timeout della richiesta",
+      "http_connect_error": "Impossibile connettersi al server",
+      "http_body_error": "Errore nella lettura della risposta",
+      "http_request_error": "Errore nell'invio della richiesta",
+      "http_error": "Richiesta HTTP fallita",
+      "too_many_redirects": "Troppi reindirizzamenti",
+      "redirect_join_failed": "Posizione di reindirizzamento non valida",
+      "scheme_blocked": "Schema URL non consentito",
+      "port_blocked": "Porta non consentita",
+      "invalid_host": "Nome host non valido",
+      "blocked_ip_literal": "Indirizzo IP non consentito",
+      "dns_blocked": "DNS risolto a indirizzo bloccato",
+      "dns_error": "Risoluzione DNS fallita",
+      "unknown": "Errore sconosciuto"
+    }
+  },
+  "monitoringPage": {
+    "title": "Monitoraggio",
+    "filters": {
+      "statusLabel": "Stato",
+      "sortLabel": "Ordina",
+      "statusAll": "Tutti",
+      "statusUp": "Online",
+      "statusDegraded": "Degradato",
+      "statusDown": "Offline",
+      "statusSslExpiring": "Certificato SSL in scadenza",
+      "statusPaused": "In pausa",
+      "statusPreparing": "In preparazione",
+      "sortDownFirst": "Offline prima",
+      "sortUpFirst": "Online prima",
+      "sortNewest": "Più recenti",
+      "sortOldest": "Più vecchi",
+      "sortNameAsc": "Nome (A–Z)",
+      "sortNameDesc": "Nome (Z–A)",
+      "sortSslExpires": "Scadenza SSL"
+    },
+    "emptyState": {
+      "title": "Inizia a monitorare i tuoi endpoint",
+      "description": "Ricevi una notifica quando il tuo sito va offline e monitora l'uptime insieme agli altri dati.",
+      "durationDays": "{value}g"
+    },
+    "list": {
+      "noData": "Nessun dato ancora",
+      "intervalMinutes": "{value} min",
+      "intervalSeconds": "{value}s",
+      "backoffTooltip": "Monitoraggio temporaneamente ridotto a {value} perché questo monitor è stato offline ripetutamente. La frequenza normale riprenderà automaticamente quando il servizio torna online.",
+      "emptyTitle": "Nessun monitor ancora",
+      "emptyDescription": "Crea il tuo primo monitor per iniziare a tracciare l'uptime.",
+      "upPrefix": "Online",
+      "downPrefix": "Offline",
+      "uptimeSuffix": "uptime"
+    },
+    "form": {
+      "create": "Nuovo monitor",
+      "title": "Crea monitor",
+      "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
+      "fields": {
+        "name": "Nome",
+        "url": "URL"
+      },
+      "placeholders": {
+        "name": "Etichetta opzionale"
+      },
+      "helper": {
+        "nameOptional": "(facoltativo)",
+        "nameDescription": "Dai un nome descrittivo al tuo monitor, oppure lascia vuoto per usare l'URL"
+      },
+      "errors": {
+        "url": "Inserisci un URL valido.",
+        "urlDomain": "L'URL deve essere su {domain} o un sottodominio (es. api.{domain})",
+        "duplicate": "Esiste già un monitor per questo URL.",
+        "customPort": "Le porte personalizzate non sono supportate",
+        "invalidProtocol": "L'URL deve iniziare con https:// o http://"
+      },
+      "timing": {
+        "title": "Tempi e Sensibilità",
+        "interval": {
+          "label": "Intervallo di monitoraggio",
+          "description": "Il tuo sito verr\u00e0 controllato ogni {value}"
+        },
+        "timeout": {
+          "label": "Timeout richiesta",
+          "description": "Troppo breve pu\u00f2 causare falsi positivi"
+        },
+        "sensitivity": {
+          "label": "Sensibilit\u00e0 incidenti",
+          "description": "Numero di errori consecutivi prima che venga attivato un incidente",
+          "valueOne": "1 errore",
+          "valueOther": "{count} errori"
+        }
+      },
+      "actions": {
+        "cancel": "Annulla",
+        "create": "Crea monitor",
+        "creating": "Creazione..."
+      },
+      "success": "Monitor creato",
+      "successDescription": "Il tuo monitor inizierà a controllare immediatamente.",
+      "error": "Impossibile creare il monitor"
+    },
+    "actions": {
+      "renameTitle": "Rinomina monitor",
+      "renamePlaceholder": "Nome del monitor",
+      "renameSuccess": "Monitor rinominato",
+      "renameError": "Impossibile rinominare il monitor",
+      "settings": "Impostazioni",
+      "deleteConfirmTitle": "Eliminare il monitor?",
+      "deleteConfirmDescription": "Questa azione eliminerà permanentemente il monitor e tutti i suoi dati.",
+      "deleteError": "Impossibile eliminare il monitor"
+    }
+  },
+  "monitoringDetailPage": {
+    "actions": {
+      "edit": "Modifica monitor"
+    },
+    "header": {
+      "back": "Torna ai monitor",
+      "monitoring": "Monitoraggio"
+    },
+    "responseTime": {
+      "title": "Tempo di risposta",
+      "badge": "Ultime 24 ore",
+      "empty": "Nessun dato di latenza ancora"
+    },
+    "downtime": {
+      "days": "{value}g offline",
+      "hours": "{value}h offline",
+      "minutes": "{value}m offline",
+      "unknown": "— offline"
+    },
+    "incidents": {
+      "title": "Incidenti",
+      "badge": "Ultimi 7 giorni",
+      "emptyTitle": "Nessun incidente registrato",
+      "emptyDescription": "Mostreremo cause, tempistiche e finestre di inattività quando si verificheranno incidenti.",
+      "headers": {
+        "status": "Stato",
+        "root": "Causa",
+        "started": "Inizio",
+        "duration": "Durata"
+      }
+    },
+    "recent": {
+      "title": "Risultati di monitoraggio recenti",
+      "badge": "Ultimi 10",
+      "empty": "Nessun controllo registrato ancora",
+      "errorsOnly": "Errori",
+      "headers": {
+        "status": "Stato",
+        "ran": "Eseguito",
+        "latency": "Latenza",
+        "statusCode": "Codice stato",
+        "reason": "Motivo"
+      }
+    },
+    "uptime": {
+      "title": "Uptime",
+      "badge": "Ultimi {days} giorni",
+      "grid": {
+        "uptimeLabel": "{value} uptime"
+      },
+      "stats": {
+        "label": "Ultimi {days} giorni",
+        "downFallback": "— offline"
+      }
+    },
+    "summary": {
+      "responseTime": {
+        "avgResponseTime": "Tempo di risposta medio",
+        "helper": "Ultime 24 ore"
+      },
+      "nextCheck": {
+        "title": "Prossimo controllo",
+        "paused": "In pausa",
+        "preparing": "Primo controllo in preparazione",
+        "awaiting": "In attesa del controllo...",
+        "inSeconds": "Tra {seconds}s",
+        "helperPaused": "Riprendi il monitor per riattivare i controlli.",
+        "helperPreparing": "Stiamo programmando il primo controllo. I risultati appariranno presto.",
+        "helperScheduled": "Programmato ogni {seconds}s",
+        "helperUpFor": "Online da {duration}",
+        "helperDownFor": "Offline da {duration}"
+      },
+      "last24h": {
+        "title": "Ultime 24 ore",
+        "helperNone": "Nessun incidente",
+        "helperWithIncidents": "{count, plural, one {{count} incidente} other {{count} incidenti}}, {downtime}"
+      },
+      "ssl": {
+        "title": "Certificato SSL",
+        "disabled": "Disabilitato",
+        "notApplicable": "N/A",
+        "timeLeft": "Tempo rimanente",
+        "hoursLeft": "{count, plural, one {ora rimanente} other {ore rimanenti}}",
+        "daysLeft": "{count, plural, one {giorno rimanente} other {giorni rimanenti}}",
+        "expires": "Scad. {date}",
+        "httpSite": "Non applicabile",
+        "httpSiteDescription": "Questo sito utilizza HTTP",
+        "disabledDescription": "Monitoraggio SSL disabilitato",
+        "enableInSettings": "Abilita nelle impostazioni"
+      }
+    },
+    "toast": {
+      "status": {
+        "paused": "Monitoraggio in pausa",
+        "resumed": "Monitoraggio ripreso"
+      },
+      "statusError": "Impossibile aggiornare lo stato del monitor. Riprova."
+    }
+  },
+  "monitoringEditDialog": {
+    "success": "Monitor aggiornato",
+    "error": "Impossibile aggiornare il monitor. Riprova.",
+    "trigger": "Modifica",
+    "title": "Modifica monitor",
+    "unsavedChanges": "Modifiche non salvate",
+    "actions": {
+      "cancel": "Annulla",
+      "save": "Salva",
+      "saving": "Salvataggio..."
+    },
+    "confirmDiscard": {
+      "title": "Vuoi annullare le modifiche?",
+      "description": "Hai modifiche non salvate che andranno perse se chiudi questo pannello.",
+      "keep": "Continua a modificare",
+      "discard": "Annulla modifiche"
+    },
+    "delete": {
+      "trigger": "Elimina monitor",
+      "title": "Eliminare questo monitor?",
+      "description": "Questa azione non può essere annullata. Tutti i dati di monitoraggio e la cronologia degli incidenti verranno eliminati definitivamente.",
+      "cancel": "Annulla",
+      "confirm": "Elimina monitor",
+      "deleting": "Eliminazione...",
+      "error": "Impossibile eliminare il monitor"
+    },
+    "sections": {
+      "timing": "Tempistiche",
+      "advanced": "Impostazioni avanzate"
+    },
+    "advanced": {
+      "httpMethod": {
+        "label": "Metodo HTTP",
+        "description": "HEAD è più veloce ma alcuni server non lo supportano"
+      },
+      "sslMonitoring": {
+        "label": "Monitora errori SSL",
+        "description": "Crea incidenti quando vengono rilevati errori del certificato",
+        "httpDisabled": "Non disponibile per siti HTTP (nessun certificato)"
+      },
+      "requestHeaders": {
+        "label": "Header della richiesta",
+        "description": "Aggiungi header a ogni richiesta",
+        "namePlaceholder": "Nome header",
+        "valuePlaceholder": "Valore",
+        "blockedHeader": "Questo header è bloccato per motivi di sicurezza"
+      },
+      "acceptedStatusCodes": {
+        "label": "Codici di stato accettati",
+        "description": "Altri codici attiveranno incidenti",
+        "validation": {
+          "maxCodes": "Massimo {max} codici di stato consentiti",
+          "alreadyAdded": "{code} è già stato aggiunto",
+          "invalidRange": "Solo gli intervalli 2xx-5xx sono codici di stato HTTP validi",
+          "invalidFormat": "Inserisci un codice di stato valido (es. 200) o un intervallo (es. 2xx)",
+          "outOfRange": "Il codice di stato deve essere compreso tra 100 e 599"
+        }
+      }
+    },
+    "alerts": {
+      "title": "Avvisi",
+      "enabled": "Attivo",
+      "enableAlerts": "Attiva avvisi",
+      "description": "Ricevi notifiche quando il monitor va offline, torna online o quando i certificati SSL stanno per scadere.",
+      "onDown": "Avviso quando offline",
+      "onDownDescription": "Invia un avviso quando il monitor va offline",
+      "onRecovery": "Avviso al ripristino",
+      "onRecoveryDescription": "Invia un avviso quando il monitor torna online dopo un'interruzione",
+      "onSslExpiry": "Avviso scadenza SSL",
+      "onSslExpiryDescription": "Invia un avviso quando il certificato SSL sta per scadere",
+      "sslExpiryDisabledTooltip": "Abilita il monitoraggio SSL nelle Impostazioni avanzate",
+      "failureThreshold": "Soglia di errore",
+      "failureThresholdDescription": "Numero di errori consecutivi prima dell'invio di un avviso",
+      "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
+      "sslExpiryDays": "Giorni prima della scadenza",
+      "sslExpiryDaysDescription": "Invia un avviso con questo anticipo rispetto alla scadenza del certificato SSL",
+      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}"
+    }
+  },
   "charts": {
     "tooltip": {
       "vs": "vs",
@@ -1148,7 +1513,14 @@
     "noChange": "nessuna variazione",
     "good": "Buono",
     "fair": "Discreto",
-    "poor": "Scarso"
+    "poor": "Scarso",
+    "rename": "Rinomina",
+    "renaming": "Rinominando",
+    "delete": "Elimina",
+    "deleting": "Eliminazione in corso",
+    "cancel": "Anulla",
+    "confirm": "Conferma",
+    "openMenu": "Apri menu"
   },
   "languages": {
     "da": "Danish",
@@ -1378,7 +1750,7 @@
       },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
-        "sessions": "{count, plural, one {# sessione} other {# sessioni}}",
+        "visitors": "{count, plural, one {# visitatore} other {# visitatori}}",
         "bounceRate": "Frequenza di rimbalzo",
         "avgSessionDuration": "Durata media",
         "pagesPerSession": "Pagine per sessione",
@@ -1507,6 +1879,16 @@
       "filterBy": "Filtra per {label}"
     },
     "funnels": {
+      "skeleton": {
+        "steps": {
+          "homepage": "Homepage",
+          "pricing": "Prezzi",
+          "signup": "Iscriviti",
+          "purchase": "Acquisto"
+        },
+        "step": "Passaggio",
+        "visitors": "Visitatori"
+      },
       "list": {
         "steps": "passaggi",
         "conversionRate": "Tasso di conversione",
@@ -1589,17 +1971,9 @@
         }
       },
       "emptyState": {
-        "title": "Nessun funnel creato ancora",
-        "description": "Traccia i percorsi degli utenti attraverso il tuo sito e identifica dove i visitatori abbandonano. Crea il tuo primo funnel per iniziare ad analizzare i percorsi di conversione e ottimizzare l'esperienza utente.",
-        "createButton": "Crea il tuo primo Funnel",
-        "features": {
-          "trackSteps": "Traccia i passaggi di conversione",
-          "trackStepsDesc": "Monitora il progresso degli utenti attraverso filtri personalizzati",
-          "identifyDropoffs": "Identifica i punti di abbandono",
-          "identifyDropoffsDesc": "Trova dove gli utenti abbandonano il loro percorso",
-          "optimizeConversions": "Ottimizza le conversioni",
-          "optimizeConversionsDesc": "Migliora il tuo prodotto basandoti sui dati"
-        }
+        "title": "Visualizza il tuo funnel di conversione",
+        "description": "Scopri dove gli utenti abbandonano e ottimizza i tuoi percorsi di conversione passo dopo passo.",
+        "createButton": "Crea funnel"
       }
     },
     "pages": {
@@ -2181,7 +2555,9 @@
     }
   },
   "validation": {
-    "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare."
+    "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
+    "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
+    "monitorAlreadyExists": "Esiste già un monitor per questo URL"
   },
   "banners": {
     "verifyEmail": {

@@ -178,7 +178,7 @@ type CampaignListEntryProps = {
 
 function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
   const t = useTranslations('components.campaign.campaignRow');
-  const sessionsLabel = t('sessions', { count: campaign.visitors });
+  const visitorsLabel = t('visitors', { count: campaign.visitors });
   const detailsId = `campaign-${campaign.name}-details`;
   return (
     <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative rounded-lg border p-1 shadow-sm transition duration-200 ease-out'>
@@ -189,7 +189,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         className='flex cursor-pointer items-center justify-between gap-3 px-4 py-3 lg:hidden'
         onClick={onToggle}
       >
-        <CampaignHeaderTitle name={campaign.name} sessionsLabel={sessionsLabel} />
+        <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
         <div className='flex items-center gap-2'>
           <div className='h-11 min-w-[150px] flex-1'>
             <CampaignSparkline data={campaign.sparkline} />
@@ -203,7 +203,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         className='hidden cursor-pointer grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(140px,220px)_auto] items-center gap-4 px-4 py-3 lg:grid'
         onClick={onToggle}
       >
-        <CampaignHeaderTitle name={campaign.name} sessionsLabel={sessionsLabel} />
+        <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
 
         <CampaignMetric label={t('bounceRate')} value={formatPercentage(campaign.bounceRate)} className='flex' />
         <CampaignMetric label={t('avgSessionDuration')} value={campaign.avgSessionDuration} className='flex' />
