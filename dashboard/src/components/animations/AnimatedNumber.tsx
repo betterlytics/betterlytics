@@ -1,7 +1,7 @@
 'use client';
 
 import { DigitReel } from '@/components/animations/DigitReel';
-import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
+import { DIGIT_WIDTH, ENTER_EXIT_EASING, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
 import { cn } from '@/lib/utils';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
@@ -37,9 +37,7 @@ export function AnimatedNumber({
   const exitingDigitCount = digitStates.filter(d => d.isExiting).length;
   const hasEnteringDigits = digitStates.some(d => d.isEntering);
   
-  const slideDuration = exitingDigitCount
-    ? Math.round(duration / Math.max(activeDigitCount + exitingDigitCount, 1))
-    : Math.round(duration / Math.max(activeDigitCount, 1));
+  const slideDuration = Math.round(duration / Math.max(activeDigitCount + exitingDigitCount, 1));
   
   const generateDigitId = useCallback(() => {
     return `${componentId}-digit-${++digitIdCounter.current}`;
@@ -117,7 +115,7 @@ export function AnimatedNumber({
       if (hasEnteringDigits) {
         Object.assign(section.style, { 
           transition: 'none', 
-          transform: `translate3d(calc(-0.33 * ${DIGIT_WIDTH}), 0, 0) scale(1.02, 1)` 
+          transform: `translate3d(calc(${ENTER_TRANSFORM_OFFSET} * ${DIGIT_WIDTH}), 0, 0) scale(${ENTER_SCALE}, 1)` 
         });
         void section.offsetHeight; // force reflow so initial styles are applied before animation
         Object.assign(section.style, { 

@@ -7,6 +7,9 @@ export const ZWSP = '\u200B';
 export const SPRING_EASING = 'cubic-bezier(0.17, 1.15, 0.3, 1)';
 export const ENTER_EXIT_EASING = 'ease-out';
 
+export const ENTER_TRANSFORM_OFFSET = '-0.33';
+export const ENTER_SCALE = '1.02';
+
 /**
  * Creates mask styles for a fade gradient effect.
  * The mask creates soft edges that fade digits in/out during enter/exit animations.
