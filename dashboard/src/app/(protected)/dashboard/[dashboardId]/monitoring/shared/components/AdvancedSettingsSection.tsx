@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { getStatusCodeColorClasses } from '../utils/httpStatusColors';
 import { isHeaderBlocked } from '../utils/formValidation';
 import { SectionHeader } from './SectionHeader';
-import { useCapabilities } from '@/hooks/useCapabilities';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
 import { ProBadge } from '@/components/billing/ProBadge';
 import type { MonitorFormInterface } from '../types';

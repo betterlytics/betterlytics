@@ -1612,10 +1612,7 @@
     },
     "proFeature": {
       "badge": "PRO",
-      "upgradeRequired": "Opgrader til Pro for at låse denne funktion op",
-      "intervalLocked": "Hurtigere overvågningsintervaller kræver Pro",
-      "upgradeDescription": "Opgrader din plan for at få adgang til avancerede funktioner",
-      "upgrade": "Opgrader"
+      "upgradeRequired": "Opgrader til Pro for at låse denne funktion op"
     },
     "billing": {
       "navigation": {

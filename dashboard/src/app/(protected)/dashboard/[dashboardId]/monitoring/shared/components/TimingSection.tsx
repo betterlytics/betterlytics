@@ -8,7 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { formatCompactDuration } from '@/utils/dateFormatters';
 import { SectionHeader } from './SectionHeader';
-import { useCapabilities } from '@/hooks/useCapabilities';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import {
   MONITOR_INTERVAL_MARKS,
   REQUEST_TIMEOUT_MARKS,

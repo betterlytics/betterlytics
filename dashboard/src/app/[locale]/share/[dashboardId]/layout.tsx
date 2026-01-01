@@ -51,8 +51,8 @@ export default async function PublicDashboardLayout({ params, children }: Public
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <TimezoneCookieInitializer />
-      <DashboardProvider>
-        <DemoModeProvider isDemo={true}>
+      <DemoModeProvider isDemo={true}>
+        <DashboardProvider>
           <DashboardLayoutShell
             dashboardId={dashboardId}
             isDemo={true}
@@ -61,8 +61,8 @@ export default async function PublicDashboardLayout({ params, children }: Public
           >
             <div className='flex w-full justify-center'>{children}</div>
           </DashboardLayoutShell>
-        </DemoModeProvider>
-      </DashboardProvider>
+        </DashboardProvider>
+      </DemoModeProvider>
     </PublicEnvironmentVariablesProvider>
   );
 }

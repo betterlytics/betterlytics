@@ -27,6 +27,23 @@ export const MONITOR_LIMITS = {
   ACCEPTED_STATUS_CODES_MAX: 5,
 } as const;
 
+export const MONITOR_DEFAULTS = {
+  intervalSeconds: 300,
+  timeoutMs: 3000,
+  failureThreshold: 3,
+  sslExpiryAlertDays: 14,
+  isEnabled: true,
+  checkSslErrors: true,
+  sslExpiryReminders: true,
+  httpMethod: 'HEAD' as const,
+  acceptedStatusCodes: ['2xx'] as const,
+  alertsEnabled: true,
+  alertEmails: [] as string[],
+  alertOnDown: true,
+  alertOnRecovery: true,
+  alertOnSslExpiry: true,
+} as const;
+
 export const RequestHeaderSchema = z.object({
   key: z.string().min(1).max(MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX),
   value: z.string().max(MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX),
@@ -39,32 +56,28 @@ export const StatusCodeValueSchema = z.union([
 
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
-  intervalSeconds: z.number().int().min(60).max(3600).default(300),
-  timeoutMs: z.number().int().min(500).max(120_000).default(3000),
-  isEnabled: z.boolean().default(true),
-  checkSslErrors: z.boolean().default(true),
-  sslExpiryReminders: z.boolean().default(true),
-  httpMethod: HttpMethodSchema.default('HEAD'),
+  intervalSeconds: z.number().int().min(60).max(3600).default(MONITOR_DEFAULTS.intervalSeconds),
+  timeoutMs: z.number().int().min(500).max(120_000).default(MONITOR_DEFAULTS.timeoutMs),
+  isEnabled: z.boolean().default(MONITOR_DEFAULTS.isEnabled),
+  checkSslErrors: z.boolean().default(MONITOR_DEFAULTS.checkSslErrors),
+  sslExpiryReminders: z.boolean().default(MONITOR_DEFAULTS.sslExpiryReminders),
+  httpMethod: HttpMethodSchema.default(MONITOR_DEFAULTS.httpMethod),
   requestHeaders: z.array(RequestHeaderSchema).max(MONITOR_LIMITS.REQUEST_HEADERS_MAX).optional().nullable(),
   acceptedStatusCodes: z
     .array(StatusCodeValueSchema)
     .max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX)
-    .default(['2xx']),
-  alertsEnabled: z.boolean().default(true),
-  alertEmails: z.array(z.string().email()).max(MONITOR_LIMITS.ALERT_EMAILS_MAX).default([]),
-  alertOnDown: z.boolean().default(true),
-  alertOnRecovery: z.boolean().default(true),
-  alertOnSslExpiry: z.boolean().default(true),
-  sslExpiryAlertDays: z.number().int().min(1).max(90).default(14),
-  failureThreshold: z.number().int().min(1).max(10).default(3),
+    .default([...MONITOR_DEFAULTS.acceptedStatusCodes]),
+  alertsEnabled: z.boolean().default(MONITOR_DEFAULTS.alertsEnabled),
+  alertEmails: z
+    .array(z.string().email())
+    .max(MONITOR_LIMITS.ALERT_EMAILS_MAX)
+    .default([...MONITOR_DEFAULTS.alertEmails]),
+  alertOnDown: z.boolean().default(MONITOR_DEFAULTS.alertOnDown),
+  alertOnRecovery: z.boolean().default(MONITOR_DEFAULTS.alertOnRecovery),
+  alertOnSslExpiry: z.boolean().default(MONITOR_DEFAULTS.alertOnSslExpiry),
+  sslExpiryAlertDays: z.number().int().min(1).max(90).default(MONITOR_DEFAULTS.sslExpiryAlertDays),
+  failureThreshold: z.number().int().min(1).max(10).default(MONITOR_DEFAULTS.failureThreshold),
 });
-
-export const MONITOR_DEFAULTS = MonitorCheckBaseSchema.parse({}) as {
-  intervalSeconds: number;
-  timeoutMs: number;
-  failureThreshold: number;
-  sslExpiryAlertDays: number;
-};
 
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
   url: z

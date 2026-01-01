@@ -5,7 +5,7 @@ import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { Card } from '@/components/ui/card';
 import { LiveIndicator } from '@/components/live-indicator';
 import { RefreshCcw } from 'lucide-react';
-import { useCapabilities } from '@/hooks/useCapabilities';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 
 type MonitoringEmptyStateProps = {
   dashboardId: string;

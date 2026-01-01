@@ -13,8 +13,7 @@ type CapabilityGateProps = {
 };
 
 /**
- * Gate component for capability-based feature locking.
- * Wraps children in a disabled tooltip when `allowed` is false.
+ * Gate component for capability-based feature locking
  *
  * @example
  * <CapabilityGate allowed={caps.monitoring.httpMethodConfigurable}>

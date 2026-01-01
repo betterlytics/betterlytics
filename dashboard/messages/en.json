@@ -1612,10 +1612,7 @@
     },
     "proFeature": {
       "badge": "PRO",
-      "upgradeRequired": "Upgrade to Pro to unlock this feature",
-      "intervalLocked": "Faster monitoring intervals require Pro",
-      "upgradeDescription": "Upgrade your plan to access advanced features",
-      "upgrade": "Upgrade"
+      "upgradeRequired": "Upgrade to Pro to unlock this feature"
     },
     "billing": {
       "navigation": {

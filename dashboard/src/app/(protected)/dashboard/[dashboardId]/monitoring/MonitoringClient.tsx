@@ -13,7 +13,7 @@ import { FilterSelectValue } from './components';
 import { MonitoringEmptyState } from './MonitoringEmptyState';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
-import { useCapabilities } from '@/hooks/useCapabilities';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 
 type FiltersCopy = {
   statusLabel: string;
