@@ -249,7 +249,7 @@ export function EventsTable({ data }: EventsTableProps) {
                       )}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className='flex items-center'>
+                      <Inline align='center'>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <div className='ml-2 flex h-4 w-4 items-center justify-center'>
@@ -262,7 +262,7 @@ export function EventsTable({ data }: EventsTableProps) {
                             )}
                           </div>
                         )}
-                      </div>
+                      </Inline>
                     </TableHead>
                   ))}
                 </TableRow>

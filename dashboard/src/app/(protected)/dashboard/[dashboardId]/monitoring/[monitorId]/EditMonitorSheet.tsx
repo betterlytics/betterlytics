@@ -23,6 +23,7 @@ import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/
 import { useMonitorForm } from '../shared/hooks/useMonitorForm';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../shared/components';
+import { Inline, Stack } from '@/components/layout';
 
 type EditMonitorSheetProps = {
   dashboardId: string;
@@ -109,7 +110,7 @@ export function EditMonitorSheet({
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild>{trigger ?? <Button size='sm'>{t('trigger')}</Button>}</SheetTrigger>
         <SheetContent side='right' className='w-full max-w-2xl overflow-y-auto p-0 sm:max-w-4xl'>
-          <div className='flex h-full flex-col'>
+          <Stack className='h-full' gap='none'>
             <SheetHeader className='border-border space-y-0 border-b px-6 py-5'>
               <SheetTitle className='text-lg font-semibold'>{t('title')}</SheetTitle>
               <SheetDescription className='text-muted-foreground text-sm'>{monitor.url}</SheetDescription>
@@ -146,7 +147,7 @@ export function EditMonitorSheet({
                 <Trash2 className='h-4 w-4' aria-hidden />
                 <span>{t('delete.trigger')}</span>
               </Button>
-              <div className='flex items-center gap-3'>
+              <Inline gap='card' align='center'>
                 {form.isDirty && (
                   <div className='flex items-center gap-2'>
                     <div className='h-2 w-2 animate-pulse rounded-full bg-amber-500' />
@@ -170,9 +171,9 @@ export function EditMonitorSheet({
                 >
                   {isPending ? t('actions.saving') : t('actions.save')}
                 </Button>
-              </div>
+              </Inline>
             </div>
-          </div>
+          </Stack>
         </SheetContent>
       </Sheet>
 

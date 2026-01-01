@@ -6,6 +6,7 @@ import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
 import { Text } from '@/components/text';
+import { Stack } from '@/components/layout';
 
 interface ExpandedEventContentProps {
   event: EventTypeRow;
@@ -44,18 +45,16 @@ export function ExpandedEventContent({
           <Text variant='description'>{t('loading')}</Text>
         </div>
       ) : propertiesData?.properties.length ? (
-        <div className='py-4 pr-6 pl-8'>
-          <div className='space-y-4'>
-            {propertiesData.properties.map((property) => (
-              <PropertyRow
-                key={property.propertyName}
-                property={property}
-                isExpanded={expandedProperties.has(property.propertyName)}
-                onToggle={() => onToggleProperty(property.propertyName)}
-              />
-            ))}
-          </div>
-        </div>
+        <Stack gap='card' className='py-4 pr-6 pl-8'>
+          {propertiesData.properties.map((property) => (
+            <PropertyRow
+              key={property.propertyName}
+              property={property}
+              isExpanded={expandedProperties.has(property.propertyName)}
+              onToggle={() => onToggleProperty(property.propertyName)}
+            />
+          ))}
+        </Stack>
       ) : (
         <div className='py-12 pl-8 text-center'>
           <h4 className='text-foreground mb-1 text-sm font-medium'>{t('noProperties')}</h4>
