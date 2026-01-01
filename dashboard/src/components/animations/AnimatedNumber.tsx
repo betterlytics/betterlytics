@@ -1,25 +1,24 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback, useId } from 'react';
+import { DigitReel } from '@/components/animations/DigitReel';
+import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
 import { cn } from '@/lib/utils';
-import { DigitReel } from './DigitReel';
-import { DIGIT_WIDTH, MASK_HEIGHT, ENTER_EXIT_EASING, ZWSP, getMaskStyles } from '@/constants/animations';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 
-interface AnimatedNumberProps {
+type AnimatedNumberProps = {
   value: number;
   className?: string;
   duration?: number;
-}
+};
 
-interface DigitState {
+type DigitState = {
   digit: number;
   prevDigit: number | null;
   positionFromRight: number;
   isExiting?: boolean;
   isEntering?: boolean;
   id: string;
-}
-
+};
 
 export function AnimatedNumber({
   value,
@@ -117,81 +116,58 @@ export function AnimatedNumber({
     
     if (isDigitCountChanging) {
       if (hasEnteringDigits) {
-        section.style.transition = 'none';
-        section.style.transform = `translate3d(calc(-0.33 * ${DIGIT_WIDTH}), 0, 0) scale(1.02, 1)`;
-        section.offsetHeight;
-        section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        section.style.width = `calc(${activeDigitCount} * ${DIGIT_WIDTH})`;
-        section.style.transform = 'none';
+        Object.assign(section.style, { 
+          transition: 'none', 
+          transform: `translate3d(calc(-0.33 * ${DIGIT_WIDTH}), 0, 0) scale(1.02, 1)` 
+        });
+        section.offsetHeight; // force reflow so initial styles are applied before animation
+        Object.assign(section.style, { 
+          transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+          width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
+          transform: 'none'
+        });
       } else if (hasExitingDigits) {
-        section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        section.style.width = `calc(${activeDigitCount} * ${DIGIT_WIDTH})`;
+        Object.assign(section.style, { 
+          transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+          width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`
+        });
       }
       
-      const timer = setTimeout(() => {
+      const postEnterCleanup = setTimeout(() => {
         if (section) {
-          section.style.transition = 'none';
-          section.style.transform = 'none';
+          Object.assign(section.style, { transition: 'none', transform: 'none' });
         }
       }, slideDuration);
       
-      return () => clearTimeout(timer);
+      return () => clearTimeout(postEnterCleanup);
     } else {
-      section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-      section.style.width = `calc(${activeDigitCount} * ${DIGIT_WIDTH})`;
+      Object.assign(section.style, { 
+        transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+        width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`
+      });
     }
   }, [activeDigitCount, hasEnteringDigits, hasExitingDigits, slideDuration]);
 
-  const maskStyle = getMaskStyles();
-
-  const integerSectionStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    justifyContent: 'right',
-    width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
-    transformOrigin: 'left center',
-  };
-
   return (
-    <span
-      className={cn('inline-flex tabular-nums', className)}
-      style={{ 
-        lineHeight: 1,
-        isolation: 'isolate',
-        whiteSpace: 'nowrap',
-      }}
-    >
+    <span className={cn('inline-flex tabular-nums leading-none isolate whitespace-nowrap', className)}>
       <span 
         aria-label={value.toString()} 
-        style={{ 
-          display: 'inline-flex',
-          direction: 'ltr',
-          isolation: 'isolate', 
-          position: 'relative', 
-          zIndex: -1,
-        }}
+        className="inline-flex ltr isolate relative -z-10"
       >
         <span 
           aria-hidden="true"
-          className="animated-number-pre"
-          style={{
-            padding: `calc(${MASK_HEIGHT} / 2) 0`,
-            display: 'inline-flex',
-            justifyContent: 'right',
-            width: '0em',
-          }}
+          className={`animated-number-pre inline-flex justify-end w-0 py-[calc(${MASK_HEIGHT}/2)]`}
         >
-          <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
-            {ZWSP}
-          </span>
+          <span className="inline-flex justify-inherit relative">{ZWSP}</span>
         </span>
 
-        <span aria-hidden="true" style={maskStyle}>
+        <span aria-hidden="true" style={getMaskStyles()}>
           <span 
             ref={integerSectionRef}
-            className="animated-number-integer"
-            style={integerSectionStyle}
+            className="animated-number-integer inline-flex justify-end origin-left"
+            style={{ width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})` }}
           >
-            <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
+            <span className="inline-flex justify-inherit relative">
               {ZWSP}
               {digitStates.map((state) => (
                 <DigitReel
@@ -207,33 +183,16 @@ export function AnimatedNumber({
             </span>
           </span>
 
-          <span 
-            className="animated-number-fraction"
-            style={{
-              display: 'inline-flex',
-              justifyContent: 'left',
-              width: '0em',
-            }}
-          >
-            <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
-              {ZWSP}
-            </span>
+          <span className="animated-number-fraction inline-flex justify-start w-0">
+            <span className="inline-flex justify-inherit relative">{ZWSP}</span>
           </span>
         </span>
 
         <span 
           aria-hidden="true"
-          className="animated-number-post"
-          style={{
-            padding: `calc(${MASK_HEIGHT} / 2) 0`,
-            display: 'inline-flex',
-            justifyContent: 'left',
-            width: '0em',
-          }}
+          className={`animated-number-post inline-flex justify-start w-0 py-[calc(${MASK_HEIGHT}/2)]`}
         >
-          <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
-            {ZWSP}
-          </span>
+          <span className="inline-flex justify-inherit relative">{ZWSP}</span>
         </span>
       </span>
     </span>

@@ -1,17 +1,16 @@
-// Internal component - use AnimatedNumber instead
 'use client';
 
+import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, MASK_WIDTH, SPRING_EASING } from '@/constants/animations';
 import { useEffect, useRef, useState } from 'react';
-import { DIGIT_WIDTH, MASK_HEIGHT, MASK_WIDTH, SPRING_EASING, ENTER_EXIT_EASING } from '@/constants/animations';
 
-interface DigitReelProps {
+type DigitReelProps = {
   digit: number;
   prevDigit: number | null;
   duration?: number;
   slideDuration: number;
   isExiting?: boolean;
   onExitComplete?: () => void;
-}
+};
 
 export function DigitReel({
   digit,
@@ -26,9 +25,6 @@ export function DigitReel({
   const [enterState, setEnterState] = useState<'idle' | 'entering' | 'done'>('idle');
   const [exitState, setExitState] = useState<'idle' | 'exiting' | 'done'>('idle');
 
-  const digitsAbove = Array.from({ length: digit }, (_, i) => i);
-  const digitsBelow = Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i);
-
   useEffect(() => {
     if (!isExiting && exitState !== 'idle') {
       setExitState('idle');
@@ -36,15 +32,16 @@ export function DigitReel({
       const reel = reelRef.current;
       const container = containerRef.current;
       if (reel) {
-        reel.style.transition = 'none';
-        reel.style.transform = 'translateY(0%)';
+        Object.assign(reel.style, { transition: 'none', transform: 'translateY(0%)' });
       }
       if (container) {
-        container.style.transition = 'none';
-        container.style.position = 'relative';
-        container.style.left = 'auto';
-        container.style.opacity = '1';
-        container.style.transform = 'none';
+        Object.assign(container.style, { 
+          transition: 'none', 
+          position: 'relative', 
+          left: 'auto', 
+          opacity: '1', 
+          transform: 'none' 
+        });
       }
     }
   }, [isExiting, exitState]);
@@ -59,18 +56,20 @@ export function DigitReel({
         const parentRect = container.offsetParent?.getBoundingClientRect();
         const leftPos = parentRect ? rect.left - parentRect.left : 0;
         
-        container.style.position = 'absolute';
-        container.style.left = `${leftPos}px`;
-        container.offsetHeight;
-        
-        container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        container.style.transform = `translateX(calc(-1 * ${MASK_WIDTH}))`;
-        container.style.opacity = '0';
+        Object.assign(container.style, { position: 'absolute', left: `${leftPos}px` });
+        container.offsetHeight; // force reflow
+        Object.assign(container.style, { 
+          transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+          transform: `translateX(calc(-1 * ${MASK_WIDTH}))`,
+          opacity: '0'
+        });
       }
       
       if (reel) {
-        reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        reel.style.transform = 'translateY(100%)';
+        Object.assign(reel.style, { 
+          transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+          transform: 'translateY(100%)'
+        });
       }
       
       setExitState('exiting');
@@ -89,11 +88,12 @@ export function DigitReel({
       const reel = reelRef.current;
       
       if (reel) {
-        reel.style.transition = 'none';
-        reel.style.transform = 'translateY(100%)';
-        reel.offsetHeight;
-        reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        reel.style.transform = 'translateY(0%)';
+        Object.assign(reel.style, { transition: 'none', transform: 'translateY(100%)' });
+        reel.offsetHeight; // force reflow
+        Object.assign(reel.style, { 
+          transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+          transform: 'translateY(0%)'
+        });
       }
       
       setEnterState('entering');
@@ -112,83 +112,43 @@ export function DigitReel({
 
     const offset = digit - prevDigit;
     
-    reel.style.transition = 'none';
-    reel.style.transform = `translateY(${offset * 100}%)`;
-    reel.offsetHeight;
-    reel.style.transition = `transform ${duration}ms ${SPRING_EASING}`;
-    reel.style.transform = 'translateY(0%)';
+    Object.assign(reel.style, { transition: 'none', transform: `translateY(${offset * 100}%)` });
+    reel.offsetHeight; // force reflow
+    Object.assign(reel.style, { 
+      transition: `transform ${duration}ms ${SPRING_EASING}`,
+      transform: 'translateY(0%)'
+    });
   }, [digit, prevDigit, duration, isExiting]);
 
   if (exitState === 'done') {
     return null;
   }
 
-  const isEntering = enterState === 'entering';
-  const isExitingNow = exitState === 'exiting';
-
-  const digitStyle: React.CSSProperties = {
-    display: 'inline-block',
-    padding: `calc(${MASK_HEIGHT} / 2) 0`,
-  };
-
-  const containerStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: DIGIT_WIDTH,
-    padding: `${MASK_HEIGHT} 0`,
-    margin: `calc(-1 * ${MASK_HEIGHT}) 0`,
-    overflow: 'hidden',
-    willChange: 'transform, opacity',
-    transformOrigin: 'left center',
-  };
-
-  const reelStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    alignItems: 'center',
-    position: 'relative',
-    width: DIGIT_WIDTH,
-  };
-
-  const aboveStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    position: 'absolute',
-    width: '100%',
-    bottom: '100%',
-    left: 0,
-  };
-
-  const belowStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    position: 'absolute',
-    width: '100%',
-    top: '100%',
-    left: 0,
-  };
-
   return (
-    <span ref={containerRef} style={containerStyle}>
-      <span ref={reelRef} style={reelStyle} aria-hidden="true">
-        {(isExitingNow || isEntering || prevDigit !== null) && (
-          <span style={aboveStyle}>
-            {digitsAbove.map((d) => (
-              <span key={`above-${d}`} style={digitStyle}>{d}</span>
+    <span 
+      ref={containerRef} 
+      className={`inline-flex justify-center items-center overflow-hidden origin-left w-[${DIGIT_WIDTH}] py-[${MASK_HEIGHT}] my-[calc(-1*${MASK_HEIGHT})]`}
+      style={{ willChange: 'transform, opacity' }}
+    >
+      <span 
+        ref={reelRef} 
+        className={`inline-flex justify-center flex-col items-center relative w-[${DIGIT_WIDTH}]`}
+        aria-hidden="true"
+      >
+        {(exitState === 'exiting' || enterState === 'entering' || prevDigit !== null) && (
+          <span className="flex flex-col items-center absolute w-full bottom-full left-0">
+            {Array.from({ length: digit }, (_, i) => i).map((d) => (
+              <span key={`above-${d}`} className={`inline-block py-[calc(${MASK_HEIGHT}/2)]`}>{d}</span>
             ))}
           </span>
         )}
 
-        <span style={digitStyle}>{digit}</span>
+        <span className={`inline-block py-[calc(${MASK_HEIGHT}/2)]`}>{digit}</span>
 
-        {(isExitingNow || isEntering || prevDigit !== null) && (
-          <span style={belowStyle}>
-            {digitsBelow.map((d) => (
-              <span key={`below-${d}`} style={digitStyle}>{d}</span>
+        {(exitState === 'exiting' || enterState === 'entering' || prevDigit !== null) && (
+          <span className="flex flex-col items-center absolute w-full top-full left-0">
+            {Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i).map((d) => (
+              <span key={`below-${d}`} className={`inline-block py-[calc(${MASK_HEIGHT}/2)]`}>{d}</span>
             ))}
           </span>
         )}
