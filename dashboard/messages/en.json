@@ -633,6 +633,7 @@
         "subtitle": "Access your analytics dashboard",
         "errors": {
           "CredentialsSignin": "Invalid email or password. Please check your credentials and try again.",
+          "OAuthAccountNotLinked": "An account with this email already exists. Please sign in with your email and password instead.",
           "default": "An error occurred during sign in. Please try again."
         },
         "cta": {

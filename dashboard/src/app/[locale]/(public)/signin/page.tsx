@@ -61,6 +61,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     switch (error) {
       case 'CredentialsSignin':
         return t('errors.CredentialsSignin');
+      case 'OAuthAccountNotLinked':
+        return t('errors.OAuthAccountNotLinked');
       default:
         return t('errors.default');
     }
