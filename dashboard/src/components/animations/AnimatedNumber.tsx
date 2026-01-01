@@ -41,11 +41,17 @@ export function AnimatedNumber({
   const digitMapRef = useRef<Map<number, DigitState>>(new Map());
   const integerSectionRef = useRef<HTMLSpanElement>(null);
 
-  const slideDuration = Math.round(duration / 3);
-
-  const activeDigitCount = digitStates.filter(d => !d.isExiting).length;
-  const hasExitingDigits = digitStates.some(d => d.isExiting);
+  const activeDigitCount = digitStates.filter(d => !d.isExiting).length || 1;
+  const exitingDigitCount = digitStates.filter(d => d.isExiting).length;
+  const hasExitingDigits = exitingDigitCount > 0;
   const hasEnteringDigits = digitStates.some(d => d.isEntering);
+  
+  // For exit: use total digit count (faster when more digits exit)
+  // For enter: use active digit count
+  const totalDigitCount = activeDigitCount + exitingDigitCount;
+  const slideDuration = hasExitingDigits 
+    ? Math.round(duration / Math.max(totalDigitCount, 1))
+    : Math.round(duration / Math.max(activeDigitCount, 1));
 
   const removeExitingDigit = useCallback((id: string) => {
     setDigitStates((prev) => prev.filter((d) => d.id !== id));
@@ -127,9 +133,9 @@ export function AnimatedNumber({
         section.style.width = `calc(${activeDigitCount} * var(--digit-width, 0.65em))`;
         section.style.transform = 'none';
       } else if (hasExitingDigits) {
-        section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+        // Only animate width on exit - exiting digits handle their own slide-out
+        section.style.transition = `width ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         section.style.width = `calc(${activeDigitCount} * var(--digit-width, 0.65em))`;
-        section.style.transform = 'translate3d(calc(-0.33 * var(--digit-width, 0.65em)), 0, 0) scale(0.98, 1)';
       }
       
       const timer = setTimeout(() => {
@@ -232,6 +238,7 @@ export function AnimatedNumber({
                   digit={state.digit}
                   prevDigit={state.prevDigit}
                   duration={duration}
+                  slideDuration={slideDuration}
                   easing={easing}
                   isExiting={state.isExiting}
                   onExitComplete={() => removeExitingDigit(state.id)}

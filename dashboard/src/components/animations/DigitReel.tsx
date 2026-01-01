@@ -7,6 +7,7 @@ interface DigitReelProps {
   digit: number;
   prevDigit: number | null;
   duration?: number;
+  slideDuration: number;
   easing?: 'spring' | 'ease-out' | 'linear';
   isExiting?: boolean;
   onExitComplete?: () => void;
@@ -24,6 +25,7 @@ export function DigitReel({
   digit,
   prevDigit,
   duration = 1000,
+  slideDuration,
   easing = 'spring',
   isExiting = false,
   onExitComplete,
@@ -33,7 +35,7 @@ export function DigitReel({
   const [enterState, setEnterState] = useState<'idle' | 'entering' | 'done'>('idle');
   const [exitState, setExitState] = useState<'idle' | 'exiting' | 'done'>('idle');
 
-  const slideDuration = Math.round(duration / 3);
+  // slideDuration is passed from parent to sync with container animation
 
   // Generate digits above and below current
   const digitsAbove = Array.from({ length: digit }, (_, i) => i);
