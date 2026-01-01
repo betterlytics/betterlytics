@@ -194,31 +194,29 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
   );
 
   return (
-    <div className='space-y-6'>
-      <MultiSeriesChart
-        title={undefined}
-        data={chartData}
-        granularity={granularity}
-        formatValue={(v) => formatCWV(active, Number(v))}
-        yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-        series={activeSeries}
-        referenceLines={referenceLines}
-        headerContent={
-          <div>
-            <InlineMetricsHeader cards={cards} pinFooter />
-            <div className='mt-6 flex items-center justify-between gap-3 p-2 sm:justify-center sm:gap-6'>
-              <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-sm font-medium sm:flex-none'>
-                <span className='truncate'>{t(METRIC_LABEL_KEYS[active])}</span>
-                <MetricInfo metric={active} />
-              </div>
-              <div className='ml-auto sm:ml-0'>
-                <SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />
-              </div>
+    <MultiSeriesChart
+      title={undefined}
+      data={chartData}
+      granularity={granularity}
+      formatValue={(v) => formatCWV(active, Number(v))}
+      yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
+      series={activeSeries}
+      referenceLines={referenceLines}
+      headerContent={
+        <div>
+          <InlineMetricsHeader cards={cards} pinFooter />
+          <div className='mt-6 flex items-center justify-between gap-3 p-2 sm:justify-center sm:gap-6'>
+            <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-sm font-medium sm:flex-none'>
+              <span className='truncate'>{t(METRIC_LABEL_KEYS[active])}</span>
+              <MetricInfo metric={active} />
+            </div>
+            <div className='ml-auto sm:ml-0'>
+              <SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />
             </div>
           </div>
-        }
-      />
-    </div>
+        </div>
+      }
+    />
   );
 }
 
