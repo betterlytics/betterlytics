@@ -119,7 +119,7 @@ export function AnimatedNumber({
           transition: 'none', 
           transform: `translate3d(calc(-0.33 * ${DIGIT_WIDTH}), 0, 0) scale(1.02, 1)` 
         });
-        section.offsetHeight; // force reflow so initial styles are applied before animation
+        void section.offsetHeight; // force reflow so initial styles are applied before animation
         Object.assign(section.style, { 
           transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,

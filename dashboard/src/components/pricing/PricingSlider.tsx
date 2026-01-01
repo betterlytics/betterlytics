@@ -7,7 +7,7 @@ import { AnimatedNumber } from '@/components/animations';
 interface PricingSliderProps {
   currentRange: EventRange;
   selectedRangeIndex: number;
-  handleSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSliderChange: React.ChangeEventHandler<HTMLInputElement>;
   className?: string;
 }
 

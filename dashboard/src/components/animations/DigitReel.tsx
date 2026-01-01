@@ -52,7 +52,7 @@ function DigitReelComponent({
         const leftPos = parentRect ? rect.left - parentRect.left : 0;
         
         Object.assign(containerRef.current.style, { position: 'absolute', left: `${leftPos}px` });
-        containerRef.current.offsetHeight; // force reflow
+        void containerRef.current.offsetHeight; // force reflow
         Object.assign(containerRef.current.style, { 
           transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           transform: `translateX(calc(-1 * ${MASK_WIDTH}))`,
@@ -82,7 +82,7 @@ function DigitReelComponent({
     if (prevDigit === null && enterState === 'idle') {
       if (reelRef.current) {
         Object.assign(reelRef.current.style, { transition: 'none', transform: 'translateY(100%)' });
-        reelRef.current.offsetHeight; // force reflow
+        void reelRef.current.offsetHeight; // force reflow
         Object.assign(reelRef.current.style, { 
           transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           transform: 'translateY(0%)'
@@ -101,7 +101,7 @@ function DigitReelComponent({
     const offset = digit - prevDigit;
     
     Object.assign(reelRef.current.style, { transition: 'none', transform: `translateY(${offset * 100}%)` });
-    reelRef.current.offsetHeight; // force reflow
+    void reelRef.current.offsetHeight; // force reflow
     Object.assign(reelRef.current.style, { 
       transition: `transform ${duration}ms ${SPRING_EASING}`,
       transform: 'translateY(0%)'
