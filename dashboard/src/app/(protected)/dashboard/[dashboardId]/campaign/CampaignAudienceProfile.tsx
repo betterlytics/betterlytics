@@ -6,7 +6,8 @@ import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@
 import { getCountryName } from '@/utils/countryCodes';
 import { useTranslations } from 'next-intl';
 import { capitalizeFirstLetter } from '@/utils/formatters';
-import { Caption, ColumnHeader, Value } from '@/components/text';
+import { Text } from '@/components/text';
+import { Grid, Stack } from '@/components/layout';
 
 export type AudienceShare = {
   label: string;
@@ -36,19 +37,23 @@ const CampaignAudienceProfile = memo(
     );
 
     if (sections.length === 0) {
-      return <Caption className='flex items-center justify-center px-1 py-2'>{t('noData')}</Caption>;
+      return (
+        <Text variant='caption' className='flex items-center justify-center px-1 py-2'>
+          {t('noData')}
+        </Text>
+      );
     }
 
     return (
-      <section aria-label='Audience profile' className='px-2 pt-3 pb-3'>
-        <p className='text-foreground mb-1 text-sm leading-tight font-medium'>{t('title')}</p>
-        <div className='grid grid-cols-2 gap-x-4 gap-y-3 pt-2.5 xl:grid-cols-4'>
+      <Stack aria-label='Audience profile' gap='tight'>
+        <Text variant='body' as='p' className='mb-1 leading-tight font-medium'>
+          {t('title')}
+        </Text>
+        <Grid cols={{ base: 2, xl: 4 }} gap='card' className='gap-x-section'>
           {sections.map((section) => (
-            <div key={section.key} className='space-y-1.5'>
-              <ColumnHeader className='text-[10px]' as='p'>
-                {section.title}
-              </ColumnHeader>
-              <div className='space-y-1'>
+            <Stack key={section.key} gap='list'>
+              <Text variant='column-header'>{section.title}</Text>
+              <Stack gap='tight'>
                 {section.items.map((item) => {
                   const { icon, label } = getAudienceIconAndLabel(section.key, item.label, locale);
                   return (
@@ -58,17 +63,21 @@ const CampaignAudienceProfile = memo(
                     >
                       <div className='flex min-w-0 items-center gap-1.5 overflow-hidden'>
                         {icon}
-                        <span className='block max-w-[7.5rem] truncate'>{label}</span>
+                        <Text variant='body-sm' truncate className='block max-w-[7.5rem]'>
+                          {label}
+                        </Text>
                       </div>
-                      <Value className='ml-2 shrink-0 text-xs'>{item.value}</Value>
+                      <Text variant='value-xs' className='ml-2 shrink-0'>
+                        {item.value}
+                      </Text>
                     </div>
                   );
                 })}
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           ))}
-        </div>
-      </section>
+        </Grid>
+      </Stack>
     );
   },
 );

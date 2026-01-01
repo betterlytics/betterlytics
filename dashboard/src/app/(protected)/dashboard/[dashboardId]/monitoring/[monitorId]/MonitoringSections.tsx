@@ -26,7 +26,7 @@ import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
 import { CardHeader, SectionCard, StatusDot, TimePeriodBadge } from '../components';
 import { Inline, Stack } from '@/components/layout';
-import { Caption, Description, Label } from '@/components/text';
+import { Text } from '@/components/text';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return (
@@ -42,8 +42,10 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
       <CardContent className='px-0'>
         {incidents.length === 0 ? (
           <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
-            <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
-            <Description className='mt-1'>{t('incidents.emptyDescription')}</Description>
+            <Text variant='heading-sm'>{t('incidents.emptyTitle')}</Text>
+            <Text variant='description' className='mt-1'>
+              {t('incidents.emptyDescription')}
+            </Text>
           </div>
         ) : (
           <div className='border-border/70 overflow-x-auto rounded-md border'>
@@ -205,12 +207,12 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 key={stat.label}
                 className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
               >
-                <Label className='text-sm'>{t('uptime.stats.label', { days: stat.windowDays })}</Label>
+                <Text variant='label'>{t('uptime.stats.label', { days: stat.windowDays })}</Text>
                 <div className='text-right'>
                   <div className={presentUptimeTone(stat.percent).theme.text}>
                     {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
                   </div>
-                  <Caption>{downtimeLabel}</Caption>
+                  <Text variant='caption'>{downtimeLabel}</Text>
                 </div>
               </div>
             );

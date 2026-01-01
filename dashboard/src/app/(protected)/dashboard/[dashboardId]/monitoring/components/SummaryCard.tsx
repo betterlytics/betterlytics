@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/text';
+import { Text } from '@/components/text';
 import { type ReactNode } from 'react';
 
 type SummaryCardProps = {
@@ -33,11 +33,15 @@ export function SummaryCard({
       )}
     >
       <div className='flex items-center justify-between gap-2'>
-        <Label>{title}</Label>
+        <Text variant='label'>{title}</Text>
         {headerRight}
       </div>
       <div className={bodyClassName}>{children}</div>
-      {helper && <div className='text-muted-foreground mt-1 text-xs sm:text-sm'>{helper}</div>}
+      {helper && (
+        <Text variant='caption' className='mt-1 sm:text-sm'>
+          {helper}
+        </Text>
+      )}
     </Card>
   );
 }

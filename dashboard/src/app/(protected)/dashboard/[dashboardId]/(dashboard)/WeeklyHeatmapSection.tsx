@@ -191,15 +191,13 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                 </TooltipTrigger>
                 <TooltipContent
                   side='top'
-                  className='border-border bg-popover/95 text-popover-foreground pointer-events-none rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
+                  className='border-border bg-popover/95 pointer-events-none rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
                 >
-                  <div>
-                    <div className='text-popover-foreground font-medium'>
-                      {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
-                    </div>
-                    <div className='text-popover-foreground/90'>
-                      {`${formatHeatmapMetricValue(metric, value)} ${metricLabel.toLowerCase()}`}
-                    </div>
+                  <div className='text-popover-foreground font-medium'>
+                    {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
+                  </div>
+                  <div className='text-popover-foreground/90'>
+                    {`${formatHeatmapMetricValue(metric, value)} ${metricLabel.toLowerCase()}`}
                   </div>
                 </TooltipContent>
               </Tooltip>

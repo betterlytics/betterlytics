@@ -1,20 +1,16 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { ReactNode } from 'react';
 
-type GapSize = 'none' | 'tight' | 'list' | 'card' | 'section' | 'page';
+type GapSize = 'none' | 'minimal' | 'tight' | 'list' | 'card' | 'section' | 'page';
 
 type StackProps = {
-  children: ReactNode;
-  /** Gap between children. Default: 'section' */
   gap?: GapSize;
-  className?: string;
-  as?: 'div' | 'section' | 'article' | 'ul' | 'ol';
-};
+} & React.ComponentProps<'div'>;
 
 const gapClasses: Record<GapSize, string> = {
   none: 'gap-0',
+  minimal: 'gap-minimal',
   tight: 'gap-tight',
   list: 'gap-list',
   card: 'gap-card',
@@ -31,6 +27,10 @@ const gapClasses: Record<GapSize, string> = {
  *   <Card>...</Card>
  * </Stack>
  */
-export function Stack({ children, gap = 'section', className, as: Component = 'div' }: StackProps) {
-  return <Component className={cn('flex flex-col', gapClasses[gap], className)}>{children}</Component>;
+export function Stack({ children, gap = 'section', className, ...props }: StackProps) {
+  return (
+    <div {...props} className={cn('flex flex-col', gapClasses[gap], className)}>
+      {children}
+    </div>
+  );
 }

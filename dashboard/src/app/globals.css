@@ -46,14 +46,14 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
-
-  /* Semantic spacing tokens */
-  --spacing-tight: 0.25rem; /* 4px - compact spacing (form labels, badges) */
-  --spacing-list: 0.5rem; /* 8px - list items, inline elements */
-  --spacing-card: 0.75rem; /* 12px - within cards, between related elements */
-  --spacing-section: 1rem; /* 16px - between sections, page content gaps */
-  --spacing-page: 1.5rem; /* 24px - major page sections, large separations */
-
+  --spacing-minimal: 0.125rem;
+  --spacing-tight: 0.25rem;
+  --spacing-list: 0.5rem;
+  --spacing-card: 0.75rem;
+  --spacing-section: 1rem;
+  --spacing-page: 1.5rem;
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
   --animate-shake: shake 0.4s ease-in-out;
 
   @keyframes shake {

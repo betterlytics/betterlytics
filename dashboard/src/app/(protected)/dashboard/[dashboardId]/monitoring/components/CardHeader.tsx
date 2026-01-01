@@ -2,7 +2,7 @@
 
 import { type ReactNode } from 'react';
 import { Inline } from '@/components/layout';
-import { Label } from '@/components/text';
+import { Text } from '@/components/text';
 
 type CardHeaderProps = {
   title: string;
@@ -13,7 +13,7 @@ type CardHeaderProps = {
 export function CardHeader({ title, badge, actions }: CardHeaderProps) {
   return (
     <Inline gap='list' justify='between'>
-      <Label as='p'>{title}</Label>
+      <Text variant='label'>{title}</Text>
       <Inline gap='list'>
         {actions}
         {badge}

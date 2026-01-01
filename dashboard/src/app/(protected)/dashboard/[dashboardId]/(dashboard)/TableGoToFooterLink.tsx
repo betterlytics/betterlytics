@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
+import { Text } from '@/components/text';
 
 type TableGoToFooterLinkProps = {
   href: string;
@@ -9,11 +10,8 @@ type TableGoToFooterLinkProps = {
 
 export function TableGoToFooterLink({ href, label }: TableGoToFooterLinkProps) {
   return (
-    <FilterPreservingLink
-      href={href}
-      className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-    >
-      <span>{label}</span>
+    <FilterPreservingLink href={href} className='inline-flex items-center gap-1 hover:underline'>
+      <Text variant='caption'>{label}</Text>
       <ArrowRight className='h-3.5 w-3.5' />
     </FilterPreservingLink>
   );

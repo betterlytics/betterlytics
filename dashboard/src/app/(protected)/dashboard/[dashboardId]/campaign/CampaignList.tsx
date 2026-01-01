@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Button } from '@/components/ui';
-import { Stack, Inline } from '@/components/layout';
-import { ColumnHeader, Value, Caption } from '@/components/text';
+import { Stack, Inline, Grid } from '@/components/layout';
+import { Text } from '@/components/text';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
@@ -242,12 +242,14 @@ type CampaignHeaderTitleProps = {
 
 function CampaignHeaderTitle({ name, sessionsLabel }: CampaignHeaderTitleProps) {
   return (
-    <div className='min-w-0'>
-      <p className='truncate text-sm leading-tight font-semibold'>{name}</p>
-      <Caption className='mt-0.5 tabular-nums' as='p'>
+    <Stack gap='minimal' className='min-w-0'>
+      <Text variant='value-sm' className='truncate'>
+        {name}
+      </Text>
+      <Text variant='caption' tabular>
         {sessionsLabel}
-      </Caption>
-    </div>
+      </Text>
+    </Stack>
   );
 }
 
@@ -278,8 +280,8 @@ function CampaignToggleButton({ isExpanded, onToggle, controlsId }: CampaignTogg
 function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={`flex flex-col justify-end ${className ?? ''}`}>
-      <ColumnHeader className='text-[10px] leading-tight'>{label}</ColumnHeader>
-      <Value size='sm'>{value}</Value>
+      <Text variant='column-header'>{label}</Text>
+      <Text variant='value-sm'>{value}</Text>
     </div>
   );
 }
@@ -302,13 +304,13 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
   const tRow = useTranslations('components.campaign.campaignRow');
 
   return (
-    <div className='space-y-4'>
-      <div className='text-muted-foreground flex items-center gap-3 text-[11px] font-medium tracking-wide uppercase'>
+    <Stack>
+      <Inline className='uppercase'>
         <div className='bg-border/60 h-px flex-1' />
-        <span>{t('campaignDetails')}</span>
+        <Text variant='column-header'>{t('campaignDetails')}</Text>
         <div className='bg-border/60 h-px flex-1' />
-      </div>
-      <div className='mt-1 grid gap-3 lg:grid-cols-5'>
+      </Inline>
+      <Grid cols={{ lg: 5 }} gap='card'>
         <div className='hidden lg:col-span-3 lg:block'>
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
@@ -317,28 +319,20 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
             landingPages={landingPages}
           />
         </div>
-        <div className='space-y-3 lg:col-span-2'>
+        <div className='space-y-section lg:col-span-2'>
           <div className='lg:hidden'>
-            <div className='grid grid-cols-2 gap-x-4 gap-y-3 px-2'>
-              <div className='space-y-0.5'>
-                <ColumnHeader className='text-[10px]' as='p'>
-                  {tRow('bounceRate')}
-                </ColumnHeader>
-                <Value size='sm' as='p'>
-                  {formatPercentage(summary.bounceRate)}
-                </Value>
-              </div>
-              <div className='space-y-0.5'>
-                <ColumnHeader className='text-[10px]' as='p'>
-                  {tRow('pagesPerSession')}
-                </ColumnHeader>
-                <Value size='sm' as='p'>
-                  {formatNumber(summary.pagesPerSession)}
-                </Value>
-              </div>
-            </div>
+            <Grid cols={2} gap='card'>
+              <Stack gap='minimal'>
+                <Text variant='column-header'>{tRow('bounceRate')}</Text>
+                <Text variant='value-sm'>{formatPercentage(summary.bounceRate)}</Text>
+              </Stack>
+              <Stack gap='minimal'>
+                <Text variant='column-header'>{tRow('pagesPerSession')}</Text>
+                <Text variant='value-sm'>{formatNumber(summary.pagesPerSession)}</Text>
+              </Stack>
+            </Grid>
           </div>
-          <div className='flex flex-col gap-3'>
+          <Stack gap='card'>
             <CampaignAudienceProfile
               devices={devices}
               countries={countries}
@@ -350,10 +344,10 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
               campaignName={campaignName}
               initialSource={utmSource}
             />
-          </div>
+          </Stack>
         </div>
-      </div>
-    </div>
+      </Grid>
+    </Stack>
   );
 }
 
@@ -384,17 +378,19 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
   }
 
   return (
-    <div id={`campaign-${campaignName}-details`} className='mx-3 ml-5 space-y-4 pb-3'>
+    <Stack id={`campaign-${campaignName}-details`} className='mx-3 ml-5 pb-3'>
       {status === 'pending' ? (
-        <div className='flex items-center justify-center gap-3 py-8'>
+        <Inline justify='center' align='center' gap='card' className='py-8'>
           <Spinner size='sm' aria-label='Loading campaign details' />
-          <span className='text-muted-foreground text-sm'>{t('loading')}</span>
-        </div>
+          <Text variant='description'>{t('loading')}</Text>
+        </Inline>
       ) : null}
 
       {status === 'error' ? (
         <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
-          <p className='text-destructive text-sm'>{t('error')}</p>
+          <Text variant='description' tone='danger'>
+            {t('error')}
+          </Text>
         </div>
       ) : null}
 
@@ -406,7 +402,7 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
           summary={summary}
         />
       ) : null}
-    </div>
+    </Stack>
   );
 }
 
