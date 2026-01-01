@@ -8,7 +8,7 @@ import { getDeviceColor, getDeviceLabel } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 type DevicesChartsSectionProps = {
@@ -28,11 +28,11 @@ export default function DevicesChartsSection({
 
   return (
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
-        <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-base font-medium'>{t('deviceUsageTrend')}</CardTitle>
+      <Card variant='section' minHeight='chart' className='xl:col-span-5'>
+        <CardHeader>
+          <CardTitle>{t('deviceUsageTrend')}</CardTitle>
         </CardHeader>
-        <CardContent className='px-0'>
+        <CardContent>
           <DeviceUsageTrendChart
             chartData={deviceUsageTrend.data}
             categories={deviceUsageTrend.categories}
@@ -41,11 +41,11 @@ export default function DevicesChartsSection({
           />
         </CardContent>
       </Card>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
-        <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-base font-medium'>{t('deviceTypes')}</CardTitle>
+      <Card variant='section' minHeight='chart' className='xl:col-span-3'>
+        <CardHeader>
+          <CardTitle>{t('deviceTypes')}</CardTitle>
         </CardHeader>
-        <CardContent className='px-0'>
+        <CardContent>
           <BAPieChart
             data={deviceBreakdown}
             getColor={getDeviceColor}

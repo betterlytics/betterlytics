@@ -2,7 +2,7 @@
 
 import { Activity, AlertTriangle, Link2, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useTranslations } from 'next-intl';
@@ -33,7 +33,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
 
   if (!monitors.length) {
     return (
-      <Card className='border-border/50 bg-card/80 px-6 py-10 text-center'>
+      <Card variant='empty'>
         <div className='mx-auto max-w-md space-y-3'>
           <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
             <Activity className='text-muted-foreground h-6 w-6' />

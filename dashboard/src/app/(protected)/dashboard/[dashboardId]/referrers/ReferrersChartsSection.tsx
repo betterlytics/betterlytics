@@ -11,7 +11,7 @@ import { getReferrerColor } from '@/utils/referrerColors';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 type ReferrersChartsSectionProps = {
@@ -33,11 +33,11 @@ export default function ReferrersChartsSection({
 
   return (
     <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
-        <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-base font-medium'>{t('trafficTrends')}</CardTitle>
+      <Card variant='section' minHeight='chart' className='xl:col-span-5'>
+        <CardHeader>
+          <CardTitle>{t('trafficTrends')}</CardTitle>
         </CardHeader>
-        <CardContent className='px-0'>
+        <CardContent>
           <ReferrerTrafficTrendChart
             chartData={trendResult.data}
             categories={trendResult.categories}
@@ -46,11 +46,11 @@ export default function ReferrersChartsSection({
           />
         </CardContent>
       </Card>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
-        <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
+      <Card variant='section' minHeight='chart' className='xl:col-span-3'>
+        <CardHeader>
+          <CardTitle>{t('distribution')}</CardTitle>
         </CardHeader>
-        <CardContent className='px-0'>
+        <CardContent>
           <BAPieChart
             data={distributionData}
             getColor={getReferrerColor}

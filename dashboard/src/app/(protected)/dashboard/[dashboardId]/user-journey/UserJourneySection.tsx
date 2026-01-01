@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui';
 import UserJourneyChart from '@/app/(protected)/dashboard/[dashboardId]/user-journey/UserJourneyChart';
 import { useTranslations } from 'next-intl';
 

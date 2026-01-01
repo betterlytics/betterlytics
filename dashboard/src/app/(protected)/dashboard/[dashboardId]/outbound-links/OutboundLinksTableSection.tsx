@@ -4,7 +4,7 @@ import { use, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
@@ -70,11 +70,11 @@ export default function OutboundLinksTableSection({
   );
 
   return (
-    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-      <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+    <Card variant='section' minHeight='chart'>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='px-0'>
+      <CardContent>
         <DataTable data={outboundLinksData} columns={columns} />
       </CardContent>
     </Card>

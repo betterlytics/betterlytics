@@ -3,7 +3,7 @@
 import { Fragment, useMemo, useState, type CSSProperties, useCallback, useEffect } from 'react';
 import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
 import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -11,7 +11,7 @@ import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { HeatmapSkeleton } from '@/components/skeleton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber } from '@/utils/formatters';
 
@@ -90,10 +90,10 @@ export default function WeeklyHeatmapSection({
   }
 
   return (
-    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
+    <Card variant='section' minHeight='chart'>
       <CardHeader className='px-0 pb-1'>
         <div className='flex flex-row items-center justify-between gap-2'>
-          <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
+          <CardTitle className='whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
           <div className='flex h-8 min-w-0 items-center'>
             <div className='w-40 sm:w-48'>
               <Select value={selectedMetric} onValueChange={onMetricChange}>
@@ -115,7 +115,7 @@ export default function WeeklyHeatmapSection({
         </div>
       </CardHeader>
 
-      <CardContent className='px-0'>
+      <CardContent>
         <HeatmapGrid
           data={current?.matrix ?? []}
           maxValue={current?.maxValue ?? 1}

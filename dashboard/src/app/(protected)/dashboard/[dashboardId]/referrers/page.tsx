@@ -15,6 +15,7 @@ import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
+import { PageContainer } from '@/components/layout';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -64,7 +65,7 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
   );
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+    <PageContainer>
       <DashboardHeader title={t('referrers')}>
         <DashboardFilters />
       </DashboardHeader>
@@ -84,6 +85,6 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
       <Suspense fallback={<TableSkeleton />}>
         <ReferrersTableSection referrerTablePromise={tablePromise} />
       </Suspense>
-    </div>
+    </PageContainer>
   );
 }

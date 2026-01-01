@@ -10,7 +10,7 @@ import {
   fetchMonitorMetricsAction,
   fetchRecentMonitorResultsAction,
 } from '@/app/actions/analytics/monitoring.actions';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import {
   type MonitorCheck,
@@ -158,7 +158,7 @@ export function MonitorDetailClient({
                     type='button'
                     disabled={disabled || statusMutation.isPending}
                     onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
-                    className='inline-flex cursor-pointer items-center gap-1.5'
+                    className='inline-flex items-center gap-1.5'
                   >
                     {statusMutation.isPending ? (
                       monitorData.isEnabled ? (

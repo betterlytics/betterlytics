@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, Button } from '@/components/ui';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
@@ -146,7 +145,7 @@ function CampaignEmptyState() {
   const t = useTranslations('components.campaign.emptyState');
 
   return (
-    <Card className='border-border/50 bg-card/80 px-6 py-10 text-center'>
+    <Card variant='empty'>
       <div className='mx-auto max-w-md'>
         <div className='bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full'>
           <DollarSign className='text-muted-foreground h-6 w-6' />
