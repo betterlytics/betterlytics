@@ -104,7 +104,7 @@ export function AlertsSection({
                     formatValue={(idx) => t('daysCount', { count: SSL_EXPIRY_MARKS[idx] })}
                     valueParts={{
                       value: state.sslExpiryAlertDays,
-                      unit: state.sslExpiryAlertDays === 1 ? ` ${t('unitOne')}` : ` ${t('unitOther')}`,
+                      unit: state.sslExpiryAlertDays === 1 ? t('unitOne') : t('unitOther'),
                     }}
                     recommendedValue={SSL_EXPIRY_MARKS.indexOf(RECOMMENDED_SSL_EXPIRY_DAYS)}
                     disabled={isPending}

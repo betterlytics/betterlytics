@@ -79,7 +79,7 @@ export function LabeledSlider({
         </div>
         <Badge variant='secondary' className='ring-border mb-1 text-xs font-medium ring-1'>
           {valueParts ? (
-            <div className='flex items-center gap-0.5'>
+            <div className='flex items-center gap-1'>
               <AnimatedNumber value={valueParts.value} />
               {valueParts.unit}
             </div>
