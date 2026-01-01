@@ -96,10 +96,7 @@ function DigitReelComponent({
   }, [prevDigit, enterState, slideDuration, isExiting]);
 
   useEffect(() => {
-    if (isExiting) return;
-    if (prevDigit === null) return;
-    if (prevDigit === digit) return;
-    if (!reelRef.current) return;
+    if (isExiting || prevDigit === null || prevDigit === digit || !reelRef.current) return;
 
     const offset = digit - prevDigit;
     
