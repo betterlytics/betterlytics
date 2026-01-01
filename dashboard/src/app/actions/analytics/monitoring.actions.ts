@@ -52,14 +52,14 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
     }
 
     const caps = await getCapabilities();
-    const currentMonitorCount = await countMonitorChecks(ctx.dashboardId);
+    const validator = await monitoringValidator(caps.monitoring);
 
-    (await monitoringValidator(caps.monitoring))
-      .monitorLimit(currentMonitorCount)
+    await validator
       .minInterval(payload.intervalSeconds)
       .httpMethod(payload.httpMethod)
       .statusCodes(payload.acceptedStatusCodes)
       .customHeaders(payload.requestHeaders)
+      .monitorLimit(() => countMonitorChecks(ctx.dashboardId))
       .validate();
 
     const created = await addMonitorCheck(ctx.dashboardId, {
@@ -84,7 +84,7 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       validator.minInterval(payload.intervalSeconds);
     }
 
-    validator
+    await validator
       .httpMethod(payload.httpMethod)
       .statusCodes(payload.acceptedStatusCodes)
       .customHeaders(payload.requestHeaders)

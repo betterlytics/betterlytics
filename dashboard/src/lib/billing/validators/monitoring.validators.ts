@@ -2,7 +2,7 @@
 
 import { getTranslations } from 'next-intl/server';
 import { MonitoringCapabilities } from '../capabilities';
-import { CapabilityValidator, TranslationFn } from './base.validator';
+import { CapabilityValidator, LazyValue, TranslationFn } from './base.validator';
 
 class MonitoringCapabilityValidator extends CapabilityValidator {
   constructor(
@@ -12,8 +12,11 @@ class MonitoringCapabilityValidator extends CapabilityValidator {
     super();
   }
 
-  monitorLimit(currentCount: number): this {
-    this.addCheck(currentCount < this.caps.maxMonitors, this.t('capabilities.monitorLimit'));
+  monitorLimit(currentCount: LazyValue<number>): this {
+    this.addCheck(async () => {
+      const count = await this.resolveLazy(currentCount);
+      return count < this.caps.maxMonitors;
+    }, this.t('capabilities.monitorLimit'));
     return this;
   }
 

@@ -16,9 +16,9 @@ import { dashboardValidator } from '@/lib/billing/validators';
 
 export const createDashboardAction = withUserAuth(async (user: User, domain: string): Promise<Dashboard> => {
   const caps = await getCapabilities();
-  const currentDashboards = await findAllUserDashboards(user.id);
+  const validator = await dashboardValidator(caps.dashboards);
 
-  (await dashboardValidator(caps.dashboards)).dashboardLimit(currentDashboards.length).validate();
+  await validator.dashboardLimit(() => findAllUserDashboards(user.id).then((d) => d.length)).validate();
 
   return createNewDashboard(domain, user.id);
 });

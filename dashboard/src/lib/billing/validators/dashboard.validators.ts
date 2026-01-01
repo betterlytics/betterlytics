@@ -2,7 +2,7 @@
 
 import { getTranslations } from 'next-intl/server';
 import { DashboardCapabilities } from '../capabilities';
-import { CapabilityValidator, TranslationFn } from './base.validator';
+import { CapabilityValidator, LazyValue, TranslationFn } from './base.validator';
 
 class DashboardCapabilityValidator extends CapabilityValidator {
   constructor(
@@ -12,8 +12,11 @@ class DashboardCapabilityValidator extends CapabilityValidator {
     super();
   }
 
-  dashboardLimit(currentCount: number): this {
-    this.addCheck(currentCount < this.caps.maxDashboards, this.t('capabilities.dashboardLimit'));
+  dashboardLimit(currentCount: LazyValue<number>): this {
+    this.addCheck(async () => {
+      const count = await this.resolveLazy(currentCount);
+      return count < this.caps.maxDashboards;
+    }, this.t('capabilities.dashboardLimit'));
     return this;
   }
 }
