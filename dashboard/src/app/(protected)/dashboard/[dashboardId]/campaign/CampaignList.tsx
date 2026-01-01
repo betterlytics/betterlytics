@@ -310,7 +310,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
         <Text variant='column-header'>{t('campaignDetails')}</Text>
         <div className='bg-border/60 h-px flex-1' />
       </Inline>
-      <Grid cols={{ lg: 5 }} gap='card'>
+      <Grid cols={{ lg: 5 }} gap='card' className='lg:mx-3'>
         <div className='hidden lg:col-span-3 lg:block'>
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
@@ -320,25 +320,31 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
           />
         </div>
         <Stack gap='section' className='lg:col-span-2'>
-          <div className='lg:hidden'>
+          <div className='mx-3 lg:hidden'>
             <Grid cols={2} gap='card'>
               <Stack gap='minimal'>
                 <Text variant='column-header'>{tRow('bounceRate')}</Text>
-                <Text variant='value-sm'>{formatPercentage(summary.bounceRate)}</Text>
+                <Text variant='value-sm' tabular>
+                  {formatPercentage(summary.bounceRate)}
+                </Text>
               </Stack>
               <Stack gap='minimal'>
                 <Text variant='column-header'>{tRow('pagesPerSession')}</Text>
-                <Text variant='value-sm'>{formatNumber(summary.pagesPerSession)}</Text>
+                <Text variant='value-sm' tabular>
+                  {formatNumber(summary.pagesPerSession)}
+                </Text>
               </Stack>
             </Grid>
           </div>
-          <Stack gap='card'>
-            <CampaignAudienceProfile
-              devices={devices}
-              countries={countries}
-              browsers={browsers}
-              operatingSystems={operatingSystems}
-            />
+          <Stack gap='page'>
+            <div className='mx-3 lg:mx-2'>
+              <CampaignAudienceProfile
+                devices={devices}
+                countries={countries}
+                browsers={browsers}
+                operatingSystems={operatingSystems}
+              />
+            </div>
             <UTMBreakdownTabbedChart
               dashboardId={dashboardId}
               campaignName={campaignName}
@@ -378,7 +384,7 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
   }
 
   return (
-    <Stack id={`campaign-${campaignName}-details`} className='mx-3 ml-5 pb-3'>
+    <Stack id={`campaign-${campaignName}-details`} className='ml-1 pb-2'>
       {status === 'pending' ? (
         <Inline justify='center' align='center' gap='card' className='py-8'>
           <Spinner size='sm' aria-label='Loading campaign details' />
