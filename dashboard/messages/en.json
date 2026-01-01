@@ -1303,7 +1303,9 @@
           "label": "Incident sensitivity",
           "description": "Number of consecutive failures before an incident is triggered",
           "valueOne": "1 failure",
-          "valueOther": "{count} failures"
+          "valueOther": "{count} failures",
+          "unitOne": "failure",
+          "unitOther": "failures"
         }
       },
       "actions": {
@@ -1501,7 +1503,9 @@
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
       "sslExpiryDays": "Days before expiry",
       "sslExpiryDaysDescription": "Send an alert this many days before the SSL certificate expires",
-      "daysCount": "{count, plural, one {{count} day} other {{count} days}}"
+      "daysCount": "{count, plural, one {{count} day} other {{count} days}}",
+      "unitOne": "day",
+      "unitOther": "days"
     }
   },
   "charts": {

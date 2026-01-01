@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
+import { AnimatedNumber } from '@/components/animations';
 
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,7 @@ export type LabeledSliderProps = {
   marks: SliderMark[];
   onValueChange: (value: number) => void;
   formatValue: (value: number) => string;
+  valueParts?: { value: number; unit?: string };
   recommendedValue?: number;
   disabled?: boolean;
   minAllowed?: number;
@@ -37,6 +39,7 @@ export function LabeledSlider({
   marks,
   onValueChange,
   formatValue,
+  valueParts,
   recommendedValue,
   disabled,
   minAllowed,
@@ -75,8 +78,15 @@ export function LabeledSlider({
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
         <Badge variant='secondary' className='ring-border mb-1 text-xs font-medium ring-1'>
-          {formatValue(value)}
-          {isRecommended && <span className='text-muted-foreground font-normal'>({t('recommended')})</span>}
+          {valueParts ? (
+            <div className='flex items-center gap-0.5'>
+              <AnimatedNumber value={valueParts.value} />
+              {valueParts.unit}
+            </div>
+          ) : (
+            formatValue(value)
+          )}
+          {isRecommended && <span className='text-muted-foreground ml-1 font-normal'>({t('recommended')})</span>}
         </Badge>
       </div>
 
