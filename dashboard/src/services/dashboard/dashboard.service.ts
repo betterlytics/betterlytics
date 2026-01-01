@@ -2,48 +2,19 @@
 
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard.repository';
-import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { generateSiteId } from '@/lib/site-id-generator';
-import { getDashboardLimitForTier } from '@/lib/billing/plans';
-import { UserException } from '@/lib/exceptions';
 import { markOnboardingCompleted } from '@/repositories/postgres/user.repository';
 import { updateUserSettings } from '@/services/account/userSettings.service';
 import { SupportedLanguages } from '@/constants/i18n';
 import { ensureTermsAccepted } from '@/services/auth/user.service';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function createNewDashboard(domain: string, userId: string): Promise<Dashboard> {
-  await validateDashboardCreationLimit(userId);
-
   const siteId = generateSiteId(domain);
-  const dashboardData = {
-    domain,
-    userId,
-    siteId,
-  };
-  return await createDashboard(dashboardData);
+  return await createDashboard({ domain, userId, siteId });
 }
 
 export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {
   return findAllUserDashboards(userId);
-}
-
-export async function validateDashboardCreationLimit(userId: string): Promise<void> {
-  if (!isFeatureEnabled('enableBilling')) {
-    return;
-  }
-
-  const subscription = await getUserSubscription(userId);
-  if (!subscription) {
-    throw new Error('No subscription found for user');
-  }
-
-  const currentDashboards = await findAllUserDashboards(userId);
-  const dashboardLimit = getDashboardLimitForTier(subscription.tier);
-
-  if (currentDashboards.length >= dashboardLimit) {
-    throw new UserException(`Dashboard limit reached`);
-  }
 }
 
 export async function completeOnboardingAndCreateDashboard(
@@ -61,33 +32,4 @@ export async function completeOnboardingAndCreateDashboard(
   await markOnboardingCompleted(userId);
 
   return dashboard;
-}
-
-export async function getUserDashboardStats(userId: string): Promise<{
-  current: number;
-  limit: number;
-  canCreateMore: boolean;
-}> {
-  if (!isFeatureEnabled('enableBilling')) {
-    const currentDashboards = await findAllUserDashboards(userId);
-    return {
-      current: currentDashboards.length,
-      limit: -1,
-      canCreateMore: true,
-    };
-  }
-
-  const subscription = await getUserSubscription(userId);
-  if (!subscription) {
-    throw new Error('No subscription found for user');
-  }
-
-  const currentDashboards = await findAllUserDashboards(userId);
-  const dashboardLimit = getDashboardLimitForTier(subscription.tier);
-
-  return {
-    current: currentDashboards.length,
-    limit: dashboardLimit,
-    canCreateMore: currentDashboards.length < dashboardLimit,
-  };
 }

@@ -12,6 +12,7 @@ import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSet
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
+import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -30,18 +31,20 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
   }
 
   return (
-    <SettingsProvider initialSettings={initialSettings} dashboardId={dashboardId}>
-      <TimeRangeContextProvider>
-        <QueryFiltersContextProvider>
-          <UserJourneyFilterProvider>
-            <SyncURLFilters />
-            <RealtimeRefresh />
-            <PrefetchSavedFilters />
-            {children}
-          </UserJourneyFilterProvider>
-        </QueryFiltersContextProvider>
-      </TimeRangeContextProvider>
-    </SettingsProvider>
+    <CapabilitiesProvider>
+      <SettingsProvider initialSettings={initialSettings} dashboardId={dashboardId}>
+        <TimeRangeContextProvider>
+          <QueryFiltersContextProvider>
+            <UserJourneyFilterProvider>
+              <SyncURLFilters />
+              <RealtimeRefresh />
+              <PrefetchSavedFilters />
+              {children}
+            </UserJourneyFilterProvider>
+          </QueryFiltersContextProvider>
+        </TimeRangeContextProvider>
+      </SettingsProvider>
+    </CapabilitiesProvider>
   );
 }
 

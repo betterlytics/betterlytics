@@ -15,6 +15,12 @@ export async function listMonitorChecks(dashboardId: string): Promise<MonitorChe
   return results.map((row) => MonitorCheckSchema.parse(row));
 }
 
+export async function countMonitorChecks(dashboardId: string): Promise<number> {
+  return prisma.monitorCheck.count({
+    where: { dashboardId, deletedAt: null },
+  });
+}
+
 export async function monitorExistsForUrl(
   dashboardId: string,
   url: string,
