@@ -4,9 +4,8 @@ import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
-import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { TableGoToFooterLink } from './TableGoToFooterLink';
 
 type TrafficSourcesSectionProps = {
   trafficSourcesCombinedPromise: ReturnType<typeof fetchTrafficSourcesCombinedAction>;
@@ -66,15 +65,7 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
           })),
         },
       ]}
-      footer={
-        <FilterPreservingLink
-          href='referrers'
-          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-        >
-          <span>{t('goTo', { section: t('sidebar.referrers') })}</span>
-          <ArrowRight className='h-3.5 w-3.5' />
-        </FilterPreservingLink>
-      }
+      footer={<TableGoToFooterLink href='referrers' label={t('goTo', { section: t('sidebar.referrers') })} />}
     />
   );
 }

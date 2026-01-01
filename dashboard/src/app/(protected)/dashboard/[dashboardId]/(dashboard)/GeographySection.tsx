@@ -5,10 +5,9 @@ import type { getTopCountryVisitsAction, getWorldMapDataAlpha2 } from '@/app/act
 import { getCountryName } from '@/utils/countryCodes';
 import { use } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
-import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { TableGoToFooterLink } from './TableGoToFooterLink';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -60,15 +59,7 @@ export default function GeographySection({ worldMapPromise, topCountriesPromise 
           ),
         },
       ]}
-      footer={
-        <FilterPreservingLink
-          href='geography'
-          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-        >
-          <span>{t('goTo', { section: t('sidebar.geography') })}</span>
-          <ArrowRight className='h-3.5 w-3.5' />
-        </FilterPreservingLink>
-      }
+      footer={<TableGoToFooterLink href='geography' label={t('goTo', { section: t('sidebar.geography') })} />}
     />
   );
 }
