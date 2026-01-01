@@ -2,31 +2,22 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { DIGIT_WIDTH, MASK_HEIGHT, MASK_WIDTH, SPRING_EASING, ENTER_EXIT_EASING } from '@/constants/animations';
 
 interface DigitReelProps {
   digit: number;
   prevDigit: number | null;
   duration?: number;
   slideDuration: number;
-  easing?: 'spring' | 'ease-out' | 'linear';
   isExiting?: boolean;
   onExitComplete?: () => void;
 }
-
-const EASING_MAP = {
-  spring: 'cubic-bezier(0.17, 1.15, 0.3, 1)',
-  'ease-out': 'ease-out',
-  linear: 'linear',
-} as const;
-
-const ENTER_EXIT_EASING = 'ease-out';
 
 export function DigitReel({
   digit,
   prevDigit,
   duration = 1000,
   slideDuration,
-  easing = 'spring',
   isExiting = false,
   onExitComplete,
 }: DigitReelProps) {
@@ -35,13 +26,9 @@ export function DigitReel({
   const [enterState, setEnterState] = useState<'idle' | 'entering' | 'done'>('idle');
   const [exitState, setExitState] = useState<'idle' | 'exiting' | 'done'>('idle');
 
-  // slideDuration is passed from parent to sync with container animation
-
-  // Generate digits above and below current
   const digitsAbove = Array.from({ length: digit }, (_, i) => i);
   const digitsBelow = Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i);
 
-  // Reset states when component is reused (e.g., exit cancelled)
   useEffect(() => {
     if (!isExiting && exitState !== 'idle') {
       setExitState('idle');
@@ -62,32 +49,26 @@ export function DigitReel({
     }
   }, [isExiting, exitState]);
 
-  // Handle exit animation
-  // Digit becomes absolute and slides LEFT into the mask fade zone while rolling
   useEffect(() => {
     if (isExiting && exitState === 'idle') {
       const reel = reelRef.current;
       const container = containerRef.current;
       
       if (container) {
-        // Record current position before going absolute
         const rect = container.getBoundingClientRect();
         const parentRect = container.offsetParent?.getBoundingClientRect();
         const leftPos = parentRect ? rect.left - parentRect.left : 0;
         
-        // Become absolute - removes from layout flow
         container.style.position = 'absolute';
         container.style.left = `${leftPos}px`;
-        container.offsetHeight; // Force reflow
+        container.offsetHeight;
         
-        // Slide LEFT toward the mask edge (into the fade gradient zone)
         container.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-        container.style.transform = 'translateX(calc(-1 * var(--mask-width, 0.5em)))';
+        container.style.transform = `translateX(calc(-1 * ${MASK_WIDTH}))`;
         container.style.opacity = '0';
       }
       
       if (reel) {
-        // Roll the reel (Y transform)
         reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         reel.style.transform = 'translateY(100%)';
       }
@@ -101,7 +82,6 @@ export function DigitReel({
     }
   }, [isExiting, exitState, slideDuration, onExitComplete]);
 
-  // Handle enter animation - roll UP into view
   useEffect(() => {
     if (isExiting) return;
 
@@ -109,10 +89,9 @@ export function DigitReel({
       const reel = reelRef.current;
       
       if (reel) {
-        // Start below and roll UP into view
         reel.style.transition = 'none';
         reel.style.transform = 'translateY(100%)';
-        reel.offsetHeight; // Force reflow
+        reel.offsetHeight;
         reel.style.transition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
         reel.style.transform = 'translateY(0%)';
       }
@@ -123,7 +102,6 @@ export function DigitReel({
     }
   }, [prevDigit, enterState, slideDuration, isExiting]);
 
-  // Handle roll animation (digit changes without enter/exit)
   useEffect(() => {
     if (isExiting) return;
     if (prevDigit === null) return;
@@ -136,10 +114,10 @@ export function DigitReel({
     
     reel.style.transition = 'none';
     reel.style.transform = `translateY(${offset * 100}%)`;
-    reel.offsetHeight; // Force reflow
-    reel.style.transition = `transform ${duration}ms ${EASING_MAP[easing]}`;
+    reel.offsetHeight;
+    reel.style.transition = `transform ${duration}ms ${SPRING_EASING}`;
     reel.style.transform = 'translateY(0%)';
-  }, [digit, prevDigit, duration, easing, isExiting]);
+  }, [digit, prevDigit, duration, isExiting]);
 
   if (exitState === 'done') {
     return null;
@@ -150,16 +128,16 @@ export function DigitReel({
 
   const digitStyle: React.CSSProperties = {
     display: 'inline-block',
-    padding: 'calc(var(--mask-height, 0.15em) / 2) 0',
+    padding: `calc(${MASK_HEIGHT} / 2) 0`,
   };
 
   const containerStyle: React.CSSProperties = {
     display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
-    width: 'var(--digit-width, 0.65em)',
-    padding: 'var(--mask-height, 0.3em) 0',
-    margin: 'calc(-1 * var(--mask-height, 0.3em)) 0',
+    width: DIGIT_WIDTH,
+    padding: `${MASK_HEIGHT} 0`,
+    margin: `calc(-1 * ${MASK_HEIGHT}) 0`,
     overflow: 'hidden',
     willChange: 'transform, opacity',
     transformOrigin: 'left center',
@@ -171,7 +149,7 @@ export function DigitReel({
     flexDirection: 'column',
     alignItems: 'center',
     position: 'relative',
-    width: 'var(--digit-width, 0.65em)',
+    width: DIGIT_WIDTH,
   };
 
   const aboveStyle: React.CSSProperties = {
