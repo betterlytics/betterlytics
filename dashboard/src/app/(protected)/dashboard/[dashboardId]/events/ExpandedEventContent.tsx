@@ -5,7 +5,7 @@ import { useEventProperties } from '@/hooks/use-event-properties';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
-import { Description, Caption } from '@/components/text';
+import { Text } from '@/components/text';
 
 interface ExpandedEventContentProps {
   event: EventTypeRow;
@@ -41,7 +41,7 @@ export function ExpandedEventContent({
           <div className='relative'>
             <Spinner size='sm' />
           </div>
-          <Description>{t('loading')}</Description>
+          <Text variant='description'>{t('loading')}</Text>
         </div>
       ) : propertiesData?.properties.length ? (
         <div className='py-4 pr-6 pl-8'>
@@ -59,7 +59,7 @@ export function ExpandedEventContent({
       ) : (
         <div className='py-12 pl-8 text-center'>
           <h4 className='text-foreground mb-1 text-sm font-medium'>{t('noProperties')}</h4>
-          <Caption>{t('noPropertiesDesc')}</Caption>
+          <Text variant='caption'>{t('noPropertiesDesc')}</Text>
         </div>
       )}
     </div>

@@ -5,7 +5,7 @@ import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { Card } from '@/components/ui/card';
 import { LiveIndicator } from '@/components/live-indicator';
 import { RefreshCcw } from 'lucide-react';
-import { Description, Caption } from '@/components/text';
+import { Text } from '@/components/text';
 
 type MonitoringEmptyStateProps = {
   dashboardId: string;
@@ -49,9 +49,9 @@ function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
           <LiveIndicator color='green' positionClassName='relative' sizeClassName='h-2.5 w-2.5' />
           <div className='min-w-0'>
             <div className='text-foreground/80 truncate text-sm font-medium'>{monitor.name}</div>
-            <Caption className='opacity-60'>
+            <Text variant='caption' className='opacity-60'>
               {tStatus('up')} {monitor.duration}
-            </Caption>
+            </Text>
           </div>
         </div>
 
@@ -97,7 +97,9 @@ export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptySta
       <div className='relative flex flex-1 flex-col justify-center space-y-6 sm:order-2 sm:flex-none sm:pt-8'>
         <div className='space-y-3 text-center'>
           <h2 className='text-2xl font-semibold tracking-tight'>{t('title')}</h2>
-          <Description className='mx-auto max-w-md leading-relaxed'>{t('description')}</Description>
+          <Text variant='description' className='mx-auto max-w-md leading-relaxed'>
+            {t('description')}
+          </Text>
         </div>
         <div className='flex justify-center'>
           <CreateMonitorDialog dashboardId={dashboardId} domain={domain} existingUrls={[]} />

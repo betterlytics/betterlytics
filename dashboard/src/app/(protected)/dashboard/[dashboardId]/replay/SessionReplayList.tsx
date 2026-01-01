@@ -15,7 +15,7 @@ import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
 import { Inline } from '@/components/layout';
-import { Caption } from '@/components/text';
+import { Text } from '@/components/text';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -136,20 +136,20 @@ export function SessionReplayList({
   });
 
   const emptyState = isLoadingInitial ? (
-    <Caption className='flex h-full items-center justify-center px-2'>
+    <Text variant='caption' className='flex h-full items-center justify-center px-2'>
       <div className='flex flex-col items-center gap-1'>
         <Spinner size='sm' />
         <span>{t('loading')}</span>
       </div>
-    </Caption>
+    </Text>
   ) : (
-    <Caption className='flex h-full items-center justify-center px-2'>
+    <Text variant='caption' className='flex h-full items-center justify-center px-2'>
       <div className='flex flex-col items-center text-center'>
         <ListVideo className='text-muted-foreground/70 mb-3 h-8 w-8' />
         <p className='font-medium'>{t('empty.title')}</p>
         <p className='mt-1 text-xs'>{t('empty.description')}</p>
       </div>
-    </Caption>
+    </Text>
   );
 
   return (
