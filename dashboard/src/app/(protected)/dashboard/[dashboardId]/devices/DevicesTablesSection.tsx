@@ -6,6 +6,7 @@ import OperatingSystemTable from '@/components/analytics/OperatingSystemTable';
 import { fetchBrowserBreakdownAction, fetchOperatingSystemBreakdownAction } from '@/app/actions/index.actions';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Grid } from '@/components/layout';
 
 type DevicesTablesSectionProps = {
   browserStatsPromise: ReturnType<typeof fetchBrowserBreakdownAction>;
@@ -18,7 +19,7 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
   const t = useTranslations('components.devices.tables');
 
   return (
-    <div className='gap-section grid grid-cols-1 xl:grid-cols-2'>
+    <Grid cols={{ base: 1, xl: 2 }}>
       <Card variant='section' minHeight='chart'>
         <CardHeader>
           <CardTitle>{t('topOperatingSystems')}</CardTitle>
@@ -35,6 +36,6 @@ export default function DevicesTablesSection({ browserStatsPromise, osStatsPromi
           <BrowserTable data={browserStats} />
         </CardContent>
       </Card>
-    </div>
+    </Grid>
   );
 }

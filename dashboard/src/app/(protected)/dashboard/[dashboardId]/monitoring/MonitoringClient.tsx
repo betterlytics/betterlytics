@@ -9,6 +9,7 @@ import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
+import { Stack } from '@/components/layout';
 import { FilterSelectValue } from './components';
 import { MonitoringEmptyState } from './MonitoringEmptyState';
 import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
@@ -183,7 +184,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
   }
 
   return (
-    <div className='space-y-4'>
+    <Stack>
       <DashboardHeader title={t('title')}>
         <div className='flex flex-col-reverse gap-2 sm:flex-row sm:items-center'>
           <div className='flex w-full items-center gap-2 sm:w-auto'>
@@ -259,6 +260,6 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
       </DashboardHeader>
 
       <MonitorList monitors={sortedMonitors} />
-    </div>
+    </Stack>
   );
 }

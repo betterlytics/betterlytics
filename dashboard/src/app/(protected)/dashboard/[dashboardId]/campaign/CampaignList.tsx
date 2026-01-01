@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Button } from '@/components/ui';
+import { Stack } from '@/components/layout';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
@@ -106,7 +107,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
   const skeletonRowCount = pageSize || DEFAULT_PAGE_SIZE;
 
   return (
-    <div className='space-y-section pb-8 md:pb-0'>
+    <Stack className='pb-8 md:pb-0'>
       {showTopPagination && (
         <CompactPaginationControls
           pageIndex={safePageIndex}
@@ -137,7 +138,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
-    </div>
+    </Stack>
   );
 }
 

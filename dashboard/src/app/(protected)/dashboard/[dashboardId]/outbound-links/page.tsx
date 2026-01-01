@@ -14,7 +14,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { PageContainer } from '@/components/layout';
+import { PageContainer, Grid } from '@/components/layout';
 
 type OutboundLinksPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -62,7 +62,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
         <DashboardFilters />
       </DashboardHeader>
 
-      <div className='gap-section grid grid-cols-1 xl:grid-cols-3'>
+      <Grid cols={{ base: 1, xl: 3 }}>
         <Suspense fallback={<ChartSkeleton />}>
           <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
         </Suspense>
@@ -71,7 +71,7 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
             <OutboundLinksChartSection outboundClicksChartPromise={outboundClicksChartPromise} />
           </Suspense>
         </div>
-      </div>
+      </Grid>
 
       <Suspense fallback={<TableSkeleton />}>
         <OutboundLinksTableSection outboundLinksAnalyticsPromise={outboundLinksAnalyticsPromise} />

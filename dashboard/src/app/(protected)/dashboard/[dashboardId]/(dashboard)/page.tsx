@@ -25,7 +25,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { PageContainer } from '@/components/layout';
+import { PageContainer, Grid } from '@/components/layout';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -143,7 +143,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <SummaryAndChartSection data={summaryAndChartPromise} />
       </Suspense>
 
-      <div className='gap-section grid grid-cols-1 lg:grid-cols-2'>
+      <Grid cols={{ base: 1, lg: 2 }}>
         <Suspense fallback={<TableSkeleton />}>
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
@@ -166,7 +166,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           endDate={endDate}
           queryFilters={queryFilters}
         />
-      </div>
+      </Grid>
     </PageContainer>
   );
 }

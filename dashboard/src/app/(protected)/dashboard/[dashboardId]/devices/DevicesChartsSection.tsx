@@ -9,6 +9,7 @@ import { DeviceIcon } from '@/components/icons';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Grid } from '@/components/layout';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 type DevicesChartsSectionProps = {
@@ -27,7 +28,7 @@ export default function DevicesChartsSection({
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   return (
-    <div className='gap-section grid grid-cols-1 xl:grid-cols-8'>
+    <Grid cols={{ base: 1, xl: 8 }}>
       <Card variant='section' minHeight='chart' className='xl:col-span-5'>
         <CardHeader>
           <CardTitle>{t('deviceUsageTrend')}</CardTitle>
@@ -55,6 +56,6 @@ export default function DevicesChartsSection({
           />
         </CardContent>
       </Card>
-    </div>
+    </Grid>
   );
 }

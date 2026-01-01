@@ -15,7 +15,7 @@ import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { PageContainer } from '@/components/layout';
+import { PageContainer, Grid } from '@/components/layout';
 
 type ReferrersPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -74,10 +74,10 @@ export default async function ReferrersPage({ params, searchParams }: ReferrersP
       </Suspense>
       <Suspense
         fallback={
-          <div className='gap-section grid grid-cols-1 md:grid-cols-2'>
+          <Grid cols={{ base: 1, md: 2 }}>
             <ChartSkeleton />
             <ChartSkeleton />
-          </div>
+          </Grid>
         }
       >
         <ReferrersChartsSection distributionPromise={distributionPromise} trendPromise={trendPromise} />

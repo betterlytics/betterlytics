@@ -27,6 +27,7 @@ import { MonitorSummarySection } from './MonitorSummarySection';
 import { MonitorHeader } from './MonitorHeader';
 import { useTranslations } from 'next-intl';
 import { MonitorActionMenu } from '../components';
+import { PageContainer, Grid } from '@/components/layout';
 
 type MonitorDetailClientProps = {
   dashboardId: string;
@@ -134,7 +135,7 @@ export function MonitorDetailClient({
   }, [metricsQuery, incidentsQuery, checksQuery]);
 
   return (
-    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+    <PageContainer>
       <MonitorHeader
         monitorName={monitorData.name || hostname}
         url={monitorData.url}
@@ -216,17 +217,17 @@ export function MonitorDetailClient({
 
       <ResponseTimeCard metrics={metricsQuery.data} />
 
-      <div className='grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3'>
+      <Grid cols={{ base: 1, lg: 2, xl: 3 }} gap='section'>
         <IncidentsCard incidents={incidentsQuery.data ?? []} />
 
         <Uptime180DayCard uptime={initialData.uptime} />
-      </div>
+      </Grid>
 
       <RecentChecksCard
         checks={checksQuery.data ?? []}
         errorsOnly={checksErrorsOnly}
         setErrorsOnly={setChecksErrorsOnly}
       />
-    </div>
+    </PageContainer>
   );
 }
