@@ -7,8 +7,6 @@ type CapabilityGateProps = {
   allowed: boolean;
   children: (props: { locked: boolean }) => React.ReactElement;
   message?: string;
-  fallback?: React.ReactNode;
-  wrapperClassName?: string;
   showTooltip?: boolean;
 };
 
@@ -24,22 +22,11 @@ type CapabilityGateProps = {
  *   )}
  * </CapabilityGate>
  */
-export function CapabilityGate({
-  allowed,
-  children,
-  message,
-  fallback,
-  wrapperClassName,
-  showTooltip = false,
-}: CapabilityGateProps) {
+export function CapabilityGate({ allowed, children, message, showTooltip = false }: CapabilityGateProps) {
   const t = useTranslations('components.proFeature');
 
   if (allowed) {
     return children({ locked: false });
-  }
-
-  if (fallback) {
-    return <>{fallback}</>;
   }
 
   if (!showTooltip) {
@@ -49,7 +36,7 @@ export function CapabilityGate({
   const tooltipMessage = message ?? t('upgradeRequired');
 
   return (
-    <DisabledTooltip disabled message={tooltipMessage} wrapperClassName={wrapperClassName}>
+    <DisabledTooltip disabled message={tooltipMessage}>
       {() => children({ locked: true })}
     </DisabledTooltip>
   );
