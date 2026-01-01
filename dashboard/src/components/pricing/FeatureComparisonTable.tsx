@@ -26,19 +26,19 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'monthlyEvents', growth: 'range', professional: 'range', enterprise: 'custom' },
       { key: 'sites', growth: '2', professional: 'upTo50', enterprise: 'unlimited' },
       { key: 'dataRetention', growth: '1year', professional: '3years', enterprise: '5years' },
-      { key: 'teamMembers', growth: '1', professional: 'upTo5', enterprise: 'unlimited' },
+      // { key: 'teamMembers', growth: '1', professional: 'upTo5', enterprise: 'unlimited' },
     ],
   },
   {
     key: 'analytics',
     features: [
       { key: 'dashboardFeatures', growth: true, professional: true, enterprise: true },
-      { key: 'sessionReplay', growth: true, professional: true, enterprise: true },
       { key: 'funnels', growth: true, professional: true, enterprise: true },
       { key: 'userJourneys', growth: true, professional: true, enterprise: true },
       { key: 'customEvents', growth: true, professional: true, enterprise: true },
       { key: 'webVitals', growth: true, professional: true, enterprise: true },
       { key: 'campaignTracking', growth: true, professional: true, enterprise: true },
+      { key: 'sessionReplay', growth: true, professional: true, enterprise: true },
     ],
   },
   {
