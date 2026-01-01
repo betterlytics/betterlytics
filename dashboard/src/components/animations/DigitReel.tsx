@@ -29,13 +29,11 @@ function DigitReelComponent({
     if (!isExiting && exitState !== 'idle') {
       setExitState('idle');
       setEnterState('idle');
-      const reel = reelRef.current;
-      const container = containerRef.current;
-      if (reel) {
-        Object.assign(reel.style, { transition: 'none', transform: 'translateY(0%)' });
+      if (reelRef.current) {
+        Object.assign(reelRef.current.style, { transition: 'none', transform: 'translateY(0%)' });
       }
-      if (container) {
-        Object.assign(container.style, { 
+      if (containerRef.current) {
+        Object.assign(containerRef.current.style, { 
           transition: 'none', 
           position: 'relative', 
           left: 'auto', 
@@ -48,36 +46,33 @@ function DigitReelComponent({
 
   useEffect(() => {
     if (isExiting && exitState === 'idle') {
-      const reel = reelRef.current;
-      const container = containerRef.current;
-      
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        const parentRect = container.offsetParent?.getBoundingClientRect();
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const parentRect = containerRef.current.offsetParent?.getBoundingClientRect();
         const leftPos = parentRect ? rect.left - parentRect.left : 0;
         
-        Object.assign(container.style, { position: 'absolute', left: `${leftPos}px` });
-        container.offsetHeight; // force reflow
-        Object.assign(container.style, { 
+        Object.assign(containerRef.current.style, { position: 'absolute', left: `${leftPos}px` });
+        containerRef.current.offsetHeight; // force reflow
+        Object.assign(containerRef.current.style, { 
           transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           transform: `translateX(calc(-1 * ${MASK_WIDTH}))`,
           opacity: '0'
         });
       }
       
-      if (reel) {
-        Object.assign(reel.style, { 
+      if (reelRef.current) {
+        Object.assign(reelRef.current.style, { 
           transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           transform: 'translateY(100%)'
         });
       }
       
       setExitState('exiting');
-      const timer = setTimeout(() => {
+      const postExitCleanup = setTimeout(() => {
         setExitState('done');
         onExitComplete?.();
       }, slideDuration);
-      return () => clearTimeout(timer);
+      return () => clearTimeout(postExitCleanup);
     }
   }, [isExiting, exitState, slideDuration, onExitComplete]);
 
@@ -85,20 +80,18 @@ function DigitReelComponent({
     if (isExiting) return;
 
     if (prevDigit === null && enterState === 'idle') {
-      const reel = reelRef.current;
-      
-      if (reel) {
-        Object.assign(reel.style, { transition: 'none', transform: 'translateY(100%)' });
-        reel.offsetHeight; // force reflow
-        Object.assign(reel.style, { 
+      if (reelRef.current) {
+        Object.assign(reelRef.current.style, { transition: 'none', transform: 'translateY(100%)' });
+        reelRef.current.offsetHeight; // force reflow
+        Object.assign(reelRef.current.style, { 
           transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           transform: 'translateY(0%)'
         });
       }
       
       setEnterState('entering');
-      const timer = setTimeout(() => setEnterState('done'), slideDuration);
-      return () => clearTimeout(timer);
+      const postEnterCleanup = setTimeout(() => setEnterState('done'), slideDuration);
+      return () => clearTimeout(postEnterCleanup);
     }
   }, [prevDigit, enterState, slideDuration, isExiting]);
 
@@ -106,15 +99,13 @@ function DigitReelComponent({
     if (isExiting) return;
     if (prevDigit === null) return;
     if (prevDigit === digit) return;
-
-    const reel = reelRef.current;
-    if (!reel) return;
+    if (!reelRef.current) return;
 
     const offset = digit - prevDigit;
     
-    Object.assign(reel.style, { transition: 'none', transform: `translateY(${offset * 100}%)` });
-    reel.offsetHeight; // force reflow
-    Object.assign(reel.style, { 
+    Object.assign(reelRef.current.style, { transition: 'none', transform: `translateY(${offset * 100}%)` });
+    reelRef.current.offsetHeight; // force reflow
+    Object.assign(reelRef.current.style, { 
       transition: `transform ${duration}ms ${SPRING_EASING}`,
       transform: 'translateY(0%)'
     });
