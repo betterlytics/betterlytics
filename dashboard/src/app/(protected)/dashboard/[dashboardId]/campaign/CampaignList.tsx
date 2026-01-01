@@ -319,7 +319,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
             landingPages={landingPages}
           />
         </div>
-        <div className='space-y-section lg:col-span-2'>
+        <Stack gap='section' className='lg:col-span-2'>
           <div className='lg:hidden'>
             <Grid cols={2} gap='card'>
               <Stack gap='minimal'>
@@ -345,7 +345,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
               initialSource={utmSource}
             />
           </Stack>
-        </div>
+        </Stack>
       </Grid>
     </Stack>
   );
