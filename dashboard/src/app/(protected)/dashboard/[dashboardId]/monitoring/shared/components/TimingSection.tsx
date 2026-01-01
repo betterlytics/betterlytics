@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { formatCompactDuration } from '@/utils/dateFormatters';
 import { SectionHeader } from './SectionHeader';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import {
   MONITOR_INTERVAL_MARKS,
   REQUEST_TIMEOUT_MARKS,
@@ -32,9 +33,12 @@ export type TimingSectionProps = {
 export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen = true }: TimingSectionProps) {
   const tTiming = useTranslations('monitoringPage.form.timing');
   const { state, setField } = form;
+  const { caps } = useCapabilities();
 
   const intervalIdx = nearestIndex(MONITOR_INTERVAL_MARKS, state.intervalSeconds);
   const timeoutIdx = nearestIndex(REQUEST_TIMEOUT_MARKS, state.timeoutMs);
+
+  const minIntervalIdx = nearestIndex(MONITOR_INTERVAL_MARKS, caps.monitoring.minIntervalSeconds);
 
   const handleIntervalChange = useCallback(
     (idx: number) => setField('intervalSeconds')(MONITOR_INTERVAL_MARKS[idx]),
@@ -72,6 +76,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             formatValue={() => formatCompactDuration(state.intervalSeconds)}
             recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
             disabled={isPending}
+            minAllowed={minIntervalIdx}
           />
 
           <Separator className='my-4' />

@@ -25,6 +25,37 @@ export function buildStarterSubscription() {
   };
 }
 
+export function buildSelfHostedBillingData(): UserBillingData {
+  const now = startOfDay(new Date());
+  const periodEnd = addMonths(now, 12);
+
+  return {
+    isExistingPaidSubscriber: true,
+    isFreePlanUser: false,
+    subscription: {
+      tier: PrismaSubscriptionTier.enterprise,
+      eventLimit: 999_999_999,
+      pricePerMonth: 0,
+      currency: PrismaCurrency.USD,
+      status: 'active' as const,
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: periodEnd,
+    },
+    usage: {
+      current: 0,
+      limit: 999_999_999,
+      remaining: 999_999_999,
+      isOverLimit: false,
+      usagePercentage: 0,
+      daysUntilReset: 365,
+      billingPeriod: {
+        start: now,
+        end: periodEnd,
+      },
+    },
+  };
+}
+
 export const SubscriptionSchema = z.object({
   id: z.string(),
   userId: z.string(),
