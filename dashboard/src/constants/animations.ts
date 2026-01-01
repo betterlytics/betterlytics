@@ -1,17 +1,14 @@
-// Animation sizing constants shared between AnimatedNumber and DigitReel
 export const DIGIT_WIDTH = '0.65em';
 export const MASK_HEIGHT = '0.3em';
 export const MASK_WIDTH = '0.5em';
 
-// Zero-width space for maintaining proper inline-flex sizing
 export const ZWSP = '\u200B';
 
-// Easing functions
 export const SPRING_EASING = 'cubic-bezier(0.17, 1.15, 0.3, 1)';
 export const ENTER_EXIT_EASING = 'ease-out';
 
 /**
- * Creates mask styles for the fade gradient effect on AnimatedNumber.
+ * Creates mask styles for a fade gradient effect.
  * The mask creates soft edges that fade digits in/out during enter/exit animations.
  */
 export function getMaskStyles(): React.CSSProperties {

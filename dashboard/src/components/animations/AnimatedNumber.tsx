@@ -3,7 +3,7 @@
 import { DigitReel } from '@/components/animations/DigitReel';
 import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
 import { cn } from '@/lib/utils';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 type AnimatedNumberProps = {
   value: number;
@@ -27,24 +27,23 @@ export function AnimatedNumber({
 }: AnimatedNumberProps) {
   const componentId = useId();
   const prevValueRef = useRef<number | null>(null);
-  const [digitStates, setDigitStates] = useState<DigitState[]>([]);
   const digitMapRef = useRef<Map<number, DigitState>>(new Map());
   const integerSectionRef = useRef<HTMLSpanElement>(null);
   const digitIdCounter = useRef(0);
 
+  const [digitStates, setDigitStates] = useState<DigitState[]>([]);
+  
+  const activeDigitCount = digitStates.filter(d => !d.isExiting).length || 1;
+  const exitingDigitCount = digitStates.filter(d => d.isExiting).length;
+  const hasEnteringDigits = digitStates.some(d => d.isEntering);
+  
+  const slideDuration = exitingDigitCount
+    ? Math.round(duration / Math.max(activeDigitCount + exitingDigitCount, 1))
+    : Math.round(duration / Math.max(activeDigitCount, 1));
+  
   const generateDigitId = useCallback(() => {
     return `${componentId}-digit-${++digitIdCounter.current}`;
   }, [componentId]);
-
-  const activeDigitCount = digitStates.filter(d => !d.isExiting).length || 1;
-  const exitingDigitCount = digitStates.filter(d => d.isExiting).length;
-  const hasExitingDigits = exitingDigitCount > 0;
-  const hasEnteringDigits = digitStates.some(d => d.isEntering);
-
-  const totalDigitCount = activeDigitCount + exitingDigitCount;
-  const slideDuration = hasExitingDigits 
-    ? Math.round(duration / Math.max(totalDigitCount, 1))
-    : Math.round(duration / Math.max(activeDigitCount, 1));
 
   const removeExitingDigit = useCallback((id: string) => {
     setDigitStates((prev) => prev.filter((d) => d.id !== id));
@@ -112,7 +111,7 @@ export function AnimatedNumber({
     const section = integerSectionRef.current;
     if (!section) return;
 
-    const isDigitCountChanging = hasEnteringDigits || hasExitingDigits;
+    const isDigitCountChanging = hasEnteringDigits || exitingDigitCount;
     
     if (isDigitCountChanging) {
       if (hasEnteringDigits) {
@@ -126,7 +125,7 @@ export function AnimatedNumber({
           width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
           transform: 'none'
         });
-      } else if (hasExitingDigits) {
+      } else if (exitingDigitCount) {
         Object.assign(section.style, { 
           transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}`,
           width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`
@@ -146,7 +145,9 @@ export function AnimatedNumber({
         width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`
       });
     }
-  }, [activeDigitCount, hasEnteringDigits, hasExitingDigits, slideDuration]);
+  }, [activeDigitCount, hasEnteringDigits, exitingDigitCount, slideDuration]);
+
+  const maskStyles = useMemo(() => getMaskStyles(), []);
 
   return (
     <span className={cn('inline-flex tabular-nums leading-none isolate whitespace-nowrap', className)}>
@@ -161,7 +162,7 @@ export function AnimatedNumber({
           <span className="inline-flex justify-inherit relative">{ZWSP}</span>
         </span>
 
-        <span aria-hidden="true" style={getMaskStyles()}>
+        <span aria-hidden="true" style={maskStyles}>
           <span 
             ref={integerSectionRef}
             className="animated-number-integer inline-flex justify-end origin-left"

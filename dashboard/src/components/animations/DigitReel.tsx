@@ -1,7 +1,7 @@
 'use client';
 
 import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, MASK_WIDTH, SPRING_EASING } from '@/constants/animations';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 type DigitReelProps = {
   digit: number;
@@ -12,7 +12,7 @@ type DigitReelProps = {
   onExitComplete?: () => void;
 };
 
-export function DigitReel({
+function DigitReelComponent({
   digit,
   prevDigit,
   duration = 1000,
@@ -156,3 +156,6 @@ export function DigitReel({
     </span>
   );
 }
+
+export const DigitReel = React.memo(DigitReelComponent);
+DigitReel.displayName = 'DigitReel';
