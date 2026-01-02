@@ -1,6 +1,7 @@
 'use client';
 
-import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, MASK_WIDTH, SPRING_EASING } from '@/constants/animations';
+import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, SPRING_EASING } from '@/constants/animations';
+import { cn } from '@/lib/utils';
 import React, { useEffect, useRef, useState } from 'react';
 
 type DigitReelProps = {
@@ -35,8 +36,6 @@ function DigitReelComponent({
       if (containerRef.current) {
         Object.assign(containerRef.current.style, { 
           transition: 'none', 
-          position: 'relative', 
-          left: 'auto', 
           opacity: '1', 
           transform: 'none' 
         });
@@ -47,14 +46,9 @@ function DigitReelComponent({
   useEffect(() => {
     if (isExiting && exitState === 'idle') {
       if (containerRef.current) {
-        Object.assign(containerRef.current.style, { 
-          position: 'absolute', 
-          left: `${containerRef.current.offsetParent ? containerRef.current.getBoundingClientRect().left - containerRef.current.offsetParent.getBoundingClientRect().left : 0}px` 
-        });
-        void containerRef.current.offsetHeight; // force reflow
+        // Ticker Tape: Keep digits in flow, just fade and roll out relative to container
         Object.assign(containerRef.current.style, { 
           transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-          transform: `translateX(calc(-1 * ${MASK_WIDTH}))`,
           opacity: '0'
         });
       }
@@ -112,28 +106,30 @@ function DigitReelComponent({
   return (
     <span 
       ref={containerRef} 
-      className={`inline-flex justify-center items-center overflow-hidden origin-left w-[${DIGIT_WIDTH}] py-[${MASK_HEIGHT}] my-[calc(-1*${MASK_HEIGHT})]`}
-      style={{ willChange: 'transform, opacity' }}
+      className={cn(
+        "inline-flex justify-center items-center overflow-hidden origin-left will-change-[transform,opacity]",
+        `w-[${DIGIT_WIDTH}] py-[calc(${MASK_HEIGHT}/2)] my-[calc(-1*${MASK_HEIGHT}/2)]`
+      )}
     >
       <span 
         ref={reelRef} 
-        className={`inline-flex justify-center flex-col items-center relative w-[${DIGIT_WIDTH}]`}
+        className={cn("inline-flex justify-center flex-col items-center relative", `w-[${DIGIT_WIDTH}]`)}
         aria-hidden="true"
       >
         {(exitState === 'exiting' || enterState === 'entering' || prevDigit !== null) && (
           <span className="flex flex-col items-center absolute w-full bottom-full left-0">
             {Array.from({ length: digit }, (_, i) => i).map((d) => (
-              <span key={`above-${d}`} className={`inline-block py-[calc(${MASK_HEIGHT}/2)]`}>{d}</span>
+              <span key={`above-${d}`} className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
             ))}
           </span>
         )}
 
-        <span className={`inline-block py-[calc(${MASK_HEIGHT}/2)]`}>{digit}</span>
+        <span className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{digit}</span>
 
         {(exitState === 'exiting' || enterState === 'entering' || prevDigit !== null) && (
           <span className="flex flex-col items-center absolute w-full top-full left-0">
             {Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i).map((d) => (
-              <span key={`below-${d}`} className={`inline-block py-[calc(${MASK_HEIGHT}/2)]`}>{d}</span>
+              <span key={`below-${d}`} className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
             ))}
           </span>
         )}
@@ -141,6 +137,7 @@ function DigitReelComponent({
     </span>
   );
 }
+
 
 export const DigitReel = React.memo(DigitReelComponent);
 DigitReel.displayName = 'DigitReel';
