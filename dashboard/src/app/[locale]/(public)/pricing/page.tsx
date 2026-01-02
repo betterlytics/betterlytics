@@ -3,7 +3,7 @@ import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
-import { FeatureComparisonTable } from '@/components/pricing/FeatureComparisonTable';
+import { FeatureComparisonSection } from '@/app/[locale]/(public)/pricing/FeatureComparisonSection';
 import { CoreFeaturesSection } from '@/components/pricing/CoreFeaturesSection';
 import { BillingFAQGrid } from '@/app/(protected)/billing/BillingFAQGrid';
 import { getTranslations } from 'next-intl/server';
@@ -42,7 +42,7 @@ export default async function PricingPage() {
 
             <div id='comparison' className='mt-20 scroll-mt-20'>
               <h2 className='mb-10 text-center text-2xl font-bold sm:text-3xl'>{t('comparisonTitle')}</h2>
-              <FeatureComparisonTable />
+              <FeatureComparisonSection />
             </div>
 
             <div className='mt-16'>
