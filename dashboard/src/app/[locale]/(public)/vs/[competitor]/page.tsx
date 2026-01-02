@@ -98,7 +98,7 @@ function VsBadge({ competitorName }: { competitorName: string }) {
   return (
     <div className='border-border/40 bg-card/50 mb-10 inline-flex items-center gap-3 rounded-full border px-5 py-2.5 shadow-sm backdrop-blur-sm'>
       <span className='text-foreground text-base font-medium'>Betterlytics</span>
-      <span className='relative flex h-6 items-center justify-center overflow-hidden rounded-full bg-gradient-to-b from-zinc-500 to-zinc-700 px-2.5 text-[10px] font-bold tracking-wider text-white uppercase shadow-inner ring-1 ring-white/10 dark:from-zinc-600 dark:to-zinc-800'>
+      <span className='relative flex h-6 items-center justify-center overflow-hidden rounded-full bg-zinc-700 px-2.5 text-[10px] font-bold tracking-wider text-white uppercase shadow-inner ring-1 ring-white/10'>
         <span className='relative z-10'>vs</span>
       </span>
       <span className='text-foreground text-base font-medium'>{competitorName}</span>
