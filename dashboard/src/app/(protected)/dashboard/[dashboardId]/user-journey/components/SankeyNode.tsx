@@ -12,10 +12,18 @@ export interface SankeyNodeProps {
   isHighlighted: boolean;
   isMuted: boolean;
   onHover: (nodeId: string | null) => void;
+  onClick: (nodeId: string) => void;
   totalEntrySessions: number;
 }
 
-export function SankeyNode({ node, isHighlighted, isMuted, onHover, totalEntrySessions }: SankeyNodeProps) {
+export function SankeyNode({
+  node,
+  isHighlighted,
+  isMuted,
+  onHover,
+  onClick,
+  totalEntrySessions,
+}: SankeyNodeProps) {
   const cardPadding = { x: 7, y: 5 };
   const cardGap = 5;
   const cardHeight = 30;
@@ -64,7 +72,12 @@ export function SankeyNode({ node, isHighlighted, isMuted, onHover, totalEntrySe
   const labelOpacity = isMuted ? 0.5 : 1;
 
   return (
-    <g onMouseEnter={() => onHover(node.id)} onMouseLeave={() => onHover(null)} className='cursor-pointer'>
+    <g
+      onMouseEnter={() => onHover(node.id)}
+      onMouseLeave={() => onHover(null)}
+      onClick={() => onClick(node.id)}
+      className='cursor-pointer'
+    >
       {/* Node rectangle */}
       <rect
         x={node.x}
