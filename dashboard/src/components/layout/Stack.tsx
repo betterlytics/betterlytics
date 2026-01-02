@@ -18,7 +18,7 @@ type StackProps = React.ComponentProps<typeof Inline>;
  */
 export function Stack({ children, className, ...props }: StackProps) {
   return (
-    <Inline {...props} className={cn('flex-col', className)}>
+    <Inline align='stretch' {...props} className={cn('flex-col', className)}>
       {children}
     </Inline>
   );

@@ -22,6 +22,7 @@ import { Text } from '@/components/text';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
 import { MonitorActionMenu } from './components/MonitorActionMenu';
+import { Stack } from '@/components/layout';
 
 type MonitorListProps = {
   monitors: MonitorWithStatus[];
@@ -47,7 +48,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
   }
 
   return (
-    <div className='space-y-3'>
+    <Stack gap='layout-lg'>
       {monitors.map((monitor) => {
         const statusPresentation = presentMonitorStatus(monitor.operationalState);
         const displayName = (monitor.name || '').trim() || safeHostname(monitor.url);
@@ -175,7 +176,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
           </FilterPreservingLink>
         );
       })}
-    </div>
+    </Stack>
   );
 }
 
