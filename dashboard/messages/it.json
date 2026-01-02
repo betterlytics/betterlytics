@@ -803,6 +803,19 @@
         ]
       }
     },
+    "comparison": {
+      "getStartedFree": "Inizia gratis",
+      "viewPricing": "Vedi i prezzi",
+      "featureComparison": {
+        "title": "Confronto delle funzionalità",
+        "subtitle": "Scopri come Betterlytics e {competitor} si confrontano fianco a fianco"
+      },
+      "whyBetterlytics": {
+        "title": "Perché Betterlytics?",
+        "subtitle": "Uno sguardo più approfondito a ciò che rende Betterlytics diverso"
+      },
+      "disclaimer": "Ci impegniamo a mantenere questo confronto accurato e aggiornato."
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | Una Migliore Alternativa a Google Analytics",
@@ -1000,6 +1013,7 @@
       "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
       "company": "Azienda",
       "resources": "Risorse",
+      "compare": "Confronta",
       "connect": "Connettiti",
       "about": "Chi siamo",
       "contact": "Contatti",

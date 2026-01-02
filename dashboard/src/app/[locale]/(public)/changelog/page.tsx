@@ -5,7 +5,7 @@ import { StructuredData } from '@/components/StructuredData';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { CtaStrip } from '../(landing)/components/ctaStrip';
+import { CtaStrip } from '@/components/public/ctaStrip';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
