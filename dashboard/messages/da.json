@@ -898,20 +898,12 @@
           "framework": {
             "title": "Klar til frameworks",
             "description": "Native support til React, Next.js, Vue og andre moderne frameworks med TypeScript.",
-            "features": {
-              "f1": "TypeScript support",
-              "f2": "Framework-komponenter",
-              "f3": "Tree-shakeable"
-            }
+            "features": { "f1": "TypeScript support", "f2": "Framework-komponenter", "f3": "Tree-shakeable" }
           },
           "selfHosted": {
             "title": "Self-hosted mulighed",
             "description": "Udrul på din egen infrastruktur med Docker for fuldt dataejerskab og kontrol.",
-            "features": {
-              "f1": "Docker-udrulning",
-              "f2": "Fuld kontrol",
-              "f3": "GDPR-kompatibel"
-            }
+            "features": { "f1": "Docker-udrulning", "f2": "Fuld kontrol", "f3": "GDPR-kompatibel" }
           }
         },
         "guideButton": "Se integrationsguide",
@@ -930,7 +922,8 @@
         "titleEmphasis": "Simpel, skalerbar",
         "titleRest": "prissætning",
         "subtitle": "Trafikbaserede planer, der matcher din vækst. Start gratis, skalér når du vokser.",
-        "footer": "Start med vores gratis plan – intet kreditkort krævet."
+        "footer": "Start med vores gratis plan – intet kreditkort krævet.",
+        "compareLink": "Sammenlign alle funktioner"
       },
       "cards": {
         "advancedFilters": {
@@ -1022,6 +1015,26 @@
       "webPage": {
         "breadcrumbHome": "Hjem"
       }
+    },
+    "pricing": {
+      "seo": {
+        "title": "Priser | Betterlytics Privatlivsfokuseret Analyse",
+        "description": "Simple, gennemsigtige priser for Betterlytics. Start gratis, skalér når du vokser. Privatlivsvenlig, GDPR-kompatibel webanalyse for enhver virksomhedsstørrelse.",
+        "keywords": [
+          "Analyse Priser",
+          "Web Analyse Planer",
+          "Privacy Analytics Priser",
+          "GDPR Analytics Pris",
+          "Betterlytics Planer",
+          "Billig Analytics",
+          "Gratis Analytics Plan"
+        ]
+      },
+      "titleEmphasis": "Simple, gennemsigtige",
+      "titleRest": "priser",
+      "subtitle": "Start gratis, opgrader når du har brug for mere. Ingen skjulte gebyrer, ingen overraskelser.",
+      "footer": "Start med vores gratis plan – intet kreditkort krævet.",
+      "comparisonTitle": "Sammenlign alle funktioner"
     }
   },
   "pricingSlider": {
@@ -1064,7 +1077,131 @@
     },
     "labels": {
       "free": "Gratis",
-      "custom": "Tilpasset"
+      "custom": "Kontakt os"
+    }
+  },
+  "pricingComparison": {
+    "headers": {
+      "features": "Funktioner",
+      "growth": "Growth",
+      "professional": "Professional",
+      "enterprise": "Enterprise"
+    },
+    "categories": {
+      "usageLimits": "Forbrug og grænser",
+      "analytics": "Analyse",
+      "observability": "Overvågning",
+      "support": "Support"
+    },
+    "features": {
+      "monthlyEvents": {
+        "name": "Månedlige hændelser",
+        "values": {
+          "range": "10K – 10M+",
+          "custom": "Tilpasset"
+        }
+      },
+      "sites": {
+        "name": "Hjemmesider",
+        "values": {
+          "1": "1",
+          "2": "2",
+          "upTo50": "Op til 50",
+          "unlimited": "Ubegrænsede"
+        }
+      },
+      "dataRetention": {
+        "name": "Dataopbevaring",
+        "values": {
+          "1year": "1+ år",
+          "3years": "3+ år",
+          "5years": "5+ år"
+        }
+      },
+      "teamMembers": {
+        "name": "Teammedlemmer",
+        "values": {
+          "1": "1",
+          "upTo5": "Op til 5",
+          "unlimited": "Ubegrænsede"
+        }
+      },
+      "dashboardFeatures": {
+        "name": "Alle dashboard-funktioner"
+      },
+      "sessionReplay": {
+        "name": "Sessionsafspilning"
+      },
+      "funnels": {
+        "name": "Tragter og konverteringer"
+      },
+      "userJourneys": {
+        "name": "Brugerrejsesporing"
+      },
+      "customEvents": {
+        "name": "Brugerdefinerede hændelser"
+      },
+      "webVitals": {
+        "name": "Web Vitals-overvågning"
+      },
+      "campaignTracking": {
+        "name": "Kampagne- og UTM-sporing"
+      },
+      "uptimeMonitoring": {
+        "name": "Oppetidsovervågning",
+        "values": {
+          "5": "5 overvågninger",
+          "50": "50 overvågninger",
+          "unlimited": "Ubegrænset overvågning"
+        }
+      },
+      "sslMonitoring": {
+        "name": "SSL-certifikatovervågning"
+      },
+      "advancedIntervals": {
+        "name": "30s oppetidstjek-intervaller"
+      },
+      "customHttpMethods": {
+        "name": "GET/POST HTTP-metoder"
+      },
+      "customRequestHeaders": {
+        "name": "Brugerdefinerede request headers"
+      },
+      "customStatusCodes": {
+        "name": "Brugerdefinerede statuskoder"
+      },
+      "emailSupport": {
+        "name": "E-mail support"
+      },
+      "prioritySupport": {
+        "name": "Prioriteret support"
+      },
+      "dedicatedSupport": {
+        "name": "Dedikeret support"
+      },
+      "slaGuarantee": {
+        "name": "SLA-garanti"
+      }
+    },
+    "coreFeatures": {
+      "title": "Inkluderet i alle planer",
+      "subtitle": "Hver plan inkluderer vores fulde analysepakke",
+      "items": {
+        "realtimeAnalytics": "Realtidsanalyse",
+        "sessionReplay": "Sessionsafspilning",
+        "geographicInsights": "Geografiske indsigter",
+        "trafficSources": "Trafikkilder",
+        "utmCampaigns": "UTM-kampagnesporing",
+        "customEvents": "Brugerdefinerede hændelser",
+        "funnels": "Tragter og konverteringer",
+        "userJourneys": "Brugerrejser",
+        "webVitals": "Web Vitals",
+        "botFiltering": "Bot-filtrering",
+        "outboundLinks": "Udgående linksporing",
+        "advancedFiltering": "Avanceret filtrering",
+        "cookieFree": "Cookie-fri",
+        "gdprCcpa": "GDPR og CCPA klar"
+      }
     }
   },
   "dashboard": {
