@@ -41,7 +41,7 @@ export function AlertsSection({
     >
       <CollapsibleTrigger className='hover:bg-muted/50 -mx-2 flex w-[calc(100%+1rem)] cursor-pointer items-center justify-between rounded-lg px-2 py-2 transition-colors'>
         <SectionHeader icon={Bell} title={t('title')} />
-        <Inline gap='list'>
+        <Inline gap='content-md'>
           {state.alertsEnabled && (
             <span className='rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400'>
               {t('enabled')}

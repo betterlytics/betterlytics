@@ -7,8 +7,9 @@ import * as React from 'react';
 const cardVariants = cva('bg-card text-card-foreground flex flex-col rounded-xl border', {
   variants: {
     variant: {
-      default: 'gap-6 py-6 shadow-sm',
-      section: 'border-border bg-card gap-1 p-3 shadow-lg shadow-black/10 sm:px-6 sm:py-4',
+      default: 'gap-content-2xl py-content-2xl shadow-sm',
+      section:
+        'border-border bg-card gap-content-sm p-content-lg shadow-lg shadow-black/10 sm:px-content-2xl sm:pt-content-xl sm:pb-content-xl',
       empty: 'border-border bg-card px-6 py-10 text-center shadow-sm',
     },
     minHeight: {

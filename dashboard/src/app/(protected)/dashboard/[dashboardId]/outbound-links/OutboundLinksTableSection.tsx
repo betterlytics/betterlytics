@@ -30,7 +30,7 @@ export default function OutboundLinksTableSection({
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
         cell: ({ row }) => (
-          <Inline gap='list'>
+          <Inline gap='content-md'>
             <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
             <ExternalLink
               href={`https://${row.original.current.outbound_link_url}`}

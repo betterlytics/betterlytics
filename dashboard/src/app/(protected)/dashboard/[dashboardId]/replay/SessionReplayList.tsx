@@ -157,7 +157,7 @@ export function SessionReplayList({
       title={t('header')}
       subtitle={t('subHeader', { count: filteredSessions.length })}
       headerRight={
-        <Inline gap='list'>
+        <Inline gap='content-md'>
           <Input
             id='session-duration-filter'
             type='number'

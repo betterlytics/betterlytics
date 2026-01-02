@@ -26,7 +26,7 @@ function SkeletonFunnelStep({
 
   return (
     <div className='flex flex-col'>
-      <Stack gap='minimal' className='border-border/30 border-b px-3 pt-2 pb-1.5'>
+      <Stack gap='content-xs' className='border-border/30 border-b px-3 pt-2 pb-1.5'>
         <Text variant='column-header' className='opacity-60'>
           {t('step')} {index + 1}
         </Text>
@@ -54,7 +54,7 @@ function SkeletonFunnelStep({
         </div>
       </div>
 
-      <Stack gap='minimal' className='items-center py-2'>
+      <Stack gap='content-xs' className='items-center py-2'>
         <Text variant='caption' className='opacity-60'>
           {t('visitors')}
         </Text>
@@ -93,8 +93,8 @@ export function FunnelsEmptyState() {
         <div className='absolute right-0 bottom-1/3 h-40 w-40 translate-x-1/2 rounded-full bg-blue-500/5 blur-3xl' />
       </div>
 
-      <Stack gap='section' className='relative flex-1 justify-center sm:order-2 sm:flex-none sm:pt-8'>
-        <Stack gap='card' className='text-center'>
+      <Stack gap='content-xl' className='relative flex-1 justify-center sm:order-2 sm:flex-none sm:pt-8'>
+        <Stack gap='content-lg' className='text-center'>
           <Text variant='heading-md'>{t('title')}</Text>
           <Text variant='description' className='mx-auto max-w-md leading-relaxed'>
             {t('description')}

@@ -191,7 +191,7 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         onClick={onToggle}
       >
         <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
-        <Inline gap='list'>
+        <Inline gap='content-md'>
           <div className='h-11 min-w-[150px] flex-1'>
             <CampaignSparkline data={campaign.sparkline} />
           </div>
@@ -242,7 +242,7 @@ type CampaignHeaderTitleProps = {
 
 function CampaignHeaderTitle({ name, sessionsLabel }: CampaignHeaderTitleProps) {
   return (
-    <Stack gap='minimal' className='min-w-0'>
+    <Stack gap='content-xs' className='min-w-0'>
       <Text variant='value-sm' className='truncate'>
         {name}
       </Text>
@@ -310,7 +310,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
         <Text variant='column-header'>{t('campaignDetails')}</Text>
         <div className='bg-border/60 h-px flex-1' />
       </Inline>
-      <Grid cols={{ lg: 5 }} gap='card' className='lg:mx-3'>
+      <Grid cols={{ lg: 5 }} gap='content-lg' className='lg:mx-3'>
         <div className='hidden lg:col-span-3 lg:block'>
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
@@ -319,16 +319,16 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
             landingPages={landingPages}
           />
         </div>
-        <Stack gap='section' className='lg:col-span-2'>
+        <Stack gap='content-xl' className='lg:col-span-2'>
           <div className='mx-3 lg:hidden'>
-            <Grid cols={2} gap='card'>
-              <Stack gap='minimal'>
+            <Grid cols={2} gap='content-lg'>
+              <Stack gap='content-xs'>
                 <Text variant='column-header'>{tRow('bounceRate')}</Text>
                 <Text variant='value-sm' tabular>
                   {formatPercentage(summary.bounceRate)}
                 </Text>
               </Stack>
-              <Stack gap='minimal'>
+              <Stack gap='content-xs'>
                 <Text variant='column-header'>{tRow('pagesPerSession')}</Text>
                 <Text variant='value-sm' tabular>
                   {formatNumber(summary.pagesPerSession)}
@@ -336,7 +336,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
               </Stack>
             </Grid>
           </div>
-          <Stack gap='page'>
+          <Stack gap='content-2xl'>
             <div className='mx-3 lg:mx-2'>
               <CampaignAudienceProfile
                 devices={devices}
@@ -386,7 +386,7 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
   return (
     <Stack id={`campaign-${campaignName}-details`} className='ml-1 pb-2'>
       {status === 'pending' ? (
-        <Inline justify='center' align='center' gap='card' className='py-8'>
+        <Inline justify='center' align='center' gap='content-lg' className='py-8'>
           <Spinner size='sm' aria-label='Loading campaign details' />
           <Text variant='description'>{t('loading')}</Text>
         </Inline>

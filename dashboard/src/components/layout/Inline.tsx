@@ -2,14 +2,18 @@
 
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
-
-type GapSize = 'none' | 'tight' | 'list' | 'card' | 'section';
-type Alignment = 'start' | 'center' | 'end' | 'baseline' | 'stretch';
-type Justification = 'start' | 'center' | 'end' | 'between' | 'around';
+import {
+  GAP_CLASSES,
+  type GapSize,
+  ALIGN_CLASSES,
+  type Alignment,
+  JUSTIFY_CLASSES,
+  type Justification,
+} from './spacings';
 
 type InlineProps = {
   children: ReactNode;
-  /** Gap between children. Default: 'list' */
+  /** Gap between children. Default: 'content-xl' */
   gap?: GapSize;
   /** Vertical alignment. Default: 'center' */
   align?: Alignment;
@@ -17,38 +21,15 @@ type InlineProps = {
   justify?: Justification;
   /** Allow wrapping. Default: false */
   wrap?: boolean;
-  className?: string;
-};
-
-const gapClasses: Record<GapSize, string> = {
-  none: 'gap-0',
-  tight: 'gap-tight',
-  list: 'gap-list',
-  card: 'gap-card',
-  section: 'gap-section',
-};
-
-const alignClasses: Record<Alignment, string> = {
-  start: 'items-start',
-  center: 'items-center',
-  end: 'items-end',
-  baseline: 'items-baseline',
-  stretch: 'items-stretch',
-};
-
-const justifyClasses: Record<Justification, string> = {
-  start: 'justify-start',
-  center: 'justify-center',
-  end: 'justify-end',
-  between: 'justify-between',
-  around: 'justify-around',
-};
+} & React.ComponentProps<'div'>;
 
 /**
  * Inline - Horizontal layout component for inline elements with consistent spacing.
  *
+ * Use gap `layout-*` for layout spacing and `content-*` for content spacing.
+ *
  * @example
- * <Inline gap="list" align="center">
+ * <Inline gap="content-xl" align="center">
  *   <Icon />
  *   <span>Label</span>
  * </Inline>
@@ -61,19 +42,21 @@ const justifyClasses: Record<Justification, string> = {
  */
 export function Inline({
   children,
-  gap = 'list',
+  gap = 'content-xl',
   align = 'center',
   justify = 'start',
   wrap = false,
   className,
+  ...props
 }: InlineProps) {
   return (
     <div
+      {...props}
       className={cn(
         'flex',
-        gapClasses[gap],
-        alignClasses[align],
-        justifyClasses[justify],
+        GAP_CLASSES[gap],
+        ALIGN_CLASSES[align],
+        JUSTIFY_CLASSES[justify],
         wrap && 'flex-wrap',
         className,
       )}

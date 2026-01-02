@@ -147,7 +147,7 @@ export function EditMonitorSheet({
                 <Trash2 className='h-4 w-4' aria-hidden />
                 <span>{t('delete.trigger')}</span>
               </Button>
-              <Inline gap='card' align='center'>
+              <Inline gap='content-lg' align='center'>
                 {form.isDirty && (
                   <div className='flex items-center gap-2'>
                     <div className='h-2 w-2 animate-pulse rounded-full bg-amber-500' />

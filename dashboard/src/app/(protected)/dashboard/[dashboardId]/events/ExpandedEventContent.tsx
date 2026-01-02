@@ -45,7 +45,7 @@ export function ExpandedEventContent({
           <Text variant='description'>{t('loading')}</Text>
         </div>
       ) : propertiesData?.properties.length ? (
-        <Stack gap='card' className='py-4 pr-6 pl-8'>
+        <Stack gap='content-lg' className='py-4 pr-6 pl-8'>
           {propertiesData.properties.map((property) => (
             <PropertyRow
               key={property.propertyName}

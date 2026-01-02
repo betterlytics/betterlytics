@@ -64,7 +64,7 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
       </span>
       <span className='flex h-5 w-5 shrink-0 items-center justify-center'>{group.icon}</span>
       <div className='min-w-0 flex-1 text-left'>
-        <Inline gap='list'>
+        <Inline gap='content-md'>
           <span className='truncate text-xs font-medium'>{group.label}</span>
           {group.count > 1 && (
             <span className='text-muted-foreground text-[11px] whitespace-nowrap'>(×{group.count})</span>

@@ -12,9 +12,9 @@ type CardHeaderProps = {
 
 export function CardHeader({ title, badge, actions }: CardHeaderProps) {
   return (
-    <Inline gap='list' justify='between'>
+    <Inline gap='content-md' justify='between'>
       <Text variant='label'>{title}</Text>
-      <Inline gap='list'>
+      <Inline gap='content-md'>
         {actions}
         {badge}
       </Inline>

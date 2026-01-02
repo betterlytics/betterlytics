@@ -1,36 +1,25 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { Inline } from './Inline';
 
-type GapSize = 'none' | 'minimal' | 'tight' | 'list' | 'card' | 'section' | 'page';
-
-type StackProps = {
-  gap?: GapSize;
-} & React.ComponentProps<'div'>;
-
-const gapClasses: Record<GapSize, string> = {
-  none: 'gap-0',
-  minimal: 'gap-minimal',
-  tight: 'gap-tight',
-  list: 'gap-list',
-  card: 'gap-card',
-  section: 'gap-section',
-  page: 'gap-page',
-};
+type StackProps = React.ComponentProps<typeof Inline>;
 
 /**
  * Stack - Vertical layout component for stacking children with consistent spacing.
  *
+ * Use gap `layout-*` for layout spacing and `content-*` for content spacing.
+ *
  * @example
- * <Stack gap="section">
+ * <Stack gap="layout-xl">
  *   <Card>...</Card>
  *   <Card>...</Card>
  * </Stack>
  */
-export function Stack({ children, gap = 'section', className, ...props }: StackProps) {
+export function Stack({ children, className, ...props }: StackProps) {
   return (
-    <div {...props} className={cn('flex flex-col', gapClasses[gap], className)}>
+    <Inline {...props} className={cn('flex-col', className)}>
       {children}
-    </div>
+    </Inline>
   );
 }

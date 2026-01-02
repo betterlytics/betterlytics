@@ -30,12 +30,12 @@ interface EventLogProps {
 }
 
 const EmptyState = ({ t }: { t: EventLogTranslation }) => (
-  <Stack gap='card' className='items-center py-16'>
+  <Stack gap='content-lg' className='items-center py-16'>
     <div className='bg-muted/50 relative flex h-12 w-12 items-center justify-center rounded-full'>
       <Clock className='text-muted-foreground h-6 w-6' />
       <div className='absolute inset-0 animate-pulse rounded-full bg-green-500/10' />
     </div>
-    <Stack gap='minimal' className='items-center text-center'>
+    <Stack gap='content-xs' className='items-center text-center'>
       <Text variant='body' className='font-medium'>
         {t('waiting')}
       </Text>
@@ -45,7 +45,7 @@ const EmptyState = ({ t }: { t: EventLogTranslation }) => (
 );
 
 const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
-  <Inline gap='card' justify='center' className='border-border/60 bg-muted/10 border-t py-6'>
+  <Inline gap='content-lg' justify='center' className='border-border/60 bg-muted/10 border-t py-6'>
     <Spinner size='sm' />
     <Text variant='description' className='font-medium'>
       {t('loadingMore')}

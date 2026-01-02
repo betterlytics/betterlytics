@@ -7,5 +7,5 @@ type PageContainerProps = {
 };
 
 export function PageContainer({ children, className }: PageContainerProps) {
-  return <div className={cn('space-y-section container p-2 pt-4 sm:p-6', className)}>{children}</div>;
+  return <div className={cn('space-y-layout-xl container p-2 pt-4 sm:p-6', className)}>{children}</div>;
 }

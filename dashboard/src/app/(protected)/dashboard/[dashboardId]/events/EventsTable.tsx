@@ -101,7 +101,7 @@ export function EventsTable({ data }: EventsTableProps) {
         cell: ({ row }) => {
           const event = row.original;
           return (
-            <Inline gap='card'>
+            <Inline gap='content-lg'>
               <div className='flex h-4 w-4 items-center justify-center'>
                 {event.isExpanded ? (
                   <ChevronDown className='text-primary h-4 w-4' />
@@ -198,11 +198,11 @@ export function EventsTable({ data }: EventsTableProps) {
     return (
       <Card className='border-border/50'>
         <CardContent className='p-12'>
-          <Stack gap='card' className='items-center text-center'>
+          <Stack gap='content-lg' className='items-center text-center'>
             <div className='bg-muted/30 inline-flex h-16 w-16 items-center justify-center rounded-full'>
               <Activity className='text-primary h-8 w-8' />
             </div>
-            <Stack gap='minimal'>
+            <Stack gap='content-xs'>
               <Text variant='heading-sm'>{t('noEvents')}</Text>
               <Text variant='description' className='mx-auto max-w-sm leading-relaxed'>
                 {t('noEventsDesc')}
@@ -221,7 +221,7 @@ export function EventsTable({ data }: EventsTableProps) {
           <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
             <Activity className='text-primary h-4 w-4' />
           </div>
-          <Inline gap='card'>
+          <Inline gap='content-lg'>
             <span>{t('eventDetails')}</span>
             <Badge variant='secondary' className='text-xs font-normal'>
               {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}

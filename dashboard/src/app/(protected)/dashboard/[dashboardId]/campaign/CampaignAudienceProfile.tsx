@@ -45,15 +45,15 @@ const CampaignAudienceProfile = memo(
     }
 
     return (
-      <Stack aria-label='Audience profile' gap='tight'>
+      <Stack aria-label='Audience profile' gap='content-sm'>
         <Text variant='body' as='p' className='mb-1 leading-tight font-medium'>
           {t('title')}
         </Text>
-        <Grid cols={{ base: 2, xl: 4 }} gap='card' className='gap-x-section'>
+        <Grid cols={{ base: 2, xl: 4 }} gap='content-lg' className='gap-x-content-xl'>
           {sections.map((section) => (
-            <Stack key={section.key} gap='list'>
+            <Stack key={section.key} gap='content-md'>
               <Text variant='column-header'>{section.title}</Text>
-              <Stack gap='tight'>
+              <Stack gap='content-sm'>
                 {section.items.map((item) => {
                   const { icon, label } = getAudienceIconAndLabel(section.key, item.label, locale);
                   return (

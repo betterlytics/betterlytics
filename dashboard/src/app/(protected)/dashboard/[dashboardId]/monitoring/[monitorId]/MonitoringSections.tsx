@@ -235,7 +235,7 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   return (
     <TableRow className='text-sm'>
       <TableCell>
-        <Inline gap='list'>
+        <Inline gap='content-md'>
           <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </Inline>
@@ -260,7 +260,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
   return (
     <TableRow className='text-sm'>
       <TableCell>
-        <Inline gap='list'>
+        <Inline gap='content-md'>
           <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
         </Inline>

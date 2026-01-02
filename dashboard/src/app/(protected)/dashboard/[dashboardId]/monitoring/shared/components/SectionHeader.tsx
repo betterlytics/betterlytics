@@ -9,7 +9,7 @@ type SectionHeaderProps = {
 
 export function SectionHeader({ icon: Icon, title }: SectionHeaderProps) {
   return (
-    <Inline gap='list'>
+    <Inline gap='content-md'>
       <Icon className='text-muted-foreground h-4 w-4' />
       <Text as='h3' variant='body' className='font-semibold tracking-tight'>
         {title}
