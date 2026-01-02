@@ -18,17 +18,29 @@ import { isUrlOnDomain } from '@/utils/domainValidation';
 import { useMonitorForm } from './shared/hooks/useMonitorForm';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from './shared/components';
 import { normalizeUrl } from '@/utils/domainValidation';
+import { UpgradeButton } from '@/components/billing/UpgradeButton';
 
 type CreateMonitorDialogProps = {
   dashboardId: string;
   domain: string;
   existingUrls: string[];
   disabled?: boolean;
+  monitorCount: number;
+  maxMonitors: number;
+  atLimit: boolean;
 };
 
 type Section = 'timing' | 'alerts' | 'advanced' | null;
 
-export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disabled }: CreateMonitorDialogProps) {
+export function CreateMonitorDialog({
+  dashboardId,
+  domain,
+  existingUrls,
+  disabled,
+  monitorCount,
+  maxMonitors,
+  atLimit,
+}: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState(`https://${domain}`);
   const [expandedSection, setExpandedSection] = useState<Section>('timing');
@@ -89,15 +101,21 @@ export function CreateMonitorDialog({ dashboardId, domain, existingUrls, disable
 
   const hasError = urlEmpty || urlInvalid || hasCustomPort || isDuplicate || invalidProtocol;
 
-  // SSL monitoring is enabled if URL is https
   const isHttps = url.trim().startsWith('https://');
   const sslMonitoringEnabled = isHttps && form.state.checkSslErrors;
+
+  if (atLimit) {
+    return <UpgradeButton>{t('upgradeToCreate')}</UpgradeButton>;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled}>
           {t('create')}
+          <span className='ml-1.5 text-xs opacity-70'>
+            ({monitorCount}/{maxMonitors})
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>

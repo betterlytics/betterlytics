@@ -11,8 +11,7 @@ import {
   updateMonitorCheck,
   deleteMonitorCheck,
   checkMonitorUrlExists,
-} from '@/services/analytics/monitoring.service';
-import {
+  countMonitorChecks,
   fetchLatestMonitorTlsResult,
   fetchMonitorDailyUptime,
   fetchMonitorIncidentSegments,
@@ -24,6 +23,8 @@ import { revalidatePath } from 'next/cache';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
+import { getCapabilities } from '@/lib/billing/capabilityAccess';
+import { monitoringValidator } from '@/lib/billing/validators';
 import z from 'zod';
 
 export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext, timezone: string) => {
@@ -50,6 +51,17 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException(t('monitorAlreadyExists'));
     }
 
+    const caps = await getCapabilities();
+    const validator = await monitoringValidator(caps.monitoring);
+
+    await validator
+      .minInterval(payload.intervalSeconds)
+      .httpMethod(payload.httpMethod)
+      .statusCodes(payload.acceptedStatusCodes)
+      .customHeaders(payload.requestHeaders)
+      .monitorLimit(() => countMonitorChecks(ctx.dashboardId))
+      .validate();
+
     const created = await addMonitorCheck(ctx.dashboardId, {
       ...payload,
       alertEmails: [(await getCachedSession())!.user.email],
@@ -63,6 +75,20 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 export const updateMonitorCheckAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof MonitorCheckUpdateSchema>) => {
     const payload = MonitorCheckUpdateSchema.parse(input);
+    const caps = await getCapabilities();
+
+    // Only validate fields that are being updated
+    const validator = await monitoringValidator(caps.monitoring);
+
+    if (payload.intervalSeconds !== undefined) {
+      validator.minInterval(payload.intervalSeconds);
+    }
+
+    await validator
+      .httpMethod(payload.httpMethod)
+      .statusCodes(payload.acceptedStatusCodes)
+      .customHeaders(payload.requestHeaders)
+      .validate();
 
     const updated = await updateMonitorCheck(ctx.dashboardId, payload);
 

@@ -633,6 +633,7 @@
         "subtitle": "Access your analytics dashboard",
         "errors": {
           "CredentialsSignin": "Invalid email or password. Please check your credentials and try again.",
+          "OAuthAccountNotLinked": "An account with this email already exists. Please sign in with your email and password instead.",
           "default": "An error occurred during sign in. Please try again."
         },
         "cta": {
@@ -1138,6 +1139,11 @@
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
+    },
+    "upgradeCard": {
+      "title": "Need more dashboards?",
+      "description": "Pro supports up to 50 sites",
+      "cta": "Upgrade to Pro"
     }
   },
   "monitoring": {
@@ -1179,7 +1185,6 @@
     "labels": {
       "noData": "No data",
       "uptimeSuffix": "uptime",
-      "recommended": "recommended",
       "daysLeft": "{count, plural, one {{count}d left} other {{count}d left}}",
       "hoursLeft": "{count, plural, one {{count}h left} other {{count}h left}}",
       "daysLeftFull": "{count, plural, one {Expires in {count} day} other {Expires in {count} days}}",
@@ -1264,6 +1269,7 @@
     },
     "form": {
       "create": "New monitor",
+      "upgradeToCreate": "Upgrade to add more",
       "title": "Create monitor",
       "fields": {
         "name": "Name",
@@ -1601,6 +1607,13 @@
         },
         "limitTooltip": "You've reached your dashboard limit. Upgrade your plan to create more dashboards."
       }
+    },
+    "slider": {
+      "recommended": "recommended"
+    },
+    "proFeature": {
+      "badge": "PRO",
+      "upgradeRequired": "Upgrade to Pro to unlock this feature"
     },
     "billing": {
       "navigation": {
@@ -2556,7 +2569,15 @@
   "validation": {
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
-    "monitorAlreadyExists": "A monitor for this URL already exists"
+    "monitorAlreadyExists": "A monitor for this URL already exists",
+    "capabilities": {
+      "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
+      "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
+      "minInterval": "Faster monitoring intervals require a Professional plan",
+      "httpMethod": "Custom HTTP methods require a Professional plan",
+      "statusCodes": "Custom status codes require a Professional plan",
+      "customHeaders": "Custom request headers require a Professional plan"
+    }
   },
   "banners": {
     "verifyEmail": {

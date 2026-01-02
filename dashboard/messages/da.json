@@ -633,6 +633,7 @@
         "subtitle": "Få adgang til dit analyse-dashboard",
         "errors": {
           "CredentialsSignin": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
+          "OAuthAccountNotLinked": "Der findes allerede en konto med denne e-mail. Log venligst ind med din e-mail og adgangskode i stedet.",
           "default": "Der opstod en fejl under login. Prøv venligst igen."
         },
         "cta": {
@@ -1138,6 +1139,11 @@
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
+    },
+    "upgradeCard": {
+      "title": "Brug for flere dashboards?",
+      "description": "Pro understøtter op til 50 sites",
+      "cta": "Opgrader til Pro"
     }
   },
   "monitoring": {
@@ -1179,7 +1185,6 @@
     "labels": {
       "noData": "Ingen data",
       "uptimeSuffix": "oppetid",
-      "recommended": "anbefalet",
       "daysLeft": "{count, plural, one {{count}d tilbage} other {{count}d tilbage}}",
       "hoursLeft": "{count, plural, one {{count}t tilbage} other {{count}t tilbage}}",
       "daysLeftFull": "{count, plural, one {Udløber om {count} dag} other {Udløber om {count} dage}}",
@@ -1263,6 +1268,7 @@
     },
     "form": {
       "create": "Ny overvågning",
+      "upgradeToCreate": "Opgrader for flere",
       "title": "Opret overvågning",
       "description": "Overvåg et endpoint for oppetid, responstid og SSL-status.",
       "fields": {
@@ -1601,6 +1607,13 @@
         },
         "limitTooltip": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
       }
+    },
+    "slider": {
+      "recommended": "anbefalet"
+    },
+    "proFeature": {
+      "badge": "PRO",
+      "upgradeRequired": "Opgrader til Pro for at låse denne funktion op"
     },
     "billing": {
       "navigation": {
@@ -2556,7 +2569,15 @@
   "validation": {
     "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
-    "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede"
+    "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
+    "capabilities": {
+      "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til Pro for at oprette flere dashboards.",
+      "monitorLimit": "Du har nået din monitor-grænse. Opgrader til Pro for at oprette flere monitorer.",
+      "minInterval": "Hurtigere overvågningsintervaller kræver en Professional plan",
+      "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
+      "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
+      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan"
+    }
   },
   "banners": {
     "verifyEmail": {

@@ -213,12 +213,4 @@ export function getTierConfigFromLookupKey(lookupKey: string): { tier: TierName;
   throw new Error(`Unknown price lookup key: ${lookupKey}`);
 }
 
-export const DASHBOARD_LIMITS = {
-  growth: 1,
-  professional: 50,
-  enterprise: 9999,
-} as const;
-
-export function getDashboardLimitForTier(tier: TierName): number {
-  return DASHBOARD_LIMITS[tier];
-}
+export { getDashboardLimitForTier } from './capabilities';

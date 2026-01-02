@@ -17,6 +17,7 @@ import {
   createMonitorCheck,
   getMonitorCheckById,
   listMonitorChecks,
+  countMonitorChecks as countMonitorChecksRepo,
   updateMonitorCheck as updateMonitorCheckRepo,
   deleteMonitorCheck as deleteMonitorCheckRepo,
   monitorExistsForUrl as monitorExistsForUrlRepo,
@@ -62,6 +63,10 @@ export async function checkMonitorUrlExists(
   excludeMonitorId?: string,
 ): Promise<boolean> {
   return monitorExistsForUrlRepo(dashboardId, url, excludeMonitorId);
+}
+
+export async function countMonitorChecks(dashboardId: string): Promise<number> {
+  return countMonitorChecksRepo(dashboardId);
 }
 
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string, timezone: string) {
