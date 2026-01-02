@@ -9,6 +9,26 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// CSS for animations
+const animationStyles = `
+  @keyframes tabContentFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .tab-content-animated[data-state="active"] {
+    animation: tabContentFadeIn 0.2s ease-out;
+  }
+  .tab-indicator {
+    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+`;
+
 interface ProgressBarData {
   label: string;
   value: number;
@@ -45,8 +65,16 @@ function MultiProgressTable<T extends ProgressBarData>({
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+  
   const t = useTranslations('dashboard.emptyStates');
   const tFilters = useTranslations('components.filters');
+
+  // Get the active tab index for CSS transform calculation
+  const activeTabIndex = useMemo(() => {
+    const index = tabs.findIndex(tab => tab.key === activeTab);
+    return index >= 0 ? index : 0;
+  }, [tabs, activeTab]);
+
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
   }, []);
@@ -166,27 +194,44 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   const tabsList = useMemo(
     () => (
-      <TabsList
-        className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background w-full gap-1 px-1 inset-shadow-sm`}
-      >
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.key}
-            value={tab.key}
-            className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
-          >
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <div className="relative">
+        {/* Inject animation styles */}
+        <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
+        
+        <TabsList
+          className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background relative w-full gap-1 px-1 inset-shadow-sm overflow-hidden`}
+        >
+          {/* Sliding indicator using CSS transforms */}
+          <div
+            className="tab-indicator absolute top-[3px] bottom-[3px] z-0 rounded-sm border border-border bg-background shadow-sm pointer-events-none"
+            style={{
+              // Width: (container - 2*padding - (n-1)*gap) / n
+              // Container padding is 4px (px-1) on each side = 8px total, gap is 4px (gap-1)
+              width: `calc((100% - 8px - ${(tabs.length - 1) * 4}px) / ${tabs.length})`,
+              // Left position: padding + index * (width + gap)
+              left: `calc(4px + ${activeTabIndex} * ((100% - 8px - ${(tabs.length - 1) * 4}px) / ${tabs.length} + 4px))`,
+            }}
+          />
+          
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.key}
+              value={tab.key}
+              className='relative z-10 hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
     ),
-    [tabs],
+    [tabs, activeTabIndex],
   );
 
   const tabsContent = useMemo(
     () =>
       tabs.map((tab) => (
-        <TabsContent key={tab.key} value={tab.key} className='mt-0'>
+        <TabsContent key={tab.key} value={tab.key} className='mt-0 tab-content-animated'>
           {renderTabContent(tab)}
         </TabsContent>
       )),
