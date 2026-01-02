@@ -9,7 +9,7 @@ const cardVariants = cva('bg-card text-card-foreground flex flex-col rounded-xl 
     variant: {
       default: 'gap-content-2xl py-content-2xl shadow-sm',
       section:
-        'border-border bg-card gap-content-sm p-content-lg shadow-lg shadow-black/10 sm:px-content-2xl sm:pt-content-xl sm:pb-content-xl',
+        'border-border bg-card gap-content-sm p-content-lg pt-content-xl shadow-lg shadow-black/10 sm:px-content-2xl sm:pt-content-xl sm:pb-content-xl',
       empty: 'border-border bg-card px-6 py-10 text-center shadow-sm',
     },
     minHeight: {

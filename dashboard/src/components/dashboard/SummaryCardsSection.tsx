@@ -21,7 +21,7 @@ type SummaryCardsSectionProps = {
 
 export default function SummaryCardsSection({ cards, className }: SummaryCardsSectionProps) {
   return (
-    <div className={`sm:gap-layout-xl gap-layout-xl grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 ${className}`}>
+    <div className={`sm:gap-layout-xl gap-layout-md grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 ${className}`}>
       {cards.map((card, index) => (
         <SummaryCard
           key={index}

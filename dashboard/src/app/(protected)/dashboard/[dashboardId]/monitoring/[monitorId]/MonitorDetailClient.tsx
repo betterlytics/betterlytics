@@ -217,7 +217,7 @@ export function MonitorDetailClient({
 
       <ResponseTimeCard metrics={metricsQuery.data} />
 
-      <Grid cols={{ base: 1, lg: 2, xl: 3 }} gap='content-md'>
+      <Grid cols={{ base: 1, lg: 2, xl: 3 }} gap='layout-xl'>
         <IncidentsCard incidents={incidentsQuery.data ?? []} />
 
         <Uptime180DayCard uptime={initialData.uptime} />

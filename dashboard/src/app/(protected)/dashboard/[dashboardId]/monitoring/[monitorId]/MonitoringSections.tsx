@@ -197,7 +197,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
           </div>
         </div>
 
-        <div className='grid grid-cols-1 gap-2 text-xs sm:text-sm 2xl:grid-cols-2'>
+        <div className='gap-content-md grid grid-cols-1 sm:text-sm 2xl:grid-cols-2'>
           {stats.map((stat) => {
             const downtimeLabel = stat.downtime
               ? tDowntime(stat.downtime.unit, { value: stat.downtime.value })
@@ -208,11 +208,13 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
               >
                 <Text variant='label'>{t('uptime.stats.label', { days: stat.windowDays })}</Text>
-                <div className='text-right'>
-                  <div className={presentUptimeTone(stat.percent).theme.text}>
+                <div className='space-y-0 text-right'>
+                  <div className={cn(presentUptimeTone(stat.percent).theme.text, 'text-xs sm:text-sm')}>
                     {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
                   </div>
-                  <Text variant='caption'>{downtimeLabel}</Text>
+                  <Text variant='caption' tone='muted'>
+                    {downtimeLabel}
+                  </Text>
                 </div>
               </div>
             );
