@@ -1115,8 +1115,7 @@
       "sites": {
         "name": "Sites",
         "values": {
-          "1": "1",
-          "2": "2",
+          "upTo2": "Up to 2",
           "upTo50": "Up to 50",
           "unlimited": "Unlimited"
         }
@@ -1169,8 +1168,12 @@
       "sslMonitoring": {
         "name": "SSL certificate monitoring"
       },
-      "advancedIntervals": {
-        "name": "30s uptime check intervals"
+      "checkInterval": {
+        "name": "Minimum check interval",
+        "values": {
+          "5min": "5 min",
+          "1min": "1 min"
+        }
       },
       "customHttpMethods": {
         "name": "GET/POST HTTP methods"

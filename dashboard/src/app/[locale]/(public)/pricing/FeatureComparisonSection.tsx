@@ -24,7 +24,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     key: 'usageLimits',
     features: [
       { key: 'monthlyEvents', growth: 'range', professional: 'range', enterprise: 'custom' },
-      { key: 'sites', growth: '2', professional: 'upTo50', enterprise: 'unlimited' },
+      { key: 'sites', growth: 'upTo2', professional: 'upTo50', enterprise: 'unlimited' },
       { key: 'dataRetention', growth: '1year', professional: '3years', enterprise: '5years' },
     ],
   },
@@ -44,8 +44,8 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     key: 'observability',
     features: [
       { key: 'uptimeMonitoring', growth: '5', professional: '50', enterprise: 'unlimited' },
+      { key: 'checkInterval', growth: '5min', professional: '1min', enterprise: '1min' },
       { key: 'sslMonitoring', growth: true, professional: true, enterprise: true },
-      { key: 'advancedIntervals', growth: false, professional: true, enterprise: true },
       { key: 'customHttpMethods', growth: false, professional: true, enterprise: true },
       { key: 'customRequestHeaders', growth: false, professional: true, enterprise: true },
       { key: 'customStatusCodes', growth: false, professional: true, enterprise: true },
