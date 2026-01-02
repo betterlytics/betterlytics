@@ -45,7 +45,8 @@ export interface ComparisonLocaleContent {
       | 'server'
       | 'clock'
       | 'lock'
-      | 'gauge';
+      | 'gauge'
+      | 'check';
   }[];
   cta?: {
     eyebrow?: string;

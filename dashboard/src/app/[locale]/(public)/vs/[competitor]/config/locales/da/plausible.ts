@@ -120,8 +120,8 @@ export const plausible: ComparisonLocaleContent = {
       icon: 'dollar',
     },
     {
-      title: 'Hvor Plausible er stærk',
-      content: `Plausible er fuldt open source, og du kan gennemgå hver linje kode. Self-hosting giver fuld kontrol over dine data, og deres script er marginalt mindre i gennemsnit.\n\nHvis open source og self-hosting er ufravigelige krav, er Plausible et fremragende valg. Men hvis du ønsker flere funktioner med managed hosting og simpel prissætning, giver Betterlytics mere værdi.`,
+      title: 'Når Plausible passer bedre',
+      content: `Plausible holder sit fokus bevidst snævert: privatlivsvenlig trafikanalyse med en velkendt minimalistisk brugerflade. Hvis du kun har brug for sidevisninger, henvisninger og konverteringsmål uden ekstra kompleksitet, kan Plausibles fokuserede produkt og etablerede brand være det mest trygge valg.\n\nBetterlytics tilføjer session replay, brugerrejser, performance-indsigt og overvågning uden at gå på kompromis med privatlivsgrundlaget. Hvis du er klar til dybere indsigt i brugeradfærd og færre leverandører, er funktionaliteten allerede indbygget. Ingen ekstra værktøjer, der skal sammensættes.`,
       icon: 'target',
     },
   ],

@@ -120,8 +120,8 @@ export const plausible: ComparisonLocaleContent = {
       icon: 'dollar',
     },
     {
-      title: 'Where Plausible Wins',
-      content: `Plausible is fully open source, you can audit every line of code. Self-hosting gives you complete data control. Their script is slightly smaller on average.\n\nIf open source and self-hosting are non-negotiable, Plausible is excellent. But if you want more features with managed hosting and simpler pricing, Betterlytics delivers more value.`,
+      title: 'When Plausible Fits Better',
+      content: `Plausible keeps its scope intentionally narrow: privacy-first traffic analytics with a famously minimalist UI. If you just need pageviews, referrers, and conversion goals with zero extra surface area, Plausible's focused product and established brand might be the more comfortable choice.\n\nBetterlytics adds session replay, journeys, performance insights, and monitoring without abandoning that privacy baseline. If you're ready for deeper behavior insight and fewer vendors, the extra capability is already built in; no extra tools to stitch together.`,
       icon: 'target',
     },
   ],

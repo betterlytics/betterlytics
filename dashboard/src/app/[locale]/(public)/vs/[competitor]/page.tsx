@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import {
-  Check,
   ChevronRight,
   Shield,
   Zap,
@@ -18,6 +17,7 @@ import {
   Clock,
   Lock,
   Gauge,
+  Check,
   type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -75,6 +75,7 @@ const ICON_MAP: Record<ComparisonLocaleContent['detailedComparison'][number]['ic
   clock: Clock,
   lock: Lock,
   gauge: Gauge,
+  check: Check,
 };
 
 function HighlightedTitle({ title, highlight }: { title: string; highlight?: string }) {
