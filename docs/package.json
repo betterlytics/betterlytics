@@ -12,12 +12,12 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
-    "next": "15.3.8",
-    "nextjs-toploader": "^3.8.16",
-    "nextra": "^4.2.17",
-    "nextra-theme-docs": "^4.2.17",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
+    "next": "15.4.10",
+    "nextjs-toploader": "^3.9.17",
+    "nextra": "^4.6.1",
+    "nextra-theme-docs": "^4.6.1",
+    "react": "^19.0.3",
+    "react-dom": "^19.0.3",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.63"
   },
