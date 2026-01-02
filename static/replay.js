@@ -8358,7 +8358,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     };
 
     var config = {
-      maxChunkMs: 30000,
+      maxChunkMs: 15000,
       maxUncompressedBytes: 1 * 1024 * 1024,
       maxConsecutiveFlushErrors: 3,
     };
@@ -8519,7 +8519,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           return;
         }
         if (state.buffer.length > 0) {
-          flush();
+          flush().then(() => finalizeSession());
         }
       }, Math.max(3000, config.maxChunkMs));
     }
