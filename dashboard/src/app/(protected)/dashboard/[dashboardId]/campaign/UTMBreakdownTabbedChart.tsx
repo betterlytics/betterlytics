@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { getCampaignSourceColor } from '@/utils/campaignColors';
+import { getColorForValue } from '@/utils/colorUtils';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
@@ -38,7 +38,9 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
       return {
         name,
         value: item.visitors,
-        color: getCampaignSourceColor(name),
+        color: getColorForValue(name, {
+          format: 'rgb',
+        }),
         percentage: totalVisitors > 0 ? (item.visitors / totalVisitors) * 100 : 0,
       };
     });
