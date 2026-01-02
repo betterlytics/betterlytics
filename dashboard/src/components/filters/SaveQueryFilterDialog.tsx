@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useCreateSavedFilter } from '@/hooks/use-saved-filters';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
+import { baEvent } from '@/lib/ba-event';
 
 type SaveQueryFilterDialogProps = {
   open: boolean;
@@ -42,6 +43,7 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
     } catch {
       toast.error(t('selector.toastFilterSavedError'));
     }
+    baEvent('query-filter-saved');
   }, [filterName, filters, createSavedFilterMutation, onOpenChange, t]);
 
   const handleOpenChange = useCallback(

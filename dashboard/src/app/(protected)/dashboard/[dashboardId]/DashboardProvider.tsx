@@ -55,7 +55,7 @@ function SyncURLFilters() {
 
 function RealtimeRefresh() {
   const { interval } = useTimeRangeContext();
-  const { setPresetRange } = useImmediateTimeRange();
+  const { setPresetRange } = useImmediateTimeRange(false);
 
   useEffect(() => {
     if (interval === 'realtime') {
