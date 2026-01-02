@@ -1,6 +1,8 @@
 'use client';
 
 import { type ReactNode } from 'react';
+import { Inline } from '@/components/layout';
+import { Text } from '@/components/text';
 
 type CardHeaderProps = {
   title: string;
@@ -10,12 +12,12 @@ type CardHeaderProps = {
 
 export function CardHeader({ title, badge, actions }: CardHeaderProps) {
   return (
-    <div className='flex items-center justify-between gap-2'>
-      <p className='text-muted-foreground text-sm font-semibold tracking-wide'>{title}</p>
-      <div className='flex items-center gap-2'>
+    <Inline gap='content-md' justify='between'>
+      <Text variant='label'>{title}</Text>
+      <Inline gap='content-md'>
         {actions}
         {badge}
-      </div>
-    </div>
+      </Inline>
+    </Inline>
   );
 }

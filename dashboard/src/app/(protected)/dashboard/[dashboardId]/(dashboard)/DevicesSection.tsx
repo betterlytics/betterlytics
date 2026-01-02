@@ -6,9 +6,8 @@ import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
 import { useTranslations } from 'next-intl';
-import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { TableGoToFooterLink } from './TableGoToFooterLink';
 
 type DevicesSectionProps = {
   deviceBreakdownCombinedPromise: ReturnType<typeof fetchDeviceBreakdownCombinedAction>;
@@ -79,15 +78,7 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
           })),
         },
       ]}
-      footer={
-        <FilterPreservingLink
-          href='devices'
-          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-        >
-          <span>{t('goTo', { section: t('sidebar.devices') })}</span>
-          <ArrowRight className='h-3.5 w-3.5' />
-        </FilterPreservingLink>
-      }
+      footer={<TableGoToFooterLink href='devices' label={t('goTo', { section: t('sidebar.devices') })} />}
     />
   );
 }

@@ -4,7 +4,8 @@ import { use, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Inline } from '@/components/layout';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
@@ -29,7 +30,7 @@ export default function OutboundLinksTableSection({
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
         cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
+          <Inline gap='content-md'>
             <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
             <ExternalLink
               href={`https://${row.original.current.outbound_link_url}`}
@@ -39,7 +40,7 @@ export default function OutboundLinksTableSection({
             >
               {formatString(row.original.current.outbound_link_url)}
             </ExternalLink>
-          </div>
+          </Inline>
         ),
         accessorFn: (row) => row.current.outbound_link_url,
       },
@@ -70,11 +71,11 @@ export default function OutboundLinksTableSection({
   );
 
   return (
-    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-      <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+    <Card variant='section' minHeight='chart'>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='px-0'>
+      <CardContent>
         <DataTable data={outboundLinksData} columns={columns} />
       </CardContent>
     </Card>

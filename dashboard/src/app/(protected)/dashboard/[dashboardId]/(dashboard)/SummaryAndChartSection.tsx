@@ -98,14 +98,12 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
   ];
 
   return (
-    <div className='space-y-6'>
-      <OverviewChartSection
-        activeMetric={activeMetric}
-        visitorsData={visitorsData}
-        pageviewsData={pageviewsData}
-        sessionMetricsData={sessionMetricsData}
-        cards={cards}
-      />
-    </div>
+    <OverviewChartSection
+      activeMetric={activeMetric}
+      visitorsData={visitorsData}
+      pageviewsData={pageviewsData}
+      sessionMetricsData={sessionMetricsData}
+      cards={cards}
+    />
   );
 }

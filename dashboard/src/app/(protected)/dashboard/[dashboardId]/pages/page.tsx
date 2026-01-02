@@ -14,6 +14,7 @@ import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
+import { PageContainer } from '@/components/layout';
 
 type PagesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -62,7 +63,7 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
   );
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+    <PageContainer>
       <DashboardHeader title={t('pages')}>
         <DashboardFilters />
       </DashboardHeader>
@@ -78,6 +79,6 @@ export default async function PagesPage({ params, searchParams }: PagesPageParam
           exitPageAnalyticsPromise={exitPageAnalyticsPromise}
         />
       </Suspense>
-    </div>
+    </PageContainer>
   );
 }

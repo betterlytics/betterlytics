@@ -47,6 +47,22 @@
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
 
+  --spacing-layout-xs: 0.125rem;
+  --spacing-layout-sm: 0.25rem;
+  --spacing-layout-md: 0.5rem;
+  --spacing-layout-lg: 0.75rem;
+  --spacing-layout-xl: 1rem;
+  --spacing-layout-2xl: 1.5rem;
+
+  --spacing-content-xs: 0.125rem;
+  --spacing-content-sm: 0.25rem;
+  --spacing-content-md: 0.5rem;
+  --spacing-content-lg: 0.75rem;
+  --spacing-content-xl: 1rem;
+  --spacing-content-2xl: 1.5rem;
+
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
   --animate-shake: shake 0.4s ease-in-out;
 
   @keyframes shake {

@@ -14,6 +14,7 @@ import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
+import { PageContainer, Grid } from '@/components/layout';
 
 type DevicesPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -64,14 +65,14 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
   const t = await getTranslations('dashboard.sidebar');
 
   return (
-    <div className='container space-y-3 p-2 pt-4 sm:p-6'>
+    <PageContainer>
       <DashboardHeader title={t('devices')}>
         <DashboardFilters />
       </DashboardHeader>
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-3 md:grid-cols-3'>
+          <Grid cols={{ base: 1, md: 3 }}>
             <div className='md:col-span-2'>
               <ChartSkeleton />
             </div>
@@ -79,7 +80,7 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
             <div className='md:col-span-1'>
               <ChartSkeleton />
             </div>
-          </div>
+          </Grid>
         }
       >
         <DevicesChartsSection
@@ -90,14 +91,14 @@ export default async function DevicesPage({ params, searchParams }: DevicesPageP
 
       <Suspense
         fallback={
-          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+          <Grid cols={{ base: 1, md: 2 }}>
             <TableSkeleton />
             <TableSkeleton />
-          </div>
+          </Grid>
         }
       >
         <DevicesTablesSection browserStatsPromise={browserStatsPromise} osStatsPromise={osStatsPromise} />
       </Suspense>
-    </div>
+    </PageContainer>
   );
 }

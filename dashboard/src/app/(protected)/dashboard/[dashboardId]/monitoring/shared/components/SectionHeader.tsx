@@ -1,4 +1,6 @@
 import type { ComponentType } from 'react';
+import { Inline } from '@/components/layout';
+import { Text } from '@/components/text';
 
 type SectionHeaderProps = {
   icon: ComponentType<{ className?: string }>;
@@ -7,9 +9,11 @@ type SectionHeaderProps = {
 
 export function SectionHeader({ icon: Icon, title }: SectionHeaderProps) {
   return (
-    <div className='flex items-center gap-2'>
+    <Inline gap='content-md'>
       <Icon className='text-muted-foreground h-4 w-4' />
-      <h3 className='text-sm font-semibold tracking-tight'>{title}</h3>
-    </div>
+      <Text as='h3' variant='body' className='font-semibold tracking-tight'>
+        {title}
+      </Text>
+    </Inline>
   );
 }

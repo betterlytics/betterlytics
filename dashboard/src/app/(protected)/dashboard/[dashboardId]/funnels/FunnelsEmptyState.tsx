@@ -3,6 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import { Card } from '@/components/ui/card';
+import { Stack } from '@/components/layout';
+import { Text } from '@/components/text';
 
 const MOCK_FUNNEL_STEPS = [
   { name: 'homepage', visitors: '2,847', percentage: 100 },
@@ -24,12 +26,14 @@ function SkeletonFunnelStep({
 
   return (
     <div className='flex flex-col'>
-      <div className='border-border/30 border-b px-3 pt-2 pb-1.5'>
-        <p className='text-muted-foreground/60 text-[10px] font-medium tracking-wide uppercase'>
+      <Stack gap='content-xs' className='border-border/30 border-b px-3 pt-2 pb-1.5'>
+        <Text variant='column-header' className='opacity-60'>
           {t('step')} {index + 1}
-        </p>
-        <h4 className='text-foreground/70 truncate text-sm font-semibold'>{t(`steps.${step.name}` as any)}</h4>
-      </div>
+        </Text>
+        <Text variant='value-sm' className='text-foreground/70 truncate'>
+          {t(`steps.${step.name}` as any)}
+        </Text>
+      </Stack>
 
       <div className='flex h-28 items-end px-1 pt-2'>
         <div className='relative flex h-full w-full items-end'>
@@ -38,7 +42,7 @@ function SkeletonFunnelStep({
             style={{ height: `${step.percentage}%` }}
           />
           {!isLast && (
-            <div className='absolute right-0 bottom-0 h-full w-6 -translate-x-1/2 translate-x-full'>
+            <div className='absolute right-0 bottom-0 h-full w-6 translate-x-full'>
               <svg className='h-full w-full' preserveAspectRatio='none' viewBox='0 0 24 100'>
                 <path
                   d={`M 0 ${100 - step.percentage} L 24 ${100 - MOCK_FUNNEL_STEPS[index + 1].percentage} L 24 100 L 0 100 Z`}
@@ -50,11 +54,17 @@ function SkeletonFunnelStep({
         </div>
       </div>
 
-      <div className='flex flex-col items-center py-2'>
-        <p className='text-muted-foreground/60 text-[10px]'>{t('visitors')}</p>
-        <p className='text-foreground/70 text-sm font-semibold'>{step.visitors}</p>
-        <p className='text-muted-foreground/50 text-[10px]'>{step.percentage}%</p>
-      </div>
+      <Stack gap='content-xs' className='items-center py-2'>
+        <Text variant='caption' className='opacity-60'>
+          {t('visitors')}
+        </Text>
+        <Text variant='value-sm' className='text-foreground/70'>
+          {step.visitors}
+        </Text>
+        <Text variant='caption' className='opacity-50'>
+          {step.percentage}%
+        </Text>
+      </Stack>
     </div>
   );
 }
@@ -83,15 +93,17 @@ export function FunnelsEmptyState() {
         <div className='absolute right-0 bottom-1/3 h-40 w-40 translate-x-1/2 rounded-full bg-blue-500/5 blur-3xl' />
       </div>
 
-      <div className='relative flex flex-1 flex-col justify-center space-y-6 sm:order-2 sm:flex-none sm:pt-8'>
-        <div className='space-y-3 text-center'>
-          <h2 className='text-2xl font-semibold tracking-tight'>{t('title')}</h2>
-          <p className='text-muted-foreground mx-auto max-w-md text-sm leading-relaxed'>{t('description')}</p>
-        </div>
+      <Stack gap='content-xl' className='relative flex-1 justify-center sm:order-2 sm:flex-none sm:pt-8'>
+        <Stack gap='content-lg' className='text-center'>
+          <Text variant='heading-md'>{t('title')}</Text>
+          <Text variant='description' className='mx-auto max-w-md leading-relaxed'>
+            {t('description')}
+          </Text>
+        </Stack>
         <div className='flex justify-center'>
           <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' />
         </div>
-      </div>
+      </Stack>
 
       <div className='relative mt-auto w-full opacity-50 sm:order-1 sm:mt-0'>
         <SkeletonFunnel />

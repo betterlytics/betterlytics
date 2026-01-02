@@ -14,6 +14,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
+import { PageContainer, Grid } from '@/components/layout';
 
 type OutboundLinksPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -56,12 +57,12 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
   );
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-4 p-2 pt-4 sm:p-6'>
+    <PageContainer>
       <DashboardHeader title={t('outboundLinks')}>
         <DashboardFilters />
       </DashboardHeader>
 
-      <div className='grid grid-cols-1 gap-4 xl:grid-cols-3'>
+      <Grid cols={{ base: 1, xl: 3 }}>
         <Suspense fallback={<ChartSkeleton />}>
           <OutboundLinksPieChart distributionPromise={outboundLinksDistributionPromise} />
         </Suspense>
@@ -70,11 +71,11 @@ export default async function OutboundLinksPage({ params, searchParams }: Outbou
             <OutboundLinksChartSection outboundClicksChartPromise={outboundClicksChartPromise} />
           </Suspense>
         </div>
-      </div>
+      </Grid>
 
       <Suspense fallback={<TableSkeleton />}>
         <OutboundLinksTableSection outboundLinksAnalyticsPromise={outboundLinksAnalyticsPromise} />
       </Suspense>
-    </div>
+    </PageContainer>
   );
 }

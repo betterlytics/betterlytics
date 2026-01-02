@@ -2,9 +2,11 @@
 
 import { use } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui';
 import UserJourneyChart from '@/app/(protected)/dashboard/[dashboardId]/user-journey/UserJourneyChart';
 import { useTranslations } from 'next-intl';
+import { Text } from '@/components/text';
+import { Stack } from '@/components/layout';
 
 type UserJourneySectionProps = {
   userJourneyPromise: ReturnType<typeof fetchUserJourneyAction>;
@@ -19,10 +21,12 @@ export default function UserJourneySection({ userJourneyPromise }: UserJourneySe
       <Card className='mt-6'>
         <CardContent className='p-8'>
           <div className='flex h-[300px] items-center justify-center text-center'>
-            <div>
-              <p className='text-muted-foreground mb-1'>{t('noUserJourneyData')}</p>
-              <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-            </div>
+            <Stack gap='content-md'>
+              <Text variant='description'>{t('noUserJourneyData')}</Text>
+              <Text variant='caption' className='opacity-70'>
+                {t('adjustTimeRange')}
+              </Text>
+            </Stack>
           </div>
         </CardContent>
       </Card>

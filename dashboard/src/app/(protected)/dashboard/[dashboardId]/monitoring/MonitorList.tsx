@@ -2,7 +2,7 @@
 
 import { Activity, AlertTriangle, Link2, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useTranslations } from 'next-intl';
@@ -18,9 +18,11 @@ import {
 } from '@/app/(protected)/dashboard/[dashboardId]/monitoring/styles';
 import { formatPercentage } from '@/utils/formatters';
 import { LiveIndicator } from '@/components/live-indicator';
+import { Text } from '@/components/text';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
 import { MonitorActionMenu } from './components/MonitorActionMenu';
+import { Stack } from '@/components/layout';
 
 type MonitorListProps = {
   monitors: MonitorWithStatus[];
@@ -33,20 +35,20 @@ export function MonitorList({ monitors }: MonitorListProps) {
 
   if (!monitors.length) {
     return (
-      <Card className='border-border/50 bg-card/80 px-6 py-10 text-center'>
+      <Card variant='empty'>
         <div className='mx-auto max-w-md space-y-3'>
           <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
             <Activity className='text-muted-foreground h-6 w-6' />
           </div>
           <h3 className='text-lg font-semibold'>{t('list.emptyTitle')}</h3>
-          <p className='text-muted-foreground text-sm'>{t('list.emptyDescription')}</p>
+          <Text variant='description'>{t('list.emptyDescription')}</Text>
         </div>
       </Card>
     );
   }
 
   return (
-    <div className='space-y-3'>
+    <Stack gap='layout-lg'>
       {monitors.map((monitor) => {
         const statusPresentation = presentMonitorStatus(monitor.operationalState);
         const displayName = (monitor.name || '').trim() || safeHostname(monitor.url);
@@ -174,7 +176,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
           </FilterPreservingLink>
         );
       })}
-    </div>
+    </Stack>
   );
 }
 

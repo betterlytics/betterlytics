@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getCampaignSourceColor } from '@/utils/campaignColors';
@@ -144,9 +144,9 @@ export default function UTMBreakdownTabbedChart({
   });
 
   return (
-    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+    <Card variant='section' minHeight='chart'>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as UTMChartTab)}>
-        <CardHeader className='px-0 pb-0'>
+        <CardHeader>
           <div className='flex flex-wrap items-center justify-between gap-2 sm:flex-row'>
             <CardTitle className='pb-2 text-sm font-medium sm:pb-0'>{t('chart.title')}</CardTitle>
             <TabsList className='bg-muted/30 dark:inset-shadow-background flex h-auto flex-wrap justify-end gap-1 px-1 inset-shadow-sm'>
@@ -162,7 +162,7 @@ export default function UTMBreakdownTabbedChart({
             </TabsList>
           </div>
         </CardHeader>
-        <CardContent className='px-0'>
+        <CardContent>
           <TabsContent value='source'>
             <UTMPieChart data={initialSource} />
           </TabsContent>

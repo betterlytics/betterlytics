@@ -25,6 +25,8 @@ import { formatPercentage, formatTimeFromNow } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
 import { CardHeader, SectionCard, StatusDot, TimePeriodBadge } from '../components';
+import { Inline, Stack } from '@/components/layout';
+import { Text } from '@/components/text';
 
 export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
   return (
@@ -40,8 +42,10 @@ export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment
       <CardContent className='px-0'>
         {incidents.length === 0 ? (
           <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
-            <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
-            <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
+            <Text variant='heading-sm'>{t('incidents.emptyTitle')}</Text>
+            <Text variant='description' className='mt-1'>
+              {t('incidents.emptyDescription')}
+            </Text>
           </div>
         ) : (
           <div className='border-border/70 overflow-x-auto rounded-md border'>
@@ -172,7 +176,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
         title={resolvedTitle}
         badge={<TimePeriodBadge>{t('uptime.badge', { days: totalDays })}</TimePeriodBadge>}
       />
-      <div className='space-y-4'>
+      <Stack>
         <div ref={scrollContainerRef} className='overflow-x-auto'>
           <div className='grid auto-cols-[14px] grid-flow-col auto-rows-[14px] grid-rows-7 justify-start gap-[3px]'>
             {grid.map((cell) => {
@@ -193,7 +197,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
           </div>
         </div>
 
-        <div className='grid grid-cols-1 gap-2 text-xs sm:text-sm 2xl:grid-cols-2'>
+        <div className='gap-content-md grid grid-cols-1 sm:text-sm 2xl:grid-cols-2'>
           {stats.map((stat) => {
             const downtimeLabel = stat.downtime
               ? tDowntime(stat.downtime.unit, { value: stat.downtime.value })
@@ -203,20 +207,20 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 key={stat.label}
                 className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
               >
-                <span className='text-muted-foreground font-semibold tracking-wide'>
-                  {t('uptime.stats.label', { days: stat.windowDays })}
-                </span>
-                <div className='text-right'>
-                  <div className={presentUptimeTone(stat.percent).theme.text}>
+                <Text variant='label'>{t('uptime.stats.label', { days: stat.windowDays })}</Text>
+                <div className='space-y-0 text-right'>
+                  <div className={cn(presentUptimeTone(stat.percent).theme.text, 'text-xs sm:text-sm')}>
                     {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
                   </div>
-                  <div className='text-muted-foreground text-xs'>{downtimeLabel}</div>
+                  <Text variant='caption' tone='muted'>
+                    {downtimeLabel}
+                  </Text>
                 </div>
               </div>
             );
           })}
         </div>
-      </div>
+      </Stack>
     </SectionCard>
   );
 }
@@ -233,10 +237,10 @@ function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   return (
     <TableRow className='text-sm'>
       <TableCell>
-        <div className='flex items-center gap-2'>
+        <Inline gap='content-md'>
           <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
-        </div>
+        </Inline>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{tReason(reasonKey)}</TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
@@ -258,10 +262,10 @@ function CheckRow({ check }: { check: MonitorResult }) {
   return (
     <TableRow className='text-sm'>
       <TableCell>
-        <div className='flex items-center gap-2'>
+        <Inline gap='content-md'>
           <StatusDot toneClass={presentation.theme.dot} label={label} />
           <span className='text-foreground font-semibold capitalize'>{label}</span>
-        </div>
+        </Inline>
       </TableCell>
       <TableCell className='text-muted-foreground w-[150px] text-xs whitespace-nowrap sm:text-sm'>
         {formatTimeFromNow(timestamp, locale)}

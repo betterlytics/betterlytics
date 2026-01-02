@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { cn } from '@/lib/utils';
 import { formatDurationPrecise, formatTimestamp } from '@/utils/dateFormatters';
 import { TimelineGroup } from './ReplayTimeline';
+import { Inline } from '@/components/layout';
 
 type TimelinePanelProps = {
   title: string;
@@ -63,12 +64,12 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
       </span>
       <span className='flex h-5 w-5 shrink-0 items-center justify-center'>{group.icon}</span>
       <div className='min-w-0 flex-1 text-left'>
-        <div className='flex items-center gap-2'>
+        <Inline gap='content-md'>
           <span className='truncate text-xs font-medium'>{group.label}</span>
           {group.count > 1 && (
             <span className='text-muted-foreground text-[11px] whitespace-nowrap'>(×{group.count})</span>
           )}
-        </div>
+        </Inline>
         {group.end > group.start && (
           <div className='text-muted-foreground mt-0.5 text-[11px]'>
             {formatDurationPrecise(group.end - group.start)}

@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, Button } from '@/components/ui';
+import { Stack, Inline, Grid } from '@/components/layout';
+import { Text } from '@/components/text';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
@@ -107,7 +108,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
   const skeletonRowCount = pageSize || DEFAULT_PAGE_SIZE;
 
   return (
-    <div className='space-y-4 pb-8 md:pb-0'>
+    <Stack className='pb-8 md:pb-0'>
       {showTopPagination && (
         <CompactPaginationControls
           pageIndex={safePageIndex}
@@ -138,7 +139,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
       />
-    </div>
+    </Stack>
   );
 }
 
@@ -146,7 +147,7 @@ function CampaignEmptyState() {
   const t = useTranslations('components.campaign.emptyState');
 
   return (
-    <Card className='border-border/50 bg-card/80 px-6 py-10 text-center'>
+    <Card variant='empty'>
       <div className='mx-auto max-w-md'>
         <div className='bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full'>
           <DollarSign className='text-muted-foreground h-6 w-6' />
@@ -190,12 +191,12 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
         onClick={onToggle}
       >
         <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
-        <div className='flex items-center gap-2'>
+        <Inline gap='content-md'>
           <div className='h-11 min-w-[150px] flex-1'>
             <CampaignSparkline data={campaign.sparkline} />
           </div>
           <CampaignToggleButton isExpanded={isExpanded} onToggle={onToggle} controlsId={detailsId} />
-        </div>
+        </Inline>
       </div>
 
       {/* Desktop header row */}
@@ -241,10 +242,14 @@ type CampaignHeaderTitleProps = {
 
 function CampaignHeaderTitle({ name, sessionsLabel }: CampaignHeaderTitleProps) {
   return (
-    <div className='min-w-0'>
-      <p className='truncate text-sm leading-tight font-semibold'>{name}</p>
-      <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>{sessionsLabel}</p>
-    </div>
+    <Stack gap='content-xs' className='min-w-0'>
+      <Text variant='value-sm' className='truncate'>
+        {name}
+      </Text>
+      <Text variant='caption' tabular>
+        {sessionsLabel}
+      </Text>
+    </Stack>
   );
 }
 
@@ -275,10 +280,8 @@ function CampaignToggleButton({ isExpanded, onToggle, controlsId }: CampaignTogg
 function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={`flex flex-col justify-end ${className ?? ''}`}>
-      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide uppercase'>
-        {label}
-      </span>
-      <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
+      <Text variant='column-header'>{label}</Text>
+      <Text variant='value-sm'>{value}</Text>
     </div>
   );
 }
@@ -301,13 +304,13 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
   const tRow = useTranslations('components.campaign.campaignRow');
 
   return (
-    <div className='space-y-4'>
-      <div className='text-muted-foreground flex items-center gap-3 text-[11px] font-medium tracking-wide uppercase'>
+    <Stack>
+      <Inline className='uppercase'>
         <div className='bg-border/60 h-px flex-1' />
-        <span>{t('campaignDetails')}</span>
+        <Text variant='column-header'>{t('campaignDetails')}</Text>
         <div className='bg-border/60 h-px flex-1' />
-      </div>
-      <div className='mt-1 grid gap-3 lg:grid-cols-5'>
+      </Inline>
+      <Grid cols={{ lg: 5 }} gap='content-lg' className='lg:mx-3'>
         <div className='hidden lg:col-span-3 lg:block'>
           <UTMBreakdownTabbedTable
             dashboardId={dashboardId}
@@ -316,43 +319,41 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
             landingPages={landingPages}
           />
         </div>
-        <div className='space-y-3 lg:col-span-2'>
-          <div className='lg:hidden'>
-            <div className='grid grid-cols-2 gap-x-4 gap-y-3 px-2'>
-              <div className='space-y-0.5'>
-                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
-                  {tRow('bounceRate')}
-                </p>
-                <p className='text-foreground text-sm font-semibold tabular-nums'>
+        <Stack gap='content-xl' className='lg:col-span-2'>
+          <div className='mx-3 lg:hidden'>
+            <Grid cols={2} gap='content-lg'>
+              <Stack gap='content-xs'>
+                <Text variant='column-header'>{tRow('bounceRate')}</Text>
+                <Text variant='value-sm' tabular>
                   {formatPercentage(summary.bounceRate)}
-                </p>
-              </div>
-              <div className='space-y-0.5'>
-                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
-                  {tRow('pagesPerSession')}
-                </p>
-                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                </Text>
+              </Stack>
+              <Stack gap='content-xs'>
+                <Text variant='column-header'>{tRow('pagesPerSession')}</Text>
+                <Text variant='value-sm' tabular>
                   {formatNumber(summary.pagesPerSession)}
-                </p>
-              </div>
-            </div>
+                </Text>
+              </Stack>
+            </Grid>
           </div>
-          <div className='flex flex-col gap-3'>
-            <CampaignAudienceProfile
-              devices={devices}
-              countries={countries}
-              browsers={browsers}
-              operatingSystems={operatingSystems}
-            />
+          <Stack gap='content-2xl'>
+            <div className='mx-3 lg:mx-2'>
+              <CampaignAudienceProfile
+                devices={devices}
+                countries={countries}
+                browsers={browsers}
+                operatingSystems={operatingSystems}
+              />
+            </div>
             <UTMBreakdownTabbedChart
               dashboardId={dashboardId}
               campaignName={campaignName}
               initialSource={utmSource}
             />
-          </div>
-        </div>
-      </div>
-    </div>
+          </Stack>
+        </Stack>
+      </Grid>
+    </Stack>
   );
 }
 
@@ -383,17 +384,19 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
   }
 
   return (
-    <div id={`campaign-${campaignName}-details`} className='mx-3 ml-5 space-y-4 pb-3'>
+    <Stack id={`campaign-${campaignName}-details`} className='ml-1 pb-2'>
       {status === 'pending' ? (
-        <div className='flex items-center justify-center gap-3 py-8'>
+        <Inline justify='center' align='center' gap='content-lg' className='py-8'>
           <Spinner size='sm' aria-label='Loading campaign details' />
-          <span className='text-muted-foreground text-sm'>{t('loading')}</span>
-        </div>
+          <Text variant='description'>{t('loading')}</Text>
+        </Inline>
       ) : null}
 
       {status === 'error' ? (
         <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
-          <p className='text-destructive text-sm'>{t('error')}</p>
+          <Text variant='description' tone='danger'>
+            {t('error')}
+          </Text>
         </div>
       ) : null}
 
@@ -405,7 +408,7 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
           summary={summary}
         />
       ) : null}
-    </div>
+    </Stack>
   );
 }
 

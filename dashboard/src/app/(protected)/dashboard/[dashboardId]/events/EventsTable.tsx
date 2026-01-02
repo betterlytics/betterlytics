@@ -23,6 +23,8 @@ import { cn } from '@/lib/utils';
 import type { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useTranslations } from 'next-intl';
+import { Stack, Inline } from '@/components/layout';
+import { Text } from '@/components/text';
 
 type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
 
@@ -99,7 +101,7 @@ export function EventsTable({ data }: EventsTableProps) {
         cell: ({ row }) => {
           const event = row.original;
           return (
-            <div className='flex items-center gap-3'>
+            <Inline gap='content-lg'>
               <div className='flex h-4 w-4 items-center justify-center'>
                 {event.isExpanded ? (
                   <ChevronDown className='text-primary h-4 w-4' />
@@ -115,7 +117,7 @@ export function EventsTable({ data }: EventsTableProps) {
               >
                 {event.event_name}
               </span>
-            </div>
+            </Inline>
           );
         },
         accessorFn: (row) => row.current.event_name,
@@ -196,13 +198,17 @@ export function EventsTable({ data }: EventsTableProps) {
     return (
       <Card className='border-border/50'>
         <CardContent className='p-12'>
-          <div className='text-center'>
-            <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
+          <Stack gap='content-lg' className='items-center text-center'>
+            <div className='bg-muted/30 inline-flex h-16 w-16 items-center justify-center rounded-full'>
               <Activity className='text-primary h-8 w-8' />
             </div>
-            <h3 className='text-foreground mb-3 text-lg font-semibold'>{t('noEvents')}</h3>
-            <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>{t('noEventsDesc')}</p>
-          </div>
+            <Stack gap='content-xs'>
+              <Text variant='heading-sm'>{t('noEvents')}</Text>
+              <Text variant='description' className='mx-auto max-w-sm leading-relaxed'>
+                {t('noEventsDesc')}
+              </Text>
+            </Stack>
+          </Stack>
         </CardContent>
       </Card>
     );
@@ -215,12 +221,12 @@ export function EventsTable({ data }: EventsTableProps) {
           <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
             <Activity className='text-primary h-4 w-4' />
           </div>
-          <div className='flex items-center gap-3'>
+          <Inline gap='content-lg'>
             <span>{t('eventDetails')}</span>
             <Badge variant='secondary' className='text-xs font-normal'>
               {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
             </Badge>
-          </div>
+          </Inline>
         </CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
@@ -243,7 +249,7 @@ export function EventsTable({ data }: EventsTableProps) {
                       )}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className='flex items-center'>
+                      <Inline align='center'>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <div className='ml-2 flex h-4 w-4 items-center justify-center'>
@@ -256,7 +262,7 @@ export function EventsTable({ data }: EventsTableProps) {
                             )}
                           </div>
                         )}
-                      </div>
+                      </Inline>
                     </TableHead>
                   ))}
                 </TableRow>

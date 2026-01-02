@@ -4,9 +4,8 @@ import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
-import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { TableGoToFooterLink } from './TableGoToFooterLink';
 
 type CustomEventsSectionProps = {
   customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
@@ -38,15 +37,7 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
           })),
         },
       ]}
-      footer={
-        <FilterPreservingLink
-          href='events'
-          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-        >
-          <span>{t('goTo', { section: t('sidebar.events') })}</span>
-          <ArrowRight className='h-3.5 w-3.5' />
-        </FilterPreservingLink>
-      }
+      footer={<TableGoToFooterLink href='events' label={t('goTo', { section: t('sidebar.events') })} />}
     />
   );
 }

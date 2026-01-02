@@ -8,6 +8,7 @@ import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { getUserTimezone } from '@/lib/cookies';
+import { PageContainer } from '@/components/layout';
 
 type FunnelsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -42,7 +43,7 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
   const funnelsPromise = fetchFunnelsAction(dashboardId, startDate, endDate);
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <div className='container space-y-3 p-2 pt-4 pb-10 sm:p-6'>
+    <PageContainer className='pb-10'>
       <Suspense fallback={null}>
         <FunnelsHeader funnelsPromise={funnelsPromise} title={t('funnels')} />
       </Suspense>
@@ -50,6 +51,6 @@ export default async function FunnelsPage({ params, searchParams }: FunnelsPageP
       <Suspense fallback={<FunnelsStack.Skeleton />}>
         <FunnelsStack promise={funnelsPromise} />
       </Suspense>
-    </div>
+    </PageContainer>
   );
 }

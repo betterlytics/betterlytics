@@ -16,6 +16,8 @@ import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
 import { useTranslations } from 'next-intl';
 import { useInView } from '@/hooks/useInView';
+import { Stack, Inline } from '@/components/layout';
+import { Text } from '@/components/text';
 
 const DEFAULT_PAGE_SIZE = 25;
 const EVENTS_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
@@ -28,25 +30,27 @@ interface EventLogProps {
 }
 
 const EmptyState = ({ t }: { t: EventLogTranslation }) => (
-  <div className='flex flex-col items-center justify-center space-y-3 py-16'>
+  <Stack gap='content-lg' className='items-center py-16'>
     <div className='bg-muted/50 relative flex h-12 w-12 items-center justify-center rounded-full'>
       <Clock className='text-muted-foreground h-6 w-6' />
       <div className='absolute inset-0 animate-pulse rounded-full bg-green-500/10' />
     </div>
-    <div className='text-center'>
-      <p className='text-foreground text-sm font-medium'>{t('waiting')}</p>
-      <p className='text-muted-foreground mt-1 text-xs'>{t('realTimeDesc')}</p>
-    </div>
-  </div>
+    <Stack gap='content-xs' className='items-center text-center'>
+      <Text variant='body' className='font-medium'>
+        {t('waiting')}
+      </Text>
+      <Text variant='caption'>{t('realTimeDesc')}</Text>
+    </Stack>
+  </Stack>
 );
 
 const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
-  <div className='border-border/60 bg-muted/10 flex items-center justify-center border-t py-6'>
-    <div className='flex items-center gap-3'>
-      <Spinner size='sm' />
-      <span className='text-muted-foreground text-sm font-medium'>{t('loadingMore')}</span>
-    </div>
-  </div>
+  <Inline gap='content-lg' justify='center' className='border-border/60 bg-muted/10 border-t py-6'>
+    <Spinner size='sm' />
+    <Text variant='description' className='font-medium'>
+      {t('loadingMore')}
+    </Text>
+  </Inline>
 );
 
 const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: EventLogTranslation): string => {
