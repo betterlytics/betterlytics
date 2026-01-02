@@ -333,6 +333,32 @@
       transform: translateX(3px);
     }
   }
+
+  /* Tab content fade-in animation */
+  @keyframes tabContentFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px) translateZ(0);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) translateZ(0);
+    }
+  }
+
+  .tab-content-animated[data-state='active'] {
+    animation: tabContentFadeIn 0.2s ease-out;
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+  }
+
+  /* Tab indicator sliding animation - GPU accelerated */
+  .tab-indicator {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0); /* Force GPU layer */
+  }
 }
 
 /* Minimal leaflet z-index fixes to prevent map from appearing above UI dialogs */

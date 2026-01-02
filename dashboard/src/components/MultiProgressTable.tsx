@@ -45,8 +45,16 @@ function MultiProgressTable<T extends ProgressBarData>({
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+  
   const t = useTranslations('dashboard.emptyStates');
   const tFilters = useTranslations('components.filters');
+
+  // Get the active tab index for CSS transform calculation
+  const activeTabIndex = useMemo(() => {
+    const index = tabs.findIndex(tab => tab.key === activeTab);
+    return index >= 0 ? index : 0;
+  }, [tabs, activeTab]);
+
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
   }, []);
@@ -166,27 +174,39 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   const tabsList = useMemo(
     () => (
-      <TabsList
-        className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background w-full gap-1 px-1 inset-shadow-sm`}
-      >
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.key}
-            value={tab.key}
-            className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
-          >
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <div className="relative">
+        <TabsList
+          className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background relative w-full gap-1 px-1 inset-shadow-sm overflow-hidden`}
+        >
+          <div
+            className="tab-indicator absolute top-[3px] bottom-[3px] left-[4px] z-0 rounded-sm border border-border bg-background shadow-sm pointer-events-none"
+            style={{
+              // Width: (container - 2*padding - (n-1)*gap) / n
+              width: `calc((100% - 8px - ${(tabs.length - 1) * 4}px) / ${tabs.length})`,
+              // index * (one-tab-width + gap)
+              transform: `translateX(calc(${activeTabIndex} * (100% + 4px)))`,
+            }}
+          />
+          
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.key}
+              value={tab.key}
+              className='relative z-10 hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
     ),
-    [tabs],
+    [tabs, activeTabIndex],
   );
 
   const tabsContent = useMemo(
     () =>
       tabs.map((tab) => (
-        <TabsContent key={tab.key} value={tab.key} className='mt-0'>
+        <TabsContent key={tab.key} value={tab.key} className='mt-0 tab-content-animated'>
           {renderTabContent(tab)}
         </TabsContent>
       )),
