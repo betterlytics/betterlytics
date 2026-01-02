@@ -803,6 +803,19 @@
         ]
       }
     },
+    "comparison": {
+      "getStartedFree": "Kom i gang gratis",
+      "viewPricing": "Se priser",
+      "featureComparison": {
+        "title": "Funktionssammenligning",
+        "subtitle": "Se hvordan Betterlytics og {competitor} sammenlignes side om side"
+      },
+      "whyBetterlytics": {
+        "title": "Hvorfor Betterlytics?",
+        "subtitle": "Et nærmere kig på, hvad der gør Betterlytics anderledes"
+      },
+      "disclaimer": "Vi bestræber os på at holde denne sammenligning korrekt og opdateret."
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | Et Bedre Alternativ til Google Analytics",
