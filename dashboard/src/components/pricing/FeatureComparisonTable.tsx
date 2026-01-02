@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Check, X, Minus, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Fragment } from 'react';
 
 type FeatureValue = boolean | string | 'partial';
 type Tier = (typeof TIERS)[number];
@@ -130,7 +131,7 @@ export function FeatureComparisonTable() {
         </thead>
         <tbody>
           {FEATURE_CATEGORIES.map((category) => (
-            <>
+            <Fragment key={`category-${category.key}`}>
               <tr key={`category-${category.key}`} className='border-border/50 bg-muted/20 border-t'>
                 <td colSpan={4} className='px-6 py-3'>
                   <span className='text-foreground text-sm font-semibold'>{td(`categories.${category.key}`)}</span>
@@ -157,7 +158,7 @@ export function FeatureComparisonTable() {
                   ))}
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
