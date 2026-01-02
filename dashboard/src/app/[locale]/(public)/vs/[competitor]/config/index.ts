@@ -61,6 +61,8 @@ const LOCALES: Record<string, Record<string, ComparisonLocaleContent>> = {
   it,
 };
 
+export const SUPPORTED_LOCALES = Object.keys(LOCALES) as Array<keyof typeof LOCALES>;
+
 export const getCompetitorData = (slug: string, locale: string = 'en'): ComparisonLocaleContent | undefined => {
   const localeData = LOCALES[locale] || LOCALES.en;
   const content = localeData[slug];

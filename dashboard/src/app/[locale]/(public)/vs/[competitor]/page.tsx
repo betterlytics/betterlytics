@@ -24,8 +24,19 @@ import { Button } from '@/components/ui/button';
 import { ComparisonTable } from '@/components/public/comparison-table';
 import Logo from '@/components/logo';
 import { CtaStrip } from '@/components/public/ctaStrip';
-import { getCompetitorData, type ComparisonLocaleContent } from './config';
+import { getCompetitorData, getCompetitorSlugs, SUPPORTED_LOCALES, type ComparisonLocaleContent } from './config';
 import { generateSEO } from '@/lib/seo';
+
+export async function generateStaticParams() {
+  const competitors = getCompetitorSlugs();
+
+  return SUPPORTED_LOCALES.flatMap((locale) =>
+    competitors.map((competitor) => ({
+      locale,
+      competitor,
+    })),
+  );
+}
 
 interface PageProps {
   params: Promise<{ competitor: string; locale: string }>;
