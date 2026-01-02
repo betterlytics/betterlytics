@@ -3,6 +3,20 @@ import { ComparisonLocaleContent } from '../..';
 export const plausible: ComparisonLocaleContent = {
   name: 'Plausible',
   logo: '/tools/plausible-logo.png',
+  seo: {
+    title: 'Betterlytics vs Plausible: Più funzionalità, stessa privacy',
+    description:
+      'Confronta Betterlytics con Plausible. Stesso approccio privacy-first, con session replay, percorsi utente e monitoraggio inclusi. Piano gratuito disponibile, da $6/mese.',
+    keywords: [
+      'alternativa Plausible',
+      'alternativa Plausible Analytics',
+      'analytics privacy-first',
+      'session replay',
+      'tracciamento percorsi utente',
+      'analytics leggere',
+      'analytics conformi GDPR',
+    ],
+  },
   hero: {
     title: 'Cerchi un’alternativa a Plausible?',
     titleHighlight: 'alternativa',

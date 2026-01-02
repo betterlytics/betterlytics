@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next';
 import {
   Check,
   ChevronRight,
@@ -24,6 +25,31 @@ import { ComparisonTable } from '@/components/public/comparison-table';
 import Logo from '@/components/logo';
 import { CtaStrip } from '@/components/public/ctaStrip';
 import { getCompetitorData, type ComparisonLocaleContent } from './config';
+import { generateSEO } from '@/lib/seo';
+
+interface PageProps {
+  params: Promise<{ competitor: string; locale: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { competitor, locale } = await params;
+  const data = getCompetitorData(competitor, locale);
+
+  if (!data || !data.seo) {
+    return {};
+  }
+
+  return generateSEO(
+    {
+      title: data.seo.title,
+      description: data.seo.description,
+      keywords: data.seo.keywords,
+      path: `/vs/${competitor}`,
+      structuredDataType: 'webpage',
+    },
+    { locale },
+  );
+}
 
 const ICON_MAP: Record<ComparisonLocaleContent['detailedComparison'][number]['icon'], LucideIcon> = {
   shield: Shield,
@@ -167,10 +193,6 @@ function TimelineItem({
       {!isLast && <div className='border-border/30 ml-7 border-t sm:ml-8' />}
     </div>
   );
-}
-
-interface PageProps {
-  params: Promise<{ competitor: string; locale: string }>;
 }
 
 export default async function ComparisonPage({ params }: PageProps) {

@@ -3,6 +3,20 @@ import { ComparisonLocaleContent } from '../..';
 export const matomo: ComparisonLocaleContent = {
   name: 'Matomo Cloud',
   logo: '/tools/matomo-logo.svg',
+  seo: {
+    title: 'Betterlytics vs Matomo: Modern, Lightweight Alternative',
+    description:
+      'Compare Betterlytics to Matomo Cloud. Get modern analytics without complexity, plugins, or server management. Session replay and monitoring included. Starts at $6/month.',
+    keywords: [
+      'Matomo alternative',
+      'Matomo Cloud alternative',
+      'Piwik alternative',
+      'privacy-first analytics',
+      'simple web analytics',
+      'lightweight analytics',
+      'session replay',
+    ],
+  },
   hero: {
     title: 'Looking for a Matomo Alternative?',
     titleHighlight: 'Alternative',

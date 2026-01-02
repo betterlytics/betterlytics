@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
+import { getCompetitorSlugs } from './[locale]/(public)/vs/[competitor]/config';
 
 type PageCfg = {
   path: string;
@@ -9,7 +10,7 @@ type PageCfg = {
   localized: boolean;
 };
 
-const PAGES: PageCfg[] = [
+const STATIC_PAGES: PageCfg[] = [
   // Localized public pages
   { path: '/', changeFrequency: 'monthly', priority: 1, localized: true },
   { path: '/register', changeFrequency: 'yearly', priority: 0.5, localized: true },
@@ -50,6 +51,18 @@ const PAGES: PageCfg[] = [
   { path: '/docs/pricing/managing-subscription', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/cancellation', changeFrequency: 'monthly', priority: 0.8, localized: false },
 ];
+
+// Generate comparison pages dynamically
+const getComparisonPages = (): PageCfg[] => {
+  return getCompetitorSlugs().map((slug) => ({
+    path: `/vs/${slug}`,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+    localized: true,
+  }));
+};
+
+const PAGES: PageCfg[] = [...STATIC_PAGES, ...getComparisonPages()];
 
 const localizedPath = (path: string, locale: SupportedLanguages) => {
   if (locale === env.NEXT_PUBLIC_DEFAULT_LANGUAGE) return path;

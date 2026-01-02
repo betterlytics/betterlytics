@@ -3,6 +3,20 @@ import { ComparisonLocaleContent } from '../..';
 export const fathom: ComparisonLocaleContent = {
   name: 'Fathom Analytics',
   logo: '/tools/fathom_analytics-logo.svg',
+  seo: {
+    title: 'Betterlytics vs Fathom Analytics: More Features, Lower Price',
+    description:
+      'Compare Betterlytics to Fathom Analytics. Same privacy-first approach with session replay, funnels, and journey tracking. Free tier available, starts at $6/month.',
+    keywords: [
+      'Fathom Analytics alternative',
+      'Fathom alternative',
+      'privacy-first analytics',
+      'session replay',
+      'funnel analysis',
+      'affordable analytics',
+      'GDPR compliant analytics',
+    ],
+  },
   hero: {
     title: 'Looking for a Fathom Analytics Alternative?',
     titleHighlight: 'Alternative',

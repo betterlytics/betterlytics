@@ -10,7 +10,7 @@ export async function Footer() {
   return (
     <footer className='border-border/40 border-t py-12'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='grid gap-8 md:grid-cols-4'>
+        <div className='grid gap-8 md:grid-cols-5'>
           <div>
             <div className='mb-4'>
               <Link href='/' className='flex items-center space-x-2'>
@@ -70,6 +70,41 @@ export async function Footer() {
               <li>
                 <Link href='/pricing' className='hover:text-foreground transition-colors'>
                   {t('pricing')}
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className='mb-4 font-semibold'>{t('compare')}</h3>
+            <ul className='text-muted-foreground space-y-2 text-sm'>
+              <li>
+                <Link href='/vs/google-analytics' className='hover:text-foreground transition-colors'>
+                  vs Google Analytics
+                </Link>
+              </li>
+              <li>
+                <Link href='/vs/matomo' className='hover:text-foreground transition-colors'>
+                  vs Matomo
+                </Link>
+              </li>
+              <li>
+                <Link href='/vs/plausible' className='hover:text-foreground transition-colors'>
+                  vs Plausible
+                </Link>
+              </li>
+              <li>
+                <Link href='/vs/posthog' className='hover:text-foreground transition-colors'>
+                  vs PostHog
+                </Link>
+              </li>
+              <li>
+                <Link href='/vs/fathom-analytics' className='hover:text-foreground transition-colors'>
+                  vs Fathom Analytics
+                </Link>
+              </li>
+              <li>
+                <Link href='/vs/umami' className='hover:text-foreground transition-colors'>
+                  vs Umami
                 </Link>
               </li>
             </ul>

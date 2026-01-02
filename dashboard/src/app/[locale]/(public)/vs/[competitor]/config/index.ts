@@ -5,6 +5,11 @@ import { it } from './locales/it';
 export interface ComparisonLocaleContent {
   name: string;
   logo?: string;
+  seo?: {
+    title: string;
+    description: string;
+    keywords: string[];
+  };
   hero: {
     title: string;
     titleHighlight?: string;
@@ -69,4 +74,8 @@ export const getCompetitorData = (slug: string, locale: string = 'en'): Comparis
 
 export const hasLocale = (locale: string): boolean => {
   return locale in LOCALES;
+};
+
+export const getCompetitorSlugs = (): string[] => {
+  return Object.keys(en);
 };

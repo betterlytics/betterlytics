@@ -3,6 +3,20 @@ import { ComparisonLocaleContent } from '../..';
 export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
+  seo: {
+    title: 'Betterlytics vs PostHog: Focused, Lightweight Alternative',
+    description:
+      'Compare Betterlytics to PostHog. Get focused web analytics with a tiny script, privacy by default, and predictable pricing. No complexity, just clarity.',
+    keywords: [
+      'PostHog alternative',
+      'lightweight analytics',
+      'privacy-first analytics',
+      'simple web analytics',
+      'cookieless analytics',
+      'PostHog replacement',
+      'predictable pricing analytics',
+    ],
+  },
   hero: {
     title: 'Looking for a PostHog Alternative?',
     titleHighlight: 'Alternative',

@@ -3,6 +3,20 @@ import { ComparisonLocaleContent } from '../..';
 export const umami: ComparisonLocaleContent = {
   name: 'Umami',
   logo: '/tools/umami-logo.svg',
+  seo: {
+    title: 'Betterlytics vs Umami: Session replay e monitoraggio inclusi',
+    description:
+      'Confronta Betterlytics con Umami. Le stesse analytics leggere e orientate alla privacy, con session replay, percorsi utente e monitoraggio dell’uptime inclusi. Piano gratuito disponibile.',
+    keywords: [
+      'alternativa Umami',
+      'alternativa Umami Analytics',
+      'analytics privacy-first',
+      'session replay',
+      'monitoraggio uptime',
+      'analytics leggere',
+      'analytics open source',
+    ],
+  },
   hero: {
     title: 'Cerchi un’alternativa a Umami?',
     titleHighlight: 'alternativa',
