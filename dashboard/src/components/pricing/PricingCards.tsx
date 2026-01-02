@@ -13,6 +13,7 @@ import { EventRange } from '@/lib/billing/plans';
 import { Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { AnimatedNumber } from '@/components/animations';
 
 interface PricingCardsProps {
   eventRange: EventRange;
@@ -124,6 +125,7 @@ export function PricingCards({
     return formatPrice(price, currency);
   };
 
+
   const renderButton = (plan: PlanConfig) => {
     if (mode === 'billing' && billingData) {
       const isCurrentPlan =
@@ -202,7 +204,14 @@ export function PricingCards({
           <CardHeader className='text-center'>
             <CardTitle className='text-2xl'>{capitalizeFirstLetter(plan.tier)}</CardTitle>
             <div className='mt-4'>
-              <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
+              {plan.price_cents > 0 ? (
+                <span className='text-4xl font-bold inline-flex items-center'>
+                  {currency === 'EUR' ? '€' : '$'}
+                  <AnimatedNumber value={Math.round(plan.price_cents / 100)} />
+                </span>
+              ) : (
+                <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
+              )}
               {plan.period && <span className='text-muted-foreground text-lg'>{plan.period}</span>}
             </div>
             <CardDescription className='mt-2'>{plan.description}</CardDescription>
