@@ -334,7 +334,6 @@
     }
   }
 
-  /* Tab content fade-in animation */
   @keyframes tabContentFadeIn {
     from {
       opacity: 0;
@@ -352,12 +351,11 @@
     backface-visibility: hidden;
   }
 
-  /* Tab indicator sliding animation - GPU accelerated */
   .tab-indicator {
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: transform;
     backface-visibility: hidden;
-    transform: translateZ(0); /* Force GPU layer */
+    transform: translateZ(0);
   }
 }
 

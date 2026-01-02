@@ -45,15 +45,18 @@ function MultiProgressTable<T extends ProgressBarData>({
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
-  
+
   const t = useTranslations('dashboard.emptyStates');
   const tFilters = useTranslations('components.filters');
 
-  // Get the active tab index for CSS transform calculation
-  const activeTabIndex = useMemo(() => {
-    const index = tabs.findIndex(tab => tab.key === activeTab);
-    return index >= 0 ? index : 0;
-  }, [tabs, activeTab]);
+  const activeTabIndex = useMemo(
+    () =>
+      Math.max(
+        0,
+        tabs.findIndex((tab) => tab.key === activeTab),
+      ),
+    [tabs, activeTab],
+  );
 
   const handleTabChange = useCallback((value: string) => {
     setActiveTab(value);
@@ -74,9 +77,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   const renderProgressList = useCallback(
     (data: T[], tabKey: string, level = 0) => {
       if (data.length === 0) {
-        return (
-          <DataEmptyComponent />
-        );
+        return <DataEmptyComponent />;
       }
 
       const maxVisitors = Math.max(...data.map((d) => d.value), 1);
@@ -174,12 +175,12 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   const tabsList = useMemo(
     () => (
-      <div className="relative">
+      <div className='relative'>
         <TabsList
-          className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background relative w-full gap-1 px-1 inset-shadow-sm overflow-hidden`}
+          className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background relative w-full gap-1 overflow-hidden px-1 inset-shadow-sm`}
         >
           <div
-            className="tab-indicator absolute top-[3px] bottom-[3px] left-[4px] z-0 rounded-sm border border-border bg-background shadow-sm pointer-events-none"
+            className='tab-indicator border-border bg-background pointer-events-none absolute top-[3px] bottom-[3px] left-[4px] z-0 rounded-sm border shadow-sm'
             style={{
               // Width: (container - 2*padding - (n-1)*gap) / n
               width: `calc((100% - 8px - ${(tabs.length - 1) * 4}px) / ${tabs.length})`,
@@ -187,12 +188,12 @@ function MultiProgressTable<T extends ProgressBarData>({
               transform: `translateX(calc(${activeTabIndex} * (100% + 4px)))`,
             }}
           />
-          
+
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.key}
               value={tab.key}
-              className='relative z-10 hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+              className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none'
             >
               {tab.label}
             </TabsTrigger>
@@ -206,7 +207,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   const tabsContent = useMemo(
     () =>
       tabs.map((tab) => (
-        <TabsContent key={tab.key} value={tab.key} className='mt-0 tab-content-animated'>
+        <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
           {renderTabContent(tab)}
         </TabsContent>
       )),
