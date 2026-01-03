@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import SettingsSection from '@/components/SettingsSection';
+import SettingsSection from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsSection';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

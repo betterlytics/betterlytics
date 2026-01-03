@@ -6,14 +6,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
-import { useBARouter } from '@/hooks/use-ba-router';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 export default function SettingsButton() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const t = useTranslations('components.settingsButton');
-  const router = useBARouter();
-  const dashboardId = useDashboardId();
 
   const handleAdvancedSettingsClicked = () => {
     setIsPopoverOpen(false);

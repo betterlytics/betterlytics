@@ -1,6 +1,6 @@
 'use client';
 
-import SettingsSection from '@/components/SettingsSection';
+import SettingsSection from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsSection';
 import { useTranslations } from 'next-intl';
 import { Switch } from '@/components/ui/switch';
 import { useState, useTransition } from 'react';

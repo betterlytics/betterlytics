@@ -1,6 +1,6 @@
 'use client';
 
-import SettingsPageHeader from '@/components/SettingsPageHeader';
+import SettingsPageHeader from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsPageHeader';
 import { useTranslations } from 'next-intl';
 import { use } from 'react';
 import type { SiteConfig } from '@/entities/dashboard/siteConfig.entities';
