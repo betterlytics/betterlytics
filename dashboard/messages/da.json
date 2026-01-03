@@ -2585,6 +2585,10 @@
           "y2": "2 år",
           "y3": "3 år"
         },
+        "retentionConfirm": {
+          "title": "Ændre opbevaringsperiode?",
+          "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
+        },
         "siteRules": {
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",

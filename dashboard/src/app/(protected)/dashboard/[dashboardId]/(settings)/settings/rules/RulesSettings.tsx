@@ -13,7 +13,6 @@ import isCidr from 'is-cidr';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
 import { toast } from 'sonner';
-import useIsChanged from '@/hooks/use-is-changed';
 import { DEFAULT_SITE_CONFIG_VALUES, type SiteConfig } from '@/entities/dashboard/siteConfig.entities';
 
 interface RulesSettingsProps {
@@ -28,38 +27,26 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
 
   // Site Rules state
   const [enforceDomain, setEnforceDomain] = useState(initialSiteConfig.enforceDomain);
-  const [enforceDomainInitial, setEnforceDomainInitial] = useState(initialSiteConfig.enforceDomain);
   const [isEnforceDomainPending, startEnforceDomainTransition] = useTransition();
 
-  const isEnforceDomainChanged = useIsChanged({ enforceDomain }, { enforceDomain: enforceDomainInitial });
-
-  const handleSaveEnforceDomain = async () => {
-    return new Promise<void>((resolve, reject) => {
-      startEnforceDomainTransition(async () => {
-        try {
-          await saveSiteConfigAction(dashboardId, { enforceDomain });
-          setEnforceDomainInitial(enforceDomain);
-          toast.success(tSave('toastSuccess'));
-          resolve();
-        } catch {
-          toast.error(tSave('toastError'));
-          reject();
-        }
-      });
+  const handleEnforceDomainChange = (value: boolean) => {
+    setEnforceDomain(value);
+    startEnforceDomainTransition(async () => {
+      try {
+        await saveSiteConfigAction(dashboardId, { enforceDomain: value });
+        toast.success(tSave('toastSuccess'));
+      } catch {
+        setEnforceDomain(!value); // Revert on error
+        toast.error(tSave('toastError'));
+      }
     });
   };
 
   // IP Blacklist state
   const [blacklistedIps, setBlacklistedIps] = useState<string[]>(initialSiteConfig.blacklistedIps);
-  const [blacklistedIpsInitial, setBlacklistedIpsInitial] = useState<string[]>(initialSiteConfig.blacklistedIps);
   const [newIp, setNewIp] = useState('');
   const [ipError, setIpError] = useState('');
   const [isBlacklistPending, startBlacklistTransition] = useTransition();
-
-  const isBlacklistChanged = useIsChanged(
-    { blacklistedIps: blacklistedIps.join(',') },
-    { blacklistedIps: blacklistedIpsInitial.join(',') },
-  );
 
   const addIp = () => {
     const ip = newIp.trim();
@@ -68,28 +55,37 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
       setIpError(t('blacklistedIps.addIpError'));
       return;
     }
-    setBlacklistedIps((prev) => Array.from(new Set([...prev, ip])));
+
+    const newList = Array.from(new Set([...blacklistedIps, ip]));
+    setBlacklistedIps(newList);
     setNewIp('');
     setIpError('');
+
+    // Auto-save
+    startBlacklistTransition(async () => {
+      try {
+        await saveSiteConfigAction(dashboardId, { blacklistedIps: newList });
+        toast.success(tSave('toastSuccess'));
+      } catch {
+        setBlacklistedIps(blacklistedIps); // Revert on error
+        toast.error(tSave('toastError'));
+      }
+    });
   };
 
   const removeIp = (ip: string) => {
-    setBlacklistedIps((prev) => prev.filter((x) => x !== ip));
-  };
+    const newList = blacklistedIps.filter((x) => x !== ip);
+    setBlacklistedIps(newList);
 
-  const handleSaveBlacklist = async () => {
-    return new Promise<void>((resolve, reject) => {
-      startBlacklistTransition(async () => {
-        try {
-          await saveSiteConfigAction(dashboardId, { blacklistedIps });
-          setBlacklistedIpsInitial([...blacklistedIps]);
-          toast.success(tSave('toastSuccess'));
-          resolve();
-        } catch {
-          toast.error(tSave('toastError'));
-          reject();
-        }
-      });
+    // Auto-save
+    startBlacklistTransition(async () => {
+      try {
+        await saveSiteConfigAction(dashboardId, { blacklistedIps: newList });
+        toast.success(tSave('toastSuccess'));
+      } catch {
+        setBlacklistedIps(blacklistedIps); // Revert on error
+        toast.error(tSave('toastError'));
+      }
     });
   };
 
@@ -109,7 +105,8 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
               className='cursor-pointer'
               aria-label={t('siteRules.enforceDomain')}
               checked={enforceDomain}
-              onCheckedChange={(v) => setEnforceDomain(!!v)}
+              disabled={isEnforceDomainPending}
+              onCheckedChange={handleEnforceDomainChange}
             />
           </div>
         </SettingsSection>
@@ -132,13 +129,14 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
                 }}
                 aria-invalid={!!ipError}
                 aria-describedby={ipError ? 'blacklisted-ip-error' : undefined}
+                disabled={isBlacklistPending}
               />
               <Button
                 type='button'
                 variant='outline'
                 onClick={addIp}
                 className='cursor-pointer gap-2'
-                disabled={!!newIp.trim() && !(isIP(newIp.trim()) || isCidr(newIp.trim()))}
+                disabled={isBlacklistPending || (!!newIp.trim() && !(isIP(newIp.trim()) || isCidr(newIp.trim())))}
               >
                 <Plus className='h-4 w-4' />
                 {t('blacklistedIps.addIp')}
@@ -166,6 +164,7 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
                           size='sm'
                           className='text-destructive hover:text-destructive cursor-pointer'
                           onClick={() => removeIp(ip)}
+                          disabled={isBlacklistPending}
                         >
                           {t('blacklistedIps.remove')}
                         </Button>

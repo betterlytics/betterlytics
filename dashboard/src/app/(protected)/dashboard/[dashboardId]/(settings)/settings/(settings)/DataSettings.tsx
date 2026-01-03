@@ -10,7 +10,7 @@ import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { toast } from 'sonner';
-import useIsChanged from '@/hooks/use-is-changed';
+import { ConfirmDialog } from '@/components/dialogs';
 
 export default function DataSettings() {
   const dashboardId = useDashboardId();
@@ -22,22 +22,47 @@ export default function DataSettings() {
   const [dataRetentionDays, setDataRetentionDays] = useState<number | undefined>(settings?.dataRetentionDays);
   const [isPending, startTransition] = useTransition();
 
-  const isChanged = useIsChanged({ dataRetentionDays }, { dataRetentionDays: settings?.dataRetentionDays });
+  const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const handleSave = async () => {
-    return new Promise<void>((resolve, reject) => {
-      startTransition(async () => {
-        try {
-          await updateDashboardSettingsAction(dashboardId, { dataRetentionDays });
-          await refreshSettings();
-          toast.success(tSave('toastSuccess'));
-          resolve();
-        } catch {
-          toast.error(tSave('toastError'));
-          reject();
-        }
-      });
+  const handleRetentionSelect = (value: string) => {
+    const newValue = parseInt(value);
+    if (newValue === dataRetentionDays) return;
+
+    setPendingRetentionValue(newValue);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmChange = () => {
+    if (pendingRetentionValue === null) return;
+
+    const previousValue = dataRetentionDays;
+    setDataRetentionDays(pendingRetentionValue);
+    setIsConfirmOpen(false);
+
+    startTransition(async () => {
+      try {
+        await updateDashboardSettingsAction(dashboardId, { dataRetentionDays: pendingRetentionValue });
+        await refreshSettings();
+        toast.success(tSave('toastSuccess'));
+      } catch {
+        setDataRetentionDays(previousValue);
+        toast.error(tSave('toastError'));
+      } finally {
+        setPendingRetentionValue(null);
+      }
     });
+  };
+
+  const handleCancelChange = () => {
+    setIsConfirmOpen(false);
+    setPendingRetentionValue(null);
+  };
+
+  const getPendingPresetLabel = () => {
+    const preset = DATA_RETENTION_PRESETS.find((p) => p.value === pendingRetentionValue);
+    if (!preset) return '';
+    return t(`presets.${preset.i18nKey}`);
   };
 
   if (!settings) {
@@ -58,7 +83,8 @@ export default function DataSettings() {
       <SettingsSection title={t('retentionLabel')} description={t('retentionHelp')}>
         <Select
           value={dataRetentionDays?.toString() || '365'}
-          onValueChange={(value) => setDataRetentionDays(parseInt(value))}
+          onValueChange={handleRetentionSelect}
+          disabled={isPending}
         >
           <SelectTrigger className='border-border w-full cursor-pointer'>
             <SelectValue />
@@ -72,6 +98,14 @@ export default function DataSettings() {
           </SelectContent>
         </Select>
       </SettingsSection>
+
+      <ConfirmDialog
+        open={isConfirmOpen}
+        onOpenChange={handleCancelChange}
+        title={t('retentionConfirm.title')}
+        description={t('retentionConfirm.description', { period: getPendingPresetLabel() })}
+        onConfirm={handleConfirmChange}
+      />
     </div>
   );
 }

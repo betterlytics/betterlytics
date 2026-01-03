@@ -2593,6 +2593,10 @@
           "y2": "2 anni",
           "y3": "3 anni"
         },
+        "retentionConfirm": {
+          "title": "Cambiare periodo di conservazione?",
+          "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
+        },
         "siteRules": {
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",

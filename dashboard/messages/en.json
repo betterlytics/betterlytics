@@ -2582,6 +2582,10 @@
           "y2": "2 years",
           "y3": "3 years"
         },
+        "retentionConfirm": {
+          "title": "Change retention period?",
+          "description": "Are you sure you want to change the data retention period to {period}?"
+        },
         "siteRules": {
           "title": "Site Rules",
           "description": "Control which incoming events are accepted.",
