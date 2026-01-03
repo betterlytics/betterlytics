@@ -4,6 +4,7 @@ import { getAuthSession } from '@/auth/auth-actions';
 import { redirect } from 'next/navigation';
 import { MembersTable } from './MembersTable';
 import { InviteSection } from './InviteSection';
+import { getTranslations } from 'next-intl/server';
 
 interface MembersPageProps {
   params: Promise<{
@@ -14,6 +15,7 @@ interface MembersPageProps {
 export default async function MembersPage({ params }: MembersPageProps) {
   const { dashboardId } = await params;
   const session = await getAuthSession();
+  const t = await getTranslations('members.page');
 
   if (!session?.user?.id) {
     redirect('/signin');
@@ -27,8 +29,8 @@ export default async function MembersPage({ params }: MembersPageProps) {
   return (
     <div className='container max-w-4xl space-y-6 p-2 pt-4 sm:p-6'>
       <div className='space-y-1'>
-        <h1 className='text-xl font-semibold'>Members</h1>
-        <p className='text-muted-foreground text-sm'>Manage who has access to this dashboard</p>
+        <h1 className='text-xl font-semibold'>{t('title')}</h1>
+        <p className='text-muted-foreground text-sm'>{t('description')}</p>
       </div>
 
       <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />

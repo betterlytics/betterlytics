@@ -22,6 +22,7 @@ import { RoleBadge, getInitials, formatDate, getAvatarColor } from './member-uti
 import { updateMemberRoleAction, removeMemberAction } from '@/app/actions/dashboard/members.action';
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
+import { useTranslations } from 'next-intl';
 
 type SortField = 'name' | 'email' | 'role' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
@@ -33,6 +34,7 @@ interface MembersTableProps {
 }
 
 export function MembersTable({ dashboardId, members, currentUserId }: MembersTableProps) {
+  const t = useTranslations('members');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('role');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -83,9 +85,9 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
     startTransition(async () => {
       try {
         await updateMemberRoleAction(dashboardId, userId, newRole);
-        toast.success('Role updated');
+        toast.success(t('toast.roleUpdated'));
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to update role');
+        toast.error(error instanceof Error ? error.message : t('toast.roleUpdateFailed'));
       }
     });
   };
@@ -94,9 +96,9 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
     startTransition(async () => {
       try {
         await removeMemberAction(dashboardId, userId);
-        toast.success('Member removed');
+        toast.success(t('toast.memberRemoved'));
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to remove member');
+        toast.error(error instanceof Error ? error.message : t('toast.memberRemoveFailed'));
       }
     });
   };
@@ -111,11 +113,13 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
   return (
     <Card>
       <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4'>
-        <CardTitle className='text-base'>Members ({members.length})</CardTitle>
+        <CardTitle className='text-base'>
+          {t('table.title')} ({members.length})
+        </CardTitle>
         <div className='relative w-64'>
           <Search className='text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2' />
           <Input
-            placeholder='Search members...'
+            placeholder={t('table.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className='pl-9'
@@ -128,16 +132,16 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
             <TableHeader>
               <TableRow>
                 <TableHead className='pl-4'>
-                  <SortableHeader field='name'>Member</SortableHeader>
+                  <SortableHeader field='name'>{t('table.columns.member')}</SortableHeader>
                 </TableHead>
                 <TableHead className='hidden md:table-cell'>
-                  <SortableHeader field='email'>Email</SortableHeader>
+                  <SortableHeader field='email'>{t('table.columns.email')}</SortableHeader>
                 </TableHead>
                 <TableHead>
-                  <SortableHeader field='role'>Role</SortableHeader>
+                  <SortableHeader field='role'>{t('table.columns.role')}</SortableHeader>
                 </TableHead>
                 <TableHead className='hidden sm:table-cell'>
-                  <SortableHeader field='createdAt'>Joined</SortableHeader>
+                  <SortableHeader field='createdAt'>{t('table.columns.joined')}</SortableHeader>
                 </TableHead>
                 <TableHead className='w-12'></TableHead>
               </TableRow>
@@ -146,7 +150,7 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
               {filteredAndSortedMembers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className='py-8 text-center'>
-                    No members found matching &quot;{searchQuery}&quot;
+                    {t('table.noResults', { query: searchQuery })}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -164,9 +168,11 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
                         </Avatar>
                         <div>
                           <p className='font-medium'>
-                            {member.user.name || 'Unknown'}
+                            {member.user.name || t('table.unknown')}
                             {member.userId === currentUserId && (
-                              <span className='text-muted-foreground ml-1.5 text-xs font-normal'>(you)</span>
+                              <span className='text-muted-foreground ml-1.5 text-xs font-normal'>
+                                {t('table.you')}
+                              </span>
                             )}
                           </p>
                           <p className='text-muted-foreground text-xs md:hidden'>{member.user.email}</p>
@@ -192,21 +198,21 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align='end'>
                             <DropdownMenuSub>
-                              <DropdownMenuSubTrigger>Change Role</DropdownMenuSubTrigger>
+                              <DropdownMenuSubTrigger>{t('actions.changeRole')}</DropdownMenuSubTrigger>
                               <DropdownMenuSubContent>
                                 {member.role !== 'admin' && (
                                   <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'admin')}>
-                                    Admin
+                                    {t('roles.admin')}
                                   </DropdownMenuItem>
                                 )}
                                 {member.role !== 'member' && (
                                   <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'member')}>
-                                    Member
+                                    {t('roles.member')}
                                   </DropdownMenuItem>
                                 )}
                                 {member.role !== 'viewer' && (
                                   <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'viewer')}>
-                                    Viewer
+                                    {t('roles.viewer')}
                                   </DropdownMenuItem>
                                 )}
                               </DropdownMenuSubContent>
@@ -216,7 +222,7 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
                               className='text-destructive focus:text-destructive'
                               onClick={() => handleRemoveMember(member.userId)}
                             >
-                              Remove from dashboard
+                              {t('actions.removeFromDashboard')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

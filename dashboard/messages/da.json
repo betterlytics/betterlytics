@@ -2763,5 +2763,80 @@
       "description": "Tjek at tracking er aktiveret.",
       "action": "Læs mere"
     }
+  },
+  "members": {
+    "page": {
+      "title": "Medlemmer",
+      "description": "Administrer hvem der har adgang til dette dashboard"
+    },
+    "table": {
+      "title": "Medlemmer",
+      "searchPlaceholder": "Søg medlemmer...",
+      "columns": {
+        "member": "Medlem",
+        "email": "E-mail",
+        "role": "Rolle",
+        "joined": "Tilsluttet"
+      },
+      "noResults": "Ingen medlemmer fundet, der matcher \"{query}\"",
+      "you": "(dig)",
+      "unknown": "Ukendt"
+    },
+    "actions": {
+      "changeRole": "Skift rolle",
+      "removeFromDashboard": "Fjern fra dashboard"
+    },
+    "roles": {
+      "owner": "Ejer",
+      "admin": "Administrator",
+      "member": "Medlem",
+      "viewer": "Tilskuer"
+    },
+    "toast": {
+      "roleUpdated": "Rolle opdateret",
+      "roleUpdateFailed": "Kunne ikke opdatere rolle",
+      "memberRemoved": "Medlem fjernet",
+      "memberRemoveFailed": "Kunne ikke fjerne medlem"
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Inviter nye medlemmer",
+      "description": "Send en invitation til at samarbejde på dette dashboard",
+      "emailLabel": "E-mailadresse",
+      "emailPlaceholder": "kollega@firma.dk",
+      "roleLabel": "Rolle",
+      "inviteButton": "Inviter",
+      "sending": "Sender...",
+      "pending": "Afventer",
+      "invited": "Inviteret"
+    },
+    "toast": {
+      "sent": "Invitation sendt",
+      "sendFailed": "Kunne ikke sende invitation",
+      "cancelled": "Invitation annulleret",
+      "cancelFailed": "Kunne ikke annullere invitation",
+      "accepted": "Deltager i {domain}!",
+      "acceptFailed": "Kunne ikke acceptere invitation",
+      "declined": "Invitation afvist",
+      "declineFailed": "Kunne ikke afvise invitation"
+    },
+    "pendingModal": {
+      "title": "Dashboard-invitation",
+      "invitedBy": "{name} inviterede dig til at samarbejde",
+      "accept": "Accepter",
+      "accepting": "Accepterer...",
+      "decline": "Afvis",
+      "declining": "Afviser...",
+      "pendingCount": "{current} af {total} afventende invitationer"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invitation ikke fundet",
+      "notFoundDescription": "Dette invitationslink er ugyldigt eller udløbet.",
+      "goToSignIn": "Gå til login",
+      "errorTitle": "Kunne ikke acceptere invitation",
+      "emailMismatch": "Denne invitation blev sendt til {invitedEmail}. Du er logget ind som {currentEmail}.",
+      "goToDashboards": "Gå til dashboards"
+    }
   }
 }

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AlertCircle } from 'lucide-react';
 import { UserException } from '@/lib/exceptions';
+import { getTranslations } from 'next-intl/server';
 
 interface AcceptInvitePageProps {
   params: Promise<{
@@ -18,6 +19,7 @@ interface AcceptInvitePageProps {
 export default async function AcceptInvitePage({ params }: AcceptInvitePageProps) {
   const { token, locale } = await params;
   const session = await getAuthSession();
+  const t = await getTranslations('invitations.acceptPage');
 
   const invitation = await findInvitationByToken(token);
 
@@ -29,12 +31,12 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
             <div className='bg-destructive/10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full'>
               <AlertCircle className='text-destructive size-6' />
             </div>
-            <CardTitle>Invitation Not Found</CardTitle>
-            <CardDescription>This invitation link is invalid or has expired.</CardDescription>
+            <CardTitle>{t('notFoundTitle')}</CardTitle>
+            <CardDescription>{t('notFoundDescription')}</CardDescription>
           </CardHeader>
           <CardContent className='text-center'>
             <Button asChild>
-              <Link href={`/${locale}/signin`}>Go to Sign In</Link>
+              <Link href={`/${locale}/signin`}>{t('goToSignIn')}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -60,17 +62,16 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
             <div className='bg-destructive/10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full'>
               <AlertCircle className='text-destructive size-6' />
             </div>
-            <CardTitle>Could Not Accept Invitation</CardTitle>
+            <CardTitle>{t('errorTitle')}</CardTitle>
             <CardDescription>{errorMessage}</CardDescription>
           </CardHeader>
           <CardContent className='space-y-3 text-center'>
             <p className='text-muted-foreground text-sm'>
-              This invitation was sent to <strong>{invitation.email}</strong>. You are signed in as{' '}
-              <strong>{session.user.email}</strong>.
+              {t('emailMismatch', { invitedEmail: invitation.email, currentEmail: session.user.email })}
             </p>
             <div className='flex flex-col gap-2'>
               <Button asChild variant='outline'>
-                <Link href={`/${locale}/dashboards`}>Go to Dashboards</Link>
+                <Link href={`/${locale}/dashboards`}>{t('goToDashboards')}</Link>
               </Button>
             </div>
           </CardContent>

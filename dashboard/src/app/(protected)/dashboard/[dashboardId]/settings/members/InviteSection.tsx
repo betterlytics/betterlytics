@@ -12,6 +12,7 @@ import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
+import { useTranslations } from 'next-intl';
 
 interface InviteSectionProps {
   dashboardId: string;
@@ -19,6 +20,9 @@ interface InviteSectionProps {
 }
 
 export function InviteSection({ dashboardId, pendingInvitations }: InviteSectionProps) {
+  const t = useTranslations('invitations.section');
+  const tRoles = useTranslations('members.roles');
+  const tToast = useTranslations('invitations.toast');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<DashboardRole>('viewer');
   const [isPending, startTransition] = useTransition();
@@ -29,10 +33,10 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
     startTransition(async () => {
       try {
         await inviteMemberAction(dashboardId, email, role);
-        toast.success('Invitation sent');
+        toast.success(tToast('sent'));
         setEmail('');
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to send invitation');
+        toast.error(error instanceof Error ? error.message : tToast('sendFailed'));
       }
     });
   };
@@ -41,9 +45,9 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
     startTransition(async () => {
       try {
         await cancelInvitationAction(dashboardId, invitationId);
-        toast.success('Invitation cancelled');
+        toast.success(tToast('cancelled'));
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to cancel invitation');
+        toast.error(error instanceof Error ? error.message : tToast('cancelFailed'));
       }
     });
   };
@@ -55,38 +59,38 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
       <CardHeader>
         <CardTitle className='flex items-center gap-2 text-base'>
           <UserPlus className='size-4' />
-          Invite new members
+          {t('title')}
         </CardTitle>
-        <CardDescription>Send an invitation to collaborate on this dashboard</CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className='space-y-4'>
         <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
           <div className='flex-1 space-y-1.5'>
-            <label className='text-muted-foreground text-sm'>Email Address</label>
+            <label className='text-muted-foreground text-sm'>{t('emailLabel')}</label>
             <Input
               type='email'
-              placeholder='colleague@company.com'
+              placeholder={t('emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
             />
           </div>
           <div className='w-full space-y-1.5 sm:w-32'>
-            <label className='text-muted-foreground text-sm'>Role</label>
+            <label className='text-muted-foreground text-sm'>{t('roleLabel')}</label>
             <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)}>
               <SelectTrigger className='w-full'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='admin'>Admin</SelectItem>
-                <SelectItem value='member'>Member</SelectItem>
-                <SelectItem value='viewer'>Viewer</SelectItem>
+                <SelectItem value='admin'>{tRoles('admin')}</SelectItem>
+                <SelectItem value='member'>{tRoles('member')}</SelectItem>
+                <SelectItem value='viewer'>{tRoles('viewer')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <Button onClick={handleInvite} disabled={!email || isPending} className='sm:w-auto'>
             <Mail className='size-4' />
-            {isPending ? 'Sending...' : 'Invite'}
+            {isPending ? t('sending') : t('inviteButton')}
           </Button>
         </div>
 
@@ -94,7 +98,9 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
           <>
             <div className='border-border border-t' />
             <div className='space-y-3'>
-              <p className='text-muted-foreground text-sm font-medium'>Pending ({pendingInvitations.length})</p>
+              <p className='text-muted-foreground text-sm font-medium'>
+                {t('pending')} ({pendingInvitations.length})
+              </p>
               <div className='divide-border divide-y rounded-md border'>
                 {pendingInvitations.map((invitation) => (
                   <div
@@ -109,7 +115,9 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                       </Avatar>
                       <div>
                         <p className='text-sm font-medium'>{invitation.email}</p>
-                        <p className='text-muted-foreground text-xs'>Invited {formatDate(invitation.createdAt)}</p>
+                        <p className='text-muted-foreground text-xs'>
+                          {t('invited')} {formatDate(invitation.createdAt)}
+                        </p>
                       </div>
                     </div>
                     <div className='flex items-center gap-2'>

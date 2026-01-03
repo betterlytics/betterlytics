@@ -2771,5 +2771,80 @@
       "description": "Assicurati che il tracciamento sia abilitato.",
       "action": "Scopri di più"
     }
+  },
+  "members": {
+    "page": {
+      "title": "Membri",
+      "description": "Gestisci chi ha accesso a questa dashboard"
+    },
+    "table": {
+      "title": "Membri",
+      "searchPlaceholder": "Cerca membri...",
+      "columns": {
+        "member": "Membro",
+        "email": "Email",
+        "role": "Ruolo",
+        "joined": "Iscritto"
+      },
+      "noResults": "Nessun membro trovato corrispondente a \"{query}\"",
+      "you": "(tu)",
+      "unknown": "Sconosciuto"
+    },
+    "actions": {
+      "changeRole": "Cambia ruolo",
+      "removeFromDashboard": "Rimuovi dalla dashboard"
+    },
+    "roles": {
+      "owner": "Proprietario",
+      "admin": "Amministratore",
+      "member": "Membro",
+      "viewer": "Visualizzatore"
+    },
+    "toast": {
+      "roleUpdated": "Ruolo aggiornato",
+      "roleUpdateFailed": "Impossibile aggiornare il ruolo",
+      "memberRemoved": "Membro rimosso",
+      "memberRemoveFailed": "Impossibile rimuovere il membro"
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Invita nuovi membri",
+      "description": "Invia un invito per collaborare su questa dashboard",
+      "emailLabel": "Indirizzo email",
+      "emailPlaceholder": "collega@azienda.com",
+      "roleLabel": "Ruolo",
+      "inviteButton": "Invita",
+      "sending": "Invio in corso...",
+      "pending": "In sospeso",
+      "invited": "Invitato"
+    },
+    "toast": {
+      "sent": "Invito inviato",
+      "sendFailed": "Impossibile inviare l'invito",
+      "cancelled": "Invito annullato",
+      "cancelFailed": "Impossibile annullare l'invito",
+      "accepted": "Entrato in {domain}!",
+      "acceptFailed": "Impossibile accettare l'invito",
+      "declined": "Invito rifiutato",
+      "declineFailed": "Impossibile rifiutare l'invito"
+    },
+    "pendingModal": {
+      "title": "Invito alla dashboard",
+      "invitedBy": "{name} ti ha invitato a collaborare",
+      "accept": "Accetta",
+      "accepting": "Accettazione...",
+      "decline": "Rifiuta",
+      "declining": "Rifiuto...",
+      "pendingCount": "{current} di {total} inviti in sospeso"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invito non trovato",
+      "notFoundDescription": "Questo link di invito non è valido o è scaduto.",
+      "goToSignIn": "Vai al login",
+      "errorTitle": "Impossibile accettare l'invito",
+      "emailMismatch": "Questo invito è stato inviato a {invitedEmail}. Hai effettuato l'accesso come {currentEmail}.",
+      "goToDashboards": "Vai alle dashboard"
+    }
   }
 }

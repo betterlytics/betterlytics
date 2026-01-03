@@ -2760,5 +2760,80 @@
       "description": "Make sure tracking is enabled.",
       "action": "Learn more"
     }
+  },
+  "members": {
+    "page": {
+      "title": "Members",
+      "description": "Manage who has access to this dashboard"
+    },
+    "table": {
+      "title": "Members",
+      "searchPlaceholder": "Search members...",
+      "columns": {
+        "member": "Member",
+        "email": "Email",
+        "role": "Role",
+        "joined": "Joined"
+      },
+      "noResults": "No members found matching \"{query}\"",
+      "you": "(you)",
+      "unknown": "Unknown"
+    },
+    "actions": {
+      "changeRole": "Change Role",
+      "removeFromDashboard": "Remove from dashboard"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member",
+      "viewer": "Viewer"
+    },
+    "toast": {
+      "roleUpdated": "Role updated",
+      "roleUpdateFailed": "Failed to update role",
+      "memberRemoved": "Member removed",
+      "memberRemoveFailed": "Failed to remove member"
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Invite new members",
+      "description": "Send an invitation to collaborate on this dashboard",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "colleague@company.com",
+      "roleLabel": "Role",
+      "inviteButton": "Invite",
+      "sending": "Sending...",
+      "pending": "Pending",
+      "invited": "Invited"
+    },
+    "toast": {
+      "sent": "Invitation sent",
+      "sendFailed": "Failed to send invitation",
+      "cancelled": "Invitation cancelled",
+      "cancelFailed": "Failed to cancel invitation",
+      "accepted": "Joined {domain} successfully!",
+      "acceptFailed": "Failed to accept invitation",
+      "declined": "Invitation declined",
+      "declineFailed": "Failed to decline invitation"
+    },
+    "pendingModal": {
+      "title": "Dashboard Invitation",
+      "invitedBy": "{name} invited you to collaborate",
+      "accept": "Accept",
+      "accepting": "Accepting...",
+      "decline": "Decline",
+      "declining": "Declining...",
+      "pendingCount": "{current} of {total} pending invitations"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invitation Not Found",
+      "notFoundDescription": "This invitation link is invalid or has expired.",
+      "goToSignIn": "Go to Sign In",
+      "errorTitle": "Could Not Accept Invitation",
+      "emailMismatch": "This invitation was sent to {invitedEmail}. You are signed in as {currentEmail}.",
+      "goToDashboards": "Go to Dashboards"
+    }
   }
 }
