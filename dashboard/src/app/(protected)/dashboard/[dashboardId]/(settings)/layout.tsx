@@ -3,6 +3,7 @@ import SettingsSidebar from './settings/SettingsSidebar';
 import { SettingsFormProvider } from './settings/SettingsFormProvider';
 import { SettingsContent } from './settings/SettingsContent';
 import { getSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
+import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
 
 type SettingsSidebarLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -16,6 +17,7 @@ export default async function SettingsSidebarLayout({ params, children }: Settin
   return (
     <SidebarProvider>
       <SettingsSidebar dashboardId={dashboardId} />
+      <BAMobileSidebarTrigger />
       <div className='flex w-full justify-center'>
         <SettingsFormProvider initialSiteConfig={siteConfig}>
           <SettingsContent>{children}</SettingsContent>
