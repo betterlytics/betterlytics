@@ -1,4 +1,4 @@
-import { LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, Settings, AlertTriangle } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -12,17 +12,12 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { Suspense } from 'react';
+import Link from 'next/link';
 import type { ReactElement } from 'react';
-import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
-import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
-
 import { getTranslations } from 'next-intl/server';
-import { Dashboard } from '@/entities/dashboard/dashboard.entities';
-import { DashboardDropdown } from '@/components/sidebar/DashboardDropdown';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 
-type BASidebarProps = {
+type SettingsSidebarProps = {
   dashboardId: string;
 };
 
@@ -31,19 +26,24 @@ type SidebarItem = {
   key: string;
   href: string;
   icon: ReactElement;
-  hidden?: boolean;
-  hideOnMobile?: boolean;
 };
 
-export default async function SettingsSidebar({ dashboardId }: BASidebarProps) {
-  const currentDashboardPromise: Promise<Dashboard> = getCurrentDashboardAction(dashboardId);
+export default async function SettingsSidebar({ dashboardId }: SettingsSidebarProps) {
+  const t = await getTranslations('dashboard.settings.sidebar');
 
-  const allDashboardsPromise: Promise<ServerActionResponse<Dashboard[]>> = getAllUserDashboardsAction();
-
-  const t = await getTranslations('dashboard.sidebar');
-
-  const analyticsItems: SidebarItem[] = [
-    { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={18} /> },
+  const settingsItems: SidebarItem[] = [
+    {
+      name: t('general'),
+      key: 'general',
+      href: `/dashboard/${dashboardId}/settings`,
+      icon: <Settings size={18} />,
+    },
+    {
+      name: t('dangerZone'),
+      key: 'danger-zone',
+      href: `/dashboard/${dashboardId}/settings/danger-zone`,
+      icon: <AlertTriangle size={18} />,
+    },
   ];
 
   return (
@@ -55,34 +55,39 @@ export default async function SettingsSidebar({ dashboardId }: BASidebarProps) {
       <SidebarHeader className='bg-sidebar rounded-t-xl pt-2'></SidebarHeader>
       <SidebarContent className='bg-sidebar overflow-x-hidden'>
         <SidebarGroup>
-          <SidebarGroupContent className='overflow-hidden'>
-            <Suspense fallback={<div className='bg-muted h-6 animate-pulse rounded' />}>
-              <DashboardDropdown
-                currentDashboardPromise={currentDashboardPromise}
-                allDashboardsPromise={allDashboardsPromise}
-              />
-            </Suspense>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <FilterPreservingLink
+                    href={`/dashboard/${dashboardId}`}
+                    className='text-muted-foreground hover:text-foreground flex items-center gap-2'
+                  >
+                    <ArrowLeft size={18} />
+                    <span>{t('backToDashboard')}</span>
+                  </FilterPreservingLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarSeparator className='mx-0' />
 
         <SidebarGroup>
-          <SidebarGroupLabel>{t('categories.analytics')}</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('settings')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {analyticsItems
-                .filter((item) => !item.hidden)
-                .map((item) => (
-                  <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton asChild>
-                      <FilterPreservingLink href={item.href} highlightOnPage>
-                        <span>{item.icon}</span>
-                        <span>{item.name}</span>
-                      </FilterPreservingLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+              {settingsItems.map((item) => (
+                <SidebarMenuItem key={item.key}>
+                  <SidebarMenuButton asChild>
+                    <FilterPreservingLink href={item.href} highlightOnPage>
+                      <span>{item.icon}</span>
+                      <span>{item.name}</span>
+                    </FilterPreservingLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

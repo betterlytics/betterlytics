@@ -1240,6 +1240,14 @@
         "observability": "Overvågning"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Tilbage til Dashboard",
+        "settings": "Indstillinger",
+        "general": "Generelt",
+        "dangerZone": "Farezone"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",

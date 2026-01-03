@@ -1237,6 +1237,14 @@
         "observability": "Observability"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Back to Dashboard",
+        "settings": "Settings",
+        "general": "General",
+        "dangerZone": "Danger Zone"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",

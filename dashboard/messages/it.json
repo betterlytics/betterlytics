@@ -1248,6 +1248,14 @@
         "observability": "Osservabilità"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Torna alla Dashboard",
+        "settings": "Impostazioni",
+        "general": "Generale",
+        "dangerZone": "Zona pericolosa"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",
       "totalPageviews": "Visualizzazioni totali",
