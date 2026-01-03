@@ -5,5 +5,5 @@ type SettingsContentProps = {
 };
 
 export function SettingsContent({ children }: SettingsContentProps) {
-  return <div className='w-full max-w-4xl p-6'>{children}</div>;
+  return <div className='w-full max-w-2xl p-6'>{children}</div>;
 }

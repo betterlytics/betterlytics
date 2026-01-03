@@ -102,7 +102,7 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
           title={t('siteRules.enforceDomain')}
           description={t('siteRules.enforceDomainDescription')}
         >
-          <div className='flex items-center gap-4'>
+          <div className='bg-card flex items-center justify-between gap-4 rounded-md border px-3 py-2'>
             <span className='text-sm'>{t('siteRules.enableValidation')}</span>
             <Switch
               id='enforce-domain'
