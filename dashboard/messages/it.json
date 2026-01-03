@@ -1252,7 +1252,8 @@
       "sidebar": {
         "backToDashboard": "Torna alla Dashboard",
         "settings": "Impostazioni",
-        "general": "Generale",
+        "data": "Dati",
+        "rules": "Regole",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -1692,7 +1693,8 @@
     "deleting": "Eliminazione in corso",
     "cancel": "Anulla",
     "confirm": "Conferma",
-    "openMenu": "Apri menu"
+    "openMenu": "Apri menu",
+    "save": "Salva"
   },
   "languages": {
     "da": "Danish",

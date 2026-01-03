@@ -1,4 +1,4 @@
-import { ArrowLeft, Settings, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Database, Shield, AlertTriangle } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +12,6 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
-import Link from 'next/link';
 import type { ReactElement } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
@@ -33,10 +32,16 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
 
   const settingsItems: SidebarItem[] = [
     {
-      name: t('general'),
-      key: 'general',
+      name: t('data'),
+      key: 'data',
       href: `/dashboard/${dashboardId}/settings`,
-      icon: <Settings size={18} />,
+      icon: <Database size={18} />,
+    },
+    {
+      name: t('rules'),
+      key: 'rules',
+      href: `/dashboard/${dashboardId}/settings/rules`,
+      icon: <Shield size={18} />,
     },
     {
       name: t('dangerZone'),

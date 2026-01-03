@@ -1241,7 +1241,8 @@
       "sidebar": {
         "backToDashboard": "Back to Dashboard",
         "settings": "Settings",
-        "general": "General",
+        "data": "Data",
+        "rules": "Rules",
         "dangerZone": "Danger Zone"
       }
     },
@@ -1681,7 +1682,8 @@
     "deleting": "Deleting",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "save": "Save"
   },
   "languages": {
     "da": "Danish",

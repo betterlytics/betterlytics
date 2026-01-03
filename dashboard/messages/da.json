@@ -1244,7 +1244,8 @@
       "sidebar": {
         "backToDashboard": "Tilbage til Dashboard",
         "settings": "Indstillinger",
-        "general": "Generelt",
+        "data": "Data",
+        "rules": "Regler",
         "dangerZone": "Farezone"
       }
     },
@@ -1684,7 +1685,8 @@
     "deleting": "Sletter",
     "cancel": "Annuller",
     "confirm": "Bekræft",
-    "openMenu": "Åbn menu"
+    "openMenu": "Åbn menu",
+    "save": "Gem"
   },
   "languages": {
     "da": "Dansk",
