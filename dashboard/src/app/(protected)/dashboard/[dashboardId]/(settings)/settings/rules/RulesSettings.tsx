@@ -1,7 +1,6 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Ban, Shield, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import SettingsSection from '@/components/SettingsSection';
 import SettingsPageHeader from '@/components/SettingsPageHeader';
 import { useTranslations } from 'next-intl';
@@ -16,7 +15,6 @@ import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action'
 import { toast } from 'sonner';
 import useIsChanged from '@/hooks/use-is-changed';
 import { DEFAULT_SITE_CONFIG_VALUES, type SiteConfig } from '@/entities/dashboard/siteConfig.entities';
-import { Separator } from '@/components/ui/separator';
 
 interface RulesSettingsProps {
   siteConfigPromise: Promise<SiteConfig | null>;

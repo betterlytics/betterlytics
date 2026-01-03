@@ -1,8 +1,6 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Database } from 'lucide-react';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import SettingsSection from '@/components/SettingsSection';
 import SettingsPageHeader from '@/components/SettingsPageHeader';
