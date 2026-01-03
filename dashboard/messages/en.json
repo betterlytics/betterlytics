@@ -2572,6 +2572,7 @@
       "data": {
         "title": "Data Management",
         "description": "Configure data retention and collection preferences",
+        "retentionTitle": "Data Retention",
         "retentionLabel": "Data Retention Period",
         "retentionHelp": "How long to keep analytics data before automatic deletion",
         "presets": {
@@ -2605,9 +2606,10 @@
         }
       },
       "danger": {
-        "title": "Delete Dashboard",
-        "description": "Permanently remove this dashboard and all its data. This action cannot be undone.",
-        "deleteButton": "Delete Dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Delete Dashboard",
+        "sectionDescription": "Permanently remove this dashboard and all its data.",
+        "deleteButton": "Delete",
         "toastSuccess": "Dashboard deleted successfully",
         "toastError": "Failed to delete dashboard",
         "dialog": {

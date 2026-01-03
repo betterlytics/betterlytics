@@ -2583,6 +2583,7 @@
       "data": {
         "title": "Gestione dati",
         "description": "Configura conservazione e raccolta dei dati",
+        "retentionTitle": "Conservazione dati",
         "retentionLabel": "Periodo di conservazione dati",
         "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
         "presets": {
@@ -2616,9 +2617,10 @@
         }
       },
       "danger": {
-        "title": "Elimina dashboard",
-        "description": "Rimuovi permanentemente questa dashboard e tutti i suoi dati. Questa azione non può essere annullata.",
-        "deleteButton": "Elimina dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Elimina dashboard",
+        "sectionDescription": "Rimuovi permanentemente questa dashboard e tutti i suoi dati.",
+        "deleteButton": "Elimina",
         "toastSuccess": "Dashboard eliminata con successo",
         "toastError": "Impossibile eliminare la dashboard",
         "dialog": {

@@ -80,23 +80,29 @@ export default function DataSettings() {
     <div>
       <SettingsPageHeader title={t('title')} />
 
-      <SettingsSection title={t('retentionLabel')} description={t('retentionHelp')}>
-        <Select
-          value={dataRetentionDays?.toString() || '365'}
-          onValueChange={handleRetentionSelect}
-          disabled={isPending}
-        >
-          <SelectTrigger className='border-border w-full cursor-pointer'>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {DATA_RETENTION_PRESETS.map((preset) => (
-              <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
-                {t(`presets.${preset.i18nKey}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <SettingsSection title={t('retentionTitle')}>
+        <div className='flex items-center justify-between'>
+          <div>
+            <span className='text-sm font-medium'>{t('retentionLabel')}</span>
+            <p className='text-muted-foreground text-xs'>{t('retentionHelp')}</p>
+          </div>
+          <Select
+            value={dataRetentionDays?.toString() || '365'}
+            onValueChange={handleRetentionSelect}
+            disabled={isPending}
+          >
+            <SelectTrigger className='border-border w-36 cursor-pointer'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {DATA_RETENTION_PRESETS.map((preset) => (
+                <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
+                  {t(`presets.${preset.i18nKey}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </SettingsSection>
 
       <ConfirmDialog

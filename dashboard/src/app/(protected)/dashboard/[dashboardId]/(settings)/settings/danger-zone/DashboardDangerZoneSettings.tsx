@@ -6,7 +6,6 @@ import SettingsPageHeader from '@/components/SettingsPageHeader';
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { Trash2 } from 'lucide-react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -37,11 +36,20 @@ export default function DangerZoneSettings() {
     <div>
       <SettingsPageHeader title={tSidebar('dangerZone')} />
 
-      <SettingsSection title={t('title')} description={t('description')}>
-        <Button variant='outline' onClick={() => setIsDialogOpen(true)} className='cursor-pointer'>
-          <Trash2 className='h-4 w-4' />
-          {t('deleteButton')}
-        </Button>
+      <SettingsSection title={t('title')}>
+        <div className='flex items-center justify-between'>
+          <div>
+            <span className='text-sm font-medium'>{t('sectionTitle')}</span>
+            <p className='text-muted-foreground text-xs'>{t('sectionDescription')}</p>
+          </div>
+          <Button
+            variant='ghost'
+            onClick={() => setIsDialogOpen(true)}
+            className='text-destructive hover:text-destructive/80 cursor-pointer'
+          >
+            {t('deleteButton')}
+          </Button>
+        </div>
 
         <DestructiveActionDialog
           open={isDialogOpen}

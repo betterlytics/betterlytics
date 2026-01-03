@@ -12,7 +12,7 @@ export default function SettingsSection({ title, description, children }: Settin
         {description && <p className='text-muted-foreground text-sm'>{description}</p>}
       </div>
 
-      <div className='space-y-6'>{children}</div>
+      <div className='bg-card space-y-6 rounded-md border p-3'>{children}</div>
     </section>
   );
 }

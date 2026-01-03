@@ -2575,6 +2575,7 @@
       "data": {
         "title": "Datahåndtering",
         "description": "Konfigurer dataopbevaring og indsamling",
+        "retentionTitle": "Dataopbevaring",
         "retentionLabel": "Periode for dataopbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
@@ -2608,9 +2609,10 @@
         }
       },
       "danger": {
-        "title": "Slet dashboard",
-        "description": "Slet dette dashboard og alle dets data permanent. Denne handling kan ikke fortrydes.",
-        "deleteButton": "Slet dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Slet dashboard",
+        "sectionDescription": "Slet dette dashboard og alle dets data permanent.",
+        "deleteButton": "Slet",
         "toastSuccess": "Dashboard slettet",
         "toastError": "Kunne ikke slette dashboard",
         "dialog": {
