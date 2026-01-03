@@ -20,6 +20,7 @@ export const updateMemberRoleAction = withDashboardMutationAuthContext(
     await updateMemberRole(ctx.dashboardId, userId, newRole, ctx.userId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
   },
+  { permission: 'canChangeMemberRole' },
 );
 
 export const removeMemberAction = withDashboardMutationAuthContext(
@@ -27,4 +28,5 @@ export const removeMemberAction = withDashboardMutationAuthContext(
     await removeMemberFromDashboard(ctx.dashboardId, userId, ctx.userId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
   },
+  { permission: 'canRemoveMembers' },
 );

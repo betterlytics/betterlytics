@@ -23,9 +23,12 @@ export const createDashboardAction = withUserAuth(async (user: User, domain: str
   return createNewDashboard(domain, user.id);
 });
 
-export const deleteDashboardAction = withDashboardMutationAuthContext(async (ctx: AuthContext): Promise<void> => {
-  return deleteDashboard(ctx.dashboardId);
-});
+export const deleteDashboardAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext): Promise<void> => {
+    return deleteDashboard(ctx.dashboardId);
+  },
+  { permission: 'canDeleteDashboard' },
+);
 
 export const getFirstUserDashboardAction = withUserAuth(async (user: User): Promise<Dashboard | null> => {
   return findFirstUserDashboard(user.id);

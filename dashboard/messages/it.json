@@ -2622,6 +2622,10 @@
       "notAvailable": "Non disponibile nella dashboard demo",
       "interactionDisabled": "Il filtraggio da questa interazione è disabilitato nella demo."
     },
+    "permissions": {
+      "demoNotAvailable": "Non disponibile nella dashboard demo",
+      "insufficientPermissions": "Non hai i permessi per eseguire questa azione"
+    },
     "bugReport": {
       "trigger": "Segnala bug",
       "title": "Segnala un bug",

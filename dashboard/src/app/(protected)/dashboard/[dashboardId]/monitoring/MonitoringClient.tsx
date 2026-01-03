@@ -5,7 +5,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
@@ -252,7 +252,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
               </SelectContent>
             </Select>
           </div>
-          <DisabledDemoTooltip>
+          <PermissionGate>
             {(disabled) => (
               <CreateMonitorDialog
                 dashboardId={dashboardId}
@@ -264,7 +264,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
                 atLimit={atMonitorLimit}
               />
             )}
-          </DisabledDemoTooltip>
+          </PermissionGate>
         </div>
       </DashboardHeader>
 

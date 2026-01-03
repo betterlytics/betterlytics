@@ -26,6 +26,7 @@ export const inviteMemberAction = withDashboardMutationAuthContext(
     await inviteUserToDashboard(ctx.dashboardId, email, role, ctx.userId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
   },
+  { permission: 'canInviteMembers' },
 );
 
 export const cancelInvitationAction = withDashboardMutationAuthContext(
@@ -33,6 +34,7 @@ export const cancelInvitationAction = withDashboardMutationAuthContext(
     await cancelInvitation(invitationId, ctx.userId, ctx.dashboardId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
   },
+  { permission: 'canCancelInvitation' },
 );
 
 export const getUserPendingInvitationsAction = withUserAuth(

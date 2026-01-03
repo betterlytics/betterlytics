@@ -9,7 +9,7 @@ import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnot
 import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import { useTheme } from 'next-themes';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 export interface AnnotationGroupPopoverProps {
   group: AnnotationGroup | null;
@@ -95,7 +95,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                       )}
                     </div>
 
-                    <DisabledDemoTooltip disabled={disableActions}>
+                    <PermissionGate when={!disableActions}>
                       {(isDisabled) => (
                         <div className='flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
                           <Button
@@ -128,7 +128,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                           </Button>
                         </div>
                       )}
-                    </DisabledDemoTooltip>
+                    </PermissionGate>
                   </div>
                 ))}
               </div>

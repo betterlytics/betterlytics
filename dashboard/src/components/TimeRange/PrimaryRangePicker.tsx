@@ -17,7 +17,7 @@ import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { getAllowedGranularities } from '@/utils/granularityRanges';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { LiveIndicator } from '@/components/live-indicator';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -26,7 +26,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const locale = useLocale();
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
-  const isDemo = useDemoMode();
+  const isDemo = useDashboardAuth().isDemo;
 
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
 

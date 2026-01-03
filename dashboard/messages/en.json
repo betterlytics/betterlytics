@@ -2611,6 +2611,10 @@
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
     },
+    "permissions": {
+      "demoNotAvailable": "Not available on demo dashboard",
+      "insufficientPermissions": "You don't have permission to perform this action"
+    },
     "bugReport": {
       "trigger": "Report bug",
       "title": "Report a bug",

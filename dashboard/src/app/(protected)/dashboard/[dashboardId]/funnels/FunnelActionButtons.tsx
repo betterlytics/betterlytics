@@ -1,10 +1,10 @@
 'use client';
 
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { CloneFunnelDialog } from './CloneFunnelDialog';
 import { DeleteFunnelDialog } from './DeleteFunnelDialog';
 import { EditFunnelDialog } from './EditFunnelDialog';
 import { PresentedFunnel } from '@/presenters/toFunnel';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type FunnelActionButtonsProps = {
   funnel: PresentedFunnel;
@@ -13,15 +13,9 @@ type FunnelActionButtonsProps = {
 export function FunnelActionButtons({ funnel }: FunnelActionButtonsProps) {
   return (
     <div className='hidden gap-2 md:flex'>
-      <DisabledDemoTooltip>
-        {(isDisabled) => <EditFunnelDialog funnel={funnel} disabled={isDisabled} />}
-      </DisabledDemoTooltip>
-      <DisabledDemoTooltip>
-        {(isDisabled) => <CloneFunnelDialog funnel={funnel} disabled={isDisabled} />}
-      </DisabledDemoTooltip>
-      <DisabledDemoTooltip>
-        {(isDisabled) => <DeleteFunnelDialog funnel={funnel} disabled={isDisabled} />}
-      </DisabledDemoTooltip>
+      <PermissionGate>{(disabled) => <EditFunnelDialog funnel={funnel} disabled={disabled} />}</PermissionGate>
+      <PermissionGate>{(disabled) => <CloneFunnelDialog funnel={funnel} disabled={disabled} />}</PermissionGate>
+      <PermissionGate>{(disabled) => <DeleteFunnelDialog funnel={funnel} disabled={disabled} />}</PermissionGate>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useDemoMode } from './DemoModeContextProvider';
 import { getUserBillingData } from '@/actions/billing.action';
 import {
   getCapabilitiesForTier,
@@ -10,6 +9,7 @@ import {
   type DashboardCapabilities,
 } from '@/lib/billing/capabilities';
 import { TierName } from '@/lib/billing/plans';
+import { useDashboardAuth } from './DashboardAuthProvider';
 
 export type { PlanCapabilities, MonitoringCapabilities, DashboardCapabilities };
 
@@ -35,7 +35,7 @@ type CapabilitiesProviderProps = {
 };
 
 export function CapabilitiesProvider({ children }: CapabilitiesProviderProps) {
-  const isDemo = useDemoMode();
+  const isDemo = useDashboardAuth().isDemo;
   const [tier, setTier] = useState<TierName>('growth');
   const [isLoading, setIsLoading] = useState(!isDemo);
 

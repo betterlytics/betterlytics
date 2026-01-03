@@ -14,4 +14,5 @@ export const saveSiteConfigAction = withDashboardMutationAuthContext(
     const validated = SiteConfigUpdateSchema.parse(updates);
     return await saveSiteConfig(ctx.dashboardId, validated);
   },
+  { permission: 'canManageSettings' },
 );

@@ -3,9 +3,9 @@
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -16,7 +16,7 @@ type Options = {
 
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
-  const isDemo = useDemoMode();
+  const isDemo = useDashboardAuth().isDemo;
   const t = useTranslations('components.demoMode');
 
   const defaultOperator: FilterOperator = defaults?.operator ?? '=';

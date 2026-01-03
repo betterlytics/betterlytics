@@ -21,7 +21,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DestructiveActionDialog } from '@/components/dialogs';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { EditMonitorSheet } from '../[monitorId]/EditMonitorSheet';
@@ -75,7 +75,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
 
   return (
     <>
-      <DisabledDemoTooltip>
+      <PermissionGate>
         {(disabled) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -137,7 +137,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-      </DisabledDemoTooltip>
+      </PermissionGate>
 
       {/* Rename Dialog */}
       <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>

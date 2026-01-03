@@ -14,7 +14,7 @@ import { isDerivedCompareMode } from '@/utils/compareRanges';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -66,22 +66,22 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         >
           {t('previousPeriod')}
         </Button>
-        <DisabledDemoTooltip>
-          {(isDisabled) => (
+        <PermissionGate>
+          {(disabled) => (
             <Button
               variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
               onClick={() => {
-                if (isDisabled) return;
+                if (disabled) return;
                 actions.setComparePreset('year');
                 setOpen(false);
               }}
               className='h-8 w-full cursor-pointer justify-start rounded-sm px-2'
-              disabled={isDisabled}
+              disabled={disabled}
             >
               {t('previousYear')}
             </Button>
           )}
-        </DisabledDemoTooltip>
+        </PermissionGate>
         <DateRangeSection
           startDate={resolvedCompareDates?.start}
           endDate={resolvedCompareDates?.end}
@@ -95,18 +95,18 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
       <Separator className='my-1' />
 
-      <DisabledDemoTooltip>
-        {(isDisabled) => (
+      <PermissionGate>
+        {(disabled) => (
           <div
             role='button'
             tabIndex={0}
             className='flex w-full items-center justify-between rounded-sm p-2 text-left'
             onClick={() => {
-              if (isDisabled) return;
+              if (disabled) return;
               actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays);
             }}
             onKeyDown={(e) => {
-              if (isDisabled) return;
+              if (disabled) return;
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 actions.setCompareAlignWeekdays(!ctx.compareAlignWeekdays);
@@ -119,17 +119,17 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
             <Switch
               checked={ctx.compareAlignWeekdays}
               onCheckedChange={(checked) => {
-                if (isDisabled) return;
+                if (disabled) return;
                 actions.setCompareAlignWeekdays(Boolean(checked));
               }}
               onClick={(e) => e.stopPropagation()}
               aria-label={t('matchDayOfWeek')}
               className='cursor-pointer'
-              disabled={isDisabled}
+              disabled={disabled}
             />
           </div>
         )}
-      </DisabledDemoTooltip>
+      </PermissionGate>
     </div>
   );
 

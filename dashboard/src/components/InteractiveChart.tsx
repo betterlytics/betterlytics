@@ -25,7 +25,7 @@ import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/Annotatio
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
 import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 const AXIS = {
   fontSize: 12,
@@ -91,7 +91,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   }) => {
     const locale = useLocale();
     const t = useTranslations('components.annotations.chart');
-    const isDemo = useDemoMode();
+    const isDemo = useDashboardAuth().isDemo;
     const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
     const [chartWidth, setChartWidth] = useState<number>(800);

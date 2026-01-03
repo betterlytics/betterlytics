@@ -11,9 +11,9 @@ import { toast } from 'sonner';
 import { useSavedFilters, useDeleteSavedFilter, useRestoreSavedFilter } from '@/hooks/use-saved-filters';
 import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 type SavedFiltersSectionProps = {
   onLoadFilter: Dispatch<QueryFilter[]>;
@@ -69,13 +69,13 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   }
 
   return (
-    <DisabledDemoTooltip>
-      {(isDemo) => (
+    <PermissionGate>
+      {(disabled) => (
         <div className={cn(isMobile ? 'pt-1' : 'pt-2')}>
           <Separator />
           <Collapsible
             className={cn('group', isMobile ? 'pt-1' : 'pt-2')}
-            disabled={isDemo}
+            disabled={disabled}
             open={isOpen}
             onOpenChange={onOpenChange}
           >
@@ -117,6 +117,6 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
           </Collapsible>
         </div>
       )}
-    </DisabledDemoTooltip>
+    </PermissionGate>
   );
 }

@@ -17,6 +17,7 @@ import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { env } from '@/lib/env';
 import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
+import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -52,31 +53,33 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
-      <DashboardProvider>
-        <DashboardLayoutShell
-          dashboardId={dashboardId}
-          isDemo={false}
-          basePath={'/dashboard'}
-          includeIntegrationManager={true}
-        >
-          <BannerProvider>
-            {billingEnabled && billingDataPromise && (
-              <Suspense fallback={null}>
-                <UsageAlertBanner billingDataPromise={billingDataPromise} />
-                <UsageExceededBanner billingDataPromise={billingDataPromise} />
+      <DashboardAuthProvider isDemo={false} role={authCtx.role}>
+        <DashboardProvider>
+          <DashboardLayoutShell
+            dashboardId={dashboardId}
+            isDemo={false}
+            basePath={'/dashboard'}
+            includeIntegrationManager={true}
+          >
+            <BannerProvider>
+              {billingEnabled && billingDataPromise && (
+                <Suspense fallback={null}>
+                  <UsageAlertBanner billingDataPromise={billingDataPromise} />
+                  <UsageExceededBanner billingDataPromise={billingDataPromise} />
+                </Suspense>
+              )}
+              {isFeatureEnabled('enableAccountVerification') && (
+                <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
+              )}
+              <Suspense>
+                <IntegrationBanner />
               </Suspense>
-            )}
-            {isFeatureEnabled('enableAccountVerification') && (
-              <VerificationBanner email={session.user.email} isVerified={!!session.user.emailVerified} />
-            )}
-            <Suspense>
-              <IntegrationBanner />
-            </Suspense>
-            <div className='flex w-full justify-center'>{children}</div>
-            {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
-          </BannerProvider>
-        </DashboardLayoutShell>
-      </DashboardProvider>
+              <div className='flex w-full justify-center'>{children}</div>
+              {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+            </BannerProvider>
+          </DashboardLayoutShell>
+        </DashboardProvider>
+      </DashboardAuthProvider>
     </PublicEnvironmentVariablesProvider>
   );
 }

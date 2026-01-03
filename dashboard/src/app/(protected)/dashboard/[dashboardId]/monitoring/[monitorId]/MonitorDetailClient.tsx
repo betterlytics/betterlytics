@@ -11,7 +11,6 @@ import {
   fetchRecentMonitorResultsAction,
 } from '@/app/actions/analytics/monitoring.actions';
 import { Button } from '@/components/ui/button';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import {
   type MonitorCheck,
   type MonitorIncidentSegment,
@@ -27,6 +26,7 @@ import { MonitorSummarySection } from './MonitorSummarySection';
 import { MonitorHeader } from './MonitorHeader';
 import { useTranslations } from 'next-intl';
 import { MonitorActionMenu } from '../components';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type MonitorDetailClientProps = {
   dashboardId: string;
@@ -150,7 +150,7 @@ export function MonitorDetailClient({
 
             {/* Desktop */}
             <div className='hidden items-center gap-2 sm:flex'>
-              <DisabledDemoTooltip>
+              <PermissionGate>
                 {(disabled) => (
                   <Button
                     variant='outline'
@@ -178,8 +178,8 @@ export function MonitorDetailClient({
                     )}
                   </Button>
                 )}
-              </DisabledDemoTooltip>
-              <DisabledDemoTooltip>
+              </PermissionGate>
+              <PermissionGate>
                 {(disabled) => (
                   <EditMonitorSheet
                     dashboardId={dashboardId}
@@ -199,7 +199,7 @@ export function MonitorDetailClient({
                     }
                   />
                 )}
-              </DisabledDemoTooltip>
+              </PermissionGate>
             </div>
           </>
         }

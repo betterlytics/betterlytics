@@ -2614,6 +2614,10 @@
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
     },
+    "permissions": {
+      "demoNotAvailable": "Ikke tilgængelig på demo-dashboard",
+      "insufficientPermissions": "Du har ikke tilladelse til at udføre denne handling"
+    },
     "bugReport": {
       "trigger": "Rapportér fejl",
       "title": "Rapportér en fejl",

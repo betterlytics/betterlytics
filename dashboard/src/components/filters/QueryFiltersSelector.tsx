@@ -12,12 +12,12 @@ import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { SaveQueryFilterDialog } from './SaveQueryFilterDialog';
 import { SavedFiltersSection } from './SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -97,7 +97,7 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <DisabledDemoTooltip disabled={queryFilters.length >= 1}>
+            <PermissionGate when={queryFilters.length < 1}>
               {(isDisabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
@@ -111,12 +111,12 @@ export default function QueryFiltersSelector() {
                   {t('selector.addFilter')}
                 </Button>
               )}
-            </DisabledDemoTooltip>
+            </PermissionGate>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-2'>
-              <DisabledDemoTooltip>
-                {(isDemo) => (
+              <PermissionGate>
+                {(disabled) => (
                   <DisabledTooltip
-                    disabled={Boolean(!isDemo && isSavedFiltersLimitReached)}
+                    disabled={Boolean(!disabled && isSavedFiltersLimitReached)}
                     message={t('selector.savedFiltersLimitReached')}
                   >
                     {(isLimitDisabled) => (
@@ -124,14 +124,14 @@ export default function QueryFiltersSelector() {
                         className='h-8 cursor-pointer'
                         variant='ghost'
                         onClick={() => setIsSaveDialogOpen(true)}
-                        disabled={isDemo || !hasValidFilters || isLimitDisabled}
+                        disabled={disabled || !hasValidFilters || isLimitDisabled}
                       >
                         <SaveIcon className='h-4 w-4' />
                       </Button>
                     )}
                   </DisabledTooltip>
                 )}
-              </DisabledDemoTooltip>
+              </PermissionGate>
               <Button
                 className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
                 disabled={!isFiltersModified}
@@ -163,21 +163,21 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <DisabledDemoTooltip disabled={queryFilters.length >= 1}>
-              {(isDisabled) => (
+            <PermissionGate when={queryFilters.length < 1}>
+              {(disabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
                   onClick={() => {
-                    if (isDisabled) return;
+                    if (disabled) return;
                     addEmptyQueryFilter();
                   }}
                   variant='outline'
-                  disabled={isDisabled}
+                  disabled={disabled}
                 >
                   {t('selector.addFilter')}
                 </Button>
               )}
-            </DisabledDemoTooltip>
+            </PermissionGate>
             <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-3'>
               <Button className='h-8 w-[48%] max-w-[110px] cursor-pointer' onClick={cancelFilters} variant='ghost'>
                 {t('selector.cancel')}

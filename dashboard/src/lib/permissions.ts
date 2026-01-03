@@ -1,22 +1,25 @@
 import { DashboardRole } from '@prisma/client';
 
-export const ROLE_HIERARCHY: DashboardRole[] = ['owner', 'admin', 'member', 'viewer'];
+export const ROLE_HIERARCHY: readonly DashboardRole[] = ['owner', 'admin', 'member', 'viewer'];
 
 export const ROLE_PERMISSIONS = {
-  canInviteMembers: ['owner', 'admin'] as DashboardRole[],
-  canCancelInvitation: ['owner', 'admin'] as DashboardRole[],
-  canManageMembers: ['owner', 'admin'] as DashboardRole[],
-  canChangeMemberRole: ['owner', 'admin'] as DashboardRole[],
-  canRemoveMembers: ['owner', 'admin'] as DashboardRole[],
-  canManageSettings: ['owner', 'admin'] as DashboardRole[],
-  canDeleteDashboard: ['owner'] as DashboardRole[],
-  canTransferOwnership: ['owner'] as DashboardRole[],
-} as const;
+  canInviteMembers: ['owner', 'admin'],
+  canCancelInvitation: ['owner', 'admin'],
+  canChangeMemberRole: ['owner', 'admin'],
+  canRemoveMembers: ['owner', 'admin'],
+  canDeleteDashboard: ['owner'],
+  canSubmitBugReports: ['owner', 'admin', 'member', 'viewer'],
+  canManageSettings: ['owner', 'admin'],
+} satisfies Record<string, readonly DashboardRole[]>;
 
 export type Permission = keyof typeof ROLE_PERMISSIONS;
 
+function getRolesForPermission(permission: Permission): readonly DashboardRole[] {
+  return ROLE_PERMISSIONS[permission];
+}
+
 export function hasPermission(role: DashboardRole, permission: Permission): boolean {
-  return ROLE_PERMISSIONS[permission].includes(role);
+  return getRolesForPermission(permission).includes(role);
 }
 
 export function getRoleLevel(role: DashboardRole): number {

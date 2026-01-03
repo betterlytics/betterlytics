@@ -2,7 +2,6 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { computeDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
 import { formatCompactFromMilliseconds, formatLocalDateTime, formatElapsedTime } from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
@@ -28,7 +27,7 @@ import { formatIntervalLabel, formatSslTimeRemaining, isHttpUrl } from '../utils
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { isExpiredReason } from '../styles/ssl';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type MonitorSummarySectionProps = {
   monitor: Pick<
@@ -385,7 +384,7 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
           </div>
           <p className='text-foreground text-sm font-medium'>{t('disabledDescription')}</p>
           {onEnableClick && (
-            <DisabledDemoTooltip>
+            <PermissionGate>
               {(disabled) => (
                 <Button
                   disabled={disabled}
@@ -398,7 +397,7 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
                   <ArrowRight className='h-3 w-3' aria-hidden />
                 </Button>
               )}
-            </DisabledDemoTooltip>
+            </PermissionGate>
           )}
         </div>
       )}
