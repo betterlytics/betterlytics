@@ -97,7 +97,7 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <PermissionGate allowViewer when={queryFilters.length < 1}>
+            <PermissionGate allowViewer when={queryFilters.length >= 1}>
               {(isDisabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
@@ -163,7 +163,7 @@ export default function QueryFiltersSelector() {
           </div>
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-            <PermissionGate allowViewer when={queryFilters.length < 1}>
+            <PermissionGate allowViewer when={queryFilters.length >= 1}>
               {(disabled) => (
                 <Button
                   className='h-8 w-full cursor-pointer md:w-28'
