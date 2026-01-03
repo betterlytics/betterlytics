@@ -13,6 +13,8 @@ import {
 } from '@/entities/dashboard/dashboard.entities';
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
+import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
+import { DashboardRole } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -26,22 +28,19 @@ export async function findDashboardById(dashboardId: string): Promise<Dashboard>
   }
 }
 
-export async function findUserDashboard(data: DashboardFindByUserData): Promise<DashboardUser> {
-  try {
-    const validatedData = DashboardFindByUserSchema.parse(data);
+export async function findUserDashboardOrNull(data: DashboardFindByUserData): Promise<DashboardUser | null> {
+  const validatedData = DashboardFindByUserSchema.parse(data);
 
-    const prismaUserDashboard = await prisma.userDashboard.findFirst({
-      where: {
-        dashboardId: validatedData.dashboardId,
-        userId: validatedData.userId,
-      },
-    });
+  const prismaUserDashboard = await prisma.userDashboard.findFirst({
+    where: {
+      dashboardId: validatedData.dashboardId,
+      userId: validatedData.userId,
+    },
+  });
 
-    return DashboardUserSchema.parse(prismaUserDashboard);
-  } catch {
-    console.error('Error while finding dashboard relation');
-    throw new Error('Failed to find user dashboard');
-  }
+  if (!prismaUserDashboard) return null;
+
+  return DashboardUserSchema.parse(prismaUserDashboard);
 }
 
 export async function findUserDashboardWithDashboardOrNull(data: DashboardFindByUserData) {
@@ -119,7 +118,7 @@ export async function createDashboard(data: DashboardWriteData): Promise<Dashboa
         userAccess: {
           create: {
             userId: validatedData.userId,
-            role: 'admin',
+            role: 'owner',
           },
         },
         settings: {
@@ -202,5 +201,109 @@ export async function findAllDashboardsWithSiteConfig(): Promise<DashboardWithSi
   } catch (error) {
     console.error('Error fetching dashboards with config:', error);
     throw new Error('Failed to fetch dashboards with config');
+  }
+}
+
+export async function findDashboardMembers(dashboardId: string): Promise<DashboardMember[]> {
+  try {
+    const members = await prisma.userDashboard.findMany({
+      where: { dashboardId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
+    });
+
+    return members.map((m) => DashboardMemberSchema.parse(m));
+  } catch (error) {
+    console.error('Error finding dashboard members:', error);
+    throw new Error('Failed to find dashboard members');
+  }
+}
+
+export async function addDashboardMember(
+  dashboardId: string,
+  userId: string,
+  role: DashboardRole,
+): Promise<DashboardMember> {
+  try {
+    const member = await prisma.userDashboard.create({
+      data: {
+        dashboardId,
+        userId,
+        role,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    return DashboardMemberSchema.parse(member);
+  } catch (error) {
+    console.error('Error adding dashboard member:', error);
+    throw new Error('Failed to add dashboard member');
+  }
+}
+
+export async function updateMemberRole(
+  dashboardId: string,
+  userId: string,
+  role: DashboardRole,
+): Promise<DashboardMember> {
+  try {
+    const member = await prisma.userDashboard.update({
+      where: {
+        userId_dashboardId: {
+          userId,
+          dashboardId,
+        },
+      },
+      data: { role },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    return DashboardMemberSchema.parse(member);
+  } catch (error) {
+    console.error('Error updating member role:', error);
+    throw new Error('Failed to update member role');
+  }
+}
+
+export async function removeMember(dashboardId: string, userId: string): Promise<void> {
+  try {
+    await prisma.userDashboard.delete({
+      where: {
+        userId_dashboardId: {
+          userId,
+          dashboardId,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error removing member:', error);
+    throw new Error('Failed to remove member');
   }
 }

@@ -18,6 +18,10 @@ import { UsageAlertEmailData } from '@/services/email/template/usage-alert-mail'
 import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-payment-welcome-mail';
 import { EmailVerificationData } from '@/services/email/template/email-verification-mail';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import {
+  createDashboardInvitationEmailTemplate,
+  DashboardInvitationEmailData,
+} from '@/services/email/template/invitation-mail';
 
 export interface EmailTemplate {
   subject: string;
@@ -110,4 +114,8 @@ export async function sendFirstPaymentWelcomeEmail(data: FirstPaymentWelcomeEmai
 
 export async function sendEmailVerificationEmail(data: EmailVerificationData): Promise<void> {
   await sendEmail(createEmailVerificationTemplate(data), data);
+}
+
+export async function sendDashboardInvitationEmail(data: DashboardInvitationEmailData): Promise<void> {
+  await sendEmail(createDashboardInvitationEmailTemplate(data), data);
 }
