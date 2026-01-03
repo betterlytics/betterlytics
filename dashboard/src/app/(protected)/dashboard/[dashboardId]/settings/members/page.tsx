@@ -2,7 +2,8 @@ import { getMembersAction } from '@/app/actions/dashboard/members.action';
 import { getPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import { getAuthSession } from '@/auth/auth-actions';
 import { redirect } from 'next/navigation';
-import { MembersPageClient } from './MembersPageClient';
+import { MembersTable } from './MembersTable';
+import { InviteSection } from './InviteSection';
 
 interface MembersPageProps {
   params: Promise<{
@@ -30,12 +31,8 @@ export default async function MembersPage({ params }: MembersPageProps) {
         <p className='text-muted-foreground text-sm'>Manage who has access to this dashboard</p>
       </div>
 
-      <MembersPageClient
-        dashboardId={dashboardId}
-        currentUserId={session.user.id}
-        initialMembers={members}
-        initialInvitations={pendingInvitations}
-      />
+      <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />
+      <MembersTable dashboardId={dashboardId} members={members} currentUserId={session.user.id} />
     </div>
   );
 }
