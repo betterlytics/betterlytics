@@ -32,7 +32,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues
     if (!preset) return null;
     const isAllowed = !allowedValues || allowedValues.includes(value);
     return (
-      <PermissionGate key={preset.value} when={isAllowed}>
+      <PermissionGate allowViewer key={preset.value} when={isAllowed}>
         {(isDisabled) => (
           <Button
             variant={selectedRange === preset.value ? 'default' : 'ghost'}

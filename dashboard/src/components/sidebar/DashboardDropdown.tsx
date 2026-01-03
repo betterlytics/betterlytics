@@ -82,7 +82,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <PermissionGate when={!isEmbedded}>
+        <PermissionGate allowViewer when={!isEmbedded}>
           {(disabled) => (
             <DropdownMenuItem
               onClick={() => router.push('/dashboards')}

@@ -15,7 +15,6 @@ export interface AnnotationGroupPopoverProps {
   group: AnnotationGroup | null;
   anchorRect: DOMRect | null;
   containerRef: React.RefObject<HTMLDivElement | null>;
-  disableActions?: boolean;
   onClose: () => void;
   onEdit: (annotation: ChartAnnotation) => void;
   onDelete: (id: string) => void;
@@ -25,7 +24,6 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   group,
   anchorRect,
   containerRef,
-  disableActions = false,
   onClose,
   onEdit,
   onDelete,
@@ -95,14 +93,14 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                       )}
                     </div>
 
-                    <PermissionGate when={!disableActions}>
-                      {(isDisabled) => (
+                    <PermissionGate>
+                      {(disabled) => (
                         <div className='flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100'>
                           <Button
                             variant='ghost'
                             size='icon'
                             className='cursor-pointer disabled:cursor-not-allowed'
-                            disabled={isDisabled}
+                            disabled={disabled}
                             onClick={() => {
                               onEdit(annotation);
                               onClose();
@@ -116,7 +114,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
                             variant='ghost'
                             size='icon'
                             className='text-destructive hover:text-destructive cursor-pointer disabled:cursor-not-allowed'
-                            disabled={isDisabled}
+                            disabled={disabled}
                             onClick={() => {
                               onDelete(annotation.id);
                               onClose();

@@ -66,7 +66,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
         >
           {t('previousPeriod')}
         </Button>
-        <PermissionGate>
+        <PermissionGate allowViewer>
           {(disabled) => (
             <Button
               variant={ctx.compareMode === 'year' ? 'default' : 'ghost'}
@@ -95,7 +95,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
       <Separator className='my-1' />
 
-      <PermissionGate>
+      <PermissionGate allowViewer>
         {(disabled) => (
           <div
             role='button'

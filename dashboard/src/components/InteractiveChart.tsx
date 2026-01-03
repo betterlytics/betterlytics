@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
@@ -91,7 +93,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   }) => {
     const locale = useLocale();
     const t = useTranslations('components.annotations.chart');
-    const isDemo = useDashboardAuth().isDemo;
+    const { canMutate } = useDashboardAuth();
     const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
     const [isAnnotationMode, setIsAnnotationMode] = useState(false);
     const [chartWidth, setChartWidth] = useState<number>(800);
@@ -180,10 +182,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const handleSingleAnnotationClick = useCallback(
       (annotation: ChartAnnotation) => {
-        if (isDemo) return;
+        if (!canMutate) return;
         annotationDialogsRef.current?.openEditDialog(annotation);
       },
-      [isDemo],
+      [canMutate],
     );
 
     const handleAddAnnotation = useCallback(
@@ -197,7 +199,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const handleGroupClick = useCallback(
       (group: AnnotationGroup, anchorRect: DOMRect) => {
         const hasSingleAnnotation = group.annotations.length === 1;
-        if (isDemo && hasSingleAnnotation) return;
+        if (!canMutate && hasSingleAnnotation) return;
         if (hasSingleAnnotation) {
           annotationDialogsRef.current?.openEditDialog(group.annotations[0]);
         } else {
@@ -205,7 +207,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           setPopoverAnchorRect(anchorRect);
         }
       },
-      [isDemo],
+      [canMutate],
     );
 
     const handleClosePopover = useCallback(() => {
@@ -248,22 +250,25 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
-            {onAddAnnotation && !isDemo && (
-              <button
-                onClick={() => setIsAnnotationMode(!isAnnotationMode)}
-                className={`absolute top-0 right-0 z-10 rounded-md p-1.5 transition-colors ${
-                  isAnnotationMode
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-                title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
-              >
-                {isAnnotationMode ? (
-                  <X className='h-4 w-4 cursor-pointer' />
-                ) : (
-                  <Pencil className='h-4 w-4 cursor-pointer' />
+            {onAddAnnotation && (
+              <PermissionGate hideWhenDisabled>
+                {(disabled) => (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={() => setIsAnnotationMode(!isAnnotationMode)}
+                    disabled={disabled}
+                    className={`absolute top-0 right-0 z-10 h-8 w-8 ${
+                      isAnnotationMode
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                    title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
+                  >
+                    {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
+                  </Button>
                 )}
-              </button>
+              </PermissionGate>
             )}
 
             {isAnnotationMode && (
@@ -283,8 +288,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   bottom: CHART_MARGIN.bottom,
                   right: CHART_MARGIN.right,
                 }}
-                onClick={isAnnotationMode && !isDemo ? handleChartClick : undefined}
-                style={{ cursor: isAnnotationMode && !isDemo ? 'crosshair' : undefined }}
+                onClick={isAnnotationMode && canMutate ? handleChartClick : undefined}
+                style={{ cursor: isAnnotationMode && canMutate ? 'crosshair' : undefined }}
               >
                 <defs>
                   <linearGradient id={`gradient-value`} x1='0' y1='0' x2='0' y2='1'>
@@ -378,7 +383,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                         onGroupClick={handleGroupClick}
                         onSingleClick={handleSingleAnnotationClick}
                         isAnnotationMode={isAnnotationMode}
-                        isDisabled={isDemo && group.annotations.length === 1}
+                        isDisabled={!canMutate && group.annotations.length === 1}
                       />
                     }
                   />
@@ -390,7 +395,6 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
               group={openGroup}
               anchorRect={popoverAnchorRect}
               containerRef={chartContainerRef}
-              disableActions={isDemo}
               onClose={handleClosePopover}
               onEdit={handleEditFromPopover}
               onDelete={handleDeleteFromPopover}

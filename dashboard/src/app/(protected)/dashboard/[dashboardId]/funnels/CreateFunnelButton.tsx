@@ -1,10 +1,14 @@
 'use client';
 
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 export default function CreateFunnelButton() {
-  const isDemo = useDashboardAuth().isDemo;
-  if (isDemo) return null;
-  return <CreateFunnelDialog triggerText='Create funnel' triggerVariant='outline' />;
+  return (
+    <PermissionGate hideWhenDisabled>
+      {(disabled) => (
+        <CreateFunnelDialog triggerText='Create funnel' triggerVariant='outline' disabled={disabled} />
+      )}
+    </PermissionGate>
+  );
 }

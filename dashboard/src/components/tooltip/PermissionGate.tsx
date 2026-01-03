@@ -8,33 +8,31 @@ import { Permission } from '@/lib/permissions';
 
 type PermissionGateProps = {
   permission?: Permission;
-  requireMutation?: boolean;
+  allowViewer?: boolean;
   when?: boolean;
+  hideWhenDisabled?: boolean;
   message?: React.ReactNode;
   children: (disabled: boolean) => React.ReactElement;
   wrapperClassName?: string;
 };
 
 /**
- * A generic permission gate component that disables UI elements based on
+ * Permission gate component that disables UI elements based on
  * - Demo mode (public dashboard)
  * - Role-based permissions
  *
+ * By default, blocks both demo users AND viewers
+ *
  * Usage:
  * ```tsx
- * // Check specific permission
- * <PermissionGate permission="canDeleteDashboard">
- *   {(disabled) => <Button disabled={disabled}>Manage Members</Button>}
- * </PermissionGate>
- *
- * // Check if user can mutate (not demo, not viewer)
- * <PermissionGate requireMutation>
+ * // Default: blocks demo + viewer
+ * <PermissionGate>
  *   {(disabled) => <Button disabled={disabled}>Create Monitor</Button>}
  * </PermissionGate>
  *
- * // Demo-only check (default behavior)
- * <PermissionGate>
- *   {(disabled) => <Button disabled={disabled}>Action</Button>}
+ * // Check specific permission
+ * <PermissionGate permission="canDeleteDashboard">
+ *   {(disabled) => <Button disabled={disabled}>Manage Members</Button>}
  * </PermissionGate>
  *
  * // Conditional gating - only gate if condition is true
@@ -45,8 +43,9 @@ type PermissionGateProps = {
  */
 export function PermissionGate({
   permission,
-  requireMutation = false,
+  allowViewer = false,
   when = true,
+  hideWhenDisabled = false,
   message,
   children,
   wrapperClassName,
@@ -54,7 +53,7 @@ export function PermissionGate({
   const { isDemo, canMutate, hasPermission } = useDashboardAuth();
   const t = useTranslations('components.permissions');
 
-  const baseIsDisabled = permission ? !hasPermission(permission) : requireMutation ? !canMutate : isDemo;
+  const baseIsDisabled = permission ? !hasPermission(permission) : allowViewer ? isDemo : !canMutate;
 
   const isDisabled = when && baseIsDisabled;
 
@@ -62,6 +61,10 @@ export function PermissionGate({
 
   if (!isDisabled) {
     return children(false);
+  }
+
+  if (hideWhenDisabled) {
+    return null;
   }
 
   return (

@@ -63,7 +63,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
       <Popover open={isOpen} onOpenChange={(open) => (isDemo ? false : setIsOpen(open))}>
         <PopoverTrigger asChild>
           <span className='w-full'>
-            <PermissionGate>
+            <PermissionGate allowViewer>
               {(isDisabled) => (
                 <Button
                   variant={'ghost'}
