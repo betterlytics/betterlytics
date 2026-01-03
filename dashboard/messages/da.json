@@ -2594,7 +2594,8 @@
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",
           "enforceDomain": "Håndhæv domæne",
           "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet.",
-          "enableValidation": "Aktiver domænevalidering"
+          "enableValidation": "Aktiver domænevalidering",
+          "enableValidationDescription": "Accepter kun hændelser fra dit konfigurerede domæne"
         },
         "blacklistedIps": {
           "title": "Blokerede IP-adresser",
@@ -2608,9 +2609,10 @@
       },
       "danger": {
         "title": "Slet dashboard",
-        "description": "Slet dashboard permanent",
-        "warning": "Advarsel: Denne handling kan ikke fortrydes",
+        "description": "Slet dette dashboard og alle dets data permanent. Denne handling kan ikke fortrydes.",
         "deleteButton": "Slet dashboard",
+        "toastSuccess": "Dashboard slettet",
+        "toastError": "Kunne ikke slette dashboard",
         "dialog": {
           "title": "Slet dashboard",
           "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke fortrydes.",

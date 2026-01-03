@@ -6,7 +6,7 @@ import SettingsPageHeader from '@/components/SettingsPageHeader';
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { AlertTriangle, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -23,11 +23,11 @@ export default function DangerZoneSettings() {
     startTransition(async () => {
       try {
         await deleteDashboardAction(dashboardId);
-        toast.success(t('deleteButton'));
+        toast.success(t('toastSuccess'));
         router.push('/dashboards');
       } catch (error) {
         console.error('Failed to delete dashboard:', error);
-        toast.error(t('dialog.confirm'));
+        toast.error(t('toastError'));
       }
     });
   };
@@ -36,37 +36,24 @@ export default function DangerZoneSettings() {
     <div>
       <SettingsPageHeader title={t('title')} />
 
-      <SettingsSection title={t('deleteButton')} description={t('warning')}>
-        <div className='space-y-4'>
-          <div className='border-destructive/20 bg-destructive/5 flex items-start gap-3 rounded-lg border p-4'>
-            <AlertTriangle className='text-destructive h-5 w-5 flex-shrink-0' />
-            <div className='text-sm'>
-              <p className='text-destructive font-medium'>{t('warning')}</p>
-            </div>
-          </div>
+      <SettingsSection title={t('title')} description={t('description')}>
+        <Button variant='destructive' onClick={() => setIsDialogOpen(true)} className='cursor-pointer'>
+          <Trash2 className='h-4 w-4' />
+          {t('deleteButton')}
+        </Button>
 
-          <Button
-            variant='destructive'
-            onClick={() => setIsDialogOpen(true)}
-            className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
-          >
-            <Trash2 className='h-4 w-4' />
-            {t('deleteButton')}
-          </Button>
-
-          <DestructiveActionDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            title={t('dialog.title')}
-            description={t('dialog.description')}
-            cancelLabel={t('dialog.cancel')}
-            confirmLabel={t('dialog.confirm')}
-            onConfirm={handleDeleteDashboard}
-            isPending={isPending}
-            countdownSeconds={5}
-            showIcon
-          />
-        </div>
+        <DestructiveActionDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          title={t('dialog.title')}
+          description={t('dialog.description')}
+          cancelLabel={t('dialog.cancel')}
+          confirmLabel={t('dialog.confirm')}
+          onConfirm={handleDeleteDashboard}
+          isPending={isPending}
+          countdownSeconds={5}
+          showIcon
+        />
       </SettingsSection>
     </div>
   );

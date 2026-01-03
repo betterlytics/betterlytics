@@ -2591,7 +2591,8 @@
           "description": "Control which incoming events are accepted.",
           "enforceDomain": "Enforce domain",
           "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain.",
-          "enableValidation": "Enable domain validation"
+          "enableValidation": "Enable domain validation",
+          "enableValidationDescription": "Only accept events from your configured domain"
         },
         "blacklistedIps": {
           "title": "Blacklisted IPs",
@@ -2605,9 +2606,10 @@
       },
       "danger": {
         "title": "Delete Dashboard",
-        "description": "Permanently delete dashboard",
-        "warning": "Warning: This action cannot be undone",
+        "description": "Permanently remove this dashboard and all its data. This action cannot be undone.",
         "deleteButton": "Delete Dashboard",
+        "toastSuccess": "Dashboard deleted successfully",
+        "toastError": "Failed to delete dashboard",
         "dialog": {
           "title": "Delete Dashboard",
           "description": "Are you sure you want to delete this dashboard? This action cannot be undone.",

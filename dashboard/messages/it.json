@@ -2602,7 +2602,8 @@
           "description": "Controlla quali eventi in ingresso vengono accettati.",
           "enforceDomain": "Applicare dominio",
           "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard.",
-          "enableValidation": "Abilita validazione dominio"
+          "enableValidation": "Abilita validazione dominio",
+          "enableValidationDescription": "Accetta solo eventi dal tuo dominio configurato"
         },
         "blacklistedIps": {
           "title": "IP degli eventi bloccati",
@@ -2616,9 +2617,10 @@
       },
       "danger": {
         "title": "Elimina dashboard",
-        "description": "Elimina definitivamente la dashboard",
-        "warning": "Attenzione: questa azione non può essere annullata",
+        "description": "Rimuovi permanentemente questa dashboard e tutti i suoi dati. Questa azione non può essere annullata.",
         "deleteButton": "Elimina dashboard",
+        "toastSuccess": "Dashboard eliminata con successo",
+        "toastError": "Impossibile eliminare la dashboard",
         "dialog": {
           "title": "Elimina dashboard",
           "description": "Sei sicuro di voler eliminare questa dashboard? Questa azione non può essere annullata.",

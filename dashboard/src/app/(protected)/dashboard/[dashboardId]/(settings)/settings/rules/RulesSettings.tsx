@@ -94,12 +94,12 @@ export default function RulesSettings({ siteConfigPromise }: RulesSettingsProps)
       <SettingsPageHeader title={t('siteRules.title')} />
 
       <div className='space-y-12'>
-        <SettingsSection
-          title={t('siteRules.enforceDomain')}
-          description={t('siteRules.enforceDomainDescription')}
-        >
-          <div className='bg-card flex items-center justify-between gap-4 rounded-md border px-3 py-2'>
-            <span className='text-sm'>{t('siteRules.enableValidation')}</span>
+        <SettingsSection title={t('siteRules.enforceDomain')}>
+          <div className='bg-card flex items-center justify-between gap-4 rounded-md border px-3 py-3'>
+            <div>
+              <span className='text-sm font-medium'>{t('siteRules.enableValidation')}</span>
+              <p className='text-muted-foreground text-xs'>{t('siteRules.enableValidationDescription')}</p>
+            </div>
             <Switch
               id='enforce-domain'
               className='cursor-pointer'
