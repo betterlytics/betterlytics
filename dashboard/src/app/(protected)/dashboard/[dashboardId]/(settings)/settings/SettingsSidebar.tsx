@@ -10,7 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import type { ReactElement } from 'react';
 import { getTranslations } from 'next-intl/server';
@@ -76,8 +75,6 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarSeparator className='mx-0' />
 
         <SidebarGroup>
           <SidebarGroupLabel>{t('settings')}</SidebarGroupLabel>
