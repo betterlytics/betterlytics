@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user.repository';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
+import { acceptPendingInvitations } from '@/services/dashboard/invitation.service';
 import { env } from '@/lib/env';
 import { type User } from 'next-auth';
 import { CreateUserData, LoginUserData, RegisterUserData, UserSchema } from '@/entities/auth/user.entities';
@@ -99,8 +100,11 @@ export async function registerNewUser(registrationData: RegisterUserData): Promi
   }
 
   const newUser = await registerUser(registrationData);
+  const user = UserSchema.parse(newUser);
 
-  return UserSchema.parse(newUser);
+  await acceptPendingInvitations(user.id, registrationData.email);
+
+  return user;
 }
 
 export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByUserData) {

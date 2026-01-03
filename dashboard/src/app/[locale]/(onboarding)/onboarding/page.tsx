@@ -9,22 +9,30 @@ import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
+import { acceptPendingInvitations } from '@/services/dashboard/invitation.service';
 
 export default async function Onboarding() {
   const session = await getAuthSession();
 
   const getFirstDashboard = async () => {
-    if (session) {
+    if (session?.user?.id && session?.user?.email) {
+      const acceptedInvitations = await acceptPendingInvitations(session.user.id, session.user.email);
+
       const dashboard = await getFirstUserDashboardAction();
       if (dashboard.success && dashboard.data) {
-        return dashboard.data;
+        return { dashboard: dashboard.data, acceptedCount: acceptedInvitations.length };
+      }
+
+      if (acceptedInvitations.length > 0) {
+        redirect('/dashboards');
       }
     }
 
     return null;
   };
 
-  const dashboard = await getFirstDashboard();
+  const result = await getFirstDashboard();
+  const dashboard = result?.dashboard ?? null;
 
   const getStep = () => {
     if (!session) {

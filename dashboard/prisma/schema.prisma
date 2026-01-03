@@ -422,7 +422,7 @@ model DashboardInvitation {
   
   createdAt   DateTime @default(now())
   
-  @@unique([dashboardId, email])
+  @@index([dashboardId, email])
   @@index([email])
   @@index([token])
   @@index([status])
