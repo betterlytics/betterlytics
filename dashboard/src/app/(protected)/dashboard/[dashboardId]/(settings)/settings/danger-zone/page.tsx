@@ -1,4 +1,4 @@
-import DangerZoneSettings from '@/components/dashboardSettings/DashboardDangerZoneSettings';
+import DangerZoneSettings from './DashboardDangerZoneSettings';
 
 export default function DangerZonePage() {
   return <DangerZoneSettings />;

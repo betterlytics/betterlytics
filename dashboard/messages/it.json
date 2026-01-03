@@ -2597,7 +2597,8 @@
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",
           "enforceDomain": "Applicare dominio",
-          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard."
+          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard.",
+          "enableValidation": "Abilita validazione dominio"
         },
         "blacklistedIps": {
           "title": "IP degli eventi bloccati",

@@ -2589,7 +2589,8 @@
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",
           "enforceDomain": "Håndhæv domæne",
-          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet."
+          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet.",
+          "enableValidation": "Aktiver domænevalidering"
         },
         "blacklistedIps": {
           "title": "Blokerede IP-adresser",

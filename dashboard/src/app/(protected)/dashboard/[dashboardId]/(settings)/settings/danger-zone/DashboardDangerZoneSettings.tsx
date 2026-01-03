@@ -17,6 +17,7 @@ export default function DangerZoneSettings() {
   const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.dashboardSettingsDialog.danger');
+  const tSidebar = useTranslations('dashboard.settings.sidebar');
   const [isPending, startTransition] = useTransition();
 
   const handleDeleteDashboard = async () => {
@@ -34,7 +35,7 @@ export default function DangerZoneSettings() {
 
   return (
     <div>
-      <SettingsPageHeader title={t('title')} />
+      <SettingsPageHeader title={tSidebar('dangerZone')} />
 
       <SettingsSection title={t('deleteButton')} description={t('warning')}>
         <div className='space-y-4'>

@@ -4,7 +4,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Database } from 'lucide-react';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
-import SaveableSettingsCard from '@/components/SaveableSettingsCard';
+import SettingsSection from '@/components/SettingsSection';
+import SettingsPageHeader from '@/components/SettingsPageHeader';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { useSettings } from '@/contexts/SettingsProvider';
@@ -53,17 +54,10 @@ export default function DataSettings() {
   }
 
   return (
-    <SaveableSettingsCard
-      icon={Database}
-      title={t('title')}
-      description={t('description')}
-      isChanged={isChanged}
-      onSave={handleSave}
-      isPending={isPending}
-    >
-      <div className='space-y-2'>
-        <Label className='text-base'>{t('retentionLabel')}</Label>
-        <p className='text-muted-foreground mb-2 text-sm'>{t('retentionHelp')}</p>
+    <div>
+      <SettingsPageHeader title={t('title')} />
+
+      <SettingsSection title={t('retentionLabel')} description={t('retentionHelp')}>
         <Select
           value={dataRetentionDays?.toString() || '365'}
           onValueChange={(value) => setDataRetentionDays(parseInt(value))}
@@ -79,7 +73,7 @@ export default function DataSettings() {
             ))}
           </SelectContent>
         </Select>
-      </div>
-    </SaveableSettingsCard>
+      </SettingsSection>
+    </div>
   );
 }

@@ -13,7 +13,7 @@ export default async function SettingsSidebarLayout({ params, children }: Settin
   return (
     <SidebarProvider>
       <SettingsSidebar dashboardId={dashboardId} />
-      <div className='flex w-full justify-center'>
+      <div className='flex w-full justify-center md:mt-14'>
         <SettingsContent>{children}</SettingsContent>
       </div>
     </SidebarProvider>

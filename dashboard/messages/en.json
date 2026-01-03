@@ -2586,7 +2586,8 @@
           "title": "Site Rules",
           "description": "Control which incoming events are accepted.",
           "enforceDomain": "Enforce domain",
-          "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain."
+          "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain.",
+          "enableValidation": "Enable domain validation"
         },
         "blacklistedIps": {
           "title": "Blacklisted IPs",
