@@ -27,18 +27,8 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
   const [ipError, setIpError] = useState('');
   const [isPending, startTransition] = useTransition();
 
-  const addIp = () => {
-    const ip = newIp.trim();
-    if (!ip) return;
-    if (!(isIP(ip) || isCidr(ip))) {
-      setIpError(t('data.blacklistedIps.addIpError'));
-      return;
-    }
-
-    const newList = Array.from(new Set([...blacklistedIps, ip]));
+  const updateBlacklist = (newList: string[]) => {
     setBlacklistedIps(newList);
-    setNewIp('');
-    setIpError('');
 
     startTransition(async () => {
       try {
@@ -51,19 +41,22 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
     });
   };
 
-  const removeIp = (ip: string) => {
-    const newList = blacklistedIps.filter((x) => x !== ip);
-    setBlacklistedIps(newList);
+  const addIp = () => {
+    const ip = newIp.trim();
+    if (!ip) return;
+    if (!(isIP(ip) || isCidr(ip))) {
+      setIpError(t('data.blacklistedIps.addIpError'));
+      return;
+    }
 
-    startTransition(async () => {
-      try {
-        await saveSiteConfigAction(dashboardId, { blacklistedIps: newList });
-        toast.success(t('toastSuccess'));
-      } catch {
-        setBlacklistedIps(blacklistedIps);
-        toast.error(t('toastError'));
-      }
-    });
+    setNewIp('');
+    setIpError('');
+
+    updateBlacklist(Array.from(new Set([...blacklistedIps, ip])));
+  };
+
+  const removeIp = (ip: string) => {
+    updateBlacklist(blacklistedIps.filter((x) => x !== ip));
   };
 
   return (
