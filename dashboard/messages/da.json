@@ -2789,7 +2789,7 @@
     "roles": {
       "owner": "Ejer",
       "admin": "Administrator",
-      "member": "Medlem",
+      "editor": "Redaktør",
       "viewer": "Tilskuer"
     },
     "toast": {

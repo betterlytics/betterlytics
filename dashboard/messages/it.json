@@ -2797,7 +2797,7 @@
     "roles": {
       "owner": "Proprietario",
       "admin": "Amministratore",
-      "member": "Membro",
+      "editor": "Editore",
       "viewer": "Visualizzatore"
     },
     "toast": {

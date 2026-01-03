@@ -83,7 +83,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='admin'>{tRoles('admin')}</SelectItem>
-                <SelectItem value='member'>{tRoles('member')}</SelectItem>
+                <SelectItem value='editor'>{tRoles('editor')}</SelectItem>
                 <SelectItem value='viewer'>{tRoles('viewer')}</SelectItem>
               </SelectContent>
             </Select>

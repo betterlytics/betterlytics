@@ -1,6 +1,6 @@
 import { DashboardRole } from '@prisma/client';
 
-export const ROLE_HIERARCHY: readonly DashboardRole[] = ['owner', 'admin', 'member', 'viewer'];
+export const ROLE_HIERARCHY: readonly DashboardRole[] = ['owner', 'admin', 'editor', 'viewer'];
 
 export const ROLE_PERMISSIONS = {
   canInviteMembers: ['owner', 'admin'],
@@ -8,7 +8,7 @@ export const ROLE_PERMISSIONS = {
   canChangeMemberRole: ['owner', 'admin'],
   canRemoveMembers: ['owner', 'admin'],
   canDeleteDashboard: ['owner'],
-  canSubmitBugReports: ['owner', 'admin', 'member', 'viewer'],
+  canSubmitBugReports: ['owner', 'admin', 'editor', 'viewer'],
   canManageSettings: ['owner', 'admin'],
 } satisfies Record<string, readonly DashboardRole[]>;
 

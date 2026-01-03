@@ -17,8 +17,8 @@ function getRoleDisplayName(role: DashboardRole): string {
       return 'Owner';
     case 'admin':
       return 'Admin';
-    case 'member':
-      return 'Member';
+    case 'editor':
+      return 'Editor';
     case 'viewer':
       return 'Viewer';
     default:

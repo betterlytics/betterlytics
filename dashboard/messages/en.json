@@ -2786,7 +2786,7 @@
     "roles": {
       "owner": "Owner",
       "admin": "Admin",
-      "member": "Member",
+      "editor": "Editor",
       "viewer": "Viewer"
     },
     "toast": {

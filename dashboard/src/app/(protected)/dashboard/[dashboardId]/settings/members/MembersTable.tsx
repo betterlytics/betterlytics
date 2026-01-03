@@ -205,9 +205,9 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
                                     {t('roles.admin')}
                                   </DropdownMenuItem>
                                 )}
-                                {member.role !== 'member' && (
-                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'member')}>
-                                    {t('roles.member')}
+                                {member.role !== 'editor' && (
+                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'editor')}>
+                                    {t('roles.editor')}
                                   </DropdownMenuItem>
                                 )}
                                 {member.role !== 'viewer' && (

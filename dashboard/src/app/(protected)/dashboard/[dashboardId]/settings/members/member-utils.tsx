@@ -9,7 +9,7 @@ export function getRoleBadgeClassName(role: Role): string {
       return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
     case 'admin':
       return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    case 'member':
+    case 'editor':
       return 'bg-green-500/20 text-green-400 border-green-500/30';
     case 'viewer':
       return 'bg-muted text-muted-foreground border-border';

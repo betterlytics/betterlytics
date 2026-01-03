@@ -30,7 +30,7 @@ enum SubscriptionTier {
 enum DashboardRole {
   owner
   admin
-  member
+  editor
   viewer
 }
 
