@@ -13,6 +13,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { RoleBadge, getInitials, formatDate, getAvatarColor } from './member-utils';
@@ -188,21 +191,26 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align='end'>
-                            {member.role !== 'admin' && (
-                              <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'admin')}>
-                                Change to Admin
-                              </DropdownMenuItem>
-                            )}
-                            {member.role !== 'member' && (
-                              <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'member')}>
-                                Change to Member
-                              </DropdownMenuItem>
-                            )}
-                            {member.role !== 'viewer' && (
-                              <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'viewer')}>
-                                Change to Viewer
-                              </DropdownMenuItem>
-                            )}
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>Change Role</DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent>
+                                {member.role !== 'admin' && (
+                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'admin')}>
+                                    Admin
+                                  </DropdownMenuItem>
+                                )}
+                                {member.role !== 'member' && (
+                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'member')}>
+                                    Member
+                                  </DropdownMenuItem>
+                                )}
+                                {member.role !== 'viewer' && (
+                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'viewer')}>
+                                    Viewer
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className='text-destructive focus:text-destructive'
