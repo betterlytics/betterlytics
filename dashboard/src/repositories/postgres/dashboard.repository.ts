@@ -19,7 +19,7 @@ import { DashboardRole } from '@prisma/client';
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
     const prismaDashboard = await prisma.dashboard.findFirst({
-      where: { id: dashboardId },
+      where: { id: dashboardId, deletedAt: null },
     });
     return DashboardSchema.parse(prismaDashboard);
   } catch {
@@ -35,6 +35,7 @@ export async function findUserDashboardOrNull(data: DashboardFindByUserData): Pr
     where: {
       dashboardId: validatedData.dashboardId,
       userId: validatedData.userId,
+      dashboard: { deletedAt: null },
     },
   });
 
@@ -45,7 +46,7 @@ export async function findUserDashboardOrNull(data: DashboardFindByUserData): Pr
 
 export async function findUserDashboardWithDashboardOrNull(data: DashboardFindByUserData) {
   const rel = await prisma.userDashboard.findFirst({
-    where: { dashboardId: data.dashboardId, userId: data.userId },
+    where: { dashboardId: data.dashboardId, userId: data.userId, dashboard: { deletedAt: null } },
     include: { dashboard: true },
   });
 
@@ -72,6 +73,7 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
     const prismaDashboard = await prisma.dashboard.findFirst({
       where: {
         id: prismaUserDashboard?.dashboardId,
+        deletedAt: null,
       },
     });
 
@@ -91,6 +93,7 @@ export async function findAllUserDashboards(userId: string): Promise<Dashboard[]
     const prismaUserDashboards = await prisma.userDashboard.findMany({
       where: {
         userId,
+        dashboard: { deletedAt: null },
       },
       include: {
         dashboard: true,
@@ -113,6 +116,7 @@ export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> 
       where: {
         userId,
         role: 'owner',
+        dashboard: { deletedAt: null },
       },
       include: {
         dashboard: true,
@@ -166,7 +170,7 @@ export async function createDashboard(data: DashboardWriteData): Promise<Dashboa
 export async function getUserSiteIds(userId: string): Promise<string[]> {
   try {
     const dashboards = await prisma.userDashboard.findMany({
-      where: { userId },
+      where: { userId, dashboard: { deletedAt: null } },
       include: {
         dashboard: {
           select: { siteId: true },
@@ -187,6 +191,7 @@ export async function findDashboardOwner(dashboardId: string): Promise<{ userId:
       where: {
         dashboardId,
         role: 'owner',
+        dashboard: { deletedAt: null },
       },
       select: { userId: true },
     });
@@ -200,7 +205,7 @@ export async function findDashboardOwner(dashboardId: string): Promise<{ userId:
 export async function getOwnedSiteIds(userId: string): Promise<string[]> {
   try {
     const dashboards = await prisma.userDashboard.findMany({
-      where: { userId, role: 'owner' },
+      where: { userId, role: 'owner', dashboard: { deletedAt: null } },
       include: {
         dashboard: {
           select: { siteId: true },
@@ -217,8 +222,9 @@ export async function getOwnedSiteIds(userId: string): Promise<string[]> {
 
 export async function deleteDashboard(dashboardId: string): Promise<void> {
   try {
-    await prisma.dashboard.delete({
+    await prisma.dashboard.update({
       where: { id: dashboardId },
+      data: { deletedAt: new Date() },
     });
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);
@@ -226,9 +232,32 @@ export async function deleteDashboard(dashboardId: string): Promise<void> {
   }
 }
 
+export async function deleteOwnedDashboards(userId: string): Promise<string[]> {
+  try {
+    const ownedDashboards = await prisma.userDashboard.findMany({
+      where: { userId, role: 'owner', dashboard: { deletedAt: null } },
+      select: { dashboardId: true },
+    });
+
+    const dashboardIds = ownedDashboards.map((d) => d.dashboardId);
+
+    if (dashboardIds.length > 0) {
+      await prisma.dashboard.updateMany({
+        where: { id: { in: dashboardIds } },
+        data: { deletedAt: new Date() },
+      });
+    }
+
+    return dashboardIds;
+  } catch (error) {
+    console.error(`Error deleting owned dashboards for user ${userId}:`, error);
+    throw new Error('Failed to delete owned dashboards');
+  }
+}
+
 export async function findAllDashboardIds(): Promise<string[]> {
   try {
-    const dashboards = await prisma.dashboard.findMany({ select: { id: true } });
+    const dashboards = await prisma.dashboard.findMany({ where: { deletedAt: null }, select: { id: true } });
     return dashboards.map((d) => d.id);
   } catch (error) {
     console.error('Error fetching all dashboard ids:', error);
@@ -239,6 +268,7 @@ export async function findAllDashboardIds(): Promise<string[]> {
 export async function findAllDashboardsWithSiteConfig(): Promise<DashboardWithSiteConfig[]> {
   try {
     const dashboards = await prisma.dashboard.findMany({
+      where: { deletedAt: null },
       select: {
         id: true,
         siteId: true,

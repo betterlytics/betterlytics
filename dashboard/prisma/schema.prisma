@@ -149,6 +149,7 @@ model Dashboard {
   domain String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   userAccess UserDashboard[]
   funnels Funnel[]

@@ -159,6 +159,24 @@ export async function markExpiredInvitations(): Promise<number> {
   }
 }
 
+export async function cancelPendingInvitationsForDashboards(dashboardIds: string[]): Promise<number> {
+  if (dashboardIds.length === 0) return 0;
+
+  try {
+    const result = await prisma.dashboardInvitation.updateMany({
+      where: {
+        dashboardId: { in: dashboardIds },
+        status: 'pending',
+      },
+      data: { status: 'cancelled' },
+    });
+    return result.count;
+  } catch (error) {
+    console.error('Error cancelling pending invitations:', error);
+    return 0;
+  }
+}
+
 export async function findPendingInvitationsByEmail(email: string): Promise<InvitationWithInviter[]> {
   try {
     const invitations = await prisma.dashboardInvitation.findMany({
@@ -166,6 +184,7 @@ export async function findPendingInvitationsByEmail(email: string): Promise<Invi
         email: email.toLowerCase(),
         status: 'pending',
         expiresAt: { gt: new Date() },
+        dashboard: { deletedAt: null },
       },
       include: {
         invitedBy: {

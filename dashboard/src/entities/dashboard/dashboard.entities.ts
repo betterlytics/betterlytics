@@ -30,6 +30,7 @@ export const DashboardSchema = z.object({
   domain: z.string(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
+  deletedAt: z.date().nullable().optional(),
 });
 
 export const DashboardWriteSchema = z.object({

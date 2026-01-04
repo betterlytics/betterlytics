@@ -4,6 +4,8 @@ import { UpdateUserData } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
+import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
+import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
 import { UserException } from '@/lib/exceptions';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
@@ -52,6 +54,12 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
 
 export async function deleteUser(userId: string): Promise<void> {
   try {
+    const deletedDashboardIds = await DashboardRepository.deleteOwnedDashboards(userId);
+
+    if (deletedDashboardIds.length > 0) {
+      await InvitationRepository.cancelPendingInvitationsForDashboards(deletedDashboardIds);
+    }
+
     await UserRepository.deleteUser(userId);
     console.log(`Successfully deleted user ${userId} and all associated data`);
   } catch (error) {
