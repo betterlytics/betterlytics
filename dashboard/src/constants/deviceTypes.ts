@@ -11,16 +11,6 @@ const DEVICE_COLOR_MAP: Record<string, string> = {
 };
 
 /**
- * Generate a consistent hash code from a string
- * This is used to get a consistent color for a device type across users
- * Perhaps we should instead use a consistent color for different device types
- * 
- * @deprecated Use hashString from '@/utils/colorUtils' instead
- * Re-exported here for backward compatibility
- */
-export const hashString = hashStringUtil;
-
-/**
  * Format a device type string for display
  * Capitalizes first letter of each word and handles special cases
  */

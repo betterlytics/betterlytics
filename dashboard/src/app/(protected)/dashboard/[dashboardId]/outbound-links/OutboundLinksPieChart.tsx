@@ -17,7 +17,7 @@ const getOutboundLinkColor = createColorGetter({
   },
   saturation: 70,
   lightness: 50,
-  useGoldenRatio: false, // Use simple modulo for consistency with original behavior
+  useGoldenRatio: false,
 });
 
 const formatUrl = (url: string): string => {
