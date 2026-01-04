@@ -70,7 +70,7 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
           comparison = (a.user.email || '').localeCompare(b.user.email || '');
           break;
         case 'role':
-          const roleOrder = { owner: 0, admin: 1, member: 2, viewer: 3 };
+          const roleOrder = { owner: 0, admin: 1, editor: 2, viewer: 3 };
           comparison = roleOrder[a.role] - roleOrder[b.role];
           break;
         case 'createdAt':
