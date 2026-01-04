@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { getUserBillingData } from '@/actions/billing.action';
+import { getDashboardOwnerBillingData } from '@/actions/billing.action';
 import {
   getCapabilitiesForTier,
   type PlanCapabilities,
@@ -31,10 +31,11 @@ const CapabilitiesContext = createContext<CapabilitiesContextValue>({
 });
 
 type CapabilitiesProviderProps = {
+  dashboardId: string;
   children: React.ReactNode;
 };
 
-export function CapabilitiesProvider({ children }: CapabilitiesProviderProps) {
+export function CapabilitiesProvider({ dashboardId, children }: CapabilitiesProviderProps) {
   const isDemo = useDashboardAuth().isDemo;
   const [tier, setTier] = useState<TierName>('growth');
   const [isLoading, setIsLoading] = useState(!isDemo);
@@ -42,16 +43,20 @@ export function CapabilitiesProvider({ children }: CapabilitiesProviderProps) {
   useEffect(() => {
     if (isDemo) return;
 
+    setIsLoading(true);
+
     const fetchTier = async () => {
-      const result = await getUserBillingData();
-      if (result.success) {
-        setTier(result.data.subscription.tier);
+      try {
+        const billingData = await getDashboardOwnerBillingData(dashboardId);
+        setTier(billingData.subscription.tier);
+      } catch (error) {
+        console.error('Failed to fetch dashboard capabilities:', error);
       }
       setIsLoading(false);
     };
 
     fetchTier();
-  }, [isDemo]);
+  }, [isDemo, dashboardId]);
 
   const value = useMemo<CapabilitiesContextValue>(() => {
     if (isDemo) {

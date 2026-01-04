@@ -7,18 +7,18 @@ import {
   findFirstUserDashboard,
   findDashboardById,
   deleteDashboard,
-  findAllUserDashboards,
+  findOwnedDashboards,
 } from '@/repositories/postgres/dashboard.repository';
 import { User } from 'next-auth';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { getCapabilities } from '@/lib/billing/capabilityAccess';
+import { getUserCapabilities } from '@/lib/billing/capabilityAccess';
 import { dashboardValidator } from '@/lib/billing/validators';
 
 export const createDashboardAction = withUserAuth(async (user: User, domain: string): Promise<Dashboard> => {
-  const caps = await getCapabilities();
+  const caps = await getUserCapabilities();
   const validator = await dashboardValidator(caps.dashboards);
 
-  await validator.dashboardLimit(() => findAllUserDashboards(user.id).then((d) => d.length)).validate();
+  await validator.dashboardLimit(() => findOwnedDashboards(user.id).then((d) => d.length)).validate();
 
   return createNewDashboard(domain, user.id);
 });
@@ -43,12 +43,12 @@ export const getCurrentDashboardAction = withDashboardAuthContext(async (ctx: Au
 });
 
 export const getUserDashboardStatsAction = withUserAuth(async (user: User) => {
-  const caps = await getCapabilities();
-  const currentDashboards = await findAllUserDashboards(user.id);
+  const caps = await getUserCapabilities();
+  const ownedDashboards = await findOwnedDashboards(user.id);
 
   return {
-    current: currentDashboards.length,
+    current: ownedDashboards.length,
     limit: caps.dashboards.maxDashboards,
-    canCreateMore: currentDashboards.length < caps.dashboards.maxDashboards,
+    canCreateMore: ownedDashboards.length < caps.dashboards.maxDashboards,
   };
 });

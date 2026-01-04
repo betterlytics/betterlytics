@@ -107,6 +107,28 @@ export async function findAllUserDashboards(userId: string): Promise<Dashboard[]
   }
 }
 
+export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> {
+  try {
+    const prismaUserDashboards = await prisma.userDashboard.findMany({
+      where: {
+        userId,
+        role: 'owner',
+      },
+      include: {
+        dashboard: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return prismaUserDashboards.map((userDashboard) => DashboardSchema.parse(userDashboard.dashboard));
+  } catch (error) {
+    console.error("Error while finding user's owned dashboards:", error);
+    throw new Error('Failed to find owned dashboards');
+  }
+}
+
 export async function createDashboard(data: DashboardWriteData): Promise<Dashboard> {
   try {
     const validatedData = DashboardWriteSchema.parse(data);
@@ -155,6 +177,40 @@ export async function getUserSiteIds(userId: string): Promise<string[]> {
     return dashboards.map((userDashboard) => userDashboard.dashboard.siteId);
   } catch (error) {
     console.error('Failed to get user site IDs:', error);
+    return [];
+  }
+}
+
+export async function findDashboardOwner(dashboardId: string): Promise<{ userId: string } | null> {
+  try {
+    const owner = await prisma.userDashboard.findFirst({
+      where: {
+        dashboardId,
+        role: 'owner',
+      },
+      select: { userId: true },
+    });
+    return owner;
+  } catch (error) {
+    console.error('Error finding dashboard owner:', error);
+    return null;
+  }
+}
+
+export async function getOwnedSiteIds(userId: string): Promise<string[]> {
+  try {
+    const dashboards = await prisma.userDashboard.findMany({
+      where: { userId, role: 'owner' },
+      include: {
+        dashboard: {
+          select: { siteId: true },
+        },
+      },
+    });
+
+    return dashboards.map((userDashboard) => userDashboard.dashboard.siteId);
+  } catch (error) {
+    console.error('Failed to get owned site IDs:', error);
     return [];
   }
 }
