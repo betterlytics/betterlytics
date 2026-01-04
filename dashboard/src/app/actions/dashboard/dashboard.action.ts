@@ -7,7 +7,7 @@ import {
   findFirstUserDashboard,
   findDashboardById,
   deleteDashboard,
-  findAllUserDashboards,
+  findOwnedDashboards,
 } from '@/repositories/postgres/dashboard.repository';
 import { User } from 'next-auth';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -18,7 +18,7 @@ export const createDashboardAction = withUserAuth(async (user: User, domain: str
   const caps = await getCapabilities();
   const validator = await dashboardValidator(caps.dashboards);
 
-  await validator.dashboardLimit(() => findAllUserDashboards(user.id).then((d) => d.length)).validate();
+  await validator.dashboardLimit(() => findOwnedDashboards(user.id).then((d) => d.length)).validate();
 
   return createNewDashboard(domain, user.id);
 });
@@ -44,11 +44,11 @@ export const getCurrentDashboardAction = withDashboardAuthContext(async (ctx: Au
 
 export const getUserDashboardStatsAction = withUserAuth(async (user: User) => {
   const caps = await getCapabilities();
-  const currentDashboards = await findAllUserDashboards(user.id);
+  const ownedDashboards = await findOwnedDashboards(user.id);
 
   return {
-    current: currentDashboards.length,
+    current: ownedDashboards.length,
     limit: caps.dashboards.maxDashboards,
-    canCreateMore: currentDashboards.length < caps.dashboards.maxDashboards,
+    canCreateMore: ownedDashboards.length < caps.dashboards.maxDashboards,
   };
 });
