@@ -69,7 +69,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   }
 
   return (
-    <PermissionGate>
+    <PermissionGate allowViewer>
       {(disabled) => (
         <div className={cn(isMobile ? 'pt-1' : 'pt-2')}>
           <Separator />
@@ -98,19 +98,23 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                   onClick={() => handleLoad(savedFilter)}
                 >
                   <span className='truncate text-sm'>{savedFilter.name}</span>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
-                    onClick={(e) => handleDelete(savedFilter.id, e)}
-                    disabled={deletingFilterId === savedFilter.id}
-                  >
-                    {deletingFilterId === savedFilter.id ? (
-                      <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
-                    ) : (
-                      <Trash2Icon className='h-3.5 w-3.5' />
+                  <PermissionGate>
+                    {(disabled) => (
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
+                        onClick={(e) => handleDelete(savedFilter.id, e)}
+                        disabled={disabled || deletingFilterId === savedFilter.id}
+                      >
+                        {deletingFilterId === savedFilter.id ? (
+                          <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
+                        ) : (
+                          <Trash2Icon className='h-3.5 w-3.5' />
+                        )}
+                      </Button>
                     )}
-                  </Button>
+                  </PermissionGate>
                 </div>
               ))}
             </CollapsibleContent>
