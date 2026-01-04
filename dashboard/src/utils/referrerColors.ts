@@ -1,3 +1,5 @@
+import { createColorGetter } from './colorUtils';
+
 // Colors for different referrer categories
 export const REFERRER_COLORS: Record<string, string> = {
   'search': '#3B82F6', // Blue
@@ -11,6 +13,8 @@ export const REFERRER_COLORS: Record<string, string> = {
  * Gets the color for a referrer type, defaulting to 'other' if not found
  */
 export function getReferrerColor(referrerType: string): string {
-  const type = referrerType.toLowerCase();
-  return REFERRER_COLORS[type] || REFERRER_COLORS.other;
+  return createColorGetter({
+    colorMap: REFERRER_COLORS,
+    defaultColor: REFERRER_COLORS.other,
+  })(referrerType);
 } 
