@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { MembersTable } from './MembersTable';
 import { InviteSection } from './InviteSection';
 import { getTranslations } from 'next-intl/server';
+import { LeaveDashboardSection } from './LeaveDashboardSection';
 
 interface MembersPageProps {
   params: Promise<{
@@ -43,6 +44,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
         currentUserId={session.user.id}
         currentUserRole={currentUserRole}
       />
+      {currentUserRole !== 'owner' && <LeaveDashboardSection />}
     </div>
   );
 }

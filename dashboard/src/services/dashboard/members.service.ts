@@ -90,3 +90,17 @@ export async function removeMemberFromDashboard(
 
   await removeMemberRepo(dashboardId, targetUserId);
 }
+
+export async function leaveDashboard(dashboardId: string, userId: string): Promise<void> {
+  const userAccess = await findUserDashboardOrNull({ userId, dashboardId });
+
+  if (!userAccess) {
+    throw new Error('User not found in this dashboard');
+  }
+
+  if (userAccess.role === 'owner') {
+    throw new Error('Cannot leave dashboard as owner');
+  }
+
+  await removeMemberRepo(dashboardId, userId);
+}
