@@ -10,7 +10,7 @@ import {
   findPendingInvitationsByEmail,
 } from '@/repositories/postgres/invitation.repository';
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
-import { findUserByEmail, markOnboardingCompleted } from '@/repositories/postgres/user.repository';
+import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { sendDashboardInvitationEmail } from '@/services/email/mail.service';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';
@@ -120,7 +120,6 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
 
   await addDashboardMember(invitation.dashboardId, userId, invitation.role);
   await updateInvitationStatus(invitation.id, 'accepted');
-  await markOnboardingCompleted(userId);
 
   return invitation.dashboardId;
 }
@@ -166,10 +165,6 @@ export async function acceptPendingInvitations(userId: string, email: string): P
     } catch {}
 
     await updateInvitationStatus(invitation.id, 'accepted');
-  }
-
-  if (accepted.length > 0) {
-    await markOnboardingCompleted(userId);
   }
 
   return accepted;

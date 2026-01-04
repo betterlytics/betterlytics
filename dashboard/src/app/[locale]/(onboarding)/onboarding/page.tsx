@@ -10,6 +10,7 @@ import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
 import { acceptPendingInvitations } from '@/services/dashboard/invitation.service';
+import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
 
 export default async function Onboarding() {
   const session = await getAuthSession();
@@ -24,6 +25,7 @@ export default async function Onboarding() {
       }
 
       if (acceptedInvitations.length > 0) {
+        await setOnboardingCompletedAction();
         redirect('/dashboards');
       }
     }

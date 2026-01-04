@@ -19,6 +19,7 @@ import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
+import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -58,6 +59,7 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
     try {
       const acceptedInvitations = await acceptPendingInvitationsAction();
       if (acceptedInvitations.success && acceptedInvitations.data.length > 0) {
+        await setOnboardingCompletedAction();
         router.push('/dashboards');
         return {
           hadInvitations: true,

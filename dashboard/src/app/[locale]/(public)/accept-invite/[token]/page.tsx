@@ -23,7 +23,12 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
 
   const invitation = await findInvitationByToken(token);
 
-  if (!invitation) {
+  if (
+    !invitation ||
+    invitation.status === 'cancelled' ||
+    invitation.status === 'expired' ||
+    invitation.status === 'declined'
+  ) {
     return (
       <div className='flex min-h-screen items-center justify-center p-4'>
         <Card className='w-full max-w-md'>
@@ -48,9 +53,13 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
     redirect(`/${locale}/signin`);
   }
 
+  if (invitation.email === session.user.email && invitation.status === 'accepted') {
+    redirect(`/dashboard/${invitation.dashboardId}`);
+  }
+
   try {
     const dashboardId = await acceptInvitation(token, session.user.id, session.user.email);
-    redirect(`/${locale}/dashboard/${dashboardId}`);
+    redirect(`/dashboard/${dashboardId}`);
   } catch (error) {
     const errorMessage =
       error instanceof UserException ? error.message : 'An error occurred while accepting the invitation.';
