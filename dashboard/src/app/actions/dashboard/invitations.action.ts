@@ -9,6 +9,7 @@ import {
   getPendingInvitationsForUser,
   acceptInvitation,
   declineInvitation,
+  acceptPendingInvitations,
 } from '@/services/dashboard/invitation.service';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext, withUserAuth } from '@/auth/auth-actions';
@@ -52,4 +53,8 @@ export const acceptInvitationAction = withUserAuth(async (user: User, token: str
 
 export const declineInvitationAction = withUserAuth(async (user: User, invitationId: string): Promise<void> => {
   await declineInvitation(invitationId, user.id, user.email);
+});
+
+export const acceptPendingInvitationsAction = withUserAuth(async (user: User) => {
+  return acceptPendingInvitations(user.id, user.email);
 });
