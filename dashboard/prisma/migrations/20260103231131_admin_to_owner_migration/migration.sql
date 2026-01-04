@@ -1,0 +1,1 @@
+UPDATE "UserDashboard" SET "role" = 'owner' WHERE "role" = 'admin';

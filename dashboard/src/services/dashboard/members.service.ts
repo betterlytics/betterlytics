@@ -10,13 +10,22 @@ import {
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { getRoleLevel } from '@/lib/permissions';
 
-function canModifyRole(requesterRole: DashboardRole, targetRole: DashboardRole): boolean {
+function canModifyMember(requesterRole: DashboardRole, targetRole: DashboardRole): boolean {
   const requesterLevel = getRoleLevel(requesterRole);
   const targetLevel = getRoleLevel(targetRole);
 
   const canManageRoles = requesterRole === 'owner' || requesterRole === 'admin';
 
-  return canManageRoles && requesterLevel <= targetLevel;
+  return canManageRoles && requesterLevel < targetLevel;
+}
+
+function canAssignRole(requesterRole: DashboardRole, newRole: DashboardRole): boolean {
+  const requesterLevel = getRoleLevel(requesterRole);
+  const newRoleLevel = getRoleLevel(newRole);
+
+  const canManageRoles = requesterRole === 'owner' || requesterRole === 'admin';
+
+  return canManageRoles && requesterLevel <= newRoleLevel;
 }
 
 export async function getDashboardMembers(dashboardId: string): Promise<DashboardMember[]> {
@@ -44,11 +53,11 @@ export async function updateMemberRole(
     throw new Error('Cannot assign owner role');
   }
 
-  if (!canModifyRole(requesterAccess.role, targetAccess.role)) {
+  if (!canModifyMember(requesterAccess.role, targetAccess.role)) {
     throw new Error('Requester cannot modify this member role');
   }
 
-  if (!canModifyRole(requesterAccess.role, newRole)) {
+  if (!canAssignRole(requesterAccess.role, newRole)) {
     throw new Error('Requester cannot assign this role');
   }
 

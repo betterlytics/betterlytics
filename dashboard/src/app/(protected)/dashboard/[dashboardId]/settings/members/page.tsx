@@ -26,6 +26,9 @@ export default async function MembersPage({ params }: MembersPageProps) {
     getPendingInvitationsAction(dashboardId),
   ]);
 
+  const currentMember = members.find((m) => m.userId === session.user.id);
+  const currentUserRole = currentMember?.role || 'viewer';
+
   return (
     <div className='container max-w-4xl space-y-6 p-2 pt-4 sm:p-6'>
       <div className='space-y-1'>
@@ -34,7 +37,12 @@ export default async function MembersPage({ params }: MembersPageProps) {
       </div>
 
       <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />
-      <MembersTable dashboardId={dashboardId} members={members} currentUserId={session.user.id} />
+      <MembersTable
+        dashboardId={dashboardId}
+        members={members}
+        currentUserId={session.user.id}
+        currentUserRole={currentUserRole}
+      />
     </div>
   );
 }

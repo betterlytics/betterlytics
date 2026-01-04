@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { Search, ArrowUpDown, MoreHorizontal, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -17,7 +17,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
+import { getRoleLevel } from '@/lib/permissions';
 import { RoleBadge, getInitials, formatDate, getAvatarColor } from './member-utils';
 import { updateMemberRoleAction, removeMemberAction } from '@/app/actions/dashboard/members.action';
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
@@ -31,9 +33,12 @@ interface MembersTableProps {
   dashboardId: string;
   members: DashboardMember[];
   currentUserId: string;
+  currentUserRole: DashboardRole;
 }
 
-export function MembersTable({ dashboardId, members, currentUserId }: MembersTableProps) {
+const ASSIGNABLE_ROLES: DashboardRole[] = ['admin', 'editor', 'viewer'];
+
+export function MembersTable({ dashboardId, members, currentUserId, currentUserRole }: MembersTableProps) {
   const t = useTranslations('members');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('role');
@@ -189,44 +194,53 @@ export function MembersTable({ dashboardId, members, currentUserId }: MembersTab
                       {formatDate(member.createdAt)}
                     </TableCell>
                     <TableCell className='py-3'>
-                      {member.role !== 'owner' && member.userId !== currentUserId && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' size='icon' className='size-8' disabled={isPending}>
-                              <MoreHorizontal className='size-4' />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end'>
-                            <DropdownMenuSub>
-                              <DropdownMenuSubTrigger>{t('actions.changeRole')}</DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent>
-                                {member.role !== 'admin' && (
-                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'admin')}>
-                                    {t('roles.admin')}
-                                  </DropdownMenuItem>
-                                )}
-                                {member.role !== 'editor' && (
-                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'editor')}>
-                                    {t('roles.editor')}
-                                  </DropdownMenuItem>
-                                )}
-                                {member.role !== 'viewer' && (
-                                  <DropdownMenuItem onClick={() => handleChangeRole(member.userId, 'viewer')}>
-                                    {t('roles.viewer')}
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className='text-destructive focus:text-destructive'
-                              onClick={() => handleRemoveMember(member.userId)}
-                            >
-                              {t('actions.removeFromDashboard')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                      {member.role !== 'owner' &&
+                        member.userId !== currentUserId &&
+                        getRoleLevel(currentUserRole) < getRoleLevel(member.role) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant='ghost' size='icon' className='size-8' disabled={isPending}>
+                                <MoreHorizontal className='size-4' />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='end'>
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>{t('actions.changeRole')}</DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent>
+                                  {ASSIGNABLE_ROLES.map((role) => {
+                                    const isCurrentRole = member.role === role;
+                                    if (isCurrentRole) {
+                                      return (
+                                        <DropdownMenuLabel
+                                          key={role}
+                                          className='text-muted-foreground flex items-center justify-between font-normal'
+                                        >
+                                          {t(`roles.${role}`)}
+                                          <Check className='ml-2 size-4' />
+                                        </DropdownMenuLabel>
+                                      );
+                                    }
+                                    return (
+                                      <DropdownMenuItem
+                                        key={role}
+                                        onClick={() => handleChangeRole(member.userId, role)}
+                                      >
+                                        {t(`roles.${role}`)}
+                                      </DropdownMenuItem>
+                                    );
+                                  })}
+                                </DropdownMenuSubContent>
+                              </DropdownMenuSub>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className='text-destructive focus:text-destructive'
+                                onClick={() => handleRemoveMember(member.userId)}
+                              >
+                                {t('actions.removeFromDashboard')}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                     </TableCell>
                   </TableRow>
                 ))
