@@ -52,7 +52,6 @@ export function LeaveDashboardSection() {
         confirmLabel='Leave Dashboard'
         onConfirm={leaveDashboard}
         isPending={isPendingLeave}
-        countdownSeconds={5}
         showIcon
       />
     </div>

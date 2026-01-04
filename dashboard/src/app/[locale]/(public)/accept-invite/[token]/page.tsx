@@ -80,7 +80,6 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
   const t = await getTranslations('invitations.acceptPage');
 
   const invitation = await findInvitationByToken(token);
-
   if (!invitation || invitation.status === 'cancelled' || invitation.status === 'declined') {
     return (
       <InviteStatusCard
@@ -138,9 +137,8 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
   }
 
   try {
-    const dashboardId = await acceptInvitation(token, session.user.id, session.user.email);
-    redirect(`/dashboard/${dashboardId}`);
-  } catch {
+    await acceptInvitation(token, session.user.id, session.user.email);
+  } catch (error) {
     return (
       <InviteStatusCard
         icon={AlertCircle}
@@ -152,4 +150,6 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
       />
     );
   }
+
+  redirect(`/dashboard/${invitation.dashboardId}`);
 }
