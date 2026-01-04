@@ -32,10 +32,6 @@ export const removeMemberAction = withDashboardMutationAuthContext(
   { permission: 'canRemoveMembers' },
 );
 
-export const leaveDashboardAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext): Promise<void> => {
-    await leaveDashboard(ctx.dashboardId, ctx.userId);
-    revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
-  },
-  { permission: 'canRemoveMembers' },
-);
+export const leaveDashboardAction = withDashboardMutationAuthContext(async (ctx: AuthContext): Promise<void> => {
+  await leaveDashboard(ctx.dashboardId, ctx.userId);
+});
