@@ -18,15 +18,14 @@ export default async function Onboarding() {
   const getFirstDashboard = async () => {
     if (session?.user?.id && session?.user?.email) {
       const acceptedInvitations = await acceptPendingInvitations(session.user.id, session.user.email);
-
       const dashboard = await getFirstUserDashboardAction();
-      if (dashboard.success && dashboard.data) {
-        return { dashboard: dashboard.data, acceptedCount: acceptedInvitations.length };
-      }
 
       if (acceptedInvitations.length > 0) {
         await setOnboardingCompletedAction();
-        redirect('/dashboards');
+      }
+
+      if (dashboard.success && dashboard.data) {
+        return { dashboard: dashboard.data, acceptedCount: acceptedInvitations.length };
       }
     }
 
@@ -34,7 +33,7 @@ export default async function Onboarding() {
   };
 
   const result = await getFirstDashboard();
-  const dashboard = result?.dashboard ?? null;
+  const { dashboard, acceptedCount } = result ?? { dashboard: null, acceptedCount: 0 };
 
   const getStep = () => {
     if (!session) {
@@ -48,7 +47,7 @@ export default async function Onboarding() {
       return 'website';
     }
 
-    if (session.user.onboardingCompletedAt) {
+    if (session.user.onboardingCompletedAt || acceptedCount > 0) {
       redirect('/dashboards');
     }
 
