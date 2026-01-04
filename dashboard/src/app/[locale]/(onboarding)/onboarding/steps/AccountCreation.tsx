@@ -17,6 +17,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
+import { useBARouter } from '@/hooks/use-ba-router';
+import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -49,6 +51,23 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const router = useBARouter();
+
+  const handlePotentialInvitationsOnAccountCreation = useCallback(async () => {
+    try {
+      const acceptedInvitations = await acceptPendingInvitationsAction();
+      if (acceptedInvitations.success && acceptedInvitations.data.length > 0) {
+        router.push('/dashboards');
+        return {
+          hadInvitations: true,
+        };
+      }
+    } catch {}
+    return {
+      hadInvitations: false,
+    };
+  }, [router]);
 
   const handleEmailRegistration = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
@@ -99,6 +118,12 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           }
 
           baEvent('onboarding-account-created');
+
+          const { hadInvitations } = await handlePotentialInvitationsOnAccountCreation();
+
+          if (hadInvitations) {
+            return;
+          }
 
           onNext();
         });
