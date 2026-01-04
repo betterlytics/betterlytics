@@ -36,7 +36,7 @@ function InviteStatusCard({
   };
 
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center p-4'>
+    <div className='flex flex-1 flex-col items-center justify-center p-4 py-12'>
       <Link href='/' className='mb-8 flex items-center space-x-2'>
         <Logo variant='simple' showText textSize='lg' priority />
       </Link>
