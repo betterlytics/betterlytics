@@ -2840,10 +2840,16 @@
     },
     "acceptPage": {
       "notFoundTitle": "Invito non trovato",
-      "notFoundDescription": "Questo link di invito non è valido o è scaduto.",
+      "notFoundDescription": "Questo link di invito non è valido o è già stato utilizzato.",
       "goToSignIn": "Vai al login",
+      "expiredTitle": "Invito scaduto",
+      "expiredDescription": "Questo invito non è più valido.",
+      "expiredHint": "Chiedi al proprietario della dashboard di inviarti un nuovo invito.",
+      "emailMismatchTitle": "Account errato",
+      "emailMismatchDescription": "Questo invito è stato inviato a {invitedEmail}, ma hai effettuato l'accesso come {currentEmail}.",
+      "emailMismatchHint": "Esci e accedi con l'account corretto per accettare questo invito.",
       "errorTitle": "Impossibile accettare l'invito",
-      "emailMismatch": "Questo invito è stato inviato a {invitedEmail}. Hai effettuato l'accesso come {currentEmail}.",
+      "errorDescription": "Si è verificato un errore durante l'accettazione dell'invito. Potrebbe essere già stato accettato o annullato.",
       "goToDashboards": "Vai alle dashboard"
     }
   }

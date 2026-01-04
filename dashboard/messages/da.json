@@ -2832,10 +2832,16 @@
     },
     "acceptPage": {
       "notFoundTitle": "Invitation ikke fundet",
-      "notFoundDescription": "Dette invitationslink er ugyldigt eller udløbet.",
+      "notFoundDescription": "Dette invitationslink er ugyldigt eller allerede brugt.",
       "goToSignIn": "Gå til login",
+      "expiredTitle": "Invitation udløbet",
+      "expiredDescription": "Denne invitation er ikke længere gyldig.",
+      "expiredHint": "Bed dashboard-ejeren om at sende dig en ny invitation.",
+      "emailMismatchTitle": "Forkert konto",
+      "emailMismatchDescription": "Denne invitation blev sendt til {invitedEmail}, men du er logget ind som {currentEmail}.",
+      "emailMismatchHint": "Log ud og log ind med den korrekte konto for at acceptere denne invitation.",
       "errorTitle": "Kunne ikke acceptere invitation",
-      "emailMismatch": "Denne invitation blev sendt til {invitedEmail}. Du er logget ind som {currentEmail}.",
+      "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
       "goToDashboards": "Gå til dashboards"
     }
   }

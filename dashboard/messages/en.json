@@ -2829,10 +2829,16 @@
     },
     "acceptPage": {
       "notFoundTitle": "Invitation Not Found",
-      "notFoundDescription": "This invitation link is invalid or has expired.",
+      "notFoundDescription": "This invitation link is invalid or has already been used.",
       "goToSignIn": "Go to Sign In",
+      "expiredTitle": "Invitation Expired",
+      "expiredDescription": "This invitation is no longer valid.",
+      "expiredHint": "Please ask the dashboard owner to send you a new invitation.",
+      "emailMismatchTitle": "Wrong Account",
+      "emailMismatchDescription": "This invitation was sent to {invitedEmail}, but you are signed in as {currentEmail}.",
+      "emailMismatchHint": "Sign out and sign in with the correct account to accept this invitation.",
       "errorTitle": "Could Not Accept Invitation",
-      "emailMismatch": "This invitation was sent to {invitedEmail}. You are signed in as {currentEmail}.",
+      "errorDescription": "Something went wrong while accepting the invitation. It may have already been accepted or cancelled.",
       "goToDashboards": "Go to Dashboards"
     }
   }
