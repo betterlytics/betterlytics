@@ -181,6 +181,40 @@ export async function getUserSiteIds(userId: string): Promise<string[]> {
   }
 }
 
+export async function findDashboardOwner(dashboardId: string): Promise<{ userId: string } | null> {
+  try {
+    const owner = await prisma.userDashboard.findFirst({
+      where: {
+        dashboardId,
+        role: 'owner',
+      },
+      select: { userId: true },
+    });
+    return owner;
+  } catch (error) {
+    console.error('Error finding dashboard owner:', error);
+    return null;
+  }
+}
+
+export async function getOwnedSiteIds(userId: string): Promise<string[]> {
+  try {
+    const dashboards = await prisma.userDashboard.findMany({
+      where: { userId, role: 'owner' },
+      include: {
+        dashboard: {
+          select: { siteId: true },
+        },
+      },
+    });
+
+    return dashboards.map((userDashboard) => userDashboard.dashboard.siteId);
+  } catch (error) {
+    console.error('Failed to get owned site IDs:', error);
+    return [];
+  }
+}
+
 export async function deleteDashboard(dashboardId: string): Promise<void> {
   try {
     await prisma.dashboard.delete({

@@ -31,7 +31,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
   }
 
   return (
-    <CapabilitiesProvider>
+    <CapabilitiesProvider dashboardId={dashboardId}>
       <SettingsProvider initialSettings={initialSettings} dashboardId={dashboardId}>
         <TimeRangeContextProvider>
           <QueryFiltersContextProvider>

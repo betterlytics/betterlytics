@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useCallback } from 'react';
 import { DashboardRole } from '@prisma/client';
-import { Permission, ROLE_PERMISSIONS } from '@/lib/permissions';
+import { Permission, hasPermission } from '@/lib/permissions';
 
 type DashboardAuthContextValue = {
   isDemo: boolean;
@@ -23,7 +23,7 @@ export function DashboardAuthProvider({ isDemo, role, children }: DashboardAuthP
   const hasPermissionCheck = useCallback(
     (permission: Permission): boolean => {
       if (isDemo) return false;
-      return ROLE_PERMISSIONS[permission].includes(role);
+      return hasPermission(role, permission);
     },
     [isDemo, role],
   );
