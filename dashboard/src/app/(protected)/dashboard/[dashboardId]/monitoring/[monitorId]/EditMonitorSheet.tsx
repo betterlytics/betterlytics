@@ -100,7 +100,7 @@ export function EditMonitorSheet({
     });
   }, [deleteMutation]);
 
-  const userEmail = session!.user.email;
+  const userEmail = session?.user.email;
   const sslMonitoringEnabled = !isHttpUrl(monitor.url) && form.state.checkSslErrors;
   const isHttpSite = !monitor.url.startsWith('https://');
 
@@ -118,13 +118,15 @@ export function EditMonitorSheet({
             <div className='flex-grow space-y-2 overflow-y-auto px-6 py-6'>
               <TimingSection form={form} isPending={isPending} defaultOpen={true} />
               <Separator />
-              <AlertsSection
-                form={form}
-                isPending={isPending}
-                userEmail={userEmail}
-                sslMonitoringEnabled={sslMonitoringEnabled}
-                defaultOpen={false}
-              />
+              {userEmail && (
+                <AlertsSection
+                  form={form}
+                  isPending={isPending}
+                  userEmail={userEmail}
+                  sslMonitoringEnabled={sslMonitoringEnabled}
+                  defaultOpen={false}
+                />
+              )}
               <Separator />
               <AdvancedSettingsSection
                 form={form}

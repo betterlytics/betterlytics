@@ -18,12 +18,12 @@ const CONFIG = {
 export async function GET(request: NextRequest) {
   const domainParam = request.nextUrl.searchParams.get('domain');
   if (!domainParam) {
-    return new NextResponse(null, { status: 400 });
+    return negativeResponse();
   }
 
   const parsed = domainValidation.safeParse(domainParam);
   if (!parsed.success) {
-    return new NextResponse(null, { status: 400 });
+    return negativeResponse();
   }
 
   const response = await proxyFavicon(parsed.data);
@@ -34,6 +34,10 @@ export async function GET(request: NextRequest) {
   // Negative cache: if we fail to resolve a favicon for this domain, return a 404
   // with the same caching semantics as a successful favicon. This prevents repeated
   // lookups for obviously bad or misconfigured domains.
+  return negativeResponse();
+}
+
+function negativeResponse(): NextResponse {
   return new NextResponse(null, {
     status: 404,
     headers: {

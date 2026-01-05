@@ -39,6 +39,7 @@ export function DomainFavicon({ domain, size = 16, className, alt }: DomainFavic
         <Image
           src={source}
           alt={resolvedAlt}
+          unoptimized
           fill
           sizes={`${size}px`}
           className={cn(
