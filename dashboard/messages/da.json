@@ -112,7 +112,7 @@
       "intro": "Spørgsmål om Betterlytics? Har du brug for hjælp til din analyseopsætning? Vores team er klar til at hjælpe.",
       "getInTouch": {
         "title": "Tag kontakt",
-        "description": "Uanset om du har brug for teknisk support, har spørgsmål til vores funktioner, eller vil drøfte enterprise-løsninger, er vi her for at hjælpe. Vælg den metode, der passer dig bedst:"
+        "description": "Uanset om du har brug for teknisk support, har spørgsmål til vores funktioner, eller vil drøfte enterprise-løsninger, er vi her for at hjælpe."
       },
       "methods": {
         "email": {
@@ -159,6 +159,26 @@
             "question": "Tilbyder I support til self-hosted installationer?",
             "answer": "Delvist! Vi yder community-support via GitHub og Discord for self-hosted installationer, men vores prioritet er at støtte vores cloud-hosting kunder."
           }
+        }
+      },
+      "secondary": {
+        "discord": {
+          "cta": "Deltag i Discord"
+        },
+        "github": {
+          "cta": "Se på GitHub"
+        },
+        "bluesky": {
+          "cta": "Følg os"
+        },
+        "docs": {
+          "title": "Dokumentation",
+          "description": "Udforsk vores vejledninger til at komme i gang, integrationer med populære frameworks og detaljeret funktionsdokumentation.",
+          "cta": "Se dokumentation"
+        },
+        "email": {
+          "title": "Generelle henvendelser",
+          "description": "Spørgsmål, feedback eller noget helt andet."
         }
       },
       "cta": {
