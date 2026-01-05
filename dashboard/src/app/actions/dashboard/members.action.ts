@@ -7,6 +7,7 @@ import {
   updateMemberRole,
   removeMemberFromDashboard,
   leaveDashboard,
+  isUserDashboardMember,
 } from '@/services/dashboard/members.service';
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
@@ -32,6 +33,9 @@ export const removeMemberAction = withDashboardMutationAuthContext(
   { permission: 'canRemoveMembers' },
 );
 
-export const leaveDashboardAction = withDashboardMutationAuthContext(async (ctx: AuthContext): Promise<void> => {
-  await leaveDashboard(ctx.dashboardId, ctx.userId);
-});
+export const leaveDashboardAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext): Promise<void> => {
+    await leaveDashboard(ctx.dashboardId, ctx.userId);
+  },
+  { allowedRoles: ['admin', 'editor', 'viewer'] },
+);

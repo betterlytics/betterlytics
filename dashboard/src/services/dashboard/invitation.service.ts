@@ -173,3 +173,8 @@ export async function acceptPendingInvitations(userId: string, email: string): P
 export async function getPendingInvitationsForUser(email: string): Promise<InvitationWithInviter[]> {
   return findPendingInvitationsByEmail(email);
 }
+
+export async function isUserInvited(email: string): Promise<boolean> {
+  const invitations = await findPendingInvitationsByEmail(email);
+  return invitations.length > 0;
+}

@@ -133,6 +133,23 @@ export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> 
   }
 }
 
+export async function findMemberDashboardsCount(userId: string): Promise<number> {
+  try {
+    const prismaUserDashboards = await prisma.userDashboard.count({
+      where: {
+        userId,
+        role: { notIn: ['owner'] },
+        dashboard: { deletedAt: null },
+      },
+    });
+
+    return prismaUserDashboards;
+  } catch (error) {
+    console.error("Error while finding user's member dashboards count:", error);
+    throw new Error('Failed to find member dashboards count');
+  }
+}
+
 export async function createDashboard(data: DashboardWriteData): Promise<Dashboard> {
   try {
     const validatedData = DashboardWriteSchema.parse(data);

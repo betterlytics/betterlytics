@@ -6,6 +6,7 @@ import {
   updateMemberRole as updateMemberRoleRepo,
   removeMember as removeMemberRepo,
   findUserDashboardOrNull,
+  findMemberDashboardsCount,
 } from '@/repositories/postgres/dashboard.repository';
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { getRoleLevel } from '@/lib/permissions';
@@ -103,4 +104,10 @@ export async function leaveDashboard(dashboardId: string, userId: string): Promi
   }
 
   await removeMemberRepo(dashboardId, userId);
+}
+
+export async function isUserDashboardMember(userId: string): Promise<boolean> {
+  const userAccessCount = await findMemberDashboardsCount(userId);
+
+  return userAccessCount > 0;
 }

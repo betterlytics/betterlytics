@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { registerUserAction } from '@/app/actions/index.actions';
+import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { signIn, getProviders } from 'next-auth/react';
 import { ZodError } from 'zod';
@@ -19,7 +19,6 @@ import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
-import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -58,8 +57,11 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
   const handlePotentialInvitationsOnAccountCreation = useCallback(async () => {
     try {
       const acceptedInvitations = await acceptPendingInvitationsAction();
-      if (acceptedInvitations.success && acceptedInvitations.data.length > 0) {
-        await setOnboardingCompletedAction();
+      const isUserDashboardMember = await isUserInvitedDashboardMemberAction();
+      if (
+        (acceptedInvitations.success && acceptedInvitations.data.length > 0) ||
+        (isUserDashboardMember.success && isUserDashboardMember.data)
+      ) {
         router.push('/dashboards');
         return {
           hadInvitations: true,
