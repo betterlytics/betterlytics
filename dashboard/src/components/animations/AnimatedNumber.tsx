@@ -1,22 +1,21 @@
 'use client';
 
 import { DigitReel } from '@/components/animations/DigitReel';
-import { DIGIT_WIDTH, ENTER_EXIT_EASING, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
+import { DIGIT_WIDTH, ENTER_EXIT_EASING, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
 import { cn } from '@/lib/utils';
-import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useLayoutEffect } from 'react';
 
 type AnimatedNumberProps = {
   value: number;
   className?: string;
   duration?: number;
+  /** Controls how digit reels animate: 'wheel' (default) scrolls through all digits, 'shortest-path' takes the shortest route */
+  reelMotion?: ReelMotion;
 };
 
-export type DigitLifecycle = 'idle' | 'entering' | 'exiting' | 'done';
-
 type DigitState = {
-  digit: number;
-  prevDigit: number | null;
+  digit: Digit;
+  prevDigit: Digit | null;
   positionFromRight: number;
   lifecycle: DigitLifecycle;
   id: string;
@@ -26,22 +25,8 @@ export function AnimatedNumber({
   value,
   className,
   duration = 1200,
+  reelMotion = 'wheel',
 }: AnimatedNumberProps) {
-  const prefersReducedMotion = useReducedMotion();
-
-  if (prefersReducedMotion) {
-    return (
-      <span
-        className={cn(
-          'inline-flex tabular-nums leading-none whitespace-nowrap',
-          className
-        )}
-        aria-label={value.toString()}
-      >
-        {value}
-      </span>
-    );
-  }
   const componentId = useId();
   const prevValueRef = useRef<number | null>(null);
   const digitMapRef = useRef<Map<number, DigitState>>(new Map());
@@ -60,20 +45,16 @@ export function AnimatedNumber({
     return `${componentId}-digit-${++digitIdCounter.current}`;
   }, [componentId]);
 
-  const removeExitingDigit = useCallback((id: string) => {
-    setDigitStates((prev) => prev.map(d => d.id === id ? { ...d, lifecycle: 'done' as const } : d));
-  }, []);
-
   // Sync digit states when value changes
   useLayoutEffect(() => {
     const newDigits = String(Math.abs(Math.floor(value)))
       .split('')
-      .map(Number);
+      .map(Number) as Digit[];
 
     const oldDigits = prevValueRef.current !== null
       ? String(Math.abs(Math.floor(prevValueRef.current)))
           .split('')
-          .map(Number)
+          .map(Number) as Digit[]
       : null;
 
     const newStates: DigitState[] = [];
@@ -178,7 +159,7 @@ export function AnimatedNumber({
   };
 
   return (
-    <span className={cn('inline-flex tabular-nums leading-none isolate whitespace-nowrap', className)}>
+    <span className={cn('inline-flex tabular-nums leading-none isolate whitespace-nowrap motion-reduce:!transition-none', className)}>
       <span 
         aria-label={value.toString()} 
         className="inline-flex ltr isolate relative -z-10"
@@ -193,7 +174,7 @@ export function AnimatedNumber({
         <span aria-hidden="true" style={maskStyles}>
           <span 
             style={sectionStyle}
-            className="animated-number-integer inline-flex justify-end origin-left"
+            className="animated-number-integer inline-flex justify-end origin-left motion-reduce:!transition-none motion-reduce:!transform-none"
           >
             <span className="inline-flex justify-inherit relative">
               {ZWSP}
@@ -205,6 +186,7 @@ export function AnimatedNumber({
                   duration={duration}
                   slideDuration={slideDuration}
                   lifecycle={state.lifecycle}
+                  reelMotion={reelMotion}
                 />
               ))}
             </span>

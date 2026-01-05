@@ -10,6 +10,12 @@ export const ENTER_EXIT_EASING = 'ease-out';
 export const ENTER_TRANSFORM_OFFSET = '-0.33';
 export const ENTER_SCALE = '1.02';
 
+export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+export type Digit = typeof DIGITS[number];
+
+export type DigitLifecycle = 'idle' | 'entering' | 'exiting' | 'done';
+export type ReelMotion = 'wheel' | 'shortest-path';
+
 /**
  * Creates mask styles for a fade gradient effect.
  * The mask creates soft edges that fade digits in/out during enter/exit animations.

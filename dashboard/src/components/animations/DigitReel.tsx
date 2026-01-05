@@ -1,21 +1,20 @@
 'use client';
 
-import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, SPRING_EASING } from '@/constants/animations';
+import { DIGIT_WIDTH, DIGITS, ENTER_EXIT_EASING, MASK_HEIGHT, SPRING_EASING, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
-import { type DigitLifecycle } from './AnimatedNumber';
 
 type DigitReelProps = {
-  digit: number;
-  prevDigit: number | null;
+  digit: Digit;
+  prevDigit: Digit | null;
   duration?: number;
   slideDuration: number;
   lifecycle: DigitLifecycle;
+  reelMotion?: ReelMotion;
 };
 
-const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-const PADDING_CLASS = `py-[calc(${MASK_HEIGHT}/2)]`;
-const CONTAINER_PADDING = `py-[calc(${MASK_HEIGHT}/2)] my-[calc(-1*${MASK_HEIGHT}/2)]`;
+const PADDING_CLASS = `py-[calc(${MASK_HEIGHT}/2)]` as const;
+const CONTAINER_PADDING = `py-[calc(${MASK_HEIGHT}/2)] my-[calc(-1*${MASK_HEIGHT}/2)]` as const;
 
 function DigitReelComponent({
   digit,
@@ -23,6 +22,7 @@ function DigitReelComponent({
   duration = 1000,
   lifecycle,
   slideDuration,
+  reelMotion = 'wheel',
 }: DigitReelProps) {
   const [isReeling, setIsReeling] = useState(false);
   const [resetCount, setResetCount] = useState(0);
@@ -73,8 +73,13 @@ function DigitReelComponent({
     reelTransition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
     reelTransform = 'translateY(0%)';
   } else if (resetCount > 0) {
+    const rawDelta = digit - prevDigit!;
+    const delta = reelMotion === 'shortest-path'
+      ? (Math.abs(rawDelta) <= 5 ? rawDelta : rawDelta > 0 ? rawDelta - 10 : rawDelta + 10)
+      : rawDelta;
+    
     reelTransition = 'none';
-    reelTransform = `translateY(${(digit - prevDigit!) * 100}%)`;
+    reelTransform = `translateY(${delta * 100}%)`;
   } else if (isReeling) {
     reelTransition = `transform ${duration}ms ${SPRING_EASING}`;
     reelTransform = 'translateY(0%)';
@@ -86,7 +91,7 @@ function DigitReelComponent({
     <span 
       style={containerStyle}
       className={cn(
-        "inline-flex justify-center items-center overflow-hidden origin-left will-change-[transform,opacity]",
+        "inline-flex justify-center items-center overflow-hidden origin-left will-change-[transform,opacity] motion-reduce:!transition-none",
         CONTAINER_PADDING
       )}
     >
@@ -96,11 +101,11 @@ function DigitReelComponent({
           transform: reelTransform,
           width: DIGIT_WIDTH 
         }}
-        className="inline-flex justify-center flex-col items-center relative"
+        className="inline-flex justify-center flex-col items-center relative motion-reduce:!transition-none motion-reduce:!transform-none"
         aria-hidden="true"
       >
         {showReel && (
-          <span className="flex flex-col items-center absolute w-full bottom-full left-0">
+          <span className="flex flex-col items-center absolute w-full bottom-full left-0 motion-reduce:hidden">
             {DIGITS.slice(0, digit).map((d) => (
               <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
             ))}
@@ -110,7 +115,7 @@ function DigitReelComponent({
         <span className={cn("inline-block", PADDING_CLASS)}>{digit}</span>
 
         {showReel && (
-          <span className="flex flex-col items-center absolute w-full top-full left-0">
+          <span className="flex flex-col items-center absolute w-full top-full left-0 motion-reduce:hidden">
             {DIGITS.slice(digit + 1).map((d) => (
               <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
             ))}
