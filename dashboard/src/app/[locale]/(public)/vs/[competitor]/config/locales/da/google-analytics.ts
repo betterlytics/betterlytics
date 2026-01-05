@@ -74,6 +74,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Funnel-analyse', betterlytics: true, competitor: true },
           { name: 'User journey tracking', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
+          { name: 'Udgående link tracking', betterlytics: true, competitor: 'Kræver konfiguration' },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
