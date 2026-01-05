@@ -3,6 +3,7 @@
 import { DigitReel } from '@/components/animations/DigitReel';
 import { DIGIT_WIDTH, ENTER_EXIT_EASING, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
 import { cn } from '@/lib/utils';
+import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useLayoutEffect } from 'react';
 
 type AnimatedNumberProps = {
@@ -26,6 +27,21 @@ export function AnimatedNumber({
   className,
   duration = 1200,
 }: AnimatedNumberProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return (
+      <span
+        className={cn(
+          'inline-flex tabular-nums leading-none whitespace-nowrap',
+          className
+        )}
+        aria-label={value.toString()}
+      >
+        {value}
+      </span>
+    );
+  }
   const componentId = useId();
   const prevValueRef = useRef<number | null>(null);
   const digitMapRef = useRef<Map<number, DigitState>>(new Map());
