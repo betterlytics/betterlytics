@@ -2,134 +2,117 @@
 
 import { DIGIT_WIDTH, ENTER_EXIT_EASING, MASK_HEIGHT, SPRING_EASING } from '@/constants/animations';
 import { cn } from '@/lib/utils';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
+import { type DigitLifecycle } from './AnimatedNumber';
 
 type DigitReelProps = {
   digit: number;
   prevDigit: number | null;
   duration?: number;
   slideDuration: number;
-  isExiting?: boolean;
-  onExitComplete?: () => void;
+  lifecycle: DigitLifecycle;
 };
+
+const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const PADDING_CLASS = `py-[calc(${MASK_HEIGHT}/2)]`;
+const CONTAINER_PADDING = `py-[calc(${MASK_HEIGHT}/2)] my-[calc(-1*${MASK_HEIGHT}/2)]`;
 
 function DigitReelComponent({
   digit,
   prevDigit,
   duration = 1000,
+  lifecycle,
   slideDuration,
-  isExiting = false,
-  onExitComplete,
 }: DigitReelProps) {
-  const reelRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLSpanElement>(null);
-  const [enterState, setEnterState] = useState<'idle' | 'entering' | 'done'>('idle');
-  const [exitState, setExitState] = useState<'idle' | 'exiting' | 'done'>('idle');
+  const [isReeling, setIsReeling] = useState(false);
+  const [resetCount, setResetCount] = useState(0);
+  const lastTargetDigit = useRef(digit);
 
-  useEffect(() => {
-    if (!isExiting && exitState !== 'idle') {
-      setExitState('idle');
-      setEnterState('idle');
-      if (reelRef.current) {
-        Object.assign(reelRef.current.style, { transition: 'none', transform: 'translateY(0%)' });
-      }
-      if (containerRef.current) {
-        Object.assign(containerRef.current.style, { 
-          transition: 'none', 
-          opacity: '1', 
-          transform: 'none' 
-        });
-      }
+  useLayoutEffect(() => {
+    if (digit !== lastTargetDigit.current && lifecycle === 'idle' && prevDigit !== null) {
+      setResetCount(c => c + 1);
+      setIsReeling(false);
+      lastTargetDigit.current = digit;
     }
-  }, [isExiting, exitState]);
+  }, [digit, lifecycle, prevDigit]);
 
-  useEffect(() => {
-    if (isExiting && exitState === 'idle') {
-      if (containerRef.current) {
-        // Ticker Tape: Keep digits in flow, just fade and roll out relative to container
-        Object.assign(containerRef.current.style, { 
-          transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}, opacity ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-          opacity: '0'
-        });
-      }
-      
-      if (reelRef.current) {
-        Object.assign(reelRef.current.style, { 
-          transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-          transform: 'translateY(100%)'
-        });
-      }
-      
-      setExitState('exiting');
-      const postExitCleanup = setTimeout(() => {
-        setExitState('done');
-        onExitComplete?.();
-      }, slideDuration);
-      return () => clearTimeout(postExitCleanup);
+  useLayoutEffect(() => {
+    if (resetCount > 0) {
+      const rafId = requestAnimationFrame(() => {
+        setResetCount(0);
+        setIsReeling(true);
+      });
+      return () => cancelAnimationFrame(rafId);
     }
-  }, [isExiting, exitState, slideDuration, onExitComplete]);
+  }, [resetCount]);
 
   useEffect(() => {
-    if (isExiting) return;
-
-    if (prevDigit === null && enterState === 'idle') {
-      if (reelRef.current) {
-        Object.assign(reelRef.current.style, { transition: 'none', transform: 'translateY(100%)' });
-        void reelRef.current.offsetHeight; // force reflow
-        Object.assign(reelRef.current.style, { 
-          transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-          transform: 'translateY(0%)'
-        });
-      }
-      
-      setEnterState('entering');
-      const postEnterCleanup = setTimeout(() => setEnterState('done'), slideDuration);
-      return () => clearTimeout(postEnterCleanup);
+    if (isReeling) {
+      const timer = setTimeout(() => setIsReeling(false), duration);
+      return () => clearTimeout(timer);
     }
-  }, [prevDigit, enterState, slideDuration, isExiting]);
+  }, [isReeling, duration, digit]);
 
-  useEffect(() => {
-    if (isExiting || prevDigit === null || prevDigit === digit || !reelRef.current) return;
-    
-    Object.assign(reelRef.current.style, { transition: 'none', transform: `translateY(${(digit - prevDigit) * 100}%)` });
-    void reelRef.current.offsetHeight; // force reflow
-    Object.assign(reelRef.current.style, { 
-      transition: `transform ${duration}ms ${SPRING_EASING}`,
-      transform: 'translateY(0%)'
-    });
-  }, [digit, prevDigit, duration, isExiting]);
+  if (lifecycle === 'done') return null;
 
-  if (exitState === 'done') {
-    return null;
+  const containerStyle: React.CSSProperties = {
+    opacity: lifecycle === 'exiting' ? 0 : 1,
+    transition: lifecycle === 'exiting' 
+      ? `opacity ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`
+      : 'none',
+    width: DIGIT_WIDTH,
+  };
+
+  let reelTransition = 'none';
+  let reelTransform = 'translateY(0%)';
+
+  if (lifecycle === 'exiting') {
+    reelTransition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+    reelTransform = 'translateY(100%)';
+  } else if (lifecycle === 'entering') {
+    reelTransition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
+    reelTransform = 'translateY(0%)';
+  } else if (resetCount > 0) {
+    reelTransition = 'none';
+    reelTransform = `translateY(${(digit - prevDigit!) * 100}%)`;
+  } else if (isReeling) {
+    reelTransition = `transform ${duration}ms ${SPRING_EASING}`;
+    reelTransform = 'translateY(0%)';
   }
+
+  const showReel = lifecycle !== 'idle' || isReeling;
 
   return (
     <span 
-      ref={containerRef} 
+      style={containerStyle}
       className={cn(
         "inline-flex justify-center items-center overflow-hidden origin-left will-change-[transform,opacity]",
-        `w-[${DIGIT_WIDTH}] py-[calc(${MASK_HEIGHT}/2)] my-[calc(-1*${MASK_HEIGHT}/2)]`
+        CONTAINER_PADDING
       )}
     >
       <span 
-        ref={reelRef} 
-        className={cn("inline-flex justify-center flex-col items-center relative", `w-[${DIGIT_WIDTH}]`)}
+        style={{ 
+          transition: reelTransition, 
+          transform: reelTransform,
+          width: DIGIT_WIDTH 
+        }}
+        className="inline-flex justify-center flex-col items-center relative"
         aria-hidden="true"
       >
-        {(exitState === 'exiting' || enterState === 'entering' || prevDigit !== null) && (
+        {showReel && (
           <span className="flex flex-col items-center absolute w-full bottom-full left-0">
-            {Array.from({ length: digit }, (_, i) => i).map((d) => (
-              <span key={`above-${d}`} className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
+            {DIGITS.slice(0, digit).map((d) => (
+              <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
             ))}
           </span>
         )}
 
-        <span className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{digit}</span>
+        <span className={cn("inline-block", PADDING_CLASS)}>{digit}</span>
 
-        {(exitState === 'exiting' || enterState === 'entering' || prevDigit !== null) && (
+        {showReel && (
           <span className="flex flex-col items-center absolute w-full top-full left-0">
-            {Array.from({ length: 9 - digit }, (_, i) => digit + 1 + i).map((d) => (
-              <span key={`below-${d}`} className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
+            {DIGITS.slice(digit + 1).map((d) => (
+              <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
             ))}
           </span>
         )}
@@ -137,7 +120,6 @@ function DigitReelComponent({
     </span>
   );
 }
-
 
 export const DigitReel = React.memo(DigitReelComponent);
 DigitReel.displayName = 'DigitReel';

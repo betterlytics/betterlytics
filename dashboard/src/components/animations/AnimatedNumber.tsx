@@ -3,7 +3,7 @@
 import { DigitReel } from '@/components/animations/DigitReel';
 import { DIGIT_WIDTH, ENTER_EXIT_EASING, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles } from '@/constants/animations';
 import { cn } from '@/lib/utils';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useLayoutEffect } from 'react';
 
 type AnimatedNumberProps = {
   value: number;
@@ -11,12 +11,13 @@ type AnimatedNumberProps = {
   duration?: number;
 };
 
+export type DigitLifecycle = 'idle' | 'entering' | 'exiting' | 'done';
+
 type DigitState = {
   digit: number;
   prevDigit: number | null;
   positionFromRight: number;
-  isExiting?: boolean;
-  isEntering?: boolean;
+  lifecycle: DigitLifecycle;
   id: string;
 };
 
@@ -28,14 +29,14 @@ export function AnimatedNumber({
   const componentId = useId();
   const prevValueRef = useRef<number | null>(null);
   const digitMapRef = useRef<Map<number, DigitState>>(new Map());
-  const integerSectionRef = useRef<HTMLSpanElement>(null);
   const digitIdCounter = useRef(0);
 
   const [digitStates, setDigitStates] = useState<DigitState[]>([]);
   
-  const activeDigitCount = digitStates.filter(d => !d.isExiting).length || 1;
-  const exitingDigitCount = digitStates.filter(d => d.isExiting).length;
-  const hasEnteringDigits = digitStates.some(d => d.isEntering);
+  // Single target value for this render cycle
+  const activeDigitCount = digitStates.filter(d => d.lifecycle !== 'exiting' && d.lifecycle !== 'done').length || 1;
+  const exitingDigitCount = digitStates.filter(d => d.lifecycle === 'exiting').length;
+  const hasEnteringDigits = digitStates.some(d => d.lifecycle === 'entering');
   
   const slideDuration = Math.round(duration / Math.max(activeDigitCount + exitingDigitCount, 1));
   
@@ -44,10 +45,11 @@ export function AnimatedNumber({
   }, [componentId]);
 
   const removeExitingDigit = useCallback((id: string) => {
-    setDigitStates((prev) => prev.filter((d) => d.id !== id));
+    setDigitStates((prev) => prev.map(d => d.id === id ? { ...d, lifecycle: 'done' as const } : d));
   }, []);
 
-  useEffect(() => {
+  // Sync digit states when value changes
+  useLayoutEffect(() => {
     const newDigits = String(Math.abs(Math.floor(value)))
       .split('')
       .map(Number);
@@ -82,20 +84,17 @@ export function AnimatedNumber({
           digit: newDigits[newIndex],
           prevDigit: hasOldDigit ? oldDigits[oldIndex] : (existingState?.digit ?? null),
           positionFromRight: posFromRight,
-          isExiting: false,
-          isEntering: isNewlyEntering,
+          lifecycle: isNewlyEntering ? 'entering' : 'idle',
           id,
         };
         newStates.push(state);
         newDigitMap.set(posFromRight, state);
       } else if (hasOldDigit && existingState) {
         newStates.push({
+          ...existingState,
           digit: oldDigits[oldIndex],
           prevDigit: oldDigits[oldIndex],
-          positionFromRight: posFromRight,
-          isExiting: true,
-          isEntering: false,
-          id: existingState.id,
+          lifecycle: 'exiting',
         });
       }
     }
@@ -105,47 +104,62 @@ export function AnimatedNumber({
     prevValueRef.current = value;
   }, [value, generateDigitId]);
 
+  // Handle Lifecycle Transitions (Clearing Enter/Exit flags)
   useEffect(() => {
-    const section = integerSectionRef.current;
-    if (!section) return;
+    const hasActivePhases = digitStates.some(d => d.lifecycle === 'entering' || d.lifecycle === 'exiting');
+    if (!hasActivePhases) return;
 
-    const isDigitCountChanging = hasEnteringDigits || exitingDigitCount;
-    
-    if (isDigitCountChanging) {
-      if (hasEnteringDigits) {
-        Object.assign(section.style, { 
-          transition: 'none', 
-          transform: `translate3d(calc(${ENTER_TRANSFORM_OFFSET} * ${DIGIT_WIDTH}), 0, 0) scale(${ENTER_SCALE}, 1)` 
-        });
-        void section.offsetHeight; // force reflow so initial styles are applied before animation
-        Object.assign(section.style, { 
-          transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-          width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
-          transform: 'none'
-        });
-      } else if (exitingDigitCount) {
-        Object.assign(section.style, { 
-          transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-          width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`
-        });
+    const timer = setTimeout(() => {
+      setDigitStates(prev => prev
+        .filter(d => d.lifecycle !== 'done')
+        .map(d => {
+          if (d.lifecycle === 'entering') return { ...d, lifecycle: 'idle' as const };
+          if (d.lifecycle === 'exiting') return { ...d, lifecycle: 'done' as const };
+          return d;
+        })
+      );
+    }, slideDuration);
+
+    return () => clearTimeout(timer);
+  }, [digitStates, slideDuration]);
+
+  // Robust Stabilizer Heartbeat
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (prevValueRef.current === value) {
+        setDigitStates(prev => prev
+          .filter(d => d.lifecycle !== 'done')
+          .map(s => ({ ...s, prevDigit: s.digit, lifecycle: 'idle' as const }))
+        );
       }
-      
-      const postEnterCleanup = setTimeout(() => {
-        if (section) {
-          Object.assign(section.style, { transition: 'none', transform: 'none' });
-        }
-      }, slideDuration);
-      
-      return () => clearTimeout(postEnterCleanup);
-    } else {
-      Object.assign(section.style, { 
-        transition: `width ${slideDuration}ms ${ENTER_EXIT_EASING}`,
-        width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`
-      });
+    }, duration + 100); 
+    return () => clearTimeout(timer);
+  }, [value, duration]);
+
+  // Reset Frame Logic (using layout version for absolute reliability)
+  const [layoutVersion, setLayoutVersion] = useState(0);
+  const lastActiveDigitCount = useRef(activeDigitCount);
+
+  useLayoutEffect(() => {
+    if (hasEnteringDigits && activeDigitCount > lastActiveDigitCount.current) {
+      setLayoutVersion(v => v + 1);
+      const rafId = requestAnimationFrame(() => setLayoutVersion(0));
+      return () => cancelAnimationFrame(rafId);
     }
-  }, [activeDigitCount, hasEnteringDigits, exitingDigitCount, slideDuration]);
+    lastActiveDigitCount.current = activeDigitCount;
+  }, [hasEnteringDigits, activeDigitCount]);
 
   const maskStyles = useMemo(() => getMaskStyles(), []);
+
+  const sectionStyle: React.CSSProperties = {
+    transition: layoutVersion > 0 
+      ? 'none' 
+      : `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+    width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
+    transform: layoutVersion > 0 
+      ? `translate3d(calc(${ENTER_TRANSFORM_OFFSET} * ${DIGIT_WIDTH}), 0, 0) scale(${ENTER_SCALE}, 1)` 
+      : 'none'
+  };
 
   return (
     <span className={cn('inline-flex tabular-nums leading-none isolate whitespace-nowrap', className)}>
@@ -162,21 +176,19 @@ export function AnimatedNumber({
 
         <span aria-hidden="true" style={maskStyles}>
           <span 
-            ref={integerSectionRef}
+            style={sectionStyle}
             className="animated-number-integer inline-flex justify-end origin-left"
-            style={{ width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})` }}
           >
             <span className="inline-flex justify-inherit relative">
               {ZWSP}
-              {digitStates.map((state) => (
+              {digitStates.filter(d => d.lifecycle !== 'done').map((state) => (
                 <DigitReel
                   key={state.id}
                   digit={state.digit}
                   prevDigit={state.prevDigit}
                   duration={duration}
                   slideDuration={slideDuration}
-                  isExiting={state.isExiting}
-                  onExitComplete={() => removeExitingDigit(state.id)}
+                  lifecycle={state.lifecycle}
                 />
               ))}
             </span>
