@@ -8,10 +8,10 @@ import UserJourneyCard from './featureCards/userJourneyCard';
 import WorldMapCard from './featureCards/worldMapCard';
 import TrafficSourcesCard from './featureCards/trafficSourcesCard';
 import CoreWebVitalsCard from './featureCards/coreWebVitalsCard';
-import OutboundLinksCard from './featureCards/outboundLinksCard';
 import SessionReplayCard from './featureCards/sessionReplayCard';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
+import UptimeMonitoringCard from './featureCards/uptimeMonitoringCard';
 
 export async function FeatureShowcase() {
   const t = await getTranslations('public.landing.showcase');
@@ -50,14 +50,14 @@ export async function FeatureShowcase() {
       title: t('categories.performance'),
       cards: [
         { id: 'traffic-sources', element: <TrafficSourcesCard /> },
-        { id: 'outbound-links', element: <OutboundLinksCard /> },
+        { id: 'outbound-links', element: <UptimeMonitoringCard /> },
         { id: 'core-web-vitals', element: <CoreWebVitalsCard /> },
       ],
     },
   ];
 
   return (
-    <section className='relative overflow-visible py-20'>
+    <section className='relative overflow-visible py-24 sm:py-28'>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
