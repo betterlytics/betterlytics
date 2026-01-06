@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { acceptInvitationAction, declineInvitationAction } from '@/app/actions/dashboard/invitations.action';
 import { useRouter } from 'next/navigation';
-import { RoleBadge } from '@/app/(protected)/dashboard/[dashboardId]/settings/members/member-utils';
+import { RoleBadge } from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/members/member-utils';
 import { useTranslations } from 'next-intl';
 
 interface PendingInvitationsModalProps {
