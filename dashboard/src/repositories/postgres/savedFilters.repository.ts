@@ -8,7 +8,7 @@ import prisma from '@/lib/postgres';
 
 export async function getSavedFiltersByDashboardId(dashboardId: string): Promise<SavedFilter[]> {
   const savedFilters = await prisma.savedFilter.findMany({
-    where: { dashboardId, deletedAt: null },
+    where: { dashboardId, deletedAt: null, dashboard: { deletedAt: null } },
     include: {
       entries: true,
     },
@@ -22,7 +22,7 @@ export async function getSavedFiltersByDashboardId(dashboardId: string): Promise
 
 export async function getSavedFiltersCountByDashboardId(dashboardId: string): Promise<number> {
   return prisma.savedFilter.count({
-    where: { dashboardId, deletedAt: null },
+    where: { dashboardId, deletedAt: null, dashboard: { deletedAt: null } },
   });
 }
 
@@ -41,7 +41,7 @@ export async function createSavedFilter(filterData: CreateSavedFilter) {
 
 export async function deleteSavedFilterById(dashboardId: string, filterId: string): Promise<void> {
   await prisma.savedFilter.update({
-    where: { id: filterId, dashboardId },
+    where: { id: filterId, dashboardId, dashboard: { deletedAt: null } },
     data: {
       deletedAt: new Date(),
     },
@@ -50,7 +50,7 @@ export async function deleteSavedFilterById(dashboardId: string, filterId: strin
 
 export async function restoreSavedFilterById(dashboardId: string, filterId: string): Promise<void> {
   await prisma.savedFilter.update({
-    where: { id: filterId, dashboardId },
+    where: { id: filterId, dashboardId, dashboard: { deletedAt: null } },
     data: {
       deletedAt: null,
     },

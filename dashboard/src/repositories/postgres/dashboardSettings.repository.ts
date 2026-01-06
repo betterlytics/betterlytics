@@ -10,7 +10,7 @@ import {
 export async function findSettingsByDashboardId(dashboardId: string): Promise<DashboardSettings | null> {
   try {
     const prismaSettings = await prisma.dashboardSettings.findUnique({
-      where: { dashboardId },
+      where: { dashboardId, dashboard: { deletedAt: null } },
     });
 
     if (!prismaSettings) {
@@ -34,7 +34,7 @@ export async function updateSettings(
     const data = Object.fromEntries(Object.entries(validatedUpdates).filter(([, value]) => value !== undefined));
 
     const updatedSettings = await prisma.dashboardSettings.update({
-      where: { dashboardId },
+      where: { dashboardId, dashboard: { deletedAt: null } },
       data,
     });
 

@@ -63,6 +63,7 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
     const prismaUserDashboard = await prisma.userDashboard.findFirst({
       where: {
         userId,
+        dashboard: { deletedAt: null },
       },
     });
 
@@ -240,7 +241,7 @@ export async function getOwnedSiteIds(userId: string): Promise<string[]> {
 export async function deleteDashboard(dashboardId: string): Promise<void> {
   try {
     await prisma.dashboard.update({
-      where: { id: dashboardId },
+      where: { id: dashboardId, deletedAt: null },
       data: { deletedAt: new Date() },
     });
   } catch (error) {
@@ -310,7 +311,7 @@ export async function findAllDashboardsWithSiteConfig(): Promise<DashboardWithSi
 export async function findDashboardMembers(dashboardId: string): Promise<DashboardMember[]> {
   try {
     const members = await prisma.userDashboard.findMany({
-      where: { dashboardId },
+      where: { dashboardId, dashboard: { deletedAt: null } },
       include: {
         user: {
           select: {
@@ -374,6 +375,7 @@ export async function updateMemberRole(
           userId,
           dashboardId,
         },
+        dashboard: { deletedAt: null },
       },
       data: { role },
       include: {

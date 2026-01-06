@@ -42,6 +42,7 @@ export async function findPendingInvitationsByDashboard(dashboardId: string): Pr
         dashboardId,
         status: 'pending',
         expiresAt: { gt: new Date() },
+        dashboard: { deletedAt: null },
       },
       include: {
         invitedBy: {
@@ -71,7 +72,7 @@ export async function findPendingInvitationsByDashboard(dashboardId: string): Pr
 export async function findInvitationByToken(token: string): Promise<InvitationWithInviter | null> {
   try {
     const invitation = await prisma.dashboardInvitation.findUnique({
-      where: { token },
+      where: { token, dashboard: { deletedAt: null } },
       include: {
         invitedBy: {
           select: {
@@ -108,6 +109,7 @@ export async function findInvitationByEmail(
         dashboardId,
         email: email.toLowerCase(),
         status: 'pending',
+        dashboard: { deletedAt: null },
       },
     });
 
@@ -123,7 +125,7 @@ export async function findInvitationByEmail(
 export async function updateInvitationStatus(invitationId: string, status: InvitationStatus): Promise<void> {
   try {
     await prisma.dashboardInvitation.update({
-      where: { id: invitationId },
+      where: { id: invitationId, dashboard: { deletedAt: null } },
       data: { status },
     });
   } catch (error) {
@@ -135,7 +137,7 @@ export async function updateInvitationStatus(invitationId: string, status: Invit
 export async function deleteInvitation(invitationId: string): Promise<void> {
   try {
     await prisma.dashboardInvitation.delete({
-      where: { id: invitationId },
+      where: { id: invitationId, dashboard: { deletedAt: null } },
     });
   } catch (error) {
     console.error('Error deleting invitation:', error);
@@ -149,6 +151,7 @@ export async function markExpiredInvitations(): Promise<number> {
       where: {
         status: 'pending',
         expiresAt: { lt: new Date() },
+        dashboard: { deletedAt: null },
       },
       data: { status: 'expired' },
     });
@@ -167,6 +170,7 @@ export async function cancelPendingInvitationsForDashboards(dashboardIds: string
       where: {
         dashboardId: { in: dashboardIds },
         status: 'pending',
+        dashboard: { deletedAt: null },
       },
       data: { status: 'cancelled' },
     });

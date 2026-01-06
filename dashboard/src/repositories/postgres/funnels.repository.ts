@@ -9,7 +9,7 @@ import prisma from '@/lib/postgres';
 
 export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Funnel[]> {
   const funnels = await prisma.funnel.findMany({
-    where: { dashboardId: dashboardCUID, deletedAt: null },
+    where: { dashboardId: dashboardCUID, deletedAt: null, dashboard: { deletedAt: null } },
     include: {
       funnelSteps: true,
     },
@@ -23,7 +23,7 @@ export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Fu
 
 export async function getFunnelById(id: string): Promise<Funnel | null> {
   const funnel = await prisma.funnel.findUnique({
-    where: { id, deletedAt: null },
+    where: { id, deletedAt: null, dashboard: { deletedAt: null } },
     include: {
       funnelSteps: true,
     },
@@ -49,7 +49,7 @@ export async function createFunnel(funnelData: CreateFunnel) {
 
 export async function deleteFunnelById(dashboardId: string, funnelId: string): Promise<void> {
   await prisma.funnel.update({
-    where: { id: funnelId, dashboardId },
+    where: { id: funnelId, dashboardId, dashboard: { deletedAt: null } },
     data: {
       deletedAt: new Date(),
     },
@@ -58,7 +58,7 @@ export async function deleteFunnelById(dashboardId: string, funnelId: string): P
 
 export async function updateFunnel(funnel: UpdateFunnel): Promise<void> {
   await prisma.funnel.update({
-    where: { id: funnel.id },
+    where: { id: funnel.id, dashboard: { deletedAt: null } },
     data: {
       ...funnel,
       funnelSteps: {
