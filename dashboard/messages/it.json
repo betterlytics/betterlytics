@@ -2825,6 +2825,7 @@
       "cancelled": "Invito annullato",
       "cancelFailed": "Impossibile annullare l'invito",
       "accepted": "Entrato in {domain}!",
+      "joinedSuccess": "Invito accettato!",
       "acceptFailed": "Impossibile accettare l'invito",
       "declined": "Invito rifiutato",
       "declineFailed": "Impossibile rifiutare l'invito"

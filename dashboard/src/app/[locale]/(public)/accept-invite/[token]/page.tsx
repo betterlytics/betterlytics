@@ -129,7 +129,7 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
   }
 
   if (invitation.status === 'accepted') {
-    redirect(`/dashboard/${invitation.dashboardId}`);
+    redirect(`/dashboard/${invitation.dashboardId}?invited=1`);
   }
 
   try {
@@ -147,5 +147,5 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
     );
   }
 
-  redirect(`/dashboard/${invitation.dashboardId}`);
+  redirect(`/dashboard/${invitation.dashboardId}?invited=1`);
 }

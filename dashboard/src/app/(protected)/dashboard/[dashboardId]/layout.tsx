@@ -18,6 +18,7 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { env } from '@/lib/env';
 import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
 import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
+import { InvitationJoinedToast } from '@/app/(protected)/InvitationJoinedToast';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -62,6 +63,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
             includeIntegrationManager={true}
           >
             <BannerProvider>
+              <InvitationJoinedToast />
               {billingEnabled && billingDataPromise && (
                 <Suspense fallback={null}>
                   <UsageAlertBanner billingDataPromise={billingDataPromise} />

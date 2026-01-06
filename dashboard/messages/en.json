@@ -2814,6 +2814,7 @@
       "cancelled": "Invitation cancelled",
       "cancelFailed": "Failed to cancel invitation",
       "accepted": "Joined {domain} successfully!",
+      "joinedSuccess": "Invitation accepted!",
       "acceptFailed": "Failed to accept invitation",
       "declined": "Invitation declined",
       "declineFailed": "Failed to decline invitation"

@@ -29,7 +29,7 @@ function getRoleDisplayName(role: DashboardRole): string {
 export function generateInvitationEmailContent(data: DashboardInvitationEmailData): string {
   const acceptUrl = `https://betterlytics.io/en/accept-invite/${data.inviteToken}`;
   const roleDisplay = getRoleDisplayName(data.role);
-  const buttonText = data.userExists ? 'Sign in to accept' : 'Create account to accept';
+  const buttonText = data.userExists ? 'Accept invitation' : 'Create account to accept';
   const accountNote = data.userExists
     ? 'Sign in to your Betterlytics account to accept this invitation.'
     : "You'll need to create a Betterlytics account to accept this invitation.";

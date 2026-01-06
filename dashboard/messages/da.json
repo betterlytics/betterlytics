@@ -2817,6 +2817,7 @@
       "cancelled": "Invitation annulleret",
       "cancelFailed": "Kunne ikke annullere invitation",
       "accepted": "Deltager i {domain}!",
+      "joinedSuccess": "Invitation accepteret!",
       "acceptFailed": "Kunne ikke acceptere invitation",
       "declined": "Invitation afvist",
       "declineFailed": "Kunne ikke afvise invitation"
