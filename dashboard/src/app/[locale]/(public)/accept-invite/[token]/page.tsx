@@ -106,7 +106,7 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
         description={t('expiredDescription')}
         hint={t('expiredHint')}
         actionLabel={t('goToDashboards')}
-        actionHref={`/${locale}/dashboards`}
+        actionHref={'/dashboards'}
       />
     );
   }
@@ -123,7 +123,7 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
         })}
         hint={t('emailMismatchHint')}
         actionLabel={t('goToDashboards')}
-        actionHref={`/${locale}/dashboards`}
+        actionHref={'/dashboards'}
       />
     );
   }
@@ -142,7 +142,7 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
         title={t('errorTitle')}
         description={t('errorDescription')}
         actionLabel={t('goToDashboards')}
-        actionHref={`/${locale}/dashboards`}
+        actionHref={'/dashboards'}
       />
     );
   }
