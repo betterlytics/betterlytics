@@ -2841,6 +2841,18 @@
       "roleUpdateFailed": "Impossibile aggiornare il ruolo",
       "memberRemoved": "Membro rimosso",
       "memberRemoveFailed": "Impossibile rimuovere il membro"
+    },
+    "settings": {
+      "invite": {
+        "title": "Invita",
+        "description": "Invita membri per visualizzare, modificare o amministrare la tua dashboard"
+      },
+      "activeMembers": {
+        "title": "Membri attivi"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
     }
   },
   "invitations": {

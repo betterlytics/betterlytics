@@ -2833,6 +2833,18 @@
       "roleUpdateFailed": "Kunne ikke opdatere rolle",
       "memberRemoved": "Medlem fjernet",
       "memberRemoveFailed": "Kunne ikke fjerne medlem"
+    },
+    "settings": {
+      "invite": {
+        "title": "Inviter",
+        "description": "Inviter medlemmer til at se, redigere eller administrere dit dashboard"
+      },
+      "activeMembers": {
+        "title": "Aktive medlemmer"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
     }
   },
   "invitations": {

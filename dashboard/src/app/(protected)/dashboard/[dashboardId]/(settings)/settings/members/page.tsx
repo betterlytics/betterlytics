@@ -20,7 +20,6 @@ export default async function MembersPage({ params }: MembersPageProps) {
   const session = await getAuthSession();
   const t = await getTranslations('members');
   const tSidebar = await getTranslations('dashboard.settings.sidebar');
-  const tLeave = await getTranslations('components.dashboardSettingsDialog.leaveDashboard');
 
   if (!session?.user?.id) {
     redirect('/signin');
@@ -38,11 +37,11 @@ export default async function MembersPage({ params }: MembersPageProps) {
     <div>
       <SettingsPageHeader title={tSidebar('members')} />
       <div className='space-y-12'>
-        <SettingsSection title={t('page.title')} description={t('page.description')}>
+        <SettingsSection title={t('settings.invite.title')} description={t('settings.invite.description')}>
           <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />
         </SettingsSection>
 
-        <SettingsSection title={`${t('table.title')} (${members.length})`}>
+        <SettingsSection title={t('settings.activeMembers.title')}>
           <MembersTable
             dashboardId={dashboardId}
             members={members}
@@ -51,7 +50,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
           />
         </SettingsSection>
         {currentUserRole === 'owner' && (
-          <SettingsSection title={tLeave('title')}>
+          <SettingsSection title={t('settings.leaveDashboard.title')}>
             <LeaveDashboardSection />
           </SettingsSection>
         )}

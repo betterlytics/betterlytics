@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useMemo, useTransition } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, ArrowUpDown, MoreHorizontal, Check } from 'lucide-react';
+import { Search, ArrowUpDown, MoreHorizontal, Check, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -25,6 +24,7 @@ import { updateMemberRoleAction, removeMemberAction } from '@/app/actions/dashbo
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
 
 type SortField = 'name' | 'email' | 'role' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
@@ -118,9 +118,6 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
   return (
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
-        <div className='text-base'>
-          {t('table.title')} ({members.length})
-        </div>
         <div className='relative w-64'>
           <Search className='text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2' />
           <Input
@@ -130,6 +127,11 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
             className='pl-9'
           />
         </div>
+
+        <Badge variant='outline' className='inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs'>
+          <Users className='size-3.5' />
+          <span className='text-muted-foreground'>{members.length}</span>
+        </Badge>
       </div>
       <div className='rounded-md border'>
         <Table>

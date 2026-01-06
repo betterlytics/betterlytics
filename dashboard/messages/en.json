@@ -2830,6 +2830,18 @@
       "roleUpdateFailed": "Failed to update role",
       "memberRemoved": "Member removed",
       "memberRemoveFailed": "Failed to remove member"
+    },
+    "settings": {
+      "invite": {
+        "title": "Invite",
+        "description": "Invite members to view, edit, or administrate your dashboard"
+      },
+      "activeMembers": {
+        "title": "Active members"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
     }
   },
   "invitations": {

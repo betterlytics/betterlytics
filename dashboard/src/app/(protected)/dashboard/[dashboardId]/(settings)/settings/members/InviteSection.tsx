@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Mail, X, UserPlus } from 'lucide-react';
+import { Mail, X, UserPlus, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
 import { InvitationWithInviter, CreateInvitationSchema } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true });
 
@@ -95,12 +96,16 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
       </div>
 
       {hasPendingInvitations && (
-        <>
-          <div className='border-border border-t' />
-          <div className='space-y-3'>
-            <p className='text-muted-foreground text-sm font-medium'>
-              {t('pending')} ({pendingInvitations.length})
-            </p>
+        <Collapsible className='group/advanced border-border border-t-1'>
+          <CollapsibleTrigger className='hover:bg-muted/50 flex w-full cursor-pointer items-center justify-between px-2 py-2'>
+            <div className='flex items-center gap-1 text-sm'>
+              <p className='text-muted-foreground'>{t('pending')}</p>
+              <span className='text-muted-foreground/75'>({pendingInvitations.length})</span>
+            </div>
+            <ChevronDown className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-180' />
+          </CollapsibleTrigger>
+
+          <CollapsibleContent className='overflow-hidden'>
             <div className='divide-border divide-y rounded-md border'>
               {pendingInvitations.map((invitation) => (
                 <div key={invitation.id} className='hover:bg-muted/30 flex items-center justify-between px-4 py-3'>
@@ -132,8 +137,8 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                 </div>
               ))}
             </div>
-          </div>
-        </>
+          </CollapsibleContent>
+        </Collapsible>
       )}
     </div>
   );

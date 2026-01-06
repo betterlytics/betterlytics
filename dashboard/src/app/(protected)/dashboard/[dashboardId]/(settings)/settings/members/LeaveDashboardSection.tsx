@@ -31,14 +31,14 @@ export function LeaveDashboardSection() {
   };
 
   return (
-    <div className='flex items-center justify-between space-y-4'>
+    <div className='flex items-center justify-between'>
       <div>
-        <div className='text-md font-semibold'>{t('title')}</div>
+        <span className='text-sm font-medium'>{t('title')}</span>
         <p className='text-muted-foreground text-xs'>{t('description')}</p>
       </div>
       <Button
         variant='ghost'
-        className='text-destructive hover:text-destructive/80'
+        className='text-destructive hover:text-destructive/80 cursor-pointer'
         onClick={() => setIsDialogOpen(true)}
         disabled={isPendingLeave}
       >
