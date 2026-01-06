@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import { Card } from '@/components/ui/card';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 const MOCK_FUNNEL_STEPS = [
   { name: 'homepage', visitors: '2,847', percentage: 100 },
@@ -89,7 +90,11 @@ export function FunnelsEmptyState() {
           <p className='text-muted-foreground mx-auto max-w-md text-sm leading-relaxed'>{t('description')}</p>
         </div>
         <div className='flex justify-center'>
-          <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' />
+          <PermissionGate>
+            {(disabled) => (
+              <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' disabled={disabled} />
+            )}
+          </PermissionGate>
         </div>
       </div>
 

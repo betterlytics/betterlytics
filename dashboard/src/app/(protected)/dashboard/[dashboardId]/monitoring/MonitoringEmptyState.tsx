@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { LiveIndicator } from '@/components/live-indicator';
 import { RefreshCcw } from 'lucide-react';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type MonitoringEmptyStateProps = {
   dashboardId: string;
@@ -102,14 +103,18 @@ export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptySta
           <p className='text-muted-foreground mx-auto max-w-md text-sm leading-relaxed'>{t('description')}</p>
         </div>
         <div className='flex justify-center'>
-          <CreateMonitorDialog
-            dashboardId={dashboardId}
-            domain={domain}
-            existingUrls={[]}
-            monitorCount={0}
-            maxMonitors={maxMonitors}
-            atLimit={false}
-          />
+          <PermissionGate>
+            {(disabled) => (
+              <CreateMonitorDialog
+                dashboardId={dashboardId}
+                domain={domain}
+                existingUrls={[]}
+                monitorCount={0}
+                maxMonitors={maxMonitors}
+                atLimit={disabled}
+              />
+            )}
+          </PermissionGate>
         </div>
       </div>
 
