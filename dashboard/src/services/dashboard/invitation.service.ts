@@ -3,7 +3,7 @@
 import { DashboardRole } from '@prisma/client';
 import {
   createInvitation,
-  findInvitationsByDashboard,
+  findPendingInvitationsByDashboard,
   findInvitationByToken,
   findInvitationByEmail,
   updateInvitationStatus,
@@ -58,7 +58,7 @@ export async function inviteUserToDashboard(
     invitedById,
   });
 
-  const invitations = await findInvitationsByDashboard(dashboardId);
+  const invitations = await findPendingInvitationsByDashboard(dashboardId);
   const fullInvitation = invitations.find((i) => i.id === invitation.id);
 
   if (!fullInvitation) {
@@ -136,7 +136,7 @@ export async function declineInvitation(invitationId: string, userId: string, us
 }
 
 export async function getPendingInvitations(dashboardId: string): Promise<InvitationWithInviter[]> {
-  return findInvitationsByDashboard(dashboardId);
+  return findPendingInvitationsByDashboard(dashboardId);
 }
 
 export type AcceptedInvitation = {
