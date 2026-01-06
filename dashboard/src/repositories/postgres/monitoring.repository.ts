@@ -9,7 +9,7 @@ import { normalizeUrl } from '@/utils/domainValidation';
 
 export async function listMonitorChecks(dashboardId: string): Promise<MonitorCheck[]> {
   const results = await prisma.monitorCheck.findMany({
-    where: { dashboardId, deletedAt: null, dashboard: { deletedAt: null } },
+    where: { dashboardId, deletedAt: null },
     orderBy: { createdAt: 'desc' },
   });
   return results.map((row) => MonitorCheckSchema.parse(row));
@@ -17,7 +17,7 @@ export async function listMonitorChecks(dashboardId: string): Promise<MonitorChe
 
 export async function countMonitorChecks(dashboardId: string): Promise<number> {
   return prisma.monitorCheck.count({
-    where: { dashboardId, deletedAt: null, dashboard: { deletedAt: null } },
+    where: { dashboardId, deletedAt: null },
   });
 }
 
@@ -30,7 +30,7 @@ export async function monitorExistsForUrl(
   if (!normalizedNewUrl) return false;
 
   const existingMonitors = await prisma.monitorCheck.findMany({
-    where: { dashboardId, deletedAt: null, dashboard: { deletedAt: null } },
+    where: { dashboardId, deletedAt: null },
     select: { id: true, url: true },
   });
 
@@ -44,7 +44,7 @@ export async function monitorExistsForUrl(
 
 export async function getMonitorCheckById(dashboardId: string, monitorId: string): Promise<MonitorCheck | null> {
   const row = await prisma.monitorCheck.findFirst({
-    where: { id: monitorId, dashboardId, deletedAt: null, dashboard: { deletedAt: null } },
+    where: { id: monitorId, dashboardId, deletedAt: null },
   });
 
   if (!row) return null;
@@ -71,7 +71,6 @@ export async function updateMonitorCheck(dashboardId: string, data: MonitorCheck
         id: data.id,
         dashboardId,
       },
-      dashboard: { deletedAt: null },
     },
     data: {
       ...data,
@@ -89,7 +88,6 @@ export async function deleteMonitorCheck(dashboardId: string, monitorId: string)
         id: monitorId,
         dashboardId,
       },
-      dashboard: { deletedAt: null },
     },
     data: { deletedAt: new Date() },
   });

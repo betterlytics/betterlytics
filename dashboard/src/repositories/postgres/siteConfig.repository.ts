@@ -3,7 +3,7 @@ import { SiteConfig, SiteConfigSchema, SiteConfigUpdate } from '@/entities/dashb
 
 export async function findSiteConfigByDashboardId(dashboardId: string): Promise<SiteConfig | null> {
   try {
-    const cfg = await prisma.siteConfig.findUnique({ where: { dashboardId, dashboard: { deletedAt: null } } });
+    const cfg = await prisma.siteConfig.findUnique({ where: { dashboardId } });
     if (!cfg) return null;
     return SiteConfigSchema.parse(cfg);
   } catch (error) {
@@ -15,7 +15,7 @@ export async function findSiteConfigByDashboardId(dashboardId: string): Promise<
 export async function updateSiteConfig(dashboardId: string, input: SiteConfigUpdate): Promise<SiteConfig> {
   try {
     const cfg = await prisma.siteConfig.update({
-      where: { dashboardId, dashboard: { deletedAt: null } },
+      where: { dashboardId },
       data: { ...input },
     });
     return SiteConfigSchema.parse(cfg);
