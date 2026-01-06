@@ -31,7 +31,7 @@ export function LeaveDashboardSection() {
   };
 
   return (
-    <div className='bg-card flex items-center justify-between space-y-4 rounded-xl border p-4 shadow'>
+    <div className='flex items-center justify-between space-y-4'>
       <div>
         <div className='text-md font-semibold'>{t('title')}</div>
         <p className='text-muted-foreground text-xs'>{t('description')}</p>

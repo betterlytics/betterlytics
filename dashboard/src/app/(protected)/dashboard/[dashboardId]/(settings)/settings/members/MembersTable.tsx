@@ -116,11 +116,11 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
   );
 
   return (
-    <Card>
-      <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4'>
-        <CardTitle className='text-base'>
+    <div className='space-y-4'>
+      <div className='flex items-center justify-between'>
+        <div className='text-base'>
           {t('table.title')} ({members.length})
-        </CardTitle>
+        </div>
         <div className='relative w-64'>
           <Search className='text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2' />
           <Input
@@ -130,125 +130,121 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
             className='pl-9'
           />
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className='rounded-md border'>
-          <Table>
-            <TableHeader>
+      </div>
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='pl-4'>
+                <SortableHeader field='name'>{t('table.columns.member')}</SortableHeader>
+              </TableHead>
+              <TableHead className='hidden md:table-cell'>
+                <SortableHeader field='email'>{t('table.columns.email')}</SortableHeader>
+              </TableHead>
+              <TableHead>
+                <SortableHeader field='role'>{t('table.columns.role')}</SortableHeader>
+              </TableHead>
+              <TableHead className='hidden sm:table-cell'>
+                <SortableHeader field='createdAt'>{t('table.columns.joined')}</SortableHeader>
+              </TableHead>
+              <TableHead className='w-12'></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredAndSortedMembers.length === 0 ? (
               <TableRow>
-                <TableHead className='pl-4'>
-                  <SortableHeader field='name'>{t('table.columns.member')}</SortableHeader>
-                </TableHead>
-                <TableHead className='hidden md:table-cell'>
-                  <SortableHeader field='email'>{t('table.columns.email')}</SortableHeader>
-                </TableHead>
-                <TableHead>
-                  <SortableHeader field='role'>{t('table.columns.role')}</SortableHeader>
-                </TableHead>
-                <TableHead className='hidden sm:table-cell'>
-                  <SortableHeader field='createdAt'>{t('table.columns.joined')}</SortableHeader>
-                </TableHead>
-                <TableHead className='w-12'></TableHead>
+                <TableCell colSpan={5} className='py-8 text-center'>
+                  {t('table.noResults', { query: searchQuery })}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedMembers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className='py-8 text-center'>
-                    {t('table.noResults', { query: searchQuery })}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredAndSortedMembers.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell className='py-3 pl-4'>
-                      <div className='flex items-center gap-3'>
-                        <Avatar className='size-8'>
-                          {member.user.image && (
-                            <AvatarImage src={member.user.image} alt={member.user.name || ''} />
+            ) : (
+              filteredAndSortedMembers.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell className='py-3 pl-4'>
+                    <div className='flex items-center gap-3'>
+                      <Avatar className='size-8'>
+                        {member.user.image && <AvatarImage src={member.user.image} alt={member.user.name || ''} />}
+                        <AvatarFallback className={`${getAvatarColor(member.user.email)} text-xs text-white`}>
+                          {getInitials(member.user.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className='font-medium'>
+                          {member.user.name || t('table.unknown')}
+                          {member.userId === currentUserId && (
+                            <span className='text-muted-foreground ml-1.5 text-xs font-normal'>
+                              {t('table.you')}
+                            </span>
                           )}
-                          <AvatarFallback className={`${getAvatarColor(member.user.email)} text-xs text-white`}>
-                            {getInitials(member.user.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className='font-medium'>
-                            {member.user.name || t('table.unknown')}
-                            {member.userId === currentUserId && (
-                              <span className='text-muted-foreground ml-1.5 text-xs font-normal'>
-                                {t('table.you')}
-                              </span>
-                            )}
-                          </p>
-                          <p className='text-muted-foreground text-xs md:hidden'>{member.user.email}</p>
-                        </div>
+                        </p>
+                        <p className='text-muted-foreground text-xs md:hidden'>{member.user.email}</p>
                       </div>
-                    </TableCell>
-                    <TableCell className='text-muted-foreground hidden py-3 md:table-cell'>
-                      {member.user.email}
-                    </TableCell>
-                    <TableCell className='py-3'>
-                      <RoleBadge role={member.role} />
-                    </TableCell>
-                    <TableCell className='text-muted-foreground hidden py-3 sm:table-cell'>
-                      {formatDate(member.createdAt)}
-                    </TableCell>
-                    <TableCell className='py-3'>
-                      {member.role !== 'owner' &&
-                        member.userId !== currentUserId &&
-                        getRoleLevel(currentUserRole) < getRoleLevel(member.role) && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon' className='size-8' disabled={isPending}>
-                                <MoreHorizontal className='size-4' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end'>
-                              <DropdownMenuSub>
-                                <DropdownMenuSubTrigger>{t('actions.changeRole')}</DropdownMenuSubTrigger>
-                                <DropdownMenuSubContent>
-                                  {ASSIGNABLE_ROLES.map((role) => {
-                                    const isCurrentRole = member.role === role;
-                                    if (isCurrentRole) {
-                                      return (
-                                        <DropdownMenuLabel
-                                          key={role}
-                                          className='text-muted-foreground flex items-center justify-between font-normal'
-                                        >
-                                          {t(`roles.${role}`)}
-                                          <Check className='ml-2 size-4' />
-                                        </DropdownMenuLabel>
-                                      );
-                                    }
+                    </div>
+                  </TableCell>
+                  <TableCell className='text-muted-foreground hidden py-3 md:table-cell'>
+                    {member.user.email}
+                  </TableCell>
+                  <TableCell className='py-3'>
+                    <RoleBadge role={member.role} />
+                  </TableCell>
+                  <TableCell className='text-muted-foreground hidden py-3 sm:table-cell'>
+                    {formatDate(member.createdAt)}
+                  </TableCell>
+                  <TableCell className='py-3'>
+                    {member.role !== 'owner' &&
+                      member.userId !== currentUserId &&
+                      getRoleLevel(currentUserRole) < getRoleLevel(member.role) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant='ghost' size='icon' className='size-8' disabled={isPending}>
+                              <MoreHorizontal className='size-4' />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end'>
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>{t('actions.changeRole')}</DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent>
+                                {ASSIGNABLE_ROLES.map((role) => {
+                                  const isCurrentRole = member.role === role;
+                                  if (isCurrentRole) {
                                     return (
-                                      <DropdownMenuItem
+                                      <DropdownMenuLabel
                                         key={role}
-                                        onClick={() => handleChangeRole(member.userId, role)}
+                                        className='text-muted-foreground flex items-center justify-between font-normal'
                                       >
                                         {t(`roles.${role}`)}
-                                      </DropdownMenuItem>
+                                        <Check className='ml-2 size-4' />
+                                      </DropdownMenuLabel>
                                     );
-                                  })}
-                                </DropdownMenuSubContent>
-                              </DropdownMenuSub>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className='text-destructive focus:text-destructive'
-                                onClick={() => handleRemoveMember(member.userId)}
-                              >
-                                {t('actions.removeFromDashboard')}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+                                  }
+                                  return (
+                                    <DropdownMenuItem
+                                      key={role}
+                                      onClick={() => handleChangeRole(member.userId, role)}
+                                    >
+                                      {t(`roles.${role}`)}
+                                    </DropdownMenuItem>
+                                  );
+                                })}
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className='text-destructive focus:text-destructive'
+                              onClick={() => handleRemoveMember(member.userId)}
+                            >
+                              {t('actions.removeFromDashboard')}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }

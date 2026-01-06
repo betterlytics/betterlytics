@@ -6,6 +6,8 @@ import { MembersTable } from './MembersTable';
 import { InviteSection } from './InviteSection';
 import { getTranslations } from 'next-intl/server';
 import { LeaveDashboardSection } from './LeaveDashboardSection';
+import SettingsPageHeader from '../SettingsPageHeader';
+import SettingsSection from '../SettingsSection';
 
 interface MembersPageProps {
   params: Promise<{
@@ -16,7 +18,9 @@ interface MembersPageProps {
 export default async function MembersPage({ params }: MembersPageProps) {
   const { dashboardId } = await params;
   const session = await getAuthSession();
-  const t = await getTranslations('members.page');
+  const t = await getTranslations('members');
+  const tSidebar = await getTranslations('dashboard.settings.sidebar');
+  const tLeave = await getTranslations('components.dashboardSettingsDialog.leaveDashboard');
 
   if (!session?.user?.id) {
     redirect('/signin');
@@ -31,20 +35,27 @@ export default async function MembersPage({ params }: MembersPageProps) {
   const currentUserRole = currentMember?.role || 'viewer';
 
   return (
-    <div className='container max-w-4xl space-y-6 p-2 pt-4 sm:p-6'>
-      <div className='space-y-1'>
-        <h1 className='text-xl font-semibold'>{t('title')}</h1>
-        <p className='text-muted-foreground text-sm'>{t('description')}</p>
-      </div>
+    <div>
+      <SettingsPageHeader title={tSidebar('members')} />
+      <div className='space-y-12'>
+        <SettingsSection title={t('page.title')} description={t('page.description')}>
+          <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />
+        </SettingsSection>
 
-      <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />
-      <MembersTable
-        dashboardId={dashboardId}
-        members={members}
-        currentUserId={session.user.id}
-        currentUserRole={currentUserRole}
-      />
-      {currentUserRole !== 'owner' && <LeaveDashboardSection />}
+        <SettingsSection title={`${t('table.title')} (${members.length})`}>
+          <MembersTable
+            dashboardId={dashboardId}
+            members={members}
+            currentUserId={session.user.id}
+            currentUserRole={currentUserRole}
+          />
+        </SettingsSection>
+        {currentUserRole === 'owner' && (
+          <SettingsSection title={tLeave('title')}>
+            <LeaveDashboardSection />
+          </SettingsSection>
+        )}
+      </div>
     </div>
   );
 }
