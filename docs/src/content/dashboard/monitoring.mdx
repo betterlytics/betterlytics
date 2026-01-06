@@ -1,0 +1,288 @@
+---
+title: "Uptime Monitoring & SSL Certificate Checks - Betterlytics"
+description: "Monitor your website's uptime, response time, and SSL certificates with automated checks and email alerts."
+---
+
+import { Callout } from "nextra/components";
+
+# Uptime Monitoring & SSL Certificate Checks
+
+Betterlytics includes built-in uptime monitoring and SSL certificate checks that continuously verify your website’s availability and alert you when something goes wrong. No additional tools or integrations are required, monitoring is built directly into your analytics dashboard.
+
+{/* TODO: Add screenshot of monitoring list page - 5 monitors with different endpoints such as https://example.com, https://example.com/api/health etc. */}
+
+## What We Monitor
+
+Each monitor performs HTTP checks on your configured URL and tracks:
+
+- **Uptime status**: Whether your site is responding successfully
+- **Response time (latency)**: How long it takes your server to respond
+- **SSL certificate health**: Expiration date and certificate validity
+- **Incident history**: Timeline of downtime events and their causes
+
+Uptime monitoring continuously checks whether your website or API endpoints are reachable and responding correctly over time.
+
+## Creating a Monitor
+
+1. Navigate to **Dashboard > Monitoring**
+2. Click **Create Monitor**
+3. Enter the URL you want to monitor (must be on your dashboard's domain)
+4. Configure timing, alerts, and advanced settings
+5. Click **Create**
+
+<Callout type="info">
+Monitors can only target URLs within your dashboard’s registered domain. For example, if your dashboard is for `example.com`, you can monitor `https://example.com/api/health`, `https://api.example.com`, or any subdomain.
+</Callout>
+
+### Monitor Limits
+
+The number of monitors you can create depends on your plan:
+
+
+| Plan          | Monitor Limit |
+|---------------|---------------|
+| Growth        | 5 monitors    |
+| Professional  | 50 monitors   |
+| Enterprise    | Unlimited     |
+
+
+## Configuration Options
+
+### Timing & Sensitivity
+
+#### Check Interval
+
+How often we check your site. Available options range from **1 minute** to **24 hours**.
+
+- **Recommended**: 5 minutes for most websites
+- **Critical endpoints**: 1 minute for mission-critical services where fast detection is essential
+- **Shorter intervals**: Faster detection and more responsive alerts
+- **Longer intervals**: Suitable for non-critical or low-priority endpoints
+
+<Callout type="info">
+Check intervals under 5 minutes are available on Professional and Enterprise plans.
+</Callout>
+
+#### Request Timeout
+
+How long we wait for a response before marking the check as failed. Range: **1 second** to **30 seconds**.
+
+- **Recommended**: 3 seconds for most sites
+- **Increase** if your server has slower cold starts or processing time
+- **Decrease** for faster detection of hanging requests
+
+#### Failure Threshold (Sensitivity)
+
+How many consecutive failures are required before we open an incident and send alerts. Range: **1** to **10** checks.
+
+- **Threshold of 1**: Most sensitive. Alerts on the first failure. May cause false alarms from transient network issues.
+- **Threshold of 3** (recommended): Balances responsiveness with reliability. Waits for 3 consecutive failures before alerting.
+- **Higher thresholds**: More tolerant of brief issues, but slower to alert on real outages.
+
+<Callout type="warning">
+The failure threshold only controls when a **new incident** is opened. Once an incident is open, it stays open until recovery—we don't require the threshold to be met again for subsequent failures.
+</Callout>
+
+### Calculating Alert Timing
+
+To understand when you'll receive an alert after downtime begins, multiply your **check interval** by your **failure threshold**.
+
+**Examples**:
+
+- **1-minute interval** + **threshold of 2** = Alert sent **2 minutes** after downtime starts (at earliest)
+- **5-minute interval** + **threshold of 3** = Alert sent **15 minutes** after downtime starts (at earliest)
+- **1-minute interval** + **threshold of 1** = Alert sent **1 minute** after downtime starts (at earliest)
+
+This helps you balance between fast alerts (lower values) and avoiding false alarms from transient issues (higher values).
+
+### Email Alerts
+
+Alerts are sent to the dashboard owner's email address.
+
+#### Alert Types
+
+- **Down alerts**: Sent when the failure threshold is reached and an incident opens
+- **Recovery alerts**: Sent when the site comes back online after an incident
+- **SSL expiry alerts**: Sent when your certificate is approaching expiration
+
+You can enable or disable each alert type independently.
+
+### SSL Certificate Monitoring
+
+For HTTPS URLs, we automatically monitor SSL certificate health.
+
+#### What We Check
+
+- Certificate validity and trust chain
+- Expiration date
+- Hostname matching
+- Common SSL/TLS errors
+
+#### SSL Expiry Alerts
+
+Configure how many days before expiration you want to start receiving reminders. Options: **1, 3, 7, 14, or 30 days**.
+
+- **Recommended**: 14 days gives you time to renew before issues occur
+- You'll receive reminders at key milestones (e.g., if set to 14 days: at 14, 7, 3, and 1 day before expiry)
+- Each milestone triggers only one alert. You won’t receive daily reminder spam.
+
+<Callout type="info">
+SSL monitoring is only available for HTTPS URLs. For HTTP URLs, this setting has no effect.
+</Callout>
+
+### Advanced Configurations
+
+These options are available on Professional and Enterprise plans.
+
+#### HTTP Method
+
+Choose between **HEAD** (default) or **GET** requests.
+
+- **HEAD**: Faster, checks availability without downloading the full response body
+- **GET**: Downloads the full response. Use this if your server doesn't support HEAD requests or you need to verify the full response
+
+#### Custom Request Headers
+
+Add up to 10 custom headers to your monitoring requests. Useful for:
+
+- Authentication tokens
+- Custom user-agent strings
+- API versioning headers
+- Any header your endpoint requires
+
+<Callout type="warning">
+Security-sensitive headers (like `Host`, `Content-Length`, etc.) cannot be overridden.
+</Callout>
+
+#### Accepted Status Codes
+
+By default, we consider any 2xx response as healthy. You can customize this to accept:
+
+- Specific codes (e.g., `200`, `201`, `204`)
+- Code ranges (e.g., `2xx`, `3xx`)
+- Up to 5 accepted codes/ranges
+
+This is useful if your health endpoint returns a non-2xx code intentionally.
+
+## Understanding Monitor Status
+
+Monitors can be in one of these states:
+
+| State      | Meaning |
+|------------|---------|
+| **Up** | Monitor is healthy. All recent checks succeeded. |
+| **Down** | An incident is in progress. The site is failing checks. |
+| **Degraded** | The site is responding but with warnings (e.g., slow responses, SSL issues). |
+| **Preparing** | Monitor was just created. Waiting for the first check to complete. |
+| **Paused** | Monitor is disabled. No checks are being performed. |
+
+## How Incidents Work
+
+An incident represents a period of downtime or degraded service.
+
+### When Incidents Open
+
+An incident opens when:
+
+1. A check fails (timeout, error response, SSL error, etc.)
+2. The failure repeats for **N consecutive checks**, where N is your failure threshold
+
+At this point:
+- The monitor status changes to **Down**
+- A **Down alert email** is sent (if enabled)
+- The incident start time is recorded
+
+### When Incidents Close
+
+An incident closes when your site starts responding successfully again. We wait for a few consecutive successful checks to confirm the issue is truly resolved before sending the recovery alert—this prevents false "all clear" notifications from a single lucky request.
+
+At recovery:
+- The monitor status changes to **Up**
+- A **Recovery alert email** is sent (if enabled)
+- The incident is marked as resolved
+
+**Example**
+
+- 12:00: First failed check
+- 12:05: Second failed check
+- 12:10: Third failed check → Incident opens (threshold = 3)
+- 12:15: Site recovers
+- 12:20: Recovery confirmed → Incident closes
+
+{/* TODO: Add screenshot of incident table with some resolved and one ongoing or something like that */}
+
+## Metrics & Dashboard
+
+### 24-Hour View
+
+The monitor detail page shows:
+
+- **Uptime percentage**: Calculated from actual check results
+- **Response time chart**: P50, P95, and average latency over time
+- **Uptime grid**: Visual indicator of hourly uptime over the last 24 hours
+- **Incident table**: Recent incidents with status, cause, start time, and duration
+
+### Recent Checks
+
+View the most recent check results including:
+
+- Timestamp
+- Status (OK, Warning, Failed)
+- Response time
+- HTTP status code
+- Failure reason (if applicable)
+
+You can filter to show only errors for quick debugging.
+
+### Daily Uptime (180 Days)
+
+A calendar-style grid showing daily uptime percentages. Hover over any day to see the exact percentage.
+
+## SSL Certificate Details
+
+For HTTPS monitors, the detail page shows:
+
+- **Certificate status**: Valid, Expiring Soon, Expired, or Error
+- **Days until expiration**
+- **Expiry date**
+- **Last SSL check result**
+
+## Pausing and Deleting Monitors
+
+### Pausing
+
+You can pause a monitor temporarily to stop checks without deleting configuration. This is useful during:
+
+- Planned maintenance
+- Site migrations
+- Temporary shutdowns
+
+### Deleting
+
+Deleting a monitor removes all configuration. Historical check data is retained for your analytics records.
+
+## Troubleshooting
+
+### No Checks Appearing
+
+- Ensure the monitor is not paused
+- Wait a few minutes for the first check to complete
+- Verify the URL is reachable from the public internet
+
+### False Positives / Too Many Alerts
+
+- Increase the failure threshold to 3 or higher
+- Increase the request timeout if your server is slow
+
+### SSL Monitoring Not Working
+
+- Ensure the URL uses `https://`
+- Verify "Check SSL Errors" is enabled in Advanced Settings
+
+### Check Interval Changed Unexpectedly
+
+If you see a different interval than what you configured, automatic backoff may be active. When a monitor fails repeatedly for an extended period, we reduce the check frequency to conserve resources. The interval will return to normal automatically once your site is consistently responding.
+
+---
+
+**Related**: Compare [pricing plans](/pricing) to see monitor limits and advanced features.
