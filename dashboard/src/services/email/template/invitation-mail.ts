@@ -65,7 +65,7 @@ export function generateInvitationEmailText(data: DashboardInvitationEmailData):
   const content = `
 You've been invited to a dashboard!
 
-${data.inviterName} has invited you to collaborate on ${data.dashboardName} on Betterlytics.
+${escapeHtml(data.inviterName)} has invited you to collaborate on ${escapeHtml(data.dashboardName)} on Betterlytics.
 
 You've been invited as a ${roleDisplay}.
 
