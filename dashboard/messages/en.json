@@ -2806,7 +2806,8 @@
       "inviteButton": "Invite",
       "sending": "Sending...",
       "pending": "Pending",
-      "invited": "Invited"
+      "invited": "Invited",
+      "invalidEmail": "Please enter a valid email address"
     },
     "toast": {
       "sent": "Invitation sent",
@@ -2821,7 +2822,8 @@
     },
     "pendingModal": {
       "title": "Dashboard Invitation",
-      "invitedBy": "{name} invited you to collaborate",
+      "description": "You've been invited to collaborate on a dashboard",
+      "unknownDashboard": "Dashboard",
       "accept": "Accept",
       "accepting": "Accepting...",
       "decline": "Decline",

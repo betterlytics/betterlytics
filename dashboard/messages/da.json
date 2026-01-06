@@ -2809,7 +2809,8 @@
       "inviteButton": "Inviter",
       "sending": "Sender...",
       "pending": "Afventer",
-      "invited": "Inviteret"
+      "invited": "Inviteret",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse"
     },
     "toast": {
       "sent": "Invitation sendt",
@@ -2824,7 +2825,8 @@
     },
     "pendingModal": {
       "title": "Dashboard-invitation",
-      "invitedBy": "{name} inviterede dig til at samarbejde",
+      "description": "Du er blevet inviteret til at samarbejde på et dashboard",
+      "unknownDashboard": "Dashboard",
       "accept": "Accepter",
       "accepting": "Accepterer...",
       "decline": "Afvis",

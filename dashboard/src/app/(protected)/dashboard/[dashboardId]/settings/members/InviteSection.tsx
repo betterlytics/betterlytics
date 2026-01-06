@@ -10,9 +10,11 @@ import { Mail, X, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
-import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
+import { InvitationWithInviter, CreateInvitationSchema } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
+
+const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true });
 
 interface InviteSectionProps {
   dashboardId: string;
@@ -29,6 +31,12 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
 
   const handleInvite = () => {
     if (!email) return;
+
+    const result = InviteFormSchema.safeParse({ email, role });
+    if (!result.success) {
+      toast.error(t('invalidEmail'));
+      return;
+    }
 
     startTransition(async () => {
       try {

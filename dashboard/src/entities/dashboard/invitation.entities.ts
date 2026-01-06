@@ -17,8 +17,8 @@ export const DashboardInvitationSchema = z.object({
 
 export const CreateInvitationSchema = z.object({
   dashboardId: z.string(),
-  email: z.string().email('Please enter a valid email address'),
-  role: z.nativeEnum(DashboardRole).refine((role) => role !== 'owner', { message: 'Cannot invite as owner' }),
+  email: z.string().email(),
+  role: z.nativeEnum(DashboardRole).refine((role) => role !== 'owner'),
   invitedById: z.string(),
 });
 

@@ -96,15 +96,14 @@ export default function PendingInvitationsModal({
     return null;
   }
 
-  const inviterName = currentInvitation.invitedBy.name || currentInvitation.invitedBy.email || 'Someone';
-  const domain = currentInvitation.dashboard?.domain || currentInvitation.dashboardId;
+  const domain = currentInvitation.dashboard?.domain || t('unknownDashboard');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className='sm:max-w-[420px]'>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('invitedBy', { name: inviterName })}</DialogDescription>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <Card className='p-4'>

@@ -2817,7 +2817,8 @@
       "inviteButton": "Invita",
       "sending": "Invio in corso...",
       "pending": "In sospeso",
-      "invited": "Invitato"
+      "invited": "Invitato",
+      "invalidEmail": "Inserisci un indirizzo email valido"
     },
     "toast": {
       "sent": "Invito inviato",
@@ -2832,7 +2833,8 @@
     },
     "pendingModal": {
       "title": "Invito alla dashboard",
-      "invitedBy": "{name} ti ha invitato a collaborare",
+      "description": "Sei stato invitato a collaborare su una dashboard",
+      "unknownDashboard": "Dashboard",
       "accept": "Accetta",
       "accepting": "Accettazione...",
       "decline": "Rifiuta",
