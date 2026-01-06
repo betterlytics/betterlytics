@@ -1,11 +1,11 @@
 'use client';
 
 import { deleteDashboardAction } from '@/app/actions/index.actions';
-import SettingsCard from '@/components/SettingsCard';
+import SettingsSection from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsSection';
+import SettingsPageHeader from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsPageHeader';
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { AlertTriangle, Trash2 } from 'lucide-react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -16,39 +16,40 @@ export default function DangerZoneSettings() {
   const router = useBARouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.dashboardSettingsDialog.danger');
+  const tSidebar = useTranslations('dashboard.settings.sidebar');
   const [isPending, startTransition] = useTransition();
 
   const handleDeleteDashboard = async () => {
     startTransition(async () => {
       try {
         await deleteDashboardAction(dashboardId);
-        toast.success(t('deleteButton'));
+        toast.success(t('toastSuccess'));
         router.push('/dashboards');
       } catch (error) {
         console.error('Failed to delete dashboard:', error);
-        toast.error(t('dialog.confirm'));
+        toast.error(t('toastError'));
       }
     });
   };
 
   return (
-    <SettingsCard icon={Trash2} title={t('title')} description={t('description')}>
-      <div className='space-y-4'>
-        <div className='border-destructive/20 bg-destructive/5 flex items-start gap-3 rounded-lg border p-4'>
-          <AlertTriangle className='text-destructive h-5 w-5 flex-shrink-0' />
-          <div className='text-sm'>
-            <p className='text-destructive font-medium'>{t('warning')}</p>
-          </div>
-        </div>
+    <div>
+      <SettingsPageHeader title={tSidebar('dangerZone')} />
 
-        <Button
-          variant='destructive'
-          onClick={() => setIsDialogOpen(true)}
-          className='hover:bg-destructive/80 dark:hover:bg-destructive/80 bg-destructive/85 w-full cursor-pointer sm:w-auto'
-        >
-          <Trash2 className='h-4 w-4' />
-          {t('deleteButton')}
-        </Button>
+      <SettingsSection title={t('title')}>
+        <div className='flex items-center justify-between'>
+          <div>
+            <span className='text-sm font-medium'>{t('sectionTitle')}</span>
+            <p className='text-muted-foreground text-xs'>{t('sectionDescription')}</p>
+          </div>
+          <Button
+            variant='ghost'
+            onClick={() => setIsDialogOpen(true)}
+            className='text-destructive hover:text-destructive/80 cursor-pointer'
+          >
+            {t('deleteButton')}
+          </Button>
+        </div>
 
         <DestructiveActionDialog
           open={isDialogOpen}
@@ -62,7 +63,7 @@ export default function DangerZoneSettings() {
           countdownSeconds={5}
           showIcon
         />
-      </div>
-    </SettingsCard>
+      </SettingsSection>
+    </div>
   );
 }

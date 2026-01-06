@@ -1248,6 +1248,16 @@
         "observability": "Osservabilità"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Torna alla Dashboard",
+        "settings": "Impostazioni",
+        "data": "Dati",
+        "rules": "Regole",
+        "members": "Membri",
+        "dangerZone": "Zona pericolosa"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Visitatori unici",
       "totalPageviews": "Visualizzazioni totali",
@@ -1684,7 +1694,8 @@
     "deleting": "Eliminazione in corso",
     "cancel": "Anulla",
     "confirm": "Conferma",
-    "openMenu": "Apri menu"
+    "openMenu": "Apri menu",
+    "save": "Salva"
   },
   "languages": {
     "da": "Danish",
@@ -2573,6 +2584,7 @@
       "data": {
         "title": "Gestione dati",
         "description": "Configura conservazione e raccolta dei dati",
+        "retentionTitle": "Conservazione dati",
         "retentionLabel": "Periodo di conservazione dati",
         "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
         "presets": {
@@ -2583,11 +2595,17 @@
           "y2": "2 anni",
           "y3": "3 anni"
         },
+        "retentionConfirm": {
+          "title": "Cambiare periodo di conservazione?",
+          "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
+        },
         "siteRules": {
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",
           "enforceDomain": "Applicare dominio",
-          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard."
+          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard.",
+          "enableValidation": "Abilita validazione dominio",
+          "enableValidationDescription": "Accetta solo eventi dal tuo dominio configurato"
         },
         "blacklistedIps": {
           "title": "IP degli eventi bloccati",
@@ -2600,10 +2618,12 @@
         }
       },
       "danger": {
-        "title": "Elimina dashboard",
-        "description": "Elimina definitivamente la dashboard",
-        "warning": "Attenzione: questa azione non può essere annullata",
-        "deleteButton": "Elimina dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Elimina dashboard",
+        "sectionDescription": "Rimuovi permanentemente questa dashboard e tutti i suoi dati.",
+        "deleteButton": "Elimina",
+        "toastSuccess": "Dashboard eliminata con successo",
+        "toastError": "Impossibile eliminare la dashboard",
         "dialog": {
           "title": "Elimina dashboard",
           "description": "Sei sicuro di voler eliminare questa dashboard? Questa azione non può essere annullata.",

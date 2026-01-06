@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
-
+import { FilterPreservingLink } from './ui/FilterPreservingLink';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 interface SettingsPopoverProps {
   onAdvancedSettingsClicked?: () => void;
   onClose: () => void;
@@ -17,6 +18,7 @@ export default function SettingsPopover({ onAdvancedSettingsClicked, onClose }: 
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
   const t = useTranslations('components.settingsPopover');
+  const dashboardId = useDashboardId();
 
   useEffect(() => {
     setMounted(true);
@@ -57,14 +59,14 @@ export default function SettingsPopover({ onAdvancedSettingsClicked, onClose }: 
       </div>
 
       <div className='border-border border-t p-3'>
-        <Button
-          variant='ghost'
+        <FilterPreservingLink
+          href={`/dashboard/${dashboardId}/settings`}
           onClick={onAdvancedSettingsClicked}
           className='text-foreground flex w-full cursor-pointer items-center justify-start gap-2 rounded-md p-2! text-sm font-medium transition-colors'
         >
           <SettingsIcon size={16} />
           <span>{t('advanced')}</span>
-        </Button>
+        </FilterPreservingLink>
       </div>
     </div>
   );

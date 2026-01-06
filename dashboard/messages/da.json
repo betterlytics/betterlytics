@@ -1240,6 +1240,16 @@
         "observability": "Overvågning"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Tilbage til Dashboard",
+        "settings": "Indstillinger",
+        "data": "Data",
+        "rules": "Regler",
+        "members": "Medlemmer",
+        "dangerZone": "Farezone"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
@@ -1676,7 +1686,8 @@
     "deleting": "Sletter",
     "cancel": "Annuller",
     "confirm": "Bekræft",
-    "openMenu": "Åbn menu"
+    "openMenu": "Åbn menu",
+    "save": "Gem"
   },
   "languages": {
     "da": "Dansk",
@@ -2565,6 +2576,7 @@
       "data": {
         "title": "Datahåndtering",
         "description": "Konfigurer dataopbevaring og indsamling",
+        "retentionTitle": "Dataopbevaring",
         "retentionLabel": "Periode for dataopbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
@@ -2575,11 +2587,17 @@
           "y2": "2 år",
           "y3": "3 år"
         },
+        "retentionConfirm": {
+          "title": "Ændre opbevaringsperiode?",
+          "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
+        },
         "siteRules": {
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",
           "enforceDomain": "Håndhæv domæne",
-          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet."
+          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet.",
+          "enableValidation": "Aktiver domænevalidering",
+          "enableValidationDescription": "Accepter kun hændelser fra dit konfigurerede domæne"
         },
         "blacklistedIps": {
           "title": "Blokerede IP-adresser",
@@ -2592,10 +2610,12 @@
         }
       },
       "danger": {
-        "title": "Slet dashboard",
-        "description": "Slet dashboard permanent",
-        "warning": "Advarsel: Denne handling kan ikke fortrydes",
-        "deleteButton": "Slet dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Slet dashboard",
+        "sectionDescription": "Slet dette dashboard og alle dets data permanent.",
+        "deleteButton": "Slet",
+        "toastSuccess": "Dashboard slettet",
+        "toastError": "Kunne ikke slette dashboard",
         "dialog": {
           "title": "Slet dashboard",
           "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke fortrydes.",
