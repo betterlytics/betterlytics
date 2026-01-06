@@ -63,6 +63,7 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
     const prismaUserDashboard = await prisma.userDashboard.findFirst({
       where: {
         userId,
+        dashboard: { deletedAt: null },
       },
     });
 
