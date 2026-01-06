@@ -108,10 +108,11 @@ export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptySta
               <CreateMonitorDialog
                 dashboardId={dashboardId}
                 domain={domain}
+                disabled={disabled}
                 existingUrls={[]}
                 monitorCount={0}
                 maxMonitors={maxMonitors}
-                atLimit={disabled}
+                atLimit={false}
               />
             )}
           </PermissionGate>
