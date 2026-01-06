@@ -35,7 +35,7 @@ export async function createInvitation(data: CreateInvitationData): Promise<Dash
   }
 }
 
-export async function findInvitationsByDashboard(dashboardId: string): Promise<InvitationWithInviter[]> {
+export async function findPendingInvitationsByDashboard(dashboardId: string): Promise<InvitationWithInviter[]> {
   try {
     const invitations = await prisma.dashboardInvitation.findMany({
       where: {
