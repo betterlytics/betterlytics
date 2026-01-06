@@ -2610,6 +2610,22 @@
           "cancel": "Annulla",
           "confirm": "Elimina dashboard"
         }
+      },
+      "leaveDashboard": {
+        "title": "Lascia dashboard",
+        "description": "Sei sicuro di voler lasciare questa dashboard?",
+        "button": "Lascia dashboard",
+        "buttonPending": "Uscita in corso...",
+        "dialog": {
+          "title": "Lascia dashboard",
+          "description": "Sei sicuro di voler lasciare questa dashboard? Non avrai più accesso e dovrai essere reinvitato per rientrare.",
+          "cancel": "Annulla",
+          "confirm": "Lascia dashboard"
+        },
+        "toast": {
+          "success": "Dashboard abbandonata",
+          "error": "Impossibile lasciare la dashboard"
+        }
       }
     },
     "termsRequiredDialog": {

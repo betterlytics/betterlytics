@@ -2602,6 +2602,22 @@
           "cancel": "Annuller",
           "confirm": "Slet dashboard"
         }
+      },
+      "leaveDashboard": {
+        "title": "Forlad dashboard",
+        "description": "Er du sikker på, at du vil forlade dette dashboard?",
+        "button": "Forlad dashboard",
+        "buttonPending": "Forlader...",
+        "dialog": {
+          "title": "Forlad dashboard",
+          "description": "Er du sikker på, at du vil forlade dette dashboard? Du vil ikke længere have adgang til det og skal inviteres igen for at deltage.",
+          "cancel": "Annuller",
+          "confirm": "Forlad dashboard"
+        },
+        "toast": {
+          "success": "Forlod dashboard",
+          "error": "Kunne ikke forlade dashboard"
+        }
       }
     },
     "termsRequiredDialog": {

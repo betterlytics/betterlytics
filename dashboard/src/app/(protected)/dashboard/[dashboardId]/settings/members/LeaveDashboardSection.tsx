@@ -8,11 +8,13 @@ import { toast } from 'sonner';
 import { useTransition } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { DestructiveActionDialog } from '@/components/dialogs';
+import { useTranslations } from 'next-intl';
 
 export function LeaveDashboardSection() {
   const dashboardId = useDashboardId();
   const [isPendingLeave, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const t = useTranslations('components.dashboardSettingsDialog.leaveDashboard');
 
   const router = useBARouter();
 
@@ -20,10 +22,10 @@ export function LeaveDashboardSection() {
     startTransition(async () => {
       try {
         await leaveDashboardAction(dashboardId);
-        toast.success('Left dashboard');
+        toast.success(t('toast.success'));
         router.replace('/dashboards');
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Failed to leave dashboard');
+        toast.error(error instanceof Error ? error.message : t('toast.error'));
       }
     });
   };
@@ -31,8 +33,8 @@ export function LeaveDashboardSection() {
   return (
     <div className='bg-card flex items-center justify-between space-y-4 rounded-xl border p-4 shadow'>
       <div>
-        <div className='text-md font-semibold'>Leave Dashboard</div>
-        <p className='text-muted-foreground text-xs'>Are you sure you want to leave this dashboard?</p>
+        <div className='text-md font-semibold'>{t('title')}</div>
+        <p className='text-muted-foreground text-xs'>{t('description')}</p>
       </div>
       <Button
         variant='ghost'
@@ -40,16 +42,16 @@ export function LeaveDashboardSection() {
         onClick={() => setIsDialogOpen(true)}
         disabled={isPendingLeave}
       >
-        {isPendingLeave ? 'Leaving...' : 'Leave Dashboard'}
+        {isPendingLeave ? t('buttonPending') : t('button')}
       </Button>
 
       <DestructiveActionDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title='Leave Dashboard'
-        description='Are you sure you want to leave this dashboard? You will no longer be able to access it, and will need to be reinvited to join it again.'
-        cancelLabel='Cancel'
-        confirmLabel='Leave Dashboard'
+        title={t('dialog.title')}
+        description={t('dialog.description')}
+        cancelLabel={t('dialog.cancel')}
+        confirmLabel={t('dialog.confirm')}
         onConfirm={leaveDashboard}
         isPending={isPendingLeave}
         showIcon

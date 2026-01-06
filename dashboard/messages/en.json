@@ -2599,6 +2599,22 @@
           "cancel": "Cancel",
           "confirm": "Delete Dashboard"
         }
+      },
+      "leaveDashboard": {
+        "title": "Leave Dashboard",
+        "description": "Are you sure you want to leave this dashboard?",
+        "button": "Leave Dashboard",
+        "buttonPending": "Leaving...",
+        "dialog": {
+          "title": "Leave Dashboard",
+          "description": "Are you sure you want to leave this dashboard? You will no longer be able to access it, and will need to be reinvited to join it again.",
+          "cancel": "Cancel",
+          "confirm": "Leave Dashboard"
+        },
+        "toast": {
+          "success": "Left dashboard",
+          "error": "Failed to leave dashboard"
+        }
       }
     },
     "termsRequiredDialog": {
