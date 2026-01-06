@@ -36,7 +36,7 @@ type CapabilitiesProviderProps = {
 };
 
 export function CapabilitiesProvider({ dashboardId, children }: CapabilitiesProviderProps) {
-  const isDemo = useDashboardAuth().isDemo;
+  const { isDemo } = useDashboardAuth();
   const [tier, setTier] = useState<TierName>('growth');
   const [isLoading, setIsLoading] = useState(!isDemo);
 

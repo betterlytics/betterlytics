@@ -16,7 +16,7 @@ type Options = {
 
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
-  const isDemo = useDashboardAuth().isDemo;
+  const { isDemo } = useDashboardAuth();
   const t = useTranslations('components.demoMode');
 
   const defaultOperator: FilterOperator = defaults?.operator ?? '=';

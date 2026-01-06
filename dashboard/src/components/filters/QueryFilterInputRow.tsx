@@ -51,7 +51,7 @@ export function QueryFilterInputRow<TEntity>({
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
-  const isDemo = useDashboardAuth().isDemo;
+  const { isDemo } = useDashboardAuth();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
 
   const filterColumnRef = useRef<string>(filter.column);

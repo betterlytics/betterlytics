@@ -25,7 +25,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
 
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
-  const isDemo = useDashboardAuth().isDemo;
+  const { isDemo } = useDashboardAuth();
 
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 

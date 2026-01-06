@@ -26,7 +26,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const locale = useLocale();
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
-  const isDemo = useDashboardAuth().isDemo;
+  const { isDemo } = useDashboardAuth();
 
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
 
