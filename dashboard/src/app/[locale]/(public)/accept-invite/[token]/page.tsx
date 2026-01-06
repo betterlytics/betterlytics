@@ -31,8 +31,8 @@ function InviteStatusCard({
   actionVariant = 'outline',
 }: InviteStatusCardProps) {
   const iconStyles = {
-    destructive: 'bg-destructive/10 text-destructive border-destructive/20',
-    warning: 'bg-warning/10 text-warning border-warning/20',
+    destructive: 'text-destructive',
+    warning: 'text-warning',
   };
 
   return (
@@ -42,20 +42,16 @@ function InviteStatusCard({
       </Link>
 
       <Card className='w-full max-w-md py-4'>
-        <CardContent className='pt-6'>
-          <div className='flex items-start gap-4'>
-            <div
-              className={`flex size-10 shrink-0 items-center justify-center rounded-full border ${iconStyles[iconVariant]}`}
-            >
-              <Icon className='size-5' />
-            </div>
-            <div className='flex-1 space-y-1'>
-              <CardTitle className='text-lg leading-tight'>{title}</CardTitle>
-              <CardDescription className='text-sm leading-relaxed'>{description}</CardDescription>
-            </div>
+        <CardContent className='space-y-4 pt-2'>
+          <div className='space-y-2'>
+            <CardTitle className='flex items-center gap-2 text-lg'>
+              <Icon className={`size-5 shrink-0 ${iconStyles[iconVariant]}`} />
+              {title}
+            </CardTitle>
+            <CardDescription className='text-sm leading-relaxed'>{description}</CardDescription>
           </div>
 
-          <div className='mt-6 flex items-center justify-between gap-4'>
+          <div className='flex items-center justify-between gap-4 pt-2'>
             {hint && <p className='text-muted-foreground/80 text-sm leading-relaxed'>{hint}</p>}
             <Button asChild variant={actionVariant} className='ml-auto shrink-0'>
               <Link href={actionHref}>{actionLabel}</Link>
