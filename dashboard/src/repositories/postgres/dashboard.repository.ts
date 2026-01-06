@@ -65,24 +65,16 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
         userId,
         dashboard: { deletedAt: null },
       },
+      include: {
+        dashboard: true,
+      },
     });
 
     if (prismaUserDashboard === null) {
       return null;
     }
 
-    const prismaDashboard = await prisma.dashboard.findFirst({
-      where: {
-        id: prismaUserDashboard?.dashboardId,
-        deletedAt: null,
-      },
-    });
-
-    if (prismaDashboard === null) {
-      return null;
-    }
-
-    return DashboardSchema.parse(prismaDashboard);
+    return DashboardSchema.parse(prismaUserDashboard.dashboard);
   } catch {
     console.error("Error while finding user's first dashboard");
     throw new Error('Faild to find dashboard');
