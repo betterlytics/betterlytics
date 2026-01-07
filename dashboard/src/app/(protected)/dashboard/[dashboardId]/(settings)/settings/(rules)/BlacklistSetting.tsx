@@ -118,16 +118,20 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
                     className='border-border bg-background/20 hover:bg-accent/10 flex items-center justify-between rounded-md border px-3 py-2.5 transition-colors'
                   >
                     <span className='font-mono text-sm'>{ip}</span>
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      className='text-destructive hover:text-destructive cursor-pointer'
-                      onClick={() => removeIp(ip)}
-                      disabled={isPending}
-                    >
-                      {t('data.blacklistedIps.remove')}
-                    </Button>
+                    <PermissionGate>
+                      {(disabled) => (
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          className='text-destructive hover:text-destructive cursor-pointer'
+                          onClick={() => removeIp(ip)}
+                          disabled={isPending || disabled}
+                        >
+                          {t('data.blacklistedIps.remove')}
+                        </Button>
+                      )}
+                    </PermissionGate>
                   </div>
                 ))}
               </div>
