@@ -258,7 +258,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                     size='icon'
                     onClick={() => setIsAnnotationMode(!isAnnotationMode)}
                     disabled={disabled}
-                    className={`absolute top-0 right-0 z-10 h-8 w-8 ${
+                    className={`absolute top-0 right-0 z-10 h-8 w-8 cursor-pointer ${
                       isAnnotationMode
                         ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
