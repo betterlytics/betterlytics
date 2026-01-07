@@ -1,5 +1,8 @@
+'use client';
+
 import { Badge } from '@/components/ui/badge';
 import { DashboardRole } from '@prisma/client';
+import { useTranslations } from 'next-intl';
 
 export type Role = DashboardRole;
 
@@ -55,9 +58,10 @@ export function getAvatarColor(identifier: string | null | undefined): string {
 }
 
 export function RoleBadge({ role }: { role: Role }) {
+  const t = useTranslations('members.roles');
   return (
     <Badge variant='outline' className={getRoleBadgeClassName(role)}>
-      {role.charAt(0).toUpperCase() + role.slice(1)}
+      {t(role)}
     </Badge>
   );
 }
