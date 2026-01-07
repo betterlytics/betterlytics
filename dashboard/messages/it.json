@@ -2409,11 +2409,6 @@
         "toastFailure": "Invio dell'email di verifica non riuscito"
       }
     },
-    "settingsPopover": {
-      "title": "Impostazioni rapide",
-      "theme": "Tema",
-      "advanced": "Impostazioni avanzate"
-    },
     "topbar": {
       "userMenu": {
         "userFallback": "Utente",

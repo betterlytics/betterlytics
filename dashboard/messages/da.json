@@ -2401,11 +2401,6 @@
         "toastFailure": "Kunne ikke sende bekræftelsesmail"
       }
     },
-    "settingsPopover": {
-      "title": "Hurtige indstillinger",
-      "theme": "Tema",
-      "advanced": "Avancerede indstillinger"
-    },
     "topbar": {
       "userMenu": {
         "userFallback": "Bruger",

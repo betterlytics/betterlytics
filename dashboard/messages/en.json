@@ -2398,11 +2398,6 @@
         "toastFailure": "Failed to send verification email"
       }
     },
-    "settingsPopover": {
-      "title": "Quick Settings",
-      "theme": "Theme",
-      "advanced": "Advanced Settings"
-    },
     "topbar": {
       "userMenu": {
         "userFallback": "User",
