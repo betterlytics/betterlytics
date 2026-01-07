@@ -31,12 +31,6 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
 
   const settingsItems: SidebarItem[] = [
     {
-      name: t('data'),
-      key: 'data',
-      href: `/dashboard/${dashboardId}/settings`,
-      icon: <Database size={16} />,
-    },
-    {
       name: t('rules'),
       key: 'rules',
       href: `/dashboard/${dashboardId}/settings/rules`,
@@ -47,6 +41,12 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       key: 'members',
       href: `/dashboard/${dashboardId}/settings/members`,
       icon: <Users size={16} />,
+    },
+    {
+      name: t('data'),
+      key: 'data',
+      href: `/dashboard/${dashboardId}/settings`,
+      icon: <Database size={16} />,
     },
     {
       name: t('dangerZone'),
