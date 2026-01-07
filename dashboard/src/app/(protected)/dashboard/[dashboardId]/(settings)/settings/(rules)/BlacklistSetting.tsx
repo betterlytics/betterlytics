@@ -64,7 +64,7 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
     <SettingsSection title={t('data.blacklistedIps.title')} description={t('data.blacklistedIps.description')}>
       <div className='space-y-4'>
         <div className='flex gap-2'>
-          <PermissionGate>
+          <PermissionGate wrapperClassName='w-full'>
             {(disabled) => (
               <Input
                 id='blacklisted-ip-input'

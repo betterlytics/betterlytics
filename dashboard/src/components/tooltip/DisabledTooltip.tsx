@@ -7,6 +7,7 @@ type DisabledTooltipProps = {
   disabled: boolean;
   message: React.ReactNode;
   children: (disabled: boolean) => React.ReactElement;
+  wrapperClassName?: string;
 };
 
 /**
@@ -22,12 +23,14 @@ type DisabledTooltipProps = {
  *     </span>
  *   </PopoverTrigger>
  */
-export function DisabledTooltip({ disabled, message, children }: DisabledTooltipProps) {
+export function DisabledTooltip({ disabled, message, children, wrapperClassName }: DisabledTooltipProps) {
   if (!disabled) return children(false);
 
   return (
     <Tooltip delayDuration={300} disableHoverableContent>
-      <TooltipTrigger asChild>{children(true)}</TooltipTrigger>
+      <TooltipTrigger asChild>
+        <span className={wrapperClassName}>{children(true)}</span>
+      </TooltipTrigger>
       <TooltipContent>{message}</TooltipContent>
     </Tooltip>
   );
