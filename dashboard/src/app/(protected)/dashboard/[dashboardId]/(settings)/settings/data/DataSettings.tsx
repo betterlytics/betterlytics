@@ -17,9 +17,7 @@ export default function DataSettings() {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
   const t = useTranslations('components.dashboardSettingsDialog');
-  const tMisc = useTranslations('misc');
-
-  const [dataRetentionDays, setDataRetentionDays] = useState<number | undefined>(settings?.dataRetentionDays);
+  const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [isPending, startTransition] = useTransition();
 
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
@@ -65,17 +63,6 @@ export default function DataSettings() {
     return t(`data.presets.${preset.i18nKey}`);
   };
 
-  if (!settings) {
-    return (
-      <div className='flex items-center justify-center py-16'>
-        <div className='flex flex-col items-center'>
-          <div className='border-accent border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4'></div>
-          <p className='text-foreground'>{tMisc('loading')}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <SettingsPageHeader title={t('title')} />
@@ -89,7 +76,7 @@ export default function DataSettings() {
           <PermissionGate>
             {(disabled) => (
               <Select
-                value={dataRetentionDays?.toString() || '365'}
+                value={dataRetentionDays.toString()}
                 onValueChange={handleRetentionSelect}
                 disabled={isPending || disabled}
               >
