@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Mail, X, UserPlus, ChevronDown } from 'lucide-react';
+import { Mail, X, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
@@ -24,9 +23,8 @@ interface InviteSectionProps {
 }
 
 export function InviteSection({ dashboardId, pendingInvitations }: InviteSectionProps) {
-  const t = useTranslations('invitations.section');
+  const t = useTranslations('invitations');
   const tRoles = useTranslations('members.roles');
-  const tToast = useTranslations('invitations.toast');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<DashboardRole>('viewer');
   const [isPending, startTransition] = useTransition();
@@ -36,17 +34,17 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
 
     const result = InviteFormSchema.safeParse({ email, role });
     if (!result.success) {
-      toast.error(t('invalidEmail'));
+      toast.error(t('section.invalidEmail'));
       return;
     }
 
     startTransition(async () => {
       try {
         await inviteMemberAction(dashboardId, email, role);
-        toast.success(tToast('sent'));
+        toast.success(t('toast.sent'));
         setEmail('');
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : tToast('sendFailed'));
+        toast.error(error instanceof Error ? error.message : t('toast.sendFailed'));
       }
     });
   };
@@ -55,9 +53,9 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
     startTransition(async () => {
       try {
         await cancelInvitationAction(dashboardId, invitationId);
-        toast.success(tToast('cancelled'));
+        toast.success(t('toast.cancelled'));
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : tToast('cancelFailed'));
+        toast.error(error instanceof Error ? error.message : t('toast.cancelFailed'));
       }
     });
   };
@@ -68,13 +66,13 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
     <div className='space-y-4'>
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
         <div className='flex-1 space-y-1.5'>
-          <label className='text-muted-foreground text-sm'>{t('emailLabel')}</label>
+          <label className='text-muted-foreground text-sm'>{t('section.emailLabel')}</label>
           <PermissionGate>
             {(disabled) => (
               <Input
                 type='email'
                 className='text-sm'
-                placeholder={t('emailPlaceholder')}
+                placeholder={t('section.emailPlaceholder')}
                 value={email}
                 disabled={disabled}
                 onChange={(e) => setEmail(e.target.value)}
@@ -84,7 +82,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
           </PermissionGate>
         </div>
         <div className='w-full space-y-1.5 sm:w-36'>
-          <label className='text-muted-foreground text-sm'>{t('roleLabel')}</label>
+          <label className='text-muted-foreground text-sm'>{t('section.roleLabel')}</label>
           <PermissionGate>
             {(disabled) => (
               <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)} disabled={disabled}>
@@ -114,7 +112,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
               className='cursor-pointer sm:w-auto'
             >
               <Mail className='size-4' />
-              {isPending ? t('sending') : t('inviteButton')}
+              {isPending ? t('section.sending') : t('section.inviteButton')}
             </Button>
           )}
         </PermissionGate>
@@ -124,7 +122,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
         <Collapsible className='group/advanced border-border border-t-1'>
           <CollapsibleTrigger className='hover:bg-muted/50 flex w-full cursor-pointer items-center justify-between px-2 pt-4 pb-2'>
             <div className='flex items-center gap-1 text-sm'>
-              <p className='text-muted-foreground'>{t('pending')}</p>
+              <p className='text-muted-foreground'>{t('section.pending')}</p>
               <span className='text-muted-foreground/75'>({pendingInvitations.length})</span>
             </div>
             <ChevronDown className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/advanced:rotate-180' />
@@ -144,7 +142,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                       <div className='min-w-0'>
                         <p className='truncate text-sm font-medium'>{invitation.email}</p>
                         <p className='text-muted-foreground hidden text-xs sm:block'>
-                          {t('invited')} {formatDate(invitation.createdAt)}
+                          {t('section.invited')} {formatDate(invitation.createdAt)}
                         </p>
                       </div>
                     </div>
@@ -170,7 +168,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                   <div className='mt-1.5 ml-10 flex items-center gap-2 sm:hidden'>
                     <RoleBadge role={invitation.role} />
                     <span className='text-muted-foreground text-xs'>
-                      {t('invited')} {formatDate(invitation.createdAt)}
+                      {t('section.invited')} {formatDate(invitation.createdAt)}
                     </span>
                   </div>
                 </div>
