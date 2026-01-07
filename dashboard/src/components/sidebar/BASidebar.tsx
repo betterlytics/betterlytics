@@ -41,6 +41,8 @@ import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 
+const ICON_SIZE = 16;
+
 type BASidebarProps = {
   dashboardId: string;
   isDemo: boolean;
@@ -71,41 +73,47 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
   const t = await getTranslations('dashboard.sidebar');
 
   const analyticsItems: SidebarItem[] = [
-    { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={18} /> },
-    { name: t('pages'), key: 'pages', href: '/pages', icon: <FileText size={18} /> },
-    { name: t('referrers'), key: 'referrers', href: '/referrers', icon: <Link2 size={18} /> },
+    { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={ICON_SIZE} /> },
+    { name: t('pages'), key: 'pages', href: '/pages', icon: <FileText size={ICON_SIZE} /> },
+    { name: t('referrers'), key: 'referrers', href: '/referrers', icon: <Link2 size={ICON_SIZE} /> },
     {
       name: t('outboundLinks'),
       key: 'outboundLinks',
       href: '/outbound-links',
-      icon: <ExternalLinkIcon size={18} />,
+      icon: <ExternalLinkIcon size={ICON_SIZE} />,
     },
-    { name: t('geography'), key: 'geography', href: '/geography', icon: <Globe size={18} /> },
-    { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={18} /> },
-    { name: t('campaigns'), key: 'campaigns', href: '/campaign', icon: <DollarSign size={18} />, hidden: isDemo },
+    { name: t('geography'), key: 'geography', href: '/geography', icon: <Globe size={ICON_SIZE} /> },
+    { name: t('devices'), key: 'devices', href: '/devices', icon: <Smartphone size={ICON_SIZE} /> },
+    {
+      name: t('campaigns'),
+      key: 'campaigns',
+      href: '/campaign',
+      icon: <DollarSign size={ICON_SIZE} />,
+      hidden: isDemo,
+    },
   ];
 
   const behaviorItems: SidebarItem[] = [
-    { name: t('userJourney'), key: 'userJourney', href: '/user-journey', icon: <Route size={18} /> },
-    { name: t('funnels'), key: 'funnels', href: '/funnels', icon: <Funnel size={18} /> },
-    { name: t('events'), key: 'events', href: '/events', icon: <CircleDot size={18} /> },
+    { name: t('userJourney'), key: 'userJourney', href: '/user-journey', icon: <Route size={ICON_SIZE} /> },
+    { name: t('funnels'), key: 'funnels', href: '/funnels', icon: <Funnel size={ICON_SIZE} /> },
+    { name: t('events'), key: 'events', href: '/events', icon: <CircleDot size={ICON_SIZE} /> },
     {
       name: t('sessionReplay'),
       key: 'sessionReplay',
       href: '/replay',
-      icon: <Video size={18} />,
+      icon: <Video size={ICON_SIZE} />,
       hidden: !isFeatureEnabled('enableSessionReplay') || isDemo,
       hideOnMobile: true,
     },
   ];
 
   const observabilityItems: SidebarItem[] = [
-    { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={18} /> },
+    { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={ICON_SIZE} /> },
     {
       name: t('monitoring'),
       key: 'monitoring',
       href: '/monitoring',
-      icon: <Activity size={18} />,
+      icon: <Activity size={ICON_SIZE} />,
       hidden: !isFeatureEnabled('enableUptimeMonitoring'),
     },
   ];
@@ -149,7 +157,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton asChild>
                       <FilterPreservingLink href={item.href} highlightOnPage>
-                        <span>{item.icon}</span>
+                        <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                         <span>{item.name}</span>
                       </FilterPreservingLink>
                     </SidebarMenuButton>
@@ -177,7 +185,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         className='flex items-center justify-between'
                       >
                         <div className='flex items-center gap-2'>
-                          <span>{item.icon}</span>
+                          <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                           <span>{item.name}</span>
                         </div>
 
@@ -205,7 +213,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         className='flex items-center justify-between'
                       >
                         <div className='flex items-center gap-2'>
-                          <span>{item.icon}</span>
+                          <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                           <span>{item.name}</span>
                         </div>
 

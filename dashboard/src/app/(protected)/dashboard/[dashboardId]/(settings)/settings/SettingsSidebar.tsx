@@ -34,25 +34,25 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       name: t('data'),
       key: 'data',
       href: `/dashboard/${dashboardId}/settings`,
-      icon: <Database size={18} />,
+      icon: <Database size={16} />,
     },
     {
       name: t('rules'),
       key: 'rules',
       href: `/dashboard/${dashboardId}/settings/rules`,
-      icon: <Shield size={18} />,
+      icon: <Shield size={16} />,
     },
     {
       name: t('members'),
       key: 'members',
       href: `/dashboard/${dashboardId}/settings/members`,
-      icon: <Users size={18} />,
+      icon: <Users size={16} />,
     },
     {
       name: t('dangerZone'),
       key: 'danger-zone',
       href: `/dashboard/${dashboardId}/settings/danger-zone`,
-      icon: <AlertTriangle size={18} />,
+      icon: <AlertTriangle size={16} />,
     },
   ];
 
@@ -86,7 +86,7 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton asChild>
                     <FilterPreservingLink href={item.href} highlightOnPage>
-                      <span>{item.icon}</span>
+                      <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                       <span>{item.name}</span>
                     </FilterPreservingLink>
                   </SidebarMenuButton>
