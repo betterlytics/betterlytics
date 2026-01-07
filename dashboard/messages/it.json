@@ -2856,7 +2856,7 @@
       "title": "Invita nuovi membri",
       "description": "Invia un invito per collaborare su questa dashboard",
       "emailLabel": "Indirizzo email",
-      "emailPlaceholder": "collega@azienda.com",
+      "emailPlaceholder": "collega@example.com",
       "roleLabel": "Ruolo",
       "inviteButton": "Invita",
       "sending": "Invio in corso...",
