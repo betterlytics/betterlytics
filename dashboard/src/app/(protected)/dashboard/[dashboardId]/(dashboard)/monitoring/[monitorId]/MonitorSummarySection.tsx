@@ -5,12 +5,7 @@ import { Button } from '@/components/ui/button';
 import { computeDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
 import { formatCompactFromMilliseconds, formatLocalDateTime, formatElapsedTime } from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
-import {
-  presentLatencyStatus,
-  presentMonitorStatus,
-  presentUptimeTone,
-  presentSslStatus,
-} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
+import { presentLatencyStatus, presentMonitorStatus, presentUptimeTone, presentSslStatus } from '../styles';
 import {
   type MonitorCheck,
   type MonitorMetrics,

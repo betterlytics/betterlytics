@@ -1,8 +1,8 @@
 'use client';
 
 import { deleteDashboardAction } from '@/app/actions/index.actions';
-import SettingsSection from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsSection';
-import SettingsPageHeader from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsPageHeader';
+import SettingsSection from '../SettingsSection';
+import SettingsPageHeader from '../SettingsPageHeader';
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useDashboardId } from '@/hooks/use-dashboard-id';

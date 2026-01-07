@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/sheet';
 import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
-import { isHttpUrl } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/utils';
+import { isHttpUrl } from '../utils';
 import { useMonitorForm } from '../shared/hooks/useMonitorForm';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../shared/components';

@@ -15,7 +15,7 @@ import {
   presentUptimeTone,
   presentSslStatus as presentSslStatusPresentation,
   SslPresentation,
-} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
+} from './styles';
 import { formatPercentage } from '@/utils/formatters';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from './components/PillBar';

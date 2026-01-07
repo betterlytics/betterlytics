@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import TabbedPagesTable from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/pages/TabbedPagesTable';
+import TabbedPagesTable from './TabbedPagesTable';
 import {
   fetchPageAnalyticsAction,
   fetchEntryPageAnalyticsAction,

@@ -12,7 +12,7 @@ import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import { formatCompactFromMilliseconds } from '@/utils/dateFormatters';
 import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
-import MetricInfo from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/web-vitals/MetricInfo';
+import MetricInfo from './MetricInfo';
 import { useTranslations } from 'next-intl';
 
 function formatCardValue(metric: CoreWebVitalName, value: number | null) {

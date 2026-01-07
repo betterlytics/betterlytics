@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import ReferrerTable from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/referrers/ReferrerTable';
+import ReferrerTable from './ReferrerTable';
 import { fetchReferrerTableDataForSite } from '@/app/actions/index.actions';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

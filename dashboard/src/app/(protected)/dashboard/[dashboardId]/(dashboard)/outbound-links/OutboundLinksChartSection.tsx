@@ -3,7 +3,7 @@
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import OutboundLinksTrendChart from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/outbound-links/OutboundLinksTrendChart';
+import OutboundLinksTrendChart from './OutboundLinksTrendChart';
 import { fetchOutboundClicksChartAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 

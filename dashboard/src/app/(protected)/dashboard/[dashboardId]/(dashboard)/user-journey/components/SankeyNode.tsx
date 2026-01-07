@@ -2,9 +2,9 @@
 
 import { useRef } from 'react';
 import { formatPercentage, formatString } from '@/utils/formatters';
-import { useSvgTextWidth } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/useSvgTextWidth';
-import { NodePosition } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/types';
-import { COLORS, LAYOUT } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/constants';
+import { useSvgTextWidth } from '../useSvgTextWidth';
+import type { NodePosition } from '../types';
+import { COLORS, LAYOUT } from '../constants';
 import { formatNumber } from '@/utils/formatters';
 
 export interface SankeyNodeProps {

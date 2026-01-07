@@ -1,7 +1,7 @@
 'use client';
 
-import { LinkPosition } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/types';
-import { COLORS } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/constants';
+import type { LinkPosition } from '../types';
+import { COLORS } from '../constants';
 
 export interface SankeyLinkProps {
   link: LinkPosition;

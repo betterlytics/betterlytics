@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
 import { Spinner } from '@/components/ui/spinner';
-import UserJourneySection from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/UserJourneySection';
+import UserJourneySection from './UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { UserJourneyFilters } from './UserJourneyFilters';

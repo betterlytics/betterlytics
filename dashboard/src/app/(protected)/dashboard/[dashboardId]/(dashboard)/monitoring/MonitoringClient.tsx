@@ -11,7 +11,7 @@ import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { MonitorList } from './MonitorList';
 import { FilterSelectValue } from './components';
 import { MonitoringEmptyState } from './MonitoringEmptyState';
-import { presentSslStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
+import { presentSslStatus } from './styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 
