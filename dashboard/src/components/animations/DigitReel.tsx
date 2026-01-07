@@ -1,6 +1,6 @@
 'use client';
 
-import { DIGIT_WIDTH, DIGITS, ENTER_EXIT_EASING, MASK_HEIGHT, SPRING_EASING, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
+import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 
@@ -71,7 +71,7 @@ function DigitReelComponent({
   const containerStyle: React.CSSProperties = {
     opacity: isAnimating ? 0 : 1,
     transition: isAnimating || lifecycle === 'entering'
-      ? `opacity ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`
+      ? `opacity ${slideDuration}ms ease-out, transform ${slideDuration}ms ease-out`
       : 'none',
     width: DIGIT_WIDTH,
   };
@@ -80,13 +80,13 @@ function DigitReelComponent({
 
   if (lifecycle === 'exiting') {
     reelStyle = {
-      transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+      transition: `transform ${slideDuration}ms ease-out`,
       transform: 'translateY(100%)',
     };
   } else if (lifecycle === 'entering') {
     reelStyle = isEnteringPhase
       ? { transition: 'none', transform: 'translateY(-100%)' }
-      : { transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`, transform: 'translateY(0%)' };
+      : { transition: `transform ${slideDuration}ms ease-out`, transform: 'translateY(0%)' };
   } else if (resetCount > 0) {
     const rawDelta = digit - prevDigit!;
     const delta = reelMotion === 'shortest-path'

@@ -1,7 +1,7 @@
 'use client';
 
 import { DigitReel } from '@/components/animations/DigitReel';
-import { DIGIT_WIDTH, ENTER_EXIT_EASING, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
+import { DIGIT_WIDTH, ENTER_SCALE, ENTER_TRANSFORM_OFFSET, MASK_HEIGHT, ZWSP, getMaskStyles, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
 import { cn } from '@/lib/utils';
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useLayoutEffect } from 'react';
 
@@ -150,7 +150,7 @@ export function AnimatedNumber({
   const sectionStyle: React.CSSProperties = {
     transition: layoutVersion > 0 
       ? 'none' 
-      : `width ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+      : `width ${slideDuration}ms ease-out, transform ${slideDuration}ms ease-out`,
     width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
     transform: layoutVersion > 0 
       ? `translate3d(calc(${ENTER_TRANSFORM_OFFSET} * ${DIGIT_WIDTH}), 0, 0) scale(${ENTER_SCALE}, 1)` 

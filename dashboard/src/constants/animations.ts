@@ -5,7 +5,6 @@ export const MASK_WIDTH = '0.5em';
 export const ZWSP = '\u200B';
 
 export const SPRING_EASING = 'cubic-bezier(0.17, 1.10, 0.3, 1)';
-export const ENTER_EXIT_EASING = 'ease-out';
 
 export const ENTER_TRANSFORM_OFFSET = '-0.33';
 export const ENTER_SCALE = '1.02';
