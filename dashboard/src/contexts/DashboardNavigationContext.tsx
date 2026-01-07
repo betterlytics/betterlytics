@@ -44,7 +44,8 @@ export function DashboardNavigationProvider({
     const buildHrefForDashboard = (targetDashboardId: string, href = '') =>
       createDashboardHref({ basePathSegments, dashboardId: targetDashboardId, href });
 
-    const getSwappedDashboardHref = (nextDashboardId: string) => pathname.replace(dashboardId, nextDashboardId);
+    const getSwappedDashboardHref = (nextDashboardId: string) =>
+      pathname.replace(`/dashboard/${dashboardId}`, `/dashboard/${nextDashboardId}`);
 
     return {
       basePath: basePathWithLeadingSlash,
