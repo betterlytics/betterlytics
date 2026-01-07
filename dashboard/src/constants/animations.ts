@@ -1,10 +1,10 @@
 export const DIGIT_WIDTH = '0.65em';
-export const MASK_HEIGHT = '0.3em';
+export const MASK_HEIGHT = '0.2em';
 export const MASK_WIDTH = '0.5em';
 
 export const ZWSP = '\u200B';
 
-export const SPRING_EASING = 'cubic-bezier(0.17, 1.15, 0.3, 1)';
+export const SPRING_EASING = 'cubic-bezier(0.17, 1.10, 0.3, 1)';
 export const ENTER_EXIT_EASING = 'ease-out';
 
 export const ENTER_TRANSFORM_OFFSET = '-0.33';

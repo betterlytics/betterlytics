@@ -26,7 +26,18 @@ function DigitReelComponent({
 }: DigitReelProps) {
   const [isReeling, setIsReeling] = useState(false);
   const [resetCount, setResetCount] = useState(0);
+  const [isEnteringPhase, setIsEnteringPhase] = useState(lifecycle === 'entering');
   const lastTargetDigit = useRef(digit);
+
+  useLayoutEffect(() => {
+    if (lifecycle === 'entering') {
+      setIsEnteringPhase(true);
+      const rafId = requestAnimationFrame(() => {
+        setIsEnteringPhase(false);
+      });
+      return () => cancelAnimationFrame(rafId);
+    }
+  }, [lifecycle]);
 
   useLayoutEffect(() => {
     if (digit !== lastTargetDigit.current && lifecycle === 'idle' && prevDigit !== null) {
@@ -55,34 +66,38 @@ function DigitReelComponent({
 
   if (lifecycle === 'done') return null;
 
+  const isAnimating = isEnteringPhase || lifecycle === 'exiting';
+  
   const containerStyle: React.CSSProperties = {
-    opacity: lifecycle === 'exiting' ? 0 : 1,
-    transition: lifecycle === 'exiting' 
+    opacity: isAnimating ? 0 : 1,
+    transition: isAnimating || lifecycle === 'entering'
       ? `opacity ${slideDuration}ms ${ENTER_EXIT_EASING}, transform ${slideDuration}ms ${ENTER_EXIT_EASING}`
       : 'none',
     width: DIGIT_WIDTH,
   };
 
-  let reelTransition = 'none';
-  let reelTransform = 'translateY(0%)';
+  let reelStyle = { transition: 'none', transform: 'translateY(0%)' };
 
   if (lifecycle === 'exiting') {
-    reelTransition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-    reelTransform = 'translateY(100%)';
+    reelStyle = {
+      transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`,
+      transform: 'translateY(100%)',
+    };
   } else if (lifecycle === 'entering') {
-    reelTransition = `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`;
-    reelTransform = 'translateY(0%)';
+    reelStyle = isEnteringPhase
+      ? { transition: 'none', transform: 'translateY(-100%)' }
+      : { transition: `transform ${slideDuration}ms ${ENTER_EXIT_EASING}`, transform: 'translateY(0%)' };
   } else if (resetCount > 0) {
     const rawDelta = digit - prevDigit!;
     const delta = reelMotion === 'shortest-path'
       ? (Math.abs(rawDelta) <= 5 ? rawDelta : rawDelta > 0 ? rawDelta - 10 : rawDelta + 10)
       : rawDelta;
-    
-    reelTransition = 'none';
-    reelTransform = `translateY(${delta * 100}%)`;
+    reelStyle = { transition: 'none', transform: `translateY(${delta * 100}%)` };
   } else if (isReeling) {
-    reelTransition = `transform ${duration}ms ${SPRING_EASING}`;
-    reelTransform = 'translateY(0%)';
+    reelStyle = {
+      transition: `transform ${duration}ms ${SPRING_EASING}`,
+      transform: 'translateY(0%)',
+    };
   }
 
   const showReel = lifecycle !== 'idle' || isReeling;
@@ -91,16 +106,12 @@ function DigitReelComponent({
     <span 
       style={containerStyle}
       className={cn(
-        "inline-flex justify-center items-center overflow-hidden origin-left will-change-[transform,opacity] motion-reduce:!transition-none",
+        "inline-flex justify-center items-center overflow-visible origin-left will-change-[transform,opacity] motion-reduce:!transition-none",
         CONTAINER_PADDING
       )}
     >
       <span 
-        style={{ 
-          transition: reelTransition, 
-          transform: reelTransform,
-          width: DIGIT_WIDTH 
-        }}
+        style={{ ...reelStyle, width: DIGIT_WIDTH }}
         className="inline-flex justify-center flex-col items-center relative motion-reduce:!transition-none motion-reduce:!transform-none"
         aria-hidden="true"
       >

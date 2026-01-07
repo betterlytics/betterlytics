@@ -120,9 +120,8 @@ export function AnimatedNumber({
     return () => clearTimeout(timer);
   }, [digitStates, slideDuration]);
 
-  // Robust Stabilizer Heartbeat
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const heartbeat = setTimeout(() => {
       if (prevValueRef.current === value) {
         setDigitStates(prev => prev
           .filter(d => d.lifecycle !== 'done')
@@ -130,7 +129,7 @@ export function AnimatedNumber({
         );
       }
     }, duration + 100); 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(heartbeat);
   }, [value, duration]);
 
   // Reset Frame Logic (using layout version for absolute reliability)
