@@ -2853,7 +2853,7 @@
       "title": "Invite new members",
       "description": "Send an invitation to collaborate on this dashboard",
       "emailLabel": "Email Address",
-      "emailPlaceholder": "colleague@company.com",
+      "emailPlaceholder": "colleague@example.com",
       "roleLabel": "Role",
       "inviteButton": "Invite",
       "sending": "Sending...",

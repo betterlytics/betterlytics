@@ -14,6 +14,7 @@ import { InvitationWithInviter, CreateInvitationSchema } from '@/entities/dashbo
 import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true });
 
@@ -68,38 +69,55 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
         <div className='flex-1 space-y-1.5'>
           <label className='text-muted-foreground text-sm'>{t('emailLabel')}</label>
-          <Input
-            type='email'
-            className='text-sm'
-            placeholder={t('emailPlaceholder')}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
-          />
+          <PermissionGate>
+            {(disabled) => (
+              <Input
+                type='email'
+                className='text-sm'
+                placeholder={t('emailPlaceholder')}
+                value={email}
+                disabled={disabled}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
+              />
+            )}
+          </PermissionGate>
         </div>
-        <div className='w-full space-y-1.5 sm:w-32'>
+        <div className='w-full space-y-1.5 sm:w-36'>
           <label className='text-muted-foreground text-sm'>{t('roleLabel')}</label>
-          <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)}>
-            <SelectTrigger className='w-full cursor-pointer'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='admin' className='cursor-pointer'>
-                {tRoles('admin')}
-              </SelectItem>
-              <SelectItem value='editor' className='cursor-pointer'>
-                {tRoles('editor')}
-              </SelectItem>
-              <SelectItem value='viewer' className='cursor-pointer'>
-                {tRoles('viewer')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <PermissionGate>
+            {(disabled) => (
+              <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)} disabled={disabled}>
+                <SelectTrigger className='w-full cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='admin' className='cursor-pointer'>
+                    {tRoles('admin')}
+                  </SelectItem>
+                  <SelectItem value='editor' className='cursor-pointer'>
+                    {tRoles('editor')}
+                  </SelectItem>
+                  <SelectItem value='viewer' className='cursor-pointer'>
+                    {tRoles('viewer')}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </PermissionGate>
         </div>
-        <Button onClick={handleInvite} disabled={!email || isPending} className='cursor-pointer sm:w-auto'>
-          <Mail className='size-4' />
-          {isPending ? t('sending') : t('inviteButton')}
-        </Button>
+        <PermissionGate>
+          {(disabled) => (
+            <Button
+              onClick={handleInvite}
+              disabled={!email || isPending || disabled}
+              className='cursor-pointer sm:w-auto'
+            >
+              <Mail className='size-4' />
+              {isPending ? t('sending') : t('inviteButton')}
+            </Button>
+          )}
+        </PermissionGate>
       </div>
 
       {hasPendingInvitations && (
@@ -134,15 +152,19 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                       <div className='hidden sm:block'>
                         <RoleBadge role={invitation.role} />
                       </div>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='text-muted-foreground hover:text-destructive size-7 cursor-pointer'
-                        onClick={() => handleCancelInvitation(invitation.id)}
-                        disabled={isPending}
-                      >
-                        <X className='size-3.5' />
-                      </Button>
+                      <PermissionGate>
+                        {(disabled) => (
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='text-muted-foreground hover:text-destructive size-7 cursor-pointer'
+                            onClick={() => handleCancelInvitation(invitation.id)}
+                            disabled={isPending || disabled}
+                          >
+                            <X className='size-3.5' />
+                          </Button>
+                        )}
+                      </PermissionGate>
                     </div>
                   </div>
                   <div className='mt-1.5 ml-10 flex items-center gap-2 sm:hidden'>

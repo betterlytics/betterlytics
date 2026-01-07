@@ -125,7 +125,9 @@ async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthCon
 async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
   const ctx = await getCachedAuthorizedContext(session.user.id, dashboardId);
-  if (!ctx) throw new Error('Unauthorized');
+  if (!ctx) {
+    redirect('/dashboards');
+  }
   return ctx;
 }
 

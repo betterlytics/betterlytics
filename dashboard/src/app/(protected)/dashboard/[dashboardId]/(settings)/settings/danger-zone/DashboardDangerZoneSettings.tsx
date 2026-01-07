@@ -10,6 +10,7 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 export default function DangerZoneSettings() {
   const dashboardId = useDashboardId();
@@ -42,13 +43,18 @@ export default function DangerZoneSettings() {
             <span className='text-sm font-medium'>{t('sectionTitle')}</span>
             <p className='text-muted-foreground text-xs'>{t('sectionDescription')}</p>
           </div>
-          <Button
-            variant='ghost'
-            onClick={() => setIsDialogOpen(true)}
-            className='text-destructive hover:text-destructive/80 cursor-pointer'
-          >
-            {t('deleteButton')}
-          </Button>
+          <PermissionGate>
+            {(disabled) => (
+              <Button
+                variant='ghost'
+                onClick={() => setIsDialogOpen(true)}
+                className='text-destructive hover:text-destructive/80 cursor-pointer'
+                disabled={disabled}
+              >
+                {t('deleteButton')}
+              </Button>
+            )}
+          </PermissionGate>
         </div>
 
         <DestructiveActionDialog

@@ -49,7 +49,7 @@ export default async function MembersPage({ params }: MembersPageProps) {
             currentUserRole={currentUserRole}
           />
         </SettingsSection>
-        {currentUserRole === 'owner' && (
+        {currentUserRole !== 'owner' && (
           <SettingsSection title={t('settings.leaveDashboard.title')}>
             <LeaveDashboardSection />
           </SettingsSection>

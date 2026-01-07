@@ -2856,7 +2856,7 @@
       "title": "Inviter nye medlemmer",
       "description": "Send en invitation til at samarbejde på dette dashboard",
       "emailLabel": "E-mailadresse",
-      "emailPlaceholder": "kollega@firma.dk",
+      "emailPlaceholder": "kollega@example.com",
       "roleLabel": "Rolle",
       "inviteButton": "Inviter",
       "sending": "Sender...",

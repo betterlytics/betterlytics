@@ -145,9 +145,6 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
               <TableHead className='pl-4'>
                 <SortableHeader field='name'>{t('table.columns.member')}</SortableHeader>
               </TableHead>
-              <TableHead className='hidden md:table-cell'>
-                <SortableHeader field='email'>{t('table.columns.email')}</SortableHeader>
-              </TableHead>
               <TableHead>
                 <SortableHeader field='role'>{t('table.columns.role')}</SortableHeader>
               </TableHead>
@@ -184,12 +181,9 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                             </span>
                           )}
                         </p>
-                        <p className='text-muted-foreground text-xs md:hidden'>{member.user.email}</p>
+                        <p className='text-muted-foreground text-xs'>{member.user.email}</p>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell className='text-muted-foreground hidden py-3 md:table-cell'>
-                    {member.user.email}
                   </TableCell>
                   <TableCell className='py-3'>
                     <RoleBadge role={member.role} />
