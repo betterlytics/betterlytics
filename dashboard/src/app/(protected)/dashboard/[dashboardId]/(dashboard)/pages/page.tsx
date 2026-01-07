@@ -6,7 +6,7 @@ import {
   fetchPagesSummaryWithChartsAction,
 } from '@/app/actions/index.actions';
 import { SummaryCardsSkeleton, TableSkeleton } from '@/components/skeleton';
-import PagesSummarySection from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/pages/PagesSummarySection';
+import PagesSummarySection from './PagesSummarySection';
 import PagesTableSection from './PagesTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';

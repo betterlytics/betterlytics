@@ -1,6 +1,6 @@
 import { formatNumber } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import { TooltipState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/types';
+import type { TooltipState } from '../types';
 
 export function TooltipComponent({ tooltip }: { tooltip: TooltipState }) {
   const t = useTranslations('components.userJourney');

@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import SettingsSection from '@/app/(protected)/dashboard/[dashboardId]/(settings)/settings/SettingsSection';
+import SettingsSection from '../SettingsSection';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,7 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
     <SettingsSection title={t('data.blacklistedIps.title')} description={t('data.blacklistedIps.description')}>
       <div className='space-y-4'>
         <div className='flex gap-2'>
-          <PermissionGate>
+          <PermissionGate wrapperClassName='w-full'>
             {(disabled) => (
               <Input
                 id='blacklisted-ip-input'

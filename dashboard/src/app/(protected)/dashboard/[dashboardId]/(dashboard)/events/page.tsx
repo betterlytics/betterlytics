@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableSkeleton } from '@/components/skeleton';
 import EventsTableSection from './EventsTableSection';
-import { EventLog } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/events/EventLog';
+import { EventLog } from './EventLog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';

@@ -6,7 +6,7 @@ import { type ReactNode } from 'react';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { EditableLabel } from '@/components/inputs/EditableLabel';
 import { MONITOR_LIMITS, type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
-import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
+import { presentMonitorStatus } from '../styles';
 import { MonitorStatusBadge } from '../components/MonitorStatusBadge';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 

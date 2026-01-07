@@ -1,7 +1,7 @@
 import { use } from 'react';
 import type { fetchFunnelsAction } from '@/app/actions/index.actions';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
-import { FunnelsEmptyState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelsEmptyState';
+import { FunnelsEmptyState } from './FunnelsEmptyState';
 import { FunnelActionButtons } from './FunnelActionButtons';
 
 type FunnelsStackProps = {

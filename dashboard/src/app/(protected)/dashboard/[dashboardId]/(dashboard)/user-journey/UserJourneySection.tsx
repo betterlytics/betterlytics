@@ -3,7 +3,7 @@
 import { use } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
 import { Card, CardContent } from '@/components/ui/card';
-import UserJourneyChart from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/user-journey/UserJourneyChart';
+import UserJourneyChart from './UserJourneyChart';
 import { useTranslations } from 'next-intl';
 
 type UserJourneySectionProps = {

@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import DeviceUsageTrendChart from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/devices/DeviceUsageTrendChart';
+import DeviceUsageTrendChart from './DeviceUsageTrendChart';
 import { fetchDeviceTypeBreakdownAction, fetchDeviceUsageTrendAction } from '@/app/actions/index.actions';
 import BAPieChart from '@/components/BAPieChart';
 import { getDeviceColor, getDeviceLabel } from '@/constants/deviceTypes';

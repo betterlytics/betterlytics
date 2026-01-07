@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { EventsTable } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/events/EventsTable';
+import { EventsTable } from './EventsTable';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 
 type EventsTableSectionProps = {
