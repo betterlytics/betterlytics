@@ -16,8 +16,7 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 export default function DataSettings() {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
-  const t = useTranslations('components.dashboardSettingsDialog.data');
-  const tSave = useTranslations('components.dashboardSettingsDialog');
+  const t = useTranslations('components.dashboardSettingsDialog');
   const tMisc = useTranslations('misc');
 
   const [dataRetentionDays, setDataRetentionDays] = useState<number | undefined>(settings?.dataRetentionDays);
@@ -45,10 +44,10 @@ export default function DataSettings() {
       try {
         await updateDashboardSettingsAction(dashboardId, { dataRetentionDays: pendingRetentionValue });
         await refreshSettings();
-        toast.success(tSave('toastSuccess'));
+        toast.success(t('toastSuccess'));
       } catch {
         setDataRetentionDays(previousValue);
-        toast.error(tSave('toastError'));
+        toast.error(t('toastError'));
       } finally {
         setPendingRetentionValue(null);
       }
@@ -63,7 +62,7 @@ export default function DataSettings() {
   const getPendingPresetLabel = () => {
     const preset = DATA_RETENTION_PRESETS.find((p) => p.value === pendingRetentionValue);
     if (!preset) return '';
-    return t(`presets.${preset.i18nKey}`);
+    return t(`data.presets.${preset.i18nKey}`);
   };
 
   if (!settings) {
@@ -81,11 +80,11 @@ export default function DataSettings() {
     <div>
       <SettingsPageHeader title={t('title')} />
 
-      <SettingsSection title={t('retentionTitle')}>
+      <SettingsSection title={t('data.retentionTitle')}>
         <div className='flex items-center justify-between'>
           <div>
-            <span className='text-sm font-medium'>{t('retentionLabel')}</span>
-            <p className='text-muted-foreground text-xs'>{t('retentionHelp')}</p>
+            <span className='text-sm font-medium'>{t('data.retentionLabel')}</span>
+            <p className='text-muted-foreground text-xs'>{t('data.retentionHelp')}</p>
           </div>
           <PermissionGate>
             {(disabled) => (
@@ -100,7 +99,7 @@ export default function DataSettings() {
                 <SelectContent>
                   {DATA_RETENTION_PRESETS.map((preset) => (
                     <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
-                      {t(`presets.${preset.i18nKey}`)}
+                      {t(`data.presets.${preset.i18nKey}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -113,8 +112,8 @@ export default function DataSettings() {
       <ConfirmDialog
         open={isConfirmOpen}
         onOpenChange={handleCancelChange}
-        title={t('retentionConfirm.title')}
-        description={t('retentionConfirm.description', { period: getPendingPresetLabel() })}
+        title={t('data.retentionConfirm.title')}
+        description={t('data.retentionConfirm.description', { period: getPendingPresetLabel() })}
         onConfirm={handleConfirmChange}
       />
     </div>
