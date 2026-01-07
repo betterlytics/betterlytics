@@ -8,6 +8,7 @@ import { EditableLabel } from '@/components/inputs/EditableLabel';
 import { MONITOR_LIMITS, type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { MonitorStatusBadge } from '../components/MonitorStatusBadge';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type MonitorHeaderProps = {
   monitorName: string;
@@ -47,15 +48,19 @@ export function MonitorHeader({
               <MonitorStatusBadge presentation={presentation} className='hidden sm:inline-flex' />
             </div>
             <div className='min-w-0 flex-1 space-y-0.5'>
-              <EditableLabel
-                value={monitorName}
-                onSubmit={onRename}
-                disabled={isRenaming}
-                placeholder='Monitor name'
-                maxLength={MONITOR_LIMITS.NAME_MAX}
-                textClassName='text-xl font-semibold leading-tight sm:text-2xl truncate'
-                inputClassName='min-w-[150px]'
-              />
+              <PermissionGate>
+                {(disabled) => (
+                  <EditableLabel
+                    value={monitorName}
+                    onSubmit={onRename}
+                    disabled={isRenaming || disabled}
+                    placeholder='Monitor name'
+                    maxLength={MONITOR_LIMITS.NAME_MAX}
+                    textClassName='text-xl font-semibold leading-tight sm:text-2xl truncate'
+                    inputClassName='min-w-[150px]'
+                  />
+                )}
+              </PermissionGate>
               <a
                 href={url}
                 target='_blank'

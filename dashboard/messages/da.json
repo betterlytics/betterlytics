@@ -1330,7 +1330,7 @@
       "fast": "Hurtig",
       "elevated": "Forhøjet",
       "slow": "Langsom",
-      "noData": "Ingen data endnu"
+      "noData": "Ingen data"
     },
     "ssl": {
       "valid": "Gyldigt",

@@ -1338,7 +1338,7 @@
       "fast": "Veloce",
       "elevated": "Elevata",
       "slow": "Lenta",
-      "noData": "Nessun dato ancora"
+      "noData": "Nessun dato"
     },
     "ssl": {
       "valid": "Valido",

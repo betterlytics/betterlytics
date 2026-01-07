@@ -1327,7 +1327,7 @@
       "fast": "Fast",
       "elevated": "Elevated",
       "slow": "Slow",
-      "noData": "No data yet"
+      "noData": "No data"
     },
     "ssl": {
       "valid": "Valid",
