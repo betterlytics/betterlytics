@@ -1,4 +1,4 @@
-'use server';
+'server-only';
 
 import { DashboardRole } from '@prisma/client';
 import {

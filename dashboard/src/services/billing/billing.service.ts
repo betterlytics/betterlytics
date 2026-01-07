@@ -1,3 +1,5 @@
+'server-only';
+
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { getOwnedSiteIds, findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
 import { getUserEventCountForPeriod } from '@/repositories/clickhouse/usage.repository';

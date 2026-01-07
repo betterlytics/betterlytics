@@ -1,3 +1,5 @@
+'server-only';
+
 import * as bcrypt from 'bcrypt';
 import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user.repository';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
