@@ -109,7 +109,12 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
   };
 
   const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <Button variant='ghost' size='sm' className='-ml-3 h-8 font-medium' onClick={() => handleSort(field)}>
+    <Button
+      variant='ghost'
+      size='sm'
+      className='-ml-3 h-8 cursor-pointer font-medium'
+      onClick={() => handleSort(field)}
+    >
       {children}
       <ArrowUpDown className='ml-1 size-3' />
     </Button>
@@ -198,13 +203,20 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                       getRoleLevel(currentUserRole) < getRoleLevel(member.role) && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' size='icon' className='size-8' disabled={isPending}>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='size-8 cursor-pointer'
+                              disabled={isPending}
+                            >
                               <MoreHorizontal className='size-4' />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align='end'>
                             <DropdownMenuSub>
-                              <DropdownMenuSubTrigger>{t('actions.changeRole')}</DropdownMenuSubTrigger>
+                              <DropdownMenuSubTrigger className='cursor-pointer'>
+                                {t('actions.changeRole')}
+                              </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent>
                                 {ASSIGNABLE_ROLES.map((role) => {
                                   const isCurrentRole = member.role === role;
@@ -223,6 +235,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                                     <DropdownMenuItem
                                       key={role}
                                       onClick={() => handleChangeRole(member.userId, role)}
+                                      className='cursor-pointer'
                                     >
                                       {t(`roles.${role}`)}
                                     </DropdownMenuItem>
@@ -232,7 +245,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                             </DropdownMenuSub>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              className='text-destructive focus:text-destructive'
+                              className='text-destructive focus:text-destructive cursor-pointer'
                               onClick={() => handleRemoveMember(member.userId)}
                             >
                               {t('actions.removeFromDashboard')}

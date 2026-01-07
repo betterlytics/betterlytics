@@ -80,17 +80,23 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
         <div className='w-full space-y-1.5 sm:w-32'>
           <label className='text-muted-foreground text-sm'>{t('roleLabel')}</label>
           <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)}>
-            <SelectTrigger className='w-full'>
+            <SelectTrigger className='w-full cursor-pointer'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='admin'>{tRoles('admin')}</SelectItem>
-              <SelectItem value='editor'>{tRoles('editor')}</SelectItem>
-              <SelectItem value='viewer'>{tRoles('viewer')}</SelectItem>
+              <SelectItem value='admin' className='cursor-pointer'>
+                {tRoles('admin')}
+              </SelectItem>
+              <SelectItem value='editor' className='cursor-pointer'>
+                {tRoles('editor')}
+              </SelectItem>
+              <SelectItem value='viewer' className='cursor-pointer'>
+                {tRoles('viewer')}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={handleInvite} disabled={!email || isPending} className='sm:w-auto'>
+        <Button onClick={handleInvite} disabled={!email || isPending} className='cursor-pointer sm:w-auto'>
           <Mail className='size-4' />
           {isPending ? t('sending') : t('inviteButton')}
         </Button>
@@ -131,7 +137,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                       <Button
                         variant='ghost'
                         size='icon'
-                        className='text-muted-foreground hover:text-destructive size-7'
+                        className='text-muted-foreground hover:text-destructive size-7 cursor-pointer'
                         onClick={() => handleCancelInvitation(invitation.id)}
                         disabled={isPending}
                       >
