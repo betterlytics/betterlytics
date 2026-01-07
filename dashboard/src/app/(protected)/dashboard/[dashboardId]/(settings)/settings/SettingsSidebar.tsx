@@ -1,4 +1,4 @@
-import { ArrowLeft, Database, Shield, AlertTriangle, Users, ChevronLeft } from 'lucide-react';
+import { Database, Shield, AlertTriangle, Users, ChevronLeft } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,9 +11,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import type { ReactElement } from 'react';
+import { Suspense, type ReactElement } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
+import { DashboardDropdown } from '@/components/sidebar/DashboardDropdown';
+import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/index.actions';
 
 type SettingsSidebarProps = {
   dashboardId: string;
@@ -27,6 +29,10 @@ type SidebarItem = {
 };
 
 export default async function SettingsSidebar({ dashboardId }: SettingsSidebarProps) {
+  const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
+
+  const allDashboardsPromise = getAllUserDashboardsAction();
+
   const t = await getTranslations('dashboard.settings.sidebar');
 
   const settingsItems: SidebarItem[] = [
@@ -78,6 +84,16 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className='bg-sidebar overflow-x-hidden'>
+        <SidebarGroup>
+          <SidebarGroupContent className='overflow-hidden'>
+            <Suspense fallback={<div className='bg-muted h-6 animate-pulse rounded' />}>
+              <DashboardDropdown
+                currentDashboardPromise={currentDashboardPromise}
+                allDashboardsPromise={allDashboardsPromise}
+              />
+            </Suspense>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>{t('settings')}</SidebarGroupLabel>
           <SidebarGroupContent>
