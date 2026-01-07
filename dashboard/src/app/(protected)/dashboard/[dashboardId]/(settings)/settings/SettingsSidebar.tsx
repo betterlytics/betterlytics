@@ -39,7 +39,7 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
     {
       name: t('rules'),
       key: 'rules',
-      href: `/dashboard/${dashboardId}/settings/rules`,
+      href: `/dashboard/${dashboardId}/settings`,
       icon: <Shield size={16} />,
     },
     {
@@ -51,7 +51,7 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
     {
       name: t('data'),
       key: 'data',
-      href: `/dashboard/${dashboardId}/settings`,
+      href: `/dashboard/${dashboardId}/settings/data`,
       icon: <Database size={16} />,
     },
     {
