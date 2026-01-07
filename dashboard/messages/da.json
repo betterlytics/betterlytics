@@ -2764,6 +2764,14 @@
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
       "customHeaders": "Brugerdefinerede request headers kræver en Professional plan"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
+      "invitationAlreadySent": "Der er allerede sendt en invitation til denne e-mail",
+      "invitationNotFoundOrProcessed": "Invitation ikke fundet eller allerede behandlet",
+      "invitationExpired": "Denne invitation er udløbet",
+      "invitationEmailMismatch": "Denne invitation blev sendt til en anden e-mailadresse",
+      "invitationNotFound": "Invitation ikke fundet"
     }
   },
   "banners": {

@@ -2761,6 +2761,14 @@
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
       "customHeaders": "Custom request headers require a Professional plan"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "User already has access to this dashboard",
+      "invitationAlreadySent": "An invitation has already been sent to this email",
+      "invitationNotFoundOrProcessed": "Invitation not found or already processed",
+      "invitationExpired": "This invitation has expired",
+      "invitationEmailMismatch": "This invitation was sent to a different email address",
+      "invitationNotFound": "Invitation not found"
     }
   },
   "banners": {

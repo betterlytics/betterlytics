@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
-import { acceptInvitation } from '@/services/dashboard/invitation.service';
+import { acceptInvitationAction } from '@/app/actions/dashboard/invitations.action';
 import { findInvitationByToken } from '@/repositories/postgres/invitation.repository';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -132,9 +132,9 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
     redirect(`/dashboard/${invitation.dashboardId}?invited=1`);
   }
 
-  try {
-    await acceptInvitation(token, session.user.id, session.user.email);
-  } catch (error) {
+  const result = await acceptInvitationAction(token);
+
+  if (!result.success) {
     return (
       <InviteStatusCard
         icon={AlertCircle}

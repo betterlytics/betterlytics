@@ -1,6 +1,7 @@
-'use server';
+'server-only';
 
 import { DashboardRole } from '@prisma/client';
+import { getTranslations } from 'next-intl/server';
 import {
   createInvitation,
   findPendingInvitationsByDashboard,
@@ -22,6 +23,7 @@ export async function inviteUserToDashboard(
   role: DashboardRole,
   invitedById: string,
 ): Promise<InvitationWithInviter> {
+  const t = await getTranslations('validation.invitations');
   const inviterAccess = await findUserDashboardOrNull({ userId: invitedById, dashboardId });
 
   if (!inviterAccess) {
@@ -41,14 +43,14 @@ export async function inviteUserToDashboard(
   if (existingUser) {
     const existingAccess = await findUserDashboardOrNull({ userId: existingUser.id, dashboardId });
     if (existingAccess) {
-      throw new UserException('User already has access to this dashboard');
+      throw new UserException(t('userAlreadyHasAccess'));
     }
   }
 
   const existingInvitation = await findInvitationByEmail(dashboardId, email);
 
   if (existingInvitation) {
-    throw new UserException('An invitation has already been sent to this email');
+    throw new UserException(t('invitationAlreadySent'));
   }
 
   const invitation = await createInvitation({
@@ -96,19 +98,20 @@ export async function cancelInvitation(invitationId: string, userId: string, das
 }
 
 export async function acceptInvitation(token: string, userId: string, userEmail: string): Promise<string> {
+  const t = await getTranslations('validation.invitations');
   const invitation = await findInvitationByToken(token);
 
   if (!invitation || invitation.status !== 'pending') {
-    throw new UserException('Invitation not found or already processed');
+    throw new UserException(t('invitationNotFoundOrProcessed'));
   }
 
   if (new Date() > invitation.expiresAt) {
     await updateInvitationStatus(invitation.id, 'expired');
-    throw new UserException('This invitation has expired');
+    throw new UserException(t('invitationExpired'));
   }
 
   if (invitation.email.toLowerCase() !== userEmail.toLowerCase()) {
-    throw new UserException('This invitation was sent to a different email address');
+    throw new UserException(t('invitationEmailMismatch'));
   }
 
   const existingAccess = await findUserDashboardOrNull({ userId, dashboardId: invitation.dashboardId });
@@ -125,11 +128,12 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
 }
 
 export async function declineInvitation(invitationId: string, userId: string, userEmail: string): Promise<void> {
+  const t = await getTranslations('validation.invitations');
   const invitations = await findPendingInvitationsByEmail(userEmail);
   const invitation = invitations.find((i) => i.id === invitationId);
 
   if (!invitation) {
-    throw new UserException('Invitation not found');
+    throw new UserException(t('invitationNotFound'));
   }
 
   await updateInvitationStatus(invitationId, 'declined');

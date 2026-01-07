@@ -2772,6 +2772,14 @@
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
       "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
+      "invitationAlreadySent": "È già stato inviato un invito a questa email",
+      "invitationNotFoundOrProcessed": "Invito non trovato o già elaborato",
+      "invitationExpired": "Questo invito è scaduto",
+      "invitationEmailMismatch": "Questo invito è stato inviato a un indirizzo email diverso",
+      "invitationNotFound": "Invito non trovato"
     }
   },
   "banners": {
