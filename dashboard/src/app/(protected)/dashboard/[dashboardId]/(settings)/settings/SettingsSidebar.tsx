@@ -1,4 +1,4 @@
-import { ArrowLeft, Database, Shield, AlertTriangle, Users } from 'lucide-react';
+import { ArrowLeft, Database, Shield, AlertTriangle, Users, ChevronLeft } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -62,26 +62,22 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       collapsible='icon'
       className='top-0 h-screen border-t md:top-14 md:h-[calc(100vh-3.5rem)]'
     >
-      <SidebarHeader className='bg-sidebar rounded-t-xl pt-2'></SidebarHeader>
+      <SidebarHeader className='bg-sidebar rounded-t-xl'>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <FilterPreservingLink
+                href={`/dashboard/${dashboardId}`}
+                className='text-muted-foreground hover:text-foreground flex items-center gap-2'
+              >
+                <ChevronLeft size={18} />
+                <span>{t('backToDashboard')}</span>
+              </FilterPreservingLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent className='bg-sidebar overflow-x-hidden'>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <FilterPreservingLink
-                    href={`/dashboard/${dashboardId}`}
-                    className='text-muted-foreground hover:text-foreground flex items-center gap-2'
-                  >
-                    <ArrowLeft size={18} />
-                    <span>{t('backToDashboard')}</span>
-                  </FilterPreservingLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         <SidebarGroup>
           <SidebarGroupLabel>{t('settings')}</SidebarGroupLabel>
           <SidebarGroupContent>
