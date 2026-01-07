@@ -13,7 +13,6 @@ type PermissionGateProps = {
   hideWhenDisabled?: boolean;
   message?: React.ReactNode;
   children: (disabled: boolean) => React.ReactElement;
-  wrapperClassName?: string;
 };
 
 /**
@@ -48,7 +47,6 @@ export function PermissionGate({
   hideWhenDisabled = false,
   message,
   children,
-  wrapperClassName,
 }: PermissionGateProps) {
   const { isDemo, canMutate, hasPermission } = useDashboardAuth();
   const t = useTranslations('components.permissions');
@@ -68,7 +66,7 @@ export function PermissionGate({
   }
 
   return (
-    <DisabledTooltip disabled message={resolvedMessage} wrapperClassName={wrapperClassName}>
+    <DisabledTooltip disabled message={resolvedMessage}>
       {children}
     </DisabledTooltip>
   );

@@ -11,6 +11,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/dialogs';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 export default function DataSettings() {
   const dashboardId = useDashboardId();
@@ -86,22 +87,26 @@ export default function DataSettings() {
             <span className='text-sm font-medium'>{t('retentionLabel')}</span>
             <p className='text-muted-foreground text-xs'>{t('retentionHelp')}</p>
           </div>
-          <Select
-            value={dataRetentionDays?.toString() || '365'}
-            onValueChange={handleRetentionSelect}
-            disabled={isPending}
-          >
-            <SelectTrigger className='border-border w-36 cursor-pointer'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DATA_RETENTION_PRESETS.map((preset) => (
-                <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
-                  {t(`presets.${preset.i18nKey}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <PermissionGate>
+            {(disabled) => (
+              <Select
+                value={dataRetentionDays?.toString() || '365'}
+                onValueChange={handleRetentionSelect}
+                disabled={isPending || disabled}
+              >
+                <SelectTrigger className='border-border w-36 cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DATA_RETENTION_PRESETS.map((preset) => (
+                    <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
+                      {t(`presets.${preset.i18nKey}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </PermissionGate>
         </div>
       </SettingsSection>
 

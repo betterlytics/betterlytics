@@ -12,6 +12,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
 import { toast } from 'sonner';
 import { DEFAULT_SITE_CONFIG_VALUES, type SiteConfig } from '@/entities/dashboard/siteConfig.entities';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 interface BlacklistSettingProps {
   initialSiteConfig: SiteConfig | null;
@@ -63,33 +64,43 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
     <SettingsSection title={t('data.blacklistedIps.title')} description={t('data.blacklistedIps.description')}>
       <div className='space-y-4'>
         <div className='flex gap-2'>
-          <Input
-            id='blacklisted-ip-input'
-            placeholder={t('data.blacklistedIps.addIpPlaceholder')}
-            value={newIp}
-            onChange={(e) => {
-              setNewIp(e.target.value);
-              if (ipError) setIpError('');
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                addIp();
-              }
-            }}
-            aria-invalid={!!ipError}
-            aria-describedby={ipError ? 'blacklisted-ip-error' : undefined}
-            disabled={isPending}
-          />
-          <Button
-            type='button'
-            variant='outline'
-            onClick={addIp}
-            className='cursor-pointer gap-2'
-            disabled={isPending || (!!newIp.trim() && !(isIP(newIp.trim()) || isCidr(newIp.trim())))}
-          >
-            <Plus className='h-4 w-4' />
-            {t('data.blacklistedIps.addIp')}
-          </Button>
+          <PermissionGate>
+            {(disabled) => (
+              <Input
+                id='blacklisted-ip-input'
+                placeholder={t('data.blacklistedIps.addIpPlaceholder')}
+                value={newIp}
+                onChange={(e) => {
+                  setNewIp(e.target.value);
+                  if (ipError) setIpError('');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addIp();
+                  }
+                }}
+                aria-invalid={!!ipError}
+                aria-describedby={ipError ? 'blacklisted-ip-error' : undefined}
+                disabled={disabled || isPending}
+              />
+            )}
+          </PermissionGate>
+          <PermissionGate>
+            {(disabled) => (
+              <Button
+                type='button'
+                variant='outline'
+                onClick={addIp}
+                className='cursor-pointer gap-2'
+                disabled={
+                  disabled || isPending || (!!newIp.trim() && !(isIP(newIp.trim()) || isCidr(newIp.trim())))
+                }
+              >
+                <Plus className='h-4 w-4' />
+                {t('data.blacklistedIps.addIp')}
+              </Button>
+            )}
+          </PermissionGate>
         </div>
         {ipError ? (
           <p id='blacklisted-ip-error' className='text-destructive text-xs'>

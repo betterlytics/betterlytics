@@ -8,6 +8,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
 import { toast } from 'sonner';
 import { DEFAULT_SITE_CONFIG_VALUES, type SiteConfig } from '@/entities/dashboard/siteConfig.entities';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 interface EnforceDomainSettingProps {
   initialSiteConfig: SiteConfig | null;
@@ -41,14 +42,18 @@ export default function EnforceDomainSetting({ initialSiteConfig }: EnforceDomai
           <span className='text-sm font-medium'>{t('data.siteRules.enableValidation')}</span>
           <p className='text-muted-foreground text-xs'>{t('data.siteRules.enableValidationDescription')}</p>
         </div>
-        <Switch
-          id='enforce-domain'
-          className='cursor-pointer'
-          aria-label={t('data.siteRules.enforceDomain')}
-          checked={enforceDomain}
-          disabled={isPending}
-          onCheckedChange={handleChange}
-        />
+        <PermissionGate>
+          {(disabled) => (
+            <Switch
+              id='enforce-domain'
+              className='cursor-pointer'
+              aria-label={t('data.siteRules.enforceDomain')}
+              checked={enforceDomain}
+              disabled={isPending || disabled}
+              onCheckedChange={handleChange}
+            />
+          )}
+        </PermissionGate>
       </div>
     </SettingsSection>
   );
