@@ -1,6 +1,6 @@
 'use client';
 
-import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animations';
+import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animated-number';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
 

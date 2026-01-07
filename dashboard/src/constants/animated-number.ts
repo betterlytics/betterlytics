@@ -15,6 +15,14 @@ export type Digit = typeof DIGITS[number];
 export type DigitLifecycle = 'idle' | 'entering' | 'exiting' | 'done';
 export type ReelMotion = 'wheel' | 'shortest-path';
 
+/** State for a single digit position in AnimatedNumber */
+export type DigitState = {
+  id: string;
+  digit: Digit;
+  prevDigit: Digit | null;
+  lifecycle: DigitLifecycle;
+};
+
 /**
  * Creates mask styles for a fade gradient effect.
  * The mask creates soft edges that fade digits in/out during enter/exit animations.
