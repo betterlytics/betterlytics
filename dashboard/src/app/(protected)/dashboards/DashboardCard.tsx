@@ -2,19 +2,21 @@
 
 import Link from 'next/link';
 import { useBARouter } from '@/hooks/use-ba-router';
-import { Dashboard } from '@/entities/dashboard/dashboard.entities';
+import { DashboardWithMemberCount } from '@/entities/dashboard/dashboard.entities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, Calendar, Settings } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ExternalLink, Calendar, Settings, Users } from 'lucide-react';
 import { useFormattedDate } from '@/hooks/use-formatted-date';
 import { useTranslations } from 'next-intl';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
 
 interface DashboardCardProps {
-  dashboard: Dashboard;
+  dashboard: DashboardWithMemberCount;
 }
 
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const t = useTranslations('misc');
+  const tPage = useTranslations('dashboardsPage');
   const router = useBARouter();
 
   const { formattedDate, loading: loadingDate } = useFormattedDate(dashboard.createdAt, {
@@ -24,6 +26,8 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const handleCardClick = () => {
     router.push(`/dashboard/${dashboard.id}`);
   };
+
+  const hasMultipleMembers = dashboard.memberCount > 1;
 
   return (
     <Card
@@ -44,8 +48,21 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
                 <p className='text-muted-foreground mt-1 text-sm'>{dashboard.siteId}</p>
               </div>
             </div>
-            <div className='flex w-8 justify-center'>
-              <ExternalLink className='text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100' />
+            <div className='flex w-8 justify-center pt-1'>
+              {hasMultipleMembers ? (
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Users className='text-muted-foreground h-4 w-4' />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {tPage('memberCountTooltip', { count: dashboard.memberCount })}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <ExternalLink className='text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100' />
+              )}
             </div>
           </div>
         </CardHeader>

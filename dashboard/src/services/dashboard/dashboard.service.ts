@@ -1,6 +1,6 @@
 'server-only';
 
-import { Dashboard } from '@/entities/dashboard/dashboard.entities';
+import { Dashboard, DashboardWithMemberCount } from '@/entities/dashboard/dashboard.entities';
 import {
   createDashboard,
   findAllUserDashboards,
@@ -17,7 +17,7 @@ export async function createNewDashboard(domain: string, userId: string): Promis
   return await createDashboard({ domain, userId, siteId });
 }
 
-export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {
+export async function getAllUserDashboards(userId: string): Promise<DashboardWithMemberCount[]> {
   return findAllUserDashboards(userId);
 }
 

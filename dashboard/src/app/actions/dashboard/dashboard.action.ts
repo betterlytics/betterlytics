@@ -1,6 +1,6 @@
 'use server';
 
-import { Dashboard } from '@/entities/dashboard/dashboard.entities';
+import { Dashboard, DashboardWithMemberCount } from '@/entities/dashboard/dashboard.entities';
 import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { createNewDashboard, getAllUserDashboards } from '@/services/dashboard/dashboard.service';
 import {
@@ -34,7 +34,7 @@ export const getFirstUserDashboardAction = withUserAuth(async (user: User): Prom
   return findFirstUserDashboard(user.id);
 });
 
-export const getAllUserDashboardsAction = withUserAuth(async (user: User): Promise<Dashboard[]> => {
+export const getAllUserDashboardsAction = withUserAuth(async (user: User): Promise<DashboardWithMemberCount[]> => {
   return getAllUserDashboards(user.id);
 });
 

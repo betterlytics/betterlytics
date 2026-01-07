@@ -6,6 +6,8 @@ import {
   DashboardSchema,
   DashboardUser,
   DashboardUserSchema,
+  DashboardWithMemberCount,
+  DashboardWithMemberCountSchema,
   DashboardWithSiteConfig,
   DashboardWithSiteConfigSchema,
   DashboardWriteData,
@@ -81,7 +83,7 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
   }
 }
 
-export async function findAllUserDashboards(userId: string): Promise<Dashboard[]> {
+export async function findAllUserDashboards(userId: string): Promise<DashboardWithMemberCount[]> {
   try {
     const prismaUserDashboards = await prisma.userDashboard.findMany({
       where: {
@@ -89,14 +91,25 @@ export async function findAllUserDashboards(userId: string): Promise<Dashboard[]
         dashboard: { deletedAt: null },
       },
       include: {
-        dashboard: true,
+        dashboard: {
+          include: {
+            _count: {
+              select: { userAccess: true },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
       },
     });
 
-    return prismaUserDashboards.map((userDashboard) => DashboardSchema.parse(userDashboard.dashboard));
+    return prismaUserDashboards.map((userDashboard) =>
+      DashboardWithMemberCountSchema.parse({
+        ...userDashboard.dashboard,
+        memberCount: userDashboard.dashboard._count.userAccess,
+      }),
+    );
   } catch (error) {
     console.error("Error while finding user's dashboards:", error);
     throw new Error('Failed to find user dashboards');

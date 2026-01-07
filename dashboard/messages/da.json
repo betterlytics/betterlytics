@@ -1297,6 +1297,7 @@
     "subtitle": "Administrér og overvåg analyse for alle dine websites.",
     "emptyTitle": "Ingen dashboards endnu",
     "emptyDescription": "Opret dit første dashboard for at begynde at indsamle analysedata for din hjemmeside.",
+    "memberCountTooltip": "{count, plural, one {{count} medlem} other {{count} medlemmer}}",
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
