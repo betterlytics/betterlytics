@@ -70,6 +70,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
           <label className='text-muted-foreground text-sm'>{t('emailLabel')}</label>
           <Input
             type='email'
+            className='text-sm'
             placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -97,7 +98,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
 
       {hasPendingInvitations && (
         <Collapsible className='group/advanced border-border border-t-1'>
-          <CollapsibleTrigger className='hover:bg-muted/50 flex w-full cursor-pointer items-center justify-between px-2 py-2'>
+          <CollapsibleTrigger className='hover:bg-muted/50 flex w-full cursor-pointer items-center justify-between px-2 pt-4 pb-2'>
             <div className='flex items-center gap-1 text-sm'>
               <p className='text-muted-foreground'>{t('pending')}</p>
               <span className='text-muted-foreground/75'>({pendingInvitations.length})</span>
@@ -108,31 +109,41 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
           <CollapsibleContent className='overflow-hidden'>
             <div className='divide-border divide-y rounded-md border'>
               {pendingInvitations.map((invitation) => (
-                <div key={invitation.id} className='hover:bg-muted/30 flex items-center justify-between px-4 py-3'>
-                  <div className='flex items-center gap-3'>
-                    <Avatar className='size-7'>
-                      <AvatarFallback className='bg-muted text-muted-foreground text-xs'>
-                        <Mail className='size-3' />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className='text-sm font-medium'>{invitation.email}</p>
-                      <p className='text-muted-foreground text-xs'>
-                        {t('invited')} {formatDate(invitation.createdAt)}
-                      </p>
+                <div key={invitation.id} className='hover:bg-muted/30 px-4 py-3'>
+                  <div className='flex items-center justify-between gap-2'>
+                    <div className='flex min-w-0 items-center gap-3'>
+                      <Avatar className='size-7 shrink-0'>
+                        <AvatarFallback className='bg-muted text-muted-foreground text-xs'>
+                          <Mail className='size-3' />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className='min-w-0'>
+                        <p className='truncate text-sm font-medium'>{invitation.email}</p>
+                        <p className='text-muted-foreground hidden text-xs sm:block'>
+                          {t('invited')} {formatDate(invitation.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className='flex shrink-0 items-center gap-2'>
+                      <div className='hidden sm:block'>
+                        <RoleBadge role={invitation.role} />
+                      </div>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='text-muted-foreground hover:text-destructive size-7'
+                        onClick={() => handleCancelInvitation(invitation.id)}
+                        disabled={isPending}
+                      >
+                        <X className='size-3.5' />
+                      </Button>
                     </div>
                   </div>
-                  <div className='flex items-center gap-2'>
+                  <div className='mt-1.5 ml-10 flex items-center gap-2 sm:hidden'>
                     <RoleBadge role={invitation.role} />
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='text-muted-foreground hover:text-destructive size-7'
-                      onClick={() => handleCancelInvitation(invitation.id)}
-                      disabled={isPending}
-                    >
-                      <X className='size-3.5' />
-                    </Button>
+                    <span className='text-muted-foreground text-xs'>
+                      {t('invited')} {formatDate(invitation.createdAt)}
+                    </span>
                   </div>
                 </div>
               ))}

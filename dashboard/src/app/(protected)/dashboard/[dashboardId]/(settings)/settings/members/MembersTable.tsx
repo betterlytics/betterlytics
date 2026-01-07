@@ -124,7 +124,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
             placeholder={t('table.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className='pl-9'
+            className='pl-9 text-sm'
           />
         </div>
 
