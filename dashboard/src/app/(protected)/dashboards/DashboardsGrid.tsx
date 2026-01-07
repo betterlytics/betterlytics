@@ -1,6 +1,7 @@
 'use client';
 
 import { use } from 'react';
+import { useTranslations } from 'next-intl';
 import { getAllUserDashboardsAction, getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
 import DashboardCard from './DashboardCard';
 import { CreateDashboardCard } from './CreateDashboardCard';
@@ -11,10 +12,11 @@ interface DashboardsGridProps {
 }
 
 export function DashboardsGrid({ dashboardsPromise, dashboardStatsPromise }: DashboardsGridProps) {
+  const t = useTranslations('dashboardsPage');
   const dashboards = use(dashboardsPromise);
 
   if (!dashboards.success) {
-    throw new Error('Failed to get dashboards');
+    throw new Error(t('loadError'));
   }
 
   if (dashboards.data.length === 0) {

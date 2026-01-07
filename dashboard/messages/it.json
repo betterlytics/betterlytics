@@ -1303,6 +1303,7 @@
   "dashboardsPage": {
     "title": "Le tue dashboard",
     "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
+    "loadError": "Impossibile caricare le dashboard",
     "emptyTitle": "Nessuna dashboard ancora",
     "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito.",
     "memberCountTooltip": "{count, plural, one {{count} membro} other {{count} membri}}",
