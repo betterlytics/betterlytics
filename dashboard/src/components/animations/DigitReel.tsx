@@ -27,7 +27,7 @@ function DigitReelComponent({
   const [isReeling, setIsReeling] = useState(false);
   const [resetCount, setResetCount] = useState(0);
   const [isEnteringPhase, setIsEnteringPhase] = useState(lifecycle === 'entering');
-  const lastTargetDigit = useRef(digit);
+  const lastTargetDigit = useRef(prevDigit ?? digit);
 
   useLayoutEffect(() => {
     if (lifecycle === 'entering') {
@@ -43,9 +43,13 @@ function DigitReelComponent({
     if (digit !== lastTargetDigit.current && lifecycle === 'idle' && prevDigit !== null) {
       setResetCount(c => c + 1);
       setIsReeling(false);
-      lastTargetDigit.current = digit;
+      // Removed lastTargetDigit update from here to prevent race condition
     }
   }, [digit, lifecycle, prevDigit]);
+
+  useEffect(() => {
+    lastTargetDigit.current = digit;
+  }, [digit]); // Update ref after paint/all renders are done
 
   useLayoutEffect(() => {
     if (resetCount > 0) {
@@ -85,9 +89,9 @@ function DigitReelComponent({
     };
   } else if (lifecycle === 'entering') {
     reelStyle = isEnteringPhase
-      ? { transition: 'none', transform: 'translateY(-100%)' }
+      ? { transition: 'none', transform: 'translateY(100%)' }
       : { transition: `transform ${slideDuration}ms ease-out`, transform: 'translateY(0%)' };
-  } else if (resetCount > 0) {
+  } else if (resetCount > 0 || (digit !== lastTargetDigit.current && lifecycle === 'idle' && prevDigit !== null)) {
     const rawDelta = digit - prevDigit!;
     const delta = reelMotion === 'shortest-path'
       ? (Math.abs(rawDelta) <= 5 ? rawDelta : rawDelta > 0 ? rawDelta - 10 : rawDelta + 10)
