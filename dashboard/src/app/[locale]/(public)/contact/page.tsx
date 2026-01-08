@@ -5,6 +5,7 @@ import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialI
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import type { SupportedLanguages } from '@/constants/i18n';
 import type { ReactNode } from 'react';
 
@@ -24,14 +25,15 @@ interface PrimaryContactCardProps {
 
 function PrimaryContactCard({ icon, title, description, href, cta, external }: PrimaryContactCardProps) {
   return (
-    <div className='group flex flex-col rounded-xl border border-white/10 bg-white/[0.02] p-6 transition-colors hover:border-white/20 hover:bg-white/[0.04] sm:p-8 dark:border-white/[0.06] dark:hover:border-white/10'>
-      <div className='mb-3 flex items-center gap-3'>
-        {icon}
-        <h2 className='text-xl font-semibold'>{title}</h2>
-      </div>
-      <p className='text-muted-foreground mb-4 text-sm leading-relaxed'>{description}</p>
-      <div className='flex-1' />
-      <div>
+    <Card className='group hover:bg-accent/50 transition-colors'>
+      <CardHeader>
+        <div className='flex items-center gap-3'>
+          {icon}
+          <CardTitle className='text-xl'>{title}</CardTitle>
+        </div>
+        <CardDescription className='leading-relaxed'>{description}</CardDescription>
+      </CardHeader>
+      <CardFooter>
         <Button variant='outline' size='sm' className='group/btn' asChild>
           <ExternalLink href={href}>
             {cta}
@@ -42,8 +44,8 @@ function PrimaryContactCard({ icon, title, description, href, cta, external }: P
             )}
           </ExternalLink>
         </Button>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -65,8 +67,8 @@ function SecondaryContactItem({
   showArrow = true,
 }: SecondaryContactItemProps) {
   return (
-    <div className='flex flex-col'>
-      <div className='text-muted-foreground mb-3'>{icon}</div>
+    <div className='border-border/40 flex flex-col border-b pt-6 pb-6 first:pt-0 last:border-0 last:pb-0 sm:border-0 sm:pb-0'>
+      <div className='text-muted-foreground mb-3 sm:block'>{icon}</div>
       <h3 className='mb-1.5 font-semibold'>{title}</h3>
       <p className='text-muted-foreground mb-3 flex-1 text-sm leading-relaxed'>{description}</p>
       <ExternalLink
@@ -130,7 +132,7 @@ export default async function ContactPage() {
             />
           </div>
 
-          <div className='mb-16 grid gap-10 sm:mb-20 sm:grid-cols-2 lg:grid-cols-4'>
+          <div className='mb-16 flex flex-col gap-1 px-6 sm:mb-20 sm:grid sm:grid-cols-2 sm:gap-8 sm:px-0 lg:grid-cols-4'>
             <SecondaryContactItem
               icon={<GitHubIcon className='h-5 w-5' />}
               title={t('methods.github.title')}
