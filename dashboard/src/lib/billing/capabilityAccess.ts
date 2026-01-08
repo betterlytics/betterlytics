@@ -16,7 +16,7 @@ export async function getUserCapabilities(): Promise<PlanCapabilities> {
   const billing = await getUserBillingData();
 
   if (!billing.success) {
-    throw new UserException('Unable to verify subscription status');
+    throw new Error('Unable to verify subscription status');
   }
 
   return getCapabilitiesForTier(billing.data.subscription.tier);
@@ -29,12 +29,12 @@ export async function getDashboardCapabilities(dashboardId: string): Promise<Pla
 
   const owner = await findDashboardOwner(dashboardId);
   if (!owner) {
-    throw new UserException('Dashboard owner not found');
+    throw new Error('Dashboard owner not found');
   }
 
   const subscription = await getUserSubscription(owner.userId);
   if (!subscription) {
-    throw new UserException('Unable to verify subscription status');
+    throw new Error('Unable to verify subscription status');
   }
 
   return getCapabilitiesForTier(subscription.tier);

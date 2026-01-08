@@ -32,8 +32,7 @@ export const registerUserAction = withServerAction(async (registrationData: Regi
 });
 
 export const isUserInvitedDashboardMemberAction = withUserAuth(async (user): Promise<boolean> => {
-  const isMember = await isUserDashboardMember(user.id);
-  const isInvited = await isUserInvited(user.email);
+  const [isMember, isInvited] = await Promise.all([isUserDashboardMember(user.id), isUserInvited(user.email)]);
 
   return isMember || isInvited;
 });
