@@ -14,7 +14,7 @@ export default async function UptimeMonitoringCard() {
       <CardContent className='pt-4'>
         <UptimeMonitoringIllustration
           alertDown={t('alertDown', { site: 'staging.example.com' })}
-          alertSent={t('alertSent', { email: 'team@company.com' })}
+          alertSent={t('alertSent', { email: 'team@example.com' })}
           incidentDetected={t('incidentDetected', { count: 1 })}
           sslLabel={t('ssl')}
         />
@@ -116,7 +116,7 @@ function UptimeMonitoringIllustration({ alertDown, alertSent, incidentDetected, 
         </div>
         <div className='min-w-0 flex-1'>
           <div className='truncate text-xs font-medium'>{alertDown}</div>
-          <div className='text-muted-foreground/70 text-[10px]'>{alertSent}</div>
+          <div className='text-muted-foreground text-[10px]'>{alertSent}</div>
         </div>
         <Mail className='text-muted-foreground/50 h-3.5 w-3.5 flex-shrink-0' strokeWidth={2} />
       </div>
@@ -174,7 +174,7 @@ function MonitorRow({ monitor }: { monitor: Monitor }) {
           <span className='truncate text-xs font-medium'>{monitor.name}</span>
         </div>
 
-        <div className='text-muted-foreground/60 hidden items-center gap-0.5 text-[10px] sm:flex'>
+        <div className='text-muted-foreground hidden items-center gap-0.5 text-[10px] sm:flex'>
           <RefreshCcw size={10} />
           <span>{monitor.interval}</span>
         </div>
