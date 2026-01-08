@@ -9,7 +9,7 @@ import { IntegrationSection } from './components/integrationSection';
 import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
-import { CtaStrip } from './components/ctaStrip';
+import { CtaStrip } from '@/components/public/ctaStrip';
 
 export default async function LandingPage() {
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.landing);

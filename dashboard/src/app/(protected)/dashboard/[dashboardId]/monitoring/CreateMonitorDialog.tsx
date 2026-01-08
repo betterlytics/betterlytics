@@ -173,14 +173,16 @@ export function CreateMonitorDialog({
 
             <Separator />
 
-            <AlertsSection
-              form={form}
-              isPending={isPending}
-              userEmail={session!.user.email}
-              sslMonitoringEnabled={sslMonitoringEnabled}
-              open={expandedSection === 'alerts'}
-              onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'alerts' : null)}
-            />
+            {session?.user.email && (
+              <AlertsSection
+                form={form}
+                isPending={isPending}
+                userEmail={session?.user.email}
+                sslMonitoringEnabled={sslMonitoringEnabled}
+                open={expandedSection === 'alerts'}
+                onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'alerts' : null)}
+              />
+            )}
 
             <Separator />
 

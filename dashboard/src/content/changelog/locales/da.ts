@@ -2,33 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.9',
-    releasedAt: '2025-12-21',
+    version: 'v1.3.0',
+    releasedAt: '2026-01-04',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v129-new-features',
+      id: 'v130-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Du kan nu gemme filterkombinationer og hurtigt anvende dem senere – perfekt til ofte brugte visninger.',
-            'Hostname-filtrering er her! Filtrer dine analyser efter hostname for at se data for specifikke subdomæner.',
+            'Overvågning af website-oppetid er nu tilgængelig. Følg oppetid, svartider og hændelser, og få besked når dit site er nede.',
+            'SSL-certifikat-overvågning er inkluderet, med advarsler før certifikater udløber eller bliver ugyldige.',
+            'Du kan nu låse stier i User Journey Sankey-diagrammet, så det er nemmere at følge specifikke brugerflows.',
           ],
         },
       ],
     },
     {
-      id: 'v129-improvements',
+      id: 'v130-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'User Journey har fået de sidste finpudsninger. Store diagrammer flyder nu mere jævnt og er nemmere at følge.',
+            'User Journey-diagrammer er blevet mere overskuelige og mindre rodede, så komplekse stier er nemmere at følge.',
+            'Oprettelse af funnels foreslår nu et mere komplet sæt filterværdier, så du hurtigere kan bygge præcise funnels.',
+            'Browser- og enhedsrapporter viser nu mere genkendelige ikoner.',
           ],
         },
       ],
@@ -37,6 +40,71 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.0',
+      releasedAt: '2026-01-04',
+      title: 'Uptime- & SSL-overvågning, klarere User Journeys',
+      summary:
+        'Betterlytics hjælper dig nu med at overvåge oppetid og SSL-sikkerhed for dine websites med notifikationer ved nedetid og udløb. Denne release gør også User Journeys nemmere at udforske og forbedrer nøjagtigheden på tværs af analyser.',
+    },
+    sections: [
+      {
+        id: 'v130-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime-overvågning er nu tilgængelig. Følg oppetid, svartider og hændelser for dine websites, og få besked når noget går galt.',
+              'SSL-certifikat-overvågning er inkluderet i uptime-overvågning, så du får advarsler før certifikater udløber eller bliver ugyldige.',
+              'User Journey-stier kan nu låses i Sankey-diagrammet, hvilket gør det nemmere at følge og analysere specifikke brugerflows i komplekse journeys.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey Sankey-diagrammer er yderligere visuelt forfinet for at reducere støj og gøre flows nemmere at følge.',
+              'Ved oprettelse af funnels foreslås nu et mere komplet sæt filterværdier, så du hurtigere kan opbygge præcise funnels.',
+              'Browser- og enhedsrapportering er forbedret med flere genkendelige ikoner.',
+              'Prissiden indeholder nu en tydeligere plansammenligning, som gør det nemmere at se forskelle mellem abonnementer.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem hvor visse kampagnemetrikker var fejlmærket.',
+              'Forbedret scroll-adfærd og ydeevne i events-tabellen.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-maintenance',
+        title: 'Vedligeholdelse',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Generelle sikkerheds- og afhængighedsopdateringer for at holde Betterlytics stabil og sikker.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.9',

@@ -803,6 +803,19 @@
         ]
       }
     },
+    "comparison": {
+      "getStartedFree": "Get Started Free",
+      "viewPricing": "View Pricing",
+      "featureComparison": {
+        "title": "Feature Comparison",
+        "subtitle": "See how Betterlytics and {competitor} compare side-by-side"
+      },
+      "whyBetterlytics": {
+        "title": "Why Betterlytics?",
+        "subtitle": "A deeper look at what makes Betterlytics different"
+      },
+      "disclaimer": "We strive to keep this comparison accurate and up-to-date."
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | A Better Alternative to Google Analytics",
@@ -819,6 +832,7 @@
           "Betterlytics"
         ]
       },
+
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
         "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
@@ -889,29 +903,17 @@
           "script": {
             "title": "Simple Script Tag",
             "description": "Add one line to your HTML and start tracking immediately. Works with any website or CMS.",
-            "features": {
-              "f1": "One-line installation",
-              "f2": "Works anywhere",
-              "f3": "No build process needed"
-            }
+            "features": { "f1": "One-line installation", "f2": "Works anywhere", "f3": "No build process needed" }
           },
           "framework": {
             "title": "Framework Ready",
             "description": "Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.",
-            "features": {
-              "f1": "TypeScript support",
-              "f2": "Framework components",
-              "f3": "Tree-shakeable"
-            }
+            "features": { "f1": "TypeScript support", "f2": "Framework components", "f3": "Tree-shakeable" }
           },
           "selfHosted": {
             "title": "Self-Hosted Option",
             "description": "Deploy on your own infrastructure with Docker for complete data ownership and control.",
-            "features": {
-              "f1": "Docker deployment",
-              "f2": "Complete control",
-              "f3": "GDPR compliant"
-            }
+            "features": { "f1": "Docker deployment", "f2": "Complete control", "f3": "GDPR compliant" }
           }
         },
         "guideButton": "View Integration Guide",
@@ -930,7 +932,8 @@
         "titleEmphasis": "Simple, scalable",
         "titleRest": "pricing",
         "subtitle": "Traffic-based plans that matches your growth. Start free, scale as you grow.",
-        "footer": "Start with our free plan - no credit card required."
+        "footer": "Start with our free plan - no credit card required.",
+        "compareLink": "Compare all features"
       },
       "cards": {
         "advancedFilters": {
@@ -999,6 +1002,7 @@
       "blurb": "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
       "company": "Company",
       "resources": "Resources",
+      "compare": "Compare",
       "connect": "Connect",
       "about": "About",
       "contact": "Contact",
@@ -1022,6 +1026,26 @@
       "webPage": {
         "breadcrumbHome": "Home"
       }
+    },
+    "pricing": {
+      "seo": {
+        "title": "Pricing | Betterlytics Privacy-First Analytics",
+        "description": "Simple, transparent pricing for Betterlytics. Start free, scale as you grow. Privacy-first, GDPR compliant web analytics for every business size.",
+        "keywords": [
+          "Analytics Pricing",
+          "Web Analytics Plans",
+          "Privacy Analytics Pricing",
+          "GDPR Analytics Cost",
+          "Betterlytics Plans",
+          "Affordable Analytics",
+          "Free Analytics Plan"
+        ]
+      },
+      "titleEmphasis": "Simple, transparent",
+      "titleRest": "pricing",
+      "subtitle": "Start free, upgrade when you need more. No hidden fees, no surprises.",
+      "footer": "Start with our free plan - no credit card required.",
+      "comparisonTitle": "Compare all features"
     }
   },
   "pricingSlider": {
@@ -1064,7 +1088,134 @@
     },
     "labels": {
       "free": "Free",
-      "custom": "Custom"
+      "custom": "Contact us"
+    }
+  },
+  "pricingComparison": {
+    "headers": {
+      "features": "Features",
+      "growth": "Growth",
+      "professional": "Professional",
+      "enterprise": "Enterprise"
+    },
+    "categories": {
+      "usageLimits": "Usage & Limits",
+      "analytics": "Analytics",
+      "observability": "Observability",
+      "support": "Support"
+    },
+    "features": {
+      "monthlyEvents": {
+        "name": "Monthly events",
+        "values": {
+          "range": "10K – 10M+",
+          "custom": "Custom"
+        }
+      },
+      "sites": {
+        "name": "Sites",
+        "values": {
+          "upTo2": "Up to 2",
+          "upTo50": "Up to 50",
+          "unlimited": "Unlimited"
+        }
+      },
+      "dataRetention": {
+        "name": "Data retention",
+        "values": {
+          "1year": "1+ year",
+          "3years": "3+ years",
+          "5years": "5+ years"
+        }
+      },
+      "teamMembers": {
+        "name": "Team members",
+        "values": {
+          "1": "1",
+          "upTo5": "Up to 5",
+          "unlimited": "Unlimited"
+        }
+      },
+      "dashboardFeatures": {
+        "name": "All dashboard features"
+      },
+      "sessionReplay": {
+        "name": "Session replay"
+      },
+      "funnels": {
+        "name": "Funnels & conversions"
+      },
+      "userJourneys": {
+        "name": "User journey tracking"
+      },
+      "customEvents": {
+        "name": "Custom events"
+      },
+      "webVitals": {
+        "name": "Web Vitals monitoring"
+      },
+      "campaignTracking": {
+        "name": "Campaign & UTM tracking"
+      },
+      "uptimeMonitoring": {
+        "name": "Uptime monitoring",
+        "values": {
+          "5": "5 monitors",
+          "50": "50 monitors",
+          "unlimited": "Unlimited monitors"
+        }
+      },
+      "sslMonitoring": {
+        "name": "SSL certificate monitoring"
+      },
+      "checkInterval": {
+        "name": "Minimum check interval",
+        "values": {
+          "5min": "5 min",
+          "1min": "1 min"
+        }
+      },
+      "customHttpMethods": {
+        "name": "GET/POST HTTP methods"
+      },
+      "customRequestHeaders": {
+        "name": "Custom request headers"
+      },
+      "customStatusCodes": {
+        "name": "Custom accepted status codes"
+      },
+      "emailSupport": {
+        "name": "Email support"
+      },
+      "prioritySupport": {
+        "name": "Priority support"
+      },
+      "dedicatedSupport": {
+        "name": "Dedicated support"
+      },
+      "slaGuarantee": {
+        "name": "SLA guarantee"
+      }
+    },
+    "coreFeatures": {
+      "title": "Included in all plans",
+      "subtitle": "Every plan comes with our full analytics suite",
+      "items": {
+        "realtimeAnalytics": "Real-time analytics",
+        "sessionReplay": "Session replay",
+        "geographicInsights": "Geographic insights",
+        "trafficSources": "Traffic sources",
+        "utmCampaigns": "UTM campaign tracking",
+        "customEvents": "Custom events",
+        "funnels": "Funnels & conversions",
+        "userJourneys": "User journeys",
+        "webVitals": "Web Vitals",
+        "botFiltering": "Bot filtering",
+        "outboundLinks": "Outbound link tracking",
+        "advancedFiltering": "Advanced filtering",
+        "cookieFree": "Cookie-free",
+        "gdprCcpa": "GDPR & CCPA ready"
+      }
     }
   },
   "dashboard": {

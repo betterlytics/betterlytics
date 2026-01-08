@@ -45,7 +45,7 @@ export default function PublicTopBar() {
               {t('documentation')}
             </ExternalLink>
             <Link
-              href='/#pricing'
+              href='/pricing'
               className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
               {t('pricing')}
