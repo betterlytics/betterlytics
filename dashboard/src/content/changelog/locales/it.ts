@@ -2,33 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.9',
-    releasedAt: '2025-12-21',
+    version: 'v1.3.0',
+    releasedAt: '2026-01-04',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v129-new-features',
+      id: 'v130-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Ora puoi salvare combinazioni di filtri e applicarle rapidamente in seguito, perfetto per le visualizzazioni più utilizzate.',
-            'Il filtro per hostname è disponibile! Filtra le tue analisi per hostname per vedere i dati di sottodomini specifici.',
+            'È ora disponibile il monitoraggio dell’uptime del sito web. Tieni traccia di uptime, tempi di risposta ed eventi, e ricevi notifiche quando il sito non è raggiungibile.',
+            'Il monitoraggio dei certificati SSL è incluso, con avvisi prima che i certificati scadano o diventino non validi.',
+            'Ora puoi bloccare i percorsi nel diagramma Sankey dei User Journey, rendendo più facile seguire specifici flussi utente.',
           ],
         },
       ],
     },
     {
-      id: 'v129-improvements',
+      id: 'v130-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'User Journey ha ricevuto gli ultimi ritocchi. I diagrammi di grandi dimensioni ora scorrono più fluidamente e sono più facili da seguire.',
+            'I diagrammi dei User Journey sono ora più chiari e meno affollati, facilitando la lettura dei percorsi complessi.',
+            'La creazione dei funnel ora suggerisce un set più completo di valori di filtro, aiutandoti a creare funnel accurati più velocemente.',
+            'I report su browser e dispositivi mostrano ora icone più riconoscibili.',
           ],
         },
       ],
@@ -37,6 +40,71 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.0',
+      releasedAt: '2026-01-04',
+      title: 'Monitoraggio Uptime e SSL, User Journey più chiari',
+      summary:
+        'Betterlytics ora ti aiuta a monitorare l’uptime dei tuoi siti web e lo stato dei certificati SSL, con avvisi in caso di downtime o scadenza. Questa release rende inoltre le User Journey più facili da esplorare e migliora l’accuratezza delle analisi.',
+    },
+    sections: [
+      {
+        id: 'v130-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'È ora disponibile il monitoraggio dell’uptime dei siti web. Tieni traccia di uptime, latenza ed eventi critici e ricevi notifiche quando qualcosa non funziona.',
+              'Il monitoraggio dei certificati SSL è incluso nell’uptime monitoring, con avvisi prima della scadenza o in caso di certificati non validi.',
+              'I percorsi delle User Journey possono ora essere bloccati nel diagramma Sankey, rendendo più semplice seguire e analizzare specifici flussi utente anche in journey complesse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I diagrammi Sankey delle User Journey sono stati ulteriormente rifiniti dal punto di vista visivo per ridurre il disordine e rendere i percorsi più leggibili.',
+              'Durante la creazione dei funnel vengono ora suggeriti set di valori dei filtri più completi, per costruire funnel accurati più velocemente.',
+              'I report su browser e dispositivi sono stati migliorati con icone più riconoscibili.',
+              'La pagina dei prezzi include ora una tabella di confronto più chiara per comprendere meglio le differenze tra i piani.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema in cui alcune metriche delle campagne erano etichettate in modo errato.',
+              'Migliorati lo scorrimento e le prestazioni della tabella degli eventi.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-maintenance',
+        title: 'Manutenzione',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Aggiornamenti generali di sicurezza e delle dipendenze per mantenere Betterlytics stabile e sicuro.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.9',

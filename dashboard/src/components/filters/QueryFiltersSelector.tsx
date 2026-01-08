@@ -18,6 +18,7 @@ import { SaveQueryFilterDialog } from './SaveQueryFilterDialog';
 import { SavedFiltersSection } from './SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { PermissionGate } from '../tooltip/PermissionGate';
+import { baEvent } from '@/lib/ba-event';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -40,6 +41,7 @@ export default function QueryFiltersSelector() {
   }, [contextQueryFilters]);
 
   const applyFilters = useCallback(() => {
+    baEvent('query-filter-applied');
     setQueryFilters(filterEmptyQueryFilters(queryFilters));
     setIsPopoverOpen(false);
   }, [queryFilters, setQueryFilters]);
@@ -51,6 +53,7 @@ export default function QueryFiltersSelector() {
 
   const handleLoadSavedFilter = useCallback(
     (filters: QueryFilter[]) => {
+      baEvent('saved-query-filter-applied');
       setQueryFilters(filters);
       setLocalQueryFilters(filters);
       setIsPopoverOpen(false);

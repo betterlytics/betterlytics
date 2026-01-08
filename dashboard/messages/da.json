@@ -1118,8 +1118,7 @@
       "sites": {
         "name": "Hjemmesider",
         "values": {
-          "1": "1",
-          "2": "2",
+          "upTo2": "Op til 2",
           "upTo50": "Op til 50",
           "unlimited": "Ubegrænsede"
         }
@@ -1172,8 +1171,12 @@
       "sslMonitoring": {
         "name": "SSL-certifikatovervågning"
       },
-      "advancedIntervals": {
-        "name": "30s oppetidstjek-intervaller"
+      "checkInterval": {
+        "name": "Minimum tjekinterval",
+        "values": {
+          "5min": "5 min",
+          "1min": "1 min"
+        }
       },
       "customHttpMethods": {
         "name": "GET/POST HTTP-metoder"
