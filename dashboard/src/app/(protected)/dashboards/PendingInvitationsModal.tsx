@@ -54,7 +54,7 @@ export default function PendingInvitationsModal({
         const remaining = invitations.filter((i) => i.id !== currentInvitation.id);
         if (remaining.length === 0) {
           setOpen(false);
-          router.push(`/dashboard/${response.data}`);
+          router.push(`/dashboard/${response.data}?invited=1`);
         } else {
           setInvitations(remaining);
           setCurrentIndex(0);
