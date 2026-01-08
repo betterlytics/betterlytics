@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './animations.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -46,29 +47,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
-
-  --animate-shake: shake 0.4s ease-in-out;
-
-  @keyframes shake {
-    10%,
-    90% {
-      transform: translate3d(-1px, 0, 0);
-    }
-    20%,
-    80% {
-      transform: translate3d(2px, 0, 0);
-    }
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-4px, 0, 0);
-    }
-    40%,
-    60% {
-      transform: translate3d(4px, 0, 0);
-    }
-  }
 }
+
 
 :root {
   --radius: 0.5rem;
@@ -300,64 +280,6 @@
   }
 }
 
-@layer utilities {
-  @keyframes scroll {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
-  .animate-shake {
-    animation: shake 0.4s ease-in-out;
-  }
-
-  @keyframes shake {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    10%,
-    30%,
-    50%,
-    70%,
-    90% {
-      transform: translateX(-3px);
-    }
-    20%,
-    40%,
-    60%,
-    80% {
-      transform: translateX(3px);
-    }
-  }
-
-  @keyframes tabContentFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(4px) translateZ(0);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) translateZ(0);
-    }
-  }
-
-  .tab-content-animated[data-state='active'] {
-    animation: tabContentFadeIn 0.2s ease-out;
-    will-change: opacity, transform;
-    backface-visibility: hidden;
-  }
-
-  .tab-indicator {
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-  }
-}
 
 /* Minimal leaflet z-index fixes to prevent map from appearing above UI dialogs */
 .leaflet-control {
