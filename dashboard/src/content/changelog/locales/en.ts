@@ -2,33 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.2.9',
-    releasedAt: '2025-12-21',
+    version: 'v1.3.0',
+    releasedAt: '2026-01-04',
     title: '',
     summary: '',
   },
   sections: [
     {
-      id: 'v129-new-features',
+      id: 'v130-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'You can now save filter combinations and quickly apply them later. Perfect for frequently used views.',
-            'Hostname filtering is here! Filter your analytics by hostname to see data for specific subdomains.',
+            'Website uptime monitoring is now available. Track uptime, latency, and incidents and get notified when your site goes down.',
+            'SSL certificate monitoring is included, with alerts before certificates expire or become invalid.',
+            'You can now lock paths in the User Journey Sankey diagram to better trace specific user flows.',
           ],
         },
       ],
     },
     {
-      id: 'v129-improvements',
+      id: 'v130-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'User Journey received some finishing touches. Large diagrams now flow more smoothly and are easier to follow.',
+            'User Journey diagrams are clearer and less cluttered, making complex paths easier to follow.',
+            'Funnel creation now suggests more complete filter values to help you build accurate funnels faster.',
+            'Browser and device reports now use more recognizable icons.',
           ],
         },
       ],
@@ -37,6 +40,69 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.0',
+      releasedAt: '2026-01-04',
+      title: 'Uptime & SSL Monitoring, Clearer User Journeys',
+      summary:
+        'Betterlytics now helps you monitor website uptime and SSL health with alerts for outages and expirations. This release also makes User Journeys easier to explore and improves accuracy across analytics views.',
+    },
+    sections: [
+      {
+        id: 'v130-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Website uptime monitoring is now available. Track uptime, latency, and incidents for your websites and get notified when something goes wrong.',
+              'SSL certificate monitoring is included with uptime monitoring, so you’ll be alerted before certificates expire or become invalid.',
+              'User Journey paths can now be locked in the Sankey diagram, making it easier to trace and follow specific user flows in complex journeys.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'User Journey Sankey diagrams have been further visually refined to reduce clutter and make paths easier to follow.',
+              'Funnel creation now suggests a more complete set of filter values, helping you build accurate funnels faster.',
+              'Browser and device reporting has been improved with more recognizable icons.',
+              'The pricing page now includes a clearer plan comparison table to make feature differences easier to understand.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where some campaign metrics were mislabeled.',
+              'Improved scrolling behavior and performance in the events table.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v130-maintenance',
+        title: 'Maintenance',
+        blocks: [
+          {
+            type: 'list',
+            items: ['General security and dependency updates to keep Betterlytics stable and secure.'],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.2.9',

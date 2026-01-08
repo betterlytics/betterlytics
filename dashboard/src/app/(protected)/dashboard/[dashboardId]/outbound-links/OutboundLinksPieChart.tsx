@@ -5,29 +5,20 @@ import { useTranslations } from 'next-intl';
 import BAPieChart from '@/components/BAPieChart';
 import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { createColorGetter } from '@/utils/colorUtils';
 
 type OutboundLinksPieChartProps = {
   distributionPromise: ReturnType<typeof fetchOutboundLinksDistributionAction>;
 };
 
-const getOutboundLinkColor = (name: string): string => {
-  const colors: Record<string, string> = {
+const getOutboundLinkColor = createColorGetter({
+  colorMap: {
     Others: '#64748b',
-  };
-
-  if (colors[name]) {
-    return colors[name];
-  }
-
-  // Generate a color based on the string
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const hue = Math.abs(hash) % 360;
-  return `hsl(${hue}, 70%, 50%)`;
-};
+  },
+  saturation: 70,
+  lightness: 50,
+  useGoldenRatio: false,
+});
 
 const formatUrl = (url: string): string => {
   return url === 'Others' ? url : url.toLowerCase();
