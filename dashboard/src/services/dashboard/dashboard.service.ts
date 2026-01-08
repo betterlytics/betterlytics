@@ -5,6 +5,7 @@ import {
   createDashboard,
   findAllUserDashboards,
   findOwnedDashboards,
+  updateDashboardDomain as updateDashboardDomainRepo,
 } from '@/repositories/postgres/dashboard.repository';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { markOnboardingCompleted } from '@/repositories/postgres/user.repository';
@@ -40,4 +41,8 @@ export async function completeOnboardingAndCreateDashboard(
   await markOnboardingCompleted(userId);
 
   return dashboard;
+}
+
+export async function updateDashboardDomain(dashboardId: string, domain: string): Promise<Dashboard> {
+  return await updateDashboardDomainRepo(dashboardId, domain);
 }

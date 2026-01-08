@@ -1689,7 +1689,8 @@
     "cancel": "Annuller",
     "confirm": "Bekræft",
     "openMenu": "Åbn menu",
-    "save": "Gem"
+    "save": "Gem",
+    "saving": "Gemmer..."
   },
   "languages": {
     "da": "Dansk",
@@ -2594,7 +2595,13 @@
           "enforceDomain": "Håndhæv domæne",
           "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet.",
           "enableValidation": "Aktiver domænevalidering",
-          "enableValidationDescription": "Accepter kun hændelser fra dit konfigurerede domæne"
+          "enableValidationDescription": "Accepter kun hændelser fra dit konfigurerede domæne",
+          "rename": {
+            "title": "Ændr domæne",
+            "description": "Ændr domænet tilknyttet dette dashboard. Dine analysedata bevares.",
+            "success": "Domæne opdateret",
+            "error": "Kunne ikke opdatere domænet"
+          }
         },
         "blacklistedIps": {
           "title": "Blokerede IP-adresser",
