@@ -1700,7 +1700,8 @@
     "cancel": "Anulla",
     "confirm": "Conferma",
     "openMenu": "Apri menu",
-    "save": "Salva"
+    "save": "Salva",
+    "saving": "Salvataggio..."
   },
   "languages": {
     "da": "Danish",
@@ -2605,7 +2606,13 @@
           "enforceDomain": "Applicare dominio",
           "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard.",
           "enableValidation": "Abilita validazione dominio",
-          "enableValidationDescription": "Accetta solo eventi dal tuo dominio configurato"
+          "enableValidationDescription": "Accetta solo eventi dal tuo dominio configurato",
+          "rename": {
+            "title": "Cambia dominio",
+            "description": "Cambia il dominio associato a questa dashboard. I tuoi dati analitici verranno preservati.",
+            "success": "Dominio aggiornato",
+            "error": "Impossibile aggiornare il dominio"
+          }
         },
         "blacklistedIps": {
           "title": "IP degli eventi bloccati",
