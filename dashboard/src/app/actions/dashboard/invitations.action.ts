@@ -52,7 +52,7 @@ export const acceptInvitationAction = withUserAuth(async (user: User, token: str
 });
 
 export const declineInvitationAction = withUserAuth(async (user: User, invitationId: string): Promise<void> => {
-  await declineInvitation(invitationId, user.id, user.email);
+  await declineInvitation(invitationId, user.email);
 });
 
 export const acceptPendingInvitationsAction = withUserAuth(async (user: User) => {

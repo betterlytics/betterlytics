@@ -127,7 +127,7 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
   return invitation.dashboardId;
 }
 
-export async function declineInvitation(invitationId: string, userId: string, userEmail: string): Promise<void> {
+export async function declineInvitation(invitationId: string, userEmail: string): Promise<void> {
   const t = await getTranslations('validation.invitations');
   const invitations = await findPendingInvitationsByEmail(userEmail);
   const invitation = invitations.find((i) => i.id === invitationId);
@@ -166,7 +166,9 @@ export async function acceptPendingInvitations(userId: string, email: string): P
         dashboardDomain: invitation.dashboard?.domain,
         role: invitation.role,
       });
-    } catch {}
+    } catch {
+      // Ignore: user may already have access
+    }
 
     await updateInvitationStatus(invitation.id, 'accepted');
   }
