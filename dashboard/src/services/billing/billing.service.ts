@@ -14,7 +14,7 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
       throw new Error('No subscription found for user');
     }
 
-    const siteIds = await getOwnedSiteIds(userId);
+    const siteIds = await getOwnedSiteIds(userId, true);
 
     const currentUsage = await getUserEventCountForPeriod(siteIds, toDateString(subscription.currentPeriodStart));
 

@@ -225,10 +225,14 @@ export async function findDashboardOwner(dashboardId: string): Promise<{ userId:
   }
 }
 
-export async function getOwnedSiteIds(userId: string): Promise<string[]> {
+export async function getOwnedSiteIds(userId: string, includeDeleted = false): Promise<string[]> {
   try {
     const dashboards = await prisma.userDashboard.findMany({
-      where: { userId, role: 'owner', dashboard: { deletedAt: null } },
+      where: {
+        userId,
+        role: 'owner',
+        dashboard: includeDeleted ? {} : { deletedAt: null },
+      },
       include: {
         dashboard: {
           select: { siteId: true },
