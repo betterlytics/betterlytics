@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AnimatedNumber } from '@/components/animations/AnimatedNumber';
-import { AnimatedNumberV2 } from '@/components/animations/AnimatedNumberV2';
+import { AnimatedNumberV2 } from '@/components/animations/v2';
 
 export default function TestAnimationPage() {
   const [v1Value, setV1Value] = useState(5);
