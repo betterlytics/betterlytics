@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
-import { DemoModeProvider } from '@/contexts/DemoModeContextProvider';
+import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
 import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
@@ -51,7 +51,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <TimezoneCookieInitializer />
-      <DemoModeProvider isDemo={true}>
+      <DashboardAuthProvider isDemo={true} role='viewer'>
         <DashboardProvider>
           <DashboardLayoutShell
             dashboardId={dashboardId}
@@ -62,7 +62,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
             <div className='flex w-full justify-center'>{children}</div>
           </DashboardLayoutShell>
         </DashboardProvider>
-      </DemoModeProvider>
+      </DashboardAuthProvider>
     </PublicEnvironmentVariablesProvider>
   );
 }

@@ -1243,6 +1243,16 @@
         "observability": "Overvågning"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Tilbage til Dashboard",
+        "settings": "Indstillinger",
+        "data": "Data",
+        "rules": "Regler",
+        "members": "Medlemmer",
+        "dangerZone": "Farezone"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Unikke besøgende",
       "totalPageviews": "Samlede sidevisninger",
@@ -1288,8 +1298,10 @@
   "dashboardsPage": {
     "title": "Dine dashboards",
     "subtitle": "Administrér og overvåg analyse for alle dine websites.",
+    "loadError": "Kunne ikke indlæse dashboards",
     "emptyTitle": "Ingen dashboards endnu",
     "emptyDescription": "Opret dit første dashboard for at begynde at indsamle analysedata for din hjemmeside.",
+    "memberCountTooltip": "{count, plural, one {{count} medlem} other {{count} medlemmer}}",
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
@@ -1322,7 +1334,7 @@
       "fast": "Hurtig",
       "elevated": "Forhøjet",
       "slow": "Langsom",
-      "noData": "Ingen data endnu"
+      "noData": "Ingen data"
     },
     "ssl": {
       "valid": "Gyldigt",
@@ -1679,7 +1691,8 @@
     "deleting": "Sletter",
     "cancel": "Annuller",
     "confirm": "Bekræft",
-    "openMenu": "Åbn menu"
+    "openMenu": "Åbn menu",
+    "save": "Gem"
   },
   "languages": {
     "da": "Dansk",
@@ -2393,11 +2406,6 @@
         "toastFailure": "Kunne ikke sende bekræftelsesmail"
       }
     },
-    "settingsPopover": {
-      "title": "Hurtige indstillinger",
-      "theme": "Tema",
-      "advanced": "Avancerede indstillinger"
-    },
     "topbar": {
       "userMenu": {
         "userFallback": "Bruger",
@@ -2568,6 +2576,7 @@
       "data": {
         "title": "Datahåndtering",
         "description": "Konfigurer dataopbevaring og indsamling",
+        "retentionTitle": "Dataopbevaring",
         "retentionLabel": "Periode for dataopbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
@@ -2578,11 +2587,17 @@
           "y2": "2 år",
           "y3": "3 år"
         },
+        "retentionConfirm": {
+          "title": "Ændre opbevaringsperiode?",
+          "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
+        },
         "siteRules": {
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",
           "enforceDomain": "Håndhæv domæne",
-          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet."
+          "enforceDomainDescription": "Afvis hændelser, hvis domæne ikke stemmer overens med dashboard-domænet.",
+          "enableValidation": "Aktiver domænevalidering",
+          "enableValidationDescription": "Accepter kun hændelser fra dit konfigurerede domæne"
         },
         "blacklistedIps": {
           "title": "Blokerede IP-adresser",
@@ -2595,15 +2610,33 @@
         }
       },
       "danger": {
-        "title": "Slet dashboard",
-        "description": "Slet dashboard permanent",
-        "warning": "Advarsel: Denne handling kan ikke fortrydes",
-        "deleteButton": "Slet dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Slet dashboard",
+        "sectionDescription": "Slet dette dashboard og alle dets data permanent.",
+        "deleteButton": "Slet",
+        "toastSuccess": "Dashboard slettet",
+        "toastError": "Kunne ikke slette dashboard",
         "dialog": {
           "title": "Slet dashboard",
           "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke fortrydes.",
           "cancel": "Annuller",
           "confirm": "Slet dashboard"
+        }
+      },
+      "leaveDashboard": {
+        "title": "Forlad dashboard",
+        "description": "Er du sikker på, at du vil forlade dette dashboard?",
+        "button": "Forlad dashboard",
+        "buttonPending": "Forlader...",
+        "dialog": {
+          "title": "Forlad dashboard",
+          "description": "Er du sikker på, at du vil forlade dette dashboard? Du vil ikke længere have adgang til det og skal inviteres igen for at deltage.",
+          "cancel": "Annuller",
+          "confirm": "Forlad dashboard"
+        },
+        "toast": {
+          "success": "Forlod dashboard",
+          "error": "Kunne ikke forlade dashboard"
         }
       }
     },
@@ -2616,6 +2649,10 @@
     "demoMode": {
       "notAvailable": "Ikke tilgængelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
+    },
+    "permissions": {
+      "demoNotAvailable": "Ikke tilgængelig på demo-dashboard",
+      "insufficientPermissions": "Du har ikke tilladelse til at udføre denne handling"
     },
     "bugReport": {
       "trigger": "Rapportér fejl",
@@ -2731,6 +2768,14 @@
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
       "customHeaders": "Brugerdefinerede request headers kræver en Professional plan"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
+      "invitationAlreadySent": "Der er allerede sendt en invitation til denne e-mail",
+      "invitationNotFoundOrProcessed": "Invitation ikke fundet eller allerede behandlet",
+      "invitationExpired": "Denne invitation er udløbet",
+      "invitationEmailMismatch": "Denne invitation blev sendt til en anden e-mailadresse",
+      "invitationNotFound": "Invitation ikke fundet"
     }
   },
   "banners": {
@@ -2761,6 +2806,102 @@
       "title": "Ingen Core Web Vitals data endnu",
       "description": "Tjek at tracking er aktiveret.",
       "action": "Læs mere"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Medlemmer",
+      "description": "Administrer hvem der har adgang til dette dashboard"
+    },
+    "table": {
+      "title": "Medlemmer",
+      "searchPlaceholder": "Søg medlemmer...",
+      "columns": {
+        "member": "Medlem",
+        "email": "E-mail",
+        "role": "Rolle",
+        "joined": "Tilsluttet"
+      },
+      "noResults": "Ingen medlemmer fundet, der matcher \"{query}\"",
+      "you": "(dig)",
+      "unknown": "Ukendt"
+    },
+    "actions": {
+      "changeRole": "Skift rolle",
+      "removeFromDashboard": "Fjern fra dashboard"
+    },
+    "roles": {
+      "owner": "Ejer",
+      "admin": "Administrator",
+      "editor": "Redaktør",
+      "viewer": "Tilskuer"
+    },
+    "toast": {
+      "roleUpdated": "Rolle opdateret",
+      "roleUpdateFailed": "Kunne ikke opdatere rolle",
+      "memberRemoved": "Medlem fjernet",
+      "memberRemoveFailed": "Kunne ikke fjerne medlem"
+    },
+    "settings": {
+      "invite": {
+        "title": "Inviter",
+        "description": "Inviter medlemmer til at se, redigere eller administrere dit dashboard"
+      },
+      "activeMembers": {
+        "title": "Aktive medlemmer"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Inviter nye medlemmer",
+      "description": "Send en invitation til at samarbejde på dette dashboard",
+      "emailLabel": "E-mailadresse",
+      "emailPlaceholder": "kollega@example.com",
+      "roleLabel": "Rolle",
+      "inviteButton": "Inviter",
+      "sending": "Sender...",
+      "pending": "Afventer",
+      "invited": "Inviteret",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse"
+    },
+    "toast": {
+      "sent": "Invitation sendt",
+      "sendFailed": "Kunne ikke sende invitation",
+      "cancelled": "Invitation annulleret",
+      "cancelFailed": "Kunne ikke annullere invitation",
+      "accepted": "Deltager i {domain}!",
+      "joinedSuccess": "Invitation accepteret!",
+      "acceptFailed": "Kunne ikke acceptere invitation",
+      "declined": "Invitation afvist",
+      "declineFailed": "Kunne ikke afvise invitation"
+    },
+    "pendingModal": {
+      "title": "Dashboard-invitation",
+      "description": "Du er blevet inviteret til at samarbejde på et dashboard",
+      "unknownDashboard": "Dashboard",
+      "accept": "Accepter",
+      "accepting": "Accepterer...",
+      "decline": "Afvis",
+      "declining": "Afviser...",
+      "pendingCount": "{current} af {total} afventende invitationer"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invitation ikke fundet",
+      "notFoundDescription": "Dette invitationslink er ugyldigt eller allerede brugt.",
+      "goToSignIn": "Gå til login",
+      "expiredTitle": "Invitation udløbet",
+      "expiredDescription": "Denne invitation er ikke længere gyldig.",
+      "expiredHint": "Bed dashboard-ejeren om at sende dig en ny invitation.",
+      "emailMismatchTitle": "Forkert konto",
+      "emailMismatchDescription": "Denne invitation blev sendt til {invitedEmail}, men du er logget ind som {currentEmail}.",
+      "emailMismatchHint": "Log ud og log ind med den korrekte konto for at acceptere denne invitation.",
+      "errorTitle": "Kunne ikke acceptere invitation",
+      "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
+      "goToDashboards": "Gå til dashboards"
     }
   }
 }
