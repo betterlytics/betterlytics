@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect, useRef, useMemo } from 'react';
+import { createContext, useContext, useReducer, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import type { AnimatedNumberContextValue, AnimatedNumberState, AnimatedNumberAction, DigitState } from './types';
 import type { Digit } from '@/constants/animated-number';
 
@@ -105,39 +105,75 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
 
   const prevValueRef = useRef(value);
 
-  // Handle value changes
-  useEffect(() => {
+  // Handle value changes - useLayoutEffect ensures state change happens before paint
+  // so both width and roll transitions start in the same frame
+  useLayoutEffect(() => {
     if (value !== prevValueRef.current) {
       const newDigitValues = String(Math.abs(Math.floor(value)))
         .split('')
         .map(Number) as Digit[];
 
-      const prevDigitCount = state.digits.length;
+      // Filter out any already-exiting digits for accurate count
+      const activeDigits = state.digits.filter(d => d.phase !== 'exiting');
+      const prevDigitCount = activeDigits.length;
       const newDigitCount = newDigitValues.length;
 
       if (newDigitCount !== prevDigitCount) {
         // Digit count changed - map from RIGHT (least significant)
         const newDigits: DigitState[] = [];
+        const isExpanding = newDigitCount > prevDigitCount;
+        const isShrinking = newDigitCount < prevDigitCount;
         
-        for (let i = 0; i < newDigitCount; i++) {
-          const digit = newDigitValues[i];
-          const oldIndex = i - (newDigitCount - prevDigitCount);
-          const existing = oldIndex >= 0 ? state.digits[oldIndex] : null;
-          
-          if (existing) {
-            if (existing.digit !== digit) {
-              newDigits.push({ ...existing, digit, phase: 'animating', fromDigit: existing.digit });
+        if (isExpanding) {
+          // EXPANDING: Add new digits on the left
+          for (let i = 0; i < newDigitCount; i++) {
+            const digit = newDigitValues[i];
+            const oldIndex = i - (newDigitCount - prevDigitCount);
+            const existing = oldIndex >= 0 ? activeDigits[oldIndex] : null;
+            
+            if (existing) {
+              if (existing.digit !== digit) {
+                newDigits.push({ ...existing, digit, phase: 'animating', fromDigit: existing.digit });
+              } else {
+                newDigits.push(existing);
+              }
             } else {
-              newDigits.push(existing);
+              // New entering digit - roll from 0 to target
+              newDigits.push({
+                id: crypto.randomUUID(),
+                digit,
+                phase: 'entering',
+                fromDigit: 0 as Digit,
+              });
             }
-          } else {
-            // New entering digit - roll from 0 to target
+          }
+        } else if (isShrinking) {
+          // SHRINKING: Mark leftmost digits as exiting, update remaining
+          const exitCount = prevDigitCount - newDigitCount;
+          
+          // First, add exiting digits (they roll to 0 while width shrinks)
+          for (let i = 0; i < exitCount; i++) {
+            const existing = activeDigits[i];
             newDigits.push({
-              id: crypto.randomUUID(),
-              digit,
-              phase: 'entering',
-              fromDigit: 0 as Digit,
+              ...existing,
+              phase: 'exiting',
+              // fromDigit stays as current digit - it will roll to 0
             });
+          }
+          
+          // Then, add/update remaining digits
+          for (let i = 0; i < newDigitCount; i++) {
+            const digit = newDigitValues[i];
+            const oldIndex = i + exitCount;
+            const existing = activeDigits[oldIndex];
+            
+            if (existing) {
+              if (existing.digit !== digit) {
+                newDigits.push({ ...existing, digit, phase: 'animating', fromDigit: existing.digit });
+              } else {
+                newDigits.push(existing);
+              }
+            }
           }
         }
         
@@ -145,7 +181,7 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
       } else {
         // Same digit count - dispatch changes for each changed digit
         newDigitValues.forEach((newDigit, index) => {
-          const prevState = state.digits[index];
+          const prevState = activeDigits[index];
           if (prevState && prevState.digit !== newDigit) {
             dispatch({
               type: 'changed',

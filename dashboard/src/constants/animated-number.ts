@@ -1,6 +1,7 @@
 export const DIGIT_WIDTH = '0.65em';
 export const MASK_HEIGHT = '0.2em';
-export const MASK_WIDTH = '0.5em';
+// 2x DIGIT_WIDTH so exiting digit fully passes through fade zone
+export const MASK_WIDTH = '1.3em';
 
 export const ZWSP = '\u200B';
 
@@ -33,6 +34,7 @@ export function getMaskStyles(): React.CSSProperties {
     position: 'relative',
     zIndex: -1,
     overflow: 'clip',
+    pointerEvents: 'none', // Allow clicks through to adjacent elements
     margin: `0 calc(-1 * ${MASK_WIDTH})`,
     padding: `calc(${MASK_HEIGHT} / 2) ${MASK_WIDTH}`,
     maskImage: `linear-gradient(to right, transparent 0, #000 ${MASK_WIDTH}, #000 calc(100% - ${MASK_WIDTH}), transparent)`,

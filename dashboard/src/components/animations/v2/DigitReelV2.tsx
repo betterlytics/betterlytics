@@ -26,7 +26,11 @@ function getTransformConfig(
         ? { offset: -(fromDigit ?? 0) * 10, animate: false }
         : { offset: -digit * 10, animate: true };
     case 'exiting':
-      return { offset: 0, animate: true };
+      // When suppressing: stay at current position, no transition (width gets head start)
+      // When not suppressing: roll to 0 with transition
+      return isSuppressing
+        ? { offset: -(fromDigit ?? digit) * 10, animate: false }
+        : { offset: 0, animate: true };
     case 'animating':
       return { offset: -digit * 10, animate: true };
     default: // idle
@@ -43,9 +47,9 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
   
   const digitMaskStyles = useMemo(() => getDigitMaskStyles(), []);
   
-  // Suppress transition when component mounts in 'entering' phase
-  // The hook handles the "just changed" detection internally
-  const isSuppressing = useLayoutTransitionSuppression(phase === 'entering');
+  // Suppress transition for first frame when entering or exiting
+  // This gives width transition a head start to position/hide the digit
+  const isSuppressing = useLayoutTransitionSuppression(phase === 'entering' || phase === 'exiting');
   
   const { offset, animate } = getTransformConfig(phase, digit, fromDigit, isSuppressing);
 
@@ -54,9 +58,9 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
     
     if (phase === 'animating' || phase === 'entering') {
       dispatch({ type: 'completed', id });
-    } else if (phase === 'exiting') {
-      dispatch({ type: 'exited', id });
     }
+    // Exiting digits stay in DOM but hidden by fade zone
+    // They'll be cleaned up on next value change
   };
 
   return (
@@ -69,6 +73,7 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
         justifyContent: 'center',
         alignItems: 'flex-start',
         width: DIGIT_WIDTH,
+        userSelect: 'none', // Prevent selecting 0-9 reel digits
         ...digitMaskStyles,
       }}
     >
@@ -80,8 +85,13 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
           flexDirection: 'column',
           alignItems: 'center',
           width: DIGIT_WIDTH,
-          transform: `translateY(${offset}%)`,
-          transition: animate ? `transform ${duration}ms ${SPRING_EASING}` : 'none',
+          transform: `translate3d(0, ${offset}%, 0)`,
+          willChange: 'transform, opacity',
+          // Fade in/out for entering/exiting digits
+          opacity: (phase === 'entering' && isSuppressing) || (phase === 'exiting' && !isSuppressing) ? 0 : 1,
+          transition: animate 
+            ? `transform ${duration}ms ${SPRING_EASING}, opacity ${duration}ms ${SPRING_EASING}` 
+            : 'none',
         }}
         onTransitionEnd={handleTransitionEnd}
       >
