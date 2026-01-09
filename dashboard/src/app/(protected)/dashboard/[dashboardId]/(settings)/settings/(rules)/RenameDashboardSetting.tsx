@@ -49,10 +49,9 @@ export default function RenameDashboardSetting({ initialDashboard }: RenameDashb
   };
 
   return (
-    <SettingsSection title={t('title')}>
-      <div className='space-y-4'>
-        <p className='text-muted-foreground text-sm'>{t('description')}</p>
-        <div className='flex flex-col gap-4 sm:flex-row sm:items-end'>
+    <SettingsSection title={t('title')} description={t('description')}>
+      <div className='space-y-3'>
+        <div className='flex flex-col gap-4 sm:flex-row sm:items-center'>
           <div className='flex-1'>
             <PermissionGate>
               {(disabled) => (
@@ -81,6 +80,7 @@ export default function RenameDashboardSetting({ initialDashboard }: RenameDashb
             )}
           </PermissionGate>
         </div>
+        <p className='text-muted-foreground pl-1 text-xs'>{t('info')}</p>
       </div>
     </SettingsSection>
   );

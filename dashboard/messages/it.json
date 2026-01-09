@@ -2610,6 +2610,7 @@
           "rename": {
             "title": "Cambia dominio",
             "description": "Cambia il dominio associato a questa dashboard. I tuoi dati analitici verranno preservati.",
+            "info": "Il tuo Site ID e lo script di tracciamento rimangono invariati.",
             "success": "Dominio aggiornato",
             "error": "Impossibile aggiornare il dominio"
           }

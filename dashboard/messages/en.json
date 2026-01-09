@@ -2599,6 +2599,7 @@
           "rename": {
             "title": "Change Domain",
             "description": "Change the domain associated with this dashboard. Your analytics data will be preserved.",
+            "info": "Your Site ID and tracking script remain unchanged.",
             "success": "Domain updated successfully",
             "error": "Failed to update domain"
           }

@@ -2602,6 +2602,7 @@
           "rename": {
             "title": "Ændr domæne",
             "description": "Ændr domænet tilknyttet dette dashboard. Dine analysedata bevares.",
+            "info": "Dit Site ID og sporingskript forbliver uændret.",
             "success": "Domæne opdateret",
             "error": "Kunne ikke opdatere domænet"
           }
