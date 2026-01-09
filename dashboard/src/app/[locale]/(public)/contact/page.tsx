@@ -25,7 +25,7 @@ interface PrimaryContactCardProps {
 
 function PrimaryContactCard({ icon, title, description, href, cta, external }: PrimaryContactCardProps) {
   return (
-    <Card className='group hover:bg-accent/50 transition-colors'>
+    <Card className='group hover:bg-accent/50 justify-between transition-colors'>
       <CardHeader>
         <div className='flex items-center gap-3'>
           {icon}
