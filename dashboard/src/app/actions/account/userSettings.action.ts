@@ -5,6 +5,7 @@ import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSetting
 import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
 import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
+import { getCurrentSessionTokenFromCookies } from '@/services/session.service';
 import { User } from 'next-auth';
 import { setLocaleCookie } from '@/constants/cookies';
 
@@ -37,11 +38,13 @@ export const updateUserAction = withUserAuth(async (user: User, data: UpdateUser
 export const changePasswordAction = withUserAuth(
   async (user: User, data: ChangePasswordRequest): Promise<void> => {
     const validatedData = ChangePasswordRequestSchema.parse(data);
+    const currentSessionToken = await getCurrentSessionTokenFromCookies();
 
     return await UserSettingsService.changeUserPassword(
       user.id,
       validatedData.currentPassword,
       validatedData.newPassword,
+      currentSessionToken,
     );
   },
 );

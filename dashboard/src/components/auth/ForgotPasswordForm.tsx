@@ -75,7 +75,7 @@ export default function ForgotPasswordForm() {
         <p className='text-muted-foreground pt-1 text-sm'>{t('emailFieldDescription')}</p>
       </div>
 
-      <Button type='submit' disabled={isPending || !email.trim()} className='h-10 w-full'>
+      <Button type='submit' disabled={isPending || !email.trim()} className='h-10 w-full cursor-pointer'>
         {isPending ? t('cta.sending') : t('cta.sendResetLink')}
       </Button>
     </form>
