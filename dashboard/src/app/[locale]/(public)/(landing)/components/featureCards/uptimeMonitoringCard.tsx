@@ -101,6 +101,14 @@ function UptimeMonitoringIllustration({ alertDown, alertSent, incidentDetected, 
     .monitor-row-alert {
       animation: row-glow 3s ease-in-out infinite;
     }
+    @media (prefers-reduced-motion: reduce) {
+      .uptime-live-dot,
+      .alert-toast,
+      .status-pill-alert,
+      .monitor-row-alert {
+        animation: none;
+      }
+    }
   `;
 
   return (
