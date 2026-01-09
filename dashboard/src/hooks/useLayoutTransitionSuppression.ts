@@ -3,19 +3,27 @@
 import { useLayoutEffect, useState } from 'react';
 
 /**
- * Suppresses CSS transitions for one frame when condition is true.
- * Used to prevent width transitions from animating during layout changes.
+ * Suppresses CSS transitions for one frame when condition becomes true.
+ * Returns true on the first frame, then false after RAF.
+ * Initializes to match shouldSuppress for correct first render.
  */
 export function useLayoutTransitionSuppression(shouldSuppress: boolean): boolean {
-  const [isSuppressing, setIsSuppressing] = useState(false);
+  // Initialize to shouldSuppress so first render is correct
+  const [isSuppressing, setIsSuppressing] = useState(shouldSuppress);
 
   useLayoutEffect(() => {
-    if (!shouldSuppress) return;
+    if (!shouldSuppress) {
+      setIsSuppressing(false);
+      return;
+    }
 
     setIsSuppressing(true);
-    const rafId = requestAnimationFrame(() => setIsSuppressing(false));
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setIsSuppressing(false));
+    });
     return () => cancelAnimationFrame(rafId);
   }, [shouldSuppress]);
 
   return isSuppressing;
 }
+

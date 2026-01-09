@@ -1,6 +1,7 @@
 'use client';
 
-import type { Digit, DigitState } from '@/constants/animated-number';
+import type { Digit } from '@/constants/animated-number';
+import type { DigitState, DigitPhase } from '@/components/animations/v2/types';
 import { useCallback, useId, useLayoutEffect, useRef, useState } from 'react';
 
 type UseDigitDiffOptions = {
@@ -15,6 +16,7 @@ type UseDigitDiffResult = {
 /**
  * Manages digit state diffing for AnimatedNumber.
  * Tracks value changes and computes entering/exiting states.
+ * Maps digits from RIGHT (least significant) for correct alignment.
  */
 export function useDigitDiff({ value }: UseDigitDiffOptions): UseDigitDiffResult {
   const componentId = useId();
@@ -66,6 +68,10 @@ type DiffOutput = {
   stateMap: Map<number, DigitState>;
 };
 
+/**
+ * Pure function that diffs digits aligned from the RIGHT (least significant).
+ * Returns new states and a position map for tracking across renders.
+ */
 function diffDigits(input: DiffInput): DiffOutput {
   const { nextDigits, prevDigits, prevStateMap, generateId } = input;
 
@@ -87,23 +93,51 @@ function diffDigits(input: DiffInput): DiffOutput {
     const existingState = prevStateMap.get(posFromRight);
 
     if (hasNewDigit) {
-      const id = existingState ? existingState.id : generateId();
+      const nextDigit = nextDigits[newIndex];
+      const prevDigit = hasOldDigit ? prevDigits[oldIndex] : null;
       const isNewlyEntering = !existingState && !hasOldDigit;
 
-      const state: DigitState = {
-        digit: nextDigits[newIndex],
-        prevDigit: hasOldDigit ? prevDigits[oldIndex] : (existingState?.digit ?? null),
-        lifecycle: isNewlyEntering ? 'entering' : 'idle',
-        id,
-      };
-      states.push(state);
-      stateMap.set(posFromRight, state);
+      if (isNewlyEntering) {
+        // New digit entering from left - animate from 0
+        const state: DigitState = {
+          id: generateId(),
+          digit: nextDigit,
+          phase: 'entering',
+          fromDigit: 0 as Digit,
+        };
+        states.push(state);
+        stateMap.set(posFromRight, state);
+      } else if (existingState && existingState.digit !== nextDigit) {
+        // Digit value changed - animate
+        const state: DigitState = {
+          id: existingState.id,
+          digit: nextDigit,
+          phase: 'animating',
+          fromDigit: existingState.digit,
+        };
+        states.push(state);
+        stateMap.set(posFromRight, state);
+      } else if (existingState) {
+        // No change - preserve existing state exactly
+        states.push(existingState);
+        stateMap.set(posFromRight, existingState);
+      } else {
+        // First render - create idle state
+        const state: DigitState = {
+          id: generateId(),
+          digit: nextDigit,
+          phase: 'idle',
+          fromDigit: null,
+        };
+        states.push(state);
+        stateMap.set(posFromRight, state);
+      }
     } else if (hasOldDigit && existingState) {
+      // Digit exiting - animate to 0
       states.push({
         ...existingState,
-        digit: prevDigits[oldIndex],
-        prevDigit: prevDigits[oldIndex],
-        lifecycle: 'exiting',
+        phase: 'exiting',
+        fromDigit: existingState.digit,
       });
     }
   }

@@ -1,11 +1,10 @@
 'use client';
 
-import { DIGIT_WIDTH, MASK_HEIGHT, ZWSP, getMaskStyles, type Digit } from '@/constants/animated-number';
+import { DIGIT_WIDTH, MASK_HEIGHT, ZWSP, SPRING_EASING, getMaskStyles, type Digit } from '@/constants/animated-number';
 import React, { useMemo, useReducer, useEffect, useRef } from 'react';
 import { DigitReelV2 } from './DigitReelV2';
 import { AnimatedNumberContext } from './context';
 import { animatedNumberReducer, createInitialDigits } from './reducer';
-import type { AnimatedNumberState } from './types';
 
 type AnimatedNumberV2Props = {
   value: number;
@@ -15,7 +14,7 @@ type AnimatedNumberV2Props = {
 /**
  * AnimatedNumberV2 - With state machine for rolling animation
  */
-function AnimatedNumberV2Component({ value, duration = 4000 }: AnimatedNumberV2Props) {
+function AnimatedNumberV2Component({ value, duration = 1200 }: AnimatedNumberV2Props) {
   // Initialize state with current value
   const [state, dispatch] = useReducer(
     animatedNumberReducer,
@@ -36,8 +35,7 @@ function AnimatedNumberV2Component({ value, duration = 4000 }: AnimatedNumberV2P
       const newDigitCount = newDigitValues.length;
 
       if (newDigitCount !== prevDigitCount) {
-        // Digit count changed - need to sync state
-        // Map from RIGHT (least significant) - so existing digits stay in place
+        // Digit count changed - map from RIGHT (least significant)
         const newDigits: typeof state.digits = [];
         
         for (let i = 0; i < newDigitCount; i++) {
@@ -54,15 +52,18 @@ function AnimatedNumberV2Component({ value, duration = 4000 }: AnimatedNumberV2P
               newDigits.push(existing);
             }
           } else {
-            // New digit position (leftmost) - just appear for now (Step 3b adds animation)
+            // New entering digit - roll from 0 to target
             newDigits.push({
               id: crypto.randomUUID(),
               digit,
-              phase: 'idle' as const,
-              fromDigit: null,
+              phase: 'entering' as const,
+              fromDigit: 0 as Digit,
             });
           }
         }
+        
+        // TODO: Handle exiting digits when shrinking
+        
         dispatch({ type: 'sync', digits: newDigits });
       } else {
         // Same digit count - just dispatch changes
@@ -140,6 +141,7 @@ function AnimatedNumberV2Component({ value, duration = 4000 }: AnimatedNumberV2P
                 display: 'inline-flex',
                 justifyContent: 'flex-end',
                 width: integerSectionWidth,
+                transition: `width ${duration}ms ${SPRING_EASING}`,
               }}
             >
               {/* Wrapper containing digit reels */}
