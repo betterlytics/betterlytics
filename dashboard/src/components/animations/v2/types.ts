@@ -17,7 +17,7 @@ export type AnimatedNumberState = {
 };
 
 // Action types
-export type AnimatedNumberActionType = 'changed' | 'completed' | 'exited' | 'entered';
+export type AnimatedNumberActionType = 'changed' | 'completed' | 'exited' | 'entered' | 'sync';
 
 export type AnimatedNumberActionBase<T extends AnimatedNumberActionType> = {
   type: T;
@@ -28,7 +28,8 @@ export type AnimatedNumberAction =
   | AnimatedNumberActionBase<'changed'> & { fromDigit: Digit; toDigit: Digit }
   | AnimatedNumberActionBase<'completed'>
   | AnimatedNumberActionBase<'exited'>
-  | AnimatedNumberActionBase<'entered'>;
+  | AnimatedNumberActionBase<'entered'>
+  | { type: 'sync'; digits: DigitState[] };
 
 // Context value
 export type AnimatedNumberContextValue = {

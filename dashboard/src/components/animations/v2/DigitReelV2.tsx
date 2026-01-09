@@ -30,10 +30,6 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
   };
 
   const isAnimating = phase === 'animating';
-  
-  // Each digit is 1/10th of the reel height
-  // digit 0 = 0%, digit 5 = -50%, digit 9 = -90%
-  const targetOffset = -digit * 10;
 
   return (
     <span
@@ -56,7 +52,7 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
           flexDirection: 'column',
           alignItems: 'center',
           width: DIGIT_WIDTH,
-          transform: `translateY(${targetOffset}%)`,
+          transform: `translateY(${-digit * 10}%)`,
           // Always have transition active - CSS handles interrupts smoothly
           transition: `transform ${duration}ms ${SPRING_EASING}`,
         }}

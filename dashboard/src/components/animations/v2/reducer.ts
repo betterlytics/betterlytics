@@ -38,6 +38,11 @@ export function animatedNumberReducer(
         ),
       };
 
+    case 'sync':
+      return {
+        digits: action.digits,
+      };
+
     default:
       return state;
   }

@@ -32,18 +32,52 @@ function AnimatedNumberV2Component({ value, duration = 4000 }: AnimatedNumberV2P
         .split('')
         .map(Number) as Digit[];
 
-      // Dispatch 'changed' for each digit that differs
-      newDigitValues.forEach((newDigit, index) => {
-        const prevState = state.digits[index];
-        if (prevState && prevState.digit !== newDigit) {
-          dispatch({
-            type: 'changed',
-            id: prevState.id,
-            fromDigit: prevState.digit,
-            toDigit: newDigit,
-          });
+      const prevDigitCount = state.digits.length;
+      const newDigitCount = newDigitValues.length;
+
+      if (newDigitCount !== prevDigitCount) {
+        // Digit count changed - need to sync state
+        // Map from RIGHT (least significant) - so existing digits stay in place
+        const newDigits: typeof state.digits = [];
+        
+        for (let i = 0; i < newDigitCount; i++) {
+          const digit = newDigitValues[i];
+          // Align from right: new index i maps to old index (i - (newDigitCount - prevDigitCount))
+          const oldIndex = i - (newDigitCount - prevDigitCount);
+          const existing = oldIndex >= 0 ? state.digits[oldIndex] : null;
+          
+          if (existing) {
+            // Preserve existing digit, update value if different
+            if (existing.digit !== digit) {
+              newDigits.push({ ...existing, digit, phase: 'animating' as const, fromDigit: existing.digit });
+            } else {
+              newDigits.push(existing);
+            }
+          } else {
+            // New digit position (leftmost) - just appear for now (Step 3b adds animation)
+            newDigits.push({
+              id: crypto.randomUUID(),
+              digit,
+              phase: 'idle' as const,
+              fromDigit: null,
+            });
+          }
         }
-      });
+        dispatch({ type: 'sync', digits: newDigits });
+      } else {
+        // Same digit count - just dispatch changes
+        newDigitValues.forEach((newDigit, index) => {
+          const prevState = state.digits[index];
+          if (prevState && prevState.digit !== newDigit) {
+            dispatch({
+              type: 'changed',
+              id: prevState.id,
+              fromDigit: prevState.digit,
+              toDigit: newDigit,
+            });
+          }
+        });
+      }
 
       prevValueRef.current = value;
     }
