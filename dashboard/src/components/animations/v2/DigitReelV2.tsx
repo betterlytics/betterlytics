@@ -65,9 +65,7 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
 
   return (
     <span
-      data-element="digit-container"
-      data-digit={digit}
-      data-phase={phase}
+      className="animated-digit-container"
       style={{
         display: 'inline-flex',
         justifyContent: 'center',
@@ -78,7 +76,7 @@ function DigitReelV2Component({ digitState }: DigitReelV2Props) {
       }}
     >
       <span
-        data-element="digit-reel"
+        className="animated-digit-reel"
         style={{
           display: 'inline-flex',
           justifyContent: 'center',

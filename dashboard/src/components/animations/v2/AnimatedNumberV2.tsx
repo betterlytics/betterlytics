@@ -37,40 +37,6 @@ function AnimatedNumberV2Component({ value, duration = 1200, withTextSelect = fa
 }
 
 /**
- * LayoutStabilizer - Keeps the container from collapsing during animations
- * by providing a zero-width space buffer in empty or transitioning sections.
- */
-function LayoutStabilizer({ 
-  element, 
-  className, 
-  justifyContent, 
-  padding = 0 
-}: { 
-  element: string; 
-  className: string; 
-  justifyContent: 'flex-start' | 'flex-end'; 
-  padding?: string | number;
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      data-element={element}
-      className={className}
-      style={{
-        padding,
-        display: 'inline-flex',
-        justifyContent,
-        width: 0,
-      }}
-    >
-      <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
-        {ZWSP}
-      </span>
-    </span>
-  );
-}
-
-/**
  * Inner component that consumes context and renders digits.
  */
 function AnimatedNumberInner({ value, duration, withTextSelect }: { value: number; duration: number; withTextSelect: boolean }) {
@@ -82,7 +48,7 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
 
   return (
     <span
-      data-element="container"
+      className="animated-number-container"
       style={{
         display: 'inline-flex',
         direction: 'ltr',
@@ -94,6 +60,7 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
       {/* Selectable overlay - only when withTextSelect enabled */}
       {withTextSelect && (
         <span
+          className="animated-number-selection-overlay"
           style={{
             position: 'absolute',
             inset: 0,
@@ -121,20 +88,11 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
           ))}
         </span>
       )}
-      
-      <LayoutStabilizer 
-        element="pre-section" 
-        className="number-section-pre" 
-        justifyContent="flex-end" 
-        padding={`calc(${MASK_HEIGHT}/2) 0`}
-      />
 
-      {/* Mask */}
-      <span aria-hidden="true" data-element="mask" style={maskStyles}>
-        {/* Integer section - width based on non-exiting digits */}
+      {/* Mask area for fade-in/out effects */}
+      <span aria-hidden="true" className="animated-number-mask" style={maskStyles}>
         <span
-          data-element="integer-section"
-          className="number-section-integer"
+          className="animated-number-integer-section"
           style={{
             display: 'inline-flex',
             justifyContent: 'flex-end',
@@ -149,20 +107,7 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
             ))}
           </span>
         </span>
-
-        <LayoutStabilizer 
-          element="fraction-section" 
-          className="number-section-fraction" 
-          justifyContent="flex-start" 
-        />
       </span>
-
-      <LayoutStabilizer 
-        element="post-section" 
-        className="number-section-post" 
-        justifyContent="flex-start" 
-        padding={`calc(${MASK_HEIGHT}/2) 0`}
-      />
     </span>
   );
 }
