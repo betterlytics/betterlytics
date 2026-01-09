@@ -1,109 +1,147 @@
 'use client';
 
 import { DIGIT_WIDTH, MASK_HEIGHT, ZWSP, getMaskStyles, type Digit } from '@/constants/animated-number';
-import React, { useMemo } from 'react';
+import React, { useMemo, useReducer, useEffect, useRef } from 'react';
 import { DigitReelV2 } from './DigitReelV2';
+import { AnimatedNumberContext } from './context';
+import { animatedNumberReducer, createInitialDigits } from './reducer';
+import type { AnimatedNumberState } from './types';
 
 type AnimatedNumberV2Props = {
   value: number;
+  duration?: number;
 };
 
 /**
- * AnimatedNumberV2 - DOM structure only (no animations yet)
- * 
- * Structure:
- * - Container (inline-flex, in DOM flow)
- *   - Pre section (width 0, for accessibility spacing)
- *   - Mask (overflow:hidden, gradient edges)
- *     - Integer section (width = N * DIGIT_WIDTH)
- *       - Wrapper (contains ZWSP + all digit reels)
- *         - Sentinel reel (for enter animation, initially at 0)
- *         - Digit reels...
- *   - Post section (width 0)
+ * AnimatedNumberV2 - With state machine for rolling animation
  */
-function AnimatedNumberV2Component({ value }: AnimatedNumberV2Props) {
-  const digits = String(Math.abs(Math.floor(value)))
-    .split('')
-    .map(Number) as Digit[];
+function AnimatedNumberV2Component({ value, duration = 4000 }: AnimatedNumberV2Props) {
+  // Initialize state with current value
+  const [state, dispatch] = useReducer(
+    animatedNumberReducer,
+    value,
+    (initialValue) => ({ digits: createInitialDigits(initialValue) })
+  );
+
+  const prevValueRef = useRef(value);
+
+  // Handle value changes
+  useEffect(() => {
+    if (value !== prevValueRef.current) {
+      const newDigitValues = String(Math.abs(Math.floor(value)))
+        .split('')
+        .map(Number) as Digit[];
+
+      // Dispatch 'changed' for each digit that differs
+      newDigitValues.forEach((newDigit, index) => {
+        const prevState = state.digits[index];
+        if (prevState && prevState.digit !== newDigit) {
+          dispatch({
+            type: 'changed',
+            id: prevState.id,
+            fromDigit: prevState.digit,
+            toDigit: newDigit,
+          });
+        }
+      });
+
+      prevValueRef.current = value;
+    }
+  }, [value, state.digits]);
 
   const isNegative = value < 0;
   const maskStyles = useMemo(() => getMaskStyles(), []);
 
-  const digitCount = digits.length;
+  const digitCount = state.digits.length;
   const integerSectionWidth = `calc(${digitCount} * ${DIGIT_WIDTH})`;
 
   return (
-    <span
-      style={{
-        lineHeight: 1,
-        fontVariantNumeric: 'tabular-nums',
-        display: 'inline-flex',
-        isolation: 'isolate',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {isNegative && <span>−</span>}
-      
+    <AnimatedNumberContext.Provider value={{ state, dispatch, duration }}>
       <span
-        aria-label={value.toString()}
-        data-element="container"
         style={{
+          lineHeight: 1,
+          fontVariantNumeric: 'tabular-nums',
           display: 'inline-flex',
-          direction: 'ltr',
           isolation: 'isolate',
-          position: 'relative',
-          zIndex: -1,
+          whiteSpace: 'nowrap',
         }}
       >
-        {/* Pre section */}
+        {isNegative && <span>−</span>}
+        
         <span
-          aria-hidden="true"
-          data-element="pre-section"
-          className="number-section-pre"
+          aria-label={value.toString()}
+          data-element="container"
           style={{
-            padding: `calc(${MASK_HEIGHT}/2) 0`,
             display: 'inline-flex',
-            justifyContent: 'flex-end',
-            width: 0,
+            direction: 'ltr',
+            isolation: 'isolate',
+            position: 'relative',
+            zIndex: -1,
           }}
         >
-          <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
-            {ZWSP}
-          </span>
-        </span>
-
-        {/* Mask */}
-        <span aria-hidden="true" data-element="mask" style={maskStyles}>
-          {/* Integer section */}
+          {/* Pre section */}
           <span
-            data-element="integer-section"
-            className="number-section-integer"
+            aria-hidden="true"
+            data-element="pre-section"
+            className="number-section-pre"
             style={{
+              padding: `calc(${MASK_HEIGHT}/2) 0`,
               display: 'inline-flex',
               justifyContent: 'flex-end',
-              width: integerSectionWidth,
-              // transform will be applied here for horizontal enter/exit animation
+              width: 0,
             }}
           >
-            {/* Wrapper containing ZWSP + digit reels */}
-            <span data-element="digit-wrapper" style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
+            <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
               {ZWSP}
-              
-              {/* Sentinel reel (hidden, for enter animation) */}
-              {/* Will be added in Step 3 */}
-              
-              {/* Digit reels */}
-              {digits.map((digit, index) => (
-                <DigitReelV2 key={index} digit={digit} />
-              ))}
             </span>
           </span>
 
-          {/* Fraction section (for decimals, currently unused) */}
+          {/* Mask */}
+          <span aria-hidden="true" data-element="mask" style={maskStyles}>
+            {/* Integer section */}
+            <span
+              data-element="integer-section"
+              className="number-section-integer"
+              style={{
+                display: 'inline-flex',
+                justifyContent: 'flex-end',
+                width: integerSectionWidth,
+              }}
+            >
+              {/* Wrapper containing digit reels */}
+              <span data-element="digit-wrapper" style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
+                {ZWSP}
+                
+                {/* Digit reels from state */}
+                {state.digits.map((digitState) => (
+                  <DigitReelV2 key={digitState.id} digitState={digitState} />
+                ))}
+              </span>
+            </span>
+
+            {/* Fraction section */}
+            <span
+              data-element="fraction-section"
+              className="number-section-fraction"
+              style={{
+                display: 'inline-flex',
+                justifyContent: 'flex-start',
+                width: 0,
+              }}
+            >
+              <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
+                {ZWSP}
+              </span>
+            </span>
+          </span>
+
+          {/* Post section */}
           <span
-            data-element="fraction-section"
-            className="number-section-fraction"
+            aria-hidden="true"
+            data-element="post-section"
+            className="number-section-post"
             style={{
+              padding: `calc(${MASK_HEIGHT}/2) 0`,
               display: 'inline-flex',
               justifyContent: 'flex-start',
               width: 0,
@@ -114,25 +152,8 @@ function AnimatedNumberV2Component({ value }: AnimatedNumberV2Props) {
             </span>
           </span>
         </span>
-
-        {/* Post section */}
-        <span
-          aria-hidden="true"
-          data-element="post-section"
-          className="number-section-post"
-          style={{
-            padding: `calc(${MASK_HEIGHT}/2) 0`,
-            display: 'inline-flex',
-            justifyContent: 'flex-start',
-            width: 0,
-          }}
-        >
-          <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
-            {ZWSP}
-          </span>
-        </span>
       </span>
-    </span>
+    </AnimatedNumberContext.Provider>
   );
 }
 

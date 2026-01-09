@@ -43,19 +43,18 @@ export function getMaskStyles(): React.CSSProperties {
 
 /**
  * Creates mask styles for vertical fade gradient (digit roll animations).
- * Only fades the rolling digits (above/below), NOT the current digit.
- * The gradient is offset so the center (current digit) is fully opaque.
+ * Constrains container to 1 digit height with gradient fade at edges.
  */
 export function getDigitMaskStyles(): React.CSSProperties {
-  // The visible digit height is approximately 1em + padding
-  // We want the fade to START at the edge of the visible area
   const fadeHeight = MASK_HEIGHT;
   
   return {
+    // CRITICAL: Fixed height for 1 digit, with overflow clip
+    height: `calc(1lh + ${fadeHeight})`, // 1lh = line-height-based unit
     overflow: 'clip',
     padding: `calc(${fadeHeight} / 2) 0`,
     margin: `calc(-1 * ${fadeHeight} / 2) 0`,
-    // Gradient: fully opaque in center (padding area), fades at top/bottom edges
+    // Gradient: fully opaque in center, fades at top/bottom edges
     maskImage: `linear-gradient(to bottom, 
       transparent 0, 
       #000 ${fadeHeight}, 
