@@ -55,7 +55,7 @@ export default function TestAnimationPage() {
             </button>
           </div>
 
-          <div className="text-4xl font-mono min-w-[100px] text-center">
+          <div className="text-4xl font-mono w-auto text-center">
             <AnimatedNumberV2 value={v2Value} />
           </div>
 

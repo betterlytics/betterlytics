@@ -1,60 +1,84 @@
 'use client';
 
-import { DIGIT_WIDTH } from '@/constants/animated-number';
-import React, { useLayoutEffect, useRef, useState } from 'react';
-import { useAnimatedNumber } from './context';
-import type { DigitState } from './types';
+import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, getDigitMaskStyles, type Digit } from '@/constants/animated-number';
+import { cn } from '@/lib/utils';
+import React, { useMemo } from 'react';
 
 type DigitReelV2Props = {
-  digitState: DigitState;
+  digit: Digit;
 };
 
-function DigitReelV2Component({ digitState }: DigitReelV2Props) {
-  const { dispatch, duration } = useAnimatedNumber();
-  const { id, digit, phase, fromDigit } = digitState;
-  
-  // Two-phase render: snap to offset, then animate
-  const [isSnapping, setIsSnapping] = useState(phase === 'animating');
-  const prevPhaseRef = useRef(phase);
+const PADDING_CLASS = `py-[calc(${MASK_HEIGHT}/2)]` as const;
 
-  useLayoutEffect(() => {
-    if (phase === 'animating' && prevPhaseRef.current !== 'animating') {
-      // Just entered animating phase - snap first
-      setIsSnapping(true);
-      const rafId = requestAnimationFrame(() => {
-        setIsSnapping(false);
-      });
-      return () => cancelAnimationFrame(rafId);
-    }
-    prevPhaseRef.current = phase;
-  }, [phase]);
-
-  const handleTransitionEnd = (e: React.TransitionEvent) => {
-    if (e.propertyName === 'transform' && e.target === e.currentTarget) {
-      dispatch({ type: 'completed', id });
-    }
-  };
-
-  // Calculate transform
-  const offset = phase === 'animating' && fromDigit !== null
-    ? (digit - fromDigit) * 100
-    : 0;
-
-  const shouldSnap = phase === 'animating' && isSnapping;
+/**
+ * Single digit reel - renders all 10 digits stacked.
+ * Current digit is in flow, others are absolute positioned above/below.
+ */
+function DigitReelV2Component({ digit }: DigitReelV2Props) {
+  const digitMaskStyles = useMemo(() => getDigitMaskStyles(), []);
 
   return (
     <span
+      data-element="digit-container"
+      data-digit={digit}
       style={{
-        width: DIGIT_WIDTH,
         display: 'inline-flex',
         justifyContent: 'center',
-        alignItems: 'center',
-        transform: shouldSnap ? `translateY(${offset}%)` : 'translateY(0%)',
-        transition: shouldSnap ? 'none' : `transform ${duration}ms ease-out`,
+        width: DIGIT_WIDTH,
+        ...digitMaskStyles,
       }}
-      onTransitionEnd={handleTransitionEnd}
     >
-      {digit}
+      <span
+        data-element="digit-reel"
+        style={{
+          display: 'inline-flex',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          alignItems: 'center',
+          position: 'relative',
+          width: DIGIT_WIDTH,
+          // transform will be applied for animation
+        }}
+      >
+        {/* Digits above current (absolute, bottom: 100%) */}
+        <span
+          data-element="digits-above"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            position: 'absolute',
+            width: '100%',
+            bottom: '100%',
+            left: 0,
+          }}
+        >
+          {DIGITS.slice(0, digit).map((d) => (
+            <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
+          ))}
+        </span>
+
+        {/* Current digit (in flow) */}
+        <span className={cn("inline-block", PADDING_CLASS)}>{digit}</span>
+
+        {/* Digits below current (absolute, top: 100%) */}
+        <span
+          data-element="digits-below"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            position: 'absolute',
+            width: '100%',
+            top: '100%',
+            left: 0,
+          }}
+        >
+          {DIGITS.slice(digit + 1).map((d) => (
+            <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
+          ))}
+        </span>
+      </span>
     </span>
   );
 }

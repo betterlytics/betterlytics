@@ -24,8 +24,8 @@ export type DigitState = {
 };
 
 /**
- * Creates mask styles for a fade gradient effect.
- * The mask creates soft edges that fade digits in/out during enter/exit animations.
+ * Creates mask styles for horizontal fade gradient (enter/exit animations).
+ * Only fades left/right edges.
  */
 export function getMaskStyles(): React.CSSProperties {
   return {
@@ -35,23 +35,36 @@ export function getMaskStyles(): React.CSSProperties {
     overflow: 'clip',
     margin: `0 calc(-1 * ${MASK_WIDTH})`,
     padding: `calc(${MASK_HEIGHT} / 2) ${MASK_WIDTH}`,
-    maskImage: [
-      `linear-gradient(to right, transparent 0, #000 ${MASK_WIDTH}, #000 calc(100% - ${MASK_WIDTH}), transparent)`,
-      `linear-gradient(to bottom, transparent 0, #000 ${MASK_HEIGHT}, #000 calc(100% - ${MASK_HEIGHT}), transparent 100%)`,
-      'radial-gradient(at bottom right, #000 0, transparent 70%)',
-      'radial-gradient(at bottom left, #000 0, transparent 70%)',
-      'radial-gradient(at top left, #000 0, transparent 70%)',
-      'radial-gradient(at top right, #000 0, transparent 70%)',
-    ].join(','),
-    maskSize: [
-      `100% calc(100% - ${MASK_HEIGHT} * 2)`,
-      `calc(100% - ${MASK_WIDTH} * 2) 100%`,
-      `${MASK_WIDTH} ${MASK_HEIGHT}`,
-      `${MASK_WIDTH} ${MASK_HEIGHT}`,
-      `${MASK_WIDTH} ${MASK_HEIGHT}`,
-      `${MASK_WIDTH} ${MASK_HEIGHT}`,
-    ].join(','),
-    maskPosition: 'center center, center center, left top, right top, right bottom, left bottom',
+    maskImage: `linear-gradient(to right, transparent 0, #000 ${MASK_WIDTH}, #000 calc(100% - ${MASK_WIDTH}), transparent)`,
+    maskSize: '100% 100%',
     maskRepeat: 'no-repeat',
   } as React.CSSProperties;
 }
+
+/**
+ * Creates mask styles for vertical fade gradient (digit roll animations).
+ * Only fades the rolling digits (above/below), NOT the current digit.
+ * The gradient is offset so the center (current digit) is fully opaque.
+ */
+export function getDigitMaskStyles(): React.CSSProperties {
+  // The visible digit height is approximately 1em + padding
+  // We want the fade to START at the edge of the visible area
+  const fadeHeight = MASK_HEIGHT;
+  
+  return {
+    overflow: 'clip',
+    padding: `calc(${fadeHeight} / 2) 0`,
+    margin: `calc(-1 * ${fadeHeight} / 2) 0`,
+    // Gradient: fully opaque in center (padding area), fades at top/bottom edges
+    maskImage: `linear-gradient(to bottom, 
+      transparent 0, 
+      #000 ${fadeHeight}, 
+      #000 calc(100% - ${fadeHeight}), 
+      transparent 100%
+    )`,
+    maskSize: '100% 100%',
+    maskRepeat: 'no-repeat',
+  } as React.CSSProperties;
+}
+
+
