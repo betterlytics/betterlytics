@@ -1,5 +1,7 @@
+'server-only';
+
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { getUserSiteIds } from '@/repositories/postgres/dashboard.repository';
+import { getOwnedSiteIds, findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
 import { getUserEventCountForPeriod } from '@/repositories/clickhouse/usage.repository';
 import { toDateString } from '@/utils/dateFormatters';
 import { UserBillingDataSchema, type UsageData, type UserBillingData } from '@/entities/billing/billing.entities';
@@ -12,7 +14,7 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
       throw new Error('No subscription found for user');
     }
 
-    const siteIds = await getUserSiteIds(userId);
+    const siteIds = await getOwnedSiteIds(userId, true);
 
     const currentUsage = await getUserEventCountForPeriod(siteIds, toDateString(subscription.currentPeriodStart));
 
@@ -43,6 +45,15 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
     console.error('Failed to get billing stats:', error);
     throw new UserException('Failed to get billing stats');
   }
+}
+
+export async function getDashboardOwnerBillingStats(dashboardId: string): Promise<UserBillingData> {
+  const owner = await findDashboardOwner(dashboardId);
+  if (!owner) {
+    throw new Error('Dashboard owner not found');
+  }
+
+  return getUserBillingStats(owner.userId);
 }
 
 function getDaysUntilReset(endDate: Date): number {

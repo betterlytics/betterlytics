@@ -15,4 +15,5 @@ export const submitBugReportAction = withDashboardMutationAuthContext(
       message: data.message,
     });
   },
+  { permission: 'canSubmitBugReports' },
 );

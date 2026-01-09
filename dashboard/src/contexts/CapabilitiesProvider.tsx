@@ -1,8 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useDemoMode } from './DemoModeContextProvider';
-import { getUserBillingData } from '@/actions/billing.action';
+import { getDashboardOwnerBillingData } from '@/actions/billing.action';
 import {
   getCapabilitiesForTier,
   type PlanCapabilities,
@@ -10,6 +9,7 @@ import {
   type DashboardCapabilities,
 } from '@/lib/billing/capabilities';
 import { TierName } from '@/lib/billing/plans';
+import { useDashboardAuth } from './DashboardAuthProvider';
 
 export type { PlanCapabilities, MonitoringCapabilities, DashboardCapabilities };
 
@@ -31,27 +31,32 @@ const CapabilitiesContext = createContext<CapabilitiesContextValue>({
 });
 
 type CapabilitiesProviderProps = {
+  dashboardId: string;
   children: React.ReactNode;
 };
 
-export function CapabilitiesProvider({ children }: CapabilitiesProviderProps) {
-  const isDemo = useDemoMode();
+export function CapabilitiesProvider({ dashboardId, children }: CapabilitiesProviderProps) {
+  const { isDemo } = useDashboardAuth();
   const [tier, setTier] = useState<TierName>('growth');
   const [isLoading, setIsLoading] = useState(!isDemo);
 
   useEffect(() => {
     if (isDemo) return;
 
+    setIsLoading(true);
+
     const fetchTier = async () => {
-      const result = await getUserBillingData();
-      if (result.success) {
-        setTier(result.data.subscription.tier);
+      try {
+        const billingData = await getDashboardOwnerBillingData(dashboardId);
+        setTier(billingData.subscription.tier);
+      } catch (error) {
+        console.error('Failed to fetch dashboard capabilities:', error);
       }
       setIsLoading(false);
     };
 
     fetchTier();
-  }, [isDemo]);
+  }, [isDemo, dashboardId]);
 
   const value = useMemo<CapabilitiesContextValue>(() => {
     if (isDemo) {

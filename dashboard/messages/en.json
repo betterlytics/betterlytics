@@ -1240,6 +1240,16 @@
         "observability": "Observability"
       }
     },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Back to Dashboard",
+        "settings": "Settings",
+        "data": "Data",
+        "rules": "Rules",
+        "members": "Members",
+        "dangerZone": "Danger Zone"
+      }
+    },
     "metrics": {
       "uniqueVisitors": "Unique Visitors",
       "totalPageviews": "Total Pageviews",
@@ -1285,8 +1295,10 @@
   "dashboardsPage": {
     "title": "Your Dashboards",
     "subtitle": "Manage and monitor analytics for all your websites.",
+    "loadError": "Failed to load dashboards",
     "emptyTitle": "No dashboards yet",
     "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
+    "memberCountTooltip": "{count, plural, one {{count} member} other {{count} members}}",
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
@@ -1319,7 +1331,7 @@
       "fast": "Fast",
       "elevated": "Elevated",
       "slow": "Slow",
-      "noData": "No data yet"
+      "noData": "No data"
     },
     "ssl": {
       "valid": "Valid",
@@ -1676,7 +1688,8 @@
     "deleting": "Deleting",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "save": "Save"
   },
   "languages": {
     "da": "Danish",
@@ -2390,11 +2403,6 @@
         "toastFailure": "Failed to send verification email"
       }
     },
-    "settingsPopover": {
-      "title": "Quick Settings",
-      "theme": "Theme",
-      "advanced": "Advanced Settings"
-    },
     "topbar": {
       "userMenu": {
         "userFallback": "User",
@@ -2565,6 +2573,7 @@
       "data": {
         "title": "Data Management",
         "description": "Configure data retention and collection preferences",
+        "retentionTitle": "Data Retention",
         "retentionLabel": "Data Retention Period",
         "retentionHelp": "How long to keep analytics data before automatic deletion",
         "presets": {
@@ -2575,11 +2584,17 @@
           "y2": "2 years",
           "y3": "3 years"
         },
+        "retentionConfirm": {
+          "title": "Change retention period?",
+          "description": "Are you sure you want to change the data retention period to {period}?"
+        },
         "siteRules": {
           "title": "Site Rules",
           "description": "Control which incoming events are accepted.",
           "enforceDomain": "Enforce domain",
-          "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain."
+          "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain.",
+          "enableValidation": "Enable domain validation",
+          "enableValidationDescription": "Only accept events from your configured domain"
         },
         "blacklistedIps": {
           "title": "Blacklisted IPs",
@@ -2592,15 +2607,33 @@
         }
       },
       "danger": {
-        "title": "Delete Dashboard",
-        "description": "Permanently delete dashboard",
-        "warning": "Warning: This action cannot be undone",
-        "deleteButton": "Delete Dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Delete Dashboard",
+        "sectionDescription": "Permanently remove this dashboard and all its data.",
+        "deleteButton": "Delete",
+        "toastSuccess": "Dashboard deleted successfully",
+        "toastError": "Failed to delete dashboard",
         "dialog": {
           "title": "Delete Dashboard",
           "description": "Are you sure you want to delete this dashboard? This action cannot be undone.",
           "cancel": "Cancel",
           "confirm": "Delete Dashboard"
+        }
+      },
+      "leaveDashboard": {
+        "title": "Leave Dashboard",
+        "description": "Are you sure you want to leave this dashboard?",
+        "button": "Leave Dashboard",
+        "buttonPending": "Leaving...",
+        "dialog": {
+          "title": "Leave Dashboard",
+          "description": "Are you sure you want to leave this dashboard? You will no longer be able to access it, and will need to be reinvited to join it again.",
+          "cancel": "Cancel",
+          "confirm": "Leave Dashboard"
+        },
+        "toast": {
+          "success": "Left dashboard",
+          "error": "Failed to leave dashboard"
         }
       }
     },
@@ -2613,6 +2646,10 @@
     "demoMode": {
       "notAvailable": "Not available on demo dashboard",
       "interactionDisabled": "Filtering from this interaction is disabled in the demo."
+    },
+    "permissions": {
+      "demoNotAvailable": "Not available on demo dashboard",
+      "insufficientPermissions": "You don't have permission to perform this action"
     },
     "bugReport": {
       "trigger": "Report bug",
@@ -2728,6 +2765,14 @@
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
       "customHeaders": "Custom request headers require a Professional plan"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "User already has access to this dashboard",
+      "invitationAlreadySent": "An invitation has already been sent to this email",
+      "invitationNotFoundOrProcessed": "Invitation not found or already processed",
+      "invitationExpired": "This invitation has expired",
+      "invitationEmailMismatch": "This invitation was sent to a different email address",
+      "invitationNotFound": "Invitation not found"
     }
   },
   "banners": {
@@ -2758,6 +2803,102 @@
       "title": "No Core Web Vitals data yet",
       "description": "Make sure tracking is enabled.",
       "action": "Learn more"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Members",
+      "description": "Manage who has access to this dashboard"
+    },
+    "table": {
+      "title": "Members",
+      "searchPlaceholder": "Search members...",
+      "columns": {
+        "member": "Member",
+        "email": "Email",
+        "role": "Role",
+        "joined": "Joined"
+      },
+      "noResults": "No members found matching \"{query}\"",
+      "you": "(you)",
+      "unknown": "Unknown"
+    },
+    "actions": {
+      "changeRole": "Change Role",
+      "removeFromDashboard": "Remove from dashboard"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "toast": {
+      "roleUpdated": "Role updated",
+      "roleUpdateFailed": "Failed to update role",
+      "memberRemoved": "Member removed",
+      "memberRemoveFailed": "Failed to remove member"
+    },
+    "settings": {
+      "invite": {
+        "title": "Invite",
+        "description": "Invite members to view, edit, or administrate your dashboard"
+      },
+      "activeMembers": {
+        "title": "Active members"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Invite new members",
+      "description": "Send an invitation to collaborate on this dashboard",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "colleague@example.com",
+      "roleLabel": "Role",
+      "inviteButton": "Invite",
+      "sending": "Sending...",
+      "pending": "Pending",
+      "invited": "Invited",
+      "invalidEmail": "Please enter a valid email address"
+    },
+    "toast": {
+      "sent": "Invitation sent",
+      "sendFailed": "Failed to send invitation",
+      "cancelled": "Invitation cancelled",
+      "cancelFailed": "Failed to cancel invitation",
+      "accepted": "Joined {domain} successfully!",
+      "joinedSuccess": "Invitation accepted!",
+      "acceptFailed": "Failed to accept invitation",
+      "declined": "Invitation declined",
+      "declineFailed": "Failed to decline invitation"
+    },
+    "pendingModal": {
+      "title": "Dashboard Invitation",
+      "description": "You've been invited to collaborate on a dashboard",
+      "unknownDashboard": "Dashboard",
+      "accept": "Accept",
+      "accepting": "Accepting...",
+      "decline": "Decline",
+      "declining": "Declining...",
+      "pendingCount": "{current} of {total} pending invitations"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invitation Not Found",
+      "notFoundDescription": "This invitation link is invalid or has already been used.",
+      "goToSignIn": "Go to Sign In",
+      "expiredTitle": "Invitation Expired",
+      "expiredDescription": "This invitation is no longer valid.",
+      "expiredHint": "Please ask the dashboard owner to send you a new invitation.",
+      "emailMismatchTitle": "Wrong Account",
+      "emailMismatchDescription": "This invitation was sent to {invitedEmail}, but you are signed in as {currentEmail}.",
+      "emailMismatchHint": "Sign out and sign in with the correct account to accept this invitation.",
+      "errorTitle": "Could Not Accept Invitation",
+      "errorDescription": "Something went wrong while accepting the invitation. It may have already been accepted or cancelled.",
+      "goToDashboards": "Go to Dashboards"
     }
   }
 }

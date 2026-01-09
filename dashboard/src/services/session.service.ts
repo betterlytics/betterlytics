@@ -1,3 +1,5 @@
+'server-only';
+
 import { randomBytes } from 'crypto';
 import { cookies } from 'next/headers';
 import * as SessionRepository from '@/repositories/postgres/session.repository';

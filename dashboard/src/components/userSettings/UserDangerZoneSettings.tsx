@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
@@ -32,7 +32,7 @@ export default function UserDangerZoneSettings({ formData, onUpdate }: UserDange
       try {
         await deleteUserAccountAction();
         toast.success(t('toast.success'));
-        await signOut({ callbackUrl: '/' });
+        window.location.href = '/';
       } catch (error) {
         console.error('Failed to delete account:', error);
         toast.error(t('toast.error'));

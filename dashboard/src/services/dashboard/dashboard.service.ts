@@ -1,7 +1,11 @@
 'server-only';
 
-import { Dashboard } from '@/entities/dashboard/dashboard.entities';
-import { createDashboard, findAllUserDashboards } from '@/repositories/postgres/dashboard.repository';
+import { Dashboard, DashboardWithMemberCount } from '@/entities/dashboard/dashboard.entities';
+import {
+  createDashboard,
+  findAllUserDashboards,
+  findOwnedDashboards,
+} from '@/repositories/postgres/dashboard.repository';
 import { generateSiteId } from '@/lib/site-id-generator';
 import { markOnboardingCompleted } from '@/repositories/postgres/user.repository';
 import { updateUserSettings } from '@/services/account/userSettings.service';
@@ -13,8 +17,12 @@ export async function createNewDashboard(domain: string, userId: string): Promis
   return await createDashboard({ domain, userId, siteId });
 }
 
-export async function getAllUserDashboards(userId: string): Promise<Dashboard[]> {
+export async function getAllUserDashboards(userId: string): Promise<DashboardWithMemberCount[]> {
   return findAllUserDashboards(userId);
+}
+
+export async function getOwnedDashboards(userId: string): Promise<Dashboard[]> {
+  return findOwnedDashboards(userId);
 }
 
 export async function completeOnboardingAndCreateDashboard(
