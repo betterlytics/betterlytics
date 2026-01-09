@@ -5,7 +5,7 @@ import { TIME_RANGE_PRESETS, TimeRangeValue, TimeRangePreset } from '@/utils/tim
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTranslations } from 'next-intl';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 interface QuickSelectSectionProps {
   selectedRange: TimeRangeValue;
@@ -32,7 +32,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues
     if (!preset) return null;
     const isAllowed = !allowedValues || allowedValues.includes(value);
     return (
-      <DisabledDemoTooltip key={preset.value} disabled={!isAllowed}>
+      <PermissionGate allowViewer key={preset.value} when={!isAllowed}>
         {(isDisabled) => (
           <Button
             variant={selectedRange === preset.value ? 'default' : 'ghost'}
@@ -46,7 +46,7 @@ export function QuickSelectSection({ selectedRange, onRangeSelect, allowedValues
             {t(`presets.${preset.value}`)}
           </Button>
         )}
-      </DisabledDemoTooltip>
+      </PermissionGate>
     );
   };
 

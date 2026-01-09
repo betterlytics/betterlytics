@@ -5,7 +5,7 @@ import { DashboardSettings } from '@/entities/dashboard/dashboardSettings.entiti
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 
 type SettingsContextType = {
-  settings: DashboardSettings | null;
+  settings: DashboardSettings;
   refreshSettings: () => Promise<void>;
 };
 
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export function SettingsProvider({ initialSettings, dashboardId, children }: Props) {
-  const [settings, setSettings] = useState<DashboardSettings | null>(initialSettings);
+  const [settings, setSettings] = useState<DashboardSettings>(initialSettings);
 
   const refreshSettings = useCallback(async () => {
     try {

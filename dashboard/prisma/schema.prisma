@@ -28,8 +28,18 @@ enum SubscriptionTier {
 }
 
 enum DashboardRole {
+  owner
   admin
+  editor
   viewer
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  declined
+  cancelled
+  expired
 }
 
 enum UserRole {
@@ -100,6 +110,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   bugReports BugReport[]
   annotations Annotation[]
+  sentInvitations DashboardInvitation[]
 }
 
 model VerificationToken {
@@ -138,6 +149,7 @@ model Dashboard {
   domain String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 
   userAccess UserDashboard[]
   funnels Funnel[]
@@ -147,6 +159,7 @@ model Dashboard {
   bugReports BugReport[]
   annotations Annotation[]
   monitorChecks MonitorCheck[]
+  invitations DashboardInvitation[]
 }
 
 model UserDashboard {
@@ -390,4 +403,28 @@ model PasswordResetToken {
 
   @@index([token])
   @@index([userId])
+}
+
+model DashboardInvitation {
+  id          String   @id @default(cuid())
+  
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+  
+  email       String
+  role        DashboardRole @default(viewer)
+  
+  invitedBy   User     @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+  invitedById String
+  
+  token       String   @unique @default(cuid())
+  expiresAt   DateTime
+  status      InvitationStatus @default(pending)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([dashboardId, email])
+  @@index([email])
+  @@index([token])
+  @@index([status])
 }

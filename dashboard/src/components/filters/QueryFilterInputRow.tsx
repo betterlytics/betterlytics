@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -51,7 +51,7 @@ export function QueryFilterInputRow<TEntity>({
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
-  const isDemo = useDemoMode();
+  const { isDemo } = useDashboardAuth();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
 
   const filterColumnRef = useRef<string>(filter.column);

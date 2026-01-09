@@ -21,6 +21,7 @@ import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 import './Integration.css';
+import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
 
 export default function Integration() {
   const { dashboard } = useOnboarding();
@@ -61,6 +62,7 @@ export default function Integration() {
       kind: 'completed',
     });
     try {
+      await setOnboardingCompletedAction();
       await refreshSession();
     } catch {}
     baRouter.push(`/dashboard/${dashboard.id}`);
@@ -71,6 +73,7 @@ export default function Integration() {
       kind: 'skipped',
     });
     try {
+      await setOnboardingCompletedAction();
       await refreshSession();
     } catch {}
     baRouter.push(`/dashboard/${dashboard.id}?showIntegration=true`);

@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
-import { DisabledDemoTooltip } from '../tooltip/DisabledDemoTooltip';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -30,7 +30,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.sidebar.dashboardDropdown');
-  const { buildHrefForDashboard } = useDashboardNavigation();
+  const { getSwappedDashboardHref } = useDashboardNavigation();
   const isEmbedded = useIsEmbedded();
 
   const currentDashboard = use(currentDashboardPromise);
@@ -38,7 +38,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
   const handleDashboardSwitch = (newDashboardId: string) => {
     setIsOpen(false);
-    router.push(buildHrefForDashboard(newDashboardId));
+    router.push(getSwappedDashboardHref(newDashboardId));
   };
 
   const allDashboardsList = allDashboards.success ? allDashboards.data : [];
@@ -82,7 +82,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <DisabledDemoTooltip disabled={isEmbedded}>
+        <PermissionGate allowViewer when={!isEmbedded}>
           {(disabled) => (
             <DropdownMenuItem
               onClick={() => router.push('/dashboards')}
@@ -95,7 +95,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
               </div>
             </DropdownMenuItem>
           )}
-        </DisabledDemoTooltip>
+        </PermissionGate>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -86,6 +86,7 @@
         }
       },
       "cta": {
+        "eyebrow": "Inizia ora",
         "title": "Pronto per iniziare?",
         "lead": "Unisciti alla community crescente di aziende che rifiutano di compromettere la privacy.",
         "getStarted": "Inizia gratis",
@@ -803,6 +804,19 @@
         ]
       }
     },
+    "comparison": {
+      "getStartedFree": "Inizia gratis",
+      "viewPricing": "Vedi i prezzi",
+      "featureComparison": {
+        "title": "Confronto delle funzionalità",
+        "subtitle": "Scopri come Betterlytics e {competitor} si confrontano fianco a fianco"
+      },
+      "whyBetterlytics": {
+        "title": "Perché Betterlytics?",
+        "subtitle": "Uno sguardo più approfondito a ciò che rende Betterlytics diverso"
+      },
+      "disclaimer": "Ci impegniamo a mantenere questo confronto accurato e aggiornato."
+    },
     "landing": {
       "seo": {
         "title": "Betterlytics | Una Migliore Alternativa a Google Analytics",
@@ -930,7 +944,8 @@
         "titleEmphasis": "Prezzi semplici,",
         "titleRest": "scalabili",
         "subtitle": "Piani basati sul traffico che si adattano alla tua crescita. Inizia gratis, scala mentre cresci.",
-        "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+        "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
+        "compareLink": "Confronta tutte le funzionalità"
       },
       "cards": {
         "advancedFilters": {
@@ -999,6 +1014,7 @@
       "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
       "company": "Azienda",
       "resources": "Risorse",
+      "compare": "Confronta",
       "connect": "Connettiti",
       "about": "Chi siamo",
       "contact": "Contatti",
@@ -1022,6 +1038,26 @@
       "webPage": {
         "breadcrumbHome": "Home"
       }
+    },
+    "pricing": {
+      "seo": {
+        "title": "Prezzi | Betterlytics Analytics Privacy-First",
+        "description": "Prezzi semplici e trasparenti per Betterlytics. Inizia gratis, scala quando cresci. Analytics privacy-first, conformi al GDPR per ogni dimensione aziendale.",
+        "keywords": [
+          "Prezzi Analytics",
+          "Piani Web Analytics",
+          "Prezzi Privacy Analytics",
+          "Costo Analytics GDPR",
+          "Piani Betterlytics",
+          "Analytics Convenienti",
+          "Piano Analytics Gratuito"
+        ]
+      },
+      "titleEmphasis": "Prezzi semplici e",
+      "titleRest": "trasparenti",
+      "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
+      "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
+      "comparisonTitle": "Confronta tutte le funzionalità"
     }
   },
   "pricingSlider": {
@@ -1064,7 +1100,134 @@
     },
     "labels": {
       "free": "Gratuito",
-      "custom": "Personalizzato"
+      "custom": "Contattaci"
+    }
+  },
+  "pricingComparison": {
+    "headers": {
+      "features": "Funzionalità",
+      "growth": "Growth",
+      "professional": "Professional",
+      "enterprise": "Enterprise"
+    },
+    "categories": {
+      "usageLimits": "Utilizzo e limiti",
+      "analytics": "Analytics",
+      "observability": "Osservabilità",
+      "support": "Supporto"
+    },
+    "features": {
+      "monthlyEvents": {
+        "name": "Eventi mensili",
+        "values": {
+          "range": "10K – 10M+",
+          "custom": "Personalizzato"
+        }
+      },
+      "sites": {
+        "name": "Siti",
+        "values": {
+          "upTo2": "Fino a 2",
+          "upTo50": "Fino a 50",
+          "unlimited": "Illimitati"
+        }
+      },
+      "dataRetention": {
+        "name": "Conservazione dati",
+        "values": {
+          "1year": "1+ anno",
+          "3years": "3+ anni",
+          "5years": "5+ anni"
+        }
+      },
+      "teamMembers": {
+        "name": "Membri del team",
+        "values": {
+          "1": "1",
+          "upTo5": "Fino a 5",
+          "unlimited": "Illimitati"
+        }
+      },
+      "dashboardFeatures": {
+        "name": "Tutte le funzionalità dashboard"
+      },
+      "sessionReplay": {
+        "name": "Replay sessioni"
+      },
+      "funnels": {
+        "name": "Funnel e conversioni"
+      },
+      "userJourneys": {
+        "name": "Tracciamento percorsi utente"
+      },
+      "customEvents": {
+        "name": "Eventi personalizzati"
+      },
+      "webVitals": {
+        "name": "Monitoraggio Web Vitals"
+      },
+      "campaignTracking": {
+        "name": "Tracciamento campagne e UTM"
+      },
+      "uptimeMonitoring": {
+        "name": "Monitoraggio uptime",
+        "values": {
+          "5": "5 monitor",
+          "50": "50 monitor",
+          "unlimited": "Monitor illimitati"
+        }
+      },
+      "sslMonitoring": {
+        "name": "Monitoraggio certificati SSL"
+      },
+      "checkInterval": {
+        "name": "Intervallo minimo di controllo",
+        "values": {
+          "5min": "5 min",
+          "1min": "1 min"
+        }
+      },
+      "customHttpMethods": {
+        "name": "Metodi HTTP GET/POST"
+      },
+      "customRequestHeaders": {
+        "name": "Header di richiesta personalizzati"
+      },
+      "customStatusCodes": {
+        "name": "Codici di stato accettati personalizzati"
+      },
+      "emailSupport": {
+        "name": "Supporto email"
+      },
+      "prioritySupport": {
+        "name": "Supporto prioritario"
+      },
+      "dedicatedSupport": {
+        "name": "Supporto dedicato"
+      },
+      "slaGuarantee": {
+        "name": "Garanzia SLA"
+      }
+    },
+    "coreFeatures": {
+      "title": "Incluso in tutti i piani",
+      "subtitle": "Ogni piano include la nostra suite completa di analytics",
+      "items": {
+        "realtimeAnalytics": "Analytics in tempo reale",
+        "sessionReplay": "Replay sessioni",
+        "geographicInsights": "Insights geografici",
+        "trafficSources": "Fonti di traffico",
+        "utmCampaigns": "Tracciamento campagne UTM",
+        "customEvents": "Eventi personalizzati",
+        "funnels": "Funnel e conversioni",
+        "userJourneys": "Percorsi utente",
+        "webVitals": "Web Vitals",
+        "botFiltering": "Filtraggio bot",
+        "outboundLinks": "Tracciamento link in uscita",
+        "advancedFiltering": "Filtri avanzati",
+        "cookieFree": "Senza cookie",
+        "gdprCcpa": "Pronto per GDPR e CCPA"
+      }
     }
   },
   "dashboard": {
@@ -1087,6 +1250,16 @@
         "analytics": "Analisi",
         "behavior": "Comportamento",
         "observability": "Osservabilità"
+      }
+    },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Torna alla Dashboard",
+        "settings": "Impostazioni",
+        "data": "Dati",
+        "rules": "Regole",
+        "members": "Membri",
+        "dangerZone": "Zona pericolosa"
       }
     },
     "metrics": {
@@ -1134,8 +1307,10 @@
   "dashboardsPage": {
     "title": "Le tue dashboard",
     "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
+    "loadError": "Impossibile caricare le dashboard",
     "emptyTitle": "Nessuna dashboard ancora",
     "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito.",
+    "memberCountTooltip": "{count, plural, one {{count} membro} other {{count} membri}}",
     "createCard": {
       "title": "Crea dashboard",
       "description": "Aggiungi una nuova dashboard"
@@ -1168,7 +1343,7 @@
       "fast": "Veloce",
       "elevated": "Elevata",
       "slow": "Lenta",
-      "noData": "Nessun dato ancora"
+      "noData": "Nessun dato"
     },
     "ssl": {
       "valid": "Valido",
@@ -1525,7 +1700,8 @@
     "deleting": "Eliminazione in corso",
     "cancel": "Anulla",
     "confirm": "Conferma",
-    "openMenu": "Apri menu"
+    "openMenu": "Apri menu",
+    "save": "Salva"
   },
   "languages": {
     "da": "Danish",
@@ -2239,11 +2415,6 @@
         "toastFailure": "Invio dell'email di verifica non riuscito"
       }
     },
-    "settingsPopover": {
-      "title": "Impostazioni rapide",
-      "theme": "Tema",
-      "advanced": "Impostazioni avanzate"
-    },
     "topbar": {
       "userMenu": {
         "userFallback": "Utente",
@@ -2414,6 +2585,7 @@
       "data": {
         "title": "Gestione dati",
         "description": "Configura conservazione e raccolta dei dati",
+        "retentionTitle": "Conservazione dati",
         "retentionLabel": "Periodo di conservazione dati",
         "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
         "presets": {
@@ -2424,11 +2596,17 @@
           "y2": "2 anni",
           "y3": "3 anni"
         },
+        "retentionConfirm": {
+          "title": "Cambiare periodo di conservazione?",
+          "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
+        },
         "siteRules": {
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",
           "enforceDomain": "Applicare dominio",
-          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard."
+          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard.",
+          "enableValidation": "Abilita validazione dominio",
+          "enableValidationDescription": "Accetta solo eventi dal tuo dominio configurato"
         },
         "blacklistedIps": {
           "title": "IP degli eventi bloccati",
@@ -2441,15 +2619,33 @@
         }
       },
       "danger": {
-        "title": "Elimina dashboard",
-        "description": "Elimina definitivamente la dashboard",
-        "warning": "Attenzione: questa azione non può essere annullata",
-        "deleteButton": "Elimina dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Elimina dashboard",
+        "sectionDescription": "Rimuovi permanentemente questa dashboard e tutti i suoi dati.",
+        "deleteButton": "Elimina",
+        "toastSuccess": "Dashboard eliminata con successo",
+        "toastError": "Impossibile eliminare la dashboard",
         "dialog": {
           "title": "Elimina dashboard",
           "description": "Sei sicuro di voler eliminare questa dashboard? Questa azione non può essere annullata.",
           "cancel": "Annulla",
           "confirm": "Elimina dashboard"
+        }
+      },
+      "leaveDashboard": {
+        "title": "Lascia dashboard",
+        "description": "Sei sicuro di voler lasciare questa dashboard?",
+        "button": "Lascia dashboard",
+        "buttonPending": "Uscita in corso...",
+        "dialog": {
+          "title": "Lascia dashboard",
+          "description": "Sei sicuro di voler lasciare questa dashboard? Non avrai più accesso e dovrai essere reinvitato per rientrare.",
+          "cancel": "Annulla",
+          "confirm": "Lascia dashboard"
+        },
+        "toast": {
+          "success": "Dashboard abbandonata",
+          "error": "Impossibile lasciare la dashboard"
         }
       }
     },
@@ -2462,6 +2658,10 @@
     "demoMode": {
       "notAvailable": "Non disponibile nella dashboard demo",
       "interactionDisabled": "Il filtraggio da questa interazione è disabilitato nella demo."
+    },
+    "permissions": {
+      "demoNotAvailable": "Non disponibile nella dashboard demo",
+      "insufficientPermissions": "Non hai i permessi per eseguire questa azione"
     },
     "bugReport": {
       "trigger": "Segnala bug",
@@ -2577,6 +2777,14 @@
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
       "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
+      "invitationAlreadySent": "È già stato inviato un invito a questa email",
+      "invitationNotFoundOrProcessed": "Invito non trovato o già elaborato",
+      "invitationExpired": "Questo invito è scaduto",
+      "invitationEmailMismatch": "Questo invito è stato inviato a un indirizzo email diverso",
+      "invitationNotFound": "Invito non trovato"
     }
   },
   "banners": {
@@ -2607,6 +2815,102 @@
       "title": "Nessun dato Core Web Vitals",
       "description": "Assicurati che il tracciamento sia abilitato.",
       "action": "Scopri di più"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Membri",
+      "description": "Gestisci chi ha accesso a questa dashboard"
+    },
+    "table": {
+      "title": "Membri",
+      "searchPlaceholder": "Cerca membri...",
+      "columns": {
+        "member": "Membro",
+        "email": "Email",
+        "role": "Ruolo",
+        "joined": "Iscritto"
+      },
+      "noResults": "Nessun membro trovato corrispondente a \"{query}\"",
+      "you": "(tu)",
+      "unknown": "Sconosciuto"
+    },
+    "actions": {
+      "changeRole": "Cambia ruolo",
+      "removeFromDashboard": "Rimuovi dalla dashboard"
+    },
+    "roles": {
+      "owner": "Proprietario",
+      "admin": "Amministratore",
+      "editor": "Editore",
+      "viewer": "Visualizzatore"
+    },
+    "toast": {
+      "roleUpdated": "Ruolo aggiornato",
+      "roleUpdateFailed": "Impossibile aggiornare il ruolo",
+      "memberRemoved": "Membro rimosso",
+      "memberRemoveFailed": "Impossibile rimuovere il membro"
+    },
+    "settings": {
+      "invite": {
+        "title": "Invita",
+        "description": "Invita membri per visualizzare, modificare o amministrare la tua dashboard"
+      },
+      "activeMembers": {
+        "title": "Membri attivi"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Invita nuovi membri",
+      "description": "Invia un invito per collaborare su questa dashboard",
+      "emailLabel": "Indirizzo email",
+      "emailPlaceholder": "collega@example.com",
+      "roleLabel": "Ruolo",
+      "inviteButton": "Invita",
+      "sending": "Invio in corso...",
+      "pending": "In sospeso",
+      "invited": "Invitato",
+      "invalidEmail": "Inserisci un indirizzo email valido"
+    },
+    "toast": {
+      "sent": "Invito inviato",
+      "sendFailed": "Impossibile inviare l'invito",
+      "cancelled": "Invito annullato",
+      "cancelFailed": "Impossibile annullare l'invito",
+      "accepted": "Entrato in {domain}!",
+      "joinedSuccess": "Invito accettato!",
+      "acceptFailed": "Impossibile accettare l'invito",
+      "declined": "Invito rifiutato",
+      "declineFailed": "Impossibile rifiutare l'invito"
+    },
+    "pendingModal": {
+      "title": "Invito alla dashboard",
+      "description": "Sei stato invitato a collaborare su una dashboard",
+      "unknownDashboard": "Dashboard",
+      "accept": "Accetta",
+      "accepting": "Accettazione...",
+      "decline": "Rifiuta",
+      "declining": "Rifiuto...",
+      "pendingCount": "{current} di {total} inviti in sospeso"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invito non trovato",
+      "notFoundDescription": "Questo link di invito non è valido o è già stato utilizzato.",
+      "goToSignIn": "Vai al login",
+      "expiredTitle": "Invito scaduto",
+      "expiredDescription": "Questo invito non è più valido.",
+      "expiredHint": "Chiedi al proprietario della dashboard di inviarti un nuovo invito.",
+      "emailMismatchTitle": "Account errato",
+      "emailMismatchDescription": "Questo invito è stato inviato a {invitedEmail}, ma hai effettuato l'accesso come {currentEmail}.",
+      "emailMismatchHint": "Esci e accedi con l'account corretto per accettare questo invito.",
+      "errorTitle": "Impossibile accettare l'invito",
+      "errorDescription": "Si è verificato un errore durante l'accettazione dell'invito. Potrebbe essere già stato accettato o annullato.",
+      "goToDashboards": "Vai alle dashboard"
     }
   }
 }

@@ -31,7 +31,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
   }
 
   return (
-    <CapabilitiesProvider>
+    <CapabilitiesProvider dashboardId={dashboardId}>
       <SettingsProvider initialSettings={initialSettings} dashboardId={dashboardId}>
         <TimeRangeContextProvider>
           <QueryFiltersContextProvider>
@@ -55,7 +55,7 @@ function SyncURLFilters() {
 
 function RealtimeRefresh() {
   const { interval } = useTimeRangeContext();
-  const { setPresetRange } = useImmediateTimeRange();
+  const { setPresetRange } = useImmediateTimeRange(false);
 
   useEffect(() => {
     if (interval === 'realtime') {

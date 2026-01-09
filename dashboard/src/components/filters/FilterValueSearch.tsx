@@ -9,6 +9,7 @@ type FilterValueSearchProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   className?: string;
   triggerClassName?: string;
+  useExtendedRange?: boolean;
 };
 
 export function FilterValueSearch<TEntity>({
@@ -16,10 +17,11 @@ export function FilterValueSearch<TEntity>({
   onFilterUpdate,
   className,
   triggerClassName,
+  useExtendedRange,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
 
-  const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter);
+  const { options, isLoading, setSearch, search, isDirty } = useQueryFilterSearch(filter, { useExtendedRange });
 
   return (
     <Combobox

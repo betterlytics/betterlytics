@@ -313,6 +313,11 @@ export const SEO_CONFIGS = {
     path: '/forgot-password',
     structuredDataType: 'webpage',
   },
+  pricing: {
+    namespace: 'public.pricing.seo',
+    path: '/pricing',
+    structuredDataType: 'webpage',
+  },
   root: {
     namespace: 'public.root.seo',
     path: '/',

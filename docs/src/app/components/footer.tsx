@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="border-border border-t py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-5">
           <div>
             <div className="mb-4">
               <Logo variant="simple" showText textSize="lg" priority />
@@ -86,6 +86,59 @@ export function Footer() {
                   className="hover:text-foreground transition-colors"
                 >
                   Pricing
+                </ExternalLink>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-4 font-semibold">Compare</h3>
+            <ul className="text-muted-foreground space-y-2 text-sm">
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/vs/google-analytics"
+                  className="hover:text-foreground transition-colors"
+                >
+                  vs Google Analytics
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/vs/matomo"
+                  className="hover:text-foreground transition-colors"
+                >
+                  vs Matomo
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/vs/plausible"
+                  className="hover:text-foreground transition-colors"
+                >
+                  vs Plausible
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/vs/posthog"
+                  className="hover:text-foreground transition-colors"
+                >
+                  vs PostHog
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/vs/fathom-analytics"
+                  className="hover:text-foreground transition-colors"
+                >
+                  vs Fathom
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/vs/umami"
+                  className="hover:text-foreground transition-colors"
+                >
+                  vs Umami
                 </ExternalLink>
               </li>
             </ul>

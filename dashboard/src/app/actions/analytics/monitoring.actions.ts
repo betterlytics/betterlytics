@@ -23,7 +23,7 @@ import { revalidatePath } from 'next/cache';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
-import { getCapabilities } from '@/lib/billing/capabilityAccess';
+import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { monitoringValidator } from '@/lib/billing/validators';
 import z from 'zod';
 
@@ -51,7 +51,7 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       throw new UserException(t('monitorAlreadyExists'));
     }
 
-    const caps = await getCapabilities();
+    const caps = await getDashboardCapabilities(ctx.dashboardId);
     const validator = await monitoringValidator(caps.monitoring);
 
     await validator
@@ -75,9 +75,8 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 export const updateMonitorCheckAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof MonitorCheckUpdateSchema>) => {
     const payload = MonitorCheckUpdateSchema.parse(input);
-    const caps = await getCapabilities();
+    const caps = await getDashboardCapabilities(ctx.dashboardId);
 
-    // Only validate fields that are being updated
     const validator = await monitoringValidator(caps.monitoring);
 
     if (payload.intervalSeconds !== undefined) {

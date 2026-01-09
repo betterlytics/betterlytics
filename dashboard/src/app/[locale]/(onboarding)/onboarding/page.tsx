@@ -1,5 +1,5 @@
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { getFirstUserDashboardAction } from '@/app/actions/index.actions';
+import { getFirstUserDashboardAction, isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
@@ -14,8 +14,9 @@ export default async function Onboarding() {
   const session = await getAuthSession();
 
   const getFirstDashboard = async () => {
-    if (session) {
+    if (session?.user?.id && session?.user?.email) {
       const dashboard = await getFirstUserDashboardAction();
+
       if (dashboard.success && dashboard.data) {
         return dashboard.data;
       }
@@ -24,7 +25,16 @@ export default async function Onboarding() {
     return null;
   };
 
+  const isUserInvitedMember = async () => {
+    if (session?.user?.email) {
+      const userInvited = await isUserInvitedDashboardMemberAction();
+      return userInvited.success && userInvited.data;
+    }
+    return false;
+  };
+
   const dashboard = await getFirstDashboard();
+  const userInvited = await isUserInvitedMember();
 
   const getStep = () => {
     if (!session) {
@@ -34,12 +44,12 @@ export default async function Onboarding() {
       return 'account';
     }
 
-    if (!dashboard) {
-      return 'website';
+    if (session.user.onboardingCompletedAt || userInvited) {
+      redirect('/dashboards');
     }
 
-    if (session.user.onboardingCompletedAt) {
-      redirect('/dashboards');
+    if (!dashboard) {
+      return 'website';
     }
 
     return 'integration';
