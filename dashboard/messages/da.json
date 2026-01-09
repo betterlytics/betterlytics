@@ -1013,6 +1013,15 @@
           "title": "Geografisk analyse",
           "description": "Se hvor dine besøgende kommer fra i hele verden.",
           "topCountries": "Toplande"
+        },
+        "uptimeMonitoring": {
+          "title": "Oppetidsovervågning",
+          "description": "Få advarsler når dit site går ned, plus automatisk SSL-certifikatovervågning.",
+          "alertDown": "{site} er nede",
+          "alertSent": "Advarsel sendt til {email}",
+          "incidentDetected": "{count, plural, one {{count} hændelse opdaget} other {{count} hændelser opdaget}}",
+          "allOperational": "Alle systemer kører",
+          "ssl": "SSL"
         }
       }
     },

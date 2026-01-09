@@ -1021,6 +1021,15 @@
           "title": "Analitiche geografiche",
           "description": "Vedi da dove arrivano i tuoi visitatori nel mondo.",
           "topCountries": "Paesi principali"
+        },
+        "uptimeMonitoring": {
+          "title": "Monitoraggio uptime",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "alertDown": "{site} è offline",
+          "alertSent": "Avviso inviato a {email}",
+          "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
+          "allOperational": "Tutti i sistemi operativi",
+          "ssl": "SSL"
         }
       }
     },

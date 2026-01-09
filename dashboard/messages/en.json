@@ -1010,6 +1010,15 @@
           "title": "Geographical Analytics",
           "description": "See where your visitors are coming from around the world.",
           "topCountries": "Top Countries"
+        },
+        "uptimeMonitoring": {
+          "title": "Uptime Monitoring",
+          "description": "Get alerts when your site goes down, plus automatic SSL certificate monitoring.",
+          "alertDown": "{site} is down",
+          "alertSent": "Alert sent to {email}",
+          "incidentDetected": "{count, plural, one {{count} incident detected} other {{count} incidents detected}}",
+          "allOperational": "All systems operational",
+          "ssl": "SSL"
         }
       }
     },
