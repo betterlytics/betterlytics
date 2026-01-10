@@ -1,4 +1,12 @@
-export const GRANULARITY_RANGE_VALUES = ['minute_1', 'minute_15', 'minute_30', 'hour', 'day'] as const;
+export const GRANULARITY_RANGE_VALUES = [
+  'minute_1',
+  'minute_15',
+  'minute_30',
+  'hour',
+  'day',
+  'week',
+  'month',
+] as const;
 
 export type GranularityRangeValues = (typeof GRANULARITY_RANGE_VALUES)[number];
 
@@ -8,6 +16,14 @@ export interface GranularityRangePreset {
 }
 
 export const GRANULARITY_RANGE_PRESETS: GranularityRangePreset[] = [
+  {
+    label: 'Month',
+    value: 'month',
+  },
+  {
+    label: 'Week',
+    value: 'week',
+  },
   {
     label: 'Day',
     value: 'day',
@@ -29,17 +45,39 @@ export const GRANULARITY_RANGE_PRESETS: GranularityRangePreset[] = [
 export function getAllowedGranularities(startDate: Date, endDate: Date): GranularityRangeValues[] {
   const durationMs = endDate.getTime() - startDate.getTime();
   const oneDayMs = 24 * 60 * 60 * 1000;
-  const oneWeekMs = 7.5 * oneDayMs;
-  const twoDaysMs = 2 * oneDayMs;
-  const twelveHoursMs = 12 * 60 * 60 * 1000;
   const twoHoursMs = 2 * 60 * 60 * 1000;
+  const twelveHoursMs = 12 * 60 * 60 * 1000;
+  const twoDaysMs = 2 * oneDayMs;
+  const oneWeekMs = 7.5 * oneDayMs;
+  const twoWeeksMs = 14 * oneDayMs;
+  const oneMonthMs = 30 * oneDayMs;
+  const sixMonthsMs = 180 * oneDayMs;
 
-  // Max granularity should be the first index of the array
-  if (durationMs >= oneWeekMs) return ['day'];
   if (durationMs <= twoHoursMs) return ['minute_1'];
   if (durationMs <= twelveHoursMs) return ['hour', 'minute_30', 'minute_15'];
-  if (durationMs <= twoDaysMs) return ['hour', 'minute_30', 'minute_15'];
-  return ['day', 'hour'];
+  if (durationMs <= twoDaysMs) return ['day', 'hour', 'minute_30', 'minute_15'];
+  if (durationMs <= oneWeekMs) return ['day', 'hour', 'minute_30'];
+  if (durationMs <= twoWeeksMs) return ['week', 'day', 'hour'];
+  if (durationMs <= oneMonthMs) return ['week', 'day', 'hour'];
+  if (durationMs < sixMonthsMs) return ['week', 'day'];
+  return ['month', 'week', 'day'];
+}
+
+export function getVisibleGranularities(startDate: Date, endDate: Date): GranularityRangeValues[] {
+  const durationMs = endDate.getTime() - startDate.getTime();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const twoWeeksMs = 14 * oneDayMs;
+  const oneMonthMs = 30 * oneDayMs;
+
+  if (durationMs > oneMonthMs) {
+    return ['month', 'week', 'day', 'hour'];
+  }
+
+  if (durationMs > twoWeeksMs) {
+    return ['week', 'day', 'hour', 'minute_30'];
+  }
+
+  return ['day', 'hour', 'minute_30', 'minute_15'];
 }
 
 export function getValidGranularityFallback(
@@ -52,10 +90,12 @@ export function getValidGranularityFallback(
 
   const fallbackOrder: Record<GranularityRangeValues, GranularityRangeValues[]> = {
     minute_1: ['minute_1', 'minute_15'],
-    minute_15: ['minute_15', 'minute_30', 'hour', 'day'],
-    minute_30: ['minute_30', 'hour', 'day'],
-    hour: ['hour', 'minute_30', 'minute_15', 'day'],
-    day: ['day', 'hour', 'minute_30', 'minute_15'],
+    minute_15: ['minute_15', 'minute_30', 'hour', 'day', 'week', 'month'],
+    minute_30: ['minute_30', 'hour', 'day', 'week', 'month'],
+    hour: ['hour', 'minute_30', 'minute_15', 'day', 'week', 'month'],
+    day: ['day', 'hour', 'week', 'month', 'minute_30', 'minute_15'],
+    week: ['week', 'day', 'month', 'hour'],
+    month: ['month', 'week', 'day'],
   };
 
   const found = fallbackOrder[currentGranularity].find((g) => allowedGranularities.includes(g));

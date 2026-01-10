@@ -1875,6 +1875,8 @@
         "1y": "Ultimi 12 mesi"
       },
       "granularityLabels": {
+        "month": "Mese",
+        "week": "Settimana",
         "day": "Giorno",
         "hour": "Ora",
         "minute_30": "30 min",

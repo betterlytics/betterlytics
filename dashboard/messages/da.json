@@ -1867,6 +1867,8 @@
         "1y": "Seneste år"
       },
       "granularityLabels": {
+        "month": "Måned",
+        "week": "Uge",
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min",

@@ -38,8 +38,18 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 // Utility for granularity
-const GranularityIntervalSchema = z.enum(['1 DAY', '1 HOUR', '30 MINUTE', '15 MINUTE', '1 MINUTE']);
+const GranularityIntervalSchema = z.enum([
+  '1 MONTH',
+  '1 WEEK',
+  '1 DAY',
+  '1 HOUR',
+  '30 MINUTE',
+  '15 MINUTE',
+  '1 MINUTE',
+]);
 const granularityIntervalMapper = {
+  month: GranularityIntervalSchema.enum['1 MONTH'],
+  week: GranularityIntervalSchema.enum['1 WEEK'],
   day: GranularityIntervalSchema.enum['1 DAY'],
   hour: GranularityIntervalSchema.enum['1 HOUR'],
   minute_30: GranularityIntervalSchema.enum['30 MINUTE'],
@@ -90,8 +100,9 @@ function getTimestampRange(
   const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 
   // Wrapper for converting final date from user timezone to UTC
+  // Note: toStartOfInterval with week/month returns Date type, not DateTime, hence the cast
   const timeWrapper = (sql: ReturnType<typeof safeSql>) => {
-    return safeSql`SELECT toTimezone(date, 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
+    return safeSql`SELECT toTimezone(toDateTime64(date, 0), 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
   };
 
   // Granularity function
