@@ -39,13 +39,13 @@ export function FunnelStepFilter({
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
     if (filter.column !== filterColumnRef.current) {
-      onFilterUpdate({ ...filter, value: '' });
+      onFilterUpdate({ ...filter, values: [] });
       filterColumnRef.current = filter.column;
     }
   }, [filter.column]);
 
   const showNameEmptyError = showEmptyError && filter.name.trim() === '';
-  const showValueEmptyError = showEmptyError && filter.value.trim() === '';
+  const showValueEmptyError = showEmptyError && filter.values.length === 0;
 
   return (
     <div className='flex h-fit min-h-14 w-full items-center gap-2 p-2'>
@@ -106,7 +106,7 @@ export function FunnelStepFilter({
         onFilterUpdate={onFilterUpdate}
         key={filter.column}
         className='grow'
-        triggerClassName={cn(showValueEmptyError && 'border-destructive')}
+        // triggerClassName={cn(showValueEmptyError && 'border-destructive')}
         useExtendedRange
       />
       <Button variant='ghost' className='cursor-pointer' onClick={requestRemoval} disabled={disableDeletion}>

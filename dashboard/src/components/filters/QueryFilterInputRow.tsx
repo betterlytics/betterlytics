@@ -57,7 +57,7 @@ export function QueryFilterInputRow<TEntity>({
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
     if (filter.column !== filterColumnRef.current) {
-      onFilterUpdate({ ...filter, value: '' });
+      onFilterUpdate({ ...filter, values: [] });
       filterColumnRef.current = filter.column;
     }
   }, [filter.column]);

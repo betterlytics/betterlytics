@@ -204,7 +204,7 @@ model FunnelStep {
   name String
   column String
   operator String
-  value String
+  values String[]
 
   funnel Funnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
   funnelId String
@@ -234,7 +234,7 @@ model SavedFilterEntry {
 
   column   String
   operator String
-  value    String
+  values   String[]
 
   savedFilter   SavedFilter @relation(fields: [savedFilterId], references: [id], onDelete: Cascade)
   savedFilterId String
