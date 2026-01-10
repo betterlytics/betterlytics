@@ -113,7 +113,7 @@
       "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
       "getInTouch": {
         "title": "Mettiti in contatto",
-        "description": "Che tu abbia bisogno di supporto tecnico, domande sulle nostre funzionalità o voglia discutere soluzioni enterprise, siamo qui per aiutare. Scegli il metodo che funziona meglio per te:"
+        "description": "Che tu abbia bisogno di supporto tecnico, domande sulle nostre funzionalità o voglia discutere soluzioni enterprise, siamo qui per aiutare."
       },
       "methods": {
         "email": {
@@ -160,6 +160,26 @@
             "question": "Offrite supporto per istanze auto-ospitate?",
             "answer": "Parzialmente! Forniamo supporto della community attraverso GitHub e Discord per le istanze auto-ospitate, ma la nostra priorità è supportare i clienti dell'hosting cloud."
           }
+        }
+      },
+      "secondary": {
+        "discord": {
+          "cta": "Unisciti a Discord"
+        },
+        "github": {
+          "cta": "Vedi su GitHub"
+        },
+        "bluesky": {
+          "cta": "Seguici"
+        },
+        "docs": {
+          "title": "Documentazione",
+          "description": "Esplora le nostre guide per iniziare, le integrazioni con i framework più diffusi e la documentazione dettagliata delle funzionalità.",
+          "cta": "Vedi documentazione"
+        },
+        "email": {
+          "title": "Richieste generali",
+          "description": "Domande, feedback o altro."
         }
       },
       "cta": {
@@ -1001,6 +1021,15 @@
           "title": "Analitiche geografiche",
           "description": "Vedi da dove arrivano i tuoi visitatori nel mondo.",
           "topCountries": "Paesi principali"
+        },
+        "uptimeMonitoring": {
+          "title": "Monitoraggio uptime",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "alertDown": "{site} è offline",
+          "alertSent": "Avviso inviato a {email}",
+          "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
+          "allOperational": "Tutti i sistemi operativi",
+          "ssl": "SSL"
         }
       }
     },

@@ -4,6 +4,7 @@ import { UpdateUserData } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
+import { invalidateOtherUserSessions } from '@/services/session.service';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
 import { UserException } from '@/lib/exceptions';
@@ -68,7 +69,12 @@ export async function deleteUser(userId: string): Promise<void> {
   }
 }
 
-export async function changeUserPassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
+export async function changeUserPassword(
+  userId: string,
+  oldPassword: string,
+  newPassword: string,
+  currentSessionToken?: string,
+): Promise<void> {
   try {
     const isOldPasswordValid = await UserRepository.verifyUserPassword(userId, oldPassword);
 
@@ -77,6 +83,10 @@ export async function changeUserPassword(userId: string, oldPassword: string, ne
     }
 
     await UserRepository.updateUserPassword(userId, newPassword);
+
+    if (currentSessionToken) {
+      await invalidateOtherUserSessions(userId, currentSessionToken);
+    }
 
     console.log(`Successfully updated password for user ${userId}`);
   } catch (error) {

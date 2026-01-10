@@ -113,7 +113,7 @@
       "intro": "Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.",
       "getInTouch": {
         "title": "Get in Touch",
-        "description": "Whether you need technical support, have questions about our features, or want to discuss enterprise solutions, we're here to help. Choose the method that works best for you:"
+        "description": "Whether you need technical support, have questions about our features, or want to discuss enterprise solutions, we're here to help."
       },
       "methods": {
         "email": {
@@ -160,6 +160,26 @@
             "question": "Do you offer support for self-hosted instances?",
             "answer": "Partially! We provide community support through GitHub and Discord for self-hosted instances, but our priority is to support our cloud hosting customers."
           }
+        }
+      },
+      "secondary": {
+        "discord": {
+          "cta": "Join Discord"
+        },
+        "github": {
+          "cta": "View on GitHub"
+        },
+        "bluesky": {
+          "cta": "Follow us"
+        },
+        "docs": {
+          "title": "Documentation",
+          "description": "Explore our guides for getting started, integrations with popular frameworks, and detailed feature documentation.",
+          "cta": "View Docs"
+        },
+        "email": {
+          "title": "General inquiries",
+          "description": "Questions, feedback, or anything else."
         }
       },
       "cta": {
@@ -990,6 +1010,15 @@
           "title": "Geographical Analytics",
           "description": "See where your visitors are coming from around the world.",
           "topCountries": "Top Countries"
+        },
+        "uptimeMonitoring": {
+          "title": "Uptime Monitoring",
+          "description": "Get alerts when your site goes down, plus automatic SSL certificate monitoring.",
+          "alertDown": "{site} is down",
+          "alertSent": "Alert sent to {email}",
+          "incidentDetected": "{count, plural, one {{count} incident detected} other {{count} incidents detected}}",
+          "allOperational": "All systems operational",
+          "ssl": "SSL"
         }
       }
     },
