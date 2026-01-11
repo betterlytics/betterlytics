@@ -64,7 +64,6 @@ const CATEGORIES = [
       { id: 'sessionReplay', icon: Video },
       { id: 'userJourneys', icon: GitBranch },
       { id: 'funnels', icon: TrendingUp },
-      { id: 'goals', icon: Target },
       { id: 'annotations', icon: StickyNote },
       { id: 'timePeriodComparison', icon: BarChart3 },
       { id: 'outboundLinks', icon: ExternalLink },

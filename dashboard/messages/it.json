@@ -1125,10 +1125,6 @@
           "title": "Funnel",
           "description": "Traccia la progressione degli utenti attraverso step definiti e identifica i punti di abbandono."
         },
-        "goals": {
-          "title": "Obiettivi",
-          "description": "Definisci e monitora gli obiettivi di conversione per ottimizzare le performance del sito."
-        },
         "annotations": {
           "title": "Annotazioni",
           "description": "Aggiungi note alla timeline analytics per tracciare eventi o modifiche alle campagne."

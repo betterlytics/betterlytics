@@ -1117,10 +1117,6 @@
           "title": "Funnels",
           "description": "Spor brugerfremgang gennem definerede trin og identificer frafaldspunkter."
         },
-        "goals": {
-          "title": "Mål",
-          "description": "Definér og overvåg konverteringsmål for at optimere websitets performance."
-        },
         "annotations": {
           "title": "Annotationer",
           "description": "Tilføj noter til din analysetidslinje for at spore events eller kampagneændringer."

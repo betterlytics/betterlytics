@@ -1114,10 +1114,6 @@
           "title": "Funnels",
           "description": "Track user progress through defined steps and identify drop-off points."
         },
-        "goals": {
-          "title": "Goals",
-          "description": "Define and monitor conversion goals to optimize website performance."
-        },
         "annotations": {
           "title": "Annotations",
           "description": "Add notes to your analytics timeline to track events or campaign changes."
