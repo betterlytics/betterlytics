@@ -38,7 +38,7 @@ export function FilterValueSearch<TEntity>({
       options={multiSelectOptions}
       value={filter.values.map((value) => ({ label: formatString(value, 25), value }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}
-      placeholder={t('selectValue')}
+      placeholder={filter.values.length === 0 ? t('selectValue') : undefined}
       className={cn('dark:bg-input/25 dark:hover:bg-input/50', className)}
       commandProps={{
         className: cn('dark:bg-input/10 dark:hover:bg-input/50', className),
