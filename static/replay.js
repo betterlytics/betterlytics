@@ -8374,6 +8374,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function fetchPresignedUrl(payload) {
       var presignPayload = {
         site_id: siteId,
+        url: window.location.href,
         screen_resolution: window.screen.width + "x" + window.screen.height,
         content_length: payload.bytes.byteLength,
       };
