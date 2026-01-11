@@ -11,6 +11,7 @@ type FilterValueSearchProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   className?: string;
   useExtendedRange?: boolean;
+  formatLength?: number;
 };
 
 export function FilterValueSearch<TEntity>({
@@ -18,6 +19,7 @@ export function FilterValueSearch<TEntity>({
   onFilterUpdate,
   className,
   useExtendedRange,
+  formatLength = 30,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
 
@@ -26,17 +28,20 @@ export function FilterValueSearch<TEntity>({
   });
 
   const multiSelectOptions = useMemo(() => {
-    const searchOptions = options.map((opt) => ({ label: formatString(opt, 30), value: opt }));
+    const searchOptions = options.map((opt) => ({ label: formatString(opt, formatLength), value: opt }));
     const selectedOptions = filter.values
       .filter((v) => !options.includes(v))
-      .map((v) => ({ label: formatString(v, 30), value: v }));
+      .map((v) => ({ label: formatString(v, formatLength), value: v }));
     return [...selectedOptions, ...searchOptions];
-  }, [options, filter.values]);
+  }, [options, filter.values, formatLength]);
 
   return (
     <MultiSelect
       options={multiSelectOptions}
-      value={filter.values.map((value) => ({ label: formatString(value, 25), value }))}
+      value={filter.values.map((value) => ({
+        label: formatString(value, Math.floor(formatLength * 0.835)),
+        value,
+      }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}
       placeholder={filter.values.length === 0 ? t('selectValue') : undefined}
       className={cn('dark:bg-input/25 dark:hover:bg-input/50', className)}

@@ -48,67 +48,68 @@ export function FunnelStepFilter({
   const showValueEmptyError = showEmptyError && filter.values.length === 0;
 
   return (
-    <div className='flex h-fit min-h-14 w-full items-center gap-2 p-2'>
+    <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
-        className={cn('w-52', showNameEmptyError && 'border-destructive')}
+        className={cn('w-52 min-w-36', showNameEmptyError && 'border-destructive')}
         value={filter.name}
         onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
         placeholder={t('namePlaceholder')}
       />
-      <Select
-        value={filter.column}
-        onValueChange={(column: FilterColumn) => {
-          onFilterUpdate({ ...filter, column });
-        }}
-      >
-        <SelectTrigger className='w-50 cursor-pointer'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent
-          align={'start'}
-          position={'popper'}
-          className={cn('w-[--radix-select-trigger-width]', isMobile && 'max-h-72')}
+      <div className='flex grow gap-2'>
+        <Select
+          value={filter.column}
+          onValueChange={(column: FilterColumn) => {
+            onFilterUpdate({ ...filter, column });
+          }}
         >
-          <SelectGroup>
-            <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-              return (
-                <SelectItem className='cursor-pointer' key={column.value} value={column.value}>
-                  {column.icon}
-                  {t(`columns.${column.value}`)}
-                </SelectItem>
-              );
-            })}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <Select
-        value={filter.operator}
-        onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
-      >
-        <SelectTrigger className='w-25 cursor-pointer'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent align={'start'} position={'popper'}>
-          <SelectGroup>
-            <SelectLabel>{t('operator')}</SelectLabel>
-            <SelectItem className='cursor-pointer' value={'='}>
-              {t('is')}
-            </SelectItem>
-            <SelectItem className='cursor-pointer' value={'!='}>
-              {t('isNot')}
-            </SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <FilterValueSearch
-        filter={filter}
-        onFilterUpdate={onFilterUpdate}
-        key={filter.column}
-        className='grow'
-        // triggerClassName={cn(showValueEmptyError && 'border-destructive')}
-        useExtendedRange
-      />
+          <SelectTrigger className='w-50 cursor-pointer'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent
+            align={'start'}
+            position={'popper'}
+            className={cn('w-[--radix-select-trigger-width]', isMobile && 'max-h-72')}
+          >
+            <SelectGroup>
+              <SelectLabel>{t('type')}</SelectLabel>
+              {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+                return (
+                  <SelectItem className='cursor-pointer' key={column.value} value={column.value}>
+                    {column.icon}
+                    {t(`columns.${column.value}`)}
+                  </SelectItem>
+                );
+              })}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <Select
+          value={filter.operator}
+          onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
+        >
+          <SelectTrigger className='w-25 cursor-pointer'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent align={'start'} position={'popper'}>
+            <SelectGroup>
+              <SelectLabel>{t('operator')}</SelectLabel>
+              <SelectItem className='cursor-pointer' value={'='}>
+                {t('is')}
+              </SelectItem>
+              <SelectItem className='cursor-pointer' value={'!='}>
+                {t('isNot')}
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <FilterValueSearch
+          filter={filter}
+          onFilterUpdate={onFilterUpdate}
+          key={filter.column}
+          className={cn('grow', showValueEmptyError && 'border-destructive')}
+          useExtendedRange
+        />
+      </div>
       <Button variant='ghost' className='cursor-pointer' onClick={requestRemoval} disabled={disableDeletion}>
         <Trash2 />
       </Button>
