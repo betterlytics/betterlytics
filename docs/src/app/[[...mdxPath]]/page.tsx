@@ -33,7 +33,7 @@ export async function generateMetadata(props: {
     ogImageParams.set("description", metadata.description);
   }
 
-  const ogImageUrl = `/api/og?${ogImageParams.toString()}`;
+  const ogImageUrl = `/docs/api/og?${ogImageParams.toString()}`;
 
   return {
     ...metadata,
