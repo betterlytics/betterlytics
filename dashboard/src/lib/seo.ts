@@ -14,7 +14,7 @@ export interface SEOConfig {
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-const DEFAULT_IMAGE = '/og_image.png';
+const DEFAULT_IMAGE = '/og_image.jpg';
 
 export function generateSEO(
   { title, description, keywords, path, imageAlt }: SEOConfig,
@@ -316,6 +316,11 @@ export const SEO_CONFIGS = {
   pricing: {
     namespace: 'public.pricing.seo',
     path: '/pricing',
+    structuredDataType: 'webpage',
+  },
+  features: {
+    namespace: 'public.features.seo',
+    path: '/features',
     structuredDataType: 'webpage',
   },
   root: {
