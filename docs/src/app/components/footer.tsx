@@ -82,6 +82,14 @@ export function Footer() {
               </li>
               <li>
                 <ExternalLink
+                  href="https://betterlytics.io/features"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Features
+                </ExternalLink>
+              </li>
+              <li>
+                <ExternalLink
                   href="https://betterlytics.io#pricing"
                   className="hover:text-foreground transition-colors"
                 >

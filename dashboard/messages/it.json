@@ -906,8 +906,8 @@
           "engagement": "Coinvolgimento e comportamento",
           "performance": "Prestazioni e sorgenti"
         },
-        "docsButton": "Esplora tutte le funzionalità",
-        "docsTitle": "Documentazione completa Betterlytics"
+        "featuresButton": "Esplora tutte le funzionalità",
+        "featuresTitle": "Esplora tutte le funzionalità di Betterlytics"
       },
       "ctaStrip": {
         "eyebrow": "Inizia gratis",
@@ -1033,6 +1033,200 @@
         }
       }
     },
+    "features": {
+      "seo": {
+        "title": "Funzionalità di Betterlytics | Analytics Privacy-First, Senza Cookie",
+        "description": "Scopri tutte le funzionalità di Betterlytics: dashboard in tempo reale, funnel di conversione, Core Web Vitals e molto altro. Analytics privacy-first, conformi GDPR senza cookie o banner di consenso.",
+        "keywords": [
+          "Funzionalità Analytics",
+          "Analytics Privacy-First",
+          "Analytics Senza Cookie",
+          "Analytics Conforme GDPR",
+          "Dashboard Tempo Reale",
+          "Funnel Conversione",
+          "Replay Sessioni",
+          "Eventi Personalizzati",
+          "Funzionalità Web Analytics"
+        ]
+      },
+      "hero": {
+        "title": "Tutte le funzionalità di cui hai bisogno per<br></br><highlight>analytics migliori</highlight>",
+        "description": "Esplora tutto ciò che Betterlytics offre, dalle dashboard in tempo reale ai funnel di conversione. Tutte le analytics di cui hai bisogno, senza cookie, banner di consenso o compromessi sulla privacy.",
+        "ctaPrimary": "Inizia Gratis",
+        "ctaDemo": "Vedi Demo Live"
+      },
+      "categories": {
+        "coreAnalytics": "Web Analytics di Base",
+        "advancedAnalytics": "Analytics Avanzate",
+        "performanceMonitoring": "Performance e Monitoraggio",
+        "privacyData": "Privacy e Conformità",
+        "accessSecurity": "Accesso e Sicurezza",
+        "developerDeployment": "Sviluppatore e Deploy",
+        "support": "Supporto"
+      },
+      "items": {
+        "pageViews": {
+          "title": "Visualizzazioni Pagina",
+          "description": "Scopri quali pagine ricevono più traffico e comprendi le tendenze di engagement."
+        },
+        "visitors": {
+          "title": "Visitatori",
+          "description": "Monitora i visitatori unici e la crescita e il comportamento del pubblico."
+        },
+        "bounceRate": {
+          "title": "Frequenza di Rimbalzo",
+          "description": "Identifica le pagine che trattengono i visitatori rispetto a quelle che causano uscite rapide per ottimizzare i contenuti."
+        },
+        "trafficSources": {
+          "title": "Fonti di Traffico",
+          "description": "Scopri da dove provengono i visitatori, incluso organico, social, referral e campagne."
+        },
+        "location": {
+          "title": "Localizzazione",
+          "description": "Visualizza la distribuzione geografica dei visitatori per città, regione e paese."
+        },
+        "devices": {
+          "title": "Dispositivi",
+          "description": "Monitora quali dispositivi usano i visitatori, che sia desktop, mobile o tablet."
+        },
+        "languages": {
+          "title": "Lingue",
+          "description": "Traccia le lingue preferite dei visitatori per personalizzare i contenuti efficacemente."
+        },
+        "filtering": {
+          "title": "Filtraggio",
+          "description": "Segmenta i dati per traffico, dispositivo, località e altri attributi rapidamente."
+        },
+        "realtimeData": {
+          "title": "Dati in Tempo Reale",
+          "description": "Visualizza l'attività dei visitatori in tempo reale, incluse visualizzazioni pagina, eventi e sessioni."
+        },
+        "customEvents": {
+          "title": "Eventi Personalizzati",
+          "description": "Traccia interazioni utente specifiche come click, invii form o download per misurare l'engagement."
+        },
+        "utmTracking": {
+          "title": "Tracciamento UTM",
+          "description": "Misura le performance delle campagne marketing con parametri UTM."
+        },
+        "linkTracking": {
+          "title": "Tracciamento Link",
+          "description": "Monitora i click sui link interni e in uscita per comprendere l'engagement utente."
+        },
+        "sessionReplay": {
+          "title": "Session Replay",
+          "description": "Riproduci le sessioni utente per vedere esattamente come i visitatori interagiscono con il tuo sito e scoprire problemi di usabilità."
+        },
+        "userJourneys": {
+          "title": "Percorsi Utente",
+          "description": "Visualizza i percorsi che i visitatori compiono nel tuo sito dall'ingresso all'uscita."
+        },
+        "funnels": {
+          "title": "Funnel",
+          "description": "Traccia la progressione degli utenti attraverso step definiti e identifica i punti di abbandono."
+        },
+        "annotations": {
+          "title": "Annotazioni",
+          "description": "Aggiungi note alla timeline analytics per tracciare eventi o modifiche alle campagne."
+        },
+        "timePeriodComparison": {
+          "title": "Confronta",
+          "description": "Confronta le metriche tra diversi periodi temporali per individuare trend e cambiamenti."
+        },
+        "outboundLinks": {
+          "title": "Tracciamento Link in Uscita",
+          "description": "Traccia i click sui link che lasciano il tuo sito per misurare l'engagement utente."
+        },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Misura e ottimizza le metriche di performance di Google per migliorare caricamento, interattività e ranking."
+        },
+        "uptimeMonitoring": {
+          "title": "Monitoraggio Uptime",
+          "description": "Assicurati che il tuo sito sia online e accessibile monitorando automaticamente l'uptime."
+        },
+        "sslMonitoring": {
+          "title": "Monitoraggio Certificati SSL",
+          "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
+        },
+        "cookieless": {
+          "title": "Nessun Cookie",
+          "description": "Raccogli analytics privacy-first senza cookie, fornendo dati accurati senza richiedere banner di consenso."
+        },
+        "gdprCcpa": {
+          "title": "GDPR e CCPA",
+          "description": "Resta conforme alle leggi sulla privacy mentre raccogli dati analytics anonimi."
+        },
+        "euHosting": {
+          "title": "Hosting in UE",
+          "description": "Tutti i dati sono archiviati nell'UE per privacy e conformità."
+        },
+        "anonymousByDefault": {
+          "title": "Anonimizzazione Dati",
+          "description": "Tutti i dati dei visitatori sono anonimizzati di default per proteggere la privacy."
+        },
+        "dataOwnership": {
+          "title": "Proprietà dei Dati",
+          "description": "Mantieni il pieno controllo e proprietà di tutti i dati analytics raccolti."
+        },
+        "openSource": {
+          "title": "Open Source",
+          "description": "Ispeziona, verifica e contribuisci al codice della piattaforma analytics."
+        },
+        "memberRoles": {
+          "title": "Accesso Basato su Ruoli",
+          "description": "Controlla l'accesso utenti con permessi basati sui ruoli per i membri del team."
+        },
+        "twoFactorAuth": {
+          "title": "Autenticazione a Due Fattori",
+          "description": "Aggiungi un livello extra di sicurezza per tutti gli account utente."
+        },
+        "oauthLogin": {
+          "title": "Login OAuth",
+          "description": "Accedi in sicurezza con provider OAuth come Google o GitHub."
+        },
+        "simpleScriptTag": {
+          "title": "Tag Script Semplice",
+          "description": "Aggiungi analytics al tuo sito con un singolo script leggero."
+        },
+        "frameworkSdks": {
+          "title": "SDK Framework",
+          "description": "Integra facilmente Betterlytics con framework come React, Angular, Next.js e altri."
+        },
+        "selfHosting": {
+          "title": "Self-Hosting",
+          "description": "Distribuisci Betterlytics sui tuoi server per il pieno controllo dei dati."
+        },
+        "fullyManaged": {
+          "title": "Cloud Completamente Gestito",
+          "description": "Usa la nostra soluzione cloud gestita per setup rapido e zero manutenzione."
+        },
+        "lightweightScript": {
+          "title": "Script Leggero",
+          "description": "Script a caricamento rapido sotto 2KB che non rallenta il tuo sito."
+        },
+        "highPerformance": {
+          "title": "Alte Prestazioni",
+          "description": "Motore analytics basato su ClickHouse con tempi di query sotto il secondo a qualsiasi scala."
+        },
+        "emailSupport": {
+          "title": "Supporto Email",
+          "description": "Ricevi assistenza via email per qualsiasi domanda o problema."
+        },
+        "prioritySupport": {
+          "title": "Supporto Prioritario",
+          "description": "Ricevi risposte più rapide dal nostro team di supporto per problemi critici."
+        },
+        "dedicatedSupport": {
+          "title": "Supporto Dedicato",
+          "description": "Accedi a un responsabile supporto dedicato per assistenza personalizzata."
+        },
+        "slaGuarantee": {
+          "title": "Garanzia SLA",
+          "description": "Uptime garantito e tempi di risposta supporto con SLA formale."
+        }
+      }
+    },
     "nav": {
       "documentation": "Documentazione",
       "pricing": "Prezzi",
@@ -1053,6 +1247,7 @@
       "documentation": "Documentazione",
       "changelog": "Changelog",
       "pricing": "Prezzi",
+      "features": "Funzionalità",
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
@@ -1086,7 +1281,8 @@
       "titleRest": "trasparenti",
       "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
       "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
-      "comparisonTitle": "Confronta tutte le funzionalità"
+      "comparisonTitle": "Confronta tutte le funzionalità",
+      "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
     }
   },
   "pricingSlider": {
