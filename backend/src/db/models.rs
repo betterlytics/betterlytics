@@ -12,7 +12,6 @@ pub struct EventRow {
     pub session_id: String,
     pub domain: String,
     pub url: String,
-    pub user_agent: String,
     pub device_type: String,
     pub country_code: Option<String>,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
@@ -81,7 +80,6 @@ impl EventRow {
             session_id: event.session_id,
             domain: event.domain.unwrap_or_else(|| "unknown".to_string()),
             url: event.url,
-            user_agent: event.user_agent,
             device_type: event.device_type.unwrap_or_else(|| "unknown".to_string()),
             country_code: event.country_code,
             timestamp,

@@ -6,7 +6,7 @@ use crate::geoip::GeoIpService;
 use crate::session;
 use crate::bot_detection;
 use crate::referrer::{ReferrerInfo, parse_referrer};
-use crate::url_utils::extract_domain_and_path_from_url;
+use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
 use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
@@ -135,12 +135,15 @@ impl EventProcessor {
             error!("Failed to parse user agent: {}", e);
         }
 
+        let root_domain = processed.domain.as_ref().and_then(|d| extract_root_domain(d));
+        
         processed.visitor_fingerprint = generate_fingerprint(
             &processed.event.ip_address,
             processed.device_type.as_deref(),
             processed.browser.as_deref(),
             processed.browser_version.as_deref(),
             processed.os.as_deref(),
+            root_domain.as_deref(),
         );
 
         let session_id_result = session::get_or_create_session_id(

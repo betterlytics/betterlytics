@@ -107,7 +107,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
               </div>
 
               {/* Desktop layout */}
-              <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4'>
+              <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4 xl:flex xl:justify-between'>
                 <div className='flex items-start gap-2'>
                   <div className='space-y-1.5'>
                     <div className='flex items-center justify-between gap-2'>
@@ -135,7 +135,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   </div>
                 </div>
 
-                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[120px_minmax(180px,240px)_minmax(250px,1fr)_max-content_48px]'>
+                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[70px_240px_300px_48px_50px]'>
                   <div className='text-muted-foreground flex items-center gap-2 text-xs font-semibold whitespace-nowrap'>
                     <span className='flex items-center gap-1'>
                       <RefreshCcw size={14} aria-hidden />
@@ -155,7 +155,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                       tooltipLabel={sslTooltipLabel}
                     />
                   </div>
-                  <div className='hidden min-w-0 xl:block'>
+                  <div className='hidden min-w-0 xl:block xl:w-[300px]'>
                     {hasData ? (
                       <PillBar data={monitor.uptimeBuckets} />
                     ) : (

@@ -9,7 +9,7 @@ import WorldMapCard from './featureCards/worldMapCard';
 import TrafficSourcesCard from './featureCards/trafficSourcesCard';
 import CoreWebVitalsCard from './featureCards/coreWebVitalsCard';
 import SessionReplayCard from './featureCards/sessionReplayCard';
-import ExternalLink from '@/components/ExternalLink';
+import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import UptimeMonitoringCard from './featureCards/uptimeMonitoringCard';
 
@@ -96,10 +96,10 @@ export async function FeatureShowcase() {
             className='group transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg motion-reduce:transform-none motion-reduce:transition-none'
             asChild
           >
-            <ExternalLink href='/docs/dashboard#exploring-individual-sections' title={t('docsTitle')}>
-              {t('docsButton')}
+            <Link href='/features' title={t('featuresTitle')}>
+              {t('featuresButton')}
               <ChevronRight className='ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none' />
-            </ExternalLink>
+            </Link>
           </Button>
         </div>
       </div>
