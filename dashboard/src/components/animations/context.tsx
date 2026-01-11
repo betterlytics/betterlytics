@@ -1,12 +1,40 @@
 'use client';
 
 import { createContext, useContext, useReducer, useLayoutEffect, useRef, useMemo } from 'react';
-import type { AnimatedNumberContextValue, AnimatedNumberState, AnimatedNumberAction, DigitState } from './types';
 import type { Digit } from '@/constants/animated-number';
 
-// ============================================================================
-// Context
-// ============================================================================
+export type DigitPhase = 'idle' | 'animating' | 'entering' | 'exiting';
+
+export type DigitState = {
+  id: string;
+  digit: Digit;
+  phase: DigitPhase;
+  fromDigit: Digit | null;
+};
+
+export type AnimatedNumberState = {
+  digits: DigitState[];
+};
+
+type AnimatedNumberActionType = 'changed' | 'completed' | 'exited' | 'entered' | 'sync';
+
+type AnimatedNumberActionBase<T extends AnimatedNumberActionType> = {
+  type: T;
+  id: string;
+};
+
+type AnimatedNumberAction =
+  | AnimatedNumberActionBase<'changed'> & { fromDigit: Digit; toDigit: Digit }
+  | AnimatedNumberActionBase<'completed'>
+  | AnimatedNumberActionBase<'exited'>
+  | AnimatedNumberActionBase<'entered'>
+  | { type: 'sync'; digits: DigitState[] };
+
+type AnimatedNumberContextValue = {
+  state: AnimatedNumberState;
+  dispatch: React.Dispatch<AnimatedNumberAction>;
+  duration: number;
+};
 
 export const AnimatedNumberContext = createContext<AnimatedNumberContextValue | null>(null);
 
@@ -17,10 +45,6 @@ export function useAnimatedNumber(): AnimatedNumberContextValue {
   }
   return ctx;
 }
-
-// ============================================================================
-// Reducer
-// ============================================================================
 
 function animatedNumberReducer(
   state: AnimatedNumberState,
@@ -70,21 +94,16 @@ function animatedNumberReducer(
 }
 
 function createInitialDigits(value: number): DigitState[] {
-  const digitValues = String(Math.abs(Math.floor(value)))
+  return String(Math.abs(Math.floor(value)))
     .split('')
-    .map(Number) as Digit[];
-
-  return digitValues.map(digit => ({
-    id: crypto.randomUUID(),
-    digit,
-    phase: 'idle' as const,
-    fromDigit: null,
-  }));
+    .map(Number)
+    .map(digit => ({
+      id: crypto.randomUUID(),
+      digit: digit as Digit,
+      phase: 'idle' as const,
+      fromDigit: null,
+    }));
 }
-
-// ============================================================================
-// Provider
-// ============================================================================
 
 type AnimatedNumberProviderProps = {
   value: number;
@@ -94,7 +113,6 @@ type AnimatedNumberProviderProps = {
 
 /**
  * Provider that manages digit state and animations.
- * Encapsulates all reducer logic and value change handling.
  */
 export function AnimatedNumberProvider({ value, duration, children }: AnimatedNumberProviderProps) {
   const [state, dispatch] = useReducer(
@@ -106,7 +124,6 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
   const prevValueRef = useRef(value);
 
   // Handle value changes - useLayoutEffect ensures state change happens before paint
-  // so both width and roll transitions start in the same frame
   useLayoutEffect(() => {
     if (value !== prevValueRef.current) {
       const newDigitValues = String(Math.abs(Math.floor(value)))
@@ -157,7 +174,6 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
             newDigits.push({
               ...existing,
               phase: 'exiting',
-              // fromDigit stays as current digit - it will roll to 0
             });
           }
           

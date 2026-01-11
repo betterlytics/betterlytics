@@ -3,9 +3,8 @@
 import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, getDigitMaskStyles } from '@/constants/animated-number';
 import { cn } from '@/lib/utils';
 import React, { useMemo } from 'react';
-import { useAnimatedNumber } from './context';
+import { useAnimatedNumber, type DigitState, type DigitPhase } from './context';
 import { useLayoutTransitionSuppression } from '@/hooks/useLayoutTransitionSuppression';
-import type { DigitState, DigitPhase } from './types';
 
 type DigitReelProps = {
   digitState: DigitState;
