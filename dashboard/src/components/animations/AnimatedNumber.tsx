@@ -16,7 +16,6 @@ type AnimatedNumberProps = {
 
 /**
  * AnimatedNumber - Smooth rolling digit animation.
- * Size scales with font-size (uses em units internally).
  */
 function AnimatedNumberComponent({ value, duration = 1200, withTextSelect = false, className }: AnimatedNumberProps) {
   return (

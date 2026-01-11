@@ -1,6 +1,5 @@
 import type { Digit } from '@/constants/animated-number';
 
-// Phases
 export type DigitPhase = 'idle' | 'animating' | 'entering' | 'exiting';
 
 // Per-digit state

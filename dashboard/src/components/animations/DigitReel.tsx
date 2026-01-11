@@ -26,8 +26,6 @@ function getTransformConfig(
         ? { offset: -(fromDigit ?? 0) * 10, animate: false }
         : { offset: -digit * 10, animate: true };
     case 'exiting':
-      // When suppressing: stay at current position, no transition (width gets head start)
-      // When not suppressing: roll to 0 with transition
       return isSuppressing
         ? { offset: -(fromDigit ?? digit) * 10, animate: false }
         : { offset: 0, animate: true };
@@ -40,6 +38,7 @@ function getTransformConfig(
 
 /**
  * Single digit reel - pure render with phase-driven animation.
+ * Respects prefers-reduced-motion: rolling is disabled, fade remains.
  */
 function DigitReelComponent({ digitState }: DigitReelProps) {
   const { dispatch, duration } = useAnimatedNumber();
@@ -54,16 +53,19 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
   const { offset, animate } = getTransformConfig(phase, digit, fromDigit, isSuppressing);
 
   const handleTransitionEnd = (e: React.TransitionEvent) => {
-    if (e.propertyName !== 'transform' || e.target !== e.currentTarget) return;
+    if (e.target !== e.currentTarget || (e.propertyName !== 'transform' && e.propertyName !== 'opacity')) return;
     
     if (phase === 'animating' || phase === 'entering') {
       dispatch({ type: 'completed', id });
     }
-    // Exiting digits stay in DOM but hidden by fade zone
-    // They'll be cleaned up on next value change
+    // Exiting digits cleaned on next value change
   };
 
   const isHidden = (phase === 'entering' && isSuppressing) || (phase === 'exiting' && !isSuppressing);
+
+  const transitionStyle = animate
+    ? `transform var(--motion-transform-duration, ${duration}ms) ${SPRING_EASING}, opacity ${duration}ms ${SPRING_EASING}`
+    : 'none';
 
   return (
     <span
@@ -72,15 +74,14 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
     >
       <span
         className={cn(
-          'inline-flex flex-col justify-center items-center will-change-[transform,opacity]',
+          'inline-flex flex-col justify-center items-center',
           `w-[${DIGIT_WIDTH}]`,
-          isHidden ? 'opacity-0' : 'opacity-100'
+          isHidden ? 'opacity-0' : 'opacity-100',
+          'motion-reduce:[--motion-transform-duration:0ms]' // Keep enter/exit fade
         )}
         style={{
           transform: `translate3d(0, ${offset}%, 0)`,
-          transition: animate 
-            ? `transform ${duration}ms ${SPRING_EASING}, opacity ${duration}ms ${SPRING_EASING}` 
-            : 'none',
+          transition: transitionStyle,
         }}
         onTransitionEnd={handleTransitionEnd}
       >
