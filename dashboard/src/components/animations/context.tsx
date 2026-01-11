@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
+import { createContext, useContext, useReducer, useLayoutEffect, useRef, useMemo } from 'react';
 import type { AnimatedNumberContextValue, AnimatedNumberState, AnimatedNumberAction, DigitState } from './types';
 import type { Digit } from '@/constants/animated-number';
 

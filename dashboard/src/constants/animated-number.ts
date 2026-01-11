@@ -1,5 +1,5 @@
 export const DIGIT_WIDTH = '0.65em';
-export const MASK_HEIGHT = '0.2em';
+export const MASK_HEIGHT = '0.15em';
 // 2x DIGIT_WIDTH so exiting digit fully passes through fade zone
 export const MASK_WIDTH = '1.3em';
 

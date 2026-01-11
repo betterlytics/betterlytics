@@ -1,141 +1,100 @@
 'use client';
 
-import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, type Digit, type DigitLifecycle, type ReelMotion } from '@/constants/animated-number';
+import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, getDigitMaskStyles } from '@/constants/animated-number';
 import { cn } from '@/lib/utils';
-import React, { useEffect, useLayoutEffect, useState, useRef } from 'react';
+import React, { useMemo } from 'react';
+import { useAnimatedNumber } from './context';
+import { useLayoutTransitionSuppression } from '@/hooks/useLayoutTransitionSuppression';
+import type { DigitState, DigitPhase } from './types';
 
 type DigitReelProps = {
-  digit: Digit;
-  prevDigit: Digit | null;
-  duration?: number;
-  slideDuration: number;
-  lifecycle: DigitLifecycle;
-  reelMotion?: ReelMotion;
+  digitState: DigitState;
 };
 
-const PADDING_CLASS = `py-[calc(${MASK_HEIGHT}/2)]` as const;
-const CONTAINER_PADDING = `py-[calc(${MASK_HEIGHT}/2)] my-[calc(-1*${MASK_HEIGHT}/2)]` as const;
+/**
+ * Calculate transform offset based on phase.
+ */
+function getTransformConfig(
+  phase: DigitPhase,
+  digit: number,
+  fromDigit: number | null,
+  isSuppressing: boolean
+): { offset: number; animate: boolean } {
+  switch (phase) {
+    case 'entering':
+      return isSuppressing
+        ? { offset: -(fromDigit ?? 0) * 10, animate: false }
+        : { offset: -digit * 10, animate: true };
+    case 'exiting':
+      // When suppressing: stay at current position, no transition (width gets head start)
+      // When not suppressing: roll to 0 with transition
+      return isSuppressing
+        ? { offset: -(fromDigit ?? digit) * 10, animate: false }
+        : { offset: 0, animate: true };
+    case 'animating':
+      return { offset: -digit * 10, animate: true };
+    default: // idle
+      return { offset: -digit * 10, animate: false };
+  }
+}
 
-function DigitReelComponent({
-  digit,
-  prevDigit,
-  duration = 1000,
-  lifecycle,
-  slideDuration,
-  reelMotion = 'wheel',
-}: DigitReelProps) {
-  const [isReeling, setIsReeling] = useState(false);
-  const [resetCount, setResetCount] = useState(0);
-  const [isEnteringPhase, setIsEnteringPhase] = useState(lifecycle === 'entering');
-  const lastTargetDigit = useRef(prevDigit ?? digit);
-
-  useLayoutEffect(() => {
-    if (lifecycle === 'entering') {
-      setIsEnteringPhase(true);
-      const rafId = requestAnimationFrame(() => {
-        setIsEnteringPhase(false);
-      });
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [lifecycle]);
-
-  useLayoutEffect(() => {
-    if (digit !== lastTargetDigit.current && lifecycle === 'idle' && prevDigit !== null) {
-      setResetCount(c => c + 1);
-      setIsReeling(false);
-      // Removed lastTargetDigit update from here to prevent race condition
-    }
-  }, [digit, lifecycle, prevDigit]);
-
-  useEffect(() => {
-    lastTargetDigit.current = digit;
-  }, [digit]); // Update ref after paint/all renders are done
-
-  useLayoutEffect(() => {
-    if (resetCount > 0) {
-      const rafId = requestAnimationFrame(() => {
-        setResetCount(0);
-        setIsReeling(true);
-      });
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [resetCount]);
-
-  useEffect(() => {
-    if (isReeling) {
-      const timer = setTimeout(() => setIsReeling(false), duration);
-      return () => clearTimeout(timer);
-    }
-  }, [isReeling, duration, digit]);
-
-  if (lifecycle === 'done') return null;
-
-  const isAnimating = isEnteringPhase || lifecycle === 'exiting';
+/**
+ * Single digit reel - pure render with phase-driven animation.
+ */
+function DigitReelComponent({ digitState }: DigitReelProps) {
+  const { dispatch, duration } = useAnimatedNumber();
+  const { id, digit, phase, fromDigit } = digitState;
   
-  const containerStyle: React.CSSProperties = {
-    opacity: isAnimating ? 0 : 1,
-    transition: isAnimating || lifecycle === 'entering'
-      ? `opacity ${slideDuration}ms ease-out, transform ${slideDuration}ms ease-out`
-      : 'none',
-    width: DIGIT_WIDTH,
+  const digitMaskStyles = useMemo(() => getDigitMaskStyles(), []);
+  
+  // Suppress transition for first frame when entering or exiting
+  // This gives width transition a head start to position/hide the digit
+  const isSuppressing = useLayoutTransitionSuppression(phase === 'entering' || phase === 'exiting');
+  
+  const { offset, animate } = getTransformConfig(phase, digit, fromDigit, isSuppressing);
+
+  const handleTransitionEnd = (e: React.TransitionEvent) => {
+    if (e.propertyName !== 'transform' || e.target !== e.currentTarget) return;
+    
+    if (phase === 'animating' || phase === 'entering') {
+      dispatch({ type: 'completed', id });
+    }
+    // Exiting digits stay in DOM but hidden by fade zone
+    // They'll be cleaned up on next value change
   };
 
-  let reelStyle = { transition: 'none', transform: 'translateY(0%)' };
-
-  if (lifecycle === 'exiting') {
-    reelStyle = {
-      transition: `transform ${slideDuration}ms ease-out`,
-      transform: 'translateY(100%)',
-    };
-  } else if (lifecycle === 'entering') {
-    reelStyle = isEnteringPhase
-      ? { transition: 'none', transform: 'translateY(100%)' }
-      : { transition: `transform ${slideDuration}ms ease-out`, transform: 'translateY(0%)' };
-  } else if (resetCount > 0 || (digit !== lastTargetDigit.current && lifecycle === 'idle' && prevDigit !== null)) {
-    const rawDelta = digit - prevDigit!;
-    const delta = reelMotion === 'shortest-path'
-      ? (Math.abs(rawDelta) <= 5 ? rawDelta : rawDelta > 0 ? rawDelta - 10 : rawDelta + 10)
-      : rawDelta;
-    reelStyle = { transition: 'none', transform: `translateY(${delta * 100}%)` };
-  } else if (isReeling) {
-    reelStyle = {
-      transition: `transform ${duration}ms ${SPRING_EASING}`,
-      transform: 'translateY(0%)',
-    };
-  }
-
-  const showReel = lifecycle !== 'idle' || isReeling;
-
   return (
-    <span 
-      style={containerStyle}
-      className={cn(
-        "inline-flex justify-center items-center overflow-visible origin-left will-change-[transform,opacity] motion-reduce:!transition-none",
-        CONTAINER_PADDING
-      )}
+    <span
+      className="animated-digit-container"
+      style={{
+        display: 'inline-flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        width: DIGIT_WIDTH,
+        userSelect: 'none',
+        ...digitMaskStyles,
+      }}
     >
-      <span 
-        style={{ ...reelStyle, width: DIGIT_WIDTH }}
-        className="inline-flex justify-center flex-col items-center relative motion-reduce:!transition-none motion-reduce:!transform-none"
-        aria-hidden="true"
+      <span
+        className="animated-digit-reel"
+        style={{
+          display: 'inline-flex',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: DIGIT_WIDTH,
+          transform: `translate3d(0, ${offset}%, 0)`,
+          willChange: 'transform, opacity',
+          opacity: (phase === 'entering' && isSuppressing) || (phase === 'exiting' && !isSuppressing) ? 0 : 1,
+          transition: animate 
+            ? `transform ${duration}ms ${SPRING_EASING}, opacity ${duration}ms ${SPRING_EASING}` 
+            : 'none',
+        }}
+        onTransitionEnd={handleTransitionEnd}
       >
-        {showReel && (
-          <span className="flex flex-col items-center absolute w-full bottom-full left-0 motion-reduce:hidden">
-            {DIGITS.slice(0, digit).map((d) => (
-              <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
-            ))}
-          </span>
-        )}
-
-        <span className={cn("inline-block", PADDING_CLASS)}>{digit}</span>
-
-        {showReel && (
-          <span className="flex flex-col items-center absolute w-full top-full left-0 motion-reduce:hidden">
-            {DIGITS.slice(digit + 1).map((d) => (
-              <span key={d} className={cn("inline-block", PADDING_CLASS)}>{d}</span>
-            ))}
-          </span>
-        )}
+        {DIGITS.map((d) => (
+          <span key={d} className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
+        ))}
       </span>
     </span>
   );
