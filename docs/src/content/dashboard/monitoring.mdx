@@ -9,7 +9,9 @@ import { Callout } from "nextra/components";
 
 Betterlytics includes built-in uptime monitoring and SSL certificate checks that continuously verify your website’s availability and alert you when something goes wrong. No additional tools or integrations are required, monitoring is built directly into your analytics dashboard.
 
-{/* TODO: Add screenshot of monitoring list page - 5 monitors with different endpoints such as https://example.com, https://example.com/api/health etc. */}
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Monitoring List](/images/dashboard/monitoring-list-view.webp)
+</div>
 
 ## What We Monitor
 
@@ -209,7 +211,10 @@ At recovery:
 - 12:15: Site recovers
 - 12:20: Recovery confirmed → Incident closes
 
-{/* TODO: Add screenshot of incident table with some resolved and one ongoing or something like that */}
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Incident Table](/images/dashboard/monitoring-monitor-incidents.webp)
+</div>
 
 ## Metrics & Dashboard
 
@@ -218,7 +223,7 @@ At recovery:
 The monitor detail page shows:
 
 - **Uptime percentage**: Calculated from actual check results
-- **Response time chart**: P50, P95, and average latency over time
+- **Response time chart**: P50, P95, and average latency over time, along with incident periods
 - **Uptime grid**: Visual indicator of hourly uptime over the last 24 hours
 - **Incident table**: Recent incidents with status, cause, start time, and duration
 
