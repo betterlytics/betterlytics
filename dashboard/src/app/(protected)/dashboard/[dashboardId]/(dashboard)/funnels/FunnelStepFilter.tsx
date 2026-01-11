@@ -108,6 +108,7 @@ export function FunnelStepFilter({
           key={filter.column}
           className={cn('grow', showValueEmptyError && 'border-destructive')}
           useExtendedRange
+          formatLength={45}
         />
       </div>
       <Button variant='ghost' className='cursor-pointer' onClick={requestRemoval} disabled={disableDeletion}>
