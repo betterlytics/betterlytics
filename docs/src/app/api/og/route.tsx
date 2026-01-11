@@ -1,21 +1,18 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-
-export const runtime = "edge";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const BRAND_BLUE = "#2283D5";
 
-let cachedFont: ArrayBuffer | null = null;
+let cachedFont: Buffer | null = null;
 
 async function loadFont() {
   if (cachedFont) return cachedFont;
 
-  // Use jsDelivr CDN for Inter font (TTF format required by satori)
-  const font = await fetch(
-    "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf"
-  ).then((res) => res.arrayBuffer());
-
-  cachedFont = font;
+  cachedFont = await readFile(
+    join(process.cwd(), "/assets/fonts/inter_5.2.7_latin-700-normal.ttf")
+  );
   return cachedFont;
 }
 
@@ -49,10 +46,28 @@ export async function GET(request: NextRequest): Promise<ImageResponse> {
             right: "-1400px",
             width: "2600px",
             height: "2600px",
-            background: `radial-gradient(circle, ${BRAND_BLUE}12 0%, ${BRAND_BLUE}05 25%, transparent 100%)`,
+            background: `radial-gradient(circle, ${BRAND_BLUE}15 0%, ${BRAND_BLUE}05 35%, transparent 100%)`,
             borderRadius: "50%",
           }}
         />
+
+        <svg
+          width="1200"
+          height="630"
+          viewBox="0 0 1200 630"
+          style={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            opacity: 0.12,
+            mixBlendMode: "overlay",
+          }}
+        >
+          <path
+            d="M0 630 L0 520 C150 520 300 580 450 480 C600 380 750 500 900 420 C1050 340 1200 200 1200 200 V630 H0 Z"
+            fill={BRAND_BLUE}
+          />
+        </svg>
 
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <svg width="36" height="36" viewBox="0 0 1071 1069" fill="none">
@@ -88,11 +103,15 @@ export async function GET(request: NextRequest): Promise<ImageResponse> {
               d="M187.89 471.473C190.612 473.444 192.804 475.448 194.999 478C195.829 478.919 195.829 478.919 196.675 479.856C205.022 489.668 208.478 501.192 207.999 514C206.969 522.515 204.944 529.956 199.999 537C199.383 537.906 198.767 538.813 198.132 539.746C191.606 548.555 182.514 554.989 171.492 556.785C156.62 558.067 144.391 556.58 132.433 547.121C123.96 539.736 116.833 529.53 115.822 517.976C115.426 504.144 116.666 493.495 124.999 482C125.417 481.406 125.835 480.812 126.265 480.199C140.755 461.421 168.737 458.999 187.89 471.473Z"
               fill={BRAND_BLUE}
             />
+            <path
+              d="M1048.89 162.918C1060.11 171.565 1068.07 181.751 1070 196C1070.94 209.962 1068.44 221.995 1059.41 232.93C1051 241.854 1041.28 247.723 1028.89 248.469C1027.15 248.503 1025.42 248.513 1023.69 248.5C1022.32 248.493 1022.32 248.493 1020.92 248.485C1008.59 248.169 998.47 243.773 989.915 234.816C980.31 223.659 977.116 211.482 977.812 196.981C978.535 189.367 981.264 181.991 986 176C986.408 175.379 986.815 174.757 987.235 174.117C992.837 165.84 1000.85 160.509 1010.4 157.66C1023.36 155.284 1037.65 155.454 1048.89 162.918Z"
+              fill={BRAND_BLUE}
+            />
           </svg>
 
           <div
             style={{
-              fontSize: "28px",
+              fontSize: "32px",
               fontWeight: 700,
               color: "#ffffff",
               letterSpacing: "-0.02em",
@@ -102,15 +121,18 @@ export async function GET(request: NextRequest): Promise<ImageResponse> {
           </div>
           <div
             style={{
-              fontSize: "12px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
+              fontSize: "14px",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
               textTransform: "uppercase",
-              color: "#3B82F6",
-              backgroundColor: "rgba(255,255,255,0.85)",
-              padding: "6px 12px",
+              color: "#1E40AF",
+              background:
+                "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.88) 100%)",
+              padding: "8px 16px",
               borderRadius: "999px",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+              boxShadow:
+                "0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.15)",
+              border: "1px solid rgba(255,255,255,0.3)",
             }}
           >
             Docs
@@ -156,8 +178,8 @@ export async function GET(request: NextRequest): Promise<ImageResponse> {
             <div
               style={{
                 fontSize: "22px",
-                fontWeight: 700,
-                color: "rgba(255, 255, 255, 0.55)",
+                fontWeight: 600,
+                color: "rgba(255, 255, 255, 0.60)",
                 marginTop: "18px",
                 lineHeight: 1.45,
                 maxWidth: "850px",
