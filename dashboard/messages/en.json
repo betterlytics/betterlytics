@@ -1287,7 +1287,7 @@
     "features": {
       "upToEventsPerMonth": "Up to {events} events/month",
       "allFeatures": "All dashboard & analytics features",
-      "oneSite": "1 site",
+      "twoSites": "Up to 2 sites",
       "upTo50Sites": "Up to 50 sites",
       "unlimitedSites": "Unlimited sites",
       "retention1PlusYear": "1+ year data retention",

@@ -1298,7 +1298,7 @@
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
       "allFeatures": "Tutte le funzionalità dashboard e analitiche",
-      "oneSite": "1 sito",
+      "twoSites": "Fino a 2 siti",
       "upTo50Sites": "Fino a 50 siti",
       "unlimitedSites": "Siti illimitati",
       "retention1PlusYear": "Conservazione dati 1+ anno",

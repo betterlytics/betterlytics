@@ -1290,7 +1290,7 @@
     "features": {
       "upToEventsPerMonth": "Op til {events} events/måned",
       "allFeatures": "Alle dashboard- og analysefunktioner",
-      "oneSite": "1 hjemmeside",
+      "twoSites": "Op til 2 hjemmesider",
       "upTo50Sites": "Op til 50 hjemmesider",
       "unlimitedSites": "Ubegrænsede hjemmesider",
       "retention1PlusYear": "1+ års dataopbevaring",
