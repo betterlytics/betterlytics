@@ -63,29 +63,21 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
     // They'll be cleaned up on next value change
   };
 
+  const isHidden = (phase === 'entering' && isSuppressing) || (phase === 'exiting' && !isSuppressing);
+
   return (
     <span
-      className="animated-digit-container"
-      style={{
-        display: 'inline-flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        width: DIGIT_WIDTH,
-        userSelect: 'none',
-        ...digitMaskStyles,
-      }}
+      className={cn('inline-flex justify-center items-start select-none', `w-[${DIGIT_WIDTH}]`)}
+      style={digitMaskStyles}
     >
       <span
-        className="animated-digit-reel"
+        className={cn(
+          'inline-flex flex-col justify-center items-center will-change-[transform,opacity]',
+          `w-[${DIGIT_WIDTH}]`,
+          isHidden ? 'opacity-0' : 'opacity-100'
+        )}
         style={{
-          display: 'inline-flex',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          alignItems: 'center',
-          width: DIGIT_WIDTH,
           transform: `translate3d(0, ${offset}%, 0)`,
-          willChange: 'transform, opacity',
-          opacity: (phase === 'entering' && isSuppressing) || (phase === 'exiting' && !isSuppressing) ? 0 : 1,
           transition: animate 
             ? `transform ${duration}ms ${SPRING_EASING}, opacity ${duration}ms ${SPRING_EASING}` 
             : 'none',
@@ -93,7 +85,7 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
         onTransitionEnd={handleTransitionEnd}
       >
         {DIGITS.map((d) => (
-          <span key={d} className={cn("inline-block", `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
+          <span key={d} className={cn('inline-block', `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
         ))}
       </span>
     </span>

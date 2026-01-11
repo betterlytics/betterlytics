@@ -1,6 +1,7 @@
 'use client';
 
-import { DIGIT_WIDTH, MASK_HEIGHT, ZWSP, SPRING_EASING, getMaskStyles } from '@/constants/animated-number';
+import { DIGIT_WIDTH, ZWSP, SPRING_EASING, getMaskStyles } from '@/constants/animated-number';
+import { cn } from '@/lib/utils';
 import React, { useMemo } from 'react';
 import { DigitReel } from './DigitReel';
 import { AnimatedNumberProvider, useAnimatedNumber } from './context';
@@ -16,20 +17,10 @@ type AnimatedNumberProps = {
  * AnimatedNumber - Smooth rolling digit animation.
  */
 function AnimatedNumberComponent({ value, duration = 1200, withTextSelect = false }: AnimatedNumberProps) {
-  const isNegative = value < 0;
-
   return (
     <AnimatedNumberProvider value={value} duration={duration}>
-      <span
-        style={{
-          lineHeight: 1,
-          fontVariantNumeric: 'tabular-nums',
-          display: 'inline-flex',
-          isolation: 'isolate',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {isNegative && <span>−</span>}
+      <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums')}>
+        {value < 0 && <span>−</span>}
         <AnimatedNumberInner value={value} duration={duration} withTextSelect={withTextSelect} />
       </span>
     </AnimatedNumberProvider>
@@ -47,59 +38,28 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
   const displayValue = Math.abs(Math.floor(value));
 
   return (
-    <span
-      className="animated-number-container"
-      style={{
-        display: 'inline-flex',
-        direction: 'ltr',
-        isolation: 'isolate',
-        position: 'relative',
-        contain: 'layout paint',
-      }}
-    >
+    <span className={cn('inline-flex isolate relative ltr contain-layout contain-paint')}>
       {withTextSelect && (
         <span
-          className="animated-number-selection-overlay"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            color: 'transparent',
-            userSelect: 'text',
-            zIndex: 1,
-            lineHeight: 1,
-            font: 'inherit',
-          }}
+          className={cn(
+            'absolute inset-0 flex items-center justify-end',
+            'text-transparent select-text z-[1] leading-none font-[inherit] tabular-nums'
+          )}
         >
-          {String(displayValue).split('').map((d, i) => (
-            <span 
-              key={i} 
-              style={{ 
-                display: 'inline-flex', 
-                width: DIGIT_WIDTH, 
-                justifyContent: 'center',
-              }}
-            >
-              {d}
-            </span>
-          ))}
+          {displayValue}
         </span>
       )}
 
       {/* Mask area for fade-in/out effects */}
-      <span aria-hidden="true" className="animated-number-mask" style={maskStyles}>
+      <span aria-hidden="true" style={maskStyles}>
         <span
-          className="animated-number-integer-section"
+          className="inline-flex justify-end"
           style={{
-            display: 'inline-flex',
-            justifyContent: 'flex-end',
             width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
             transition: `width ${duration}ms ${SPRING_EASING}`,
           }}
         >
-          <span style={{ display: 'inline-flex', justifyContent: 'inherit', position: 'relative' }}>
+          <span className="inline-flex justify-inherit relative">
             {ZWSP}
             {state.digits.map((digitState) => (
               <DigitReel key={digitState.id} digitState={digitState} />

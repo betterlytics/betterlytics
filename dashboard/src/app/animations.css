@@ -1,4 +1,4 @@
-/* Digit roll animation for AnimatedNumberV2 */
+/* Digit roll animation for AnimatedNumber */
 @keyframes digitRoll {
   from {
     transform: translateY(var(--roll-from, 0%));
