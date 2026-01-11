@@ -318,6 +318,11 @@ export const SEO_CONFIGS = {
     path: '/pricing',
     structuredDataType: 'webpage',
   },
+  features: {
+    namespace: 'public.features.seo',
+    path: '/features',
+    structuredDataType: 'webpage',
+  },
   root: {
     namespace: 'public.root.seo',
     path: '/',

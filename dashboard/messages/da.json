@@ -906,8 +906,8 @@
           "engagement": "Engagement og adfærd",
           "performance": "Ydeevne og kilder"
         },
-        "docsButton": "Udforsk alle funktioner",
-        "docsTitle": "Komplet Betterlytics-dokumentation"
+        "featuresButton": "Udforsk alle funktioner",
+        "featuresTitle": "Udforsk alle Betterlytics funktioner"
       },
       "ctaStrip": {
         "eyebrow": "Kom i gang gratis",
@@ -1025,6 +1025,204 @@
         }
       }
     },
+    "features": {
+      "seo": {
+        "title": "Funktioner i Betterlytics | Privatlivsvenlig, Cookiefri Analyse",
+        "description": "Udforsk alle Betterlytics-funktioner: realtids-dashboards, konverteringsfunnels, Core Web Vitals og meget mere. Privatlivsvenlig, GDPR-kompatibel analyse uden cookies eller samtykkebannere.",
+        "keywords": [
+          "Analysefunktioner",
+          "Privatlivsvenlig Analyse",
+          "Cookieless Analyse",
+          "GDPR-kompatibel Analyse",
+          "Realtids Dashboard",
+          "Konverteringsfunnels",
+          "Session Replay",
+          "Brugerdefinerede Events",
+          "Webanalysefunktioner"
+        ]
+      },
+      "hero": {
+        "title": "Alle funktioner du har brug for til<br></br><highlight>bedre analyse</highlight>",
+        "description": "Udforsk alt hvad Betterlytics tilbyder, fra realtids-dashboards til konverteringsfunnels. Al den analyse du har brug for, uden cookies, samtykkebannere eller kompromiser på privatliv.",
+        "ctaPrimary": "Kom i gang gratis",
+        "ctaDemo": "Se live demo"
+      },
+      "categories": {
+        "coreAnalytics": "Grundlæggende webanalyse",
+        "advancedAnalytics": "Avanceret analyse",
+        "performanceMonitoring": "Performance & Overvågning",
+        "privacyData": "Privatliv & Compliance",
+        "accessSecurity": "Adgang & Sikkerhed",
+        "developerDeployment": "Udvikler & Deployment",
+        "support": "Support"
+      },
+      "items": {
+        "pageViews": {
+          "title": "Sidevisninger",
+          "description": "Se hvilke sider der får mest trafik og forstå overordnede engagementstendenser."
+        },
+        "visitors": {
+          "title": "Besøgende",
+          "description": "Spor unikke besøgende og overvåg publikumsvækst og adfærd."
+        },
+        "bounceRate": {
+          "title": "Afvisningsrate",
+          "description": "Identificer sider der fastholder besøgende versus sider der forårsager hurtige exits, så du kan optimere indhold."
+        },
+        "trafficSources": {
+          "title": "Trafikkilder",
+          "description": "Find ud af hvor besøgende kommer fra, herunder organisk, social, referral og kampagner."
+        },
+        "location": {
+          "title": "Lokation",
+          "description": "Se besøgendes geografiske fordeling efter by, region og land."
+        },
+        "devices": {
+          "title": "Enheder",
+          "description": "Se hvilke enheder besøgende bruger, uanset om det er desktop, mobil eller tablet."
+        },
+        "languages": {
+          "title": "Sprog",
+          "description": "Spor dine besøgendes foretrukne sprog for at tilpasse indhold effektivt."
+        },
+        "filtering": {
+          "title": "Filtrering",
+          "description": "Segmentér dine data efter trafik, enhed, lokation og andre attributter hurtigt."
+        },
+        "realtimeData": {
+          "title": "Realtidsdata",
+          "description": "Se besøgsaktivitet i realtid, herunder sidevisninger, events og sessioner."
+        },
+        "customEvents": {
+          "title": "Brugerdefinerede events",
+          "description": "Spor specifikke brugerinteraktioner som klik, formularindsendelser eller downloads for at måle engagement."
+        },
+        "utmTracking": {
+          "title": "UTM-sporing",
+          "description": "Mål performance af marketingkampagner med UTM-parametre."
+        },
+        "linkTracking": {
+          "title": "Linksporing",
+          "description": "Overvåg klik på interne og udgående links for at forstå brugerengagement."
+        },
+        "sessionReplay": {
+          "title": "Session Replay",
+          "description": "Afspil brugersessioner for at se præcis hvordan besøgende interagerer med dit site og find usability-problemer."
+        },
+        "userJourneys": {
+          "title": "Brugerrejser",
+          "description": "Visualiser de stier besøgende tager på tværs af dit site fra indgang til udgang."
+        },
+        "funnels": {
+          "title": "Funnels",
+          "description": "Spor brugerfremgang gennem definerede trin og identificer frafaldspunkter."
+        },
+        "goals": {
+          "title": "Mål",
+          "description": "Definér og overvåg konverteringsmål for at optimere websitets performance."
+        },
+        "annotations": {
+          "title": "Annotationer",
+          "description": "Tilføj noter til din analysetidslinje for at spore events eller kampagneændringer."
+        },
+        "timePeriodComparison": {
+          "title": "Sammenlign",
+          "description": "Sammenlign metrics på tværs af forskellige tidsperioder for at spotte trends og ændringer."
+        },
+        "outboundLinks": {
+          "title": "Udgående link-sporing",
+          "description": "Spor klik på links der forlader dit site for at måle brugerengagement."
+        },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Mål og optimér Googles performance-metrics for at forbedre loading, interaktivitet og søgerangeringer."
+        },
+        "uptimeMonitoring": {
+          "title": "Oppetidsovervågning",
+          "description": "Sørg for at dit site er live og tilgængeligt ved automatisk at spore oppetid."
+        },
+        "sslMonitoring": {
+          "title": "SSL-certifikatovervågning",
+          "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
+        },
+        "cookieless": {
+          "title": "Ingen cookies",
+          "description": "Indsaml privacy-first analytics uden cookies, med præcise data uden behov for samtykkebannere."
+        },
+        "gdprCcpa": {
+          "title": "GDPR & CCPA",
+          "description": "Overhold privatlivslovgivning mens du indsamler anonyme analysedata."
+        },
+        "euHosting": {
+          "title": "Hostet i EU",
+          "description": "Alle data opbevares i EU for at sikre privatliv og compliance."
+        },
+        "anonymousByDefault": {
+          "title": "Dataanonymisering",
+          "description": "Alle besøgsdata anonymiseres som standard for at beskytte privatliv."
+        },
+        "dataOwnership": {
+          "title": "Dataejerskab",
+          "description": "Du har fuld kontrol og ejerskab over alle indsamlede analysedata."
+        },
+        "openSource": {
+          "title": "Open source",
+          "description": "Inspicér, revider og bidrag til analyseplatformens kodebase."
+        },
+        "memberRoles": {
+          "title": "Rollebaseret adgang",
+          "description": "Styr brugeradgang med rollebaserede tilladelser for teammedlemmer."
+        },
+        "twoFactorAuth": {
+          "title": "To-faktor-godkendelse",
+          "description": "Tilføj et ekstra sikkerhedslag for alle brugerkonti."
+        },
+        "oauthLogin": {
+          "title": "OAuth-login",
+          "description": "Log sikkert ind med OAuth-udbydere som Google eller GitHub."
+        },
+        "simpleScriptTag": {
+          "title": "Simpelt script-tag",
+          "description": "Tilføj analytics til dit site med et enkelt letvægts-script."
+        },
+        "frameworkSdks": {
+          "title": "Framework SDK'er",
+          "description": "Integrer nemt Betterlytics med frameworks som React, Angular, Next.js og flere."
+        },
+        "selfHosting": {
+          "title": "Self-hosting",
+          "description": "Deploy Betterlytics på dine egne servere for fuld kontrol over data."
+        },
+        "fullyManaged": {
+          "title": "Fuldt administreret cloud",
+          "description": "Brug vores managed cloud-løsning for hurtig opsætning og ingen vedligeholdelse."
+        },
+        "lightweightScript": {
+          "title": "Let script",
+          "description": "Hurtig-loadende script under 2KB der ikke sænker dit website."
+        },
+        "highPerformance": {
+          "title": "Høj performance",
+          "description": "ClickHouse-drevet analysemotor leverer sub-sekund query-tider ved enhver skala."
+        },
+        "emailSupport": {
+          "title": "E-mail-support",
+          "description": "Få hjælp via e-mail til spørgsmål eller problemer."
+        },
+        "prioritySupport": {
+          "title": "Prioriteret support",
+          "description": "Modtag hurtigere svar fra vores supportteam ved kritiske problemer."
+        },
+        "dedicatedSupport": {
+          "title": "Dedikeret support",
+          "description": "Få adgang til en dedikeret supportansvarlig for personlig assistance."
+        },
+        "slaGuarantee": {
+          "title": "SLA-garanti",
+          "description": "Garanteret oppetid og supportsvartider med formel SLA."
+        }
+      }
+    },
     "nav": {
       "documentation": "Dokumentation",
       "pricing": "Priser",
@@ -1045,6 +1243,7 @@
       "documentation": "Dokumentation",
       "changelog": "Ændringslog",
       "pricing": "Priser",
+      "features": "Funktioner",
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
@@ -1078,7 +1277,8 @@
       "titleRest": "priser",
       "subtitle": "Start gratis, opgrader når du har brug for mere. Ingen skjulte gebyrer, ingen overraskelser.",
       "footer": "Start med vores gratis plan – intet kreditkort krævet.",
-      "comparisonTitle": "Sammenlign alle funktioner"
+      "comparisonTitle": "Sammenlign alle funktioner",
+      "exploreFeaturesLink": "Udforsk alle funktioner i detaljer"
     }
   },
   "pricingSlider": {

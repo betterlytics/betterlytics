@@ -7,7 +7,8 @@ import { FeatureComparisonSection } from '@/app/[locale]/(public)/pricing/Featur
 import { CoreFeaturesSection } from '@/components/pricing/CoreFeaturesSection';
 import { BillingFAQGrid } from '@/app/(protected)/billing/BillingFAQGrid';
 import { getTranslations } from 'next-intl/server';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, ArrowRight } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata() {
   return buildSEOConfig(SEO_CONFIGS.pricing);
@@ -47,6 +48,15 @@ export default async function PricingPage() {
 
             <div className='mt-16'>
               <CoreFeaturesSection />
+              <div className='mt-8 text-center'>
+                <Link
+                  href='/features'
+                  className='text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors'
+                >
+                  {t('exploreFeaturesLink')}
+                  <ArrowRight className='h-4 w-4' />
+                </Link>
+              </div>
             </div>
           </div>
         </section>

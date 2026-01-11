@@ -907,8 +907,8 @@
           "engagement": "Engagement & Behavior",
           "performance": "Performance & Sources"
         },
-        "docsButton": "Explore All Features",
-        "docsTitle": "Complete Betterlytics Documentation"
+        "featuresButton": "Explore All Features",
+        "featuresTitle": "Explore all Betterlytics features"
       },
       "ctaStrip": {
         "eyebrow": "Get started free",
@@ -1022,6 +1022,204 @@
         }
       }
     },
+    "features": {
+      "seo": {
+        "title": "Features of Betterlytics | Privacy-First, Cookie-Less Analytics",
+        "description": "Discover all Betterlytics features: real-time dashboards, conversion funnels, Core Web Vitals, and more. Privacy-first, GDPR-compliant analytics without cookies or consent banners.",
+        "keywords": [
+          "Analytics Features",
+          "Privacy-First Analytics",
+          "Cookieless Analytics",
+          "GDPR Compliant Analytics",
+          "Real-time Dashboard",
+          "Conversion Funnels",
+          "Session Replay",
+          "Custom Events",
+          "Web Analytics Features"
+        ]
+      },
+      "hero": {
+        "title": "Every Feature You Need for<br></br><highlight>Better Analytics</highlight>",
+        "description": "Explore everything Betterlytics offers, from real-time dashboards to conversion funnels. All the analytics you need, without cookies, consent banners, or compromising on privacy.",
+        "ctaPrimary": "Get Started Free",
+        "ctaDemo": "View Live Demo"
+      },
+      "categories": {
+        "coreAnalytics": "Core Web Analytics",
+        "advancedAnalytics": "Advanced Analytics",
+        "performanceMonitoring": "Performance & Monitoring",
+        "privacyData": "Privacy & Compliance",
+        "accessSecurity": "Access & Security",
+        "developerDeployment": "Developer & Deployment",
+        "support": "Support"
+      },
+      "items": {
+        "pageViews": {
+          "title": "Page Views",
+          "description": "See which pages get the most traffic and understand overall engagement trends."
+        },
+        "visitors": {
+          "title": "Visitors",
+          "description": "Track unique visitors and monitor overall audience growth and behavior."
+        },
+        "bounceRate": {
+          "title": "Bounce Rate",
+          "description": "Identify pages that retain visitors versus those that cause quick exits, helping you optimize content."
+        },
+        "trafficSources": {
+          "title": "Traffic Sources",
+          "description": "Discover where visitors come from, including organic, social, referral, and campaigns."
+        },
+        "location": {
+          "title": "Location",
+          "description": "See visitor distribution by city, region, and country for geographic insights."
+        },
+        "devices": {
+          "title": "Devices",
+          "description": "Monitor which devices visitors use, whether desktop, mobile, or tablet."
+        },
+        "languages": {
+          "title": "Languages",
+          "description": "Track your visitors’ preferred languages to tailor content effectively."
+        },
+        "filtering": {
+          "title": "Filtering",
+          "description": "Segment your data by traffic, device, location, and other attributes quickly."
+        },
+        "realtimeData": {
+          "title": "Real-time Data",
+          "description": "See visitor activity as it happens, including page views, events, and sessions."
+        },
+        "customEvents": {
+          "title": "Custom Events",
+          "description": "Track specific user interactions like clicks, form submissions, or downloads to measure engagement."
+        },
+        "utmTracking": {
+          "title": "UTM Tracking",
+          "description": "Measure the performance of marketing campaigns with UTM parameters."
+        },
+        "linkTracking": {
+          "title": "Link Tracking",
+          "description": "Monitor clicks on internal and outbound links to understand user engagement."
+        },
+        "sessionReplay": {
+          "title": "Session Replay",
+          "description": "Replay user sessions to see exactly how visitors interact with your site and uncover usability issues."
+        },
+        "userJourneys": {
+          "title": "User Journeys",
+          "description": "Visualize the paths visitors take across your site from entry to exit."
+        },
+        "funnels": {
+          "title": "Funnels",
+          "description": "Track user progress through defined steps and identify drop-off points."
+        },
+        "goals": {
+          "title": "Goals",
+          "description": "Define and monitor conversion goals to optimize website performance."
+        },
+        "annotations": {
+          "title": "Annotations",
+          "description": "Add notes to your analytics timeline to track events or campaign changes."
+        },
+        "timePeriodComparison": {
+          "title": "Compare",
+          "description": "Compare metrics across different time periods to spot trends and changes."
+        },
+        "outboundLinks": {
+          "title": "Outbound Link Tracking",
+          "description": "Track clicks on links leaving your site to measure user engagement."
+        },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Measure and optimize Google's page performance metrics to improve loading, interactivity, and search rankings."
+        },
+        "uptimeMonitoring": {
+          "title": "Uptime Monitoring",
+          "description": "Ensure your site is live and accessible by tracking uptime automatically."
+        },
+        "sslMonitoring": {
+          "title": "SSL Certificate Monitoring",
+          "description": "Monitor SSL certificate status to avoid expired or insecure connections."
+        },
+        "cookieless": {
+          "title": "No Cookies",
+          "description": "Collect privacy-first analytics without cookies, providing accurate data without requiring consent banners."
+        },
+        "gdprCcpa": {
+          "title": "GDPR & CCPA",
+          "description": "Stay compliant with privacy laws while collecting anonymous analytics data."
+        },
+        "euHosting": {
+          "title": "Hosted in EU",
+          "description": "Ensure all data is stored in the EU for privacy and compliance."
+        },
+        "anonymousByDefault": {
+          "title": "Data Anonymization",
+          "description": "All visitor data is anonymized by default to protect privacy."
+        },
+        "dataOwnership": {
+          "title": "Data Ownership",
+          "description": "You maintain full control and ownership of all collected analytics data."
+        },
+        "openSource": {
+          "title": "Open Source",
+          "description": "Inspect, audit, and contribute to the analytics platform codebase."
+        },
+        "memberRoles": {
+          "title": "Role-Based Access",
+          "description": "Control user access with role-based permissions for team members."
+        },
+        "twoFactorAuth": {
+          "title": "Two-Factor Authentication",
+          "description": "Add an extra layer of security for all user accounts."
+        },
+        "oauthLogin": {
+          "title": "OAuth Login",
+          "description": "Sign in securely using OAuth providers like Google or GitHub."
+        },
+        "simpleScriptTag": {
+          "title": "Simple Script Tag",
+          "description": "Add analytics to your site with a single lightweight script."
+        },
+        "frameworkSdks": {
+          "title": "Framework SDKs",
+          "description": "Integrate Betterlytics easily with frameworks like React, Angular, Next.js, and more."
+        },
+        "selfHosting": {
+          "title": "Self-Hosting",
+          "description": "Deploy Betterlytics on your own servers for full control over data."
+        },
+        "fullyManaged": {
+          "title": "Fully Managed Cloud",
+          "description": "Use our managed cloud solution for quick setup and zero maintenance."
+        },
+        "lightweightScript": {
+          "title": "Lightweight Script",
+          "description": "Fast-loading script under 2KB that won't slow down your website."
+        },
+        "highPerformance": {
+          "title": "High Performance",
+          "description": "ClickHouse-powered analytics engine delivers sub-second query times at any scale."
+        },
+        "emailSupport": {
+          "title": "Email Support",
+          "description": "Get help via email for any questions or issues."
+        },
+        "prioritySupport": {
+          "title": "Priority Support",
+          "description": "Receive faster responses from our support team for critical issues."
+        },
+        "dedicatedSupport": {
+          "title": "Dedicated Support",
+          "description": "Access a dedicated support manager for personalized assistance."
+        },
+        "slaGuarantee": {
+          "title": "SLA Guarantee",
+          "description": "Guaranteed uptime and support response times with a formal SLA."
+        }
+      }
+    },
     "nav": {
       "documentation": "Documentation",
       "pricing": "Pricing",
@@ -1042,6 +1240,7 @@
       "documentation": "Documentation",
       "changelog": "Changelog",
       "pricing": "Pricing",
+      "features": "Features",
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
@@ -1075,7 +1274,8 @@
       "titleRest": "pricing",
       "subtitle": "Start free, upgrade when you need more. No hidden fees, no surprises.",
       "footer": "Start with our free plan - no credit card required.",
-      "comparisonTitle": "Compare all features"
+      "comparisonTitle": "Compare all features",
+      "exploreFeaturesLink": "Explore all features in detail"
     }
   },
   "pricingSlider": {
