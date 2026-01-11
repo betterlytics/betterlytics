@@ -1,8 +1,12 @@
 'use server';
 
-import { Dashboard, DashboardWithMemberCount } from '@/entities/dashboard/dashboard.entities';
+import { Dashboard, DashboardWithMemberCount, domainValidation } from '@/entities/dashboard/dashboard.entities';
 import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
-import { createNewDashboard, getAllUserDashboards } from '@/services/dashboard/dashboard.service';
+import {
+  createNewDashboard,
+  getAllUserDashboards,
+  updateDashboardDomain,
+} from '@/services/dashboard/dashboard.service';
 import {
   findFirstUserDashboard,
   findDashboardById,
@@ -52,3 +56,11 @@ export const getUserDashboardStatsAction = withUserAuth(async (user: User) => {
     canCreateMore: ownedDashboards.length < caps.dashboards.maxDashboards,
   };
 });
+
+export const updateDashboardDomainAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, domain: string): Promise<Dashboard> => {
+    const validated = domainValidation.parse(domain);
+    return updateDashboardDomain(ctx.dashboardId, validated);
+  },
+  { permission: 'canManageSettings' },
+);

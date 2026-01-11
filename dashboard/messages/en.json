@@ -1719,7 +1719,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "openMenu": "Open menu",
-    "save": "Save"
+    "save": "Save",
+    "saving": "Saving..."
   },
   "languages": {
     "da": "Danish",
@@ -2624,7 +2625,14 @@
           "enforceDomain": "Enforce domain",
           "enforceDomainDescription": "Reject events whose domain does not match the dashboard domain.",
           "enableValidation": "Enable domain validation",
-          "enableValidationDescription": "Only accept events from your configured domain"
+          "enableValidationDescription": "Only accept events from your configured domain",
+          "rename": {
+            "title": "Change Domain",
+            "description": "Change the domain associated with this dashboard. Your analytics data will be preserved.",
+            "info": "Your Site ID and tracking script remain unchanged.",
+            "success": "Domain updated successfully",
+            "error": "Failed to update domain"
+          }
         },
         "blacklistedIps": {
           "title": "Blacklisted IPs",
