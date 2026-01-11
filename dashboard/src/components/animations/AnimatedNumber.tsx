@@ -9,17 +9,19 @@ import { AnimatedNumberProvider, useAnimatedNumber } from './context';
 type AnimatedNumberProps = {
   value: number;
   duration?: number;
-  /** Enable text selection overlay for copy/paste */
+  /** Enable text selection overlay */
   withTextSelect?: boolean;
+  className?: string;
 };
 
 /**
  * AnimatedNumber - Smooth rolling digit animation.
+ * Size scales with font-size (uses em units internally).
  */
-function AnimatedNumberComponent({ value, duration = 1200, withTextSelect = false }: AnimatedNumberProps) {
+function AnimatedNumberComponent({ value, duration = 1200, withTextSelect = false, className }: AnimatedNumberProps) {
   return (
     <AnimatedNumberProvider value={value} duration={duration}>
-      <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums')}>
+      <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', className)}>
         {value < 0 && <span>−</span>}
         <AnimatedNumberInner value={value} duration={duration} withTextSelect={withTextSelect} />
       </span>
