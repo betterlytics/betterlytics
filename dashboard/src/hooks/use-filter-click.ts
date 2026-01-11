@@ -34,23 +34,23 @@ export function useFilterClick(defaults?: Options) {
 
       if (behavior === 'toggle') {
         const existing = queryFilters.find(
-          (f) => f.column === column && f.operator === operator && f.value === value,
+          (f) => f.column === column && f.operator === operator && f.values[0] === value,
         );
         if (existing) {
           removeQueryFilter(existing.id);
           return;
         }
-        addQueryFilter({ column, operator, value });
+        addQueryFilter({ column, operator, values: [value] });
         return;
       }
 
       if (behavior === 'replace-same-column') {
         setQueryFilters((fs) => fs.filter((f) => f.column !== column));
-        addQueryFilter({ column, operator, value });
+        addQueryFilter({ column, operator, values: [value] });
         return;
       }
 
-      addQueryFilter({ column, operator, value });
+      addQueryFilter({ column, operator, values: [value] });
     },
     [
       addQueryFilter,

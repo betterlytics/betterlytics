@@ -30,7 +30,6 @@ export const CreateFunnelSchema = z.object({
   funnelSteps: z
     .array(
       FunnelStepSchema.extend({
-        value: z.string().min(1, 'Value is required'),
         name: z.string().min(1, 'Name is required'),
       }).omit({ id: true }),
     )

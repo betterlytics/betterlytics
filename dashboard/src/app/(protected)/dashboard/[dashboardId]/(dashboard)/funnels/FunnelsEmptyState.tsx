@@ -89,7 +89,7 @@ export function FunnelsEmptyState() {
           <h2 className='text-2xl font-semibold tracking-tight'>{t('title')}</h2>
           <p className='text-muted-foreground mx-auto max-w-md text-sm leading-relaxed'>{t('description')}</p>
         </div>
-        <div className='flex justify-center'>
+        <div className='hidden justify-center xl:flex'>
           <PermissionGate>
             {(disabled) => (
               <CreateFunnelDialog triggerText={t('createButton')} triggerVariant='default' disabled={disabled} />

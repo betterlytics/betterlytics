@@ -6,7 +6,18 @@ import { COMPARE_URL_MODES } from '@/utils/compareRanges';
 import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
 
 export const FilterQueryParamsSchema = z.object({
-  queryFilters: z.array(QueryFilterSchema),
+  queryFilters: z.preprocess((val) => {
+    if (Array.isArray(val)) {
+      return val.map((filter) => {
+        if (typeof filter === 'object' && filter !== null && 'value' in filter && !('values' in filter)) {
+          const { value, ...rest } = filter as Record<string, unknown>;
+          return { ...rest, values: [value] };
+        }
+        return filter;
+      });
+    }
+    return val;
+  }, z.array(QueryFilterSchema)),
   granularity: z.enum(GRANULARITY_RANGE_VALUES),
   startDate: z.date(),
   endDate: z.date(),

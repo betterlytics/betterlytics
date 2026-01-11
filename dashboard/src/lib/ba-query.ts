@@ -8,14 +8,20 @@ import { DateTimeString } from '@/types/dates';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
-  '=': 'ILIKE',
-  '!=': 'NOT ILIKE',
+  '=': {
+    quantifier: safeSql`arrayExists`,
+    operater: safeSql`ILIKE`,
+  },
+  '!=': {
+    quantifier: safeSql`arrayAll`,
+    operater: safeSql`NOT ILIKE`,
+  },
 } as const;
 
 const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
-  value: filter.value.replaceAll('*', '%'),
+  values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
 
 /**
@@ -23,7 +29,8 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
  */
 function getFilterQuery(queryFilters: QueryFilter[]) {
   const nonEmptyFilters = queryFilters.filter(
-    (filter) => Boolean(filter.column) && Boolean(filter.operator) && Boolean(filter.value),
+    (filter) =>
+      Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
   );
 
   const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
@@ -32,9 +39,16 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
     return [safeSql`1=1`];
   }
 
-  return filters.map(({ column, operator, value }, index) => {
-    return safeSql`${SQL.Unsafe(column)} ${SQL.Unsafe(operator)} ${SQL.String({ [`query_filter_${index}`]: value })}`;
-  });
+  return filters.map((filter, index) => buildFilterQuery(filter, index));
+}
+
+function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
+  const column = SQL.Unsafe(filter.column);
+  const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
+  const quantifier = filter.operator.quantifier;
+  const operator = filter.operator.operater;
+
+  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
 }
 
 // Utility for granularity
