@@ -54,6 +54,7 @@ export function FilterValueSearch<TEntity>({
           <span>{t('noValuesForCurrentPeriod')}</span>
         </div>
       }
+      creatable
     />
   );
 }
