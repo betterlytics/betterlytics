@@ -2,36 +2,49 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.0',
-    releasedAt: '2026-01-04',
-    title: '',
-    summary: '',
+    version: 'v1.3.1',
+    releasedAt: '2026-01-11',
+    title: 'Teamsamarbejde og forbedret sikkerhed',
+    summary:
+      'Denne opdatering introducerer teamsamarbejde med rollebaseret adgang, forbedrer kontosikkerheden med bedre sessionshåndtering og gør det muligt at ændre dit dashboard-domæne uden at opdatere dit tracking-script.',
   },
   sections: [
     {
-      id: 'v130-new-features',
+      id: 'v131-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Overvågning af website-oppetid er nu tilgængelig. Følg oppetid, svartider og hændelser, og få besked når dit site er nede.',
-            'SSL-certifikat-overvågning er inkluderet, med advarsler før certifikater udløber eller bliver ugyldige.',
-            'Du kan nu låse stier i User Journey Sankey-diagrammet, så det er nemmere at følge specifikke brugerflows.',
+            'Inviter teammedlemmer til dit dashboard som Tilskuer, Redaktør eller Administrator med rollebaserede rettigheder til sikkert samarbejde.',
+            'Filtre understøtter nu OR-logik, så du kan matche flere værdier i ét filter (f.eks. flere sider eller lande).',
+            'Du kan nu ændre dit dashboard-domæne uden at miste historisk data eller opdatere dit tracking-script.',
           ],
         },
       ],
     },
     {
-      id: 'v130-improvements',
+      id: 'v131-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ændring af din adgangskode logger nu alle andre aktive sessioner ud.',
+            'Nulstilling af adgangskode logger nu alle eksisterende sessioner ud for ekstra beskyttelse.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v131-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'User Journey-diagrammer er blevet mere overskuelige og mindre rodede, så komplekse stier er nemmere at følge.',
-            'Oprettelse af funnels foreslår nu et mere komplet sæt filterværdier, så du hurtigere kan bygge præcise funnels.',
-            'Browser- og enhedsrapporter viser nu mere genkendelige ikoner.',
+            'Forbedret privatlivsbeskyttelse til bedre at adskille besøgsdata mellem websites.',
+            'Rettet afstandsproblemer i uptime-overvågningslisten på større skærme.',
           ],
         },
       ],
@@ -40,6 +53,57 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.1',
+      releasedAt: '2026-01-11',
+      title: 'Teamsamarbejde og styrket sikkerhed',
+      summary:
+        'Inviter teammedlemmer til at samarbejde på dine dashboards med rollebaseret adgang. Denne opdatering styrker også kontosikkerheden, forbedrer privatlivsisoleringen og gør det muligt at ændre dit dashboard-domæne.',
+    },
+    sections: [
+      {
+        id: 'v131-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Inviter teammedlemmer til dit dashboard som Tilskuer, Redaktør eller Administrator med rollebaserede rettigheder til sikkert samarbejde.',
+              'Filtre understøtter nu OR-logik, så du kan matche flere værdier i ét filter (f.eks. flere sider eller lande).',
+              'Du kan nu ændre dit dashboard-domæne under indstillinger. Dit Site ID og tracking-script forbliver uændret, så ingen kodeopdateringer er nødvendige.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Ændring af din adgangskode logger nu alle andre aktive sessioner ud.',
+              'Nulstilling af adgangskode logger nu alle eksisterende sessioner ud for ekstra beskyttelse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Forbedret privatlivsbeskyttelse til bedre at adskille besøgsdata mellem websites.',
+              'Rettet layout-problemer i uptime-overvågningslisten på større skærme.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.0',
