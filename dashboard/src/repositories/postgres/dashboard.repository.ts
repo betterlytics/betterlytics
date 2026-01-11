@@ -259,6 +259,28 @@ export async function deleteDashboard(dashboardId: string): Promise<void> {
   }
 }
 
+export async function updateDashboardDomain(dashboardId: string, domain: string): Promise<Dashboard> {
+  try {
+    const result = await prisma.dashboard.update({
+      where: { id: dashboardId },
+      data: { domain },
+    });
+
+    // Update siteConfig updatedAt to trigger cache sync in backend
+    await prisma.siteConfig
+      .update({
+        where: { dashboardId },
+        data: { updatedAt: new Date() },
+      })
+      .catch((e) => console.error('Failed to touch SiteConfig for cache sync:', e));
+
+    return DashboardSchema.parse(result);
+  } catch (error) {
+    console.error(`Error updating dashboard domain ${dashboardId}:`, error);
+    throw new Error('Failed to update dashboard domain.');
+  }
+}
+
 export async function deleteOwnedDashboards(userId: string): Promise<string[]> {
   try {
     const ownedDashboards = await prisma.userDashboard.findMany({
