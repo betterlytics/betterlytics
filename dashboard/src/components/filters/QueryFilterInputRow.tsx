@@ -63,7 +63,7 @@ export function QueryFilterInputRow<TEntity>({
   }, [filter.column]);
 
   return (
-    <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+    <div className='grid grid-cols-12 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
         value={filter.column}
         onValueChange={(column: FilterColumn) => {
