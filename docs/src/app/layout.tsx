@@ -26,7 +26,7 @@ export const metadata: Metadata = {
       "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
     images: [
       {
-        url: getAssetPath("/og_image_docs.png"),
+        url: getAssetPath("/og_image.jpg"),
         width: 1200,
         height: 630,
         alt: "Betterlytics documentation",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "Betterlytics Docs",
     description:
       "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
-    images: [getAssetPath("/og_image_docs.png")],
+    images: [getAssetPath("/og_image.jpg")],
     creator: "@betterlytics",
   },
   icons: {
