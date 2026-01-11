@@ -2,36 +2,49 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.0',
-    releasedAt: '2026-01-04',
-    title: '',
-    summary: '',
+    version: 'v1.3.1',
+    releasedAt: '2026-01-11',
+    title: 'Team Collaboration & Security Improvements',
+    summary:
+      'This release introduces team collaboration with role-based access, improves account security with better session handling, and adds support for changing your dashboard domain without updating your tracking script.',
   },
   sections: [
     {
-      id: 'v130-new-features',
+      id: 'v131-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Website uptime monitoring is now available. Track uptime, latency, and incidents and get notified when your site goes down.',
-            'SSL certificate monitoring is included, with alerts before certificates expire or become invalid.',
-            'You can now lock paths in the User Journey Sankey diagram to better trace specific user flows.',
+            'Invite team members to your dashboard as Viewer, Editor, or Admin, with role-based permissions for safe collaboration.',
+            'Filters now support OR logic, allowing you to match multiple values within a single filter (for example, multiple pages or countries).',
+            'You can now change your dashboard domain without losing historical data or updating your tracking script.',
           ],
         },
       ],
     },
     {
-      id: 'v130-improvements',
+      id: 'v131-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Changing your password now invalidates all other active sessions.',
+            'Password resets now sign out all existing sessions for added protection.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v131-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'User Journey diagrams are clearer and less cluttered, making complex paths easier to follow.',
-            'Funnel creation now suggests more complete filter values to help you build accurate funnels faster.',
-            'Browser and device reports now use more recognizable icons.',
+            'Improved privacy protections to better isolate visitor data between sites.',
+            'Fixed spacing issues in the uptime monitoring list on larger screens.',
           ],
         },
       ],
@@ -40,6 +53,57 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.1',
+      releasedAt: '2026-01-11',
+      title: 'Team Collaboration & Security Hardening',
+      summary:
+        'Invite team members to collaborate on your dashboards with role-based access. This release also strengthens account security, improves privacy isolation, and adds support for changing your dashboard domain.',
+    },
+    sections: [
+      {
+        id: 'v131-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Invite team members to your dashboard as Viewer, Editor, or Admin, with role-based permissions to safely collaborate.',
+              'Filters now support OR logic, allowing you to match multiple values within a single filter (for example, multiple pages or countries).',
+              'You can now change your dashboard domain in settings. Your Site ID and tracking script remain unchanged, so no code updates are needed.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Changing your password now invalidates all other active sessions.',
+              'Password resets now sign out all existing sessions for added protection.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Improved privacy protections to better isolate visitor data between sites.',
+              'Fixed layout spacing in the uptime monitoring list on larger screens.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.0',

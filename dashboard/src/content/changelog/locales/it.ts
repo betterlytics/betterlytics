@@ -2,36 +2,49 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.0',
-    releasedAt: '2026-01-04',
-    title: '',
-    summary: '',
+    version: 'v1.3.1',
+    releasedAt: '2026-01-11',
+    title: 'Collaborazione in team e sicurezza migliorata',
+    summary:
+      "Questa versione introduce la collaborazione in team con accesso basato sui ruoli, migliora la sicurezza dell'account con una gestione delle sessioni più avanzata e permette di modificare il dominio della dashboard senza aggiornare lo script di tracciamento.",
   },
   sections: [
     {
-      id: 'v130-new-features',
+      id: 'v131-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'È ora disponibile il monitoraggio dell’uptime del sito web. Tieni traccia di uptime, tempi di risposta ed eventi, e ricevi notifiche quando il sito non è raggiungibile.',
-            'Il monitoraggio dei certificati SSL è incluso, con avvisi prima che i certificati scadano o diventino non validi.',
-            'Ora puoi bloccare i percorsi nel diagramma Sankey dei User Journey, rendendo più facile seguire specifici flussi utente.',
+            'Invita i membri del team alla tua dashboard come Visualizzatore, Editore o Amministratore, con permessi basati sui ruoli per collaborare in sicurezza.',
+            'I filtri ora supportano la logica OR, permettendoti di selezionare più valori in un singolo filtro (ad esempio, più pagine o paesi).',
+            'Ora puoi modificare il dominio della dashboard senza perdere i dati storici o aggiornare lo script di tracciamento.',
           ],
         },
       ],
     },
     {
-      id: 'v130-improvements',
+      id: 'v131-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La modifica della password ora invalida tutte le altre sessioni attive.',
+            'Il ripristino della password ora disconnette tutte le sessioni esistenti per una maggiore protezione.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v131-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'I diagrammi dei User Journey sono ora più chiari e meno affollati, facilitando la lettura dei percorsi complessi.',
-            'La creazione dei funnel ora suggerisce un set più completo di valori di filtro, aiutandoti a creare funnel accurati più velocemente.',
-            'I report su browser e dispositivi mostrano ora icone più riconoscibili.',
+            'Migliorate le protezioni della privacy per isolare meglio i dati dei visitatori tra siti diversi.',
+            'Corretti i problemi di spaziatura nella lista di monitoraggio uptime su schermi più grandi.',
           ],
         },
       ],
@@ -40,6 +53,57 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.1',
+      releasedAt: '2026-01-11',
+      title: 'Collaborazione in team e rafforzamento della sicurezza',
+      summary:
+        "Invita i membri del team a collaborare sulle tue dashboard con accesso basato sui ruoli. Questa versione rafforza anche la sicurezza dell'account, migliora l'isolamento della privacy e permette di modificare il dominio della dashboard.",
+    },
+    sections: [
+      {
+        id: 'v131-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Invita i membri del team alla tua dashboard come Visualizzatore, Editore o Amministratore, con permessi basati sui ruoli per collaborare in sicurezza.',
+              'I filtri ora supportano la logica OR, permettendoti di selezionare più valori in un singolo filtro (ad esempio, più pagine o paesi).',
+              'Ora puoi modificare il dominio della dashboard dalle impostazioni. Il Site ID e lo script di tracciamento rimangono invariati, quindi non servono modifiche al codice.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La modifica della password ora invalida tutte le altre sessioni attive.',
+              'Il ripristino della password ora disconnette tutte le sessioni esistenti per una maggiore protezione.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Migliorate le protezioni della privacy per isolare meglio i dati dei visitatori tra siti diversi.',
+              'Corretta la spaziatura del layout nella lista di monitoraggio uptime su schermi più grandi.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.0',
