@@ -135,7 +135,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   </div>
                 </div>
 
-                <div className='grid grid-cols-[70px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[70px_240px_300px_48px_50px]'>
+                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[70px_240px_300px_48px_50px]'>
                   <div className='text-muted-foreground flex items-center gap-2 text-xs font-semibold whitespace-nowrap'>
                     <span className='flex items-center gap-1'>
                       <RefreshCcw size={14} aria-hidden />
