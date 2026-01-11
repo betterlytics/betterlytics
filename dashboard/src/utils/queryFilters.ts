@@ -12,5 +12,5 @@ export function isQueryFiltersEqual(a: QueryFilter, b: QueryFilter) {
  * Filters out empty query filters
  */
 export function filterEmptyQueryFilters(filters: QueryFilter[]) {
-  return filters.filter((filter) => filter.values.filter((value) => value !== ''));
+  return filters.filter((filter) => filter.values.filter((value) => value !== '').length > 0);
 }
