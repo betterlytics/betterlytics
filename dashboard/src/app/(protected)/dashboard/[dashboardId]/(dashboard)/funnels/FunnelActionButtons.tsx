@@ -12,7 +12,7 @@ type FunnelActionButtonsProps = {
 
 export function FunnelActionButtons({ funnel }: FunnelActionButtonsProps) {
   return (
-    <div className='hidden gap-2 md:flex'>
+    <div className='hidden gap-2 xl:flex'>
       <PermissionGate>{(disabled) => <EditFunnelDialog funnel={funnel} disabled={disabled} />}</PermissionGate>
       <PermissionGate>{(disabled) => <CloneFunnelDialog funnel={funnel} disabled={disabled} />}</PermissionGate>
       <PermissionGate>{(disabled) => <DeleteFunnelDialog funnel={funnel} disabled={disabled} />}</PermissionGate>
