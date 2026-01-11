@@ -107,8 +107,8 @@ export function MonitorList({ monitors }: MonitorListProps) {
               </div>
 
               {/* Desktop layout */}
-              <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4'>
-                <div className='flex items-start gap-2'>
+              <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4 xl:grid-cols-3'>
+                <div className='flex items-start gap-2 xl:col-span-1'>
                   <div className='space-y-1.5'>
                     <div className='flex items-center justify-between gap-2'>
                       <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
@@ -135,7 +135,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   </div>
                 </div>
 
-                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[120px_minmax(180px,240px)_minmax(250px,1fr)_max-content_48px]'>
+                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:col-span-2 xl:grid-cols-[120px_minmax(180px,240px)_minmax(250px,1fr)_max-content_48px]'>
                   <div className='text-muted-foreground flex items-center gap-2 text-xs font-semibold whitespace-nowrap'>
                     <span className='flex items-center gap-1'>
                       <RefreshCcw size={14} aria-hidden />
