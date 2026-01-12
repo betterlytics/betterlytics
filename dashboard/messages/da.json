@@ -889,7 +889,7 @@
           },
           "lightweight": {
             "title": "Letvægts og udviklervenlig",
-            "description": "Under 1KB script, open source-kodebase og omfattende dokumentation. Bygget af udviklere til udviklere."
+            "description": "Under 2KB script, open source-kodebase og omfattende dokumentation. Bygget af udviklere til udviklere."
           },
           "simpleSetup": {
             "title": "Simpel opsætning, kraftfulde funktioner",
