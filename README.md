@@ -118,9 +118,9 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 
 ![Detailed Reports](.github/assets/betterlytics-showcase-devices.webp)
 
-### Pages Breakdown
+### Uptime & SSL Monitoring
 
-![Detailed Reports](.github/assets/betterlytics-showcase-pages.webp)
+![Detailed Reports](.github/assets/betterlytics-showcase-monitoring.webp)
 
 ... and much more
 
