@@ -78,7 +78,7 @@ Get started instantly with our free managed cloud service:
 
 Run Betterlytics on your own infrastructure for complete control and privacy.
 
-**[Quick Setup Guide →](SETUP.md#quick-setup)**
+**[Quick Setup Guide →](https://betterlytics.io/docs/installation/self-hosting)**
 
 - ✅ **Complete privacy** - Your data never leaves your servers
 - ✅ **Full control** - Customize everything to your needs
@@ -87,8 +87,6 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 - ⚠️ **Updates lag behind** - Cloud gets new features first
 - ⚠️ **Your responsibility** - Server capacity, uptime, backups, loading times
 - ⚠️ **Infrastructure costs** - Server, CDN, backups, and associated costs
-
-**[Setup Guide](SETUP.md#quick-setup)** | **[Docker Setup](SETUP.md#docker-setup)** | **[Development](CONTRIBUTING.md)**
 
 </td>
 </tr>
