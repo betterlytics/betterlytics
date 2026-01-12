@@ -856,7 +856,7 @@
 
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
-        "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
+        "description": "Simple, powerful analytics that respect privacy.<br></br>Cookieless, GDPR-ready, and no cookie banners required.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
         "ctaDemo": "View live demo",
