@@ -1,6 +1,6 @@
 'use client';
 
-import { DIGIT_WIDTH, DIGITS, MASK_HEIGHT, SPRING_EASING, getDigitMaskStyles } from '@/constants/animated-number';
+import { DIGIT_WIDTH, DIGITS, MASK_BLEED, SPRING_EASING, getDigitMaskStyles } from '@/constants/animated-number';
 import { cn } from '@/lib/utils';
 import React, { useMemo } from 'react';
 import { useAnimatedNumber, type DigitState, type DigitPhase } from './context';
@@ -85,7 +85,7 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
         onTransitionEnd={handleTransitionEnd}
       >
         {DIGITS.map((d) => (
-          <span key={d} className={cn('inline-block', `py-[calc(${MASK_HEIGHT}/2)]`)}>{d}</span>
+          <span key={d} className={cn('inline-block', `py-[calc(${MASK_BLEED}/2)]`)}>{d}</span>
         ))}
       </span>
     </span>

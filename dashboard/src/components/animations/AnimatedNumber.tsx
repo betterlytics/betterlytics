@@ -39,7 +39,7 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
   const displayValue = Math.abs(Math.floor(value));
 
   return (
-    <span className={cn('inline-flex isolate relative ltr contain-layout contain-paint')}>
+    <span className={cn('inline-flex isolate relative ltr contain-layout')}>
       {withTextSelect && (
         <span
           className={cn(
