@@ -26,7 +26,7 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 
 **Our core principles:**
 
-- **Privacy-First**: GDPR, CCPA, and PECR compliant with no third-party tracking
+- **Privacy-First**: GDPR, CCPA, and PECR ready with no third-party tracking
 - **Cookieless**: No cookies required, respects user privacy
 - **Lightning Fast**: Built on Rust and ClickHouse for maximum performance
 - **Lightweight Tracking**: <2KB script with minimal impact on your website's performance
@@ -40,7 +40,7 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 | **Core Analytics**         | Page views, visitors, bounce rate, traffic sources, geographic insights, device analytics, real-time data, custom events |
 | **Advanced Analytics**     | Session replay, user journeys, funnels, time period comparisons, annotations, outbound link tracking                     |
 | **Performance Monitoring** | Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate monitoring                                     |
-| **Privacy & Compliance**   | Cookieless tracking, GDPR/CCPA/PECR compliant, EU hosting, data anonymization, open source                               |
+| **Privacy & Compliance**   | Cookieless tracking, GDPR/CCPA/PECR ready, EU hosting, data anonymization, open source                                   |
 | **Access & Security**      | Role-based access control, two-factor authentication, OAuth (Google, GitHub)                                             |
 | **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, <2KB payload                                    |
 
