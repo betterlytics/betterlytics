@@ -91,21 +91,21 @@ export default function PublicTopBar() {
               <Link
                 href='/#pricing'
                 onClick={closeMobileMenu}
-                className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
               >
                 {t('pricing')}
               </Link>
               <Link
                 href='/features'
                 onClick={closeMobileMenu}
-                className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
               >
                 {t('features')}
               </Link>
               <ExternalLink
                 href='/docs'
                 onClick={closeMobileMenu}
-                className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
                 title={t('documentation')}
               >
                 {t('documentation')}
