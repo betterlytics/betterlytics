@@ -20,7 +20,9 @@ export async function HeroSection() {
             })}
           </h1>
           <p className='text-muted-foreground mx-auto mb-12 max-w-2xl text-lg leading-relaxed sm:mt-6 sm:text-xl'>
-            {t('description')}
+            {t.rich('description', {
+              br: () => <br />,
+            })}
           </p>
           <div className='flex flex-col justify-center gap-4 sm:flex-row sm:gap-6'>
             <Button

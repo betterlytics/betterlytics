@@ -856,7 +856,7 @@
 
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
-        "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
+        "description": "Simple, powerful analytics that respect privacy.<br></br>Cookieless, GDPR-ready, and no cookie banners required.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
         "ctaDemo": "View live demo",
@@ -890,7 +890,7 @@
           },
           "lightweight": {
             "title": "Lightweight & Developer-Friendly",
-            "description": "Under 1KB script, open-source codebase, and comprehensive documentation. Built by developers, for developers."
+            "description": "Under 2KB script, open-source codebase, and comprehensive documentation. Built by developers, for developers."
           },
           "simpleSetup": {
             "title": "Simple Setup, Powerful Features",
