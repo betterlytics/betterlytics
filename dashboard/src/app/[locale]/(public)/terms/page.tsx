@@ -12,6 +12,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: S
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.terms), { locale });
 }
 
+const UPDATED_AT = new Date('2025-01-12');
+
 export default async function TermsPage() {
   if (!env.IS_CLOUD) {
     redirect('/');
@@ -58,7 +60,7 @@ export default async function TermsPage() {
             <h1 className='text-foreground text-3xl font-bold'>{t('title')}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
               {t('lastUpdated')}{' '}
-              {new Date().toLocaleDateString(locale, {
+              {UPDATED_AT.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
