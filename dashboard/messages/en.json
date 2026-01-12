@@ -346,7 +346,10 @@
         "email": "Email:",
         "address": "Address:",
         "footer1": "🇪🇺 Made and hosted in the European Union",
-        "footer2": "Committed to privacy, transparency, and GDPR compliance"
+        "footer2": "Committed to privacy, transparency, and GDPR compliance",
+        "termsLink": "Terms of Service",
+        "dpaLink": "Data Processing Agreement",
+        "subprocessorsLink": "Subprocessors"
       }
     },
     "terms": {
@@ -503,7 +506,9 @@
         "support": "Support:",
         "address": "Address:",
         "footer1": "🇪🇺 Made and hosted in the European Union",
-        "footer2": "Privacy-focused analytics you can trust"
+        "footer2": "Privacy-focused analytics you can trust",
+        "privacyLink": "Privacy Policy",
+        "dpaLink": "Data Processing Agreement"
       }
     },
     "dpa": {
@@ -594,7 +599,7 @@
         "li1": "EU-based cloud hosting and infrastructure providers",
         "li2": "Payment processors (for account billing)",
         "li3": "Email delivery services",
-        "notice": "Betterlytics will maintain a current list of subprocessors and notify the Data Controller of any additions or changes."
+        "notice": "Betterlytics maintains a current list of subprocessors at betterlytics.io/subprocessors and will notify the Data Controller of any additions or changes."
       },
       "rights": {
         "title": "Data Subject Rights",
@@ -631,7 +636,84 @@
         "lead": "For questions about this DPA or data processing practices:",
         "legal": "Legal inquiries:",
         "technical": "Technical questions:",
-        "footer": "This DPA is automatically accepted when you use Betterlytics and forms part of our Terms of Service. 🇪🇺 Anonymous-by-design analytics - Made and hosted in the European Union"
+        "footer": "This DPA is automatically accepted when you use Betterlytics and forms part of our Terms of Service. 🇪🇺 Anonymous-by-design analytics - Made and hosted in the European Union",
+        "termsLink": "Terms of Service",
+        "privacyLink": "Privacy Policy",
+        "subprocessorsLink": "Subprocessors"
+      }
+    },
+    "subprocessors": {
+      "seo": {
+        "title": "Subprocessors | GDPR Compliance & Data Processing",
+        "description": "View the complete list of Betterlytics subprocessors. Understand how we ensure GDPR compliance through carefully selected EU-based service providers.",
+        "keywords": [
+          "Betterlytics Subprocessors",
+          "Data Processors",
+          "GDPR Compliance",
+          "Third-Party Services",
+          "Data Processing",
+          "EU Data Hosting",
+          "Privacy Compliance"
+        ]
+      },
+      "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
+      "title": "Subprocessors",
+      "lastUpdated": "Last updated:",
+      "intro": "Betterlytics engages a limited number of carefully selected third-party service providers (subprocessors) to help deliver our analytics platform. This page lists all subprocessors that may process data on behalf of our customers.",
+      "commitment": {
+        "title": "Our Commitment",
+        "body": "We only work with subprocessors that meet our strict privacy and security standards. All subprocessors operate under data processing agreements and implement appropriate technical and organizational measures to protect your data."
+      },
+      "list": {
+        "title": "Current Subprocessors",
+        "intro": "The following third-party services are authorized to process data on behalf of Betterlytics:"
+      },
+      "table": {
+        "name": "Subprocessor",
+        "purpose": "Purpose",
+        "location": "Data Location"
+      },
+      "processors": {
+        "hetzner": {
+          "name": "Hetzner",
+          "purpose": "Cloud infrastructure and server hosting",
+          "location": "Germany (EU)"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Payment processing for subscriptions",
+          "location": "USA (Standard Contractual Clauses)"
+        },
+        "mailersend": {
+          "name": "MailerSend",
+          "purpose": "Transactional email delivery",
+          "location": "EU"
+        },
+        "cloudflareR2": {
+          "name": "Cloudflare R2",
+          "purpose": "Session replay storage (opt-in feature only)",
+          "location": "EU data centers"
+        }
+      },
+      "changes": {
+        "title": "Changes to Subprocessors",
+        "body": "We will update this page when we add or remove subprocessors. If you have subscribed to Betterlytics services, we will notify you of any changes to this list in accordance with our Data Processing Agreement (DPA)."
+      },
+      "dataProtection": {
+        "title": "Data Protection Measures",
+        "li1": "All subprocessors operate under data processing agreements in accordance with data protection standards",
+        "li2": "We prioritize EU-based providers to minimize data transfers outside the EU",
+        "li3": "Where data transfers to third countries occur, appropriate safeguards (such as SCCs) are in place"
+      },
+      "contact": {
+        "title": "Questions?",
+        "lead": "If you have questions about our subprocessors or data processing practices:",
+        "email": "Email:"
+      },
+      "footer": {
+        "p1": "🇪🇺 Made and hosted in the European Union",
+        "dpaLink": "Data Processing Agreement",
+        "privacyLink": "Privacy Policy"
       }
     },
     "auth": {
@@ -1231,6 +1313,7 @@
       "about": "About",
       "contact": "Contact",
       "privacyPolicy": "Privacy Policy",
+      "subprocessors": "Subprocessors",
       "termsOfService": "Terms of Service",
       "dpa": "Data Processing Agreement",
       "documentation": "Documentation",

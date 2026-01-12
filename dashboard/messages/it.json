@@ -346,7 +346,10 @@
         "email": "Email:",
         "address": "Indirizzo:",
         "footer1": "🇪🇺 Prodotto e ospitato nell’Unione Europea",
-        "footer2": "Impegnati per privacy, trasparenza e conformità al GDPR"
+        "footer2": "Impegnati per privacy, trasparenza e conformità al GDPR",
+        "termsLink": "Termini di Servizio",
+        "dpaLink": "Accordo sul Trattamento dei Dati",
+        "subprocessorsLink": "Sottoprocessori"
       }
     },
     "terms": {
@@ -503,7 +506,9 @@
         "support": "Supporto:",
         "address": "Indirizzo:",
         "footer1": "🇪🇺 Prodotto e ospitato nell’Unione Europea",
-        "footer2": "Analitiche incentrate sulla privacy di cui ti puoi fidare"
+        "footer2": "Analitiche incentrate sulla privacy di cui ti puoi fidare",
+        "privacyLink": "Informativa sulla Privacy",
+        "dpaLink": "Accordo sul Trattamento dei Dati"
       }
     },
     "dpa": {
@@ -589,12 +594,12 @@
         "li4": "Eliminare tutti i dati analitici immediatamente al momento dell’eliminazione dell’account."
       },
       "subprocessors": {
-        "title": "Sub-responsabili",
-        "intro": "Betterlytics può coinvolgere sub-responsabili per eseguire parti del trattamento, tra cui:",
+        "title": "Sottoprocessori",
+        "intro": "Betterlytics può coinvolgere sottoprocessori per eseguire parti del trattamento, tra cui:",
         "li1": "Fornitori di hosting e infrastruttura cloud con sede nell’UE",
         "li2": "Processori di pagamento (per la fatturazione dell’account)",
         "li3": "Servizi di invio email",
-        "notice": "Betterlytics manterrà un elenco aggiornato dei sub-responsabili e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
+        "notice": "Betterlytics mantiene un elenco aggiornato dei sottoprocessori su betterlytics.io/Sottoprocessori e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
       },
       "rights": {
         "title": "Diritti degli interessati",
@@ -631,7 +636,84 @@
         "lead": "Per domande su questo DPA o sulle pratiche di trattamento dei dati:",
         "legal": "Richieste legali:",
         "technical": "Domande tecniche:",
-        "footer": "Questo DPA è accettato automaticamente quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per progettazione - Prodotto e ospitato nell’Unione Europea"
+        "footer": "Questo DPA è accettato automaticamente quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per progettazione - Prodotto e ospitato nell’Unione Europea",
+        "termsLink": "Termini di Servizio",
+        "privacyLink": "Informativa sulla Privacy",
+        "subprocessorsLink": "Sottoprocessori"
+      }
+    },
+    "subprocessors": {
+      "seo": {
+        "title": "Sottoprocessori | Conformità GDPR e trattamento dati",
+        "description": "Visualizza l'elenco completo dei Sottoprocessori di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati.",
+        "keywords": [
+          "Sottoprocessori Betterlytics",
+          "Responsabili del trattamento",
+          "Conformità GDPR",
+          "Servizi di terze parti",
+          "Trattamento dati",
+          "Hosting dati UE",
+          "Conformità Privacy"
+        ]
+      },
+      "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
+      "title": "Sottoprocessori",
+      "lastUpdated": "Ultimo aggiornamento:",
+      "intro": "Betterlytics si avvale di un numero limitato di fornitori di servizi terzi (sub-responsabili) attentamente selezionati per contribuire a fornire la nostra piattaforma di analytics. Questa pagina elenca tutti i sub-responsabili che possono trattare dati per conto dei nostri clienti.",
+      "commitment": {
+        "title": "Il nostro impegno",
+        "body": "Lavoriamo solo con sub-responsabili che soddisfano i nostri rigorosi standard di privacy e sicurezza. Tutti i sub-responsabili operano in base ad accordi sul trattamento dei dati e implementano misure tecniche e organizzative adeguate per proteggere i tuoi dati."
+      },
+      "list": {
+        "title": "Sub-responsabili attuali",
+        "intro": "I seguenti servizi di terze parti sono autorizzati a trattare dati per conto di Betterlytics:"
+      },
+      "table": {
+        "name": "Sub-responsabile",
+        "purpose": "Finalità",
+        "location": "Ubicazione dati"
+      },
+      "processors": {
+        "hetzner": {
+          "name": "Hetzner",
+          "purpose": "Infrastruttura cloud e hosting server",
+          "location": "Germania (UE)"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Elaborazione pagamenti per abbonamenti",
+          "location": "USA (Clausole contrattuali standard)"
+        },
+        "mailersend": {
+          "name": "MailerSend",
+          "purpose": "Invio email transazionali",
+          "location": "UE"
+        },
+        "cloudflareR2": {
+          "name": "Cloudflare R2",
+          "purpose": "Archiviazione session replay (funzionalità opzionale)",
+          "location": "Data center UE"
+        }
+      },
+      "changes": {
+        "title": "Modifiche ai sub-responsabili",
+        "body": "Aggiorneremo questa pagina quando aggiungiamo o rimuoviamo sub-responsabili. Se hai sottoscritto i servizi Betterlytics, ti informeremo di eventuali modifiche a questo elenco in conformità con il nostro Accordo sul Trattamento dei Dati (DPA)."
+      },
+      "dataProtection": {
+        "title": "Misure di protezione dei dati",
+        "li1": "Tutti i sub-responsabili operano in base ad accordi sul trattamento dei dati in conformità con gli standard di protezione dei dati",
+        "li2": "Diamo priorità ai fornitori con sede nell'UE per minimizzare i trasferimenti di dati al di fuori dell'UE",
+        "li3": "Quando si verificano trasferimenti di dati verso paesi terzi, sono in atto misure di salvaguardia appropriate (come le SCC)"
+      },
+      "contact": {
+        "title": "Domande?",
+        "lead": "Se hai domande sui nostri sub-responsabili o sulle pratiche di trattamento dei dati:",
+        "email": "Email:"
+      },
+      "footer": {
+        "p1": "🇪🇺 Prodotto e ospitato nell'Unione Europea",
+        "dpaLink": "Accordo sul Trattamento dei Dati",
+        "privacyLink": "Informativa sulla Privacy"
       }
     },
     "auth": {
@@ -1242,6 +1324,7 @@
       "about": "Chi siamo",
       "contact": "Contatti",
       "privacyPolicy": "Politica privacy",
+      "subprocessors": "Sottoprocessori",
       "termsOfService": "Termini di servizio",
       "dpa": "Accordo elaborazione dati",
       "documentation": "Documentazione",

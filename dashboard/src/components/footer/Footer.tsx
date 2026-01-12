@@ -48,6 +48,11 @@ export async function Footer() {
                   {t('dpa')}
                 </Link>
               </li>
+              <li>
+                <Link href='/subprocessors' className='hover:text-foreground transition-colors'>
+                  {t('subprocessors')}
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

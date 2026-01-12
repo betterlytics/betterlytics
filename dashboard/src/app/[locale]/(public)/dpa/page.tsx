@@ -4,6 +4,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -233,6 +234,19 @@ export default async function DPAPage() {
 
             <section className='border-border border-t py-6'>
               <p className='text-muted-foreground text-center text-sm'>{t('contact.footer')}</p>
+              <p className='mt-4 text-center text-sm'>
+                <Link href='/terms' className='text-primary hover:text-primary/80'>
+                  {t('contact.termsLink')}
+                </Link>
+                {' | '}
+                <Link href='/privacy' className='text-primary hover:text-primary/80'>
+                  {t('contact.privacyLink')}
+                </Link>
+                {' | '}
+                <Link href='/subprocessors' className='text-primary hover:text-primary/80'>
+                  {t('contact.subprocessorsLink')}
+                </Link>
+              </p>
             </section>
           </div>
         </div>

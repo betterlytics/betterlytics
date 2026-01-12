@@ -284,11 +284,20 @@ export default async function TermsPage() {
               </div>
             </section>
 
-            <section className='border-border border-t py-6 text-center'>
-              <p className='text-muted-foreground text-sm'>
+            <section className='border-border border-t py-6'>
+              <p className='text-muted-foreground text-center text-sm'>
                 {t('contact.footer1')}
                 <br />
                 {t('contact.footer2')}
+              </p>
+              <p className='mt-4 text-center text-sm'>
+                <Link href='/privacy' className='text-primary hover:text-primary/80'>
+                  {t('contact.privacyLink')}
+                </Link>
+                {' | '}
+                <Link href='/dpa' className='text-primary hover:text-primary/80'>
+                  {t('contact.dpaLink')}
+                </Link>
               </p>
             </section>
           </div>
