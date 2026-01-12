@@ -1229,6 +1229,7 @@
     },
     "nav": {
       "documentation": "Documentazione",
+      "features": "Funzionalità",
       "pricing": "Prezzi",
       "goToDashboard": "Vai alla dashboard",
       "getStarted": "Inizia"

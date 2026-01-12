@@ -36,17 +36,23 @@ export default function PublicTopBar() {
             </Link>
           </div>
 
-          <nav className='hidden items-center space-x-6 md:flex'>
+          <nav className='hidden items-center space-x-8 md:flex'>
             <ExternalLink
               href='/docs'
               title={t('documentation')}
-              className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+              className='text-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
               {t('documentation')}
             </ExternalLink>
             <Link
+              href='/features'
+              className='text-foreground hover:text-foreground text-sm font-medium transition-colors'
+            >
+              {t('features')}
+            </Link>
+            <Link
               href='/pricing'
-              className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+              className='text-foreground hover:text-foreground text-sm font-medium transition-colors'
             >
               {t('pricing')}
             </Link>
@@ -88,6 +94,13 @@ export default function PublicTopBar() {
                 className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
               >
                 {t('pricing')}
+              </Link>
+              <Link
+                href='/features'
+                onClick={closeMobileMenu}
+                className='text-muted-foreground hover:text-foreground block text-sm font-medium transition-colors'
+              >
+                {t('features')}
               </Link>
               <ExternalLink
                 href='/docs'
