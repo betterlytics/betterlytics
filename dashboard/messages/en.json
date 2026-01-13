@@ -1300,6 +1300,7 @@
     },
     "nav": {
       "documentation": "Documentation",
+      "features": "Features",
       "pricing": "Pricing",
       "goToDashboard": "Go to Dashboard",
       "getStarted": "Get Started"

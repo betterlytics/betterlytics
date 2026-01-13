@@ -1303,6 +1303,7 @@
     },
     "nav": {
       "documentation": "Dokumentation",
+      "features": "Funktioner",
       "pricing": "Priser",
       "goToDashboard": "Gå til dashboard",
       "getStarted": "Kom i gang"
