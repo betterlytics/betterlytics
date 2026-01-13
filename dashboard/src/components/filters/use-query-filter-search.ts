@@ -4,26 +4,25 @@ import { getFilterOptionsAction } from '@/app/actions/analytics/filters.actions'
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { subDays } from 'date-fns';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type Option } from '@/components/MultiSelect';
+import { formatString } from '@/utils/formatters';
 
 const SEARCH_LIMIT = 5000;
 const EXTENDED_RANGE_DAYS = 30;
-
-type SearchMetadataResult = {
-  shouldUseServerSearch: boolean;
-};
+const DISPLAY_LIMIT = 10;
 
 type UseQueryFilterSearchOptions = {
   useExtendedRange?: boolean;
+  formatLength?: number;
 };
 
 export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilterSearchOptions) {
   const { startDate: dashboardStartDate, endDate: dashboardEndDate } = useTimeRangeContext();
+  const formatLength = options?.formatLength ?? 30;
 
-  // When useExtendedRange is true, it uses a range of minimum 30 days
   const { startDate, endDate } = useMemo(() => {
     if (!options?.useExtendedRange) {
       return { startDate: dashboardStartDate, endDate: dashboardEndDate };
@@ -41,69 +40,101 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
 
   const dashboardId = useDashboardId();
 
-  const [isDirty, setIsDirty] = useState(false);
-  const [search, _setSearch] = useState('');
+  // Track search mode - null means not yet determined
+  const [shouldUseServerSearch, setShouldUseServerSearch] = useState<boolean | null>(null);
 
-  const setSearch = useCallback((next: string) => {
-    _setSearch(next);
-    setIsDirty(true);
-  }, []);
+  // Store all options for client-side filtering
+  const allOptionsRef = useRef<string[]>([]);
 
-  const debouncedSearch = useDebounce(search, 350);
+  // Reset state when filter column changes
+  useEffect(() => {
+    setShouldUseServerSearch(null);
+    allOptionsRef.current = [];
+  }, [filter.column]);
 
-  const [serverOptions, setServerOptions] = useState<string[]>([]);
-  const [searchMetadataResult, setSearchMetadataResult] = useState<SearchMetadataResult | null>(null);
-
-  const shouldSearchServer = useMemo(() => {
-    return searchMetadataResult === null || searchMetadataResult.shouldUseServerSearch;
-  }, [searchMetadataResult]);
-
-  const { data: fetchedOptions = [], isLoading } = useQuery({
-    queryKey: ['filter-options', filter.column, startDate?.toString(), endDate?.toString(), debouncedSearch],
-    queryFn: () =>
-      getFilterOptionsAction(dashboardId, {
+  // Initial fetch to determine search mode and get initial options
+  const { data: initialOptions = [], isLoading } = useQuery({
+    queryKey: ['filter-options-initial', filter.column, startDate?.toString(), endDate?.toString()],
+    queryFn: async () => {
+      const result = await getFilterOptionsAction(dashboardId, {
         startDate,
         endDate,
         column: filter.column,
-        search: isDirty ? debouncedSearch || undefined : undefined,
         limit: SEARCH_LIMIT,
-      }),
+      });
+
+      const needsServerSearch = result.length >= SEARCH_LIMIT;
+      setShouldUseServerSearch(needsServerSearch);
+
+      if (!needsServerSearch) {
+        allOptionsRef.current = result;
+      }
+
+      return result;
+    },
     staleTime: 5 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
-    enabled: shouldSearchServer,
   });
 
-  useEffect(() => {
-    setSearchMetadataResult(null);
-    setServerOptions([]);
-  }, [filter.column]);
+  // Transform raw strings to MultiSelect Option format
+  const toMultiSelectOptions = useCallback(
+    (rawOptions: string[]): Option[] => {
+      return rawOptions.map((opt) => ({
+        label: formatString(opt, formatLength),
+        value: opt,
+      }));
+    },
+    [formatLength],
+  );
 
-  useEffect(() => {
-    if (shouldSearchServer && isLoading === false) {
-      setServerOptions(fetchedOptions);
-    }
-  }, [fetchedOptions, shouldSearchServer, isLoading]);
-
-  useEffect(() => {
-    if (searchMetadataResult === null && isLoading === false) {
-      setSearchMetadataResult({ shouldUseServerSearch: fetchedOptions.length > SEARCH_LIMIT });
-    }
-  }, [fetchedOptions.length, searchMetadataResult, isLoading]);
-
-  const filteredOptions = useMemo(() => {
-    if (shouldSearchServer) {
-      return serverOptions;
-    } else {
-      if (search.length === 0) {
-        return serverOptions;
+  // Async search callback for MultiSelect
+  const onSearch = useCallback(
+    async (searchTerm: string): Promise<Option[]> => {
+      // If still loading initial data, return empty
+      if (shouldUseServerSearch === null) {
+        return [];
       }
-      return serverOptions.filter((option) => option.toLowerCase().includes(search.toLowerCase()));
-    }
-  }, [shouldSearchServer, serverOptions, search]);
 
-  const slicedOptions = useMemo(() => {
-    return filteredOptions.slice(0, 10);
-  }, [filteredOptions]);
+      if (shouldUseServerSearch) {
+        // Server-side search for large datasets
+        const results = await getFilterOptionsAction(dashboardId, {
+          startDate,
+          endDate,
+          column: filter.column,
+          search: searchTerm || undefined,
+          limit: DISPLAY_LIMIT,
+        });
+        return toMultiSelectOptions(results);
+      }
 
-  return { search, setSearch, isDirty, options: slicedOptions, isLoading };
+      // Client-side filtering for small datasets
+      const filtered = searchTerm
+        ? allOptionsRef.current.filter((opt) => opt.toLowerCase().includes(searchTerm.toLowerCase()))
+        : allOptionsRef.current;
+
+      return toMultiSelectOptions(filtered.slice(0, DISPLAY_LIMIT));
+    },
+    [shouldUseServerSearch, dashboardId, startDate, endDate, filter.column, toMultiSelectOptions],
+  );
+
+  // Default options include selected values that might not be in search results
+  const defaultOptions = useMemo(() => {
+    const searchOptions = toMultiSelectOptions(initialOptions.slice(0, DISPLAY_LIMIT));
+
+    // Include selected values not in current results
+    const selectedNotInResults = filter.values
+      .filter((v) => !initialOptions.includes(v))
+      .map((v) => ({
+        label: formatString(v, formatLength),
+        value: v,
+      }));
+
+    return [...selectedNotInResults, ...searchOptions];
+  }, [initialOptions, filter.values, formatLength, toMultiSelectOptions]);
+
+  return {
+    defaultOptions,
+    onSearch,
+    isLoading,
+  };
 }

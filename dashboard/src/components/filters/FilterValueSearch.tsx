@@ -1,4 +1,4 @@
-import React, { Dispatch, useMemo } from 'react';
+import React, { Dispatch } from 'react';
 import { MultiSelect } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { useTranslations } from 'next-intl';
@@ -22,22 +22,18 @@ export function FilterValueSearch<TEntity>({
   formatLength = 30,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
+  const tMisc = useTranslations('misc');
 
-  const { options } = useQueryFilterSearch(filter, {
+  const { defaultOptions, onSearch } = useQueryFilterSearch(filter, {
     useExtendedRange,
+    formatLength,
   });
-
-  const multiSelectOptions = useMemo(() => {
-    const searchOptions = options.map((opt) => ({ label: formatString(opt, formatLength), value: opt }));
-    const selectedOptions = filter.values
-      .filter((v) => !options.includes(v))
-      .map((v) => ({ label: formatString(v, formatLength), value: v }));
-    return [...selectedOptions, ...searchOptions];
-  }, [options, filter.values, formatLength]);
 
   return (
     <MultiSelect
-      options={multiSelectOptions}
+      defaultOptions={defaultOptions}
+      onSearch={onSearch}
+      triggerSearchOnFocus
       value={filter.values.map((value) => ({
         label: formatString(value, Math.floor(formatLength * 0.835)),
         value,
@@ -52,6 +48,11 @@ export function FilterValueSearch<TEntity>({
       emptyIndicator={
         <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
           <span>{t('noValuesForCurrentPeriod')}</span>
+        </div>
+      }
+      loadingIndicator={
+        <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
+          <span>{tMisc('loading')}</span>
         </div>
       }
       creatable
