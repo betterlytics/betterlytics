@@ -346,7 +346,10 @@
         "email": "Email:",
         "address": "Adresse:",
         "footer1": "🇪🇺 Fremstillet og hostet i Den Europæiske Union",
-        "footer2": "Forpligtet til privatliv, gennemsigtighed og GDPR-overholdelse"
+        "footer2": "Forpligtet til privatliv, gennemsigtighed og GDPR-overholdelse",
+        "termsLink": "Servicevilkår",
+        "dpaLink": "Databehandleraftale",
+        "subprocessorsLink": "Underdatabehandlere"
       }
     },
     "terms": {
@@ -503,7 +506,9 @@
         "support": "Support:",
         "address": "Adresse:",
         "footer1": "🇪🇺 Fremstillet og hostet i Den Europæiske Union",
-        "footer2": "Privatlivsfokuserede analyser, du kan stole på"
+        "footer2": "Privatlivsfokuserede analyser, du kan stole på",
+        "privacyLink": "Privatlivspolitik",
+        "dpaLink": "Databehandleraftale"
       }
     },
     "dpa": {
@@ -594,7 +599,7 @@
         "li1": "EU-baserede cloud-hosting- og infrastrukturleverandører",
         "li2": "Betalingsprocessorer (til kontofakturering)",
         "li3": "E-mail-leveringstjenester",
-        "notice": "Betterlytics vil opretholde en aktuel liste over underdatabehandlere og underrette den Dataansvarlige om tilføjelser eller ændringer."
+        "notice": "Betterlytics opretholder en aktuel liste over underdatabehandlere på betterlytics.io/subprocessors og vil underrette den Dataansvarlige om tilføjelser eller ændringer."
       },
       "rights": {
         "title": "Rettigheder for registrerede",
@@ -631,7 +636,84 @@
         "lead": "For spørgsmål om denne DPA eller databehandlingspraksis:",
         "legal": "Juridiske forespørgsler:",
         "technical": "Tekniske spørgsmål:",
-        "footer": "Denne DPA accepteres automatisk, når du bruger Betterlytics, og er en del af vores Servicevilkår. 🇪🇺 Anonyme analyser som udgangspunkt – Fremstillet og hostet i Den Europæiske Union"
+        "footer": "Denne DPA accepteres automatisk, når du bruger Betterlytics, og er en del af vores Servicevilkår. 🇪🇺 Anonyme analyser som udgangspunkt – Fremstillet og hostet i Den Europæiske Union",
+        "termsLink": "Servicevilkår",
+        "privacyLink": "Privatlivspolitik",
+        "subprocessorsLink": "Underdatabehandlere"
+      }
+    },
+    "subprocessors": {
+      "seo": {
+        "title": "Underdatabehandlere | GDPR-overholdelse og databehandling",
+        "description": "Se den komplette liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gennem nøje udvalgte EU-baserede tjenesteudbydere.",
+        "keywords": [
+          "Betterlytics Underdatabehandlere",
+          "Databehandlere",
+          "GDPR-overholdelse",
+          "Tredjepartstjenester",
+          "Databehandling",
+          "EU Datahosting",
+          "Privatlivsoverholdelse"
+        ]
+      },
+      "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
+      "title": "Underdatabehandlere",
+      "lastUpdated": "Sidst opdateret:",
+      "intro": "Betterlytics benytter et begrænset antal nøje udvalgte tredjepartstjenesteudbydere (underdatabehandlere) til at hjælpe med at levere vores analyseplatform. Denne side viser alle underdatabehandlere, der kan behandle data på vegne af vores kunder.",
+      "commitment": {
+        "title": "Vores forpligtelse",
+        "body": "Vi arbejder kun med underdatabehandlere, der opfylder vores strenge privatlivs- og sikkerhedsstandarder. Alle underdatabehandlere opererer under databehandleraftaler og implementerer passende tekniske og organisatoriske foranstaltninger for at beskytte dine data."
+      },
+      "list": {
+        "title": "Aktuelle underdatabehandlere",
+        "intro": "Følgende tredjepartstjenester er autoriseret til at behandle data på vegne af Betterlytics:"
+      },
+      "table": {
+        "name": "Underdatabehandler",
+        "purpose": "Formål",
+        "location": "Dataplacering"
+      },
+      "processors": {
+        "hetzner": {
+          "name": "Hetzner",
+          "purpose": "Cloud-infrastruktur og serverhosting",
+          "location": "Tyskland (EU)"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Betalingsbehandling for abonnementer",
+          "location": "USA (Standardkontraktbestemmelser)"
+        },
+        "mailersend": {
+          "name": "MailerSend",
+          "purpose": "Transaktionel e-maillevering",
+          "location": "EU"
+        },
+        "cloudflareR2": {
+          "name": "Cloudflare R2",
+          "purpose": "Session replay-lagring (valgfri funktion)",
+          "location": "EU-datacentre"
+        }
+      },
+      "changes": {
+        "title": "Ændringer i underdatabehandlere",
+        "body": "Vi opdaterer denne side, når vi tilføjer eller fjerner underdatabehandlere. Hvis du har abonneret på Betterlytics-tjenester, vil vi underrette dig om eventuelle ændringer i denne liste i overensstemmelse med vores Databehandleraftale (DPA)."
+      },
+      "dataProtection": {
+        "title": "Databeskyttelsesforanstaltninger",
+        "li1": "Alle underdatabehandlere opererer under databehandleraftaler i overensstemmelse med databeskyttelsesstandarder",
+        "li2": "Vi prioriterer EU-baserede udbydere for at minimere dataoverførsler uden for EU",
+        "li3": "Hvor dataoverførsler til tredjelande forekommer, er passende sikkerhedsforanstaltninger (såsom SCC'er) på plads"
+      },
+      "contact": {
+        "title": "Spørgsmål?",
+        "lead": "Hvis du har spørgsmål om vores underdatabehandlere eller databehandlingspraksis:",
+        "email": "E-mail:"
+      },
+      "footer": {
+        "p1": "🇪🇺 Fremstillet og hostet i Den Europæiske Union",
+        "dpaLink": "Databehandleraftale",
+        "privacyLink": "Privatlivspolitik"
       }
     },
     "auth": {
@@ -1236,6 +1318,7 @@
       "privacyPolicy": "Privatlivspolitik",
       "termsOfService": "Servicevilkår",
       "dpa": "Databehandleraftale",
+      "subprocessors": "Underdatabehandlere",
       "documentation": "Dokumentation",
       "changelog": "Ændringslog",
       "pricing": "Priser",

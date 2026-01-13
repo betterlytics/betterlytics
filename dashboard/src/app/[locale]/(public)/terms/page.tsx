@@ -12,6 +12,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: S
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.terms), { locale });
 }
 
+const UPDATED_AT = new Date('2025-01-12');
+
 export default async function TermsPage() {
   if (!env.IS_CLOUD) {
     redirect('/');
@@ -58,7 +60,7 @@ export default async function TermsPage() {
             <h1 className='text-foreground text-3xl font-bold'>{t('title')}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
               {t('lastUpdated')}{' '}
-              {new Date().toLocaleDateString(locale, {
+              {UPDATED_AT.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -284,11 +286,20 @@ export default async function TermsPage() {
               </div>
             </section>
 
-            <section className='border-border border-t py-6 text-center'>
-              <p className='text-muted-foreground text-sm'>
+            <section className='border-border border-t py-6'>
+              <p className='text-muted-foreground text-center text-sm'>
                 {t('contact.footer1')}
                 <br />
                 {t('contact.footer2')}
+              </p>
+              <p className='mt-4 text-center text-sm'>
+                <Link href='/privacy' className='text-primary hover:text-primary/80'>
+                  {t('contact.privacyLink')}
+                </Link>
+                {' | '}
+                <Link href='/dpa' className='text-primary hover:text-primary/80'>
+                  {t('contact.dpaLink')}
+                </Link>
               </p>
             </section>
           </div>

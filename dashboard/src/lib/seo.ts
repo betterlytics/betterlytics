@@ -323,6 +323,11 @@ export const SEO_CONFIGS = {
     path: '/features',
     structuredDataType: 'webpage',
   },
+  subprocessors: {
+    namespace: 'public.subprocessors.seo',
+    path: '/subprocessors',
+    structuredDataType: 'webpage',
+  },
   root: {
     namespace: 'public.root.seo',
     path: '/',
