@@ -55,7 +55,13 @@ function animatedNumberReducer(
       return {
         digits: state.digits.map(d =>
           d.id === action.id
-            ? { ...d, digit: action.toDigit, phase: 'animating' as const, fromDigit: action.fromDigit }
+            ? { 
+                ...d, 
+                digit: action.toDigit, 
+                // If it's already entering, keep it entering so we don't abort the fly-in
+                phase: d.phase === 'entering' ? 'entering' : 'animating', 
+                fromDigit: action.fromDigit 
+              }
             : d
         ),
       };
@@ -170,9 +176,8 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
           
           // First, add exiting digits (they roll to 0 while width shrinks)
           for (let i = 0; i < exitCount; i++) {
-            const existing = activeDigits[i];
             newDigits.push({
-              ...existing,
+              ...activeDigits[i],
               phase: 'exiting',
             });
           }
@@ -193,7 +198,12 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
           }
         }
         
-        dispatch({ type: 'sync', digits: newDigits });
+        const currentlyExiting = state.digits.filter(d => d.phase === 'exiting');
+        const distinctNewDigits = newDigits.filter(
+          (newD) => !currentlyExiting.some((exD) => exD.id === newD.id)
+        );
+        
+        dispatch({ type: 'sync', digits: [...currentlyExiting, ...distinctNewDigits] });
       } else {
         // Same digit count - dispatch changes for each changed digit
         newDigitValues.forEach((newDigit, index) => {

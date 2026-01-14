@@ -7,3 +7,69 @@
     transform: translateY(0%);
   }
 }
+
+
+@keyframes digit-enter {
+  from {
+    width: 0;
+    transform: translateX(calc(-0.5 * var(--digit-width)));
+  }
+  to {
+    width: var(--digit-width);
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes digit-exit {
+  from {
+    width: var(--digit-width);
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    width: 0;
+    opacity: 0;
+    transform: translateX(calc(-0.5 * var(--digit-width)));
+  }
+}
+
+
+@keyframes digit-roll-in {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, var(--target-offset), 0); }
+}
+
+@keyframes digit-roll-out {
+  from { transform: translate3d(0, var(--target-offset), 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+/* Performance Optimization: Static Classes for Masks */
+.number-mask {
+  display: inline-flex;
+  position: relative;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  margin: 0 calc(-1 * var(--mask-width));
+  padding: 0 var(--mask-width);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--mask-width), #000 calc(100% - var(--mask-width)), transparent);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+.digit-reel-mask {
+  height: calc(1lh + var(--mask-bleed));
+  overflow: clip;
+  padding: calc(var(--mask-bleed) / 2) 0;
+  margin: calc(-1 * var(--mask-bleed) / 2) 0;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--mask-bleed), #000 calc(100% - var(--mask-bleed)), transparent 100%);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  width: var(--digit-width);
+}

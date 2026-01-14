@@ -1,9 +1,14 @@
 export const DIGIT_WIDTH = '0.65em';
-export const MASK_WIDTH = '1em'; // Horizontal fade zone
+export const MASK_WIDTH = '2em'; // Horizontal fade zone - doubled to allow full flyout visibility
 export const MASK_BLEED = '0.4em'; // Vertical bleed into neighbors for digit roll
 
 export const ZWSP = '\u200B';
-export const SPRING_EASING = 'cubic-bezier(0.17, 1.10, 0.3, 1)';
+export const SPRING_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+// Go to 20% immediately since its invisible initially
+export const OPACITY_EASING = 'linear(0, 0.2 2%, 0.4 20%, 0.75 40%, 0.9 55%, 1)';
+
+export const LAYOUT_EASING = 'cubic-bezier(0.25, 1, 0.5, 1)'; // Smooth easing without overshoot for width changes
 
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 export type Digit = typeof DIGITS[number];
