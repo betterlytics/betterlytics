@@ -1,4 +1,4 @@
-import React, { Dispatch } from 'react';
+import React, { Dispatch, useMemo } from 'react';
 import { MultiSelect } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { useTranslations } from 'next-intl';
@@ -19,21 +19,36 @@ export function FilterValueSearch<TEntity>({
   onFilterUpdate,
   className,
   useExtendedRange,
-  formatLength = 30,
+  formatLength = 25,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
 
-  const { defaultOptions, onSearch } = useQueryFilterSearch(filter, {
+  const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,
-    formatLength,
   });
+
+  const multiSelectOptions = useMemo(() => {
+    const searchOptions = options.map((opt) => ({
+      label: formatString(opt, formatLength),
+      value: opt,
+    }));
+
+    const selectedNotInResults = filter.values
+      .filter((v) => !options.includes(v))
+      .map((v) => ({
+        label: formatString(v, formatLength),
+        value: v,
+      }));
+
+    return [...selectedNotInResults, ...searchOptions];
+  }, [options, filter.values, formatLength]);
 
   return (
     <MultiSelect
-      defaultOptions={defaultOptions}
-      onSearch={onSearch}
-      triggerSearchOnFocus
+      options={multiSelectOptions}
+      inputValue={search}
+      onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
         label: formatString(value, Math.floor(formatLength * 0.835)),
         value,
@@ -43,6 +58,7 @@ export function FilterValueSearch<TEntity>({
       className={cn('dark:bg-input/25 dark:hover:bg-input/50', className)}
       commandProps={{
         className: cn('dark:bg-input/10 dark:hover:bg-input/50', className),
+        shouldFilter: false, // Parent handles filtering via hook
       }}
       badgeClassName='bg-popover'
       emptyIndicator={
