@@ -19,25 +19,36 @@ export function FilterValueSearch<TEntity>({
   onFilterUpdate,
   className,
   useExtendedRange,
-  formatLength = 30,
+  formatLength = 25,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
+  const tMisc = useTranslations('misc');
 
-  const { options } = useQueryFilterSearch(filter, {
+  const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,
   });
 
   const multiSelectOptions = useMemo(() => {
-    const searchOptions = options.map((opt) => ({ label: formatString(opt, formatLength), value: opt }));
-    const selectedOptions = filter.values
+    const searchOptions = options.map((opt) => ({
+      label: formatString(opt, formatLength),
+      value: opt,
+    }));
+
+    const selectedNotInResults = filter.values
       .filter((v) => !options.includes(v))
-      .map((v) => ({ label: formatString(v, formatLength), value: v }));
-    return [...selectedOptions, ...searchOptions];
+      .map((v) => ({
+        label: formatString(v, formatLength),
+        value: v,
+      }));
+
+    return [...selectedNotInResults, ...searchOptions];
   }, [options, filter.values, formatLength]);
 
   return (
     <MultiSelect
       options={multiSelectOptions}
+      inputValue={search}
+      onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
         label: formatString(value, Math.floor(formatLength * 0.835)),
         value,
@@ -47,11 +58,17 @@ export function FilterValueSearch<TEntity>({
       className={cn('dark:bg-input/25 dark:hover:bg-input/50', className)}
       commandProps={{
         className: cn('dark:bg-input/10 dark:hover:bg-input/50', className),
+        shouldFilter: false, // Parent handles filtering via hook
       }}
       badgeClassName='bg-popover'
       emptyIndicator={
         <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
           <span>{t('noValuesForCurrentPeriod')}</span>
+        </div>
+      }
+      loadingIndicator={
+        <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
+          <span>{tMisc('loading')}</span>
         </div>
       }
       creatable

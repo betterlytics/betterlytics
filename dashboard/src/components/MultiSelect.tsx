@@ -97,6 +97,12 @@ interface MultiSelectProps {
 
   /** hide the clear all button. */
   hideClearAllButton?: boolean;
+
+  /** Controlled input value. When provided, input becomes controlled. */
+  inputValue?: string;
+
+  /** Callback when input value changes. Required when inputValue is controlled. */
+  onInputValueChange?: (value: string) => void;
 }
 
 export interface MultiSelectRef {
@@ -202,6 +208,8 @@ export const MultiSelect = ({
   commandProps,
   inputProps,
   hideClearAllButton = false,
+  inputValue: inputValueProp,
+  onInputValueChange,
 }: MultiSelectProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
@@ -214,8 +222,24 @@ export const MultiSelect = ({
 
   const [options, setOptions] = React.useState<GroupOption>(transToGroupOption(arrayDefaultOptions, groupBy));
 
-  const [inputValue, setInputValue] = React.useState('');
-  const debouncedSearchTerm = useDebounce(inputValue, delay || 500);
+  const [internalInputValue, setInternalInputValue] = React.useState('');
+
+  // Use controlled value if provided, otherwise use internal state
+  const isInputControlled = inputValueProp !== undefined;
+  const effectiveInputValue = isInputControlled ? inputValueProp : internalInputValue;
+
+  // Helper to update input value (handles both controlled and uncontrolled modes)
+  const handleInputChange = React.useCallback(
+    (value: string) => {
+      if (!isInputControlled) {
+        setInternalInputValue(value);
+      }
+      onInputValueChange?.(value);
+    },
+    [isInputControlled, onInputValueChange],
+  );
+
+  const debouncedSearchTerm = useDebounce(effectiveInputValue, delay || 500);
 
   const handleClickOutside = (event: MouseEvent | TouchEvent) => {
     const target = event.target as Node;
@@ -354,15 +378,15 @@ export const MultiSelect = ({
     if (!creatable) return undefined;
 
     if (
-      isOptionsExist(options, [{ value: inputValue, label: inputValue }]) ||
-      selected.find((s) => s.value === inputValue)
+      isOptionsExist(options, [{ value: effectiveInputValue, label: effectiveInputValue }]) ||
+      selected.find((s) => s.value === effectiveInputValue)
     ) {
       return undefined;
     }
 
     const Item = (
       <CommandItem
-        value={inputValue}
+        value={effectiveInputValue}
         className='cursor-pointer'
         onMouseDown={(e) => {
           e.preventDefault();
@@ -375,7 +399,7 @@ export const MultiSelect = ({
             return;
           }
 
-          setInputValue('');
+          handleInputChange('');
           const newOptions = [...selected, { value, label: value }];
 
           setSelected(newOptions);
@@ -383,12 +407,12 @@ export const MultiSelect = ({
           setOpen(false);
         }}
       >
-        <PlusIcon /> {`"${inputValue}"`}
+        <PlusIcon /> {`"${effectiveInputValue}"`}
       </CommandItem>
     );
 
     // For normal creatable
-    if (!onSearch && inputValue.length > 0) {
+    if (!onSearch && effectiveInputValue.length > 0) {
       return Item;
     }
 
@@ -499,10 +523,10 @@ export const MultiSelect = ({
               <CommandPrimitive.Input
                 {...inputProps}
                 ref={inputRef}
-                value={inputValue}
+                value={effectiveInputValue}
                 disabled={disabled}
                 onValueChange={(value) => {
-                  setInputValue(value);
+                  handleInputChange(value);
                   // Open dropdown when typing
                   if (value && !open) {
                     setOpen(true);
@@ -510,6 +534,18 @@ export const MultiSelect = ({
                   inputProps?.onValueChange?.(value);
                 }}
                 onBlur={(event) => {
+                  // When creatable and input has value, add it as a selection on blur
+                  if (creatable && effectiveInputValue.trim().length > 0) {
+                    const trimmedValue = effectiveInputValue.trim();
+                    // Only add if not already selected and under max limit
+                    if (!selected.find((s) => s.value === trimmedValue) && selected.length < maxSelected) {
+                      const newOptions = [...selected, { value: trimmedValue, label: trimmedValue }];
+                      setSelected(newOptions);
+                      onChange?.(newOptions);
+                    }
+                    handleInputChange('');
+                  }
+
                   if (!onScrollbar) {
                     setOpen(false);
                   }
@@ -590,7 +626,6 @@ export const MultiSelect = ({
               ) : (
                 <>
                   {EmptyItem()}
-                  {CreatableItem()}
                   {!selectFirstItem && <CommandItem value='-' className='hidden' />}
                   {Object.entries(selectables).map(([key, dropdowns]) => (
                     <CommandGroup key={key} heading={key} className='h-full overflow-auto'>
@@ -612,7 +647,7 @@ export const MultiSelect = ({
                                   return;
                                 }
 
-                                setInputValue('');
+                                handleInputChange('');
                                 const newOptions = [...selected, option];
 
                                 setSelected(newOptions);
@@ -631,6 +666,7 @@ export const MultiSelect = ({
                       </>
                     </CommandGroup>
                   ))}
+                  {CreatableItem()}
                 </>
               )}
             </CommandList>
