@@ -944,6 +944,9 @@
         "ctaDemo": "View live demo",
         "eyebrow": "Try Betterlytics in action"
       },
+      "githubStats": {
+        "starsLabel": "stars on GitHub"
+      },
       "framework": {
         "title": "Works with your favorite tools",
         "subtitle": "Universal compatibility - works with any website, framework, or platform",
