@@ -1,7 +1,9 @@
 'use client';
 
 import { createContext, useContext, useReducer, useLayoutEffect, useRef, useMemo } from 'react';
-import type { Digit } from '@/constants/animated-number';
+
+export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+export type Digit = typeof DIGITS[number];
 
 export type DigitPhase = 'idle' | 'animating' | 'entering' | 'exiting';
 
@@ -30,20 +32,39 @@ type AnimatedNumberAction =
   | AnimatedNumberActionBase<'entered'>
   | { type: 'sync'; digits: DigitState[] };
 
-type AnimatedNumberContextValue = {
-  state: AnimatedNumberState;
+type AnimatedNumberConfigValue = {
   dispatch: React.Dispatch<AnimatedNumberAction>;
   duration: number;
 };
 
-export const AnimatedNumberContext = createContext<AnimatedNumberContextValue | null>(null);
+type AnimatedNumberStateValue = {
+  state: AnimatedNumberState;
+};
 
-export function useAnimatedNumber(): AnimatedNumberContextValue {
-  const ctx = useContext(AnimatedNumberContext);
+export const AnimatedNumberConfigContext = createContext<AnimatedNumberConfigValue | null>(null);
+export const AnimatedNumberStateContext = createContext<AnimatedNumberStateValue | null>(null);
+
+export function useAnimatedConfig(): AnimatedNumberConfigValue {
+  const ctx = useContext(AnimatedNumberConfigContext);
   if (!ctx) {
-    throw new Error('useAnimatedNumber must be used within AnimatedNumberProvider');
+    throw new Error('useAnimatedConfig must be used within AnimatedNumberProvider');
   }
   return ctx;
+}
+
+export function useAnimatedState(): AnimatedNumberStateValue {
+  const ctx = useContext(AnimatedNumberStateContext);
+  if (!ctx) {
+    throw new Error('useAnimatedState must be used within AnimatedNumberProvider');
+  }
+  return ctx;
+}
+
+// Legacy hook for backward compatibility, but prefer splitting usage
+export function useAnimatedNumber(): AnimatedNumberConfigValue & AnimatedNumberStateValue {
+  const config = useAnimatedConfig();
+  const state = useAnimatedState();
+  return { ...config, ...state };
 }
 
 function animatedNumberReducer(
@@ -223,15 +244,14 @@ export function AnimatedNumberProvider({ value, duration, children }: AnimatedNu
     }
   }, [value, state.digits]);
 
-  const contextValue = useMemo(() => ({
-    state,
-    dispatch,
-    duration,
-  }), [state, dispatch, duration]);
+  const configValue = useMemo(() => ({ dispatch, duration }), [dispatch, duration]);
+  const stateValue = useMemo(() => ({ state }), [state]);
 
   return (
-    <AnimatedNumberContext.Provider value={contextValue}>
-      {children}
-    </AnimatedNumberContext.Provider>
+    <AnimatedNumberConfigContext.Provider value={configValue}>
+      <AnimatedNumberStateContext.Provider value={stateValue}>
+        {children}
+      </AnimatedNumberStateContext.Provider>
+    </AnimatedNumberConfigContext.Provider>
   );
 }

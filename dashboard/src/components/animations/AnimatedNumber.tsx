@@ -1,10 +1,11 @@
 'use client';
 
-import { DIGIT_WIDTH, ZWSP, SPRING_EASING, LAYOUT_EASING, MASK_WIDTH } from '@/constants/animated-number';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { DigitReel } from './DigitReel';
-import { AnimatedNumberProvider, useAnimatedNumber } from './context';
+import { AnimatedNumberProvider, useAnimatedState } from './context';
+
+const ZWSP = '\u200B';
 
 type AnimatedNumberProps = {
   value: number;
@@ -32,13 +33,15 @@ function AnimatedNumberComponent({ value, duration = 800, withTextSelect = false
  * Inner component that consumes context and renders digits.
  */
 function AnimatedNumberInner({ value, duration, withTextSelect }: { value: number; duration: number; withTextSelect: boolean }) {
-  const { state } = useAnimatedNumber();
+  const { state } = useAnimatedState();
   
   const activeDigitCount = state.digits.filter(d => d.phase !== 'exiting').length;
   const displayValue = Math.abs(Math.floor(value));
 
   return (
-    <span className={cn('inline-flex isolate relative ltr contain-layout')} style={{ '--mask-width': MASK_WIDTH } as React.CSSProperties}>
+    <span 
+      className={cn('animated-number-root inline-flex isolate relative ltr contain-layout')} 
+    >
       {withTextSelect && (
         <span
           className={cn(
@@ -53,11 +56,11 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
       {/* Mask area for fade-in/out effects */}
       <span aria-hidden="true" className="number-mask">
         <span
-          className="inline-flex justify-end"
+          className="animated-number-sizer"
           style={{
-            width: `calc(${activeDigitCount} * ${DIGIT_WIDTH})`,
-            transition: `width ${duration/4}ms ${LAYOUT_EASING}`,
-          }}
+            '--active-digits': activeDigitCount,
+            transition: `width ${duration/4}ms var(--layout-easing)`,
+          } as React.CSSProperties}
         >
           <span className="inline-flex justify-inherit relative">
             {ZWSP}
