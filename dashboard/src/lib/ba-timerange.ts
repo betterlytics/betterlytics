@@ -25,7 +25,7 @@ function shouldIncludeCurrentBucket(timeRange: TimeRangeValue) {
   );
 }
 
-function floorToGranularity(date: moment.Moment, granularity: GranularityRangeValues | 'month') {
+function floorToGranularity(date: moment.Moment, granularity: GranularityRangeValues) {
   switch (granularity) {
     case 'minute_1':
       return date.startOf('minute');
@@ -37,12 +37,14 @@ function floorToGranularity(date: moment.Moment, granularity: GranularityRangeVa
       return date.startOf('hour');
     case 'day':
       return date.startOf('day');
+    case 'week':
+      return date.startOf('isoWeek');
     case 'month':
       return date.startOf('month');
   }
 }
 
-function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeValues | 'month') {
+function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeValues) {
   switch (granularity) {
     case 'minute_1':
       return date.add(1, 'minute').startOf('minute');
@@ -54,6 +56,8 @@ function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeVal
       return date.add(1, 'hour').startOf('hour');
     case 'day':
       return date.add(1, 'day').startOf('day');
+    case 'week':
+      return date.add(1, 'week').startOf('isoWeek');
     case 'month':
       return date.add(1, 'month').startOf('month');
   }
@@ -136,6 +140,10 @@ function granularityUnit(granularity: GranularityRangeValues) {
       return 'hour';
     case 'day':
       return 'day';
+    case 'week':
+      return 'week';
+    case 'month':
+      return 'month';
   }
 }
 function granularityStep(granularity: GranularityRangeValues) {
@@ -149,6 +157,10 @@ function granularityStep(granularity: GranularityRangeValues) {
     case 'hour':
       return 1;
     case 'day':
+      return 1;
+    case 'week':
+      return 1;
+    case 'month':
       return 1;
   }
 }

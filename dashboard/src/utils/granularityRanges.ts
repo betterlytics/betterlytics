@@ -49,35 +49,33 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   const twelveHoursMs = 12 * 60 * 60 * 1000;
   const twoDaysMs = 2 * oneDayMs;
   const oneWeekMs = 7.5 * oneDayMs;
-  const twoWeeksMs = 14 * oneDayMs;
-  const oneMonthMs = 30 * oneDayMs;
+  const fourWeeksMs = 27 * oneDayMs;
   const sixMonthsMs = 180 * oneDayMs;
 
+  if (durationMs >= sixMonthsMs) return ['month', 'week', 'day'];
+  if (durationMs >= fourWeeksMs) return ['week', 'day'];
+  if (durationMs >= oneWeekMs) return ['day'];
   if (durationMs <= twoHoursMs) return ['minute_1'];
   if (durationMs <= twelveHoursMs) return ['hour', 'minute_30', 'minute_15'];
-  if (durationMs <= twoDaysMs) return ['day', 'hour', 'minute_30', 'minute_15'];
-  if (durationMs <= oneWeekMs) return ['day', 'hour', 'minute_30'];
-  if (durationMs <= twoWeeksMs) return ['week', 'day', 'hour'];
-  if (durationMs <= oneMonthMs) return ['week', 'day', 'hour'];
-  if (durationMs < sixMonthsMs) return ['week', 'day'];
-  return ['month', 'week', 'day'];
+  if (durationMs <= twoDaysMs) return ['hour', 'minute_30', 'minute_15'];
+  return ['day', 'hour'];
 }
 
 export function getVisibleGranularities(startDate: Date, endDate: Date): GranularityRangeValues[] {
   const durationMs = endDate.getTime() - startDate.getTime();
   const oneDayMs = 24 * 60 * 60 * 1000;
-  const twoWeeksMs = 14 * oneDayMs;
-  const oneMonthMs = 30 * oneDayMs;
+  const twoDaysMs = 2 * oneDayMs;
+  const oneWeekMs = 7.5 * oneDayMs;
 
-  if (durationMs > oneMonthMs) {
-    return ['month', 'week', 'day', 'hour'];
+  if (durationMs > oneWeekMs) {
+    return ['hour', 'day', 'week', 'month'];
   }
 
-  if (durationMs > twoWeeksMs) {
-    return ['week', 'day', 'hour', 'minute_30'];
+  if (durationMs > twoDaysMs) {
+    return ['minute_30', 'hour', 'day', 'week'];
   }
 
-  return ['day', 'hour', 'minute_30', 'minute_15'];
+  return ['minute_15', 'minute_30', 'hour', 'day'];
 }
 
 export function getValidGranularityFallback(
