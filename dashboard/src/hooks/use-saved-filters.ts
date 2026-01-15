@@ -15,7 +15,7 @@ import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
 type SavedFilterEntryInput = {
   column: FilterColumn;
   operator: FilterOperator;
-  value: string;
+  values: string[];
 };
 
 export function useSavedFilters() {

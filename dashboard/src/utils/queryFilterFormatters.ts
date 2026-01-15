@@ -9,7 +9,7 @@ type QueryFilterTranslation = ReturnType<typeof useTranslations<'components.filt
 export function formatQueryFilter(filter: QueryFilter, t: QueryFilterTranslation) {
   const column = t(`columns.${filter.column}`);
   const operator = filter.operator === '=' ? t('is') : t('isNot');
-  const value = filter.value;
+  const value = filter.values.join(', ');
 
   return `${column} ${operator} ${value}`;
 }

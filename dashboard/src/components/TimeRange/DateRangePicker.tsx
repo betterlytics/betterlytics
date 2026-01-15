@@ -10,8 +10,8 @@ import { type DateRange } from 'react-day-picker';
 import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
-import { DisabledDemoTooltip } from '@/components/tooltip/DisabledDemoTooltip';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 interface DateRangePickerProps {
   range: DateRange | undefined;
@@ -25,7 +25,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
 
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
-  const isDemo = useDemoMode();
+  const { isDemo } = useDashboardAuth();
 
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
 
@@ -63,7 +63,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
       <Popover open={isOpen} onOpenChange={(open) => (isDemo ? false : setIsOpen(open))}>
         <PopoverTrigger asChild>
           <span className='w-full'>
-            <DisabledDemoTooltip>
+            <PermissionGate allowViewer>
               {(isDisabled) => (
                 <Button
                   variant={'ghost'}
@@ -76,7 +76,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
                   <span>{t('customPeriod')}</span>
                 </Button>
               )}
-            </DisabledDemoTooltip>
+            </PermissionGate>
           </span>
         </PopoverTrigger>
         <PopoverContent className='w-auto p-0' align='start' side={isMobile ? 'top' : 'bottom'}>

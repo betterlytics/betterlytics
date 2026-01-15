@@ -94,6 +94,7 @@ export const SQL = {
   UInt32: asType<number>('UInt32'),
   DateTime: asType<string>('DateTime'),
   UInt32Array: asType<Array<number>>('Array(UInt32)'),
+  StringArray: asType<Array<string>>('Array(String)'),
 
   /**
    * WARNING - THIS WILL FORCE INJECT THE GIVEN STRING INTO THE FINAL SQL. USE WITH GREAT CARE.\

@@ -45,6 +45,7 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/dashboard/filtering', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/web-vitals', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/monitoring', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/upgrading', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/changing-plans', changeFrequency: 'monthly', priority: 0.8, localized: false },

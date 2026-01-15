@@ -3,7 +3,7 @@
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { withUserAuth } from '@/auth/auth-actions';
 import { completeOnboardingAndCreateDashboard } from '@/services/dashboard/dashboard.service';
-import { acceptUserTerms } from '@/services/auth/user.service';
+import { acceptUserTerms, setOnboardingCompleted } from '@/services/auth/user.service';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { UserException } from '@/lib/exceptions';
 import { User } from 'next-auth';
@@ -31,3 +31,7 @@ export const completeOnboardingAndCreateDashboardAction = withUserAuth(
     return completeOnboardingAndCreateDashboard(domain, user.id, language);
   },
 );
+
+export const setOnboardingCompletedAction = withUserAuth(async (user: User): Promise<void> => {
+  await setOnboardingCompleted(user.id);
+});

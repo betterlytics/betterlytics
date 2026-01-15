@@ -48,6 +48,11 @@ export async function Footer() {
                   {t('dpa')}
                 </Link>
               </li>
+              <li>
+                <Link href='/subprocessors' className='hover:text-foreground transition-colors'>
+                  {t('subprocessors')}
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -65,6 +70,11 @@ export async function Footer() {
               <li>
                 <Link href='/changelog' className='hover:text-foreground transition-colors'>
                   {t('changelog')}
+                </Link>
+              </li>
+              <li>
+                <Link href='/features' className='hover:text-foreground transition-colors'>
+                  {t('features')}
                 </Link>
               </li>
               <li>

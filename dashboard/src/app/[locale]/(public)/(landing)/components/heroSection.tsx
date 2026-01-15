@@ -14,18 +14,20 @@ export async function HeroSection() {
     <section className='relative overflow-visible pt-20 pb-24 sm:pt-36 sm:pb-32'>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='text-center'>
-          <h1 className='mb-6 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl'>
+          <h1 className='mb-8 text-4xl font-bold tracking-[-0.02em] sm:text-6xl lg:text-7xl'>
             {t.rich('title', {
               highlight: (chunks) => <span className='text-blue-600 dark:text-blue-400'>{chunks}</span>,
             })}
           </h1>
-          <p className='text-muted-foreground mx-auto mb-10 max-w-4xl text-lg sm:mt-8 sm:text-lg'>
-            {t('description')}
+          <p className='text-muted-foreground mx-auto mb-12 max-w-2xl text-lg leading-relaxed sm:mt-6 sm:text-xl'>
+            {t.rich('description', {
+              br: () => <br />,
+            })}
           </p>
           <div className='flex flex-col justify-center gap-4 sm:flex-row sm:gap-6'>
             <Button
               size='lg'
-              className='group from-primary/80 to-primary relative overflow-hidden bg-gradient-to-r px-9 py-3.5 text-lg text-white shadow-lg ring-1 ring-white/10 transition-all duration-300 ease-out ring-inset hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none'
+              className='group from-primary to-primary/80 shadow-primary/25 hover:shadow-primary/30 relative overflow-hidden bg-gradient-to-r px-9 py-3.5 text-lg text-white shadow-lg ring-1 ring-white/20 transition-all duration-300 ease-out ring-inset hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none'
               asChild
             >
               <Link className='flex items-center justify-center gap-1' href='/onboarding'>

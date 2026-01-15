@@ -3,9 +3,9 @@
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -16,7 +16,7 @@ type Options = {
 
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
-  const isDemo = useDemoMode();
+  const { isDemo } = useDashboardAuth();
   const t = useTranslations('components.demoMode');
 
   const defaultOperator: FilterOperator = defaults?.operator ?? '=';
@@ -34,23 +34,23 @@ export function useFilterClick(defaults?: Options) {
 
       if (behavior === 'toggle') {
         const existing = queryFilters.find(
-          (f) => f.column === column && f.operator === operator && f.value === value,
+          (f) => f.column === column && f.operator === operator && f.values[0] === value,
         );
         if (existing) {
           removeQueryFilter(existing.id);
           return;
         }
-        addQueryFilter({ column, operator, value });
+        addQueryFilter({ column, operator, values: [value] });
         return;
       }
 
       if (behavior === 'replace-same-column') {
         setQueryFilters((fs) => fs.filter((f) => f.column !== column));
-        addQueryFilter({ column, operator, value });
+        addQueryFilter({ column, operator, values: [value] });
         return;
       }
 
-      addQueryFilter({ column, operator, value });
+      addQueryFilter({ column, operator, values: [value] });
     },
     [
       addQueryFilter,

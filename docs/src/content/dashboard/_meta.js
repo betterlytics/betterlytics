@@ -10,6 +10,7 @@ export default {
   "outbound-links": "Outbound Links",
   "web-vitals": "Web Vitals",
   "session-replay": "Session Replay",
+  monitoring: "Uptime Monitoring",
   filtering: "Filtering",
   "metrics-glossary": "Metrics Glossary",
 };

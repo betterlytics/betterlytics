@@ -9,6 +9,7 @@ import {
   deleteUserPasswordResetTokens,
 } from '@/repositories/postgres/passwordReset.repository';
 import { sendResetPasswordEmail } from '@/services/email/mail.service';
+import { invalidateAllUserSessions } from '@/services/session.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { getDisplayName } from '@/utils/userUtils';
 
@@ -79,10 +80,14 @@ export async function resetPassword(resetPasswordData: ResetPasswordData) {
 
     // Ensure user currently has a password (blocks OAuth-only users)
     const targetUser = await findUserById(resetToken.userId);
+
     if (!targetUser?.passwordHash) {
       throw new Error('Password reset is not available for OAuth accounts');
     }
+
     await updateUserPassword(resetToken.userId, resetPasswordData.newPassword);
+
+    await invalidateAllUserSessions(resetToken.userId);
 
     await deleteUserPasswordResetTokens(resetToken.userId);
 

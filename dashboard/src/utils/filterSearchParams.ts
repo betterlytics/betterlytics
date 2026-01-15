@@ -229,7 +229,13 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
   filters.compareStartDate = enforced.compare?.start;
   filters.compareEndDate = enforced.compare?.end;
 
-  return FilterQueryParamsSchema.parse(filters);
+  const result = FilterQueryParamsSchema.safeParse(filters);
+
+  if (!result.success) {
+    return getDefaultFilters();
+  }
+
+  return result.data;
 }
 
 export const BAFilterSearchParams = {

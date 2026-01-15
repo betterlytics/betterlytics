@@ -15,4 +15,5 @@ export const updateDashboardSettingsAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, updates: DashboardSettingsUpdate): Promise<DashboardSettings> => {
     return await SettingsService.updateDashboardSettings(ctx.dashboardId, updates);
   },
+  { permission: 'canManageSettings' },
 );

@@ -59,7 +59,7 @@ export function PricingCards({
       features: [
         t('features.upToEventsPerMonth', { events: eventRange.label }),
         t('features.allFeatures'),
-        t('features.oneSite'),
+        t('features.twoSites'),
         t('features.retention1PlusYear'),
         t('features.emailSupport'),
       ],

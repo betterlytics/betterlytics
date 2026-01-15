@@ -15,7 +15,7 @@ import { type FilterColumn, type FilterOperator } from '@/entities/analytics/fil
 type SavedFilterEntryInput = {
   column: FilterColumn;
   operator: FilterOperator;
-  value: string;
+  values: string[];
 };
 
 export const fetchSavedFiltersAction = withDashboardAuthContext(async (ctx: AuthContext) => {

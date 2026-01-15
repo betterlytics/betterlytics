@@ -26,7 +26,7 @@ export const QueryFilterSchema = z.object({
   id: z.string(),
   column: z.enum(FILTER_COLUMNS),
   operator: z.enum(FILTER_OPERATORS),
-  value: z.string(),
+  values: z.array(z.string()),
 });
 
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;

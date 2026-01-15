@@ -1,1 +1,1 @@
-export { default } from '@/app/(protected)/dashboard/[dashboardId]/events/page';
+export { default } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/events/page';
