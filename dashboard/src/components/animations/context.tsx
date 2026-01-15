@@ -60,13 +60,6 @@ export function useAnimatedState(): AnimatedNumberStateValue {
   return ctx;
 }
 
-// Legacy hook for backward compatibility, but prefer splitting usage
-export function useAnimatedNumber(): AnimatedNumberConfigValue & AnimatedNumberStateValue {
-  const config = useAnimatedConfig();
-  const state = useAnimatedState();
-  return { ...config, ...state };
-}
-
 function animatedNumberReducer(
   state: AnimatedNumberState,
   action: AnimatedNumberAction

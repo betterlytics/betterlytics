@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import React from 'react';
 import { DigitReel } from './DigitReel';
 import { AnimatedNumberProvider, useAnimatedState } from './context';
+import { SignSlot } from './SignSlot';
 
 const ZWSP = '\u200B';
 
@@ -16,13 +17,12 @@ type AnimatedNumberProps = {
 };
 
 /**
- * AnimatedNumber - Smooth rolling digit animation.
+ * AnimatedNumber - Smooth rolling digit animation with negative number support.
  */
 function AnimatedNumberComponent({ value, duration = 800, withTextSelect = false, className }: AnimatedNumberProps) {
   return (
     <AnimatedNumberProvider value={value} duration={duration}>
       <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', className)}>
-        {value < 0 && <span>−</span>}
         <AnimatedNumberInner value={value} duration={duration} withTextSelect={withTextSelect} />
       </span>
     </AnimatedNumberProvider>
@@ -30,13 +30,12 @@ function AnimatedNumberComponent({ value, duration = 800, withTextSelect = false
 }
 
 /**
- * Inner component that consumes context and renders digits.
+ * Inner component that consumes context and renders sign + digits.
  */
 function AnimatedNumberInner({ value, duration, withTextSelect }: { value: number; duration: number; withTextSelect: boolean }) {
   const { state } = useAnimatedState();
   
   const activeDigitCount = state.digits.filter(d => d.phase !== 'exiting').length;
-  const displayValue = Math.abs(Math.floor(value));
 
   return (
     <span 
@@ -49,18 +48,18 @@ function AnimatedNumberInner({ value, duration, withTextSelect }: { value: numbe
             'text-transparent select-text z-[1] leading-none font-[inherit] tabular-nums'
           )}
         >
-          {displayValue}
+          {Math.floor(value)}
         </span>
       )}
+
+      {/* Sign slot - self-contained, handles its own animation */}
+      <SignSlot isNegative={value < 0} />
 
       {/* Mask area for fade-in/out effects */}
       <span aria-hidden="true" className="number-mask">
         <span
           className="animated-number-sizer"
-          style={{
-            '--active-digits': activeDigitCount,
-            transition: `width ${duration/4}ms var(--layout-easing)`,
-          } as React.CSSProperties}
+          style={{ '--active-digits': activeDigitCount } as React.CSSProperties}
         >
           <span className="inline-flex justify-inherit relative">
             {ZWSP}

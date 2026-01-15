@@ -16,7 +16,7 @@
   /* Width is calculated using the variable injected via style attribute for active digits */
   width: calc(var(--active-digits) * var(--digit-width));
   will-change: width;
-  /* Transition durability will be injected or we can use a default if fixed */
+  transition: width calc(var(--duration, 800ms) / 4) var(--layout-easing);
 }
 
 /* Digit roll animation for AnimatedNumber */
@@ -131,4 +131,47 @@
 
 .digit-reel-inner[data-phase="animating"] {
   transition: transform var(--reduced-duration, var(--duration)) var(--spring-easing);
+}
+
+/* Sign slot for negative numbers - animates width+opacity only, no roll */
+.sign-slot {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--digit-width);
+  overflow: hidden;
+}
+
+.sign-slot-inner {
+  display: inline-block;
+}
+
+.sign-slot[data-phase="entering"] {
+  animation: 
+    sign-enter var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
+    fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+.sign-slot[data-phase="exiting"] {
+  animation: sign-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards;
+}
+
+@keyframes sign-enter {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--digit-width);
+  }
+}
+
+@keyframes sign-exit {
+  from {
+    width: var(--digit-width);
+    opacity: 1;
+  }
+  to {
+    width: 0;
+    opacity: 0;
+  }
 }

@@ -14,7 +14,7 @@ export default function TestAnimationPage() {
           {/* +/- 1 controls */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setValue(v => Math.max(0, v - 1))}
+              onClick={() => setValue(v => v - 1)}
               className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-foreground text-xl font-bold flex items-center justify-center transition-colors"
             >
               −
@@ -34,7 +34,7 @@ export default function TestAnimationPage() {
           {/* ×10 / ÷10 controls */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setValue(v => Math.max(1, Math.floor(v / 10)))}
+              onClick={() => setValue(v => Math.trunc(v / 10) || (v < 0 ? -1 : 1))}
               className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 text-foreground text-sm font-bold flex items-center justify-center transition-colors"
             >
               ÷10
