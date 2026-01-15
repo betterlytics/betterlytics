@@ -1,8 +1,9 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useAnimatedConfig } from './context';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+
+const ZWSP = '\u200B';
 
 type SignPhase = 'idle' | 'entering' | 'exiting';
 
@@ -16,8 +17,6 @@ type SignSlotProps = {
  * Animates width + opacity only (no roll), positioned before the masked digit area.
  */
 function SignSlotComponent({ isNegative }: SignSlotProps) {
-  const { duration } = useAnimatedConfig();
-  
   const prevNegativeRef = useRef<boolean | null>(null);
   const [phase, setPhase] = useState<SignPhase | 'hidden'>(() => 
     isNegative ? 'idle' : 'hidden'
@@ -51,13 +50,9 @@ function SignSlotComponent({ isNegative }: SignSlotProps) {
     }
   }, []);
 
-  const style = useMemo(() => ({
-    '--duration': `${duration}ms`,
-  } as React.CSSProperties), [duration]);
-
-  // Don't render when hidden
+  // Render ZWSP when hidden for consistent DOM structure
   if (phase === 'hidden') {
-    return null;
+    return <span className="sign-slot-hidden">{ZWSP}</span>;
   }
 
   return (
@@ -66,7 +61,6 @@ function SignSlotComponent({ isNegative }: SignSlotProps) {
         'sign-slot inline-flex justify-center items-center select-none',
         'motion-reduce:[--reduced-duration:0ms]'
       )}
-      style={style}
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
     >

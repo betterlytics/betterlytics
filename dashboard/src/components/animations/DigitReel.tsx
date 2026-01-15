@@ -13,7 +13,6 @@ type DigitReelProps = {
  */
 function useDigitVisuals(
   digitState: DigitState,
-  duration: number,
   dispatch: React.Dispatch<any>
 ) {
   const { id, digit, phase } = digitState;
@@ -35,20 +34,11 @@ function useDigitVisuals(
      }
   }, [dispatch, phase, id]);
 
-  const wrapperStyle = useMemo(() => {
-    return {
-      '--duration': `${duration}ms`,
-      width: 'var(--digit-width)',
-      overflow: 'visible',
-    } as React.CSSProperties;
-  }, [duration]);
-
   const reelStyle = useMemo(() => ({
     '--target-offset': `${-digit * 10}%`,
   } as React.CSSProperties), [digit]);
 
   return {
-    wrapperStyle,
     reelStyle,
     handleAnimationEnd,
     handleTransitionEnd
@@ -56,8 +46,8 @@ function useDigitVisuals(
 }
 
 function DigitReelComponent({ digitState }: DigitReelProps) {
-  const { dispatch, duration } = useAnimatedConfig();
-  const { wrapperStyle, reelStyle, handleAnimationEnd, handleTransitionEnd } = useDigitVisuals(digitState, duration, dispatch);
+  const { dispatch } = useAnimatedConfig();
+  const { reelStyle, handleAnimationEnd, handleTransitionEnd } = useDigitVisuals(digitState, dispatch);
 
   return (
     <span
@@ -65,7 +55,6 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
         'digit-reel-wrapper inline-flex justify-center items-start select-none',
         'motion-reduce:[--reduced-duration:0ms]'
       )}
-      style={wrapperStyle}
       data-phase={digitState.phase}
       onAnimationEnd={handleAnimationEnd}
       onTransitionEnd={handleTransitionEnd}

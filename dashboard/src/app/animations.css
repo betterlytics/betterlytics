@@ -110,6 +110,11 @@
     fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
 
+.digit-reel-wrapper {
+  width: var(--digit-width);
+  overflow: visible;
+}
+
 .digit-reel-wrapper[data-phase="exiting"] {
   animation: digit-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards;
 }

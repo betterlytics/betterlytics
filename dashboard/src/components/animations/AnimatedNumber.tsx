@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { DigitReel } from './DigitReel';
-import { AnimatedNumberProvider, useAnimatedState } from './context';
+import { AnimatedNumberProvider, useAnimatedState, useAnimatedConfig } from './context';
 import { SignSlot } from './SignSlot';
 
 const ZWSP = '\u200B';
@@ -23,7 +23,7 @@ function AnimatedNumberComponent({ value, duration = 800, withTextSelect = false
   return (
     <AnimatedNumberProvider value={value} duration={duration}>
       <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', className)}>
-        <AnimatedNumberInner value={value} duration={duration} withTextSelect={withTextSelect} />
+        <AnimatedNumberInner value={value} withTextSelect={withTextSelect} />
       </span>
     </AnimatedNumberProvider>
   );
@@ -32,14 +32,16 @@ function AnimatedNumberComponent({ value, duration = 800, withTextSelect = false
 /**
  * Inner component that consumes context and renders sign + digits.
  */
-function AnimatedNumberInner({ value, duration, withTextSelect }: { value: number; duration: number; withTextSelect: boolean }) {
+function AnimatedNumberInner({ value, withTextSelect }: { value: number; withTextSelect: boolean }) {
   const { state } = useAnimatedState();
+  const { duration } = useAnimatedConfig();
   
   const activeDigitCount = state.digits.filter(d => d.phase !== 'exiting').length;
 
   return (
     <span 
-      className={cn('animated-number-root inline-flex isolate relative ltr contain-layout')} 
+      className={cn('animated-number-root inline-flex isolate relative ltr contain-layout')}
+      style={{ '--duration': `${duration}ms` } as React.CSSProperties}
     >
       {withTextSelect && (
         <span
