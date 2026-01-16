@@ -18,31 +18,23 @@ type SignSlotProps = {
  */
 function SignSlotComponent({ isNegative }: SignSlotProps) {
   const prevNegativeRef = useRef<boolean | null>(null);
-  const [phase, setPhase] = useState<SignPhase | 'hidden'>(() => 
-    isNegative ? 'idle' : 'hidden'
-  );
+  const [phase, setPhase] = useState<SignPhase | 'hidden'>(() => (isNegative ? 'idle' : 'hidden'));
 
-  // Handle phase transitions based on isNegative changes
   useLayoutEffect(() => {
-    const wasNegative = prevNegativeRef.current;
-    
-    if (wasNegative === null) {
-      // Initial render - no animation
+    if (prevNegativeRef.current === null) {
       setPhase(isNegative ? 'idle' : 'hidden');
-    } else if (isNegative && !wasNegative) {
-      // Becoming negative - enter animation
+    } else if (isNegative && !prevNegativeRef.current) {
       setPhase('entering');
-    } else if (!isNegative && wasNegative) {
-      // Becoming positive - exit animation
+    } else if (!isNegative && prevNegativeRef.current) {
       setPhase('exiting');
     }
-    
+
     prevNegativeRef.current = isNegative;
   }, [isNegative]);
 
   const handleAnimationEnd = useCallback((e: React.AnimationEvent) => {
     if (e.target !== e.currentTarget) return;
-    
+
     if (e.animationName.includes('sign-exit')) {
       setPhase('hidden');
     } else if (e.animationName.includes('sign-enter')) {
@@ -52,19 +44,19 @@ function SignSlotComponent({ isNegative }: SignSlotProps) {
 
   // Render ZWSP when hidden for consistent DOM structure
   if (phase === 'hidden') {
-    return <span className="sign-slot-hidden">{ZWSP}</span>;
+    return <span className='sign-slot-hidden'>{ZWSP}</span>;
   }
 
   return (
     <span
       className={cn(
-        'sign-slot inline-flex justify-center items-center select-none',
-        'motion-reduce:[--reduced-duration:0ms]'
+        'sign-slot inline-flex items-center justify-center select-none',
+        'motion-reduce:[--reduced-duration:0ms]',
       )}
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
     >
-      <span className="sign-slot-inner">−</span>
+      <span className='sign-slot-inner'>−</span>
     </span>
   );
 }
