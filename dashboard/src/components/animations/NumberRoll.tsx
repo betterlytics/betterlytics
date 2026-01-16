@@ -45,10 +45,12 @@ function NumberRollInner({ value, withTextSelect }: { value: number; withTextSel
         <span
           className={cn(
             'absolute inset-0 flex items-center justify-end',
-            'text-transparent select-text z-[1] leading-none font-[inherit] tabular-nums'
+            'text-transparent select-text z-[1] leading-none font-[inherit] tabular-nums',
+            'selection:text-transparent selection:bg-primary/20'
           )}
+          style={{ letterSpacing: 'calc(var(--digit-width) - 1ch)' } as React.CSSProperties}
         >
-          {Math.floor(value)}
+          {Math.floor(value).toString().replace('-', '−')}
         </span>
       )}
 

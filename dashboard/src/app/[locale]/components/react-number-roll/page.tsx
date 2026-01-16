@@ -9,6 +9,7 @@ export default function ReactNumberRollDemoPage() {
   const [duration, setDuration] = useState(800);
   const [className, setClassName] = useState('text-9xl font-semibold tracking-tighter');
   const [customStyle, setCustomStyle] = useState('');
+  const [withTextSelect, setWithTextSelect] = useState(false);
 
   // Sync input when value changes from buttons
   const handleValueChange = (newValue: number) => {
@@ -32,19 +33,35 @@ export default function ReactNumberRollDemoPage() {
       <div className="flex flex-col items-center gap-12 p-8 mb-24">
         
         <div className="flex items-center gap-4">
+          <button 
+            onClick={() => handleValueChange(value - 1)}
+            className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-2xl font-medium flex items-center justify-center transition-colors shrink-0"
+            aria-label="Decrement"
+          >
+            -
+          </button>
+          
           <div className={className} style={{ ...styleObject, fontVariantNumeric: 'tabular-nums' }}>
-            <NumberRoll value={value} duration={duration} />
+            <NumberRoll value={value} duration={duration} withTextSelect={withTextSelect} />
           </div>
+
+          <button 
+            onClick={() => handleValueChange(value + 1)}
+            className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-2xl font-medium flex items-center justify-center transition-colors shrink-0"
+            aria-label="Increment"
+          >
+            +
+          </button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full max-w-2xl">
             <button onClick={() => handleValueChange(0)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">Reset to 0</button>
             <button onClick={() => handleValueChange(100)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To 100</button>
             <button onClick={() => handleValueChange(-50)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To -50</button>
-            <button onClick={() => handleValueChange(9999)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To 9999</button>
-            <button onClick={() => handleValueChange(Math.floor(Math.random() * 10000))} className="px-4 py-2 text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded col-span-2">Random</button>
-            <button onClick={() => handleValueChange(value + 1)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">+ 1</button>
-            <button onClick={() => handleValueChange(value - 1)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">- 1</button>
+            <button onClick={() => handleValueChange(99999999)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To 99,999,999</button>
+            <button onClick={() => handleValueChange(Math.floor(Math.random() * 200000000) - 100000000)} className="px-4 py-2 text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded col-span-2">Random (+/- 100M)</button>
+            <button onClick={() => handleValueChange(Math.floor(value * 10))} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">* 10</button>
+            <button onClick={() => handleValueChange(Math.floor(value / 10))} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">/ 10</button>
         </div>
       </div>
 
@@ -55,6 +72,19 @@ export default function ReactNumberRollDemoPage() {
              <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">react-number-roll</span>
         </div>
         
+        {/* Options */}
+        <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer">
+                <input 
+                    type="checkbox" 
+                    checked={withTextSelect} 
+                    onChange={(e) => setWithTextSelect(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                withTextSelect
+            </label>
+        </div>
+
         {/* Direct value input */}
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-muted-foreground">Value</label>

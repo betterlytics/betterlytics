@@ -3,7 +3,7 @@
 import { createContext, useContext, useReducer, useLayoutEffect, useRef, useMemo } from 'react';
 
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
-export type Digit = typeof DIGITS[number];
+export type Digit = (typeof DIGITS)[number];
 
 export type DigitPhase = 'idle' | 'animating' | 'entering' | 'exiting';
 
@@ -26,7 +26,7 @@ type NumberRollActionBase<T extends NumberRollActionType> = {
 };
 
 type NumberRollAction =
-  | NumberRollActionBase<'changed'> & { fromDigit: Digit; toDigit: Digit }
+  | (NumberRollActionBase<'changed'> & { fromDigit: Digit; toDigit: Digit })
   | NumberRollActionBase<'completed'>
   | NumberRollActionBase<'exited'>
   | NumberRollActionBase<'entered'>
@@ -60,10 +60,7 @@ export function useAnimatedState(): NumberRollStateValue {
   return ctx;
 }
 
-function numberRollReducer(
-  state: NumberRollState,
-  action: NumberRollAction
-): NumberRollState {
+function numberRollReducer(state: NumberRollState, action: NumberRollAction): NumberRollState {
   const updateDigits = (id: string, transform: (d: DigitState) => DigitState) => ({
     digits: state.digits.map((d) => (d.id === id ? transform(d) : d)),
   });
@@ -99,7 +96,9 @@ function numberRollReducer(
 }
 
 function parseDigits(value: number): Digit[] {
-  return String(Math.abs(Math.floor(value))).split('').map(Number) as Digit[];
+  return String(Math.abs(Math.floor(value)))
+    .split('')
+    .map(Number) as Digit[];
 }
 
 function createInitialDigits(value: number): DigitState[] {
@@ -117,10 +116,7 @@ type NumberRollProviderProps = {
   children: React.ReactNode;
 };
 
-function diffDigits(
-  prev: DigitState[],
-  nextValues: Digit[]
-): DigitState[] {
+function diffDigits(prev: DigitState[], nextValues: Digit[]): DigitState[] {
   const result: DigitState[] = [];
 
   const prevLen = prev.length;
@@ -159,7 +155,14 @@ function diffDigits(
         fromDigit: prevDigit.digit,
       });
     } else {
-      result.unshift(prevDigit);
+      if (prevDigit.phase === 'exiting') {
+        result.unshift({
+          ...prevDigit,
+          phase: 'entering',
+        });
+      } else {
+        result.unshift(prevDigit);
+      }
     }
   }
 
@@ -183,15 +186,12 @@ export function NumberRollProvider({ value, duration, children }: NumberRollProv
     prevValueRef.current = value;
   }, [value, state.digits]);
 
-
   const configValue = useMemo(() => ({ dispatch, duration }), [dispatch, duration]);
   const stateValue = useMemo(() => ({ state }), [state]);
 
   return (
     <NumberRollConfigContext.Provider value={configValue}>
-      <NumberRollStateContext.Provider value={stateValue}>
-        {children}
-      </NumberRollStateContext.Provider>
+      <NumberRollStateContext.Provider value={stateValue}>{children}</NumberRollStateContext.Provider>
     </NumberRollConfigContext.Provider>
   );
 }
