@@ -13,7 +13,7 @@ import { EventRange } from '@/lib/billing/plans';
 import { Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { AnimatedNumber } from '@/components/animations';
+import { NumberRoll } from '@/components/animations';
 
 interface PricingCardsProps {
   eventRange: EventRange;
@@ -207,7 +207,7 @@ export function PricingCards({
               {plan.price_cents > 0 ? (
                 <span className='text-4xl font-bold inline-flex items-center'>
                   {currency === 'EUR' ? '€' : '$'}
-                  <AnimatedNumber value={Math.round(plan.price_cents / 100)} />
+                  <NumberRoll value={Math.round(plan.price_cents / 100)} />
                 </span>
               ) : (
                 <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
@@ -232,3 +232,4 @@ export function PricingCards({
     </div>
   );
 }
+

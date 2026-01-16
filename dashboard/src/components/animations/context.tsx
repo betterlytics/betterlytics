@@ -14,93 +14,78 @@ export type DigitState = {
   fromDigit: Digit | null;
 };
 
-export type AnimatedNumberState = {
+export type NumberRollState = {
   digits: DigitState[];
 };
 
-type AnimatedNumberActionType = 'changed' | 'completed' | 'exited' | 'entered' | 'sync';
+type NumberRollActionType = 'changed' | 'completed' | 'exited' | 'entered' | 'sync';
 
-type AnimatedNumberActionBase<T extends AnimatedNumberActionType> = {
+type NumberRollActionBase<T extends NumberRollActionType> = {
   type: T;
   id: string;
 };
 
-type AnimatedNumberAction =
-  | AnimatedNumberActionBase<'changed'> & { fromDigit: Digit; toDigit: Digit }
-  | AnimatedNumberActionBase<'completed'>
-  | AnimatedNumberActionBase<'exited'>
-  | AnimatedNumberActionBase<'entered'>
+type NumberRollAction =
+  | NumberRollActionBase<'changed'> & { fromDigit: Digit; toDigit: Digit }
+  | NumberRollActionBase<'completed'>
+  | NumberRollActionBase<'exited'>
+  | NumberRollActionBase<'entered'>
   | { type: 'sync'; digits: DigitState[] };
 
-type AnimatedNumberConfigValue = {
-  dispatch: React.Dispatch<AnimatedNumberAction>;
+type NumberRollConfigValue = {
+  dispatch: React.Dispatch<NumberRollAction>;
   duration: number;
 };
 
-type AnimatedNumberStateValue = {
-  state: AnimatedNumberState;
+type NumberRollStateValue = {
+  state: NumberRollState;
 };
 
-export const AnimatedNumberConfigContext = createContext<AnimatedNumberConfigValue | null>(null);
-export const AnimatedNumberStateContext = createContext<AnimatedNumberStateValue | null>(null);
+export const NumberRollConfigContext = createContext<NumberRollConfigValue | null>(null);
+export const NumberRollStateContext = createContext<NumberRollStateValue | null>(null);
 
-export function useAnimatedConfig(): AnimatedNumberConfigValue {
-  const ctx = useContext(AnimatedNumberConfigContext);
+export function useAnimatedConfig(): NumberRollConfigValue {
+  const ctx = useContext(NumberRollConfigContext);
   if (!ctx) {
-    throw new Error('useAnimatedConfig must be used within AnimatedNumberProvider');
+    throw new Error('useAnimatedConfig must be used within NumberRollProvider');
   }
   return ctx;
 }
 
-export function useAnimatedState(): AnimatedNumberStateValue {
-  const ctx = useContext(AnimatedNumberStateContext);
+export function useAnimatedState(): NumberRollStateValue {
+  const ctx = useContext(NumberRollStateContext);
   if (!ctx) {
-    throw new Error('useAnimatedState must be used within AnimatedNumberProvider');
+    throw new Error('useAnimatedState must be used within NumberRollProvider');
   }
   return ctx;
 }
 
-function animatedNumberReducer(
-  state: AnimatedNumberState,
-  action: AnimatedNumberAction
-): AnimatedNumberState {
+function numberRollReducer(
+  state: NumberRollState,
+  action: NumberRollAction
+): NumberRollState {
+  const updateDigits = (id: string, transform: (d: DigitState) => DigitState) => ({
+    digits: state.digits.map((d) => (d.id === id ? transform(d) : d)),
+  });
+
   switch (action.type) {
     case 'changed':
-      return {
-        digits: state.digits.map(d =>
-          d.id === action.id
-            ? { 
-                ...d, 
-                digit: action.toDigit, 
-                // If it's already entering, keep it entering so we don't abort the fly-in
-                phase: d.phase === 'entering' ? 'entering' : 'animating', 
-                fromDigit: action.fromDigit 
-              }
-            : d
-        ),
-      };
+      return updateDigits(action.id, (d) => ({
+        ...d,
+        digit: action.toDigit,
+        phase: d.phase === 'entering' ? 'entering' : 'animating',
+        fromDigit: action.fromDigit,
+      }));
 
     case 'completed':
-      return {
-        digits: state.digits.map(d =>
-          d.id === action.id
-            ? { ...d, phase: 'idle' as const, fromDigit: null }
-            : d
-        ),
-      };
+      return updateDigits(action.id, (d) => ({ ...d, phase: 'idle', fromDigit: null }));
+
+    case 'entered':
+      return updateDigits(action.id, (d) => ({ ...d, phase: 'idle' }));
 
     case 'exited':
       return {
-        digits: state.digits.filter(d => d.id !== action.id),
-      };
-
-    case 'entered':
-      return {
-        digits: state.digits.map(d =>
-          d.id === action.id
-            ? { ...d, phase: 'idle' as const }
-            : d
-        ),
+        digits: state.digits.filter((d) => d.id !== action.id),
       };
 
     case 'sync':
@@ -113,138 +98,100 @@ function animatedNumberReducer(
   }
 }
 
-function createInitialDigits(value: number): DigitState[] {
-  return String(Math.abs(Math.floor(value)))
-    .split('')
-    .map(Number)
-    .map(digit => ({
-      id: crypto.randomUUID(),
-      digit: digit as Digit,
-      phase: 'idle' as const,
-      fromDigit: null,
-    }));
+function parseDigits(value: number): Digit[] {
+  return String(Math.abs(Math.floor(value))).split('').map(Number) as Digit[];
 }
 
-type AnimatedNumberProviderProps = {
+function createInitialDigits(value: number): DigitState[] {
+  return parseDigits(value).map((digit) => ({
+    id: crypto.randomUUID(),
+    digit,
+    phase: 'idle' as const,
+    fromDigit: null,
+  }));
+}
+
+type NumberRollProviderProps = {
   value: number;
   duration: number;
   children: React.ReactNode;
 };
 
+function diffDigits(
+  prev: DigitState[],
+  nextValues: Digit[]
+): DigitState[] {
+  const result: DigitState[] = [];
+
+  const prevLen = prev.length;
+  const nextLen = nextValues.length;
+  const max = Math.max(prevLen, nextLen);
+
+  for (let i = 0; i < max; i++) {
+    const prevDigit = prev[prevLen - 1 - i];
+    const nextValue = nextValues[nextLen - 1 - i];
+
+    if (!prevDigit && nextValue !== undefined) {
+      result.unshift({
+        id: crypto.randomUUID(),
+        digit: nextValue,
+        phase: 'entering',
+        fromDigit: 0,
+      });
+      continue;
+    }
+
+    if (prevDigit && nextValue === undefined) {
+      result.unshift({
+        ...prevDigit,
+        phase: 'exiting',
+      });
+      continue;
+    }
+
+    if (!prevDigit || nextValue === undefined) continue;
+
+    if (prevDigit.digit !== nextValue) {
+      result.unshift({
+        ...prevDigit,
+        digit: nextValue,
+        phase: 'animating',
+        fromDigit: prevDigit.digit,
+      });
+    } else {
+      result.unshift(prevDigit);
+    }
+  }
+
+  return result;
+}
+
 /**
  * Provider that manages digit state and animations.
  */
-export function AnimatedNumberProvider({ value, duration, children }: AnimatedNumberProviderProps) {
-  const [state, dispatch] = useReducer(
-    animatedNumberReducer,
-    value,
-    (initialValue) => ({ digits: createInitialDigits(initialValue) })
-  );
+export function NumberRollProvider({ value, duration, children }: NumberRollProviderProps) {
+  const [state, dispatch] = useReducer(numberRollReducer, value, (initialValue) => ({
+    digits: createInitialDigits(initialValue),
+  }));
 
   const prevValueRef = useRef(value);
 
-  // Handle value changes - useLayoutEffect ensures state change happens before paint
   useLayoutEffect(() => {
-    if (value !== prevValueRef.current) {
-      const newDigitValues = String(Math.abs(Math.floor(value)))
-        .split('')
-        .map(Number) as Digit[];
+    if (value === prevValueRef.current) return;
 
-      // Filter out any already-exiting digits for accurate count
-      const activeDigits = state.digits.filter(d => d.phase !== 'exiting');
-      const prevDigitCount = activeDigits.length;
-      const newDigitCount = newDigitValues.length;
-
-      if (newDigitCount !== prevDigitCount) {
-        // Digit count changed - map from RIGHT (least significant)
-        const newDigits: DigitState[] = [];
-        const isExpanding = newDigitCount > prevDigitCount;
-        const isShrinking = newDigitCount < prevDigitCount;
-        
-        if (isExpanding) {
-          // EXPANDING: Add new digits on the left
-          for (let i = 0; i < newDigitCount; i++) {
-            const digit = newDigitValues[i];
-            const oldIndex = i - (newDigitCount - prevDigitCount);
-            const existing = oldIndex >= 0 ? activeDigits[oldIndex] : null;
-            
-            if (existing) {
-              if (existing.digit !== digit) {
-                newDigits.push({ ...existing, digit, phase: 'animating', fromDigit: existing.digit });
-              } else {
-                newDigits.push(existing);
-              }
-            } else {
-              // New entering digit - roll from 0 to target
-              newDigits.push({
-                id: crypto.randomUUID(),
-                digit,
-                phase: 'entering',
-                fromDigit: 0 as Digit,
-              });
-            }
-          }
-        } else if (isShrinking) {
-          // SHRINKING: Mark leftmost digits as exiting, update remaining
-          const exitCount = prevDigitCount - newDigitCount;
-          
-          // First, add exiting digits (they roll to 0 while width shrinks)
-          for (let i = 0; i < exitCount; i++) {
-            newDigits.push({
-              ...activeDigits[i],
-              phase: 'exiting',
-            });
-          }
-          
-          // Then, add/update remaining digits
-          for (let i = 0; i < newDigitCount; i++) {
-            const digit = newDigitValues[i];
-            const oldIndex = i + exitCount;
-            const existing = activeDigits[oldIndex];
-            
-            if (existing) {
-              if (existing.digit !== digit) {
-                newDigits.push({ ...existing, digit, phase: 'animating', fromDigit: existing.digit });
-              } else {
-                newDigits.push(existing);
-              }
-            }
-          }
-        }
-        
-        const currentlyExiting = state.digits.filter(d => d.phase === 'exiting');
-        const distinctNewDigits = newDigits.filter(
-          (newD) => !currentlyExiting.some((exD) => exD.id === newD.id)
-        );
-        
-        dispatch({ type: 'sync', digits: [...currentlyExiting, ...distinctNewDigits] });
-      } else {
-        // Same digit count - dispatch changes for each changed digit
-        newDigitValues.forEach((newDigit, index) => {
-          const prevState = activeDigits[index];
-          if (prevState && prevState.digit !== newDigit) {
-            dispatch({
-              type: 'changed',
-              id: prevState.id,
-              fromDigit: prevState.digit,
-              toDigit: newDigit,
-            });
-          }
-        });
-      }
-
-      prevValueRef.current = value;
-    }
+    dispatch({ type: 'sync', digits: diffDigits(state.digits, parseDigits(value)) });
+    prevValueRef.current = value;
   }, [value, state.digits]);
+
 
   const configValue = useMemo(() => ({ dispatch, duration }), [dispatch, duration]);
   const stateValue = useMemo(() => ({ state }), [state]);
 
   return (
-    <AnimatedNumberConfigContext.Provider value={configValue}>
-      <AnimatedNumberStateContext.Provider value={stateValue}>
+    <NumberRollConfigContext.Provider value={configValue}>
+      <NumberRollStateContext.Provider value={stateValue}>
         {children}
-      </AnimatedNumberStateContext.Provider>
-    </AnimatedNumberConfigContext.Provider>
+      </NumberRollStateContext.Provider>
+    </NumberRollConfigContext.Provider>
   );
 }

@@ -2,7 +2,7 @@
 
 import { Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AnimatedNumber } from '@/components/animations/AnimatedNumber';
+import { NumberRoll } from '@/components/animations/NumberRoll';
 import { useCountdown } from '@/hooks/use-countdown';
 import { cn } from '@/lib/utils';
 import React from 'react';
@@ -58,7 +58,7 @@ function CountdownButton({
         pendingLabel ?? children
       ) : hasCountdown && !canConfirm ? (
         <>
-          {children} (<AnimatedNumber value={countdown} />)
+          {children} (<NumberRoll value={countdown} />)
         </>
       ) : (
         children

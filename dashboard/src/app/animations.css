@@ -1,5 +1,5 @@
-/* Root class for AnimatedNumber container - defines shared variables */
-.animated-number-root {
+/* Root class for NumberRoll container - defines shared variables */
+.number-roll-root {
   --digit-width: 0.65em;
   --mask-width: 2em;
   --mask-bleed: 0.4em;
@@ -10,7 +10,7 @@
   --spring-easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.animated-number-sizer {
+.number-roll-sizer {
   display: inline-flex;
   justify-content: flex-end;
   /* Width is calculated using the variable injected via style attribute for active digits */
@@ -19,7 +19,6 @@
   transition: width calc(var(--duration, 800ms) / 4) var(--layout-easing);
 }
 
-/* Digit roll animation for AnimatedNumber */
 @keyframes digitRoll {
   from {
     transform: translateY(var(--roll-from, 0%));

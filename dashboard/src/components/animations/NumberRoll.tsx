@@ -2,13 +2,13 @@
 
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { NumberRollProvider, useAnimatedConfig, useAnimatedState } from './context';
 import { DigitReel } from './DigitReel';
-import { AnimatedNumberProvider, useAnimatedState, useAnimatedConfig } from './context';
 import { SignSlot } from './SignSlot';
 
 const ZWSP = '\u200B';
 
-type AnimatedNumberProps = {
+type NumberRollProps = {
   value: number;
   duration?: number;
   /** Enable text selection overlay */
@@ -17,30 +17,28 @@ type AnimatedNumberProps = {
 };
 
 /**
- * AnimatedNumber - Smooth rolling digit animation with negative number support.
+ * NumberRoll - Smooth rolling digit animation with negative number support.
  */
-function AnimatedNumberComponent({ value, duration = 800, withTextSelect = false, className }: AnimatedNumberProps) {
+function NumberRollComponent({ value, duration = 800, withTextSelect = false, className }: NumberRollProps) {
   return (
-    <AnimatedNumberProvider value={value} duration={duration}>
+    <NumberRollProvider value={value} duration={duration}>
       <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', className)}>
-        <AnimatedNumberInner value={value} withTextSelect={withTextSelect} />
+        <NumberRollInner value={value} withTextSelect={withTextSelect} />
       </span>
-    </AnimatedNumberProvider>
+    </NumberRollProvider>
   );
 }
 
 /**
  * Inner component that consumes context and renders sign + digits.
  */
-function AnimatedNumberInner({ value, withTextSelect }: { value: number; withTextSelect: boolean }) {
+function NumberRollInner({ value, withTextSelect }: { value: number; withTextSelect: boolean }) {
   const { state } = useAnimatedState();
   const { duration } = useAnimatedConfig();
-  
-  const activeDigitCount = state.digits.filter(d => d.phase !== 'exiting').length;
 
   return (
     <span 
-      className={cn('animated-number-root inline-flex isolate relative ltr contain-layout')}
+      className={cn('number-roll-root inline-flex isolate relative ltr contain-layout')}
       style={{ '--duration': `${duration}ms` } as React.CSSProperties}
     >
       {withTextSelect && (
@@ -54,14 +52,12 @@ function AnimatedNumberInner({ value, withTextSelect }: { value: number; withTex
         </span>
       )}
 
-      {/* Sign slot - self-contained, handles its own animation */}
       <SignSlot isNegative={value < 0} />
 
-      {/* Mask area for fade-in/out effects */}
       <span aria-hidden="true" className="number-mask">
         <span
-          className="animated-number-sizer"
-          style={{ '--active-digits': activeDigitCount } as React.CSSProperties}
+          className="number-roll-sizer"
+          style={{ '--active-digits': state.digits.filter(d => d.phase !== 'exiting').length } as React.CSSProperties}
         >
           <span className="inline-flex justify-inherit relative">
             {ZWSP}
@@ -75,5 +71,5 @@ function AnimatedNumberInner({ value, withTextSelect }: { value: number; withTex
   );
 }
 
-export const AnimatedNumber = React.memo(AnimatedNumberComponent);
-AnimatedNumber.displayName = 'AnimatedNumber';
+export const NumberRoll = React.memo(NumberRollComponent);
+NumberRoll.displayName = 'NumberRoll';

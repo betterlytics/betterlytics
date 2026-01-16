@@ -1,77 +1,59 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { DIGITS, useAnimatedConfig, type DigitState } from './context';
 
 type DigitReelProps = {
   digitState: DigitState;
 };
 
-/**
- * Hook to handle all animation/transition logic and node styles.
- */
-function useDigitVisuals(
-  digitState: DigitState,
-  dispatch: React.Dispatch<any>
-) {
-  const { id, digit, phase } = digitState;
-
-  const handleAnimationEnd = useCallback((e: React.AnimationEvent) => {
-    if (e.target !== e.currentTarget) return; // Ignore bubbles
-
-    if (e.animationName.includes('digit-exit')) {
-      dispatch({ type: 'exited', id });
-    } else if (e.animationName.includes('digit-enter')) {
-      dispatch({ type: 'completed', id });
-    }
-  }, [dispatch, id]);
-
-  const handleTransitionEnd = useCallback((e: React.TransitionEvent) => {
-     if (e.target !== e.currentTarget) return;
-     if (phase === 'animating' && e.propertyName === 'transform') {
-       dispatch({ type: 'completed', id });
-     }
-  }, [dispatch, phase, id]);
-
-  const reelStyle = useMemo(() => ({
-    '--target-offset': `${-digit * 10}%`,
-  } as React.CSSProperties), [digit]);
-
-  return {
-    reelStyle,
-    handleAnimationEnd,
-    handleTransitionEnd
-  };
-}
-
 function DigitReelComponent({ digitState }: DigitReelProps) {
   const { dispatch } = useAnimatedConfig();
-  const { reelStyle, handleAnimationEnd, handleTransitionEnd } = useDigitVisuals(digitState, dispatch);
+
+  const handleAnimationEnd = useCallback(
+    (e: React.AnimationEvent) => {
+      if (e.target !== e.currentTarget) return; // Ignore bubbles
+
+      if (e.animationName.includes('digit-exit')) {
+        dispatch({ type: 'exited', id: digitState.id });
+      } else if (e.animationName.includes('digit-enter')) {
+        dispatch({ type: 'completed', id: digitState.id });
+      }
+    },
+    [dispatch, digitState.id],
+  );
+
+  const handleTransitionEnd = useCallback(
+    (e: React.TransitionEvent) => {
+      if (e.target !== e.currentTarget) return;
+      if (digitState.phase === 'animating' && e.propertyName === 'transform') {
+        dispatch({ type: 'completed', id: digitState.id });
+      }
+    },
+    [dispatch, digitState.phase, digitState.id],
+  );
 
   return (
     <span
       className={cn(
-        'digit-reel-wrapper inline-flex justify-center items-start select-none',
-        'motion-reduce:[--reduced-duration:0ms]'
+        'digit-reel-wrapper inline-flex items-start justify-center select-none',
+        'motion-reduce:[--reduced-duration:0ms]',
       )}
       data-phase={digitState.phase}
       onAnimationEnd={handleAnimationEnd}
       onTransitionEnd={handleTransitionEnd}
     >
-      <span
-        className={cn('inline-flex justify-center items-start digit-reel-mask')}
-      >
+      <span className={cn('digit-reel-mask inline-flex items-start justify-center')}>
         <span
-          className={cn(
-            'digit-reel-inner inline-flex flex-col justify-center items-center',
-            `w-[var(--digit-width)]`
-          )}
-          style={reelStyle}
+          className={cn('digit-reel-inner inline-flex flex-col items-center justify-center', `w-[--digit-width]`)}
+          style={{ '--target-offset': `${-digitState.digit * 10}%` } as React.CSSProperties}
           data-phase={digitState.phase}
         >
           {DIGITS.map((d) => (
-            <span key={d} className="digit-reel-digit">{d}</span>
+            <span key={d} className='digit-reel-digit'>
+              {d}
+            </span>
           ))}
         </span>
       </span>

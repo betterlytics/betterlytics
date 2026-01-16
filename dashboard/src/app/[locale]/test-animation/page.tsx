@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AnimatedNumber } from '@/components/animations/AnimatedNumber';
+import { NumberRoll } from '@/components/animations';
 
 export default function TestAnimationPage() {
   const [value, setValue] = useState(5);
@@ -50,7 +50,7 @@ export default function TestAnimationPage() {
           </div>
 
           <div className={className} style={styleObject}>
-            <AnimatedNumber value={value} duration={duration} />
+            <NumberRoll value={value} duration={duration} />
           </div>
 
           {/* ×10 / ÷10 controls */}

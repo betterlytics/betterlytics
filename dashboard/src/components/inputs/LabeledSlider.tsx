@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
-import { AnimatedNumber } from '@/components/animations';
+import { NumberRoll } from '@/components/animations';
 
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -80,7 +80,7 @@ export function LabeledSlider({
         <Badge variant='secondary' className='ring-border mb-1 text-xs font-medium ring-1'>
           {valueParts ? (
             <div className='flex items-center gap-1'>
-              <AnimatedNumber value={valueParts.value} />
+              <NumberRoll value={valueParts.value} />
               {valueParts.unit}
             </div>
           ) : (
