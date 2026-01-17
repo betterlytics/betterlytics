@@ -43,7 +43,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
     key: 'observability',
     features: [
-      { key: 'uptimeMonitoring', growth: '5', professional: '50', enterprise: 'unlimited' },
+      { key: 'uptimeMonitoring', growth: '1', professional: '50', enterprise: 'unlimited' },
       { key: 'checkInterval', growth: '5min', professional: '1min', enterprise: '1min' },
       { key: 'sslMonitoring', growth: true, professional: true, enterprise: true },
       { key: 'customHttpMethods', growth: false, professional: true, enterprise: true },
