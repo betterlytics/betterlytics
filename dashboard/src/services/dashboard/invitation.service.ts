@@ -90,7 +90,7 @@ export async function cancelInvitation(invitationId: string, userId: string, das
     throw new Error('User does not have access to this dashboard');
   }
 
-  if (!hasPermission(userAccess.role, 'canCancelInvitation')) {
+  if (!hasPermission(userAccess.role, 'canInviteMembers')) {
     throw new Error('User does not have permission to cancel invitations');
   }
 

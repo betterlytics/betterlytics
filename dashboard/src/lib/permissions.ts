@@ -4,7 +4,6 @@ export const ROLE_HIERARCHY: readonly DashboardRole[] = ['owner', 'admin', 'edit
 
 export const ROLE_PERMISSIONS = {
   canInviteMembers: ['owner', 'admin'],
-  canCancelInvitation: ['owner', 'admin'],
   canChangeMemberRole: ['owner', 'admin'],
   canRemoveMembers: ['owner', 'admin'],
   canDeleteDashboard: ['owner'],

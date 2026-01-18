@@ -64,7 +64,7 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
     <SettingsSection title={t('data.blacklistedIps.title')} description={t('data.blacklistedIps.description')}>
       <div className='space-y-4'>
         <div className='flex gap-2'>
-          <PermissionGate wrapperClassName='w-full'>
+          <PermissionGate permission='canManageSettings' wrapperClassName='w-full'>
             {(disabled) => (
               <Input
                 id='blacklisted-ip-input'
@@ -85,7 +85,7 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
               />
             )}
           </PermissionGate>
-          <PermissionGate>
+          <PermissionGate permission='canManageSettings'>
             {(disabled) => (
               <Button
                 type='button'
@@ -118,7 +118,7 @@ export default function BlacklistSetting({ initialSiteConfig }: BlacklistSetting
                     className='border-border bg-background/20 hover:bg-accent/10 flex items-center justify-between rounded-md border px-3 py-2.5 transition-colors'
                   >
                     <span className='font-mono text-sm'>{ip}</span>
-                    <PermissionGate>
+                    <PermissionGate permission='canManageSettings'>
                       {(disabled) => (
                         <Button
                           type='button'

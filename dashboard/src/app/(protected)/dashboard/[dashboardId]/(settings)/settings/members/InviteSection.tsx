@@ -67,7 +67,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
         <div className='flex-1 space-y-1.5'>
           <label className='text-muted-foreground text-sm'>{t('section.emailLabel')}</label>
-          <PermissionGate>
+          <PermissionGate permission='canInviteMembers'>
             {(disabled) => (
               <Input
                 type='email'
@@ -83,7 +83,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
         </div>
         <div className='w-full space-y-1.5 sm:w-36'>
           <label className='text-muted-foreground text-sm'>{t('section.roleLabel')}</label>
-          <PermissionGate>
+          <PermissionGate permission='canInviteMembers'>
             {(disabled) => (
               <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)} disabled={disabled}>
                 <SelectTrigger className='w-full cursor-pointer'>
@@ -104,7 +104,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
             )}
           </PermissionGate>
         </div>
-        <PermissionGate>
+        <PermissionGate permission='canInviteMembers'>
           {(disabled) => (
             <Button
               onClick={handleInvite}
@@ -150,7 +150,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                       <div className='hidden sm:block'>
                         <RoleBadge role={invitation.role} />
                       </div>
-                      <PermissionGate>
+                      <PermissionGate permission='canInviteMembers'>
                         {(disabled) => (
                           <Button
                             variant='ghost'

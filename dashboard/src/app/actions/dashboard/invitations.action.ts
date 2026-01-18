@@ -35,7 +35,7 @@ export const cancelInvitationAction = withDashboardMutationAuthContext(
     await cancelInvitation(invitationId, ctx.userId, ctx.dashboardId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
   },
-  { permission: 'canCancelInvitation' },
+  { permission: 'canInviteMembers' },
 );
 
 export const getUserPendingInvitationsAction = withUserAuth(

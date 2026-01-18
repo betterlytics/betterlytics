@@ -53,7 +53,7 @@ export default function RenameDashboardSetting({ initialDashboard }: RenameDashb
       <div className='space-y-3'>
         <div className='flex flex-col gap-4 sm:flex-row sm:items-center'>
           <div className='flex-1'>
-            <PermissionGate>
+            <PermissionGate permission='canManageSettings'>
               {(disabled) => (
                 <PrefixInput
                   id='domain'
@@ -68,7 +68,7 @@ export default function RenameDashboardSetting({ initialDashboard }: RenameDashb
               )}
             </PermissionGate>
           </div>
-          <PermissionGate>
+          <PermissionGate permission='canManageSettings'>
             {(disabled) => (
               <Button
                 onClick={handleSave}
