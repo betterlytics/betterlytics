@@ -25,6 +25,7 @@ import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type SortField = 'name' | 'email' | 'role' | 'createdAt';
 type SortDirection = 'asc' | 'desc';
@@ -195,57 +196,66 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                     {member.role !== 'owner' &&
                       member.userId !== currentUserId &&
                       getRoleLevel(currentUserRole) < getRoleLevel(member.role) && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              className='size-8 cursor-pointer'
-                              disabled={isPending}
-                            >
-                              <MoreHorizontal className='size-4' />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end'>
-                            <DropdownMenuSub>
-                              <DropdownMenuSubTrigger className='cursor-pointer'>
-                                {t('actions.changeRole')}
-                              </DropdownMenuSubTrigger>
-                              <DropdownMenuSubContent>
-                                {ASSIGNABLE_ROLES.map((role) => {
-                                  const isCurrentRole = member.role === role;
-                                  if (isCurrentRole) {
-                                    return (
-                                      <DropdownMenuLabel
-                                        key={role}
-                                        className='text-muted-foreground flex items-center justify-between font-normal'
-                                      >
-                                        {t(`roles.${role}`)}
-                                        <Check className='ml-2 size-4' />
-                                      </DropdownMenuLabel>
-                                    );
-                                  }
-                                  return (
-                                    <DropdownMenuItem
-                                      key={role}
-                                      onClick={() => handleChangeRole(member.userId, role)}
-                                      className='cursor-pointer'
+                        <PermissionGate permission='canChangeMemberRole' hideWhenDisabled>
+                          {(disabledRole) => (
+                            <PermissionGate permission='canRemoveMembers' hideWhenDisabled>
+                              {(disabledRemove) => (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant='ghost'
+                                      size='icon'
+                                      className='size-8 cursor-pointer'
+                                      disabled={isPending || (disabledRole && disabledRemove)}
                                     >
-                                      {t(`roles.${role}`)}
+                                      <MoreHorizontal className='size-4' />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align='end'>
+                                    <DropdownMenuSub>
+                                      <DropdownMenuSubTrigger className='cursor-pointer' disabled={disabledRole}>
+                                        {t('actions.changeRole')}
+                                      </DropdownMenuSubTrigger>
+                                      <DropdownMenuSubContent>
+                                        {ASSIGNABLE_ROLES.map((role) => {
+                                          const isCurrentRole = member.role === role;
+                                          if (isCurrentRole) {
+                                            return (
+                                              <DropdownMenuLabel
+                                                key={role}
+                                                className='text-muted-foreground flex items-center justify-between font-normal'
+                                              >
+                                                {t(`roles.${role}`)}
+                                                <Check className='ml-2 size-4' />
+                                              </DropdownMenuLabel>
+                                            );
+                                          }
+                                          return (
+                                            <DropdownMenuItem
+                                              key={role}
+                                              onClick={() => handleChangeRole(member.userId, role)}
+                                              className='cursor-pointer'
+                                            >
+                                              {t(`roles.${role}`)}
+                                            </DropdownMenuItem>
+                                          );
+                                        })}
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuSub>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className='text-destructive focus:text-destructive cursor-pointer'
+                                      onClick={() => handleRemoveMember(member.userId)}
+                                      disabled={disabledRemove}
+                                    >
+                                      {t('actions.removeFromDashboard')}
                                     </DropdownMenuItem>
-                                  );
-                                })}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuSub>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className='text-destructive focus:text-destructive cursor-pointer'
-                              onClick={() => handleRemoveMember(member.userId)}
-                            >
-                              {t('actions.removeFromDashboard')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
+                            </PermissionGate>
+                          )}
+                        </PermissionGate>
                       )}
                   </TableCell>
                 </TableRow>

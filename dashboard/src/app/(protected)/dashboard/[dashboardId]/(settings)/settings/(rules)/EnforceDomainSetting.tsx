@@ -42,7 +42,7 @@ export default function EnforceDomainSetting({ initialSiteConfig }: EnforceDomai
           <span className='text-sm font-medium'>{t('data.siteRules.enableValidation')}</span>
           <p className='text-muted-foreground text-xs'>{t('data.siteRules.enableValidationDescription')}</p>
         </div>
-        <PermissionGate>
+        <PermissionGate permission='canManageSettings'>
           {(disabled) => (
             <Switch
               id='enforce-domain'
