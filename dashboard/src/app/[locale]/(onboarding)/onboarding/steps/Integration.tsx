@@ -3,9 +3,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Code, Clipboard, Check } from 'lucide-react';
+import { Clipboard, Check, Code } from 'lucide-react';
 import { CodeBlock } from '@/components/integration/CodeBlock';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
@@ -19,6 +18,9 @@ import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
 import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { FrameworkGrid, FrameworkId } from '@/components/integration/FrameworkGrid';
+import { getFrameworkCode } from '@/components/integration/frameworkCodes';
+import { cn } from '@/lib/utils';
 
 import './Integration.css';
 import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
@@ -32,6 +34,7 @@ export default function Integration() {
 
   const t = useTranslations('onboarding.integration');
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
@@ -60,13 +63,14 @@ export default function Integration() {
   const handleFinishOnboarding = useCallback(async () => {
     baEvent('onboarding-integration', {
       kind: 'completed',
+      framework: selectedFramework,
     });
     try {
       await setOnboardingCompletedAction();
       await refreshSession();
     } catch {}
     baRouter.push(`/dashboard/${dashboard.id}`);
-  }, [dashboard, baRouter, refreshSession]);
+  }, [dashboard, baRouter, refreshSession, selectedFramework]);
 
   const handleSkipForNow = useCallback(async () => {
     baEvent('onboarding-integration', {
@@ -112,70 +116,12 @@ export default function Integration() {
     );
   }
 
-  const trackingScript = `<script async
-    src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-    data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}>
-  </script>`;
-
-  const htmlExample = `<!DOCTYPE html>
-<html>
-<head>
-  <title>Your Website</title>
-  ${trackingScript}
-</head>
-<body>
-  <!-- Your website content -->
-</body>
-</html>`;
-
-  const nextJsExample = `import Script from 'next/script'
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <head>
-        <Script
-          async
-          src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}
-        />
-      </head>
-      <body>{children}</body>
-    </html>
-  )
-}`;
-
-  const nodeExample = `import betterlytics from "@betterlytics/tracker";
-
-betterlytics.init("${dashboard.siteId}");
-`;
-
-  const reactExample = `import React, { useEffect } from 'react';
-
-function App() {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${dashboard.siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/event");` : ''}
-    document.head.appendChild(script);
-
-    return () => {
-      // Optional: Remove script when component unmounts
-      // document.head.removeChild(script);
-    };
-  }, []);
-
-  return (
-    // Your App content
-  );
-}
-
-export default App;`;
+  const frameworkCode = getFrameworkCode(selectedFramework, {
+    siteId: dashboard.siteId,
+    analyticsUrl: PUBLIC_ANALYTICS_BASE_URL,
+    serverUrl: PUBLIC_TRACKING_SERVER_ENDPOINT,
+    isCloud: IS_CLOUD,
+  });
 
   return (
     <Card className='p-3 py-4 pb-5 shadow-sm sm:p-6'>
@@ -243,87 +189,74 @@ export default App;`;
             View docs
           </ExternalLink>
         </CardTitle>
-        <CardDescription className='text-sm'>{t('instructions.description')}</CardDescription>
+        <CardDescription className='text-sm'>
+          Select your framework to see installation instructions
+        </CardDescription>
       </CardHeader>
-      <CardContent className='p-0'>
-        <Tabs defaultValue='html' className='w-full gap-4'>
-          <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='html' className='cursor-pointer'>
-              {t('instructions.htmlTab')}
-            </TabsTrigger>
-            <TabsTrigger value='nextjs' className='cursor-pointer'>
-              {t('instructions.nextjsTab')}
-            </TabsTrigger>
-            <TabsTrigger value='react' className='cursor-pointer'>
-              {t('instructions.reactTab')}
-            </TabsTrigger>
-            <TabsTrigger value='npm' className='cursor-pointer'>
-              {t('instructions.npmTab')}
-            </TabsTrigger>
-          </TabsList>
 
-          <TabsContent value='html'>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>
-                  {t('instructions.htmlDescription', { head: '<head>' })}
-                </span>
-              </div>
-              <CodeBlock code={htmlExample} language='html' />
-            </div>
-          </TabsContent>
+      <CardContent className='space-y-4 p-0'>
+        {/* Framework Selection Grid */}
+        <FrameworkGrid selectedFramework={selectedFramework} onSelectFramework={setSelectedFramework} />
 
-          <TabsContent value='nextjs'>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.nextjsDescription')}</span>
-              </div>
-              <CodeBlock code={nextJsExample} language='javascript' />
-            </div>
-          </TabsContent>
+        {/* Framework-specific Installation Instructions */}
+        <motion.div
+          key={selectedFramework}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className='space-y-0'>
+            {frameworkCode.steps.map((step, index) => {
+              const isLast = index === frameworkCode.steps.length - 1 && !frameworkCode.note;
+              return (
+                <div key={index} className='relative flex gap-4'>
+                  {/* Circle and Line */}
+                  <div className='flex flex-col items-center'>
+                    <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
+                      {index + 1}
+                    </div>
+                    {!isLast && <div className='bg-border mt-2 w-px flex-1' />}
+                  </div>
 
-          <TabsContent value='react'>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.reactDescription')}</span>
-              </div>
-              <CodeBlock code={reactExample} language='javascript' />
-            </div>
-          </TabsContent>
-
-          <TabsContent value='npm'>
-            <div className='space-y-4'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.npmDescription')}</span>
-              </div>
-
-              <div className='space-y-2'>
-                <div className='flex items-center justify-between'>
-                  <p className='text-muted-foreground text-sm'>{t('instructions.npmInstallFirst')}</p>
-                  <ExternalLink
-                    href='https://www.npmjs.com/package/@betterlytics/tracker'
-                    className='text-primary hover:text-primary/80 text-sm font-medium underline'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    View on npm
-                  </ExternalLink>
+                  {/* Content */}
+                  <div className={cn('flex-1', !isLast ? 'pb-6' : 'pb-0')}>
+                    <h4 className='text-foreground mb-1 text-sm font-medium'>{step.title}</h4>
+                    {step.description && (
+                      <p
+                        className='text-muted-foreground mb-3 text-sm'
+                        dangerouslySetInnerHTML={{
+                          __html: step.description
+                            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
+                            .replace(
+                              /`(.*?)`/g,
+                              '<code class="bg-muted px-1 py-0.5 rounded text-xs font-mono">$1</code>',
+                            ),
+                        }}
+                      />
+                    )}
+                    {step.code && <CodeBlock code={step.code} language={step.language || 'html'} />}
+                  </div>
                 </div>
-                <CodeBlock code='npm install @betterlytics/tracker' language='html' />
-              </div>
+              );
+            })}
 
-              <div className='space-y-2'>
-                <p className='text-muted-foreground text-sm'>{t('instructions.npmThenInitialize')}</p>
-                <CodeBlock code={nodeExample} language='javascript' />
+            {/* Note at the end */}
+            {frameworkCode.note && (
+              <div className='relative flex gap-4'>
+                <div className='flex flex-col items-center'>
+                  <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-sm'>
+                    ⚠️
+                  </div>
+                </div>
+                <div className='flex-1'>
+                  <p className='text-muted-foreground text-sm leading-relaxed'>{frameworkCode.note}</p>
+                </div>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+            )}
+          </div>
+        </motion.div>
       </CardContent>
+
       <CardFooter className='gap-4 p-0'>
         <div className='relative flex w-full justify-end'>
           <AnimatePresence mode='wait'>

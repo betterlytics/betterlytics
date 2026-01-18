@@ -1,6 +1,6 @@
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
-import { OnboardingFooter } from '@/components/footer/OnboardingFooter';
+import { MinimalFooter } from '@/components/footer/MinimalFooter';
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
@@ -17,7 +17,7 @@ export default async function OnboardingLayout({ children }: { children: React.R
           <div className='flex min-h-svh w-full flex-col items-center'>
             <div className='container mx-auto flex w-full max-w-4xl flex-1 flex-col px-4'>
               <div className='mb-6 flex flex-1 flex-col'>{children}</div>
-              <OnboardingFooter />
+              <MinimalFooter />
             </div>
           </div>
         </PublicEnvironmentVariablesProvider>
