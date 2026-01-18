@@ -248,6 +248,8 @@ export async function getCampaignVisitorTrendData(
   granularity: GranularityRangeValues,
   timezone: string,
   campaignNames: string[],
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<CampaignTrendRow[]> {
   if (campaignNames.length === 0) {
     return [];
@@ -258,6 +260,8 @@ export async function getCampaignVisitorTrendData(
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
 
   const campaignFilter = safeSql`AND utm_campaign IN (${SQL.SEPARATOR(

@@ -91,12 +91,16 @@ export async function getDailyOutboundClicks(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<DailyOutboundClicksRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(

@@ -27,6 +27,7 @@ export type TimeRangeContextProps = {
   resolvedMainRange: TimeRangeResult['main'];
   resolvedCompareRange?: TimeRangeResult['compare'];
   resolvedGranularity: TimeRangeResult['granularity'];
+  bucketFill: TimeRangeResult['bucketFill'];
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -116,6 +117,7 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
         resolvedMainRange: resolvedRanges.main,
         resolvedCompareRange: resolvedRanges.compare,
         resolvedGranularity: resolvedRanges.granularity,
+        bucketFill: resolvedRanges.bucketFill,
       }}
     >
       {children}

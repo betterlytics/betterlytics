@@ -38,32 +38,3 @@ export function maskPrimaryAfterIndex(chart: ChartPoint[], firstIncompleteIndex:
     index >= firstIncompleteIndex ? { ...point, value: [null, ...point.value.slice(1)] } : point,
   );
 }
-
-export function getIncompleteSplit(
-  chart: ChartPoint[],
-  granularity: GranularityRangeValues,
-  nowTimestamp: number,
-  bucketIncomplete?: boolean,
-): {
-  firstIncompleteIndex: number;
-  shouldSplit: boolean;
-  solid: ChartPoint[];
-  incomplete: ChartPoint[] | undefined;
-} {
-  const firstIncompleteIndex = findFirstIncompleteIndexForChart(chart, granularity, nowTimestamp);
-  const hasIncompleteTail = firstIncompleteIndex !== -1;
-  const incompleteCount = hasIncompleteTail ? chart.length - firstIncompleteIndex : 0;
-  let incompleteSeriesLength = 0;
-  if (hasIncompleteTail) {
-    incompleteSeriesLength = incompleteCount;
-    if (firstIncompleteIndex > 0) {
-      incompleteSeriesLength += 1;
-    }
-  }
-  const shouldSplit = !!bucketIncomplete && hasIncompleteTail && incompleteSeriesLength >= 2;
-  if (!shouldSplit) {
-    return { firstIncompleteIndex, shouldSplit, solid: chart, incomplete: undefined };
-  }
-  const { solid, incomplete } = splitSeriesForIncomplete(chart, firstIncompleteIndex);
-  return { firstIncompleteIndex, shouldSplit, solid, incomplete };
-}

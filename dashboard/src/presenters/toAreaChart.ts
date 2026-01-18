@@ -20,7 +20,11 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
     start?: Date;
     end?: Date;
   };
-  bucketIncomplete?: boolean;
+  // NEW: Bucket fill range for incomplete detection
+  bucketFillRange?: {
+    start: Date;
+    end: Date;
+  };
 };
 
 function dataToAreaChart<K extends string>({ dataKey, data }: Pick<DataToAreaChartProps<K>, 'dataKey' | 'data'>) {
@@ -42,28 +46,72 @@ function dataToAreaChart<K extends string>({ dataKey, data }: Pick<DataToAreaCha
 type AreaChartResult = {
   data: Array<{ date: number; value: Array<number | null> }>;
   comparisonMap?: ComparisonMapping[];
-  incomplete?: Array<{ date: number; value: Array<number | null> }>;
+  incompleteStart?: Array<{ date: number; value: Array<number | null> }>;
+  incompleteEnd?: Array<{ date: number; value: Array<number | null> }>;
 };
+
+/**
+ * Detects incomplete buckets at start and end of the chart.
+ * - Start is incomplete if bucketFillRange.start < dateRange.start
+ * - End is incomplete if dateRange.end > now OR if bucketFillRange end > dateRange.end
+ */
+function detectIncompleteBuckets(
+  dateRange: { start: Date; end: Date },
+  bucketFillRange?: { start: Date; end: Date },
+): { isStartIncomplete: boolean; isEndIncomplete: boolean } {
+  if (!bucketFillRange) {
+    return { isStartIncomplete: false, isEndIncomplete: false };
+  }
+
+  const now = Date.now();
+
+  // Start is incomplete if fill range starts before actual data range
+  const isStartIncomplete = bucketFillRange.start.getTime() < dateRange.start.getTime();
+
+  // End is incomplete if:
+  // 1. Date range ends in the future (still collecting data), OR
+  // 2. Date range end is NOT aligned to bucket boundary
+  //    (bucketFillRange.end > dateRange.end means we're mid-bucket)
+  const isEndIncomplete = dateRange.end.getTime() > now || bucketFillRange.end.getTime() > dateRange.end.getTime();
+
+  return { isStartIncomplete, isEndIncomplete };
+}
 
 export function toAreaChart<K extends string>({
   dataKey,
   data,
   compare,
   compareDateRange,
-  bucketIncomplete,
+  dateRange,
+  bucketFillRange,
 }: ToAreaChartProps<K>): AreaChartResult {
   const chart = dataToAreaChart({ dataKey, data });
 
-  const now = Date.now();
-  const {
-    firstIncompleteIndex,
-    shouldSplit,
-    solid: solidCurrent,
-    incomplete: currentIncomplete,
-  } = getIncompleteSplit(chart, now, bucketIncomplete);
+  if (chart.length === 0) {
+    return { data: chart };
+  }
+
+  const { isStartIncomplete, isEndIncomplete } = detectIncompleteBuckets(dateRange, bucketFillRange);
+
+  // Split incomplete start (first bucket)
+  let incompleteStart: ChartPoint[] | undefined;
+  if (isStartIncomplete && chart.length >= 2) {
+    incompleteStart = chart.slice(0, 2);
+  }
+
+  // Split incomplete end (last bucket)
+  let incompleteEnd: ChartPoint[] | undefined;
+  if (isEndIncomplete && chart.length >= 2) {
+    const startIndex = Math.max(0, chart.length - 2);
+    incompleteEnd = chart.slice(startIndex);
+  }
 
   if (!compare) {
-    return { data: solidCurrent, incomplete: currentIncomplete };
+    return {
+      data: chart,
+      incompleteStart,
+      incompleteEnd,
+    };
   }
 
   if (!compareDateRange?.start || !compareDateRange?.end) {
@@ -73,7 +121,7 @@ export function toAreaChart<K extends string>({
   const compareChart = dataToAreaChart({ dataKey, data: compare });
 
   if (chart.length !== compareChart.length) {
-    return { data: solidCurrent, incomplete: currentIncomplete };
+    return { data: chart, incompleteStart, incompleteEnd };
   }
 
   const chartData = chart.map((point, index) => ({
@@ -83,16 +131,50 @@ export function toAreaChart<K extends string>({
 
   const comparisonMap = createComparisonMap(chartData, compareChart, dataKey);
 
-  const dataSeries = shouldSplit ? maskPrimaryAfterIndex(chartData, firstIncompleteIndex) : chartData;
+  // For comparison charts, update incomplete series to include comparison values
+  let incompleteStartWithCompare: ChartPoint[] | undefined;
+  if (incompleteStart && compareChart.length >= 2) {
+    incompleteStartWithCompare = incompleteStart.map((point, i) => ({
+      date: point.date,
+      value: [...point.value, ...compareChart[i].value],
+    }));
+  }
 
-  const incomplete = currentIncomplete
-    ? currentIncomplete.map((point, i) => ({
-        date: point.date,
-        value: [...point.value, ...compareChart[firstIncompleteIndex - 1 + i].value],
-      }))
-    : undefined;
+  let incompleteEndWithCompare: ChartPoint[] | undefined;
+  if (incompleteEnd && compareChart.length >= 2) {
+    const compareStartIndex = Math.max(0, compareChart.length - 2);
+    incompleteEndWithCompare = incompleteEnd.map((point, i) => ({
+      date: point.date,
+      value: [...point.value, ...compareChart[compareStartIndex + i].value],
+    }));
+  }
 
-  return { data: dataSeries, comparisonMap, incomplete };
+  // Mask the primary series values where they overlap with incomplete regions
+  const maskedData = maskIncompleteRegions(chartData, isStartIncomplete, isEndIncomplete);
+
+  return {
+    data: maskedData,
+    comparisonMap,
+    incompleteStart: incompleteStartWithCompare,
+    incompleteEnd: incompleteEndWithCompare,
+  };
+}
+
+function maskIncompleteRegions(
+  chart: ChartPoint[],
+  isStartIncomplete: boolean,
+  isEndIncomplete: boolean,
+): ChartPoint[] {
+  return chart.map((point, index) => {
+    const isFirst = index === 0;
+    const isLast = index === chart.length - 1;
+
+    // Mask primary value (index 0) for incomplete buckets
+    if ((isFirst && isStartIncomplete) || (isLast && isEndIncomplete)) {
+      return { ...point, value: [null, ...point.value.slice(1)] };
+    }
+    return point;
+  });
 }
 
 function createComparisonMap(
@@ -109,69 +191,6 @@ function createComparisonMap(
       compareValues: { [dataKey]: comparePoint.value[0] },
     };
   });
-}
-
-function findFirstIncompleteIndexForChart(
-  chart: ChartPoint[],
-  nowTimestamp: number,
-  bucketIncomplete?: boolean,
-): number {
-  for (let i = 0; i < chart.length; i++) {
-    const bucketStart = chart[i].date;
-    if (bucketStart > nowTimestamp) return i - 1;
-  }
-  if (bucketIncomplete) {
-    return chart.length - 1;
-  }
-  return -1;
-}
-
-function splitSeriesForIncomplete(
-  chart: ChartPoint[],
-  firstIncompleteIndex: number,
-): { solid: ChartPoint[]; incomplete: ChartPoint[] | undefined } {
-  if (firstIncompleteIndex === -1) return { solid: chart, incomplete: undefined };
-  const startIndex = firstIncompleteIndex > 0 ? firstIncompleteIndex - 1 : 0;
-  return {
-    solid: chart.slice(0, firstIncompleteIndex),
-    incomplete: chart.slice(startIndex, firstIncompleteIndex + 1),
-  };
-}
-
-function maskPrimaryAfterIndex(chart: ChartPoint[], firstIncompleteIndex: number): ChartPoint[] {
-  if (firstIncompleteIndex === -1) return chart;
-  return chart.map((point, index) =>
-    index >= firstIncompleteIndex ? { ...point, value: [null, ...point.value.slice(1)] } : point,
-  );
-}
-
-function getIncompleteSplit(
-  chart: ChartPoint[],
-  nowTimestamp: number,
-  bucketIncomplete?: boolean,
-): {
-  firstIncompleteIndex: number;
-  shouldSplit: boolean;
-  solid: ChartPoint[];
-  incomplete: ChartPoint[] | undefined;
-} {
-  const firstIncompleteIndex = findFirstIncompleteIndexForChart(chart, nowTimestamp, bucketIncomplete);
-  const hasIncompleteTail = firstIncompleteIndex !== -1;
-  const incompleteCount = hasIncompleteTail ? chart.length - firstIncompleteIndex : 0;
-  let incompleteSeriesLength = 0;
-  if (hasIncompleteTail) {
-    incompleteSeriesLength = incompleteCount;
-    if (firstIncompleteIndex > 0) {
-      incompleteSeriesLength += 1;
-    }
-  }
-  const shouldSplit =
-    !!bucketIncomplete && hasIncompleteTail && incompleteSeriesLength >= 2 && firstIncompleteIndex > 0;
-  if (!shouldSplit) {
-    return { firstIncompleteIndex, shouldSplit, solid: chart, incomplete: undefined };
-  }
-  const { solid, incomplete } = splitSeriesForIncomplete(chart, firstIncompleteIndex);
-  return { firstIncompleteIndex, shouldSplit, solid, incomplete };
 }
 
 export function toSparklineSeries<K extends string>({

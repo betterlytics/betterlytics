@@ -72,12 +72,16 @@ export async function getReferrerTrafficTrendBySource(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<ReferrerTrafficBySourceRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
@@ -312,12 +316,16 @@ export async function getDailyReferralSessions(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<DailyReferralSessionsRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
@@ -361,12 +369,16 @@ export async function getDailyReferralTrafficPercentage(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<DailyReferralPercentageRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
@@ -418,12 +430,16 @@ export async function getDailyReferralSessionDuration(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<DailyReferralSessionDurationRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(

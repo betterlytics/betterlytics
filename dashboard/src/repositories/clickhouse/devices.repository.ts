@@ -173,6 +173,8 @@ export async function getDeviceUsageTrend(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<DeviceUsageTrendRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
@@ -180,6 +182,8 @@ export async function getDeviceUsageTrend(
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
 
   const query = timeWrapper(

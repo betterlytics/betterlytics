@@ -58,7 +58,8 @@ interface ChartDataPoint {
 
 interface InteractiveChartProps {
   data: ChartDataPoint[];
-  incomplete?: ChartDataPoint[];
+  incompleteStart?: ChartDataPoint[];
+  incompleteEnd?: ChartDataPoint[];
   color: string;
   formatValue?: (value: number) => string;
   granularity?: GranularityRangeValues;
@@ -78,7 +79,8 @@ interface InteractiveChartProps {
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   ({
     data,
-    incomplete,
+    incompleteStart,
+    incompleteEnd,
     color,
     formatValue,
     granularity,
@@ -338,20 +340,41 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   fillOpacity={1}
                   fill={'url(#gradient-value)'}
                 />
-                {incomplete && incomplete.length >= 2 ? (
+                {incompleteStart && incompleteStart.length >= 2 ? (
                   <Area
                     type='linear'
-                    data={incomplete}
+                    data={incompleteStart}
                     dataKey={'value.0'}
                     stroke='none'
                     fillOpacity={1}
                     fill={'url(#gradient-incomplete)'}
                   />
                 ) : null}
-                {incomplete && incomplete.length >= 2 ? (
+                {incompleteStart && incompleteStart.length >= 2 ? (
                   <Line
                     type='linear'
-                    data={incomplete}
+                    data={incompleteStart}
+                    dataKey={'value.0'}
+                    stroke={color}
+                    strokeWidth={2}
+                    strokeDasharray='4 4'
+                    dot={false}
+                  />
+                ) : null}
+                {incompleteEnd && incompleteEnd.length >= 2 ? (
+                  <Area
+                    type='linear'
+                    data={incompleteEnd}
+                    dataKey={'value.0'}
+                    stroke='none'
+                    fillOpacity={1}
+                    fill={'url(#gradient-incomplete)'}
+                  />
+                ) : null}
+                {incompleteEnd && incompleteEnd.length >= 2 ? (
+                  <Line
+                    type='linear'
+                    data={incompleteEnd}
                     dataKey={'value.0'}
                     stroke={color}
                     strokeWidth={2}

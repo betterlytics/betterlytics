@@ -21,8 +21,8 @@ const ENCODE_ORDER: Array<keyof FilterQueryParams> = [
   'userJourney',
 ];
 
-function getDefaultFilters(): FilterQueryParams {
-  const granularity = 'hour';
+function getDefaultFilters() {
+  const granularity = 'hour' as const;
 
   const now = new Date();
   const range = getResolvedRanges('24h', 'previous', 'Etc/UTC', now, now, 'hour', undefined, undefined, 0, false);
@@ -32,8 +32,8 @@ function getDefaultFilters(): FilterQueryParams {
     startDate: range.main.start,
     endDate: range.main.end,
     granularity,
-    interval: '24h',
-    compare: 'previous',
+    interval: '24h' as const,
+    compare: 'previous' as const,
     compareAlignWeekdays: false,
     userJourney: {
       numberOfSteps: 3,
@@ -42,6 +42,7 @@ function getDefaultFilters(): FilterQueryParams {
     compareStartDate: range.compare?.start,
     compareEndDate: range.compare?.end,
     offset: 0,
+    bucketFill: range.bucketFill,
   };
 }
 
@@ -193,6 +194,7 @@ function enforceGranularityAndDuration(
     startDate: ranges.main.start,
     endDate: ranges.main.end,
     granularity: ranges.granularity,
+    bucketFill: ranges.bucketFill,
   } as const;
 }
 
@@ -235,7 +237,10 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
     return getDefaultFilters();
   }
 
-  return result.data;
+  return {
+    ...result.data,
+    bucketFill: enforced.bucketFill,
+  };
 }
 
 export const BAFilterSearchParams = {

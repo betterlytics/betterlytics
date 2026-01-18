@@ -97,6 +97,9 @@ function getTimestampRange(
   timezone: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  // Optional fill boundaries for aligned bucket filling (defaults to query dates)
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ) {
   const start = SQL.DateTime({ startDate });
   const end = SQL.DateTime({ endDate });
@@ -107,9 +110,13 @@ function getTimestampRange(
   // the BETWEEN keyword seems to be inclusive of the end timestamp
   const range = safeSql`timestamp BETWEEN ${start} AND ${end}`;
 
-  // Create the fill
-  const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
-  const intervalTo = safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
+  // Use fill dates if provided, otherwise use query dates
+  const fillStart = fillStartDate ? SQL.DateTime({ fillStartDate }) : start;
+  const fillEnd = fillEndDate ? SQL.DateTime({ fillEndDate }) : end;
+
+  // Create the fill using aligned bucket boundaries
+  const intervalFrom = safeSql`toStartOfInterval(${fillStart}, ${interval}, ${SQL.String({ timezone })})`;
+  const intervalTo = safeSql`toStartOfInterval(addSeconds(${fillEnd}, 1), ${interval}, ${SQL.String({ timezone })})`;
 
   const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 

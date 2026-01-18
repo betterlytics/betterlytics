@@ -32,12 +32,16 @@ export async function getTotalPageViews(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateString,
+  fillEndDate?: DateString,
 ): Promise<TotalPageViewsRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -75,12 +79,16 @@ export async function getPageViews(
   endDate: DateString,
   granularity: GranularityRangeValues,
   timezone: string,
+  fillStartDate?: DateString,
+  fillEndDate?: DateString,
 ): Promise<DailyPageViewRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
 
   const query = timeWrapper(
@@ -309,12 +317,16 @@ export async function getPageTrafficTimeSeries(
   endDate: DateTimeString,
   granularity: GranularityRangeValues,
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<TotalPageViewsRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
 
   const query = timeWrapper(
@@ -670,12 +682,16 @@ export async function getDailyAverageTimeOnPage(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateString,
+  fillEndDate?: DateString,
 ): Promise<DailyAverageTimeRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -736,12 +752,16 @@ export async function getDailyBounceRate(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateString,
+  fillEndDate?: DateString,
 ): Promise<DailyBounceRateRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 

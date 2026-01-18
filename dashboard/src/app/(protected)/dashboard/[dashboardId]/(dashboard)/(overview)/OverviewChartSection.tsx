@@ -77,46 +77,52 @@ export default function OverviewChartSection({
     [t],
   );
 
-  const { chartData, comparisonMap, incomplete } = useMemo(() => {
+  const { chartData, comparisonMap, incompleteStart, incompleteEnd } = useMemo(() => {
     switch (activeMetric) {
       case 'visitors':
         return {
           chartData: visitorsData.data,
           comparisonMap: visitorsData.comparisonMap,
-          incomplete: visitorsData.incomplete,
+          incompleteStart: visitorsData.incompleteStart,
+          incompleteEnd: visitorsData.incompleteEnd,
         };
       case 'sessions':
         return {
           chartData: sessionMetricsData.sessions.data,
           comparisonMap: sessionMetricsData.sessions.comparisonMap,
-          incomplete: sessionMetricsData.sessions.incomplete,
+          incompleteStart: sessionMetricsData.sessions.incompleteStart,
+          incompleteEnd: sessionMetricsData.sessions.incompleteEnd,
         };
       case 'pageviews':
         return {
           chartData: pageviewsData.data,
           comparisonMap: pageviewsData.comparisonMap,
-          incomplete: pageviewsData.incomplete,
+          incompleteStart: pageviewsData.incompleteStart,
+          incompleteEnd: pageviewsData.incompleteEnd,
         };
       case 'pagesPerSession':
         return {
           chartData: sessionMetricsData.pagesPerSession.data,
           comparisonMap: sessionMetricsData.pagesPerSession.comparisonMap,
-          incomplete: sessionMetricsData.pagesPerSession.incomplete,
+          incompleteStart: sessionMetricsData.pagesPerSession.incompleteStart,
+          incompleteEnd: sessionMetricsData.pagesPerSession.incompleteEnd,
         };
       case 'bounceRate':
         return {
           chartData: sessionMetricsData.bounceRate.data,
           comparisonMap: sessionMetricsData.bounceRate.comparisonMap,
-          incomplete: sessionMetricsData.bounceRate.incomplete,
+          incompleteStart: sessionMetricsData.bounceRate.incompleteStart,
+          incompleteEnd: sessionMetricsData.bounceRate.incompleteEnd,
         };
       case 'avgDuration':
         return {
           chartData: sessionMetricsData.avgVisitDuration.data,
           comparisonMap: sessionMetricsData.avgVisitDuration.comparisonMap,
-          incomplete: sessionMetricsData.avgVisitDuration.incomplete,
+          incompleteStart: sessionMetricsData.avgVisitDuration.incompleteStart,
+          incompleteEnd: sessionMetricsData.avgVisitDuration.incompleteEnd,
         };
       default:
-        return { chartData: [], comparisonMap: undefined, incomplete: undefined };
+        return { chartData: [], comparisonMap: undefined, incompleteStart: undefined, incompleteEnd: undefined };
     }
   }, [activeMetric, visitorsData, pageviewsData, sessionMetricsData]);
 
@@ -130,7 +136,8 @@ export default function OverviewChartSection({
   return (
     <InteractiveChart
       data={chartData}
-      incomplete={incomplete}
+      incompleteStart={incompleteStart}
+      incompleteEnd={incompleteEnd}
       color={currentMetricConfig.color}
       formatValue={currentMetricConfig.formatValue}
       granularity={granularity}

@@ -34,7 +34,7 @@ type DashboardPageParams = {
 export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
+  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate, bucketFill } =
     BAFilterSearchParams.decode(await searchParams, timezone);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
@@ -81,6 +81,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       timezone,
       compareStartDate,
       compareEndDate,
+      bucketFill,
     ),
     fetchTotalPageViewsAction(
       dashboardId,
@@ -91,6 +92,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       timezone,
       compareStartDate,
       compareEndDate,
+      bucketFill,
     ),
     fetchSessionMetricsAction(
       dashboardId,
@@ -101,6 +103,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       timezone,
       compareStartDate,
       compareEndDate,
+      bucketFill,
     ),
   ]);
 

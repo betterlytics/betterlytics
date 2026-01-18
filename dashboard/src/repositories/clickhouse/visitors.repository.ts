@@ -19,12 +19,16 @@ export async function getUniqueVisitors(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateString,
+  fillEndDate?: DateString,
 ): Promise<DailyUniqueVisitorsRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -99,12 +103,16 @@ export async function getSessionMetrics(
   granularity: GranularityRangeValues,
   queryFilters: QueryFilter[],
   timezone: string,
+  fillStartDate?: DateString,
+  fillEndDate?: DateString,
 ): Promise<DailySessionMetricsRow[]> {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 

@@ -175,6 +175,70 @@ function countBucketsBetween(range: TimeRange, granularity: GranularityRangeValu
   return countUnitsBetween(range, granularity) / step;
 }
 
+type BucketFillBoundaries = {
+  main: { start: moment.Moment; end: moment.Moment };
+  compare?: { start: moment.Moment; end: moment.Moment };
+};
+
+/**
+ * Computes aligned bucket fill boundaries for WITH FILL in ClickHouse queries.
+ * Uses "align by shape" strategy: both main and compare should have the same
+ * incompleteness pattern (partial start/end buckets).
+ */
+function getBucketFillBoundaries(
+  mainRange: TimeRange,
+  compareRange: TimeRange | undefined,
+  granularity: GranularityRangeValues,
+): BucketFillBoundaries {
+  // Get natural bucket boundaries for main range
+  const mainFillStart = floorToGranularity(mainRange.start.clone(), granularity);
+  const mainFillEnd = ceilToGranularity(mainRange.end.clone(), granularity);
+
+  // Detect main's incompleteness pattern
+  // Start is incomplete if range starts after bucket boundary
+  const mainStartIncomplete = mainRange.start.isAfter(mainFillStart);
+  // End is incomplete if range ends before bucket boundary
+  // Check if end + 1ms would still be in the same bucket (not aligned to boundary)
+  const mainEndIncomplete = !mainRange.end.clone().add(1, 'ms').isSame(mainFillEnd);
+
+  if (!compareRange) {
+    return { main: { start: mainFillStart, end: mainFillEnd } };
+  }
+
+  // Get natural bucket boundaries for compare range
+  const compareFillStart = floorToGranularity(compareRange.start.clone(), granularity);
+  const compareFillEnd = ceilToGranularity(compareRange.end.clone(), granularity);
+
+  // Detect compare's incompleteness pattern
+  const compareStartIncomplete = compareRange.start.isAfter(compareFillStart);
+  const compareEndIncomplete = !compareRange.end.clone().add(1, 'ms').isSame(compareFillEnd);
+
+  // Align by shape: ensure both have same incompleteness pattern
+  const finalMainFillStart = mainFillStart.clone();
+  const finalMainFillEnd = mainFillEnd.clone();
+  const finalCompareFillStart = compareFillStart.clone();
+  const finalCompareFillEnd = compareFillEnd.clone();
+
+  // Start alignment: pad whichever is "complete" to match the "incomplete" one
+  if (mainStartIncomplete && !compareStartIncomplete) {
+    finalCompareFillStart.subtract(granularityStep(granularity), granularityUnit(granularity));
+  } else if (!mainStartIncomplete && compareStartIncomplete) {
+    finalMainFillStart.subtract(granularityStep(granularity), granularityUnit(granularity));
+  }
+
+  // End alignment: pad whichever is "complete" to match the "incomplete" one
+  if (mainEndIncomplete && !compareEndIncomplete) {
+    finalCompareFillEnd.add(granularityStep(granularity), granularityUnit(granularity));
+  } else if (!mainEndIncomplete && compareEndIncomplete) {
+    finalMainFillEnd.add(granularityStep(granularity), granularityUnit(granularity));
+  }
+
+  return {
+    main: { start: finalMainFillStart, end: finalMainFillEnd },
+    compare: { start: finalCompareFillStart, end: finalCompareFillEnd },
+  };
+}
+
 function toRangeStart(endDate: moment.Moment, timeRange: Exclude<TimeRangeValue, 'custom'>) {
   switch (timeRange) {
     case 'realtime':
@@ -313,6 +377,10 @@ export interface TimeRangeResult {
     end: Date;
   };
   granularity: GranularityRangeValues;
+  bucketFill: {
+    main: { start: Date; end: Date };
+    compare?: { start: Date; end: Date };
+  };
 }
 
 export function getResolvedRanges(
@@ -350,6 +418,9 @@ export function getResolvedRanges(
       customCompareRange,
     );
 
+    // Compute bucket fill boundaries for shape alignment
+    const bucketFill = getBucketFillBoundaries(mainRange, compareRange, targetGranularity);
+
     return {
       // use start/end for Date conversion
       mainRange,
@@ -365,6 +436,18 @@ export function getResolvedRanges(
               end: compareRange.end.clone().subtract(1, 'second').toDate(),
             }
           : undefined,
+        bucketFill: {
+          main: {
+            start: bucketFill.main.start.toDate(),
+            end: bucketFill.main.end.clone().subtract(1, 'second').toDate(),
+          },
+          compare: bucketFill.compare
+            ? {
+                start: bucketFill.compare.start.toDate(),
+                end: bucketFill.compare.end.clone().subtract(1, 'second').toDate(),
+              }
+            : undefined,
+        },
       },
     } as const;
   };

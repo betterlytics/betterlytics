@@ -77,6 +77,8 @@ export async function getAllCoreWebVitalPercentilesSeries(
   granularity: GranularityRangeValues,
   queryFilters: any[],
   timezone: string,
+  fillStartDate?: DateTimeString,
+  fillEndDate?: DateTimeString,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
@@ -84,6 +86,8 @@ export async function getAllCoreWebVitalPercentilesSeries(
     timezone,
     startDate,
     endDate,
+    fillStartDate,
+    fillEndDate,
   );
 
   const query = timeWrapper(
