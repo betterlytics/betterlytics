@@ -1,9 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { DigitReel } from './DigitReel';
-import { SignSlot } from './SignSlot';
+import { SymbolSlot } from './SymbolSlot';
+import { Token, TokenPhase, diffTokens, createInitialTokens } from './tokens';
 
 export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 export type Digit = (typeof DIGITS)[number];
@@ -21,94 +22,92 @@ const ZWSP = '\u200B';
 
 type NumberRollProps = {
   value: number;
+  locales?: Intl.LocalesArgument;
+  formatOptions?: Intl.NumberFormatOptions;
   duration?: number;
   withTextSelect?: boolean;
   className?: string;
 };
 
-function parseDigits(value: number): Digit[] {
-  return String(Math.abs(Math.floor(value)))
-    .split('')
-    .map(Number) as Digit[];
-}
+type State = {
+  tokens: Token[];
+  parts: Intl.NumberFormatPart[];
+};
 
-function createInitialDigits(value: number): DigitState[] {
-  return parseDigits(value).map((digit) => ({
-    id: crypto.randomUUID(),
-    digit,
-    phase: 'idle' as const,
-    fromDigit: null,
-  }));
-}
-
-function diffDigits(prev: DigitState[], nextValues: Digit[]): DigitState[] {
-  const result: DigitState[] = [];
-  for (let i = 0; i < Math.max(prev.length, nextValues.length); i++) {
-    const prevDigit = prev[prev.length - 1 - i];
-    const nextValue = nextValues[nextValues.length - 1 - i];
-
-    if (!prevDigit && nextValue !== undefined) {
-      result.unshift({
-        id: crypto.randomUUID(),
-        digit: nextValue,
-        phase: 'entering',
-        fromDigit: 0,
-      });
-      continue;
-    }
-
-    if (prevDigit && nextValue === undefined) {
-      result.unshift({
-        ...prevDigit,
-        phase: 'exiting',
-      });
-      continue;
-    }
-
-    if (!prevDigit || nextValue === undefined) continue;
-
-    if (prevDigit.digit !== nextValue) {
-      result.unshift({
-        ...prevDigit,
-        digit: nextValue,
-        phase: 'animating',
-        fromDigit: prevDigit.digit,
-      });
-    } else {
-      if (prevDigit.phase === 'exiting') {
-        result.unshift({
-          ...prevDigit,
-          phase: 'entering',
-        });
-      } else {
-        result.unshift(prevDigit);
-      }
-    }
+function NumberRollComponent({
+  value,
+  locales,
+  formatOptions,
+  duration = 800,
+  withTextSelect = false,
+  className,
+}: NumberRollProps) {
+  // Memoize the formatter - only recreate when locales/formatOptions change
+  // Use 'en-US' as default to prevent hydration mismatch
+  const resolvedLocales = locales ?? 'en-US';
+  const formatterRef = useRef<Intl.NumberFormat | null>(null);
+  const prevOptsRef = useRef({ locales: resolvedLocales, formatOptions });
+  
+  if (
+    !formatterRef.current ||
+    resolvedLocales !== prevOptsRef.current.locales ||
+    formatOptions !== prevOptsRef.current.formatOptions
+  ) {
+    formatterRef.current = new Intl.NumberFormat(resolvedLocales, formatOptions);
+    prevOptsRef.current = { locales: resolvedLocales, formatOptions };
   }
-
-  return result;
-}
-
-function NumberRollComponent({ value, duration = 800, withTextSelect = false, className }: NumberRollProps) {
-  const [digits, setDigits] = useState<DigitState[]>(() => createInitialDigits(value));
+  
+  const formatter = formatterRef.current;
+  
+  // Get parts from formatter
+  const rawParts = useMemo(() => formatter.formatToParts(value), [formatter, value]);
+  
+  // State: tokens for rendering + parts for next diff
+  const [state, setState] = useState<State>(() => ({
+    tokens: createInitialTokens(rawParts),
+    parts: rawParts,
+  }));
   const prevValueRef = useRef(value);
+  const prevRawPartsRef = useRef(rawParts);
+  
+  // Diff when value OR parts change (parts change = locale/format change)
+  useLayoutEffect(() => {
+    if (rawParts === prevRawPartsRef.current) return;
+    
+    setState((prev: State) => ({
+      tokens: diffTokens(prev.tokens, prev.parts, rawParts),
+      parts: rawParts,
+    }));
+    
+    prevValueRef.current = value;
+    prevRawPartsRef.current = rawParts;
+  }, [value, rawParts]);
+  
+  // Handle phase completion
+  const handlePhaseComplete = useCallback((id: string, action: 'completed' | 'exited' | 'entered') => {
+    setState((prev: State) => ({
+      ...prev,
+      tokens: action === 'exited'
+        ? prev.tokens.filter((t: Token) => t.id !== id)
+        : prev.tokens.map((t: Token) => t.id === id ? { ...t, phase: 'idle' as TokenPhase, fromValue: undefined } : t),
+    }));
+  }, []);
+  
+  // Formatted string for text selection and ghost measurement
+  const formattedString = useMemo(() => formatter.format(value), [formatter, value]);
+
+  // Ghost measurement for accurate container width
+  const ghostRef = useRef<HTMLSpanElement>(null);
+  const [targetWidth, setTargetWidth] = useState<number | null>(null);
 
   useLayoutEffect(() => {
-    if (value === prevValueRef.current) return;
-    setDigits((prev) => diffDigits(prev, parseDigits(value)));
-    prevValueRef.current = value;
-  }, [value]);
-
-  const handlePhaseComplete = useCallback((id: string, action: 'completed' | 'exited') => {
-    setDigits((prev) =>
-      action === 'exited'
-        ? prev.filter((d) => d.id !== id)
-        : prev.map((d) => (d.id === id ? { ...d, phase: 'idle', fromDigit: null } : d)),
-    );
-  }, []);
-
-  const activeDigitCount = digits.filter((d) => d.phase !== 'exiting').length;
-
+    if (ghostRef.current) {
+      // Use getBoundingClientRect for sub-pixel precision
+      const rect = ghostRef.current.getBoundingClientRect();
+      setTargetWidth(rect.width);
+    }
+  }, [formattedString]);
+  
   return (
     <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', className)}>
       <span
@@ -124,22 +123,58 @@ function NumberRollComponent({ value, duration = 800, withTextSelect = false, cl
             )}
             style={{ letterSpacing: 'calc(var(--digit-width) - 1ch)' } as React.CSSProperties}
           >
-            {Math.floor(value).toString().replace('-', '−')}
+            {formattedString}
           </span>
         )}
 
-        <SignSlot isNegative={value < 0} />
-
         <span aria-hidden="true" className="number-mask">
+          {/* Ghost element for measurement - matches sizer's font/letter-spacing exactly */}
+          <span
+            ref={ghostRef}
+            className="absolute invisible whitespace-nowrap opacity-0 pointer-events-none"
+            style={{ 
+              letterSpacing: 'calc(var(--digit-width) - 1ch)',
+              font: 'inherit',
+              fontFeatureSettings: '"tnum"',
+            } as React.CSSProperties}
+          >
+            {formattedString}
+          </span>
+
           <span
             className="number-roll-sizer"
-            style={{ '--active-digits': activeDigitCount } as React.CSSProperties}
+            style={{
+              '--target-width': targetWidth ? `${targetWidth}px` : 'auto',
+            } as React.CSSProperties}
           >
-            <span className="inline-flex justify-inherit relative">
+            <span className="inline-flex relative">
               {ZWSP}
-              {digits.map((digitState) => (
-                <DigitReel key={digitState.id} digitState={digitState} onPhaseComplete={handlePhaseComplete} />
-              ))}
+            {state.tokens.map((token: Token) => {
+              if (token.type === 'digit') {
+                const digitState: DigitState = {
+                  id: token.id,
+                  digit: parseInt(token.value, 10) as Digit,
+                  phase: token.phase as DigitPhase,
+                  fromDigit: token.fromValue ? parseInt(token.fromValue, 10) as Digit : null,
+                };
+                return (
+                  <DigitReel
+                    key={token.id}
+                    digitState={digitState}
+                    onPhaseComplete={handlePhaseComplete}
+                  />
+                );
+              } else {
+                return (
+                  <SymbolSlot
+                    key={token.id}
+                    value={token.value}
+                    phase={token.phase === 'animating' ? 'idle' : token.phase as 'idle' | 'entering' | 'exiting'}
+                    onPhaseComplete={action => handlePhaseComplete(token.id, action)}
+                  />
+                );
+              }
+            })}
             </span>
           </span>
         </span>

@@ -12,11 +12,12 @@
 
 .number-roll-sizer {
   display: inline-flex;
-  justify-content: flex-end;
-  /* Width is calculated using the variable injected via style attribute for active digits */
-  width: calc(var(--active-digits) * var(--digit-width));
+  justify-content: center;
+  /* Driven by ghost measurement in NumberRoll.tsx */
+  width: var(--target-width, auto);
   will-change: width;
-  transition: width calc(var(--duration, 800ms) * 3 / 4) var(--layout-easing);
+  /* Match the token animation duration for perfect sync */
+  transition: width var(--duration, 800ms) var(--layout-easing);
 }
 
 @keyframes digitRoll {
@@ -160,45 +161,89 @@
   transition: transform var(--reduced-duration, var(--duration)) var(--spring-easing);
 }
 
-/* Sign slot for negative numbers - animates width+opacity only, no roll */
-.sign-slot {
+/* Symbol slot (sign, separator, currency, etc.) - animates width+opacity only, no roll */
+.symbol-slot {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: var(--digit-width);
-  overflow: hidden;
+  width: auto; /* Natural width prevents clipping */
+  overflow: visible; /* Allow wide glyphs to bleed slightly if needed */
+  will-change: opacity;
 }
 
-.sign-slot-inner {
+.symbol-slot-inner {
   display: inline-block;
+  white-space: nowrap;
 }
 
-.sign-slot[data-phase='entering'] {
-  animation:
-    sign-enter var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
-    fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+.symbol-slot[data-phase='entering'] {
+  animation: fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
 
-.sign-slot[data-phase='exiting'] {
-  animation: sign-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards;
+.symbol-slot[data-phase='exiting'] {
+  width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fade-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
 }
 
-@keyframes sign-enter {
+@keyframes symbol-exit {
   from {
-    width: 0;
+    width: var(--measured-width, auto);
   }
   to {
-    width: var(--digit-width);
+    width: 0;
   }
 }
 
-@keyframes sign-exit {
+@keyframes fade-out {
   from {
-    width: var(--digit-width);
     opacity: 1;
   }
   to {
-    width: 0;
+    opacity: 0;
+  }
+}
+
+/* Symbol slot - general purpose animated symbol (currency, separators, etc.) */
+.symbol-slot {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.symbol-slot-inner {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.symbol-slot-hidden {
+  width: 0;
+  overflow: hidden;
+}
+
+.symbol-slot[data-phase='entering'] {
+  /* Only fade in - sizer handles width transition */
+  animation: fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+.symbol-slot[data-phase='exiting'] {
+  /* Take up zero width so the next symbol can occupy the same spot.
+     The sizer transition handles the overall container width smoothly. */
+  width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fade-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
     opacity: 0;
   }
 }
