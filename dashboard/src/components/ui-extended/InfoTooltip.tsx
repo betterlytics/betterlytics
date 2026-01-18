@@ -25,7 +25,7 @@ function InfoTooltipSecondary({ children, className }: InfoTooltipSecondaryProps
   return (
     <>
       <Separator className='bg-popover-foreground/20' />
-      <div className={cn('text-[11px] leading-4', className)}>{children}</div>
+      <div className={className}>{children}</div>
     </>
   );
 }
