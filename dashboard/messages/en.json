@@ -1473,7 +1473,7 @@
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
         "values": {
-          "5": "5 monitors",
+          "1": "1 monitor",
           "50": "50 monitors",
           "unlimited": "Unlimited monitors"
         }
