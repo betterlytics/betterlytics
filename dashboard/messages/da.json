@@ -943,6 +943,9 @@
         "ctaDemo": "Prøv live demo",
         "eyebrow": "Prøv Betterlytics i aktion"
       },
+      "githubStats": {
+        "starsLabel": "stjerner på GitHub"
+      },
       "framework": {
         "title": "Fungerer med dine favoritværktøjer",
         "subtitle": "Universel kompatibilitet – virker med ethvert website, framework eller platform",

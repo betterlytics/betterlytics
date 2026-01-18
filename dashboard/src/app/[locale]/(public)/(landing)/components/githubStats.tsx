@@ -1,7 +1,9 @@
 import { Star } from 'lucide-react';
 import { getGitHubStats } from '@/lib/github';
+import { getTranslations } from 'next-intl/server';
 
 export async function GitHubStats() {
+  const t = await getTranslations('public.landing.githubStats');
   const stars = await getGitHubStats();
 
   if (!stars) {
@@ -19,7 +21,7 @@ export async function GitHubStats() {
         <div className='flex items-center'>
           <Star className='mr-1 h-4 w-4 text-yellow-500' />
           <span className='font-medium'>{stars.toLocaleString()}</span>
-          <span className='ml-1'>stars on GitHub</span>
+          <span className='ml-1'>{t('starsLabel')}</span>
         </div>
       </a>
     </div>
