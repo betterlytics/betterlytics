@@ -3,7 +3,6 @@ import { getFirstUserDashboardAction, isUserInvitedDashboardMemberAction } from 
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
-import { getProviders } from 'next-auth/react';
 import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
@@ -12,6 +11,13 @@ import { getAuthSession } from '@/auth/auth-actions';
 
 export default async function Onboarding() {
   const session = await getAuthSession();
+
+  if (!session) {
+    if (!isFeatureEnabled('enableRegistration')) {
+      redirect('/signin?registration=disabled');
+    }
+    redirect('/signup');
+  }
 
   const getFirstDashboard = async () => {
     if (session?.user?.id && session?.user?.email) {
@@ -37,13 +43,6 @@ export default async function Onboarding() {
   const userInvited = await isUserInvitedMember();
 
   const getStep = () => {
-    if (!session) {
-      if (!isFeatureEnabled('enableRegistration')) {
-        redirect('/signin?registration=disabled');
-      }
-      return 'account';
-    }
-
     if (session.user.onboardingCompletedAt || userInvited) {
       redirect('/dashboards');
     }
@@ -55,8 +54,7 @@ export default async function Onboarding() {
     return 'integration';
   };
 
-  const providers = await getProviders();
-  const initialStep = await getStep();
+  const initialStep = getStep();
 
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.onboarding);
 
@@ -64,7 +62,7 @@ export default async function Onboarding() {
     <>
       <StructuredData config={seoConfig} />
       <OnboardingProvider initialDashboard={dashboard}>
-        <OnboardingPage initialStep={initialStep} providers={providers} />
+        <OnboardingPage initialStep={initialStep} />
       </OnboardingProvider>
     </>
   );
