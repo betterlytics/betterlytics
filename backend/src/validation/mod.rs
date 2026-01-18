@@ -17,7 +17,7 @@ pub struct ValidationConfig {
     pub max_site_id_length: usize,
     pub max_user_agent_length: usize,
     pub max_timestamp_drift_seconds: i64,
-    pub skip_timestamp_validation: bool,
+    pub enforce_timestamp_validation: bool,
 }
 
 impl Default for ValidationConfig {
@@ -29,7 +29,7 @@ impl Default for ValidationConfig {
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
             max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
-            skip_timestamp_validation: false,         // Skip timestamp validation for seeding scripts
+            enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
     }
 }
@@ -187,7 +187,7 @@ impl EventValidator {
         }
 
         // Validate timestamp is reasonable (config allows for some clock drift to account for packet latency)
-        if !self.config.skip_timestamp_validation {
+        if self.config.enforce_timestamp_validation {
             if let Some(event_time) = DateTime::from_timestamp(raw_event.timestamp as i64, 0) {
                 let now = Utc::now();
                 let drift = (event_time - now).num_seconds().abs();
