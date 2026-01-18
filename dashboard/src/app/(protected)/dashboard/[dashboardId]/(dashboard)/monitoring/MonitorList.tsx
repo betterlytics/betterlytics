@@ -73,7 +73,6 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;
-        const effectiveLabel = formatIntervalLabel(t, monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds);
 
         return (
           <FilterPreservingLink key={monitor.id} href={`monitoring/${monitor.id}`} className='block'>
@@ -107,8 +106,8 @@ export function MonitorList({ monitors }: MonitorListProps) {
               </div>
 
               {/* Desktop layout */}
-              <div className='hidden w-full px-5 py-1.5 text-left md:grid md:grid-cols-[minmax(220px,1.5fr)_1fr] md:items-center md:gap-4'>
-                <div className='flex items-start gap-2'>
+              <div className='hidden w-full px-5 py-1.5 text-left md:flex md:items-center md:justify-between md:gap-4'>
+                <div className='flex min-w-0 flex-1 items-start gap-2'>
                   <div className='space-y-1.5'>
                     <div className='flex items-center justify-between gap-2'>
                       <div className='flex items-center gap-2 text-sm leading-tight font-semibold'>
@@ -135,27 +134,20 @@ export function MonitorList({ monitors }: MonitorListProps) {
                   </div>
                 </div>
 
-                <div className='grid grid-cols-[120px_minmax(180px,240px)_48px] items-center gap-4 xl:grid-cols-[120px_minmax(180px,240px)_minmax(250px,1fr)_max-content_48px]'>
-                  <div className='text-muted-foreground flex items-center gap-2 text-xs font-semibold whitespace-nowrap'>
-                    <span className='flex items-center gap-1'>
-                      <RefreshCcw size={14} aria-hidden />
-                      <span>{formatIntervalLabel(t, monitor.intervalSeconds)}</span>
-                    </span>
-                    {isBackedOff && (
-                      <BackoffBadge
-                        label={effectiveLabel}
-                        message={t('list.backoffTooltip', { value: effectiveLabel })}
-                      />
-                    )}
-                  </div>
-                  <div className='min-w-[180px]'>
+                <div className='flex shrink-0 items-center gap-3 xl:grid xl:grid-cols-[70px_240px_300px_48px_50px] xl:gap-4'>
+                  <IntervalDisplay
+                    baseInterval={monitor.intervalSeconds}
+                    effectiveInterval={monitor.effectiveIntervalSeconds ?? monitor.intervalSeconds}
+                    isBackedOff={isBackedOff}
+                  />
+                  <div className='shrink-0'>
                     <SslStatusPill
                       presentation={sslPresentation}
                       label={sslBadgeLabel}
                       tooltipLabel={sslTooltipLabel}
                     />
                   </div>
-                  <div className='hidden min-w-0 xl:block'>
+                  <div className='hidden min-w-0 xl:block xl:w-[300px]'>
                     {hasData ? (
                       <PillBar data={monitor.uptimeBuckets} />
                     ) : (
@@ -214,20 +206,38 @@ function calculateUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
   return avg * 100;
 }
 
-function BackoffBadge({ label, message }: { label: string; message: string }) {
+function IntervalDisplay({
+  baseInterval,
+  effectiveInterval,
+  isBackedOff,
+}: {
+  baseInterval: number;
+  effectiveInterval: number;
+  isBackedOff: boolean;
+}) {
+  const t = useTranslations('monitoringPage');
+  const baseLabel = formatIntervalLabel(t, baseInterval);
+  const effectiveLabel = formatIntervalLabel(t, effectiveInterval);
+  const backoffTooltip = t('list.backoffTooltip', { value: effectiveLabel });
+
+  const content = (
+    <div
+      className={`flex shrink-0 items-center gap-1 text-xs font-semibold whitespace-nowrap ${
+        isBackedOff ? 'text-amber-600 dark:text-amber-500' : 'text-muted-foreground'
+      }`}
+    >
+      {isBackedOff ? <AlertTriangle size={14} aria-hidden /> : <RefreshCcw size={14} aria-hidden />}
+      <span>{isBackedOff ? effectiveLabel : baseLabel}</span>
+    </div>
+  );
+
+  if (!isBackedOff) return content;
+
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge
-          variant='outline'
-          className='inline-flex items-center gap-1 border-amber-500/60 bg-amber-500/10 px-2 py-[3px] text-xs font-semibold text-amber-700'
-        >
-          <AlertTriangle size={12} aria-hidden />
-          <span>{label}</span>
-        </Badge>
-      </TooltipTrigger>
+      <TooltipTrigger asChild>{content}</TooltipTrigger>
       <TooltipContent side='top' className='max-w-[260px] break-words'>
-        {message}
+        {backoffTooltip}
       </TooltipContent>
     </Tooltip>
   );

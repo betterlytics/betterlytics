@@ -346,7 +346,10 @@
         "email": "Email:",
         "address": "Address:",
         "footer1": "🇪🇺 Made and hosted in the European Union",
-        "footer2": "Committed to privacy, transparency, and GDPR compliance"
+        "footer2": "Committed to privacy, transparency, and GDPR compliance",
+        "termsLink": "Terms of Service",
+        "dpaLink": "Data Processing Agreement",
+        "subprocessorsLink": "Subprocessors"
       }
     },
     "terms": {
@@ -503,7 +506,9 @@
         "support": "Support:",
         "address": "Address:",
         "footer1": "🇪🇺 Made and hosted in the European Union",
-        "footer2": "Privacy-focused analytics you can trust"
+        "footer2": "Privacy-focused analytics you can trust",
+        "privacyLink": "Privacy Policy",
+        "dpaLink": "Data Processing Agreement"
       }
     },
     "dpa": {
@@ -594,7 +599,7 @@
         "li1": "EU-based cloud hosting and infrastructure providers",
         "li2": "Payment processors (for account billing)",
         "li3": "Email delivery services",
-        "notice": "Betterlytics will maintain a current list of subprocessors and notify the Data Controller of any additions or changes."
+        "notice": "Betterlytics maintains a current list of subprocessors at betterlytics.io/subprocessors and will notify the Data Controller of any additions or changes."
       },
       "rights": {
         "title": "Data Subject Rights",
@@ -631,7 +636,84 @@
         "lead": "For questions about this DPA or data processing practices:",
         "legal": "Legal inquiries:",
         "technical": "Technical questions:",
-        "footer": "This DPA is automatically accepted when you use Betterlytics and forms part of our Terms of Service. 🇪🇺 Anonymous-by-design analytics - Made and hosted in the European Union"
+        "footer": "This DPA is automatically accepted when you use Betterlytics and forms part of our Terms of Service. 🇪🇺 Anonymous-by-design analytics - Made and hosted in the European Union",
+        "termsLink": "Terms of Service",
+        "privacyLink": "Privacy Policy",
+        "subprocessorsLink": "Subprocessors"
+      }
+    },
+    "subprocessors": {
+      "seo": {
+        "title": "Subprocessors | GDPR Compliance & Data Processing",
+        "description": "View the complete list of Betterlytics subprocessors. Understand how we ensure GDPR compliance through carefully selected EU-based service providers.",
+        "keywords": [
+          "Betterlytics Subprocessors",
+          "Data Processors",
+          "GDPR Compliance",
+          "Third-Party Services",
+          "Data Processing",
+          "EU Data Hosting",
+          "Privacy Compliance"
+        ]
+      },
+      "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
+      "title": "Subprocessors",
+      "lastUpdated": "Last updated:",
+      "intro": "Betterlytics engages a limited number of carefully selected third-party service providers (subprocessors) to help deliver our analytics platform. This page lists all subprocessors that may process data on behalf of our customers.",
+      "commitment": {
+        "title": "Our Commitment",
+        "body": "We only work with subprocessors that meet our strict privacy and security standards. All subprocessors operate under data processing agreements and implement appropriate technical and organizational measures to protect your data."
+      },
+      "list": {
+        "title": "Current Subprocessors",
+        "intro": "The following third-party services are authorized to process data on behalf of Betterlytics:"
+      },
+      "table": {
+        "name": "Subprocessor",
+        "purpose": "Purpose",
+        "location": "Data Location"
+      },
+      "processors": {
+        "hetzner": {
+          "name": "Hetzner",
+          "purpose": "Cloud infrastructure and server hosting",
+          "location": "Germany (EU)"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Payment processing for subscriptions",
+          "location": "USA (Standard Contractual Clauses)"
+        },
+        "mailersend": {
+          "name": "MailerSend",
+          "purpose": "Transactional email delivery",
+          "location": "EU"
+        },
+        "cloudflareR2": {
+          "name": "Cloudflare R2",
+          "purpose": "Session replay storage (opt-in feature only)",
+          "location": "EU data centers"
+        }
+      },
+      "changes": {
+        "title": "Changes to Subprocessors",
+        "body": "We will update this page when we add or remove subprocessors. If you have subscribed to Betterlytics services, we will notify you of any changes to this list in accordance with our Data Processing Agreement (DPA)."
+      },
+      "dataProtection": {
+        "title": "Data Protection Measures",
+        "li1": "All subprocessors operate under data processing agreements in accordance with data protection standards",
+        "li2": "We prioritize EU-based providers to minimize data transfers outside the EU",
+        "li3": "Where data transfers to third countries occur, appropriate safeguards (such as SCCs) are in place"
+      },
+      "contact": {
+        "title": "Questions?",
+        "lead": "If you have questions about our subprocessors or data processing practices:",
+        "email": "Email:"
+      },
+      "footer": {
+        "p1": "🇪🇺 Made and hosted in the European Union",
+        "dpaLink": "Data Processing Agreement",
+        "privacyLink": "Privacy Policy"
       }
     },
     "auth": {
@@ -856,11 +938,14 @@
 
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
-        "description": "Privacy-first, cookieless analytics that respect your visitors — no tracking, no cookies, no consent banners.",
+        "description": "Simple, powerful analytics that respect privacy.<br></br>Cookieless, GDPR-ready, and no cookie banners required.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
         "ctaDemo": "View live demo",
         "eyebrow": "Try Betterlytics in action"
+      },
+      "githubStats": {
+        "starsLabel": "stars on GitHub"
       },
       "framework": {
         "title": "Works with your favorite tools",
@@ -890,7 +975,7 @@
           },
           "lightweight": {
             "title": "Lightweight & Developer-Friendly",
-            "description": "Under 1KB script, open-source codebase, and comprehensive documentation. Built by developers, for developers."
+            "description": "Under 2KB script, open-source codebase, and comprehensive documentation. Built by developers, for developers."
           },
           "simpleSetup": {
             "title": "Simple Setup, Powerful Features",
@@ -907,8 +992,8 @@
           "engagement": "Engagement & Behavior",
           "performance": "Performance & Sources"
         },
-        "docsButton": "Explore All Features",
-        "docsTitle": "Complete Betterlytics Documentation"
+        "featuresButton": "Explore All Features",
+        "featuresTitle": "Explore all Betterlytics features"
       },
       "ctaStrip": {
         "eyebrow": "Get started free",
@@ -1022,8 +1107,203 @@
         }
       }
     },
+    "features": {
+      "seo": {
+        "title": "Features of Betterlytics | Privacy-First, Cookie-Less Analytics",
+        "description": "Discover all Betterlytics features: real-time dashboards, conversion funnels, Core Web Vitals, and more. Privacy-first, GDPR-compliant analytics without cookies or consent banners.",
+        "keywords": [
+          "Analytics Features",
+          "Privacy-First Analytics",
+          "Cookieless Analytics",
+          "GDPR Compliant Analytics",
+          "Real-time Dashboard",
+          "Conversion Funnels",
+          "Session Replay",
+          "Custom Events",
+          "Web Analytics Features"
+        ]
+      },
+      "hero": {
+        "title": "Every Feature You Need for<br></br><highlight>Better Analytics</highlight>",
+        "description": "Explore everything Betterlytics offers, from real-time dashboards to conversion funnels. All the analytics you need, without cookies, consent banners, or compromising on privacy.",
+        "ctaPrimary": "Get Started Free",
+        "ctaDemo": "View Live Demo"
+      },
+      "categories": {
+        "coreAnalytics": "Core Web Analytics",
+        "advancedAnalytics": "Advanced Analytics",
+        "performanceMonitoring": "Performance & Monitoring",
+        "privacyData": "Privacy & Compliance",
+        "accessSecurity": "Access & Security",
+        "developerDeployment": "Developer & Deployment",
+        "support": "Support"
+      },
+      "items": {
+        "pageViews": {
+          "title": "Page Views",
+          "description": "See which pages get the most traffic and understand overall engagement trends."
+        },
+        "visitors": {
+          "title": "Visitors",
+          "description": "Track unique visitors and monitor overall audience growth and behavior."
+        },
+        "bounceRate": {
+          "title": "Bounce Rate",
+          "description": "Identify pages that retain visitors versus those that cause quick exits, helping you optimize content."
+        },
+        "trafficSources": {
+          "title": "Traffic Sources",
+          "description": "Discover where visitors come from, including organic, social, referral, and campaigns."
+        },
+        "location": {
+          "title": "Location",
+          "description": "See visitor distribution by city, region, and country for geographic insights."
+        },
+        "devices": {
+          "title": "Devices",
+          "description": "Monitor which devices visitors use, whether desktop, mobile, or tablet."
+        },
+        "languages": {
+          "title": "Languages",
+          "description": "Track your visitors’ preferred languages to tailor content effectively."
+        },
+        "filtering": {
+          "title": "Filtering",
+          "description": "Segment your data by traffic, device, location, and other attributes quickly."
+        },
+        "realtimeData": {
+          "title": "Real-time Data",
+          "description": "See visitor activity as it happens, including page views, events, and sessions."
+        },
+        "customEvents": {
+          "title": "Custom Events",
+          "description": "Track specific user interactions like clicks, form submissions, or downloads to measure engagement."
+        },
+        "utmTracking": {
+          "title": "UTM Tracking",
+          "description": "Measure the performance of marketing campaigns with UTM parameters."
+        },
+        "linkTracking": {
+          "title": "Link Tracking",
+          "description": "Monitor clicks on internal and outbound links to understand user engagement."
+        },
+        "sessionReplay": {
+          "title": "Session Replay",
+          "description": "Replay user sessions to see exactly how visitors interact with your site and uncover usability issues."
+        },
+        "userJourneys": {
+          "title": "User Journeys",
+          "description": "Visualize the paths visitors take across your site from entry to exit."
+        },
+        "funnels": {
+          "title": "Funnels",
+          "description": "Track user progress through defined steps and identify drop-off points."
+        },
+        "annotations": {
+          "title": "Annotations",
+          "description": "Add notes to your analytics timeline to track events or campaign changes."
+        },
+        "timePeriodComparison": {
+          "title": "Compare",
+          "description": "Compare metrics across different time periods to spot trends and changes."
+        },
+        "outboundLinks": {
+          "title": "Outbound Link Tracking",
+          "description": "Track clicks on links leaving your site to measure user engagement."
+        },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Measure and optimize Google's page performance metrics to improve loading, interactivity, and search rankings."
+        },
+        "uptimeMonitoring": {
+          "title": "Uptime Monitoring",
+          "description": "Ensure your site is live and accessible by tracking uptime automatically."
+        },
+        "sslMonitoring": {
+          "title": "SSL Certificate Monitoring",
+          "description": "Monitor SSL certificate status to avoid expired or insecure connections."
+        },
+        "cookieless": {
+          "title": "No Cookies",
+          "description": "Collect privacy-first analytics without cookies, providing accurate data without requiring consent banners."
+        },
+        "gdprCcpa": {
+          "title": "GDPR & CCPA",
+          "description": "Stay compliant with privacy laws while collecting anonymous analytics data."
+        },
+        "euHosting": {
+          "title": "Hosted in EU",
+          "description": "Ensure all data is stored in the EU for privacy and compliance."
+        },
+        "anonymousByDefault": {
+          "title": "Data Anonymization",
+          "description": "All visitor data is anonymized by default to protect privacy."
+        },
+        "dataOwnership": {
+          "title": "Data Ownership",
+          "description": "You maintain full control and ownership of all collected analytics data."
+        },
+        "openSource": {
+          "title": "Open Source",
+          "description": "Inspect, audit, and contribute to the analytics platform codebase."
+        },
+        "memberRoles": {
+          "title": "Role-Based Access",
+          "description": "Control user access with role-based permissions for team members."
+        },
+        "twoFactorAuth": {
+          "title": "Two-Factor Authentication",
+          "description": "Add an extra layer of security for all user accounts."
+        },
+        "oauthLogin": {
+          "title": "OAuth Login",
+          "description": "Sign in securely using OAuth providers like Google or GitHub."
+        },
+        "simpleScriptTag": {
+          "title": "Simple Script Tag",
+          "description": "Add analytics to your site with a single lightweight script."
+        },
+        "frameworkSdks": {
+          "title": "Framework SDKs",
+          "description": "Integrate Betterlytics easily with frameworks like React, Angular, Next.js, and more."
+        },
+        "selfHosting": {
+          "title": "Self-Hosting",
+          "description": "Deploy Betterlytics on your own servers for full control over data."
+        },
+        "fullyManaged": {
+          "title": "Fully Managed Cloud",
+          "description": "Use our managed cloud solution for quick setup and zero maintenance."
+        },
+        "lightweightScript": {
+          "title": "Lightweight Script",
+          "description": "Fast-loading script under 2KB that won't slow down your website."
+        },
+        "highPerformance": {
+          "title": "High Performance",
+          "description": "ClickHouse-powered analytics engine delivers sub-second query times at any scale."
+        },
+        "emailSupport": {
+          "title": "Email Support",
+          "description": "Get help via email for any questions or issues."
+        },
+        "prioritySupport": {
+          "title": "Priority Support",
+          "description": "Receive faster responses from our support team for critical issues."
+        },
+        "dedicatedSupport": {
+          "title": "Dedicated Support",
+          "description": "Access a dedicated support manager for personalized assistance."
+        },
+        "slaGuarantee": {
+          "title": "SLA Guarantee",
+          "description": "Guaranteed uptime and support response times with a formal SLA."
+        }
+      }
+    },
     "nav": {
       "documentation": "Documentation",
+      "features": "Features",
       "pricing": "Pricing",
       "goToDashboard": "Go to Dashboard",
       "getStarted": "Get Started"
@@ -1037,11 +1317,13 @@
       "about": "About",
       "contact": "Contact",
       "privacyPolicy": "Privacy Policy",
+      "subprocessors": "Subprocessors",
       "termsOfService": "Terms of Service",
       "dpa": "Data Processing Agreement",
       "documentation": "Documentation",
       "changelog": "Changelog",
       "pricing": "Pricing",
+      "features": "Features",
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
@@ -1075,7 +1357,8 @@
       "titleRest": "pricing",
       "subtitle": "Start free, upgrade when you need more. No hidden fees, no surprises.",
       "footer": "Start with our free plan - no credit card required.",
-      "comparisonTitle": "Compare all features"
+      "comparisonTitle": "Compare all features",
+      "exploreFeaturesLink": "Explore all features in detail"
     }
   },
   "pricingSlider": {
@@ -1091,7 +1374,7 @@
     "features": {
       "upToEventsPerMonth": "Up to {events} events/month",
       "allFeatures": "All dashboard & analytics features",
-      "oneSite": "1 site",
+      "twoSites": "Up to 2 sites",
       "upTo50Sites": "Up to 50 sites",
       "unlimitedSites": "Unlimited sites",
       "retention1PlusYear": "1+ year data retention",
@@ -1190,7 +1473,7 @@
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
         "values": {
-          "5": "5 monitors",
+          "1": "1 monitor",
           "50": "50 monitors",
           "unlimited": "Unlimited monitors"
         }

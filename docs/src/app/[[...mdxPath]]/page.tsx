@@ -1,5 +1,6 @@
 import { generateStaticParamsFor, importPage } from "nextra/pages";
 import { useMDXComponents as getMDXComponents } from "@/mdx-components";
+import { getAssetPath } from "@/lib/constants";
 
 export const generateStaticParams = generateStaticParamsFor("mdxPath");
 
@@ -8,18 +9,54 @@ export async function generateMetadata(props: {
 }) {
   const params = await props.params;
   const { metadata } = await importPage(params.mdxPath);
-  if (metadata?.alternates?.canonical) return metadata;
 
   const canonicalPath =
     Array.isArray(params.mdxPath) && params.mdxPath.length > 0
-      ? `/docs/${params.mdxPath.join("/")}`
-      : "/docs";
+      ? getAssetPath(`/${params.mdxPath.join("/")}`)
+      : getAssetPath("/");
+
+  const category =
+    Array.isArray(params.mdxPath) && params.mdxPath.length > 0
+      ? params.mdxPath[0]
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
+      : null;
+
+  const ogImageParams = new URLSearchParams();
+  if (metadata?.title) {
+    ogImageParams.set("title", metadata.title);
+  }
+  if (category) {
+    ogImageParams.set("category", category);
+  }
+  if (metadata?.description) {
+    ogImageParams.set("description", metadata.description);
+  }
+
+  const ogImageUrl = getAssetPath(`/api/og?${ogImageParams.toString()}`);
 
   return {
     ...metadata,
     alternates: {
       ...(metadata?.alternates ?? {}),
       canonical: canonicalPath,
+    },
+    openGraph: {
+      ...(metadata?.openGraph ?? {}),
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: metadata?.title || "Betterlytics Docs",
+        },
+      ],
+    },
+    twitter: {
+      ...(metadata?.twitter ?? {}),
+      card: "summary_large_image",
+      images: [ogImageUrl],
     },
   };
 }

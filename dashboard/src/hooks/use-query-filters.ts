@@ -14,7 +14,7 @@ export function useQueryFilters(initialFilters?: QueryFilter[]) {
   }, []);
 
   const addEmptyQueryFilter = useCallback(() => {
-    addQueryFilter({ column: 'url', operator: '=', value: '' });
+    addQueryFilter({ column: 'url', operator: '=', values: [] });
   }, [addQueryFilter]);
 
   const removeQueryFilter = useCallback((id: string) => {

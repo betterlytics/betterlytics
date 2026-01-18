@@ -34,7 +34,7 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
         entries: validFilters.map((f) => ({
           column: f.column,
           operator: f.operator,
-          value: f.value,
+          values: f.values,
         })),
       });
       toast.success(t('selector.toastFilterSavedSuccess'));

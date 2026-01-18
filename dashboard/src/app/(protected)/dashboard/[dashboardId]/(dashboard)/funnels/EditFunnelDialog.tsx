@@ -19,6 +19,7 @@ import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { UpdateFunnelSchema, type FunnelStep } from '@/entities/analytics/funnels.entities';
 import { toast } from 'sonner';
 import { FunnelDialogContent } from './FunnelDialogContent';
+import { stableStringify } from '@/utils/stableStringify';
 
 type EditFunnelDialogProps = {
   funnel: PresentedFunnel;
@@ -30,13 +31,7 @@ const areFunnelStepsEqual = (a: FunnelStep[], b: FunnelStep[]): boolean => {
 
   return a.every((step, index) => {
     const other = b[index];
-    return (
-      step.id === other.id &&
-      step.column === other.column &&
-      step.operator === other.operator &&
-      step.value === other.value &&
-      step.name === other.name
-    );
+    return stableStringify(step) === stableStringify(other);
   });
 };
 

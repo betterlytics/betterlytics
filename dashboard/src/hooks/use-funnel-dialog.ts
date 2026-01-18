@@ -34,7 +34,7 @@ export function useFunnelDialog({
 
   const searchableFunnelSteps = useMemo(() => {
     const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
+      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
     );
 
     const steps =
@@ -72,7 +72,7 @@ export function useFunnelDialog({
 
   const emptySteps = useMemo(() => {
     const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.value)),
+      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
     );
 
     const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
