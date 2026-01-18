@@ -52,11 +52,14 @@ function InfoTooltip({
   maxWidth = '260px',
   delayDuration = 250,
 }: InfoTooltipProps) {
+  const [open, setOpen] = React.useState(false);
+
   const defaultTrigger = (
     <button
       type='button'
       aria-label={ariaLabel}
       className={cn('text-muted-foreground hover:text-foreground', triggerClassName)}
+      onClick={() => setOpen((prev) => !prev)}
     >
       <Info className={iconClassName} />
     </button>
@@ -64,7 +67,7 @@ function InfoTooltip({
 
   return (
     <TooltipProvider delayDuration={delayDuration}>
-      <Tooltip>
+      <Tooltip open={open} onOpenChange={setOpen}>
         <TooltipTrigger asChild>{trigger ?? defaultTrigger}</TooltipTrigger>
         <TooltipContent side={side}>
           <div className='space-y-2' style={{ maxWidth }}>
