@@ -2,36 +2,35 @@
 
 import { cn } from '@/lib/utils';
 import React, { useCallback } from 'react';
-import { DIGITS, useAnimatedConfig, type DigitState } from './context';
+import { DIGITS, type DigitState } from './NumberRoll';
 
 type DigitReelProps = {
   digitState: DigitState;
+  onPhaseComplete: (id: string, action: 'completed' | 'exited') => void;
 };
 
-function DigitReelComponent({ digitState }: DigitReelProps) {
-  const { dispatch } = useAnimatedConfig();
-
+function DigitReelComponent({ digitState, onPhaseComplete }: DigitReelProps) {
   const handleAnimationEnd = useCallback(
     (e: React.AnimationEvent) => {
-      if (e.target !== e.currentTarget) return; // Ignore bubbles
+      if (e.target !== e.currentTarget) return;
 
       if (e.animationName.includes('digit-exit')) {
-        dispatch({ type: 'exited', id: digitState.id });
+        onPhaseComplete(digitState.id, 'exited');
       } else if (e.animationName.includes('digit-enter')) {
-        dispatch({ type: 'completed', id: digitState.id });
+        onPhaseComplete(digitState.id, 'completed');
       }
     },
-    [dispatch, digitState.id],
+    [onPhaseComplete, digitState.id],
   );
 
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
       if (e.target !== e.currentTarget) return;
       if (digitState.phase === 'animating' && e.propertyName === 'transform') {
-        dispatch({ type: 'completed', id: digitState.id });
+        onPhaseComplete(digitState.id, 'completed');
       }
     },
-    [dispatch, digitState.phase, digitState.id],
+    [onPhaseComplete, digitState.phase, digitState.id],
   );
 
   return (
@@ -51,7 +50,7 @@ function DigitReelComponent({ digitState }: DigitReelProps) {
           data-phase={digitState.phase}
         >
           {DIGITS.map((d) => (
-            <span key={d} className='digit-reel-digit'>
+            <span key={d} className="digit-reel-digit">
               {d}
             </span>
           ))}

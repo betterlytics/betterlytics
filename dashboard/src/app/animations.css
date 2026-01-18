@@ -3,10 +3,10 @@
   --digit-width: 0.65em;
   --mask-width: 2em;
   --mask-bleed: 0.4em;
-  
+
   /* Shared easings */
   --layout-easing: cubic-bezier(0.25, 1, 0.5, 1);
-  --opacity-easing: linear(0, 0.2 2%, 0.4 20%, 0.75 40%, 0.9 55%, 1);
+  --opacity-easing: cubic-bezier(0.525, 0, 0.725, 1);
   --spring-easing: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -16,7 +16,7 @@
   /* Width is calculated using the variable injected via style attribute for active digits */
   width: calc(var(--active-digits) * var(--digit-width));
   will-change: width;
-  transition: width calc(var(--duration, 800ms) / 4) var(--layout-easing);
+  transition: width calc(var(--duration, 800ms) * 3 / 4) var(--layout-easing);
 }
 
 @keyframes digitRoll {
@@ -27,7 +27,6 @@
     transform: translateY(0%);
   }
 }
-
 
 @keyframes digit-enter {
   from {
@@ -41,8 +40,12 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes digit-exit {
@@ -57,13 +60,21 @@
 }
 
 @keyframes digit-roll-in {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, var(--target-offset), 0); }
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, var(--target-offset), 0);
+  }
 }
 
 @keyframes digit-roll-out {
-  from { transform: translate3d(0, var(--target-offset), 0); }
-  to { transform: translate3d(0, 0, 0); }
+  from {
+    transform: translate3d(0, var(--target-offset), 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .number-mask {
@@ -74,7 +85,13 @@
   pointer-events: none;
   margin: 0 calc(-1 * var(--mask-width));
   padding: 0 var(--mask-width);
-  mask-image: linear-gradient(to right, transparent 0, #000 var(--mask-width), #000 calc(100% - var(--mask-width)), transparent);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--mask-width),
+    #000 calc(100% - var(--mask-width)),
+    transparent
+  );
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
 }
@@ -84,7 +101,13 @@
   height: calc(1lh + var(--mask-bleed));
   margin: calc(-1 * var(--mask-bleed) / 2) 0;
   overflow: clip;
-  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--mask-bleed), #000 calc(100% - var(--mask-bleed)), transparent 100%);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--mask-bleed),
+    #000 calc(100% - var(--mask-bleed)),
+    transparent 100%
+  );
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
   width: var(--digit-width);
@@ -103,8 +126,8 @@
   height: calc(1lh + var(--mask-bleed));
 }
 
-.digit-reel-wrapper[data-phase="entering"] {
-  animation: 
+.digit-reel-wrapper[data-phase='entering'] {
+  animation:
     digit-enter var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
     fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
@@ -114,7 +137,7 @@
   overflow: visible;
 }
 
-.digit-reel-wrapper[data-phase="exiting"] {
+.digit-reel-wrapper[data-phase='exiting'] {
   animation: digit-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards;
 }
 
@@ -124,16 +147,16 @@
   will-change: transform;
 }
 
-.digit-reel-inner[data-phase="entering"] {
+.digit-reel-inner[data-phase='entering'] {
   animation: digit-roll-in var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
 }
 
-.digit-reel-inner[data-phase="exiting"] {
+.digit-reel-inner[data-phase='exiting'] {
   /* Only animate out; simpler to keep transform in base class and let animation override or start from it */
   animation: digit-roll-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
 }
 
-.digit-reel-inner[data-phase="animating"] {
+.digit-reel-inner[data-phase='animating'] {
   transition: transform var(--reduced-duration, var(--duration)) var(--spring-easing);
 }
 
@@ -150,13 +173,13 @@
   display: inline-block;
 }
 
-.sign-slot[data-phase="entering"] {
-  animation: 
+.sign-slot[data-phase='entering'] {
+  animation:
     sign-enter var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
     fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
 
-.sign-slot[data-phase="exiting"] {
+.sign-slot[data-phase='exiting'] {
   animation: sign-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards;
 }
 
