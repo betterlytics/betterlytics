@@ -283,9 +283,9 @@ export const SEO_CONFIGS = {
     path: '/signin',
     structuredDataType: 'webpage',
   },
-  register: {
+  signup: {
     namespace: 'public.auth.register.seo',
-    path: '/register',
+    path: '/signup',
     structuredDataType: 'webpage',
   },
   publicDemo: {

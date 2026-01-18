@@ -71,44 +71,43 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   return (
     <>
       <StructuredData config={seoConfig} />
-      <div className='bg-background flex items-center justify-center px-4 py-12 sm:px-6 sm:pt-20 lg:px-8'>
-        <div className='w-full max-w-md space-y-8'>
-          <div className='text-center'>
-            <div className='mb-6 flex justify-center'>
-              <Logo variant='full' width={200} height={60} priority />
-            </div>
-            <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('title')}</h2>
-            <p className='text-muted-foreground mt-2 text-sm'>{t('subtitle')}</p>
+      <main className='relative flex w-full flex-1 flex-col items-center justify-center gap-2 py-8'>
+        <div className='w-full max-w-md space-y-6 px-4'>
+          <div className='flex justify-center pb-2'>
+            <Link href='/'>
+              <Logo variant='simple' showText textSize='lg' priority />
+            </Link>
           </div>
-          <Card className='p-0 shadow-sm'>
-            <CardContent className='p-3 py-8 sm:p-8'>
+          <Card className='bg-card rounded-lg border p-0 shadow-sm'>
+            <CardContent className='space-y-3 p-3 py-6 sm:p-6'>
+              <h2 className='text-center text-2xl font-semibold'>{t('title')}</h2>
               {error && (
                 <div
-                  className='bg-destructive/10 border-destructive/20 text-destructive mb-6 rounded-md border px-4 py-3'
+                  className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
                   role='alert'
                 >
                   <span className='block sm:inline'>{getErrorMessage(error)}</span>
                 </div>
               )}
               <LoginForm registrationDisabledMessage={registrationDisabledMessage} />
-              {registrationEnabled && (
-                <div className='mt-6 text-center'>
-                  <p className='text-muted-foreground text-sm'>
-                    {t('cta.noAccount')}{' '}
-                    <Link
-                      href='/onboarding'
-                      className='text-primary hover:text-primary/80 font-medium underline'
-                      tabIndex={2}
-                    >
-                      {t('cta.createOne')}
-                    </Link>
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
+          {registrationEnabled && (
+            <div className='text-center'>
+              <p className='text-muted-foreground text-sm'>
+                {t('cta.noAccount')}{' '}
+                <Link
+                  href='/signup'
+                  className='text-primary hover:text-primary/80 font-medium underline'
+                  tabIndex={2}
+                >
+                  {t('cta.createOne')}
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      </main>
     </>
   );
 }
