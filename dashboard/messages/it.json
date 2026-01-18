@@ -1317,7 +1317,8 @@
       "features": "Funzionalità",
       "pricing": "Prezzi",
       "goToDashboard": "Vai alla dashboard",
-      "getStarted": "Inizia"
+      "getStarted": "Inizia",
+      "login": "Accedi"
     },
     "footer": {
       "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
