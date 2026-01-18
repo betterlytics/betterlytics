@@ -1309,7 +1309,8 @@
       "features": "Funktioner",
       "pricing": "Priser",
       "goToDashboard": "Gå til dashboard",
-      "getStarted": "Kom i gang"
+      "getStarted": "Kom i gang",
+      "login": "Log ind"
     },
     "footer": {
       "blurb": "Privacy-first webanalyse til det moderne web. GDPR-kompatibel, cookiefri og open source.",

@@ -364,7 +364,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
           <div className='col-span-2 mt-2 text-center md:col-span-1 md:col-start-2'>
             <p className='text-muted-foreground text-sm'>
               {tAuth('cta.haveAccount')}{' '}
-              <Link href='/signin' className='text-primary hover:text-primary/80 font-medium underline'>
+              <Link href='/signin' className='text-primary hover:text-primary/80 font-medium'>
                 {tAuth('cta.signIn')}
               </Link>
             </p>

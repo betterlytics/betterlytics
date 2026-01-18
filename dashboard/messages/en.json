@@ -1306,7 +1306,8 @@
       "features": "Features",
       "pricing": "Pricing",
       "goToDashboard": "Go to Dashboard",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "login": "Log in"
     },
     "footer": {
       "blurb": "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
