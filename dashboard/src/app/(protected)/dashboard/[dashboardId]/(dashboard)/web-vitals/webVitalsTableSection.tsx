@@ -11,7 +11,7 @@ import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytic
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
-import InfoTooltip from './InfoTooltip';
+import { InfoTooltip } from '@/components/ui-extended/InfoTooltip';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -114,40 +114,26 @@ export default function WebVitalsTableSection({
       const headerWithPerformanceInfo = () => (
         <div className='inline-flex items-center gap-1.5'>
           <span>{t('performance')}</span>
-          <InfoTooltip
-            ariaLabel={t('performanceAria')}
-            iconClassName='h-3.5 w-3.5'
-            content={
-              <>
-                <p className='text-primary-foreground/90'>{t('performanceDescr')}</p>
-                <div className='bg-primary-foreground/20 h-px' />
-                <div className='text-[11px] leading-4'>
-                  <div>{t('performanceGreat', { min: PERFORMANCE_SCORE_THRESHOLDS.greatMin })}</div>
-                  <div>{t('performanceOkay', { min: PERFORMANCE_SCORE_THRESHOLDS.okayMin })}</div>
-                  <div>{t('performancePoor', { min: PERFORMANCE_SCORE_THRESHOLDS.okayMin })}</div>
-                </div>
-              </>
-            }
-          />
+          <InfoTooltip ariaLabel={t('performanceAria')} iconClassName='h-3.5 w-3.5'>
+            <InfoTooltip.Description>{t('performanceDescr')}</InfoTooltip.Description>
+            <InfoTooltip.Secondary>
+              <div>{t('performanceGreat', { min: PERFORMANCE_SCORE_THRESHOLDS.greatMin })}</div>
+              <div>{t('performanceOkay', { min: PERFORMANCE_SCORE_THRESHOLDS.okayMin })}</div>
+              <div>{t('performancePoor', { min: PERFORMANCE_SCORE_THRESHOLDS.okayMin })}</div>
+            </InfoTooltip.Secondary>
+          </InfoTooltip>
         </div>
       );
 
       const headerWithOpportunityInfo = () => (
         <div className='inline-flex items-center gap-1.5'>
           <span>{t('opportunity')}</span>
-          <InfoTooltip
-            ariaLabel={t('opportunityAria')}
-            iconClassName='h-3.5 w-3.5'
-            content={
-              <>
-                <p className='text-primary-foreground/90'>{t('opportunityDescr')}</p>
-                <div className='bg-primary-foreground/20 h-px' />
-                <div className='text-[11px] leading-4'>
-                  <div>{t('opportunityNote')}</div>
-                </div>
-              </>
-            }
-          />
+          <InfoTooltip ariaLabel={t('opportunityAria')} iconClassName='h-3.5 w-3.5'>
+            <InfoTooltip.Description>{t('opportunityDescr')}</InfoTooltip.Description>
+            <InfoTooltip.Secondary>
+              <div>{t('opportunityNote')}</div>
+            </InfoTooltip.Secondary>
+          </InfoTooltip>
         </div>
       );
 
