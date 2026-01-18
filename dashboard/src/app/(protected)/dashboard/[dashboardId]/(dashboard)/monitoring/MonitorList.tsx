@@ -96,6 +96,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                     {getStatusDurationText({
                       currentStateSince: monitor.currentStateSince,
                       isUp: statusPresentation.label === 'Up',
+                      t,
                     }) || (!hasData ? t('list.noData') : '')}
                   </span>
                 </div>
@@ -125,6 +126,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                           {getStatusDurationText({
                             currentStateSince: monitor.currentStateSince,
                             isUp: statusPresentation.label === 'Up',
+                            t,
                           })}
                         </span>
                       )}
@@ -244,10 +246,10 @@ function IntervalDisplay({
 type StatusDurationTextParams = {
   currentStateSince: string | null | undefined;
   isUp: boolean;
+  t: ReturnType<typeof useTranslations<'monitoringPage'>>;
 };
 
-function getStatusDurationText({ currentStateSince, isUp }: StatusDurationTextParams): string {
-  const t = useTranslations('monitoringPage');
+function getStatusDurationText({ currentStateSince, isUp, t }: StatusDurationTextParams): string {
   if (!currentStateSince) return '';
   const prefix = isUp ? t('list.upPrefix') : t('list.downPrefix');
   return `${prefix} ${formatElapsedTime(new Date(currentStateSince))}`;
