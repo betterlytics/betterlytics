@@ -89,7 +89,7 @@ async fn main() {
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
     let validation_config = ValidationConfig {
-        enforce_timestamp_validation: config.is_development == false,
+        enforce_timestamp_validation: !config.is_development,
         ..Default::default()
     };
     let validator = Arc::new(EventValidator::new(validation_config));
