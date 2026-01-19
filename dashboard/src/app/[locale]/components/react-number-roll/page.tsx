@@ -14,15 +14,13 @@ const FORMAT_PRESETS = [
 ] as const;
 
 const LOCALE_PRESETS = [
-  { label: 'Browser Default', value: undefined },
-  { label: 'English (US)', value: 'en-US' },
-  { label: 'German', value: 'de-DE' },
-  { label: 'French', value: 'fr-FR' },
-  { label: 'Danish', value: 'da-DK' },
-  { label: 'Japanese', value: 'ja-JP' },
+  { label: 'US', value: 'en-US' },
+  { label: 'Germany', value: 'de-DE' },
+  { label: 'France', value: 'fr-FR' },
+  { label: 'Denmark', value: 'da-DK' },
+  { label: 'Japan', value: 'ja-JP' },
 ] as const;
 
-// 50 diverse test values for stress testing
 const STRESS_TEST_VALUES = [
   0, 1, -1, 9, 10, 99, 100, 999, 1000, -1000,
   1234, 9999, 10000, 12345, 99999, 100000, 123456,
@@ -46,7 +44,6 @@ export default function ReactNumberRollDemoPage() {
   const formatOptions = FORMAT_PRESETS[formatPresetIdx].options;
   const locales = LOCALE_PRESETS[localePresetIdx].value ?? 'en-US';
 
-  // Preview the formatted output - use explicit locale to prevent hydration mismatch
   const formattedPreview = useMemo(() => {
     try {
       return new Intl.NumberFormat(locales, formatOptions).format(value);
@@ -55,13 +52,11 @@ export default function ReactNumberRollDemoPage() {
     }
   }, [value, locales, formatOptions]);
 
-  // Sync input when value changes from buttons
   const handleValueChange = (newValue: number) => {
     setValue(newValue);
     setInputValue(String(newValue));
   };
 
-  // Full random: value, locale, and format options
   const handleFullRandom = () => {
     const randomValue = STRESS_TEST_VALUES[Math.floor(Math.random() * STRESS_TEST_VALUES.length)];
     const randomLocaleIdx = Math.floor(Math.random() * LOCALE_PRESETS.length);
@@ -73,7 +68,6 @@ export default function ReactNumberRollDemoPage() {
     setFormatPresetIdx(randomFormatIdx);
   };
 
-  // Parse custom style string to object
   const styleObject = customStyle
     ? Object.fromEntries(
         customStyle.split(';').filter(Boolean).map((s: string) => {
@@ -85,16 +79,14 @@ export default function ReactNumberRollDemoPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-8 p-8">
-      {/* Main display */}
-      <div className="flex flex-col items-center gap-12 p-8 mb-24">
-        
-        <div className="flex items-center gap-4">
+      {/* Hero Section */}
+      <div className="flex flex-col items-center gap-12 py-12">
+        <div className="flex items-center gap-8">
           <button 
             onClick={() => handleValueChange(value - 1)}
-            className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-2xl font-medium flex items-center justify-center transition-colors shrink-0"
-            aria-label="Decrement"
+            className="w-14 h-14 rounded-2xl bg-card border border-border shadow-sm text-muted-foreground hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center text-3xl font-light hover:scale-105 active:scale-95"
           >
-            -
+            −
           </button>
           
           <div className={className} style={{ ...styleObject, fontVariantNumeric: 'tabular-nums' }}>
@@ -103,147 +95,189 @@ export default function ReactNumberRollDemoPage() {
 
           <button 
             onClick={() => handleValueChange(value + 1)}
-            className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-2xl font-medium flex items-center justify-center transition-colors shrink-0"
-            aria-label="Increment"
+            className="w-14 h-14 rounded-2xl bg-card border border-border shadow-sm text-muted-foreground hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center text-3xl font-light hover:scale-105 active:scale-95"
           >
             +
           </button>
         </div>
 
-        {/* Format preview */}
-        <div className="text-sm text-muted-foreground font-mono bg-muted px-4 py-2 rounded">
-          Intl.format: {formattedPreview}
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full max-w-2xl">
-          <button onClick={() => handleValueChange(0)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">Reset to 0</button>
-          <button onClick={() => handleValueChange(100)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To 100</button>
-          <button onClick={() => handleValueChange(-50)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To -50</button>
-          <button onClick={() => handleValueChange(99999999)} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">To 99,999,999</button>
-          <button onClick={handleFullRandom} className="px-4 py-2 text-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors rounded col-span-2">🎲 Full Random</button>
-          <button onClick={() => handleValueChange(Math.floor(value * 10))} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">* 10</button>
-          <button onClick={() => handleValueChange(Math.floor(value / 10))} className="px-4 py-2 text-sm bg-muted hover:bg-muted/80 transition-colors rounded">/ 10</button>
+        {/* Intl Preview */}
+        <div className="text-xs font-mono bg-muted text-muted-foreground px-4 py-2 rounded-full shadow-sm border border-border">
+          Intl output: <span className="font-bold text-foreground ml-1">{formattedPreview}</span>
         </div>
       </div>
 
-      {/* Controls panel */}
-      <div className="flex flex-col gap-6 p-8 border border-border rounded-xl w-full max-w-lg bg-card shadow-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold">Playground Controls</span>
-          <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">react-number-roll</span>
+      {/* Control Panel */}
+      <div className="w-full max-w-4xl bg-card p-8 rounded-3xl shadow-xl border border-border flex flex-col gap-8">
+        <div className="flex items-center justify-between border-b border-border pb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">NumberRoll Playground</h1>
+            <p className="text-sm text-muted-foreground">Test high-performance digit animations with localized formatting</p>
+          </div>
+          <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest rounded-md">
+            Component Demo
+          </span>
         </div>
 
-        {/* Format preset selector */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Format Style</label>
-          <div className="flex flex-wrap gap-2">
-            {FORMAT_PRESETS.map((preset, i) => (
-              <button
-                key={preset.label}
-                onClick={() => setFormatPresetIdx(i)}
-                className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
-                  formatPresetIdx === i
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted hover:bg-muted/80'
-                }`}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Locale selector */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Locale</label>
-          <div className="flex flex-wrap gap-2">
-            {LOCALE_PRESETS.map((preset, i) => (
-              <button
-                key={preset.label}
-                onClick={() => setLocalePresetIdx(i)}
-                className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
-                  localePresetIdx === i
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted hover:bg-muted/80'
-                }`}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        {/* Options */}
-        <div className="flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={withTextSelect} 
-              onChange={(e) => setWithTextSelect(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          {/* Formatting Group */}
+          <div className="flex flex-col gap-6">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Formatting</h3>
+            
+            <Control 
+              label="Format Style" 
+              type="presets" 
+              items={FORMAT_PRESETS} 
+              activeIdx={formatPresetIdx} 
+              onChange={setFormatPresetIdx} 
             />
-            withTextSelect
-          </label>
-        </div>
 
-        {/* Direct value input */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Value</label>
-          <input
-            type="number"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleValueChange(parseFloat(inputValue) || 0);
-              }
-            }}
-            onBlur={() => handleValueChange(parseFloat(inputValue) || 0)}
-            className="px-4 py-2 border border-input rounded-md bg-transparent text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
+            <Control 
+              label="Locale" 
+              type="presets" 
+              items={LOCALE_PRESETS} 
+              activeIdx={localePresetIdx} 
+              onChange={setLocalePresetIdx} 
+            />
 
-        {/* Duration slider */}
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between">
-            <label className="text-sm font-medium text-muted-foreground">Duration</label>
-            <span className="text-sm font-mono">{duration}ms</span>
+            <div className="pt-2">
+              <label className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground uppercase cursor-pointer group">
+                <div className="relative w-10 h-6 bg-muted rounded-full transition-colors group-hover:bg-accent/20">
+                  <div className={`absolute top-1 left-1 w-4 h-4 rounded-full shadow-sm transition-transform ${withTextSelect ? 'translate-x-4 bg-primary' : 'bg-background'}`} />
+                </div>
+                <input 
+                  type="checkbox" 
+                  checked={withTextSelect} 
+                  onChange={(e) => setWithTextSelect(e.target.checked)}
+                  className="hidden"
+                />
+                Enable Text Selection
+              </label>
+            </div>
           </div>
-          <input
-            type="range"
-            min={100}
-            max={5000}
-            step={100}
-            value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value))}
-            className="w-full h-2 disabled:opacity-50"
-          />
+
+          {/* Visuals Group */}
+          <div className="flex flex-col gap-6">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Visuals & Value</h3>
+            
+            <Control 
+              label="Direct Input" 
+              type="text" 
+              value={inputValue} 
+              onChange={setInputValue}
+              onKeyEnter={() => handleValueChange(parseFloat(inputValue) || 0)}
+              onBlur={() => handleValueChange(parseFloat(inputValue) || 0)}
+            />
+
+            <Control 
+              label="Animation Duration" 
+              type="range" 
+              min={100} max={5000} step={100} 
+              value={duration} 
+              onChange={setDuration} 
+              suffix={`${duration}ms`}
+            />
+
+            <Control 
+              label="Tailwind Classes" 
+              type="text" 
+              value={className} 
+              onChange={setClassName} 
+              fontMono
+            />
+          </div>
         </div>
 
-        {/* ClassName input */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Tailwind Classes</label>
-          <input
-            type="text"
-            value={className}
-            onChange={(e) => setClassName(e.target.value)}
-            placeholder="e.g. text-4xl font-mono text-red-500"
-            className="px-4 py-2 border border-input rounded-md bg-transparent text-foreground font-mono text-xs focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-
-        {/* Style input */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Custom CSS Style</label>
-          <input
-            type="text"
-            value={customStyle}
-            onChange={(e) => setCustomStyle(e.target.value)}
-            placeholder="e.g. color: red; font-size: 48px"
-            className="px-4 py-2 border border-input rounded-md bg-transparent text-foreground font-mono text-xs focus:outline-none focus:ring-2 focus:ring-ring"
-          />
+        {/* Quick Actions */}
+        <div className="border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase mr-2.5">Quick Values</span>
+            {[0, 100, -50, 999999].map(v => (
+              <button 
+                key={v}
+                onClick={() => handleValueChange(v)}
+                className="px-4 py-2 bg-muted hover:bg-accent text-muted-foreground hover:text-accent-foreground rounded-xl text-xs font-semibold transition-all hover:scale-105 active:scale-95 border border-border"
+              >
+                {v}
+              </button>
+            ))}
+            <div className="w-px h-6 bg-border mx-2" />
+            <button 
+              onClick={() => handleValueChange(Math.floor(value * 10))}
+              className="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-bold transition-all"
+            >
+              ×10
+            </button>
+            <button 
+              onClick={() => handleValueChange(Math.floor(value / 10))}
+              className="px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-bold transition-all"
+            >
+              ÷10
+            </button>
+          </div>
+          
+          <button 
+            onClick={handleFullRandom}
+            className="w-full sm:w-auto px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-xs font-bold transition-all shadow-lg shadow-primary/20 hover:scale-105 active:scale-95"
+          >
+            🎲 Chaos Mode
+          </button>
         </div>
       </div>
     </div>
   );
 }
+
+function Control({ label, type, value, onChange, min, max, step, suffix, items, activeIdx, fontMono, onKeyEnter, onBlur }: any) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-end">
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">{label}</label>
+        {suffix && <span className="text-[10px] font-mono text-muted-foreground/60">{suffix}</span>}
+      </div>
+      
+      {type === 'presets' && (
+        <div className="flex flex-wrap gap-1.5">
+          {items.map((item: any, i: number) => (
+            <button
+              key={item.label}
+              onClick={() => onChange(i)}
+              className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all border ${
+                activeIdx === i
+                  ? 'bg-foreground border-foreground text-background shadow-sm'
+                  : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/30'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {type === 'text' && (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && onKeyEnter?.()}
+          onBlur={onBlur}
+          className={`w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-sm font-medium text-foreground ${fontMono ? 'font-mono text-[10px]' : ''}`}
+        />
+      )}
+
+      {type === 'range' && (
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className="w-full h-1.5 bg-muted rounded-lg appearance-none cursor-pointer accent-primary transition-all hover:bg-muted-foreground/10"
+        />
+      )}
+    </div>
+  );
+}
+
+
