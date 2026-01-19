@@ -1492,7 +1492,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "GET/POST HTTP-metoder"
+        "name": "GET HTTP-metode"
       },
       "customRequestHeaders": {
         "name": "Brugerdefinerede request headers"

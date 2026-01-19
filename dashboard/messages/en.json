@@ -1489,7 +1489,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "GET/POST HTTP methods"
+        "name": "GET HTTP method"
       },
       "customRequestHeaders": {
         "name": "Custom request headers"

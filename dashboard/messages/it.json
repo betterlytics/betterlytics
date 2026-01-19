@@ -1500,7 +1500,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "Metodi HTTP GET/POST"
+        "name": "Metodo HTTP GET"
       },
       "customRequestHeaders": {
         "name": "Header di richiesta personalizzati"
