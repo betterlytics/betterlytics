@@ -3239,19 +3239,19 @@
       "html": {
         "step1": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo all'interno del tag `<head>`"
+          "description": "Incolla questo all'interno del tag <head>"
         }
       },
       "nextjs": {
         "step1": {
           "title": "Aggiungi al layout root",
-          "description": "Apri `app/layout.tsx` e aggiungi il componente Script dentro `<head>`"
+          "description": "Apri app/layout.tsx e aggiungi il componente Script dentro <head>"
         }
       },
       "react": {
         "step1": {
           "title": "Aggiungi al componente App",
-          "description": "Aggiungi questo al tuo componente root (es. `App.tsx` o `main.tsx`)"
+          "description": "Aggiungi questo al tuo componente root (es. App.tsx o main.tsx)"
         }
       },
       "vue": {
@@ -3269,119 +3269,119 @@
       "svelte": {
         "step1": {
           "title": "Aggiungi ad app.html",
-          "description": "Apri `src/app.html` e incolla questo nella sezione `<head>`"
+          "description": "Apri src/app.html e incolla questo nella sezione <head>"
         }
       },
       "astro": {
         "step1": {
           "title": "Aggiungi al layout base",
-          "description": "Apri il tuo file layout (es. `src/layouts/Layout.astro`)"
+          "description": "Apri il tuo file layout (es. src/layouts/Layout.astro)"
         }
       },
       "remix": {
         "step1": {
           "title": "Aggiungi a root.tsx",
-          "description": "Apri `app/root.tsx` e aggiungi lo script dentro `<head>`"
+          "description": "Apri app/root.tsx e aggiungi lo script dentro <head>"
         }
       },
       "gatsby": {
         "step1": {
           "title": "Aggiungi a gatsby-ssr.js",
-          "description": "Crea o modifica `gatsby-ssr.js` nella root del progetto"
+          "description": "Crea o modifica gatsby-ssr.js nella root del progetto"
         }
       },
       "angular": {
         "step1": {
           "title": "Aggiungi a index.html",
-          "description": "Incolla questo in `src/index.html` nella sezione `<head>`"
+          "description": "Incolla questo in src/index.html nella sezione <head>"
         }
       },
       "solidjs": {
         "step1": {
           "title": "Aggiungi a index.html",
-          "description": "Incolla questo nel tuo `index.html` nella sezione `<head>`"
+          "description": "Incolla questo nel tuo index.html nella sezione <head>"
         }
       },
       "laravel": {
         "step1": {
           "title": "Aggiungi al layout Blade",
-          "description": "Incolla questo nella sezione `<head>` del tuo file layout (es. `resources/views/layouts/app.blade.php`)"
+          "description": "Incolla questo nella sezione <head> del tuo file layout (es. resources/views/layouts/app.blade.php)"
         }
       },
       "wordpress": {
         "step1": {
           "title": "Apri l'editor del tema",
-          "description": "Vai su **Appearance** > **Theme Editor**, oppure usa un plugin come \"Insert Headers and Footers\""
+          "description": "Vai su Appearance > Theme Editor, oppure usa un plugin come \"Insert Headers and Footers\""
         },
         "step2": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo prima di `</head>` nel tuo `header.php`"
+          "description": "Incolla questo prima di </head> nel tuo header.php"
         },
         "note": "Considera l'utilizzo di un tema child o un plugin per evitare di perdere le modifiche durante gli aggiornamenti del tema."
       },
       "shopify": {
         "step1": {
           "title": "Apri l'editor del tema",
-          "description": "Vai su **Online Store** > **Themes** > **Edit code**"
+          "description": "Vai su Online Store > Themes > Edit code"
         },
         "step2": {
           "title": "Modifica theme.liquid",
-          "description": "Apri `theme.liquid` nella cartella **Layout**"
+          "description": "Apri theme.liquid nella cartella Layout"
         },
         "step3": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo prima del tag di chiusura `</head>`"
+          "description": "Incolla questo prima del tag di chiusura </head>"
         },
         "note": "Gli aggiornamenti del tema potrebbero sovrascrivere le tue modifiche. Considera di duplicare il tema come backup."
       },
       "webflow": {
         "step1": {
           "title": "Apri le impostazioni del progetto",
-          "description": "Vai su **Project Settings** > **Custom Code**"
+          "description": "Vai su Project Settings > Custom Code"
         },
         "step2": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo nella sezione **Head Code**, poi pubblica il tuo sito"
+          "description": "Incolla questo nella sezione Head Code, poi pubblica il tuo sito"
         }
       },
       "wix": {
         "step1": {
           "title": "Apri le impostazioni del sito",
-          "description": "Vai su **Settings** > **Custom Code**"
+          "description": "Vai su Settings > Custom Code"
         },
         "step2": {
           "title": "Aggiungi nuovo codice personalizzato",
-          "description": "Clicca su **Add Custom Code** e incolla lo script qui sotto"
+          "description": "Clicca su Add Custom Code e incolla lo script qui sotto"
         },
         "step3": {
           "title": "Configura e applica",
-          "description": "Imposta posizionamento su **Head**, applica a **All pages**, poi clicca su **Apply**"
+          "description": "Imposta posizionamento su Head, applica a All pages, poi clicca su Apply"
         },
         "note": "Custom Code richiede un piano Wix Premium."
       },
       "squarespace": {
         "step1": {
           "title": "Apri code injection",
-          "description": "Vai su **Settings** > **Developer Tools** > **Code Injection**"
+          "description": "Vai su Settings > Developer Tools > Code Injection"
         },
         "step2": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo nella sezione **Header**, poi salva"
+          "description": "Incolla questo nella sezione Header, poi salva"
         },
         "note": "Code Injection richiede un piano Squarespace Business o superiore."
       },
       "gtm": {
         "step1": {
           "title": "Crea un nuovo tag",
-          "description": "In **Google Tag Manager**, vai su **Tags** > **New** > **Custom HTML**"
+          "description": "In Google Tag Manager, vai su Tags > New > Custom HTML"
         },
         "step2": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo codice e imposta il trigger su **All Pages**"
+          "description": "Incolla questo codice e imposta il trigger su All Pages"
         },
         "step3": {
           "title": "Pubblica il container",
-          "description": "Clicca su **Submit** per pubblicare le modifiche"
+          "description": "Clicca su Submit per pubblicare le modifiche"
         },
         "note": "Assicurati che GTM sia installato correttamente sul tuo sito."
       },
@@ -3392,13 +3392,13 @@
         },
         "step2": {
           "title": "Inizializza il tracker",
-          "description": "Aggiungi questo al punto di ingresso dell'app (es. `index.ts`, `main.ts` o `App.tsx`)"
+          "description": "Aggiungi questo al punto di ingresso dell'app (es. index.ts, main.ts o App.tsx)"
         }
       },
       "default": {
         "step1": {
           "title": "Aggiungi lo script di tracciamento",
-          "description": "Incolla questo nella sezione `<head>` del tuo HTML"
+          "description": "Incolla questo nella sezione <head> del tuo HTML"
         }
       }
     }
