@@ -87,6 +87,7 @@
     will-change: transform;
     backface-visibility: hidden;
     transform: translateZ(0);
+    contain: layout;
   }
 
   /* Reduced motion: disable animations for accessibility */
