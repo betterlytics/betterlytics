@@ -7,6 +7,24 @@ interface FrameworkCodeConfig {
   isCloud: boolean;
 }
 
+interface FrameworkStepTranslations {
+  title: string;
+  description?: string;
+}
+
+interface FrameworkTranslations {
+  step1: FrameworkStepTranslations;
+  step2?: FrameworkStepTranslations;
+  step3?: FrameworkStepTranslations;
+  note?: string;
+}
+
+export interface IntegrationTranslations {
+  frameworks: {
+    [key: string]: FrameworkTranslations;
+  };
+}
+
 // Each step can have a title, description, and optional code block
 export interface FrameworkStep {
   title: string;
@@ -20,7 +38,11 @@ export interface FrameworkCode {
   note?: string;
 }
 
-export function getFrameworkCode(frameworkId: FrameworkId, config: FrameworkCodeConfig): FrameworkCode {
+export function getFrameworkCode(
+  frameworkId: FrameworkId,
+  config: FrameworkCodeConfig,
+  t: IntegrationTranslations,
+): FrameworkCode {
   const { siteId, analyticsUrl, serverUrl, isCloud } = config;
   const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}"` : '';
   const serverUrlJS = !isCloud && serverUrl ? `\n    script.setAttribute('data-server-url', "${serverUrl}");` : '';
@@ -30,13 +52,16 @@ export function getFrameworkCode(frameworkId: FrameworkId, config: FrameworkCode
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;
 
+  // Helper to get translations for a framework, falling back to default
+  const getT = (id: string) => t.frameworks[id] || t.frameworks['default'];
+
   switch (frameworkId) {
     case 'html':
       return {
         steps: [
           {
-            title: 'Add the tracking script',
-            description: 'Paste this inside your `<head>` tag',
+            title: getT('html').step1.title,
+            description: getT('html').step1.description,
             code: `<head>
   ${trackingScript}
 </head>`,
@@ -49,8 +74,8 @@ export function getFrameworkCode(frameworkId: FrameworkId, config: FrameworkCode
       return {
         steps: [
           {
-            title: 'Add to your root layout',
-            description: 'Open `app/layout.tsx` and add the Script component inside `<head>`',
+            title: getT('nextjs').step1.title,
+            description: getT('nextjs').step1.description,
             code: `import Script from 'next/script'
 
 export default function RootLayout({ children }) {
@@ -68,6 +93,7 @@ export default function RootLayout({ children }) {
           }
         />
       </head>
+      <body>{children}</body>
     </html>
   )
 }`,
@@ -80,8 +106,8 @@ export default function RootLayout({ children }) {
       return {
         steps: [
           {
-            title: 'Add to your App component',
-            description: 'Add this to your root component (e.g., `App.tsx` or `main.tsx`)',
+            title: getT('react').step1.title,
+            description: getT('react').step1.description,
             code: `import { useEffect } from 'react'
 
 function App() {
@@ -93,9 +119,7 @@ function App() {
     document.head.appendChild(script)
   }, [])
 
-  return (
-    // Your app content
-  )
+  return <>{/* ... */}</>
 }
 
 export default App`,
@@ -108,12 +132,11 @@ export default App`,
       return {
         steps: [
           {
-            title: 'Add to your main.ts',
-            description: 'Add the tracking script before mounting your app',
+            title: getT('vue').step1.title,
+            description: getT('vue').step1.description,
             code: `import { createApp } from 'vue'
 import App from './App.vue'
 
-// Add tracking script
 const script = document.createElement('script')
 script.async = true
 script.src = "${analyticsUrl}/analytics.js"
@@ -130,10 +153,9 @@ createApp(App).mount('#app')`,
       return {
         steps: [
           {
-            title: 'Add to nuxt.config.ts',
-            description: 'Add the script to your Nuxt config',
-            code: `// nuxt.config.ts
-export default defineNuxtConfig({
+            title: getT('nuxt').step1.title,
+            description: getT('nuxt').step1.description,
+            code: `export default defineNuxtConfig({
   app: {
     head: {
       script: [{
@@ -153,8 +175,8 @@ export default defineNuxtConfig({
       return {
         steps: [
           {
-            title: 'Add to app.html',
-            description: 'Open `src/app.html` and paste this inside the `<head>` section',
+            title: getT('svelte').step1.title,
+            description: getT('svelte').step1.description,
             code: `<head>
   ${trackingScript}
   %sveltekit.head%
@@ -168,10 +190,9 @@ export default defineNuxtConfig({
       return {
         steps: [
           {
-            title: 'Add to your base layout',
-            description: 'Open your layout file (e.g., `src/layouts/Layout.astro`)',
+            title: getT('astro').step1.title,
+            description: getT('astro').step1.description,
             code: `---
-// Layout.astro
 ---
 <head>
   ${trackingScript}
@@ -185,10 +206,9 @@ export default defineNuxtConfig({
       return {
         steps: [
           {
-            title: 'Add to root.tsx',
-            description: 'Open `app/root.tsx` and add the script inside `<head>`',
-            code: `// app/root.tsx
-<head>
+            title: getT('remix').step1.title,
+            description: getT('remix').step1.description,
+            code: `<head>
   <script
     async
     src="${analyticsUrl}/analytics.js"
@@ -204,8 +224,8 @@ export default defineNuxtConfig({
       return {
         steps: [
           {
-            title: 'Add to gatsby-ssr.js',
-            description: 'Create or update `gatsby-ssr.js` in your project root',
+            title: getT('gatsby').step1.title,
+            description: getT('gatsby').step1.description,
             code: `import React from "react"
 
 export const onRenderBody = ({ setHeadComponents }) => {
@@ -227,8 +247,8 @@ export const onRenderBody = ({ setHeadComponents }) => {
       return {
         steps: [
           {
-            title: 'Add to index.html',
-            description: 'Paste this in `src/index.html` inside the `<head>` section',
+            title: getT('angular').step1.title,
+            description: getT('angular').step1.description,
             code: trackingScript,
             language: 'html',
           },
@@ -239,8 +259,8 @@ export const onRenderBody = ({ setHeadComponents }) => {
       return {
         steps: [
           {
-            title: 'Add to index.html',
-            description: 'Paste this in your `index.html` inside the `<head>` section',
+            title: getT('solidjs').step1.title,
+            description: getT('solidjs').step1.description,
             code: trackingScript,
             language: 'html',
           },
@@ -251,9 +271,8 @@ export const onRenderBody = ({ setHeadComponents }) => {
       return {
         steps: [
           {
-            title: 'Add to your Blade layout',
-            description:
-              "Paste this in your layout file's `<head>` section (e.g., `resources/views/layouts/app.blade.php`)",
+            title: getT('laravel').step1.title,
+            description: getT('laravel').step1.description,
             code: trackingScript,
             language: 'html',
           },
@@ -264,93 +283,129 @@ export const onRenderBody = ({ setHeadComponents }) => {
       return {
         steps: [
           {
-            title: 'Open your theme editor',
-            description:
-              'Go to **Appearance** > **Theme Editor**, or use a plugin like "Insert Headers and Footers"',
+            title: getT('wordpress').step1.title,
+            description: getT('wordpress').step1.description,
           },
           {
-            title: 'Add the tracking script',
-            description: 'Paste this before `</head>` in your `header.php`',
+            title: getT('wordpress').step2!.title,
+            description: getT('wordpress').step2!.description,
             code: trackingScript,
             language: 'html',
           },
         ],
-        note: 'Consider using a child theme or plugin to prevent losing changes on theme updates.',
+        note: getT('wordpress').note,
       };
 
     case 'shopify':
       return {
         steps: [
           {
-            title: 'Open theme editor',
-            description: 'Go to **Online Store** > **Themes** > **Edit code**',
+            title: getT('shopify').step1.title,
+            description: getT('shopify').step1.description,
           },
           {
-            title: 'Edit theme.liquid',
-            description: 'Open `theme.liquid` in the **Layout** folder',
+            title: getT('shopify').step2!.title,
+            description: getT('shopify').step2!.description,
           },
           {
-            title: 'Add the tracking script',
-            description: 'Paste this before the closing `</head>` tag',
+            title: getT('shopify').step3!.title,
+            description: getT('shopify').step3!.description,
             code: trackingScript,
             language: 'html',
           },
         ],
-        note: 'Theme updates may overwrite your changes. Consider duplicating your theme as a backup.',
+        note: getT('shopify').note,
       };
 
     case 'webflow':
       return {
         steps: [
           {
-            title: 'Open project settings',
-            description: 'Go to **Project Settings** > **Custom Code**',
+            title: getT('webflow').step1.title,
+            description: getT('webflow').step1.description,
           },
           {
-            title: 'Add the tracking script',
-            description: 'Paste this in the **Head Code** section, then publish your site',
+            title: getT('webflow').step2!.title,
+            description: getT('webflow').step2!.description,
             code: trackingScript,
             language: 'html',
           },
         ],
+      };
+
+    case 'wix':
+      return {
+        steps: [
+          {
+            title: getT('wix').step1.title,
+            description: getT('wix').step1.description,
+          },
+          {
+            title: getT('wix').step2!.title,
+            description: getT('wix').step2!.description,
+            code: trackingScript,
+            language: 'html',
+          },
+          {
+            title: getT('wix').step3!.title,
+            description: getT('wix').step3!.description,
+          },
+        ],
+        note: getT('wix').note,
+      };
+
+    case 'squarespace':
+      return {
+        steps: [
+          {
+            title: getT('squarespace').step1.title,
+            description: getT('squarespace').step1.description,
+          },
+          {
+            title: getT('squarespace').step2!.title,
+            description: getT('squarespace').step2!.description,
+            code: trackingScript,
+            language: 'html',
+          },
+        ],
+        note: getT('squarespace').note,
       };
 
     case 'gtm':
       return {
         steps: [
           {
-            title: 'Create a new tag',
-            description: 'In **Google Tag Manager**, go to **Tags** > **New** > **Custom HTML**',
+            title: getT('gtm').step1.title,
+            description: getT('gtm').step1.description,
           },
           {
-            title: 'Add the tracking script',
-            description: 'Paste this code and set trigger to **All Pages**',
+            title: getT('gtm').step2!.title,
+            description: getT('gtm').step2!.description,
             code: trackingScript,
             language: 'html',
           },
           {
-            title: 'Publish your container',
-            description: 'Click **Submit** to publish the changes',
+            title: getT('gtm').step3!.title,
+            description: getT('gtm').step3!.description,
           },
         ],
-        note: 'Make sure GTM is properly installed on your website.',
+        note: getT('gtm').note,
       };
 
     case 'npm':
       return {
         steps: [
           {
-            title: 'Install the package',
-            description: 'Run this in your project directory',
+            title: getT('npm').step1.title,
+            description: getT('npm').step1.description,
             code: 'npm install @betterlytics/tracker',
             language: 'javascript',
           },
           {
-            title: 'Initialize the tracker',
-            description: "Add this to your app's entry point (e.g., `index.ts`, `main.ts`, or `App.tsx`)",
+            title: getT('npm').step2!.title,
+            description: getT('npm').step2!.description,
             code: `import betterlytics from "@betterlytics/tracker"
 
-// Initialize as early as possible in your app
 betterlytics.init("${siteId}")`,
             language: 'javascript',
           },
@@ -361,8 +416,8 @@ betterlytics.init("${siteId}")`,
       return {
         steps: [
           {
-            title: 'Add the tracking script',
-            description: 'Paste this in your HTML `<head>` section',
+            title: getT('default').step1.title,
+            description: getT('default').step1.description,
             code: trackingScript,
             language: 'html',
           },

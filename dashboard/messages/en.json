@@ -3222,5 +3222,174 @@
       "errorDescription": "Something went wrong while accepting the invitation. It may have already been accepted or cancelled.",
       "goToDashboards": "Go to Dashboards"
     }
+  },
+  "integration": {
+    "frameworks": {
+      "html": {
+        "step1": {
+          "title": "Add the tracking script",
+          "description": "Paste this inside your `<head>` tag"
+        }
+      },
+      "nextjs": {
+        "step1": {
+          "title": "Add to your root layout",
+          "description": "Open `app/layout.tsx` and add the Script component inside `<head>`"
+        }
+      },
+      "react": {
+        "step1": {
+          "title": "Add to your App component",
+          "description": "Add this to your root component (e.g., `App.tsx` or `main.tsx`)"
+        }
+      },
+      "vue": {
+        "step1": {
+          "title": "Add to your main.ts",
+          "description": "Add the tracking script before mounting your app"
+        }
+      },
+      "nuxt": {
+        "step1": {
+          "title": "Add to nuxt.config.ts",
+          "description": "Add the script to your Nuxt config"
+        }
+      },
+      "svelte": {
+        "step1": {
+          "title": "Add to app.html",
+          "description": "Open `src/app.html` and paste this inside the `<head>` section"
+        }
+      },
+      "astro": {
+        "step1": {
+          "title": "Add to your base layout",
+          "description": "Open your layout file (e.g., `src/layouts/Layout.astro`)"
+        }
+      },
+      "remix": {
+        "step1": {
+          "title": "Add to root.tsx",
+          "description": "Open `app/root.tsx` and add the script inside `<head>`"
+        }
+      },
+      "gatsby": {
+        "step1": {
+          "title": "Add to gatsby-ssr.js",
+          "description": "Create or update `gatsby-ssr.js` in your project root"
+        }
+      },
+      "angular": {
+        "step1": {
+          "title": "Add to index.html",
+          "description": "Paste this in `src/index.html` inside the `<head>` section"
+        }
+      },
+      "solidjs": {
+        "step1": {
+          "title": "Add to index.html",
+          "description": "Paste this in your `index.html` inside the `<head>` section"
+        }
+      },
+      "laravel": {
+        "step1": {
+          "title": "Add to your Blade layout",
+          "description": "Paste this in your layout file's `<head>` section (e.g., `resources/views/layouts/app.blade.php`)"
+        }
+      },
+      "wordpress": {
+        "step1": {
+          "title": "Open your theme editor",
+          "description": "Go to **Appearance** > **Theme Editor**, or use a plugin like \"Insert Headers and Footers\""
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this before `</head>` in your `header.php`"
+        },
+        "note": "Consider using a child theme or plugin to prevent losing changes on theme updates."
+      },
+      "shopify": {
+        "step1": {
+          "title": "Open theme editor",
+          "description": "Go to **Online Store** > **Themes** > **Edit code**"
+        },
+        "step2": {
+          "title": "Edit theme.liquid",
+          "description": "Open `theme.liquid` in the **Layout** folder"
+        },
+        "step3": {
+          "title": "Add the tracking script",
+          "description": "Paste this before the closing `</head>` tag"
+        },
+        "note": "Theme updates may overwrite your changes. Consider duplicating your theme as a backup."
+      },
+      "webflow": {
+        "step1": {
+          "title": "Open project settings",
+          "description": "Go to **Project Settings** > **Custom Code**"
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this in the **Head Code** section, then publish your site"
+        }
+      },
+      "wix": {
+        "step1": {
+          "title": "Open site settings",
+          "description": "Go to **Settings** > **Custom Code**"
+        },
+        "step2": {
+          "title": "Add new custom code",
+          "description": "Click **Add Custom Code** and paste the script below"
+        },
+        "step3": {
+          "title": "Configure and apply",
+          "description": "Set placement to **Head**, apply to **All pages**, then click **Apply**"
+        },
+        "note": "Custom Code requires a Wix Premium plan."
+      },
+      "squarespace": {
+        "step1": {
+          "title": "Open code injection",
+          "description": "Go to **Settings** > **Developer Tools** > **Code Injection**"
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this in the **Header** section, then save"
+        },
+        "note": "Code Injection requires a Squarespace Business plan or higher."
+      },
+      "gtm": {
+        "step1": {
+          "title": "Create a new tag",
+          "description": "In **Google Tag Manager**, go to **Tags** > **New** > **Custom HTML**"
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this code and set trigger to **All Pages**"
+        },
+        "step3": {
+          "title": "Publish your container",
+          "description": "Click **Submit** to publish the changes"
+        },
+        "note": "Make sure GTM is properly installed on your website."
+      },
+      "npm": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize the tracker",
+          "description": "Add this to your app's entry point (e.g., `index.ts`, `main.ts`, or `App.tsx`)"
+        }
+      },
+      "default": {
+        "step1": {
+          "title": "Add the tracking script",
+          "description": "Paste this in your HTML `<head>` section"
+        }
+      }
+    }
   }
 }

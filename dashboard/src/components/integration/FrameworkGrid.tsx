@@ -20,6 +20,8 @@ export type FrameworkId =
   | 'wordpress'
   | 'shopify'
   | 'webflow'
+  | 'wix'
+  | 'squarespace'
   | 'gtm'
   | 'laravel'
   | 'solidjs';
@@ -47,6 +49,8 @@ export const FRAMEWORKS: FrameworkOption[] = [
   { id: 'wordpress', name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', description: 'Plugin' },
   { id: 'shopify', name: 'Shopify', logo: '/framework-logos/shopify-icon.svg', description: 'Theme' },
   { id: 'webflow', name: 'Webflow', logo: '/framework-logos/webflow-icon.svg', description: 'CMS' },
+  { id: 'wix', name: 'Wix', logo: '/framework-logos/wix-icon.svg', description: 'CMS' },
+  { id: 'squarespace', name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg', description: 'CMS' },
   { id: 'gtm', name: 'GTM', logo: '/framework-logos/gtm-icon.svg', description: 'Tag Manager' },
   { id: 'npm', name: 'npm', description: 'Node.js' },
 ];
