@@ -5,8 +5,10 @@ import { getCapabilitiesForTier, PlanCapabilities } from './capabilities';
 import { UserException } from '@/lib/exceptions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { PLAN_CAPABILITIES } from './capabilities';
+import { findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
+import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 
-export async function getCapabilities(): Promise<PlanCapabilities> {
+export async function getUserCapabilities(): Promise<PlanCapabilities> {
   if (!isFeatureEnabled('enableBilling')) {
     return PLAN_CAPABILITIES.enterprise;
   }
@@ -14,10 +16,28 @@ export async function getCapabilities(): Promise<PlanCapabilities> {
   const billing = await getUserBillingData();
 
   if (!billing.success) {
-    throw new UserException('Unable to verify subscription status');
+    throw new Error('Unable to verify subscription status');
   }
 
   return getCapabilitiesForTier(billing.data.subscription.tier);
+}
+
+export async function getDashboardCapabilities(dashboardId: string): Promise<PlanCapabilities> {
+  if (!isFeatureEnabled('enableBilling')) {
+    return PLAN_CAPABILITIES.enterprise;
+  }
+
+  const owner = await findDashboardOwner(dashboardId);
+  if (!owner) {
+    throw new Error('Dashboard owner not found');
+  }
+
+  const subscription = await getUserSubscription(owner.userId);
+  if (!subscription) {
+    throw new Error('Unable to verify subscription status');
+  }
+
+  return getCapabilitiesForTier(subscription.tier);
 }
 
 export function requireCapability(allowed: boolean, message: string): void {

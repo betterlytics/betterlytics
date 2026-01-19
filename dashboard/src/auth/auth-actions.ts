@@ -15,6 +15,8 @@ import { stableStringify } from '@/utils/stableStringify';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { cache } from 'react';
 import { UserException } from '@/lib/exceptions';
+import { Permission, hasPermission } from '@/lib/permissions';
+import { DashboardRole } from '@prisma/client';
 
 // Stable per-action signature to avoid cache key collisions (alternatively we provide each function an explicit name)
 type AnyFn = (...args: unknown[]) => unknown;
@@ -123,7 +125,9 @@ async function resolveDemoDashboardContext(dashboardId: string): Promise<AuthCon
 async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   const session = await requireAuth();
   const ctx = await getCachedAuthorizedContext(session.user.id, dashboardId);
-  if (!ctx) throw new Error('Unauthorized');
+  if (!ctx) {
+    redirect('/dashboards');
+  }
   return ctx;
 }
 
@@ -179,11 +183,45 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
   };
 }
 
+export type MutationAuthOptions = {
+  permission?: Permission;
+  allowedRoles?: DashboardRole[];
+};
+
+/**
+ * Default: block viewers from all mutations (owner/admin/member allowed)
+ */
+function assertRoleAuthorized(context: AuthContext, options?: MutationAuthOptions): void {
+  if (!options) {
+    if (context.role === 'viewer') {
+      throw new UserException('You do not have permission to perform this action');
+    }
+    return;
+  }
+
+  if (options.allowedRoles) {
+    if (!options.allowedRoles.includes(context.role)) {
+      throw new UserException('You do not have permission to perform this action');
+    }
+    return;
+  }
+
+  if (options.permission) {
+    if (!hasPermission(context.role, options.permission)) {
+      throw new UserException('You do not have permission to perform this action');
+    }
+  }
+}
+
 export function withDashboardMutationAuthContext<Args extends Array<unknown> = unknown[], Ret = unknown>(
   action: ActionRequiringAuthContext<Args, Ret>,
+  options?: MutationAuthOptions,
 ) {
   return async function (dashboardId: string, ...args: Args): Promise<Awaited<Ret>> {
     const context = await requireDashboardAuth(dashboardId);
+
+    assertRoleAuthorized(context, options);
+
     const actionId = getActionSignature(action as AnyFn);
     const spanName = `action.${(action as AnyFn).name || 'dashboard_mutation'}`;
     return await withActionSpan(
@@ -193,6 +231,7 @@ export function withDashboardMutationAuthContext<Args extends Array<unknown> = u
         'ba.dashboard.id': context.dashboardId,
         'ba.site.id': context.siteId,
         'ba.auth.is_demo': context.isDemo,
+        'ba.auth.role': context.role,
       },
       async () => await action(context, ...args),
     );

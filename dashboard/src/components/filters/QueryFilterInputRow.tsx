@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
-import { useDemoMode } from '@/contexts/DemoModeContextProvider';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -51,19 +51,19 @@ export function QueryFilterInputRow<TEntity>({
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
-  const isDemo = useDemoMode();
+  const { isDemo } = useDashboardAuth();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
     if (filter.column !== filterColumnRef.current) {
-      onFilterUpdate({ ...filter, value: '' });
+      onFilterUpdate({ ...filter, values: [] });
       filterColumnRef.current = filter.column;
     }
   }, [filter.column]);
 
   return (
-    <div className='grid grid-cols-12 grid-rows-2 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+    <div className='grid grid-cols-12 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <Select
         value={filter.column}
         onValueChange={(column: FilterColumn) => {

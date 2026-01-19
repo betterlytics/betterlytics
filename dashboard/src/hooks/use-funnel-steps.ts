@@ -14,7 +14,7 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   }, []);
 
   const addEmptyFunnelStep = useCallback(() => {
-    addFunnelStep({ column: 'url', operator: '=', value: '', name: '' });
+    addFunnelStep({ column: 'url', operator: '=', values: [], name: '' });
   }, [addFunnelStep]);
 
   useLayoutEffect(() => {

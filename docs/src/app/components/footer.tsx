@@ -59,6 +59,14 @@ export function Footer() {
                   Data Processing Agreement
                 </ExternalLink>
               </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/subprocessors"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Subprocessors
+                </ExternalLink>
+              </li>
             </ul>
           </div>
           <div>
@@ -79,6 +87,14 @@ export function Footer() {
                 >
                   Changelog
                 </Link>
+              </li>
+              <li>
+                <ExternalLink
+                  href="https://betterlytics.io/features"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Features
+                </ExternalLink>
               </li>
               <li>
                 <ExternalLink

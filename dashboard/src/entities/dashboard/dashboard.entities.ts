@@ -30,6 +30,7 @@ export const DashboardSchema = z.object({
   domain: z.string(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
+  deletedAt: z.date().nullable().optional(),
 });
 
 export const DashboardWriteSchema = z.object({
@@ -58,7 +59,12 @@ export const DashboardWithSiteConfigSchema = z.object({
   config: SiteConfigSchema.nullable(),
 });
 
+export const DashboardWithMemberCountSchema = DashboardSchema.extend({
+  memberCount: z.number(),
+});
+
 export type Dashboard = z.infer<typeof DashboardSchema>;
+export type DashboardWithMemberCount = z.infer<typeof DashboardWithMemberCountSchema>;
 export type DashboardWriteData = z.infer<typeof DashboardWriteSchema>;
 export type DashboardFindByUserData = z.infer<typeof DashboardFindByUserSchema>;
 export type DashboardUser = z.infer<typeof DashboardUserSchema>;

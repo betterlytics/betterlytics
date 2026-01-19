@@ -1,4 +1,4 @@
-'use server';
+'server-only';
 import { SiteConfigUpdate } from '@/entities/dashboard/siteConfig.entities';
 import { updateSiteConfig, findSiteConfigByDashboardId } from '@/repositories/postgres/siteConfig.repository';
 

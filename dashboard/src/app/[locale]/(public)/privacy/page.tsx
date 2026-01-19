@@ -4,11 +4,14 @@ import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.privacy), { locale });
 }
+
+const UPDATED_AT = new Date('2025-01-12');
 
 export default async function PrivacyPage() {
   if (!env.IS_CLOUD) {
@@ -28,7 +31,7 @@ export default async function PrivacyPage() {
             <h1 className='text-foreground text-3xl font-bold'>{t('title')}</h1>
             <p className='text-muted-foreground mt-2 text-lg'>
               {t('lastUpdated')}{' '}
-              {new Date().toLocaleDateString(locale, {
+              {UPDATED_AT.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -198,11 +201,24 @@ export default async function PrivacyPage() {
               </div>
             </section>
 
-            <section className='border-border border-t py-6 text-center'>
-              <p className='text-muted-foreground text-sm'>
+            <section className='border-border border-t py-6'>
+              <p className='text-muted-foreground text-center text-sm'>
                 {t('contact.footer1')}
                 <br />
                 {t('contact.footer2')}
+              </p>
+              <p className='mt-4 text-center text-sm'>
+                <Link href='/terms' className='text-primary hover:text-primary/80'>
+                  {t('contact.termsLink')}
+                </Link>
+                {' | '}
+                <Link href='/dpa' className='text-primary hover:text-primary/80'>
+                  {t('contact.dpaLink')}
+                </Link>
+                {' | '}
+                <Link href='/subprocessors' className='text-primary hover:text-primary/80'>
+                  {t('contact.subprocessorsLink')}
+                </Link>
               </p>
             </section>
           </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
 
@@ -9,6 +10,7 @@ type DashboardNavigationContextValue = {
   dashboardId: string;
   isDemo: boolean;
   dashboardRootPath: string;
+  getSwappedDashboardHref: (nextDashboardId: string) => string;
   resolveHref: (href: string) => string;
   buildHrefForDashboard: (targetDashboardId: string, href?: string) => string;
 };
@@ -30,6 +32,8 @@ export function DashboardNavigationProvider({
   isDemo = false,
   children,
 }: DashboardNavigationProviderProps) {
+  const pathname = usePathname();
+
   const value = useMemo<DashboardNavigationContextValue>(() => {
     const normalizedBasePath = normalizeBasePath(basePath);
     const basePathSegments = toSegments(normalizedBasePath);
@@ -40,16 +44,20 @@ export function DashboardNavigationProvider({
     const buildHrefForDashboard = (targetDashboardId: string, href = '') =>
       createDashboardHref({ basePathSegments, dashboardId: targetDashboardId, href });
 
+    const getSwappedDashboardHref = (nextDashboardId: string) =>
+      pathname.replace(`/dashboard/${dashboardId}`, `/dashboard/${nextDashboardId}`);
+
     return {
       basePath: basePathWithLeadingSlash,
       rawBasePath: basePath,
       dashboardId,
       isDemo,
+      getSwappedDashboardHref,
       dashboardRootPath: createDashboardHref({ basePathSegments, dashboardId, href: '' }),
       resolveHref,
       buildHrefForDashboard,
     };
-  }, [basePath, dashboardId, isDemo]);
+  }, [basePath, dashboardId, isDemo, pathname]);
 
   return <DashboardNavigationContext.Provider value={value}>{children}</DashboardNavigationContext.Provider>;
 }

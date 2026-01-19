@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { registerUserAction } from '@/app/actions/index.actions';
+import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { signIn, getProviders } from 'next-auth/react';
 import { ZodError } from 'zod';
@@ -17,6 +17,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
+import { useBARouter } from '@/hooks/use-ba-router';
+import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 
 const listVariants = {
   hidden: { opacity: 0 },
@@ -49,6 +51,27 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const router = useBARouter();
+
+  const handlePotentialInvitationsOnAccountCreation = useCallback(async () => {
+    try {
+      const acceptedInvitations = await acceptPendingInvitationsAction();
+      const isUserDashboardMember = await isUserInvitedDashboardMemberAction();
+      if (
+        (acceptedInvitations.success && acceptedInvitations.data.length > 0) ||
+        (isUserDashboardMember.success && isUserDashboardMember.data)
+      ) {
+        router.push('/dashboards');
+        return {
+          hadInvitations: true,
+        };
+      }
+    } catch {}
+    return {
+      hadInvitations: false,
+    };
+  }, [router]);
 
   const handleEmailRegistration = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
@@ -99,6 +122,12 @@ export default function AccountCreation({ providers, onNext }: AccountCreationPr
           }
 
           baEvent('onboarding-account-created');
+
+          const { hadInvitations } = await handlePotentialInvitationsOnAccountCreation();
+
+          if (hadInvitations) {
+            return;
+          }
 
           onNext();
         });

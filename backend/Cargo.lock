@@ -697,6 +697,7 @@ dependencies = [
  "nanoid",
  "once_cell",
  "prometheus",
+ "psl",
  "rand 0.8.5",
  "refparser",
  "regex",
@@ -2705,6 +2706,21 @@ checksum = "3e36c2f31e0a47f9280fb347ef5e461ffcd2c52dd520d8e216b52f93b0b0d7d6"
 dependencies = [
  "thiserror 1.0.69",
 ]
+
+[[package]]
+name = "psl"
+version = "2.1.178"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a54161bdf033552d905f5e653fb6263690e63df54745ad5199a5f8fa802a0d6"
+dependencies = [
+ "psl-types",
+]
+
+[[package]]
+name = "psl-types"
+version = "2.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33cb294fe86a74cbcf50d4445b37da762029549ebeea341421c7c70370f86cac"
 
 [[package]]
 name = "quanta"

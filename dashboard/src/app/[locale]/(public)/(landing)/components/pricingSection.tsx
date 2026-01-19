@@ -8,7 +8,7 @@ import { CheckCircle, ArrowRight } from 'lucide-react';
 export function PricingSection() {
   const t = useTranslations('public.landing.pricing');
   return (
-    <section id='pricing' className='scroll-mt-20 overflow-visible py-20'>
+    <section id='pricing' className='scroll-mt-20 overflow-visible py-24'>
       <div className='container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>

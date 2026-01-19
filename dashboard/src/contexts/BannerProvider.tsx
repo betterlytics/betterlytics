@@ -135,7 +135,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
 
   return (
     <BannerContext.Provider value={{ addBanner, removeBanner, dismissBanner }}>
-      <div className='h-full w-full'>
+      <div className='w-full overflow-x-hidden'>
         <div className={cn('w-full space-y-0 overflow-hidden p-0', nowVisible.length && 'border-b')}>
           {nowVisible.map((banner) => (
             <Banner key={banner.id} banner={banner} banners={nowVisible} />
