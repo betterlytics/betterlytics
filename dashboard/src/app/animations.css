@@ -180,13 +180,7 @@
   animation: fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
 
-.symbol-slot[data-phase='exiting'] {
-  width: 0;
-  opacity: 0;
-  white-space: nowrap;
-  pointer-events: none;
-  animation: fade-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
-}
+/* symbol-slot exiting rule moved to consolidated section below */
 
 @keyframes symbol-exit {
   from {
@@ -230,13 +224,13 @@
 }
 
 .symbol-slot[data-phase='exiting'] {
-  /* Take up zero width so the next symbol can occupy the same spot.
-     The sizer transition handles the overall container width smoothly. */
-  width: 0;
-  opacity: 0;
+  /* overflow: visible prevents clipping so the fade-out is visible */
+  overflow: visible;
   white-space: nowrap;
   pointer-events: none;
-  animation: fade-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
+  animation: 
+    symbol-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
+    fade-out var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
 
 @keyframes fade-out {

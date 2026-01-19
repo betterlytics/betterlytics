@@ -35,9 +35,10 @@ function SymbolSlotComponent({ value, phase, onPhaseComplete }: SymbolSlotProps)
     (e: React.AnimationEvent) => {
       if (e.target !== e.currentTarget) return;
 
+      // symbol-exit controls the width animation - use it to trigger removal
       if (e.animationName.includes('symbol-exit') && onPhaseComplete) {
         onPhaseComplete('exited');
-      } else if (e.animationName.includes('symbol-enter') && onPhaseComplete) {
+      } else if (e.animationName.includes('fade-in') && onPhaseComplete) {
         onPhaseComplete('entered');
       }
     },

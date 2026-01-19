@@ -114,32 +114,38 @@ function NumberRollComponent({
         className={cn('number-roll-root inline-flex isolate relative ltr contain-layout')}
         style={{ '--duration': `${duration}ms` } as React.CSSProperties}
       >
+        {/* Ghost for measurement - must NOT be constrained by container to measure natural width */}
+        <span
+          ref={ghostRef}
+          aria-hidden="true"
+          className="absolute left-0 top-0 invisible opacity-0 pointer-events-none leading-none font-[inherit] tabular-nums whitespace-nowrap"
+          style={{ 
+            letterSpacing: 'calc(var(--digit-width) - 1ch)',
+            fontFeatureSettings: '"tnum"',
+          } as React.CSSProperties}
+        >
+          {formattedString}
+        </span>
+
+        {/* Text selection overlay - only rendered when withTextSelect is true */}
         {withTextSelect && (
           <span
+            aria-hidden="false"
             className={cn(
               'absolute inset-0 flex items-center justify-end',
-              'text-transparent select-text z-[1] leading-none font-[inherit] tabular-nums',
-              'selection:text-transparent selection:bg-primary/20',
+              'leading-none font-[inherit] tabular-nums whitespace-nowrap',
+              'text-transparent select-text z-[1] selection:text-transparent selection:bg-primary/20',
             )}
-            style={{ letterSpacing: 'calc(var(--digit-width) - 1ch)' } as React.CSSProperties}
+            style={{ 
+              letterSpacing: 'calc(var(--digit-width) - 1ch)',
+              fontFeatureSettings: '"tnum"',
+            } as React.CSSProperties}
           >
             {formattedString}
           </span>
         )}
 
         <span aria-hidden="true" className="number-mask">
-          {/* Ghost element for measurement - matches sizer's font/letter-spacing exactly */}
-          <span
-            ref={ghostRef}
-            className="absolute invisible whitespace-nowrap opacity-0 pointer-events-none"
-            style={{ 
-              letterSpacing: 'calc(var(--digit-width) - 1ch)',
-              font: 'inherit',
-              fontFeatureSettings: '"tnum"',
-            } as React.CSSProperties}
-          >
-            {formattedString}
-          </span>
 
           <span
             className="number-roll-sizer"

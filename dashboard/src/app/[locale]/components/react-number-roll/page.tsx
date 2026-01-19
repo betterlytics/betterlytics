@@ -170,6 +170,15 @@ export default function ReactNumberRollDemoPage() {
             />
 
             <Control 
+              label="Value Slider" 
+              type="range" 
+              min={0} max={100} step={0.01} 
+              value={Math.max(0, Math.min(100, value))} 
+              onChange={handleValueChange} 
+              suffix={`${value.toFixed(2)}`}
+            />
+
+            <Control 
               label="Animation Duration" 
               type="range" 
               min={100} max={5000} step={100} 
