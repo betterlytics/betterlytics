@@ -43,9 +43,9 @@ export default async function Onboarding() {
   const userInvited = await isUserInvitedMember();
 
   const getStep = () => {
-    if (session.user.onboardingCompletedAt || userInvited) {
+    /*if (session.user.onboardingCompletedAt || userInvited) {
       redirect('/dashboards');
-    }
+    }*/
 
     if (!dashboard) {
       return 'website';

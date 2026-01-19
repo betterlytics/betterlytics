@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Code } from 'lucide-react';
+import { Code, ChevronDown, ChevronUp } from 'lucide-react';
 
 export type FrameworkId =
   | 'html'
@@ -16,7 +16,6 @@ export type FrameworkId =
   | 'remix'
   | 'gatsby'
   | 'angular'
-  | 'npm'
   | 'wordpress'
   | 'shopify'
   | 'webflow'
@@ -41,9 +40,9 @@ export const FRAMEWORKS: FrameworkOption[] = [
   { id: 'nuxt', name: 'Nuxt', logo: '/framework-logos/nuxtjs-icon.svg', description: 'Nuxt 3' },
   { id: 'svelte', name: 'Svelte', logo: '/framework-logos/svelte-icon.svg', description: 'SvelteKit' },
   { id: 'astro', name: 'Astro', description: 'Astro' },
+  { id: 'angular', name: 'Angular', logo: '/framework-logos/angular-icon.svg', description: 'Angular 17+' },
   { id: 'remix', name: 'Remix', logo: '/framework-logos/remix-icon.svg', description: 'Remix' },
   { id: 'gatsby', name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', description: 'Gatsby' },
-  { id: 'angular', name: 'Angular', logo: '/framework-logos/angular-icon.svg', description: 'Angular 17+' },
   { id: 'solidjs', name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg', description: 'SolidJS' },
   { id: 'laravel', name: 'Laravel', logo: '/framework-logos/laravel-icon.svg', description: 'PHP' },
   { id: 'wordpress', name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', description: 'Plugin' },
@@ -52,8 +51,9 @@ export const FRAMEWORKS: FrameworkOption[] = [
   { id: 'wix', name: 'Wix', logo: '/framework-logos/wix-icon.svg', description: 'CMS' },
   { id: 'squarespace', name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg', description: 'CMS' },
   { id: 'gtm', name: 'GTM', logo: '/framework-logos/gtm-icon.svg', description: 'Tag Manager' },
-  { id: 'npm', name: 'npm', description: 'Node.js' },
 ];
+
+const VISIBLE_COUNT = 12;
 
 interface FrameworkGridProps {
   selectedFramework: FrameworkId;
@@ -61,65 +61,92 @@ interface FrameworkGridProps {
 }
 
 export function FrameworkGrid({ selectedFramework, onSelectFramework }: FrameworkGridProps) {
-  return (
-    <div className='grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'>
-      {FRAMEWORKS.map((framework) => {
-        const isSelected = selectedFramework === framework.id;
+  const [isExpanded, setIsExpanded] = useState(false);
 
-        return (
-          <button
-            key={framework.id}
-            type='button'
-            onClick={() => onSelectFramework(framework.id)}
-            className={cn(
-              'group relative flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border p-3 transition-all duration-200',
-              'hover:border-primary/50 hover:bg-accent/50',
-              isSelected ? 'border-primary bg-primary/10 ring-primary/20 ring-2' : 'border-border bg-card',
-            )}
-          >
-            {framework.logo ? (
-              <Image
-                src={framework.logo}
-                alt={`${framework.name} logo`}
-                width={28}
-                height={28}
-                className={cn(
-                  'h-7 w-7 transition-opacity',
-                  isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-100',
-                )}
-              />
-            ) : (
-              <Code
-                className={cn(
-                  'h-7 w-7 transition-colors',
-                  isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
-                )}
-              />
-            )}
-            <span
+  const visibleFrameworks = isExpanded ? FRAMEWORKS : FRAMEWORKS.slice(0, VISIBLE_COUNT);
+  const hiddenCount = FRAMEWORKS.length - VISIBLE_COUNT;
+
+  return (
+    <div className='space-y-2'>
+      <div className='grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'>
+        {visibleFrameworks.map((framework) => {
+          const isSelected = selectedFramework === framework.id;
+
+          return (
+            <button
+              key={framework.id}
+              type='button'
+              onClick={() => onSelectFramework(framework.id)}
               className={cn(
-                'text-xs font-medium transition-colors',
-                isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
+                'group relative flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border p-3 transition-all duration-200',
+                'hover:border-primary/50 hover:bg-accent/50',
+                isSelected ? 'border-primary bg-primary/10 ring-primary/20 ring-2' : 'border-border bg-card',
               )}
             >
-              {framework.name}
-            </span>
-            {isSelected && (
-              <div className='bg-primary absolute -top-1 -right-1 h-3 w-3 rounded-full'>
-                <svg
-                  className='text-primary-foreground h-3 w-3'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                  stroke='currentColor'
-                  strokeWidth={3}
-                >
-                  <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
-                </svg>
-              </div>
-            )}
-          </button>
-        );
-      })}
+              {framework.logo ? (
+                <Image
+                  src={framework.logo}
+                  alt={`${framework.name} logo`}
+                  width={28}
+                  height={28}
+                  className={cn(
+                    'h-7 w-7 transition-opacity',
+                    isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-100',
+                  )}
+                />
+              ) : (
+                <Code
+                  className={cn(
+                    'h-7 w-7 transition-colors',
+                    isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
+                  )}
+                />
+              )}
+              <span
+                className={cn(
+                  'text-xs font-medium transition-colors',
+                  isSelected ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
+                )}
+              >
+                {framework.name}
+              </span>
+              {isSelected && (
+                <div className='bg-primary absolute -top-1 -right-1 h-3 w-3 rounded-full'>
+                  <svg
+                    className='text-primary-foreground h-3 w-3'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
+                  </svg>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {hiddenCount > 0 && (
+        <button
+          type='button'
+          onClick={() => setIsExpanded(!isExpanded)}
+          className='text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-1.5 text-xs transition-colors'
+        >
+          {isExpanded ? (
+            <>
+              <ChevronUp className='h-3.5 w-3.5' />
+              <span>Show less</span>
+            </>
+          ) : (
+            <>
+              <ChevronDown className='h-3.5 w-3.5' />
+              <span>+{hiddenCount} more frameworks</span>
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }

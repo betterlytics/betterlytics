@@ -3232,63 +3232,131 @@
         }
       },
       "nextjs": {
-        "step1": {
-          "title": "Add to your root layout",
-          "description": "Open app/layout.tsx and add the Script component inside <head>"
+        "variants": {
+          "next153": {
+            "step1": {
+              "title": "Install the package",
+              "description": "Run this in your project directory"
+            },
+            "step2": {
+              "title": "Create instrumentation-client.ts",
+              "description": "Create this file in your project root"
+            }
+          },
+          "approuter": {
+            "step1": {
+              "title": "Install the package",
+              "description": "Run this in your project directory"
+            },
+            "step2": {
+              "title": "Create a client provider",
+              "description": "Create app/providers.tsx with the 'use client' directive"
+            },
+            "step3": {
+              "title": "Wrap your app",
+              "description": "Add the provider to your root layout (app/layout.tsx)"
+            }
+          },
+          "pagesrouter": {
+            "step1": {
+              "title": "Install the package",
+              "description": "Run this in your project directory"
+            },
+            "step2": {
+              "title": "Initialize in _app.tsx",
+              "description": "Add to pages/_app.tsx"
+            }
+          }
         }
       },
       "react": {
         "step1": {
-          "title": "Add to your App component",
-          "description": "Add this to your root component (e.g., App.tsx or main.tsx)"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize the tracker",
+          "description": "Add this to your app entry (e.g., src/main.tsx)"
         }
       },
       "vue": {
         "step1": {
-          "title": "Add to your main.ts",
-          "description": "Add the tracking script before mounting your app"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize the tracker",
+          "description": "Add this to your main.ts before mounting your app"
         }
       },
       "nuxt": {
         "step1": {
-          "title": "Add to nuxt.config.ts",
-          "description": "Add the script to your Nuxt config"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Create a client plugin",
+          "description": "Create plugins/betterlytics.client.ts"
         }
       },
       "svelte": {
         "step1": {
-          "title": "Add to app.html",
-          "description": "Open src/app.html and paste this inside the <head> section"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in your root layout",
+          "description": "Add this to src/routes/+layout.svelte"
         }
       },
       "astro": {
         "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
           "title": "Add to your base layout",
-          "description": "Open your layout file (e.g., src/layouts/Layout.astro)"
+          "description": "Add a script tag to your layout (e.g., src/layouts/Layout.astro)"
         }
       },
       "remix": {
         "step1": {
-          "title": "Add to root.tsx",
-          "description": "Open app/root.tsx and add the script inside <head>"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in root.tsx",
+          "description": "Add this to app/root.tsx using useEffect"
         }
       },
       "gatsby": {
         "step1": {
-          "title": "Add to gatsby-ssr.js",
-          "description": "Create or update gatsby-ssr.js in your project root"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in gatsby-browser.js",
+          "description": "Add this to gatsby-browser.js in your project root"
         }
       },
       "angular": {
         "step1": {
-          "title": "Add to index.html",
-          "description": "Paste this in src/index.html inside the <head> section"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in main.ts",
+          "description": "Add this to your src/main.ts file"
         }
       },
       "solidjs": {
         "step1": {
-          "title": "Add to index.html",
-          "description": "Paste this in your index.html inside the <head> section"
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in your entry file",
+          "description": "Add this to src/index.tsx"
         }
       },
       "laravel": {
@@ -3373,22 +3441,6 @@
           "description": "Click Submit to publish the changes"
         },
         "note": "Make sure GTM is properly installed on your website."
-      },
-      "npm": {
-        "step1": {
-          "title": "Install the package",
-          "description": "Run this in your project directory"
-        },
-        "step2": {
-          "title": "Initialize the tracker",
-          "description": "Add this to your app's entry point (e.g., index.ts, main.ts, or App.tsx)"
-        }
-      },
-      "default": {
-        "step1": {
-          "title": "Add the tracking script",
-          "description": "Paste this in your HTML <head> section"
-        }
       }
     }
   }

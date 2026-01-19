@@ -1,10 +1,30 @@
 import { FrameworkId } from './FrameworkGrid';
 
-interface FrameworkCodeConfig {
-  siteId: string;
-  analyticsUrl: string;
-  serverUrl?: string;
-  isCloud: boolean;
+export interface CodeTab {
+  id: string;
+  label: string;
+  code: string;
+  language: 'html' | 'javascript' | 'bash';
+}
+
+export interface FrameworkStep {
+  title: string;
+  description?: string;
+  code?: string;
+  language?: 'html' | 'javascript' | 'bash';
+  codeTabs?: CodeTab[];
+}
+
+export interface FrameworkVariant {
+  id: string;
+  label: string;
+  steps: FrameworkStep[];
+}
+
+export interface FrameworkCode {
+  variants?: FrameworkVariant[];
+  steps?: FrameworkStep[];
+  note?: string;
 }
 
 interface FrameworkStepTranslations {
@@ -17,6 +37,13 @@ interface FrameworkTranslations {
   step2?: FrameworkStepTranslations;
   step3?: FrameworkStepTranslations;
   note?: string;
+  variants?: {
+    [variantId: string]: {
+      step1?: FrameworkStepTranslations;
+      step2?: FrameworkStepTranslations;
+      step3?: FrameworkStepTranslations;
+    };
+  };
 }
 
 export interface IntegrationTranslations {
@@ -25,16 +52,25 @@ export interface IntegrationTranslations {
   };
 }
 
-export interface FrameworkStep {
-  title: string;
-  description?: string;
-  code?: string;
-  language?: 'html' | 'javascript';
+interface FrameworkCodeConfig {
+  siteId: string;
+  analyticsUrl: string;
+  serverUrl?: string;
+  isCloud: boolean;
 }
 
-export interface FrameworkCode {
-  steps: FrameworkStep[];
-  note?: string;
+function getPackageManagerTabs(): CodeTab[] {
+  return [
+    { id: 'npm', label: 'npm', code: 'npm install @betterlytics/tracker', language: 'bash' },
+    { id: 'yarn', label: 'yarn', code: 'yarn add @betterlytics/tracker', language: 'bash' },
+    { id: 'pnpm', label: 'pnpm', code: 'pnpm add @betterlytics/tracker', language: 'bash' },
+  ];
+}
+
+function getSimpleInitCode(siteId: string): string {
+  return `import betterlytics from "@betterlytics/tracker"
+
+betterlytics.init("${siteId}")`;
 }
 
 export function getFrameworkCode(
@@ -44,14 +80,14 @@ export function getFrameworkCode(
 ): FrameworkCode {
   const { siteId, analyticsUrl, serverUrl, isCloud } = config;
   const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}"` : '';
-  const serverUrlJS = !isCloud && serverUrl ? `\n    script.setAttribute('data-server-url', "${serverUrl}");` : '';
 
   const trackingScript = `<script async
     src="${analyticsUrl}/analytics.js"
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;
 
-  const getT = (id: string) => t.frameworks[id] || t.frameworks['default'];
+  const getT = (id: string) => t.frameworks[id];
+  const packageManagerTabs = getPackageManagerTabs();
 
   switch (frameworkId) {
     case 'html':
@@ -68,37 +104,116 @@ export function getFrameworkCode(
         ],
       };
 
-    case 'nextjs':
+    case 'laravel':
       return {
         steps: [
           {
-            title: getT('nextjs').step1.title,
-            description: getT('nextjs').step1.description,
-            code: `import Script from 'next/script'
+            title: getT('laravel').step1.title,
+            description: getT('laravel').step1.description,
+            code: trackingScript,
+            language: 'html',
+          },
+        ],
+      };
+
+    case 'nextjs': {
+      const nextjsT = getT('nextjs');
+      return {
+        variants: [
+          {
+            id: 'next153',
+            label: 'Next.js 15.3+',
+            steps: [
+              {
+                title: nextjsT.variants!.next153.step1!.title,
+                description: nextjsT.variants!.next153.step1!.description,
+                codeTabs: packageManagerTabs,
+              },
+              {
+                title: nextjsT.variants!.next153.step2!.title,
+                description: nextjsT.variants!.next153.step2!.description,
+                code: getSimpleInitCode(siteId),
+                language: 'javascript',
+              },
+            ],
+          },
+          {
+            id: 'approuter',
+            label: 'App Router',
+            steps: [
+              {
+                title: nextjsT.variants!.approuter.step1!.title,
+                description: nextjsT.variants!.approuter.step1!.description,
+                codeTabs: packageManagerTabs,
+              },
+              {
+                title: nextjsT.variants!.approuter.step2!.title,
+                description: nextjsT.variants!.approuter.step2!.description,
+                code: `'use client'
+
+import { useEffect } from 'react'
+import betterlytics from "@betterlytics/tracker"
+
+export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    betterlytics.init("${siteId}")
+  }, [])
+
+  return <>{children}</>
+}`,
+                language: 'javascript',
+              },
+              {
+                title: nextjsT.variants!.approuter.step3!.title,
+                description: nextjsT.variants!.approuter.step3!.description,
+                code: `// app/layout.tsx
+import { AnalyticsProvider } from './providers'
 
 export default function RootLayout({ children }) {
   return (
     <html>
-      <head>
-        <Script
-          async
-          src="${analyticsUrl}/analytics.js"
-          data-site-id="${siteId}"${
-            serverUrlAttr
-              ? `
-          data-server-url="${serverUrl}"`
-              : ''
-          }
-        />
-      </head>
-      <body>{children}</body>
+      <body>
+        <AnalyticsProvider>
+          {children}
+        </AnalyticsProvider>
+      </body>
     </html>
   )
 }`,
-            language: 'javascript',
+                language: 'javascript',
+              },
+            ],
+          },
+          {
+            id: 'pagesrouter',
+            label: 'Pages Router',
+            steps: [
+              {
+                title: nextjsT.variants!.pagesrouter.step1!.title,
+                description: nextjsT.variants!.pagesrouter.step1!.description,
+                codeTabs: packageManagerTabs,
+              },
+              {
+                title: nextjsT.variants!.pagesrouter.step2!.title,
+                description: nextjsT.variants!.pagesrouter.step2!.description,
+                code: `import { useEffect } from 'react'
+import type { AppProps } from 'next/app'
+import betterlytics from "@betterlytics/tracker"
+
+export default function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    betterlytics.init("${siteId}")
+  }, [])
+
+  return <Component {...pageProps} />
+}`,
+                language: 'javascript',
+              },
+            ],
           },
         ],
       };
+    }
 
     case 'react':
       return {
@@ -106,21 +221,12 @@ export default function RootLayout({ children }) {
           {
             title: getT('react').step1.title,
             description: getT('react').step1.description,
-            code: `import { useEffect } from 'react'
-
-function App() {
-  useEffect(() => {
-    const script = document.createElement('script')
-    script.async = true
-    script.src = "${analyticsUrl}/analytics.js"
-    script.setAttribute('data-site-id', "${siteId}")${serverUrlJS}
-    document.head.appendChild(script)
-  }, [])
-
-  return <>{/* ... */}</>
-}
-
-export default App`,
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('react').step2!.title,
+            description: getT('react').step2!.description,
+            code: getSimpleInitCode(siteId),
             language: 'javascript',
           },
         ],
@@ -132,14 +238,16 @@ export default App`,
           {
             title: getT('vue').step1.title,
             description: getT('vue').step1.description,
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('vue').step2!.title,
+            description: getT('vue').step2!.description,
             code: `import { createApp } from 'vue'
 import App from './App.vue'
+import betterlytics from "@betterlytics/tracker"
 
-const script = document.createElement('script')
-script.async = true
-script.src = "${analyticsUrl}/analytics.js"
-script.setAttribute('data-site-id', "${siteId}")${serverUrlJS.replace('    ', '')}
-document.head.appendChild(script)
+betterlytics.init("${siteId}")
 
 createApp(App).mount('#app')`,
             language: 'javascript',
@@ -153,16 +261,16 @@ createApp(App).mount('#app')`,
           {
             title: getT('nuxt').step1.title,
             description: getT('nuxt').step1.description,
-            code: `export default defineNuxtConfig({
-  app: {
-    head: {
-      script: [{
-        src: '${analyticsUrl}/analytics.js',
-        async: true,
-        'data-site-id': '${siteId}'${!isCloud && serverUrl ? `,\n        'data-server-url': '${serverUrl}'` : ''}
-      }]
-    }
-  }
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('nuxt').step2!.title,
+            description: getT('nuxt').step2!.description,
+            code: `// plugins/betterlytics.client.ts
+import betterlytics from "@betterlytics/tracker"
+
+export default defineNuxtPlugin(() => {
+  betterlytics.init("${siteId}")
 })`,
             language: 'javascript',
           },
@@ -175,10 +283,22 @@ createApp(App).mount('#app')`,
           {
             title: getT('svelte').step1.title,
             description: getT('svelte').step1.description,
-            code: `<head>
-  ${trackingScript}
-  %sveltekit.head%
-</head>`,
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('svelte').step2!.title,
+            description: getT('svelte').step2!.description,
+            code: `<!-- src/routes/+layout.svelte -->
+<script>
+  import { onMount } from 'svelte'
+  import betterlytics from '@betterlytics/tracker'
+
+  onMount(() => {
+    betterlytics.init('${siteId}')
+  })
+</script>
+
+<slot />`,
             language: 'html',
           },
         ],
@@ -190,11 +310,24 @@ createApp(App).mount('#app')`,
           {
             title: getT('astro').step1.title,
             description: getT('astro').step1.description,
-            code: `---
----
-<head>
-  ${trackingScript}
-</head>`,
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('astro').step2!.title,
+            description: getT('astro').step2!.description,
+            code: `<!-- src/layouts/Layout.astro -->
+<html>
+  <head>
+    <!-- ... -->
+  </head>
+  <body>
+    <slot />
+    <script>
+      import betterlytics from '@betterlytics/tracker'
+      betterlytics.init('${siteId}')
+    </script>
+  </body>
+</html>`,
             language: 'html',
           },
         ],
@@ -206,13 +339,27 @@ createApp(App).mount('#app')`,
           {
             title: getT('remix').step1.title,
             description: getT('remix').step1.description,
-            code: `<head>
-  <script
-    async
-    src="${analyticsUrl}/analytics.js"
-    data-site-id="${siteId}"${serverUrlAttr}
-  />
-</head>`,
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('remix').step2!.title,
+            description: getT('remix').step2!.description,
+            code: `// app/root.tsx
+import { useEffect } from 'react'
+import betterlytics from "@betterlytics/tracker"
+
+export default function App() {
+  useEffect(() => {
+    betterlytics.init("${siteId}")
+  }, [])
+
+  return (
+    <html>
+      <head>{/* ... */}</head>
+      <body>{/* ... */}</body>
+    </html>
+  )
+}`,
             language: 'javascript',
           },
         ],
@@ -224,17 +371,16 @@ createApp(App).mount('#app')`,
           {
             title: getT('gatsby').step1.title,
             description: getT('gatsby').step1.description,
-            code: `import React from "react"
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('gatsby').step2!.title,
+            description: getT('gatsby').step2!.description,
+            code: `// gatsby-browser.js
+import betterlytics from "@betterlytics/tracker"
 
-export const onRenderBody = ({ setHeadComponents }) => {
-  setHeadComponents([
-    <script
-      key="betterlytics"
-      async
-      src="${analyticsUrl}/analytics.js"
-      data-site-id="${siteId}"${serverUrlAttr}
-    />,
-  ])
+export const onClientEntry = () => {
+  betterlytics.init("${siteId}")
 }`,
             language: 'javascript',
           },
@@ -247,8 +393,20 @@ export const onRenderBody = ({ setHeadComponents }) => {
           {
             title: getT('angular').step1.title,
             description: getT('angular').step1.description,
-            code: trackingScript,
-            language: 'html',
+            codeTabs: packageManagerTabs,
+          },
+          {
+            title: getT('angular').step2!.title,
+            description: getT('angular').step2!.description,
+            code: `// src/main.ts
+import { bootstrapApplication } from '@angular/platform-browser'
+import { AppComponent } from './app/app.component'
+import betterlytics from "@betterlytics/tracker"
+
+betterlytics.init("${siteId}")
+
+bootstrapApplication(AppComponent)`,
+            language: 'javascript',
           },
         ],
       };
@@ -259,20 +417,20 @@ export const onRenderBody = ({ setHeadComponents }) => {
           {
             title: getT('solidjs').step1.title,
             description: getT('solidjs').step1.description,
-            code: trackingScript,
-            language: 'html',
+            codeTabs: packageManagerTabs,
           },
-        ],
-      };
-
-    case 'laravel':
-      return {
-        steps: [
           {
-            title: getT('laravel').step1.title,
-            description: getT('laravel').step1.description,
-            code: trackingScript,
-            language: 'html',
+            title: getT('solidjs').step2!.title,
+            description: getT('solidjs').step2!.description,
+            code: `// src/index.tsx
+import { render } from 'solid-js/web'
+import App from './App'
+import betterlytics from "@betterlytics/tracker"
+
+betterlytics.init("${siteId}")
+
+render(() => <App />, document.getElementById('root')!)`,
+            language: 'javascript',
           },
         ],
       };
@@ -388,26 +546,6 @@ export const onRenderBody = ({ setHeadComponents }) => {
           },
         ],
         note: getT('gtm').note,
-      };
-
-    case 'npm':
-      return {
-        steps: [
-          {
-            title: getT('npm').step1.title,
-            description: getT('npm').step1.description,
-            code: 'npm install @betterlytics/tracker',
-            language: 'javascript',
-          },
-          {
-            title: getT('npm').step2!.title,
-            description: getT('npm').step2!.description,
-            code: `import betterlytics from "@betterlytics/tracker"
-
-betterlytics.init("${siteId}")`,
-            language: 'javascript',
-          },
-        ],
       };
 
     default:
