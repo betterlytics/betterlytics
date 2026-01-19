@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { Gauge } from '@/components/animations';
 
 const DEFAULT_SEGMENTS = [
-  { percent: 33, color: '#e74c3c' },
-  { percent: 34, color: '#f39c12' },
   { percent: 33, color: '#2ecc71' },
+  { percent: 34, color: '#f39c12' },
+  { percent: 33, color: '#e74c3c' },
 ];
 
 export default function GaugeDemoPage() {
