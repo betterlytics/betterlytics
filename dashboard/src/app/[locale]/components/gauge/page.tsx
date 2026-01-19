@@ -22,7 +22,11 @@ export default function GaugeDemoPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-8 p-8">
       {/* Hero Section */}
       <div className="flex flex-col items-center gap-8 py-12">
-        <div className="relative">
+        <div 
+          className="relative cursor-pointer hover:opacity-80 transition-opacity" 
+          onClick={() => setProgress(Math.random() * 100)}
+          title="Click for random value"
+        >
           <Gauge
             segments={DEFAULT_SEGMENTS}
             progress={progress}

@@ -89,7 +89,12 @@ export default function ReactNumberRollDemoPage() {
             −
           </button>
           
-          <div className={className} style={{ ...styleObject, fontVariantNumeric: 'tabular-nums' }}>
+          <div 
+            className={`${className} cursor-pointer hover:opacity-80 transition-opacity`} 
+            style={{ ...styleObject, fontVariantNumeric: 'tabular-nums' }}
+            onClick={handleFullRandom}
+            title="Click for chaos mode"
+          >
             <NumberRoll value={value} locales={locales} formatOptions={formatOptions} duration={duration} withTextSelect={withTextSelect} />
           </div>
 
