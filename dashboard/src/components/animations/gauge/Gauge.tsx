@@ -148,10 +148,9 @@ export default function Gauge({
           stroke={progressColor}
           strokeWidth={innerStrokeWidth}
           strokeDasharray={pathLength}
-          strokeDashoffset={progress === 0 ? pathLength : dashOffset}
+          strokeDashoffset={dashOffset}
           style={{ 
-            transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease',
-            opacity: progress > 0 ? 1 : 0
+            transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         />
       </svg>
