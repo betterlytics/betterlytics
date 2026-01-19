@@ -18,7 +18,7 @@ export async function HeroSection() {
               highlight: (chunks) => <span className='text-blue-600 dark:text-blue-400'>{chunks}</span>,
             })}
           </h1>
-          <p className='text-muted-foreground mx-auto mb-12 max-w-2xl text-lg leading-relaxed sm:mt-6 sm:text-xl'>
+          <p className='text-muted-foreground mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-pretty sm:mt-6 sm:text-xl'>
             {t.rich('description', {
               br: () => <br />,
             })}
