@@ -14,6 +14,9 @@ export default function GaugeDemoPage() {
   const [size, setSize] = useState(300);
   const [strokeWidth, setStrokeWidth] = useState(16);
   const [gapDeg, setGapDeg] = useState(2);
+  const [arcGap, setArcGap] = useState(4);
+  const [widthRatio, setWidthRatio] = useState(1.15);
+  const [title, setTitle] = useState('Progress');
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-8 p-8">
@@ -25,6 +28,9 @@ export default function GaugeDemoPage() {
           size={size}
           strokeWidth={strokeWidth}
           gapDeg={gapDeg}
+          arcGap={arcGap}
+          widthRatio={widthRatio}
+          title={title}
         />
 
         {/* Progress value display */}
@@ -38,6 +44,18 @@ export default function GaugeDemoPage() {
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold">Playground Controls</span>
           <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">gauge</span>
+        </div>
+
+        {/* Title input */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-muted-foreground">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-3 py-2 text-sm bg-background border border-border rounded"
+            placeholder="Enter title..."
+          />
         </div>
 
         {/* Progress slider (0-100 with 2 decimal precision) */}
@@ -104,6 +122,40 @@ export default function GaugeDemoPage() {
             step={1}
             value={gapDeg}
             onChange={(e) => setGapDeg(parseInt(e.target.value))}
+            className="w-full h-2"
+          />
+        </div>
+
+        {/* Arc Gap slider */}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between">
+            <label className="text-sm font-medium text-muted-foreground">Arc Gap</label>
+            <span className="text-sm font-mono">{arcGap}px</span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={20}
+            step={1}
+            value={arcGap}
+            onChange={(e) => setArcGap(parseInt(e.target.value))}
+            className="w-full h-2"
+          />
+        </div>
+
+        {/* Width Ratio slider */}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between">
+            <label className="text-sm font-medium text-muted-foreground">Width Ratio</label>
+            <span className="text-sm font-mono">{widthRatio.toFixed(2)}</span>
+          </div>
+          <input
+            type="range"
+            min={0.8}
+            max={1.5}
+            step={0.01}
+            value={widthRatio}
+            onChange={(e) => setWidthRatio(parseFloat(e.target.value))}
             className="w-full h-2"
           />
         </div>
