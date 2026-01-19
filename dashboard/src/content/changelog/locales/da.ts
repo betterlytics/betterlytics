@@ -2,50 +2,32 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.1',
-    releasedAt: '2026-01-11',
-    title: 'Teamsamarbejde og forbedret sikkerhed',
-    summary:
-      'Denne opdatering introducerer teamsamarbejde med rollebaseret adgang, forbedrer kontosikkerheden med bedre sessionshåndtering og gør det muligt at ændre dit dashboard-domæne uden at opdatere dit tracking-script.',
+    version: 'v1.3.2',
+    releasedAt: '2026-01-19',
+    title: 'Fejlrettelser og UI-forbedringer',
+    summary: 'En mindre opdatering denne gang! Vi har rettet nogle fejl og pudset brugerfladen.',
   },
   sections: [
     {
-      id: 'v131-new-features',
-      title: 'Nye funktioner',
+      id: 'v132-fixes',
+      title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Inviter teammedlemmer til dit dashboard som Tilskuer, Redaktør eller Administrator med rollebaserede rettigheder til sikkert samarbejde.',
-            'Filtre understøtter nu OR-logik, så du kan matche flere værdier i ét filter (f.eks. flere sider eller lande).',
-            'Du kan nu ændre dit dashboard-domæne uden at miste historisk data eller opdatere dit tracking-script.',
+            'Rettet et problem, hvor dashboard-indstillinger så ud til at kunne redigeres af teammedlemmer uden administratorrettigheder.',
+            'Rettet et problem, hvor søgning i filtre stoppede med at virke efter valg af flere værdier.',
           ],
         },
       ],
     },
     {
-      id: 'v131-security',
-      title: 'Sikkerhed',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Ændring af din adgangskode logger nu alle andre aktive sessioner ud.',
-            'Nulstilling af adgangskode logger nu alle eksisterende sessioner ud for ekstra beskyttelse.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v131-improvements',
+      id: 'v132-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
-          items: [
-            'Forbedret privatlivsbeskyttelse til bedre at adskille besøgsdata mellem websites.',
-            'Rettet afstandsproblemer i uptime-overvågningslisten på større skærme.',
-          ],
+          items: ['Diverse mindre UI-forbedringer for en mere poleret oplevelse.'],
         },
       ],
     },
@@ -53,6 +35,39 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.2',
+      releasedAt: '2026-01-19',
+      title: 'Fejlrettelser og UI-forbedringer',
+      summary: 'En mindre opdatering denne gang! Vi har rettet nogle fejl og pudset brugerfladen.',
+    },
+    sections: [
+      {
+        id: 'v132-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor dashboard-indstillinger så ud til at kunne redigeres af teammedlemmer uden administratorrettigheder.',
+              'Rettet et problem, hvor søgning i filtre stoppede med at virke efter valg af flere værdier.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v132-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Diverse mindre UI-forbedringer for en mere poleret oplevelse.'],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.1',
