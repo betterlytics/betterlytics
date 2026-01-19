@@ -1,6 +1,5 @@
 import { ArrowUpRight, ChevronRight, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { GitHubStats } from './githubStats';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { env } from '@/lib/env';
@@ -71,9 +70,8 @@ export async function HeroSection() {
               </Button>
             )}
           </div>
-          <GitHubStats />
           {demoDashboardPath ? (
-            <div className='max-w-8xl mx-auto mt-16 w-full sm:mt-18'>
+            <div className='max-w-8xl mx-auto mt-24 w-full sm:mt-30'>
               <p className='text-muted-foreground mb-6 hidden text-xs font-semibold tracking-[0.3em] uppercase sm:block'>
                 {t('eyebrow')}
               </p>
