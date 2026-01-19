@@ -3243,63 +3243,131 @@
         }
       },
       "nextjs": {
-        "step1": {
-          "title": "Aggiungi al layout root",
-          "description": "Apri app/layout.tsx e aggiungi il componente Script dentro <head>"
+        "variants": {
+          "next153": {
+            "step1": {
+              "title": "Installa il pacchetto",
+              "description": "Esegui questo nella directory del progetto"
+            },
+            "step2": {
+              "title": "Crea instrumentation-client.ts",
+              "description": "Crea questo file nella root del progetto"
+            }
+          },
+          "approuter": {
+            "step1": {
+              "title": "Installa il pacchetto",
+              "description": "Esegui questo nella directory del progetto"
+            },
+            "step2": {
+              "title": "Crea un client provider",
+              "description": "Crea app/providers.tsx con la direttiva 'use client'"
+            },
+            "step3": {
+              "title": "Avvolgi la tua app",
+              "description": "Aggiungi il provider al root layout (app/layout.tsx)"
+            }
+          },
+          "pagesrouter": {
+            "step1": {
+              "title": "Installa il pacchetto",
+              "description": "Esegui questo nella directory del progetto"
+            },
+            "step2": {
+              "title": "Inizializza in _app.tsx",
+              "description": "Aggiungi a pages/_app.tsx"
+            }
+          }
         }
       },
       "react": {
         "step1": {
-          "title": "Aggiungi al componente App",
-          "description": "Aggiungi questo al tuo componente root (es. App.tsx o main.tsx)"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza il tracker",
+          "description": "Aggiungilo al tuo punto di ingresso (es. src/main.tsx)"
         }
       },
       "vue": {
         "step1": {
-          "title": "Aggiungi al tuo main.ts",
-          "description": "Aggiungi lo script di tracciamento prima di montare l'app"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza il tracker",
+          "description": "Aggiungilo al main.ts prima di montare l'app"
         }
       },
       "nuxt": {
         "step1": {
-          "title": "Aggiungi a nuxt.config.ts",
-          "description": "Aggiungi lo script alla configurazione Nuxt"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Crea un plugin client",
+          "description": "Crea plugins/betterlytics.client.ts"
         }
       },
       "svelte": {
         "step1": {
-          "title": "Aggiungi ad app.html",
-          "description": "Apri src/app.html e incolla questo nella sezione <head>"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza nel root layout",
+          "description": "Aggiungilo a src/routes/+layout.svelte"
         }
       },
       "astro": {
         "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
           "title": "Aggiungi al layout base",
-          "description": "Apri il tuo file layout (es. src/layouts/Layout.astro)"
+          "description": "Aggiungi un tag script al layout (es. src/layouts/Layout.astro)"
         }
       },
       "remix": {
         "step1": {
-          "title": "Aggiungi a root.tsx",
-          "description": "Apri app/root.tsx e aggiungi lo script dentro <head>"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza in root.tsx",
+          "description": "Aggiungilo a app/root.tsx usando useEffect"
         }
       },
       "gatsby": {
         "step1": {
-          "title": "Aggiungi a gatsby-ssr.js",
-          "description": "Crea o modifica gatsby-ssr.js nella root del progetto"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza in gatsby-browser.js",
+          "description": "Aggiungilo a gatsby-browser.js nella root del progetto"
         }
       },
       "angular": {
         "step1": {
-          "title": "Aggiungi a index.html",
-          "description": "Incolla questo in src/index.html nella sezione <head>"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza in main.ts",
+          "description": "Aggiungilo a src/main.ts"
         }
       },
       "solidjs": {
         "step1": {
-          "title": "Aggiungi a index.html",
-          "description": "Incolla questo nel tuo index.html nella sezione <head>"
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza nel file di ingresso",
+          "description": "Aggiungilo a src/index.tsx"
         }
       },
       "laravel": {
@@ -3384,16 +3452,6 @@
           "description": "Clicca su Submit per pubblicare le modifiche"
         },
         "note": "Assicurati che GTM sia installato correttamente sul tuo sito."
-      },
-      "npm": {
-        "step1": {
-          "title": "Installa il pacchetto",
-          "description": "Esegui questo nella directory del progetto"
-        },
-        "step2": {
-          "title": "Inizializza il tracker",
-          "description": "Aggiungi questo al punto di ingresso dell'app (es. index.ts, main.ts o App.tsx)"
-        }
       },
       "default": {
         "step1": {

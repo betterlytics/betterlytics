@@ -3235,63 +3235,131 @@
         }
       },
       "nextjs": {
-        "step1": {
-          "title": "Tilføj til dit root-layout",
-          "description": "Åbn app/layout.tsx og tilføj Script-komponenten inde i <head>"
+        "variants": {
+          "next153": {
+            "step1": {
+              "title": "Installer pakken",
+              "description": "Kør dette i dit projektmappe"
+            },
+            "step2": {
+              "title": "Opret instrumentation-client.ts",
+              "description": "Opret denne fil i dit projekt-rod"
+            }
+          },
+          "approuter": {
+            "step1": {
+              "title": "Installer pakken",
+              "description": "Kør dette i dit projektmappe"
+            },
+            "step2": {
+              "title": "Opret en client provider",
+              "description": "Opret app/providers.tsx med 'use client' direktivet"
+            },
+            "step3": {
+              "title": "Wrap din app",
+              "description": "Tilføj provideren til dit root layout (app/layout.tsx)"
+            }
+          },
+          "pagesrouter": {
+            "step1": {
+              "title": "Installer pakken",
+              "description": "Kør dette i dit projektmappe"
+            },
+            "step2": {
+              "title": "Initialiser i _app.tsx",
+              "description": "Tilføj til pages/_app.tsx"
+            }
+          }
         }
       },
       "react": {
         "step1": {
-          "title": "Tilføj til din App-komponent",
-          "description": "Tilføj dette til din rod-komponent (f.eks. App.tsx eller main.tsx)"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser trackeren",
+          "description": "Tilføj dette til din app entry (f.eks. src/main.tsx)"
         }
       },
       "vue": {
         "step1": {
-          "title": "Tilføj til din main.ts",
-          "description": "Tilføj tracking-scriptet før du mounter din app"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser trackeren",
+          "description": "Tilføj dette til din main.ts før du mounter din app"
         }
       },
       "nuxt": {
         "step1": {
-          "title": "Tilføj til nuxt.config.ts",
-          "description": "Tilføj scriptet til din Nuxt-konfiguration"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Opret et client plugin",
+          "description": "Opret plugins/betterlytics.client.ts"
         }
       },
       "svelte": {
         "step1": {
-          "title": "Tilføj til app.html",
-          "description": "Åbn src/app.html og indsæt dette i <head>-sektionen"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i dit root layout",
+          "description": "Tilføj dette til src/routes/+layout.svelte"
         }
       },
       "astro": {
         "step1": {
-          "title": "Tilføj til dit base-layout",
-          "description": "Åbn din layout-fil (f.eks. src/layouts/Layout.astro)"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Tilføj til dit base layout",
+          "description": "Tilføj et script-tag til dit layout (f.eks. src/layouts/Layout.astro)"
         }
       },
       "remix": {
         "step1": {
-          "title": "Tilføj til root.tsx",
-          "description": "Åbn app/root.tsx og tilføj scriptet inde i <head>"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i root.tsx",
+          "description": "Tilføj dette til app/root.tsx med useEffect"
         }
       },
       "gatsby": {
         "step1": {
-          "title": "Tilføj til gatsby-ssr.js",
-          "description": "Opret eller opdater gatsby-ssr.js i dit projekt-rod"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i gatsby-browser.js",
+          "description": "Tilføj dette til gatsby-browser.js i dit projekt-rod"
         }
       },
       "angular": {
         "step1": {
-          "title": "Tilføj til index.html",
-          "description": "Indsæt dette i src/index.html inde i <head>-sektionen"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i main.ts",
+          "description": "Tilføj dette til din src/main.ts fil"
         }
       },
       "solidjs": {
         "step1": {
-          "title": "Tilføj til index.html",
-          "description": "Indsæt dette i din index.html inde i <head>-sektionen"
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i din entry fil",
+          "description": "Tilføj dette til src/index.tsx"
         }
       },
       "laravel": {
@@ -3376,16 +3444,6 @@
           "description": "Klik på Submit for at publicere ændringerne"
         },
         "note": "Sørg for at GTM er korrekt installeret på dit website."
-      },
-      "npm": {
-        "step1": {
-          "title": "Installer pakken",
-          "description": "Kør dette i dit projektmappe"
-        },
-        "step2": {
-          "title": "Initialiser trackeren",
-          "description": "Tilføj dette til din apps indgangspunkt (f.eks. index.ts, main.ts eller App.tsx)"
-        }
       },
       "default": {
         "step1": {

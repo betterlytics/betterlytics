@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clipboard, Check, Code } from 'lucide-react';
+import { Clipboard, Check } from 'lucide-react';
 import { CodeBlock } from '@/components/integration/CodeBlock';
+import { CodeTabs } from '@/components/integration/CodeTabs';
+import { useVariantTabs } from '@/components/integration/VariantTabs';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification';
@@ -19,11 +21,79 @@ import ExternalLink from '@/components/ExternalLink';
 import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { FrameworkGrid, FrameworkId } from '@/components/integration/FrameworkGrid';
-import { getFrameworkCode, IntegrationTranslations } from '@/components/integration/frameworkCodes';
+import { getFrameworkCode, IntegrationTranslations, FrameworkStep } from '@/components/integration/frameworkCodes';
 import { cn } from '@/lib/utils';
 
 import './Integration.css';
 import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
+import type { FrameworkCode } from '@/components/integration/frameworkCodes';
+
+function StepItem({ step, stepNumber, isLast }: { step: FrameworkStep; stepNumber: number; isLast: boolean }) {
+  return (
+    <div className='relative flex gap-4'>
+      <div className='flex flex-col items-center'>
+        <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
+          {stepNumber}
+        </div>
+        {!isLast && <div className='bg-border mt-2 w-px flex-1' />}
+      </div>
+
+      <div className={cn('flex-1', !isLast ? 'pb-6' : 'pb-0')}>
+        <h4 className='text-foreground mb-1 text-sm font-medium'>{step.title}</h4>
+        {step.description && <p className='text-muted-foreground mb-3 text-sm'>{step.description}</p>}
+
+        {step.codeTabs ? (
+          <CodeTabs tabs={step.codeTabs} />
+        ) : step.code ? (
+          <CodeBlock code={step.code} language={step.language || 'html'} />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function FrameworkInstructions({
+  frameworkCode,
+  selectedFramework,
+}: {
+  frameworkCode: FrameworkCode;
+  selectedFramework: FrameworkId;
+}) {
+  const { activeVariant, renderTabs } = useVariantTabs(frameworkCode.variants || []);
+
+  const steps = frameworkCode.variants ? activeVariant?.steps || [] : frameworkCode.steps || [];
+
+  return (
+    <motion.div
+      key={`${selectedFramework}-${activeVariant?.id || 'default'}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      {frameworkCode.variants && frameworkCode.variants.length > 0 && renderTabs()}
+
+      <div className='space-y-0'>
+        {steps.map((step, index) => {
+          const isLast = index === steps.length - 1 && !frameworkCode.note;
+          return <StepItem key={index} step={step} stepNumber={index + 1} isLast={isLast} />;
+        })}
+
+        {frameworkCode.note && (
+          <div className='relative flex gap-4'>
+            <div className='flex flex-col items-center'>
+              <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-sm'>
+                ⚠️
+              </div>
+            </div>
+            <div className='flex-1'>
+              <p className='text-muted-foreground text-sm leading-relaxed'>{frameworkCode.note}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
 export default function Integration() {
   const { dashboard } = useOnboarding();
@@ -206,50 +276,7 @@ export default function Integration() {
         <FrameworkGrid selectedFramework={selectedFramework} onSelectFramework={setSelectedFramework} />
 
         {/* Framework-specific Installation Instructions */}
-        <motion.div
-          key={selectedFramework}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className='space-y-0'>
-            {frameworkCode.steps.map((step, index) => {
-              const isLast = index === frameworkCode.steps.length - 1 && !frameworkCode.note;
-              return (
-                <div key={index} className='relative flex gap-4'>
-                  {/* Circle and Line */}
-                  <div className='flex flex-col items-center'>
-                    <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
-                      {index + 1}
-                    </div>
-                    {!isLast && <div className='bg-border mt-2 w-px flex-1' />}
-                  </div>
-
-                  {/* Content */}
-                  <div className={cn('flex-1', !isLast ? 'pb-6' : 'pb-0')}>
-                    <h4 className='text-foreground mb-1 text-sm font-medium'>{step.title}</h4>
-                    {step.description && <p className='text-muted-foreground mb-3 text-sm'>{step.description}</p>}
-                    {step.code && <CodeBlock code={step.code} language={step.language || 'html'} />}
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Note at the end */}
-            {frameworkCode.note && (
-              <div className='relative flex gap-4'>
-                <div className='flex flex-col items-center'>
-                  <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-sm'>
-                    ⚠️
-                  </div>
-                </div>
-                <div className='flex-1'>
-                  <p className='text-muted-foreground text-sm leading-relaxed'>{frameworkCode.note}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
+        <FrameworkInstructions frameworkCode={frameworkCode} selectedFramework={selectedFramework} />
       </CardContent>
 
       <CardFooter className='gap-4 p-0'>

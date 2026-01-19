@@ -5,10 +5,11 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css'; // This provides dark-themed background for code blocks
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-bash';
 
 interface CodeBlockProps {
   code: string;
-  language: 'html' | 'javascript';
+  language: 'html' | 'javascript' | 'bash';
 }
 
 export function CodeBlock({ code, language }: CodeBlockProps) {
