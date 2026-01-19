@@ -25,7 +25,6 @@ export interface IntegrationTranslations {
   };
 }
 
-// Each step can have a title, description, and optional code block
 export interface FrameworkStep {
   title: string;
   description?: string;
@@ -52,7 +51,6 @@ export function getFrameworkCode(
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;
 
-  // Helper to get translations for a framework, falling back to default
   const getT = (id: string) => t.frameworks[id] || t.frameworks['default'];
 
   switch (frameworkId) {

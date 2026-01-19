@@ -228,19 +228,7 @@ export default function Integration() {
                   {/* Content */}
                   <div className={cn('flex-1', !isLast ? 'pb-6' : 'pb-0')}>
                     <h4 className='text-foreground mb-1 text-sm font-medium'>{step.title}</h4>
-                    {step.description && (
-                      <p
-                        className='text-muted-foreground mb-3 text-sm'
-                        dangerouslySetInnerHTML={{
-                          __html: step.description
-                            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>')
-                            .replace(
-                              /`(.*?)`/g,
-                              '<code class="bg-muted px-1 py-0.5 rounded text-xs font-mono">$1</code>',
-                            ),
-                        }}
-                      />
-                    )}
+                    {step.description && <p className='text-muted-foreground mb-3 text-sm'>{step.description}</p>}
                     {step.code && <CodeBlock code={step.code} language={step.language || 'html'} />}
                   </div>
                 </div>
