@@ -3225,5 +3225,174 @@
       "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
       "goToDashboards": "Gå til dashboards"
     }
+  },
+  "integration": {
+    "frameworks": {
+      "html": {
+        "step1": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i dit `<head>`-tag"
+        }
+      },
+      "nextjs": {
+        "step1": {
+          "title": "Tilføj til dit root-layout",
+          "description": "Åbn `app/layout.tsx` og tilføj Script-komponenten inde i `<head>`"
+        }
+      },
+      "react": {
+        "step1": {
+          "title": "Tilføj til din App-komponent",
+          "description": "Tilføj dette til din rod-komponent (f.eks. `App.tsx` eller `main.tsx`)"
+        }
+      },
+      "vue": {
+        "step1": {
+          "title": "Tilføj til din main.ts",
+          "description": "Tilføj tracking-scriptet før du mounter din app"
+        }
+      },
+      "nuxt": {
+        "step1": {
+          "title": "Tilføj til nuxt.config.ts",
+          "description": "Tilføj scriptet til din Nuxt-konfiguration"
+        }
+      },
+      "svelte": {
+        "step1": {
+          "title": "Tilføj til app.html",
+          "description": "Åbn `src/app.html` og indsæt dette i `<head>`-sektionen"
+        }
+      },
+      "astro": {
+        "step1": {
+          "title": "Tilføj til dit base-layout",
+          "description": "Åbn din layout-fil (f.eks. `src/layouts/Layout.astro`)"
+        }
+      },
+      "remix": {
+        "step1": {
+          "title": "Tilføj til root.tsx",
+          "description": "Åbn `app/root.tsx` og tilføj scriptet inde i `<head>`"
+        }
+      },
+      "gatsby": {
+        "step1": {
+          "title": "Tilføj til gatsby-ssr.js",
+          "description": "Opret eller opdater `gatsby-ssr.js` i dit projekt-rod"
+        }
+      },
+      "angular": {
+        "step1": {
+          "title": "Tilføj til index.html",
+          "description": "Indsæt dette i `src/index.html` inde i `<head>`-sektionen"
+        }
+      },
+      "solidjs": {
+        "step1": {
+          "title": "Tilføj til index.html",
+          "description": "Indsæt dette i din `index.html` inde i `<head>`-sektionen"
+        }
+      },
+      "laravel": {
+        "step1": {
+          "title": "Tilføj til dit Blade-layout",
+          "description": "Indsæt dette i din layout-fils `<head>`-sektion (f.eks. `resources/views/layouts/app.blade.php`)"
+        }
+      },
+      "wordpress": {
+        "step1": {
+          "title": "Åbn din tema-editor",
+          "description": "Gå til **Appearance** > **Theme Editor**, eller brug et plugin som \"Insert Headers and Footers\""
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette før `</head>` i din `header.php`"
+        },
+        "note": "Overvej at bruge et child-tema eller plugin for at undgå at miste ændringer ved tema-opdateringer."
+      },
+      "shopify": {
+        "step1": {
+          "title": "Åbn tema-editoren",
+          "description": "Gå til **Online Store** > **Themes** > **Edit code**"
+        },
+        "step2": {
+          "title": "Rediger theme.liquid",
+          "description": "Åbn `theme.liquid` i **Layout**-mappen"
+        },
+        "step3": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette før det afsluttende `</head>`-tag"
+        },
+        "note": "Tema-opdateringer kan overskrive dine ændringer. Overvej at duplikere dit tema som backup."
+      },
+      "webflow": {
+        "step1": {
+          "title": "Åbn projektindstillinger",
+          "description": "Gå til **Project Settings** > **Custom Code**"
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i **Head Code**-sektionen, og publicer derefter dit site"
+        }
+      },
+      "wix": {
+        "step1": {
+          "title": "Åbn site-indstillinger",
+          "description": "Gå til **Settings** > **Custom Code**"
+        },
+        "step2": {
+          "title": "Tilføj ny brugerdefineret kode",
+          "description": "Klik på **Add Custom Code** og indsæt scriptet nedenfor"
+        },
+        "step3": {
+          "title": "Konfigurer og anvend",
+          "description": "Sæt placering til **Head**, anvend på **All pages**, og klik derefter på **Apply**"
+        },
+        "note": "Custom Code kræver en Wix Premium-plan."
+      },
+      "squarespace": {
+        "step1": {
+          "title": "Åbn code injection",
+          "description": "Gå til **Settings** > **Developer Tools** > **Code Injection**"
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i **Header**-sektionen, og gem derefter"
+        },
+        "note": "Code Injection kræver en Squarespace Business-plan eller højere."
+      },
+      "gtm": {
+        "step1": {
+          "title": "Opret et nyt tag",
+          "description": "I **Google Tag Manager**, gå til **Tags** > **New** > **Custom HTML**"
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt denne kode og sæt trigger til **All Pages**"
+        },
+        "step3": {
+          "title": "Publicer din container",
+          "description": "Klik på **Submit** for at publicere ændringerne"
+        },
+        "note": "Sørg for at GTM er korrekt installeret på dit website."
+      },
+      "npm": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser trackeren",
+          "description": "Tilføj dette til din apps indgangspunkt (f.eks. `index.ts`, `main.ts` eller `App.tsx`)"
+        }
+      },
+      "default": {
+        "step1": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i din HTML `<head>`-sektion"
+        }
+      }
+    }
   }
 }

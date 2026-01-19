@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,14 +12,14 @@ import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification
 import { useBARouter } from '@/hooks/use-ba-router';
 import { LiveIndicator } from '@/components/live-indicator';
 import { Separator } from '@/components/ui/separator';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useMessages } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
 import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { FrameworkGrid, FrameworkId } from '@/components/integration/FrameworkGrid';
-import { getFrameworkCode } from '@/components/integration/frameworkCodes';
+import { getFrameworkCode, IntegrationTranslations } from '@/components/integration/frameworkCodes';
 import { cn } from '@/lib/utils';
 
 import './Integration.css';
@@ -33,6 +33,9 @@ export default function Integration() {
   }
 
   const t = useTranslations('onboarding.integration');
+  const messages = useMessages();
+  const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
+
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
@@ -116,12 +119,16 @@ export default function Integration() {
     );
   }
 
-  const frameworkCode = getFrameworkCode(selectedFramework, {
-    siteId: dashboard.siteId,
-    analyticsUrl: PUBLIC_ANALYTICS_BASE_URL,
-    serverUrl: PUBLIC_TRACKING_SERVER_ENDPOINT,
-    isCloud: IS_CLOUD,
-  });
+  const frameworkCode = getFrameworkCode(
+    selectedFramework,
+    {
+      siteId: dashboard.siteId,
+      analyticsUrl: PUBLIC_ANALYTICS_BASE_URL,
+      serverUrl: PUBLIC_TRACKING_SERVER_ENDPOINT,
+      isCloud: IS_CLOUD,
+    },
+    integrationTranslations,
+  );
 
   return (
     <Card className='p-3 py-4 pb-5 shadow-sm sm:p-6'>
