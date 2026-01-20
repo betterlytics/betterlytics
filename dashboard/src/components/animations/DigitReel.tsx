@@ -36,7 +36,7 @@ function DigitReelComponent({ digitState, onPhaseComplete }: DigitReelProps) {
   return (
     <span
       className={cn(
-        'digit-reel-wrapper inline-flex items-start justify-center select-none',
+        'digit-reel-wrapper inline-flex items-start justify-center',
         'motion-reduce:[--reduced-duration:0ms]',
       )}
       data-phase={digitState.phase}
@@ -50,7 +50,13 @@ function DigitReelComponent({ digitState, onPhaseComplete }: DigitReelProps) {
           data-phase={digitState.phase}
         >
           {DIGITS.map((d) => (
-            <span key={d} className="digit-reel-digit">
+            <span
+              key={d}
+              className={cn(
+                'digit-reel-digit',
+                d !== digitState.digit && 'select-none'
+              )}
+            >
               {d}
             </span>
           ))}

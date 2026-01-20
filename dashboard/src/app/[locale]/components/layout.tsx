@@ -1,10 +1,3 @@
-import ThemeToggleFab from '@/components/ThemeToggleFab';
-
 export default function ComponentsLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      {children}
-      <ThemeToggleFab />
-    </>
-  );
+  return children;
 }

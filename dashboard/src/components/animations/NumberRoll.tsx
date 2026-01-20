@@ -109,7 +109,7 @@ function NumberRollComponent({
   }, [formattedString]);
   
   return (
-    <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', className)}>
+    <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', !withTextSelect && 'select-none', className)}>
       <span
         className={cn('number-roll-root inline-flex isolate relative ltr contain-layout')}
         style={{ '--duration': `${duration}ms` } as React.CSSProperties}
@@ -126,24 +126,6 @@ function NumberRollComponent({
         >
           {formattedString}
         </span>
-
-        {/* Text selection overlay - only rendered when withTextSelect is true */}
-        {withTextSelect && (
-          <span
-            aria-hidden="false"
-            className={cn(
-              'absolute inset-0 flex items-center justify-end',
-              'leading-none font-[inherit] tabular-nums whitespace-nowrap',
-              'text-transparent select-text z-[1] selection:text-transparent selection:bg-primary/20',
-            )}
-            style={{ 
-              letterSpacing: 'calc(var(--digit-width) - 1ch)',
-              fontFeatureSettings: '"tnum"',
-            } as React.CSSProperties}
-          >
-            {formattedString}
-          </span>
-        )}
 
         <span aria-hidden="true" className="number-mask">
 

@@ -54,7 +54,7 @@ function SymbolSlotComponent({ value, phase, onPhaseComplete }: SymbolSlotProps)
     <span
       ref={ref}
       className={cn(
-        'symbol-slot inline-flex items-center justify-center select-none whitespace-nowrap',
+        'symbol-slot inline-flex items-center justify-center whitespace-nowrap',
         'motion-reduce:[--reduced-duration:0ms]',
       )}
       data-phase={phase}
