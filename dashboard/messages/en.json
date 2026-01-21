@@ -2692,7 +2692,8 @@
       "troubleshooting": "Troubleshooting",
       "contactSupport": "Contact Support",
       "verifying": "Verifying...",
-      "verifyInstallation": "Verify Installation"
+      "verifyInstallation": "Verify Installation",
+      "selectFramework": "Select your framework"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard Settings"

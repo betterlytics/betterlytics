@@ -2703,7 +2703,8 @@
       "troubleshooting": "Risoluzione problemi",
       "contactSupport": "Contatta il supporto",
       "verifying": "Verifica in corso...",
-      "verifyInstallation": "Verifica installazione"
+      "verifyInstallation": "Verifica installazione",
+      "selectFramework": "Seleziona il tuo framework"
     },
     "settingsButton": {
       "dashboardSettings": "Impostazioni dashboard"
