@@ -16,6 +16,9 @@ const frameworks = [
   { name: 'Webflow', logo: '/framework-logos/webflow-icon.svg' },
   { name: 'Remix', logo: '/framework-logos/remix-icon.svg' },
   { name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg' },
+  { name: 'Astro', logo: '/framework-logos/astro-icon.svg' },
+  { name: 'Wix', logo: '/framework-logos/wix-icon.svg' },
+  { name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg' },
 ];
 
 export async function FrameworkCompatibility() {

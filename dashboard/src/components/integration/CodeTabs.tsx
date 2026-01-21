@@ -1,6 +1,6 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger, UnderlineTabsContent } from '../ui/UnderlineTabs';
 import { CodeBlock } from './CodeBlock';
 import type { CodeTab } from './frameworkCodes';
 
@@ -13,19 +13,19 @@ export function CodeTabs({ tabs, defaultTab }: CodeTabsProps) {
   if (!tabs.length) return null;
 
   return (
-    <Tabs defaultValue={defaultTab || tabs[0]?.id || 'npm'} className='w-full'>
-      <TabsList>
+    <UnderlineTabs defaultValue={defaultTab || tabs[0]?.id} className='w-full'>
+      <UnderlineTabsList>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} value={tab.id} className='cursor-pointer'>
+          <UnderlineTabsTrigger key={tab.id} value={tab.id}>
             {tab.label}
-          </TabsTrigger>
+          </UnderlineTabsTrigger>
         ))}
-      </TabsList>
+      </UnderlineTabsList>
       {tabs.map((tab) => (
-        <TabsContent key={tab.id} value={tab.id} className='mt-0'>
+        <UnderlineTabsContent key={tab.id} value={tab.id}>
           <CodeBlock code={tab.code} language={tab.language} />
-        </TabsContent>
+        </UnderlineTabsContent>
       ))}
-    </Tabs>
+    </UnderlineTabs>
   );
 }
