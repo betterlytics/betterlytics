@@ -1339,7 +1339,7 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Tutti i diritti riservati. Open source sotto licenza AGPL-3.0."
+      "copyright": "© {year} Betterlytics. Open source sotto licenza AGPL-3.0."
     },
     "structuredData": {
       "organization": {
