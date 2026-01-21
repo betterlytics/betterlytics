@@ -14,7 +14,6 @@ interface StepProps {
 export function Step({ stepNumber, title, badge, isLast = false, children }: StepProps) {
   return (
     <div className='relative flex gap-4'>
-      {/* Circle and Line */}
       <div className='flex flex-col items-center'>
         <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
           {stepNumber}
@@ -22,7 +21,6 @@ export function Step({ stepNumber, title, badge, isLast = false, children }: Ste
         {!isLast && <div className='bg-border mt-2 w-px flex-1' />}
       </div>
 
-      {/* Content */}
       <div className={cn('flex-1 pb-6', isLast && 'pb-0')}>
         <div className='mb-2 flex items-center gap-2'>
           <h4 className='text-foreground text-sm font-medium'>{title}</h4>
@@ -47,7 +45,6 @@ export function StepContainer({ children, className }: StepContainerProps) {
   return <div className={cn('space-y-0', className)}>{children}</div>;
 }
 
-// Helper to render markdown-style text (bold and code)
 export function StepText({ children }: { children: string }) {
   return (
     <span

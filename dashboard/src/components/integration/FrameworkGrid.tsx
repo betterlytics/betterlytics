@@ -28,7 +28,7 @@ export type FrameworkId =
 export interface FrameworkOption {
   id: FrameworkId;
   name: string;
-  logo?: string; // Path to /public/framework-logos/
+  logo?: string;
   description?: string;
 }
 
