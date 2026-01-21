@@ -129,7 +129,6 @@ export default function SignupForm({ providers }: SignupFormProps) {
             return;
           }
 
-          // Redirect to onboarding flow for website setup
           router.push('/onboarding');
         });
       } catch (error) {
