@@ -2695,7 +2695,8 @@
       "troubleshooting": "Problemløsning",
       "contactSupport": "Kontakt support",
       "verifying": "Verificerer...",
-      "verifyInstallation": "Verificer installation"
+      "verifyInstallation": "Verificer installation",
+      "selectFramework": "Vælg dit framework"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard-indstillinger"
