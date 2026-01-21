@@ -17,7 +17,7 @@
   width: var(--target-width, auto);
   will-change: width;
   /* Match the token animation duration for perfect sync */
-  transition: width var(--duration, 800ms) var(--layout-easing);
+  transition: width var(--duration, 600ms) var(--layout-easing);
 }
 
 @keyframes digitRoll {
@@ -228,9 +228,24 @@
   overflow: visible;
   white-space: nowrap;
   pointer-events: none;
-  animation: 
+  animation:
     symbol-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
     fade-out var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+/* Cross-fade mode: old and new symbols overlap */
+.symbol-slot-crossfade {
+  /* Container maintains natural width from .symbol-slot-to */
+}
+
+.symbol-slot-crossfade .symbol-slot-from {
+  /* Fade out the old value */
+  animation: fade-out var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+.symbol-slot-crossfade .symbol-slot-to {
+  /* Fade in the new value */
+  animation: fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
 }
 
 @keyframes fade-out {

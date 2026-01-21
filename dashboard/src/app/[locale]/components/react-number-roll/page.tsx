@@ -44,7 +44,7 @@ const NUMBER_ROLL_PROPS = [
   {
     name: 'duration',
     type: 'number',
-    default: '800',
+    default: '600',
     description: 'Animation duration in milliseconds.',
   },
   {
@@ -151,7 +151,7 @@ const STRESS_TEST_VALUES = [
 export default function ReactNumberRollDemoPage() {
   const [value, setValue] = useState(1234.56);
   const [inputValue, setInputValue] = useState('1234.56');
-  const [duration, setDuration] = useState(800);
+  const [duration, setDuration] = useState(600);
   const [className, setClassName] = useState('text-9xl font-semibold tracking-tighter');
   const [withTextSelect, setWithTextSelect] = useState(false);
   const [formatPresetIdx, setFormatPresetIdx] = useState(0);

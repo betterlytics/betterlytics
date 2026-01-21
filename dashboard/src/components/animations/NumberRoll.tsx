@@ -38,7 +38,7 @@ function NumberRollComponent({
   value,
   locales,
   formatOptions,
-  duration = 800,
+  duration = 600,
   withTextSelect = false,
   className,
 }: NumberRollProps) {
@@ -157,7 +157,8 @@ function NumberRollComponent({
                   <SymbolSlot
                     key={token.id}
                     value={token.value}
-                    phase={token.phase === 'animating' ? 'idle' : token.phase as 'idle' | 'entering' | 'exiting'}
+                    phase={token.phase as 'idle' | 'entering' | 'exiting' | 'animating'}
+                    fromValue={token.fromValue}
                     onPhaseComplete={action => handlePhaseComplete(token.id, action)}
                   />
                 );

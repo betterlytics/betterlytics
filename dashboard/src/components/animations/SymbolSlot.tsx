@@ -5,25 +5,27 @@ import React, { useCallback } from 'react';
 
 const ZWSP = '\u200B';
 
-export type SymbolPhase = 'idle' | 'entering' | 'exiting';
+export type SymbolPhase = 'idle' | 'entering' | 'exiting' | 'animating';
 
 type SymbolSlotProps = {
   key?: React.Key;
   value: string;
   phase: SymbolPhase;
-  onPhaseComplete?: (action: 'entered' | 'exited') => void;
+  fromValue?: string;
+  onPhaseComplete?: (action: 'entered' | 'exited' | 'completed') => void;
 };
 
 /**
  * SymbolSlot - Animated symbol (sign, separator, currency, etc.)
- * Animates width + opacity only (no roll).
+ * Animates width + opacity. For cross-fade transitions, renders both old and new
+ * values overlapping with absolute positioning.
  */
-function SymbolSlotComponent({ value, phase, onPhaseComplete }: SymbolSlotProps) {
+function SymbolSlotComponent({ value, phase, fromValue, onPhaseComplete }: SymbolSlotProps) {
   const ref = React.useRef<HTMLSpanElement>(null);
 
   // Measure natural width to support smooth exit animation
   React.useLayoutEffect(() => {
-    if (ref.current && (phase === 'idle' || phase === 'entering')) {
+    if (ref.current && (phase === 'idle' || phase === 'entering' || phase === 'animating')) {
       const rect = ref.current.getBoundingClientRect();
       if (rect.width > 0) {
         ref.current.style.setProperty('--measured-width', `${rect.width}px`);
@@ -39,15 +41,39 @@ function SymbolSlotComponent({ value, phase, onPhaseComplete }: SymbolSlotProps)
       if (e.animationName.includes('symbol-exit') && onPhaseComplete) {
         onPhaseComplete('exited');
       } else if (e.animationName.includes('fade-in') && onPhaseComplete) {
-        onPhaseComplete('entered');
+        onPhaseComplete(phase === 'animating' ? 'completed' : 'entered');
       }
     },
-    [onPhaseComplete],
+    [onPhaseComplete, phase],
   );
 
   // Render ZWSP when hidden for consistent DOM structure
   if (phase === 'exited' as string) {
     return <span className="symbol-slot-hidden">{ZWSP}</span>;
+  }
+
+  // Cross-fade mode: render both old and new values overlapping
+  if (phase === 'animating' && fromValue) {
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          'symbol-slot symbol-slot-crossfade inline-flex items-center justify-center whitespace-nowrap relative',
+          'motion-reduce:[--reduced-duration:0ms]',
+        )}
+        data-phase={phase}
+        onAnimationEnd={handleAnimationEnd}
+      >
+        {/* Old value fading out - absolute positioned */}
+        <span className="symbol-slot-from absolute inset-0 flex items-center justify-center">
+          {fromValue}
+        </span>
+        {/* New value fading in - provides natural width */}
+        <span className="symbol-slot-to">
+          {value}
+        </span>
+      </span>
+    );
   }
 
   return (

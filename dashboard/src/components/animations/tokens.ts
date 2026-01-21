@@ -156,11 +156,13 @@ export const diffTokens = (
         if (prevGroup.tokens[0]?.value === nextPart.value) {
           return [{ ...prevGroup.tokens[0], phase: 'idle' as TokenPhase }];
         }
-        // Different symbol - exit old, enter new
-        return [
-          { ...prevGroup.tokens[0], phase: 'exiting' as TokenPhase },
-          ...partToTokens(nextPart, 'entering'),
-        ];
+        // Different symbol - animate single token with fromValue for cross-fade
+        return [{
+          ...prevGroup.tokens[0],
+          value: nextPart.value,
+          phase: 'animating' as TokenPhase,
+          fromValue: prevGroup.tokens[0].value,
+        }];
       }
 
       // Type mismatch (e.g. digit replaced by symbol) - exit old, enter new
