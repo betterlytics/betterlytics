@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { AlertTriangle } from 'lucide-react';
 import { CodeBlock } from './CodeBlock';
 import { CodeTabs } from './CodeTabs';
 import { useVariantTabs } from './VariantTabs';
@@ -60,8 +61,8 @@ export function FrameworkInstructions({ frameworkCode, selectedFramework }: Fram
         {frameworkCode.note && (
           <div className='relative flex gap-4'>
             <div className='flex flex-col items-center'>
-              <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-sm'>
-                ⚠️
+              <div className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/20'>
+                <AlertTriangle className='h-4 w-4 text-amber-500' />
               </div>
             </div>
             <div className='flex-1'>

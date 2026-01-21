@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '../ui/UnderlineTabs';
 import type { FrameworkVariant } from './frameworkCodes';
 
 export function useVariantTabs(variants: FrameworkVariant[], defaultVariant?: string) {
@@ -13,15 +13,15 @@ export function useVariantTabs(variants: FrameworkVariant[], defaultVariant?: st
     if (!variants.length) return null;
 
     return (
-      <Tabs value={activeVariantId} onValueChange={setActiveVariantId} className='mb-4 w-full'>
-        <TabsList>
+      <UnderlineTabs value={activeVariantId} onValueChange={setActiveVariantId} className='mb-4 w-full'>
+        <UnderlineTabsList>
           {variants.map((variant) => (
-            <TabsTrigger key={variant.id} value={variant.id} className='cursor-pointer'>
+            <UnderlineTabsTrigger key={variant.id} value={variant.id}>
               {variant.label}
-            </TabsTrigger>
+            </UnderlineTabsTrigger>
           ))}
-        </TabsList>
-      </Tabs>
+        </UnderlineTabsList>
+      </UnderlineTabs>
     );
   };
 
