@@ -3056,6 +3056,7 @@
       },
       "instructions": {
         "title": "Installation Instructions",
+        "selectFramework": "Select your framework to see installation instructions",
         "description": "Choose the method that matches your website setup",
         "htmlTab": "HTML",
         "nextjsTab": "Next.js",
@@ -3071,6 +3072,10 @@
       "buttons": {
         "skipForNow": "Skip for Now",
         "continueToDashboard": "Continue to Dashboard"
+      },
+      "frameworkGrid": {
+        "showLess": "Show less",
+        "showMore": "+{count} more frameworks"
       },
       "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."

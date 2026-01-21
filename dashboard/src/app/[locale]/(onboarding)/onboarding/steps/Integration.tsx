@@ -107,7 +107,7 @@ export default function Integration() {
   const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
 
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
-  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('nextjs');
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
@@ -266,9 +266,7 @@ export default function Integration() {
             View docs
           </ExternalLink>
         </CardTitle>
-        <CardDescription className='text-sm'>
-          Select your framework to see installation instructions
-        </CardDescription>
+        <CardDescription className='text-sm'>{t('instructions.selectFramework')}</CardDescription>
       </CardHeader>
 
       <CardContent className='space-y-4 p-0'>

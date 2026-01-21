@@ -3059,6 +3059,7 @@
       },
       "instructions": {
         "title": "Installationsinstruktioner",
+        "selectFramework": "Vælg dit framework for at se installationsinstruktioner",
         "description": "Vælg den metode, der matcher din website-opsætning",
         "htmlTab": "HTML",
         "nextjsTab": "Next.js",
@@ -3074,6 +3075,10 @@
       "buttons": {
         "skipForNow": "Spring over for nu",
         "continueToDashboard": "Fortsæt til dashboard"
+      },
+      "frameworkGrid": {
+        "showLess": "Vis mindre",
+        "showMore": "+{count} flere frameworks"
       },
       "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."

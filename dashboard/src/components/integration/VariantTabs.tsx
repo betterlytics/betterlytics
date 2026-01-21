@@ -16,7 +16,7 @@ export function useVariantTabs(variants: FrameworkVariant[], defaultVariant?: st
       <Tabs value={activeVariantId} onValueChange={setActiveVariantId} className='mb-4 w-full'>
         <TabsList>
           {variants.map((variant) => (
-            <TabsTrigger key={variant.id} value={variant.id}>
+            <TabsTrigger key={variant.id} value={variant.id} className='cursor-pointer'>
               {variant.label}
             </TabsTrigger>
           ))}

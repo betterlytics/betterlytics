@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Code, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export type FrameworkId =
-  | 'html'
-  | 'react'
   | 'nextjs'
+  | 'react'
   | 'vue'
   | 'nuxt'
   | 'svelte'
@@ -16,8 +16,9 @@ export type FrameworkId =
   | 'remix'
   | 'gatsby'
   | 'angular'
-  | 'wordpress'
+  | 'html'
   | 'shopify'
+  | 'wordpress'
   | 'webflow'
   | 'wix'
   | 'squarespace'
@@ -33,18 +34,18 @@ export interface FrameworkOption {
 }
 
 export const FRAMEWORKS: FrameworkOption[] = [
-  { id: 'html', name: 'HTML', description: 'Script tag' },
   { id: 'nextjs', name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg', description: 'App Router' },
   { id: 'react', name: 'React', logo: '/framework-logos/react-icon.svg', description: 'Create React App' },
   { id: 'vue', name: 'Vue', logo: '/framework-logos/vue-icon.svg', description: 'Vue 3' },
   { id: 'nuxt', name: 'Nuxt', logo: '/framework-logos/nuxtjs-icon.svg', description: 'Nuxt 3' },
   { id: 'svelte', name: 'Svelte', logo: '/framework-logos/svelte-icon.svg', description: 'SvelteKit' },
-  { id: 'astro', name: 'Astro', description: 'Astro' },
+  { id: 'astro', name: 'Astro', logo: '/framework-logos/astro-icon.svg', description: 'Astro' },
   { id: 'angular', name: 'Angular', logo: '/framework-logos/angular-icon.svg', description: 'Angular 17+' },
   { id: 'remix', name: 'Remix', logo: '/framework-logos/remix-icon.svg', description: 'Remix' },
   { id: 'gatsby', name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', description: 'Gatsby' },
   { id: 'solidjs', name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg', description: 'SolidJS' },
   { id: 'laravel', name: 'Laravel', logo: '/framework-logos/laravel-icon.svg', description: 'PHP' },
+  { id: 'html', name: 'HTML', description: 'Script tag' },
   { id: 'wordpress', name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', description: 'Plugin' },
   { id: 'shopify', name: 'Shopify', logo: '/framework-logos/shopify-icon.svg', description: 'Theme' },
   { id: 'webflow', name: 'Webflow', logo: '/framework-logos/webflow-icon.svg', description: 'CMS' },
@@ -62,6 +63,7 @@ interface FrameworkGridProps {
 
 export function FrameworkGrid({ selectedFramework, onSelectFramework }: FrameworkGridProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const t = useTranslations('onboarding.integration.frameworkGrid');
 
   const visibleFrameworks = isExpanded ? FRAMEWORKS : FRAMEWORKS.slice(0, VISIBLE_COUNT);
   const hiddenCount = FRAMEWORKS.length - VISIBLE_COUNT;
@@ -132,17 +134,17 @@ export function FrameworkGrid({ selectedFramework, onSelectFramework }: Framewor
         <button
           type='button'
           onClick={() => setIsExpanded(!isExpanded)}
-          className='text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-1.5 text-xs transition-colors'
+          className='text-muted-foreground hover:text-foreground flex w-full cursor-pointer items-center justify-center gap-1 py-1.5 text-xs transition-colors'
         >
           {isExpanded ? (
             <>
               <ChevronUp className='h-3.5 w-3.5' />
-              <span>Show less</span>
+              <span>{t('showLess')}</span>
             </>
           ) : (
             <>
               <ChevronDown className='h-3.5 w-3.5' />
-              <span>+{hiddenCount} more frameworks</span>
+              <span>{t('showMore', { count: hiddenCount })}</span>
             </>
           )}
         </button>
