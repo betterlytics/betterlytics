@@ -32,23 +32,63 @@ interface FrameworkStepTranslations {
   description?: string;
 }
 
-interface FrameworkTranslations {
+// Base type with only step1 required
+interface Step1Only {
   step1: FrameworkStepTranslations;
-  step2?: FrameworkStepTranslations;
-  step3?: FrameworkStepTranslations;
   note?: string;
-  variants?: {
-    [variantId: string]: {
-      step1?: FrameworkStepTranslations;
-      step2?: FrameworkStepTranslations;
-      step3?: FrameworkStepTranslations;
-    };
+}
+
+// Type with step1 and step2 required
+interface Step1And2 extends Step1Only {
+  step2: FrameworkStepTranslations;
+}
+
+// Type with step1, step2, and step3 required
+interface Step1And2And3 extends Step1And2 {
+  step3: FrameworkStepTranslations;
+}
+
+interface NextjsVariants {
+  next153: {
+    step1: FrameworkStepTranslations;
+    step2: FrameworkStepTranslations;
   };
+  approuter: {
+    step1: FrameworkStepTranslations;
+    step2: FrameworkStepTranslations;
+    step3: FrameworkStepTranslations;
+  };
+  pagesrouter: {
+    step1: FrameworkStepTranslations;
+    step2: FrameworkStepTranslations;
+  };
+}
+
+interface NextjsTranslations extends Step1Only {
+  variants: NextjsVariants;
 }
 
 export interface IntegrationTranslations {
   frameworks: {
-    [key: string]: FrameworkTranslations;
+    html: Step1Only;
+    laravel: Step1Only;
+    default: Step1Only;
+    react: Step1And2;
+    vue: Step1And2;
+    nuxt: Step1And2;
+    svelte: Step1And2;
+    astro: Step1And2;
+    remix: Step1And2;
+    gatsby: Step1And2;
+    angular: Step1And2;
+    solidjs: Step1And2;
+    wordpress: Step1And2;
+    webflow: Step1And2;
+    squarespace: Step1And2;
+    shopify: Step1And2And3;
+    wix: Step1And2And3;
+    gtm: Step1And2And3;
+    nextjs: NextjsTranslations;
   };
 }
 
@@ -86,7 +126,6 @@ export function getFrameworkCode(
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;
 
-  const getT = (id: string) => t.frameworks[id];
   const packageManagerTabs = getPackageManagerTabs();
 
   switch (frameworkId) {
@@ -94,11 +133,9 @@ export function getFrameworkCode(
       return {
         steps: [
           {
-            title: getT('html').step1.title,
-            description: getT('html').step1.description,
-            code: `<head>
-  ${trackingScript}
-</head>`,
+            title: t.frameworks.html.step1.title,
+            description: t.frameworks.html.step1.description,
+            code: trackingScript,
             language: 'html',
           },
         ],
@@ -108,8 +145,8 @@ export function getFrameworkCode(
       return {
         steps: [
           {
-            title: getT('laravel').step1.title,
-            description: getT('laravel').step1.description,
+            title: t.frameworks.laravel.step1.title,
+            description: t.frameworks.laravel.step1.description,
             code: trackingScript,
             language: 'html',
           },
@@ -117,7 +154,7 @@ export function getFrameworkCode(
       };
 
     case 'nextjs': {
-      const nextjsT = getT('nextjs');
+      const nextjsT = t.frameworks.nextjs;
       return {
         variants: [
           {
@@ -125,13 +162,13 @@ export function getFrameworkCode(
             label: 'Next.js 15.3+',
             steps: [
               {
-                title: nextjsT.variants!.next153.step1!.title,
-                description: nextjsT.variants!.next153.step1!.description,
+                title: nextjsT.variants.next153.step1.title,
+                description: nextjsT.variants.next153.step1.description,
                 codeTabs: packageManagerTabs,
               },
               {
-                title: nextjsT.variants!.next153.step2!.title,
-                description: nextjsT.variants!.next153.step2!.description,
+                title: nextjsT.variants.next153.step2.title,
+                description: nextjsT.variants.next153.step2.description,
                 code: getSimpleInitCode(siteId),
                 language: 'javascript',
               },
@@ -142,13 +179,13 @@ export function getFrameworkCode(
             label: 'App Router',
             steps: [
               {
-                title: nextjsT.variants!.approuter.step1!.title,
-                description: nextjsT.variants!.approuter.step1!.description,
+                title: nextjsT.variants.approuter.step1.title,
+                description: nextjsT.variants.approuter.step1.description,
                 codeTabs: packageManagerTabs,
               },
               {
-                title: nextjsT.variants!.approuter.step2!.title,
-                description: nextjsT.variants!.approuter.step2!.description,
+                title: nextjsT.variants.approuter.step2.title,
+                description: nextjsT.variants.approuter.step2.description,
                 code: `'use client'
 
 import { useEffect } from 'react'
@@ -164,10 +201,9 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
                 language: 'javascript',
               },
               {
-                title: nextjsT.variants!.approuter.step3!.title,
-                description: nextjsT.variants!.approuter.step3!.description,
-                code: `// app/layout.tsx
-import { AnalyticsProvider } from './providers'
+                title: nextjsT.variants.approuter.step3.title,
+                description: nextjsT.variants.approuter.step3.description,
+                code: `import { AnalyticsProvider } from './providers'
 
 export default function RootLayout({ children }) {
   return (
@@ -189,13 +225,13 @@ export default function RootLayout({ children }) {
             label: 'Pages Router',
             steps: [
               {
-                title: nextjsT.variants!.pagesrouter.step1!.title,
-                description: nextjsT.variants!.pagesrouter.step1!.description,
+                title: nextjsT.variants.pagesrouter.step1.title,
+                description: nextjsT.variants.pagesrouter.step1.description,
                 codeTabs: packageManagerTabs,
               },
               {
-                title: nextjsT.variants!.pagesrouter.step2!.title,
-                description: nextjsT.variants!.pagesrouter.step2!.description,
+                title: nextjsT.variants.pagesrouter.step2.title,
+                description: nextjsT.variants.pagesrouter.step2.description,
                 code: `import { useEffect } from 'react'
 import type { AppProps } from 'next/app'
 import betterlytics from "@betterlytics/tracker"
@@ -219,13 +255,13 @@ export default function App({ Component, pageProps }: AppProps) {
       return {
         steps: [
           {
-            title: getT('react').step1.title,
-            description: getT('react').step1.description,
+            title: t.frameworks.react.step1.title,
+            description: t.frameworks.react.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('react').step2!.title,
-            description: getT('react').step2!.description,
+            title: t.frameworks.react.step2.title,
+            description: t.frameworks.react.step2.description,
             code: getSimpleInitCode(siteId),
             language: 'javascript',
           },
@@ -236,13 +272,13 @@ export default function App({ Component, pageProps }: AppProps) {
       return {
         steps: [
           {
-            title: getT('vue').step1.title,
-            description: getT('vue').step1.description,
+            title: t.frameworks.vue.step1.title,
+            description: t.frameworks.vue.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('vue').step2!.title,
-            description: getT('vue').step2!.description,
+            title: t.frameworks.vue.step2.title,
+            description: t.frameworks.vue.step2.description,
             code: `import { createApp } from 'vue'
 import App from './App.vue'
 import betterlytics from "@betterlytics/tracker"
@@ -259,13 +295,13 @@ createApp(App).mount('#app')`,
       return {
         steps: [
           {
-            title: getT('nuxt').step1.title,
-            description: getT('nuxt').step1.description,
+            title: t.frameworks.nuxt.step1.title,
+            description: t.frameworks.nuxt.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('nuxt').step2!.title,
-            description: getT('nuxt').step2!.description,
+            title: t.frameworks.nuxt.step2.title,
+            description: t.frameworks.nuxt.step2.description,
             code: `// plugins/betterlytics.client.ts
 import betterlytics from "@betterlytics/tracker"
 
@@ -281,15 +317,14 @@ export default defineNuxtPlugin(() => {
       return {
         steps: [
           {
-            title: getT('svelte').step1.title,
-            description: getT('svelte').step1.description,
+            title: t.frameworks.svelte.step1.title,
+            description: t.frameworks.svelte.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('svelte').step2!.title,
-            description: getT('svelte').step2!.description,
-            code: `<!-- src/routes/+layout.svelte -->
-<script>
+            title: t.frameworks.svelte.step2.title,
+            description: t.frameworks.svelte.step2.description,
+            code: `<script>
   import { onMount } from 'svelte'
   import betterlytics from '@betterlytics/tracker'
 
@@ -308,15 +343,14 @@ export default defineNuxtPlugin(() => {
       return {
         steps: [
           {
-            title: getT('astro').step1.title,
-            description: getT('astro').step1.description,
+            title: t.frameworks.astro.step1.title,
+            description: t.frameworks.astro.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('astro').step2!.title,
-            description: getT('astro').step2!.description,
-            code: `<!-- src/layouts/Layout.astro -->
-<html>
+            title: t.frameworks.astro.step2.title,
+            description: t.frameworks.astro.step2.description,
+            code: `<html>
   <head>
     <!-- ... -->
   </head>
@@ -337,15 +371,14 @@ export default defineNuxtPlugin(() => {
       return {
         steps: [
           {
-            title: getT('remix').step1.title,
-            description: getT('remix').step1.description,
+            title: t.frameworks.remix.step1.title,
+            description: t.frameworks.remix.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('remix').step2!.title,
-            description: getT('remix').step2!.description,
-            code: `// app/root.tsx
-import { useEffect } from 'react'
+            title: t.frameworks.remix.step2.title,
+            description: t.frameworks.remix.step2.description,
+            code: `import { useEffect } from 'react'
 import betterlytics from "@betterlytics/tracker"
 
 export default function App() {
@@ -369,15 +402,14 @@ export default function App() {
       return {
         steps: [
           {
-            title: getT('gatsby').step1.title,
-            description: getT('gatsby').step1.description,
+            title: t.frameworks.gatsby.step1.title,
+            description: t.frameworks.gatsby.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('gatsby').step2!.title,
-            description: getT('gatsby').step2!.description,
-            code: `// gatsby-browser.js
-import betterlytics from "@betterlytics/tracker"
+            title: t.frameworks.gatsby.step2.title,
+            description: t.frameworks.gatsby.step2.description,
+            code: `import betterlytics from "@betterlytics/tracker"
 
 export const onClientEntry = () => {
   betterlytics.init("${siteId}")
@@ -391,15 +423,14 @@ export const onClientEntry = () => {
       return {
         steps: [
           {
-            title: getT('angular').step1.title,
-            description: getT('angular').step1.description,
+            title: t.frameworks.angular.step1.title,
+            description: t.frameworks.angular.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('angular').step2!.title,
-            description: getT('angular').step2!.description,
-            code: `// src/main.ts
-import { bootstrapApplication } from '@angular/platform-browser'
+            title: t.frameworks.angular.step2.title,
+            description: t.frameworks.angular.step2.description,
+            code: `import { bootstrapApplication } from '@angular/platform-browser'
 import { AppComponent } from './app/app.component'
 import betterlytics from "@betterlytics/tracker"
 
@@ -415,15 +446,14 @@ bootstrapApplication(AppComponent)`,
       return {
         steps: [
           {
-            title: getT('solidjs').step1.title,
-            description: getT('solidjs').step1.description,
+            title: t.frameworks.solidjs.step1.title,
+            description: t.frameworks.solidjs.step1.description,
             codeTabs: packageManagerTabs,
           },
           {
-            title: getT('solidjs').step2!.title,
-            description: getT('solidjs').step2!.description,
-            code: `// src/index.tsx
-import { render } from 'solid-js/web'
+            title: t.frameworks.solidjs.step2.title,
+            description: t.frameworks.solidjs.step2.description,
+            code: `import { render } from 'solid-js/web'
 import App from './App'
 import betterlytics from "@betterlytics/tracker"
 
@@ -439,50 +469,50 @@ render(() => <App />, document.getElementById('root')!)`,
       return {
         steps: [
           {
-            title: getT('wordpress').step1.title,
-            description: getT('wordpress').step1.description,
+            title: t.frameworks.wordpress.step1.title,
+            description: t.frameworks.wordpress.step1.description,
           },
           {
-            title: getT('wordpress').step2!.title,
-            description: getT('wordpress').step2!.description,
+            title: t.frameworks.wordpress.step2.title,
+            description: t.frameworks.wordpress.step2.description,
             code: trackingScript,
             language: 'html',
           },
         ],
-        note: getT('wordpress').note,
+        note: t.frameworks.wordpress.note,
       };
 
     case 'shopify':
       return {
         steps: [
           {
-            title: getT('shopify').step1.title,
-            description: getT('shopify').step1.description,
+            title: t.frameworks.shopify.step1.title,
+            description: t.frameworks.shopify.step1.description,
           },
           {
-            title: getT('shopify').step2!.title,
-            description: getT('shopify').step2!.description,
+            title: t.frameworks.shopify.step2.title,
+            description: t.frameworks.shopify.step2.description,
           },
           {
-            title: getT('shopify').step3!.title,
-            description: getT('shopify').step3!.description,
+            title: t.frameworks.shopify.step3.title,
+            description: t.frameworks.shopify.step3.description,
             code: trackingScript,
             language: 'html',
           },
         ],
-        note: getT('shopify').note,
+        note: t.frameworks.shopify.note,
       };
 
     case 'webflow':
       return {
         steps: [
           {
-            title: getT('webflow').step1.title,
-            description: getT('webflow').step1.description,
+            title: t.frameworks.webflow.step1.title,
+            description: t.frameworks.webflow.step1.description,
           },
           {
-            title: getT('webflow').step2!.title,
-            description: getT('webflow').step2!.description,
+            title: t.frameworks.webflow.step2.title,
+            description: t.frameworks.webflow.step2.description,
             code: trackingScript,
             language: 'html',
           },
@@ -493,67 +523,67 @@ render(() => <App />, document.getElementById('root')!)`,
       return {
         steps: [
           {
-            title: getT('wix').step1.title,
-            description: getT('wix').step1.description,
+            title: t.frameworks.wix.step1.title,
+            description: t.frameworks.wix.step1.description,
           },
           {
-            title: getT('wix').step2!.title,
-            description: getT('wix').step2!.description,
+            title: t.frameworks.wix.step2.title,
+            description: t.frameworks.wix.step2.description,
             code: trackingScript,
             language: 'html',
           },
           {
-            title: getT('wix').step3!.title,
-            description: getT('wix').step3!.description,
+            title: t.frameworks.wix.step3.title,
+            description: t.frameworks.wix.step3.description,
           },
         ],
-        note: getT('wix').note,
+        note: t.frameworks.wix.note,
       };
 
     case 'squarespace':
       return {
         steps: [
           {
-            title: getT('squarespace').step1.title,
-            description: getT('squarespace').step1.description,
+            title: t.frameworks.squarespace.step1.title,
+            description: t.frameworks.squarespace.step1.description,
           },
           {
-            title: getT('squarespace').step2!.title,
-            description: getT('squarespace').step2!.description,
+            title: t.frameworks.squarespace.step2.title,
+            description: t.frameworks.squarespace.step2.description,
             code: trackingScript,
             language: 'html',
           },
         ],
-        note: getT('squarespace').note,
+        note: t.frameworks.squarespace.note,
       };
 
     case 'gtm':
       return {
         steps: [
           {
-            title: getT('gtm').step1.title,
-            description: getT('gtm').step1.description,
+            title: t.frameworks.gtm.step1.title,
+            description: t.frameworks.gtm.step1.description,
           },
           {
-            title: getT('gtm').step2!.title,
-            description: getT('gtm').step2!.description,
+            title: t.frameworks.gtm.step2.title,
+            description: t.frameworks.gtm.step2.description,
             code: trackingScript,
             language: 'html',
           },
           {
-            title: getT('gtm').step3!.title,
-            description: getT('gtm').step3!.description,
+            title: t.frameworks.gtm.step3.title,
+            description: t.frameworks.gtm.step3.description,
           },
         ],
-        note: getT('gtm').note,
+        note: t.frameworks.gtm.note,
       };
 
     default:
       return {
         steps: [
           {
-            title: getT('default').step1.title,
-            description: getT('default').step1.description,
+            title: t.frameworks.default.step1.title,
+            description: t.frameworks.default.step1.description,
             code: trackingScript,
             language: 'html',
           },
