@@ -16,7 +16,7 @@ export function CodeTabs({ tabs, defaultTab }: CodeTabsProps) {
     <Tabs defaultValue={defaultTab || tabs[0]?.id || 'npm'} className='w-full'>
       <TabsList>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} value={tab.id}>
+          <TabsTrigger key={tab.id} value={tab.id} className='cursor-pointer'>
             {tab.label}
           </TabsTrigger>
         ))}
