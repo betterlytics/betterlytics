@@ -2670,8 +2670,6 @@
       "loadingDetails": "Indlæser integrationsdetaljer...",
       "unableToLoadSiteId": "Kan ikke indlæse site-ID",
       "failedToCopy": "Kunne ikke kopiere",
-      "important": "Vigtigt",
-      "headSectionNote": "Tilføj dette script til {head}-sektionen af din rod-layout eller individuelle sider.",
       "npmPackageNote": "Eller installer vores <npm>npm</npm> pakke <package>@betterlytics/tracker</package> for nem opsætning til Node-projekter.",
       "yourSiteId": "Dit site-ID",
       "trackingScript": "Sporingsskript",

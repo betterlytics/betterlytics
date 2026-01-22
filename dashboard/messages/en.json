@@ -2667,8 +2667,6 @@
       "loadingDetails": "Loading integration details...",
       "unableToLoadSiteId": "Unable to load site ID",
       "failedToCopy": "Failed to copy",
-      "important": "Important",
-      "headSectionNote": "Add this script to the {head} section of your root layout or individual pages.",
       "npmPackageNote": "Or install our <npm>npm</npm> package <package>@betterlytics/tracker</package> for easy setup for Node projects.",
       "yourSiteId": "Your Site ID",
       "trackingScript": "Tracking Script",

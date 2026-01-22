@@ -2678,8 +2678,6 @@
       "loadingDetails": "Caricamento dettagli integrazione...",
       "unableToLoadSiteId": "Impossibile caricare l'ID del sito",
       "failedToCopy": "Copia non riuscita",
-      "important": "Importante",
-      "headSectionNote": "Aggiungi questo script alla sezione {head} del layout principale o delle singole pagine.",
       "npmPackageNote": "Oppure installa il nostro pacchetto <npm>npm</npm> <package>@betterlytics/tracker</package> per una configurazione semplice nei progetti Node.",
       "yourSiteId": "ID del tuo sito",
       "trackingScript": "Script di tracciamento",

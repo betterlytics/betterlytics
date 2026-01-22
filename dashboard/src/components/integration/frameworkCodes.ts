@@ -32,7 +32,7 @@ interface FrameworkStepTranslations {
   description?: string;
 }
 
-// Base type with only step1 required
+// Type with only step1 required
 interface Step1Only {
   step1: FrameworkStepTranslations;
   note?: string;
@@ -302,8 +302,7 @@ createApp(App).mount('#app')`,
           {
             title: t.frameworks.nuxt.step2.title,
             description: t.frameworks.nuxt.step2.description,
-            code: `// plugins/betterlytics.client.ts
-import betterlytics from "@betterlytics/tracker"
+            code: `import betterlytics from "@betterlytics/tracker"
 
 export default defineNuxtPlugin(() => {
   betterlytics.init("${siteId}")

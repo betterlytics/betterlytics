@@ -126,46 +126,6 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
               </div>
             ) : (
               <>
-                <Card className='bg-card border-border'>
-                  <CardHeader className='flex flex-row items-start space-x-3'>
-                    <Info className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                    <div>
-                      <CardTitle className='text-card-foreground text-base font-medium'>
-                        {t('important')}
-                      </CardTitle>
-                      <CardDescription className='text-muted-foreground text-sm'>
-                        {t('headSectionNote', { head: '<head>' })}
-                      </CardDescription>
-                      <CardDescription className='text-muted-foreground text-sm'>
-                        <span>
-                          {t.rich('npmPackageNote', {
-                            npm: (chunks) => (
-                              <a
-                                href='https://www.npmjs.com/package/@betterlytics/tracker'
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='text-primary underline'
-                              >
-                                {chunks}
-                              </a>
-                            ),
-                            package: (chunks) => (
-                              <a
-                                href='https://www.npmjs.com/package/@betterlytics/tracker'
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='text-primary underline'
-                              >
-                                {chunks}
-                              </a>
-                            ),
-                          })}
-                        </span>
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                </Card>
-
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
