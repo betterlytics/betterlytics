@@ -1,0 +1,86 @@
+---
+title: "WordPress Plugin Configuration"
+description: "Programmatic configuration for the Betterlytics WordPress plugin using JSON and WP-CLI."
+---
+
+import { Callout } from "nextra/components";
+
+# Advanced Configuration
+
+The Betterlytics plugin stores all settings in a single WordPress option (`betterlytics_options`). This makes it easy to configure via deployment pipelines or WP-CLI.
+
+## JSON Configuration
+
+Create a `betterlytics-config.json` file:
+
+```json
+{
+  "site_id": "your-site-id",
+  "enabled": true,
+  "track_web_vitals": false,
+  "track_404": { "enabled": true },
+  "track_search": { "enabled": true, "include_query": false },
+  "track_outbound": { "mode": "domain" },
+  "track_downloads": { "enabled": true },
+  "track_css_events": { "enabled": false }
+}
+```
+
+Apply via WP-CLI:
+
+```bash
+wp option update betterlytics_options --format=json < betterlytics-config.json
+```
+
+---
+
+## Option Reference
+
+### Core Settings
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `site_id` | string | `""` | Your unique Site ID from the Betterlytics dashboard |
+| `enabled` | boolean | `false` | Enable tracking on this site |
+
+### Event Tracking
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `track_web_vitals` | boolean | `false` | Track Core Web Vitals performance metrics |
+| `track_404.enabled` | boolean | `false` | Track 404 error pages |
+| `track_search.enabled` | boolean | `false` | Track site search queries |
+| `track_search.include_query` | boolean | `false` | Include search query term with events |
+| `track_outbound.mode` | string | `"domain"` | Outbound link tracking: `"off"`, `"domain"`, or `"full"` |
+| `track_downloads.enabled` | boolean | `false` | Track file downloads |
+| `track_css_events.enabled` | boolean | `false` | Track clicks on elements with `betterlytics-event-name` class |
+
+---
+
+## WP-CLI Examples
+
+```bash
+# Apply full configuration from file
+wp option update betterlytics_options --format=json < betterlytics-config.json
+
+# View current configuration
+wp option get betterlytics_options --format=json
+
+# Update a single value (get, modify with jq, set back)
+wp option get betterlytics_options --format=json | \
+  jq '.site_id = "new-site-id"' | \
+  wp option update betterlytics_options --format=json
+```
+
+---
+
+## Resetting Configuration
+
+```bash
+# Force update from config file
+wp option update betterlytics_options --format=json < betterlytics-config.json
+
+# Or delete and re-apply
+wp option delete betterlytics_options
+wp option update betterlytics_options --format=json < betterlytics-config.json
+```

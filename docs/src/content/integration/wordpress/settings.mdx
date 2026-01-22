@@ -1,0 +1,53 @@
+---
+title: "WordPress Plugin Settings"
+description: "Configure the Betterlytics WordPress plugin settings - enable tracking, set your Site ID, and customize tracking behavior."
+---
+
+import { Callout } from "nextra/components";
+
+# Settings
+
+The Betterlytics WordPress plugin settings are found at **Settings > Betterlytics** in your WordPress admin area. This page covers the core settings that control how Betterlytics works on your site.
+
+---
+
+## Enable Tracking
+
+The **Enable Tracking** toggle controls whether Betterlytics collects data on your site.
+
+### How it works
+
+When tracking is enabled, the Betterlytics tracking script is injected into the footer of your website. This allows Betterlytics to collect page views and other configured events.
+
+| State | Behavior |
+|-------|----------|
+| **Enabled** (default) | The tracking script is loaded and data is collected |
+| **Disabled** | The tracking script is completely removed from your site's source code. No data will be sent to Betterlytics |
+
+<Callout type="tip">
+Disabling tracking is useful for maintenance periods, staging environments, or when you need to temporarily pause data collection without deactivating the plugin.
+</Callout>
+
+---
+
+## Site ID
+
+The **Site ID** is the unique identifier that links your WordPress site to your Betterlytics dashboard.
+
+### Where to find it
+
+You can find your Site ID in your Betterlytics account:
+
+1. Log in to [Betterlytics Dashboards](https://betterlytics.io/dashboards)
+2. Locate the specific dashboard card for your site
+3. The Site ID is displayed under the site name
+
+### Important notes
+
+<Callout type="warning">
+If the Site ID is incorrect, data will not be recorded in your dashboard. Ensure you copy it exactly as shown in your account.
+</Callout>
+
+- The Site ID is case-sensitive
+- Do not include any extra spaces before or after the ID
+- Each site in your Betterlytics account has a unique Site ID
