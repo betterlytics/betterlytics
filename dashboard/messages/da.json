@@ -2664,7 +2664,7 @@
     "integration": {
       "integrationSetup": "Integrationsopsætning",
       "title": "Hjemmeside integration",
-      "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
+      "description": "Vælg dit framework og følg opsætningstrinnene for at begynde at indsamle analysedata",
       "fullyIntegrated": "Fuldt integreret",
       "notFullyIntegrated": "Ikke fuldt integreret",
       "loadingDetails": "Indlæser integrationsdetaljer...",

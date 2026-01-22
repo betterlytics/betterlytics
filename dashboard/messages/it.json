@@ -2672,7 +2672,7 @@
     "integration": {
       "integrationSetup": "Configurazione integrazione",
       "title": "Integrazione sito",
-      "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
+      "description": "Seleziona il tuo framework e segui i passaggi di configurazione per iniziare a raccogliere dati",
       "fullyIntegrated": "Integrato completamente",
       "notFullyIntegrated": "Non completamente integrato",
       "loadingDetails": "Caricamento dettagli integrazione...",
