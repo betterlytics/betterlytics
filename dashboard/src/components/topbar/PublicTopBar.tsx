@@ -65,7 +65,7 @@ export default function PublicTopBar() {
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <NextLink href='/dashboards' className='ml-4'>
+                <NextLink href='/dashboards' className='ml-6'>
                   <Button variant='default' className='cursor-pointer'>
                     {t('goToDashboard')}
                   </Button>
