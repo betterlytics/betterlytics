@@ -13,7 +13,6 @@ export type FrameworkId =
   | 'vue'
   | 'nuxt'
   | 'svelte'
-  | 'astro'
   | 'remix'
   | 'gatsby'
   | 'angular'
@@ -40,7 +39,6 @@ export const FRAMEWORKS: FrameworkOption[] = [
   { id: 'vue', name: 'Vue', logo: '/framework-logos/vue-icon.svg', description: 'Vue 3' },
   { id: 'nuxt', name: 'Nuxt', logo: '/framework-logos/nuxtjs-icon.svg', description: 'Nuxt 3' },
   { id: 'svelte', name: 'Svelte', logo: '/framework-logos/svelte-icon.svg', description: 'SvelteKit' },
-  { id: 'astro', name: 'Astro', logo: '/framework-logos/astro-icon.svg', description: 'Astro' },
   { id: 'angular', name: 'Angular', logo: '/framework-logos/angular-icon.svg', description: 'Angular 17+' },
   { id: 'remix', name: 'Remix', logo: '/framework-logos/remix-icon.svg', description: 'Remix' },
   { id: 'gatsby', name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', description: 'Gatsby' },
