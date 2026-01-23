@@ -30,21 +30,21 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
               <div className='flex flex-col items-center'>
                 <div
                   className={cn(
-                    'flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors',
+                    'flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-all duration-200',
                     {
-                      'bg-primary border-primary text-primary-foreground': isCompleted,
-                      'border-primary bg-primary text-primary-foreground': isCurrent,
-                      'border-muted-foreground bg-background text-muted-foreground': isUpcoming,
+                      'bg-primary text-primary-foreground': isCompleted,
+                      'bg-primary text-primary-foreground ring-primary/40 ring-4': isCurrent,
+                      'bg-muted text-muted-foreground': isUpcoming,
                     },
                   )}
                 >
-                  {isCompleted ? <Check className='h-4 w-4' /> : <span>{stepNumber}</span>}
+                  {isCompleted ? <Check className='h-3.5 w-3.5' /> : <span>{stepNumber}</span>}
                 </div>
                 <div className='mt-2 text-center'>
                   <div
-                    className={cn('text-sm font-medium', {
-                      'text-primary': isCompleted || isCurrent,
-                      'text-muted-foreground': isUpcoming,
+                    className={cn('text-sm transition-colors duration-200', {
+                      'text-muted-foreground font-normal': isCompleted || isUpcoming,
+                      'text-foreground font-medium': isCurrent,
                     })}
                   >
                     {step.label}
@@ -56,11 +56,11 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
               </div>
 
               {index < steps.length - 1 && (
-                <div className='mx-4 mb-8 flex-1'>
+                <div className='mx-3 mb-7 flex-1'>
                   <div
-                    className={cn('h-0.5 w-full transition-colors', {
+                    className={cn('h-px w-full transition-colors duration-200', {
                       'bg-primary': stepNumber < currentStep,
-                      'bg-muted': stepNumber >= currentStep,
+                      'bg-border': stepNumber >= currentStep,
                     })}
                   />
                 </div>

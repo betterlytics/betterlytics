@@ -1306,7 +1306,8 @@
       "features": "Funktioner",
       "pricing": "Priser",
       "goToDashboard": "Gå til dashboard",
-      "getStarted": "Kom i gang"
+      "getStarted": "Kom i gang",
+      "login": "Log ind"
     },
     "footer": {
       "blurb": "Privacy-first webanalyse til det moderne web. GDPR-kompatibel, cookiefri og open source.",
@@ -1327,7 +1328,7 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Alle rettigheder forbeholdes. Open source under AGPL-3.0-licens."
+      "copyright": "© {year} Betterlytics. Open source under AGPL-3.0-licens."
     },
     "structuredData": {
       "organization": {
@@ -2660,14 +2661,12 @@
     "integration": {
       "integrationSetup": "Integrationsopsætning",
       "title": "Hjemmeside integration",
-      "description": "Tilføj sporingsskriptet til din hjemmeside for at begynde at indsamle analytiske data",
+      "description": "Vælg dit framework og følg opsætningstrinnene for at begynde at indsamle analysedata",
       "fullyIntegrated": "Fuldt integreret",
       "notFullyIntegrated": "Ikke fuldt integreret",
       "loadingDetails": "Indlæser integrationsdetaljer...",
       "unableToLoadSiteId": "Kan ikke indlæse site-ID",
       "failedToCopy": "Kunne ikke kopiere",
-      "important": "Vigtigt",
-      "headSectionNote": "Tilføj dette script til {head}-sektionen af din rod-layout eller individuelle sider.",
       "npmPackageNote": "Eller installer vores <npm>npm</npm> pakke <package>@betterlytics/tracker</package> for nem opsætning til Node-projekter.",
       "yourSiteId": "Dit site-ID",
       "trackingScript": "Sporingsskript",
@@ -2691,7 +2690,8 @@
       "troubleshooting": "Problemløsning",
       "contactSupport": "Kontakt support",
       "verifying": "Verificerer...",
-      "verifyInstallation": "Verificer installation"
+      "verifyInstallation": "Verificer installation",
+      "selectFramework": "Vælg dit framework"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard-indstillinger"
@@ -3055,6 +3055,7 @@
       },
       "instructions": {
         "title": "Installationsinstruktioner",
+        "selectFramework": "Vælg dit framework for at se installationsinstruktioner",
         "description": "Vælg den metode, der matcher din website-opsætning",
         "htmlTab": "HTML",
         "nextjsTab": "Next.js",
@@ -3070,6 +3071,10 @@
       "buttons": {
         "skipForNow": "Spring over for nu",
         "continueToDashboard": "Fortsæt til dashboard"
+      },
+      "frameworkGrid": {
+        "showLess": "Vis mindre",
+        "showMore": "+{count} flere frameworks"
       },
       "redirectingIn": "Omdirigerer om {seconds}...",
       "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
@@ -3220,6 +3225,233 @@
       "errorTitle": "Kunne ikke acceptere invitation",
       "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
       "goToDashboards": "Gå til dashboards"
+    }
+  },
+  "integration": {
+    "frameworks": {
+      "html": {
+        "step1": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i dit <head>-tag"
+        }
+      },
+      "nextjs": {
+        "variants": {
+          "next153": {
+            "step1": {
+              "title": "Installer pakken",
+              "description": "Kør dette i dit projektmappe"
+            },
+            "step2": {
+              "title": "Opret instrumentation-client.ts",
+              "description": "Opret denne fil i dit projekt-rod"
+            }
+          },
+          "approuter": {
+            "step1": {
+              "title": "Installer pakken",
+              "description": "Kør dette i dit projektmappe"
+            },
+            "step2": {
+              "title": "Opret en client provider",
+              "description": "Opret app/providers.tsx med 'use client' direktivet"
+            },
+            "step3": {
+              "title": "Wrap din app",
+              "description": "Tilføj provideren til dit root layout (app/layout.tsx)"
+            }
+          },
+          "pagesrouter": {
+            "step1": {
+              "title": "Installer pakken",
+              "description": "Kør dette i dit projektmappe"
+            },
+            "step2": {
+              "title": "Initialiser i _app.tsx",
+              "description": "Tilføj til pages/_app.tsx"
+            }
+          }
+        }
+      },
+      "react": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser trackeren",
+          "description": "Tilføj dette til din app entry (f.eks. src/main.tsx)"
+        }
+      },
+      "vue": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser trackeren",
+          "description": "Tilføj dette til din main.ts før du mounter din app"
+        }
+      },
+      "nuxt": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Opret et client plugin",
+          "description": "Opret plugins/betterlytics.client.ts"
+        }
+      },
+      "svelte": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i dit root layout",
+          "description": "Tilføj dette til src/routes/+layout.svelte"
+        }
+      },
+      "astro": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Tilføj til dit base layout",
+          "description": "Tilføj et script-tag til dit layout (f.eks. src/layouts/Layout.astro)"
+        }
+      },
+      "remix": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i root.tsx",
+          "description": "Tilføj dette til app/root.tsx med useEffect"
+        }
+      },
+      "gatsby": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i gatsby-browser.js",
+          "description": "Tilføj dette til gatsby-browser.js i dit projekt-rod"
+        }
+      },
+      "angular": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i main.ts",
+          "description": "Tilføj dette til din src/main.ts fil"
+        }
+      },
+      "solidjs": {
+        "step1": {
+          "title": "Installer pakken",
+          "description": "Kør dette i dit projektmappe"
+        },
+        "step2": {
+          "title": "Initialiser i din entry fil",
+          "description": "Tilføj dette til src/index.tsx"
+        }
+      },
+      "laravel": {
+        "step1": {
+          "title": "Tilføj til dit Blade-layout",
+          "description": "Indsæt dette i din layout-fils <head>-sektion (f.eks. resources/views/layouts/app.blade.php)"
+        }
+      },
+      "wordpress": {
+        "step1": {
+          "title": "Åbn din tema-editor",
+          "description": "Gå til Appearance > Theme Editor, eller brug et plugin som \"Insert Headers and Footers\""
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette før </head> i din header.php"
+        },
+        "note": "Overvej at bruge et child-tema eller plugin for at undgå at miste ændringer ved tema-opdateringer."
+      },
+      "shopify": {
+        "step1": {
+          "title": "Åbn tema-editoren",
+          "description": "Gå til Online Store > Themes > Edit code"
+        },
+        "step2": {
+          "title": "Rediger theme.liquid",
+          "description": "Åbn theme.liquid i Layout-mappen"
+        },
+        "step3": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette før det afsluttende </head>-tag"
+        },
+        "note": "Tema-opdateringer kan overskrive dine ændringer. Overvej at duplikere dit tema som backup."
+      },
+      "webflow": {
+        "step1": {
+          "title": "Åbn projektindstillinger",
+          "description": "Gå til Project Settings > Custom Code"
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i Head Code-sektionen, og publicer derefter dit site"
+        }
+      },
+      "wix": {
+        "step1": {
+          "title": "Åbn site-indstillinger",
+          "description": "Gå til Settings > Custom Code"
+        },
+        "step2": {
+          "title": "Tilføj ny brugerdefineret kode",
+          "description": "Klik på Add Custom Code og indsæt scriptet nedenfor"
+        },
+        "step3": {
+          "title": "Konfigurer og anvend",
+          "description": "Sæt placering til Head, anvend på All pages, og klik derefter på Apply"
+        },
+        "note": "Custom Code kræver en Wix Premium-plan."
+      },
+      "squarespace": {
+        "step1": {
+          "title": "Åbn code injection",
+          "description": "Gå til Settings > Developer Tools > Code Injection"
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i Header-sektionen, og gem derefter"
+        },
+        "note": "Code Injection kræver en Squarespace Business-plan eller højere."
+      },
+      "gtm": {
+        "step1": {
+          "title": "Opret et nyt tag",
+          "description": "I Google Tag Manager, gå til Tags > New > Custom HTML"
+        },
+        "step2": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt denne kode og sæt trigger til All Pages"
+        },
+        "step3": {
+          "title": "Publicer din container",
+          "description": "Klik på Submit for at publicere ændringerne"
+        },
+        "note": "Sørg for at GTM er korrekt installeret på dit website."
+      },
+      "default": {
+        "step1": {
+          "title": "Tilføj tracking-scriptet",
+          "description": "Indsæt dette i din HTML <head>-sektion"
+        }
+      }
     }
   }
 }

@@ -160,7 +160,7 @@ export function PricingCards({
       );
     }
 
-    const href = plan.cta.toLowerCase().includes(t('cta.getStarted').toLowerCase()) ? '/register' : '/contact';
+    const href = plan.cta.toLowerCase().includes(t('cta.getStarted').toLowerCase()) ? '/signup' : '/contact';
 
     return (
       <Link href={href} className='w-full'>

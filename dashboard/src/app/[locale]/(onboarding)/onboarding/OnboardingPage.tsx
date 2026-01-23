@@ -3,21 +3,18 @@
 import { useState } from 'react';
 import { OnboardingProgress } from './OnboardingProgress';
 import { AnimatePresence, motion } from 'motion/react';
-import AccountCreation from './steps/AccountCreation';
 import WebsiteSetup from './steps/WebsiteSetup';
 import Integration from './steps/Integration';
-import { getProviders } from 'next-auth/react';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
 
-type Steps = 'account' | 'website' | 'integration';
+type Steps = 'website' | 'integration';
 
 type OnboardingPageProps = {
   initialStep: Steps;
-  providers: Awaited<ReturnType<typeof getProviders>>;
 };
 
-export default function OnboardingPage({ initialStep, providers }: OnboardingPageProps) {
+export default function OnboardingPage({ initialStep }: OnboardingPageProps) {
   const [step, setStep] = useState<Steps>(initialStep);
 
   return (
@@ -29,18 +26,6 @@ export default function OnboardingPage({ initialStep, providers }: OnboardingPag
       </div>
       <OnboardingProgress step={step} />
       <AnimatePresence mode='wait'>
-        {step === 'account' && (
-          <motion.div
-            key='account'
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className='w-full'
-          >
-            <AccountCreation providers={providers} onNext={() => setStep('website')} />
-          </motion.div>
-        )}
         {step === 'website' && (
           <motion.div
             key='website'

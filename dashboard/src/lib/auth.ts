@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/signin',
     error: '/signin',
-    newUser: '/onboarding',
+    newUser: '/dashboards',
   },
   session: {
     strategy: 'database',
