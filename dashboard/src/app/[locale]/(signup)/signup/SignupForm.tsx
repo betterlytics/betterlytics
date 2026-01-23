@@ -157,7 +157,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
         try {
           const result = await signIn(provider, {
             redirect: false,
-            callbackUrl: '/onboarding',
+            callbackUrl: '/dashboards',
           });
 
           if (result?.url) {
