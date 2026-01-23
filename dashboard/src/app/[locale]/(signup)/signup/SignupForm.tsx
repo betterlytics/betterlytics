@@ -175,6 +175,11 @@ export default function SignupForm({ providers }: SignupFormProps) {
     <main className='relative flex w-full flex-1 flex-col items-center justify-center gap-2 py-8'>
       <div className='container mx-auto max-w-4xl px-4'>
         <div className='grid grid-cols-2 gap-4 md:grid-cols-[1fr_1.02fr]'>
+          <div className='col-span-2 mb-2 flex justify-center md:hidden'>
+            <Link href='/' className='flex items-center space-x-2'>
+              <Logo variant='simple' showText textSize='lg' priority />
+            </Link>
+          </div>
           <div className='hidden space-y-10 px-6 py-10 md:block'>
             <div className='flex justify-center pr-3'>
               <Link href='/' className='mb-8 flex items-center space-x-2'>
