@@ -2,50 +2,32 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.1',
-    releasedAt: '2026-01-11',
-    title: 'Collaborazione in team e sicurezza migliorata',
-    summary:
-      "Questa versione introduce la collaborazione in team con accesso basato sui ruoli, migliora la sicurezza dell'account con una gestione delle sessioni più avanzata e permette di modificare il dominio della dashboard senza aggiornare lo script di tracciamento.",
+    version: 'v1.3.2',
+    releasedAt: '2026-01-19',
+    title: 'Correzioni bug e miglioramenti UI',
+    summary: "Una release più piccola questa volta! Abbiamo risolto alcuni bug e migliorato l'interfaccia.",
   },
   sections: [
     {
-      id: 'v131-new-features',
-      title: 'Nuove funzionalità',
+      id: 'v132-fixes',
+      title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Invita i membri del team alla tua dashboard come Visualizzatore, Editore o Amministratore, con permessi basati sui ruoli per collaborare in sicurezza.',
-            'I filtri ora supportano la logica OR, permettendoti di selezionare più valori in un singolo filtro (ad esempio, più pagine o paesi).',
-            'Ora puoi modificare il dominio della dashboard senza perdere i dati storici o aggiornare lo script di tracciamento.',
+            'Risolto un problema per cui le impostazioni della dashboard apparivano modificabili per i membri del team senza permessi di amministratore.',
+            'Risolto un problema per cui la ricerca nei filtri smetteva di funzionare dopo aver selezionato più valori.',
           ],
         },
       ],
     },
     {
-      id: 'v131-security',
-      title: 'Sicurezza',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'La modifica della password ora invalida tutte le altre sessioni attive.',
-            'Il ripristino della password ora disconnette tutte le sessioni esistenti per una maggiore protezione.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v131-improvements',
+      id: 'v132-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
-          items: [
-            'Migliorate le protezioni della privacy per isolare meglio i dati dei visitatori tra siti diversi.',
-            'Corretti i problemi di spaziatura nella lista di monitoraggio uptime su schermi più grandi.',
-          ],
+          items: ["Vari miglioramenti minori all'interfaccia per un'esperienza più curata."],
         },
       ],
     },
@@ -53,6 +35,39 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.2',
+      releasedAt: '2026-01-19',
+      title: 'Correzioni bug e miglioramenti UI',
+      summary: "Una release più piccola questa volta! Abbiamo risolto alcuni bug e migliorato l'interfaccia.",
+    },
+    sections: [
+      {
+        id: 'v132-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema per cui le impostazioni della dashboard apparivano modificabili per i membri del team senza permessi di amministratore.',
+              'Risolto un problema per cui la ricerca nei filtri smetteva di funzionare dopo aver selezionato più valori.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v132-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: ["Vari miglioramenti minori all'interfaccia per un'esperienza più curata."],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.1',

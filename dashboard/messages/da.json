@@ -943,9 +943,6 @@
         "ctaDemo": "Prøv live demo",
         "eyebrow": "Prøv Betterlytics i aktion"
       },
-      "githubStats": {
-        "starsLabel": "stjerner på GitHub"
-      },
       "framework": {
         "title": "Fungerer med dine favoritværktøjer",
         "subtitle": "Universel kompatibilitet – virker med ethvert website, framework eller platform",
@@ -1492,7 +1489,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "GET/POST HTTP-metoder"
+        "name": "GET HTTP-metode"
       },
       "customRequestHeaders": {
         "name": "Brugerdefinerede request headers"

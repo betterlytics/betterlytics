@@ -943,9 +943,6 @@
         "ctaDemo": "Prova live demo",
         "eyebrow": "Prova Betterlytics in azione"
       },
-      "githubStats": {
-        "starsLabel": "stelle su GitHub"
-      },
       "framework": {
         "title": "Funziona con i tuoi strumenti preferiti",
         "subtitle": "Compatibilità universale - funziona con qualsiasi sito web, framework o piattaforma",
@@ -1500,7 +1497,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "Metodi HTTP GET/POST"
+        "name": "Metodo HTTP GET"
       },
       "customRequestHeaders": {
         "name": "Header di richiesta personalizzati"
