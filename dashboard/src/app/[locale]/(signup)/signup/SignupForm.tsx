@@ -273,7 +273,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
                   type='email'
                   required
                   placeholder={t('form.emailPlaceholder')}
-                  className='h-10 rounded-md'
+                  className='h-10 rounded-md text-sm'
                   disabled={isPending}
                 />
               </div>
@@ -286,7 +286,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
                   type='password'
                   required
                   placeholder={t('form.passwordPlaceholder')}
-                  className='h-10 rounded-md'
+                  className='h-10 rounded-md text-sm'
                   disabled={isPending}
                 />
               </div>
@@ -299,7 +299,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
                   type='password'
                   required
                   placeholder={t('form.confirmPasswordPlaceholder')}
-                  className='h-10 rounded-md'
+                  className='h-10 rounded-md text-sm'
                   disabled={isPending}
                 />
               </div>
