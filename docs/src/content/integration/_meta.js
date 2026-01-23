@@ -4,5 +4,7 @@ export default {
   "outbound-links": "Outbound Links",
   "web-vitals": "Web Vitals",
   "session-replay": "Session Replay",
-  wordpress: "WordPress Plugin",
+  wordpress: {
+    title: "WordPress Plugin",
+  },
 };
