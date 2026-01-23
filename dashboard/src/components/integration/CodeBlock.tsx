@@ -31,7 +31,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
   };
 
   return (
-    <div className='relative'>
+    <div className='relative min-w-0 overflow-hidden'>
       <Button
         variant='ghost'
         size='icon'

@@ -11,23 +11,42 @@ import type { FrameworkId } from './FrameworkGrid';
 
 function StepItem({ step, stepNumber, isLast }: { step: FrameworkStep; stepNumber: number; isLast: boolean }) {
   return (
-    <div className='relative flex gap-4'>
-      <div className='flex flex-col items-center'>
-        <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
-          {stepNumber}
+    <div className='relative'>
+      <div className={cn('sm:hidden', !isLast ? 'pb-6' : 'pb-0')}>
+        <div className='flex items-center gap-2'>
+          <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
+            {stepNumber}
+          </div>
+          <h4 className='text-foreground text-sm font-medium'>{step.title}</h4>
         </div>
-        {!isLast && <div className='bg-border mt-2 w-px flex-1' />}
+        <div className='mt-2'>
+          {step.description && <p className='text-muted-foreground mb-3 text-sm'>{step.description}</p>}
+          {step.codeTabs ? (
+            <CodeTabs tabs={step.codeTabs} />
+          ) : step.code ? (
+            <CodeBlock code={step.code} language={step.language || 'html'} />
+          ) : null}
+        </div>
       </div>
 
-      <div className={cn('flex-1', !isLast ? 'pb-6' : 'pb-0')}>
-        <h4 className='text-foreground mb-1 text-sm font-medium'>{step.title}</h4>
-        {step.description && <p className='text-muted-foreground mb-3 text-sm'>{step.description}</p>}
+      <div className='hidden gap-4 sm:flex'>
+        <div className='flex flex-col items-center'>
+          <div className='bg-muted border-border text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-medium'>
+            {stepNumber}
+          </div>
+          {!isLast && <div className='bg-border mt-2 w-px flex-1' />}
+        </div>
 
-        {step.codeTabs ? (
-          <CodeTabs tabs={step.codeTabs} />
-        ) : step.code ? (
-          <CodeBlock code={step.code} language={step.language || 'html'} />
-        ) : null}
+        <div className={cn('min-w-0 flex-1', !isLast ? 'pb-6' : 'pb-0')}>
+          <h4 className='text-foreground mb-1 text-sm font-medium'>{step.title}</h4>
+          {step.description && <p className='text-muted-foreground mb-3 text-sm'>{step.description}</p>}
+
+          {step.codeTabs ? (
+            <CodeTabs tabs={step.codeTabs} />
+          ) : step.code ? (
+            <CodeBlock code={step.code} language={step.language || 'html'} />
+          ) : null}
+        </div>
       </div>
     </div>
   );
