@@ -18,7 +18,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
@@ -26,6 +25,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
+import { CollapsibleSidebarGroup } from './CollapsibleSidebarGroup';
 import SettingsButton from '../SettingsButton';
 import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
@@ -147,84 +147,72 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('categories.analytics')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {analyticsItems
-                .filter((item) => !item.hidden)
-                .map((item) => (
-                  <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton asChild>
-                      <FilterPreservingLink href={item.href} highlightOnPage>
+        <CollapsibleSidebarGroup label={t('categories.analytics')} storageKey='sidebar-analytics'>
+          <SidebarMenu>
+            {analyticsItems
+              .filter((item) => !item.hidden)
+              .map((item) => (
+                <SidebarMenuItem key={item.key}>
+                  <SidebarMenuButton asChild>
+                    <FilterPreservingLink href={item.href} highlightOnPage>
+                      <span className='dark:text-muted-foreground/90'>{item.icon}</span>
+                      <span>{item.name}</span>
+                    </FilterPreservingLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+          </SidebarMenu>
+        </CollapsibleSidebarGroup>
+
+        <CollapsibleSidebarGroup label={t('categories.behavior')} storageKey='sidebar-behavior'>
+          <SidebarMenu>
+            {behaviorItems
+              .filter((item) => !item.hidden)
+              .map((item) => (
+                <SidebarMenuItem key={item.key} className={item.hideOnMobile ? 'hidden md:list-item' : undefined}>
+                  <SidebarMenuButton asChild>
+                    <FilterPreservingLink
+                      href={item.href}
+                      highlightOnPage
+                      className='flex items-center justify-between'
+                    >
+                      <div className='flex items-center gap-2'>
                         <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                         <span>{item.name}</span>
-                      </FilterPreservingLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                      </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('categories.behavior')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {behaviorItems
-                .filter((item) => !item.hidden)
-                .map((item) => (
-                  <SidebarMenuItem
-                    key={item.key}
-                    className={item.hideOnMobile ? 'hidden md:list-item' : undefined}
-                  >
-                    <SidebarMenuButton asChild>
-                      <FilterPreservingLink
-                        href={item.href}
-                        highlightOnPage
-                        className='flex items-center justify-between'
-                      >
-                        <div className='flex items-center gap-2'>
-                          <span className='dark:text-muted-foreground/90'>{item.icon}</span>
-                          <span>{item.name}</span>
-                        </div>
+                      {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
+                    </FilterPreservingLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+          </SidebarMenu>
+        </CollapsibleSidebarGroup>
 
-                        {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
-                      </FilterPreservingLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <CollapsibleSidebarGroup label={t('categories.observability')} storageKey='sidebar-observability'>
+          <SidebarMenu>
+            {observabilityItems
+              .filter((item) => !item.hidden)
+              .map((item) => (
+                <SidebarMenuItem key={item.key}>
+                  <SidebarMenuButton asChild>
+                    <FilterPreservingLink
+                      href={item.href}
+                      highlightOnPage
+                      className='flex items-center justify-between'
+                    >
+                      <div className='flex items-center gap-2'>
+                        <span className='dark:text-muted-foreground/90'>{item.icon}</span>
+                        <span>{item.name}</span>
+                      </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>{t('categories.observability')}</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {observabilityItems
-                .filter((item) => !item.hidden)
-                .map((item) => (
-                  <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton asChild>
-                      <FilterPreservingLink
-                        href={item.href}
-                        highlightOnPage
-                        className='flex items-center justify-between'
-                      >
-                        <div className='flex items-center gap-2'>
-                          <span className='dark:text-muted-foreground/90'>{item.icon}</span>
-                          <span>{item.name}</span>
-                        </div>
-
-                        {item.key === 'monitoring' && <Badge variant='outline'>Beta</Badge>}
-                      </FilterPreservingLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                      {item.key === 'monitoring' && <Badge variant='outline'>Beta</Badge>}
+                    </FilterPreservingLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+          </SidebarMenu>
+        </CollapsibleSidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         {!isDemo && (
