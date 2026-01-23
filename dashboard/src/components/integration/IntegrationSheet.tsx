@@ -34,7 +34,7 @@ interface IntegrationStatus {
 
 export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) {
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
-  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('nextjs');
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus>({
     accountCreated: true,
     siteIdGenerated: true,

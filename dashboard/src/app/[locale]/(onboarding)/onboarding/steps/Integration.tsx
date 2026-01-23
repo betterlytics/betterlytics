@@ -36,7 +36,7 @@ export default function Integration() {
   const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
 
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
-  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('nextjs');
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 

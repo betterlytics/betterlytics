@@ -7,6 +7,7 @@ import { Code, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export type FrameworkId =
+  | 'html'
   | 'nextjs'
   | 'react'
   | 'vue'
@@ -16,7 +17,6 @@ export type FrameworkId =
   | 'remix'
   | 'gatsby'
   | 'angular'
-  | 'html'
   | 'shopify'
   | 'wordpress'
   | 'webflow'
@@ -34,6 +34,7 @@ export interface FrameworkOption {
 }
 
 export const FRAMEWORKS: FrameworkOption[] = [
+  { id: 'html', name: 'HTML', logo: '/framework-logos/html-icon.svg', description: 'Script tag' },
   { id: 'nextjs', name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg', description: 'App Router' },
   { id: 'react', name: 'React', logo: '/framework-logos/react-icon.svg', description: 'Create React App' },
   { id: 'vue', name: 'Vue', logo: '/framework-logos/vue-icon.svg', description: 'Vue 3' },
@@ -45,7 +46,6 @@ export const FRAMEWORKS: FrameworkOption[] = [
   { id: 'gatsby', name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', description: 'Gatsby' },
   { id: 'solidjs', name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg', description: 'SolidJS' },
   { id: 'laravel', name: 'Laravel', logo: '/framework-logos/laravel-icon.svg', description: 'PHP' },
-  { id: 'html', name: 'HTML', description: 'Script tag' },
   { id: 'wordpress', name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', description: 'Plugin' },
   { id: 'shopify', name: 'Shopify', logo: '/framework-logos/shopify-icon.svg', description: 'Theme' },
   { id: 'webflow', name: 'Webflow', logo: '/framework-logos/webflow-icon.svg', description: 'CMS' },
