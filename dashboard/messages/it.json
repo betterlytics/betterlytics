@@ -2575,7 +2575,8 @@
       },
       "thresholds": {
         "good": "Buono",
-        "fair": "Discreto"
+        "fair": "Discreto",
+        "poor": "Scarso"
       },
       "table": {
         "title": "Analisi prestazioni",

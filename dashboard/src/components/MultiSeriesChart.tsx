@@ -42,6 +42,13 @@ export interface ReferenceAreaConfig {
   strokeDasharray?: string;
 }
 
+export interface YReferenceAreaConfig {
+  y1: number | 'dataMin';
+  y2: number | 'dataMax';
+  fill?: string;
+  fillOpacity?: number;
+}
+
 interface MultiSeriesChartProps {
   title: React.ReactNode;
   data: ChartDataPoint[];
@@ -49,6 +56,7 @@ interface MultiSeriesChartProps {
   formatValue?: (value: number) => string;
   series: ReadonlyArray<MultiSeriesConfig>;
   referenceAreas?: Array<ReferenceAreaConfig>;
+  yReferenceAreas?: Array<YReferenceAreaConfig>;
   referenceLines?: Array<{
     y: number;
     label?: string;
@@ -72,6 +80,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     formatValue,
     series,
     referenceAreas,
+    yReferenceAreas,
     referenceLines,
     headerRight,
     headerContent,
@@ -103,7 +112,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
 
         <CardContent className={cn('p-0', contentClassName)}>
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
-          <div className='h-80 py-1 md:px-4'>
+          <div className='h-80 overflow-hidden py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
               <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
@@ -163,6 +172,16 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                         <ReferenceLineLabel text={r.label} fill={r.labelFill ?? r.stroke} isMobile={isMobile} />
                       ) : undefined
                     }
+                  />
+                ))}
+                {yReferenceAreas?.map((yArea, i) => (
+                  <ReferenceArea
+                    key={`y-ref-area-${yArea.y1}-${yArea.y2}-${i}`}
+                    y1={yArea.y1}
+                    y2={yArea.y2}
+                    fill={yArea.fill ?? 'var(--chart-comparison)'}
+                    fillOpacity={yArea.fillOpacity ?? 0.08}
+                    ifOverflow='hidden'
                   />
                 ))}
                 {referenceAreas?.map((referenceArea, i) => (
