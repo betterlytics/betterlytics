@@ -1,7 +1,8 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
-import { utcDay, utcHour, utcMinute } from 'd3-time';
+import { utcDay, utcHour, utcMinute, utcWeek, utcMonth } from 'd3-time';
 import { formatNumber } from './formatters';
+import { formatWeekRange } from './dateFormatters';
 
 export interface TrendInfo {
   icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
@@ -58,7 +59,21 @@ export function defaultDateLabelFormatter(
   granularity?: GranularityRangeValues,
   locale?: string,
 ) {
-  const d = typeof date === 'string' ? new Date(date) : date;
+  const d = typeof date === 'string' ? new Date(date) : new Date(date);
+
+  if (granularity === 'month') {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      year: 'numeric',
+    }).format(d);
+  }
+
+  // Week granularity: show "Jan 6 – 12, 2026"
+  if (granularity === 'week') {
+    return formatWeekRange(d, locale, true);
+  }
+
+  // Day granularity
   if (granularity === undefined || granularity === 'day') {
     return new Intl.DateTimeFormat(locale, {
       weekday: 'short',
@@ -66,6 +81,8 @@ export function defaultDateLabelFormatter(
       day: '2-digit',
     }).format(d);
   }
+
+  // Hour/minute granularities
   return new Intl.DateTimeFormat(locale, {
     weekday: 'short',
     month: 'short',
@@ -77,6 +94,21 @@ export function defaultDateLabelFormatter(
 }
 
 export function granularityDateFormatter(granularity?: GranularityRangeValues, locale?: string) {
+  // Month granularity
+  if (granularity === 'month') {
+    return (date: Date) =>
+      new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        year: 'numeric',
+      }).format(date);
+  }
+
+  // Week granularity
+  if (granularity === 'week') {
+    return (date: Date) => formatWeekRange(date, locale);
+  }
+
+  // Day granularity
   if (granularity === undefined || granularity === 'day') {
     return (date: Date) =>
       new Intl.DateTimeFormat(locale, {
@@ -85,6 +117,7 @@ export function granularityDateFormatter(granularity?: GranularityRangeValues, l
       }).format(date);
   }
 
+  // Hour/minute granularities
   return (date: Date) => {
     const datePart = new Intl.DateTimeFormat(locale, {
       month: 'short',
@@ -104,6 +137,8 @@ export type TimeInterval = {
 };
 
 export function getTimeIntervalForGranularity(granularity: GranularityRangeValues): TimeInterval {
+  if (granularity === 'month') return utcMonth;
+  if (granularity === 'week') return utcWeek;
   if (granularity === 'day') return utcDay;
   if (granularity === 'hour') return utcHour;
   return utcMinute.every(getMinuteStep(granularity)) as TimeInterval;
