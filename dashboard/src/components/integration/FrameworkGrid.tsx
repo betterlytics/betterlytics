@@ -16,6 +16,7 @@ export type FrameworkId =
   | 'svelte'
   | 'remix'
   | 'gatsby'
+  | 'astro'
   | 'angular'
   | 'shopify'
   | 'wordpress'
