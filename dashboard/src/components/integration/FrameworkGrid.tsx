@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Code, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export type FrameworkId =
   | 'html'
@@ -52,7 +53,8 @@ export const FRAMEWORKS: FrameworkOption[] = [
   { id: 'gtm', name: 'GTM', logo: '/framework-logos/gtm-icon.svg', description: 'Tag Manager' },
 ];
 
-const VISIBLE_COUNT = 12;
+const VISIBLE_COUNT_MOBILE = 9;
+const VISIBLE_COUNT_DESKTOP = 12;
 
 interface FrameworkGridProps {
   selectedFramework: FrameworkId;
@@ -62,9 +64,11 @@ interface FrameworkGridProps {
 export function FrameworkGrid({ selectedFramework, onSelectFramework }: FrameworkGridProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const t = useTranslations('onboarding.integration.frameworkGrid');
+  const isMobile = useIsMobile();
 
-  const visibleFrameworks = isExpanded ? FRAMEWORKS : FRAMEWORKS.slice(0, VISIBLE_COUNT);
-  const hiddenCount = FRAMEWORKS.length - VISIBLE_COUNT;
+  const visibleCount = isMobile ? VISIBLE_COUNT_MOBILE : VISIBLE_COUNT_DESKTOP;
+  const visibleFrameworks = isExpanded ? FRAMEWORKS : FRAMEWORKS.slice(0, visibleCount);
+  const hiddenCount = FRAMEWORKS.length - visibleCount;
 
   return (
     <div className='space-y-2'>
