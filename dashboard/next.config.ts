@@ -14,6 +14,14 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  async redirects() {
+    return [
+      { source: '/login', destination: '/signin', permanent: true },
+      { source: '/register', destination: '/signup', permanent: true },
+      { source: '/:locale/login', destination: '/:locale/signin', permanent: true },
+      { source: '/:locale/register', destination: '/:locale/signup', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {
