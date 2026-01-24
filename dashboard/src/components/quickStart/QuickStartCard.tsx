@@ -157,10 +157,20 @@ export function QuickStartCard({ dashboardId, onOpenIntegration }: QuickStartCar
             />
             <CardTitle className='flex-1 text-sm'>{t('title')}</CardTitle>
             <div className='flex items-center gap-0.5'>
-              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsExpanded(!isExpanded)}>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-7 w-7 cursor-pointer'
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
                 <Minus className='h-4 w-4' />
               </Button>
-              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsOpen(false)}>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-7 w-7 cursor-pointer'
+                onClick={() => setIsOpen(false)}
+              >
                 <X className='h-4 w-4' />
               </Button>
             </div>
@@ -237,7 +247,7 @@ function CategorySection({
 
   return (
     <Collapsible open={isOpen} onOpenChange={onToggle}>
-      <CollapsibleTrigger className='hover:bg-muted/50 flex w-full items-center gap-2 px-4 py-2 transition-colors'>
+      <CollapsibleTrigger className='hover:bg-muted/50 flex w-full cursor-pointer items-center gap-2 px-4 py-2 transition-colors'>
         <span className='text-muted-foreground'>{CATEGORY_ICONS[category]}</span>
         <span className='flex-1 text-left text-xs font-medium'>{t(`categories.${category}`)}</span>
         <span className='text-muted-foreground text-xs'>
@@ -292,14 +302,17 @@ function GoalItem({
     <div className={cn('rounded-md', isExpanded && isPending && 'bg-muted/50')}>
       <button
         onClick={onToggle}
-        className='hover:bg-muted/50 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors'
+        className={cn(
+          'hover:bg-muted/50 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors',
+          isPending && 'cursor-pointer',
+        )}
       >
         {isCompleted ? (
           <div className='flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-emerald-500/40 bg-emerald-500/20'>
             <Check className='h-2.5 w-2.5 text-emerald-500' />
           </div>
         ) : isSkipped ? (
-          <div className='bg-muted flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full'>
+          <div className='border-muted-foreground/40 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-[1.5px]'>
             <X className='text-muted-foreground h-2.5 w-2.5' />
           </div>
         ) : (
@@ -314,7 +327,7 @@ function GoalItem({
           <Button
             variant='link'
             size='sm'
-            className='text-muted-foreground h-auto p-0 text-xs'
+            className='text-muted-foreground h-auto cursor-pointer p-0 text-xs'
             onClick={(e) => {
               e.stopPropagation();
               onUnskip();
@@ -330,10 +343,15 @@ function GoalItem({
           <div className='ml-[22px]'>
             <p className='text-muted-foreground mb-2 text-xs'>{t(`goals.${goal.id}.description`)}</p>
             <div className='flex items-center gap-2'>
-              <Button size='sm' className='h-7 text-xs' onClick={onNavigate}>
+              <Button size='sm' className='h-7 cursor-pointer text-xs' onClick={onNavigate}>
                 {t(`goals.${goal.id}.cta`)}
               </Button>
-              <Button variant='ghost' size='sm' className='text-muted-foreground h-7 text-xs' onClick={onSkip}>
+              <Button
+                variant='ghost'
+                size='sm'
+                className='text-muted-foreground h-7 cursor-pointer text-xs'
+                onClick={onSkip}
+              >
                 {t('goals.skip')}
               </Button>
             </div>
