@@ -139,17 +139,20 @@ export function QuickStartCard({ dashboardId, onOpenIntegration }: QuickStartCar
 
   const categories: OnboardingGoalCategory[] = ['get_started', 'analytics', 'team'];
 
+  const remaining = progress.totalCount - progress.completedCount;
+  const remainingPercentage = 100 - progress.percentage;
+
   return (
     <div className='animate-in fade-in slide-in-from-bottom-2 fixed right-4 bottom-4 z-50 duration-200'>
       <Card className={cn('gap-0 py-0 shadow-lg', isExpanded ? 'w-[320px]' : 'w-auto')}>
         <CardHeader className='space-y-0 px-4 py-3'>
           <div className='flex items-center gap-2'>
             <CircularProgress
-              value={progress.percentage}
-              size={28}
-              strokeWidth={2.5}
+              value={remainingPercentage}
+              size={24}
+              strokeWidth={2}
               showLabel
-              renderLabel={() => progress.completedCount}
+              renderLabel={() => remaining}
               labelClassName='text-[10px] font-bold'
             />
             <CardTitle className='flex-1 text-sm'>{t('title')}</CardTitle>

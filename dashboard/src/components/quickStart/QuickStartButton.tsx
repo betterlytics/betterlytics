@@ -16,20 +16,22 @@ export function QuickStartButton() {
 
   const { progress, setIsOpen } = quickStart;
   const isCollapsed = sidebarState === 'collapsed';
+  const remaining = progress.totalCount - progress.completedCount;
+  const remainingPercentage = 100 - progress.percentage;
 
   if (isCollapsed) {
     return (
       <button
         onClick={() => setIsOpen(true)}
         className='hover:bg-muted/50 mx-auto flex cursor-pointer items-center justify-center rounded-md p-2 transition-colors'
-        title={`${t('title')} - ${progress.completedCount}/${progress.totalCount}`}
+        title={`${t('title')} - ${remaining} left`}
       >
         <CircularProgress
-          value={progress.percentage}
-          size={28}
-          strokeWidth={3}
+          value={remainingPercentage}
+          size={20}
+          strokeWidth={2}
           showLabel
-          renderLabel={() => progress.completedCount}
+          renderLabel={() => remaining}
           labelClassName='text-xs font-semibold'
         />
       </button>
@@ -42,11 +44,11 @@ export function QuickStartButton() {
       className='hover:bg-muted/50 flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 transition-colors'
     >
       <CircularProgress
-        value={progress.percentage}
-        size={28}
-        strokeWidth={3}
+        value={remainingPercentage}
+        size={20}
+        strokeWidth={2}
         showLabel
-        renderLabel={() => progress.completedCount}
+        renderLabel={() => remaining}
         labelClassName='text-xs font-semibold'
       />
       <span className='text-sm font-medium'>{t('title')}</span>
