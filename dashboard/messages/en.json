@@ -1548,7 +1548,8 @@
         "analytics": "Analytics",
         "behavior": "Behavior",
         "observability": "Observability"
-      }
+      },
+      "collapseNav": "Collapse nav"
     },
     "settings": {
       "sidebar": {

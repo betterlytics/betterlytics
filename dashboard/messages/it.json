@@ -1559,7 +1559,8 @@
         "analytics": "Analisi",
         "behavior": "Comportamento",
         "observability": "Osservabilità"
-      }
+      },
+      "collapseNav": "Comprimi navigazione"
     },
     "settings": {
       "sidebar": {

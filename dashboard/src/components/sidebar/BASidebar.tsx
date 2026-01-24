@@ -26,6 +26,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { CollapsibleSidebarGroup } from './CollapsibleSidebarGroup';
+import { CollapseSidebarButton } from './CollapseSidebarButton';
 import SettingsButton from '../SettingsButton';
 import { IntegrationButton } from '@/components/integration/IntegrationButton';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
@@ -124,21 +125,18 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       collapsible='icon'
       className='top-0 h-screen border-t md:top-14 md:h-[calc(100vh-3.5rem)]'
     >
-      <SidebarHeader className='bg-sidebar rounded-t-xl pt-2'></SidebarHeader>
+      <SidebarHeader className='bg-sidebar'>
+        <Suspense fallback={<div className='bg-muted h-6 animate-pulse rounded' />}>
+          <DashboardDropdown
+            currentDashboardPromise={currentDashboardPromise}
+            allDashboardsPromise={allDashboardsPromise}
+          />
+        </Suspense>
+      </SidebarHeader>
+
+      <SidebarSeparator className='mx-0' />
+
       <SidebarContent className='bg-sidebar overflow-x-hidden'>
-        <SidebarGroup>
-          <SidebarGroupContent className='overflow-hidden'>
-            <Suspense fallback={<div className='bg-muted h-6 animate-pulse rounded' />}>
-              <DashboardDropdown
-                currentDashboardPromise={currentDashboardPromise}
-                allDashboardsPromise={allDashboardsPromise}
-              />
-            </Suspense>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator className='mx-0' />
-
         <SidebarGroup>
           <SidebarGroupContent>
             <Suspense fallback={null}>
@@ -164,6 +162,8 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
           </SidebarMenu>
         </CollapsibleSidebarGroup>
 
+        <SidebarSeparator className='mx-0 hidden group-data-[collapsible=icon]:block' />
+
         <CollapsibleSidebarGroup label={t('categories.behavior')} storageKey='sidebar-behavior'>
           <SidebarMenu>
             {behaviorItems
@@ -188,6 +188,8 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
               ))}
           </SidebarMenu>
         </CollapsibleSidebarGroup>
+
+        <SidebarSeparator className='mx-0 hidden group-data-[collapsible=icon]:block' />
 
         <CollapsibleSidebarGroup label={t('categories.observability')} storageKey='sidebar-observability'>
           <SidebarMenu>
@@ -216,12 +218,15 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       </SidebarContent>
       {!isDemo && <SidebarSeparator className='mx-0' />}
       <SidebarFooter>
-        {!isDemo && (
-          <SidebarMenu>
-            <IntegrationButton />
-            <SettingsButton />
-          </SidebarMenu>
-        )}
+        <SidebarMenu>
+          <CollapseSidebarButton />
+          {!isDemo && (
+            <>
+              <IntegrationButton />
+              <SettingsButton />
+            </>
+          )}
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

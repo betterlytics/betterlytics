@@ -39,14 +39,20 @@ export function CollapsibleSidebarGroup({
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className='group/collapsible'>
       <SidebarGroup className='py-0'>
-        <CollapsibleTrigger className='text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium transition-colors'>
+        <CollapsibleTrigger className='text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium transition-colors group-data-[collapsible=icon]:hidden'>
           <span>{label}</span>
           <ChevronRight
             className={cn('size-3.5 shrink-0 transition-transform duration-200', isOpen && 'rotate-90')}
           />
         </CollapsibleTrigger>
-        <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
-          <SidebarGroupContent className='pt-1'>{children}</SidebarGroupContent>
+        <CollapsibleContent
+          forceMount
+          className={cn(
+            'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden',
+            'group-data-[collapsible=icon]:!block group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!animate-none',
+          )}
+        >
+          <SidebarGroupContent className='pt-1 group-data-[collapsible=icon]:pt-0'>{children}</SidebarGroupContent>
         </CollapsibleContent>
       </SidebarGroup>
     </Collapsible>
