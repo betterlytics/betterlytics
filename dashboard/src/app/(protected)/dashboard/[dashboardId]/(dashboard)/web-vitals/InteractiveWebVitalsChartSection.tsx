@@ -180,7 +180,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
       },
       {
         y1: fairThreshold,
-        y2: 1e9,
+        y2: active === 'CLS' ? 10 : 1e9,
         fill: 'var(--cwv-threshold-poor)',
         fillOpacity: 0.08,
         label: t('thresholds.poor'),
