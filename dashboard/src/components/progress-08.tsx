@@ -30,22 +30,19 @@ export const CircularProgress = ({
   circleStrokeWidth = 10,
   progressStrokeWidth = 10,
 }: CircularProgressProps) => {
-  const radius = size / 2 - 10;
-  const circumference = Math.ceil(3.14 * radius * 2);
-  const percentage = Math.ceil(circumference * ((100 - value) / 100));
-
-  const viewBox = `-${size * 0.125} -${size * 0.125} ${size * 1.25} ${size * 1.25}`;
+  const effectiveStrokeWidth = strokeWidth ?? circleStrokeWidth;
+  const radius = (size - effectiveStrokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (value / 100) * circumference;
 
   return (
-    <div className='relative'>
+    <div className='relative' style={{ width: size, height: size }}>
       <svg
-        className='relative'
+        className='absolute inset-0'
         height={size}
-        style={{ transform: 'rotate(-90deg)' }}
-        version='1.1'
-        viewBox={viewBox}
         width={size}
-        xmlns='http://www.w3.org/2000/svg'
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ transform: 'rotate(-90deg)' }}
       >
         <circle
           className={cn('stroke-primary/25', className)}
@@ -53,25 +50,22 @@ export const CircularProgress = ({
           cy={size / 2}
           fill='transparent'
           r={radius}
-          strokeDasharray={circumference}
-          strokeDashoffset='0'
-          strokeWidth={strokeWidth ?? circleStrokeWidth}
+          strokeWidth={effectiveStrokeWidth}
         />
-
         <circle
-          className={cn('stroke-primary', progressClassName)}
+          className={cn('stroke-primary transition-all duration-300', progressClassName)}
           cx={size / 2}
           cy={size / 2}
           fill='transparent'
           r={radius}
           strokeDasharray={circumference}
-          strokeDashoffset={percentage}
+          strokeDashoffset={strokeDashoffset}
           strokeLinecap={shape}
           strokeWidth={strokeWidth ?? progressStrokeWidth}
         />
       </svg>
       {showLabel && (
-        <div className={cn('text-md absolute inset-0 flex items-center justify-center', labelClassName)}>
+        <div className={cn('absolute inset-0 flex items-center justify-center text-sm', labelClassName)}>
           {renderLabel ? renderLabel(value) : value}
         </div>
       )}

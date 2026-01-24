@@ -6,7 +6,7 @@ import { Check, X, ChevronRight, Sparkles, Route, Users, Minus } from 'lucide-re
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardAction } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
@@ -142,39 +142,43 @@ export function QuickStartCard({ dashboardId, onOpenIntegration }: QuickStartCar
   return (
     <div className='animate-in fade-in slide-in-from-bottom-2 fixed right-4 bottom-4 z-50 duration-200'>
       <Card className={cn('gap-0 py-0 shadow-lg', isExpanded ? 'w-[320px]' : 'w-auto')}>
-        <CardHeader className='flex-row items-center gap-3 space-y-0 px-4 py-3'>
-          <CircularProgress
-            value={progress.percentage}
-            size={40}
-            strokeWidth={3}
-            showLabel
-            renderLabel={() => progress.completedCount}
-            labelClassName='text-sm font-bold'
-          />
-
-          <div className='min-w-0 flex-1'>
-            <CardTitle className='text-sm'>{t('title')}</CardTitle>
-            <CardDescription className='text-xs'>
-              {progress.completedCount}/{progress.totalCount} {t('subtitle')}
-            </CardDescription>
+        <CardHeader className='space-y-0 px-4 py-3'>
+          <div className='flex items-center gap-2'>
+            <CircularProgress
+              value={progress.percentage}
+              size={28}
+              strokeWidth={2.5}
+              showLabel
+              renderLabel={() => progress.completedCount}
+              labelClassName='text-[10px] font-bold'
+            />
+            <CardTitle className='flex-1 text-sm'>{t('title')}</CardTitle>
+            <div className='flex items-center gap-0.5'>
+              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsExpanded(!isExpanded)}>
+                <Minus className='h-4 w-4' />
+              </Button>
+              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsOpen(false)}>
+                <X className='h-4 w-4' />
+              </Button>
+            </div>
           </div>
 
-          <CardAction className='row-span-1 flex items-center gap-0.5'>
-            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsExpanded(!isExpanded)}>
-              <Minus className='h-4 w-4' />
-            </Button>
-            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsOpen(false)}>
-              <X className='h-4 w-4' />
-            </Button>
-          </CardAction>
+          {isExpanded && (
+            <div className='mt-2 space-y-1'>
+              <div className='flex items-center justify-between'>
+                <span className='text-muted-foreground text-xs'>
+                  {progress.completedCount}/{progress.totalCount} {t('subtitle')}
+                </span>
+                <span className='text-muted-foreground text-xs'>{progress.percentage}%</span>
+              </div>
+              <Progress value={progress.percentage} className='h-1.5' />
+            </div>
+          )}
         </CardHeader>
 
         {isExpanded && (
           <>
             <Separator />
-            <CardContent className='px-4 py-3'>
-              <Progress value={progress.percentage} className='h-1.5' />
-            </CardContent>
 
             <div className='max-h-[320px] overflow-y-auto'>
               {categories.map(
