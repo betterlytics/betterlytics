@@ -47,6 +47,7 @@ export interface YReferenceAreaConfig {
   y2: number | 'dataMax';
   fill?: string;
   fillOpacity?: number;
+  label?: string;
 }
 
 interface MultiSeriesChartProps {
@@ -181,6 +182,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     y2={yArea.y2}
                     fill={yArea.fill ?? 'var(--chart-comparison)'}
                     fillOpacity={yArea.fillOpacity ?? 0.08}
+                    label={yArea.label ? <ReferenceAreaLabel area={yArea} /> : undefined}
                     ifOverflow='hidden'
                   />
                 ))}
@@ -249,6 +251,39 @@ const ReferenceLineLabel: React.FC<ReferenceLineLabelProps> = ({ text, fill, isM
         {text}
       </text>
     </g>
+  );
+};
+
+type ReferenceAreaLabelProps = {
+  viewBox?: { x: number; y: number; width: number; height: number };
+  area: YReferenceAreaConfig;
+};
+const ReferenceAreaLabel = (props: ReferenceAreaLabelProps) => {
+  const { viewBox, area } = props;
+
+  if (!viewBox) return null;
+
+  const { x, y, height } = viewBox;
+
+  if (y + height < 0) return null;
+
+  const yVisibleTop = Math.max(y, 0);
+  const yVisibleBottom = y + height;
+  const centerY = (yVisibleTop + yVisibleBottom) / 2;
+
+  return (
+    <text
+      x={x + 20}
+      y={centerY}
+      dominantBaseline='middle'
+      fill={area.fill ?? 'var(--muted-foreground)'}
+      textAnchor='start'
+      fontSize={12}
+      className='pointer-events-none select-none'
+      style={{ fontWeight: 500 }}
+    >
+      {area.label}
+    </text>
   );
 };
 
