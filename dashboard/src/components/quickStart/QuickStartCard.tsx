@@ -2,11 +2,15 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Check, Circle, X, ChevronRight, ChevronDown, Sparkles, Route, Users, Minus } from 'lucide-react';
+import { Check, X, ChevronRight, Sparkles, Route, Users, Minus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardAction } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Separator } from '@/components/ui/separator';
+import { CircularProgress } from '@/components/progress-08';
 import {
   QuickStartProgress,
   OnboardingGoalCategory,
@@ -22,9 +26,9 @@ interface QuickStartCardProps {
 }
 
 const CATEGORY_ICONS: Record<OnboardingGoalCategory, React.ReactElement> = {
-  get_started: <Sparkles className='h-4 w-4' />,
-  analytics: <Route className='h-4 w-4' />,
-  team: <Users className='h-4 w-4' />,
+  get_started: <Sparkles className='h-3.5 w-3.5' />,
+  analytics: <Route className='h-3.5 w-3.5' />,
+  team: <Users className='h-3.5 w-3.5' />,
 };
 
 const GOAL_NAVIGATION: Record<string, string> = {
@@ -44,7 +48,11 @@ export function QuickStartCard({ dashboardId, onOpenIntegration }: QuickStartCar
 
   const [isExpanded, setIsExpanded] = useState(true);
   const [expandedGoalId, setExpandedGoalId] = useState<string | null>(null);
-
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    get_started: true,
+    analytics: true,
+    team: true,
+  });
   const [localProgress, setLocalProgress] = useState<QuickStartProgress | null>(null);
 
   useEffect(() => {
@@ -125,96 +133,130 @@ export function QuickStartCard({ dashboardId, onOpenIntegration }: QuickStartCar
     }
   };
 
+  const toggleCategory = (category: string) => {
+    setExpandedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
+  };
+
   const categories: OnboardingGoalCategory[] = ['get_started', 'analytics', 'team'];
 
   return (
-    <div className='fixed right-4 bottom-4 z-50'>
-      <div
-        className={cn(
-          'bg-card border-border rounded-xl border shadow-lg transition-all duration-200',
-          isExpanded ? 'w-80' : 'w-auto',
-        )}
-      >
-        <div className='flex items-center gap-3 p-3'>
-          <button onClick={() => setIsExpanded(!isExpanded)} className='flex flex-1 items-center gap-3'>
-            <div className='relative h-10 w-10 flex-shrink-0'>
-              <svg className='h-10 w-10 -rotate-90' viewBox='0 0 36 36'>
-                <circle className='text-muted stroke-current' strokeWidth='3' fill='none' cx='18' cy='18' r='15' />
-                <circle
-                  className='text-primary stroke-current transition-all duration-300'
-                  strokeWidth='3'
-                  strokeLinecap='round'
-                  fill='none'
-                  cx='18'
-                  cy='18'
-                  r='15'
-                  strokeDasharray={`${progress.percentage}, 100`}
-                />
-              </svg>
-              <div className='absolute inset-0 flex items-center justify-center'>
-                <Sparkles className='text-primary h-4 w-4' />
-              </div>
-            </div>
+    <div className='animate-in fade-in slide-in-from-bottom-2 fixed right-4 bottom-4 z-50 duration-200'>
+      <Card className={cn('gap-0 py-0 shadow-lg', isExpanded ? 'w-[320px]' : 'w-auto')}>
+        <CardHeader className='flex-row items-center gap-3 space-y-0 px-4 py-3'>
+          <CircularProgress
+            value={progress.percentage}
+            size={40}
+            strokeWidth={3}
+            showLabel
+            renderLabel={() => progress.completedCount}
+            labelClassName='text-sm font-bold'
+          />
 
-            <div className='flex-1 text-left'>
-              <div className='text-sm font-medium'>{t('title')}</div>
-              <div className='text-muted-foreground text-xs'>
-                {progress.completedCount}/{progress.totalCount} {t('subtitle')}
-              </div>
-            </div>
+          <div className='min-w-0 flex-1'>
+            <CardTitle className='text-sm'>{t('title')}</CardTitle>
+            <CardDescription className='text-xs'>
+              {progress.completedCount}/{progress.totalCount} {t('subtitle')}
+            </CardDescription>
+          </div>
 
-            {isExpanded ? (
-              <Minus className='text-muted-foreground h-4 w-4' />
-            ) : (
-              <ChevronDown className='text-muted-foreground h-4 w-4' />
-            )}
-          </button>
-
-          <button
-            onClick={() => setIsOpen(false)}
-            className='text-muted-foreground hover:text-foreground p-1 transition-colors'
-          >
-            <X className='h-4 w-4' />
-          </button>
-        </div>
+          <CardAction className='row-span-1 flex items-center gap-0.5'>
+            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsExpanded(!isExpanded)}>
+              <Minus className='h-4 w-4' />
+            </Button>
+            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setIsOpen(false)}>
+              <X className='h-4 w-4' />
+            </Button>
+          </CardAction>
+        </CardHeader>
 
         {isExpanded && (
-          <div className='border-border border-t'>
-            <div className='px-4 py-3'>
-              <Progress value={progress.percentage} className='h-1.5' color='var(--primary)' />
-            </div>
+          <>
+            <Separator />
+            <CardContent className='px-4 py-3'>
+              <Progress value={progress.percentage} className='h-1.5' />
+            </CardContent>
 
-            <div className='max-h-80 overflow-y-auto px-2 pb-2'>
+            <div className='max-h-[320px] overflow-y-auto'>
               {categories.map(
                 (category) =>
                   goalsByCategory[category]?.length > 0 && (
-                    <div key={category} className='mb-2'>
-                      <div className='text-muted-foreground flex items-center gap-2 px-2 py-1.5 text-xs font-medium'>
-                        {CATEGORY_ICONS[category]}
-                        {t(`categories.${category}`)}
-                      </div>
-                      <div className='space-y-1'>
-                        {goalsByCategory[category].map((goal) => (
-                          <GoalItem
-                            key={goal.id}
-                            goal={goal}
-                            isExpanded={expandedGoalId === goal.id}
-                            onToggle={() => setExpandedGoalId(expandedGoalId === goal.id ? null : goal.id)}
-                            onSkip={() => handleSkip(goal.id)}
-                            onUnskip={() => handleUnskip(goal.id)}
-                            onNavigate={() => handleNavigate(goal.id)}
-                            t={t}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                    <CategorySection
+                      key={category}
+                      category={category}
+                      goals={goalsByCategory[category]}
+                      isOpen={expandedCategories[category]}
+                      onToggle={() => toggleCategory(category)}
+                      expandedGoalId={expandedGoalId}
+                      onToggleGoal={(id) => setExpandedGoalId(expandedGoalId === id ? null : id)}
+                      onSkip={handleSkip}
+                      onUnskip={handleUnskip}
+                      onNavigate={handleNavigate}
+                      t={t}
+                    />
                   ),
               )}
             </div>
-          </div>
+          </>
         )}
-      </div>
+      </Card>
     </div>
+  );
+}
+
+function CategorySection({
+  category,
+  goals,
+  isOpen,
+  onToggle,
+  expandedGoalId,
+  onToggleGoal,
+  onSkip,
+  onUnskip,
+  onNavigate,
+  t,
+}: {
+  category: OnboardingGoalCategory;
+  goals: OnboardingGoalState[];
+  isOpen: boolean;
+  onToggle: () => void;
+  expandedGoalId: string | null;
+  onToggleGoal: (id: string) => void;
+  onSkip: (id: string) => void;
+  onUnskip: (id: string) => void;
+  onNavigate: (id: string) => void;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const completedCount = goals.filter((g) => g.status === 'completed' || g.status === 'skipped').length;
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={onToggle}>
+      <CollapsibleTrigger className='hover:bg-muted/50 flex w-full items-center gap-2 px-4 py-2 transition-colors'>
+        <span className='text-muted-foreground'>{CATEGORY_ICONS[category]}</span>
+        <span className='flex-1 text-left text-xs font-medium'>{t(`categories.${category}`)}</span>
+        <span className='text-muted-foreground text-xs'>
+          {completedCount}/{goals.length}
+        </span>
+        <ChevronRight
+          className={cn('text-muted-foreground h-3.5 w-3.5 transition-transform', isOpen && 'rotate-90')}
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className='px-2 pb-1'>
+          {goals.map((goal) => (
+            <GoalItem
+              key={goal.id}
+              goal={goal}
+              isExpanded={expandedGoalId === goal.id}
+              onToggle={() => onToggleGoal(goal.id)}
+              onSkip={() => onSkip(goal.id)}
+              onUnskip={() => onUnskip(goal.id)}
+              onNavigate={() => onNavigate(goal.id)}
+              t={t}
+            />
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -240,62 +282,54 @@ function GoalItem({
   const isPending = goal.status === 'pending';
 
   return (
-    <div className='rounded-lg'>
+    <div className={cn('rounded-md', isExpanded && isPending && 'bg-muted/50')}>
       <button
         onClick={onToggle}
-        className='hover:bg-muted/50 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors'
+        className='hover:bg-muted/50 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors'
       >
         {isCompleted ? (
-          <div className='bg-primary flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full'>
-            <Check className='text-primary-foreground h-2.5 w-2.5' />
+          <div className='bg-primary/20 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full'>
+            <Check className='text-primary h-2.5 w-2.5' />
           </div>
         ) : isSkipped ? (
           <div className='bg-muted flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full'>
             <X className='text-muted-foreground h-2.5 w-2.5' />
           </div>
         ) : (
-          <Circle className='text-muted-foreground h-4 w-4 flex-shrink-0' />
+          <div className='border-muted-foreground/40 h-4 w-4 flex-shrink-0 rounded-full border-[1.5px]' />
         )}
 
-        <span
-          className={cn(
-            'flex-1 text-xs',
-            isCompleted && 'text-muted-foreground line-through',
-            isSkipped && 'text-muted-foreground',
-          )}
-        >
+        <span className={cn('flex-1 text-sm', (isCompleted || isSkipped) && 'text-muted-foreground line-through')}>
           {t(`goals.${goal.id}.title`)}
         </span>
 
         {isSkipped && (
-          <button
-            className='text-muted-foreground hover:text-foreground text-xs underline'
+          <Button
+            variant='link'
+            size='sm'
+            className='text-muted-foreground h-auto p-0 text-xs'
             onClick={(e) => {
               e.stopPropagation();
               onUnskip();
             }}
           >
             {t('goals.unskip')}
-          </button>
-        )}
-
-        {isPending && (
-          <ChevronRight
-            className={cn('text-muted-foreground h-3 w-3 transition-transform', isExpanded && 'rotate-90')}
-          />
+          </Button>
         )}
       </button>
 
       {isExpanded && isPending && (
-        <div className='bg-muted/30 mx-2 mb-1 rounded-lg px-2 py-2'>
-          <p className='text-muted-foreground mb-2 text-xs'>{t(`goals.${goal.id}.description`)}</p>
-          <div className='flex items-center gap-2'>
-            <Button size='sm' className='h-6 text-xs' onClick={onNavigate}>
-              {t(`goals.${goal.id}.cta`)}
-            </Button>
-            <Button variant='ghost' size='sm' className='text-muted-foreground h-6 text-xs' onClick={onSkip}>
-              {t('goals.skip')}
-            </Button>
+        <div className='px-2 pb-2'>
+          <div className='ml-[22px]'>
+            <p className='text-muted-foreground mb-2 text-xs'>{t(`goals.${goal.id}.description`)}</p>
+            <div className='flex items-center gap-2'>
+              <Button size='sm' className='h-7 text-xs' onClick={onNavigate}>
+                {t(`goals.${goal.id}.cta`)}
+              </Button>
+              <Button variant='ghost' size='sm' className='text-muted-foreground h-7 text-xs' onClick={onSkip}>
+                {t('goals.skip')}
+              </Button>
+            </div>
           </div>
         </div>
       )}

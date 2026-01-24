@@ -1,10 +1,9 @@
 'use client';
 
-import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
 import { useQuickStartOptional } from './QuickStartContext';
 import { useSidebar } from '@/components/ui/sidebar';
+import { CircularProgress } from '@/components/progress-08';
 
 export function QuickStartButton() {
   const t = useTranslations('components.quickStart');
@@ -20,34 +19,37 @@ export function QuickStartButton() {
 
   if (isCollapsed) {
     return (
-      <Button
+      <button
         onClick={() => setIsOpen(true)}
-        variant='secondary'
-        size='icon'
-        className='border-border relative h-9 w-9 cursor-pointer border shadow-sm'
-        title={`${t('title')} - ${progress.percentage}%`}
+        className='hover:bg-muted/50 mx-auto flex cursor-pointer items-center justify-center rounded-md p-2 transition-colors'
+        title={`${t('title')} - ${progress.completedCount}/${progress.totalCount}`}
       >
-        <Sparkles className='h-4 w-4' />
-        <span className='bg-primary absolute -top-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full text-[8px] text-white'>
-          {progress.completedCount}
-        </span>
-      </Button>
+        <CircularProgress
+          value={progress.percentage}
+          size={28}
+          strokeWidth={3}
+          showLabel
+          renderLabel={() => progress.completedCount}
+          labelClassName='text-xs font-semibold'
+        />
+      </button>
     );
   }
 
   return (
-    <Button
+    <button
       onClick={() => setIsOpen(true)}
-      variant='secondary'
-      className='border-border w-full cursor-pointer justify-between border shadow-sm'
+      className='hover:bg-muted/50 flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 transition-colors'
     >
-      <span className='flex items-center gap-2'>
-        <Sparkles className='h-4 w-4' />
-        {t('title')}
-      </span>
-      <span className='text-muted-foreground text-xs'>
-        {progress.completedCount}/{progress.totalCount}
-      </span>
-    </Button>
+      <CircularProgress
+        value={progress.percentage}
+        size={28}
+        strokeWidth={3}
+        showLabel
+        renderLabel={() => progress.completedCount}
+        labelClassName='text-xs font-semibold'
+      />
+      <span className='text-sm font-medium'>{t('title')}</span>
+    </button>
   );
 }
