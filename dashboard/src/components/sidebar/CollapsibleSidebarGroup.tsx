@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { SidebarGroup, SidebarGroupContent } from '@/components/ui/sidebar';
+import { SidebarGroup, SidebarGroupContent, useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
 type CollapsibleSidebarGroupProps = {
@@ -21,6 +21,8 @@ export function CollapsibleSidebarGroup({
 }: CollapsibleSidebarGroupProps) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
   const [isHydrated, setIsHydrated] = React.useState(false);
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   React.useEffect(() => {
     const saved = localStorage.getItem(storageKey);
@@ -36,23 +38,25 @@ export function CollapsibleSidebarGroup({
     }
   }, [isOpen, storageKey, isHydrated]);
 
+  if (isCollapsed) {
+    return (
+      <SidebarGroup className='py-0'>
+        <SidebarGroupContent>{children}</SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className='group/collapsible'>
       <SidebarGroup className='py-0'>
-        <CollapsibleTrigger className='text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium transition-colors group-data-[collapsible=icon]:hidden'>
+        <CollapsibleTrigger className='text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium transition-colors'>
           <span>{label}</span>
           <ChevronRight
             className={cn('size-3.5 shrink-0 transition-transform duration-200', isOpen && 'rotate-90')}
           />
         </CollapsibleTrigger>
-        <CollapsibleContent
-          forceMount
-          className={cn(
-            'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden',
-            'group-data-[collapsible=icon]:!block group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!animate-none',
-          )}
-        >
-          <SidebarGroupContent className='pt-1 group-data-[collapsible=icon]:pt-0'>{children}</SidebarGroupContent>
+        <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+          <SidebarGroupContent className='pt-1'>{children}</SidebarGroupContent>
         </CollapsibleContent>
       </SidebarGroup>
     </Collapsible>
