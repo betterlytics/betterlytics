@@ -16,7 +16,7 @@ export async function QuickStartWrapper({ dashboardId, children }: QuickStartWra
     }
 
     return (
-      <QuickStartProvider initialProgress={progress}>
+      <QuickStartProvider dashboardId={dashboardId} initialProgress={progress}>
         {children}
         <QuickStartCard dashboardId={dashboardId} />
       </QuickStartProvider>

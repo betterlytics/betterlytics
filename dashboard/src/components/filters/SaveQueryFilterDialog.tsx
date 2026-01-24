@@ -11,6 +11,7 @@ import { useCreateSavedFilter } from '@/hooks/use-saved-filters';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { baEvent } from '@/lib/ba-event';
+import { useQuickStartOptional } from '@/components/quickStart';
 
 type SaveQueryFilterDialogProps = {
   open: boolean;
@@ -21,7 +22,10 @@ type SaveQueryFilterDialogProps = {
 export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQueryFilterDialogProps) {
   const [filterName, setFilterName] = useState('');
   const t = useTranslations('components.filters');
-  const createSavedFilterMutation = useCreateSavedFilter();
+  const quickStart = useQuickStartOptional();
+  const createSavedFilterMutation = useCreateSavedFilter({
+    onSuccess: () => quickStart?.refreshProgress(),
+  });
 
   const handleSave = useCallback(async () => {
     if (!filterName.trim()) return;

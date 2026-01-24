@@ -19,6 +19,7 @@ import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { FunnelDialogContent } from './FunnelDialogContent';
+import { useQuickStartOptional } from '@/components/quickStart';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -31,6 +32,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const dashboardId = useDashboardId();
+  const quickStart = useQuickStartOptional();
   const {
     metadata,
     setName,
@@ -83,11 +85,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
             { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
           ],
         });
+        quickStart?.refreshProgress();
       })
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t]);
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t, quickStart]);
 
   return (
     <Dialog

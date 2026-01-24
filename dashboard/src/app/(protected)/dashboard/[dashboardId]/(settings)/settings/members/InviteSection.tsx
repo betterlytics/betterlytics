@@ -14,6 +14,7 @@ import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useQuickStartOptional } from '@/components/quickStart';
 
 const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true });
 
@@ -28,6 +29,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<DashboardRole>('viewer');
   const [isPending, startTransition] = useTransition();
+  const quickStart = useQuickStartOptional();
 
   const handleInvite = () => {
     if (!email) return;
@@ -43,6 +45,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
         await inviteMemberAction(dashboardId, email, role);
         toast.success(t('toast.sent'));
         setEmail('');
+        quickStart?.refreshProgress();
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t('toast.sendFailed'));
       }

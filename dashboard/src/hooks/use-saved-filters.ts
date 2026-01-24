@@ -38,7 +38,7 @@ export function useSavedFiltersLimitReached() {
   });
 }
 
-export function useCreateSavedFilter() {
+export function useCreateSavedFilter(options?: { onSuccess?: () => void }) {
   const dashboardId = useDashboardId();
   const queryClient = useQueryClient();
   return useMutation({
@@ -47,6 +47,7 @@ export function useCreateSavedFilter() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['saved-filters', dashboardId] });
       queryClient.invalidateQueries({ queryKey: ['saved-filters-limit', dashboardId] });
+      options?.onSuccess?.();
     },
   });
 }
