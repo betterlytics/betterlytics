@@ -3077,7 +3077,8 @@
         "showMore": "+{count} flere frameworks"
       },
       "redirectingIn": "Omdirigerer om {seconds}...",
-      "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først."
+      "noSiteId": "Intet site-ID fundet. Venligst fuldfør de forrige trin først.",
+      "reportIssue": "Ser du noget forkert? Rapporter det"
     }
   },
   "validation": {

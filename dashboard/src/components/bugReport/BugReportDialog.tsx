@@ -20,11 +20,13 @@ import { BUG_REPORT_MAX_LENGTH } from '@/entities/system/bugReport.entities';
 type BugReportDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  dashboardId?: string;
 };
 
-export function BugReportDialog({ open, onOpenChange }: BugReportDialogProps) {
+export function BugReportDialog({ open, onOpenChange, dashboardId: dashboardIdProp }: BugReportDialogProps) {
   const t = useTranslations('components.bugReport');
-  const dashboardId = useDashboardId();
+  const dashboardIdFromHook = useDashboardId();
+  const dashboardId = dashboardIdProp ?? dashboardIdFromHook;
 
   const [message, setMessage] = useState('');
   const [isPending, startTransition] = useTransition();
