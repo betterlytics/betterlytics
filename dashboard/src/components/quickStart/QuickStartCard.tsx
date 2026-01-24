@@ -174,7 +174,7 @@ export function QuickStartCard({ dashboardId, onOpenIntegration }: QuickStartCar
                 </span>
                 <span className='text-muted-foreground text-xs'>{progress.percentage}%</span>
               </div>
-              <Progress value={progress.percentage} className='h-1.5' />
+              <Progress value={progress.percentage} className='[&>div]:bg-primary h-1.5' />
             </div>
           )}
         </CardHeader>
@@ -295,8 +295,8 @@ function GoalItem({
         className='hover:bg-muted/50 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors'
       >
         {isCompleted ? (
-          <div className='bg-primary/20 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full'>
-            <Check className='text-primary h-2.5 w-2.5' />
+          <div className='flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-emerald-500/40 bg-emerald-500/20'>
+            <Check className='h-2.5 w-2.5 text-emerald-500' />
           </div>
         ) : isSkipped ? (
           <div className='bg-muted flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full'>
