@@ -22,7 +22,7 @@ Create a `betterlytics-config.json` file:
   "track_search": { "enabled": true, "include_query": false },
   "track_outbound": { "mode": "domain" },
   "track_downloads": { "enabled": true },
-  "track_css_events": { "enabled": false }
+  "track_custom_html_attribute": { "enabled": false }
 }
 ```
 
@@ -53,7 +53,7 @@ wp option update betterlytics_options --format=json < betterlytics-config.json
 | `track_search.include_query` | boolean | `false` | Include search query term with events |
 | `track_outbound.mode` | string | `"domain"` | Outbound link tracking: `"off"`, `"domain"`, or `"full"` |
 | `track_downloads.enabled` | boolean | `false` | Track file downloads |
-| `track_css_events.enabled` | boolean | `false` | Track clicks on elements with `betterlytics-event-name` class |
+| `track_custom_html_attribute.enabled` | boolean | `false` | Track clicks on elements with `data-betterlytics-event` attribute |
 
 ---
 
