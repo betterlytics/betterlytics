@@ -562,11 +562,11 @@ export const MultiSelect = ({
                 }}
                 placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
                 className={cn(
-                  'placeholder:text-muted-foreground/70 flex-1 bg-transparent outline-hidden disabled:cursor-not-allowed',
+                  'placeholder:text-muted-foreground/70 [field-sizing:content] bg-transparent outline-hidden disabled:cursor-not-allowed',
                   {
-                    'w-full': hidePlaceholderWhenSelected,
+                    'w-full': selected.length === 0,
                     'px-3 py-1.5': selected.length === 0,
-                    'ml-1 min-w-0': selected.length !== 0,
+                    'ml-1 min-w-[1ch]': selected.length !== 0,
                   },
                   inputProps?.className,
                 )}
@@ -666,7 +666,7 @@ export const MultiSelect = ({
                       </>
                     </CommandGroup>
                   ))}
-                  {CreatableItem()}
+                  {CreatableItem() && <div className='-mt-1 px-1 pb-1'>{CreatableItem()}</div>}
                 </>
               )}
             </CommandList>
