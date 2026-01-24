@@ -214,9 +214,10 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
           </SidebarMenu>
         </CollapsibleSidebarGroup>
       </SidebarContent>
+      {!isDemo && <SidebarSeparator className='mx-0' />}
       <SidebarFooter>
         {!isDemo && (
-          <SidebarMenu className='gap-2'>
+          <SidebarMenu>
             <IntegrationButton />
             <SettingsButton />
           </SidebarMenu>
