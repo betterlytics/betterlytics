@@ -35,7 +35,7 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
       <Button
         variant='ghost'
         size='icon'
-        className='text-muted-foreground hover:text-foreground absolute top-2 right-2 h-8 w-8'
+        className='text-muted-foreground hover:text-foreground absolute top-2 right-2 h-8 w-8 cursor-pointer'
         onClick={handleCopy}
         aria-label='Copy code'
       >

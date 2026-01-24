@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clipboard, Check } from 'lucide-react';
+import { Clipboard, Check, MessageSquareWarning } from 'lucide-react';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification';
@@ -23,6 +23,7 @@ import { getFrameworkCode, IntegrationTranslations } from '@/components/integrat
 
 import './Integration.css';
 import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
+import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 
 export default function Integration() {
   const { dashboard } = useOnboarding();
@@ -37,6 +38,7 @@ export default function Integration() {
 
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
+  const [showBugReportDialog, setShowBugReportDialog] = useState(false);
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
@@ -204,7 +206,15 @@ export default function Integration() {
       </CardContent>
 
       <CardFooter className='gap-4 p-0'>
-        <div className='relative flex w-full justify-end'>
+        <div className='relative flex w-full items-center justify-between'>
+          <Button
+            variant='link'
+            onClick={() => setShowBugReportDialog(true)}
+            className='text-muted-foreground hover:text-foreground h-auto cursor-pointer gap-1.5 p-0'
+          >
+            <MessageSquareWarning className='h-4 w-4' />
+            {t('reportIssue')}
+          </Button>
           <AnimatePresence mode='wait'>
             {isVerified ? (
               <motion.div
@@ -241,6 +251,11 @@ export default function Integration() {
           </AnimatePresence>
         </div>
       </CardFooter>
+      <BugReportDialog
+        open={showBugReportDialog}
+        onOpenChange={setShowBugReportDialog}
+        dashboardId={dashboard.id}
+      />
     </Card>
   );
 }
