@@ -40,6 +40,7 @@ import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
+import { QuickStartButton } from '@/components/quickStart';
 
 const ICON_SIZE = 16;
 
@@ -229,6 +230,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       <SidebarFooter>
         {!isDemo && (
           <SidebarMenu className='gap-2'>
+            <QuickStartButton />
             <IntegrationButton />
             <SettingsButton />
           </SidebarMenu>

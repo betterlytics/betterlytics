@@ -52,6 +52,12 @@ enum Currency {
   EUR
 }
 
+enum OnboardingGoalStatus {
+  pending
+  completed
+  skipped
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -160,6 +166,7 @@ model Dashboard {
   annotations Annotation[]
   monitorChecks MonitorCheck[]
   invitations DashboardInvitation[]
+  onboardingGoals DashboardOnboardingGoal[]
 }
 
 model UserDashboard {
@@ -427,4 +434,23 @@ model DashboardInvitation {
   @@index([email])
   @@index([token])
   @@index([status])
+}
+
+model DashboardOnboardingGoal {
+  id          String   @id @default(cuid())
+
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  goalId      String   // e.g., "install_script", "create_funnel"
+  status      OnboardingGoalStatus @default(pending)
+
+  completedAt DateTime?
+  skippedAt   DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([dashboardId, goalId])
+  @@index([dashboardId])
 }

@@ -2990,6 +2990,45 @@
       "badgeNew": "New",
       "tooltipWhatsNew": "View what's new",
       "openButtonAria": "View what's new in version {version}"
+    },
+    "quickStart": {
+      "title": "Quick Start",
+      "subtitle": "Get set up",
+      "categories": {
+        "get_started": "Get Started",
+        "analytics": "Analytics",
+        "team": "Team"
+      },
+      "goals": {
+        "install_script": {
+          "title": "Install tracking script",
+          "description": "Add the Betterlytics script to your website to start collecting analytics data.",
+          "cta": "Setup Integration"
+        },
+        "first_pageview": {
+          "title": "Collect first pageview",
+          "description": "Once your script is installed, visit your website to trigger your first pageview event.",
+          "cta": "View Dashboard"
+        },
+        "create_funnel": {
+          "title": "Create a funnel",
+          "description": "Set up a conversion funnel to track user journeys through key pages or actions.",
+          "cta": "Go to Funnels"
+        },
+        "create_saved_filter": {
+          "title": "Save a filter",
+          "description": "Create a saved filter to quickly access frequently used data views.",
+          "cta": "Create Filter"
+        },
+        "invite_team_member": {
+          "title": "Invite a team member",
+          "description": "Collaborate with your team by inviting them to access this dashboard.",
+          "cta": "Invite Member"
+        },
+        "skip": "Skip",
+        "unskip": "Unskip"
+      },
+      "dismiss": "Dismiss for now"
     }
   },
   "onboarding": {
