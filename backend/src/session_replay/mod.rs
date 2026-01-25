@@ -140,15 +140,12 @@ pub async fn finalize_session_replay(
         .unwrap_or_default();
 
     let mut meta = if let Some(existing) = FINALIZE_CACHE.get(&key) {
-        if req.ended_at <= existing.ended_at.timestamp() && req.size_bytes <= existing.size_bytes {
-            return Ok(StatusCode::OK);
-        }
         existing
     } else {
         FinalizeMeta {
             started_at: started,
             ended_at: ended,
-            size_bytes: req.size_bytes,
+            size_bytes: 0,
             start_url: normalized_start_url.clone(),
             event_count: 0,
         }
