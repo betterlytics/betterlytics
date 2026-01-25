@@ -58,7 +58,6 @@
   var currentUrl = null;
 
   // Scroll depth tracking state
-  var maxScrollDepthPct = 0;
   var maxScrollDepthPx = 0;
   var lastSentScrollDepthPx = 0;
 
@@ -228,28 +227,27 @@
     var viewportHeight = window.innerHeight;
     var docHeight = document.documentElement.scrollHeight;
 
-    var scrollPosition = scrollTop + viewportHeight;
-    var percentage = Math.min(100, (scrollPosition / docHeight) * 100);
+    var scrollPosition = Math.min(scrollTop + viewportHeight, docHeight);
 
     if (scrollPosition > maxScrollDepthPx) {
       maxScrollDepthPx = scrollPosition;
-      maxScrollDepthPct = percentage;
     }
   }
 
   function flushScrollDepth(urlOverride) {
     var docHeight = document.documentElement.scrollHeight;
-    var viewportHeight = window.innerHeight;
-    // Only send if page has scrollable content
-    if (docHeight <= viewportHeight) return;
 
-    // Only send if we have a new max
     if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
 
     lastSentScrollDepthPx = maxScrollDepthPx;
 
+    var percentage = Math.min(
+      100,
+      Math.round((maxScrollDepthPx / docHeight) * 100),
+    );
+
     var overrides = {
-      scroll_depth_percentage: maxScrollDepthPct,
+      scroll_depth_percentage: percentage,
       scroll_depth_pixels: maxScrollDepthPx,
     };
     if (urlOverride) overrides.url = urlOverride;
@@ -258,7 +256,6 @@
   }
 
   function resetScrollDepth() {
-    maxScrollDepthPct = 0;
     maxScrollDepthPx = 0;
     lastSentScrollDepthPx = 0;
     updateScrollDepth();
@@ -274,6 +271,16 @@
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
   updateScrollDepth();
+
+  // Poll for dynamic content height changes after page load to account for dynamically loaded content
+  window.addEventListener("load", function () {
+    updateScrollDepth();
+    var count = 0;
+    var interval = setInterval(function () {
+      updateScrollDepth();
+      if (++count === 15) clearInterval(interval);
+    }, 200);
+  });
 
   // Send initial page view
   sendEvent("pageview");
