@@ -58,6 +58,8 @@ pub enum ValidationError {
     BlacklistedIp(String),
     #[error("Domain not allowed: {0}")]
     DomainNotAllowed(String),
+    #[error("Invalid scroll depth: {0}")]
+    InvalidScrollDepth(String),
 }
 
 #[derive(Debug, Clone)]
@@ -105,6 +107,10 @@ impl EventValidator {
 
         if raw_event.event_name.eq_ignore_ascii_case("cwv") {
             self.validate_cwv_fields(raw_event)?;
+        }
+
+        if raw_event.event_name == "scroll_depth" {
+            self.validate_scroll_depth_fields(raw_event)?;
         }
 
         // only present for custom events
@@ -272,6 +278,23 @@ impl EventValidator {
         Ok(())
     }
 
+    /// Validate scroll depth fields when present
+    fn validate_scroll_depth_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        fn valid_f32(v: f32) -> bool { v.is_finite() }
+
+        if let Some(v) = raw_event.scroll_depth_percentage {
+            if !valid_f32(v) || v < 0.0 || v > 100.0 {
+                return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_percentage value".to_string()));
+            }
+        }
+        if let Some(v) = raw_event.scroll_depth_pixels {
+            if !valid_f32(v) || v < 0.0 || v > 500000.0 {
+                return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_pixels value".to_string()));
+            }
+        }
+        Ok(())
+    }
+
     /// Log sanitized rejection details for debugging
     fn log_sanitized_rejection(
         &self,
@@ -308,6 +331,7 @@ impl EventValidator {
             ValidationError::InvalidOutboundLinkUrl(_) => "invalid_outbound_link_url",
             ValidationError::BlacklistedIp(_) => "blacklisted_ip",
             ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
+            ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
         }
     }
 

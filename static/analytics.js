@@ -25,7 +25,7 @@
         return {
           original: p,
           regex: new RegExp(
-            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`
+            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`,
           ),
         };
       }) ?? [];
@@ -43,7 +43,7 @@
 
   var replaySamplePct = parseInt(
     script.getAttribute("data-replay-sample") || "5",
-    10
+    10,
   );
 
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
@@ -54,8 +54,13 @@
     return console.error("Betterlytics: data-site-id attribute missing");
   }
 
-  // Store current path for SPA navigation
-  var currentPath = window.location.pathname;
+  // Store current URL for SPA navigation
+  var currentUrl = null;
+
+  // Scroll depth tracking state
+  var maxScrollDepthPct = 0;
+  var maxScrollDepthPx = 0;
+  var lastSentScrollDepthPx = 0;
 
   function normalize(url) {
     var urlObj = new URL(url);
@@ -65,7 +70,7 @@
       if (match) {
         var normalizedPath = `${urlPatterns[i].original.replace(
           /\*\*/g,
-          "*"
+          "*",
         )}${pathname.slice(match[0].length)}`;
         return `${urlObj.origin}${normalizedPath}${urlObj.search}${urlObj.hash}`;
       }
@@ -125,7 +130,7 @@
               consented: true,
               source: "custom",
               timestamp: Date.now(),
-            })
+            }),
           );
         } else {
           localStorage.removeItem(CONSENT_KEY);
@@ -218,6 +223,58 @@
     document.head.appendChild(s);
   }
 
+  function updateScrollDepth() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var viewportHeight = window.innerHeight;
+    var docHeight = document.documentElement.scrollHeight;
+
+    var scrollPosition = scrollTop + viewportHeight;
+    var percentage = Math.min(100, (scrollPosition / docHeight) * 100);
+
+    if (scrollPosition > maxScrollDepthPx) {
+      maxScrollDepthPx = scrollPosition;
+      maxScrollDepthPct = percentage;
+    }
+  }
+
+  function flushScrollDepth(urlOverride) {
+    var docHeight = document.documentElement.scrollHeight;
+    var viewportHeight = window.innerHeight;
+    // Only send if page has scrollable content
+    if (docHeight <= viewportHeight) return;
+
+    // Only send if we have a new max
+    if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
+
+    lastSentScrollDepthPx = maxScrollDepthPx;
+
+    var overrides = {
+      scroll_depth_percentage: maxScrollDepthPct,
+      scroll_depth_pixels: maxScrollDepthPx,
+    };
+    if (urlOverride) overrides.url = urlOverride;
+
+    sendEvent("scroll_depth", overrides);
+  }
+
+  function resetScrollDepth() {
+    maxScrollDepthPct = 0;
+    maxScrollDepthPx = 0;
+    lastSentScrollDepthPx = 0;
+    updateScrollDepth();
+  }
+
+  window.addEventListener("scroll", updateScrollDepth, { passive: true });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") flushScrollDepth();
+  });
+  window.addEventListener("pagehide", flushScrollDepth);
+
+  // Initialize currentUrl and capture initial viewport
+  currentUrl = normalize(window.location.href);
+  updateScrollDepth();
+
   // Send initial page view
   sendEvent("pageview");
 
@@ -226,17 +283,23 @@
     // Override pushState to send navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
-      originalPushState.apply(this, arguments);
-      if (currentPath !== window.location.pathname) {
-        currentPath = window.location.pathname;
+      flushScrollDepth(); // Flush before URL changes (uses current URL)
+      originalPushState.apply(this, arguments); // URL changes here
+      var newUrl = normalize(window.location.href);
+      if (currentUrl !== newUrl) {
+        resetScrollDepth();
+        currentUrl = newUrl;
         sendEvent("pageview");
       }
     };
 
     // Detect popstate (back/forward navigation)
     window.addEventListener("popstate", function () {
-      if (currentPath !== window.location.pathname) {
-        currentPath = window.location.pathname;
+      var newUrl = normalize(window.location.href);
+      if (currentUrl !== newUrl) {
+        flushScrollDepth(currentUrl); // Pass old URL as override
+        resetScrollDepth();
+        currentUrl = newUrl;
         sendEvent("pageview");
       }
     });
@@ -303,7 +366,7 @@
           if (age < THIRTY_MIN_MS) {
             localStorage.setItem(
               REPLAY_STORAGE_KEY,
-              JSON.stringify({ sampled: data.sampled, timestamp: now })
+              JSON.stringify({ sampled: data.sampled, timestamp: now }),
             );
             return data.sampled;
           }
@@ -313,7 +376,7 @@
 
         localStorage.setItem(
           REPLAY_STORAGE_KEY,
-          JSON.stringify({ sampled, timestamp: now })
+          JSON.stringify({ sampled, timestamp: now }),
         );
         return sampled;
       } catch (e) {
