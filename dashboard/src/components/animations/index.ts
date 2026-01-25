@@ -1,4 +1,3 @@
-// Re-export from standalone package
 export { NumberRoll } from 'react-number-roll';
 export type { Digit, DigitPhase, DigitState, NumberRollProps } from 'react-number-roll';
 export type { Token, TokenType, TokenPhase } from 'react-number-roll';

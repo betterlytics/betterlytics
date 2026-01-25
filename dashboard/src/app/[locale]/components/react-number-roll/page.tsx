@@ -154,6 +154,7 @@ export default function ReactNumberRollDemoPage() {
   const [duration, setDuration] = useState(600);
   const [className, setClassName] = useState('text-9xl font-semibold tracking-tighter');
   const [withTextSelect, setWithTextSelect] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [formatPresetIdx, setFormatPresetIdx] = useState(0);
   const [localePresetIdx, setLocalePresetIdx] = useState(0);
 
@@ -263,7 +264,10 @@ export default function ReactNumberRollDemoPage() {
 
           <div
             className={`${className} cursor-pointer transition-opacity hover:opacity-80`}
-            style={{ fontVariantNumeric: 'tabular-nums' }}
+            style={{
+              fontVariantNumeric: 'tabular-nums',
+              ...(reducedMotion ? { '--reduced-duration': '0ms' } as React.CSSProperties : {}),
+            }}
             onClick={handleFullRandom}
             title="Click for chaos mode"
           >
@@ -327,7 +331,7 @@ export default function ReactNumberRollDemoPage() {
               onChange={setLocalePresetIdx}
             />
 
-            <div className="pt-2">
+            <div className="flex flex-col gap-3 pt-2">
               <label className="group flex cursor-pointer items-center gap-3 text-[10px] font-bold uppercase text-muted-foreground">
                 <div className="relative h-6 w-10 rounded-full bg-muted transition-colors group-hover:bg-accent/20">
                   <div
@@ -343,6 +347,23 @@ export default function ReactNumberRollDemoPage() {
                   className="hidden"
                 />
                 Enable Text Selection
+              </label>
+
+              <label className="group flex cursor-pointer items-center gap-3 text-[10px] font-bold uppercase text-muted-foreground">
+                <div className="relative h-6 w-10 rounded-full bg-muted transition-colors group-hover:bg-accent/20">
+                  <div
+                    className={`absolute left-1 top-1 h-4 w-4 rounded-full shadow-sm transition-transform ${
+                      reducedMotion ? 'translate-x-4 bg-primary' : 'bg-background'
+                    }`}
+                  />
+                </div>
+                <input
+                  type="checkbox"
+                  checked={reducedMotion}
+                  onChange={(e) => setReducedMotion(e.target.checked)}
+                  className="hidden"
+                />
+                Reduced Motion
               </label>
             </div>
           </div>
