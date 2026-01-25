@@ -182,7 +182,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     y2={yArea.y2}
                     fill={yArea.fill ?? 'var(--chart-comparison)'}
                     fillOpacity={yArea.fillOpacity ?? 0.08}
-                    label={yArea.label ? <ReferenceAreaLabel area={yArea} /> : undefined}
+                    label={yArea.label ? <ReferenceAreaLabel area={yArea} isMobile={isMobile} /> : undefined}
                     ifOverflow='hidden'
                   />
                 ))}
@@ -257,9 +257,10 @@ const ReferenceLineLabel: React.FC<ReferenceLineLabelProps> = ({ text, fill, isM
 type ReferenceAreaLabelProps = {
   viewBox?: { x: number; y: number; width: number; height: number };
   area: YReferenceAreaConfig;
+  isMobile: boolean;
 };
 const ReferenceAreaLabel = (props: ReferenceAreaLabelProps) => {
-  const { viewBox, area } = props;
+  const { viewBox, area, isMobile } = props;
 
   if (!viewBox) return null;
 
@@ -273,14 +274,21 @@ const ReferenceAreaLabel = (props: ReferenceAreaLabelProps) => {
 
   return (
     <text
-      x={x + 20}
+      x={x + (isMobile ? 42 : 16)}
       y={centerY}
       dominantBaseline='middle'
       fill={area.fill ?? 'var(--muted-foreground)'}
       textAnchor='start'
-      fontSize={12}
+      fontSize={11}
       className='pointer-events-none select-none'
-      style={{ fontWeight: 500 }}
+      style={{
+        fontWeight: 600,
+        opacity: 0.5,
+        letterSpacing: '0.05em',
+        paintOrder: 'stroke',
+        stroke: 'var(--background)',
+        strokeWidth: 3,
+      }}
     >
       {area.label}
     </text>
