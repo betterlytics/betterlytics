@@ -1,8 +1,11 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import React, { useCallback } from 'react';
 import { DIGITS, type DigitState } from './NumberRoll';
+
+function cn(...inputs: (string | undefined | null | false)[]): string {
+  return inputs.filter(Boolean).join(' ');
+}
 
 type DigitReelProps = {
   digitState: DigitState;
@@ -35,28 +38,19 @@ function DigitReelComponent({ digitState, onPhaseComplete }: DigitReelProps) {
 
   return (
     <span
-      className={cn(
-        'digit-reel-wrapper inline-flex items-start justify-center',
-        'motion-reduce:[--reduced-duration:0ms]',
-      )}
+      className='digit-reel-wrapper'
       data-phase={digitState.phase}
       onAnimationEnd={handleAnimationEnd}
       onTransitionEnd={handleTransitionEnd}
     >
-      <span className={cn('digit-reel-mask inline-flex items-start justify-center')}>
+      <span className='digit-reel-mask'>
         <span
-          className={cn('digit-reel-inner inline-flex flex-col items-center justify-center', `w-[--digit-width]`)}
+          className='digit-reel-inner'
           style={{ '--target-offset': `${-digitState.digit * 10}%` } as React.CSSProperties}
           data-phase={digitState.phase}
         >
           {DIGITS.map((d) => (
-            <span
-              key={d}
-              className={cn(
-                'digit-reel-digit',
-                d !== digitState.digit && 'select-none'
-              )}
-            >
+            <span key={d} className={cn('digit-reel-digit', d !== digitState.digit && 'inactive')}>
               {d}
             </span>
           ))}

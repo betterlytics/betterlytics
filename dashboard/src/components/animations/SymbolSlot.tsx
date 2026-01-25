@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import React, { useCallback } from 'react';
 
 const ZWSP = '\u200B';
@@ -57,15 +56,12 @@ function SymbolSlotComponent({ value, phase, fromValue, onPhaseComplete }: Symbo
     return (
       <span
         ref={ref}
-        className={cn(
-          'symbol-slot symbol-slot-crossfade inline-flex items-center justify-center whitespace-nowrap relative',
-          'motion-reduce:[--reduced-duration:0ms]',
-        )}
+        className="symbol-slot symbol-slot-crossfade"
         data-phase={phase}
         onAnimationEnd={handleAnimationEnd}
       >
         {/* Old value fading out - absolute positioned */}
-        <span className="symbol-slot-from absolute inset-0 flex items-center justify-center">
+        <span className="symbol-slot-from">
           {fromValue}
         </span>
         {/* New value fading in - provides natural width */}
@@ -79,10 +75,7 @@ function SymbolSlotComponent({ value, phase, fromValue, onPhaseComplete }: Symbo
   return (
     <span
       ref={ref}
-      className={cn(
-        'symbol-slot inline-flex items-center justify-center whitespace-nowrap',
-        'motion-reduce:[--reduced-duration:0ms]',
-      )}
+      className="symbol-slot"
       data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
     >

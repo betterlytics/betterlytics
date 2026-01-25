@@ -1,7 +1,11 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
+/** Zero-dependency class name utility */
+function cn(...inputs: (string | undefined | null | false)[]): string {
+  return inputs.filter(Boolean).join(' ');
+}
 import { DigitReel } from './DigitReel';
 import { SymbolSlot } from './SymbolSlot';
 import { Token, TokenPhase, diffTokens, createInitialTokens } from './tokens';
@@ -109,17 +113,17 @@ function NumberRollComponent({
   }, [formattedString]);
   
   return (
-    <span className={cn('inline-flex isolate whitespace-nowrap leading-none tabular-nums', !withTextSelect && 'select-none', className)}>
+    <span className={cn('number-roll-outer', !withTextSelect && 'no-select', className)}>
       <span
-        className={cn('number-roll-root inline-flex isolate relative ltr contain-layout')}
+        className="number-roll-root"
         style={{ '--duration': `${duration}ms` } as React.CSSProperties}
       >
         {/* Ghost for measurement - must NOT be constrained by container to measure natural width */}
         <span
           ref={ghostRef}
           aria-hidden="true"
-          className="absolute left-0 top-0 invisible opacity-0 pointer-events-none leading-none font-[inherit] tabular-nums whitespace-nowrap"
-          style={{ 
+          className="number-roll-ghost"
+          style={{
             letterSpacing: 'calc(var(--digit-width) - 1ch)',
             fontFeatureSettings: '"tnum"',
           } as React.CSSProperties}
@@ -128,42 +132,41 @@ function NumberRollComponent({
         </span>
 
         <span aria-hidden="true" className="number-mask">
-
           <span
             className="number-roll-sizer"
             style={{
               '--target-width': targetWidth ? `${targetWidth}px` : 'auto',
             } as React.CSSProperties}
           >
-            <span className="inline-flex relative">
+            <span className="number-roll-tokens">
               {ZWSP}
-            {state.tokens.map((token: Token) => {
-              if (token.type === 'digit') {
-                const digitState: DigitState = {
-                  id: token.id,
-                  digit: parseInt(token.value, 10) as Digit,
-                  phase: token.phase as DigitPhase,
-                  fromDigit: token.fromValue ? parseInt(token.fromValue, 10) as Digit : null,
-                };
-                return (
-                  <DigitReel
-                    key={token.id}
-                    digitState={digitState}
-                    onPhaseComplete={handlePhaseComplete}
-                  />
-                );
-              } else {
-                return (
-                  <SymbolSlot
-                    key={token.id}
-                    value={token.value}
-                    phase={token.phase as 'idle' | 'entering' | 'exiting' | 'animating'}
-                    fromValue={token.fromValue}
-                    onPhaseComplete={action => handlePhaseComplete(token.id, action)}
-                  />
-                );
-              }
-            })}
+              {state.tokens.map((token: Token) => {
+                if (token.type === 'digit') {
+                  const digitState: DigitState = {
+                    id: token.id,
+                    digit: parseInt(token.value, 10) as Digit,
+                    phase: token.phase as DigitPhase,
+                    fromDigit: token.fromValue ? parseInt(token.fromValue, 10) as Digit : null,
+                  };
+                  return (
+                    <DigitReel
+                      key={token.id}
+                      digitState={digitState}
+                      onPhaseComplete={handlePhaseComplete}
+                    />
+                  );
+                } else {
+                  return (
+                    <SymbolSlot
+                      key={token.id}
+                      value={token.value}
+                      phase={token.phase as 'idle' | 'entering' | 'exiting' | 'animating'}
+                      fromValue={token.fromValue}
+                      onPhaseComplete={action => handlePhaseComplete(token.id, action)}
+                    />
+                  );
+                }
+              })}
             </span>
           </span>
         </span>
