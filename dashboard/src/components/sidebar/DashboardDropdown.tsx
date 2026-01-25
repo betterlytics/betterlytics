@@ -51,7 +51,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
           className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-0'
         >
           <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden group-data-[collapsible=icon]:flex-none'>
-            <div className='group-data-[collapsible=icon]:border-border group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:border group-data-[collapsible=icon]:p-1'>
+            <div className='group-data-[collapsible=icon]:border-border flex items-center group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:border group-data-[collapsible=icon]:p-1'>
               <DomainFavicon
                 domain={currentDashboard.domain}
                 size={20}
