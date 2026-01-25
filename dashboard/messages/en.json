@@ -2480,6 +2480,7 @@
         "avgTime": "Avg. Time",
         "entryRate": "Entry Rate",
         "exitRate": "Exit Rate",
+        "avgScrollDepth": "Avg. Scroll",
         "allPages": "All Pages",
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
