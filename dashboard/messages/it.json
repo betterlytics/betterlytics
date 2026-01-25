@@ -2491,7 +2491,7 @@
         "avgTime": "Tempo medio",
         "entryRate": "Tasso di ingresso",
         "exitRate": "Tasso di uscita",
-        "avgScrollDepth": "Scroll medio",
+        "avgScrollDepth": "Profondità di scorrimento",
         "allPages": "Tutte le pagine",
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",

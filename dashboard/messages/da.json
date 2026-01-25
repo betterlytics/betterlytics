@@ -2483,7 +2483,7 @@
         "avgTime": "Gns. tid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
-        "avgScrollDepth": "Gns. scroll",
+        "avgScrollDepth": "Scroll-dybde",
         "allPages": "Alle sider",
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
