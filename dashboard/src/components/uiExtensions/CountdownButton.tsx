@@ -2,7 +2,7 @@
 
 import { Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { NumberRoll } from '@/components/animations/NumberRoll';
+import { NumberRoll } from '@/components/animations';
 import { useCountdown } from '@/hooks/use-countdown';
 import { cn } from '@/lib/utils';
 import React from 'react';

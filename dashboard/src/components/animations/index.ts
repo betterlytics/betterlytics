@@ -1,6 +1,6 @@
-export { NumberRoll } from './NumberRoll';
-export type { Digit, DigitPhase, DigitState } from './NumberRoll';
-export { SymbolSlot } from './SymbolSlot';
-export type { Token, TokenType, TokenPhase } from './tokens';
+// Re-export from standalone package
+export { NumberRoll } from 'react-number-roll';
+export type { Digit, DigitPhase, DigitState, NumberRollProps } from 'react-number-roll';
+export type { Token, TokenType, TokenPhase } from 'react-number-roll';
 export { Gauge } from './gauge';
 export type { Segment, GaugeProps } from './gauge';
