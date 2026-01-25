@@ -170,6 +170,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         fill: 'var(--cwv-threshold-good)',
         fillOpacity: 0.08,
         label: t('thresholds.good'),
+        labelFill: 'var(--cwv-threshold-good-label)',
       },
       {
         y1: goodThreshold,
@@ -177,6 +178,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         fill: 'var(--cwv-threshold-fair)',
         fillOpacity: 0.08,
         label: t('thresholds.fair'),
+        labelFill: 'var(--cwv-threshold-fair-label)',
       },
       {
         y1: fairThreshold,
@@ -184,6 +186,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         fill: 'var(--cwv-threshold-poor)',
         fillOpacity: 0.08,
         label: t('thresholds.poor'),
+        labelFill: 'var(--cwv-threshold-poor-label)',
       },
     ];
   }, [active, t]);

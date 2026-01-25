@@ -48,6 +48,7 @@ export interface YReferenceAreaConfig {
   fill?: string;
   fillOpacity?: number;
   label?: string;
+  labelFill?: string;
 }
 
 interface MultiSeriesChartProps {
@@ -277,13 +278,13 @@ const ReferenceAreaLabel = (props: ReferenceAreaLabelProps) => {
       x={x + (isMobile ? 42 : 16)}
       y={centerY}
       dominantBaseline='middle'
-      fill={area.fill ?? 'var(--muted-foreground)'}
+      fill={area.labelFill ?? area.fill ?? 'var(--muted-foreground)'}
       textAnchor='start'
       fontSize={11}
       className='pointer-events-none select-none'
       style={{
         fontWeight: 600,
-        opacity: 0.5,
+        opacity: 0.7,
         letterSpacing: '0.05em',
         paintOrder: 'stroke',
         stroke: 'var(--background)',
