@@ -293,7 +293,9 @@
   updateScrollDepth();
 
   function monitorContentHeight() {
-    setTimeout(updateScrollDepth, 50);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => updateScrollDepth()),
+    );
     var count = 0;
     var interval = setInterval(function () {
       updateScrollDepth();
