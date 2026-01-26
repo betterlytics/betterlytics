@@ -60,6 +60,7 @@
   // Scroll depth tracking state
   var maxScrollDepthPx = 0;
   var lastSentScrollDepthPx = 0;
+  var currentDocHeight = 0;
 
   function normalize(url) {
     var urlObj = new URL(url);
@@ -236,13 +237,18 @@
   }
 
   function updateScrollDepth() {
+    if (currentUrl && normalize(window.location.href) !== currentUrl) {
+      return;
+    }
+
     var body = document.body || {};
     var el = document.documentElement || {};
     var scrollTop = window.scrollY || el.scrollTop || body.scrollTop || 0;
     var viewportHeight = window.innerHeight || el.clientHeight || 0;
-    var docHeight = getDocumentHeight();
 
-    var scrollPosition = Math.min(scrollTop + viewportHeight, docHeight);
+    currentDocHeight = getDocumentHeight();
+
+    var scrollPosition = Math.min(scrollTop + viewportHeight, currentDocHeight);
 
     if (scrollPosition > maxScrollDepthPx) {
       maxScrollDepthPx = scrollPosition;
@@ -250,15 +256,13 @@
   }
 
   function flushScrollDepth(urlOverride) {
-    var docHeight = getDocumentHeight();
-
     if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
 
     lastSentScrollDepthPx = maxScrollDepthPx;
 
     var percentage = Math.min(
       100,
-      Math.round((maxScrollDepthPx / docHeight) * 100),
+      Math.round((maxScrollDepthPx / currentDocHeight) * 100),
     );
 
     var overrides = {
@@ -287,15 +291,16 @@
   currentUrl = normalize(window.location.href);
   updateScrollDepth();
 
-  // Poll for dynamic content height changes after page load to account for dynamically loaded content
-  window.addEventListener("load", function () {
+  function monitorContentHeight() {
     updateScrollDepth();
     var count = 0;
     var interval = setInterval(function () {
       updateScrollDepth();
       if (++count === 15) clearInterval(interval);
     }, 200);
-  });
+  }
+
+  window.addEventListener("load", monitorContentHeight);
 
   // Send initial page view
   sendEvent("pageview");
@@ -309,8 +314,9 @@
       originalPushState.apply(this, arguments); // URL changes here
       var newUrl = normalize(window.location.href);
       if (currentUrl !== newUrl) {
-        resetScrollDepth();
         currentUrl = newUrl;
+        resetScrollDepth();
+        monitorContentHeight();
         sendEvent("pageview");
       }
     };
@@ -320,8 +326,9 @@
       var newUrl = normalize(window.location.href);
       if (currentUrl !== newUrl) {
         flushScrollDepth(currentUrl); // Pass old URL as override
-        resetScrollDepth();
         currentUrl = newUrl;
+        resetScrollDepth();
+        monitorContentHeight();
         sendEvent("pageview");
       }
     });
