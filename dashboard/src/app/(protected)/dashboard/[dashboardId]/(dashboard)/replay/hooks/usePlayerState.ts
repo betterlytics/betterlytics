@@ -24,7 +24,7 @@ export type UsePlayerStateReturn = {
 
 export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
   const playerRef = useRef<ReplayPlayerHandle | null>(null);
-  const [isPrefetching, startPrefetchingTransition] = useTransition();
+  const [isPrefetching, setIsPrefetching] = useState(false);
   const currentSessionIdRef = useRef<string | null>(null);
   const nextSegmentIndex = useRef(0);
   const eventsRef = useRef<eventWithTime[]>([]);
@@ -63,35 +63,36 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
   );
 
   const prefetchRemainingSegments = useCallback(
-    (session: SessionWithSegments) => {
+    async (session: SessionWithSegments) => {
       if (nextSegmentIndex.current >= session.manifest.length) return;
 
-      startPrefetchingTransition(async () => {
-        const controller = new AbortController();
+      setIsPrefetching(true);
+      const controller = new AbortController();
 
-        try {
-          for (let i = nextSegmentIndex.current; i < session.manifest.length; i++) {
-            if (currentSessionIdRef.current !== session.session_id) break;
+      try {
+        for (let i = nextSegmentIndex.current; i < session.manifest.length; i++) {
+          if (currentSessionIdRef.current !== session.session_id) break;
 
-            const segment = session.manifest[i];
-            const events = await segmentLoader.loadSegment(segment, controller.signal);
+          const segment = session.manifest[i];
+          const events = await segmentLoader.loadSegment(segment, controller.signal);
 
-            if (controller.signal.aborted || currentSessionIdRef.current !== session.session_id) break;
-            if (!events.length) continue;
+          if (controller.signal.aborted || currentSessionIdRef.current !== session.session_id) break;
+          if (!events.length) continue;
 
-            const normalized = [...events].sort((a, b) => a.timestamp - b.timestamp);
-            eventsRef.current = [...eventsRef.current, ...normalized];
-            playerRef.current?.appendEvents(normalized);
-            timeline.appendToTimeline(normalized, session.session_id);
-            nextSegmentIndex.current = i + 1;
-          }
-          inactivitiesRef.current = getInactivityPeriods(eventsRef.current);
-        } catch (error) {
-          if (!(error instanceof DOMException && error.name === 'AbortError')) {
-            console.error('Error prefetching segments:', error);
-          }
+          const normalized = [...events].sort((a, b) => a.timestamp - b.timestamp);
+          eventsRef.current = [...eventsRef.current, ...normalized];
+          playerRef.current?.appendEvents(normalized);
+          timeline.appendToTimeline(normalized, session.session_id);
+          nextSegmentIndex.current = i + 1;
         }
-      });
+        inactivitiesRef.current = getInactivityPeriods(eventsRef.current);
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+          console.error('Error prefetching segments:', error);
+        }
+      } finally {
+        setIsPrefetching(false);
+      }
     },
     [segmentLoader, timeline.appendToTimeline],
   );
