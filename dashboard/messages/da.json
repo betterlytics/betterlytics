@@ -2570,7 +2570,8 @@
       },
       "thresholds": {
         "good": "God",
-        "fair": "Middel"
+        "fair": "Middel",
+        "poor": "Dårlig"
       },
       "table": {
         "title": "Performance-opdeling",

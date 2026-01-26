@@ -2567,7 +2567,8 @@
       },
       "thresholds": {
         "good": "Good",
-        "fair": "Fair"
+        "fair": "Fair",
+        "poor": "Poor"
       },
       "table": {
         "title": "Performance breakdown",

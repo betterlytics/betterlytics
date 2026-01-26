@@ -140,6 +140,9 @@
   --cwv-threshold-good: rgb(14, 148, 70); /* green */
   --cwv-threshold-fair: oklch(80% 0.18 80); /* amber */
   --cwv-threshold-poor: rgb(207, 51, 23); /* red */
+  --cwv-threshold-good-label: rgb(12, 110, 52); /* darker green */
+  --cwv-threshold-fair-label: oklch(55% 0.16 70); /* darker amber */
+  --cwv-threshold-poor-label: rgb(170, 42, 18); /* darker red */
 
   --sidebar: white; /* Whiter sidebar for light mode */
   --sidebar-foreground: oklch(0.2 0.01 265);
@@ -239,6 +242,9 @@
   --cwv-threshold-good: rgb(88, 207, 146);
   --cwv-threshold-fair: oklch(80% 0.18 80);
   --cwv-threshold-poor: rgb(212, 89, 81);
+  --cwv-threshold-good-label: rgb(100, 220, 160);
+  --cwv-threshold-fair-label: oklch(85% 0.16 80);
+  --cwv-threshold-poor-label: rgb(230, 105, 95);
 
   --sidebar: hsl(240, 3%, 10%); /* Slightly darker than main background */
   --sidebar-foreground: oklch(0.95 0.01 265);
