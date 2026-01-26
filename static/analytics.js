@@ -55,9 +55,10 @@
   }
 
   // Store current URL for SPA navigation
-  var currentUrl = null;
+  var currentPath = window.location.pathname;
 
   // Scroll depth tracking state
+  var currentUrl = null;
   var maxScrollDepthPx = 0;
   var lastSentScrollDepthPx = 0;
   var currentDocHeight = 0;
@@ -275,6 +276,7 @@
   }
 
   function resetScrollDepth() {
+    currentUrl = normalize(window.location.href);
     maxScrollDepthPx = 0;
     lastSentScrollDepthPx = 0;
     updateScrollDepth();
@@ -312,9 +314,8 @@
     history.pushState = function () {
       flushScrollDepth(); // Flush before URL changes (uses current URL)
       originalPushState.apply(this, arguments); // URL changes here
-      var newUrl = normalize(window.location.href);
-      if (currentUrl !== newUrl) {
-        currentUrl = newUrl;
+      if (currentPath !== window.location.pathname) {
+        currentPath = window.location.pathname;
         resetScrollDepth();
         monitorContentHeight();
         sendEvent("pageview");
@@ -323,10 +324,9 @@
 
     // Detect popstate (back/forward navigation)
     window.addEventListener("popstate", function () {
-      var newUrl = normalize(window.location.href);
-      if (currentUrl !== newUrl) {
+      if (currentPath !== window.location.pathname) {
+        currentPath = window.location.pathname;
         flushScrollDepth(currentUrl); // Pass old URL as override
-        currentUrl = newUrl;
         resetScrollDepth();
         monitorContentHeight();
         sendEvent("pageview");
