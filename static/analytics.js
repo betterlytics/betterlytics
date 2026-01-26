@@ -222,10 +222,23 @@
     document.head.appendChild(s);
   }
 
+  function getDocumentHeight() {
+    var body = document.body || {};
+    var el = document.documentElement || {};
+    return Math.max(
+      body.scrollHeight || 0,
+      body.offsetHeight || 0,
+      body.clientHeight || 0,
+      el.scrollHeight || 0,
+      el.offsetHeight || 0,
+      el.clientHeight || 0,
+    );
+  }
+
   function updateScrollDepth() {
     var scrollTop = window.scrollY || document.documentElement.scrollTop;
     var viewportHeight = window.innerHeight;
-    var docHeight = document.documentElement.scrollHeight;
+    var docHeight = getDocumentHeight();
 
     var scrollPosition = Math.min(scrollTop + viewportHeight, docHeight);
 
