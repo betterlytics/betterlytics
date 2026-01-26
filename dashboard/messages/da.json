@@ -1552,7 +1552,8 @@
         "analytics": "Analyse",
         "behavior": "Adfærd",
         "observability": "Overvågning"
-      }
+      },
+      "collapseNav": "Skjul navigation"
     },
     "settings": {
       "sidebar": {
