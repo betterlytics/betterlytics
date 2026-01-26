@@ -282,6 +282,10 @@ impl EventValidator {
     fn validate_scroll_depth_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         fn valid_f32(v: f32) -> bool { v.is_finite() }
 
+        if raw_event.scroll_depth_percentage.is_none() || raw_event.scroll_depth_pixels.is_none() {
+            return Err(ValidationError::InvalidScrollDepth("missing values".to_string()));
+        }
+
         if let Some(v) = raw_event.scroll_depth_percentage {
             if !valid_f32(v) || v < 0.0 || v > 100.0 {
                 return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_percentage value".to_string()));
