@@ -1,12 +1,18 @@
+use psl;
 use tracing::debug;
 use url::Url;
 
+/// Extracts the root/registrable domain from a full domain string
+pub fn extract_root_domain(domain: &str) -> Option<String> {
+    let domain_bytes = domain.as_bytes();
+    let registrable = psl::domain(domain_bytes)?;
+    
+    std::str::from_utf8(registrable.as_bytes())
+        .ok()
+        .map(|s| s.to_lowercase())
+}
+
 /// Normalizes a URL by removing protocol, www prefix, and trailing slashes
-/// Used for both referrer URLs and outbound link URLs for consistent data storage
-/// 
-/// Examples:
-/// - "https://www.example.com/path/" -> "example.com/path"  
-/// - "http://subdomain.example.com/page" -> "subdomain.example.com/page"
 pub fn normalize_url(url: &Url) -> Option<String> {
     let host = url.host_str()?.trim_start_matches("www.");
     let mut normalized = String::from(host);

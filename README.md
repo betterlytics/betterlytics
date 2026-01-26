@@ -1,8 +1,10 @@
-# Betterlytics
-
 <div align="center">
 
-<img src=".github/assets/logo-dark-raw.png" alt="Betterlytics Logo" width="120">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/betterlytics-logo-full-inline-light.svg">
+  <source media="(prefers-color-scheme: light)" srcset=".github/assets/betterlytics-logo-full-inline-dark.svg">
+  <img alt="Betterlytics" src=".github/assets/betterlytics-logo-full-inline-dark.svg" width="320">
+</picture>
 
 **A modern, Cookieless & privacy-focused analytics platform built for the future**
 
@@ -12,7 +14,7 @@
 
 [![ClickHouse](https://img.shields.io/badge/ClickHouse-FFCC01?style=flat&logo=clickhouse&logoColor=black)](https://clickhouse.com/) [![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 
-[Getting Started](#-getting-started) • [Dashboard](#-dashboard-preview) • [Benchmarks](#-performance-benchmarks) • [Roadmap](#️-roadmap) • [Community](#-community)
+[Website](https://betterlytics.io) | [Demo](https://betterlytics.io/demo) | [Docs](https://betterlytics.io/docs) | [Features](https://betterlytics.io/features) | [Contribute](CONTRIBUTING.md)
 
 </div>
 
@@ -24,44 +26,25 @@ Betterlytics is a **high-performance, privacy-first** analytics platform that pu
 
 **Our core principles:**
 
-- **Privacy-First**: GDPR, CCPA, and PECR compliant with no third-party tracking
+- **Privacy-First**: GDPR, CCPA, and PECR ready with no third-party tracking
 - **Cookieless**: No cookies required, respects user privacy
 - **Lightning Fast**: Built on Rust and ClickHouse for maximum performance
-- **Lightweight Tracking**: Minimal impact on your website's performance
-- **Self-Hosted**: Complete control over your data and infrastructure
+- **Lightweight Tracking**: <2KB script with minimal impact on your website's performance
 - **Modern UI**: Beautiful, responsive dashboard built with Next.js 15 and React 19
 - **Scalable**: Handles millions of events with ease
-- **Developer Friendly**: Easy to deploy, customize, and extend
 
 ### Complete Feature Set
 
-#### Core Analytics
+| Category                   | Features                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Core Analytics**         | Page views, visitors, bounce rate, traffic sources, geographic insights, device analytics, real-time data, custom events |
+| **Advanced Analytics**     | Session replay, user journeys, funnels, time period comparisons, annotations, outbound link tracking                     |
+| **Performance Monitoring** | Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate monitoring                                     |
+| **Privacy & Compliance**   | Cookieless tracking, GDPR/CCPA/PECR ready, EU hosting, data anonymization, open source                                   |
+| **Access & Security**      | Role-based access control, two-factor authentication, OAuth (Google, GitHub)                                             |
+| **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, <2KB payload                                    |
 
-| Feature                        | Description                                                             |
-| ------------------------------ | ----------------------------------------------------------------------- |
-| **Page Analytics**             | Detailed page views, bounce rates, and engagement metrics               |
-| **Referrer Tracking**          | Complete referral source analysis and traffic attribution               |
-| **Geographic Insights**        | Global visitor mapping with MaxMind GeoIP integration                   |
-| **Device & Browser Insights**  | Comprehensive device, OS, and browser analytics                         |
-| **UTM Campaign Insights**      | UTM parameter tracking and marketing campaign analysis                  |
-| **Advanced Filtering**         | Filter data across numerous dimensions and time ranges                  |
-| **User Journey Mapping**       | Visualize complete user paths through your site                         |
-| **Conversion Funnels**         | Track multi-step conversion processes and drop-off points               |
-| **Outbound Link Tracking**     | Automatic tracking of clicks to external websites and affiliate URLs    |
-| **Custom Events**              | Track any custom interactions and business metrics                      |
-| **Core Web Vitals**            | Performance metrics including LCP, FID/INP, CLS, TTFB, and more         |
-| **Anonymized Session Replays** | Privacy-first replay of user interactions without storing personal data |
-
-#### Platform & Integration
-
-| Feature                      | Description                                                                |
-| ---------------------------- | -------------------------------------------------------------------------- |
-| **Modern UI**                | Beautiful dashboard built with Next.js 15, React 19, and Tailwind CSS      |
-| **Lightweight Script**       | Minimal tracking script with zero performance impact                       |
-| **SPA Support**              | Full support for Single Page Applications and client-side routing          |
-| **Easy Integration**         | Simple one-line script installation                                        |
-| **Performance Optimized**    | Built on ClickHouse for sub-second query responses                         |
-| **High-Performance Backend** | Rust-powered event processing for ultra-fast, memory-efficient performance |
+**[View all features →](https://betterlytics.io/features)**
 
 ## Getting Started
 
@@ -75,13 +58,14 @@ Choose the option that works best for you:
 
 Get started instantly with our free managed cloud service:
 
-**[Start Free →](https://betterlytics.io/register)**
+**[Start Free →](https://betterlytics.io/signup)**
 
 - ✅ **Free forever plan** - No trial, genuinely free for small sites
 - ✅ **No setup required** - Ready in 30 seconds
 - ✅ **EU infrastructure** - All data processed on EU-owned cloud infrastructure
 - ✅ **Automatic updates** - Always latest features
 - ✅ **Managed infrastructure** - We handle scaling and maintenance
+- ✅ **Team collaboration** - Role-based access control with members system
 - ✅ **99.9% uptime** - Enterprise-grade reliability
 - ✅ **Premium support** - Get help from our expert team
 - ✅ **Automatic backups** - Your data is safe and recoverable
@@ -94,16 +78,15 @@ Get started instantly with our free managed cloud service:
 
 Run Betterlytics on your own infrastructure for complete control and privacy.
 
-**[Quick Setup Guide →](SETUP.md#quick-setup)**
+**[Quick Setup Guide →](https://betterlytics.io/docs/installation/self-hosting)**
 
 - ✅ **Complete privacy** - Your data never leaves your servers
 - ✅ **Full control** - Customize everything to your needs
 - ✅ **No fees to us** - Your money goes to infrastructure providers
 - ⚠️ **You manage everything** - Installation, maintenance, upgrades, security
+- ⚠️ **Updates lag behind** - Cloud gets new features first
 - ⚠️ **Your responsibility** - Server capacity, uptime, backups, loading times
 - ⚠️ **Infrastructure costs** - Server, CDN, backups, and associated costs
-
-**[Setup Guide](SETUP.md#quick-setup)** | **[Docker Setup](SETUP.md#docker-setup)** | **[Development](CONTRIBUTING.md)**
 
 </td>
 </tr>
@@ -135,54 +118,21 @@ Run Betterlytics on your own infrastructure for complete control and privacy.
 
 ![Detailed Reports](.github/assets/betterlytics-showcase-devices.webp)
 
-### Pages Breakdown
+### Uptime & SSL Monitoring
 
-![Detailed Reports](.github/assets/betterlytics-showcase-pages.webp)
+![Detailed Reports](.github/assets/betterlytics-showcase-monitoring.webp)
 
 ... and much more
 
 </div>
 
-## Roadmap
-
-We're constantly working to improve Betterlytics. Here's what's coming next:
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### In Development
-
-| Feature               | Description                                             |
-| --------------------- | ------------------------------------------------------- |
-| **Docker Deployment** | One-command deployment with Docker Compose              |
-| **REST API**          | Full API access for custom integrations and data export |
-| **Cloud Hosting**     | Managed hosting option for easy deployment              |
-
-</td>
-<td width="50%" valign="top">
-
-### Planned Features
-
-| Feature                    | Description                                    |
-| -------------------------- | ---------------------------------------------- |
-| **Alerts & Notifications** | Custom alerts for traffic spikes and anomalies |
-| **Advanced Reporting**     | Scheduled reports                              |
-| **A/B Testing**            | Built-in experimentation platform              |
-| **AI Insights**            | Automated insights and recommendations         |
-| **Data API**               | Full API access to query your analytics data   |
-
-</td>
-</tr>
-</table>
-
 ## Ideas & Suggestions
 
 Have an idea for Betterlytics? We'd love to hear it!
 
-- Open an [issue](https://github.com/betterlytics/betterlytics/issues) to suggest new features
-- Join our discussions to share your thoughts
-- Contribute code to help us build these features faster
+- Start a [discussion](https://github.com/betterlytics/betterlytics/discussions) to share ideas or ask questions
+- Found a bug? [Open an issue](https://github.com/betterlytics/betterlytics/issues)
+- Want to contribute code? Check out [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 

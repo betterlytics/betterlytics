@@ -36,7 +36,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
         id: `loaded-${savedFilter.id}-${index}`,
         column: entry.column,
         operator: entry.operator,
-        value: entry.value,
+        values: entry.values,
       }));
       onLoadFilter(filters);
     },

@@ -1,6 +1,5 @@
 'use client';
 import { use, useMemo, useState } from 'react';
-import { cn } from '@/lib/utils';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
@@ -160,38 +159,37 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
 
   const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
 
-  const referenceLines = useMemo(
-    () =>
-      CWV_THRESHOLDS[active]?.map((y, idx) => {
-        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-fair)';
-        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.fair')} (≤ ${formatThreshold(
-          active,
-          y,
-        )})`;
-        return { y, stroke, strokeDasharray: '4 6', label, labelFill: stroke };
-      }),
-    [active, t],
-  );
-
-  const [enabledKeys, setEnabledKeys] = useState(() => new Set(SERIES_DEFS.map((d) => d.dataKey)));
-
-  function toggleKey(key: string) {
-    setEnabledKeys((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        if (next.size === 1) return next; // keep at least one enabled
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
-  }
-
-  const activeSeries: MultiSeriesConfig[] = useMemo(
-    () => SERIES_DEFS.filter((d) => enabledKeys.has(d.dataKey)),
-    [enabledKeys],
-  );
+  const yReferenceAreas = useMemo(() => {
+    const thresholds = CWV_THRESHOLDS[active];
+    if (!thresholds) return [];
+    const [goodThreshold, fairThreshold] = thresholds;
+    return [
+      {
+        y1: 0 as const,
+        y2: goodThreshold,
+        fill: 'var(--cwv-threshold-good)',
+        fillOpacity: 0.08,
+        label: t('thresholds.good'),
+        labelFill: 'var(--cwv-threshold-good-label)',
+      },
+      {
+        y1: goodThreshold,
+        y2: fairThreshold,
+        fill: 'var(--cwv-threshold-fair)',
+        fillOpacity: 0.08,
+        label: t('thresholds.fair'),
+        labelFill: 'var(--cwv-threshold-fair-label)',
+      },
+      {
+        y1: fairThreshold,
+        y2: active === 'CLS' ? 10 : 1000000,
+        fill: 'var(--cwv-threshold-poor)',
+        fillOpacity: 0.08,
+        label: t('thresholds.poor'),
+        labelFill: 'var(--cwv-threshold-poor-label)',
+      },
+    ];
+  }, [active, t]);
 
   return (
     <div className='space-y-6'>
@@ -201,62 +199,18 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         granularity={granularity}
         formatValue={(v) => formatCWV(active, Number(v))}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-        series={activeSeries}
-        referenceLines={referenceLines}
+        series={SERIES_DEFS as MultiSeriesConfig[]}
+        yReferenceAreas={yReferenceAreas}
         headerContent={
           <div>
             <InlineMetricsHeader cards={cards} pinFooter />
-            <div className='mt-6 flex items-center justify-between gap-3 p-2 sm:justify-center sm:gap-6'>
-              <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-sm font-medium sm:flex-none'>
-                <span className='truncate'>{t(METRIC_LABEL_KEYS[active])}</span>
-                <MetricInfo metric={active} />
-              </div>
-              <div className='ml-auto sm:ml-0'>
-                <SeriesToggles defs={SERIES_DEFS} enabledKeys={enabledKeys} onToggle={toggleKey} />
-              </div>
+            <div className='mt-6 flex items-center justify-center gap-2 p-2'>
+              <span className='text-muted-foreground text-sm font-medium'>{t(METRIC_LABEL_KEYS[active])}</span>
+              <MetricInfo metric={active} />
             </div>
           </div>
         }
       />
-    </div>
-  );
-}
-
-type ToggleProps = {
-  defs: ReadonlyArray<MultiSeriesConfig>;
-  enabledKeys: Set<string>;
-  onToggle: (key: string) => void;
-};
-
-function SeriesToggles({ defs, enabledKeys, onToggle }: ToggleProps) {
-  const isAnyEnabled = useMemo(() => enabledKeys.size, [enabledKeys]);
-
-  return (
-    <div className='grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center'>
-      {defs.map((d) => {
-        const isOn = enabledKeys.has(d.dataKey);
-        return (
-          <button
-            key={d.dataKey}
-            type='button'
-            onClick={() => onToggle(d.dataKey)}
-            disabled={!isAnyEnabled}
-            aria-pressed={isOn}
-            className={cn(
-              'inline-flex w-full cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium sm:w-auto',
-              isOn
-                ? 'bg-primary/10 border-primary/20 text-popover-foreground disabled:opacity-50'
-                : 'bg-muted/30 border-border text-muted-foreground',
-            )}
-          >
-            <span
-              className={cn('h-3 w-3 rounded-sm', isOn ? undefined : 'opacity-40')}
-              style={{ background: d.stroke }}
-            />
-            <span>{d.name || String(d.dataKey)}</span>
-          </button>
-        );
-      })}
     </div>
   );
 }

@@ -13,7 +13,7 @@ type PageCfg = {
 const STATIC_PAGES: PageCfg[] = [
   // Localized public pages
   { path: '/', changeFrequency: 'monthly', priority: 1, localized: true },
-  { path: '/register', changeFrequency: 'yearly', priority: 0.5, localized: true },
+  { path: '/signup', changeFrequency: 'yearly', priority: 0.5, localized: true },
   { path: '/signin', changeFrequency: 'yearly', priority: 0.5, localized: true },
   { path: '/about', changeFrequency: 'yearly', priority: 0.8, localized: true },
   { path: '/contact', changeFrequency: 'yearly', priority: 0.8, localized: true },
@@ -45,6 +45,7 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/dashboard/filtering', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/web-vitals', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/monitoring', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/upgrading', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/changing-plans', changeFrequency: 'monthly', priority: 0.8, localized: false },

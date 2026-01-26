@@ -1,4 +1,5 @@
 import { getSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
+import { getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
 import RulesSettings from './RulesSettings';
 
 type RulesPageProps = {
@@ -8,6 +9,7 @@ type RulesPageProps = {
 export default async function RulesPage({ params }: RulesPageProps) {
   const { dashboardId } = await params;
   const siteConfigPromise = getSiteConfigAction(dashboardId);
+  const dashboardPromise = getCurrentDashboardAction(dashboardId);
 
-  return <RulesSettings siteConfigPromise={siteConfigPromise} />;
+  return <RulesSettings siteConfigPromise={siteConfigPromise} dashboardPromise={dashboardPromise} />;
 }

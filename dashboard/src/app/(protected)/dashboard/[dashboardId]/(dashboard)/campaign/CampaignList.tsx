@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { Card } from '@/components/ui/card';
+import { CampaignEmptyState } from './CampaignEmptyState';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
@@ -23,7 +23,6 @@ import { useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 import { toast } from 'sonner';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
-import ExternalLink from '@/components/ExternalLink';
 
 type CampaignListItem = CampaignListRowSummary;
 
@@ -139,33 +138,6 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
         onPageSizeChange={handlePageSizeChange}
       />
     </div>
-  );
-}
-
-function CampaignEmptyState() {
-  const t = useTranslations('components.campaign.emptyState');
-
-  return (
-    <Card className='border-border/50 bg-card/80 px-6 py-10 text-center'>
-      <div className='mx-auto max-w-md'>
-        <div className='bg-muted mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full'>
-          <DollarSign className='text-muted-foreground h-6 w-6' />
-        </div>
-
-        <h3 className='text-lg font-semibold'>{t('title')}</h3>
-        <p className='text-muted-foreground mt-2 text-sm'>{t('description')}</p>
-
-        <p className='text-muted-foreground mt-6 text-sm'>
-          {t('docsHint')}{' '}
-          <ExternalLink
-            href='/docs/dashboard/campaigns'
-            className='text-primary underline-offset-4 hover:underline'
-          >
-            {t('docsLinkLabel')}
-          </ExternalLink>
-        </p>
-      </div>
-    </Card>
   );
 }
 

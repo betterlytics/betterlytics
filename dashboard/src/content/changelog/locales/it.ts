@@ -2,37 +2,32 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.0',
-    releasedAt: '2026-01-04',
-    title: '',
-    summary: '',
+    version: 'v1.3.2',
+    releasedAt: '2026-01-19',
+    title: 'Correzioni bug e miglioramenti UI',
+    summary: "Una release più piccola questa volta! Abbiamo risolto alcuni bug e migliorato l'interfaccia.",
   },
   sections: [
     {
-      id: 'v130-new-features',
-      title: 'Nuove funzionalità',
+      id: 'v132-fixes',
+      title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'È ora disponibile il monitoraggio dell’uptime del sito web. Tieni traccia di uptime, tempi di risposta ed eventi, e ricevi notifiche quando il sito non è raggiungibile.',
-            'Il monitoraggio dei certificati SSL è incluso, con avvisi prima che i certificati scadano o diventino non validi.',
-            'Ora puoi bloccare i percorsi nel diagramma Sankey dei User Journey, rendendo più facile seguire specifici flussi utente.',
+            'Risolto un problema per cui le impostazioni della dashboard apparivano modificabili per i membri del team senza permessi di amministratore.',
+            'Risolto un problema per cui la ricerca nei filtri smetteva di funzionare dopo aver selezionato più valori.',
           ],
         },
       ],
     },
     {
-      id: 'v130-improvements',
+      id: 'v132-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
-          items: [
-            'I diagrammi dei User Journey sono ora più chiari e meno affollati, facilitando la lettura dei percorsi complessi.',
-            'La creazione dei funnel ora suggerisce un set più completo di valori di filtro, aiutandoti a creare funnel accurati più velocemente.',
-            'I report su browser e dispositivi mostrano ora icone più riconoscibili.',
-          ],
+          items: ["Vari miglioramenti minori all'interfaccia per un'esperienza più curata."],
         },
       ],
     },
@@ -40,6 +35,90 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.2',
+      releasedAt: '2026-01-19',
+      title: 'Correzioni bug e miglioramenti UI',
+      summary: "Una release più piccola questa volta! Abbiamo risolto alcuni bug e migliorato l'interfaccia.",
+    },
+    sections: [
+      {
+        id: 'v132-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema per cui le impostazioni della dashboard apparivano modificabili per i membri del team senza permessi di amministratore.',
+              'Risolto un problema per cui la ricerca nei filtri smetteva di funzionare dopo aver selezionato più valori.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v132-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: ["Vari miglioramenti minori all'interfaccia per un'esperienza più curata."],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.1',
+      releasedAt: '2026-01-11',
+      title: 'Collaborazione in team e rafforzamento della sicurezza',
+      summary:
+        "Invita i membri del team a collaborare sulle tue dashboard con accesso basato sui ruoli. Questa versione rafforza anche la sicurezza dell'account, migliora l'isolamento della privacy e permette di modificare il dominio della dashboard.",
+    },
+    sections: [
+      {
+        id: 'v131-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Invita i membri del team alla tua dashboard come Visualizzatore, Editore o Amministratore, con permessi basati sui ruoli per collaborare in sicurezza.',
+              'I filtri ora supportano la logica OR, permettendoti di selezionare più valori in un singolo filtro (ad esempio, più pagine o paesi).',
+              'Ora puoi modificare il dominio della dashboard dalle impostazioni. Il Site ID e lo script di tracciamento rimangono invariati, quindi non servono modifiche al codice.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La modifica della password ora invalida tutte le altre sessioni attive.',
+              'Il ripristino della password ora disconnette tutte le sessioni esistenti per una maggiore protezione.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v131-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Migliorate le protezioni della privacy per isolare meglio i dati dei visitatori tra siti diversi.',
+              'Corretta la spaziatura del layout nella lista di monitoraggio uptime su schermi più grandi.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.0',

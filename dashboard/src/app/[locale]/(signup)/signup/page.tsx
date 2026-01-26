@@ -2,12 +2,14 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
-import Logo from '@/components/logo';
-import { Link } from '@/i18n/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
+import { getProviders } from 'next-auth/react';
+import SignupForm from './SignupForm';
+import Logo from '@/components/logo';
+import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata({
   params,
@@ -16,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
 
-  const seoConfig = await buildSEOConfig(SEO_CONFIGS.register);
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.signup);
   return generateSEO(seoConfig, {
     locale,
     robots: {
@@ -33,10 +35,10 @@ export async function generateMetadata({
   });
 }
 
-export default async function RegisterPage() {
+export default async function SignupPage() {
   const session = await getAuthSession();
   const t = await getTranslations('public.auth.register');
-  const seoConfig = await buildSEOConfig(SEO_CONFIGS.register);
+  const seoConfig = await buildSEOConfig(SEO_CONFIGS.signup);
 
   if (session) {
     redirect('/dashboards');
@@ -66,6 +68,12 @@ export default async function RegisterPage() {
     );
   }
 
-  // Redirect to new onboarding flow
-  redirect('/onboarding');
+  const providers = await getProviders();
+
+  return (
+    <>
+      <StructuredData config={seoConfig} />
+      <SignupForm providers={providers} />
+    </>
+  );
 }

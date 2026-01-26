@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { getPlanNameKey } from '@/lib/billing/plans';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { Calendar } from 'lucide-react';
 
 export default async function PlanQuota({
   billingDataPromise,
@@ -15,6 +16,7 @@ export default async function PlanQuota({
   const { current, limit } = billing.data.usage;
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
   const tier = billing.data.subscription.tier;
+  const isCanceled = billing.data.subscription.cancelAtPeriodEnd;
   const t = await getTranslations('components.billing');
   const planKey = getPlanNameKey(tier);
   const planLabel = planKey ? t(`planNames.${planKey}`) : t('currentPlan.plan');
@@ -51,6 +53,15 @@ export default async function PlanQuota({
           aria-valuemax={limit}
           aria-valuenow={current}
         />
+      </div>
+
+      <div className='text-muted-foreground flex items-center gap-1 text-xs'>
+        <Calendar size={12} className='text-muted-foreground' />
+        <span>
+          {isCanceled
+            ? t('currentPlan.expiresInDays', { days: billing.data.usage.daysUntilReset })
+            : t('currentPlan.resetsInDays', { days: billing.data.usage.daysUntilReset })}
+        </span>
       </div>
     </div>
   );

@@ -30,6 +30,7 @@ if (!args[0] || args[0].startsWith("--")) {
     | ---------------- | ---------------------------------------------------------- | -------- |
     | '--events'       | Total number of events to simulate                         | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_EVENTS)} |
     | '--users'        | Number of unique simulated users                           | ${formatNumber(DEFAULT_ARGS.NUMBER_OF_USERS)} |
+    | '--days'         | Number of days to spread events across (0 = today only)    | ${formatNumber(DEFAULT_ARGS.SIMULATED_DAYS)} |
     | '--batch-size'   | Number of events sent per batch (concurrent POSTs)         | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
     | '--event-freq'   | Fraction (0–1) of events that are custom (non-pageview)    | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
     | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
@@ -40,6 +41,7 @@ if (!args[0] || args[0].startsWith("--")) {
     ./simulate-events "your-site-id" \\
       --events=${DEFAULT_ARGS.NUMBER_OF_EVENTS} \\
       --users=${DEFAULT_ARGS.NUMBER_OF_USERS} \\
+      --days=${DEFAULT_ARGS.SIMULATED_DAYS} \\
       --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
       --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
@@ -60,7 +62,7 @@ const SITE_ID = args[0];
 const TARGET_URL = "http://127.0.0.1:3001/event";
 const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
 const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
-const SIMULATED_DAYS = 0; /** Not supported on the backend for now */
+const SIMULATED_DAYS = getFlag("days", DEFAULT_ARGS.SIMULATED_DAYS);
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);

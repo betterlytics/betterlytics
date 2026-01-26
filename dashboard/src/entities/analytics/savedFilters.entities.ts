@@ -5,7 +5,7 @@ export const SavedFilterEntrySchema = z.object({
   id: z.string(),
   column: z.enum(FILTER_COLUMNS),
   operator: z.enum(FILTER_OPERATORS),
-  value: z.string(),
+  values: z.string().min(1).array().min(1),
 });
 
 export const SavedFilterSchema = z.object({
@@ -19,7 +19,7 @@ export const CreateSavedFilterSchema = z.object({
   name: z.string().min(1, 'Name is required').max(64),
   dashboardId: z.string().cuid(),
   entries: z
-    .array(SavedFilterEntrySchema.omit({ id: true }).extend({ value: z.string().min(1) }))
+    .array(SavedFilterEntrySchema.omit({ id: true }).extend({ values: z.string().min(1).array().min(1) }))
     .min(1, 'At least one filter is required'),
 });
 

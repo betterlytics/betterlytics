@@ -31,6 +31,7 @@ import { useIsEmbedded } from '@/hooks/use-is-embedded';
 import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { Link as LocaleLink } from '@/i18n/navigation';
 
 export default function BATopbar() {
   const { data: session, status } = useSession();
@@ -71,6 +72,10 @@ export default function BATopbar() {
               >
                 <Logo variant='icon' showText textSize='md' priority />
               </div>
+            ) : isDemo ? (
+              <LocaleLink href='/' className='flex items-center space-x-2'>
+                <Logo variant='icon' showText textSize='md' priority />
+              </LocaleLink>
             ) : (
               <NextLink href='/dashboards' className='flex items-center space-x-2'>
                 <Logo variant='icon' showText textSize='md' priority />
