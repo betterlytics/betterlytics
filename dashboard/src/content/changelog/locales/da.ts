@@ -43,6 +43,7 @@ export const latestChangelogModalDa: ChangelogEntryData = {
           type: 'list',
           items: [
             'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
+            'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
           ],
         },
       ],
@@ -96,6 +97,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
+              'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
             ],
           },
         ],

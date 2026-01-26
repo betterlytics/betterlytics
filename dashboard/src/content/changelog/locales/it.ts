@@ -43,6 +43,7 @@ export const latestChangelogModalIt: ChangelogEntryData = {
           type: 'list',
           items: [
             'Risolto un problema per cui Realtime non si aggiornava correttamente, mostrando dati obsoleti.',
+            'Risolto un problema per cui Session Replay a volte non salvava le sessioni registrate.',
           ],
         },
       ],
@@ -96,6 +97,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Risolto un problema per cui Realtime non si aggiornava correttamente, mostrando dati obsoleti.',
+              'Risolto un problema per cui Session Replay a volte non salvava le sessioni registrate.',
             ],
           },
         ],

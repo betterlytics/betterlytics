@@ -41,7 +41,10 @@ export const latestChangelogModalEn: ChangelogEntryData = {
       blocks: [
         {
           type: 'list',
-          items: ['Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.'],
+          items: [
+            'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
+            'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+          ],
         },
       ],
     },
@@ -92,7 +95,10 @@ export const changelogEntriesEn: readonly ChangelogEntryData[] = [
         blocks: [
           {
             type: 'list',
-            items: ['Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.'],
+            items: [
+              'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
+              'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+            ],
           },
         ],
       },
