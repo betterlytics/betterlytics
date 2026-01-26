@@ -1,0 +1,24 @@
+/* Gauge animation styles */
+
+.gauge-root {
+  --gauge-duration: 800ms;
+  --gauge-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-segment {
+  transition: stroke var(--gauge-duration) var(--gauge-easing);
+}
+
+.gauge-progress {
+  stroke-dasharray: var(--path-length);
+  stroke-dashoffset: var(--dash-offset);
+  transition:
+    stroke-dashoffset var(--gauge-duration) var(--gauge-easing),
+    stroke var(--gauge-duration) var(--gauge-easing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge-root {
+    --gauge-duration: 0ms;
+  }
+}
