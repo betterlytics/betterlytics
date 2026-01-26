@@ -279,7 +279,6 @@
     currentUrl = normalize(window.location.href);
     maxScrollDepthPx = 0;
     lastSentScrollDepthPx = 0;
-    updateScrollDepth();
   }
 
   window.addEventListener("scroll", updateScrollDepth, { passive: true });
@@ -294,7 +293,7 @@
   updateScrollDepth();
 
   function monitorContentHeight() {
-    updateScrollDepth();
+    setTimeout(updateScrollDepth, 50);
     var count = 0;
     var interval = setInterval(function () {
       updateScrollDepth();
