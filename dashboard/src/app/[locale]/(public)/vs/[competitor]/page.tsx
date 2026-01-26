@@ -130,7 +130,7 @@ function HeroSection({
           className='from-primary to-primary/90 bg-gradient-to-r px-8 py-3 text-base font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg'
           asChild
         >
-          <Link href='/register' className='flex items-center gap-2'>
+          <Link href='/signup' className='flex items-center gap-2'>
             {getStartedText}
             <ChevronRight className='h-4 w-4' />
           </Link>

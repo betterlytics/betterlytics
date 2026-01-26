@@ -20,6 +20,9 @@ import ExternalLink from '@/components/ExternalLink';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
@@ -129,28 +132,24 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
     <form id='login' className='space-y-6' onSubmit={handleSubmit}>
       {!isDialogOpen && <Error />}
       <div className='space-y-4'>
-        <div>
-          <label htmlFor='email' className='text-foreground mb-2 block text-sm font-medium'>
-            {t('emailLabel')}
-          </label>
-          <input
+        <div className='space-y-2'>
+          <Label htmlFor='email'>{t('emailLabel')}</Label>
+          <Input
             id='email'
             name='email'
             type='email'
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className='border-input bg-background text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none'
             placeholder={t('emailPlaceholder')}
+            className='h-10 rounded-md text-sm'
             disabled={isDialogOpen}
             tabIndex={1}
           />
         </div>
-        <div>
-          <div className='mb-2 flex items-center justify-between'>
-            <label htmlFor='password' className='text-foreground block text-sm font-medium'>
-              {t('passwordLabel')}
-            </label>
+        <div className='space-y-2'>
+          <div className='flex items-center justify-between'>
+            <Label htmlFor='password'>{t('passwordLabel')}</Label>
             <ExternalLink
               href='/forgot-password'
               className='text-primary hover:text-primary/80 text-sm font-medium underline'
@@ -159,15 +158,15 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
               {t('forgotPassword')}
             </ExternalLink>
           </div>
-          <input
+          <Input
             id='password'
             name='password'
             type='password'
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className='border-input bg-background text-foreground focus:ring-ring placeholder:text-muted-foreground w-full rounded-md border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none'
             placeholder={t('passwordPlaceholder')}
+            className='h-10 rounded-md text-sm'
             disabled={isDialogOpen}
             tabIndex={1}
           />
@@ -175,14 +174,14 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
       </div>
 
       <div>
-        <button
+        <Button
           type='submit'
           tabIndex={1}
           disabled={isPending || isDialogOpen}
-          className='text-primary-foreground bg-primary hover:bg-primary/90 focus:ring-ring flex h-10 w-full cursor-pointer justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
+          className='shadow-primary/50 shadow-2x h-10 w-full cursor-pointer rounded-md'
         >
           {isPending || isDialogOpen ? t('submitting') : t('submitButton')}
-        </button>
+        </Button>
       </div>
 
       {providers?.google || providers?.github ? (
@@ -194,7 +193,6 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
       ) : null}
 
       <div className='space-y-3'>
-        {/* Google Login Button */}
         {providers?.google && (
           <button
             type='button'
@@ -210,7 +208,6 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
           </button>
         )}
 
-        {/* GitHub Login Button */}
         {providers?.github && (
           <button
             type='button'

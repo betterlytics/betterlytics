@@ -29,7 +29,7 @@ export async function HeroSection() {
               className='group from-primary to-primary/80 shadow-primary/25 hover:shadow-primary/30 relative overflow-hidden bg-gradient-to-r px-9 py-3.5 text-lg text-white shadow-lg ring-1 ring-white/20 transition-all duration-300 ease-out ring-inset hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none'
               asChild
             >
-              <Link className='flex items-center justify-center gap-1' href='/onboarding'>
+              <Link className='flex items-center justify-center gap-1' href='/signup'>
                 {t('ctaPrimary')}
                 <ChevronRight className='ml-1 h-5 w-5' />
               </Link>

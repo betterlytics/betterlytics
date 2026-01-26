@@ -73,6 +73,14 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} />,
         accessorFn: (row) => row.current.avgTime,
       },
+      {
+        accessorKey: 'avgScrollDepth',
+        header: t('avgScrollDepth'),
+        cell: ({ row }) => (
+          <TableCompareCell row={row.original} dataKey='avgScrollDepth' formatter={formatPercentage} />
+        ),
+        accessorFn: (row) => row.current.avgScrollDepth,
+      },
     ];
   }, [makeFilterClick, t]);
 
