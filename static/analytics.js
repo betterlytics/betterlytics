@@ -248,7 +248,7 @@
   }
 
   function flushScrollDepth(urlOverride) {
-    var docHeight = document.documentElement.scrollHeight;
+    var docHeight = getDocumentHeight();
 
     if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
 
