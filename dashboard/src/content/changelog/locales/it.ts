@@ -2,32 +2,49 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.2',
-    releasedAt: '2026-01-19',
-    title: 'Correzioni bug e miglioramenti UI',
-    summary: "Una release più piccola questa volta! Abbiamo risolto alcuni bug e migliorato l'interfaccia.",
+    version: 'v1.3.3',
+    releasedAt: '2026-01-26',
+    title: 'Scroll Depth & Miglioramenti UI',
+    summary: 'Traccia la profondità dello scroll per capire meglio engagement e comportamento di scrolling.',
   },
   sections: [
     {
-      id: 'v132-fixes',
-      title: 'Correzioni',
+      id: 'v133-new-features',
+      title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui le impostazioni della dashboard apparivano modificabili per i membri del team senza permessi di amministratore.',
-            'Risolto un problema per cui la ricerca nei filtri smetteva di funzionare dopo aver selezionato più valori.',
+            'Scroll Depth Tracking: Scopri fino a che punto gli utenti scorrono le tue pagine per comprendere meglio engagement e punti di abbandono.',
           ],
         },
       ],
     },
     {
-      id: 'v132-improvements',
+      id: 'v133-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
-          items: ["Vari miglioramenti minori all'interfaccia per un'esperienza più curata."],
+          items: [
+            'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
+            'Soglie Core Web Vitals: indicatori migliorati rendono più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
+            'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
+            'UI Polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v133-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui Realtime non si aggiornava correttamente, mostrando dati obsoleti.',
+            'Risolto un problema per cui Session Replay a volte non salvava le sessioni registrate.',
+          ],
         },
       ],
     },
@@ -35,6 +52,58 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.3',
+      releasedAt: '2026-01-26',
+      title: 'Scroll Depth & Onboarding migliorata',
+      summary:
+        'Traccia la profondità dello scroll per capire engagement e abbandoni, e configura tutto più velocemente con nuove guide di onboarding per i framework.',
+    },
+    sections: [
+      {
+        id: 'v133-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Scroll Depth Tracking: Scopri fino a che punto gli utenti scorrono le tue pagine per comprendere meglio engagement e comportamento di scrolling.',
+              'Guide di onboarding ampliate: abbiamo migliorato l’onboarding con istruzioni di installazione più chiare, passo dopo passo, per molti più framework.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-improvements-and-ux',
+        title: 'Miglioramenti & UX',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
+              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
+              'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
+              'UI polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida e reattiva.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema per cui Realtime non si aggiornava correttamente, mostrando dati obsoleti.',
+              'Risolto un problema per cui Session Replay a volte non salvava le sessioni registrate.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.2',

@@ -2,32 +2,49 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.2',
-    releasedAt: '2026-01-19',
-    title: 'Bug Fixes & UI Polish',
-    summary: "A smaller release this time! We've squashed a few bugs and polished up the interface.",
+    version: 'v1.3.3',
+    releasedAt: '2026-01-26',
+    title: 'Scroll Depth & UI Improvements',
+    summary: 'Track scroll depth to better understand content engagement and scrolling behavior.',
   },
   sections: [
     {
-      id: 'v132-fixes',
-      title: 'Fixes',
+      id: 'v133-new-features',
+      title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fixed an issue where dashboard settings appeared editable for team members without admin permissions.',
-            'Fixed a problem where searching in filters stopped working after selecting multiple values.',
+            'Scroll Depth Tracking: See how far users scroll down your pages to better understand content engagement and drop-off points.',
           ],
         },
       ],
     },
     {
-      id: 'v132-improvements',
+      id: 'v133-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
-          items: ['Various minor UI improvements for a more polished experience.'],
+          items: [
+            'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
+            'Core Web Vitals Thresholds: Improved indicators make it easier to see when metrics cross into "Fair" or "Poor" territory.',
+            'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
+            'UI Polish: Added subtle animations throughout the application for a smoother experience.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v133-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
+            'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+          ],
         },
       ],
     },
@@ -35,6 +52,58 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.3',
+      releasedAt: '2026-01-26',
+      title: 'Scroll Depth & Enhanced Onboarding',
+      summary:
+        'Track scroll depth to understand engagement and drop-off, and get set up faster with new framework onboarding guides.',
+    },
+    sections: [
+      {
+        id: 'v133-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'See how far users scroll down your pages to better understand content engagement and scrolling behavior.',
+              'Expanded onboarding guides with clearer, step-by-step installation instructions for many more frameworks.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-improvements-and-ux',
+        title: 'Improvements & UX',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
+              'Improved Core Web Vitals indicators make it easier to spot when metrics cross into "Fair" or "Poor" thresholds.',
+              'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
+              'UI polish: Added subtle animations throughout the app for a smoother, more responsive feel.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
+              'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.2',

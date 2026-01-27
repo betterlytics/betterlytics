@@ -1552,7 +1552,8 @@
         "analytics": "Analyse",
         "behavior": "Adfærd",
         "observability": "Overvågning"
-      }
+      },
+      "collapseNav": "Skjul navigation"
     },
     "settings": {
       "sidebar": {
@@ -2483,6 +2484,7 @@
         "avgTime": "Gns. tid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
+        "avgScrollDepth": "Scroll-dybde",
         "allPages": "Alle sider",
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
@@ -2568,7 +2570,8 @@
       },
       "thresholds": {
         "good": "God",
-        "fair": "Middel"
+        "fair": "Middel",
+        "poor": "Dårlig"
       },
       "table": {
         "title": "Performance-opdeling",

@@ -1,9 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { IntegrationSheet } from './IntegrationSheet';
 import { useTranslations } from 'next-intl';
+import { Plug } from 'lucide-react';
+import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+
+const ICON_SIZE = 16;
 
 export function IntegrationButton() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -11,13 +14,14 @@ export function IntegrationButton() {
 
   return (
     <>
-      <Button
-        onClick={() => setIsSheetOpen(true)}
-        variant='secondary'
-        className='border-border cursor-pointer border-1 shadow-sm'
-      >
-        {t('integrationSetup')}
-      </Button>
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={() => setIsSheetOpen(true)} className='cursor-pointer'>
+          <span className='dark:text-muted-foreground/90'>
+            <Plug size={ICON_SIZE} />
+          </span>
+          <span>{t('integrationSetup')}</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
       <IntegrationSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} />
     </>
   );
