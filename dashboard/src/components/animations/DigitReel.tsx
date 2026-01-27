@@ -1,56 +1,66 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
-import React, { useCallback } from 'react';
-import { DIGITS, type DigitState } from './NumberRoll';
+import React, { useCallback } from "react";
+import { cn } from "./utils";
+import { DIGITS, type Digit, type DigitPhase } from "./NumberRoll";
 
 type DigitReelProps = {
-  digitState: DigitState;
-  onPhaseComplete: (id: string, action: 'completed' | 'exited') => void;
+  id: string;
+  digit: Digit;
+  phase: DigitPhase;
+  fromDigit: Digit | null;
+  onPhaseComplete: (id: string, action: "completed" | "exited") => void;
 };
 
-function DigitReelComponent({ digitState, onPhaseComplete }: DigitReelProps) {
+function DigitReelComponent({ id, digit, phase, onPhaseComplete }: DigitReelProps) {
   const handleAnimationEnd = useCallback(
     (e: React.AnimationEvent) => {
       if (e.target !== e.currentTarget) return;
 
-      if (e.animationName.includes('digit-exit')) {
-        onPhaseComplete(digitState.id, 'exited');
-      } else if (e.animationName.includes('digit-enter')) {
-        onPhaseComplete(digitState.id, 'completed');
+      if (e.animationName.includes("digit-exit")) {
+        onPhaseComplete(id, "exited");
+      } else if (e.animationName.includes("digit-enter")) {
+        onPhaseComplete(id, "completed");
       }
     },
-    [onPhaseComplete, digitState.id],
+    [onPhaseComplete, id],
   );
 
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
       if (e.target !== e.currentTarget) return;
-      if (digitState.phase === 'animating' && e.propertyName === 'transform') {
-        onPhaseComplete(digitState.id, 'completed');
+      if (phase === "animating" && e.propertyName === "transform") {
+        onPhaseComplete(id, "completed");
       }
     },
-    [onPhaseComplete, digitState.phase, digitState.id],
+    [onPhaseComplete, phase, id],
   );
 
   return (
     <span
-      className={cn(
-        'digit-reel-wrapper inline-flex items-start justify-center select-none',
-        'motion-reduce:[--reduced-duration:0ms]',
-      )}
-      data-phase={digitState.phase}
+      className="ba-digit-reel-wrapper"
+      data-phase={phase}
       onAnimationEnd={handleAnimationEnd}
       onTransitionEnd={handleTransitionEnd}
     >
-      <span className={cn('digit-reel-mask inline-flex items-start justify-center')}>
+      <span className="ba-digit-reel-mask">
         <span
-          className={cn('digit-reel-inner inline-flex flex-col items-center justify-center', `w-[--digit-width]`)}
-          style={{ '--target-offset': `${-digitState.digit * 10}%` } as React.CSSProperties}
-          data-phase={digitState.phase}
+          className="ba-digit-reel-inner"
+          style={
+            {
+              "--ba-target-offset": `${-digit * 10}%`,
+            } as React.CSSProperties
+          }
+          data-phase={phase}
         >
           {DIGITS.map((d) => (
-            <span key={d} className="digit-reel-digit">
+            <span
+              key={d}
+              className={cn(
+                "ba-digit-reel-digit",
+                d !== digit && "ba-inactive",
+              )}
+            >
               {d}
             </span>
           ))}
@@ -61,4 +71,4 @@ function DigitReelComponent({ digitState, onPhaseComplete }: DigitReelProps) {
 }
 
 export const DigitReel = React.memo(DigitReelComponent);
-DigitReel.displayName = 'DigitReel';
+DigitReel.displayName = "DigitReel";

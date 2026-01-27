@@ -1,32 +1,32 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import React, { useCallback } from 'react';
+import { ZeroWidthSpace } from './ZeroWidthSpace';
 
-const ZWSP = '\u200B';
-
-export type SymbolPhase = 'idle' | 'entering' | 'exiting';
+export type SymbolPhase = 'idle' | 'entering' | 'exiting' | 'animating';
 
 type SymbolSlotProps = {
-  key?: React.Key;
+  id: string;
   value: string;
   phase: SymbolPhase;
-  onPhaseComplete?: (action: 'entered' | 'exited') => void;
+  fromValue?: string;
+  onPhaseComplete: (id: string, action: 'entered' | 'exited' | 'completed') => void;
 };
 
 /**
  * SymbolSlot - Animated symbol (sign, separator, currency, etc.)
- * Animates width + opacity only (no roll).
+ * Animates width + opacity. For cross-fade transitions, renders both old and new
+ * values overlapping with absolute positioning.
  */
-function SymbolSlotComponent({ value, phase, onPhaseComplete }: SymbolSlotProps) {
+function SymbolSlotComponent({ id, value, phase, fromValue, onPhaseComplete }: SymbolSlotProps) {
   const ref = React.useRef<HTMLSpanElement>(null);
 
   // Measure natural width to support smooth exit animation
   React.useLayoutEffect(() => {
-    if (ref.current && (phase === 'idle' || phase === 'entering')) {
+    if (ref.current && (phase === 'idle' || phase === 'entering' || phase === 'animating')) {
       const rect = ref.current.getBoundingClientRect();
       if (rect.width > 0) {
-        ref.current.style.setProperty('--measured-width', `${rect.width}px`);
+        ref.current.style.setProperty('--ba-measured-width', `${rect.width}px`);
       }
     }
   }, [value, phase]);
@@ -35,31 +35,45 @@ function SymbolSlotComponent({ value, phase, onPhaseComplete }: SymbolSlotProps)
     (e: React.AnimationEvent) => {
       if (e.target !== e.currentTarget) return;
 
-      if (e.animationName.includes('symbol-exit') && onPhaseComplete) {
-        onPhaseComplete('exited');
-      } else if (e.animationName.includes('symbol-enter') && onPhaseComplete) {
-        onPhaseComplete('entered');
+      // symbol-exit controls the width animation - use it to trigger removal
+      if (e.animationName.includes('symbol-exit')) {
+        onPhaseComplete(id, 'exited');
+      } else if (e.animationName.includes('fade-in')) {
+        onPhaseComplete(id, phase === 'animating' ? 'completed' : 'entered');
       }
     },
-    [onPhaseComplete],
+    [onPhaseComplete, id, phase],
   );
 
   // Render ZWSP when hidden for consistent DOM structure
-  if (phase === 'exited' as string) {
-    return <span className="symbol-slot-hidden">{ZWSP}</span>;
+  if ((phase as string) === 'exited') {
+    return (
+      <span className='ba-symbol-slot-hidden'>
+        <ZeroWidthSpace />
+      </span>
+    );
+  }
+
+  // Cross-fade mode: render both old and new values overlapping
+  if (phase === 'animating' && fromValue) {
+    return (
+      <span
+        ref={ref}
+        className='ba-symbol-slot ba-symbol-slot-crossfade'
+        data-phase={phase}
+        onAnimationEnd={handleAnimationEnd}
+      >
+        {/* Old value fading out - absolute positioned */}
+        <span className='ba-symbol-slot-from'>{fromValue}</span>
+        {/* New value fading in - provides natural width */}
+        <span className='ba-symbol-slot-to'>{value}</span>
+      </span>
+    );
   }
 
   return (
-    <span
-      ref={ref}
-      className={cn(
-        'symbol-slot inline-flex items-center justify-center select-none whitespace-nowrap',
-        'motion-reduce:[--reduced-duration:0ms]',
-      )}
-      data-phase={phase}
-      onAnimationEnd={handleAnimationEnd}
-    >
-      <span className="symbol-slot-inner">{value}</span>
+    <span ref={ref} className='ba-symbol-slot' data-phase={phase} onAnimationEnd={handleAnimationEnd}>
+      <span className='ba-symbol-slot-inner'>{value}</span>
     </span>
   );
 }

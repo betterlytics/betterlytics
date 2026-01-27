@@ -1,7 +1,7 @@
 /**
  * Token types and utilities for NumberRoll Intl.NumberFormat integration
- * 
- * Algorithm: 
+ *
+ * Algorithm:
  * 1. Group previous tokens by their corresponding Intl.NumberFormatPart structure.
  * 2. Zip previous parts (groups) and next parts, aligned from the right.
  * 3. Diff content within matched parts:
@@ -21,7 +21,7 @@ export type Token = {
 };
 
 const isDigitPart = (part: Intl.NumberFormatPart | { type: string }): boolean =>
-  part.type === 'integer' || part.type === 'fraction';
+  part.type === 'integer' || part.type === 'fraction' || part.type === 'exponentInteger';
 
 /**
  * Right-align and zip two arrays.
@@ -39,8 +39,8 @@ function rightAlignZip<A, B>(prev: A[], next: B[]): [A | null, B | null][] {
  */
 const commitTokens = (tokens: Token[]): Token[] =>
   tokens
-    .filter(t => t.phase !== 'exiting')
-    .map(t => ({ ...t, phase: 'idle' as TokenPhase, fromValue: undefined }));
+    .filter((t) => t.phase !== 'exiting')
+    .map((t) => ({ ...t, phase: 'idle' as TokenPhase, fromValue: undefined }));
 
 /**
  * Group tokens by their original part structure.
@@ -49,7 +49,7 @@ type TokenGroup = { type: string; tokens: Token[] };
 
 function groupTokensByPart(tokens: Token[], parts: Intl.NumberFormatPart[]): TokenGroup[] {
   let tokenIdx = 0;
-  const groups = parts.map(part => {
+  const groups = parts.map((part) => {
     // Digits parts can have multiple characters, symbols are treated as 1 token in our system
     // (even if Intl.NumberFormatPart.value has multiple chars, like "US$")
     const len = isDigitPart(part) ? part.value.length : 1;
@@ -71,25 +71,29 @@ function groupTokensByPart(tokens: Token[], parts: Intl.NumberFormatPart[]): Tok
 function diffDigitChars(prevTokens: Token[], nextChars: string[]): Token[] {
   return rightAlignZip(prevTokens, nextChars).flatMap(([prev, next]) => {
     if (!prev && next) {
-      return [{
-        id: crypto.randomUUID(),
-        type: 'digit',
-        value: next,
-        phase: 'entering' as TokenPhase,
-        fromValue: '0',
-      }];
+      return [
+        {
+          id: crypto.randomUUID(),
+          type: 'digit',
+          value: next,
+          phase: 'entering' as TokenPhase,
+          fromValue: '0',
+        },
+      ];
     }
     if (prev && !next) {
       return [{ ...prev, phase: 'exiting' as TokenPhase }];
     }
     if (prev && next) {
       if (prev.value !== next) {
-        return [{
-          ...prev,
-          value: next,
-          phase: 'animating' as TokenPhase,
-          fromValue: prev.value,
-        }];
+        return [
+          {
+            ...prev,
+            value: next,
+            phase: 'animating' as TokenPhase,
+            fromValue: prev.value,
+          },
+        ];
       }
       return [{ ...prev, phase: 'idle' as TokenPhase }];
     }
@@ -102,7 +106,7 @@ function diffDigitChars(prevTokens: Token[], nextChars: string[]): Token[] {
  */
 const partToTokens = (part: Intl.NumberFormatPart, phase: TokenPhase): Token[] => {
   if (isDigitPart(part)) {
-    return part.value.split('').map(char => ({
+    return part.value.split('').map((char) => ({
       id: crypto.randomUUID(),
       type: 'digit',
       value: char,
@@ -110,12 +114,14 @@ const partToTokens = (part: Intl.NumberFormatPart, phase: TokenPhase): Token[] =
       fromValue: phase === 'entering' ? '0' : undefined,
     }));
   }
-  return [{
-    id: crypto.randomUUID(),
-    type: 'symbol',
-    value: part.value,
-    phase,
-  }];
+  return [
+    {
+      id: crypto.randomUUID(),
+      type: 'symbol',
+      value: part.value,
+      phase,
+    },
+  ];
 };
 
 /**
@@ -137,7 +143,7 @@ export const diffTokens = (
 
     // Exiting part
     if (prevGroup && !nextPart) {
-      return prevGroup.tokens.map(t => ({ ...t, phase: 'exiting' as TokenPhase }));
+      return prevGroup.tokens.map((t) => ({ ...t, phase: 'exiting' as TokenPhase }));
     }
 
     // Both parts exist at this right-aligned position
@@ -156,16 +162,20 @@ export const diffTokens = (
         if (prevGroup.tokens[0]?.value === nextPart.value) {
           return [{ ...prevGroup.tokens[0], phase: 'idle' as TokenPhase }];
         }
-        // Different symbol - exit old, enter new
+        // Different symbol - animate single token with fromValue for cross-fade
         return [
-          { ...prevGroup.tokens[0], phase: 'exiting' as TokenPhase },
-          ...partToTokens(nextPart, 'entering'),
+          {
+            ...prevGroup.tokens[0],
+            value: nextPart.value,
+            phase: 'animating' as TokenPhase,
+            fromValue: prevGroup.tokens[0].value,
+          },
         ];
       }
 
       // Type mismatch (e.g. digit replaced by symbol) - exit old, enter new
       return [
-        ...prevGroup.tokens.map(t => ({ ...t, phase: 'exiting' as TokenPhase })),
+        ...prevGroup.tokens.map((t) => ({ ...t, phase: 'exiting' as TokenPhase })),
         ...partToTokens(nextPart, 'entering'),
       ];
     }
@@ -178,4 +188,4 @@ export const diffTokens = (
  * Create initial tokens from parts (all idle).
  */
 export const createInitialTokens = (parts: Intl.NumberFormatPart[]): Token[] =>
-  parts.flatMap(part => partToTokens(part, 'idle'));
+  parts.flatMap((part) => partToTokens(part, 'idle'));

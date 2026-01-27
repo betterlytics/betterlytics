@@ -1,0 +1,307 @@
+/* ==========================================================================
+   react-number-roll Styles
+
+   Browser support: Chrome 77+, Edge 77+, Safari 16.4+, Firefox 120+
+   Uses `lh` unit (line-height) for adaptive sizing
+   ========================================================================== */
+
+/* Outer wrapper - receives className prop for external styling */
+.ba-number-roll-outer {
+  display: inline-flex;
+  isolation: isolate;
+  white-space: nowrap;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ba-number-roll-outer.ba-no-select {
+  user-select: none;
+}
+
+/* Root container - defines CSS custom properties */
+.ba-number-roll-root {
+  --ba-digit-width: 0.65em;
+  --ba-mask-width: 2em;
+  --ba-mask-bleed: 0.4em;
+
+  /* Shared easings */
+  --ba-layout-easing: cubic-bezier(0.25, 1, 0.5, 1);
+  --ba-opacity-easing: cubic-bezier(0.525, 0, 0.725, 1);
+  --ba-spring-easing: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: inline-flex;
+  isolation: isolate;
+  position: relative;
+  direction: ltr;
+  contain: layout;
+}
+
+/* Ghost element for measuring natural width */
+.ba-number-roll-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  line-height: 1;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Container for animated tokens */
+.ba-number-roll-tokens {
+  display: inline-flex;
+  position: relative;
+}
+
+.ba-number-roll-sizer {
+  display: inline-flex;
+  justify-content: center;
+  width: var(--ba-target-width, auto);
+  will-change: width;
+  transition: width var(--ba-duration, 600ms) var(--ba-layout-easing);
+}
+
+/* Horizontal mask with fade edges */
+.ba-number-mask {
+  display: inline-flex;
+  position: relative;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  margin: 0 calc(-1 * var(--ba-mask-width));
+  padding: 0 var(--ba-mask-width);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--ba-mask-width),
+    #000 calc(100% - var(--ba-mask-width)),
+    transparent
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* ==========================================================================
+   Digit Reel
+   ========================================================================== */
+
+.ba-digit-reel-wrapper {
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: var(--ba-digit-width);
+  overflow: visible;
+}
+
+.ba-digit-reel-mask {
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  height: calc(1lh + var(--ba-mask-bleed));
+  margin: calc(-1 * var(--ba-mask-bleed) / 2) 0;
+  overflow: clip;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--ba-mask-bleed),
+    #000 calc(100% - var(--ba-mask-bleed)),
+    transparent 100%
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  width: var(--ba-digit-width);
+}
+
+.ba-digit-reel-inner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--ba-digit-width);
+  transform: translate3d(0, var(--ba-target-offset, 0%), 0);
+  will-change: transform;
+}
+
+.ba-digit-reel-digit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(1lh + var(--ba-mask-bleed));
+}
+
+.ba-digit-reel-digit.ba-inactive {
+  user-select: none;
+}
+
+/* Digit Reel Animations */
+@keyframes ba-digit-enter {
+  from {
+    width: 0;
+    transform: translateX(calc(-0.5 * var(--ba-digit-width)));
+  }
+  to {
+    width: var(--ba-digit-width);
+    transform: translateX(0);
+  }
+}
+
+@keyframes ba-digit-exit {
+  from {
+    width: var(--ba-digit-width);
+    opacity: 1;
+  }
+  to {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes ba-digit-roll-in {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, var(--ba-target-offset), 0);
+  }
+}
+
+@keyframes ba-digit-roll-out {
+  from {
+    transform: translate3d(0, var(--ba-target-offset), 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.ba-digit-reel-wrapper[data-phase="entering"] {
+  animation:
+    ba-digit-enter var(--ba-reduced-duration, var(--ba-duration))
+      var(--ba-layout-easing) forwards,
+    ba-fade-in var(--ba-reduced-duration, var(--ba-duration))
+      var(--ba-opacity-easing) forwards;
+}
+
+.ba-digit-reel-wrapper[data-phase="exiting"] {
+  user-select: none;
+  animation: ba-digit-exit var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-layout-easing) forwards;
+}
+
+.ba-digit-reel-inner[data-phase="entering"] {
+  animation: ba-digit-roll-in var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-spring-easing) forwards;
+}
+
+.ba-digit-reel-inner[data-phase="exiting"] {
+  animation: ba-digit-roll-out var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-spring-easing) forwards;
+}
+
+.ba-digit-reel-inner[data-phase="animating"] {
+  transition: transform var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-spring-easing);
+}
+
+/* ==========================================================================
+   Symbol Slot
+   ========================================================================== */
+
+.ba-symbol-slot {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+  width: auto;
+  overflow: visible;
+  will-change: opacity;
+}
+
+.ba-symbol-slot-inner {
+  display: inline-block;
+  white-space: pre;
+}
+
+.ba-symbol-slot-hidden {
+  width: 0;
+  overflow: hidden;
+}
+
+/* Symbol Slot Animations */
+@keyframes ba-fade-in {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ba-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ba-symbol-exit {
+  from {
+    width: var(--ba-measured-width, auto);
+  }
+  to {
+    width: 0;
+  }
+}
+
+.ba-symbol-slot[data-phase="entering"] {
+  animation: ba-fade-in var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-opacity-easing) forwards;
+}
+
+.ba-symbol-slot[data-phase="exiting"] {
+  overflow: visible;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  animation:
+    ba-symbol-exit var(--ba-reduced-duration, var(--ba-duration))
+      var(--ba-layout-easing) forwards,
+    ba-fade-out var(--ba-reduced-duration, var(--ba-duration))
+      var(--ba-opacity-easing) forwards;
+}
+
+/* Cross-fade mode: old and new symbols overlap */
+.ba-symbol-slot-crossfade {
+  position: relative;
+}
+
+.ba-symbol-slot-crossfade .ba-symbol-slot-from {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  animation: ba-fade-out var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-opacity-easing) forwards;
+}
+
+.ba-symbol-slot-crossfade .ba-symbol-slot-to {
+  animation: ba-fade-in var(--ba-reduced-duration, var(--ba-duration))
+    var(--ba-opacity-easing) forwards;
+}
+
+/* ==========================================================================
+   Accessibility - Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ba-number-roll-root {
+    --ba-reduced-duration: 0ms;
+  }
+}
