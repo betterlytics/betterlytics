@@ -6,6 +6,7 @@ import { formatQueryFilter } from '@/utils/queryFilterFormatters';
 import { useTranslations } from 'next-intl';
 import { useRef, useState, useLayoutEffect, useCallback } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 const BADGE_GAP = 4;
 const OVERFLOW_BADGE_WIDTH = 36;
@@ -13,9 +14,10 @@ const OVERFLOW_BADGE_WIDTH = 36;
 interface ActiveQueryFiltersProps {
   inline?: boolean;
   maxWidth?: number;
+  className?: string;
 }
 
-export function ActiveQueryFilters({ inline = false, maxWidth }: ActiveQueryFiltersProps) {
+export function ActiveQueryFilters({ inline = false, maxWidth, className }: ActiveQueryFiltersProps) {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
   const t = useTranslations('components.filters');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,7 +75,11 @@ export function ActiveQueryFilters({ inline = false, maxWidth }: ActiveQueryFilt
   return (
     <div
       ref={containerRef}
-      className={`relative flex flex-nowrap gap-1 overflow-hidden ${inline ? 'min-w-0' : 'flex-wrap sm:justify-end'}`}
+      className={cn(
+        'relative flex flex-nowrap gap-1 overflow-hidden',
+        inline ? 'min-w-0' : 'flex-wrap sm:justify-end',
+        className,
+      )}
     >
       {/* Hidden container for measuring width */}
       {inline && (
