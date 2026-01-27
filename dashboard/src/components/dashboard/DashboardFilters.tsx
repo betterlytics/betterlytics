@@ -3,7 +3,7 @@
 import { TimeRangeToolbar } from '@/components/TimeRange/TimeRangeToolbar';
 import QueryFiltersSelector from '@/components/filters/QueryFiltersSelector';
 import { ActiveQueryFilters } from '../filters/ActiveQueryFilters';
-import { ReactNode } from 'react';
+import { ReactNode, useRef, useLayoutEffect, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardFiltersProps {
@@ -18,15 +18,60 @@ export default function DashboardFilters({
   showQueryFilters = true,
 }: DashboardFiltersProps) {
   const isMobile = useIsMobile();
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const filterSelectorRef = useRef<HTMLDivElement>(null);
+  const timeToolbarRef = useRef<HTMLDivElement>(null);
+  const childrenRef = useRef<HTMLDivElement>(null);
+  const [availableWidth, setAvailableWidth] = useState(300);
+
+  const calculateAvailableWidth = useCallback(() => {
+    if (!toolbarRef.current) return;
+
+    const toolbarWidth = toolbarRef.current.offsetWidth;
+    const filterSelectorWidth = filterSelectorRef.current?.offsetWidth ?? 0;
+    const timeToolbarWidth = timeToolbarRef.current?.offsetWidth ?? 0;
+    const childrenWidth = childrenRef.current?.offsetWidth ?? 0;
+    const gaps = 8 + 8 + 32; // gap-2 between badges+selector, gap-x-8 between groups
+
+    const available = toolbarWidth - filterSelectorWidth - timeToolbarWidth - childrenWidth - gaps;
+    setAvailableWidth(Math.max(0, available));
+  }, []);
+
+  useLayoutEffect(() => {
+    calculateAvailableWidth();
+
+    if (!toolbarRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      calculateAvailableWidth();
+    });
+
+    resizeObserver.observe(toolbarRef.current);
+    return () => resizeObserver.disconnect();
+  }, [calculateAvailableWidth]);
 
   return (
     <div className='space-y-2'>
-      <div className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row'>
-        {!isMobile && <div className='flex gap-4'>{children}</div>}
-        {showQueryFilters && <QueryFiltersSelector />}
-        <TimeRangeToolbar showComparison={showComparison} />
+      <div ref={toolbarRef} className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row sm:items-start'>
+        {!isMobile && (
+          <div ref={childrenRef} className='flex shrink-0 gap-4'>
+            {children}
+          </div>
+        )}
+        {showQueryFilters && !isMobile && (
+          <div className='flex items-start gap-2'>
+            <ActiveQueryFilters inline maxWidth={availableWidth} />
+            <div ref={filterSelectorRef} className='shrink-0'>
+              <QueryFiltersSelector />
+            </div>
+          </div>
+        )}
+        {showQueryFilters && isMobile && <QueryFiltersSelector />}
+        <div ref={timeToolbarRef} className='shrink-0'>
+          <TimeRangeToolbar showComparison={showComparison} />
+        </div>
       </div>
-      {showQueryFilters && <ActiveQueryFilters />}
+      {showQueryFilters && isMobile && <ActiveQueryFilters />}
       {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
     </div>
   );
