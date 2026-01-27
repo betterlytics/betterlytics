@@ -27,14 +27,12 @@ export function TableCompareCell<K extends string>({
   return (
     <div className='flex flex-col'>
       <div>{formatter(current)}</div>
-      {compare != null && change != null ? (
-        <TableTrendIndicator current={current} compare={compare} percentage={change} formatter={formatter} />
-      ) : (
-        <div className='flex items-center gap-1 text-xs opacity-85'>
-          <span className='text-muted-foreground'>vs </span>
-          <Minus className='h-3 w-3' />
-        </div>
-      )}
+      <TableTrendIndicator
+        current={current}
+        compare={compare ?? undefined}
+        percentage={change ?? undefined}
+        formatter={formatter}
+      />
     </div>
   );
 }
