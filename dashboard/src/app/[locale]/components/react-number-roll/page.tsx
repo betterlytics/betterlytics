@@ -185,6 +185,12 @@ export default function ReactNumberRollDemoPage() {
     setFormatPresetIdx(randomFormatIdx);
   };
 
+  const handleRandomNumber = () => {
+    const randomValue = STRESS_TEST_VALUES[Math.floor(Math.random() * STRESS_TEST_VALUES.length)];
+    setValue(randomValue);
+    setInputValue(String(randomValue));
+  };
+
   const documentation = (
     <div className="space-y-8">
       <DocSection title="Installation" icon={<Settings className="h-5 w-5" />}>
@@ -397,9 +403,9 @@ export default function ReactNumberRollDemoPage() {
             <Control
               label="Animation Duration"
               type="range"
-              min={100}
-              max={5000}
-              step={100}
+              min={0}
+              max={2000}
+              step={50}
               value={duration}
               onChange={setDuration}
               suffix={`${duration}ms`}
@@ -445,12 +451,20 @@ export default function ReactNumberRollDemoPage() {
             </button>
           </div>
 
-          <button
-            onClick={handleFullRandom}
-            className="w-full rounded-xl bg-primary px-6 py-2 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:bg-primary/90 active:scale-95 sm:w-auto"
-          >
-            Chaos Mode
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleRandomNumber}
+              className="w-full rounded-xl border border-primary bg-transparent px-6 py-2 text-xs font-bold text-primary transition-all hover:scale-105 hover:bg-primary/10 active:scale-95 sm:w-auto"
+            >
+              Random Number
+            </button>
+            <button
+              onClick={handleFullRandom}
+              className="w-full rounded-xl bg-primary px-6 py-2 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 hover:bg-primary/90 active:scale-95 sm:w-auto"
+            >
+              Chaos Mode
+            </button>
+          </div>
         </div>
       </div>
     </ComponentDocLayout>

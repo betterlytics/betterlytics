@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import 'react-number-roll/styles.css';
 @import '../components/animations/gauge/gauge.css';
 
 @custom-variant dark (&:is(.dark *));
