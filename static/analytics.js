@@ -284,9 +284,13 @@
   window.addEventListener("scroll", updateScrollDepth, { passive: true });
 
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") flushScrollDepth();
+    if (document.visibilityState === "hidden") {
+      flushScrollDepth();
+    }
   });
-  window.addEventListener("pagehide", flushScrollDepth);
+  window.addEventListener("pagehide", function () {
+    flushScrollDepth();
+  });
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
