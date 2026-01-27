@@ -1549,7 +1549,8 @@
         "analytics": "Analytics",
         "behavior": "Behavior",
         "observability": "Observability"
-      }
+      },
+      "collapseNav": "Collapse nav"
     },
     "settings": {
       "sidebar": {
@@ -2480,6 +2481,7 @@
         "avgTime": "Avg. Time",
         "entryRate": "Entry Rate",
         "exitRate": "Exit Rate",
+        "avgScrollDepth": "Scroll depth",
         "allPages": "All Pages",
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
@@ -2565,7 +2567,8 @@
       },
       "thresholds": {
         "good": "Good",
-        "fair": "Fair"
+        "fair": "Fair",
+        "poor": "Poor"
       },
       "table": {
         "title": "Performance breakdown",

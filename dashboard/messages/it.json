@@ -1560,7 +1560,8 @@
         "analytics": "Analisi",
         "behavior": "Comportamento",
         "observability": "Osservabilità"
-      }
+      },
+      "collapseNav": "Comprimi navigazione"
     },
     "settings": {
       "sidebar": {
@@ -2491,6 +2492,7 @@
         "avgTime": "Tempo medio",
         "entryRate": "Tasso di ingresso",
         "exitRate": "Tasso di uscita",
+        "avgScrollDepth": "Profondità di scorrimento",
         "allPages": "Tutte le pagine",
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
@@ -2576,7 +2578,8 @@
       },
       "thresholds": {
         "good": "Buono",
-        "fair": "Discreto"
+        "fair": "Discreto",
+        "poor": "Scarso"
       },
       "table": {
         "title": "Analisi prestazioni",

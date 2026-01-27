@@ -52,6 +52,8 @@ pub struct ProcessedEvent {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+    pub scroll_depth_percentage: Option<f32>,
+    pub scroll_depth_pixels: Option<f32>,
 }
 
 /// Event processor that handles real-time processing
@@ -108,6 +110,8 @@ impl EventProcessor {
             cwv_inp: None,
             cwv_fcp: None,
             cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
         };
 
         // Handle event types
@@ -194,6 +198,10 @@ impl EventProcessor {
             processed.cwv_inp = processed.event.raw.cwv_inp;
             processed.cwv_fcp = processed.event.raw.cwv_fcp;
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
+        } else if event_name == "scroll_depth" {
+            processed.event_type = "scroll_depth".to_string();
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {
             processed.event_type = event_name;
         }

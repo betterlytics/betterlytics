@@ -1,11 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '../ui/UnderlineTabs';
 import type { FrameworkVariant } from './frameworkCodes';
 
 export function useVariantTabs(variants: FrameworkVariant[], defaultVariant?: string) {
   const [activeVariantId, setActiveVariantId] = useState(defaultVariant || variants[0]?.id);
+
+  useEffect(() => {
+    if (variants.length > 0) {
+      const activeVariantExists = variants.some((v) => v.id === activeVariantId);
+      if (!activeVariantExists) {
+        setActiveVariantId(defaultVariant || variants[0]?.id);
+      }
+    }
+  }, [variants, activeVariantId, defaultVariant]);
 
   const activeVariant = variants.find((v) => v.id === activeVariantId) || variants[0];
 
