@@ -79,6 +79,8 @@ export default function QueryFiltersSelector() {
 
   const { data: isSavedFiltersLimitReached } = useSavedFiltersLimitReached();
 
+  const activeFilterCount = filterEmptyQueryFilters(contextQueryFilters).length;
+
   const content = (
     <>
       {queryFilters.length > 0 || isFiltersModified ? (
@@ -216,7 +218,10 @@ export default function QueryFiltersSelector() {
           >
             <div className='flex items-center gap-2'>
               <FilterIcon className='h-4 w-4' />
-              <span>{t('selector.triggerLabel')}</span>
+              <span>
+                {t('selector.triggerLabel')}
+                {activeFilterCount > 0 && ` (${activeFilterCount})`}
+              </span>
             </div>
             <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
           </Button>
@@ -243,7 +248,10 @@ export default function QueryFiltersSelector() {
         >
           <div className='flex items-center gap-2'>
             <FilterIcon className='h-4 w-4' />
-            <span>{t('selector.triggerLabel')}</span>
+            <span>
+              {t('selector.triggerLabel')}
+              {activeFilterCount > 0 && ` (${activeFilterCount})`}
+            </span>
           </div>
           <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
         </Button>
