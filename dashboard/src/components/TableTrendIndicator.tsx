@@ -18,7 +18,16 @@ export function TableTrendIndicator({
     return null;
   }
 
-  const comparedData = compare || 0;
+  if (compare === undefined) {
+    return (
+      <div className='flex items-center gap-1 text-xs opacity-85'>
+        <span className='text-muted-foreground'>vs </span>
+        <Minus className='h-3 w-3' />
+      </div>
+    );
+  }
+
+  const comparedData = compare;
 
   const difference = current - comparedData;
 
