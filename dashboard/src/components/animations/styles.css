@@ -125,6 +125,37 @@
   will-change: transform;
 }
 
+.ba-offset-0 {
+  --ba-target-offset: 0%;
+}
+.ba-offset-1 {
+  --ba-target-offset: -10%;
+}
+.ba-offset-2 {
+  --ba-target-offset: -20%;
+}
+.ba-offset-3 {
+  --ba-target-offset: -30%;
+}
+.ba-offset-4 {
+  --ba-target-offset: -40%;
+}
+.ba-offset-5 {
+  --ba-target-offset: -50%;
+}
+.ba-offset-6 {
+  --ba-target-offset: -60%;
+}
+.ba-offset-7 {
+  --ba-target-offset: -70%;
+}
+.ba-offset-8 {
+  --ba-target-offset: -80%;
+}
+.ba-offset-9 {
+  --ba-target-offset: -90%;
+}
+
 .ba-digit-reel-digit {
   display: flex;
   justify-content: center;
@@ -177,57 +208,47 @@
   }
 }
 
-.ba-digit-reel-wrapper[data-phase="entering"] {
+.ba-digit-reel-wrapper[data-phase='entering'] {
   animation:
-    ba-digit-enter var(--ba-reduced-duration, var(--ba-duration))
-      var(--ba-layout-easing) forwards,
-    ba-fade-in var(--ba-reduced-duration, var(--ba-duration))
-      var(--ba-opacity-easing) forwards;
+    ba-digit-enter var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing) forwards,
+    ba-fade-in var(--ba-reduced-duration, var(--ba-duration)) var(--ba-opacity-easing) forwards;
 }
 
-.ba-digit-reel-wrapper[data-phase="exiting"] {
+.ba-digit-reel-wrapper[data-phase='exiting'] {
   user-select: none;
-  animation: ba-digit-exit var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-layout-easing) forwards;
+  animation: ba-digit-exit var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing) forwards;
 }
 
-.ba-digit-reel-inner[data-phase="entering"] {
-  animation: ba-digit-roll-in var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-spring-easing) forwards;
+.ba-digit-reel-inner[data-phase='entering'] {
+  animation: ba-digit-roll-in var(--ba-reduced-duration, var(--ba-duration)) var(--ba-spring-easing) forwards;
 }
 
-.ba-digit-reel-inner[data-phase="exiting"] {
-  animation: ba-digit-roll-out var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-spring-easing) forwards;
+.ba-digit-reel-inner[data-phase='exiting'] {
+  animation: ba-digit-roll-out var(--ba-reduced-duration, var(--ba-duration)) var(--ba-spring-easing) forwards;
 }
 
-.ba-digit-reel-inner[data-phase="animating"] {
-  transition: transform var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-spring-easing);
+.ba-digit-reel-inner[data-phase='animating'] {
+  transition: transform var(--ba-reduced-duration, var(--ba-duration)) var(--ba-spring-easing);
 }
 
 /* ==========================================================================
-   Symbol Slot
+   Symbol Slot - uses CSS grid 0fr→1fr for width animation (no JS measurement)
    ========================================================================== */
 
 .ba-symbol-slot {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  white-space: nowrap;
-  width: auto;
-  overflow: visible;
-  will-change: opacity;
+  display: grid;
+  grid-template-columns: 1fr;
+  transition: grid-template-columns var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing);
 }
 
 .ba-symbol-slot-inner {
-  display: inline-block;
+  overflow: hidden;
+  min-width: 0;
   white-space: pre;
 }
 
 .ba-symbol-slot-hidden {
-  width: 0;
-  overflow: hidden;
+  display: none;
 }
 
 /* Symbol Slot Animations */
@@ -249,30 +270,36 @@
   }
 }
 
-@keyframes ba-symbol-exit {
+@keyframes ba-symbol-enter {
   from {
-    width: var(--ba-measured-width, auto);
+    grid-template-columns: 0fr;
+    opacity: 0;
   }
   to {
-    width: 0;
+    grid-template-columns: 1fr;
+    opacity: 1;
   }
 }
 
-.ba-symbol-slot[data-phase="entering"] {
-  animation: ba-fade-in var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-opacity-easing) forwards;
+@keyframes ba-symbol-exit {
+  from {
+    grid-template-columns: 1fr;
+    opacity: 1;
+  }
+  to {
+    grid-template-columns: 0fr;
+    opacity: 0;
+  }
 }
 
-.ba-symbol-slot[data-phase="exiting"] {
-  overflow: visible;
-  white-space: nowrap;
+.ba-symbol-slot[data-phase='entering'] {
+  animation: ba-symbol-enter var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing) forwards;
+}
+
+.ba-symbol-slot[data-phase='exiting'] {
   pointer-events: none;
   user-select: none;
-  animation:
-    ba-symbol-exit var(--ba-reduced-duration, var(--ba-duration))
-      var(--ba-layout-easing) forwards,
-    ba-fade-out var(--ba-reduced-duration, var(--ba-duration))
-      var(--ba-opacity-easing) forwards;
+  animation: ba-symbol-exit var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing) forwards;
 }
 
 /* Cross-fade mode: old and new symbols overlap */
@@ -287,13 +314,11 @@
   align-items: center;
   justify-content: center;
   user-select: none;
-  animation: ba-fade-out var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-opacity-easing) forwards;
+  animation: ba-fade-out var(--ba-reduced-duration, var(--ba-duration)) var(--ba-opacity-easing) forwards;
 }
 
 .ba-symbol-slot-crossfade .ba-symbol-slot-to {
-  animation: ba-fade-in var(--ba-reduced-duration, var(--ba-duration))
-    var(--ba-opacity-easing) forwards;
+  animation: ba-fade-in var(--ba-reduced-duration, var(--ba-duration)) var(--ba-opacity-easing) forwards;
 }
 
 /* ==========================================================================

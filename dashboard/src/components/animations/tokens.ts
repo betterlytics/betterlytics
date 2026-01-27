@@ -130,7 +130,7 @@ const partToTokens = (part: Intl.NumberFormatPart, phase: TokenPhase): Token[] =
 export const diffTokens = (
   prevTokens: Token[],
   prevParts: Intl.NumberFormatPart[],
-  nextParts: Intl.NumberFormatPart[]
+  nextParts: Intl.NumberFormatPart[],
 ): Token[] => {
   const committed = commitTokens(prevTokens);
   const prevGroups = groupTokensByPart(committed, prevParts);
@@ -189,3 +189,11 @@ export const diffTokens = (
  */
 export const createInitialTokens = (parts: Intl.NumberFormatPart[]): Token[] =>
   parts.flatMap((part) => partToTokens(part, 'idle'));
+
+/**
+ * Digit definitions
+ */
+export const DIGITS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+export type Digit = (typeof DIGITS)[number];
+
+export type DigitPhase = 'idle' | 'animating' | 'entering' | 'exiting';
