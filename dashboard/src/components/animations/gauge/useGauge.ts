@@ -46,37 +46,29 @@ export function useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap
   const pathLength = (TOTAL_ANGLE / 360) * 2 * Math.PI * innerRadius;
   const dashOffset = pathLength * (1 - Math.min(progress, 100) / 100);
 
-  // Needle calculations - car speedometer style
-  const pivotRadius = 8; // Small center pin
+  // Needle calculations - simple tapered pointer
   const needleTipRadius = radius - strokeWidth / 2 - arcGap; // Tip reaches inner edge of outer segments
-  const needleTailRadius = pivotRadius * 3; // Short counterweight tail behind the pin
-  const needleTipWidth = 5; // Width at pointer tip
-  const needleTailWidth = 10; // Width at tail end (counterweight)
-  const needleMidWidth = 7.5; // Width at center (where pin is)
+  const needleBaseWidth = 8; // Width at base (center)
+  const needleTipWidth = 3; // Width at tip (pointed end)
 
   // Calculate needle rotation angle (in degrees)
   // Needle starts pointing down (+Y), rotate to match arc position
   // Arc goes counterclockwise from lower-left to lower-right through top
   const needleAngle = 90 - START_OFFSET + (Math.min(progress, 100) / 100) * TOTAL_ANGLE;
 
-  // Needle polygon points - car style: tail <-- pin --> pointer
-  // Positive Y = toward the arc (pointer direction after rotation)
-  // Negative Y = tail/counterweight direction
+  // Needle polygon points - simple tapered pointer from center to arc
+  // Starts at center (0,0), extends to tip at needleTipRadius
   const needlePoints = useMemo(() => {
     return [
-      // Tail (counterweight) - wider, short
-      `${-needleTailWidth / 2},${-needleTailRadius}`, // Tail left
-      // Taper toward center
-      `${-needleMidWidth / 2},0`, // Center left
-      // Pointer - tapers to tip
+      `${-needleBaseWidth / 2},0`, // Base left (at center)
       `${-needleTipWidth / 2},${needleTipRadius}`, // Tip left
       `${needleTipWidth / 2},${needleTipRadius}`, // Tip right
-      // Back to center
-      `${needleMidWidth / 2},0`, // Center right
-      // Back to tail
-      `${needleTailWidth / 2},${-needleTailRadius}`, // Tail right
+      `${needleBaseWidth / 2},0`, // Base right (at center)
     ].join(' ');
-  }, [needleTipRadius, needleTailRadius]);
+  }, [needleTipRadius]);
+
+  // Keep pivotRadius for API compatibility but not rendered
+  const pivotRadius = 0;
 
   return {
     center,

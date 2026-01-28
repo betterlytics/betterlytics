@@ -46,7 +46,7 @@ function Gauge({
 
   return (
     <div
-      className={cn('gauge-root relative flex items-center justify-center', withNeedle && 'mb-[10%]')}
+      className={cn('gauge-root relative flex items-center justify-center')}
       style={{ width: svgWidth, height: viewBoxHeight }}
     >
       <svg
@@ -56,6 +56,37 @@ function Gauge({
         viewBox={`0 0 ${size} ${viewBoxHeight}`}
         preserveAspectRatio='none'
       >
+        {/* Gradient and filter definitions for needle */}
+        <defs>
+          {/* Needle gradient: faded at base → solid at tip, uses currentColor for theme support */}
+          <linearGradient id='needle-gradient' x1='0%' y1='0%' x2='0%' y2='100%'>
+            <stop offset='0%' stopColor='var(--primary)' stopOpacity='0.0' />
+            <stop offset='40%' stopColor='var(--primary)' stopOpacity='0.4' />
+            <stop offset='60%' stopColor='var(--primary)' stopOpacity='1' />
+            <stop offset='100%' stopColor='var(--primary)' stopOpacity='1' />
+          </linearGradient>
+          {/* Glow mask: transparent at base, visible at tip */}
+          <linearGradient id='glow-mask' x1='0%' y1='0%' x2='0%' y2='100%'>
+            <stop offset='0%' stopColor='white' stopOpacity='0' />
+            <stop offset='60%' stopColor='white' stopOpacity='0' />
+            <stop offset='85%' stopColor='white' stopOpacity='0.8' />
+            <stop offset='100%' stopColor='white' stopOpacity='1' />
+          </linearGradient>
+          <mask id='tip-glow-mask'>
+            <rect x='-50%' y='-50%' width='200%' height='200%' fill='url(#glow-mask)' />
+          </mask>
+          {/* Glow filter for needle tip - subtle */}
+          <filter id='needle-glow' x='-20%' y='-20%' width='140%' height='140%'>
+            <feGaussianBlur in='SourceAlpha' stdDeviation='1.5' result='blur' />
+            <feFlood floodColor='var(--primary)' floodOpacity='0.5' result='color' />
+            <feComposite in='color' in2='blur' operator='in' result='glow' />
+            <feMerge>
+              <feMergeNode in='glow' />
+              <feMergeNode in='SourceGraphic' />
+            </feMerge>
+          </filter>
+        </defs>
+
         {segmentPaths.map((seg, i) => (
           <path
             key={i}
@@ -84,22 +115,20 @@ function Gauge({
         />
 
         {withNeedle && (
-          <>
-            <polygon
-              points={needlePoints}
-              fill='var(--primary)'
-              className='gauge-needle'
-              transform={`translate(${center}, ${center}) rotate(${needleAngle})`}
-            />
-            <circle cx={center} cy={center} r={pivotRadius} fill='var(--primary)' className='gauge-pivot' />
-          </>
+          <polygon
+            points={needlePoints}
+            fill='url(#needle-gradient)'
+            filter='url(#needle-glow)'
+            className='gauge-needle'
+            transform={`translate(${center}, ${center}) rotate(${needleAngle})`}
+          />
         )}
       </svg>
 
       <div
         className={cn(
-          'pointer-events-none absolute right-0 left-0 flex flex-col items-center',
-          withNeedle ? '-bottom-[10%]' : 'bottom-[20%]',
+          'pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center',
+          // withNeedle ? '-bottom-[10%]' : 'bottom-[20%]',
         )}
       >
         {title && (
