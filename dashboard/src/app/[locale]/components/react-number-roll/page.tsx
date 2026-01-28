@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { NumberRoll } from '@/components/animations';
+import { cn } from '@/lib/utils';
 
 const FORMAT_PRESETS = [
   { label: 'Integer', options: {} },
@@ -10,63 +11,51 @@ const FORMAT_PRESETS = [
   { label: 'Currency (EUR)', options: { style: 'currency', currency: 'EUR' } as Intl.NumberFormatOptions },
   { label: 'Percent', options: { style: 'percent' } as Intl.NumberFormatOptions },
   { label: 'Compact', options: { notation: 'compact' } as Intl.NumberFormatOptions },
-  { label: 'Scientific', options: { notation: 'scientific' } as Intl.NumberFormatOptions },
 ] as const;
 
 const LOCALE_PRESETS = [
-  { label: 'Browser Default', value: undefined },
-  { label: 'English (US)', value: 'en-US' },
-  { label: 'German', value: 'de-DE' },
-  { label: 'French', value: 'fr-FR' },
+  { label: 'English', value: 'en-US' },
   { label: 'Danish', value: 'da-DK' },
   { label: 'Japanese', value: 'ja-JP' },
 ] as const;
 
-// 50 diverse test values for stress testing
-const STRESS_TEST_VALUES = [
-  0, 1, -1, 9, 10, 99, 100, 999, 1000, -1000, 1234, 9999, 10000, 12345, 99999, 100000, 123456, 999999, 1000000,
-  1234567, 9999999, 10000000, 12345678, 99999999, 100000000, -50, -100, -999, -9999, -99999, -999999, -9999999, 7,
-  77, 777, 7777, 77777, 777777, 7777777, 77777777, 42, 420, 4200, 42000, 420000, 4200000, 42000000, 3, 33, 333,
-];
+interface DemoState {
+  value: number;
+  localePresetIdx: number;
+  formatPresetIdx: number;
+}
 
 export default function ReactNumberRollDemoPage() {
-  const [value, setValue] = useState(1234.56);
+  const [state, setState] = useState<DemoState>({
+    value: 1234.56,
+    localePresetIdx: 0,
+    formatPresetIdx: 0,
+  });
   const [inputValue, setInputValue] = useState('1234.56');
   const [duration, setDuration] = useState(800);
   const [className, setClassName] = useState('text-9xl font-semibold tracking-tighter');
   const [customStyle, setCustomStyle] = useState('');
   const [withTextSelect, setWithTextSelect] = useState(false);
-  const [formatPresetIdx, setFormatPresetIdx] = useState(0);
-  const [localePresetIdx, setLocalePresetIdx] = useState(0);
 
-  const formatOptions = useMemo(() => FORMAT_PRESETS[formatPresetIdx].options, [formatPresetIdx]);
-  const locales = useMemo(() => LOCALE_PRESETS[localePresetIdx].value ?? 'en-US', [localePresetIdx]);
+  const formatOptions = useMemo(() => FORMAT_PRESETS[state.formatPresetIdx].options, [state.formatPresetIdx]);
+  const locales = useMemo(() => LOCALE_PRESETS[state.localePresetIdx].value ?? 'en-US', [state.localePresetIdx]);
 
-  // Preview the formatted output - use explicit locale to prevent hydration mismatch
-  const formattedPreview = useMemo(() => {
-    try {
-      return new Intl.NumberFormat(locales, formatOptions).format(value);
-    } catch {
-      return 'Invalid format';
-    }
-  }, [value, locales, formatOptions]);
-
-  // Sync input when value changes from buttons
   const handleValueChange = useCallback((newValue: number) => {
-    setValue(newValue);
+    setState((prev) => ({ ...prev, value: newValue }));
     setInputValue(String(newValue));
   }, []);
 
-  // Full random: value, locale, and format options
-  const handleFullRandom = useCallback(async () => {
-    const randomValue = STRESS_TEST_VALUES[Math.floor(Math.random() * STRESS_TEST_VALUES.length)];
+  const handleFullRandom = useCallback(() => {
+    const randomValue = Math.round((Math.random() * 110000 - 10000) * 100) / 100;
     const randomLocaleIdx = Math.floor(Math.random() * LOCALE_PRESETS.length);
     const randomFormatIdx = Math.floor(Math.random() * FORMAT_PRESETS.length);
 
-    setValue(randomValue);
+    setState({
+      value: randomValue,
+      localePresetIdx: randomLocaleIdx,
+      formatPresetIdx: randomFormatIdx,
+    });
     setInputValue(String(randomValue));
-    setLocalePresetIdx(randomLocaleIdx);
-    setFormatPresetIdx(randomFormatIdx);
   }, []);
 
   // Parse custom style string to object
@@ -88,84 +77,52 @@ export default function ReactNumberRollDemoPage() {
 
   return (
     <div className='bg-background flex min-h-screen flex-col items-center justify-center gap-8 p-8'>
-      {/* Main display */}
-      <div className='mb-24 flex w-full flex-col items-center gap-12 p-8'>
-        <div className='flex items-center gap-4'>
-          <button
-            onClick={() => handleValueChange(value - 1)}
-            className='bg-primary text-primary-foreground hover:bg-primary/90 flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-medium transition-colors'
-            aria-label='Decrement'
-          >
-            -
-          </button>
+      <div className='flex w-full flex-col items-center gap-12'>
+        <div
+          className={cn(className, 'flex w-full justify-center py-16')}
+          style={{ ...styleObject, fontVariantNumeric: 'tabular-nums' }}
+        >
+          <NumberRoll
+            value={state.value}
+            locales={locales}
+            formatOptions={formatOptions}
+            duration={duration}
+            withTextSelect={withTextSelect}
+          />
+        </div>
 
-          <div className={className} style={{ ...styleObject, fontVariantNumeric: 'tabular-nums' }}>
-            <NumberRoll
-              value={value}
-              locales={locales}
-              formatOptions={formatOptions}
-              duration={duration}
-              withTextSelect={withTextSelect}
-            />
+        <div className='flex w-full max-w-md flex-col gap-4'>
+          <input
+            type='range'
+            min={-10000}
+            max={100000}
+            step={1000}
+            value={state.value}
+            onChange={(e) => handleValueChange(parseFloat(e.target.value))}
+            className='h-2 w-full'
+          />
+          <div className='flex justify-center gap-2'>
+            <button
+              onClick={() => handleValueChange(state.value - 1)}
+              className='bg-primary text-primary-foreground hover:bg-primary/90 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl font-medium transition-colors'
+              aria-label='Decrement'
+            >
+              -
+            </button>
+            <button
+              onClick={() => handleValueChange(state.value + 1)}
+              className='bg-primary text-primary-foreground hover:bg-primary/90 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl font-medium transition-colors'
+              aria-label='Increment'
+            >
+              +
+            </button>
+            <button
+              onClick={handleFullRandom}
+              className='bg-primary text-primary-foreground hover:bg-primary/90 ml-4 rounded-full px-4 py-2 text-sm font-medium transition-colors'
+            >
+              Random
+            </button>
           </div>
-
-          <button
-            onClick={() => handleValueChange(value + 1)}
-            className='bg-primary text-primary-foreground hover:bg-primary/90 flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-medium transition-colors'
-            aria-label='Increment'
-          >
-            +
-          </button>
-        </div>
-
-        {/* Format preview */}
-        <div className='text-muted-foreground bg-muted rounded px-4 py-2 font-mono text-sm'>
-          Intl.format: {formattedPreview}
-        </div>
-
-        <div className='grid w-full max-w-2xl grid-cols-2 gap-2 md:grid-cols-4'>
-          <button
-            onClick={() => handleValueChange(0)}
-            className='bg-muted hover:bg-muted/80 rounded px-4 py-2 text-sm transition-colors'
-          >
-            Reset to 0
-          </button>
-          <button
-            onClick={() => handleValueChange(100)}
-            className='bg-muted hover:bg-muted/80 rounded px-4 py-2 text-sm transition-colors'
-          >
-            To 100
-          </button>
-          <button
-            onClick={() => handleValueChange(-50)}
-            className='bg-muted hover:bg-muted/80 rounded px-4 py-2 text-sm transition-colors'
-          >
-            To -50
-          </button>
-          <button
-            onClick={() => handleValueChange(99999999)}
-            className='bg-muted hover:bg-muted/80 rounded px-4 py-2 text-sm transition-colors'
-          >
-            To 99,999,999
-          </button>
-          <button
-            onClick={() => setTimeout(() => handleFullRandom(), 0)}
-            className='bg-primary text-primary-foreground hover:bg-primary/90 col-span-2 rounded px-4 py-2 text-sm transition-colors'
-          >
-            🎲 Full Random
-          </button>
-          <button
-            onClick={() => handleValueChange(Math.floor(value * 10))}
-            className='bg-muted hover:bg-muted/80 rounded px-4 py-2 text-sm transition-colors'
-          >
-            * 10
-          </button>
-          <button
-            onClick={() => handleValueChange(Math.floor(value / 10))}
-            className='bg-muted hover:bg-muted/80 rounded px-4 py-2 text-sm transition-colors'
-          >
-            / 10
-          </button>
         </div>
       </div>
 
@@ -178,6 +135,25 @@ export default function ReactNumberRollDemoPage() {
           </span>
         </div>
 
+        {/* Number Presets */}
+        <div className='flex flex-col gap-2'>
+          <label className='text-muted-foreground text-sm font-medium'>Number Presets</label>
+          <div className='flex flex-wrap gap-2'>
+            <button
+              onClick={() => setState((prev) => ({ ...prev, value: 672681 }))}
+              className={'bg-muted hover:bg-muted/80 rounded-md px-3 py-1.5 text-xs transition-colors'}
+            >
+              Set 672681
+            </button>
+            <button
+              onClick={() => setState((prev) => ({ ...prev, value: 32671121 }))}
+              className={'bg-muted hover:bg-muted/80 rounded-md px-3 py-1.5 text-xs transition-colors'}
+            >
+              Set 32671121
+            </button>
+          </div>
+        </div>
+
         {/* Format preset selector */}
         <div className='flex flex-col gap-2'>
           <label className='text-muted-foreground text-sm font-medium'>Format Style</label>
@@ -185,9 +161,9 @@ export default function ReactNumberRollDemoPage() {
             {FORMAT_PRESETS.map((preset, i) => (
               <button
                 key={preset.label}
-                onClick={() => setFormatPresetIdx(i)}
+                onClick={() => setState((prev) => ({ ...prev, formatPresetIdx: i }))}
                 className={`rounded-md px-3 py-1.5 text-xs transition-colors ${
-                  formatPresetIdx === i ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'
+                  state.formatPresetIdx === i ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'
                 }`}
               >
                 {preset.label}
@@ -203,9 +179,9 @@ export default function ReactNumberRollDemoPage() {
             {LOCALE_PRESETS.map((preset, i) => (
               <button
                 key={preset.label}
-                onClick={() => setLocalePresetIdx(i)}
+                onClick={() => setState((prev) => ({ ...prev, localePresetIdx: i }))}
                 className={`rounded-md px-3 py-1.5 text-xs transition-colors ${
-                  localePresetIdx === i ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'
+                  state.localePresetIdx === i ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80'
                 }`}
               >
                 {preset.label}
