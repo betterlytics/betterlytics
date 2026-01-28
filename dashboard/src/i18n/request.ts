@@ -1,23 +1,23 @@
-import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
+import { SupportedLanguages } from '@/constants/i18n';
 import { getRequestConfig } from 'next-intl/server';
+import { hasLocale } from 'next-intl';
 import { LOCALE_COOKIE_NAME } from '@/constants/cookies';
 import { cookies } from 'next/headers';
+import { routing } from '@/i18n/routing';
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale;
+  let requested = await requestLocale;
 
-  if (!locale) {
+  if (!requested) {
     try {
       const cookieStore = await cookies();
-      locale = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
+      requested = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
     } catch {
       // Cookies may not be available in all contexts (e.g., during build)
     }
   }
 
-  if (!SUPPORTED_LANGUAGES.includes(locale as SupportedLanguages)) {
-    locale = process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en';
-  }
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
   return {
     locale: locale as SupportedLanguages,
