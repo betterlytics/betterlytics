@@ -58,27 +58,28 @@ function Gauge({
       >
         {/* Gradient and filter definitions for needle */}
         <defs>
-          {/* Needle gradient: faded at base → solid at tip, uses currentColor for theme support */}
+          {/* Needle gradient: faded base → ring blue → electric cyan tip */}
           <linearGradient id='needle-gradient' x1='0%' y1='0%' x2='0%' y2='100%'>
             <stop offset='0%' stopColor='var(--primary)' stopOpacity='0.0' />
-            <stop offset='40%' stopColor='var(--primary)' stopOpacity='0.4' />
-            <stop offset='60%' stopColor='var(--primary)' stopOpacity='1' />
-            <stop offset='100%' stopColor='var(--primary)' stopOpacity='1' />
+            <stop offset='40%' stopColor='var(--primary)' stopOpacity='0.5' />
+            <stop offset='70%' stopColor='var(--primary)' stopOpacity='1' />
+            <stop offset='90%' stopColor='#3ddcff' stopOpacity='1' /> {/* Electric cyan */}
+            <stop offset='100%' stopColor='#3ddcff' stopOpacity='1' /> {/* Bright tip */}
           </linearGradient>
           {/* Glow mask: transparent at base, visible at tip */}
           <linearGradient id='glow-mask' x1='0%' y1='0%' x2='0%' y2='100%'>
             <stop offset='0%' stopColor='white' stopOpacity='0' />
             <stop offset='60%' stopColor='white' stopOpacity='0' />
-            <stop offset='85%' stopColor='white' stopOpacity='0.8' />
+            <stop offset='90%' stopColor='white' stopOpacity='0.8' />
             <stop offset='100%' stopColor='white' stopOpacity='1' />
           </linearGradient>
           <mask id='tip-glow-mask'>
             <rect x='-50%' y='-50%' width='200%' height='200%' fill='url(#glow-mask)' />
           </mask>
-          {/* Glow filter for needle tip - subtle */}
+          {/* Glow filter for needle tip - electric cyan */}
           <filter id='needle-glow' x='-20%' y='-20%' width='140%' height='140%'>
-            <feGaussianBlur in='SourceAlpha' stdDeviation='1.5' result='blur' />
-            <feFlood floodColor='var(--primary)' floodOpacity='0.5' result='color' />
+            <feGaussianBlur in='SourceAlpha' stdDeviation='1' result='blur' />
+            <feFlood floodColor='#3ddcff' floodOpacity='0.7' result='color' />
             <feComposite in='color' in2='blur' operator='in' result='glow' />
             <feMerge>
               <feMergeNode in='glow' />
@@ -125,12 +126,7 @@ function Gauge({
         )}
       </svg>
 
-      <div
-        className={cn(
-          'pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center',
-          // withNeedle ? '-bottom-[10%]' : 'bottom-[20%]',
-        )}
-      >
+      <div className={cn('pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center')}>
         {title && (
           <span className='text-muted-foreground/50 mb-1 text-[10px] font-black tracking-[0.25em] uppercase'>
             {title}
