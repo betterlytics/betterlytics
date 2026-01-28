@@ -3,24 +3,26 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Code, Clipboard, Check } from 'lucide-react';
-import { CodeBlock } from '@/components/integration/CodeBlock';
+import { Clipboard, Check } from 'lucide-react';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { LiveIndicator } from '@/components/live-indicator';
 import { Separator } from '@/components/ui/separator';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useMessages } from 'next-intl';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOnboarding } from '../OnboardingProvider';
 import ExternalLink from '@/components/ExternalLink';
 import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { FrameworkGrid, FrameworkId } from '@/components/integration/FrameworkGrid';
+import { FrameworkInstructions } from '@/components/integration/FrameworkInstructions';
+import { getFrameworkCode, IntegrationTranslations } from '@/components/integration/frameworkCodes';
 
 import './Integration.css';
+import { setOnboardingCompletedAction } from '@/app/actions/account/onboarding.action';
 
 export default function Integration() {
   const { dashboard } = useOnboarding();
@@ -30,7 +32,11 @@ export default function Integration() {
   }
 
   const t = useTranslations('onboarding.integration');
+  const messages = useMessages();
+  const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
+
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
@@ -59,18 +65,21 @@ export default function Integration() {
   const handleFinishOnboarding = useCallback(async () => {
     baEvent('onboarding-integration', {
       kind: 'completed',
+      framework: selectedFramework,
     });
     try {
+      await setOnboardingCompletedAction();
       await refreshSession();
     } catch {}
     baRouter.push(`/dashboard/${dashboard.id}`);
-  }, [dashboard, baRouter, refreshSession]);
+  }, [dashboard, baRouter, refreshSession, selectedFramework]);
 
   const handleSkipForNow = useCallback(async () => {
     baEvent('onboarding-integration', {
       kind: 'skipped',
     });
     try {
+      await setOnboardingCompletedAction();
       await refreshSession();
     } catch {}
     baRouter.push(`/dashboard/${dashboard.id}?showIntegration=true`);
@@ -109,70 +118,16 @@ export default function Integration() {
     );
   }
 
-  const trackingScript = `<script async
-    src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-    data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}>
-  </script>`;
-
-  const htmlExample = `<!DOCTYPE html>
-<html>
-<head>
-  <title>Your Website</title>
-  ${trackingScript}
-</head>
-<body>
-  <!-- Your website content -->
-</body>
-</html>`;
-
-  const nextJsExample = `import Script from 'next/script'
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <head>
-        <Script
-          async
-          src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${dashboard.siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}
-        />
-      </head>
-      <body>{children}</body>
-    </html>
-  )
-}`;
-
-  const nodeExample = `import betterlytics from "@betterlytics/tracker";
-
-betterlytics.init("${dashboard.siteId}");
-`;
-
-  const reactExample = `import React, { useEffect } from 'react';
-
-function App() {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${dashboard.siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/event");` : ''}
-    document.head.appendChild(script);
-
-    return () => {
-      // Optional: Remove script when component unmounts
-      // document.head.removeChild(script);
-    };
-  }, []);
-
-  return (
-    // Your App content
+  const frameworkCode = getFrameworkCode(
+    selectedFramework,
+    {
+      siteId: dashboard.siteId,
+      analyticsUrl: PUBLIC_ANALYTICS_BASE_URL,
+      serverUrl: PUBLIC_TRACKING_SERVER_ENDPOINT,
+      isCloud: IS_CLOUD,
+    },
+    integrationTranslations,
   );
-}
-
-export default App;`;
 
   return (
     <Card className='p-3 py-4 pb-5 shadow-sm sm:p-6'>
@@ -240,87 +195,14 @@ export default App;`;
             View docs
           </ExternalLink>
         </CardTitle>
-        <CardDescription className='text-sm'>{t('instructions.description')}</CardDescription>
+        <CardDescription className='text-sm'>{t('instructions.selectFramework')}</CardDescription>
       </CardHeader>
-      <CardContent className='p-0'>
-        <Tabs defaultValue='html' className='w-full gap-4'>
-          <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='html' className='cursor-pointer'>
-              {t('instructions.htmlTab')}
-            </TabsTrigger>
-            <TabsTrigger value='nextjs' className='cursor-pointer'>
-              {t('instructions.nextjsTab')}
-            </TabsTrigger>
-            <TabsTrigger value='react' className='cursor-pointer'>
-              {t('instructions.reactTab')}
-            </TabsTrigger>
-            <TabsTrigger value='npm' className='cursor-pointer'>
-              {t('instructions.npmTab')}
-            </TabsTrigger>
-          </TabsList>
 
-          <TabsContent value='html'>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>
-                  {t('instructions.htmlDescription', { head: '<head>' })}
-                </span>
-              </div>
-              <CodeBlock code={htmlExample} language='html' />
-            </div>
-          </TabsContent>
-
-          <TabsContent value='nextjs'>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.nextjsDescription')}</span>
-              </div>
-              <CodeBlock code={nextJsExample} language='javascript' />
-            </div>
-          </TabsContent>
-
-          <TabsContent value='react'>
-            <div className='space-y-3'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.reactDescription')}</span>
-              </div>
-              <CodeBlock code={reactExample} language='javascript' />
-            </div>
-          </TabsContent>
-
-          <TabsContent value='npm'>
-            <div className='space-y-4'>
-              <div className='flex items-center gap-2'>
-                <Code className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm font-medium'>{t('instructions.npmDescription')}</span>
-              </div>
-
-              <div className='space-y-2'>
-                <div className='flex items-center justify-between'>
-                  <p className='text-muted-foreground text-sm'>{t('instructions.npmInstallFirst')}</p>
-                  <ExternalLink
-                    href='https://www.npmjs.com/package/@betterlytics/tracker'
-                    className='text-primary hover:text-primary/80 text-sm font-medium underline'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    View on npm
-                  </ExternalLink>
-                </div>
-                <CodeBlock code='npm install @betterlytics/tracker' language='html' />
-              </div>
-
-              <div className='space-y-2'>
-                <p className='text-muted-foreground text-sm'>{t('instructions.npmThenInitialize')}</p>
-                <CodeBlock code={nodeExample} language='javascript' />
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+      <CardContent className='space-y-4 p-0'>
+        <FrameworkGrid selectedFramework={selectedFramework} onSelectFramework={setSelectedFramework} />
+        <FrameworkInstructions frameworkCode={frameworkCode} selectedFramework={selectedFramework} />
       </CardContent>
+
       <CardFooter className='gap-4 p-0'>
         <div className='relative flex w-full justify-end'>
           <AnimatePresence mode='wait'>

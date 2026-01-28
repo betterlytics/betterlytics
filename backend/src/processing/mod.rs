@@ -6,7 +6,7 @@ use crate::geoip::GeoIpService;
 use crate::session;
 use crate::bot_detection;
 use crate::referrer::{ReferrerInfo, parse_referrer};
-use crate::url_utils::extract_domain_and_path_from_url;
+use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
 use url::Url;
 use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
@@ -52,6 +52,8 @@ pub struct ProcessedEvent {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+    pub scroll_depth_percentage: Option<f32>,
+    pub scroll_depth_pixels: Option<f32>,
 }
 
 /// Event processor that handles real-time processing
@@ -108,6 +110,8 @@ impl EventProcessor {
             cwv_inp: None,
             cwv_fcp: None,
             cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
         };
 
         // Handle event types
@@ -135,12 +139,15 @@ impl EventProcessor {
             error!("Failed to parse user agent: {}", e);
         }
 
+        let root_domain = processed.domain.as_ref().and_then(|d| extract_root_domain(d));
+        
         processed.visitor_fingerprint = generate_fingerprint(
             &processed.event.ip_address,
             processed.device_type.as_deref(),
             processed.browser.as_deref(),
             processed.browser_version.as_deref(),
             processed.os.as_deref(),
+            root_domain.as_deref(),
         );
 
         let session_id_result = session::get_or_create_session_id(
@@ -191,6 +198,10 @@ impl EventProcessor {
             processed.cwv_inp = processed.event.raw.cwv_inp;
             processed.cwv_fcp = processed.event.raw.cwv_fcp;
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
+        } else if event_name == "scroll_depth" {
+            processed.event_type = "scroll_depth".to_string();
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {
             processed.event_type = event_name;
         }

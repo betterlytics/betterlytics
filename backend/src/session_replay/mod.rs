@@ -18,7 +18,7 @@ use crate::db::{SharedDatabase, SessionReplayRow};
 use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::EventValidator;
-use crate::url_utils::extract_domain_and_path_from_url;
+use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
 
 #[derive(Clone)]
 pub struct FinalizeMeta {
@@ -46,6 +46,7 @@ const CONTENT_TYPE: &str = "application/json";
 #[derive(serde::Deserialize)]
 pub struct PresignPutRequest {
     pub site_id: String,
+    pub url: Option<String>,
     pub screen_resolution: Option<String>,
     pub content_encoding: Option<String>,
     pub content_length: u64,
@@ -80,12 +81,17 @@ pub async fn presign_put_segment(
     let device_type_from_res = req.screen_resolution.as_deref()
         .and_then(|sr| detect_device_type_from_resolution(sr));
 
+    let root_domain = req.url.as_ref()
+        .and_then(|url| extract_domain_and_path_from_url(url).0)
+        .and_then(|domain| extract_root_domain(&domain));
+
     let fingerprint = generate_fingerprint(
         &ip_address,
         device_type_from_res.as_deref(),
         Some(parsed.browser.as_str()),
         parsed.browser_version.as_deref(),
         Some(parsed.os.as_str()),
+        root_domain.as_deref(),
     );
 
     let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
@@ -140,15 +146,12 @@ pub async fn finalize_session_replay(
         .unwrap_or_default();
 
     let mut meta = if let Some(existing) = FINALIZE_CACHE.get(&key) {
-        if req.ended_at <= existing.ended_at.timestamp() && req.size_bytes <= existing.size_bytes {
-            return Ok(StatusCode::OK);
-        }
         existing
     } else {
         FinalizeMeta {
             started_at: started,
             ended_at: ended,
-            size_bytes: req.size_bytes,
+            size_bytes: 0,
             start_url: normalized_start_url.clone(),
             event_count: 0,
         }

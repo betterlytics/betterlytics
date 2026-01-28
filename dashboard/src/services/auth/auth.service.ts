@@ -1,3 +1,5 @@
+'server-only';
+
 import * as bcrypt from 'bcrypt';
 import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user.repository';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
@@ -99,8 +101,9 @@ export async function registerNewUser(registrationData: RegisterUserData): Promi
   }
 
   const newUser = await registerUser(registrationData);
+  const user = UserSchema.parse(newUser);
 
-  return UserSchema.parse(newUser);
+  return user;
 }
 
 export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByUserData) {

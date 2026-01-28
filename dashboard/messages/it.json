@@ -86,6 +86,7 @@
         }
       },
       "cta": {
+        "eyebrow": "Inizia ora",
         "title": "Pronto per iniziare?",
         "lead": "Unisciti alla community crescente di aziende che rifiutano di compromettere la privacy.",
         "getStarted": "Inizia gratis",
@@ -112,7 +113,7 @@
       "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
       "getInTouch": {
         "title": "Mettiti in contatto",
-        "description": "Che tu abbia bisogno di supporto tecnico, domande sulle nostre funzionalità o voglia discutere soluzioni enterprise, siamo qui per aiutare. Scegli il metodo che funziona meglio per te:"
+        "description": "Che tu abbia bisogno di supporto tecnico, domande sulle nostre funzionalità o voglia discutere soluzioni enterprise, siamo qui per aiutare."
       },
       "methods": {
         "email": {
@@ -159,6 +160,26 @@
             "question": "Offrite supporto per istanze auto-ospitate?",
             "answer": "Parzialmente! Forniamo supporto della community attraverso GitHub e Discord per le istanze auto-ospitate, ma la nostra priorità è supportare i clienti dell'hosting cloud."
           }
+        }
+      },
+      "secondary": {
+        "discord": {
+          "cta": "Unisciti a Discord"
+        },
+        "github": {
+          "cta": "Vedi su GitHub"
+        },
+        "bluesky": {
+          "cta": "Seguici"
+        },
+        "docs": {
+          "title": "Documentazione",
+          "description": "Esplora le nostre guide per iniziare, le integrazioni con i framework più diffusi e la documentazione dettagliata delle funzionalità.",
+          "cta": "Vedi documentazione"
+        },
+        "email": {
+          "title": "Richieste generali",
+          "description": "Domande, feedback o altro."
         }
       },
       "cta": {
@@ -325,7 +346,10 @@
         "email": "Email:",
         "address": "Indirizzo:",
         "footer1": "🇪🇺 Prodotto e ospitato nell’Unione Europea",
-        "footer2": "Impegnati per privacy, trasparenza e conformità al GDPR"
+        "footer2": "Impegnati per privacy, trasparenza e conformità al GDPR",
+        "termsLink": "Termini di Servizio",
+        "dpaLink": "Accordo sul Trattamento dei Dati",
+        "subprocessorsLink": "Sottoprocessori"
       }
     },
     "terms": {
@@ -482,7 +506,9 @@
         "support": "Supporto:",
         "address": "Indirizzo:",
         "footer1": "🇪🇺 Prodotto e ospitato nell’Unione Europea",
-        "footer2": "Analitiche incentrate sulla privacy di cui ti puoi fidare"
+        "footer2": "Analitiche incentrate sulla privacy di cui ti puoi fidare",
+        "privacyLink": "Informativa sulla Privacy",
+        "dpaLink": "Accordo sul Trattamento dei Dati"
       }
     },
     "dpa": {
@@ -568,12 +594,12 @@
         "li4": "Eliminare tutti i dati analitici immediatamente al momento dell’eliminazione dell’account."
       },
       "subprocessors": {
-        "title": "Sub-responsabili",
-        "intro": "Betterlytics può coinvolgere sub-responsabili per eseguire parti del trattamento, tra cui:",
+        "title": "Sottoprocessori",
+        "intro": "Betterlytics può coinvolgere sottoprocessori per eseguire parti del trattamento, tra cui:",
         "li1": "Fornitori di hosting e infrastruttura cloud con sede nell’UE",
         "li2": "Processori di pagamento (per la fatturazione dell’account)",
         "li3": "Servizi di invio email",
-        "notice": "Betterlytics manterrà un elenco aggiornato dei sub-responsabili e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
+        "notice": "Betterlytics mantiene un elenco aggiornato dei sottoprocessori su betterlytics.io/Sottoprocessori e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
       },
       "rights": {
         "title": "Diritti degli interessati",
@@ -610,7 +636,84 @@
         "lead": "Per domande su questo DPA o sulle pratiche di trattamento dei dati:",
         "legal": "Richieste legali:",
         "technical": "Domande tecniche:",
-        "footer": "Questo DPA è accettato automaticamente quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per progettazione - Prodotto e ospitato nell’Unione Europea"
+        "footer": "Questo DPA è accettato automaticamente quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per progettazione - Prodotto e ospitato nell’Unione Europea",
+        "termsLink": "Termini di Servizio",
+        "privacyLink": "Informativa sulla Privacy",
+        "subprocessorsLink": "Sottoprocessori"
+      }
+    },
+    "subprocessors": {
+      "seo": {
+        "title": "Sottoprocessori | Conformità GDPR e trattamento dati",
+        "description": "Visualizza l'elenco completo dei Sottoprocessori di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati.",
+        "keywords": [
+          "Sottoprocessori Betterlytics",
+          "Responsabili del trattamento",
+          "Conformità GDPR",
+          "Servizi di terze parti",
+          "Trattamento dati",
+          "Hosting dati UE",
+          "Conformità Privacy"
+        ]
+      },
+      "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
+      "title": "Sottoprocessori",
+      "lastUpdated": "Ultimo aggiornamento:",
+      "intro": "Betterlytics si avvale di un numero limitato di fornitori di servizi terzi (sub-responsabili) attentamente selezionati per contribuire a fornire la nostra piattaforma di analytics. Questa pagina elenca tutti i sub-responsabili che possono trattare dati per conto dei nostri clienti.",
+      "commitment": {
+        "title": "Il nostro impegno",
+        "body": "Lavoriamo solo con sub-responsabili che soddisfano i nostri rigorosi standard di privacy e sicurezza. Tutti i sub-responsabili operano in base ad accordi sul trattamento dei dati e implementano misure tecniche e organizzative adeguate per proteggere i tuoi dati."
+      },
+      "list": {
+        "title": "Sub-responsabili attuali",
+        "intro": "I seguenti servizi di terze parti sono autorizzati a trattare dati per conto di Betterlytics:"
+      },
+      "table": {
+        "name": "Sub-responsabile",
+        "purpose": "Finalità",
+        "location": "Ubicazione dati"
+      },
+      "processors": {
+        "hetzner": {
+          "name": "Hetzner",
+          "purpose": "Infrastruttura cloud e hosting server",
+          "location": "Germania (UE)"
+        },
+        "stripe": {
+          "name": "Stripe",
+          "purpose": "Elaborazione pagamenti per abbonamenti",
+          "location": "USA (Clausole contrattuali standard)"
+        },
+        "mailersend": {
+          "name": "MailerSend",
+          "purpose": "Invio email transazionali",
+          "location": "UE"
+        },
+        "cloudflareR2": {
+          "name": "Cloudflare R2",
+          "purpose": "Archiviazione session replay (funzionalità opzionale)",
+          "location": "Data center UE"
+        }
+      },
+      "changes": {
+        "title": "Modifiche ai sub-responsabili",
+        "body": "Aggiorneremo questa pagina quando aggiungiamo o rimuoviamo sub-responsabili. Se hai sottoscritto i servizi Betterlytics, ti informeremo di eventuali modifiche a questo elenco in conformità con il nostro Accordo sul Trattamento dei Dati (DPA)."
+      },
+      "dataProtection": {
+        "title": "Misure di protezione dei dati",
+        "li1": "Tutti i sub-responsabili operano in base ad accordi sul trattamento dei dati in conformità con gli standard di protezione dei dati",
+        "li2": "Diamo priorità ai fornitori con sede nell'UE per minimizzare i trasferimenti di dati al di fuori dell'UE",
+        "li3": "Quando si verificano trasferimenti di dati verso paesi terzi, sono in atto misure di salvaguardia appropriate (come le SCC)"
+      },
+      "contact": {
+        "title": "Domande?",
+        "lead": "Se hai domande sui nostri sub-responsabili o sulle pratiche di trattamento dei dati:",
+        "email": "Email:"
+      },
+      "footer": {
+        "p1": "🇪🇺 Prodotto e ospitato nell'Unione Europea",
+        "dpaLink": "Accordo sul Trattamento dei Dati",
+        "privacyLink": "Informativa sulla Privacy"
       }
     },
     "auth": {
@@ -834,7 +937,7 @@
       },
       "hero": {
         "title": "Una <highlight>Migliore Alternativa</highlight> a Google Analytics",
-        "description": "Analytics privacy-first e senza cookie che rispettano i tuoi visitatori — nessun tracciamento, nessun cookie, nessun banner di consenso.",
+        "description": "Analytics semplici e potenti che rispettano la privacy.<br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
         "ctaPrimary": "Inizia Gratis",
         "ctaGithub": "Vedi su GitHub",
         "ctaDemo": "Prova live demo",
@@ -868,7 +971,7 @@
           },
           "lightweight": {
             "title": "Leggero e developer-friendly",
-            "description": "Script sotto 1KB, codebase open-source e documentazione completa. Costruito da sviluppatori, per sviluppatori."
+            "description": "Script sotto 2KB, codebase open-source e documentazione completa. Costruito da sviluppatori, per sviluppatori."
           },
           "simpleSetup": {
             "title": "Configurazione semplice, funzionalità potenti",
@@ -885,8 +988,8 @@
           "engagement": "Coinvolgimento e comportamento",
           "performance": "Prestazioni e sorgenti"
         },
-        "docsButton": "Esplora tutte le funzionalità",
-        "docsTitle": "Documentazione completa Betterlytics"
+        "featuresButton": "Esplora tutte le funzionalità",
+        "featuresTitle": "Esplora tutte le funzionalità di Betterlytics"
       },
       "ctaStrip": {
         "eyebrow": "Inizia gratis",
@@ -1000,14 +1103,219 @@
           "title": "Analitiche geografiche",
           "description": "Vedi da dove arrivano i tuoi visitatori nel mondo.",
           "topCountries": "Paesi principali"
+        },
+        "uptimeMonitoring": {
+          "title": "Monitoraggio uptime",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "alertDown": "{site} è offline",
+          "alertSent": "Avviso inviato a {email}",
+          "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
+          "allOperational": "Tutti i sistemi operativi",
+          "ssl": "SSL"
+        }
+      }
+    },
+    "features": {
+      "seo": {
+        "title": "Funzionalità di Betterlytics | Analytics Privacy-First, Senza Cookie",
+        "description": "Scopri tutte le funzionalità di Betterlytics: dashboard in tempo reale, funnel di conversione, Core Web Vitals e molto altro. Analytics privacy-first, conformi GDPR senza cookie o banner di consenso.",
+        "keywords": [
+          "Funzionalità Analytics",
+          "Analytics Privacy-First",
+          "Analytics Senza Cookie",
+          "Analytics Conforme GDPR",
+          "Dashboard Tempo Reale",
+          "Funnel Conversione",
+          "Replay Sessioni",
+          "Eventi Personalizzati",
+          "Funzionalità Web Analytics"
+        ]
+      },
+      "hero": {
+        "title": "Tutte le funzionalità di cui hai bisogno per<br></br><highlight>analytics migliori</highlight>",
+        "description": "Esplora tutto ciò che Betterlytics offre, dalle dashboard in tempo reale ai funnel di conversione. Tutte le analytics di cui hai bisogno, senza cookie, banner di consenso o compromessi sulla privacy.",
+        "ctaPrimary": "Inizia Gratis",
+        "ctaDemo": "Vedi Demo Live"
+      },
+      "categories": {
+        "coreAnalytics": "Web Analytics di Base",
+        "advancedAnalytics": "Analytics Avanzate",
+        "performanceMonitoring": "Performance e Monitoraggio",
+        "privacyData": "Privacy e Conformità",
+        "accessSecurity": "Accesso e Sicurezza",
+        "developerDeployment": "Sviluppatore e Deploy",
+        "support": "Supporto"
+      },
+      "items": {
+        "pageViews": {
+          "title": "Visualizzazioni Pagina",
+          "description": "Scopri quali pagine ricevono più traffico e comprendi le tendenze di engagement."
+        },
+        "visitors": {
+          "title": "Visitatori",
+          "description": "Monitora i visitatori unici e la crescita e il comportamento del pubblico."
+        },
+        "bounceRate": {
+          "title": "Frequenza di Rimbalzo",
+          "description": "Identifica le pagine che trattengono i visitatori rispetto a quelle che causano uscite rapide per ottimizzare i contenuti."
+        },
+        "trafficSources": {
+          "title": "Fonti di Traffico",
+          "description": "Scopri da dove provengono i visitatori, incluso organico, social, referral e campagne."
+        },
+        "location": {
+          "title": "Localizzazione",
+          "description": "Visualizza la distribuzione geografica dei visitatori per città, regione e paese."
+        },
+        "devices": {
+          "title": "Dispositivi",
+          "description": "Monitora quali dispositivi usano i visitatori, che sia desktop, mobile o tablet."
+        },
+        "languages": {
+          "title": "Lingue",
+          "description": "Traccia le lingue preferite dei visitatori per personalizzare i contenuti efficacemente."
+        },
+        "filtering": {
+          "title": "Filtraggio",
+          "description": "Segmenta i dati per traffico, dispositivo, località e altri attributi rapidamente."
+        },
+        "realtimeData": {
+          "title": "Dati in Tempo Reale",
+          "description": "Visualizza l'attività dei visitatori in tempo reale, incluse visualizzazioni pagina, eventi e sessioni."
+        },
+        "customEvents": {
+          "title": "Eventi Personalizzati",
+          "description": "Traccia interazioni utente specifiche come click, invii form o download per misurare l'engagement."
+        },
+        "utmTracking": {
+          "title": "Tracciamento UTM",
+          "description": "Misura le performance delle campagne marketing con parametri UTM."
+        },
+        "linkTracking": {
+          "title": "Tracciamento Link",
+          "description": "Monitora i click sui link interni e in uscita per comprendere l'engagement utente."
+        },
+        "sessionReplay": {
+          "title": "Session Replay",
+          "description": "Riproduci le sessioni utente per vedere esattamente come i visitatori interagiscono con il tuo sito e scoprire problemi di usabilità."
+        },
+        "userJourneys": {
+          "title": "Percorsi Utente",
+          "description": "Visualizza i percorsi che i visitatori compiono nel tuo sito dall'ingresso all'uscita."
+        },
+        "funnels": {
+          "title": "Funnel",
+          "description": "Traccia la progressione degli utenti attraverso step definiti e identifica i punti di abbandono."
+        },
+        "annotations": {
+          "title": "Annotazioni",
+          "description": "Aggiungi note alla timeline analytics per tracciare eventi o modifiche alle campagne."
+        },
+        "timePeriodComparison": {
+          "title": "Confronta",
+          "description": "Confronta le metriche tra diversi periodi temporali per individuare trend e cambiamenti."
+        },
+        "outboundLinks": {
+          "title": "Tracciamento Link in Uscita",
+          "description": "Traccia i click sui link che lasciano il tuo sito per misurare l'engagement utente."
+        },
+        "coreWebVitals": {
+          "title": "Core Web Vitals",
+          "description": "Misura e ottimizza le metriche di performance di Google per migliorare caricamento, interattività e ranking."
+        },
+        "uptimeMonitoring": {
+          "title": "Monitoraggio Uptime",
+          "description": "Assicurati che il tuo sito sia online e accessibile monitorando automaticamente l'uptime."
+        },
+        "sslMonitoring": {
+          "title": "Monitoraggio Certificati SSL",
+          "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
+        },
+        "cookieless": {
+          "title": "Nessun Cookie",
+          "description": "Raccogli analytics privacy-first senza cookie, fornendo dati accurati senza richiedere banner di consenso."
+        },
+        "gdprCcpa": {
+          "title": "GDPR e CCPA",
+          "description": "Resta conforme alle leggi sulla privacy mentre raccogli dati analytics anonimi."
+        },
+        "euHosting": {
+          "title": "Hosting in UE",
+          "description": "Tutti i dati sono archiviati nell'UE per privacy e conformità."
+        },
+        "anonymousByDefault": {
+          "title": "Anonimizzazione Dati",
+          "description": "Tutti i dati dei visitatori sono anonimizzati di default per proteggere la privacy."
+        },
+        "dataOwnership": {
+          "title": "Proprietà dei Dati",
+          "description": "Mantieni il pieno controllo e proprietà di tutti i dati analytics raccolti."
+        },
+        "openSource": {
+          "title": "Open Source",
+          "description": "Ispeziona, verifica e contribuisci al codice della piattaforma analytics."
+        },
+        "memberRoles": {
+          "title": "Accesso Basato su Ruoli",
+          "description": "Controlla l'accesso utenti con permessi basati sui ruoli per i membri del team."
+        },
+        "twoFactorAuth": {
+          "title": "Autenticazione a Due Fattori",
+          "description": "Aggiungi un livello extra di sicurezza per tutti gli account utente."
+        },
+        "oauthLogin": {
+          "title": "Login OAuth",
+          "description": "Accedi in sicurezza con provider OAuth come Google o GitHub."
+        },
+        "simpleScriptTag": {
+          "title": "Tag Script Semplice",
+          "description": "Aggiungi analytics al tuo sito con un singolo script leggero."
+        },
+        "frameworkSdks": {
+          "title": "SDK Framework",
+          "description": "Integra facilmente Betterlytics con framework come React, Angular, Next.js e altri."
+        },
+        "selfHosting": {
+          "title": "Self-Hosting",
+          "description": "Distribuisci Betterlytics sui tuoi server per il pieno controllo dei dati."
+        },
+        "fullyManaged": {
+          "title": "Cloud Completamente Gestito",
+          "description": "Usa la nostra soluzione cloud gestita per setup rapido e zero manutenzione."
+        },
+        "lightweightScript": {
+          "title": "Script Leggero",
+          "description": "Script a caricamento rapido sotto 2KB che non rallenta il tuo sito."
+        },
+        "highPerformance": {
+          "title": "Alte Prestazioni",
+          "description": "Motore analytics basato su ClickHouse con tempi di query sotto il secondo a qualsiasi scala."
+        },
+        "emailSupport": {
+          "title": "Supporto Email",
+          "description": "Ricevi assistenza via email per qualsiasi domanda o problema."
+        },
+        "prioritySupport": {
+          "title": "Supporto Prioritario",
+          "description": "Ricevi risposte più rapide dal nostro team di supporto per problemi critici."
+        },
+        "dedicatedSupport": {
+          "title": "Supporto Dedicato",
+          "description": "Accedi a un responsabile supporto dedicato per assistenza personalizzata."
+        },
+        "slaGuarantee": {
+          "title": "Garanzia SLA",
+          "description": "Uptime garantito e tempi di risposta supporto con SLA formale."
         }
       }
     },
     "nav": {
       "documentation": "Documentazione",
+      "features": "Funzionalità",
       "pricing": "Prezzi",
       "goToDashboard": "Vai alla dashboard",
-      "getStarted": "Inizia"
+      "getStarted": "Inizia",
+      "login": "Accedi"
     },
     "footer": {
       "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
@@ -1018,15 +1326,17 @@
       "about": "Chi siamo",
       "contact": "Contatti",
       "privacyPolicy": "Politica privacy",
+      "subprocessors": "Sottoprocessori",
       "termsOfService": "Termini di servizio",
       "dpa": "Accordo elaborazione dati",
       "documentation": "Documentazione",
       "changelog": "Changelog",
       "pricing": "Prezzi",
+      "features": "Funzionalità",
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Tutti i diritti riservati. Open source sotto licenza AGPL-3.0."
+      "copyright": "© {year} Betterlytics. Open source sotto licenza AGPL-3.0."
     },
     "structuredData": {
       "organization": {
@@ -1056,7 +1366,8 @@
       "titleRest": "trasparenti",
       "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
       "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
-      "comparisonTitle": "Confronta tutte le funzionalità"
+      "comparisonTitle": "Confronta tutte le funzionalità",
+      "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
     }
   },
   "pricingSlider": {
@@ -1072,7 +1383,7 @@
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
       "allFeatures": "Tutte le funzionalità dashboard e analitiche",
-      "oneSite": "1 sito",
+      "twoSites": "Fino a 2 siti",
       "upTo50Sites": "Fino a 50 siti",
       "unlimitedSites": "Siti illimitati",
       "retention1PlusYear": "Conservazione dati 1+ anno",
@@ -1171,7 +1482,7 @@
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
         "values": {
-          "5": "5 monitor",
+          "1": "1 monitor",
           "50": "50 monitor",
           "unlimited": "Monitor illimitati"
         }
@@ -1187,7 +1498,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "Metodi HTTP GET/POST"
+        "name": "Metodo HTTP GET"
       },
       "customRequestHeaders": {
         "name": "Header di richiesta personalizzati"
@@ -1249,6 +1560,17 @@
         "analytics": "Analisi",
         "behavior": "Comportamento",
         "observability": "Osservabilità"
+      },
+      "collapseNav": "Comprimi navigazione"
+    },
+    "settings": {
+      "sidebar": {
+        "backToDashboard": "Torna alla Dashboard",
+        "settings": "Impostazioni",
+        "data": "Dati",
+        "rules": "Regole",
+        "members": "Membri",
+        "dangerZone": "Zona pericolosa"
       }
     },
     "metrics": {
@@ -1296,8 +1618,10 @@
   "dashboardsPage": {
     "title": "Le tue dashboard",
     "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
+    "loadError": "Impossibile caricare le dashboard",
     "emptyTitle": "Nessuna dashboard ancora",
     "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito.",
+    "memberCountTooltip": "{count, plural, one {{count} membro} other {{count} membri}}",
     "createCard": {
       "title": "Crea dashboard",
       "description": "Aggiungi una nuova dashboard"
@@ -1330,7 +1654,7 @@
       "fast": "Veloce",
       "elevated": "Elevata",
       "slow": "Lenta",
-      "noData": "Nessun dato ancora"
+      "noData": "Nessun dato"
     },
     "ssl": {
       "valid": "Valido",
@@ -1691,7 +2015,9 @@
     "deleting": "Eliminazione in corso",
     "cancel": "Anulla",
     "confirm": "Conferma",
-    "openMenu": "Apri menu"
+    "openMenu": "Apri menu",
+    "save": "Salva",
+    "saving": "Salvataggio..."
   },
   "languages": {
     "da": "Danish",
@@ -2170,6 +2496,7 @@
         "avgTime": "Tempo medio",
         "entryRate": "Tasso di ingresso",
         "exitRate": "Tasso di uscita",
+        "avgScrollDepth": "Profondità di scorrimento",
         "allPages": "Tutte le pagine",
         "entryPages": "Pagine di ingresso",
         "exitPages": "Pagine di uscita",
@@ -2255,7 +2582,8 @@
       },
       "thresholds": {
         "good": "Buono",
-        "fair": "Discreto"
+        "fair": "Discreto",
+        "poor": "Scarso"
       },
       "table": {
         "title": "Analisi prestazioni",
@@ -2348,14 +2676,12 @@
     "integration": {
       "integrationSetup": "Configurazione integrazione",
       "title": "Integrazione sito",
-      "description": "Aggiungi lo script di tracciamento al tuo sito per iniziare a raccogliere dati",
+      "description": "Seleziona il tuo framework e segui i passaggi di configurazione per iniziare a raccogliere dati",
       "fullyIntegrated": "Integrato completamente",
       "notFullyIntegrated": "Non completamente integrato",
       "loadingDetails": "Caricamento dettagli integrazione...",
       "unableToLoadSiteId": "Impossibile caricare l'ID del sito",
       "failedToCopy": "Copia non riuscita",
-      "important": "Importante",
-      "headSectionNote": "Aggiungi questo script alla sezione {head} del layout principale o delle singole pagine.",
       "npmPackageNote": "Oppure installa il nostro pacchetto <npm>npm</npm> <package>@betterlytics/tracker</package> per una configurazione semplice nei progetti Node.",
       "yourSiteId": "ID del tuo sito",
       "trackingScript": "Script di tracciamento",
@@ -2379,7 +2705,8 @@
       "troubleshooting": "Risoluzione problemi",
       "contactSupport": "Contatta il supporto",
       "verifying": "Verifica in corso...",
-      "verifyInstallation": "Verifica installazione"
+      "verifyInstallation": "Verifica installazione",
+      "selectFramework": "Seleziona il tuo framework"
     },
     "settingsButton": {
       "dashboardSettings": "Impostazioni dashboard"
@@ -2404,11 +2731,6 @@
         "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
         "toastFailure": "Invio dell'email di verifica non riuscito"
       }
-    },
-    "settingsPopover": {
-      "title": "Impostazioni rapide",
-      "theme": "Tema",
-      "advanced": "Impostazioni avanzate"
     },
     "topbar": {
       "userMenu": {
@@ -2580,6 +2902,7 @@
       "data": {
         "title": "Gestione dati",
         "description": "Configura conservazione e raccolta dei dati",
+        "retentionTitle": "Conservazione dati",
         "retentionLabel": "Periodo di conservazione dati",
         "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
         "presets": {
@@ -2590,11 +2913,24 @@
           "y2": "2 anni",
           "y3": "3 anni"
         },
+        "retentionConfirm": {
+          "title": "Cambiare periodo di conservazione?",
+          "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
+        },
         "siteRules": {
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",
           "enforceDomain": "Applicare dominio",
-          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard."
+          "enforceDomainDescription": "Rifiuta gli eventi il cui dominio non corrisponde alla configurazione della dashboard.",
+          "enableValidation": "Abilita validazione dominio",
+          "enableValidationDescription": "Accetta solo eventi dal tuo dominio configurato",
+          "rename": {
+            "title": "Cambia dominio",
+            "description": "Cambia il dominio associato a questa dashboard. I tuoi dati analitici verranno preservati.",
+            "info": "Il tuo Site ID e lo script di tracciamento rimangono invariati.",
+            "success": "Dominio aggiornato",
+            "error": "Impossibile aggiornare il dominio"
+          }
         },
         "blacklistedIps": {
           "title": "IP degli eventi bloccati",
@@ -2607,15 +2943,33 @@
         }
       },
       "danger": {
-        "title": "Elimina dashboard",
-        "description": "Elimina definitivamente la dashboard",
-        "warning": "Attenzione: questa azione non può essere annullata",
-        "deleteButton": "Elimina dashboard",
+        "title": "Dashboard",
+        "sectionTitle": "Elimina dashboard",
+        "sectionDescription": "Rimuovi permanentemente questa dashboard e tutti i suoi dati.",
+        "deleteButton": "Elimina",
+        "toastSuccess": "Dashboard eliminata con successo",
+        "toastError": "Impossibile eliminare la dashboard",
         "dialog": {
           "title": "Elimina dashboard",
           "description": "Sei sicuro di voler eliminare questa dashboard? Questa azione non può essere annullata.",
           "cancel": "Annulla",
           "confirm": "Elimina dashboard"
+        }
+      },
+      "leaveDashboard": {
+        "title": "Lascia dashboard",
+        "description": "Sei sicuro di voler lasciare questa dashboard?",
+        "button": "Lascia dashboard",
+        "buttonPending": "Uscita in corso...",
+        "dialog": {
+          "title": "Lascia dashboard",
+          "description": "Sei sicuro di voler lasciare questa dashboard? Non avrai più accesso e dovrai essere reinvitato per rientrare.",
+          "cancel": "Annulla",
+          "confirm": "Lascia dashboard"
+        },
+        "toast": {
+          "success": "Dashboard abbandonata",
+          "error": "Impossibile lasciare la dashboard"
         }
       }
     },
@@ -2628,6 +2982,10 @@
     "demoMode": {
       "notAvailable": "Non disponibile nella dashboard demo",
       "interactionDisabled": "Il filtraggio da questa interazione è disabilitato nella demo."
+    },
+    "permissions": {
+      "demoNotAvailable": "Non disponibile nella dashboard demo",
+      "insufficientPermissions": "Non hai i permessi per eseguire questa azione"
     },
     "bugReport": {
       "trigger": "Segnala bug",
@@ -2712,6 +3070,7 @@
       },
       "instructions": {
         "title": "Istruzioni di installazione",
+        "selectFramework": "Seleziona il tuo framework per vedere le istruzioni di installazione",
         "description": "Scegli il metodo che corrisponde alla configurazione del tuo sito web",
         "htmlTab": "HTML",
         "nextjsTab": "Next.js",
@@ -2728,6 +3087,10 @@
         "skipForNow": "Salta per ora",
         "continueToDashboard": "Continua alla dashboard"
       },
+      "frameworkGrid": {
+        "showLess": "Mostra meno",
+        "showMore": "+{count} altri framework"
+      },
       "redirectingIn": "Reindirizzamento tra {seconds}...",
       "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
     }
@@ -2743,6 +3106,14 @@
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
       "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional"
+    },
+    "invitations": {
+      "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
+      "invitationAlreadySent": "È già stato inviato un invito a questa email",
+      "invitationNotFoundOrProcessed": "Invito non trovato o già elaborato",
+      "invitationExpired": "Questo invito è scaduto",
+      "invitationEmailMismatch": "Questo invito è stato inviato a un indirizzo email diverso",
+      "invitationNotFound": "Invito non trovato"
     }
   },
   "banners": {
@@ -2773,6 +3144,329 @@
       "title": "Nessun dato Core Web Vitals",
       "description": "Assicurati che il tracciamento sia abilitato.",
       "action": "Scopri di più"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Membri",
+      "description": "Gestisci chi ha accesso a questa dashboard"
+    },
+    "table": {
+      "title": "Membri",
+      "searchPlaceholder": "Cerca membri...",
+      "columns": {
+        "member": "Membro",
+        "email": "Email",
+        "role": "Ruolo",
+        "joined": "Iscritto"
+      },
+      "noResults": "Nessun membro trovato corrispondente a \"{query}\"",
+      "you": "(tu)",
+      "unknown": "Sconosciuto"
+    },
+    "actions": {
+      "changeRole": "Cambia ruolo",
+      "removeFromDashboard": "Rimuovi dalla dashboard"
+    },
+    "roles": {
+      "owner": "Proprietario",
+      "admin": "Amministratore",
+      "editor": "Editore",
+      "viewer": "Visualizzatore"
+    },
+    "toast": {
+      "roleUpdated": "Ruolo aggiornato",
+      "roleUpdateFailed": "Impossibile aggiornare il ruolo",
+      "memberRemoved": "Membro rimosso",
+      "memberRemoveFailed": "Impossibile rimuovere il membro"
+    },
+    "settings": {
+      "invite": {
+        "title": "Invita",
+        "description": "Invita membri per visualizzare, modificare o amministrare la tua dashboard"
+      },
+      "activeMembers": {
+        "title": "Membri attivi"
+      },
+      "leaveDashboard": {
+        "title": "Dashboard"
+      }
+    }
+  },
+  "invitations": {
+    "section": {
+      "title": "Invita nuovi membri",
+      "description": "Invia un invito per collaborare su questa dashboard",
+      "emailLabel": "Indirizzo email",
+      "emailPlaceholder": "collega@example.com",
+      "roleLabel": "Ruolo",
+      "inviteButton": "Invita",
+      "sending": "Invio in corso...",
+      "pending": "In sospeso",
+      "invited": "Invitato",
+      "invalidEmail": "Inserisci un indirizzo email valido"
+    },
+    "toast": {
+      "sent": "Invito inviato",
+      "sendFailed": "Impossibile inviare l'invito",
+      "cancelled": "Invito annullato",
+      "cancelFailed": "Impossibile annullare l'invito",
+      "accepted": "Entrato in {domain}!",
+      "joinedSuccess": "Invito accettato!",
+      "acceptFailed": "Impossibile accettare l'invito",
+      "declined": "Invito rifiutato",
+      "declineFailed": "Impossibile rifiutare l'invito"
+    },
+    "pendingModal": {
+      "title": "Invito alla dashboard",
+      "description": "Sei stato invitato a collaborare su una dashboard",
+      "unknownDashboard": "Dashboard",
+      "accept": "Accetta",
+      "accepting": "Accettazione...",
+      "decline": "Rifiuta",
+      "declining": "Rifiuto...",
+      "pendingCount": "{current} di {total} inviti in sospeso"
+    },
+    "acceptPage": {
+      "notFoundTitle": "Invito non trovato",
+      "notFoundDescription": "Questo link di invito non è valido o è già stato utilizzato.",
+      "goToSignIn": "Vai al login",
+      "expiredTitle": "Invito scaduto",
+      "expiredDescription": "Questo invito non è più valido.",
+      "expiredHint": "Chiedi al proprietario della dashboard di inviarti un nuovo invito.",
+      "emailMismatchTitle": "Account errato",
+      "emailMismatchDescription": "Questo invito è stato inviato a {invitedEmail}, ma hai effettuato l'accesso come {currentEmail}.",
+      "emailMismatchHint": "Esci e accedi con l'account corretto per accettare questo invito.",
+      "errorTitle": "Impossibile accettare l'invito",
+      "errorDescription": "Si è verificato un errore durante l'accettazione dell'invito. Potrebbe essere già stato accettato o annullato.",
+      "goToDashboards": "Vai alle dashboard"
+    }
+  },
+  "integration": {
+    "frameworks": {
+      "html": {
+        "step1": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo all'interno del tag <head>"
+        }
+      },
+      "nextjs": {
+        "variants": {
+          "next153": {
+            "step1": {
+              "title": "Installa il pacchetto",
+              "description": "Esegui questo nella directory del progetto"
+            },
+            "step2": {
+              "title": "Crea instrumentation-client.ts",
+              "description": "Crea questo file nella root del progetto"
+            }
+          },
+          "approuter": {
+            "step1": {
+              "title": "Installa il pacchetto",
+              "description": "Esegui questo nella directory del progetto"
+            },
+            "step2": {
+              "title": "Crea un client provider",
+              "description": "Crea app/providers.tsx con la direttiva 'use client'"
+            },
+            "step3": {
+              "title": "Avvolgi la tua app",
+              "description": "Aggiungi il provider al root layout (app/layout.tsx)"
+            }
+          },
+          "pagesrouter": {
+            "step1": {
+              "title": "Installa il pacchetto",
+              "description": "Esegui questo nella directory del progetto"
+            },
+            "step2": {
+              "title": "Inizializza in _app.tsx",
+              "description": "Aggiungi a pages/_app.tsx"
+            }
+          }
+        }
+      },
+      "react": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza il tracker",
+          "description": "Aggiungilo al tuo punto di ingresso (es. src/main.tsx)"
+        }
+      },
+      "vue": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza il tracker",
+          "description": "Aggiungilo al main.ts prima di montare l'app"
+        }
+      },
+      "nuxt": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Crea un plugin client",
+          "description": "Crea plugins/betterlytics.client.ts"
+        }
+      },
+      "svelte": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza nel root layout",
+          "description": "Aggiungilo a src/routes/+layout.svelte"
+        }
+      },
+      "astro": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Aggiungi al layout base",
+          "description": "Aggiungi un tag script al layout (es. src/layouts/Layout.astro)"
+        }
+      },
+      "remix": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza in root.tsx",
+          "description": "Aggiungilo a app/root.tsx usando useEffect"
+        }
+      },
+      "gatsby": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza in gatsby-browser.js",
+          "description": "Aggiungilo a gatsby-browser.js nella root del progetto"
+        }
+      },
+      "angular": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza in main.ts",
+          "description": "Aggiungilo a src/main.ts"
+        }
+      },
+      "solidjs": {
+        "step1": {
+          "title": "Installa il pacchetto",
+          "description": "Esegui questo nella directory del progetto"
+        },
+        "step2": {
+          "title": "Inizializza nel file di ingresso",
+          "description": "Aggiungilo a src/index.tsx"
+        }
+      },
+      "laravel": {
+        "step1": {
+          "title": "Aggiungi al layout Blade",
+          "description": "Incolla questo nella sezione <head> del tuo file layout (es. resources/views/layouts/app.blade.php)"
+        }
+      },
+      "wordpress": {
+        "step1": {
+          "title": "Apri l'editor del tema",
+          "description": "Vai su Appearance > Theme Editor, oppure usa un plugin come \"Insert Headers and Footers\""
+        },
+        "step2": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo prima di </head> nel tuo header.php"
+        },
+        "note": "Considera l'utilizzo di un tema child o un plugin per evitare di perdere le modifiche durante gli aggiornamenti del tema."
+      },
+      "shopify": {
+        "step1": {
+          "title": "Apri l'editor del tema",
+          "description": "Vai su Online Store > Themes > Edit code"
+        },
+        "step2": {
+          "title": "Modifica theme.liquid",
+          "description": "Apri theme.liquid nella cartella Layout"
+        },
+        "step3": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo prima del tag di chiusura </head>"
+        },
+        "note": "Gli aggiornamenti del tema potrebbero sovrascrivere le tue modifiche. Considera di duplicare il tema come backup."
+      },
+      "webflow": {
+        "step1": {
+          "title": "Apri le impostazioni del progetto",
+          "description": "Vai su Project Settings > Custom Code"
+        },
+        "step2": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo nella sezione Head Code, poi pubblica il tuo sito"
+        }
+      },
+      "wix": {
+        "step1": {
+          "title": "Apri le impostazioni del sito",
+          "description": "Vai su Settings > Custom Code"
+        },
+        "step2": {
+          "title": "Aggiungi nuovo codice personalizzato",
+          "description": "Clicca su Add Custom Code e incolla lo script qui sotto"
+        },
+        "step3": {
+          "title": "Configura e applica",
+          "description": "Imposta posizionamento su Head, applica a All pages, poi clicca su Apply"
+        },
+        "note": "Custom Code richiede un piano Wix Premium."
+      },
+      "squarespace": {
+        "step1": {
+          "title": "Apri code injection",
+          "description": "Vai su Settings > Developer Tools > Code Injection"
+        },
+        "step2": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo nella sezione Header, poi salva"
+        },
+        "note": "Code Injection richiede un piano Squarespace Business o superiore."
+      },
+      "gtm": {
+        "step1": {
+          "title": "Crea un nuovo tag",
+          "description": "In Google Tag Manager, vai su Tags > New > Custom HTML"
+        },
+        "step2": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo codice e imposta il trigger su All Pages"
+        },
+        "step3": {
+          "title": "Pubblica il container",
+          "description": "Clicca su Submit per pubblicare le modifiche"
+        },
+        "note": "Assicurati che GTM sia installato correttamente sul tuo sito."
+      },
+      "default": {
+        "step1": {
+          "title": "Aggiungi lo script di tracciamento",
+          "description": "Incolla questo nella sezione <head> del tuo HTML"
+        }
+      }
     }
   }
 }

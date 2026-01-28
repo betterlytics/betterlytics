@@ -8,10 +8,10 @@ import UserJourneyCard from './featureCards/userJourneyCard';
 import WorldMapCard from './featureCards/worldMapCard';
 import TrafficSourcesCard from './featureCards/trafficSourcesCard';
 import CoreWebVitalsCard from './featureCards/coreWebVitalsCard';
-import OutboundLinksCard from './featureCards/outboundLinksCard';
 import SessionReplayCard from './featureCards/sessionReplayCard';
-import ExternalLink from '@/components/ExternalLink';
+import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
+import UptimeMonitoringCard from './featureCards/uptimeMonitoringCard';
 
 export async function FeatureShowcase() {
   const t = await getTranslations('public.landing.showcase');
@@ -50,14 +50,14 @@ export async function FeatureShowcase() {
       title: t('categories.performance'),
       cards: [
         { id: 'traffic-sources', element: <TrafficSourcesCard /> },
-        { id: 'outbound-links', element: <OutboundLinksCard /> },
+        { id: 'outbound-links', element: <UptimeMonitoringCard /> },
         { id: 'core-web-vitals', element: <CoreWebVitalsCard /> },
       ],
     },
   ];
 
   return (
-    <section className='relative overflow-visible py-20'>
+    <section className='relative overflow-visible py-24 sm:py-28'>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
@@ -96,10 +96,10 @@ export async function FeatureShowcase() {
             className='group transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg motion-reduce:transform-none motion-reduce:transition-none'
             asChild
           >
-            <ExternalLink href='/docs/dashboard#exploring-individual-sections' title={t('docsTitle')}>
-              {t('docsButton')}
+            <Link href='/features' title={t('featuresTitle')}>
+              {t('featuresButton')}
               <ChevronRight className='ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none' />
-            </ExternalLink>
+            </Link>
           </Button>
         </div>
       </div>

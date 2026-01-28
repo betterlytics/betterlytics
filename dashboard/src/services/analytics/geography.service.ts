@@ -1,3 +1,5 @@
+'server-only';
+
 import { getVisitorsByCountry } from '@/repositories/clickhouse/geography.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { GeoVisitor } from '@/entities/analytics/geography.entities';

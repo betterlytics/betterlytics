@@ -1,500 +1,69 @@
 # Contributing to Betterlytics
 
-<div align="center">
+Thanks for your interest in contributing! Everyone is welcome to help out, whether it's fixing bugs, adding features, improving docs, or just sharing ideas.
 
-**Help us build the future of privacy-first analytics**
+## How to Contribute
 
-[![Contributors](https://img.shields.io/github/contributors/betterlytics/betterlytics.svg)](https://github.com/betterlytics/betterlytics/graphs/contributors)
-[![Issues](https://img.shields.io/github/issues/betterlytics/betterlytics.svg)](https://github.com/betterlytics/betterlytics/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/betterlytics/betterlytics.svg)](https://github.com/betterlytics/betterlytics/pulls)
-[![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+- **Ideas & questions** → Start a [Discussion](https://github.com/betterlytics/betterlytics/discussions)
+- **Bug reports** → [Open an Issue](https://github.com/betterlytics/betterlytics/issues)
+- **Code contributions** → PRs are welcome! Just keep them focused.
 
-[Quick Start](#-quick-start) • [Development](#️-development-workflow) • [Testing](#-testing) • [Code Style](#-code-style) • [Pull Requests](#-pull-request-process) • [Issues](#-issue-guidelines-not-strictly-required-to-adhere-to-yet) • [Help](#-getting-help)
-
-</div>
+If in doubt, reach out on [Discord](https://discord.gg/vwqSvPn6sP). We're always happy to help.
 
 ---
 
-## Why Contribute?
+## Development Setup
 
-Betterlytics is more than just an analytics platform - it's an effort towards privacy-respecting web analytics. By contributing, you're helping to:
+### Prerequisites
 
-- **Protect user privacy** across the web
-- **Advance open source** analytics technology
-- **Build a better internet** for everyone
-- **Learn cutting-edge** technologies (Rust, ClickHouse, React 19, Next.js 15, and more)
+- Docker (for databases)
+- Node.js 18+
+- Rust (latest stable)
+- pnpm
 
----
-
-## Quick Start
-
-Get your development environment ready in minutes:
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### Fork & Clone
+### Getting Started
 
 ```bash
-# Fork on GitHub, then clone your fork
+# Clone your fork
 git clone https://github.com/YOUR_USERNAME/betterlytics.git
 cd betterlytics
 
-# Add upstream remote
-git remote add upstream https://github.com/betterlytics/betterlytics.git
-```
-
-</td>
-<td width="50%" valign="top">
-
-### Setup & Run
-
-```bash
-# Install dependencies & start services
+# Install dependencies
 pnpm install
-pnpm run compose
 
+# Copy environment file
 cp .env.example .env
+
+# Start databases
+pnpm run compose
 
 # Start development servers
 pnpm run backend    # Port 3001
 pnpm run dashboard  # Port 3000
 ```
 
-</td>
-</tr>
-</table>
+## Seeding Test Data
 
-**Need detailed setup?** See our [Setup Guide](SETUP.md) for comprehensive instructions.
-
----
-
-## Development Workflow
-
-### Prerequisites
-
-<table>
-<tr>
-<td width="20%" align="center">
-
-**Docker**
-Required for databases
-
-</td>
-<td width="20%" align="center">
-
-**Node.js**
-v18+ for dashboard
-
-</td>
-<td width="20%" align="center">
-
-**Rust**
-Latest stable
-
-</td>
-<td width="20%" align="center">
-
-**pnpm**
-Package manager
-
-</td>
-<td width="20%" align="center">
-
-**🔧 Git**
-Version control
-
-</td>
-</tr>
-</table>
-
-### Project Architecture
-
-```
-betterlytics/
-├── backend/                 # Rust server (Axum + ClickHouse)
-│   ├── src/                   # Source code
-│   ├── Cargo.toml             # Dependencies
-│   └── .env.example           # Environment template
-├── dashboard/               # Next.js 15 + React 19 + Tailwind css
-│   ├── src/                   # Source code
-│   ├── package.json           # Dependencies
-│   └── .env.example           # Environment template
-├── docs/                    # Nextra Documentation
-|   ├── src/content            # Markdown Pages for Docs
-├── migrations/              # Database migrations
-├── scripts/                # Build utilities
-├── static/                 # Tracking script
-└── docker-compose.yml      # Services
-```
-
-### Development Commands
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-#### Quick Commands
+To populate your dashboard with realistic data:
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Start everything
-pnpm run compose
-
-# Development servers
-pnpm run backend
-pnpm run dashboard
+pnpm simulate $SITE_ID
 ```
 
-</td>
-<td width="50%" valign="top">
+You can customize the simulation with flags like `--events=1000`, `--users=200`, etc.
 
-#### 🔧 Build & Test
-
-```bash
-# Build for production
-pnpm build
-
-# Run tests
-pnpm test
-
-# Performance testing
-pnpm run perf-test
-```
-
-</td>
-</tr>
-</table>
-
----
-
-## Database Development
-
-### Creating Migrations
-
-#### Naming Convention
-
-```bash
-# Pattern: {number}_description.sql
-migrations/
-├── 1_initial_schema.sql
-├── 2_add_user_sessions.sql
-└── 3_add_custom_events.sql
-```
-
-See existing migrations for examples on how to create migrations.
-
----
-
-## Testing - WIP
-
-### Testing Strategy
-
-<table>
-<tr>
-<td width="33%" valign="top">
-
-#### Backend Tests
-
-```bash
-# Run Rust tests
-cargo test
-
-# With coverage
-cargo tarpaulin
-```
-
-**Focus**: API endpoints, data processing, performance
-
-</td>
-<td width="33%" valign="top">
-
-#### Performance Tests
-
-```bash
-# Load testing
-pnpm run performance
-```
-
-**Focus**: Throughput, response times, scalability
-
-</td>
-</tr>
-</table>
-
-### Simulating Analytics Events
-
-To simulate realistic event traffic for the dashboard with public IPs, use the provided script in `simulate-events.js`.
-It's necessary to add `ENABLE_GEOLOCATION=true`, and a valid `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY` pair to `.env`,
-to simulate global traffic.
-
-```bash
-pnpm simulate $SITE_ID $FLAGS
-```
-
-| Flag              | Description                                             | Default |
-| ----------------- | ------------------------------------------------------- | ------- |
-| `--events`        | Total number of events to simulate                      | `4000`  |
-| `--users`         | Number of unique simulated users                        | `2000`  |
-| `--batch-size`    | Number of events sent per batch (concurrent POSTs)      | `500`   |
-| `--event-freq`    | Fraction (0–1) of events that are custom (non-pageview) | `0.2`   |
-| `--campaign-freq` | Fraction (0–1) of events that have campaign UTM tags    | `0.3`   |
-| `--campaigns`     | Number of unique campaigns to generate                  | `6`     |
-
-#### Usage examples
-
-```bash
-# With default config
-pnpm simulate "betterlytics-md3brmol"
-
-# With full config override
-pnpm simulate "betterlytics-md3brmol" \
-  --events=1000 \
-  --users=200 \
-  --batch-size=1000 \
-  --event-freq=0.3 \
-  --campaign-freq=0.5 \
-  --campaigns=10
-```
-
-### Performance Testing
-
-Test the analytics ingestion performance:
-
-```bash
-k6 run -e TARGET_URL=http://localhost:3001/event -e VUS=100 -e DURATION=1m k6-perf-test.js
-
-# or run the following command to test with standard configurations:
-pnpm run performance
-```
-
-**Parameters**:
-
-- `TARGET_URL`: Backend server URL
-- `VUS`: Virtual users (concurrent connections)
-- `DURATION`: Test duration
-
----
-
-## Code Style
-
-### Rust Guidelines
-
-- Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
-- Use `cargo fmt` for formatting
-- Use `cargo clippy` for linting
-
-### TypeScript/React Guidelines
-
-- Follow existing ESLint configuration
-- Use Prettier for formatting (configured for project)
-- Prefer functional components with hooks
-- Use TypeScript strictly (no `any` types)
-
-### Commit Message Format
-
-Use [Conventional Commits](https://www.conventionalcommits.org/) format:
-
-```
-description
-
-[optional body]
-
-[optional footer]
-```
-
-#### Examples
-
-```
-Add user session tracking
-Resolve memory leak in real-time updates
-Update installation instructions
-Add integration tests for analytics endpoint
-```
-
----
-
-## Pull Request Process
-
-### PR Template (Not strictly required to adhere to yet)
-
-```markdown
-## Description
-
-Brief description of changes and motivation
-
-## Type of Change
-
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
-- [ ] Style/UI changes
-
-## Testing
-
-- [ ] Tests pass locally
-- [ ] Added new tests
-- [ ] Manual testing completed
-- [ ] Performance impact assessed
-
-## Screenshots (if applicable)
-
-Add screenshots for UI changes
-
-## Additional Notes
-
-Any additional context or considerations
-```
-
-### Review Process
-
-1. **Automated checks** must pass (CI/CD, linting, tests)
-2. **Code review** by at least one maintainer
-3. **Manual testing** is a must for all changes
-4. **Documentation review** if docs are updated
-5. **Merge** after approval and passing checks
-
----
-
-## Issue Guidelines (Not strictly required to adhere to yet)
-
-### Bug Reports
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-#### Include This Information when applicable
-
-- **Operating system** and version
-- **Browser** (for dashboard issues)
-- **Node.js version** (`node --version`)
-- **Rust version** (`rustc --version`)
-- **Steps to reproduce**
-- **Expected vs actual behavior**
-- **Error messages** and logs
-- **Screenshots** if applicable
-
-</td>
-<td width="50%" valign="top">
-
-#### Before Reporting
-
-- [ ] Search existing issues
-- [ ] Try latest version
-- [ ] Check documentation
-- [ ] Minimal reproduction case
-- [ ] Clear, descriptive title
-
-</td>
-</tr>
-</table>
-
-### Feature Requests
-
-If possible, include:
-
-- **Clear description** of the feature
-- **Use case** and motivation
-- **Proposed implementation** (if you have ideas)
-- **Alternatives considered**
-- **Mockups/wireframes** (for UI features)
-
-Although any feature requests are welcome, and we'll gladly help refine the issues you create!
+For geolocation to work, add `ENABLE_GEOLOCATION=true` and your MaxMind credentials to `.env`.
 
 ---
 
 ## Getting Help
 
-<table>
-<tr>
-<td width="25%" align="center">
-
-### Discord
-
-[![Discord](https://img.shields.io/badge/Discord-Join-7289da.svg)](https://discord.gg/vwqSvPn6sP)
-
-Real-time help and discussion
-
-</td>
-<td width="25%" align="center">
-
-### GitHub Issues
-
-[![Issues](https://img.shields.io/badge/Issues-Report-red.svg)](https://github.com/betterlytics/betterlytics/issues)
-
-Bug reports and feature requests
-
-</td>
-<td width="25%" align="center">
-
-### Discussions
-
-[![Discussions](https://img.shields.io/badge/Discussions-Ask-blue.svg)](https://github.com/betterlytics/betterlytics/discussions)
-
-Questions and ideas
-
-</td>
-<td width="25%" align="center">
-
-### Email
-
-[![Email](https://img.shields.io/badge/Email-Security-orange.svg)](mailto:security@betterlytics.io)
-
-Security issues only
-
-</td>
-</tr>
-</table>
+- [Discord](https://discord.gg/vwqSvPn6sP) – Chat with us
+- [Discussions](https://github.com/betterlytics/betterlytics/discussions) – Ideas & questions
+- [Issues](https://github.com/betterlytics/betterlytics/issues) – Bug reports
 
 ---
-
-## Technical Resources
-
-### Performance Optimization
-
-- [ClickHouse Performance Optimization](https://www.highlight.io/blog/lw5-clickhouse-performance-optimization)
-- [ClickHouse Operations Overview](https://clickhouse.com/docs/operations/overview)
-- [ClickHouse Data Insertion Guide](https://clickhouse.com/docs/guides/inserting-data)
-- [Asynchronous Data Inserts in ClickHouse](https://clickhouse.com/blog/asynchronous-data-inserts-in-clickhouse)
-- [Data Batching for Optimal Performance](https://clickhouse.com/blog/asynchronous-data-inserts-in-clickhouse#data-needs-to-be-batched-for-optimal-performance)
-
-### Integrations
-
-- [ClickHouse Kafka Connect Sink](https://clickhouse.com/docs/integrations/kafka/clickhouse-kafka-connect-sink)
-
-### Rust Development
-
-- [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/)
-- [Tokio Documentation](https://tokio.rs/)
-- [Axum Web Framework](https://docs.rs/axum/latest/axum/)
-
-### Frontend Development
-
-- [Next.js 15 Documentation](https://nextjs.org/docs)
-- [React 19 Documentation](https://react.dev/)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-
----
-
-## Code of Conduct
-
-Please note that this project is released with a [Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
 
 ## License
 
-By contributing to Betterlytics, you agree that your contributions will be licensed under the AGPL-3.0 license.
-
----
-
-<div align="center">
-
-**Ready to contribute?** 🚀 [Fork the repository](https://github.com/betterlytics/betterlytics/fork) and start building!
-
-Made with ❤️ by the Betterlytics team
-
-</div>
+By contributing, you agree that your contributions will be licensed under AGPL-3.0.

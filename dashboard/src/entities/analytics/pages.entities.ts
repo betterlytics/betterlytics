@@ -15,6 +15,10 @@ export const PageAnalyticsSchema = z.object({
   }, z.number()),
   entryRate: z.number().optional(),
   exitRate: z.number().optional(),
+  avgScrollDepth: z.preprocess((val) => {
+    if (val === null || val === undefined) return 0;
+    return Number(val);
+  }, z.number()),
 });
 
 export const TopPageRowSchema = z.object({

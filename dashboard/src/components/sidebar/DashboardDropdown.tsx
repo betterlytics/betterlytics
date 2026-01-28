@@ -16,9 +16,9 @@ import { Button } from '@/components/ui/button';
 import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
-import { DisabledDemoTooltip } from '../tooltip/DisabledDemoTooltip';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
 import { useIsEmbedded } from '@/hooks/use-is-embedded';
+import { PermissionGate } from '../tooltip/PermissionGate';
 
 interface DashboardDropdownProps {
   currentDashboardPromise: Promise<Dashboard>;
@@ -30,7 +30,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const router = useBARouter();
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.sidebar.dashboardDropdown');
-  const { buildHrefForDashboard } = useDashboardNavigation();
+  const { getSwappedDashboardHref } = useDashboardNavigation();
   const isEmbedded = useIsEmbedded();
 
   const currentDashboard = use(currentDashboardPromise);
@@ -38,7 +38,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
   const handleDashboardSwitch = (newDashboardId: string) => {
     setIsOpen(false);
-    router.push(buildHrefForDashboard(newDashboardId));
+    router.push(getSwappedDashboardHref(newDashboardId));
   };
 
   const allDashboardsList = allDashboards.success ? allDashboards.data : [];
@@ -48,13 +48,21 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium'
+          className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-0'
         >
-          <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden'>
-            <DomainFavicon domain={currentDashboard.domain} size={20} className='h-5 w-5' />
-            <span className='truncate text-left'>{currentDashboard.domain}</span>
+          <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden group-data-[collapsible=icon]:flex-none'>
+            <div className='group-data-[collapsible=icon]:border-border flex items-center group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:border group-data-[collapsible=icon]:p-1'>
+              <DomainFavicon
+                domain={currentDashboard.domain}
+                size={20}
+                className='h-5 w-5 group-data-[collapsible=icon]:h-4 group-data-[collapsible=icon]:w-4'
+              />
+            </div>
+            <span className='truncate text-left group-data-[collapsible=icon]:hidden'>
+              {currentDashboard.domain}
+            </span>
           </div>
-          <ChevronDown className='text-muted-foreground h-3 w-3 flex-shrink-0' />
+          <ChevronDown className='text-muted-foreground h-3 w-3 flex-shrink-0 group-data-[collapsible=icon]:hidden' />
         </Button>
       </DropdownMenuTrigger>
 
@@ -82,7 +90,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <DisabledDemoTooltip disabled={isEmbedded}>
+        <PermissionGate allowViewer when={!isEmbedded}>
           {(disabled) => (
             <DropdownMenuItem
               onClick={() => router.push('/dashboards')}
@@ -95,7 +103,7 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
               </div>
             </DropdownMenuItem>
           )}
-        </DisabledDemoTooltip>
+        </PermissionGate>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -42,7 +42,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   const dashboardId = useDashboardId();
 
   const [isDirty, setIsDirty] = useState(false);
-  const [search, _setSearch] = useState(filter.value);
+  const [search, _setSearch] = useState('');
 
   const setSearch = useCallback((next: string) => {
     _setSearch(next);
@@ -77,10 +77,6 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     setSearchMetadataResult(null);
     setServerOptions([]);
   }, [filter.column]);
-
-  useEffect(() => {
-    setSearch(filter.value);
-  }, [filter.value]);
 
   useEffect(() => {
     if (shouldSearchServer && isLoading === false) {

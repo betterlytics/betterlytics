@@ -7,16 +7,8 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { baEvent } from '@/lib/ba-event';
 import { isNowInFirstBucket, getResolvedRanges } from '@/lib/ba-timerange';
 
-export function useImmediateTimeRange(enableEvents: boolean = true) {
+export function useImmediateTimeRange() {
   const ctx = useTimeRangeContext();
-
-  const emitBAEvent = useMemo(() => {
-    if (enableEvents) {
-      return baEvent;
-    } else {
-      return () => {};
-    }
-  }, [enableEvents]);
 
   const computeShiftedRange = useCallback(
     (offset: number) => {
@@ -65,11 +57,11 @@ export function useImmediateTimeRange(enableEvents: boolean = true) {
         ctx.setCompareDateRange(resolved.compare?.start, resolved.compare?.end);
       }
 
-      emitBAEvent('set-preset-date-range', {
+      baEvent('set-preset-date-range', {
         interval: preset,
       });
     },
-    [ctx, emitBAEvent],
+    [ctx],
   );
 
   const setCustomRange = useCallback(
@@ -96,12 +88,12 @@ export function useImmediateTimeRange(enableEvents: boolean = true) {
         ctx.setCompareDateRange(resolved.compare?.start, resolved.compare?.end);
       }
 
-      emitBAEvent('set-custom-date-range', {
+      baEvent('set-custom-date-range', {
         from,
         to,
       });
     },
-    [ctx, emitBAEvent],
+    [ctx],
   );
 
   const setGranularity = useCallback(
@@ -119,11 +111,11 @@ export function useImmediateTimeRange(enableEvents: boolean = true) {
         ctx.compareAlignWeekdays,
       );
       ctx.setGranularity(resolved.granularity);
-      emitBAEvent('set-granularity', {
+      baEvent('set-granularity', {
         granularity: resolved.granularity,
       });
     },
-    [ctx, emitBAEvent],
+    [ctx],
   );
 
   const enableCompare = useCallback(
@@ -134,21 +126,21 @@ export function useImmediateTimeRange(enableEvents: boolean = true) {
       }
       ctx.setCompareMode('previous');
 
-      emitBAEvent('set-preset-compare', {
+      baEvent('set-preset-compare', {
         preset: 'off',
       });
     },
-    [ctx, emitBAEvent],
+    [ctx],
   );
 
   const setComparePreset = useCallback(
     (preset: 'previous' | 'year' | 'custom') => {
       ctx.setCompareMode(preset);
-      emitBAEvent('set-preset-compare', {
+      baEvent('set-preset-compare', {
         preset,
       });
     },
-    [ctx, emitBAEvent],
+    [ctx],
   );
 
   const setCompareCustomStart = useCallback(
@@ -185,10 +177,10 @@ export function useImmediateTimeRange(enableEvents: boolean = true) {
     ctx.setPeriod(start, end);
     if (ctx.granularity !== computed.granularity) ctx.setGranularity(computed.granularity);
 
-    emitBAEvent('shift-period', {
+    baEvent('shift-period', {
       direction: 'previous',
     });
-  }, [computeShiftedRange, ctx, emitBAEvent]);
+  }, [computeShiftedRange, ctx]);
 
   const shiftNextPeriod = useCallback(() => {
     const computed = computeShiftedRange(1);
@@ -201,10 +193,10 @@ export function useImmediateTimeRange(enableEvents: boolean = true) {
 
     ctx.setPeriod(start, end);
     if (ctx.granularity !== computed.granularity) ctx.setGranularity(computed.granularity);
-    emitBAEvent('shift-period', {
+    baEvent('shift-period', {
       direction: 'next',
     });
-  }, [computeShiftedRange, ctx, emitBAEvent]);
+  }, [computeShiftedRange, ctx]);
 
   const canShiftNextPeriod = useCallback(() => {
     return computeShiftedRange(1) !== null;

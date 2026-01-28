@@ -12,7 +12,6 @@ pub struct EventRow {
     pub session_id: String,
     pub domain: String,
     pub url: String,
-    pub user_agent: String,
     pub device_type: String,
     pub country_code: Option<String>,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
@@ -41,6 +40,8 @@ pub struct EventRow {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+    pub scroll_depth_percentage: Option<f32>,
+    pub scroll_depth_pixels: Option<f32>,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -69,6 +70,7 @@ pub enum EventType {
     Custom = 2,
     OutboundLink = 3,
     Cwv = 4,
+    ScrollDepth = 5,
 }
 
 impl EventRow {
@@ -81,7 +83,6 @@ impl EventRow {
             session_id: event.session_id,
             domain: event.domain.unwrap_or_else(|| "unknown".to_string()),
             url: event.url,
-            user_agent: event.user_agent,
             device_type: event.device_type.unwrap_or_else(|| "unknown".to_string()),
             country_code: event.country_code,
             timestamp,
@@ -108,6 +109,8 @@ impl EventRow {
             cwv_inp: event.cwv_inp,
             cwv_fcp: event.cwv_fcp,
             cwv_ttfb: event.cwv_ttfb,
+            scroll_depth_percentage: event.scroll_depth_percentage,
+            scroll_depth_pixels: event.scroll_depth_pixels,
         }
     }
 }

@@ -8344,8 +8344,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
       disabled: false,
       buffer: [],
       approxBytes: 0,
-      sizeBytes: 0,
-      uploadedEventCount: 0,
       startedAt: Date.now(),
       firstActivity: null,
       lastActivity: Date.now(),
@@ -8358,7 +8356,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     };
 
     var config = {
-      maxChunkMs: 30000,
+      maxChunkMs: 15000,
       maxUncompressedBytes: 1 * 1024 * 1024,
       maxConsecutiveFlushErrors: 3,
     };
@@ -8374,6 +8372,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function fetchPresignedUrl(payload) {
       var presignPayload = {
         site_id: siteId,
+        url: window.location.href,
         screen_resolution: window.screen.width + "x" + window.screen.height,
         content_length: payload.bytes.byteLength,
       };
@@ -8427,10 +8426,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
     }
 
-    function handleUploadSuccess(data, flushedEventCount) {
-      state.uploadedEventCount += flushedEventCount;
-      state.sizeBytes += data.payload.bytes.byteLength;
+    function handleUploadSuccess(data, flushedEventCount, endedAtMs) {
+      var uploadedBytes = data.payload.bytes.byteLength;
       state.consecutiveFlushErrors = 0;
+      finalizeSession(uploadedBytes, flushedEventCount, endedAtMs);
     }
 
     function handleFlushError(events) {
@@ -8479,7 +8478,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         })
         .then(uploadToS3)
         .then(function (data) {
-          handleUploadSuccess(data, flushedEventCount);
+          handleUploadSuccess(data, flushedEventCount, lastEventTs);
         })
         .catch(function () {
           try {
@@ -8524,10 +8523,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }, Math.max(3000, config.maxChunkMs));
     }
 
-    function finalizeSession() {
+    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs) {
       if (state.disabled) return;
       if (!hasReachedMinDuration()) return;
       if (!state.replaySession.id || !state.visId) return;
+      if (!deltaSizeBytes || !deltaEventCount) return;
 
       return fetch(apiBase + "/replay/finalize", {
         method: "POST",
@@ -8537,17 +8537,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
           session_id: state.replaySession.id,
           visitor_id: state.visId,
           started_at: Math.floor(state.firstActivity / 1000),
-          ended_at: Math.floor(state.lastActivity / 1000),
-          size_bytes: state.sizeBytes,
+          ended_at: Math.floor(endedAtMs / 1000),
+          size_bytes: deltaSizeBytes,
           start_url: normalize(window.location.href),
-          event_count: state.uploadedEventCount,
+          event_count: deltaEventCount,
         }),
         keepalive: true,
-      })
-        .catch(function () {})
-        .finally(function () {
-          state.uploadedEventCount = 0;
-        });
+      }).catch(function () {});
     }
 
     function stopRecording(finalize) {
@@ -8564,11 +8560,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
         state.flushTimer = null;
       }
       flushAll()
-        .then(function () {
-          if (finalize) {
-            return finalizeSession();
-          }
-        })
         .catch(function () {})
         .finally(function () {
           state.initialized = false;
