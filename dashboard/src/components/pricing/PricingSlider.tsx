@@ -2,7 +2,7 @@
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { useTranslations } from 'next-intl';
-import { NumberRoll } from '@/components/animations';
+import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
   currentRange: EventRange;
@@ -40,7 +40,7 @@ export function PricingSlider({
       <div className='mb-4 text-center'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
         <div className='text-3xl font-bold inline-flex items-center gap-0.5'>
-          <NumberRoll value={displayNumber} />
+          <NumberFlow value={displayNumber} />
           {suffix}
           {isUnlimited && '+'}
         </div>
