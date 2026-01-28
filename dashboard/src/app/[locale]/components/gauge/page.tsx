@@ -76,6 +76,12 @@ const GAUGE_PROPS = [
     type: 'string',
     description: 'Label displayed above the percentage value.',
   },
+  {
+    name: 'withNeedle',
+    type: 'boolean',
+    default: 'false',
+    description: 'Show a tapered needle pointing to the current progress position.',
+  },
 ];
 
 const SEGMENT_TYPE = `interface Segment {
@@ -133,6 +139,7 @@ export default function GaugeDemoPage() {
   const [arcGap, setArcGap] = useState(4);
   const [widthRatio, setWidthRatio] = useState(1.15);
   const [title, setTitle] = useState('Progress');
+  const [withNeedle, setWithNeedle] = useState(true);
 
   const documentation = (
     <div className="space-y-8">
@@ -209,6 +216,7 @@ export default function GaugeDemoPage() {
             arcGap={arcGap}
             widthRatio={widthRatio}
             title={title}
+            withNeedle={withNeedle}
           />
         </div>
 
@@ -240,6 +248,24 @@ export default function GaugeDemoPage() {
             </h3>
 
             <Control label="Display Title" type="text" value={title} onChange={setTitle} />
+
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
+                Show Needle
+              </label>
+              <button
+                onClick={() => setWithNeedle(!withNeedle)}
+                className={`relative h-6 w-11 rounded-full transition-colors ${
+                  withNeedle ? 'bg-primary' : 'bg-muted'
+                }`}
+              >
+                <div
+                  className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                    withNeedle ? 'left-6' : 'left-1'
+                  }`}
+                />
+              </button>
+            </div>
 
             <Control
               label="Progress Value"

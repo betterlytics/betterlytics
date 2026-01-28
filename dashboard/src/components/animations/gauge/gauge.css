@@ -17,6 +17,14 @@
     stroke var(--gauge-duration) var(--gauge-easing);
 }
 
+.gauge-needle {
+  transition: transform var(--gauge-duration) var(--gauge-easing);
+}
+
+.gauge-pivot {
+  /* Pivot disc base styling - gradients added in phase 2 */
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gauge-root {
     --gauge-duration: 0ms;
