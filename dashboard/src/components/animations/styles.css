@@ -23,6 +23,7 @@
   --ba-digit-width: 0.65em;
   --ba-mask-width: 2em;
   --ba-mask-bleed: 0.4em;
+  --ba-vertical-fade: 10%;
 
   /* Shared easings */
   --ba-layout-easing: cubic-bezier(0.25, 1, 0.5, 1);
@@ -34,6 +35,23 @@
   position: relative;
   direction: ltr;
   contain: layout;
+
+  transform: scaleY(calc(1 + var(--ba-vertical-fade)));
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 var(--ba-vertical-fade),
+    #000 calc(100% - var(--ba-vertical-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 var(--ba-vertical-fade),
+    #000 calc(100% - var(--ba-vertical-fade)),
+    transparent 100%
+  );
 }
 
 /* Ghost element for measuring natural width */
@@ -103,15 +121,6 @@
   height: calc(1lh + var(--ba-mask-bleed));
   margin: calc(-1 * var(--ba-mask-bleed) / 2) 0;
   overflow: clip;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 var(--ba-mask-bleed),
-    #000 calc(100% - var(--ba-mask-bleed)),
-    transparent 100%
-  );
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
   width: var(--ba-digit-width);
 }
 
@@ -227,23 +236,19 @@
   animation: ba-digit-roll-out var(--ba-reduced-duration, var(--ba-duration)) var(--ba-spring-easing) forwards;
 }
 
-.ba-digit-reel-inner[data-phase='animating'] {
-  transition: transform var(--ba-reduced-duration, var(--ba-duration)) var(--ba-spring-easing);
-}
+/* Digit roll animation is handled via Web Animations API in JS */
 
 /* ==========================================================================
    Symbol Slot - uses CSS grid 0fr→1fr for width animation (no JS measurement)
    ========================================================================== */
 
 .ba-symbol-slot {
-  display: grid;
-  grid-template-columns: 1fr;
-  transition: grid-template-columns var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ba-symbol-slot-inner {
-  overflow: hidden;
-  min-width: 0;
   white-space: pre;
 }
 
@@ -270,36 +275,16 @@
   }
 }
 
-@keyframes ba-symbol-enter {
-  from {
-    grid-template-columns: 0fr;
-    opacity: 0;
-  }
-  to {
-    grid-template-columns: 1fr;
-    opacity: 1;
-  }
-}
-
-@keyframes ba-symbol-exit {
-  from {
-    grid-template-columns: 1fr;
-    opacity: 1;
-  }
-  to {
-    grid-template-columns: 0fr;
-    opacity: 0;
-  }
-}
-
 .ba-symbol-slot[data-phase='entering'] {
-  animation: ba-symbol-enter var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing) forwards;
+  animation: ba-fade-in var(--ba-reduced-duration, var(--ba-duration)) var(--ba-opacity-easing) forwards;
 }
 
 .ba-symbol-slot[data-phase='exiting'] {
+  width: 0;
+  overflow: visible;
   pointer-events: none;
   user-select: none;
-  animation: ba-symbol-exit var(--ba-reduced-duration, var(--ba-duration)) var(--ba-layout-easing) forwards;
+  animation: ba-fade-out calc(var(--ba-reduced-duration, var(--ba-duration)) * 0.25) ease-in forwards;
 }
 
 /* Cross-fade mode: old and new symbols overlap */

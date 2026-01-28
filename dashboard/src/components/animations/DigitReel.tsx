@@ -1,5 +1,6 @@
 'use client';
 
+import { forwardRef } from 'react';
 import { DIGITS, type Digit, type DigitPhase } from './tokens';
 
 const DIGIT_SPANS = DIGITS.map((d) => (
@@ -26,14 +27,16 @@ type DigitReelProps = {
   phase: DigitPhase;
 };
 
-export function DigitReel({ digit, phase }: DigitReelProps) {
-  return (
-    <span className='ba-digit-reel-wrapper' data-phase={phase}>
-      <span className='ba-digit-reel-mask'>
-        <span className={`ba-digit-reel-inner ${OFFSET_CLASSES[digit]}`} data-phase={phase}>
-          {DIGIT_SPANS}
+export const DigitReel = forwardRef<HTMLSpanElement, DigitReelProps>(
+  function DigitReel({ digit, phase }, ref) {
+    return (
+      <span ref={ref} className='ba-digit-reel-wrapper' data-phase={phase}>
+        <span className='ba-digit-reel-mask'>
+          <span className={`ba-digit-reel-inner ${OFFSET_CLASSES[digit]}`} data-phase={phase}>
+            {DIGIT_SPANS}
+          </span>
         </span>
       </span>
-    </span>
-  );
-}
+    );
+  }
+);
