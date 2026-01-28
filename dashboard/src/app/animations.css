@@ -1,3 +1,253 @@
+/* Root class for NumberRoll container - defines shared variables */
+.number-roll-root {
+  --digit-width: 0.65em;
+  --mask-width: 2em;
+  --mask-bleed: 0.4em;
+
+  /* Shared easings */
+  --layout-easing: cubic-bezier(0.25, 1, 0.5, 1);
+  --opacity-easing: cubic-bezier(0.525, 0, 0.725, 1);
+  --spring-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.number-roll-sizer {
+  display: inline-flex;
+  justify-content: center;
+  /* Driven by ghost measurement in NumberRoll.tsx */
+  width: var(--target-width, auto);
+  will-change: width;
+  /* Match the token animation duration for perfect sync */
+  transition: width var(--duration, 800ms) var(--layout-easing);
+}
+
+@keyframes digitRoll {
+  from {
+    transform: translateY(var(--roll-from, 0%));
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes digit-enter {
+  from {
+    width: 0;
+    transform: translateX(calc(-0.5 * var(--digit-width)));
+  }
+  to {
+    width: var(--digit-width);
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes digit-exit {
+  from {
+    width: var(--digit-width);
+    opacity: 1;
+  }
+  to {
+    width: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes digit-roll-in {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, var(--target-offset), 0);
+  }
+}
+
+@keyframes digit-roll-out {
+  from {
+    transform: translate3d(0, var(--target-offset), 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.number-mask {
+  display: inline-flex;
+  position: relative;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  margin: 0 calc(-1 * var(--mask-width));
+  padding: 0 var(--mask-width);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--mask-width),
+    #000 calc(100% - var(--mask-width)),
+    transparent
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+.digit-reel-mask {
+  /* Ensure the mask height accommodates one line height plus the bleed */
+  height: calc(1lh + var(--mask-bleed));
+  margin: calc(-1 * var(--mask-bleed) / 2) 0;
+  overflow: clip;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--mask-bleed),
+    #000 calc(100% - var(--mask-bleed)),
+    transparent 100%
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  width: var(--digit-width);
+}
+
+/* 
+  Controlled via data-phase attribute on .digit-reel-wrapper and .digit-reel-inner
+*/
+
+/* Wrapper Animations (Layout + Opacity) */
+
+.digit-reel-digit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(1lh + var(--mask-bleed));
+}
+
+.digit-reel-wrapper[data-phase='entering'] {
+  animation:
+    digit-enter var(--reduced-duration, var(--duration)) var(--layout-easing) forwards,
+    fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+.digit-reel-wrapper {
+  width: var(--digit-width);
+  overflow: visible;
+}
+
+.digit-reel-wrapper[data-phase='exiting'] {
+  animation: digit-exit var(--reduced-duration, var(--duration)) var(--layout-easing) forwards;
+}
+
+/* Inner Reel Animations (Vertical Roll) */
+.digit-reel-inner {
+  transform: translate3d(0, var(--target-offset, 0%), 0);
+  will-change: transform;
+}
+
+.digit-reel-inner[data-phase='entering'] {
+  animation: digit-roll-in var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
+}
+
+.digit-reel-inner[data-phase='exiting'] {
+  /* Only animate out; simpler to keep transform in base class and let animation override or start from it */
+  animation: digit-roll-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
+}
+
+.digit-reel-inner[data-phase='animating'] {
+  transition: transform var(--reduced-duration, var(--duration)) var(--spring-easing);
+}
+
+/* Symbol slot (sign, separator, currency, etc.) - animates width+opacity only, no roll */
+.symbol-slot {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: auto; /* Natural width prevents clipping */
+  overflow: visible; /* Allow wide glyphs to bleed slightly if needed */
+  will-change: opacity;
+}
+
+.symbol-slot-inner {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.symbol-slot[data-phase='entering'] {
+  animation: fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+.symbol-slot[data-phase='exiting'] {
+  width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fade-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
+}
+
+@keyframes symbol-exit {
+  from {
+    width: var(--measured-width, auto);
+  }
+  to {
+    width: 0;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Symbol slot - general purpose animated symbol (currency, separators, etc.) */
+.symbol-slot {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.symbol-slot-inner {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.symbol-slot-hidden {
+  width: 0;
+  overflow: hidden;
+}
+
+.symbol-slot[data-phase='entering'] {
+  /* Only fade in - sizer handles width transition */
+  animation: fade-in var(--reduced-duration, var(--duration)) var(--opacity-easing) forwards;
+}
+
+.symbol-slot[data-phase='exiting'] {
+  /* Take up zero width so the next symbol can occupy the same spot.
+     The sizer transition handles the overall container width smoothly. */
+  width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fade-out var(--reduced-duration, var(--duration)) var(--spring-easing) forwards;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 /**
  * Animation utilities and keyframes
  */
