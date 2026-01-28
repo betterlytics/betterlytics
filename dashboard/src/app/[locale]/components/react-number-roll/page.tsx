@@ -117,10 +117,16 @@ export default function ReactNumberRollDemoPage() {
               +
             </button>
             <button
+              onClick={() => handleValueChange(Math.round((Math.random() * 110000 - 10000) * 100) / 100)}
+              className='bg-primary text-primary-foreground hover:bg-primary/90 ml-4 rounded-full px-4 py-2 text-sm font-medium transition-colors'
+            >
+              Random Value
+            </button>
+            <button
               onClick={handleFullRandom}
               className='bg-primary text-primary-foreground hover:bg-primary/90 ml-4 rounded-full px-4 py-2 text-sm font-medium transition-colors'
             >
-              Random
+              All Random
             </button>
           </div>
         </div>

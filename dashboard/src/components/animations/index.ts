@@ -1,5 +1,5 @@
 export { NumberRoll } from './NumberRoll';
-export type { NumberRollProps, Digit, DigitPhase } from './NumberRoll';
+export type { NumberRollProps } from './NumberRoll';
 export type { SymbolPhase } from './SymbolSlot';
 
 // Re-export for advanced usage

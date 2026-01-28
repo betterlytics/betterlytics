@@ -2,8 +2,7 @@
 
 import './styles.css';
 
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from './utils';
 import { ZeroWidthSpace } from './ZeroWidthSpace';
 import { DigitReel } from './DigitReel';
@@ -57,7 +56,7 @@ export function NumberRoll({
     }
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (rawParts === state.parts) {
       if (ghostRef.current && sizerRef.current) {
         const width = ghostRef.current.getBoundingClientRect().width;
@@ -79,26 +78,24 @@ export function NumberRoll({
 
     const newTokens = diffTokens(state.tokens, rawParts);
 
-    flushSync(() => {
-      setState({ tokens: newTokens, parts: rawParts });
-    });
+    setState(() => ({ tokens: newTokens, parts: rawParts }));
 
     newTokens.forEach((token) => {
       const el = tokenRefsMap.current.get(token.id);
       const prev = prevTokenData.current.get(token.id);
       if (!el) return;
 
-      el.getAnimations().forEach((a) => a.cancel());
+      // el.getAnimations().forEach((a) => a.cancel());
 
       if (prev) {
         const curr = el.getBoundingClientRect();
         const dx = prev.x - curr.x;
 
         if (Math.abs(dx) > 0.5) {
-          el.animate(
-            [{ transform: `translateX(${dx}px)` }, { transform: 'translateX(0)' }],
-            { duration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
-          );
+          el.animate([{ transform: `translateX(${dx}px)` }, { transform: 'translateX(0)' }], {
+            duration,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          });
         }
 
         if (token.type === 'digit' && prev.digit !== undefined) {
@@ -106,7 +103,7 @@ export function NumberRoll({
           if (prev.digit !== newDigit) {
             const inner = el.querySelector('.ba-digit-reel-inner') as HTMLElement;
             if (inner) {
-              inner.getAnimations().forEach((a) => a.cancel());
+              // inner.getAnimations().forEach((a) => a.cancel());
               const fromOffset = -prev.digit * 10;
               const toOffset = -newDigit * 10;
               inner.animate(
@@ -114,7 +111,7 @@ export function NumberRoll({
                   { transform: `translate3d(0, ${fromOffset}%, 0)` },
                   { transform: `translate3d(0, ${toOffset}%, 0)` },
                 ],
-                { duration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' }
+                { duration, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' },
               );
             }
           }

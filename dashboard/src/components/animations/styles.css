@@ -54,6 +54,29 @@
   );
 }
 
+/**
+Add this as masking
+
+.ba-number-mask {
+  display: inline-flex;
+  position: relative;
+  z-index: -1;
+  overflow: clip;
+  pointer-events: none;
+  margin: 0 calc(-1 * var(--ba-mask-width));
+  padding: 0 var(--ba-mask-width);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--ba-mask-width),
+    #000 calc(100% - var(--ba-mask-width)),
+    transparent
+  );
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+*/
+
 /* Ghost element for measuring natural width */
 .ba-number-roll-ghost {
   position: absolute;
