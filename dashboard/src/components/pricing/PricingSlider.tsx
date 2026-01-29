@@ -11,17 +11,6 @@ interface PricingSliderProps {
   className?: string;
 }
 
-function getDisplayNumber(value: number): number {
-  if (value >= 1_000_000) return Math.floor(value / 1_000_000);
-  if (value >= 1_000) return Math.floor(value / 1_000);
-  return value;
-}
-
-function getSuffix(value: number): string {
-  if (value >= 1_000_000) return 'M';
-  if (value >= 1_000) return 'K';
-  return '';
-}
 
 export function PricingSlider({
   currentRange,
@@ -32,18 +21,18 @@ export function PricingSlider({
   const t = useTranslations('pricingSlider');
   
   const isUnlimited = currentRange.value > 10_000_000;
-  const displayNumber = getDisplayNumber(currentRange.value);
-  const suffix = getSuffix(currentRange.value);
-  
+
   return (
     <div className={className}>
       <div className='mb-4 text-center'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
-        <div className='text-3xl font-bold inline-flex items-center gap-0.5'>
-          <NumberFlow value={displayNumber} />
-          {suffix}
-          {isUnlimited && '+'}
-        </div>
+        <NumberFlow
+          className='text-3xl font-bold'
+          value={currentRange.value}
+          format={{ notation: 'compact' }}
+          suffix={isUnlimited ? '+' : undefined}
+          willChange
+        />
       </div>
 
       <div className='relative'>

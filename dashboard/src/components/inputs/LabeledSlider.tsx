@@ -77,16 +77,17 @@ export function LabeledSlider({
           <Label className='text-sm font-medium'>{label}</Label>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <Badge variant='secondary' className='ring-border mb-1 text-xs font-medium ring-1'>
+        <Badge
+          variant='secondary'
+          className='ring-border mb-1 grid text-xs font-medium ring-1 transition-[grid-template-columns] duration-300 ease-out'
+          style={{ gridTemplateColumns: isRecommended ? 'auto 1fr' : 'auto 0fr' }}
+        >
           {valueParts ? (
-            <div className='flex items-center gap-1'>
-              <NumberFlow value={valueParts.value} />
-              {valueParts.unit}
-            </div>
+            <NumberFlow value={valueParts.value} suffix={valueParts.unit ? ` ${valueParts.unit}` : ''} willChange />
           ) : (
             formatValue(value)
           )}
-          {isRecommended && <span className='text-muted-foreground ml-1 font-normal'>({t('recommended')})</span>}
+          <span className='text-muted-foreground min-w-0 overflow-hidden font-thin whitespace-nowrap'>{` (${t('recommended')})`}</span>
         </Badge>
       </div>
 

@@ -58,7 +58,7 @@ function CountdownButton({
         pendingLabel ?? children
       ) : hasCountdown && !canConfirm ? (
         <>
-          {children} (<NumberFlow value={countdown} />)
+          {children} <NumberFlow value={countdown} prefix="(" suffix=")" willChange />
         </>
       ) : (
         children

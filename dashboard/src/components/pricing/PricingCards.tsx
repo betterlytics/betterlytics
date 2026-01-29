@@ -205,10 +205,12 @@ export function PricingCards({
             <CardTitle className='text-2xl'>{capitalizeFirstLetter(plan.tier)}</CardTitle>
             <div className='mt-4'>
               {plan.price_cents > 0 ? (
-                <span className='text-4xl font-bold inline-flex items-center'>
-                  {currency === 'EUR' ? '€' : '$'}
-                  <NumberFlow value={Math.round(plan.price_cents / 100)} />
-                </span>
+                <NumberFlow
+                    className='text-4xl font-bold'
+                    value={plan.price_cents / 100}
+                    format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
+                    willChange
+                  />
               ) : (
                 <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
               )}
