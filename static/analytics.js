@@ -281,12 +281,15 @@
     lastSentScrollDepthPx = 0;
   }
 
-  window.addEventListener("scroll", updateScrollDepth, { passive: true });
-
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") flushScrollDepth();
+  window.addEventListener("scroll", () => updateScrollDepth(), {
+    passive: true,
   });
-  window.addEventListener("pagehide", flushScrollDepth);
+
+  document.addEventListener(
+    "visibilitychange",
+    () => document.visibilityState === "hidden" && flushScrollDepth(),
+  );
+  window.addEventListener("pagehide", () => flushScrollDepth());
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
