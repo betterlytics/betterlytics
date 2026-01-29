@@ -78,8 +78,8 @@ function Gauge({
           </mask>
           {/* Glow filter for needle tip - electric cyan */}
           <filter id='needle-glow' x='-20%' y='-20%' width='140%' height='140%'>
-            <feGaussianBlur in='SourceAlpha' stdDeviation='1' result='blur' />
-            <feFlood floodColor='#3ddcff' floodOpacity='0.7' result='color' />
+            <feGaussianBlur in='SourceAlpha' stdDeviation='1.5' result='blur' />
+            <feFlood floodColor='#3ddcff' floodOpacity='0.65' result='color' />
             <feComposite in='color' in2='blur' operator='in' result='glow' />
             <feMerge>
               <feMergeNode in='glow' />
