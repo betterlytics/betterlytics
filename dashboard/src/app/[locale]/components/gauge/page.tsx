@@ -82,6 +82,12 @@ const GAUGE_PROPS = [
     default: 'false',
     description: 'Show a tapered needle pointing to the current progress position.',
   },
+  {
+    name: 'totalAngle',
+    type: 'number',
+    default: '240',
+    description: "Total arc span in degrees. Default 240 reaches exactly 8 and 4 o'clock positions.",
+  },
 ];
 
 const SEGMENT_TYPE = `interface Segment {
@@ -140,6 +146,7 @@ export default function GaugeDemoPage() {
   const [widthRatio, setWidthRatio] = useState(1.15);
   const [title, setTitle] = useState('Progress');
   const [withNeedle, setWithNeedle] = useState(true);
+  const [totalAngle, setTotalAngle] = useState(240);
 
   const documentation = (
     <div className="space-y-8">
@@ -217,6 +224,7 @@ export default function GaugeDemoPage() {
             widthRatio={widthRatio}
             title={title}
             withNeedle={withNeedle}
+            totalAngle={totalAngle}
           />
         </div>
 
@@ -339,6 +347,17 @@ export default function GaugeDemoPage() {
               value={widthRatio}
               onChange={setWidthRatio}
               suffix={widthRatio.toFixed(2)}
+            />
+
+            <Control
+              label="Total Angle"
+              type="range"
+              min={90}
+              max={350}
+              step={5}
+              value={totalAngle}
+              onChange={setTotalAngle}
+              suffix={`${totalAngle}°`}
             />
           </div>
         </div>

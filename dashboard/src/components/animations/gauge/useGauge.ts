@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { arcPath } from '@/lib/math-utils';
-import { TOTAL_ANGLE, START_OFFSET, getProgressColor, type Segment } from './gauge-utils';
+import { TOTAL_ANGLE as DEFAULT_TOTAL_ANGLE, getProgressColor, type Segment } from './gauge-utils';
 
 type UseGaugeOptions = {
   segments: Segment[];
@@ -10,9 +10,20 @@ type UseGaugeOptions = {
   gapDeg: number;
   arcGap: number;
   widthRatio: number;
+  totalAngle?: number;
 };
 
-export function useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio }: UseGaugeOptions) {
+export function useGauge({
+  segments,
+  progress,
+  size,
+  strokeWidth,
+  gapDeg,
+  arcGap,
+  widthRatio,
+  totalAngle = DEFAULT_TOTAL_ANGLE,
+}: UseGaugeOptions) {
+  const startOffset = (totalAngle - 180) / 2;
   const center = size / 2;
   const radius = center - strokeWidth;
   const innerStrokeWidth = (strokeWidth - 2) * 3;
@@ -23,27 +34,27 @@ export function useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap
   const segmentPaths = useMemo(() => {
     let cursor = 0;
     return segments.map((seg, i) => {
-      const angle = (seg.percent / 100) * TOTAL_ANGLE;
+      const angle = (seg.percent / 100) * totalAngle;
       const start = cursor + (i === 0 ? 0 : gapDeg / 2);
       const end = cursor + angle - (i === segments.length - 1 ? 0 : gapDeg / 2);
       cursor += angle;
       return {
-        path: arcPath(center, center, radius, start, end, START_OFFSET),
+        path: arcPath(center, center, radius, start, end, startOffset),
         color: seg.color,
       };
     });
-  }, [segments, center, radius, gapDeg]);
+  }, [segments, center, radius, gapDeg, totalAngle, startOffset]);
 
   const innerArcPath = useMemo(
-    () => arcPath(center, center, innerRadius, 0, TOTAL_ANGLE, START_OFFSET),
-    [center, innerRadius],
+    () => arcPath(center, center, innerRadius, 0, totalAngle, startOffset),
+    [center, innerRadius, totalAngle, startOffset],
   );
 
-  const extraHeight = Math.sin((START_OFFSET * Math.PI) / 180) * radius;
+  const extraHeight = Math.sin((startOffset * Math.PI) / 180) * radius;
   const viewBoxHeight = size / 2 + strokeWidth + extraHeight;
   const svgWidth = size * widthRatio;
 
-  const pathLength = (TOTAL_ANGLE / 360) * 2 * Math.PI * innerRadius;
+  const pathLength = (totalAngle / 360) * 2 * Math.PI * innerRadius;
   const dashOffset = pathLength * (1 - Math.min(progress, 100) / 100);
 
   // Needle calculations - simple tapered pointer
@@ -54,7 +65,7 @@ export function useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap
   // Calculate needle rotation angle (in degrees)
   // Needle starts pointing down (+Y), rotate to match arc position
   // Arc goes counterclockwise from lower-left to lower-right through top
-  const needleAngle = 90 - START_OFFSET + (Math.min(progress, 100) / 100) * TOTAL_ANGLE;
+  const needleAngle = 90 - startOffset + (Math.min(progress, 100) / 100) * totalAngle;
 
   // Needle polygon points - simple tapered pointer from center to arc
   // Starts at center (0,0), extends to tip at needleTipRadius
@@ -72,6 +83,7 @@ export function useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap
 
   return {
     center,
+    radius,
     strokeWidth,
     innerStrokeWidth,
     progressColor,
@@ -84,5 +96,7 @@ export function useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap
     needlePoints,
     needleAngle,
     pivotRadius,
+    totalAngle,
+    startOffset,
   };
 }

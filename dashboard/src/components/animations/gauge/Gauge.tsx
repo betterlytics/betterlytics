@@ -14,6 +14,7 @@ type GaugeProps = {
   widthRatio?: number;
   title?: string;
   withNeedle?: boolean;
+  totalAngle?: number;
 };
 
 export type { Segment, GaugeProps };
@@ -28,6 +29,7 @@ function Gauge({
   widthRatio = 1,
   title,
   withNeedle = false,
+  totalAngle,
 }: GaugeProps) {
   const {
     center,
@@ -41,8 +43,7 @@ function Gauge({
     dashOffset,
     needlePoints,
     needleAngle,
-    pivotRadius,
-  } = useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio });
+  } = useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio, totalAngle });
 
   return (
     <div

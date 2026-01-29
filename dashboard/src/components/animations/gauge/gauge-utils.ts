@@ -1,4 +1,4 @@
-export const TOTAL_ANGLE = 225;
+export const TOTAL_ANGLE = 240;
 export const START_OFFSET = (TOTAL_ANGLE - 180) / 2;
 
 export const CWV_COLORS = {
