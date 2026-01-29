@@ -6,6 +6,7 @@ type TableTrendIndicatorProps = {
   compare?: number;
   percentage?: number;
   formatter?: (value: number) => string;
+  allowNullish?: boolean;
 };
 
 export function TableTrendIndicator({
@@ -13,12 +14,13 @@ export function TableTrendIndicator({
   compare,
   percentage,
   formatter = (val) => val.toLocaleString(),
+  allowNullish,
 }: TableTrendIndicatorProps) {
   if (percentage === undefined) {
     return null;
   }
 
-  if (compare === undefined) {
+  if (compare == null && allowNullish) {
     return (
       <div className='flex items-center gap-1 text-xs opacity-85'>
         <span className='text-muted-foreground'>vs </span>
@@ -27,7 +29,7 @@ export function TableTrendIndicator({
     );
   }
 
-  const comparedData = compare;
+  const comparedData = compare ?? 0;
 
   const difference = current - comparedData;
 

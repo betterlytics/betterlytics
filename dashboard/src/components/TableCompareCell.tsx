@@ -11,27 +11,30 @@ type TableCompareCellProps<K extends string> = {
   row: PresetedData<K>;
   dataKey: K;
   formatter?: (value: number) => string;
+  allowNullish?: boolean;
 };
 
 export function TableCompareCell<K extends string>({
   row,
   dataKey,
   formatter = (val) => val.toLocaleString(),
+  allowNullish,
 }: TableCompareCellProps<K>) {
   const { current, compare, change } = getTableCompareValues(row, dataKey);
 
-  if (current === null) {
+  if (current == null && allowNullish) {
     return <Minus className='text-foreground h-3 w-3' />;
   }
 
   return (
     <div className='flex flex-col'>
-      <div>{formatter(current)}</div>
+      <div>{formatter(current ?? 0)}</div>
       <TableTrendIndicator
-        current={current}
+        current={current ?? 0}
         compare={compare ?? undefined}
         percentage={change ?? undefined}
         formatter={formatter}
+        allowNullish={allowNullish}
       />
     </div>
   );
