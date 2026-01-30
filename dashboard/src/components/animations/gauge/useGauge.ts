@@ -57,15 +57,15 @@ export function useGauge({
   const pathLength = (totalAngle / 360) * 2 * Math.PI * innerRadius;
   const dashOffset = pathLength * (1 - Math.min(progress, 100) / 100);
 
-  // Needle calculations - simple tapered pointer
-  const needleTipRadius = radius - strokeWidth / 2 - arcGap; // Tip reaches inner edge of outer segments
-  const needleBaseWidth = 8; // Width at base (center)
-  const needleTipWidth = 3; // Width at tip (pointed end)
+  const needleBaseWidth = 4;
+  const needleTipWidth = 1;
+  const needleTipRadius = radius - strokeWidth / 2 - arcGap;
 
-  // Calculate needle rotation angle (in degrees)
-  // Needle starts pointing down (+Y), rotate to match arc position
-  // Arc goes counterclockwise from lower-left to lower-right through top
-  const needleAngle = 90 - startOffset + (Math.min(progress, 100) / 100) * totalAngle;
+  // Calculate angular offset to prevent needle tip from overlapping the arc edges
+  // Convert tip half-width to degrees at the tip radius
+  const tipAngularOffset = Math.atan((needleTipWidth / 2) / needleTipRadius) * (180 / Math.PI);
+  const needleAngle =
+    90 - startOffset + tipAngularOffset + (Math.min(progress, 100) / 100) * (totalAngle - 2 * tipAngularOffset);
 
   // Needle polygon points - simple tapered pointer from center to arc
   // Starts at center (0,0), extends to tip at needleTipRadius
@@ -78,13 +78,8 @@ export function useGauge({
     ].join(' ');
   }, [needleTipRadius]);
 
-  // Keep pivotRadius for API compatibility but not rendered
-  const pivotRadius = 0;
-
   return {
     center,
-    radius,
-    strokeWidth,
     innerStrokeWidth,
     progressColor,
     segmentPaths,
@@ -95,8 +90,5 @@ export function useGauge({
     dashOffset,
     needlePoints,
     needleAngle,
-    pivotRadius,
-    totalAngle,
-    startOffset,
   };
 }

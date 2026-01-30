@@ -72,11 +72,6 @@ const GAUGE_PROPS = [
     description: 'Horizontal stretch ratio for elliptical gauges.',
   },
   {
-    name: 'title',
-    type: 'string',
-    description: 'Label displayed above the percentage value.',
-  },
-  {
     name: 'withNeedle',
     type: 'boolean',
     default: 'false',
@@ -87,6 +82,11 @@ const GAUGE_PROPS = [
     type: 'number',
     default: '240',
     description: "Total arc span in degrees. Default 240 reaches exactly 8 and 4 o'clock positions.",
+  },
+  {
+    name: 'children',
+    type: 'ReactNode',
+    description: 'Optional label content to render inside the gauge. Position with absolute positioning.',
   },
 ];
 
@@ -105,11 +105,9 @@ const segments = [
 
 export default function MyComponent() {
   return (
-    <Gauge
-      segments={segments}
-      progress={75}
-      title="Performance"
-    />
+    <Gauge segments={segments} progress={75}>
+      <GaugeLabel title="Performance" value="75%" />
+    </Gauge>
   );
 }`;
 
@@ -132,8 +130,9 @@ export default function PerformanceGauge({ score }: { score: number }) {
       gapDeg={3}
       arcGap={6}
       widthRatio={1.2}
-      title="Score"
-    />
+    >
+      <GaugeLabel title="Score" value={\`\${score}%\`} />
+    </Gauge>
   );
 }`;
 
@@ -144,7 +143,7 @@ export default function GaugeDemoPage() {
   const [gapDeg, setGapDeg] = useState(2);
   const [arcGap, setArcGap] = useState(4);
   const [widthRatio, setWidthRatio] = useState(1.15);
-  const [title, setTitle] = useState('Progress');
+  const [label, setLabel] = useState('Progress');
   const [withNeedle, setWithNeedle] = useState(true);
   const [totalAngle, setTotalAngle] = useState(240);
 
@@ -222,10 +221,18 @@ export default function GaugeDemoPage() {
             gapDeg={gapDeg}
             arcGap={arcGap}
             widthRatio={widthRatio}
-            title={title}
             withNeedle={withNeedle}
             totalAngle={totalAngle}
-          />
+          >
+            <div className="pointer-events-none absolute inset-x-0 bottom-[20%] flex flex-col items-center">
+              <span className="text-muted-foreground/70 -mb-1 font-sans text-[10px] font-black tracking-[0.25em] uppercase">
+                {label}
+              </span>
+              <span className="text-foreground text-2xl font-semibold tracking-tight drop-shadow-sm">
+                {progress.toFixed(1)}%
+              </span>
+            </div>
+          </Gauge>
         </div>
 
         {/* Status indicator */}
@@ -255,7 +262,7 @@ export default function GaugeDemoPage() {
               Appearance
             </h3>
 
-            <Control label="Display Title" type="text" value={title} onChange={setTitle} />
+            <Control label="Display Label" type="text" value={label} onChange={setLabel} />
 
             <div className="flex items-center justify-between">
               <label className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
