@@ -179,7 +179,7 @@ function MultiProgressTable<T extends ProgressBarData>({
         className={`grid grid-cols-${tabs.length} bg-secondary dark:inset-shadow-background relative w-full gap-1 overflow-hidden px-1 inset-shadow-sm`}
       >
         <div
-          className='tab-indicator border-border bg-background dark:bg-input/30 pointer-events-none absolute top-[3px] bottom-[3px] left-[4px] z-0 rounded-sm border shadow-sm'
+          className='tab-indicator border-border dark:border-input bg-background dark:bg-input/30 pointer-events-none absolute top-[3px] bottom-[3px] left-[4px] z-0 rounded-sm border shadow-sm'
           style={{
             // Width: (container - 2*padding - (n-1)*gap) / n
             width: `calc((100% - 8px - ${(tabs.length - 1) * 4}px) / ${tabs.length})`,
@@ -192,7 +192,7 @@ function MultiProgressTable<T extends ProgressBarData>({
           <TabsTrigger
             key={tab.key}
             value={tab.key}
-            className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent dark:data-[state=active]:bg-transparent data-[state=active]:shadow-none'
+            className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent dark:data-[state=active]:bg-transparent dark:data-[state=active]:border-transparent data-[state=active]:shadow-none'
           >
             {tab.label}
           </TabsTrigger>
