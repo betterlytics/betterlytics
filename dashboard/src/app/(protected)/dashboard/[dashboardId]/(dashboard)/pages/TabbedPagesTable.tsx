@@ -63,15 +63,30 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         accessorKey: 'bounceRate',
         header: t('bounceRate'),
         cell: ({ row }) => (
-          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} />
+          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} allowNullish />
         ),
         accessorFn: (row) => row.current.bounceRate,
       },
       {
         accessorKey: 'avgTime',
         header: t('avgTime'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} />,
+        cell: ({ row }) => (
+          <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} allowNullish />
+        ),
         accessorFn: (row) => row.current.avgTime,
+      },
+      {
+        accessorKey: 'avgScrollDepth',
+        header: t('avgScrollDepth'),
+        cell: ({ row }) => (
+          <TableCompareCell
+            row={row.original}
+            dataKey='avgScrollDepth'
+            formatter={formatPercentage}
+            allowNullish
+          />
+        ),
+        accessorFn: (row) => row.current.avgScrollDepth,
       },
     ];
   }, [makeFilterClick, t]);

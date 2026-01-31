@@ -2,49 +2,48 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.1',
-    releasedAt: '2026-01-11',
-    title: 'Teamsamarbejde og forbedret sikkerhed',
-    summary:
-      'Denne opdatering introducerer teamsamarbejde med rollebaseret adgang, forbedrer kontosikkerheden med bedre sessionshåndtering og gør det muligt at ændre dit dashboard-domæne uden at opdatere dit tracking-script.',
+    version: 'v1.3.3',
+    releasedAt: '2026-01-26',
+    title: 'Scroll Depth & UI-forbedringer',
+    summary: 'Spor scroll-dybde for bedre at forstå indholdsengagement og scroll-adfærd.',
   },
   sections: [
     {
-      id: 'v131-new-features',
+      id: 'v133-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Inviter teammedlemmer til dit dashboard som Tilskuer, Redaktør eller Administrator med rollebaserede rettigheder til sikkert samarbejde.',
-            'Filtre understøtter nu OR-logik, så du kan matche flere værdier i ét filter (f.eks. flere sider eller lande).',
-            'Du kan nu ændre dit dashboard-domæne uden at miste historisk data eller opdatere dit tracking-script.',
+            'Scroll Depth Tracking: Se hvor langt brugere scroller ned på dine sider for bedre at forstå indholdsengagement og frafaldspunkter.',
           ],
         },
       ],
     },
     {
-      id: 'v131-security',
-      title: 'Sikkerhed',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Ændring af din adgangskode logger nu alle andre aktive sessioner ud.',
-            'Nulstilling af adgangskode logger nu alle eksisterende sessioner ud for ekstra beskyttelse.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v131-improvements',
+      id: 'v133-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Forbedret privatlivsbeskyttelse til bedre at adskille besøgsdata mellem websites.',
-            'Rettet afstandsproblemer i uptime-overvågningslisten på større skærme.',
+            'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
+            'Core Web Vitals-grænser: Forbedrede indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
+            'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
+            'UI-polering: Tilføjet subtile animationer i appen for en mere flydende oplevelse.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v133-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
+            'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
           ],
         },
       ],
@@ -53,6 +52,91 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.3',
+      releasedAt: '2026-01-26',
+      title: 'Scroll Depth & Forbedret onboarding',
+      summary:
+        'Spor scroll-dybde for at forstå engagement og frafald, og kom hurtigere i gang med nye onboarding-guides til flere frameworks.',
+    },
+    sections: [
+      {
+        id: 'v133-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Scroll Depth Tracking: Se hvor langt brugere scroller ned på dine sider for bedre at forstå engagement og scroll-adfærd.',
+              'Udvidede onboarding-guides: Vi har forbedret onboarding med klare, trin-for-trin installationsinstruktioner til mange flere frameworks.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-improvements-and-ux',
+        title: 'Forbedringer & UX',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
+              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
+              'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
+              'UI-polering: Tilføjet subtile animationer i appen for en mere flydende og responsiv oplevelse.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
+              'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.2',
+      releasedAt: '2026-01-19',
+      title: 'Fejlrettelser og UI-forbedringer',
+      summary: 'En mindre opdatering denne gang! Vi har rettet nogle fejl og pudset brugerfladen.',
+    },
+    sections: [
+      {
+        id: 'v132-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor dashboard-indstillinger så ud til at kunne redigeres af teammedlemmer uden administratorrettigheder.',
+              'Rettet et problem, hvor søgning i filtre stoppede med at virke efter valg af flere værdier.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v132-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Diverse mindre UI-forbedringer for en mere poleret oplevelse.'],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.1',

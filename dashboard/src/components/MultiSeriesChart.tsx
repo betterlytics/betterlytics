@@ -42,6 +42,15 @@ export interface ReferenceAreaConfig {
   strokeDasharray?: string;
 }
 
+export interface YReferenceAreaConfig {
+  y1: number | 'dataMin';
+  y2: number | 'dataMax';
+  fill?: string;
+  fillOpacity?: number;
+  label?: string;
+  labelFill?: string;
+}
+
 interface MultiSeriesChartProps {
   title: React.ReactNode;
   data: ChartDataPoint[];
@@ -49,6 +58,7 @@ interface MultiSeriesChartProps {
   formatValue?: (value: number) => string;
   series: ReadonlyArray<MultiSeriesConfig>;
   referenceAreas?: Array<ReferenceAreaConfig>;
+  yReferenceAreas?: Array<YReferenceAreaConfig>;
   referenceLines?: Array<{
     y: number;
     label?: string;
@@ -72,6 +82,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     formatValue,
     series,
     referenceAreas,
+    yReferenceAreas,
     referenceLines,
     headerRight,
     headerContent,
@@ -103,7 +114,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
 
         <CardContent className={cn('p-0', contentClassName)}>
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
-          <div className='h-80 py-1 md:px-4'>
+          <div className='h-80 overflow-hidden py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
               <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
@@ -163,6 +174,17 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                         <ReferenceLineLabel text={r.label} fill={r.labelFill ?? r.stroke} isMobile={isMobile} />
                       ) : undefined
                     }
+                  />
+                ))}
+                {yReferenceAreas?.map((yArea, i) => (
+                  <ReferenceArea
+                    key={`y-ref-area-${yArea.y1}-${yArea.y2}-${i}`}
+                    y1={yArea.y1}
+                    y2={yArea.y2}
+                    fill={yArea.fill ?? 'var(--chart-comparison)'}
+                    fillOpacity={yArea.fillOpacity ?? 0.08}
+                    label={yArea.label ? <ReferenceAreaLabel area={yArea} isMobile={isMobile} /> : undefined}
+                    ifOverflow='hidden'
                   />
                 ))}
                 {referenceAreas?.map((referenceArea, i) => (
@@ -230,6 +252,47 @@ const ReferenceLineLabel: React.FC<ReferenceLineLabelProps> = ({ text, fill, isM
         {text}
       </text>
     </g>
+  );
+};
+
+type ReferenceAreaLabelProps = {
+  viewBox?: { x: number; y: number; width: number; height: number };
+  area: YReferenceAreaConfig;
+  isMobile: boolean;
+};
+const ReferenceAreaLabel = (props: ReferenceAreaLabelProps) => {
+  const { viewBox, area, isMobile } = props;
+
+  if (!viewBox) return null;
+
+  const { x, y, height } = viewBox;
+
+  if (y + height < 0) return null;
+
+  const yVisibleTop = Math.max(y, 0);
+  const yVisibleBottom = y + height;
+  const centerY = (yVisibleTop + yVisibleBottom) / 2;
+
+  return (
+    <text
+      x={x + (isMobile ? 42 : 16)}
+      y={centerY}
+      dominantBaseline='middle'
+      fill={area.labelFill ?? area.fill ?? 'var(--muted-foreground)'}
+      textAnchor='start'
+      fontSize={11}
+      className='pointer-events-none select-none'
+      style={{
+        fontWeight: 600,
+        opacity: 0.7,
+        letterSpacing: '0.05em',
+        paintOrder: 'stroke',
+        stroke: 'var(--background)',
+        strokeWidth: 3,
+      }}
+    >
+      {area.label}
+    </text>
   );
 };
 

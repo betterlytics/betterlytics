@@ -43,7 +43,7 @@ export default function DangerZoneSettings() {
             <span className='text-sm font-medium'>{t('sectionTitle')}</span>
             <p className='text-muted-foreground text-xs'>{t('sectionDescription')}</p>
           </div>
-          <PermissionGate>
+          <PermissionGate permission='canDeleteDashboard'>
             {(disabled) => (
               <Button
                 variant='ghost'

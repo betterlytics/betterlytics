@@ -1303,7 +1303,8 @@
       "features": "Features",
       "pricing": "Pricing",
       "goToDashboard": "Go to Dashboard",
-      "getStarted": "Get Started"
+      "getStarted": "Get Started",
+      "login": "Log in"
     },
     "footer": {
       "blurb": "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
@@ -1324,7 +1325,7 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. All rights reserved. Open source under AGPL-3.0 license."
+      "copyright": "© {year} Betterlytics. Open source under AGPL-3.0 license."
     },
     "structuredData": {
       "organization": {
@@ -1470,7 +1471,7 @@
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
         "values": {
-          "5": "5 monitors",
+          "1": "1 monitor",
           "50": "50 monitors",
           "unlimited": "Unlimited monitors"
         }
@@ -1486,7 +1487,7 @@
         }
       },
       "customHttpMethods": {
-        "name": "GET/POST HTTP methods"
+        "name": "GET HTTP method"
       },
       "customRequestHeaders": {
         "name": "Custom request headers"
@@ -1548,7 +1549,8 @@
         "analytics": "Analytics",
         "behavior": "Behavior",
         "observability": "Observability"
-      }
+      },
+      "collapseNav": "Collapse nav"
     },
     "settings": {
       "sidebar": {
@@ -2481,6 +2483,7 @@
         "avgTime": "Avg. Time",
         "entryRate": "Entry Rate",
         "exitRate": "Exit Rate",
+        "avgScrollDepth": "Scroll depth",
         "allPages": "All Pages",
         "entryPages": "Entry Pages",
         "exitPages": "Exit Pages",
@@ -2566,7 +2569,8 @@
       },
       "thresholds": {
         "good": "Good",
-        "fair": "Fair"
+        "fair": "Fair",
+        "poor": "Poor"
       },
       "table": {
         "title": "Performance breakdown",
@@ -2659,14 +2663,12 @@
     "integration": {
       "integrationSetup": "Integration Setup",
       "title": "Website Integration",
-      "description": "Add the tracking script to your website to start collecting analytics data",
+      "description": "Select your framework and follow the setup steps to start collecting analytics",
       "fullyIntegrated": "Fully Integrated",
       "notFullyIntegrated": "Not Fully Integrated",
       "loadingDetails": "Loading integration details...",
       "unableToLoadSiteId": "Unable to load site ID",
       "failedToCopy": "Failed to copy",
-      "important": "Important",
-      "headSectionNote": "Add this script to the {head} section of your root layout or individual pages.",
       "npmPackageNote": "Or install our <npm>npm</npm> package <package>@betterlytics/tracker</package> for easy setup for Node projects.",
       "yourSiteId": "Your Site ID",
       "trackingScript": "Tracking Script",
@@ -2690,7 +2692,8 @@
       "troubleshooting": "Troubleshooting",
       "contactSupport": "Contact Support",
       "verifying": "Verifying...",
-      "verifyInstallation": "Verify Installation"
+      "verifyInstallation": "Verify Installation",
+      "selectFramework": "Select your framework"
     },
     "settingsButton": {
       "dashboardSettings": "Dashboard Settings"
@@ -3054,6 +3057,7 @@
       },
       "instructions": {
         "title": "Installation Instructions",
+        "selectFramework": "Select your framework to see installation instructions",
         "description": "Choose the method that matches your website setup",
         "htmlTab": "HTML",
         "nextjsTab": "Next.js",
@@ -3069,6 +3073,10 @@
       "buttons": {
         "skipForNow": "Skip for Now",
         "continueToDashboard": "Continue to Dashboard"
+      },
+      "frameworkGrid": {
+        "showLess": "Show less",
+        "showMore": "+{count} more frameworks"
       },
       "redirectingIn": "Redirecting in {seconds}...",
       "noSiteId": "No site ID found. Please complete the previous steps first."
@@ -3219,6 +3227,227 @@
       "errorTitle": "Could Not Accept Invitation",
       "errorDescription": "Something went wrong while accepting the invitation. It may have already been accepted or cancelled.",
       "goToDashboards": "Go to Dashboards"
+    }
+  },
+  "integration": {
+    "frameworks": {
+      "html": {
+        "step1": {
+          "title": "Add the tracking script",
+          "description": "Paste this inside your <head> tag"
+        }
+      },
+      "nextjs": {
+        "variants": {
+          "next153": {
+            "step1": {
+              "title": "Install the package",
+              "description": "Run this in your project directory"
+            },
+            "step2": {
+              "title": "Create instrumentation-client.ts",
+              "description": "Create this file in your project root"
+            }
+          },
+          "approuter": {
+            "step1": {
+              "title": "Install the package",
+              "description": "Run this in your project directory"
+            },
+            "step2": {
+              "title": "Create a client provider",
+              "description": "Create app/providers.tsx with the 'use client' directive"
+            },
+            "step3": {
+              "title": "Wrap your app",
+              "description": "Add the provider to your root layout (app/layout.tsx)"
+            }
+          },
+          "pagesrouter": {
+            "step1": {
+              "title": "Install the package",
+              "description": "Run this in your project directory"
+            },
+            "step2": {
+              "title": "Initialize in _app.tsx",
+              "description": "Add to pages/_app.tsx"
+            }
+          }
+        }
+      },
+      "react": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize the tracker",
+          "description": "Add this to your app entry (e.g., src/main.tsx)"
+        }
+      },
+      "vue": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize the tracker",
+          "description": "Add this to your main.ts before mounting your app"
+        }
+      },
+      "nuxt": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Create a client plugin",
+          "description": "Create plugins/betterlytics.client.ts"
+        }
+      },
+      "svelte": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in your root layout",
+          "description": "Add this to src/routes/+layout.svelte"
+        }
+      },
+      "astro": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Add to your base layout",
+          "description": "Add a script tag to your layout (e.g., src/layouts/Layout.astro)"
+        }
+      },
+      "remix": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in root.tsx",
+          "description": "Add this to app/root.tsx using useEffect"
+        }
+      },
+      "gatsby": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in gatsby-browser.js",
+          "description": "Add this to gatsby-browser.js in your project root"
+        }
+      },
+      "angular": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in main.ts",
+          "description": "Add this to your src/main.ts file"
+        }
+      },
+      "solidjs": {
+        "step1": {
+          "title": "Install the package",
+          "description": "Run this in your project directory"
+        },
+        "step2": {
+          "title": "Initialize in your entry file",
+          "description": "Add this to src/index.tsx"
+        }
+      },
+      "laravel": {
+        "step1": {
+          "title": "Add to your Blade layout",
+          "description": "Paste this in your layout file's <head> section (e.g., resources/views/layouts/app.blade.php)"
+        }
+      },
+      "wordpress": {
+        "step1": {
+          "title": "Open your theme editor",
+          "description": "Go to Appearance > Theme Editor, or use a plugin like \"Insert Headers and Footers\""
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this before </head> in your header.php"
+        },
+        "note": "Consider using a child theme or plugin to prevent losing changes on theme updates."
+      },
+      "shopify": {
+        "step1": {
+          "title": "Open theme editor",
+          "description": "Go to Online Store > Themes > Edit code"
+        },
+        "step2": {
+          "title": "Edit theme.liquid",
+          "description": "Open theme.liquid in the Layout folder"
+        },
+        "step3": {
+          "title": "Add the tracking script",
+          "description": "Paste this before the closing </head> tag"
+        },
+        "note": "Theme updates may overwrite your changes. Consider duplicating your theme as a backup."
+      },
+      "webflow": {
+        "step1": {
+          "title": "Open project settings",
+          "description": "Go to Project Settings > Custom Code"
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this in the Head Code section, then publish your site"
+        }
+      },
+      "wix": {
+        "step1": {
+          "title": "Open site settings",
+          "description": "Go to Settings > Custom Code"
+        },
+        "step2": {
+          "title": "Add new custom code",
+          "description": "Click Add Custom Code and paste the script below"
+        },
+        "step3": {
+          "title": "Configure and apply",
+          "description": "Set placement to Head, apply to All pages, then click Apply"
+        },
+        "note": "Custom Code requires a Wix Premium plan."
+      },
+      "squarespace": {
+        "step1": {
+          "title": "Open code injection",
+          "description": "Go to Settings > Developer Tools > Code Injection"
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this in the Header section, then save"
+        },
+        "note": "Code Injection requires a Squarespace Business plan or higher."
+      },
+      "gtm": {
+        "step1": {
+          "title": "Create a new tag",
+          "description": "In Google Tag Manager, go to Tags > New > Custom HTML"
+        },
+        "step2": {
+          "title": "Add the tracking script",
+          "description": "Paste this code and set trigger to All Pages"
+        },
+        "step3": {
+          "title": "Publish your container",
+          "description": "Click Submit to publish the changes"
+        },
+        "note": "Make sure GTM is properly installed on your website."
+      }
     }
   }
 }

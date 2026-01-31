@@ -21,7 +21,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
   growth: {
     dashboards: { maxDashboards: 2 },
     monitoring: {
-      maxMonitors: 5,
+      maxMonitors: 1,
       minIntervalSeconds: 300,
       httpMethodConfigurable: false,
       customStatusCodes: false,

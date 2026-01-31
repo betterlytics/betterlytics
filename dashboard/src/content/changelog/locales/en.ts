@@ -2,49 +2,48 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.1',
-    releasedAt: '2026-01-11',
-    title: 'Team Collaboration & Security Improvements',
-    summary:
-      'This release introduces team collaboration with role-based access, improves account security with better session handling, and adds support for changing your dashboard domain without updating your tracking script.',
+    version: 'v1.3.3',
+    releasedAt: '2026-01-26',
+    title: 'Scroll Depth & UI Improvements',
+    summary: 'Track scroll depth to better understand content engagement and scrolling behavior.',
   },
   sections: [
     {
-      id: 'v131-new-features',
+      id: 'v133-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Invite team members to your dashboard as Viewer, Editor, or Admin, with role-based permissions for safe collaboration.',
-            'Filters now support OR logic, allowing you to match multiple values within a single filter (for example, multiple pages or countries).',
-            'You can now change your dashboard domain without losing historical data or updating your tracking script.',
+            'Scroll Depth Tracking: See how far users scroll down your pages to better understand content engagement and drop-off points.',
           ],
         },
       ],
     },
     {
-      id: 'v131-security',
-      title: 'Security',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Changing your password now invalidates all other active sessions.',
-            'Password resets now sign out all existing sessions for added protection.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v131-improvements',
+      id: 'v133-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Improved privacy protections to better isolate visitor data between sites.',
-            'Fixed spacing issues in the uptime monitoring list on larger screens.',
+            'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
+            'Core Web Vitals Thresholds: Improved indicators make it easier to see when metrics cross into "Fair" or "Poor" territory.',
+            'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
+            'UI Polish: Added subtle animations throughout the application for a smoother experience.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v133-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
+            'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
           ],
         },
       ],
@@ -53,6 +52,91 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.3',
+      releasedAt: '2026-01-26',
+      title: 'Scroll Depth & Enhanced Onboarding',
+      summary:
+        'Track scroll depth to understand engagement and drop-off, and get set up faster with new framework onboarding guides.',
+    },
+    sections: [
+      {
+        id: 'v133-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'See how far users scroll down your pages to better understand content engagement and scrolling behavior.',
+              'Expanded onboarding guides with clearer, step-by-step installation instructions for many more frameworks.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-improvements-and-ux',
+        title: 'Improvements & UX',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
+              'Improved Core Web Vitals indicators make it easier to spot when metrics cross into "Fair" or "Poor" thresholds.',
+              'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
+              'UI polish: Added subtle animations throughout the app for a smoother, more responsive feel.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v133-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
+              'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.2',
+      releasedAt: '2026-01-19',
+      title: 'Bug Fixes & UI Polish',
+      summary: "A smaller release this time! We've squashed a few bugs and polished up the interface.",
+    },
+    sections: [
+      {
+        id: 'v132-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where dashboard settings appeared editable for team members without admin permissions.',
+              'Fixed a problem where searching in filters stopped working after selecting multiple values.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v132-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: ['Various minor UI improvements for a more polished experience.'],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.1',

@@ -159,18 +159,37 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
 
   const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
 
-  const referenceLines = useMemo(
-    () =>
-      CWV_THRESHOLDS[active]?.map((y, idx) => {
-        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-fair)';
-        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.fair')} (≤ ${formatThreshold(
-          active,
-          y,
-        )})`;
-        return { y, stroke, strokeDasharray: '4 6', label, labelFill: stroke };
-      }),
-    [active, t],
-  );
+  const yReferenceAreas = useMemo(() => {
+    const thresholds = CWV_THRESHOLDS[active];
+    if (!thresholds) return [];
+    const [goodThreshold, fairThreshold] = thresholds;
+    return [
+      {
+        y1: 0 as const,
+        y2: goodThreshold,
+        fill: 'var(--cwv-threshold-good)',
+        fillOpacity: 0.08,
+        label: t('thresholds.good'),
+        labelFill: 'var(--cwv-threshold-good-label)',
+      },
+      {
+        y1: goodThreshold,
+        y2: fairThreshold,
+        fill: 'var(--cwv-threshold-fair)',
+        fillOpacity: 0.08,
+        label: t('thresholds.fair'),
+        labelFill: 'var(--cwv-threshold-fair-label)',
+      },
+      {
+        y1: fairThreshold,
+        y2: active === 'CLS' ? 10 : 1000000,
+        fill: 'var(--cwv-threshold-poor)',
+        fillOpacity: 0.08,
+        label: t('thresholds.poor'),
+        labelFill: 'var(--cwv-threshold-poor-label)',
+      },
+    ];
+  }, [active, t]);
 
   return (
     <div className='space-y-6'>
@@ -181,7 +200,7 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         formatValue={(v) => formatCWV(active, Number(v))}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
         series={SERIES_DEFS as MultiSeriesConfig[]}
-        referenceLines={referenceLines}
+        yReferenceAreas={yReferenceAreas}
         headerContent={
           <div>
             <InlineMetricsHeader cards={cards} pinFooter />

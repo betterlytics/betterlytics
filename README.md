@@ -58,7 +58,7 @@ Choose the option that works best for you:
 
 Get started instantly with our free managed cloud service:
 
-**[Start Free →](https://betterlytics.io/onboarding)**
+**[Start Free →](https://betterlytics.io/signup)**
 
 - ✅ **Free forever plan** - No trial, genuinely free for small sites
 - ✅ **No setup required** - Ready in 30 seconds
