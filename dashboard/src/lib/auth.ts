@@ -21,6 +21,8 @@ import prisma from '@/lib/postgres';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { setLocaleCookie } from '@/constants/cookies';
+import { isFeatureEnabled } from './feature-flags';
+import { sendVerificationEmail } from '@/services/account/verification.service';
 
 const adapter = PrismaAdapter(prisma) as Adapter;
 
@@ -86,6 +88,17 @@ export const authOptions: NextAuthOptions = {
       } catch (error) {
         console.error('Failed to create initial user settings for user in NextAuth event:', error);
       }
+
+      if (user.email && isFeatureEnabled('enableAccountVerification')) {
+        try {
+          const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { emailVerified: true } });
+          if (!dbUser?.emailVerified) {
+            await sendVerificationEmail({ email: user.email });
+          }
+        } catch (error) {
+          console.error('Failed to send verification email for new user:', error);
+        }
+      }
     },
   },
   callbacks: {
@@ -105,17 +118,6 @@ export const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error('Failed to create session for credentials:', error);
           return false;
-        }
-      }
-
-      if (account?.provider === 'google') {
-        const emailVerifiedByGoogle = Boolean((user as unknown as { email_verified?: boolean })?.email_verified);
-        if (emailVerifiedByGoogle && !user.emailVerified) {
-          try {
-            await prisma.user.update({ where: { id: user.id }, data: { emailVerified: new Date() } });
-          } catch (e) {
-            console.error('Failed to update verified email from Google:', e);
-          }
         }
       }
 
