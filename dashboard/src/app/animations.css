@@ -100,4 +100,34 @@
       transition: none;
     }
   }
+
+  /* Gauge component animations */
+  .gauge-root {
+    --gauge-duration: 700ms;
+    --gauge-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .gauge-segment {
+    transition: stroke var(--gauge-duration) var(--gauge-easing);
+  }
+
+  .gauge-progress {
+    stroke-dasharray: var(--path-length);
+    stroke-dashoffset: var(--dash-offset);
+    transition:
+      stroke-dashoffset var(--gauge-duration) var(--gauge-easing),
+      stroke var(--gauge-duration) var(--gauge-easing);
+  }
+
+  .gauge-needle {
+    transition: transform var(--gauge-duration) var(--gauge-easing);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gauge-segment,
+    .gauge-progress,
+    .gauge-needle {
+      transition: none;
+    }
+  }
 }

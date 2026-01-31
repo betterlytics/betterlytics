@@ -4,7 +4,8 @@ import { use, useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
-import { formatCWV, formatString, getCwvStatusColor } from '@/utils/formatters';
+import { formatString } from '@/utils/formatters';
+import { formatCWV, getCwvLabelColor } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
@@ -96,7 +97,7 @@ export default function WebVitalsTableSection({
           const value = getValue(row.original, metric);
           return (
             <div className='flex flex-col items-start'>
-              <span style={{ color: getCwvStatusColor(metric, value) }}>{formatCWV(metric, value)}</span>
+              <span style={{ color: getCwvLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
             </div>
           );
         };

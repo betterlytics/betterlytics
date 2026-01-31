@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useGauge } from './useGauge';
 import GaugeNeedle from './GaugeNeedle';

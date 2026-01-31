@@ -2,7 +2,6 @@
 import { use, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Gauge } from '@/components/gauge';
-import type { Segment } from '@/components/gauge';
 import {
   CORE_WEB_VITAL_NAMES,
   CoreWebVitalName,
@@ -13,7 +12,7 @@ import type { MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import { formatCompactFromMilliseconds } from '@/utils/dateFormatters';
-import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
+import { formatCWV, getCwvLabelColor, getCwvGaugeProps } from '@/utils/coreWebVitals';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useTranslations } from 'next-intl';
@@ -26,37 +25,6 @@ const SUMMARY_KEY_MAP: Record<CoreWebVitalName, keyof CoreWebVitalsSummary> = {
   FCP: 'fcpP75',
   TTFB: 'ttfbP75',
 } as const;
-
-/**
- * Converts a CWV metric value to Gauge component props.
- * Calculates segment percentages and progress based on thresholds.
- */
-function getCwvGaugeProps(
-  metric: CoreWebVitalName,
-  value: number | null,
-): { segments: Segment[]; progress: number } {
-  const [good, fair] = CWV_THRESHOLDS[metric];
-
-  // Scale max: extend 50% beyond "poor" threshold for visual headroom
-  const scaleMax = fair * 1.5;
-
-  // Calculate segment percentages proportional to thresholds
-  const goodPercent = (good / scaleMax) * 100;
-  const fairPercent = ((fair - good) / scaleMax) * 100;
-  const poorPercent = 100 - goodPercent - fairPercent;
-
-  // Progress: value as percentage of scale (clamped to 100)
-  const progress = value === null ? 0 : Math.min((value / scaleMax) * 100, 100);
-
-  return {
-    segments: [
-      { percent: goodPercent, color: 'var(--cwv-threshold-good)' },
-      { percent: fairPercent, color: 'var(--cwv-threshold-fair)' },
-      { percent: poorPercent, color: 'var(--cwv-threshold-poor)' },
-    ],
-    progress,
-  };
-}
 
 /** Formats the metric value for display inside the Gauge */
 function formatGaugeValue(metric: CoreWebVitalName, value: number | null): string {
@@ -206,8 +174,6 @@ type CwvGaugeCardProps = {
 
 function CwvGaugeCard({ metric, value, isActive, onClick }: CwvGaugeCardProps) {
   const gaugeProps = getCwvGaugeProps(metric, value);
-  const formattedValue = formatGaugeValue(metric, value);
-  const statusColor = value !== null ? getCwvStatusColor(metric, value) : undefined;
 
   return (
     <button
@@ -226,8 +192,8 @@ function CwvGaugeCard({ metric, value, isActive, onClick }: CwvGaugeCardProps) {
           <span className='text-muted-foreground/75 -mb-2 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
             {metric}
           </span>
-          <span className='text-lg font-semibold tracking-tight drop-shadow-sm' style={{ color: statusColor }}>
-            {formattedValue}
+          <span className='text-lg font-semibold tracking-tight drop-shadow-sm' style={{ color: getCwvLabelColor(metric, value) }}>
+            {formatGaugeValue(metric, value)}
           </span>
         </div>
       </Gauge>
