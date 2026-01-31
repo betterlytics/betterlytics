@@ -1559,6 +1559,7 @@
         "data": "Data",
         "rules": "Rules",
         "members": "Members",
+        "reports": "Email Reports",
         "dangerZone": "Danger Zone"
       }
     },
@@ -3446,6 +3447,33 @@
         },
         "note": "Make sure GTM is properly installed on your website."
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "Email Reports",
+    "weekly": {
+      "title": "Weekly Reports",
+      "description": "Send a weekly email report every Monday",
+      "toggle": "Enable weekly email reports"
+    },
+    "monthly": {
+      "title": "Monthly Reports",
+      "description": "Send a monthly email report on the 1st of each month",
+      "toggle": "Enable monthly email reports"
+    },
+    "recipients": {
+      "weeklyLabel": "Recipients ({count}/{max})",
+      "monthlyLabel": "Recipients ({count}/{max})",
+      "placeholder": "colleague@example.com",
+      "addButton": "Add",
+      "invalidEmail": "Please enter a valid email address",
+      "emailRequired": "Email address is required",
+      "duplicateEmail": "This email is already added",
+      "maxReached": "Maximum of {max} recipients reached"
+    },
+    "toast": {
+      "saved": "Report settings saved",
+      "error": "Failed to save report settings"
     }
   }
 }

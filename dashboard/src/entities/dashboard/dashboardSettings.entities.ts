@@ -20,8 +20,9 @@ export const DashboardSettingsSchema = z
     // Report Settings
     weeklyReports: z.boolean(),
     weeklyReportDay: z.number().int().min(1).max(7), // ISO: 1=Monday, 7=Sunday
+    weeklyReportRecipients: z.array(z.string().email()),
     monthlyReports: z.boolean(),
-    reportRecipients: z.array(z.string().email()),
+    monthlyReportRecipients: z.array(z.string().email()),
     lastWeeklyReportSentAt: z.date().nullable(),
     lastMonthlyReportSentAt: z.date().nullable(),
 
@@ -42,8 +43,9 @@ export const DashboardSettingsCreateSchema = z
     dataRetentionDays: z.number().int().positive(),
     weeklyReports: z.boolean(),
     weeklyReportDay: z.number().int().min(1).max(7),
+    weeklyReportRecipients: z.array(z.string().email()),
     monthlyReports: z.boolean(),
-    reportRecipients: z.array(z.string().email()),
+    monthlyReportRecipients: z.array(z.string().email()),
     alertsEnabled: z.boolean(),
     alertsThreshold: z.number().int().positive(),
   })
@@ -55,8 +57,9 @@ export const DashboardSettingsUpdateSchema = z.object({
   dataRetentionDays: z.number().int().positive().optional(),
   weeklyReports: z.boolean().optional(),
   weeklyReportDay: z.number().int().min(1).max(7).optional(),
+  weeklyReportRecipients: z.array(z.string().email()).optional(),
   monthlyReports: z.boolean().optional(),
-  reportRecipients: z.array(z.string().email()).optional(),
+  monthlyReportRecipients: z.array(z.string().email()).optional(),
   alertsEnabled: z.boolean().optional(),
   alertsThreshold: z.number().int().positive().optional(),
 });
@@ -66,8 +69,9 @@ export const DashboardWithReportSettingsSchema = z.object({
   dashboardId: z.string(),
   weeklyReports: z.boolean(),
   weeklyReportDay: z.number().int().min(1).max(7),
+  weeklyReportRecipients: z.array(z.string().email()),
   monthlyReports: z.boolean(),
-  reportRecipients: z.array(z.string().email()),
+  monthlyReportRecipients: z.array(z.string().email()),
   lastWeeklyReportSentAt: z.date().nullable(),
   lastMonthlyReportSentAt: z.date().nullable(),
   dashboard: z.object({
@@ -87,8 +91,9 @@ export const DEFAULT_DASHBOARD_SETTINGS: Omit<
   dataRetentionDays: 365,
   weeklyReports: false,
   weeklyReportDay: 1,
+  weeklyReportRecipients: [],
   monthlyReports: false,
-  reportRecipients: [],
+  monthlyReportRecipients: [],
   alertsEnabled: false,
   alertsThreshold: 1000,
 };

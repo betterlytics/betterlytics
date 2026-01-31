@@ -1570,6 +1570,7 @@
         "data": "Dati",
         "rules": "Regole",
         "members": "Membri",
+        "reports": "Report Email",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -3463,6 +3464,33 @@
           "description": "Incolla questo nella sezione <head> del tuo HTML"
         }
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "Report Email",
+    "weekly": {
+      "title": "Report Settimanali",
+      "description": "Invia un report email settimanale ogni lunedì",
+      "toggle": "Attiva report email settimanali"
+    },
+    "monthly": {
+      "title": "Report Mensili",
+      "description": "Invia un report email mensile il 1° di ogni mese",
+      "toggle": "Attiva report email mensili"
+    },
+    "recipients": {
+      "weeklyLabel": "Destinatari ({count}/{max})",
+      "monthlyLabel": "Destinatari ({count}/{max})",
+      "placeholder": "collega@esempio.com",
+      "addButton": "Aggiungi",
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "emailRequired": "L'indirizzo email è obbligatorio",
+      "duplicateEmail": "Questa email è già stata aggiunta",
+      "maxReached": "Massimo {max} destinatari raggiunto"
+    },
+    "toast": {
+      "saved": "Impostazioni report salvate",
+      "error": "Impossibile salvare le impostazioni del report"
     }
   }
 }

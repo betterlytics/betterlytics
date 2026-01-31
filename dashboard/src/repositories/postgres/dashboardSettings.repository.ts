@@ -89,15 +89,16 @@ export async function findDashboardsWithReportsEnabled(): Promise<DashboardWithR
     });
 
     return settings
-      .filter((s) => s.reportRecipients.length > 0)
+      .filter((s) => s.weeklyReportRecipients.length > 0 || s.monthlyReportRecipients.length > 0)
       .map((s) =>
         DashboardWithReportSettingsSchema.parse({
           id: s.id,
           dashboardId: s.dashboardId,
           weeklyReports: s.weeklyReports,
           weeklyReportDay: s.weeklyReportDay,
+          weeklyReportRecipients: s.weeklyReportRecipients,
           monthlyReports: s.monthlyReports,
-          reportRecipients: s.reportRecipients,
+          monthlyReportRecipients: s.monthlyReportRecipients,
           lastWeeklyReportSentAt: s.lastWeeklyReportSentAt,
           lastMonthlyReportSentAt: s.lastMonthlyReportSentAt,
           dashboard: s.dashboard,

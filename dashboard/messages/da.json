@@ -1562,6 +1562,7 @@
         "data": "Data",
         "rules": "Regler",
         "members": "Medlemmer",
+        "reports": "E-mail-rapporter",
         "dangerZone": "Farezone"
       }
     },
@@ -3455,6 +3456,33 @@
           "description": "Indsæt dette i din HTML <head>-sektion"
         }
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "E-mail-rapporter",
+    "weekly": {
+      "title": "Ugentlige rapporter",
+      "description": "Send en ugentlig e-mail-rapport hver mandag",
+      "toggle": "Aktivér ugentlige e-mail-rapporter"
+    },
+    "monthly": {
+      "title": "Månedlige rapporter",
+      "description": "Send en månedlig e-mail-rapport den 1. i hver måned",
+      "toggle": "Aktivér månedlige e-mail-rapporter"
+    },
+    "recipients": {
+      "weeklyLabel": "Modtagere ({count}/{max})",
+      "monthlyLabel": "Modtagere ({count}/{max})",
+      "placeholder": "kollega@eksempel.dk",
+      "addButton": "Tilføj",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "emailRequired": "E-mailadresse er påkrævet",
+      "duplicateEmail": "Denne e-mail er allerede tilføjet",
+      "maxReached": "Maksimalt {max} modtagere nået"
+    },
+    "toast": {
+      "saved": "Rapportindstillinger gemt",
+      "error": "Kunne ikke gemme rapportindstillinger"
     }
   }
 }

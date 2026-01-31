@@ -259,8 +259,9 @@ model DashboardSettings {
   // Report Settings
   weeklyReports Boolean @default(false)
   weeklyReportDay Int @default(1) // ISO: 1=Monday, 2=Tuesday, ... 7=Sunday
+  weeklyReportRecipients String[] @default([])
   monthlyReports Boolean @default(false)
-  reportRecipients String[] @default([]) // Array of email addresses
+  monthlyReportRecipients String[] @default([])
   lastWeeklyReportSentAt DateTime?
   lastMonthlyReportSentAt DateTime?
 

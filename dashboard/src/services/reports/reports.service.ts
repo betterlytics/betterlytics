@@ -44,7 +44,7 @@ export async function sendWeeklyReport(settings: DashboardWithReportSettings): P
   const reportData = await getWeeklyReportData(dashboard.id, dashboard.siteId, dashboard.domain);
   const dashboardUrl = `${env.PUBLIC_BASE_URL}/dashboard/${dashboard.id}`;
 
-  for (const recipient of settings.reportRecipients) {
+  for (const recipient of settings.weeklyReportRecipients) {
     try {
       await sendReportEmail({
         to: recipient,
@@ -69,7 +69,7 @@ export async function sendMonthlyReport(settings: DashboardWithReportSettings): 
   const reportData = await getMonthlyReportData(dashboard.id, dashboard.siteId, dashboard.domain);
   const dashboardUrl = `${env.PUBLIC_BASE_URL}/dashboard/${dashboard.id}`;
 
-  for (const recipient of settings.reportRecipients) {
+  for (const recipient of settings.monthlyReportRecipients) {
     try {
       await sendReportEmail({
         to: recipient,
