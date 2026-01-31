@@ -14,13 +14,12 @@ import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
+import { DashboardSettingsUpdate, MAX_REPORT_RECIPIENTS } from '@/entities/dashboard/dashboardSettings.entities';
 import { useTranslations, useLocale } from 'next-intl';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
 
 const emailSchema = z.string().email();
-const MAX_RECIPIENTS = 5;
 
 const getDayName = (isoDay: number, locale: string): string => {
   const date = new Date(2024, 0, isoDay);
@@ -71,8 +70,8 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
       return;
     }
 
-    if (recipients.length >= MAX_RECIPIENTS) {
-      setEmailError(t('recipients.maxReached', { max: MAX_RECIPIENTS }));
+    if (recipients.length >= MAX_REPORT_RECIPIENTS) {
+      setEmailError(t('recipients.maxReached', { max: MAX_REPORT_RECIPIENTS }));
       return;
     }
 
@@ -91,10 +90,9 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
   return (
     <div className='space-y-3'>
       <label className='text-muted-foreground text-sm'>
-        {t(`recipients.${reportType}Label`, { count: recipients.length, max: MAX_RECIPIENTS })}
+        {t(`recipients.${reportType}Label`, { count: recipients.length, max: MAX_REPORT_RECIPIENTS })}
       </label>
 
-      {/* Existing recipients */}
       {recipients.length > 0 && (
         <div className='divide-border divide-y rounded-md border'>
           {recipients.map((email) => (
@@ -117,7 +115,6 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
         </div>
       )}
 
-      {/* Add new recipient */}
       <div className='flex gap-2'>
         <div className='flex-1 space-y-1.5'>
           <Input
@@ -132,7 +129,7 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
               }
             }}
             className={emailError ? 'border-destructive' : ''}
-            disabled={isPending || disabled || recipients.length >= MAX_RECIPIENTS}
+            disabled={isPending || disabled || recipients.length >= MAX_REPORT_RECIPIENTS}
           />
           {emailError && <p className='text-destructive text-sm'>{emailError}</p>}
         </div>
@@ -140,7 +137,7 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
           onClick={addEmail}
           size='default'
           className='cursor-pointer'
-          disabled={isPending || disabled || recipients.length >= MAX_RECIPIENTS}
+          disabled={isPending || disabled || recipients.length >= MAX_REPORT_RECIPIENTS}
         >
           <Plus className='mr-1 h-4 w-4' />
           {t('recipients.addButton')}
@@ -176,7 +173,6 @@ export default function ReportsSettings() {
         toast.success(t('toast.saved'));
       } catch {
         toast.error(t('toast.error'));
-        // Revert on error
         setWeeklyReports(settings.weeklyReports ?? false);
         setWeeklyReportDay(settings.weeklyReportDay ?? 1);
         setWeeklyReportRecipients(settings.weeklyReportRecipients ?? []);
@@ -231,7 +227,6 @@ export default function ReportsSettings() {
       <SettingsPageHeader title={t('title')} />
 
       <div className='space-y-6'>
-        {/* Weekly Reports Section */}
         <SettingsSection
           title={t('weekly.title')}
           description={t('weekly.description')}
@@ -300,7 +295,6 @@ export default function ReportsSettings() {
           </CapabilityGate>
         </SettingsSection>
 
-        {/* Monthly Reports Section */}
         <SettingsSection
           title={t('monthly.title')}
           description={t('monthly.description')}
