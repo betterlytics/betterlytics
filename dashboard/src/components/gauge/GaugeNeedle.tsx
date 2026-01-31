@@ -1,14 +1,13 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 type GaugeNeedleProps = {
   center: number;
   needlePoints: string;
   needleAngle: number;
-  /** Unique ID prefix for SVG defs to avoid conflicts with multiple needles */
-  id?: string;
 };
 
-function GaugeNeedle({ center, needlePoints, needleAngle, id = 'gauge' }: GaugeNeedleProps) {
+function GaugeNeedle({ center, needlePoints, needleAngle }: GaugeNeedleProps) {
+  const id = useId();
   const gradientId = `${id}-needle-gradient`;
   const filterId = `${id}-needle-glow`;
 

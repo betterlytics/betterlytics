@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { arcPath } from '@/lib/math-utils';
-import { TOTAL_ANGLE as DEFAULT_TOTAL_ANGLE, getProgressColor, type Segment } from './gauge-utils';
+import { getProgressColor, type Segment } from './gauge-utils';
 
 type UseGaugeOptions = {
   segments: Segment[];
@@ -10,7 +10,7 @@ type UseGaugeOptions = {
   gapDeg: number;
   arcGap: number;
   widthRatio: number;
-  totalAngle?: number;
+  totalAngle: number;
 };
 
 export function useGauge({
@@ -21,7 +21,7 @@ export function useGauge({
   gapDeg,
   arcGap,
   widthRatio,
-  totalAngle = DEFAULT_TOTAL_ANGLE,
+  totalAngle,
 }: UseGaugeOptions) {
   const startOffset = (totalAngle - 180) / 2;
   const center = size / 2;
@@ -63,7 +63,7 @@ export function useGauge({
 
   // Calculate angular offset to prevent needle tip from overlapping the arc edges
   // Convert tip half-width to degrees at the tip radius
-  const tipAngularOffset = Math.atan((needleTipWidth / 2) / needleTipRadius) * (180 / Math.PI);
+  const tipAngularOffset = Math.atan(needleTipWidth / 2 / needleTipRadius) * (180 / Math.PI);
   const needleAngle =
     90 - startOffset + tipAngularOffset + (Math.min(progress, 100) / 100) * (totalAngle - 2 * tipAngularOffset);
 

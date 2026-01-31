@@ -4,7 +4,6 @@ import { getTranslations } from 'next-intl/server';
 import { Gauge } from '@/components/gauge';
 import { getCwvGaugeProps, getCwvLabelColor, formatCWV, CWV_LEVELS } from '@/utils/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import { cn } from '@/lib/utils';
 
 const metrics: { key: CoreWebVitalName; value: number }[] = [
   { key: 'LCP', value: 1800 },
@@ -21,7 +20,7 @@ const MetricGauge = ({ metric }: { metric: { key: CoreWebVitalName; value: numbe
     <div role='group' aria-label={`${metric.key} metric`}>
       <Suspense>
         <Gauge segments={segments} progress={progress} size={115} strokeWidth={6} arcGap={2.5}>
-          <div className={'pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'}>
+          <div className={'absolute right-0 bottom-[20%] left-0 flex flex-col items-center'}>
             <span className='text-muted-foreground/75 -mb-1 font-sans text-[8px] font-black tracking-[0.25em] uppercase'>
               {metric.key}
             </span>

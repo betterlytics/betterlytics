@@ -192,7 +192,10 @@ function CwvGaugeCard({ metric, value, isActive, onClick }: CwvGaugeCardProps) {
           <span className='text-muted-foreground/75 -mb-2 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
             {metric}
           </span>
-          <span className='text-lg font-semibold tracking-tight drop-shadow-sm' style={{ color: getCwvLabelColor(metric, value) }}>
+          <span
+            className='text-lg font-semibold tracking-tight drop-shadow-sm'
+            style={{ color: getCwvLabelColor(metric, value) }}
+          >
             {formatGaugeValue(metric, value)}
           </span>
         </div>
