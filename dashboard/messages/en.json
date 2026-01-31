@@ -3453,8 +3453,10 @@
     "title": "Email Reports",
     "weekly": {
       "title": "Weekly Reports",
-      "description": "Send a weekly email report every Monday",
-      "toggle": "Enable weekly email reports"
+      "description": "Receive a summary of your website's performance each week",
+      "toggle": "Enable weekly email reports",
+      "dayLabel": "Report day",
+      "dayDescription": "Which day of the week to send the report"
     },
     "monthly": {
       "title": "Monthly Reports",

@@ -3470,8 +3470,10 @@
     "title": "Report Email",
     "weekly": {
       "title": "Report Settimanali",
-      "description": "Invia un report email settimanale ogni lunedì",
-      "toggle": "Attiva report email settimanali"
+      "description": "Ricevi un riepilogo delle prestazioni del tuo sito ogni settimana",
+      "toggle": "Attiva report email settimanali",
+      "dayLabel": "Giorno del report",
+      "dayDescription": "Quale giorno della settimana inviare il report"
     },
     "monthly": {
       "title": "Report Mensili",

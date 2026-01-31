@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Mail, Plus, X } from 'lucide-react';
@@ -14,10 +15,15 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 const emailSchema = z.string().email();
 const MAX_RECIPIENTS = 5;
+
+const getDayName = (isoDay: number, locale: string): string => {
+  const date = new Date(2024, 0, isoDay);
+  return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(date);
+};
 
 type ReportType = 'weekly' | 'monthly';
 
@@ -144,11 +150,13 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
 
 export default function ReportsSettings() {
   const t = useTranslations('reportsSettings');
+  const locale = useLocale();
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
   const [isPending, startTransition] = useTransition();
 
   const [weeklyReports, setWeeklyReports] = useState(settings.weeklyReports ?? false);
+  const [weeklyReportDay, setWeeklyReportDay] = useState(settings.weeklyReportDay ?? 1);
   const [weeklyReportRecipients, setWeeklyReportRecipients] = useState<string[]>(
     settings.weeklyReportRecipients ?? [],
   );
@@ -167,6 +175,7 @@ export default function ReportsSettings() {
         toast.error(t('toast.error'));
         // Revert on error
         setWeeklyReports(settings.weeklyReports ?? false);
+        setWeeklyReportDay(settings.weeklyReportDay ?? 1);
         setWeeklyReportRecipients(settings.weeklyReportRecipients ?? []);
         setMonthlyReports(settings.monthlyReports ?? false);
         setMonthlyReportRecipients(settings.monthlyReportRecipients ?? []);
@@ -177,6 +186,12 @@ export default function ReportsSettings() {
   const handleWeeklyChange = (checked: boolean) => {
     setWeeklyReports(checked);
     saveSettings({ weeklyReports: checked });
+  };
+
+  const handleWeeklyDayChange = (value: string) => {
+    const day = parseInt(value);
+    setWeeklyReportDay(day);
+    saveSettings({ weeklyReportDay: day });
   };
 
   const handleMonthlyChange = (checked: boolean) => {
@@ -228,6 +243,33 @@ export default function ReportsSettings() {
                     disabled={isPending || disabled}
                     className='cursor-pointer'
                   />
+                )}
+              </PermissionGate>
+            </div>
+
+            <div className='flex items-center justify-between'>
+              <div>
+                <span className='text-sm font-medium'>{t('weekly.dayLabel')}</span>
+                <p className='text-muted-foreground text-xs'>{t('weekly.dayDescription')}</p>
+              </div>
+              <PermissionGate permission='canManageSettings'>
+                {(disabled) => (
+                  <Select
+                    value={weeklyReportDay.toString()}
+                    onValueChange={handleWeeklyDayChange}
+                    disabled={isPending || disabled}
+                  >
+                    <SelectTrigger className='w-36 cursor-pointer'>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+                        <SelectItem key={day} value={day.toString()} className='cursor-pointer'>
+                          {getDayName(day, locale)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </PermissionGate>
             </div>

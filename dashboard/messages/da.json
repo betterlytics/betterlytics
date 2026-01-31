@@ -3462,8 +3462,10 @@
     "title": "E-mail-rapporter",
     "weekly": {
       "title": "Ugentlige rapporter",
-      "description": "Send en ugentlig e-mail-rapport hver mandag",
-      "toggle": "Aktivér ugentlige e-mail-rapporter"
+      "description": "Modtag en opsummering af dit websites præstation hver uge",
+      "toggle": "Aktivér ugentlige e-mail-rapporter",
+      "dayLabel": "Rapportdag",
+      "dayDescription": "Hvilken ugedag rapporten skal sendes"
     },
     "monthly": {
       "title": "Månedlige rapporter",
