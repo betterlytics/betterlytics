@@ -16,6 +16,8 @@ import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboard
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DashboardSettingsUpdate } from '@/entities/dashboard/dashboardSettings.entities';
 import { useTranslations, useLocale } from 'next-intl';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { CapabilityGate } from '@/components/billing/CapabilityGate';
 
 const emailSchema = z.string().email();
 const MAX_RECIPIENTS = 5;
@@ -154,6 +156,7 @@ export default function ReportsSettings() {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
   const [isPending, startTransition] = useTransition();
+  const { caps } = useCapabilities();
 
   const [weeklyReports, setWeeklyReports] = useState(settings.weeklyReports ?? false);
   const [weeklyReportDay, setWeeklyReportDay] = useState(settings.weeklyReportDay ?? 1);
@@ -229,98 +232,114 @@ export default function ReportsSettings() {
 
       <div className='space-y-6'>
         {/* Weekly Reports Section */}
-        <SettingsSection title={t('weekly.title')} description={t('weekly.description')}>
-          <div className='space-y-4'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <span className='text-sm font-medium'>{t('weekly.toggle')}</span>
-              </div>
-              <PermissionGate permission='canManageSettings'>
-                {(disabled) => (
-                  <Switch
-                    checked={weeklyReports}
-                    onCheckedChange={handleWeeklyChange}
-                    disabled={isPending || disabled}
-                    className='cursor-pointer'
-                  />
-                )}
-              </PermissionGate>
-            </div>
+        <SettingsSection
+          title={t('weekly.title')}
+          description={t('weekly.description')}
+          pro={!caps.emailReports.emailReportsEnabled}
+        >
+          <CapabilityGate allowed={caps.emailReports.emailReportsEnabled}>
+            {({ locked }) => (
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <span className='text-sm font-medium'>{t('weekly.toggle')}</span>
+                  </div>
+                  <PermissionGate permission='canManageSettings'>
+                    {(disabled) => (
+                      <Switch
+                        checked={weeklyReports}
+                        onCheckedChange={handleWeeklyChange}
+                        disabled={isPending || disabled || locked}
+                        className='cursor-pointer'
+                      />
+                    )}
+                  </PermissionGate>
+                </div>
 
-            <div className='flex items-center justify-between'>
-              <div>
-                <span className='text-sm font-medium'>{t('weekly.dayLabel')}</span>
-                <p className='text-muted-foreground text-xs'>{t('weekly.dayDescription')}</p>
-              </div>
-              <PermissionGate permission='canManageSettings'>
-                {(disabled) => (
-                  <Select
-                    value={weeklyReportDay.toString()}
-                    onValueChange={handleWeeklyDayChange}
-                    disabled={isPending || disabled}
-                  >
-                    <SelectTrigger className='w-36 cursor-pointer'>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5, 6, 7].map((day) => (
-                        <SelectItem key={day} value={day.toString()} className='cursor-pointer'>
-                          {getDayName(day, locale)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </PermissionGate>
-            </div>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <span className='text-sm font-medium'>{t('weekly.dayLabel')}</span>
+                    <p className='text-muted-foreground text-xs'>{t('weekly.dayDescription')}</p>
+                  </div>
+                  <PermissionGate permission='canManageSettings'>
+                    {(disabled) => (
+                      <Select
+                        value={weeklyReportDay.toString()}
+                        onValueChange={handleWeeklyDayChange}
+                        disabled={isPending || disabled || locked}
+                      >
+                        <SelectTrigger className='w-36 cursor-pointer'>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+                            <SelectItem key={day} value={day.toString()} className='cursor-pointer'>
+                              {getDayName(day, locale)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </PermissionGate>
+                </div>
 
-            <PermissionGate permission='canManageSettings'>
-              {(disabled) => (
-                <RecipientInput
-                  recipients={weeklyReportRecipients}
-                  onAdd={addWeeklyRecipient}
-                  onRemove={removeWeeklyRecipient}
-                  isPending={isPending}
-                  disabled={disabled}
-                  reportType='weekly'
-                />
-              )}
-            </PermissionGate>
-          </div>
+                <PermissionGate permission='canManageSettings'>
+                  {(disabled) => (
+                    <RecipientInput
+                      recipients={weeklyReportRecipients}
+                      onAdd={addWeeklyRecipient}
+                      onRemove={removeWeeklyRecipient}
+                      isPending={isPending}
+                      disabled={disabled || locked}
+                      reportType='weekly'
+                    />
+                  )}
+                </PermissionGate>
+              </div>
+            )}
+          </CapabilityGate>
         </SettingsSection>
 
         {/* Monthly Reports Section */}
-        <SettingsSection title={t('monthly.title')} description={t('monthly.description')}>
-          <div className='space-y-4'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <span className='text-sm font-medium'>{t('monthly.toggle')}</span>
-              </div>
-              <PermissionGate permission='canManageSettings'>
-                {(disabled) => (
-                  <Switch
-                    checked={monthlyReports}
-                    onCheckedChange={handleMonthlyChange}
-                    disabled={isPending || disabled}
-                    className='cursor-pointer'
-                  />
-                )}
-              </PermissionGate>
-            </div>
+        <SettingsSection
+          title={t('monthly.title')}
+          description={t('monthly.description')}
+          pro={!caps.emailReports.emailReportsEnabled}
+        >
+          <CapabilityGate allowed={caps.emailReports.emailReportsEnabled}>
+            {({ locked }) => (
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <span className='text-sm font-medium'>{t('monthly.toggle')}</span>
+                  </div>
+                  <PermissionGate permission='canManageSettings'>
+                    {(disabled) => (
+                      <Switch
+                        checked={monthlyReports}
+                        onCheckedChange={handleMonthlyChange}
+                        disabled={isPending || disabled || locked}
+                        className='cursor-pointer'
+                      />
+                    )}
+                  </PermissionGate>
+                </div>
 
-            <PermissionGate permission='canManageSettings'>
-              {(disabled) => (
-                <RecipientInput
-                  recipients={monthlyReportRecipients}
-                  onAdd={addMonthlyRecipient}
-                  onRemove={removeMonthlyRecipient}
-                  isPending={isPending}
-                  disabled={disabled}
-                  reportType='monthly'
-                />
-              )}
-            </PermissionGate>
-          </div>
+                <PermissionGate permission='canManageSettings'>
+                  {(disabled) => (
+                    <RecipientInput
+                      recipients={monthlyReportRecipients}
+                      onAdd={addMonthlyRecipient}
+                      onRemove={removeMonthlyRecipient}
+                      isPending={isPending}
+                      disabled={disabled || locked}
+                      reportType='monthly'
+                    />
+                  )}
+                </PermissionGate>
+              </div>
+            )}
+          </CapabilityGate>
         </SettingsSection>
       </div>
     </div>
