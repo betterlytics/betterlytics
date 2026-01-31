@@ -24,6 +24,7 @@ export default function OutboundLinksChartSection({ outboundClicksChartPromise }
       <CardContent className='mt-4 px-0'>
         <OutboundLinksTrendChart
           chartData={chartData.data}
+          incomplete={chartData.incomplete}
           comparisonMap={chartData.comparisonMap}
           granularity={granularity}
           color='var(--chart-1)'

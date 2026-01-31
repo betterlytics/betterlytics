@@ -107,6 +107,7 @@ export const fetchOutboundClicksChartAction = withDashboardAuthContext(
       dateRange: { start: startDate, end: endDate },
       compareDateRange:
         compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+      bucketIncomplete: endDate.getTime() > Date.now(),
     });
   },
 );
