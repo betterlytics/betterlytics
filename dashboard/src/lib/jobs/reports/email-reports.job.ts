@@ -29,12 +29,34 @@ export async function runDailyReportCheck(): Promise<void> {
         continue;
       }
 
+      const now = Date.now();
+
       if (settings.weeklyReports && settings.weeklyReportDay === dayOfWeek) {
-        await sendWeeklyReport(settings);
+        const hoursSinceLastWeekly = settings.lastWeeklyReportSentAt
+          ? (now - settings.lastWeeklyReportSentAt.getTime()) / (1000 * 60 * 60)
+          : Infinity;
+
+        if (hoursSinceLastWeekly >= 20) {
+          await sendWeeklyReport(settings);
+        } else {
+          console.warn(
+            `Skipping weekly report for dashboard ${settings.dashboardId} - last sent ${hoursSinceLastWeekly.toFixed(1)} hours ago`,
+          );
+        }
       }
 
       if (settings.monthlyReports && dayOfMonth === 1) {
-        await sendMonthlyReport(settings);
+        const daysSinceLastMonthly = settings.lastMonthlyReportSentAt
+          ? (now - settings.lastMonthlyReportSentAt.getTime()) / (1000 * 60 * 60 * 24)
+          : Infinity;
+
+        if (daysSinceLastMonthly >= 20) {
+          await sendMonthlyReport(settings);
+        } else {
+          console.warn(
+            `Skipping monthly report for dashboard ${settings.dashboardId} - last sent ${daysSinceLastMonthly.toFixed(1)} days ago`,
+          );
+        }
       }
     } catch (error) {
       console.error(`Error processing dashboard ${settings.dashboardId}:`, error);
