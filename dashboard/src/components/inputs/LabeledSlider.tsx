@@ -23,7 +23,7 @@ export type LabeledSliderProps = {
   marks: SliderMark[];
   onValueChange: (value: number) => void;
   formatValue: (value: number) => string;
-  valueParts?: { value: number; unit?: string };
+  valueParts?: { value: number; intlUnit?: 'second' | 'minute' | 'hour' | 'day'; suffix?: string };
   recommendedValue?: number;
   disabled?: boolean;
   minAllowed?: number;
@@ -85,7 +85,8 @@ export function LabeledSlider({
           {valueParts ? (
             <NumberFlow
               value={valueParts.value}
-              suffix={valueParts.unit ? ` ${valueParts.unit}` : ''}
+              format={valueParts.intlUnit ? { style: 'unit', unit: valueParts.intlUnit, unitDisplay: 'narrow' } : undefined}
+              suffix={valueParts.suffix ? ` ${valueParts.suffix}` : undefined}
               willChange
             />
           ) : (
