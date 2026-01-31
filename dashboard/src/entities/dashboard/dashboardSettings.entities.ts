@@ -57,9 +57,9 @@ export const DashboardSettingsUpdateSchema = z.object({
   dataRetentionDays: z.number().int().positive().optional(),
   weeklyReports: z.boolean().optional(),
   weeklyReportDay: z.number().int().min(1).max(7).optional(),
-  weeklyReportRecipients: z.array(z.string().email()).optional(),
+  weeklyReportRecipients: z.array(z.string().email()).max(5).optional(),
   monthlyReports: z.boolean().optional(),
-  monthlyReportRecipients: z.array(z.string().email()).optional(),
+  monthlyReportRecipients: z.array(z.string().email()).max(5).optional(),
   alertsEnabled: z.boolean().optional(),
   alertsThreshold: z.number().int().positive().optional(),
 });
