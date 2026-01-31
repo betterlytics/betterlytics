@@ -1475,6 +1475,9 @@
       "campaignTracking": {
         "name": "Kampagne- og UTM-sporing"
       },
+      "emailReports": {
+        "name": "E-mail-rapporter"
+      },
       "uptimeMonitoring": {
         "name": "Oppetidsovervågning",
         "values": {

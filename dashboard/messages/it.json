@@ -1483,6 +1483,9 @@
       "campaignTracking": {
         "name": "Tracciamento campagne e UTM"
       },
+      "emailReports": {
+        "name": "Report email"
+      },
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
         "values": {
