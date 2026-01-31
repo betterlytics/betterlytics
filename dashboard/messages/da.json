@@ -1211,6 +1211,10 @@
           "title": "Udgående link-sporing",
           "description": "Spor klik på links der forlader dit site for at måle brugerengagement."
         },
+        "emailReports": {
+          "title": "E-mail-rapporter",
+          "description": "Modtag automatiske ugentlige eller månedlige analyseoversigter direkte i din indbakke."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Mål og optimér Googles performance-metrics for at forbedre loading, interaktivitet og søgerangeringer."

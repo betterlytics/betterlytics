@@ -1208,6 +1208,10 @@
           "title": "Outbound Link Tracking",
           "description": "Track clicks on links leaving your site to measure user engagement."
         },
+        "emailReports": {
+          "title": "Email Reports",
+          "description": "Receive automated weekly or monthly analytics summaries delivered directly to your inbox."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Measure and optimize Google's page performance metrics to improve loading, interactivity, and search rankings."

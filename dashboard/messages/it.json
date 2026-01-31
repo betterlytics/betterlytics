@@ -1219,6 +1219,10 @@
           "title": "Tracciamento Link in Uscita",
           "description": "Traccia i click sui link che lasciano il tuo sito per misurare l'engagement utente."
         },
+        "emailReports": {
+          "title": "Report Email",
+          "description": "Ricevi riepiloghi analitici automatici settimanali o mensili direttamente nella tua casella di posta."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Misura e ottimizza le metriche di performance di Google per migliorare caricamento, interattività e ranking."

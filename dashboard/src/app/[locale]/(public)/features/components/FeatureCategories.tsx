@@ -38,6 +38,7 @@ import {
   HardDrive,
   Cloud,
   Blocks,
+  Send,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -67,6 +68,7 @@ const CATEGORIES = [
       { id: 'annotations', icon: StickyNote },
       { id: 'timePeriodComparison', icon: BarChart3 },
       { id: 'outboundLinks', icon: ExternalLink },
+      { id: 'emailReports', icon: Send },
     ],
   },
   {
