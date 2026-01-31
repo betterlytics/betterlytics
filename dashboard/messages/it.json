@@ -3490,7 +3490,7 @@
     "recipients": {
       "weeklyLabel": "Destinatari ({count}/{max})",
       "monthlyLabel": "Destinatari ({count}/{max})",
-      "placeholder": "collega@esempio.com",
+      "placeholder": "collega@example.com",
       "addButton": "Aggiungi",
       "invalidEmail": "Inserisci un indirizzo email valido",
       "emailRequired": "L'indirizzo email è obbligatorio",
