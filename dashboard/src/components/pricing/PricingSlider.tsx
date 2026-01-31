@@ -2,13 +2,15 @@
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { useTranslations } from 'next-intl';
+import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
   currentRange: EventRange;
   selectedRangeIndex: number;
-  handleSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSliderChange: React.ChangeEventHandler<HTMLInputElement>;
   className?: string;
 }
+
 
 export function PricingSlider({
   currentRange,
@@ -17,11 +19,20 @@ export function PricingSlider({
   className = '',
 }: PricingSliderProps) {
   const t = useTranslations('pricingSlider');
+  
+  const isUnlimited = currentRange.value > 10_000_000;
+
   return (
     <div className={className}>
       <div className='mb-4 text-center'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
-        <div className='text-3xl font-bold'>{currentRange.label}</div>
+        <NumberFlow
+          className='text-3xl font-bold'
+          value={currentRange.value}
+          format={{ notation: 'compact' }}
+          suffix={isUnlimited ? '+' : undefined}
+          willChange
+        />
       </div>
 
       <div className='relative'>

@@ -82,6 +82,23 @@ export function formatCompactDuration(seconds: number): string {
 }
 
 /**
+ * Splits seconds into a value and an Intl-compatible unit for animation purposes.
+ * Logic matches formatCompactDuration but returns parts suitable for Intl.NumberFormat.
+ */
+export function splitCompactDuration(seconds: number): {
+  value: number;
+  intlUnit: 'second' | 'minute' | 'hour' | 'day';
+} {
+  if (seconds < 60) return { value: seconds, intlUnit: 'second' };
+  const minutes = seconds / 60;
+  if (minutes < 60) return { value: minutes, intlUnit: 'minute' };
+  const hours = minutes / 60;
+  if (hours < 24) return { value: hours, intlUnit: 'hour' };
+  const days = hours / 24;
+  return { value: days, intlUnit: 'day' };
+}
+
+/**
  * Formats seconds as either full seconds (two decimals) or milliseconds when < 1 second.
  * Examples: 1.02 seconds, 1.20 seconds, 800 ms, 340 ms
  */
