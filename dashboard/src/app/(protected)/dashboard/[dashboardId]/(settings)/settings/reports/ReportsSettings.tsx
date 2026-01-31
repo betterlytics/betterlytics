@@ -93,28 +93,6 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
         {t(`recipients.${reportType}Label`, { count: recipients.length, max: MAX_REPORT_RECIPIENTS })}
       </label>
 
-      {recipients.length > 0 && (
-        <div className='divide-border divide-y rounded-md border'>
-          {recipients.map((email) => (
-            <div key={email} className='hover:bg-muted/30 flex items-center justify-between px-3 py-2'>
-              <div className='flex items-center gap-2'>
-                <Mail className='text-muted-foreground h-4 w-4' />
-                <span className='text-sm'>{email}</span>
-              </div>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                onClick={() => onRemove(email)}
-                disabled={isPending || disabled}
-              >
-                <X className='h-3.5 w-3.5' />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
-
       <div className='flex gap-2'>
         <div className='flex-1 space-y-1.5'>
           <Input
@@ -143,6 +121,28 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
           {t('recipients.addButton')}
         </Button>
       </div>
+
+      {recipients.length > 0 && (
+        <div className='divide-border divide-y rounded-md border'>
+          {recipients.map((email) => (
+            <div key={email} className='hover:bg-muted/30 flex items-center justify-between px-3 py-2'>
+              <div className='flex items-center gap-2'>
+                <Mail className='text-muted-foreground h-4 w-4' />
+                <span className='text-sm'>{email}</span>
+              </div>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                onClick={() => onRemove(email)}
+                disabled={isPending || disabled}
+              >
+                <X className='h-3.5 w-3.5' />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
