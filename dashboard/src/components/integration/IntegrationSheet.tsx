@@ -4,9 +4,7 @@ import { useState } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, Info, Clipboard, Check, Code, RefreshCw, Circle } from 'lucide-react';
-import { CodeBlock } from './CodeBlock';
+import { CheckCircle, Info, Clipboard, Check, RefreshCw, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -17,8 +15,11 @@ import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import ExternalLink from '@/components/ExternalLink';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useMessages } from 'next-intl';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { FrameworkGrid, FrameworkId } from './FrameworkGrid';
+import { FrameworkInstructions } from './FrameworkInstructions';
+import { getFrameworkCode, IntegrationTranslations } from './frameworkCodes';
 
 interface IntegrationSheetProps {
   open: boolean;
@@ -33,12 +34,15 @@ interface IntegrationStatus {
 
 export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) {
   const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
+  const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus>({
     accountCreated: true,
     siteIdGenerated: true,
     dataReceiving: false,
   });
   const t = useTranslations('components.integration');
+  const messages = useMessages();
+  const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
 
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
 
@@ -59,13 +63,6 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
     }));
   }, [isVerified]);
 
-  const trackingScript = siteId
-    ? `<script async
-    src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-    data-site-id="${siteId}"${!IS_CLOUD ? `\n  data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}>
-  </script>`
-    : '';
-
   const handleVerifyInstallation = async () => {
     await verify();
   };
@@ -80,66 +77,18 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
     }
   };
 
-  const nodeExample = `import betterlytics from "@betterlytics/tracker";
-
-betterlytics.init("${siteId}");
-`;
-
-  const htmlExample = `<!DOCTYPE html>
-<html>
-<head>
-  <title>Your Website</title>
-  ${trackingScript}
-</head>
-<body>
-  <!-- Your website content -->
-</body>
-</html>`;
-
-  const nextJsExample = `import Script from 'next/script'
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <head>
-        <Script
-          async
-          src="${PUBLIC_ANALYTICS_BASE_URL}/analytics.js"
-          data-site-id="${siteId}"${!IS_CLOUD ? `\n          data-server-url="${PUBLIC_TRACKING_SERVER_ENDPOINT}/event"` : ''}
-        />
-      </head>
-      <body>{children}</body>
-    </html>
-  )
-}`;
-
-  const reactExample = `import React, { useEffect } from 'react';
-
-function App() {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = "${PUBLIC_ANALYTICS_BASE_URL}/analytics.js";
-    script.setAttribute('data-site-id', "${siteId}");${!IS_CLOUD ? `\n    script.setAttribute('data-server-url', "${PUBLIC_TRACKING_SERVER_ENDPOINT}/event");` : ''}
-    document.head.appendChild(script);
-
-    return () => {
-      // Optional: Remove script when component unmounts
-      // document.head.removeChild(script);
-    };
-  }, []);
-
-  return (
-    // Your App content
-  );
-}
-
-export default App;
-`;
+  const frameworkCode = siteId
+    ? getFrameworkCode(
+        selectedFramework,
+        {
+          siteId,
+          analyticsUrl: PUBLIC_ANALYTICS_BASE_URL,
+          serverUrl: PUBLIC_TRACKING_SERVER_ENDPOINT,
+          isCloud: IS_CLOUD,
+        },
+        integrationTranslations,
+      )
+    : null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -177,46 +126,6 @@ export default App;
               </div>
             ) : (
               <>
-                <Card className='bg-card border-border'>
-                  <CardHeader className='flex flex-row items-start space-x-3'>
-                    <Info className='mt-1 h-5 w-5 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                    <div>
-                      <CardTitle className='text-card-foreground text-base font-medium'>
-                        {t('important')}
-                      </CardTitle>
-                      <CardDescription className='text-muted-foreground text-sm'>
-                        {t('headSectionNote', { head: '<head>' })}
-                      </CardDescription>
-                      <CardDescription className='text-muted-foreground text-sm'>
-                        <span>
-                          {t.rich('npmPackageNote', {
-                            npm: (chunks) => (
-                              <a
-                                href='https://www.npmjs.com/package/@betterlytics/tracker'
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='text-primary underline'
-                              >
-                                {chunks}
-                              </a>
-                            ),
-                            package: (chunks) => (
-                              <a
-                                href='https://www.npmjs.com/package/@betterlytics/tracker'
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='text-primary underline'
-                              >
-                                {chunks}
-                              </a>
-                            ),
-                          })}
-                        </span>
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                </Card>
-
                 <div className='space-y-2'>
                   <div className='mb-1 flex items-center justify-between'>
                     <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
@@ -249,164 +158,20 @@ export default App;
                     {siteId}
                   </div>
                 </div>
+
                 <Separator />
-                <div className='space-y-2'>
-                  <div className='mb-1 flex items-center justify-between'>
-                    <label htmlFor='trackingScriptDisplay' className='text-muted-foreground text-sm font-medium'>
-                      {t('trackingScript')}
-                    </label>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='text-muted-foreground hover:text-foreground h-8 cursor-pointer gap-1.5 text-xs'
-                      onClick={() => handleCopy(trackingScript, 'trackingScript')}
-                    >
-                      {copiedIdentifier === 'trackingScript' ? (
-                        <>
-                          <Check className='h-3.5 w-3.5' />
-                          {t('copied')}
-                        </>
-                      ) : (
-                        <>
-                          <Clipboard className='h-3.5 w-3.5' />
-                          {t('copy')}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <div
-                    id='trackingScriptDisplay'
-                    className='dark:bg-input/30 border-border text-foreground w-full overflow-x-auto rounded-md border bg-transparent p-3 text-sm shadow-sm'
-                  >
-                    {trackingScript}
-                  </div>
+
+                <div className='space-y-3'>
+                  <h3 className='text-foreground text-sm font-medium'>{t('selectFramework')}</h3>
+                  <FrameworkGrid selectedFramework={selectedFramework} onSelectFramework={setSelectedFramework} />
                 </div>
 
-                <Tabs defaultValue='html' className='w-full'>
-                  <TabsList className='bg-muted border-border dark:inset-shadow-background grid w-full grid-cols-3 inset-shadow-sm'>
-                    <TabsTrigger
-                      value='html'
-                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                    >
-                      HTML
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value='nextjs'
-                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                    >
-                      Next.js
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value='react'
-                      className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                    >
-                      React
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value='html' className='bg-card border-border rounded-md border p-4 shadow-sm'>
-                    <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> {t('htmlInstallation')}
-                    </h3>
-                    <CodeBlock code={htmlExample} language='html' />
-                  </TabsContent>
-                  <TabsContent value='nextjs' className='bg-card border-border rounded-md border p-4 shadow-sm'>
-                    <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> {t('nextjsInstallation')}
-                    </h3>
-                    <CodeBlock code={nextJsExample} language='javascript' />
-                  </TabsContent>
-                  <TabsContent value='react' className='bg-card border-border rounded-md border p-4 shadow-sm'>
-                    <h3 className='text-card-foreground mb-2 flex items-center text-sm font-medium'>
-                      <Code className='text-muted-foreground mr-2 h-4 w-4' /> {t('reactInstallation')}
-                    </h3>
-                    <CodeBlock code={reactExample} language='javascript' />
-                  </TabsContent>
-                </Tabs>
+                {frameworkCode && (
+                  <FrameworkInstructions frameworkCode={frameworkCode} selectedFramework={selectedFramework} />
+                )}
+
                 <Separator />
-                <div className='space-y-2'>
-                  <div className='mb-1 flex items-center justify-between'>
-                    <label htmlFor='siteIdDisplay' className='text-muted-foreground text-sm font-medium'>
-                      <span>
-                        {t.rich('initializeNpmPackage', {
-                          npm: (chunks) => (
-                            <a
-                              href='https://www.npmjs.com/package/@betterlytics/tracker'
-                              target='_blank'
-                              rel='noopener noreferrer'
-                              className='text-primary underline'
-                            >
-                              {chunks}
-                            </a>
-                          ),
-                        })}
-                      </span>
-                    </label>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='text-muted-foreground hover:text-foreground h-8 cursor-pointer gap-1.5 text-xs'
-                      onClick={() => handleCopy(siteId, 'siteId')}
-                    >
-                      {copiedIdentifier === 'siteId' ? (
-                        <>
-                          <Check className='h-3.5 w-3.5' />
-                          {t('copied')}
-                        </>
-                      ) : (
-                        <>
-                          <Clipboard className='h-3.5 w-3.5' />
-                          {t('copy')}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <Tabs defaultValue='npm' className='w-full'>
-                    <TabsList className='bg-muted border-border dark:inset-shadow-background mb-2 grid w-full grid-cols-4 inset-shadow-sm'>
-                      <TabsTrigger
-                        value='npm'
-                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                      >
-                        npm
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value='pnpm'
-                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                      >
-                        pnpm
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value='yarn'
-                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                      >
-                        yarn
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value='bun'
-                        className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer'
-                      >
-                        bun
-                      </TabsTrigger>
-                    </TabsList>
-                    <div className='bg-card border-border rounded-md border p-4 shadow-sm'>
-                      <TabsContent value='npm'>
-                        <CodeBlock code='npm install @betterlytics/tracker' language='html' />
-                      </TabsContent>
-                      <TabsContent value='pnpm'>
-                        <CodeBlock code='pnpm add @betterlytics/tracker' language='html' />
-                      </TabsContent>
-                      <TabsContent value='yarn'>
-                        <CodeBlock code='yarn add @betterlytics/tracker' language='html' />
-                      </TabsContent>
-                      <TabsContent value='bun'>
-                        <CodeBlock code='bun add @betterlytics/tracker' language='html' />
-                      </TabsContent>
-                      <div className='mt-2'>
-                        <CodeBlock code={nodeExample} language='javascript' />
-                      </div>
-                    </div>
-                  </Tabs>
-                </div>
-                <Separator />
+
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
                   <Card className='bg-card border-border'>
                     <CardHeader>

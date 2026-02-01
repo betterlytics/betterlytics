@@ -24,57 +24,66 @@ export default function PublicTopBar() {
     setIsMobileMenuOpen(false);
   };
 
-  const isOnSignInPage = pathname === '/signin';
+  const isOnAuthPage = pathname === '/signin' || pathname === '/signup';
 
   return (
     <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
       <div className='mx-auto max-w-7xl px-8'>
         <div className='flex h-(--topbar-height) items-center justify-between'>
-          <div className='flex items-center space-x-2'>
+          <div className='flex items-center'>
             <Link href='/' className='flex items-center space-x-2' onClick={closeMobileMenu}>
               <Logo variant='icon' showText textSize='md' priority />
             </Link>
           </div>
 
-          <nav className='hidden items-center space-x-8 md:flex'>
-            <ExternalLink
-              href='/docs'
-              title={t('documentation')}
-              className='text-foreground hover:text-foreground text-sm font-medium transition-colors'
-            >
-              {t('documentation')}
-            </ExternalLink>
-            <Link
-              href='/features'
-              className='text-foreground hover:text-foreground text-sm font-medium transition-colors'
-            >
-              {t('features')}
-            </Link>
-            <Link
-              href='/pricing'
-              className='text-foreground hover:text-foreground text-sm font-medium transition-colors'
-            >
-              {t('pricing')}
-            </Link>
+          <div className='hidden items-center md:flex'>
+            <nav className='flex items-center space-x-6'>
+              <ExternalLink
+                href='/docs'
+                title={t('documentation')}
+                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+              >
+                {t('documentation')}
+              </ExternalLink>
+              <Link
+                href='/features'
+                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+              >
+                {t('features')}
+              </Link>
+              <Link
+                href='/pricing'
+                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+              >
+                {t('pricing')}
+              </Link>
+            </nav>
 
-            <div className='flex items-center space-x-4'>
+            <div className='flex items-center'>
               {status === 'loading' ? (
-                <div className='flex items-center space-x-2'>
+                <div className='ml-4 flex items-center space-x-2'>
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <NextLink href='/dashboards'>
+                <NextLink href='/dashboards' className='ml-6'>
                   <Button variant='default' className='cursor-pointer'>
                     {t('goToDashboard')}
                   </Button>
                 </NextLink>
-              ) : !isOnSignInPage ? (
-                <Link href='/signin'>
-                  <Button className='cursor-pointer'>{t('getStarted')}</Button>
-                </Link>
+              ) : !isOnAuthPage ? (
+                <div className='ml-8 flex items-center space-x-2'>
+                  <Link href='/signin'>
+                    <Button variant='outline' className='cursor-pointer'>
+                      {t('login')}
+                    </Button>
+                  </Link>
+                  <Link href='/signup'>
+                    <Button className='cursor-pointer'>{t('getStarted')}</Button>
+                  </Link>
+                </div>
               ) : null}
             </div>
-          </nav>
+          </div>
 
           <button
             className='flex items-center justify-center p-2 md:hidden'
@@ -118,10 +127,17 @@ export default function PublicTopBar() {
                       {t('goToDashboard')}
                     </Button>
                   </NextLink>
-                ) : !isOnSignInPage ? (
-                  <Link href='/signin' onClick={closeMobileMenu}>
-                    <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
-                  </Link>
+                ) : !isOnAuthPage ? (
+                  <div className='flex flex-col gap-2'>
+                    <Link href='/signup' onClick={closeMobileMenu}>
+                      <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
+                    </Link>
+                    <Link href='/signin' onClick={closeMobileMenu}>
+                      <Button variant='outline' className='w-full cursor-pointer'>
+                        {t('login')}
+                      </Button>
+                    </Link>
+                  </div>
                 ) : null}
               </div>
             </nav>

@@ -17,6 +17,7 @@ pub struct ValidationConfig {
     pub max_site_id_length: usize,
     pub max_user_agent_length: usize,
     pub max_timestamp_drift_seconds: i64,
+    pub enforce_timestamp_validation: bool,
 }
 
 impl Default for ValidationConfig {
@@ -28,6 +29,7 @@ impl Default for ValidationConfig {
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
             max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
+            enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
     }
 }
@@ -56,6 +58,8 @@ pub enum ValidationError {
     BlacklistedIp(String),
     #[error("Domain not allowed: {0}")]
     DomainNotAllowed(String),
+    #[error("Invalid scroll depth: {0}")]
+    InvalidScrollDepth(String),
 }
 
 #[derive(Debug, Clone)]
@@ -103,6 +107,10 @@ impl EventValidator {
 
         if raw_event.event_name.eq_ignore_ascii_case("cwv") {
             self.validate_cwv_fields(raw_event)?;
+        }
+
+        if raw_event.event_name == "scroll_depth" {
+            self.validate_scroll_depth_fields(raw_event)?;
         }
 
         // only present for custom events
@@ -185,14 +193,16 @@ impl EventValidator {
         }
 
         // Validate timestamp is reasonable (config allows for some clock drift to account for packet latency)
-        if let Some(event_time) = DateTime::from_timestamp(raw_event.timestamp as i64, 0) {
-            let now = Utc::now();
-            let drift = (event_time - now).num_seconds().abs();
-            if drift > self.config.max_timestamp_drift_seconds {
-                return Err(ValidationError::InvalidTimestamp("Timestamp too far from current time".to_string()));
+        if self.config.enforce_timestamp_validation {
+            if let Some(event_time) = DateTime::from_timestamp(raw_event.timestamp as i64, 0) {
+                let now = Utc::now();
+                let drift = (event_time - now).num_seconds().abs();
+                if drift > self.config.max_timestamp_drift_seconds {
+                    return Err(ValidationError::InvalidTimestamp("Timestamp too far from current time".to_string()));
+                }
+            } else {
+                return Err(ValidationError::InvalidTimestamp("Invalid timestamp".to_string()));
             }
-        } else {
-            return Err(ValidationError::InvalidTimestamp("Invalid timestamp".to_string()));
         }
 
         Ok(())
@@ -268,6 +278,27 @@ impl EventValidator {
         Ok(())
     }
 
+    /// Validate scroll depth fields when present
+    fn validate_scroll_depth_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        fn valid_f32(v: f32) -> bool { v.is_finite() }
+
+        if raw_event.scroll_depth_percentage.is_none() || raw_event.scroll_depth_pixels.is_none() {
+            return Err(ValidationError::InvalidScrollDepth("missing values".to_string()));
+        }
+
+        if let Some(v) = raw_event.scroll_depth_percentage {
+            if !valid_f32(v) || v < 0.0 || v > 100.0 {
+                return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_percentage value".to_string()));
+            }
+        }
+        if let Some(v) = raw_event.scroll_depth_pixels {
+            if !valid_f32(v) || v < 0.0 || v > 500000.0 {
+                return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_pixels value".to_string()));
+            }
+        }
+        Ok(())
+    }
+
     /// Log sanitized rejection details for debugging
     fn log_sanitized_rejection(
         &self,
@@ -304,6 +335,7 @@ impl EventValidator {
             ValidationError::InvalidOutboundLinkUrl(_) => "invalid_outbound_link_url",
             ValidationError::BlacklistedIp(_) => "blacklisted_ip",
             ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
+            ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
         }
     }
 

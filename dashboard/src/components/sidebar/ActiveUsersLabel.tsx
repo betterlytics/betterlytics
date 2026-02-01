@@ -20,12 +20,13 @@ export function ActiveUsersLabel() {
   });
 
   return (
-    <div className='text-muted-foreground flex items-center gap-4 pl-4 text-xs font-medium'>
-      <div className='relative flex items-center justify-center pb-1'>
-        <LiveIndicator />
-      </div>
-      <span className='text-muted-foreground text-sm font-semibold'>
+    <div className='text-muted-foreground flex h-8 items-center gap-2 px-2 text-xs font-medium group-data-[collapsible=icon]:h-auto group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0.5 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-1'>
+      <LiveIndicator positionClassName='relative' sizeClassName='h-2.5 w-2.5' />
+      <span className='text-muted-foreground text-sm font-semibold group-data-[collapsible=icon]:hidden'>
         <AnimatedCounter value={activeUsers} /> {t('activeUsers', { count: activeUsers })}
+      </span>
+      <span className='text-muted-foreground hidden pt-1.5 text-xs leading-none font-semibold group-data-[collapsible=icon]:block'>
+        <AnimatedCounter value={activeUsers} />
       </span>
     </div>
   );

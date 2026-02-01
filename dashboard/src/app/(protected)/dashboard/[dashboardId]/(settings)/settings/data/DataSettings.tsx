@@ -73,7 +73,7 @@ export default function DataSettings() {
             <span className='text-sm font-medium'>{t('data.retentionLabel')}</span>
             <p className='text-muted-foreground text-xs'>{t('data.retentionHelp')}</p>
           </div>
-          <PermissionGate>
+          <PermissionGate permission='canManageSettings'>
             {(disabled) => (
               <Select
                 value={dataRetentionDays.toString()}

@@ -25,7 +25,7 @@
         return {
           original: p,
           regex: new RegExp(
-            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`
+            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`,
           ),
         };
       }) ?? [];
@@ -43,7 +43,7 @@
 
   var replaySamplePct = parseInt(
     script.getAttribute("data-replay-sample") || "5",
-    10
+    10,
   );
 
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
@@ -54,8 +54,14 @@
     return console.error("Betterlytics: data-site-id attribute missing");
   }
 
-  // Store current path for SPA navigation
+  // Store current URL for SPA navigation
   var currentPath = window.location.pathname;
+
+  // Scroll depth tracking state
+  var currentUrl = null;
+  var maxScrollDepthPx = 0;
+  var lastSentScrollDepthPx = 0;
+  var currentDocHeight = 0;
 
   function normalize(url) {
     var urlObj = new URL(url);
@@ -65,7 +71,7 @@
       if (match) {
         var normalizedPath = `${urlPatterns[i].original.replace(
           /\*\*/g,
-          "*"
+          "*",
         )}${pathname.slice(match[0].length)}`;
         return `${urlObj.origin}${normalizedPath}${urlObj.search}${urlObj.hash}`;
       }
@@ -125,7 +131,7 @@
               consented: true,
               source: "custom",
               timestamp: Date.now(),
-            })
+            }),
           );
         } else {
           localStorage.removeItem(CONSENT_KEY);
@@ -218,6 +224,90 @@
     document.head.appendChild(s);
   }
 
+  function getDocumentHeight() {
+    var body = document.body || {};
+    var el = document.documentElement || {};
+    return Math.max(
+      body.scrollHeight || 0,
+      body.offsetHeight || 0,
+      body.clientHeight || 0,
+      el.scrollHeight || 0,
+      el.offsetHeight || 0,
+      el.clientHeight || 0,
+    );
+  }
+
+  function updateScrollDepth() {
+    if (currentUrl && normalize(window.location.href) !== currentUrl) {
+      return;
+    }
+
+    var body = document.body || {};
+    var el = document.documentElement || {};
+    var scrollTop = window.scrollY || el.scrollTop || body.scrollTop || 0;
+    var viewportHeight = window.innerHeight || el.clientHeight || 0;
+
+    currentDocHeight = getDocumentHeight();
+
+    var scrollPosition = Math.min(scrollTop + viewportHeight, currentDocHeight);
+
+    if (scrollPosition > maxScrollDepthPx) {
+      maxScrollDepthPx = scrollPosition;
+    }
+  }
+
+  function flushScrollDepth(urlOverride) {
+    if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
+
+    lastSentScrollDepthPx = maxScrollDepthPx;
+
+    var percentage = Math.min(
+      100,
+      Math.round((maxScrollDepthPx / currentDocHeight) * 100),
+    );
+
+    var overrides = {
+      scroll_depth_percentage: percentage,
+      scroll_depth_pixels: maxScrollDepthPx,
+    };
+    if (urlOverride) overrides.url = urlOverride;
+
+    sendEvent("scroll_depth", overrides);
+  }
+
+  function resetScrollDepth() {
+    currentUrl = normalize(window.location.href);
+    maxScrollDepthPx = 0;
+    lastSentScrollDepthPx = 0;
+  }
+
+  window.addEventListener("scroll", () => updateScrollDepth(), {
+    passive: true,
+  });
+
+  document.addEventListener(
+    "visibilitychange",
+    () => document.visibilityState === "hidden" && flushScrollDepth(),
+  );
+  window.addEventListener("pagehide", () => flushScrollDepth());
+
+  // Initialize currentUrl and capture initial viewport
+  currentUrl = normalize(window.location.href);
+  updateScrollDepth();
+
+  function monitorContentHeight() {
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => updateScrollDepth()),
+    );
+    var count = 0;
+    var interval = setInterval(function () {
+      updateScrollDepth();
+      if (++count === 15) clearInterval(interval);
+    }, 200);
+  }
+
+  window.addEventListener("load", monitorContentHeight);
+
   // Send initial page view
   sendEvent("pageview");
 
@@ -226,9 +316,12 @@
     // Override pushState to send navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
-      originalPushState.apply(this, arguments);
+      flushScrollDepth(); // Flush before URL changes (uses current URL)
+      originalPushState.apply(this, arguments); // URL changes here
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
+        resetScrollDepth();
+        monitorContentHeight();
         sendEvent("pageview");
       }
     };
@@ -237,6 +330,9 @@
     window.addEventListener("popstate", function () {
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
+        flushScrollDepth(currentUrl); // Pass old URL as override
+        resetScrollDepth();
+        monitorContentHeight();
         sendEvent("pageview");
       }
     });
@@ -303,7 +399,7 @@
           if (age < THIRTY_MIN_MS) {
             localStorage.setItem(
               REPLAY_STORAGE_KEY,
-              JSON.stringify({ sampled: data.sampled, timestamp: now })
+              JSON.stringify({ sampled: data.sampled, timestamp: now }),
             );
             return data.sampled;
           }
@@ -313,7 +409,7 @@
 
         localStorage.setItem(
           REPLAY_STORAGE_KEY,
-          JSON.stringify({ sampled, timestamp: now })
+          JSON.stringify({ sampled, timestamp: now }),
         );
         return sampled;
       } catch (e) {
