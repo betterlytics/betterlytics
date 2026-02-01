@@ -258,11 +258,11 @@ function toRangeStart(endDate: moment.Moment, timeRange: Exclude<TimeRangeValue,
     case '90d':
       return endDate.subtract(90, 'days');
     case 'mtd':
-      return endDate.startOf('month');
+      return endDate.subtract(1, 'day').startOf('month');
     case 'last_month':
       return endDate.subtract(1, 'month');
     case 'ytd':
-      return endDate.startOf('year');
+      return endDate.subtract(1, 'day').startOf('year');
     case '1y':
       return endDate.subtract(1, 'year');
   }
