@@ -120,15 +120,6 @@ impl Database {
             );
         }
 
-        if self.config.enable_billing {
-            if let Err(e) = self.ensure_billing_materialized_view().await {
-                eprintln!("[ERROR] Could not create billing materialized view: {}", e);
-                return Err(e);
-            }
-        } else {
-            println!("[INFO] Billing disabled - skipping billing materialized view creation.");
-        }
-
         println!("Database schema validation and TTL setup complete.");
         Ok(())
     }
@@ -161,43 +152,6 @@ impl Database {
             println!("[INFO] TTL policy removed successfully.");
         } else {
             println!("[INFO] No TTL policy found on events table, nothing to remove.");
-        }
-
-        Ok(())
-    }
-
-    async fn ensure_billing_materialized_view(&self) -> Result<()> {
-        println!("[INFO] Checking billing materialized view...");
-        
-        let mv_exists: u8 = self.clickhouse.inner()
-            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'usage_by_site_daily' AND engine LIKE '%MaterializedView%'")
-            .fetch_one()
-            .await?;
-
-        if mv_exists == 0 {
-            println!("[INFO] Creating billing usage materialized view...");
-            
-            let create_mv_query = r#"
-                CREATE MATERIALIZED VIEW analytics.usage_by_site_daily
-                ENGINE = SummingMergeTree()
-                ORDER BY (site_id, date)
-                AS SELECT
-                    site_id,
-                    toDate(timestamp) as date,
-                    count() as event_count
-                FROM analytics.events
-                GROUP BY site_id, date
-            "#;
-
-            self.clickhouse.inner()
-                .query(create_mv_query)
-                .execute()
-                .await
-                .map_err(|e| anyhow::anyhow!("Failed to create billing materialized view: {}", e))?;
-            
-            println!("[INFO] Billing usage materialized view created successfully.");
-        } else {
-            println!("[INFO] Billing usage materialized view already exists.");
         }
 
         Ok(())
