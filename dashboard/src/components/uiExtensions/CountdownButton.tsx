@@ -42,23 +42,13 @@ function CountdownButton({
     '!bg-destructive/85 hover:!bg-destructive/80 dark:!bg-destructive/65 dark:hover:!bg-destructive/80 cursor-pointer !text-white';
 
   return (
-    <Button
-      ref={ref}
-      variant={variant}
-      disabled={isDisabled}
-      className={cn(baseClasses, className)}
-      {...props}
-    >
+    <Button ref={ref} variant={variant} disabled={isDisabled} className={cn(baseClasses, className)} {...props}>
+      {isPending ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Trash2 className='mr-2 h-4 w-4' />}
       {isPending ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <Trash2 className="mr-2 h-4 w-4" />
-      )}
-      {isPending ? (
-        pendingLabel ?? children
+        (pendingLabel ?? children)
       ) : hasCountdown && !canConfirm ? (
         <>
-          {children} <NumberFlow value={countdown} prefix="(" suffix=")" willChange />
+          {children} <NumberFlow value={countdown} prefix='(' suffix=')' willChange className='tabular-nums' />
         </>
       ) : (
         children
