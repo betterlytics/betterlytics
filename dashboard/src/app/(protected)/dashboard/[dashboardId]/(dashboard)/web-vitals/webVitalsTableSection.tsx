@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
 import { formatString } from '@/utils/formatters';
-import { formatCWV, getCwvLabelColor } from '@/utils/coreWebVitals';
+import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
@@ -28,7 +28,6 @@ type Props = {
   perBrowserPromise: Promise<DimRow[]>;
   perOsPromise: Promise<DimRow[]>;
 };
-type PercentileKey = 'p50' | 'p75' | 'p90' | 'p99';
 
 export default function WebVitalsTableSection({
   perPagePromise,
@@ -97,11 +96,11 @@ export default function WebVitalsTableSection({
           const value = getValue(row.original, metric);
           return (
             <div className='flex flex-col items-start'>
-              <span style={{ color: getCwvLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
+              <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
             </div>
           );
         };
-        Cell.displayName = `CwvValueCell_${metric}`;
+        Cell.displayName = `CoreWebVitalValueCell_${metric}`;
         return Cell;
       };
 

@@ -10,12 +10,6 @@ export const INNER_STROKE_OFFSET = 2;
 /** Multiplier for inner arc stroke width relative to outer */
 export const INNER_STROKE_MULTIPLIER = 3;
 
-export const CWV_COLORS = {
-  good: 'var(--cwv-threshold-good)',
-  fair: 'var(--cwv-threshold-fair)',
-  poor: 'var(--cwv-threshold-poor)',
-} as const;
-
 export type Segment = {
   percent: number;
   color: string;
@@ -29,5 +23,5 @@ export function getProgressColor(segments: Segment[], progress: number): string 
       return seg.color;
     }
   }
-  return segments.at(-1)?.color ?? CWV_COLORS.fair;
+  return segments.at(-1)?.color ?? 'var(--cwv-threshold-fair)';
 }
