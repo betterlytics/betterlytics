@@ -125,7 +125,6 @@ export const PricingCards = React.memo(function PricingCards({
     return formatPrice(price, currency);
   };
 
-
   const renderButton = (plan: PlanConfig) => {
     if (mode === 'billing' && billingData) {
       const isCurrentPlan =
@@ -206,11 +205,11 @@ export const PricingCards = React.memo(function PricingCards({
             <div className='mt-4'>
               {plan.price_cents > 0 ? (
                 <NumberFlow
-                    className='text-4xl font-bold tabular-nums'
-                    value={plan.price_cents / 100}
-                    format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
-                    willChange
-                  />
+                  className='text-4xl font-bold tabular-nums'
+                  value={plan.price_cents / 100}
+                  format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
+                  willChange
+                />
               ) : (
                 <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
               )}
@@ -234,4 +233,3 @@ export const PricingCards = React.memo(function PricingCards({
     </div>
   );
 });
-

@@ -1,6 +1,7 @@
 'use client';
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
+import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
@@ -10,7 +11,6 @@ interface PricingSliderProps {
   handleSliderChange: React.ChangeEventHandler<HTMLInputElement>;
   className?: string;
 }
-
 
 export function PricingSlider({
   currentRange,
@@ -50,9 +50,10 @@ export function PricingSlider({
           {EVENT_RANGES.map((range) => (
             <div
               key={range.label}
-              className={`text-xs transition-colors ${
-                range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground'
-              }`}
+              className={cn(
+                'text-xs transition-colors',
+                range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground',
+              )}
             >
               {range.label}
             </div>
