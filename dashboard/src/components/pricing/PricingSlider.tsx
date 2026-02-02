@@ -27,7 +27,7 @@ export function PricingSlider({
       <div className='mb-4 text-center'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
         <NumberFlow
-          className='text-3xl font-bold'
+          className='text-3xl font-bold tabular-nums'
           value={currentRange.value}
           format={{ notation: 'compact' }}
           suffix={isUnlimited ? '+' : undefined}

@@ -10,7 +10,7 @@ import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing
 import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
-import { Dispatch } from 'react';
+import React, { Dispatch, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
@@ -35,7 +35,7 @@ interface PlanConfig {
   lookup_key: string | null;
 }
 
-export function PricingCards({
+export const PricingCards = React.memo(function PricingCards({
   eventRange,
   currency,
   onPlanSelect,
@@ -51,7 +51,7 @@ export function PricingCards({
   const isFree = growthPrice === 0;
   const isCustom = growthPrice < 0;
 
-  const plans: PlanConfig[] = [
+  const plans: PlanConfig[] = useMemo(() => [
     {
       tier: 'growth',
       price_cents: growthPrice,
@@ -103,7 +103,7 @@ export function PricingCards({
       popular: false,
       lookup_key: null,
     },
-  ];
+  ], [eventRange, growthPrice, professionalPrice, isFree, isCustom, t]);
 
   const handlePlanClick = (plan: PlanConfig) => {
     if (mode === 'billing' && onPlanSelect) {
@@ -206,7 +206,7 @@ export function PricingCards({
             <div className='mt-4'>
               {plan.price_cents > 0 ? (
                 <NumberFlow
-                    className='text-4xl font-bold'
+                    className='text-4xl font-bold tabular-nums'
                     value={plan.price_cents / 100}
                     format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
                     willChange
@@ -233,5 +233,5 @@ export function PricingCards({
       ))}
     </div>
   );
-}
+});
 

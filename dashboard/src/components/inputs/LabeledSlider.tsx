@@ -84,6 +84,7 @@ export function LabeledSlider({
         >
           {valueParts ? (
             <NumberFlow
+              className='tabular-nums'
               value={valueParts.value}
               format={valueParts.intlUnit ? { style: 'unit', unit: valueParts.intlUnit, unitDisplay: 'narrow' } : undefined}
               suffix={valueParts.suffix ? ` ${valueParts.suffix}` : undefined}
