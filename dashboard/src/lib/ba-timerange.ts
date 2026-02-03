@@ -424,8 +424,6 @@ export function getResolvedRanges(
   const needsRecompute =
     nextEnd.getTime() !== initial.result.main.end.getTime() || nextGranularity !== granularity;
 
-  const now = moment.tz(timezone);
-
   if (!needsRecompute) {
     return {
       ...initial.result,
