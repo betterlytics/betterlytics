@@ -63,6 +63,20 @@ function ceilToGranularity(date: moment.Moment, granularity: GranularityRangeVal
   }
 }
 
+function snapCeilToGranularity(date: moment.Moment, granularity: GranularityRangeValues) {
+  const floored = floorToGranularity(date.clone(), granularity);
+  if (floored.isSame(date)) return date.clone();
+  return ceilToGranularity(date.clone(), granularity);
+}
+
+function alignRangeToGranularity(range: TimeRange, granularity: GranularityRangeValues): TimeRange {
+  if (granularity !== 'week' && granularity !== 'month') return range;
+  return {
+    start: floorToGranularity(range.start.clone(), granularity),
+    end: snapCeilToGranularity(range.end.clone(), granularity),
+  };
+}
+
 function offsetTime(date: moment.Moment, amount: number, unit: moment.DurationInputArg2, offset: number) {
   return date.add(amount * offset, unit);
 }
@@ -219,9 +233,13 @@ function getMainRange(
     };
 
     const customBuckets = countBucketsBetween(base, 'day');
-    return {
+    const offsetRange = {
       start: offsetTime(base.start, customBuckets, 'days', offset).clone(),
       end: offsetTime(base.end, customBuckets, 'days', offset).clone(),
+    };
+    return {
+      start: offsetRange.start,
+      end: snapCeilToGranularity(offsetRange.end.clone(), granularity),
     };
   }
 
@@ -232,10 +250,15 @@ function getMainRange(
   const mainEnd = getRangeOffset(baseEnd.clone(), timeRange, offset);
   const mainStart = toRangeStart(mainEnd.clone(), timeRange);
 
-  return {
-    start: mainStart.clone(),
-    end: mainEnd.clone(),
-  };
+  return { start: mainStart.clone(), end: snapCeilToGranularity(mainEnd.clone(), granularity) };
+}
+
+function countAlignedBuckets(range: TimeRange, granularity: GranularityRangeValues): number {
+  if (granularity !== 'week' && granularity !== 'month') {
+    return countBucketsBetween(range, granularity);
+  }
+  const aligned = alignRangeToGranularity(range, granularity);
+  return countUnitsBetween(aligned, granularity);
 }
 
 function alignWeekday(mainEnd: moment.Moment, compareEnd: moment.Moment, mode: 'previous' | 'year') {
@@ -265,11 +288,21 @@ function getCompareRange(
   customCompareRange?: TimeRange,
 ) {
   if (mode === 'off') return undefined;
-  const diff = countUnitsBetween(range, granularity);
+
+  const useAlignedBuckets = granularity === 'week' || granularity === 'month';
+  const diff = useAlignedBuckets ? countAlignedBuckets(range, granularity) : countUnitsBetween(range, granularity);
   const unit = granularityUnit(granularity);
   const offsetStart = (end: moment.Moment) => offsetTime(end.clone(), diff, unit, -1).clone();
   const offsetEnd = (start: moment.Moment) => offsetTime(start.clone(), diff, unit, 1).clone();
+
   if (mode === 'previous') {
+    if (useAlignedBuckets) {
+      const compareEnd = floorToGranularity(range.start.clone(), granularity);
+      return {
+        start: offsetStart(compareEnd),
+        end: compareEnd.clone(),
+      };
+    }
     const baseEnd = shouldAlignWeekdays
       ? alignWeekday(range.end.clone(), range.start.clone(), mode)
       : range.start.clone();
@@ -280,8 +313,16 @@ function getCompareRange(
     };
   }
   if (mode === 'year') {
+    if (useAlignedBuckets) {
+      const compareEnd = snapCeilToGranularity(range.end.clone().subtract(1, 'year'), granularity);
+      return {
+        start: offsetStart(compareEnd),
+        end: compareEnd.clone(),
+      };
+    }
     const endLastYear = range.end.clone().subtract(1, 'year');
-    const baseEnd = shouldAlignWeekdays ? alignWeekday(range.end.clone(), endLastYear.clone(), mode) : endLastYear;
+    const needsWeekAlign = shouldAlignWeekdays;
+    const baseEnd = needsWeekAlign ? alignWeekday(range.end.clone(), endLastYear.clone(), mode) : endLastYear;
 
     return {
       start: offsetStart(baseEnd),
@@ -289,13 +330,15 @@ function getCompareRange(
     };
   }
   if (mode === 'custom' && customCompareRange) {
-    // Align end time of day
-    const alignedStart = customCompareRange.start.clone().set({
+    let alignedStart = customCompareRange.start.clone().set({
       hour: range.start.hour(),
       minute: range.start.minute(),
       second: range.start.second(),
       millisecond: range.start.millisecond(),
     });
+    if (useAlignedBuckets) {
+      alignedStart = floorToGranularity(alignedStart, granularity);
+    }
     return {
       start: alignedStart.clone(),
       end: offsetEnd(alignedStart),
@@ -313,6 +356,25 @@ export interface TimeRangeResult {
     end: Date;
   };
   granularity: GranularityRangeValues;
+  startBucketIncomplete: boolean;
+}
+
+export function isStartBucketIncomplete(
+  startDate: Date,
+  granularity: GranularityRangeValues,
+  timezone: string,
+): boolean {
+  if (granularity !== 'week' && granularity !== 'month') {
+    return false;
+  }
+
+  const m = moment.tz(startDate, timezone);
+
+  if (granularity === 'week') {
+    return m.isoWeekday() !== 1;
+  }
+
+  return m.date() !== 1;
 }
 
 export function getResolvedRanges(
@@ -390,6 +452,7 @@ export function getResolvedRanges(
     return {
       ...initial.result,
       granularity,
+      startBucketIncomplete: isStartBucketIncomplete(initial.result.main.start, granularity, timezone),
     };
   }
 
@@ -398,6 +461,7 @@ export function getResolvedRanges(
   return {
     ...recomputed.result,
     granularity: nextGranularity,
+    startBucketIncomplete: isStartBucketIncomplete(recomputed.result.main.start, nextGranularity, timezone),
   };
 }
 
