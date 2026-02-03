@@ -4,7 +4,7 @@ import { useRef, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
 import { Lock } from 'lucide-react';
@@ -44,6 +44,7 @@ export function LabeledSlider({
   disabled,
   minAllowed,
 }: LabeledSliderProps) {
+  const locale = useLocale();
   const t = useTranslations('components.slider');
   const tProFeature = useTranslations('components.proFeature');
   const isRecommended = recommendedValue !== undefined && value === recommendedValue;
@@ -85,6 +86,7 @@ export function LabeledSlider({
           {valueParts ? (
             <NumberFlow
               value={valueParts.value}
+              locales={locale}
               format={
                 valueParts.intlUnit
                   ? { style: 'unit', unit: valueParts.intlUnit, unitDisplay: 'narrow' }

@@ -1,7 +1,8 @@
 'use client';
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
-import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
+import { useLocale, useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
@@ -17,6 +18,7 @@ export function PricingSlider({
   handleSliderChange,
   className = '',
 }: PricingSliderProps) {
+  const locale = useLocale();
   const t = useTranslations('pricingSlider');
 
   return (
@@ -24,8 +26,9 @@ export function PricingSlider({
       <div className='mb-4 text-center'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
         <NumberFlow
-          className='text-3xl font-bold'
+          className='text-3xl font-bold tabular-nums'
           value={currentRange.value}
+          locales={locale}
           format={{ notation: 'compact' }}
           suffix={currentRange.value > 10_000_000 ? '+' : undefined}
           willChange
@@ -47,9 +50,10 @@ export function PricingSlider({
           {EVENT_RANGES.map((range) => (
             <div
               key={range.label}
-              className={`text-xs transition-colors ${
-                range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground'
-              }`}
+              className={cn(
+                'text-xs transition-colors',
+                range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground',
+              )}
             >
               {range.label}
             </div>

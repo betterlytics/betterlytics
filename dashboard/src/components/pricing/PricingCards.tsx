@@ -10,8 +10,8 @@ import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing
 import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
-import { Dispatch } from 'react';
-import { useTranslations } from 'next-intl';
+import React, { Dispatch, useMemo } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 
@@ -35,7 +35,7 @@ interface PlanConfig {
   lookup_key: string | null;
 }
 
-export function PricingCards({
+export const PricingCards = React.memo(function PricingCards({
   eventRange,
   currency,
   onPlanSelect,
@@ -43,6 +43,7 @@ export function PricingCards({
   className = '',
   billingData,
 }: PricingCardsProps) {
+  const locale = useLocale();
   const t = useTranslations('pricingCards');
   const growthPrice = currency === 'EUR' ? eventRange.growth.price.eur_cents : eventRange.growth.price.usd_cents;
   const professionalPrice =
@@ -51,7 +52,7 @@ export function PricingCards({
   const isFree = growthPrice === 0;
   const isCustom = growthPrice < 0;
 
-  const plans: PlanConfig[] = [
+  const plans: PlanConfig[] = useMemo(() => [
     {
       tier: 'growth',
       price_cents: growthPrice,
@@ -103,7 +104,7 @@ export function PricingCards({
       popular: false,
       lookup_key: null,
     },
-  ];
+  ], [eventRange, growthPrice, professionalPrice, isFree, isCustom, t]);
 
   const handlePlanClick = (plan: PlanConfig) => {
     if (mode === 'billing' && onPlanSelect) {
@@ -124,7 +125,6 @@ export function PricingCards({
     if (price < 0) return t('labels.custom');
     return formatPrice(price, currency);
   };
-
 
   const renderButton = (plan: PlanConfig) => {
     if (mode === 'billing' && billingData) {
@@ -206,11 +206,12 @@ export function PricingCards({
             <div className='mt-4'>
               {plan.price_cents > 0 ? (
                 <NumberFlow
-                    className='text-4xl font-bold'
-                    value={plan.price_cents / 100}
-                    format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
-                    willChange
-                  />
+                  className='text-4xl font-bold tabular-nums'
+                  value={plan.price_cents / 100}
+                  locales={locale}
+                  format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
+                  willChange
+                />
               ) : (
                 <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
               )}
@@ -233,5 +234,4 @@ export function PricingCards({
       ))}
     </div>
   );
-}
-
+});

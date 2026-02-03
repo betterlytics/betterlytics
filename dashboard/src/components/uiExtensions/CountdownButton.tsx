@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import NumberFlow from '@number-flow/react';
 import { useCountdown } from '@/hooks/use-countdown';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'next-intl';
 import React from 'react';
 
 type CountdownButtonProps = Omit<React.ComponentPropsWithRef<typeof Button>, 'disabled'> & {
@@ -29,6 +30,7 @@ function CountdownButton({
   ref,
   ...props
 }: CountdownButtonProps) {
+  const locale = useLocale();
   const hasCountdown = countdownSeconds != null && countdownSeconds > 0;
 
   const { countdown, isFinished: canConfirm } = useCountdown({
@@ -48,7 +50,7 @@ function CountdownButton({
         (pendingLabel ?? children)
       ) : hasCountdown && !canConfirm ? (
         <>
-          {children} <NumberFlow value={countdown} prefix='(' suffix=')' willChange className='tabular-nums' />
+          {children} <NumberFlow value={countdown} locales={locale} prefix='(' suffix=')' willChange className='tabular-nums' />
         </>
       ) : (
         children
