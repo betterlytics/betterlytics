@@ -20,6 +20,18 @@ export type GaugeSegment = {
   color: string;
 };
 
+export type GaugeProps = {
+  segments: GaugeSegment[];
+  progress: number;
+  size?: number;
+  strokeWidth?: number;
+  gapDeg?: number;
+  arcGap?: number;
+  widthRatio?: number;
+  totalAngle?: number;
+  needle?: boolean | GaugeNeedleConfig;
+};
+
 export function getProgressColor(segments: GaugeSegment[], progress: number): string {
   let accumulated = 0;
   for (const seg of segments) {

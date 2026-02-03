@@ -3,18 +3,9 @@
 import React from 'react';
 import { useGauge } from './useGauge';
 import GaugeNeedle from './GaugeNeedle';
-import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeNeedleConfig } from './gauge-utils';
+import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeProps as BaseGaugeProps } from './gauge-utils';
 
-type GaugeProps = {
-  segments: GaugeSegment[];
-  progress: number; // 0–100
-  size?: number;
-  strokeWidth?: number;
-  gapDeg?: number;
-  arcGap?: number;
-  widthRatio?: number;
-  needle?: boolean | GaugeNeedleConfig;
-  totalAngle?: number;
+type GaugeProps = BaseGaugeProps & {
   children?: React.ReactNode;
 };
 

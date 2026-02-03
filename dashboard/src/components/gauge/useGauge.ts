@@ -4,21 +4,10 @@ import {
   getProgressColor,
   DEFAULT_NEEDLE_BASE_WIDTH,
   DEFAULT_NEEDLE_TIP_WIDTH,
-  type GaugeSegment,
-  type GaugeNeedleConfig,
+  type GaugeProps,
 } from './gauge-utils';
 
-type UseGaugeOptions = {
-  segments: GaugeSegment[];
-  progress: number;
-  size: number;
-  strokeWidth: number;
-  gapDeg: number;
-  arcGap: number;
-  widthRatio: number;
-  totalAngle: number;
-  needle?: boolean | GaugeNeedleConfig;
-};
+type UseGaugeOptions = Required<Omit<GaugeProps, 'needle'>> & Pick<GaugeProps, 'needle'>;
 
 export function useGauge({
   segments,
