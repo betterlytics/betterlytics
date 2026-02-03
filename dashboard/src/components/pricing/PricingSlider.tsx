@@ -2,7 +2,7 @@
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
@@ -18,8 +18,9 @@ export function PricingSlider({
   handleSliderChange,
   className = '',
 }: PricingSliderProps) {
+  const locale = useLocale();
   const t = useTranslations('pricingSlider');
-  
+
   const isUnlimited = currentRange.value > 10_000_000;
 
   return (
@@ -29,6 +30,7 @@ export function PricingSlider({
         <NumberFlow
           className='text-3xl font-bold tabular-nums'
           value={currentRange.value}
+          locales={locale}
           format={{ notation: 'compact' }}
           suffix={isUnlimited ? '+' : undefined}
           willChange
