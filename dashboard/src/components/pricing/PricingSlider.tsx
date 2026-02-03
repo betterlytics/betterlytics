@@ -11,7 +11,6 @@ interface PricingSliderProps {
   className?: string;
 }
 
-
 export function PricingSlider({
   currentRange,
   selectedRangeIndex,
@@ -19,8 +18,6 @@ export function PricingSlider({
   className = '',
 }: PricingSliderProps) {
   const t = useTranslations('pricingSlider');
-  
-  const isUnlimited = currentRange.value > 10_000_000;
 
   return (
     <div className={className}>
@@ -30,7 +27,7 @@ export function PricingSlider({
           className='text-3xl font-bold'
           value={currentRange.value}
           format={{ notation: 'compact' }}
-          suffix={isUnlimited ? '+' : undefined}
+          suffix={currentRange.value > 10_000_000 ? '+' : undefined}
           willChange
         />
       </div>

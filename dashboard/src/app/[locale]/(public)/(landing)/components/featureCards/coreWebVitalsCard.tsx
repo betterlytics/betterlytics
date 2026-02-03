@@ -2,30 +2,31 @@
 
 import { useState, useEffect, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Gauge } from '@/components/gauge';
 import {
   getCoreWebVitalGaugeProps,
   getCoreWebVitalLabelColor,
+  getCoreWebVitalIntlFormat,
   CORE_WEB_VITAL_LEVELS,
 } from '@/utils/coreWebVitals';
 import { MOCK_CORE_WEB_VITAL_METRICS_DATA } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
+import type { SupportedLanguages } from '@/constants/i18n';
 import NumberFlow from '@number-flow/react';
 
-// Use consistent units per metric to avoid unit switching during animation
-// LCP/FCP/TTFB: always seconds
-// INP: always milliseconds (values typically < 600ms)
-const useSecondsUnit = (key: CoreWebVitalName) => key === 'LCP' || key === 'FCP' || key === 'TTFB';
+type MetricGaugeProps = {
+  metric: { key: CoreWebVitalName; value: number };
+  locale: SupportedLanguages;
+};
 
-const MetricGauge = memo(function MetricGauge({ metric }: { metric: { key: CoreWebVitalName; value: number } }) {
+const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugeProps) {
   const { segments, progress } = getCoreWebVitalGaugeProps(metric.key, metric.value);
-  const useSeconds = useSecondsUnit(metric.key);
 
   return (
     <div role='group' aria-label={`${metric.key} metric`}>
       <Gauge segments={segments} progress={progress} size={115} strokeWidth={6} arcGap={2.5}>
-        <div className={'absolute right-0 bottom-[20%] left-0 flex flex-col items-center'}>
+        <div className='absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
           <span className='text-muted-foreground/75 -mb-1 font-sans text-[8px] font-black tracking-[0.25em] uppercase'>
             {metric.key}
           </span>
@@ -36,24 +37,7 @@ const MetricGauge = memo(function MetricGauge({ metric }: { metric: { key: CoreW
               ['--number-flow-char-height' as string]: '1em',
             }}
           >
-            {metric.key === 'CLS' ? (
-              <NumberFlow
-                value={metric.value}
-                format={{ minimumFractionDigits: 2, maximumFractionDigits: 3 }}
-                willChange
-              />
-            ) : (
-              <NumberFlow
-                value={useSeconds ? metric.value / 1000 : metric.value}
-                format={{
-                  style: 'unit',
-                  unit: useSeconds ? 'second' : 'millisecond',
-                  unitDisplay: 'narrow',
-                  maximumFractionDigits: useSeconds ? 1 : 0,
-                }}
-                willChange
-              />
-            )}
+            <NumberFlow {...getCoreWebVitalIntlFormat(metric.key, metric.value)} locales={locale} willChange />
           </span>
         </div>
       </Gauge>
@@ -62,6 +46,7 @@ const MetricGauge = memo(function MetricGauge({ metric }: { metric: { key: CoreW
 });
 
 function AnimatedGaugeGrid() {
+  const locale = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -75,13 +60,13 @@ function AnimatedGaugeGrid() {
     <div className='space-y-6' style={{ ['--number-flow-duration' as string]: '700ms' }}>
       <div className='grid grid-cols-2 place-items-center gap-2 sm:gap-0 sm:px-3'>
         {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].slice(0, 2).map((m) => (
-          <MetricGauge key={m.key} metric={m} />
+          <MetricGauge key={m.key} metric={m} locale={locale} />
         ))}
       </div>
       <div className='grid grid-cols-2 place-items-center gap-4 md:grid-cols-3'>
         {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].slice(2).map((m) => (
           <div key={m.key} className={m.key === 'TTFB' ? 'hidden md:block' : ''}>
-            <MetricGauge metric={m} />
+            <MetricGauge metric={m} locale={locale} />
           </div>
         ))}
       </div>
@@ -109,7 +94,7 @@ export default function CoreWebVitalsCard() {
           {CORE_WEB_VITAL_LEVELS.map((label) => (
             <div className='flex items-center gap-1' key={label}>
               <span
-                className={`inline-block h-2 w-2 rounded-full`}
+                className='inline-block h-2 w-2 rounded-full'
                 style={{ backgroundColor: `var(--cwv-threshold-${label})` }}
               />
               <span aria-label={tMisc(label)}>{tMisc(label)}</span>

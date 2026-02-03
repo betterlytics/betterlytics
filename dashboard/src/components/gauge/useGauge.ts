@@ -1,9 +1,15 @@
 import { useMemo } from 'react';
 import { arcPath } from '@/lib/math-utils';
-import { getProgressColor, type Segment } from './gauge-utils';
+import {
+  getProgressColor,
+  DEFAULT_NEEDLE_BASE_WIDTH,
+  DEFAULT_NEEDLE_TIP_WIDTH,
+  type GaugeSegment,
+  type GaugeNeedleConfig,
+} from './gauge-utils';
 
 type UseGaugeOptions = {
-  segments: Segment[];
+  segments: GaugeSegment[];
   progress: number;
   size: number;
   strokeWidth: number;
@@ -11,6 +17,7 @@ type UseGaugeOptions = {
   arcGap: number;
   widthRatio: number;
   totalAngle: number;
+  needle?: boolean | GaugeNeedleConfig;
 };
 
 export function useGauge({
@@ -22,6 +29,7 @@ export function useGauge({
   arcGap,
   widthRatio,
   totalAngle,
+  needle,
 }: UseGaugeOptions) {
   const startOffset = (totalAngle - 180) / 2;
   const center = size / 2;
@@ -57,8 +65,8 @@ export function useGauge({
   const pathLength = (totalAngle / 360) * 2 * Math.PI * innerRadius;
   const dashOffset = pathLength * (1 - Math.min(progress, 100) / 100);
 
-  const needleBaseWidth = 4;
-  const needleTipWidth = 1;
+  const needleBaseWidth = (typeof needle === 'object' ? needle.baseWidth : undefined) ?? DEFAULT_NEEDLE_BASE_WIDTH;
+  const needleTipWidth = (typeof needle === 'object' ? needle.tipWidth : undefined) ?? DEFAULT_NEEDLE_TIP_WIDTH;
   const needleTipRadius = radius - strokeWidth / 2 - arcGap;
 
   // Calculate angular offset to prevent needle tip from overlapping the arc edges
@@ -69,14 +77,16 @@ export function useGauge({
 
   // Needle polygon points - simple tapered pointer from center to arc
   // Starts at center (0,0), extends to tip at needleTipRadius
-  const needlePoints = useMemo(() => {
-    return [
-      `${-needleBaseWidth / 2},0`, // Base left (at center)
-      `${-needleTipWidth / 2},${needleTipRadius}`, // Tip left
-      `${needleTipWidth / 2},${needleTipRadius}`, // Tip right
-      `${needleBaseWidth / 2},0`, // Base right (at center)
-    ].join(' ');
-  }, [needleTipRadius]);
+  const needlePoints = useMemo(
+    () =>
+      [
+        `${-needleBaseWidth / 2},0`, // Base left (at center)
+        `${-needleTipWidth / 2},${needleTipRadius}`, // Tip left
+        `${needleTipWidth / 2},${needleTipRadius}`, // Tip right
+        `${needleBaseWidth / 2},0`, // Base right (at center)
+      ].join(' '),
+    [needleBaseWidth, needleTipWidth, needleTipRadius],
+  );
 
   return {
     center,

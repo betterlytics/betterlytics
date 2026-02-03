@@ -1,5 +1,5 @@
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import { formatCompactFromMilliseconds } from './dateFormatters';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import type { Segment } from '@/components/gauge';
 
@@ -10,14 +10,35 @@ export const PERCENTILE_KEYS = ['p50', 'p75', 'p90', 'p99'] as const;
 export type PercentileKey = (typeof PERCENTILE_KEYS)[number];
 
 /**
+ * Get Intl.NumberFormat-compatible value and format options for a CWV metric.
+ */
+export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: number) {
+  if (metric === 'CLS') {
+    return {
+      value,
+      format: { minimumFractionDigits: 2, maximumFractionDigits: 3 },
+    } as const;
+  }
+  const seconds = value / 1000;
+  if (seconds < 1) {
+    return {
+      value: Math.round(value),
+      format: { style: 'unit', unit: 'millisecond', unitDisplay: 'narrow', maximumFractionDigits: 0 },
+    } as const;
+  }
+  return {
+    value: seconds,
+    format: { style: 'unit', unit: 'second', unitDisplay: 'narrow', maximumFractionDigits: 2 },
+  } as const;
+}
+
+/**
  * Format a Core Web Vital metric value for display.
  */
-export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
+export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, locale?: SupportedLanguages): string {
   if (value === null || value === undefined) return '—';
-  if (metric === 'CLS') {
-    return Number(value.toFixed(clsDecimals)).toString();
-  }
-  return formatCompactFromMilliseconds(value);
+  const { value: v, format } = getCoreWebVitalIntlFormat(metric, value);
+  return new Intl.NumberFormat(locale, format).format(v);
 }
 
 /**

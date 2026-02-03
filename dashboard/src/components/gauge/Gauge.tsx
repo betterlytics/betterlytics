@@ -3,22 +3,22 @@
 import React from 'react';
 import { useGauge } from './useGauge';
 import GaugeNeedle from './GaugeNeedle';
-import { DEFAULT_TOTAL_ANGLE, type Segment } from './gauge-utils';
+import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeNeedleConfig } from './gauge-utils';
 
 type GaugeProps = {
-  segments: Segment[];
+  segments: GaugeSegment[];
   progress: number; // 0–100
   size?: number;
   strokeWidth?: number;
   gapDeg?: number;
   arcGap?: number;
   widthRatio?: number;
-  withNeedle?: boolean;
+  needle?: boolean | GaugeNeedleConfig;
   totalAngle?: number;
   children?: React.ReactNode;
 };
 
-export type { Segment, GaugeProps };
+export type { GaugeSegment as Segment, GaugeProps };
 
 function Gauge({
   segments,
@@ -28,7 +28,7 @@ function Gauge({
   gapDeg = 2,
   arcGap = 4,
   widthRatio = 1,
-  withNeedle = false,
+  needle,
   totalAngle = DEFAULT_TOTAL_ANGLE,
   children,
 }: GaugeProps) {
@@ -44,7 +44,7 @@ function Gauge({
     dashOffset,
     needlePoints,
     needleAngle,
-  } = useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio, totalAngle });
+  } = useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio, totalAngle, needle });
 
   return (
     <div
@@ -85,7 +85,7 @@ function Gauge({
           }
         />
 
-        {withNeedle && <GaugeNeedle center={center} needlePoints={needlePoints} needleAngle={needleAngle} />}
+        {needle && <GaugeNeedle center={center} needlePoints={needlePoints} needleAngle={needleAngle} />}
       </svg>
 
       {children}

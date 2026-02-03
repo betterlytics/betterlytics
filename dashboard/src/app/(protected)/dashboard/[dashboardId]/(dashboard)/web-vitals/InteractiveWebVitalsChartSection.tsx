@@ -142,7 +142,7 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
         isActive ? 'border-primary/30 bg-card shadow-sm' : 'border-transparent',
       )}
     >
-      <Gauge {...getCoreWebVitalGaugeProps(metric, value)} size={140} strokeWidth={8} withNeedle totalAngle={240}>
+      <Gauge {...getCoreWebVitalGaugeProps(metric, value)} size={140} strokeWidth={8} needle totalAngle={240}>
         <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
           <span className='text-muted-foreground/75 -mb-2 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
             {metric}
