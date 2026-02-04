@@ -12,6 +12,11 @@ export function polarToCartesian(
   };
 }
 
+/** Round to 6 decimal places to avoid SSR hydration mismatch from floating-point precision differences */
+function round(n: number): number {
+  return Math.round(n * 1e6) / 1e6;
+}
+
 export function arcPath(
   cx: number,
   cy: number,
@@ -24,5 +29,5 @@ export function arcPath(
   const end = polarToCartesian(cx, cy, r, endAngle, startOffset);
   const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
 
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
+  return `M ${round(start.x)} ${round(start.y)} A ${r} ${r} 0 ${largeArcFlag} 1 ${round(end.x)} ${round(end.y)}`;
 }

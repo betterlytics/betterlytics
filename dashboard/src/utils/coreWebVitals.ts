@@ -10,26 +10,30 @@ export const PERCENTILE_KEYS = ['p50', 'p75', 'p90', 'p99'] as const;
 export type PercentileKey = (typeof PERCENTILE_KEYS)[number];
 
 /**
- * Get Intl.NumberFormat-compatible value and format options for a CWV metric.
+ * Get Intl.NumberFormat-compatible value, format options, and suffix for a CWV metric.
+ * Uses suffix prop instead of Intl unit formatting to avoid NumberFlow animation issues.
  */
 export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: number) {
   if (metric === 'CLS') {
     return {
       value,
       format: { minimumFractionDigits: 2, maximumFractionDigits: 3 },
-    } as const;
+      suffix: undefined,
+    };
   }
   const seconds = value / 1000;
   if (seconds < 1) {
     return {
-      value: Math.round(value),
-      format: { style: 'unit', unit: 'millisecond', unitDisplay: 'narrow', maximumFractionDigits: 0 },
-    } as const;
+      value,
+      format: { maximumFractionDigits: 0 },
+      suffix: 'ms',
+    };
   }
   return {
     value: seconds,
-    format: { style: 'unit', unit: 'second', unitDisplay: 'narrow', maximumFractionDigits: 2 },
-  } as const;
+    format: { maximumFractionDigits: 2 },
+    suffix: 's',
+  };
 }
 
 /**
@@ -37,8 +41,9 @@ export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: numbe
  */
 export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, locale?: SupportedLanguages): string {
   if (value === null || value === undefined) return '—';
-  const { value: v, format } = getCoreWebVitalIntlFormat(metric, value);
-  return new Intl.NumberFormat(locale, format).format(v);
+  const { value: v, format, suffix } = getCoreWebVitalIntlFormat(metric, value);
+  const formatted = new Intl.NumberFormat(locale, format).format(v);
+  return suffix ? `${formatted}${suffix}` : formatted;
 }
 
 /**

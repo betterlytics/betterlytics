@@ -22,6 +22,7 @@ type MetricGaugeProps = {
 
 const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugeProps) {
   const { segments, progress } = getCoreWebVitalGaugeProps(metric.key, metric.value);
+  const { value, format, suffix } = getCoreWebVitalIntlFormat(metric.key, metric.value);
 
   return (
     <div role='group' aria-label={`${metric.key} metric`}>
@@ -37,7 +38,12 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
               ['--number-flow-char-height' as string]: '1em',
             }}
           >
-            <NumberFlow {...getCoreWebVitalIntlFormat(metric.key, metric.value)} locales={locale} willChange />
+            <NumberFlow value={value} format={format} locales={locale} willChange />
+            {suffix && (
+              <span key={suffix} className='animate-in fade-in duration-700'>
+                {suffix}
+              </span>
+            )}
           </span>
         </div>
       </Gauge>
