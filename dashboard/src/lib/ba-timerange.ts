@@ -233,13 +233,9 @@ function getMainRange(
     };
 
     const customBuckets = countBucketsBetween(base, 'day');
-    const offsetRange = {
+    return {
       start: offsetTime(base.start, customBuckets, 'days', offset).clone(),
       end: offsetTime(base.end, customBuckets, 'days', offset).clone(),
-    };
-    return {
-      start: offsetRange.start,
-      end: snapCeilToGranularity(offsetRange.end.clone(), granularity),
     };
   }
 
@@ -250,7 +246,10 @@ function getMainRange(
   const mainEnd = getRangeOffset(baseEnd.clone(), timeRange, offset);
   const mainStart = toRangeStart(mainEnd.clone(), timeRange);
 
-  return { start: mainStart.clone(), end: snapCeilToGranularity(mainEnd.clone(), granularity) };
+  return {
+    start: mainStart.clone(),
+    end: mainEnd.clone(),
+  };
 }
 
 function countAlignedBuckets(range: TimeRange, granularity: GranularityRangeValues): number {
@@ -290,7 +289,10 @@ function getCompareRange(
   if (mode === 'off') return undefined;
 
   const diff =
-    granularity === 'month' ? countAlignedBuckets(range, granularity) : countUnitsBetween(range, granularity);
+    granularity === 'month' || granularity === 'week'
+      ? countAlignedBuckets(range, granularity)
+      : countUnitsBetween(range, granularity);
+
   const unit = granularityUnit(granularity);
   const offsetStart = (end: moment.Moment) => offsetTime(end.clone(), diff, unit, -1).clone();
   const offsetEnd = (start: moment.Moment) => offsetTime(start.clone(), diff, unit, 1).clone();
