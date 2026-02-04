@@ -69,14 +69,6 @@ function snapCeilToGranularity(date: moment.Moment, granularity: GranularityRang
   return ceilToGranularity(date.clone(), granularity);
 }
 
-function alignRangeToGranularity(range: TimeRange, granularity: GranularityRangeValues): TimeRange {
-  if (granularity !== 'week' && granularity !== 'month') return range;
-  return {
-    start: floorToGranularity(range.start.clone(), granularity),
-    end: snapCeilToGranularity(range.end.clone(), granularity),
-  };
-}
-
 function offsetTime(date: moment.Moment, amount: number, unit: moment.DurationInputArg2, offset: number) {
   return date.add(amount * offset, unit);
 }
@@ -244,20 +236,16 @@ function getMainRange(
   const baseEnd = toRangeEnd(now.clone(), timeRange, granularity);
 
   const mainEnd = getRangeOffset(baseEnd.clone(), timeRange, offset);
-  const mainStart = toRangeStart(mainEnd.clone(), timeRange);
+  let mainStart = toRangeStart(mainEnd.clone(), timeRange);
+
+  if (timeRange === 'ytd' && granularity === 'week') {
+    mainStart = floorToGranularity(mainStart, 'week');
+  }
 
   return {
     start: mainStart.clone(),
     end: mainEnd.clone(),
   };
-}
-
-function countAlignedBuckets(range: TimeRange, granularity: GranularityRangeValues): number {
-  if (granularity !== 'week' && granularity !== 'month') {
-    return countBucketsBetween(range, granularity);
-  }
-  const aligned = alignRangeToGranularity(range, granularity);
-  return countUnitsBetween(aligned, granularity);
 }
 
 function alignWeekday(mainEnd: moment.Moment, compareEnd: moment.Moment, mode: 'previous' | 'year') {
@@ -288,11 +276,56 @@ function getCompareRange(
 ) {
   if (mode === 'off') return undefined;
 
-  const diff =
-    granularity === 'month' || granularity === 'week'
-      ? countAlignedBuckets(range, granularity)
-      : countUnitsBetween(range, granularity);
+  const isCoarse = granularity === 'week' || granularity === 'month';
 
+  if (isCoarse) {
+    const coarseUnit = granularityUnit(granularity);
+    const alignedStart = floorToGranularity(range.start.clone(), granularity);
+    const alignedEnd = snapCeilToGranularity(range.end.clone(), granularity);
+    const buckets = alignedEnd.diff(alignedStart, coarseUnit);
+
+    const computeCompareStart = (compareEnd: moment.Moment) => {
+      const alignedCompareEnd = snapCeilToGranularity(compareEnd.clone(), granularity);
+      return alignedCompareEnd.clone().subtract(buckets, coarseUnit);
+    };
+
+    if (mode === 'previous') {
+      const compareEnd = shouldAlignWeekdays
+        ? alignWeekday(range.end.clone(), range.start.clone(), mode)
+        : range.start.clone();
+      return {
+        start: computeCompareStart(compareEnd),
+        end: compareEnd.clone(),
+      };
+    }
+    if (mode === 'year') {
+      const endLastYear = range.end.clone().subtract(1, 'year');
+      const baseEnd = shouldAlignWeekdays
+        ? alignWeekday(range.end.clone(), endLastYear.clone(), mode)
+        : endLastYear;
+      return {
+        start: computeCompareStart(baseEnd),
+        end: baseEnd.clone(),
+      };
+    }
+    if (mode === 'custom' && customCompareRange) {
+      const customStart = customCompareRange.start.clone().set({
+        hour: range.start.hour(),
+        minute: range.start.minute(),
+        second: range.start.second(),
+        millisecond: range.start.millisecond(),
+      });
+      const alignedCustomStart = floorToGranularity(customStart.clone(), granularity);
+      const customEnd = alignedCustomStart.clone().add(buckets, coarseUnit);
+      return {
+        start: customStart.clone(),
+        end: customEnd,
+      };
+    }
+    return undefined;
+  }
+
+  const diff = countUnitsBetween(range, granularity);
   const unit = granularityUnit(granularity);
   const offsetStart = (end: moment.Moment) => offsetTime(end.clone(), diff, unit, -1).clone();
   const offsetEnd = (start: moment.Moment) => offsetTime(start.clone(), diff, unit, 1).clone();
@@ -347,12 +380,14 @@ export function isStartBucketIncomplete(
   granularity: GranularityRangeValues,
   timezone: string,
 ): boolean {
-  if (granularity !== 'week') {
-    return false;
-  }
-
   const start = moment.tz(startDate, timezone);
-  return start.isoWeekday() !== 1;
+  if (granularity === 'week') {
+    return start.isoWeekday() !== 1;
+  }
+  if (granularity === 'month') {
+    return start.date() !== 1;
+  }
+  return false;
 }
 
 export function getResolvedRanges(
