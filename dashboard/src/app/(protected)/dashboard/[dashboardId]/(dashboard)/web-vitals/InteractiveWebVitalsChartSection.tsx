@@ -89,9 +89,11 @@ export default function InteractiveWebVitalsChartSection({
                 </span>
                 <MetricInfo metric={active} />
               </div>
-              <div className='ml-auto sm:ml-0'>
-                <SeriesToggles enabledKeys={enabledKeys} setEnabledKeys={setEnabledKeys} />
-              </div>
+              <PercentileLegend
+                className='ml-auto sm:ml-0'
+                enabledKeys={enabledKeys}
+                setEnabledKeys={setEnabledKeys}
+              />
             </div>
           </div>
         }
@@ -159,12 +161,13 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
   );
 }
 
-type SeriesTogglesProps = {
+type PercentileLegendProps = {
   enabledKeys: Record<PercentileKey, boolean>;
   setEnabledKeys: Dispatch<SetStateAction<Record<PercentileKey, boolean>>>;
+  className?: string;
 };
 
-function SeriesToggles({ enabledKeys, setEnabledKeys }: SeriesTogglesProps) {
+function PercentileLegend({ enabledKeys, setEnabledKeys, className }: PercentileLegendProps) {
   const toggleKey = useCallback(
     (key: PercentileKey) => {
       setEnabledKeys((prev) => {
@@ -176,7 +179,7 @@ function SeriesToggles({ enabledKeys, setEnabledKeys }: SeriesTogglesProps) {
   );
 
   return (
-    <div className='grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center'>
+    <div className={cn('grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center', className)}>
       {PERCENTILE_KEYS.map((pkey) => (
         <button
           key={pkey}

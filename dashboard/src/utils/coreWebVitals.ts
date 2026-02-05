@@ -11,7 +11,7 @@ export type PercentileKey = (typeof PERCENTILE_KEYS)[number];
 
 /**
  * Get Intl.NumberFormat-compatible value, format options, and suffix for a CWV metric.
- * Uses suffix prop instead of Intl unit formatting to avoid NumberFlow animation issues.
+ * Uses suffix prop instead of Intl unit formatting to avoid NumberFlow color animation bug.
  */
 export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: number) {
   if (metric === 'CLS') {
@@ -39,7 +39,11 @@ export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: numbe
 /**
  * Format a Core Web Vital metric value for display.
  */
-export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, locale?: SupportedLanguages): string {
+export function formatCWV(
+  metric: CoreWebVitalName,
+  value: number | null | undefined,
+  locale?: SupportedLanguages,
+): string {
   if (value === null || value === undefined) return '—';
   const { value: v, format, suffix } = getCoreWebVitalIntlFormat(metric, value);
   const formatted = new Intl.NumberFormat(locale, format).format(v);
@@ -49,7 +53,10 @@ export function formatCWV(metric: CoreWebVitalName, value: number | null | undef
 /**
  * Get the CWV level (good/fair/poor) for a metric value.
  */
-export function getCoreWebVitalLevel(metric: CoreWebVitalName, value: number | null | undefined): CoreWebVitalLevel | undefined {
+export function getCoreWebVitalLevel(
+  metric: CoreWebVitalName,
+  value: number | null | undefined,
+): CoreWebVitalLevel | undefined {
   if (value === null || value === undefined) return undefined;
   const [goodThreshold, fairThreshold] = CWV_THRESHOLDS[metric] ?? [];
   if (goodThreshold === undefined || fairThreshold === undefined) return undefined;
@@ -61,7 +68,10 @@ export function getCoreWebVitalLevel(metric: CoreWebVitalName, value: number | n
 /**
  * Get the label color CSS variable for a CWV metric value (darker variant for text).
  */
-export function getCoreWebVitalLabelColor(metric: CoreWebVitalName, value: number | null | undefined): string | undefined {
+export function getCoreWebVitalLabelColor(
+  metric: CoreWebVitalName,
+  value: number | null | undefined,
+): string | undefined {
   const level = getCoreWebVitalLevel(metric, value);
   return level ? `var(--cwv-threshold-${level}-label)` : undefined;
 }

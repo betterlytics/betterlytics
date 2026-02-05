@@ -95,9 +95,7 @@ export default function WebVitalsTableSection({
         const Cell = ({ row }: { row: { original: Row } }) => {
           const value = getValue(row.original, metric);
           return (
-            <div className='flex flex-col items-start'>
-              <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
-            </div>
+            <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
           );
         };
         Cell.displayName = `CoreWebVitalValueCell_${metric}`;
