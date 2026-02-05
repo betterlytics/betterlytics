@@ -1,24 +1,23 @@
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 
-// Thresholds values are taken from Web.dev
-// Tuple: [goodThreshold, fairThreshold]
+// Thresholds values are taken from Web.dev https://web.dev/articles/defining-core-web-vitals-thresholds
+// Tuple: [goodThreshold, fairThreshold, scaleMax]
 export const CWV_THRESHOLDS = {
-  CLS: [0.1, 0.25],
-  LCP: [2500, 4000],
-  INP: [200, 500],
-  FCP: [1800, 3000],
-  TTFB: [800, 1800],
-} as const satisfies Record<CoreWebVitalName, readonly [number, number]>;
+  CLS: [0.1, 0.25, 0.272],
+  LCP: [2500, 4000, 4348],
+  INP: [200, 500, 543],
+  FCP: [1800, 3000, 3261],
+  TTFB: [800, 1800, 1957],
+} as const satisfies Record<CoreWebVitalName, readonly [number, number, number]>;
 
 export const PERFORMANCE_SCORE_THRESHOLDS = {
   greatMin: 90,
   okayMin: 50,
 } as const;
 
-/** Gauge segment percentages derived from thresholds (scaleMax = fair * 1.5) */
+/** Gauge segment percentages derived from thresholds */
 export const CWV_GAUGE_SEGMENTS = Object.entries(CWV_THRESHOLDS).reduce(
-  (acc, [metric, [good, fair]]) => {
-    const scaleMax = fair * 1.5;
+  (acc, [metric, [good, fair, scaleMax]]) => {
     acc[metric as CoreWebVitalName] = [
       { percent: (good / scaleMax) * 100, color: 'var(--cwv-threshold-good)' },
       { percent: ((fair - good) / scaleMax) * 100, color: 'var(--cwv-threshold-fair)' },

@@ -76,16 +76,12 @@ export function getCoreWebVitalLabelColor(
   return level ? `var(--cwv-threshold-${level}-label)` : undefined;
 }
 
-/**
- * Converts a CWV metric value to Gauge component props.
- * Segments are pre-computed constants, only progress is calculated.
- */
+/** Converts a CWV metric value to Gauge component props (segments are pre-computed). */
 export function getCoreWebVitalGaugeProps(
   metric: CoreWebVitalName,
   value: number | null,
 ): { segments: Segment[]; progress: number } {
-  const [, fair] = CWV_THRESHOLDS[metric];
-  const scaleMax = fair * 1.5;
+  const [, , scaleMax] = CWV_THRESHOLDS[metric];
   const progress = value === null ? 0 : Math.min((value / scaleMax) * 100, 100);
 
   return {
