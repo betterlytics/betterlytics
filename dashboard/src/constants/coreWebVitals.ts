@@ -15,6 +15,20 @@ export const PERFORMANCE_SCORE_THRESHOLDS = {
   okayMin: 50,
 } as const;
 
+/** Gauge segment percentages derived from thresholds (scaleMax = fair * 1.5) */
+export const CWV_GAUGE_SEGMENTS = Object.entries(CWV_THRESHOLDS).reduce(
+  (acc, [metric, [good, fair]]) => {
+    const scaleMax = fair * 1.5;
+    acc[metric as CoreWebVitalName] = [
+      { percent: (good / scaleMax) * 100, color: 'var(--cwv-threshold-good)' },
+      { percent: ((fair - good) / scaleMax) * 100, color: 'var(--cwv-threshold-fair)' },
+      { percent: ((scaleMax - fair) / scaleMax) * 100, color: 'var(--cwv-threshold-poor)' },
+    ];
+    return acc;
+  },
+  {} as Record<CoreWebVitalName, { percent: number; color: string }[]>,
+);
+
 // 5 variations cycling through good → fair → poor ranges
 // Thresholds: LCP [2500,4000], INP [200,500], CLS [0.1,0.25], FCP [1800,3000], TTFB [800,1800]
 export const MOCK_CORE_WEB_VITAL_METRICS_DATA = [

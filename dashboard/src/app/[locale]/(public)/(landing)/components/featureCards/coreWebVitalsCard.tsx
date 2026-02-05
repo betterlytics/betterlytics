@@ -13,7 +13,7 @@ import {
 import { MOCK_CORE_WEB_VITAL_METRICS_DATA } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
-import NumberFlow from '@number-flow/react';
+import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
 
 type MetricGaugeProps = {
   metric: { key: CoreWebVitalName; value: number };
@@ -71,14 +71,16 @@ function AnimatedGaugeGrid() {
   }, []);
 
   return (
-    <div
-      className='flex w-full flex-wrap justify-evenly gap-4'
-      style={{ ['--number-flow-duration' as string]: '700ms' }}
-    >
-      {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].map((m) => (
-        <MetricGauge key={m.key} metric={m} locale={locale} />
-      ))}
-    </div>
+    <NumberFlowGroup>
+      <div
+        className='flex w-full flex-wrap justify-evenly gap-4'
+        style={{ ['--number-flow-duration' as string]: '700ms' }}
+      >
+        {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].map((m) => (
+          <MetricGauge key={m.key} metric={m} locale={locale} />
+        ))}
+      </div>
+    </NumberFlowGroup>
   );
 }
 

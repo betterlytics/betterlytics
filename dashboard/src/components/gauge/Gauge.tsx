@@ -6,9 +6,7 @@ import GaugeNeedle from './GaugeNeedle';
 import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeProps as BaseGaugeProps } from './gauge-utils';
 import { cn } from '@/lib/utils';
 
-type GaugeProps = BaseGaugeProps & {
-  children?: React.ReactNode;
-};
+type GaugeProps = BaseGaugeProps & { children?: React.ReactNode };
 
 export type { GaugeSegment as Segment, GaugeProps };
 

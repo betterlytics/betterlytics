@@ -1,6 +1,6 @@
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
+import { CWV_THRESHOLDS, CWV_GAUGE_SEGMENTS } from '@/constants/coreWebVitals';
 import type { Segment } from '@/components/gauge';
 
 export const CORE_WEB_VITAL_LEVELS = ['good', 'fair', 'poor'] as const;
@@ -78,29 +78,18 @@ export function getCoreWebVitalLabelColor(
 
 /**
  * Converts a CWV metric value to Gauge component props.
- * Calculates segment percentages and progress based on thresholds.
- * @param metric The CWV metric name
- * @param value The metric value (null for no data)
- * @returns Object with segments array and progress percentage
+ * Segments are pre-computed constants, only progress is calculated.
  */
 export function getCoreWebVitalGaugeProps(
   metric: CoreWebVitalName,
   value: number | null,
 ): { segments: Segment[]; progress: number } {
-  const [good, fair] = CWV_THRESHOLDS[metric];
+  const [, fair] = CWV_THRESHOLDS[metric];
   const scaleMax = fair * 1.5;
-
-  const goodPercent = (good / scaleMax) * 100;
-  const fairPercent = ((fair - good) / scaleMax) * 100;
-  const poorPercent = 100 - goodPercent - fairPercent;
   const progress = value === null ? 0 : Math.min((value / scaleMax) * 100, 100);
 
   return {
-    segments: [
-      { percent: goodPercent, color: 'var(--cwv-threshold-good)' },
-      { percent: fairPercent, color: 'var(--cwv-threshold-fair)' },
-      { percent: poorPercent, color: 'var(--cwv-threshold-poor)' },
-    ],
+    segments: CWV_GAUGE_SEGMENTS[metric] as Segment[],
     progress,
   };
 }
