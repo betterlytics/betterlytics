@@ -57,18 +57,18 @@ export const MOCK_CORE_WEB_VITAL_METRICS_DATA = [
   ],
   // Variation 4: Some poor (red)
   [
-    { key: 'LCP', value: 4500 },
-    { key: 'INP', value: 550 },
-    { key: 'CLS', value: 0.08 },
+    { key: 'LCP', value: 4200 },
+    { key: 'INP', value: 520 },
+    { key: 'CLS', value: 0.26 },
     { key: 'FCP', value: 2800 },
-    { key: 'TTFB', value: 2000 },
+    { key: 'TTFB', value: 1900 },
   ],
   // Variation 5: More poor (red)
   [
-    { key: 'LCP', value: 2800 },
-    { key: 'INP', value: 600 },
-    { key: 'CLS', value: 0.3 },
-    { key: 'FCP', value: 3500 },
-    { key: 'TTFB', value: 600 },
+    { key: 'LCP', value: 4100 },
+    { key: 'INP', value: 530 },
+    { key: 'CLS', value: 0.27 },
+    { key: 'FCP', value: 3200 },
+    { key: 'TTFB', value: 1850 },
   ],
 ] as const satisfies readonly { key: CoreWebVitalName; value: number }[][];
