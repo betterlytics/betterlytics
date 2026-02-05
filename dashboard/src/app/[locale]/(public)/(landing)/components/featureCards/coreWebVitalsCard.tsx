@@ -25,57 +25,59 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
   const { value, format, suffix } = getCoreWebVitalIntlFormat(metric.key, metric.value);
 
   return (
-    <div role='group' aria-label={`${metric.key} metric`}>
-      <Gauge segments={segments} progress={progress} size={115} strokeWidth={6} arcGap={2.5}>
-        <div className='absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
-          <span className='text-muted-foreground/75 -mb-1 font-sans text-[8px] font-black tracking-[0.25em] uppercase'>
-            {metric.key}
-          </span>
-          <span
-            className='font-semibold tracking-tight tabular-nums drop-shadow-sm'
-            style={{
-              color: getCoreWebVitalLabelColor(metric.key, metric.value),
-              ['--number-flow-char-height' as string]: '1em',
-            }}
-          >
-            <NumberFlow value={value} format={format} locales={locale} willChange />
-            {suffix && (
-              <span key={suffix} className='animate-in fade-in duration-700'>
-                {suffix}
-              </span>
-            )}
-          </span>
-        </div>
-      </Gauge>
-    </div>
+    <Gauge
+      role='group'
+      aria-label={`${metric.key} metric`}
+      className='shrink-0'
+      segments={segments}
+      progress={progress}
+      size={115}
+      strokeWidth={6}
+      arcGap={2.5}
+    >
+      <div className='absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
+        <span className='text-muted-foreground/75 -mb-1 font-sans text-[8px] font-black tracking-[0.25em] uppercase'>
+          {metric.key}
+        </span>
+        <span
+          className='font-semibold tracking-tight tabular-nums drop-shadow-sm'
+          style={{
+            color: getCoreWebVitalLabelColor(metric.key, metric.value),
+            ['--number-flow-char-height' as string]: '1em',
+          }}
+        >
+          <NumberFlow value={value} format={format} locales={locale} willChange />
+          {suffix && (
+            <span key={suffix} className='animate-in fade-in duration-700'>
+              {suffix}
+            </span>
+          )}
+        </span>
+      </div>
+    </Gauge>
   );
 });
 
 function AnimatedGaugeGrid() {
+  const ANIMATION_INTERVAL_MS = 5_000;
   const locale = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % MOCK_CORE_WEB_VITAL_METRICS_DATA.length);
-    }, 6_000);
+    }, ANIMATION_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className='space-y-6' style={{ ['--number-flow-duration' as string]: '700ms' }}>
-      <div className='grid grid-cols-2 place-items-center gap-2 sm:gap-0 sm:px-3'>
-        {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].slice(0, 2).map((m) => (
-          <MetricGauge key={m.key} metric={m} locale={locale} />
-        ))}
-      </div>
-      <div className='grid grid-cols-2 place-items-center gap-4 md:grid-cols-3'>
-        {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].slice(2).map((m) => (
-          <div key={m.key} className={m.key === 'TTFB' ? 'hidden md:block' : ''}>
-            <MetricGauge metric={m} locale={locale} />
-          </div>
-        ))}
-      </div>
+    <div
+      className='flex w-full flex-wrap justify-evenly gap-4'
+      style={{ ['--number-flow-duration' as string]: '700ms' }}
+    >
+      {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].map((m) => (
+        <MetricGauge key={m.key} metric={m} locale={locale} />
+      ))}
     </div>
   );
 }

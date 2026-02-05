@@ -30,7 +30,7 @@ export type GaugeProps = {
   widthRatio?: number;
   totalAngle?: number;
   needle?: boolean | GaugeNeedleConfig;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
 export function getProgressColor(segments: GaugeSegment[], progress: number): string {
   let accumulated = 0;

@@ -4,6 +4,7 @@ import React from 'react';
 import { useGauge } from './useGauge';
 import GaugeNeedle from './GaugeNeedle';
 import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeProps as BaseGaugeProps } from './gauge-utils';
+import { cn } from '@/lib/utils';
 
 type GaugeProps = BaseGaugeProps & {
   children?: React.ReactNode;
@@ -22,6 +23,9 @@ function Gauge({
   needle,
   totalAngle = DEFAULT_TOTAL_ANGLE,
   children,
+  className,
+  style,
+  ...props
 }: GaugeProps) {
   const {
     center,
@@ -39,8 +43,9 @@ function Gauge({
 
   return (
     <div
-      className='gauge-root relative flex items-center justify-center'
-      style={{ width: svgWidth, height: viewBoxHeight }}
+      {...props}
+      className={cn('gauge-root relative flex items-center justify-center', className)}
+      style={{ ...style, width: svgWidth, height: viewBoxHeight }}
     >
       <svg
         className='absolute top-0 left-0'
