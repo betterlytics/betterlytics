@@ -15,11 +15,7 @@ export type PercentileKey = (typeof PERCENTILE_KEYS)[number];
  */
 export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: number) {
   if (metric === 'CLS') {
-    return {
-      value,
-      format: { minimumFractionDigits: 2, maximumFractionDigits: 3 },
-      suffix: undefined,
-    };
+    return { value, format: { minimumFractionDigits: 2, maximumFractionDigits: 2 } };
   }
   const seconds = value / 1000;
   if (seconds < 1) {

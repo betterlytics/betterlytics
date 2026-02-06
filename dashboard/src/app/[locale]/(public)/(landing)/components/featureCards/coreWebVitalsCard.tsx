@@ -10,7 +10,7 @@ import {
   getCoreWebVitalIntlFormat,
   CORE_WEB_VITAL_LEVELS,
 } from '@/utils/coreWebVitals';
-import { MOCK_CORE_WEB_VITAL_METRICS_DATA } from '@/constants/coreWebVitals';
+import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
@@ -58,17 +58,40 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
   );
 });
 
-function AnimatedGaugeGrid() {
-  const ANIMATION_INTERVAL_MS = 5_000;
-  const locale = useLocale();
-  const [currentIndex, setCurrentIndex] = useState(0);
+const GAUGE_CONFIGS: readonly { key: CoreWebVitalName; intervalMs: number; startIndex: number }[] = [
+  { key: 'LCP', intervalMs: 5300, startIndex: 0 },
+  { key: 'INP', intervalMs: 7200, startIndex: 2 },
+  { key: 'CLS', intervalMs: 8300, startIndex: 4 },
+  { key: 'FCP', intervalMs: 6400, startIndex: 1 },
+  { key: 'TTFB', intervalMs: 9300, startIndex: 3 },
+];
+
+function StaggeredMetricGauge({
+  metricKey,
+  intervalMs,
+  startIndex,
+  locale,
+}: {
+  metricKey: CoreWebVitalName;
+  intervalMs: number;
+  startIndex: number;
+  locale: SupportedLanguages;
+}) {
+  const values = MOCK_CORE_WEB_VITAL_VALUES[metricKey];
+  const [currentIndex, setCurrentIndex] = useState(startIndex % values.length);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % MOCK_CORE_WEB_VITAL_METRICS_DATA.length);
-    }, ANIMATION_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, []);
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % values.length);
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [intervalMs, values.length]);
+
+  return <MetricGauge metric={{ key: metricKey, value: values[currentIndex] }} locale={locale} />;
+}
+
+function AnimatedGaugeGrid() {
+  const locale = useLocale();
 
   return (
     <NumberFlowGroup>
@@ -76,8 +99,14 @@ function AnimatedGaugeGrid() {
         className='flex w-full flex-wrap justify-evenly gap-4'
         style={{ ['--number-flow-duration' as string]: '700ms' }}
       >
-        {MOCK_CORE_WEB_VITAL_METRICS_DATA[currentIndex].map((m) => (
-          <MetricGauge key={m.key} metric={m} locale={locale} />
+        {GAUGE_CONFIGS.map((config) => (
+          <StaggeredMetricGauge
+            key={config.key}
+            metricKey={config.key}
+            intervalMs={config.intervalMs}
+            startIndex={config.startIndex}
+            locale={locale}
+          />
         ))}
       </div>
     </NumberFlowGroup>

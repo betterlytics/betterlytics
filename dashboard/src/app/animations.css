@@ -117,10 +117,12 @@
     transition:
       stroke-dashoffset var(--gauge-duration) var(--gauge-easing),
       stroke var(--gauge-duration) var(--gauge-easing);
+    will-change: stroke-dashoffset, stroke;
   }
 
   .gauge-needle {
     transition: transform var(--gauge-duration) var(--gauge-easing);
+    will-change: transform;
   }
 
   @media (prefers-reduced-motion: reduce) {

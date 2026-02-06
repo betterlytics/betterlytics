@@ -3,11 +3,11 @@ import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 // Thresholds values are taken from Web.dev https://web.dev/articles/defining-core-web-vitals-thresholds
 // Tuple: [goodThreshold, fairThreshold, scaleMax]
 export const CWV_THRESHOLDS = {
-  CLS: [0.1, 0.25, 0.272],
-  LCP: [2500, 4000, 4348],
-  INP: [200, 500, 543],
-  FCP: [1800, 3000, 3261],
-  TTFB: [800, 1800, 1957],
+  CLS: [0.1, 0.25, 0.278],
+  LCP: [2500, 4000, 4444],
+  INP: [200, 500, 556],
+  FCP: [1800, 3000, 3333],
+  TTFB: [800, 1800, 2000],
 } as const satisfies Record<CoreWebVitalName, readonly [number, number, number]>;
 
 export const PERFORMANCE_SCORE_THRESHOLDS = {
@@ -28,47 +28,11 @@ export const CWV_GAUGE_SEGMENTS = Object.entries(CWV_THRESHOLDS).reduce(
   {} as Record<CoreWebVitalName, { percent: number; color: string }[]>,
 );
 
-// 5 variations cycling through good → fair → poor ranges
-// Thresholds: LCP [2500,4000], INP [200,500], CLS [0.1,0.25], FCP [1800,3000], TTFB [800,1800]
-export const MOCK_CORE_WEB_VITAL_METRICS_DATA = [
-  // Variation 1: All good (green)
-  [
-    { key: 'LCP', value: 1200 },
-    { key: 'INP', value: 80 },
-    { key: 'CLS', value: 0.03 },
-    { key: 'FCP', value: 1000 },
-    { key: 'TTFB', value: 400 },
-  ],
-  // Variation 2: Mostly good, one fair
-  [
-    { key: 'LCP', value: 1800 },
-    { key: 'INP', value: 350 },
-    { key: 'CLS', value: 0.05 },
-    { key: 'FCP', value: 1400 },
-    { key: 'TTFB', value: 750 },
-  ],
-  // Variation 3: Mixed fair
-  [
-    { key: 'LCP', value: 3200 },
-    { key: 'INP', value: 450 },
-    { key: 'CLS', value: 0.15 },
-    { key: 'FCP', value: 2200 },
-    { key: 'TTFB', value: 1200 },
-  ],
-  // Variation 4: Some poor (red)
-  [
-    { key: 'LCP', value: 4200 },
-    { key: 'INP', value: 520 },
-    { key: 'CLS', value: 0.26 },
-    { key: 'FCP', value: 2800 },
-    { key: 'TTFB', value: 1900 },
-  ],
-  // Variation 5: More poor (red)
-  [
-    { key: 'LCP', value: 4100 },
-    { key: 'INP', value: 530 },
-    { key: 'CLS', value: 0.27 },
-    { key: 'FCP', value: 3200 },
-    { key: 'TTFB', value: 1850 },
-  ],
-] as const satisfies readonly { key: CoreWebVitalName; value: number }[][];
+// Per-metric mock values cycling through good → fair → poor ranges
+export const MOCK_CORE_WEB_VITAL_VALUES = {
+  LCP: [1200, 1800, 3200, 4200, 4100],
+  INP: [80, 350, 450, 520, 530],
+  CLS: [0.03, 0.05, 0.15, 0.26, 0.27],
+  FCP: [1000, 1400, 2200, 2800, 3200],
+  TTFB: [400, 750, 1200, 1900, 1850],
+} as const satisfies Record<CoreWebVitalName, readonly number[]>;
