@@ -27,7 +27,7 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
             type='button'
             onClick={card.onClick}
             aria-pressed={card.isActive}
-            className={`group relative flex w-auto min-w-fit flex-col overflow-hidden rounded-md border border-transparent px-2 py-4 pt-2 text-left transition-all duration-200 sm:flex-none sm:py-2 2xl:px-3 ${card.onClick ? 'cursor-pointer' : ''} ${
+            className={`group relative flex w-auto min-w-fit flex-col overflow-hidden rounded-md border border-transparent px-2 py-4 pt-2 text-left transition-shadow duration-160 sm:flex-none sm:py-2 2xl:px-3 ${card.onClick ? 'cursor-pointer' : ''} ${
               !card.isActive ? 'hover:bg-accent/40 hover:border-primary/20 hover:shadow-sm' : 'shadow-sm'
             } focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:outline-none`}
             style={{ background: card.isActive ? 'var(--card-interactive)' : undefined }}

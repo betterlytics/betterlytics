@@ -101,3 +101,17 @@
     }
   }
 }
+
+@utility transition-card {
+  transition-property: box-shadow, scale;
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover,
+  &:focus-visible {
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+    scale: 1.015;
+  }
+}
