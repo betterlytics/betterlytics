@@ -1,5 +1,5 @@
 'use client';
-import { use, useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { use, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { cn } from '@/lib/utils';
 import { Gauge } from '@/components/gauge';
 import {
@@ -7,7 +7,7 @@ import {
   CoreWebVitalName,
   CoreWebVitalsSummary,
 } from '@/entities/analytics/webVitals.entities';
-import MultiSeriesChart from '@/components/MultiSeriesChart';
+import MultiSeriesChart, { type MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import {
@@ -15,15 +15,17 @@ import {
   getCoreWebVitalLabelColor,
   getCoreWebVitalGaugeProps,
   PERCENTILE_KEYS,
-  type PercentileKey,
+  CORE_WEB_VITAL_LEVELS,
 } from '@/utils/coreWebVitals';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useTranslations } from 'next-intl';
 
-function P75Badge() {
-  return <span className='text-muted-foreground ml-2 text-xs font-medium'>p75</span>;
-}
+const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
+  dataKey: `value.${i}`,
+  stroke: `var(--cwv-${key})`,
+  name: key.toUpperCase(),
+}));
 
 type InteractiveWebVitalsChartSectionProps = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
@@ -42,31 +44,18 @@ export default function InteractiveWebVitalsChartSection({
 
   const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
 
-  const referenceLines = useMemo(
-    () =>
-      CWV_THRESHOLDS[active]?.map((y, idx) => {
-        const stroke = idx === 0 ? 'var(--cwv-threshold-good)' : 'var(--cwv-threshold-fair)';
-        const label = `${idx === 0 ? t('thresholds.good') : t('thresholds.fair')} (≤ ${formatCWV(active, y)})`;
-        return { y, stroke, strokeDasharray: '4 6', label, labelFill: stroke };
-      }),
-    [active, t],
-  );
-
-  const [enabledKeys, setEnabledKeys] = useState<Record<PercentileKey, boolean>>(
-    () => Object.fromEntries(PERCENTILE_KEYS.map((k) => [k, true])) as Record<PercentileKey, boolean>,
-  );
-
-  const activeSeries = useMemo(
-    () =>
-      PERCENTILE_KEYS.map((key, i) => ({ key, i }))
-        .filter(({ key }) => enabledKeys[key])
-        .map(({ key, i }) => ({
-          dataKey: `value.${i}`,
-          stroke: `var(--cwv-${key})`,
-          name: key.toUpperCase(),
-        })),
-    [enabledKeys],
-  );
+  const yReferenceAreas = useMemo(() => {
+    const [good, fair] = CWV_THRESHOLDS[active];
+    const bounds = [0, good, fair, active === 'CLS' ? 10 : 1_000_000];
+    return CORE_WEB_VITAL_LEVELS.map((level, i) => ({
+      y1: bounds[i],
+      y2: bounds[i + 1],
+      fill: `var(--cwv-threshold-${level})`,
+      fillOpacity: 0.08,
+      label: t(`thresholds.${level}`),
+      labelFill: `var(--cwv-threshold-${level}-label)`,
+    }));
+  }, [active, t]);
 
   return (
     <div className='space-y-6'>
@@ -76,24 +65,14 @@ export default function InteractiveWebVitalsChartSection({
         granularity={granularity}
         formatValue={(v) => formatCWV(active, Number(v))}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-        series={activeSeries}
-        referenceLines={referenceLines}
+        series={SERIES_DEFS}
+        yReferenceAreas={yReferenceAreas}
         headerContent={
           <div>
             <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
-            <div className='mt-6 flex items-center justify-between gap-3 p-2 sm:justify-center sm:gap-6'>
-              <div className='text-muted-foreground flex min-w-0 flex-1 items-center gap-2 text-sm font-medium sm:flex-none'>
-                <span className='truncate'>
-                  {t(`metrics.${active}`)}
-                  <P75Badge />
-                </span>
-                <MetricInfo metric={active} />
-              </div>
-              <PercentileLegend
-                className='ml-auto sm:ml-0'
-                enabledKeys={enabledKeys}
-                setEnabledKeys={setEnabledKeys}
-              />
+            <div className='mt-6 flex items-center justify-center gap-2 p-2'>
+              <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
+              <MetricInfo metric={active} />
             </div>
           </div>
         }
@@ -138,12 +117,19 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
       onClick={() => onSelect(metric)}
       aria-pressed={isActive}
       className={cn(
-        'group relative flex cursor-pointer flex-col items-center rounded-lg border p-2 transition-all duration-200',
+        'group relative flex cursor-pointer flex-col items-center overflow-hidden rounded-md border p-2 transition-shadow duration-160',
         'hover:bg-accent/40 hover:border-primary/20 hover:shadow-sm',
         'focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:outline-none',
-        isActive ? 'border-primary/30 bg-card shadow-sm' : 'border-transparent',
+        isActive ? 'border-transparent shadow-sm' : 'border-transparent',
       )}
+      style={{ background: isActive ? 'var(--card-interactive)' : undefined }}
     >
+      {/* Left accent rail */}
+      <span
+        className='absolute top-0 left-0 h-full w-[3px] rounded-r'
+        style={{ background: isActive ? 'var(--chart-1)' : 'transparent' }}
+        aria-hidden='true'
+      />
       <Gauge {...getCoreWebVitalGaugeProps(metric, value)} size={140} strokeWidth={8} needle totalAngle={240}>
         <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
           <span className='text-muted-foreground/75 -mb-2 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
@@ -158,48 +144,5 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
         </div>
       </Gauge>
     </button>
-  );
-}
-
-type PercentileLegendProps = {
-  enabledKeys: Record<PercentileKey, boolean>;
-  setEnabledKeys: Dispatch<SetStateAction<Record<PercentileKey, boolean>>>;
-  className?: string;
-};
-
-function PercentileLegend({ enabledKeys, setEnabledKeys, className }: PercentileLegendProps) {
-  const toggleKey = useCallback(
-    (key: PercentileKey) => {
-      setEnabledKeys((prev) => {
-        if (prev[key] && Object.values(prev).filter(Boolean).length === 1) return prev; // keep at least one enabled
-        return { ...prev, [key]: !prev[key] };
-      });
-    },
-    [setEnabledKeys],
-  );
-
-  return (
-    <div className={cn('grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center', className)}>
-      {PERCENTILE_KEYS.map((pkey) => (
-        <button
-          key={pkey}
-          type='button'
-          onClick={() => toggleKey(pkey)}
-          aria-pressed={enabledKeys[pkey]}
-          className={cn(
-            'inline-flex w-full cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs font-medium sm:w-auto',
-            enabledKeys[pkey]
-              ? 'bg-primary/10 border-primary/20 text-popover-foreground'
-              : 'bg-muted/30 border-border text-muted-foreground',
-          )}
-        >
-          <span
-            className={cn('h-3 w-3 rounded-sm', !enabledKeys[pkey] && 'opacity-40')}
-            style={{ background: `var(--cwv-${pkey})` }}
-          />
-          <span>{pkey.toUpperCase()}</span>
-        </button>
-      ))}
-    </div>
   );
 }

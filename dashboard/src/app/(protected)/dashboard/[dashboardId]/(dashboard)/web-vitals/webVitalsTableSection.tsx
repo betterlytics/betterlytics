@@ -248,7 +248,7 @@ export default function WebVitalsTableSection({
     [makeColumns, t],
   );
 
-  const defaultSorting = [{ id: 'LCP', desc: true }];
+  const defaultSorting = useMemo(() => [{ id: 'LCP', desc: true }], []);
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
@@ -282,7 +282,20 @@ export default function WebVitalsTableSection({
         defaultSorting,
       },
     ],
-    [data, devices, countries, browsers, operatingSystems, defaultSorting, t],
+    [
+      data,
+      devices,
+      countries,
+      browsers,
+      operatingSystems,
+      pageColumns,
+      deviceColumns,
+      countryColumns,
+      browserColumns,
+      osColumns,
+      defaultSorting,
+      t,
+    ],
   );
 
   const percentileButtons = useMemo(
