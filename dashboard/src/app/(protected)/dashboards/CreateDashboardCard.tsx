@@ -30,7 +30,7 @@ export function CreateDashboardCard({
           role='button'
           tabIndex={0}
           aria-label={t('createCard.title')}
-          className='group border-border/70 hover:border-primary/30 focus-visible:border-primary/40 relative h-full cursor-pointer items-center justify-center border-2 border-dashed p-6 text-center transition-all outline-none hover:scale-[1.01] hover:shadow-lg focus-visible:scale-[1.01] focus-visible:shadow-lg'
+          className='group border-border/70 hover:border-primary/30 focus-visible:border-primary/40 relative h-full cursor-pointer items-center justify-center border-2 border-dashed p-6 text-center transition-card outline-none'
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
@@ -59,7 +59,7 @@ function UpgradeCard() {
   return (
     <Link href='/billing' className='block h-full'>
       <Card
-        className='group relative h-full cursor-pointer items-center justify-center border-2 border-dashed border-amber-500/20 p-6 text-center transition-all outline-none hover:scale-[1.01] hover:border-amber-500/35 hover:shadow-lg'
+        className='group relative h-full cursor-pointer items-center justify-center border-2 border-dashed border-amber-500/20 p-6 text-center transition-card outline-none hover:border-amber-500/35'
         style={{
           background:
             'linear-gradient(135deg, rgba(251,191,36,0.015) 0%, rgba(255,255,255,0.02) 50%, rgba(251,191,36,0.02) 100%)',
