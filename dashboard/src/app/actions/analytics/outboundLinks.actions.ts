@@ -13,7 +13,7 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toAreaChart } from '@/presenters/toAreaChart';
 import { toPieChart } from '@/presenters/toPieChart';
-import { isStartBucketIncomplete } from '@/lib/ba-timerange';
+import { isEndBucketIncomplete, isStartBucketIncomplete } from '@/lib/ba-timerange';
 
 export const fetchOutboundLinksAnalyticsAction = withDashboardAuthContext(
   async (
@@ -106,8 +106,11 @@ export const fetchOutboundClicksChartAction = withDashboardAuthContext(
       compare: compareData,
       granularity,
       dateRange: { start: startDate, end: endDate },
-      compareDateRange:
-        compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+      compareDateRange: {
+        start: compareStartDate,
+        end: compareEndDate,
+      },
+      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
       startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
     });
   },

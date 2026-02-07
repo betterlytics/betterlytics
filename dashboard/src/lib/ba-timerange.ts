@@ -350,6 +350,17 @@ export function isStartBucketIncomplete(
   return false;
 }
 
+export function isEndBucketIncomplete(
+  endDate: Date,
+  granularity: GranularityRangeValues,
+  timezone: string,
+): boolean {
+  const end = moment.tz(endDate, timezone);
+  if (granularity === 'week') return end.isoWeekday() !== 7;
+  if (granularity === 'month') return end.date() !== end.daysInMonth();
+  return false;
+}
+
 export function getResolvedRanges(
   timeRange: TimeRangeValue,
   compareMode: CompareMode,
