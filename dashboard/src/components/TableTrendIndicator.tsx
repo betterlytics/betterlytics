@@ -37,8 +37,6 @@ export function TableTrendIndicator({
     return (
       <div className='flex items-center gap-1 text-xs opacity-85'>
         <span className='text-muted-foreground'>vs {formatter(comparedData)}</span>
-        <Minus className='h-3 w-3' />
-        <span>0%</span>
       </div>
     );
   }
