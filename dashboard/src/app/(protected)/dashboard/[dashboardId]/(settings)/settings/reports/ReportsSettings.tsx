@@ -97,6 +97,8 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
         <div className='flex-1 space-y-1.5'>
           <Input
             type='email'
+            name={`${reportType}-recipients`}
+            autoComplete={`section-${reportType}-recipients email`}
             placeholder={t('recipients.placeholder')}
             value={newEmail}
             onChange={(e) => handleEmailChange(e.target.value)}
