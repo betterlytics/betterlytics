@@ -40,14 +40,13 @@ export function getReportEmailFooter(): string {
 function createMetricCard(label: string, value: string, change: number): string {
   const trendIcon = getTrendIcon(change);
   const trendColor = getTrendColor(change);
-  const changeText = formatChange(change);
 
   return `
     <td style="${reportStyles.metricCard}">
       <div style="${reportStyles.metricLabel}">${label}</div>
       <div style="${reportStyles.metricValue}">${value}</div>
       <div style="${reportStyles.metricChange} color: ${trendColor};">
-        ${trendIcon} ${changeText}
+        ${trendIcon} ${Math.abs(change)}%
       </div>
     </td>
   `;
