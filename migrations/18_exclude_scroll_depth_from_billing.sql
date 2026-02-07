@@ -8,7 +8,7 @@ AS SELECT
     toDate(timestamp) as date,
     count() as event_count
 FROM analytics.events
-WHERE event_type != 5
+WHERE event_type != 'scroll_depth'
 GROUP BY site_id, date;
 
 INSERT INTO analytics.usage_by_site_daily
@@ -17,5 +17,5 @@ SELECT
     toDate(timestamp) as date,
     count() as event_count
 FROM analytics.events
-WHERE event_type != 5
+WHERE event_type != 'scroll_depth'
 GROUP BY site_id, date;
