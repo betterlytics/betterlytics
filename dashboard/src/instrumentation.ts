@@ -1,5 +1,5 @@
 export async function register() {
-  registerOpenTelemetry();
+  await registerOpenTelemetry();
   await registerBackgroundJobs();
 }
 
