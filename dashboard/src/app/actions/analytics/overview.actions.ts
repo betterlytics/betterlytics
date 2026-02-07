@@ -18,7 +18,7 @@ import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
-import { isStartBucketIncomplete } from '@/lib/ba-timerange';
+import { isStartBucketIncomplete, isEndBucketIncomplete } from '@/lib/ba-timerange';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
@@ -64,7 +64,7 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
-      bucketIncomplete: endDate.getTime() > Date.now(),
+      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
       startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
     });
   },
@@ -113,7 +113,7 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
-      bucketIncomplete: endDate.getTime() > Date.now(),
+      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
       startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
     });
   },
@@ -257,7 +257,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
         startBucketIncomplete: startIncomplete,
       }),
       bounceRate: toAreaChart({
@@ -273,7 +273,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
         startBucketIncomplete: startIncomplete,
       }),
       pagesPerSession: toAreaChart({
@@ -289,7 +289,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
         startBucketIncomplete: startIncomplete,
       }),
       sessions: toAreaChart({
@@ -305,7 +305,7 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
         startBucketIncomplete: startIncomplete,
       }),
     };
