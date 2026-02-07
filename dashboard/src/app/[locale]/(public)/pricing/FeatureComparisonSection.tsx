@@ -38,6 +38,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'webVitals', growth: true, professional: true, enterprise: true },
       { key: 'campaignTracking', growth: true, professional: true, enterprise: true },
       { key: 'sessionReplay', growth: true, professional: true, enterprise: true },
+      { key: 'emailReports', growth: false, professional: true, enterprise: true },
     ],
   },
   {

@@ -20,6 +20,11 @@ export {
   generateEmailVerificationText,
 } from './email-verification-mail';
 export {
+  createReportEmailTemplate,
+  generateReportEmailContent,
+  generateReportEmailText,
+} from './weekly-report-mail';
+export {
   getEmailHeader,
   getEmailFooter,
   getTextEmailFooter,
