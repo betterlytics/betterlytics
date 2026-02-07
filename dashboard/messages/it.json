@@ -2213,6 +2213,10 @@
       "dashboard": {
         "initializing": "Inizializzazione dashboard",
         "loadingSettings": "Caricamento impostazioni della dashboard..."
+      },
+      "geography": {
+        "title": "Inizializzazione mappa mondiale",
+        "description": "Preparazione di una visualizzazione geografica delle tue visite..."
       }
     },
     "devices": {

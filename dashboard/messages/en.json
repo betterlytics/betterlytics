@@ -2202,6 +2202,10 @@
       "dashboard": {
         "initializing": "Initializing Dashboard",
         "loadingSettings": "Loading your dashboard settings..."
+      },
+      "geography": {
+        "title": "Initializing world map",
+        "description": "Preparing a geographic visualization of your visits..."
       }
     },
     "devices": {

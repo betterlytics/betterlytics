@@ -2205,6 +2205,10 @@
       "dashboard": {
         "initializing": "Initialiserer dashboard",
         "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      },
+      "geography": {
+        "title": "Initialiserer verdenskort",
+        "description": "Forbereder en geografisk visualisering af dine besøg..."
       }
     },
     "devices": {

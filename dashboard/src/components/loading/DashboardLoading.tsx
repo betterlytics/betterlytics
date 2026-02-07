@@ -1,19 +1,10 @@
-import React from 'react';
+'use client';
 
-import { AnimatedDashboardLogo } from '@/components/loading/AnimatedDashboardLogo';
+import React from 'react';
+import BetterlyticsLoading from '@/components/loading/BetterlyticsLoading';
 import { useTranslations } from 'next-intl';
 
 export default function DashboardLoading() {
   const t = useTranslations('components.loading.dashboard');
-  return (
-    <div className='bg-background flex min-h-screen items-center justify-center'>
-      <div className='text-center'>
-        <div className='mb-6 flex justify-center'>
-          <AnimatedDashboardLogo size={80} />
-        </div>
-        <h2 className='text-foreground mb-2 text-lg font-semibold'>{t('initializing')}</h2>
-        <p className='text-muted-foreground text-sm'>{t('loadingSettings')}</p>
-      </div>
-    </div>
-  );
+  return <BetterlyticsLoading title={t('initializing')} description={t('loadingSettings')} className='min-h-screen' />;
 }
