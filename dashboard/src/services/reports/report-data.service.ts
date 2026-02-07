@@ -8,11 +8,11 @@ import { toDateTimeString } from '@/utils/dateFormatters';
 
 export interface ReportMetrics {
   visitors: number;
-  visitorChange: number;
+  visitorChange: number | null;
   pageViews: number;
-  pageViewChange: number;
+  pageViewChange: number | null;
   sessions: number;
-  sessionChange: number;
+  sessionChange: number | null;
   bounceRate: number;
   avgVisitDuration: number;
 }
@@ -45,9 +45,9 @@ export interface ReportData {
   topSources: TopSource[];
 }
 
-function calculatePercentChange(current: number, previous: number): number {
+function calculatePercentChange(current: number, previous: number): number | null {
   if (previous === 0) {
-    return current > 0 ? 100 : 0;
+    return null;
   }
   return Math.round(((current - previous) / previous) * 100);
 }

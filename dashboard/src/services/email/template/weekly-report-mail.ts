@@ -10,19 +10,22 @@ export interface EmailReportData extends EmailData {
   dashboardUrl: string;
 }
 
-function formatChange(change: number): string {
+function formatChange(change: number | null): string {
+  if (change === null) return '—';
   if (change === 0) return 'No change';
   const sign = change > 0 ? '+' : '';
   return `${sign}${change}%`;
 }
 
-function getTrendIcon(change: number): string {
+function getTrendIcon(change: number | null): string {
+  if (change === null) return '';
   if (change > 0) return '↑';
   if (change < 0) return '↓';
   return '→';
 }
 
-function getTrendColor(change: number): string {
+function getTrendColor(change: number | null): string {
+  if (change === null) return emailColors.neutral;
   if (change > 0) return emailColors.positive;
   if (change < 0) return emailColors.negative;
   return emailColors.neutral;
@@ -37,16 +40,17 @@ export function getReportEmailFooter(): string {
   `;
 }
 
-function createMetricCard(label: string, value: string, change: number): string {
+function createMetricCard(label: string, value: string, change: number | null): string {
   const trendIcon = getTrendIcon(change);
   const trendColor = getTrendColor(change);
+  const changeText = change === null ? '—' : `${trendIcon} ${Math.abs(change)}%`;
 
   return `
     <td style="${reportStyles.metricCard}">
       <div style="${reportStyles.metricLabel}">${label}</div>
       <div style="${reportStyles.metricValue}">${value}</div>
       <div style="${reportStyles.metricChange} color: ${trendColor};">
-        ${trendIcon} ${Math.abs(change)}%
+        ${changeText}
       </div>
     </td>
   `;
