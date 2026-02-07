@@ -4,7 +4,8 @@ import { useRef, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import NumberFlow from '@number-flow/react';
 
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,7 @@ export type LabeledSliderProps = {
   marks: SliderMark[];
   onValueChange: (value: number) => void;
   formatValue: (value: number) => string;
+  valueParts?: { value: number; intlUnit?: 'second' | 'minute' | 'hour' | 'day'; suffix?: string };
   recommendedValue?: number;
   disabled?: boolean;
   minAllowed?: number;
@@ -37,10 +39,12 @@ export function LabeledSlider({
   marks,
   onValueChange,
   formatValue,
+  valueParts,
   recommendedValue,
   disabled,
   minAllowed,
 }: LabeledSliderProps) {
+  const locale = useLocale();
   const t = useTranslations('components.slider');
   const tProFeature = useTranslations('components.proFeature');
   const isRecommended = recommendedValue !== undefined && value === recommendedValue;
@@ -74,9 +78,24 @@ export function LabeledSlider({
           <Label className='text-sm font-medium'>{label}</Label>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
         </div>
-        <Badge variant='secondary' className='ring-border mb-1 text-xs font-medium ring-1'>
-          {formatValue(value)}
-          {isRecommended && <span className='text-muted-foreground font-normal'>({t('recommended')})</span>}
+        <Badge
+          variant='secondary'
+          className='ring-border mb-1 grid items-baseline text-xs font-medium ring-1 transition-[grid-template-columns] duration-300 ease-out'
+          style={{ gridTemplateColumns: isRecommended ? 'auto 1fr' : 'auto 0fr' }}
+        >
+          {valueParts ? (
+            <NumberFlow
+              className='tabular-nums'
+              value={valueParts.value}
+              locales={locale}
+              format={valueParts.intlUnit ? { style: 'unit', unit: valueParts.intlUnit, unitDisplay: 'narrow' } : undefined}
+              suffix={valueParts.suffix ? ` ${valueParts.suffix}` : undefined}
+              willChange
+            />
+          ) : (
+            formatValue(value)
+          )}
+          <span className='text-muted-foreground min-w-0 overflow-hidden font-thin whitespace-nowrap'>{` (${t('recommended')})`}</span>
         </Badge>
       </div>
 
@@ -99,7 +118,7 @@ export function LabeledSlider({
               <span
                 key={idx}
                 className={cn(
-                  'absolute flex h-4 items-center text-xs',
+                  'absolute flex h-4 items-end text-xs',
                   isLocked ? 'text-amber-500 dark:text-amber-400' : 'text-muted-foreground',
                 )}
                 style={{
