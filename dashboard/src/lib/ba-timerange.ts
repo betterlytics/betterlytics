@@ -145,12 +145,7 @@ const RANGE_CONFIG: Record<Exclude<TimeRangeValue, 'custom'>, RangeConfig> = {
   },
 };
 
-function getCustomMainRange(
-  timezone: string,
-  offset: number,
-  customStart?: Date,
-  customEnd?: Date,
-): TimeRange {
+function getCustomMainRange(timezone: string, offset: number, customStart?: Date, customEnd?: Date): TimeRange {
   const start = floorToGranularity(moment.tz(customStart, timezone), 'day');
   const end = ceilToGranularity(moment.tz(customEnd, timezone), 'day');
   const buckets = countBucketsBetween({ start, end }, 'day');
@@ -269,6 +264,29 @@ function computeCoarseCompare(
     };
   }
 
+  if (granularity === 'week') {
+    const daySpan = range.end.diff(range.start, 'days');
+
+    if (mode === 'previous') {
+      const compareEnd = shouldAlignWeekdays
+        ? alignWeekday(range.end, range.start, 'previous')
+        : range.start.clone();
+      return {
+        start: compareEnd.clone().subtract(daySpan, 'days'),
+        end: compareEnd,
+      };
+    }
+
+    if (mode === 'year') {
+      const rawEnd = range.end.clone().subtract(1, 'year');
+      const compareEnd = shouldAlignWeekdays ? alignWeekday(range.end, rawEnd, 'year') : rawEnd;
+      return {
+        start: compareEnd.clone().subtract(daySpan, 'days'),
+        end: compareEnd,
+      };
+    }
+  }
+
   if (mode === 'previous') {
     const compareEnd = shouldAlignWeekdays
       ? alignWeekday(range.end, range.start, 'previous')
@@ -341,13 +359,7 @@ export function getResolvedRanges(
             end: ceilToGranularity(moment.tz(compareEndDate, timezone), 'day'),
           }
         : undefined;
-    const compareRange = getCompareRange(
-      mainRange,
-      compareMode,
-      g,
-      compareAlignWeekdays,
-      customCompareRange,
-    );
+    const compareRange = getCompareRange(mainRange, compareMode, g, compareAlignWeekdays, customCompareRange);
     return { mainRange, compareRange };
   };
 
@@ -365,24 +377,17 @@ export function getResolvedRanges(
   nextGranularity = getValidGranularityFallback(nextGranularity, allowed);
 
   const needsRecompute =
-    mainEnd.getTime() !== initial.mainRange.end.toDate().getTime() ||
-    nextGranularity !== granularity;
+    mainEnd.getTime() !== initial.mainRange.end.toDate().getTime() || nextGranularity !== granularity;
 
-  const { mainRange, compareRange } = needsRecompute
-    ? resolve(nextGranularity, mainStart, mainEnd)
-    : initial;
+  const { mainRange, compareRange } = needsRecompute ? resolve(nextGranularity, mainStart, mainEnd) : initial;
 
   return {
-    main: { start: mainRange.start.toDate(), end: mainRange.end.toDate() },
+    main: { start: mainRange.start.toDate(), end: mainRange.end.clone().subtract(1, 'second').toDate() },
     compare: compareRange
-      ? { start: compareRange.start.toDate(), end: compareRange.end.toDate() }
+      ? { start: compareRange.start.toDate(), end: compareRange.end.clone().subtract(1, 'second').toDate() }
       : undefined,
     granularity: nextGranularity,
-    startBucketIncomplete: isStartBucketIncomplete(
-      mainRange.start.toDate(),
-      nextGranularity,
-      timezone,
-    ),
+    startBucketIncomplete: isStartBucketIncomplete(mainRange.start.toDate(), nextGranularity, timezone),
   };
 }
 

@@ -109,7 +109,11 @@ function getTimestampRange(
 
   // Create the fill
   const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
-  const intervalTo = safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
+
+  const isCoarseGranularity = granularity === 'week' || granularity === 'month';
+  const intervalTo = isCoarseGranularity
+    ? safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })}) + ${interval}`
+    : safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
 
   const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 
