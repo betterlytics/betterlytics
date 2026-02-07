@@ -10,8 +10,13 @@ ADD COLUMN     "lastMonthlyReportSentAt" TIMESTAMP(3),
 ADD COLUMN     "lastWeeklyReportSentAt" TIMESTAMP(3),
 ADD COLUMN     "monthlyReportRecipients" TEXT[] DEFAULT ARRAY[]::TEXT[],
 ADD COLUMN     "weeklyReportDay" INTEGER NOT NULL DEFAULT 1,
-ADD COLUMN     "weeklyReportRecipients" TEXT[] DEFAULT ARRAY[]::TEXT[],
-ALTER COLUMN "weeklyReports" SET DEFAULT false;
+ADD COLUMN     "weeklyReportRecipients" TEXT[] DEFAULT ARRAY[]::TEXT[];
+
+-- Reset all existing weeklyReports to false for the new email reports feature
+UPDATE "DashboardSettings" SET "weeklyReports" = false;
+
+-- Set default for future rows
+ALTER TABLE "DashboardSettings" ALTER COLUMN "weeklyReports" SET DEFAULT false;
 
 -- CreateTable
 CREATE TABLE "EmailReportHistory" (
