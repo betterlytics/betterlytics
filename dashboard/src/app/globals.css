@@ -49,7 +49,6 @@
   --topbar-height: calc(var(--spacing) * 14);
 }
 
-
 :root {
   --radius: 0.5rem;
 
@@ -121,7 +120,7 @@
   --cwv-threshold-fair: oklch(80% 0.18 80); /* amber */
   --cwv-threshold-poor: rgb(207, 51, 23); /* red */
   --cwv-threshold-good-label: rgb(12, 110, 52); /* darker green */
-  --cwv-threshold-fair-label: oklch(55% 0.16 70); /* darker amber */
+  --cwv-threshold-fair-label: oklch(75% 0.18 80); /* amber */
   --cwv-threshold-poor-label: rgb(170, 42, 18); /* darker red */
 
   --sidebar: white; /* Whiter sidebar for light mode */
@@ -285,7 +284,6 @@
     font-family: var(--font-roboto-mono);
   }
 }
-
 
 /* Minimal leaflet z-index fixes to prevent map from appearing above UI dialogs */
 .leaflet-control {
