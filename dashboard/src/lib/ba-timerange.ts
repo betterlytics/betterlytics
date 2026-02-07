@@ -73,6 +73,12 @@ function countBucketsBetween(range: TimeRange, g: GranularityRangeValues): numbe
   return countUnitsBetween(range, g) / GRANULARITY_CONFIG[g].step;
 }
 
+function countAlignedBuckets(range: TimeRange, g: GranularityRangeValues): number {
+  const alignedStart = floorToGranularity(range.start.clone(), g);
+  const alignedEnd = snapCeilToGranularity(range.end.clone(), g);
+  return countBucketsBetween({ start: alignedStart, end: alignedEnd }, g);
+}
+
 type RangeConfig = {
   baseEnd: (now: moment.Moment, granularity: GranularityRangeValues) => moment.Moment;
   offset: { amount: number; unit: moment.unitOfTime.DurationConstructor };
@@ -267,23 +273,29 @@ function computeCoarseCompare(
   if (granularity === 'week') {
     const daySpan = range.end.diff(range.start, 'days');
 
-    if (mode === 'previous') {
-      const compareEnd = shouldAlignWeekdays
-        ? alignWeekday(range.end, range.start, 'previous')
-        : range.start.clone();
-      return {
-        start: compareEnd.clone().subtract(daySpan, 'days'),
-        end: compareEnd,
-      };
-    }
+    if (mode === 'previous' || mode === 'year') {
+      let compareEnd: moment.Moment;
+      if (mode === 'previous') {
+        compareEnd = shouldAlignWeekdays
+          ? alignWeekday(range.end, range.start, 'previous')
+          : range.start.clone();
+      } else {
+        const rawEnd = range.end.clone().subtract(1, 'year');
+        compareEnd = shouldAlignWeekdays ? alignWeekday(range.end, rawEnd, 'year') : rawEnd;
+      }
 
-    if (mode === 'year') {
-      const rawEnd = range.end.clone().subtract(1, 'year');
-      const compareEnd = shouldAlignWeekdays ? alignWeekday(range.end, rawEnd, 'year') : rawEnd;
-      return {
-        start: compareEnd.clone().subtract(daySpan, 'days'),
-        end: compareEnd,
-      };
+      let compareStart = compareEnd.clone().subtract(daySpan, 'days');
+
+      const mainBuckets = countAlignedBuckets(range, 'week');
+      const compareBuckets = countAlignedBuckets({ start: compareStart, end: compareEnd }, 'week');
+
+      if (mainBuckets !== compareBuckets) {
+        const shift = (compareStart.isoWeekday() - range.start.isoWeekday() + 7) % 7;
+        compareStart = compareStart.clone().subtract(shift, 'days');
+        compareEnd = compareEnd.clone().subtract(shift, 'days');
+      }
+
+      return { start: compareStart, end: compareEnd };
     }
   }
 
