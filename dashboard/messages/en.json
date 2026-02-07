@@ -2531,7 +2531,6 @@
     },
     "geography": {
       "noData": "No geographic data available for the selected period",
-      "loading": "Loading map...",
       "visitors": "Visitors"
     },
     "userJourney": {
