@@ -2190,6 +2190,8 @@
         "1y": "Past Year"
       },
       "granularityLabels": {
+        "month": "Month",
+        "week": "Week",
         "day": "Day",
         "hour": "Hour",
         "minute_30": "30 min",

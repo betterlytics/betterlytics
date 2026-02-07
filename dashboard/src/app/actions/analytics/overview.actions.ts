@@ -18,6 +18,7 @@ import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
+import { isStartBucketIncomplete, isEndBucketIncomplete } from '@/lib/ba-timerange';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
   async (
@@ -63,7 +64,8 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
-      bucketIncomplete: endDate.getTime() > Date.now(),
+      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+      startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
     });
   },
 );
@@ -111,7 +113,8 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
         start: compareStartDate,
         end: compareEndDate,
       },
-      bucketIncomplete: endDate.getTime() > Date.now(),
+      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+      startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
     });
   },
 );
@@ -238,6 +241,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         timezone,
       ));
 
+    const startIncomplete = isStartBucketIncomplete(startDate, granularity, timezone);
+
     return {
       avgVisitDuration: toAreaChart({
         data,
@@ -252,7 +257,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        startBucketIncomplete: startIncomplete,
       }),
       bounceRate: toAreaChart({
         data,
@@ -267,7 +273,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        startBucketIncomplete: startIncomplete,
       }),
       pagesPerSession: toAreaChart({
         data,
@@ -282,7 +289,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        startBucketIncomplete: startIncomplete,
       }),
       sessions: toAreaChart({
         data,
@@ -297,7 +305,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
           start: compareStartDate,
           end: compareEndDate,
         },
-        bucketIncomplete: endDate.getTime() > Date.now(),
+        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        startBucketIncomplete: startIncomplete,
       }),
     };
   },

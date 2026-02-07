@@ -21,6 +21,7 @@ type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
     end?: Date;
   };
   bucketIncomplete?: boolean;
+  startBucketIncomplete?: boolean;
 };
 
 function dataToAreaChart<K extends string>({ dataKey, data }: Pick<DataToAreaChartProps<K>, 'dataKey' | 'data'>) {
@@ -43,6 +44,7 @@ type AreaChartResult = {
   data: Array<{ date: number; value: Array<number | null> }>;
   comparisonMap?: ComparisonMapping[];
   incomplete?: Array<{ date: number; value: Array<number | null> }>;
+  incompleteStart?: Array<{ date: number; value: Array<number | null> }>;
 };
 
 export function toAreaChart<K extends string>({
@@ -51,6 +53,7 @@ export function toAreaChart<K extends string>({
   compare,
   compareDateRange,
   bucketIncomplete,
+  startBucketIncomplete,
 }: ToAreaChartProps<K>): AreaChartResult {
   const chart = dataToAreaChart({ dataKey, data });
 
@@ -62,8 +65,13 @@ export function toAreaChart<K extends string>({
     incomplete: currentIncomplete,
   } = getIncompleteSplit(chart, now, bucketIncomplete);
 
+  const { incompleteStart: startSplit, maskedChart: startMasked } = getIncompleteStartSplit(
+    solidCurrent,
+    startBucketIncomplete,
+  );
+
   if (!compare) {
-    return { data: solidCurrent, incomplete: currentIncomplete };
+    return { data: startMasked, incomplete: currentIncomplete, incompleteStart: startSplit };
   }
 
   if (!compareDateRange?.start || !compareDateRange?.end) {
@@ -73,7 +81,7 @@ export function toAreaChart<K extends string>({
   const compareChart = dataToAreaChart({ dataKey, data: compare });
 
   if (chart.length !== compareChart.length) {
-    return { data: solidCurrent, incomplete: currentIncomplete };
+    return { data: startMasked, incomplete: currentIncomplete, incompleteStart: startSplit };
   }
 
   const chartData = chart.map((point, index) => ({
@@ -92,7 +100,20 @@ export function toAreaChart<K extends string>({
       }))
     : undefined;
 
-  return { data: dataSeries, comparisonMap, incomplete };
+  const { incompleteStart, maskedChart: finalData } = getIncompleteStartSplit(dataSeries, startBucketIncomplete);
+
+  const incompleteStartWithCompare = incompleteStart
+    ? incompleteStart.map((point, i) => {
+        const chartIndex = i;
+        const compareValues = compareChart[chartIndex]?.value ?? [null];
+        return {
+          date: point.date,
+          value: [...point.value, ...compareValues],
+        };
+      })
+    : undefined;
+
+  return { data: finalData, comparisonMap, incomplete, incompleteStart: incompleteStartWithCompare };
 }
 
 function createComparisonMap(
@@ -143,6 +164,24 @@ function maskPrimaryAfterIndex(chart: ChartPoint[], firstIncompleteIndex: number
   return chart.map((point, index) =>
     index >= firstIncompleteIndex ? { ...point, value: [null, ...point.value.slice(1)] } : point,
   );
+}
+
+function maskPrimaryBeforeIndex(chart: ChartPoint[], lastIncompleteIndex: number): ChartPoint[] {
+  return chart.map((point, index) =>
+    index <= lastIncompleteIndex ? { ...point, value: [null, ...point.value.slice(1)] } : point,
+  );
+}
+
+function getIncompleteStartSplit(
+  chart: ChartPoint[],
+  startBucketIncomplete?: boolean,
+): { incompleteStart: ChartPoint[] | undefined; maskedChart: ChartPoint[] } {
+  if (!startBucketIncomplete || chart.length < 2) {
+    return { incompleteStart: undefined, maskedChart: chart };
+  }
+  const incompleteStart = [chart[0], chart[1]];
+  const maskedChart = maskPrimaryBeforeIndex(chart, 0);
+  return { incompleteStart, maskedChart };
 }
 
 function getIncompleteSplit(

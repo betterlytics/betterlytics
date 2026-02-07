@@ -14,7 +14,7 @@ import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { QuickSelectSection } from '@/components/TimeRange/QuickSelectSection';
 import { GranularitySection } from '@/components/TimeRange/GranularitySection';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
-import { getAllowedGranularities } from '@/utils/granularityRanges';
+import { getAllowedGranularities, getVisibleGranularities } from '@/utils/granularityRanges';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { LiveIndicator } from '@/components/live-indicator';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
@@ -29,6 +29,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
   const { isDemo } = useDashboardAuth();
 
   const allowed = getAllowedGranularities(ctx.startDate, ctx.endDate);
+  const visible = getVisibleGranularities(ctx.startDate, ctx.endDate);
 
   const label = useMemo(
     () => () => {
@@ -69,6 +70,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
       <GranularitySection
         selectedGranularity={ctx.granularity}
         allowedGranularities={allowed}
+        visibleGranularities={visible}
         onGranularitySelect={actions.setGranularity}
         disabled={ctx.interval === 'realtime' || ctx.interval === '1h'}
         disabledTitle={t('granularityNotAvailable')}
