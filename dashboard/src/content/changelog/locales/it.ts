@@ -28,7 +28,7 @@ export const latestChangelogModalIt: ChangelogEntryData = {
           type: 'list',
           items: [
             'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
-            'Soglie Core Web Vitals: indicatori migliorati rendono più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
+            'Soglie Core Web Vitals: indicatori migliorati rendono più facile vedere quando le metriche superano le soglie "Discreto" o "Scarso".',
             'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
             'UI Polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida.',
           ],
@@ -82,7 +82,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
-              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
+              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Discreto" o "Scarso".',
               'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
               'UI polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida e reattiva.',
             ],

@@ -59,6 +59,7 @@ interface ChartDataPoint {
 interface InteractiveChartProps {
   data: ChartDataPoint[];
   incomplete?: ChartDataPoint[];
+  incompleteStart?: ChartDataPoint[];
   color: string;
   formatValue?: (value: number) => string;
   granularity?: GranularityRangeValues;
@@ -79,6 +80,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
   ({
     data,
     incomplete,
+    incompleteStart,
     color,
     formatValue,
     granularity,
@@ -329,6 +331,27 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
                 <Tooltip content={renderChartTooltip} />
 
+                {incompleteStart && incompleteStart.length >= 2 ? (
+                  <Area
+                    type='linear'
+                    data={incompleteStart}
+                    dataKey={'value.0'}
+                    stroke='none'
+                    fillOpacity={1}
+                    fill={'url(#gradient-incomplete)'}
+                  />
+                ) : null}
+                {incompleteStart && incompleteStart.length >= 2 ? (
+                  <Line
+                    type='linear'
+                    data={incompleteStart}
+                    dataKey={'value.0'}
+                    stroke={color}
+                    strokeWidth={2}
+                    strokeDasharray='4 4'
+                    dot={false}
+                  />
+                ) : null}
                 <Area
                   type='linear'
                   data={data}

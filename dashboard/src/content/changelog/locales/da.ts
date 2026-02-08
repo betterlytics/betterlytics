@@ -28,7 +28,7 @@ export const latestChangelogModalDa: ChangelogEntryData = {
           type: 'list',
           items: [
             'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-            'Core Web Vitals-grænser: Forbedrede indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
+            'Core Web Vitals-grænser: Forbedrede indikatorer gør det lettere at se, når metrics krydser "Middel" eller "Dårlig"-grænser.',
             'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
             'UI-polering: Tilføjet subtile animationer i appen for en mere flydende oplevelse.',
           ],
@@ -82,7 +82,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
+              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Middel" eller "Dårlig"-grænser.',
               'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
               'UI-polering: Tilføjet subtile animationer i appen for en mere flydende og responsiv oplevelse.',
             ],
