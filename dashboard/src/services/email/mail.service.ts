@@ -27,6 +27,7 @@ export interface EmailTemplate {
   subject: string;
   html: string;
   text?: string;
+  cloudOnly?: boolean;
 }
 
 export interface EmailData {
@@ -58,6 +59,11 @@ export function wrapTextEmailContent(content: string): string {
 async function sendEmail(template: EmailTemplate, emailData: EmailData): Promise<void> {
   try {
     if (!isFeatureEnabled('enableEmails')) {
+      return;
+    }
+
+    if (template.cloudOnly && !env.IS_CLOUD) {
+      console.warn('Attempted to send a cloud-only email on a self-hosted instance, skipping');
       return;
     }
 

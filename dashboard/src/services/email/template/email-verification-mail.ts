@@ -124,6 +124,7 @@ export function createEmailVerificationTemplate(data: EmailVerificationData) {
     subject: `Verify your email address for Betterlytics`,
     html: wrapEmailContent(generateEmailVerificationContent(data)),
     text: wrapTextEmailContent(generateEmailVerificationText(data)),
+    cloudOnly: true,
   };
 }
 
