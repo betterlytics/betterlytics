@@ -1,3 +1,5 @@
+import { env } from '@/lib/env';
+
 export function getEmailHeader(): string {
   return `
     <!DOCTYPE html>
@@ -170,8 +172,8 @@ export function getEmailFooter(): string {
         </div>
         <div style="text-align: center; margin-top: 30px; padding: 20px;">
           <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.5;">
-            © ${new Date().getFullYear()} Betterlytics. All rights reserved.<br>
-            You're receiving this email because you have an account with Betterlytics.
+            Powered by <a href="https://betterlytics.io" style="color: #9ca3af; text-decoration: underline;">Betterlytics</a><br>
+            You're receiving this email because you have an account on this analytics platform.
           </p>
         </div>
       </div>
@@ -212,6 +214,8 @@ export function createInfoBox(content: string, type: 'info' | 'success' | 'warni
 }
 
 export function createEmailSignature(): string {
+  if (!env.IS_CLOUD) return '';
+
   return `
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
       <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 16px; font-weight: 500;">
@@ -228,6 +232,8 @@ export function createEmailSignature(): string {
 }
 
 export function createTextEmailSignature(): string {
+  if (!env.IS_CLOUD) return '';
+
   return `
 Best regards,
 The Betterlytics Team
@@ -241,8 +247,8 @@ Documentation: https://betterlytics.io/docs
 export function getTextEmailFooter(): string {
   return `
 ---
-© ${new Date().getFullYear()} Betterlytics. All rights reserved.
-You're receiving this email because you have an account with Betterlytics.`.trim();
+Powered by Betterlytics (https://betterlytics.io)
+You're receiving this email because you have an account on this analytics platform.`.trim();
 }
 
 export const emailStyles = {
@@ -282,3 +288,66 @@ export const emailIcons = {
   error: '❌',
   alert: '🚨',
 };
+
+export const emailColors = {
+  positive: '#16a34a',
+  negative: '#dc2626',
+  neutral: '#6b7280',
+  cardBg: '#f8fafc',
+  border: '#e5e7eb',
+  textPrimary: '#1f2937',
+  textSecondary: '#4b5563',
+  textMuted: '#6b7280',
+};
+
+export const reportStyles = {
+  tableCell: 'padding: 8px 0; border-bottom: 1px solid #e5e7eb;',
+  tableHeader:
+    'text-align: left; padding: 8px 0; border-bottom: 2px solid #e5e7eb; color: #6b7280; font-size: 12px; font-weight: 600;',
+  metricCard: 'padding: 12px 16px; background-color: #f8fafc; border-radius: 8px; text-align: center;',
+  metricLabel: 'font-size: 12px; color: #6b7280; margin-bottom: 4px;',
+  metricValue: 'font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 4px;',
+  metricChange: 'font-size: 12px; font-weight: 500;',
+  emptyState: 'color: #6b7280; font-style: italic;',
+};
+
+export interface DataTableColumn {
+  header: string;
+  align?: 'left' | 'right';
+}
+
+export interface DataTableRow {
+  cells: string[];
+}
+
+export function createDataTable(columns: DataTableColumn[], rows: DataTableRow[], emptyMessage: string): string {
+  if (rows.length === 0) {
+    return `<p style="${reportStyles.emptyState}">${emptyMessage}</p>`;
+  }
+
+  const headerCells = columns
+    .map((col) => `<th style="${reportStyles.tableHeader} text-align: ${col.align || 'left'};">${col.header}</th>`)
+    .join('');
+
+  const bodyRows = rows
+    .map((row, index) => {
+      const cells = row.cells
+        .map((cell, i) => {
+          const align = columns[i]?.align || 'left';
+          const color =
+            i === 0 ? emailColors.textMuted : i === 1 ? emailColors.textPrimary : emailColors.textSecondary;
+          const weight = i === 1 ? 'font-weight: 500;' : '';
+          return `<td style="${reportStyles.tableCell} color: ${color}; text-align: ${align}; ${weight}">${cell}</td>`;
+        })
+        .join('');
+      return `<tr>${cells}</tr>`;
+    })
+    .join('');
+
+  return `
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead><tr>${headerCells}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+  `;
+}

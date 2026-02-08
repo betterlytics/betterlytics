@@ -9,6 +9,7 @@ import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { Card, CardContent } from '@/components/ui/card';
 import { getAuthSession } from '@/auth/auth-actions';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function generateMetadata({
   params,
@@ -40,6 +41,10 @@ export default async function ForgotPasswordPage() {
 
   if (session) {
     redirect('/dashboards');
+  }
+
+  if (!isFeatureEnabled('enableEmails')) {
+    redirect('/signin');
   }
 
   return (

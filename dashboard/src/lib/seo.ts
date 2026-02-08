@@ -54,7 +54,9 @@ export function generateSEO(
     },
     openGraph: {
       type: 'website',
-      locale: LANGUAGE_METADATA[currentLocale as SupportedLanguages].ogLocale,
+      locale:
+        LANGUAGE_METADATA[currentLocale as SupportedLanguages]?.ogLocale ??
+        LANGUAGE_METADATA[defaultLocale].ogLocale,
       url: fullUrl,
       title: title,
       description,

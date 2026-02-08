@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { sendTestEmail } from '@/app/actions/system/email.action';
@@ -11,7 +11,7 @@ import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateCon
 
 export function EmailTestForm() {
   const [email, setEmail] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('welcome');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>(EMAIL_TEMPLATES[0]);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
