@@ -8,6 +8,7 @@ import {
 } from './email-components';
 import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
 import escapeHtml from 'escape-html';
+import { env } from '@/lib/env';
 
 export interface WelcomeEmailData extends EmailData {
   userName: string;
@@ -22,7 +23,7 @@ export function generateWelcomeEmailContent(data: WelcomeEmailData): string {
     <p>Thank you for joining Betterlytics! We're excited to help you gain powerful insights into your website's performance with our privacy-focused analytics platform.</p>
 
     <div class="center" style="margin: 30px 0;">
-      ${createEmailButton('Go to Dashboard', 'https://betterlytics.io/dashboards', 'primary')}
+      ${createEmailButton('Go to Dashboard', `${env.PUBLIC_BASE_URL}/dashboards`, 'primary')}
     </div>
 
     ${createInfoBox(
@@ -85,7 +86,7 @@ Thank you for joining Betterlytics! We're excited to help you gain powerful insi
 Your Analytics Journey Starts Here
 
 Next Steps:
-1. Log in to your dashboard: https://betterlytics.io/dashboards
+1. Log in to your dashboard: ${env.PUBLIC_BASE_URL}/dashboards
 2. Add your website and get your tracking script
 3. Install the tracking code on your website
 4. Start receiving real-time analytics data!
