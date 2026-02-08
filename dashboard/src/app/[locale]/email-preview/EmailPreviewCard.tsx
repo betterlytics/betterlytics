@@ -12,7 +12,7 @@ interface EmailPreviewCardProps {
   initialTemplate?: EmailTemplateType;
 }
 
-export function EmailPreviewCard({ initialTemplate = 'welcome' }: EmailPreviewCardProps) {
+export function EmailPreviewCard({ initialTemplate = 'reset-password' }: EmailPreviewCardProps) {
   const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isPending, startTransition] = useTransition();

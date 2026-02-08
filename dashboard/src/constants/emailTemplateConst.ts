@@ -1,5 +1,4 @@
 export const EMAIL_TEMPLATES = [
-  'welcome',
   'reset-password',
   'usage-alert',
   'first-payment-welcome',

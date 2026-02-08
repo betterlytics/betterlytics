@@ -11,7 +11,7 @@ import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateCon
 
 export function EmailTestForm() {
   const [email, setEmail] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('welcome');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>(EMAIL_TEMPLATES[0]);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
