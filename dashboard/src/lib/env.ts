@@ -55,6 +55,7 @@ const envSchema = z.object({
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
   OTEL_SERVICE_NAME: z.string().optional(),
+  BACKGROUND_JOBS_ENABLED: zStringBoolean,
 });
 
 export const env = envSchema.parse(process.env);
