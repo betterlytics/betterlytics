@@ -10,9 +10,9 @@ import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import DashboardLoading from '@/components/loading/DashboardLoading';
-import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
+import { useBARouter } from '@/hooks/use-ba-router';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -55,14 +55,16 @@ function SyncURLFilters() {
 
 function RealtimeRefresh() {
   const { interval } = useTimeRangeContext();
-  const { setPresetRange } = useImmediateTimeRange(false);
+  const router = useBARouter();
 
   useEffect(() => {
     if (interval === 'realtime') {
-      const refreshInterval = setInterval(() => setPresetRange('realtime'), 30_000);
+      const refreshInterval = setInterval(() => {
+        router.refresh();
+      }, 30_000);
       return () => clearInterval(refreshInterval);
     }
-  }, [interval]);
+  }, [interval, router]);
 
   return undefined;
 }

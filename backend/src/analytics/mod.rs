@@ -35,6 +35,9 @@ pub struct RawTrackingEvent {
     pub cwv_inp: Option<f32>,
     pub cwv_fcp: Option<f32>,
     pub cwv_ttfb: Option<f32>,
+    /// Scroll depth metrics (only for scroll depth events)
+    pub scroll_depth_percentage: Option<f32>,
+    pub scroll_depth_pixels: Option<f32>,
 }
 
 /// The main analytics event type that includes server-side data

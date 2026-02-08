@@ -22,6 +22,7 @@ import {
   createDashboardInvitationEmailTemplate,
   DashboardInvitationEmailData,
 } from '@/services/email/template/invitation-mail';
+import { createReportEmailTemplate, EmailReportData } from '@/services/email/template/weekly-report-mail';
 
 export interface EmailTemplate {
   subject: string;
@@ -118,4 +119,8 @@ export async function sendEmailVerificationEmail(data: EmailVerificationData): P
 
 export async function sendDashboardInvitationEmail(data: DashboardInvitationEmailData): Promise<void> {
   await sendEmail(createDashboardInvitationEmailTemplate(data), data);
+}
+
+export async function sendReportEmail(data: EmailReportData): Promise<void> {
+  await sendEmail(createReportEmailTemplate(data), data);
 }

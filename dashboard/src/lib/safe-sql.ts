@@ -91,6 +91,7 @@ export function safeSql<T extends SQLTaggedExpression[]>(
 export const SQL = {
   // "Primitives"
   String: asType<string>('String'),
+  Int32: asType<number>('Int32'),
   UInt32: asType<number>('UInt32'),
   DateTime: asType<string>('DateTime'),
   UInt32Array: asType<Array<number>>('Array(UInt32)'),

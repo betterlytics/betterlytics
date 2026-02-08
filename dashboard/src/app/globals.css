@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './animations.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -46,29 +47,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
-
-  --animate-shake: shake 0.4s ease-in-out;
-
-  @keyframes shake {
-    10%,
-    90% {
-      transform: translate3d(-1px, 0, 0);
-    }
-    20%,
-    80% {
-      transform: translate3d(2px, 0, 0);
-    }
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-4px, 0, 0);
-    }
-    40%,
-    60% {
-      transform: translate3d(4px, 0, 0);
-    }
-  }
 }
+
 
 :root {
   --radius: 0.5rem;
@@ -140,6 +120,9 @@
   --cwv-threshold-good: rgb(14, 148, 70); /* green */
   --cwv-threshold-fair: oklch(80% 0.18 80); /* amber */
   --cwv-threshold-poor: rgb(207, 51, 23); /* red */
+  --cwv-threshold-good-label: rgb(12, 110, 52); /* darker green */
+  --cwv-threshold-fair-label: oklch(55% 0.16 70); /* darker amber */
+  --cwv-threshold-poor-label: rgb(170, 42, 18); /* darker red */
 
   --sidebar: white; /* Whiter sidebar for light mode */
   --sidebar-foreground: oklch(0.2 0.01 265);
@@ -239,6 +222,9 @@
   --cwv-threshold-good: rgb(88, 207, 146);
   --cwv-threshold-fair: oklch(80% 0.18 80);
   --cwv-threshold-poor: rgb(212, 89, 81);
+  --cwv-threshold-good-label: rgb(100, 220, 160);
+  --cwv-threshold-fair-label: oklch(85% 0.16 80);
+  --cwv-threshold-poor-label: rgb(230, 105, 95);
 
   --sidebar: hsl(240, 3%, 10%); /* Slightly darker than main background */
   --sidebar-foreground: oklch(0.95 0.01 265);
@@ -300,40 +286,6 @@
   }
 }
 
-@layer utilities {
-  @keyframes scroll {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
-  .animate-shake {
-    animation: shake 0.4s ease-in-out;
-  }
-
-  @keyframes shake {
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-    10%,
-    30%,
-    50%,
-    70%,
-    90% {
-      transform: translateX(-3px);
-    }
-    20%,
-    40%,
-    60%,
-    80% {
-      transform: translateX(3px);
-    }
-  }
-}
 
 /* Minimal leaflet z-index fixes to prevent map from appearing above UI dialogs */
 .leaflet-control {

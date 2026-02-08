@@ -10,10 +10,11 @@ interface DomainFaviconProps {
   domain?: string | null;
   size?: number;
   className?: string;
+  containerClassName?: string;
   alt?: string;
 }
 
-export function DomainFavicon({ domain, size = 16, className, alt }: DomainFaviconProps) {
+export function DomainFavicon({ domain, size = 16, className, containerClassName, alt }: DomainFaviconProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -22,7 +23,11 @@ export function DomainFavicon({ domain, size = 16, className, alt }: DomainFavic
 
   return (
     <span
-      className='relative inline-flex flex-shrink-0 items-center justify-center'
+      className={cn(
+        'relative inline-flex flex-shrink-0 items-center justify-center rounded-sm',
+        isLoaded && source && 'bg-foreground/10',
+        containerClassName,
+      )}
       style={{ width: size, height: size }}
       aria-hidden={domain ? undefined : 'true'}
     >

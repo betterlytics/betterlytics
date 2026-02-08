@@ -1211,6 +1211,10 @@
           "title": "Udgående link-sporing",
           "description": "Spor klik på links der forlader dit site for at måle brugerengagement."
         },
+        "emailReports": {
+          "title": "E-mail-rapporter",
+          "description": "Modtag automatiske ugentlige eller månedlige analyseoversigter direkte i din indbakke."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Mål og optimér Googles performance-metrics for at forbedre loading, interaktivitet og søgerangeringer."
@@ -1471,6 +1475,9 @@
       "campaignTracking": {
         "name": "Kampagne- og UTM-sporing"
       },
+      "emailReports": {
+        "name": "E-mail-rapporter"
+      },
       "uptimeMonitoring": {
         "name": "Oppetidsovervågning",
         "values": {
@@ -1552,7 +1559,8 @@
         "analytics": "Analyse",
         "behavior": "Adfærd",
         "observability": "Overvågning"
-      }
+      },
+      "collapseNav": "Skjul navigation"
     },
     "settings": {
       "sidebar": {
@@ -1561,6 +1569,7 @@
         "data": "Data",
         "rules": "Regler",
         "members": "Medlemmer",
+        "reports": "E-mail-rapporter",
         "dangerZone": "Farezone"
       }
     },
@@ -2192,6 +2201,8 @@
         "1y": "Seneste år"
       },
       "granularityLabels": {
+        "month": "Måned",
+        "week": "Uge",
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min",
@@ -2483,6 +2494,7 @@
         "avgTime": "Gns. tid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
+        "avgScrollDepth": "Scroll-dybde",
         "allPages": "Alle sider",
         "entryPages": "Indgangssider",
         "exitPages": "Udgangssider",
@@ -2568,7 +2580,8 @@
       },
       "thresholds": {
         "good": "God",
-        "fair": "Middel"
+        "fair": "Middel",
+        "poor": "Dårlig"
       },
       "table": {
         "title": "Performance-opdeling",
@@ -3453,6 +3466,35 @@
           "description": "Indsæt dette i din HTML <head>-sektion"
         }
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "E-mail-rapporter",
+    "weekly": {
+      "title": "Ugentlige rapporter",
+      "description": "Modtag en opsummering af dit websites præstation hver uge",
+      "toggle": "Aktivér ugentlige e-mail-rapporter",
+      "dayLabel": "Rapportdag",
+      "dayDescription": "Hvilken ugedag rapporten skal sendes"
+    },
+    "monthly": {
+      "title": "Månedlige rapporter",
+      "description": "Send en månedlig e-mail-rapport den 1. i hver måned",
+      "toggle": "Aktivér månedlige e-mail-rapporter"
+    },
+    "recipients": {
+      "weeklyLabel": "Modtagere ({count}/{max})",
+      "monthlyLabel": "Modtagere ({count}/{max})",
+      "placeholder": "kollega@eksempel.dk",
+      "addButton": "Tilføj",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "emailRequired": "E-mailadresse er påkrævet",
+      "duplicateEmail": "Denne e-mail er allerede tilføjet",
+      "maxReached": "Maksimalt {max} modtagere nået"
+    },
+    "toast": {
+      "saved": "Rapportindstillinger gemt",
+      "error": "Kunne ikke gemme rapportindstillinger"
     }
   }
 }
