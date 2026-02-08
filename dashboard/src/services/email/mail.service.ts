@@ -4,7 +4,6 @@ import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import nodemailer from 'nodemailer';
 import { env } from '@/lib/env';
 import {
-  createWelcomeEmailTemplate,
   createResetPasswordEmailTemplate,
   createUsageAlertEmailTemplate,
   createFirstPaymentWelcomeEmailTemplate,
@@ -13,7 +12,6 @@ import {
   getEmailFooter,
   getTextEmailFooter,
 } from '@/services/email/template';
-import { WelcomeEmailData } from '@/services/email/template/welcome-mail';
 import { ResetPasswordEmailData } from '@/services/email/template/reset-password-mail';
 import { UsageAlertEmailData } from '@/services/email/template/usage-alert-mail';
 import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-payment-welcome-mail';
@@ -81,6 +79,10 @@ async function sendViaMailerSend(template: EmailTemplate, emailData: EmailData):
 }
 
 async function sendViaSmtp(template: EmailTemplate, emailData: EmailData): Promise<void> {
+  if (!env.SMTP_FROM && !emailData.from) {
+    console.warn('SMTP_FROM is not set. Emails may be rejected by the SMTP server. Set SMTP_FROM to your sender address.');
+  }
+
   const transporter = nodemailer.createTransport({
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
@@ -131,10 +133,6 @@ async function sendEmail(template: EmailTemplate, emailData: EmailData): Promise
     console.error('Error sending email:', error);
     throw new Error('Failed to send email');
   }
-}
-
-export async function sendWelcomeEmail(data: WelcomeEmailData): Promise<void> {
-  await sendEmail(createWelcomeEmailTemplate(data), data);
 }
 
 export async function sendResetPasswordEmail(data: ResetPasswordEmailData): Promise<void> {

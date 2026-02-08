@@ -1,4 +1,3 @@
-export { createWelcomeEmailTemplate, generateWelcomeEmailContent, generateWelcomeEmailText } from './welcome-mail';
 export {
   createResetPasswordEmailTemplate,
   generateResetPasswordEmailContent,

@@ -2,12 +2,10 @@
 
 import { EmailTemplateType } from '@/constants/emailTemplateConst';
 import {
-  sendWelcomeEmail,
   sendResetPasswordEmail,
   sendUsageAlertEmail,
   sendFirstPaymentWelcomeEmail,
 } from '@/services/email/mail.service';
-import { getWelcomeEmailPreview } from '@/services/email/template/welcome-mail';
 import { getResetPasswordEmailPreview } from '@/services/email/template/reset-password-mail';
 import { getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
 import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/first-payment-welcome-mail';
@@ -15,9 +13,6 @@ import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/fi
 export async function sendTestEmail(email: string, template: EmailTemplateType) {
   try {
     switch (template) {
-      case 'welcome':
-        await sendWelcomeEmail({ to: email, userName: 'Test User' });
-        break;
       case 'reset-password':
         await sendResetPasswordEmail({
           to: email,
@@ -52,7 +47,7 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
         throw new Error('Invalid template');
     }
   } catch (error) {
-    console.error('Error sending test welcome email:', error);
+    console.error('Error sending test email:', error);
     throw error;
   }
 }
@@ -60,8 +55,6 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
 export async function getEmailPreview(template: EmailTemplateType): Promise<string> {
   try {
     switch (template) {
-      case 'welcome':
-        return getWelcomeEmailPreview();
       case 'reset-password':
         return getResetPasswordEmailPreview();
       case 'usage-alert':
