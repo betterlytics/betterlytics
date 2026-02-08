@@ -6,7 +6,7 @@ export async function MinimalFooter() {
   const t = await getTranslations('public.footer');
 
   return (
-    <footer className='border-border/40 mt-auto border-t py-6'>
+    <footer className='border-border/40 mt-auto w-full border-t py-6'>
       <div className='container mx-auto px-4'>
         <div className='flex flex-col items-center space-y-4'>
           <div className='flex flex-wrap items-center justify-center gap-4 text-sm'>
