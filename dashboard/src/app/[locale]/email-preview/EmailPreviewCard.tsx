@@ -3,8 +3,10 @@
 import { useState, useEffect, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { getEmailPreview } from '@/app/actions/system/email.action';
 import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateConst';
+import { Copy, Check } from 'lucide-react';
 
 interface EmailPreviewCardProps {
   initialTemplate?: EmailTemplateType;
@@ -14,6 +16,7 @@ export function EmailPreviewCard({ initialTemplate = 'reset-password' }: EmailPr
   const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isPending, startTransition] = useTransition();
+  const [copied, setCopied] = useState(false);
 
   const loadPreview = (template: EmailTemplateType) => {
     startTransition(async () => {
@@ -35,29 +38,41 @@ export function EmailPreviewCard({ initialTemplate = 'reset-password' }: EmailPr
     setSelectedTemplate(template);
   };
 
+  const copyHtml = async () => {
+    await navigator.clipboard.writeText(previewHtml);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Card>
       <CardHeader>
         <div className='flex items-center justify-between'>
           <CardTitle>Email Preview</CardTitle>
-          <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
-            <SelectTrigger className='w-48'>
-              <SelectValue placeholder='Select template' />
-            </SelectTrigger>
-            <SelectContent>
-              {EMAIL_TEMPLATES.map((template) => (
-                <SelectItem key={template} value={template}>
-                  {template}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className='flex items-center gap-2'>
+            <Button variant='outline' size='sm' onClick={copyHtml} disabled={!previewHtml || isPending}>
+              {copied ? <Check className='mr-1 h-4 w-4' /> : <Copy className='mr-1 h-4 w-4' />}
+              {copied ? 'Copied!' : 'Copy HTML'}
+            </Button>
+            <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+              <SelectTrigger className='w-48'>
+                <SelectValue placeholder='Select template' />
+              </SelectTrigger>
+              <SelectContent>
+                {EMAIL_TEMPLATES.map((template) => (
+                  <SelectItem key={template} value={template}>
+                    {template}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className='relative overflow-hidden rounded-lg border bg-white' style={{ height: '500px' }}>
+        <div className='relative overflow-hidden rounded-lg border bg-white' style={{ height: '600px' }}>
           {isPending && <span>Loading preview...</span>}
-          <div className='h-full w-full overflow-auto p-4' dangerouslySetInnerHTML={{ __html: previewHtml }} />
+          <iframe srcDoc={previewHtml} className='h-full w-full' title='Email Preview' />
         </div>
       </CardContent>
     </Card>
