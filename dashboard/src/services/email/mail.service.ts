@@ -1,6 +1,7 @@
 'server-only';
 
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
+import nodemailer from 'nodemailer';
 import { env } from '@/lib/env';
 import {
   createWelcomeEmailTemplate,
@@ -35,13 +36,7 @@ export interface EmailData {
   toName?: string;
   from?: string;
   fromName?: string;
-  replyTo?: string;
-  replyToName?: string;
 }
-
-const mailerSend = new MailerSend({
-  apiKey: env.MAILER_SEND_API_TOKEN,
-});
 
 const DEFAULT_SENDER = {
   email: 'info@betterlytics.io',
@@ -56,6 +51,59 @@ export function wrapTextEmailContent(content: string): string {
   return content + '\n\n' + getTextEmailFooter();
 }
 
+function getSenderInfo(emailData: EmailData) {
+  return {
+    email: emailData.from || env.SMTP_FROM || DEFAULT_SENDER.email,
+    name: emailData.fromName || DEFAULT_SENDER.name,
+  };
+}
+
+async function sendViaMailerSend(template: EmailTemplate, emailData: EmailData): Promise<void> {
+  const mailerSend = new MailerSend({
+    apiKey: env.MAILER_SEND_API_TOKEN,
+  });
+
+  const sender = getSenderInfo(emailData);
+  const from = new Sender(sender.email, sender.name);
+  const recipient = new Recipient(emailData.to, emailData.toName);
+
+  const emailParams = new EmailParams()
+    .setFrom(from)
+    .setTo([recipient])
+    .setSubject(template.subject)
+    .setHtml(template.html);
+
+  if (template.text) {
+    emailParams.setText(template.text);
+  }
+
+  await mailerSend.email.send(emailParams);
+}
+
+async function sendViaSmtp(template: EmailTemplate, emailData: EmailData): Promise<void> {
+  const transporter = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_PORT === 465,
+    auth:
+      env.SMTP_USER && env.SMTP_PASSWORD
+        ? { user: env.SMTP_USER, pass: env.SMTP_PASSWORD }
+        : undefined,
+  });
+
+  const sender = getSenderInfo(emailData);
+
+  const mailOptions: nodemailer.SendMailOptions = {
+    from: `${sender.name} <${sender.email}>`,
+    to: emailData.toName ? `${emailData.toName} <${emailData.to}>` : emailData.to,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
 async function sendEmail(template: EmailTemplate, emailData: EmailData): Promise<void> {
   try {
     if (!isFeatureEnabled('enableEmails')) {
@@ -67,35 +115,18 @@ async function sendEmail(template: EmailTemplate, emailData: EmailData): Promise
       return;
     }
 
-    if (!env.MAILER_SEND_API_TOKEN) {
-      console.warn('MailerSend API token not configured, skipping email send');
-      return;
-    }
-
     if (process.env.NODE_ENV === 'development' && !emailData.to.includes('@betterlytics.io')) {
       console.warn('WARN: You are only allowed to send emails to @betterlytics.io from dev environment');
       return;
     }
 
-    const sender = new Sender(emailData.from || DEFAULT_SENDER.email, emailData.fromName || DEFAULT_SENDER.name);
-
-    const recipient = new Recipient(emailData.to, emailData.toName);
-
-    const emailParams = new EmailParams()
-      .setFrom(sender)
-      .setTo([recipient])
-      .setSubject(template.subject)
-      .setHtml(template.html);
-
-    if (template.text) {
-      emailParams.setText(template.text);
+    if (env.MAILER_SEND_API_TOKEN) {
+      await sendViaMailerSend(template, emailData);
+    } else if (env.SMTP_HOST) {
+      await sendViaSmtp(template, emailData);
+    } else {
+      console.warn('No email provider configured (set MAILER_SEND_API_TOKEN or SMTP_HOST), skipping email send');
     }
-
-    if (emailData.replyTo) {
-      emailParams.setReplyTo(new Sender(emailData.replyTo, emailData.replyToName));
-    }
-
-    await mailerSend.email.send(emailParams);
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email');
