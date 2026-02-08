@@ -35,13 +35,18 @@ echo "Running post-migration scripts..."
 node scripts/post_migrate_siteconfig_ro.js
 node scripts/post_migrate_monitoring_ro.js
 
-if [ -n "$SSL_DOMAIN" ] && [ -n "$SSL_EMAIL" ]; then
+if [ "$SSL_ENABLED" = "true" ] && [ -n "$SSL_DOMAIN" ]; then
     if [ ! -f "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" ]; then
         echo "Obtaining SSL certificate for $SSL_DOMAIN..."
         cp /etc/nginx/templates/nginx.conf /etc/nginx/conf.d/default.conf
         nginx
+        if [ -n "$SSL_EMAIL" ]; then
+            CERTBOT_EMAIL_FLAG="--email $SSL_EMAIL"
+        else
+            CERTBOT_EMAIL_FLAG="--register-unsafely-without-email"
+        fi
         certbot certonly --webroot --non-interactive --agree-tos \
-            --email "$SSL_EMAIL" \
+            $CERTBOT_EMAIL_FLAG \
             -d "$SSL_DOMAIN" \
             -w /var/www/certbot
         nginx -s stop
