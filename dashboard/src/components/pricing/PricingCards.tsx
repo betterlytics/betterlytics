@@ -10,7 +10,7 @@ import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing
 import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
-import React, { Dispatch, useMemo } from 'react';
+import { Dispatch, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
@@ -35,7 +35,7 @@ interface PlanConfig {
   lookup_key: string | null;
 }
 
-export const PricingCards = React.memo(function PricingCards({
+export function PricingCards({
   eventRange,
   currency,
   onPlanSelect,
@@ -239,4 +239,4 @@ export const PricingCards = React.memo(function PricingCards({
       ))}
     </div>
   );
-});
+}
