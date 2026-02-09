@@ -43,7 +43,7 @@ export function formatCWV(
   if (value === null || value === undefined) return '—';
   const { value: v, format, suffix } = getCoreWebVitalIntlFormat(metric, value);
   const formatted = new Intl.NumberFormat(locale, format).format(v);
-  return suffix ? `${formatted}${suffix}` : formatted;
+  return suffix ? `${formatted} ${suffix}` : formatted;
 }
 
 /**

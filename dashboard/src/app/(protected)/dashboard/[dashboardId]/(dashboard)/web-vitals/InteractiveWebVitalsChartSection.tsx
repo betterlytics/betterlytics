@@ -70,7 +70,7 @@ export default function InteractiveWebVitalsChartSection({
         headerContent={
           <div>
             <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
-            <div className='mt-6 flex items-center justify-center gap-2 p-2'>
+            <div className='mt-2 flex items-center justify-center gap-2 p-2'>
               <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
               <MetricInfo metric={active} />
             </div>
@@ -89,7 +89,7 @@ type CoreWebVitalsGaugeGridProps = {
 
 function CoreWebVitalsGaugeGrid({ summary, activeMetric, onMetricSelect }: CoreWebVitalsGaugeGridProps) {
   return (
-    <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5'>
+    <div className='grid grid-cols-[repeat(auto-fit,minmax(9.25rem,1fr))] gap-2'>
       {CORE_WEB_VITAL_NAMES.map((metric) => (
         <CoreWebVitalGaugeCard
           key={metric}
@@ -130,7 +130,14 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
         style={{ background: isActive ? 'var(--chart-1)' : 'transparent' }}
         aria-hidden='true'
       />
-      <Gauge {...getCoreWebVitalGaugeProps(metric, value)} size={140} strokeWidth={8} needle totalAngle={240}>
+      <Gauge
+        {...getCoreWebVitalGaugeProps(metric, value)}
+        size={140}
+        strokeWidth={7.5}
+        arcGap={2.5}
+        needle
+        totalAngle={240}
+      >
         <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
           <span className='text-muted-foreground/75 -mb-2 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
             {metric}
