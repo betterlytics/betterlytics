@@ -31,12 +31,12 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
       className='shrink-0'
       segments={segments}
       progress={progress}
-      size={115}
-      strokeWidth={6}
-      arcGap={2.5}
+      size={108}
+      strokeWidth={5.25}
+      arcGap={2}
     >
       <div className='absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
-        <span className='text-muted-foreground/75 -mb-1 font-sans text-[8px] font-black tracking-[0.25em] uppercase'>
+        <span className='text-muted-foreground/75 -mb-1 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
           {metric.key}
         </span>
         <span
@@ -96,7 +96,7 @@ function AnimatedGaugeGrid() {
   return (
     <NumberFlowGroup>
       <div
-        className='flex w-full flex-wrap justify-evenly gap-4'
+        className='flex w-full flex-wrap-reverse justify-evenly gap-4'
         style={{ ['--number-flow-duration' as string]: '700ms' }}
       >
         {GAUGE_CONFIGS.map((config) => (
