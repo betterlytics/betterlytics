@@ -1,4 +1,3 @@
-export { createWelcomeEmailTemplate, generateWelcomeEmailContent, generateWelcomeEmailText } from './welcome-mail';
 export {
   createResetPasswordEmailTemplate,
   generateResetPasswordEmailContent,
@@ -19,6 +18,11 @@ export {
   generateEmailVerificationContent,
   generateEmailVerificationText,
 } from './email-verification-mail';
+export {
+  createReportEmailTemplate,
+  generateReportEmailContent,
+  generateReportEmailText,
+} from './weekly-report-mail';
 export {
   getEmailHeader,
   getEmailFooter,

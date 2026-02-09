@@ -11,6 +11,7 @@ export default {
   "web-vitals": "Web Vitals",
   "session-replay": "Session Replay",
   monitoring: "Uptime Monitoring",
+  "email-reports": "Email Reports",
   filtering: "Filtering",
   "metrics-glossary": "Metrics Glossary",
 };
