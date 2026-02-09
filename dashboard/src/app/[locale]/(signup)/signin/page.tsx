@@ -46,6 +46,7 @@ export async function generateMetadata({
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getAuthSession();
   const registrationEnabled = isFeatureEnabled('enableRegistration');
+  const emailsEnabled = isFeatureEnabled('enableEmails');
   const { error, registration } = await searchParams;
   const t = await getTranslations('public.auth.signin');
   const tOnboarding = await getTranslations('onboarding');
@@ -89,7 +90,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                   <span className='block sm:inline'>{getErrorMessage(error)}</span>
                 </div>
               )}
-              <LoginForm registrationDisabledMessage={registrationDisabledMessage} />
+              <LoginForm
+                registrationDisabledMessage={registrationDisabledMessage}
+                forgotPasswordEnabled={emailsEnabled}
+              />
             </CardContent>
           </Card>
           {registrationEnabled && (

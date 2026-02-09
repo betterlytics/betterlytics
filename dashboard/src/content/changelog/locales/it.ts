@@ -2,56 +2,113 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & Miglioramenti UI',
-    summary: 'Traccia la profondità dello scroll per capire meglio engagement e comportamento di scrolling.',
+    version: 'v1.3.4',
+    releasedAt: '2026-02-08',
+    title: 'Report via email e analisi settimanali e mensili',
+    summary:
+      'Ricevi report programmati via email per le tue dashboard e analizza le tendenze nel lungo periodo con visualizzazioni settimanali e mensili.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v134-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: Scopri fino a che punto gli utenti scorrono le tue pagine per comprendere meglio engagement e punti di abbandono.',
+            'Programma report via email con una panoramica delle analisi delle tue dashboard direttamente dalle impostazioni.',
+            'Per intervalli di tempo più lunghi, i dati possono ora essere visualizzati con granularità settimanale e mensile, facilitando l’individuazione delle tendenze a lungo termine.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v134-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
-            'Soglie Core Web Vitals: indicatori migliorati rendono più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
-            'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
-            'UI Polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida.',
+            'Gli eventi di tracciamento della profondità di scorrimento sono ora inclusi senza costi aggiuntivi e non incidono sulla quota mensile.',
+            'Il selettore dei filtri mostra ora il numero di filtri attivi.',
+            'Le celle delle tabelle mostrano i dati di confronto in modo più chiaro quando uno dei periodi non contiene dati.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
+      id: 'v134-fixes',
       title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui Realtime non si aggiornava correttamente, mostrando dati obsoleti.',
-            'Risolto un problema per cui Session Replay a volte non salvava le sessioni registrate.',
+            'Risolto un problema che in alcuni casi poteva causare l’invio di dati non validi dallo script di tracciamento.',
+            'Risolto un problema nel calcolo delle date che poteva mostrare intervalli di tempo non corretti.',
+            'Corretta un’anomalia che impediva l’invio corretto dell’email di verifica per le registrazioni tramite OAuth.',
+            'Corretta la visualizzazione degli indicatori di confronto quando i dati erano mancanti o invariati.',
           ],
         },
       ],
     },
   ],
-};
+}
+  
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'Report via email e analisi settimanali e mensili',
+      summary:
+        'Ricevi report programmati via email per le tue dashboard e analizza le tendenze nel lungo periodo con visualizzazioni settimanali e mensili.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Programma report via email con una panoramica delle analisi delle tue dashboard direttamente dalle impostazioni.',
+              'Per intervalli di tempo più lunghi, i dati possono ora essere visualizzati con granularità settimanale e mensile, facilitando l’individuazione delle tendenze a lungo termine.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gli eventi di tracciamento della profondità di scorrimento sono ora inclusi senza costi aggiuntivi e non incidono sulla quota mensile.',
+              'Il selettore dei filtri mostra ora il numero di filtri attivi.',
+              'Le celle delle tabelle mostrano i dati di confronto in modo più chiaro quando uno dei periodi non contiene dati.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema che in alcuni casi poteva causare l’invio di dati non validi dallo script di tracciamento.',
+              'Risolto un problema nel calcolo delle date che poteva mostrare intervalli di tempo non corretti.',
+              'Corretta un’anomalia che impediva l’invio corretto dell’email di verifica per le registrazioni tramite OAuth.',
+              'Corretta la visualizzazione degli indicatori di confronto quando i dati erano mancanti o invariati.',
+            ],
+          },
+        ],
+      },
+    ],
+  },  
   {
     metadata: {
       version: 'v1.3.3',
@@ -82,7 +139,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
-              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
+              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Discreto" o "Scarso".',
               'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
               'UI polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida e reattiva.',
             ],

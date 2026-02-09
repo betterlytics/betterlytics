@@ -1208,6 +1208,10 @@
           "title": "Outbound Link Tracking",
           "description": "Track clicks on links leaving your site to measure user engagement."
         },
+        "emailReports": {
+          "title": "Email Reports",
+          "description": "Receive automated weekly or monthly analytics summaries delivered directly to your inbox."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Measure and optimize Google's page performance metrics to improve loading, interactivity, and search rankings."
@@ -1468,6 +1472,9 @@
       "campaignTracking": {
         "name": "Campaign & UTM tracking"
       },
+      "emailReports": {
+        "name": "Email reports"
+      },
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
         "values": {
@@ -1559,6 +1566,7 @@
         "data": "Data",
         "rules": "Rules",
         "members": "Members",
+        "reports": "Email Reports",
         "dangerZone": "Danger Zone"
       }
     },
@@ -2192,6 +2200,8 @@
         "1y": "Past Year"
       },
       "granularityLabels": {
+        "month": "Month",
+        "week": "Week",
         "day": "Day",
         "hour": "Hour",
         "minute_30": "30 min",
@@ -3448,6 +3458,35 @@
         },
         "note": "Make sure GTM is properly installed on your website."
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "Email Reports",
+    "weekly": {
+      "title": "Weekly Reports",
+      "description": "Receive a summary of your website's performance each week",
+      "toggle": "Enable weekly email reports",
+      "dayLabel": "Report day",
+      "dayDescription": "Which day of the week to send the report"
+    },
+    "monthly": {
+      "title": "Monthly Reports",
+      "description": "Send a monthly email report on the 1st of each month",
+      "toggle": "Enable monthly email reports"
+    },
+    "recipients": {
+      "weeklyLabel": "Recipients ({count}/{max})",
+      "monthlyLabel": "Recipients ({count}/{max})",
+      "placeholder": "colleague@example.com",
+      "addButton": "Add",
+      "invalidEmail": "Please enter a valid email address",
+      "emailRequired": "Email address is required",
+      "duplicateEmail": "This email is already added",
+      "maxReached": "Maximum of {max} recipients reached"
+    },
+    "toast": {
+      "saved": "Report settings saved",
+      "error": "Failed to save report settings"
     }
   }
 }

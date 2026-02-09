@@ -193,3 +193,24 @@ export function formatRelativeTimeFromNow(date: string | Date, locale?: string):
   const diffYears = Math.floor(diffDays / 365);
   return rtf.format(diffYears, 'year');
 }
+
+/**
+ * Formats a week as a date range like "Jan 6 – 12" or "Dec 30 – Jan 5"
+ * Optionally includes the year: "Jan 6 – 12, 2026"
+ */
+export function formatWeekRange(date: Date, locale?: string, includeYear = false): string {
+  const weekStart = new Date(date);
+  const weekEnd = new Date(date);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+
+  const startMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(weekStart);
+  const endMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(weekEnd);
+  const startDay = weekStart.getDate();
+  const endDay = weekEnd.getDate();
+  const yearSuffix = includeYear ? `, ${weekEnd.getFullYear()}` : '';
+
+  if (startMonth === endMonth) {
+    return `${startMonth} ${startDay} – ${endDay}${yearSuffix}`;
+  }
+  return `${startMonth} ${startDay} – ${endMonth} ${endDay}${yearSuffix}`;
+}

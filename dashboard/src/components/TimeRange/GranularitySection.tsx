@@ -10,6 +10,7 @@ import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 interface GranularitySectionProps {
   selectedGranularity: GranularityRangeValues;
   allowedGranularities: GranularityRangeValues[];
+  visibleGranularities: GranularityRangeValues[];
   onGranularitySelect: (granularity: GranularityRangeValues) => void;
   disabled?: boolean;
   disabledTitle?: string;
@@ -18,12 +19,15 @@ interface GranularitySectionProps {
 export function GranularitySection({
   selectedGranularity,
   allowedGranularities,
+  visibleGranularities,
   onGranularitySelect,
   disabled,
   disabledTitle: disabledTitle,
 }: GranularitySectionProps) {
   const t = useTranslations('components.timeRange');
-  const ordered = GRANULARITY_RANGE_PRESETS.slice().reverse();
+  const ordered = GRANULARITY_RANGE_PRESETS.filter((preset) =>
+    visibleGranularities.includes(preset.value),
+  ).reverse();
 
   return (
     <div className='mt-2 w-full'>
