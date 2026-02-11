@@ -76,17 +76,19 @@ FROM node:24-slim
 # Runtime image
 RUN echo "Building runtime image..."
 RUN apt-get update && apt-get install -y \
-    nginx \
     supervisor \
     openssl \
     libssl3 \
     ca-certificates \
     certbot \
     curl \
+    gettext-base \
     gnupg \
+    && curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/nginx.gpg] http://nginx.org/packages/debian bookworm nginx" > /etc/apt/sources.list.d/nginx.list \
     && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/pgdg.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && apt-get update && apt-get install -y postgresql-17 \
+    && apt-get update && apt-get install -y nginx postgresql-17 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g prisma@6.9.0
