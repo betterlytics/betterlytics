@@ -3,6 +3,28 @@ set -e
 
 export PATH="/app/initializer/node_modules/.bin:$PATH"
 
+if [ -n "$SECRET_BASE" ]; then
+    derive_secret() {
+        _result="" _i=0
+        while [ ${#_result} -lt "$2" ]; do
+            _chunk=$(printf '%s:%d' "$1" "$_i" | openssl dgst -sha256 -hmac "$SECRET_BASE" -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+            _result="${_result}${_chunk}" _i=$((_i + 1))
+        done
+        printf '%s' "$_result" | head -c "$2"
+    }
+
+    export CLICKHOUSE_PASSWORD=$(derive_secret "clickhouse-admin" 32)
+    export CLICKHOUSE_BACKEND_PASSWORD=$(derive_secret "clickhouse-backend" 32)
+    export CLICKHOUSE_DASHBOARD_PASSWORD=$(derive_secret "clickhouse-dashboard" 32)
+    export POSTGRES_PASSWORD=$(derive_secret "postgres" 32)
+    export POSTGRES_SITECONFIG_RO_PASSWORD=$(derive_secret "postgres-siteconfig-ro" 32)
+    export NEXTAUTH_SECRET=$(derive_secret "nextauth" 64)
+    export TOTP_SECRET_ENCRYPTION_KEY=$(derive_secret "totp-encryption" 32)
+
+    export POSTGRES_URL="postgresql://user:${POSTGRES_PASSWORD}@localhost:5432/dashboard?schema=public"
+    export SITE_CONFIG_DATABASE_URL="postgresql://siteconfig_ro:${POSTGRES_SITECONFIG_RO_PASSWORD}@localhost:5432/dashboard"
+fi
+
 PG_DATA="/var/lib/postgresql/data"
 PG_BIN="/usr/lib/postgresql/17/bin"
 
