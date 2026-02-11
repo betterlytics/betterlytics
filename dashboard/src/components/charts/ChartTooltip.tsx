@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { formatNumber } from '@/utils/formatters';
-import { getPartialWeekRange } from '@/utils/dateFormatters';
+import { getPartialBucketRange } from '@/utils/dateFormatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 interface ChartTooltipProps {
@@ -60,14 +60,15 @@ export function ChartTooltip({
   const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
   const previousColor = 'var(--chart-comparison)';
 
-  const partialRange =
-    granularity === 'week'
-      ? getPartialWeekRange(name, resolvedMainRange.start, resolvedMainRange.end)
-      : undefined;
+  const isPartialGranularity = granularity === 'week' || granularity === 'month';
+
+  const partialRange = isPartialGranularity
+    ? getPartialBucketRange(name, resolvedMainRange.start, resolvedMainRange.end, granularity)
+    : undefined;
 
   const comparePartialRange =
-    granularity === 'week' && resolvedCompareRange && comparisonData
-      ? getPartialWeekRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end)
+    isPartialGranularity && resolvedCompareRange && comparisonData
+      ? getPartialBucketRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end, granularity)
       : undefined;
 
   return (

@@ -206,30 +206,40 @@ function formatDateRange(start: Date, end: Date, locale?: string, includeYear = 
 }
 
 /**
- * Returns the actual date range string for a partial week bucket (e.g. "Jan 8 – 12").
- * Returns undefined when the week is fully covered by the time range
+ * Returns the actual date range string for a partial bucket (e.g. "Jan 8 – 12")
+ * Returns undefined when the bucket is full
  */
-export function getPartialWeekRange(
+export function getPartialBucketRange(
   bucketDate: number | string | Date | undefined,
   rangeStart: Date,
   rangeEnd: Date,
+  granularity: 'week' | 'month',
   locale?: string,
 ): string | undefined {
   if (bucketDate == null) return undefined;
   const d = new Date(bucketDate);
   if (Number.isNaN(d.getTime())) return undefined;
-  const weekStart = new Date(d);
-  const weekEnd = new Date(d);
-  weekEnd.setDate(weekEnd.getDate() + 6);
+
+  let bucketStart: Date;
+  let bucketEnd: Date;
+
+  if (granularity === 'week') {
+    bucketStart = new Date(d);
+    bucketEnd = new Date(d);
+    bucketEnd.setDate(bucketEnd.getDate() + 6);
+  } else {
+    bucketStart = new Date(d.getFullYear(), d.getMonth(), 1);
+    bucketEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  }
 
   const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-  const actualStart = startOfDay(weekStart) < startOfDay(rangeStart) ? rangeStart : weekStart;
-  const actualEnd = startOfDay(weekEnd) > startOfDay(rangeEnd) ? rangeEnd : weekEnd;
+  const actualStart = startOfDay(bucketStart) < startOfDay(rangeStart) ? rangeStart : bucketStart;
+  const actualEnd = startOfDay(bucketEnd) > startOfDay(rangeEnd) ? rangeEnd : bucketEnd;
 
   if (
-    startOfDay(actualStart).getTime() <= startOfDay(weekStart).getTime() &&
-    startOfDay(actualEnd).getTime() >= startOfDay(weekEnd).getTime()
+    startOfDay(actualStart).getTime() <= startOfDay(bucketStart).getTime() &&
+    startOfDay(actualEnd).getTime() >= startOfDay(bucketEnd).getTime()
   ) {
     return undefined;
   }

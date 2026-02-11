@@ -6,7 +6,7 @@ import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/uti
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
-import { getPartialWeekRange } from '@/utils/dateFormatters';
+import { getPartialBucketRange } from '@/utils/dateFormatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 interface PayloadEntry {
@@ -65,14 +65,15 @@ export function StackedAreaChartTooltip({
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
   const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false);
 
-  const partialRange =
-    granularity === 'week'
-      ? getPartialWeekRange(label, resolvedMainRange.start, resolvedMainRange.end)
-      : undefined;
+  const isPartialGranularity = granularity === 'week' || granularity === 'month';
+
+  const partialRange = isPartialGranularity
+    ? getPartialBucketRange(label, resolvedMainRange.start, resolvedMainRange.end, granularity)
+    : undefined;
 
   const comparePartialRange =
-    granularity === 'week' && resolvedCompareRange && comparisonData
-      ? getPartialWeekRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end)
+    isPartialGranularity && resolvedCompareRange && comparisonData
+      ? getPartialBucketRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end, granularity)
       : undefined;
 
   return (
