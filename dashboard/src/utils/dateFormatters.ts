@@ -186,14 +186,53 @@ export function formatWeekRange(date: Date, locale?: string, includeYear = false
   const weekEnd = new Date(date);
   weekEnd.setDate(weekEnd.getDate() + 6);
 
-  const startMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(weekStart);
-  const endMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(weekEnd);
-  const startDay = weekStart.getDate();
-  const endDay = weekEnd.getDate();
-  const yearSuffix = includeYear ? `, ${weekEnd.getFullYear()}` : '';
+  return formatDateRange(weekStart, weekEnd, locale, includeYear);
+}
 
+function formatDateRange(start: Date, end: Date, locale?: string, includeYear = false): string {
+  const startMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(start);
+  const endMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(end);
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+  const yearSuffix = includeYear ? `, ${end.getFullYear()}` : '';
+
+  if (startDay === endDay && startMonth === endMonth) {
+    return `${startMonth} ${startDay}${yearSuffix}`;
+  }
   if (startMonth === endMonth) {
     return `${startMonth} ${startDay} – ${endDay}${yearSuffix}`;
   }
   return `${startMonth} ${startDay} – ${endMonth} ${endDay}${yearSuffix}`;
+}
+
+/**
+ * Returns the actual date range string for a partial week bucket (e.g. "Jan 8 – 12").
+ * Returns undefined when the week is fully covered by the time range
+ */
+export function getPartialWeekRange(
+  bucketDate: number | string | Date | undefined,
+  rangeStart: Date,
+  rangeEnd: Date,
+  locale?: string,
+): string | undefined {
+  if (bucketDate == null) return undefined;
+  const d = new Date(bucketDate);
+  if (Number.isNaN(d.getTime())) return undefined;
+  const weekStart = new Date(d);
+  const weekEnd = new Date(d);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+
+  const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const actualStart = startOfDay(weekStart) < startOfDay(rangeStart) ? rangeStart : weekStart;
+  const actualEnd = startOfDay(weekEnd) > startOfDay(rangeEnd) ? rangeEnd : weekEnd;
+
+  if (
+    startOfDay(actualStart).getTime() <= startOfDay(weekStart).getTime() &&
+    startOfDay(actualEnd).getTime() >= startOfDay(weekEnd).getTime()
+  ) {
+    return undefined;
+  }
+
+  return formatDateRange(actualStart, actualEnd, locale);
 }

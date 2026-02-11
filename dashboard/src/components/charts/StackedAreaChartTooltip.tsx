@@ -6,6 +6,8 @@ import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/uti
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
+import { getPartialWeekRange } from '@/utils/dateFormatters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 interface PayloadEntry {
   value: number;
@@ -33,6 +35,8 @@ export function StackedAreaChartTooltip({
   comparisonMap,
   granularity,
 }: StackedAreaChartTooltipProps) {
+  const { resolvedMainRange, resolvedCompareRange } = useTimeRangeContext();
+
   if (!active || !payload || !payload.length || !label) {
     return null;
   }
@@ -61,15 +65,35 @@ export function StackedAreaChartTooltip({
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
   const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false);
 
+  const partialRange =
+    granularity === 'week'
+      ? getPartialWeekRange(label, resolvedMainRange.start, resolvedMainRange.end)
+      : undefined;
+
+  const comparePartialRange =
+    granularity === 'week' && resolvedCompareRange && comparisonData
+      ? getPartialWeekRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end)
+      : undefined;
+
   return (
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
       <div className='mb-2'>
         <div className='text-muted-foreground text-sm font-medium tracking-wide'>
           {labelFormatter(label, granularity)}
         </div>
+        {partialRange && (
+          <div className='text-muted-foreground/60 mt-0.5 text-xs'>
+            (<span className='italic'>Partial: </span>{partialRange})
+          </div>
+        )}
         {hasComparison && comparisonData && (
-          <div className='text-muted-foreground/60 mt-0.5 text-sm'>
-            {labelFormatter(comparisonData.compareDate, granularity)}
+          <div className='text-muted-foreground/60 mt-0.5'>
+            <div className='text-sm'>{labelFormatter(comparisonData.compareDate, granularity)}</div>
+            {comparePartialRange && (
+              <div className='text-xs'>
+                (<span className='italic'>Partial: </span>{comparePartialRange})
+              </div>
+            )}
           </div>
         )}
       </div>

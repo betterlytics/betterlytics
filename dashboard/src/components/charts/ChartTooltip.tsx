@@ -4,6 +4,8 @@ import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { formatNumber } from '@/utils/formatters';
+import { getPartialWeekRange } from '@/utils/dateFormatters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 interface ChartTooltipProps {
   payload?: {
@@ -29,6 +31,8 @@ export function ChartTooltip({
   comparisonMap,
   title,
 }: ChartTooltipProps) {
+  const { resolvedMainRange, resolvedCompareRange, granularity } = useTimeRangeContext();
+
   if (!active || !payload || !payload.length) {
     return null;
   }
@@ -56,6 +60,16 @@ export function ChartTooltip({
   const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
   const previousColor = 'var(--chart-comparison)';
 
+  const partialRange =
+    granularity === 'week'
+      ? getPartialWeekRange(name, resolvedMainRange.start, resolvedMainRange.end)
+      : undefined;
+
+  const comparePartialRange =
+    granularity === 'week' && resolvedCompareRange && comparisonData
+      ? getPartialWeekRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end)
+      : undefined;
+
   return (
     <div
       className={cn(
@@ -69,7 +83,14 @@ export function ChartTooltip({
         <div className='flex items-center justify-between gap-3'>
           <div className='flex items-center gap-2'>
             <div className='bg-primary h-2 w-2 rounded-full' style={{ background: labelColor }} />
-            <span className='text-popover-foreground text-sm'>{labelFormatter(name)}</span>
+            <div>
+              <span className='text-popover-foreground text-sm'>{labelFormatter(name)}</span>
+              {partialRange && (
+                <div className='text-muted-foreground/60 text-xs'>
+                  (<span className='italic'>Partial: </span>{partialRange})
+                </div>
+              )}
+            </div>
           </div>
           <div className='text-popover-foreground text-sm font-medium'>
             {formatter ? formatter(value) : formatNumber(value)}
@@ -80,7 +101,14 @@ export function ChartTooltip({
           <div className='flex items-center justify-between gap-3'>
             <div className='flex items-center gap-2'>
               <div className='bg-muted-foreground/40 h-2 w-2 rounded-full' style={{ background: previousColor }} />
-              <span className='text-popover-foreground/60 text-sm'>{previousDateLabel}</span>
+              <div>
+                <span className='text-popover-foreground/60 text-sm'>{previousDateLabel}</span>
+                {comparePartialRange && (
+                  <div className='text-muted-foreground/60 text-xs'>
+                    (<span className='italic'>Partial: </span>{comparePartialRange})
+                  </div>
+                )}
+              </div>
             </div>
             <div className='text-popover-foreground/60 text-sm'>
               {formatter ? formatter(previousValue as number) : formatNumber(previousValue as number)}
