@@ -28,11 +28,11 @@ export const CWV_GAUGE_SEGMENTS = Object.entries(CWV_THRESHOLDS).reduce(
   {} as Record<CoreWebVitalName, { percent: number; color: string }[]>,
 );
 
-// Per-metric mock values cycling through good → fair → poor ranges
+// Per-metric mock values shuffled across good / fair / poor ranges
 export const MOCK_CORE_WEB_VITAL_VALUES = {
-  LCP: [800, 1200, 1800, 2200, 3200, 3500, 3800, 4200],
-  INP: [60, 80, 150, 350, 400, 450, 480, 520],
-  CLS: [0.02, 0.03, 0.05, 0.08, 0.15, 0.18, 0.22, 0.26],
-  FCP: [800, 1000, 1400, 1600, 2200, 2500, 2800, 3200],
-  TTFB: [200, 400, 600, 750, 1200, 1400, 1600, 1900],
+  LCP: [1430, 3555, 811, 2223, 1800, 4200, 1203, 3810, 350],
+  INP: [150, 480, 61, 125, 87, 522, 170, 399, 15],
+  CLS: [0.05, 0.22, 0.02, 0.18, 0.08, 0.26, 0.03, 0.09, 0.15],
+  FCP: [982, 2805, 610, 1650, 1427, 3200, 815, 2555, 258],
+  TTFB: [512, 1690, 210, 752, 608, 1901, 390, 1189, 80],
 } as const satisfies Record<CoreWebVitalName, readonly number[]>;

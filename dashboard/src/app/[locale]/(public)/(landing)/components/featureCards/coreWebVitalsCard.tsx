@@ -31,7 +31,7 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
       className='shrink-0'
       segments={segments}
       progress={progress}
-      size={100}
+      size={102.5}
       strokeWidth={5.25}
       arcGap={2}
     >
