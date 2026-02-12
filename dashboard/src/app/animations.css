@@ -120,15 +120,9 @@
     will-change: stroke-dashoffset, stroke;
   }
 
-  .gauge-needle {
-    transition: transform var(--gauge-duration) var(--gauge-easing);
-    will-change: transform;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .gauge-segment,
-    .gauge-progress,
-    .gauge-needle {
+    .gauge-progress {
       transition: none;
     }
   }

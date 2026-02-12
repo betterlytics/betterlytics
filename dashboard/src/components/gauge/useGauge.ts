@@ -2,12 +2,10 @@ import { useMemo } from 'react';
 import { arcPath } from '@/lib/math-utils';
 import {
   getProgressColor,
-  DEFAULT_NEEDLE_BASE_WIDTH,
-  DEFAULT_NEEDLE_TIP_WIDTH,
   type BaseGaugeProps,
 } from './gauge-utils';
 
-type UseGaugeOptions = Required<Omit<BaseGaugeProps, 'needle'>> & Pick<BaseGaugeProps, 'needle'>;
+type UseGaugeOptions = Required<BaseGaugeProps>;
 
 export function useGauge({
   segments,
@@ -18,7 +16,6 @@ export function useGauge({
   arcGap,
   widthRatio,
   totalAngle,
-  needle,
 }: UseGaugeOptions) {
   const startOffset = (totalAngle - 180) / 2;
   const center = size / 2;
@@ -54,29 +51,6 @@ export function useGauge({
   const pathLength = (totalAngle / 360) * 2 * Math.PI * innerRadius;
   const dashOffset = pathLength * (1 - Math.min(progress, 100) / 100);
 
-  const needleBaseWidth = (typeof needle === 'object' ? needle.baseWidth : undefined) ?? DEFAULT_NEEDLE_BASE_WIDTH;
-  const needleTipWidth = (typeof needle === 'object' ? needle.tipWidth : undefined) ?? DEFAULT_NEEDLE_TIP_WIDTH;
-  const needleTipRadius = radius - strokeWidth / 2 - arcGap;
-
-  // Calculate angular offset to prevent needle tip from overlapping the arc edges
-  // Convert tip half-width to degrees at the tip radius
-  const tipAngularOffset = Math.atan(needleTipWidth / 2 / needleTipRadius) * (180 / Math.PI);
-  const needleAngle =
-    90 - startOffset + tipAngularOffset + (Math.min(progress, 100) / 100) * (totalAngle - 2 * tipAngularOffset);
-
-  // Needle polygon points - simple tapered pointer from center to arc
-  // Starts at center (0,0), extends to tip at needleTipRadius
-  const needlePoints = useMemo(
-    () =>
-      [
-        `${-needleBaseWidth / 2},0`, // Base left (at center)
-        `${-needleTipWidth / 2},${needleTipRadius}`, // Tip left
-        `${needleTipWidth / 2},${needleTipRadius}`, // Tip right
-        `${needleBaseWidth / 2},0`, // Base right (at center)
-      ].join(' '),
-    [needleBaseWidth, needleTipWidth, needleTipRadius],
-  );
-
   return {
     center,
     innerStrokeWidth,
@@ -87,7 +61,5 @@ export function useGauge({
     svgWidth,
     pathLength,
     dashOffset,
-    needlePoints,
-    needleAngle,
   };
 }

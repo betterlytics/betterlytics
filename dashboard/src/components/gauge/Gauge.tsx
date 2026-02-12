@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useGauge } from './useGauge';
-import GaugeNeedle from './GaugeNeedle';
 import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeProps as BaseGaugeProps } from './gauge-utils';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +17,6 @@ function Gauge({
   gapDeg = 2,
   arcGap = 4,
   widthRatio = 1,
-  needle,
   totalAngle = DEFAULT_TOTAL_ANGLE,
   children,
   className,
@@ -35,9 +33,7 @@ function Gauge({
     svgWidth,
     pathLength,
     dashOffset,
-    needlePoints,
-    needleAngle,
-  } = useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio, totalAngle, needle });
+  } = useGauge({ segments, progress, size, strokeWidth, gapDeg, arcGap, widthRatio, totalAngle });
 
   return (
     <div
@@ -79,7 +75,6 @@ function Gauge({
           }
         />
 
-        {needle && <GaugeNeedle center={center} needlePoints={needlePoints} needleAngle={needleAngle} />}
       </svg>
 
       {children}

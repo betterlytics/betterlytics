@@ -135,7 +135,6 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
         size={140}
         strokeWidth={7.5}
         arcGap={2.5}
-        needle
         totalAngle={240}
       >
         <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
