@@ -3479,6 +3479,10 @@
   },
   "reportsSettings": {
     "title": "Report Email",
+    "emailsNotConfigured": {
+      "title": "L'invio di email non è configurato",
+      "description": "Le impostazioni dei report possono essere salvate, ma le email non verranno inviate finché non viene configurato un provider email (SMTP o MailerSend)."
+    },
     "weekly": {
       "title": "Report Settimanali",
       "description": "Ricevi un riepilogo delle prestazioni del tuo sito ogni settimana",

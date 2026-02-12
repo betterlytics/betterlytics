@@ -3462,6 +3462,10 @@
   },
   "reportsSettings": {
     "title": "Email Reports",
+    "emailsNotConfigured": {
+      "title": "Email delivery is not configured",
+      "description": "Report settings can be saved, but emails won't be sent until an email provider is configured (SMTP or MailerSend)."
+    },
     "weekly": {
       "title": "Weekly Reports",
       "description": "Receive a summary of your website's performance each week",
