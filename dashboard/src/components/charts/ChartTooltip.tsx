@@ -4,8 +4,7 @@ import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { formatNumber } from '@/utils/formatters';
-import { getPartialBucketRange } from '@/utils/dateFormatters';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { usePartialBucketRange } from '@/hooks/use-partial-bucket-range';
 
 interface ChartTooltipProps {
   payload?: {
@@ -31,7 +30,13 @@ export function ChartTooltip({
   comparisonMap,
   title,
 }: ChartTooltipProps) {
-  const { resolvedMainRange, resolvedCompareRange, granularity } = useTimeRangeContext();
+  const name = label || payload?.[0]?.payload.name || payload?.[0]?.payload.label;
+  const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(name));
+
+  const { partialRange, comparePartialRange } = usePartialBucketRange(
+    name,
+    comparisonData?.compareDate,
+  );
 
   if (!active || !payload || !payload.length) {
     return null;
@@ -42,13 +47,10 @@ export function ChartTooltip({
     return null;
   }
 
-  const name = label || payload[0].payload.name || payload[0].payload.label;
-
   const labelColor = payload[0].payload.color;
 
   const value = payload[0].value;
 
-  const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(name));
   const previousValue = comparisonData
     ? Object.values(comparisonData.compareValues)[0]
     : ((payload[1]?.value || payload[0].payload.value[1]) as number);
@@ -59,17 +61,6 @@ export function ChartTooltip({
   const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter);
   const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
   const previousColor = 'var(--chart-comparison)';
-
-  const isPartialGranularity = granularity === 'week' || granularity === 'month';
-
-  const partialRange = isPartialGranularity
-    ? getPartialBucketRange(name, resolvedMainRange.start, resolvedMainRange.end, granularity)
-    : undefined;
-
-  const comparePartialRange =
-    isPartialGranularity && resolvedCompareRange && comparisonData
-      ? getPartialBucketRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end, granularity)
-      : undefined;
 
   return (
     <div

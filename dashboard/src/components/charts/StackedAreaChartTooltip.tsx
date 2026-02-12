@@ -6,8 +6,7 @@ import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/uti
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
-import { getPartialBucketRange } from '@/utils/dateFormatters';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { usePartialBucketRange } from '@/hooks/use-partial-bucket-range';
 
 interface PayloadEntry {
   value: number;
@@ -35,17 +34,18 @@ export function StackedAreaChartTooltip({
   comparisonMap,
   granularity,
 }: StackedAreaChartTooltipProps) {
-  const { resolvedMainRange, resolvedCompareRange } = useTimeRangeContext();
+  const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(label)) ?? null;
+
+  const { partialRange, comparePartialRange } = usePartialBucketRange(
+    label,
+    comparisonData?.compareDate,
+  );
 
   if (!active || !payload || !payload.length || !label) {
     return null;
   }
 
   const hasComparison = !!comparisonMap;
-
-  const comparisonData = hasComparison
-    ? comparisonMap.find((mapping) => mapping.currentDate === Number(label))
-    : null;
 
   const getCurrentValue = (entry: PayloadEntry): number => {
     return entry.value || 0;
@@ -64,17 +64,6 @@ export function StackedAreaChartTooltip({
 
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
   const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false);
-
-  const isPartialGranularity = granularity === 'week' || granularity === 'month';
-
-  const partialRange = isPartialGranularity
-    ? getPartialBucketRange(label, resolvedMainRange.start, resolvedMainRange.end, granularity)
-    : undefined;
-
-  const comparePartialRange =
-    isPartialGranularity && resolvedCompareRange && comparisonData
-      ? getPartialBucketRange(comparisonData.compareDate, resolvedCompareRange.start, resolvedCompareRange.end, granularity)
-      : undefined;
 
   return (
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
