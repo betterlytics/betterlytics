@@ -71,6 +71,14 @@ RUN pnpm install
 
 ####
 
+FROM node:24-slim AS static-builder
+
+WORKDIR /app
+COPY static/analytics.js .
+RUN npx --yes esbuild analytics.js --minify --outfile=analytics.min.js
+
+####
+
 FROM node:24-slim
 
 # Runtime image
@@ -114,8 +122,8 @@ COPY scripts/ /app/initializer/scripts/
 COPY migrations/ /app/initializer/migrations/
 COPY dashboard/prisma/ /app/initializer/prisma/
 
-# Copy static files for nginx
-COPY static/ /usr/share/nginx/html/
+# Copy minified analytics script for nginx
+COPY --from=static-builder /app/analytics.min.js /usr/share/nginx/html/analytics.js
 
 # Copy configs
 RUN rm -f /etc/nginx/sites-enabled/default

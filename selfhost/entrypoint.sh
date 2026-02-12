@@ -57,7 +57,7 @@ echo "Running post-migration scripts..."
 node scripts/post_migrate_siteconfig_ro.js
 node scripts/post_migrate_monitoring_ro.js
 
-if [ "$SSL_ENABLED" = "true" ] && [ -n "$SSL_DOMAIN" ]; then
+if [ "$HTTP_SCHEME" = "https" ] && [ -n "$SSL_DOMAIN" ]; then
     if [ ! -f "/etc/letsencrypt/live/$SSL_DOMAIN/fullchain.pem" ]; then
         echo "Obtaining SSL certificate for $SSL_DOMAIN..."
         cp /etc/nginx/templates/nginx.conf /etc/nginx/conf.d/default.conf
