@@ -11,7 +11,7 @@ import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
 import { Dispatch, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 
@@ -43,7 +43,6 @@ export function PricingCards({
   className = '',
   billingData,
 }: PricingCardsProps) {
-  const locale = useLocale();
   const t = useTranslations('pricingCards');
   const growthPrice = currency === 'EUR' ? eventRange.growth.price.eur_cents : eventRange.growth.price.usd_cents;
   const professionalPrice =
@@ -211,7 +210,7 @@ export function PricingCards({
                 <NumberFlow
                   className='-translate-y-[0.2em] text-4xl leading-10 font-bold tabular-nums'
                   value={plan.price_cents / 100}
-                  locales={locale}
+                  locales={'en-US'}
                   format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
                   willChange
                 />
