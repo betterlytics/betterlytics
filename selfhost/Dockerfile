@@ -25,10 +25,10 @@ COPY backend/assets ./assets
 RUN cargo build --release --locked
 
 ####
+# Build dashboard
 
 FROM node:24-slim AS dashboard-builder
 
-# Build dashboard
 RUN echo "Building dashboard..."
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PNPM_HOME="/pnpm"
@@ -54,10 +54,10 @@ COPY dashboard/ .
 RUN pnpm run build
 
 ####
+# Build initializer
 
 FROM node:24-slim AS initializer-builder
 
-# Build initializer
 RUN echo "Building initializer..."
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -70,18 +70,20 @@ COPY initializer/package.json .
 RUN pnpm install
 
 ####
+# Minify static files
 
 FROM node:24-slim AS static-builder
 
+RUN echo "Minifying static files..."
 WORKDIR /app
 COPY static/analytics.js .
 RUN npx --yes esbuild analytics.js --minify --outfile=analytics.min.js
 
 ####
+# Runtime image
 
 FROM node:24-slim
 
-# Runtime image
 RUN echo "Building runtime image..."
 RUN apt-get update && apt-get install -y \
     supervisor \
@@ -125,13 +127,4 @@ COPY dashboard/prisma/ /app/initializer/prisma/
 # Copy minified analytics script for nginx
 COPY --from=static-builder /app/analytics.min.js /usr/share/nginx/html/analytics.js
 
-# Copy configs
-RUN rm -f /etc/nginx/sites-enabled/default
-RUN mkdir -p /etc/nginx/templates /var/www/certbot
-COPY selfhost/nginx.conf /etc/nginx/templates/nginx.conf
-COPY selfhost/nginx-ssl.conf /etc/nginx/templates/nginx-ssl.conf
-COPY selfhost/supervisord.conf /etc/supervisor/conf.d/betterlytics.conf
-COPY selfhost/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+# RUN rm -f /etc/nginx/sites-enabled/default
