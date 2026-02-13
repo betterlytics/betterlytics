@@ -31,12 +31,14 @@ pub struct AlertMessage {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ChannelType {
     Email,
+    Pushover,
 }
 
 impl ChannelType {
     pub fn as_str(&self) -> &'static str {
         match self {
             ChannelType::Email => "email",
+            ChannelType::Pushover => "pushover",
         }
     }
 }

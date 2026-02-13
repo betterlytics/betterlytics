@@ -175,8 +175,9 @@ impl IncidentOrchestrator {
         }
 
         let recipients = &alert_config.recipients;
-        if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
+        let pushover_recipients = &alert_config.pushover_recipients;
+        if recipients.is_empty() && pushover_recipients.is_empty() {
+            debug!("no recipients configured for any channel - skipping notification");
             return;
         }
 
@@ -190,6 +191,7 @@ impl IncidentOrchestrator {
                     monitor_name: &ctx.monitor_name(),
                     url: ctx.check.url.as_str(),
                     recipients,
+                    pushover_recipients,
                 },
                 Alert::Down {
                     reason_code: ctx.reason_code,
@@ -250,8 +252,9 @@ impl IncidentOrchestrator {
         }
 
         let recipients = &alert_config.recipients;
-        if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
+        let pushover_recipients = &alert_config.pushover_recipients;
+        if recipients.is_empty() && pushover_recipients.is_empty() {
+            debug!("no recipients configured for any channel - skipping notification");
             return;
         }
 
@@ -265,6 +268,7 @@ impl IncidentOrchestrator {
                     monitor_name: &ctx.monitor_name(),
                     url: ctx.check.url.as_str(),
                     recipients,
+                    pushover_recipients,
                 },
                 Alert::Recovery { downtime_duration },
             )
@@ -313,9 +317,10 @@ impl IncidentOrchestrator {
         }
 
         let recipients = &alert_config.recipients;
+        let pushover_recipients = &alert_config.pushover_recipients;
 
-        if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
+        if recipients.is_empty() && pushover_recipients.is_empty() {
+            debug!("no recipients configured for any channel - skipping notification");
             return;
         }
 
@@ -329,6 +334,7 @@ impl IncidentOrchestrator {
                     monitor_name: &ctx.monitor_name(),
                     url: ctx.check.url.as_str(),
                     recipients,
+                    pushover_recipients,
                 },
                 if expired {
                     Alert::SslExpired {

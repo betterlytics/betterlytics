@@ -1987,7 +1987,10 @@
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
       "sslExpiryDays": "Dage før udløb",
       "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
-      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}"
+      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}",
+      "pushoverUserKey": "Pushover brugernøgle",
+      "pushoverUserKeyDescription": "Indtast din Pushover brugernøgle eller gruppenøgle for at modtage push-notifikationer. Hent din nøgle fra pushover.net.",
+      "pushoverUserKeyPlaceholder": "f.eks. uQiRzpo4DXghDmr9QZgQ..."
     }
   },
   "charts": {

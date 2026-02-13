@@ -398,7 +398,7 @@ fn build_ssl_alert_text(
     wrap_text(&text)
 }
 
-fn format_duration(duration: Duration) -> String {
+pub(super) fn format_duration(duration: Duration) -> String {
     let total_seconds = duration.num_seconds();
 
     if total_seconds < 60 {

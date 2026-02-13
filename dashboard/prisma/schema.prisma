@@ -325,6 +325,7 @@ model MonitorCheck {
   // Alert configuration
   alertsEnabled         Boolean   @default(true)
   alertEmails           String[]  @default([])  // Email addresses to notify for alerts
+  pushoverUserKey       String?                 // Pushover user/group key for push notifications
   alertOnDown           Boolean   @default(true)
   alertOnRecovery       Boolean   @default(true)
   alertOnSslExpiry      Boolean   @default(true)

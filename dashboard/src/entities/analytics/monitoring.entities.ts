@@ -25,6 +25,7 @@ export const MONITOR_LIMITS = {
   REQUEST_HEADER_VALUE_MAX: 2048,
   ALERT_EMAILS_MAX: 5,
   ACCEPTED_STATUS_CODES_MAX: 5,
+  PUSHOVER_USER_KEY_MAX: 50,
 } as const;
 
 export const MONITOR_DEFAULTS = {
@@ -39,6 +40,7 @@ export const MONITOR_DEFAULTS = {
   acceptedStatusCodes: ['2xx'] as const,
   alertsEnabled: true,
   alertEmails: [] as string[],
+  pushoverUserKey: null as string | null,
   alertOnDown: true,
   alertOnRecovery: true,
   alertOnSslExpiry: true,
@@ -72,6 +74,14 @@ export const MonitorCheckBaseSchema = z.object({
     .array(z.string().email())
     .max(MONITOR_LIMITS.ALERT_EMAILS_MAX)
     .default([...MONITOR_DEFAULTS.alertEmails]),
+  pushoverUserKey: z
+    .string()
+    .max(MONITOR_LIMITS.PUSHOVER_USER_KEY_MAX)
+    .regex(/^[a-zA-Z0-9]*$/, 'Must be alphanumeric')
+    .transform((val) => val || null)
+    .nullable()
+    .optional()
+    .default(null),
   alertOnDown: z.boolean().default(MONITOR_DEFAULTS.alertOnDown),
   alertOnRecovery: z.boolean().default(MONITOR_DEFAULTS.alertOnRecovery),
   alertOnSslExpiry: z.boolean().default(MONITOR_DEFAULTS.alertOnSslExpiry),

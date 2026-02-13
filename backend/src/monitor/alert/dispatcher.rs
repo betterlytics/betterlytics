@@ -28,16 +28,15 @@ pub struct AlertContext<'a> {
     pub monitor_name: &'a str,
     pub url: &'a str,
     pub recipients: &'a [String],
+    pub pushover_recipients: &'a [String],
 }
 
 impl<'a> AlertContext<'a> {
     /// Returns the recipients for a given channel type.
-    /// Currently all channels share the same recipients list (email addresses).
-    /// When per-channel routing is needed (e.g. Pushover user keys), this method
-    /// should be extended with additional fields on AlertContext per channel type.
     pub fn recipients_for(&self, channel_type: ChannelType) -> &[String] {
         match channel_type {
             ChannelType::Email => self.recipients,
+            ChannelType::Pushover => self.pushover_recipients,
         }
     }
 }
@@ -242,6 +241,7 @@ mod tests {
 
     struct TestFixture {
         recipients: Vec<String>,
+        pushover_recipients: Vec<String>,
         check_id: String,
         site_id: String,
         dashboard_id: String,
@@ -253,6 +253,7 @@ mod tests {
         fn new() -> Self {
             Self {
                 recipients: vec!["test@example.com".to_string()],
+                pushover_recipients: vec![],
                 check_id: "check-1".to_string(),
                 site_id: "site-1".to_string(),
                 dashboard_id: "dash-1".to_string(),
@@ -269,6 +270,7 @@ mod tests {
                 monitor_name: &self.monitor_name,
                 url: &self.url,
                 recipients: &self.recipients,
+                pushover_recipients: &self.pushover_recipients,
             }
         }
     }
@@ -365,6 +367,7 @@ mod tests {
     #[test]
     fn recipients_for_email_returns_recipients() {
         let recipients = vec!["a@b.com".to_string(), "c@d.com".to_string()];
+        let pushover_recipients = vec!["ukey123".to_string()];
         let ctx = AlertContext {
             check_id: "c",
             site_id: "s",
@@ -372,8 +375,26 @@ mod tests {
             monitor_name: "m",
             url: "u",
             recipients: &recipients,
+            pushover_recipients: &pushover_recipients,
         };
 
         assert_eq!(ctx.recipients_for(ChannelType::Email), &recipients);
+    }
+
+    #[test]
+    fn recipients_for_pushover_returns_pushover_recipients() {
+        let recipients = vec!["a@b.com".to_string()];
+        let pushover_recipients = vec!["uQiRzpo4DXghDmr9QZgQ".to_string()];
+        let ctx = AlertContext {
+            check_id: "c",
+            site_id: "s",
+            dashboard_id: "d",
+            monitor_name: "m",
+            url: "u",
+            recipients: &recipients,
+            pushover_recipients: &pushover_recipients,
+        };
+
+        assert_eq!(ctx.recipients_for(ChannelType::Pushover), &pushover_recipients);
     }
 }

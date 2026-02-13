@@ -11,7 +11,7 @@ use crate::postgres::PostgresPool;
 
 use super::alert::{
     new_alert_history_writer, AlertChannel, AlertDispatcher, AlertDispatcherConfig,
-    EmailAlertChannel,
+    EmailAlertChannel, PushoverAlertChannel,
 };
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
@@ -132,6 +132,9 @@ async fn run_monitoring_init_loop(
         if let Some(email_config) = config.email.clone() {
             let email_service = EmailService::new(email_config);
             channels.push(Box::new(EmailAlertChannel::new(email_service)));
+        }
+        if let Some(pushover_config) = config.pushover.clone() {
+            channels.push(Box::new(PushoverAlertChannel::new(pushover_config)));
         }
 
         let dispatcher = AlertDispatcher::new(
