@@ -31,7 +31,8 @@ jobs:
       - name: Building selfhost image
         uses: docker/build-push-action@v6
         with:
-          context: ./selfhost
+          context: .
+          file: ./selfhost/Dockerfile
           push: true
           tags: ${{ steps.selfhost_meta.outputs.tags }}
           labels: ${{ steps.selfhost_meta.outputs.labels }}
