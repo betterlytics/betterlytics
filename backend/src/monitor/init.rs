@@ -10,7 +10,7 @@ use crate::monitor::incident::IncidentStore;
 use crate::postgres::PostgresPool;
 
 use super::alert::{
-    new_alert_history_writer, AlertChannel, AlertDispatcher, AlertDispatcherConfig,
+    new_alert_history_writer, AlertChannel, NotificationEngine, NotificationEngineConfig,
     EmailAlertChannel, PushoverAlertChannel,
 };
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
@@ -137,8 +137,8 @@ async fn run_monitoring_init_loop(
             channels.push(Box::new(PushoverAlertChannel::new(pushover_config)));
         }
 
-        let dispatcher = AlertDispatcher::new(
-            AlertDispatcherConfig {
+        let engine = NotificationEngine::new(
+            NotificationEngineConfig {
                 channels,
                 public_base_url: config.public_base_url.clone(),
             },
@@ -150,7 +150,7 @@ async fn run_monitoring_init_loop(
                 IncidentOrchestratorConfig {
                     evaluator_config: super::incident::IncidentEvaluatorConfig::default(),
                 },
-                dispatcher,
+                engine,
                 incident_store,
             )
             .await,

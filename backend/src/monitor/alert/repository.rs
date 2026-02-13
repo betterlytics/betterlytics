@@ -52,14 +52,15 @@ pub struct AlertHistoryRecord {
 
 impl AlertHistoryRecord {
     pub fn new(
-        ctx: &super::dispatcher::AlertContext,
+        check_id: &str,
+        site_id: &str,
         channel: &str,
         recipients: &[String],
         details: AlertDetails,
     ) -> Self {
         Self {
-            monitor_check_id: ctx.check_id.to_string(),
-            site_id: ctx.site_id.to_string(),
+            monitor_check_id: check_id.to_string(),
+            site_id: site_id.to_string(),
             channel: channel.to_string(),
             sent_to: recipients.to_vec(),
             details,

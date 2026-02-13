@@ -37,7 +37,7 @@ impl AlertChannel for PushoverAlertChannel {
         for user_key in recipients {
             let req = pushover::build_pushover_from_message(message);
 
-            let mut form = vec![
+            let form = vec![
                 ("token", self.api_token.clone()),
                 ("user", user_key.clone()),
                 ("title", req.title),
@@ -48,11 +48,6 @@ impl AlertChannel for PushoverAlertChannel {
                 ("timestamp", chrono::Utc::now().timestamp().to_string()),
                 ("html", "1".to_string()),
             ];
-
-            if req.priority == 2 {
-                form.push(("retry", "60".to_string()));
-                form.push(("expire", "3600".to_string()));
-            }
 
             let response = self
                 .client

@@ -1,5 +1,5 @@
 use super::channel::{AlertMessage, AlertMessageDetails};
-use super::email::format_duration;
+use super::formatting::format_duration;
 use crate::email::templates::html_escape;
 
 pub struct PushoverRequest {

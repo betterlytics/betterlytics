@@ -1,9 +1,13 @@
+use std::collections::HashMap;
+use std::net::IpAddr;
+use std::time::Duration;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::net::IpAddr;
-use std::time::Duration;
 use url::Url;
+
+use crate::monitor::alert::ChannelType;
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(untagged)]
@@ -179,6 +183,19 @@ pub struct AlertConfig {
     pub failure_threshold: i32,
     pub recipients: Vec<String>,
     pub pushover_recipients: Vec<String>,
+}
+
+impl AlertConfig {
+    pub fn channel_recipients(&self) -> HashMap<ChannelType, Vec<String>> {
+        let mut map = HashMap::new();
+        if !self.recipients.is_empty() {
+            map.insert(ChannelType::Email, self.recipients.clone());
+        }
+        if !self.pushover_recipients.is_empty() {
+            map.insert(ChannelType::Pushover, self.pushover_recipients.clone());
+        }
+        map
+    }
 }
 
 #[derive(Clone, Debug)]
