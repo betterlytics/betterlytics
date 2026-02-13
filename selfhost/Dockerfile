@@ -126,5 +126,3 @@ COPY dashboard/prisma/ /app/initializer/prisma/
 
 # Copy minified analytics script for nginx
 COPY --from=static-builder /app/analytics.min.js /usr/share/nginx/html/analytics.js
-
-# RUN rm -f /etc/nginx/sites-enabled/default
