@@ -15,6 +15,7 @@ pub struct AlertHistoryRow {
     pub check_id: String,
     pub site_id: String,
     pub alert_type: String,
+    pub channel: String,
     pub sent_to: Vec<String>,
     pub status_code: Option<i32>,
     pub latency_ms: Option<i32>,
@@ -44,16 +45,23 @@ impl AlertDetails {
 pub struct AlertHistoryRecord {
     pub monitor_check_id: String,
     pub site_id: String,
+    pub channel: String,
     pub sent_to: Vec<String>,
     pub details: AlertDetails,
 }
 
 impl AlertHistoryRecord {
-    pub fn from_context(ctx: &super::dispatcher::AlertContext, details: AlertDetails) -> Self {
+    pub fn new(
+        ctx: &super::dispatcher::AlertContext,
+        channel: &str,
+        recipients: &[String],
+        details: AlertDetails,
+    ) -> Self {
         Self {
             monitor_check_id: ctx.check_id.to_string(),
             site_id: ctx.site_id.to_string(),
-            sent_to: ctx.recipients.to_vec(),
+            channel: channel.to_string(),
+            sent_to: recipients.to_vec(),
             details,
         }
     }
@@ -71,6 +79,7 @@ impl AlertHistoryRecord {
             check_id: self.monitor_check_id.clone(),
             site_id: self.site_id.clone(),
             alert_type: self.details.as_str().to_string(),
+            channel: self.channel.clone(),
             sent_to: self.sent_to.clone(),
             status_code,
             latency_ms: None,

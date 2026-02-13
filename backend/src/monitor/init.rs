@@ -9,13 +9,17 @@ use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
 use crate::postgres::PostgresPool;
 
-use super::alert::new_alert_history_writer;
+use super::alert::{
+    new_alert_history_writer, AlertChannel, AlertDispatcher, AlertDispatcherConfig,
+    EmailAlertChannel,
+};
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
     DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
     IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource,
     MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
 };
+use crate::email::EmailService;
 
 pub fn spawn_monitoring(
     config: Arc<Config>,
@@ -124,10 +128,26 @@ async fn run_monitoring_init_loop(
             }
         };
 
+        let mut channels: Vec<Box<dyn AlertChannel>> = Vec::new();
+        if let Some(email_config) = config.email.clone() {
+            let email_service = EmailService::new(email_config);
+            channels.push(Box::new(EmailAlertChannel::new(email_service)));
+        }
+
+        let dispatcher = AlertDispatcher::new(
+            AlertDispatcherConfig {
+                channels,
+                public_base_url: config.public_base_url.clone(),
+            },
+            history_writer,
+        );
+
         let incident_orchestrator = Arc::new(
             IncidentOrchestrator::new(
-                IncidentOrchestratorConfig::from_config(&config),
-                history_writer,
+                IncidentOrchestratorConfig {
+                    evaluator_config: super::incident::IncidentEvaluatorConfig::default(),
+                },
+                dispatcher,
                 incident_store,
             )
             .await,

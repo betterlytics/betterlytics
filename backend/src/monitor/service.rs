@@ -4,11 +4,7 @@ use std::sync::Arc;
 use chrono::Duration;
 use tracing::{debug, info, warn};
 
-use super::alert::{
-    Alert, AlertContext, AlertDispatcher, AlertDispatcherConfig, AlertHistoryWriter,
-    NotificationTracker,
-};
-use crate::config::EmailConfig;
+use super::alert::{Alert, AlertContext, AlertDispatcher, NotificationTracker};
 use crate::monitor::incident::{
     IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
     MonitorIncidentRow,
@@ -52,18 +48,6 @@ impl IncidentContext {
 #[derive(Clone, Debug)]
 pub struct IncidentOrchestratorConfig {
     pub evaluator_config: IncidentEvaluatorConfig,
-    pub email_config: Option<EmailConfig>,
-    pub public_base_url: String,
-}
-
-impl IncidentOrchestratorConfig {
-    pub fn from_config(config: &crate::config::Config) -> Self {
-        Self {
-            evaluator_config: IncidentEvaluatorConfig::default(),
-            email_config: config.email.clone(),
-            public_base_url: config.public_base_url.clone(),
-        }
-    }
 }
 
 pub struct IncidentOrchestrator {
@@ -76,21 +60,16 @@ pub struct IncidentOrchestrator {
 impl IncidentOrchestrator {
     pub async fn new(
         config: IncidentOrchestratorConfig,
-        history_writer: Option<Arc<AlertHistoryWriter>>,
+        dispatcher: AlertDispatcher,
         incident_store: Option<Arc<IncidentStore>>,
     ) -> Self {
-        let dispatcher = AlertDispatcher::new(
-            AlertDispatcherConfig {
-                email_config: config.email_config,
-                public_base_url: config.public_base_url,
-            },
-            history_writer,
-        );
-
-        if !dispatcher.has_email_service() {
-            warn!("Email service not configured - incidents will be logged without alerts");
+        if !dispatcher.has_channels() {
+            warn!("No alert channels configured - incidents will be logged without alerts");
         } else {
-            info!("Incident orchestrator initialized with email delivery");
+            info!(
+                channels = dispatcher.channel_count(),
+                "Incident orchestrator initialized with alert channels"
+            );
         }
 
         let evaluator = IncidentEvaluator::new(config.evaluator_config);
