@@ -5,6 +5,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
+import GeographyLoading from '@/components/loading/GeographyLoading';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -30,12 +31,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   return (
     <div className='fixed inset-0 top-14 w-full'>
       <Suspense
-        fallback={
-          <div className='bg-background/70 flex h-full w-full flex-col items-center backdrop-blur-sm'>
-            <div className='border-accent border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4'></div>
-            <p className='text-foreground'>Loading visitor data...</p>
-          </div>
-        }
+        fallback={<GeographyLoading />}
       >
         <GeographySection worldMapPromise={worldMapPromise} />
       </Suspense>

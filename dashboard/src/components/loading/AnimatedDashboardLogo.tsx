@@ -26,9 +26,33 @@ export const AnimatedDashboardLogo = memo(function AnimatedDashboardLogo({
       <svg height={size} viewBox='0 0 1071 1069' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <defs>
           <mask id={maskId}>
-            <rect x='0' y='0' width='375' height='1069' fill='white' className='animate-fill-up-1' />
-            <rect x='375' y='0' width='375' height='1069' fill='white' className='animate-fill-up-2' />
-            <rect x='750' y='0' width='321' height='1069' fill='white' className='animate-fill-up-3' />
+            <rect
+              x='0'
+              y='0'
+              width='375'
+              height='1069'
+              fill='white'
+              className='animate-fill-up-1'
+              shapeRendering='crispEdges'
+            />
+            <rect
+              x='375'
+              y='0'
+              width='375'
+              height='1069'
+              fill='white'
+              className='animate-fill-up-2'
+              shapeRendering='crispEdges'
+            />
+            <rect
+              x='750'
+              y='0'
+              width='321'
+              height='1069'
+              fill='white'
+              className='animate-fill-up-3'
+              shapeRendering='crispEdges'
+            />
           </mask>
         </defs>
 
