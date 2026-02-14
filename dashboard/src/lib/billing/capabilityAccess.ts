@@ -45,3 +45,12 @@ export function requireCapability(allowed: boolean, message: string): void {
     throw new UserException(message);
   }
 }
+
+export async function canDashboardReceiveReports(dashboardId: string): Promise<boolean> {
+  try {
+    const capabilities = await getDashboardCapabilities(dashboardId);
+    return capabilities.emailReports.emailReportsEnabled;
+  } catch {
+    return false;
+  }
+}

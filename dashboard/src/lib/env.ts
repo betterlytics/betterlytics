@@ -28,6 +28,11 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional().default(''),
   ENABLE_EMAILS: zStringBoolean,
   MAILER_SEND_API_TOKEN: z.string().optional().default(''),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
   ENABLE_MAIL_PREVIEW_PAGE: zStringBoolean,
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
   TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
@@ -55,6 +60,7 @@ const envSchema = z.object({
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
   OTEL_SERVICE_NAME: z.string().optional(),
+  BACKGROUND_JOBS_ENABLED: zStringBoolean,
 });
 
 export const env = envSchema.parse(process.env);

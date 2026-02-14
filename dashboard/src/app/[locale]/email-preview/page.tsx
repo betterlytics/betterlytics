@@ -1,5 +1,5 @@
-import { EmailTestForm } from '@/app/email-preview/EmailTestForm';
-import { EmailPreviewCard } from '@/app/email-preview/EmailPreviewCard';
+import { EmailTestForm } from '@/app/[locale]/email-preview/EmailTestForm';
+import { EmailPreviewCard } from '@/app/[locale]/email-preview/EmailPreviewCard';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
 

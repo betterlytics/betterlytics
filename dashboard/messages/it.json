@@ -1219,6 +1219,10 @@
           "title": "Tracciamento Link in Uscita",
           "description": "Traccia i click sui link che lasciano il tuo sito per misurare l'engagement utente."
         },
+        "emailReports": {
+          "title": "Report Email",
+          "description": "Ricevi riepiloghi analitici automatici settimanali o mensili direttamente nella tua casella di posta."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Misura e ottimizza le metriche di performance di Google per migliorare caricamento, interattività e ranking."
@@ -1479,6 +1483,9 @@
       "campaignTracking": {
         "name": "Tracciamento campagne e UTM"
       },
+      "emailReports": {
+        "name": "Report email"
+      },
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
         "values": {
@@ -1570,6 +1577,7 @@
         "data": "Dati",
         "rules": "Regole",
         "members": "Membri",
+        "reports": "Report Email",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -2201,6 +2209,8 @@
         "1y": "Ultimi 12 mesi"
       },
       "granularityLabels": {
+        "month": "Mese",
+        "week": "Settimana",
         "day": "Giorno",
         "hour": "Ora",
         "minute_30": "30 min",
@@ -3466,6 +3476,39 @@
           "description": "Incolla questo nella sezione <head> del tuo HTML"
         }
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "Report Email",
+    "emailsNotConfigured": {
+      "title": "L'invio di email non è configurato",
+      "description": "Le impostazioni dei report possono essere salvate, ma le email non verranno inviate finché non viene configurato un provider email (SMTP o MailerSend)."
+    },
+    "weekly": {
+      "title": "Report Settimanali",
+      "description": "Ricevi un riepilogo delle prestazioni del tuo sito ogni settimana",
+      "toggle": "Attiva report email settimanali",
+      "dayLabel": "Giorno del report",
+      "dayDescription": "Quale giorno della settimana inviare il report"
+    },
+    "monthly": {
+      "title": "Report Mensili",
+      "description": "Invia un report email mensile il 1° di ogni mese",
+      "toggle": "Attiva report email mensili"
+    },
+    "recipients": {
+      "weeklyLabel": "Destinatari ({count}/{max})",
+      "monthlyLabel": "Destinatari ({count}/{max})",
+      "placeholder": "collega@example.com",
+      "addButton": "Aggiungi",
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "emailRequired": "L'indirizzo email è obbligatorio",
+      "duplicateEmail": "Questa email è già stata aggiunta",
+      "maxReached": "Massimo {max} destinatari raggiunto"
+    },
+    "toast": {
+      "saved": "Impostazioni report salvate",
+      "error": "Impossibile salvare le impostazioni del report"
     }
   }
 }

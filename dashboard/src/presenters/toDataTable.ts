@@ -19,7 +19,16 @@ function rowChange<D extends Record<string, unknown>>({ row, compareRow, enabled
       };
     }
 
-    const compareValue = (compareRow?.[key] as number | undefined) || 0;
+    const rawCompareValue = compareRow?.[key];
+
+    if (compareRow && rawCompareValue === null) {
+      return {
+        ...acc,
+        [key]: undefined,
+      };
+    }
+
+    const compareValue = (rawCompareValue as number | undefined) ?? 0;
     const difference = value - compareValue;
 
     return {

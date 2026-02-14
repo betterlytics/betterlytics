@@ -195,6 +195,7 @@ export function createUsageAlertEmailTemplate(data: UsageAlertEmailData) {
     subject: getSubjectLine(data.usagePercentage, data.planName),
     html: wrapEmailContent(generateUsageAlertEmailContent(data)),
     text: wrapTextEmailContent(generateUsageAlertEmailText(data)),
+    cloudOnly: true,
   };
 }
 
