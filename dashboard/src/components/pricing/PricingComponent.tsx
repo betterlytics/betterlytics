@@ -1,6 +1,7 @@
 'use client';
 
 import { Dispatch, useCallback, useState } from 'react';
+import { NumberFlowGroup } from '@number-flow/react';
 import { PricingSlider } from './PricingSlider';
 import { PricingCards } from './PricingCards';
 import { SelectedPlan } from '@/types/pricing';
@@ -44,41 +45,43 @@ export function PricingComponent({
   }, []);
 
   return (
-    <div className={className}>
-      <div className='mb-8 grid grid-cols-5 items-end justify-center gap-6'>
-        <div className='col-span-5 col-start-1 lg:col-span-3 lg:col-start-2'>
-          <PricingSlider
-            currentRange={currentRange}
-            selectedRangeIndex={selectedRangeIndex}
-            handleSliderChange={handleSliderChange}
-          />
+    <NumberFlowGroup>
+      <div className={className}>
+        <div className='mb-8 grid grid-cols-5 items-end justify-center gap-6'>
+          <div className='col-span-5 col-start-1 lg:col-span-3 lg:col-start-2'>
+            <PricingSlider
+              currentRange={currentRange}
+              selectedRangeIndex={selectedRangeIndex}
+              handleSliderChange={handleSliderChange}
+            />
+          </div>
+          <div className='text-muted-foreground col-start-3 flex flex-shrink-0 justify-center text-xs lg:col-start-5 lg:justify-end'>
+            <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
+              <SelectTrigger size='sm' className='cursor-pointer'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value='USD' className='cursor-pointer'>
+                    USD ($)
+                  </SelectItem>
+                  <SelectItem value='EUR' className='cursor-pointer'>
+                    EUR (€)
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className='text-muted-foreground col-start-3 flex flex-shrink-0 justify-center text-xs lg:col-start-5 lg:justify-end'>
-          <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
-            <SelectTrigger size='sm' className='cursor-pointer'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value='USD' className='cursor-pointer'>
-                  USD ($)
-                </SelectItem>
-                <SelectItem value='EUR' className='cursor-pointer'>
-                  EUR (€)
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
 
-      <PricingCards
-        eventRange={currentRange}
-        onPlanSelect={onPlanSelect}
-        mode={onPlanSelect ? 'billing' : 'landing'}
-        billingData={billingData}
-        currency={selectedCurrency}
-      />
-    </div>
+        <PricingCards
+          eventRange={currentRange}
+          onPlanSelect={onPlanSelect}
+          mode={onPlanSelect ? 'billing' : 'landing'}
+          billingData={billingData}
+          currency={selectedCurrency}
+        />
+      </div>
+    </NumberFlowGroup>
   );
 }

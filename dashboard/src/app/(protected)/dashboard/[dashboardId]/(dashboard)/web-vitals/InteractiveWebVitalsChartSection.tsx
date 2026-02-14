@@ -1,194 +1,60 @@
 'use client';
-import { use, useMemo, useState } from 'react';
-import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
-import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
-import CoreWebVitalBar from '@/components/dashboard/CoreWebVitalBar';
-import { CoreWebVitalName, CoreWebVitalsSummary } from '@/entities/analytics/webVitals.entities';
-import MultiSeriesChart from '@/components/MultiSeriesChart';
-import type { MultiSeriesConfig } from '@/components/MultiSeriesChart';
+import { use, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { cn } from '@/lib/utils';
+import { Gauge } from '@/components/gauge';
+import {
+  CORE_WEB_VITAL_NAMES,
+  CoreWebVitalName,
+  CoreWebVitalsSummary,
+} from '@/entities/analytics/webVitals.entities';
+import MultiSeriesChart, { type MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
-import { formatCompactFromMilliseconds } from '@/utils/dateFormatters';
-import { formatCWV, getCwvStatusColor } from '@/utils/formatters';
+import {
+  formatCWV,
+  getCoreWebVitalLabelColor,
+  getCoreWebVitalGaugeProps,
+  PERCENTILE_KEYS,
+  CORE_WEB_VITAL_LEVELS,
+} from '@/utils/coreWebVitals';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useTranslations } from 'next-intl';
 
-function formatCardValue(metric: CoreWebVitalName, value: number | null) {
-  if (value === null) return '—';
-  const colorStyle: React.CSSProperties = { color: getCwvStatusColor(metric, value) };
+const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
+  dataKey: `value.${i}`,
+  stroke: `var(--cwv-${key})`,
+  name: key.toUpperCase(),
+}));
 
-  const display = metric === 'CLS' ? value.toFixed(3) : formatCompactFromMilliseconds(value);
-  return <span style={colorStyle}>{display}</span>;
-}
-
-function P75Badge() {
-  return <span className='text-muted-foreground ml-2 text-xs font-medium'>p75</span>;
-}
-
-const METRIC_LABEL_KEYS: Record<
-  CoreWebVitalName,
-  'metrics.CLS' | 'metrics.LCP' | 'metrics.INP' | 'metrics.FCP' | 'metrics.TTFB'
-> = {
-  CLS: 'metrics.CLS',
-  LCP: 'metrics.LCP',
-  INP: 'metrics.INP',
-  FCP: 'metrics.FCP',
-  TTFB: 'metrics.TTFB',
-} as const;
-
-const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = [
-  { dataKey: 'value.0', stroke: 'var(--cwv-p50)', name: 'P50' },
-  { dataKey: 'value.1', stroke: 'var(--cwv-p75)', name: 'P75' },
-  { dataKey: 'value.2', stroke: 'var(--cwv-p90)', name: 'P90' },
-  { dataKey: 'value.3', stroke: 'var(--cwv-p99)', name: 'P99' },
-] as const;
-
-function formatThreshold(metric: CoreWebVitalName, value: number): string {
-  if (metric === 'CLS') return value.toString();
-  return formatCompactFromMilliseconds(value);
-}
-
-type Props = {
+type InteractiveWebVitalsChartSectionProps = {
   summaryPromise: Promise<CoreWebVitalsSummary>;
   seriesPromise: Promise<CoreWebVitalsSeries>;
 };
 
-export default function InteractiveWebVitalsChartSection({ summaryPromise, seriesPromise }: Props) {
+export default function InteractiveWebVitalsChartSection({
+  summaryPromise,
+  seriesPromise,
+}: InteractiveWebVitalsChartSectionProps) {
   const t = useTranslations('components.webVitals');
   const summary = use(summaryPromise);
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
   const seriesByMetric = use(seriesPromise);
 
-  const cards: SummaryCardData[] = useMemo(
-    () => [
-      {
-        title: (
-          <span>
-            {t('metrics.CLS')}
-            <P75Badge />
-          </span>
-        ),
-        value: formatCardValue('CLS', summary.clsP75),
-        footer:
-          summary.clsP75 === null ? null : (
-            <div style={{ color: getCwvStatusColor('CLS', summary.clsP75) }}>
-              <CoreWebVitalBar metric='CLS' value={summary.clsP75} thresholds={CWV_THRESHOLDS} />
-            </div>
-          ),
-        chartColor: 'var(--chart-1)',
-        isActive: active === 'CLS',
-        onClick: () => setActive('CLS'),
-      },
-      {
-        title: (
-          <span>
-            {t('metrics.LCP')}
-            <P75Badge />
-          </span>
-        ),
-        value: formatCardValue('LCP', summary.lcpP75),
-        footer:
-          summary.lcpP75 === null ? null : (
-            <div style={{ color: getCwvStatusColor('LCP', summary.lcpP75) }}>
-              <CoreWebVitalBar metric='LCP' value={summary.lcpP75} thresholds={CWV_THRESHOLDS} />
-            </div>
-          ),
-        chartColor: 'var(--chart-2)',
-        isActive: active === 'LCP',
-        onClick: () => setActive('LCP'),
-      },
-      {
-        title: (
-          <span>
-            {t('metrics.INP')}
-            <P75Badge />
-          </span>
-        ),
-        value: formatCardValue('INP', summary.inpP75),
-        footer:
-          summary.inpP75 === null ? null : (
-            <div style={{ color: getCwvStatusColor('INP', summary.inpP75) }}>
-              <CoreWebVitalBar metric='INP' value={summary.inpP75} thresholds={CWV_THRESHOLDS} />
-            </div>
-          ),
-        chartColor: 'var(--chart-3)',
-        isActive: active === 'INP',
-        onClick: () => setActive('INP'),
-      },
-      {
-        title: (
-          <span>
-            {t('metrics.FCP')}
-            <P75Badge />
-          </span>
-        ),
-        value: formatCardValue('FCP', summary.fcpP75),
-        footer:
-          summary.fcpP75 === null ? null : (
-            <div style={{ color: getCwvStatusColor('FCP', summary.fcpP75) }}>
-              <CoreWebVitalBar metric='FCP' value={summary.fcpP75} thresholds={CWV_THRESHOLDS} />
-            </div>
-          ),
-        chartColor: 'var(--chart-4)',
-        isActive: active === 'FCP',
-        onClick: () => setActive('FCP'),
-      },
-      {
-        title: (
-          <span>
-            {t('metrics.TTFB')}
-            <P75Badge />
-          </span>
-        ),
-        value: formatCardValue('TTFB', summary.ttfbP75),
-        footer:
-          summary.ttfbP75 === null ? null : (
-            <div style={{ color: getCwvStatusColor('TTFB', summary.ttfbP75) }}>
-              <CoreWebVitalBar metric='TTFB' value={summary.ttfbP75} thresholds={CWV_THRESHOLDS} />
-            </div>
-          ),
-        chartColor: 'var(--chart-5)',
-        isActive: active === 'TTFB',
-        onClick: () => setActive('TTFB'),
-      },
-    ],
-    [summary, active, t],
-  );
-
   const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
 
   const yReferenceAreas = useMemo(() => {
-    const thresholds = CWV_THRESHOLDS[active];
-    if (!thresholds) return [];
-    const [goodThreshold, fairThreshold] = thresholds;
-    return [
-      {
-        y1: 0 as const,
-        y2: goodThreshold,
-        fill: 'var(--cwv-threshold-good)',
-        fillOpacity: 0.08,
-        label: t('thresholds.good'),
-        labelFill: 'var(--cwv-threshold-good-label)',
-      },
-      {
-        y1: goodThreshold,
-        y2: fairThreshold,
-        fill: 'var(--cwv-threshold-fair)',
-        fillOpacity: 0.08,
-        label: t('thresholds.fair'),
-        labelFill: 'var(--cwv-threshold-fair-label)',
-      },
-      {
-        y1: fairThreshold,
-        y2: active === 'CLS' ? 10 : 1000000,
-        fill: 'var(--cwv-threshold-poor)',
-        fillOpacity: 0.08,
-        label: t('thresholds.poor'),
-        labelFill: 'var(--cwv-threshold-poor-label)',
-      },
-    ];
+    const [good, fair] = CWV_THRESHOLDS[active];
+    const bounds = [0, good, fair, active === 'CLS' ? 10 : 1_000_000];
+    return CORE_WEB_VITAL_LEVELS.map((level, i) => ({
+      y1: bounds[i],
+      y2: bounds[i + 1],
+      fill: `var(--cwv-threshold-${level})`,
+      fillOpacity: 0.08,
+      label: t(`thresholds.${level}`),
+      labelFill: `var(--cwv-threshold-${level}-label)`,
+    }));
   }, [active, t]);
 
   return (
@@ -199,18 +65,90 @@ export default function InteractiveWebVitalsChartSection({ summaryPromise, serie
         granularity={granularity}
         formatValue={(v) => formatCWV(active, Number(v))}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-        series={SERIES_DEFS as MultiSeriesConfig[]}
+        series={SERIES_DEFS}
         yReferenceAreas={yReferenceAreas}
         headerContent={
           <div>
-            <InlineMetricsHeader cards={cards} pinFooter />
-            <div className='mt-6 flex items-center justify-center gap-2 p-2'>
-              <span className='text-muted-foreground text-sm font-medium'>{t(METRIC_LABEL_KEYS[active])}</span>
+            <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
+            <div className='mt-2 flex items-center justify-center gap-2 p-2'>
+              <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
               <MetricInfo metric={active} />
             </div>
           </div>
         }
       />
     </div>
+  );
+}
+
+type CoreWebVitalsGaugeGridProps = {
+  summary: CoreWebVitalsSummary;
+  activeMetric: CoreWebVitalName;
+  onMetricSelect: Dispatch<SetStateAction<CoreWebVitalName>>;
+};
+
+function CoreWebVitalsGaugeGrid({ summary, activeMetric, onMetricSelect }: CoreWebVitalsGaugeGridProps) {
+  return (
+    <div className='grid grid-cols-[repeat(auto-fit,minmax(9.25rem,1fr))] gap-2'>
+      {CORE_WEB_VITAL_NAMES.map((metric) => (
+        <CoreWebVitalGaugeCard
+          key={metric}
+          metric={metric}
+          value={summary[`${metric.toLowerCase()}P75` as keyof CoreWebVitalsSummary]}
+          isActive={activeMetric === metric}
+          onSelect={onMetricSelect}
+        />
+      ))}
+    </div>
+  );
+}
+
+type CoreWebVitalGaugeCardProps = {
+  metric: CoreWebVitalName;
+  value: number | null;
+  isActive: boolean;
+  onSelect: Dispatch<SetStateAction<CoreWebVitalName>>;
+};
+
+function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVitalGaugeCardProps) {
+  return (
+    <button
+      type='button'
+      onClick={() => onSelect(metric)}
+      aria-pressed={isActive}
+      className={cn(
+        'group relative flex cursor-pointer flex-col items-center overflow-hidden rounded-md border p-2 transition-shadow duration-160',
+        'hover:bg-accent/40 hover:border-primary/20 hover:shadow-sm',
+        'focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:outline-none',
+        isActive ? 'border-transparent shadow-sm' : 'border-transparent',
+      )}
+      style={{ background: isActive ? 'var(--card-interactive)' : undefined }}
+    >
+      {/* Left accent rail */}
+      <span
+        className='absolute top-0 left-0 h-full w-[3px] rounded-r'
+        style={{ background: isActive ? 'var(--chart-1)' : 'transparent' }}
+        aria-hidden='true'
+      />
+      <Gauge
+        {...getCoreWebVitalGaugeProps(metric, value)}
+        size={140}
+        strokeWidth={7.5}
+        arcGap={2.5}
+        totalAngle={240}
+      >
+        <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
+          <span className='text-muted-foreground/75 -mb-1 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
+            {metric}
+          </span>
+          <span
+            className='text-lg font-semibold tracking-tight drop-shadow-sm'
+            style={{ color: getCoreWebVitalLabelColor(metric, value) }}
+          >
+            {formatCWV(metric, value)}
+          </span>
+        </div>
+      </Gauge>
+    </button>
   );
 }
