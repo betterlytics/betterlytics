@@ -21,6 +21,7 @@ export const REASON_CODE_KEYS = [
   'blocked_ip_literal',
   'dns_blocked',
   'dns_error',
+  'keyword_not_found',
   'unknown',
 ] as const;
 
@@ -49,6 +50,7 @@ export const reasonCodeFallbackMessages: Record<ReasonCodeKey, string> = {
   blocked_ip_literal: 'IP address not allowed',
   dns_blocked: 'DNS resolved to blocked address',
   dns_error: 'DNS resolution failed',
+  keyword_not_found: 'Expected keyword not found in response',
   unknown: 'Unknown error',
 };
 

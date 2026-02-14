@@ -45,11 +45,16 @@ impl From<GuardError> for ProbeError {
 struct CappedResponse {
     status: StatusCode,
     headers: reqwest::header::HeaderMap,
+    body: Option<Vec<u8>>,
 }
 
 impl CappedResponse {
     fn new(status: StatusCode, headers: reqwest::header::HeaderMap) -> Self {
-        Self { status, headers }
+        Self { status, headers, body: None }
+    }
+
+    fn with_body(status: StatusCode, headers: reqwest::header::HeaderMap, body: Vec<u8>) -> Self {
+        Self { status, headers, body: Some(body) }
     }
 }
 
@@ -79,6 +84,11 @@ impl MonitorProbe {
 
         let latency = start.elapsed();
 
+        let effective_keyword = match check.http_method {
+            HttpMethod::Get => &check.expected_keyword,
+            HttpMethod::Head => &None,
+        };
+
         match response {
             Ok((resp, resolved_ip, final_url, redirect_hops)) => self.http_outcome(
                 latency,
@@ -87,6 +97,7 @@ impl MonitorProbe {
                 final_url,
                 redirect_hops,
                 &check.accepted_status_codes,
+                effective_keyword,
             ),
             Err(error) => self.http_failure(latency, check, error),
         }
@@ -149,16 +160,25 @@ impl MonitorProbe {
         final_url: String,
         redirect_hops: usize,
         accepted_status_codes: &[StatusCodeValue],
+        expected_keyword: &Option<String>,
     ) -> ProbeOutcome {
         let status = resp.status;
         let status_code = status.as_u16();
-        
+        let body_size = resp.body.as_ref().map(|b| b.len());
+
         let is_accepted = is_status_code_accepted(status_code, accepted_status_codes);
-        
+
         if is_accepted {
+            if let Some(reason) = check_keyword_match(expected_keyword, &resp.body) {
+                let mut outcome = ProbeOutcome::failure(latency, Some(status_code), reason);
+                outcome.body_size = body_size;
+                return outcome;
+            }
+
             let mut outcome = ProbeOutcome::success(latency, Some(status_code), resolved_ip);
             outcome.final_url = Some(final_url);
             outcome.redirect_hops = redirect_hops;
+            outcome.body_size = body_size;
             return outcome;
         }
 
@@ -275,10 +295,10 @@ impl MonitorProbe {
         url: &Url,
     ) -> Result<CappedResponse, ProbeError> {
         let timeout = check.timeout;
-        
         match check.http_method {
             HttpMethod::Get => {
-                self.request_get_capped(url, timeout, &check.request_headers).await
+                let capture_body = check.expected_keyword.as_ref().is_some_and(|k| !k.is_empty());
+                self.request_get_capped(url, timeout, &check.request_headers, capture_body).await
             }
             HttpMethod::Head => {
                 self.request_head(url, timeout, &check.request_headers).await
@@ -304,6 +324,7 @@ impl MonitorProbe {
         url: &Url,
         timeout: Duration,
         request_headers: &[crate::monitor::RequestHeader],
+        capture_body: bool,
     ) -> Result<CappedResponse, ProbeError> {
         let request = self.client.get(url.clone()).timeout(timeout);
         let request = apply_custom_headers(request, request_headers);
@@ -317,18 +338,27 @@ impl MonitorProbe {
             return Ok(CappedResponse::new(status, headers));
         }
 
-        // Stream body to verify response completes (this is primarily to catch timeouts)
+        // Stream body up to BODY_STREAM_LIMIT. Buffer it only when keyword matching is needed
+        let mut body_buf: Option<Vec<u8>> = if capture_body { Some(Vec::with_capacity(4096)) } else { None };
         let mut read_bytes: usize = 0;
         let mut stream = resp.bytes_stream();
         while let Some(chunk) = stream.next().await {
             let chunk = chunk.map_err(map_reqwest_error)?;
             read_bytes += chunk.len();
+            if let Some(buf) = &mut body_buf {
+                let remaining = BODY_STREAM_LIMIT.saturating_sub(buf.len());
+                let take = chunk.len().min(remaining);
+                buf.extend_from_slice(&chunk[..take]);
+            }
             if read_bytes > BODY_STREAM_LIMIT {
                 break;
             }
         }
 
-        Ok(CappedResponse::new(status, headers))
+        match body_buf {
+            Some(buf) => Ok(CappedResponse::with_body(status, headers, buf)),
+            None => Ok(CappedResponse::new(status, headers)),
+        }
     }
 
     async fn direct_rustls_not_after(
@@ -426,6 +456,22 @@ fn ensure_crypto_provider() {
     });
 }
 
+
+/// Returns `Some(ReasonCode::KeywordNotFound)` if a keyword was expected but not found in the body.
+fn check_keyword_match(expected: &Option<String>, body: &Option<Vec<u8>>) -> Option<ReasonCode> {
+    let keyword = expected.as_deref().filter(|k| !k.is_empty())?;
+
+    let Some(body) = body.as_deref() else {
+        return Some(ReasonCode::KeywordNotFound);
+    };
+
+    let haystack = String::from_utf8_lossy(body);
+    if haystack.to_lowercase().contains(&keyword.to_lowercase()) {
+        None
+    } else {
+        Some(ReasonCode::KeywordNotFound)
+    }
+}
 
 fn classify_reqwest_error(err: &reqwest::Error) -> ReasonCode {
     if err.is_timeout() {
