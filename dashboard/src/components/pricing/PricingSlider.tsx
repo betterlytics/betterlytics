@@ -29,7 +29,7 @@ export function PricingSlider({
         <NumberFlow
           className='text-3xl font-bold tabular-nums'
           value={currentRange.value}
-          locales={'en-US'}
+          locales={locale}
           format={{ notation: 'compact' }}
           suffix={currentRange.value > 10_000_000 ? '+' : undefined}
           willChange

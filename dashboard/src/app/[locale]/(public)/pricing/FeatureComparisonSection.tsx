@@ -1,7 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ComparisonTable } from '@/components/public/comparison-table';
+import { formatNumber } from '@/utils/formatters';
 
 type FeatureValue = boolean | string | 'partial';
 
@@ -66,6 +67,13 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
 export function FeatureComparisonSection() {
   const t = useTranslations('pricingComparison');
   const td = (key: string) => t(key as Parameters<typeof t>[0]);
+  const locale = useLocale();
+
+  const formatEventRange = () => {
+    const min = formatNumber(10_000, locale, { maximumFractionDigits: 0 });
+    const max = formatNumber(10_000_000, locale, { maximumFractionDigits: 0 });
+    return `${min} – ${max}+`;
+  };
 
   const categories = FEATURE_CATEGORIES.map((category) => ({
     name: td(`categories.${category.key}`),
@@ -73,7 +81,11 @@ export function FeatureComparisonSection() {
       name: td(`features.${feature.key}.name`),
       values: TIERS.map((tier) => {
         const value = feature[tier];
-        return typeof value === 'string' ? td(`features.${feature.key}.values.${value}`) : value;
+        if (typeof value !== 'string') return value;
+        if (feature.key === 'monthlyEvents' && value === 'range') {
+          return formatEventRange();
+        }
+        return td(`features.${feature.key}.values.${value}`);
       }),
     })),
   }));

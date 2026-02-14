@@ -60,7 +60,7 @@ export function PricingCards({
         period: !isFree && !isCustom ? t('periodPerMonth') : '',
         description: t('descriptions.growth'),
         features: [
-          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) }),
+          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
           t('features.allFeatures'),
           t('features.twoSites'),
           t('features.retention1PlusYear'),
@@ -76,7 +76,7 @@ export function PricingCards({
         period: !isCustom ? t('periodPerMonth') : '',
         description: t('descriptions.professional'),
         features: [
-          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) }),
+          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
           t('features.everythingInStarter'),
           t('features.upTo50Sites'),
           t('features.retention3PlusYears'),
