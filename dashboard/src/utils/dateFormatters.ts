@@ -102,22 +102,22 @@ export function splitCompactDuration(seconds: number): {
  * Formats seconds as either full seconds (two decimals) or milliseconds when < 1 second.
  * Examples: 1.02 seconds, 1.20 seconds, 800 ms, 340 ms
  */
-export function formatCompactSeconds(seconds: number): string {
+export function formatCompactSeconds(seconds: number, locale?: string): string {
   if (!Number.isFinite(seconds)) return '—';
   if (Math.abs(seconds) < 1) {
     return `${Math.round(seconds * 1000)} ms`;
   }
-  return `${new Intl.NumberFormat(undefined, {
+  return `${new Intl.NumberFormat(locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(seconds)} s`;
 }
 
-export function formatCompactFromMilliseconds(milliseconds: number | null | undefined): string {
+export function formatCompactFromMilliseconds(milliseconds: number | null | undefined, locale?: string): string {
   if (milliseconds == null || typeof milliseconds !== 'number' || !Number.isFinite(milliseconds)) {
     return '—';
   }
-  return formatCompactSeconds(milliseconds / 1000);
+  return formatCompactSeconds(milliseconds / 1000, locale);
 }
 
 /**

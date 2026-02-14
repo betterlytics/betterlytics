@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { formatPercentage } from '@/utils/formatters';
 import { TrendIndicator } from './TrendIndicator';
+import { useLocale } from 'next-intl';
 
 type TrendPercentageProps = {
   percentage?: number | null;
@@ -12,6 +13,7 @@ type TrendPercentageProps = {
 
 const TrendPercentage = React.memo(
   ({ percentage, withIcon, withParenthesis, noChangeText }: TrendPercentageProps) => {
+    const locale = useLocale();
     if (percentage === undefined || percentage === null) {
       return null;
     }
@@ -25,7 +27,7 @@ const TrendPercentage = React.memo(
     const color = isPositive ? 'text-trend-up' : 'text-trend-down';
 
     const absValue = Math.abs(percentage);
-    const formatted = formatPercentage(absValue);
+    const formatted = formatPercentage(absValue, locale);
 
     return (
       <span className={cn('inline-flex items-center gap-0', color)}>

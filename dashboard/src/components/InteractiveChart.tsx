@@ -133,10 +133,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
-        const text = formatValue ? formatValue(value) : formatNumber(value);
+        const text = formatValue ? formatValue(value) : formatNumber(value, locale);
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
-    }, [formatValue]);
+    }, [formatValue, locale]);
 
     useEffect(() => {
       if (!chartContainerRef.current) return;

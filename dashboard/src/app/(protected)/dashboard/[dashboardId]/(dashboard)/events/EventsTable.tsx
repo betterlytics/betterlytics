@@ -22,7 +22,7 @@ import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
 import type { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableCompareCell } from '@/components/TableCompareCell';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
 
@@ -43,6 +43,7 @@ interface EventRowWithExpansion extends TableEventRow {
 }
 
 export function EventsTable({ data }: EventsTableProps) {
+  const locale = useLocale();
   const t = useTranslations('components.events.table');
 
   const { startDate, endDate } = useTimeRangeContext();
@@ -165,7 +166,7 @@ export function EventsTable({ data }: EventsTableProps) {
           const percentage = calculatePercentage(row.original.current.count, row.original.totalEvents);
           return (
             <div className='flex items-center text-right font-mono text-sm'>
-              <span>{formatPercentage(percentage)}</span>
+              <span>{formatPercentage(percentage, locale)}</span>
               <div className='ml-2 h-4 w-4' />
             </div>
           );
@@ -178,7 +179,7 @@ export function EventsTable({ data }: EventsTableProps) {
         accessorFn: (row) => calculatePercentage(row.current.count, row.totalEvents),
       },
     ],
-    [t],
+    [t, locale],
   );
 
   const table = useReactTable({

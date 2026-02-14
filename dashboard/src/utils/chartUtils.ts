@@ -31,6 +31,7 @@ export function formatDifference(
   hasComparison: boolean,
   formatter?: (value: number) => string,
   includePreviousNumber: boolean = true,
+  locale?: string,
 ): string | null {
   if (!hasComparison || previous === 0) return null;
 
@@ -38,14 +39,18 @@ export function formatDifference(
   if (diff === 0) return null;
 
   const sign = diff > 0 ? '+' : '';
-  const formattedDiff = formatter ? formatter(diff) : formatNumber(diff);
+  const formattedDiff = formatter ? formatter(diff) : formatNumber(diff, locale);
 
-  const percentage = ((diff / previous) * 100).toFixed(1);
+  const percentageValue = diff / previous;
+  const percentage = new Intl.NumberFormat(locale, {
+    style: 'percent',
+    maximumFractionDigits: 1,
+  }).format(percentageValue);
 
   if (previous !== 0 && includePreviousNumber) {
-    return `${sign}${percentage}% (${sign}${formattedDiff})`;
+    return `${sign}${percentage} (${sign}${formattedDiff})`;
   } else if (!includePreviousNumber) {
-    return `${sign}${percentage}%`;
+    return `${sign}${percentage}`;
   }
 
   return `${sign}${formattedDiff}`;

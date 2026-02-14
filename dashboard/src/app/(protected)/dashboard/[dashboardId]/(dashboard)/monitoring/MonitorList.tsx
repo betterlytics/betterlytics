@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
@@ -27,6 +27,7 @@ type MonitorListProps = {
 };
 
 export function MonitorList({ monitors }: MonitorListProps) {
+  const locale = useLocale();
   const t = useTranslations('monitoringPage');
   const tMonitoringLabels = useTranslations('monitoring.labels');
   const tSsl = useTranslations('monitoring.ssl');
@@ -69,7 +70,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
         const uptimePercent = hasData ? calculateUptimePercent(monitor.uptimeBuckets ?? []) : null;
         const percentLabel =
-          uptimePercent != null ? formatPercentage(uptimePercent, 2, { trimHundred: true }) : '— %';
+          uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;

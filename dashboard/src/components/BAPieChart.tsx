@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import PieChartTooltip from './charts/PieChartTooltip';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
@@ -24,6 +24,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
   ({ data, getColor, getIcon, formatValue, getLabel, onSliceClick }) => {
     const t = useTranslations('dashboard.emptyStates');
     const tFilters = useTranslations('components.filters');
+    const locale = useLocale();
     if (data.length === 0) {
       return (
         <DataEmptyComponent />
@@ -92,7 +93,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
                 ></span>
                 {getIcon && getIcon(entry.name)}
                 <span className='text-foreground font-medium'>{label}</span>
-                <span className='text-muted-foreground'>{formatPercentage(entry.percentage)}</span>
+                <span className='text-muted-foreground'>{formatPercentage(entry.percentage, locale)}</span>
               </div>
             );
           })}

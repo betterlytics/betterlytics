@@ -10,7 +10,7 @@ import { fetchPageAnalyticsAction } from '@/app/actions/analytics/pages.actions'
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatDuration } from '@/utils/dateFormatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface TabbedPagesTableProps {
   allPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
@@ -24,6 +24,7 @@ const formatPath = (path: string): string => {
 
 export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPagesData }: TabbedPagesTableProps) {
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const locale = useLocale();
   const t = useTranslations('components.pages.table');
 
   const getBaseColumns = useCallback((): ColumnDef<
@@ -50,20 +51,20 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       {
         accessorKey: 'visitors',
         header: t('visitors'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={(value) => formatNumber(value, locale)} />,
         accessorFn: (row) => row.current.visitors,
       },
       {
         accessorKey: 'pageviews',
         header: t('pageviews'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={formatNumber} />,
+        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={(value) => formatNumber(value, locale)} />,
         accessorFn: (row) => row.current.pageviews,
       },
       {
         accessorKey: 'bounceRate',
         header: t('bounceRate'),
         cell: ({ row }) => (
-          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} allowNullish />
+          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={(value) => formatPercentage(value, locale)} allowNullish />
         ),
         accessorFn: (row) => row.current.bounceRate,
       },
@@ -82,14 +83,14 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
           <TableCompareCell
             row={row.original}
             dataKey='avgScrollDepth'
-            formatter={formatPercentage}
+            formatter={(value) => formatPercentage(value, locale)}
             allowNullish
           />
         ),
         accessorFn: (row) => row.current.avgScrollDepth,
       },
     ];
-  }, [makeFilterClick, t]);
+  }, [makeFilterClick, locale, t]);
 
   const getTabSpecificColumns = useCallback((): Record<
     string,
@@ -101,12 +102,12 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         header: t('entryRate'),
         cell: ({ row }) => (
           <div className='flex flex-col'>
-            <div>{formatPercentage(row.original.current.entryRate ?? 0)}</div>
+            <div>{formatPercentage(row.original.current.entryRate ?? 0, locale)}</div>
             <TableTrendIndicator
               current={row.original.current.entryRate ?? 0}
               compare={row.original.compare?.entryRate}
               percentage={row.original.change?.entryRate}
-              formatter={formatPercentage}
+              formatter={(value) => formatPercentage(value, locale)}
             />
           </div>
         ),
@@ -117,19 +118,19 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         header: t('exitRate'),
         cell: ({ row }) => (
           <div className='flex flex-col'>
-            <div>{formatPercentage(row.original.current.exitRate ?? 0)}</div>
+            <div>{formatPercentage(row.original.current.exitRate ?? 0, locale)}</div>
             <TableTrendIndicator
               current={row.original.current.exitRate ?? 0}
               compare={row.original.compare?.exitRate}
               percentage={row.original.change?.exitRate}
-              formatter={formatPercentage}
+              formatter={(value) => formatPercentage(value, locale)}
             />
           </div>
         ),
         accessorFn: (row) => row.current.exitRate,
       },
     };
-  }, [t]);
+  }, [t, locale]);
 
   const allPagesColumns = useMemo(() => getBaseColumns(), [getBaseColumns]);
 

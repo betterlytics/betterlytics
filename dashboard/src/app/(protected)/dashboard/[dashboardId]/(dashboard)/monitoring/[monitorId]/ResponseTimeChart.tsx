@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { type MonitorMetrics } from '@/entities/analytics/monitoring.entities';
 import { formatCompactFromMilliseconds } from '@/utils/dateFormatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 const SECONDARY_BADGE_CLASS = 'border-border/60 bg-muted/30 text-foreground/80 px-2.5 py-1 text-xs';
 
@@ -29,6 +29,7 @@ type ResponseTimeChartProps = {
 };
 
 export function ResponseTimeChart({ data, incidentSegments }: ResponseTimeChartProps) {
+  const locale = useLocale();
   const t = useTranslations('monitoringDetailPage.responseTime');
   const chartData = useMemo(
     () =>
@@ -80,7 +81,7 @@ export function ResponseTimeChart({ data, incidentSegments }: ResponseTimeChartP
       }
       data={chartData}
       granularity={RESPONSE_TIME_GRANULARITY}
-      formatValue={formatCompactFromMilliseconds}
+      formatValue={(ms) => formatCompactFromMilliseconds(ms, locale)}
       series={SERIES}
       className='border-border/70 bg-card/80 shadow-lg shadow-black/10'
       showSinglePoints

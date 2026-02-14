@@ -1,5 +1,6 @@
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { Minus } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 type PresetedData<K extends string> = {
   current: Record<K, number | null>;
@@ -17,9 +18,11 @@ type TableCompareCellProps<K extends string> = {
 export function TableCompareCell<K extends string>({
   row,
   dataKey,
-  formatter = (val) => val.toLocaleString(),
+  formatter: formatterProp,
   allowNullish,
 }: TableCompareCellProps<K>) {
+  const locale = useLocale();
+  const formatter = formatterProp ?? ((val: number) => val.toLocaleString(locale));
   const { current, compare, change } = getTableCompareValues(row, dataKey);
 
   if (current == null && allowNullish) {

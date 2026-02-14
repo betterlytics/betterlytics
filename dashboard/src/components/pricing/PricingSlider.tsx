@@ -2,6 +2,7 @@
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
+import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
@@ -49,13 +50,15 @@ export function PricingSlider({
         <div className='mt-3 flex justify-between'>
           {EVENT_RANGES.map((range) => (
             <div
-              key={range.label}
+              key={range.value}
               className={cn(
                 'text-xs transition-colors',
-                range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground',
+                range.value === currentRange.value ? 'text-primary font-semibold' : 'text-muted-foreground',
               )}
             >
-              {range.label}
+              {range.value > 10_000_000
+                ? `${formatNumber(10_000_000, locale, { maximumFractionDigits: 0 })}+`
+                : formatNumber(range.value, locale, { maximumFractionDigits: 0 })}
             </div>
           ))}
         </div>

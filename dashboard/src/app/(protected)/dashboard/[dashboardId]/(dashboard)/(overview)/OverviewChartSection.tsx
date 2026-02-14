@@ -9,7 +9,7 @@ import {
   type fetchUniqueVisitorsAction,
 } from '@/app/actions/index.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
@@ -38,6 +38,7 @@ export default function OverviewChartSection({
   cards?: SummaryCardData[];
 }) {
   const t = useTranslations('dashboard');
+  const locale = useLocale();
 
   const metricConfigs: Record<ActiveMetric, MetricConfig> = useMemo(
     () => ({
@@ -65,7 +66,7 @@ export default function OverviewChartSection({
         title: t('metrics.bounceRate'),
         valueField: 'bounce_rate',
         color: 'var(--chart-1)',
-        formatValue: formatPercentage,
+        formatValue: (value: number) => formatPercentage(value, locale),
       },
       avgDuration: {
         title: t('metrics.avgVisitDuration'),
@@ -74,7 +75,7 @@ export default function OverviewChartSection({
         formatValue: formatDuration,
       },
     }),
-    [t],
+    [t, locale],
   );
 
   const { chartData, comparisonMap, incomplete, incompleteStart } = useMemo(() => {

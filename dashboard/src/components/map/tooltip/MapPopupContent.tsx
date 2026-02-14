@@ -90,7 +90,7 @@ function MapPopupContentComponent({
         {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
           <TrendPercentage percentage={percentageChange} withParenthesis withIcon />
         ) : (
-          <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors)}</span>
+          <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors, locale)}</span>
         )}
       </div>
 
@@ -110,14 +110,14 @@ function MapPopupContentComponent({
                   })
             }
             tooltip={`${resolvedMain.start.toLocaleString()} - ${resolvedMain.end.toLocaleString()}`}
-            value={formatNumber(geoVisitor.visitors)}
+            value={formatNumber(geoVisitor.visitors, locale)}
           />
           {resolvedCompare && (
             <Row
               color='bg-chart-comparison'
               label={t('timeRange.previousPeriod')}
               tooltip={`${resolvedCompare.start.toLocaleString()} - ${resolvedCompare.end.toLocaleString()}`}
-              value={formatNumber(geoVisitor.compareVisitors ?? 0)}
+              value={formatNumber(geoVisitor.compareVisitors ?? 0, locale)}
               muted
             />
           )}

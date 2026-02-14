@@ -1,5 +1,6 @@
 import { Minus } from 'lucide-react';
 import { TrendPercentage } from './TrendPercentage';
+import { useLocale } from 'next-intl';
 
 type TableTrendIndicatorProps = {
   current: number;
@@ -13,9 +14,12 @@ export function TableTrendIndicator({
   current,
   compare,
   percentage,
-  formatter = (val) => val.toLocaleString(),
+  formatter: formatterProp,
   allowNullish,
 }: TableTrendIndicatorProps) {
+  const locale = useLocale();
+  const formatter = formatterProp ?? ((val: number) => val.toLocaleString(locale));
+
   if (percentage === undefined) {
     return null;
   }

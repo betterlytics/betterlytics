@@ -6,6 +6,7 @@ import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/uti
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
+import { useLocale } from 'next-intl';
 
 interface PayloadEntry {
   value: number;
@@ -28,11 +29,14 @@ export function StackedAreaChartTooltip({
   active,
   payload,
   label,
-  formatter = (value) => value.toLocaleString(),
+  formatter: formatterProp,
   labelFormatter = defaultDateLabelFormatter,
   comparisonMap,
   granularity,
 }: StackedAreaChartTooltipProps) {
+  const locale = useLocale();
+  const formatter = formatterProp ?? ((value: number) => value.toLocaleString(locale));
+
   if (!active || !payload || !payload.length || !label) {
     return null;
   }
@@ -59,7 +63,7 @@ export function StackedAreaChartTooltip({
   const sortedPayload = [...payload].sort((a, b) => getCurrentValue(b) - getCurrentValue(a));
 
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
-  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false);
+  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false, locale);
 
   return (
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
@@ -81,7 +85,7 @@ export function StackedAreaChartTooltip({
           const currentValue = getCurrentValue(entry);
           const compareValue = getCompareValue(entry);
           const trend = getTrendInfo(currentValue, compareValue, hasComparison);
-          const difference = formatDifference(currentValue, compareValue, hasComparison, formatter, false);
+          const difference = formatDifference(currentValue, compareValue, hasComparison, formatter, false, locale);
 
           return (
             <div key={entry.dataKey || index} className='space-y-1'>

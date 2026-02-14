@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { formatNumber } from '@/utils/formatters';
+import { useLocale } from 'next-intl';
 
 interface ChartTooltipProps {
   payload?: {
@@ -29,6 +30,8 @@ export function ChartTooltip({
   comparisonMap,
   title,
 }: ChartTooltipProps) {
+  const locale = useLocale();
+
   if (!active || !payload || !payload.length) {
     return null;
   }
@@ -52,7 +55,7 @@ export function ChartTooltip({
   const hasComparison = previousValue !== undefined;
   const trendInfo = getTrendInfo(value, previousValue || 0, hasComparison);
 
-  const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter);
+  const formattedDifference = formatDifference(value, previousValue || 0, hasComparison, formatter, true, locale);
   const previousDateLabel = comparisonData ? labelFormatter(comparisonData.compareDate) : undefined;
   const previousColor = 'var(--chart-comparison)';
 
@@ -72,7 +75,7 @@ export function ChartTooltip({
             <span className='text-popover-foreground text-sm'>{labelFormatter(name)}</span>
           </div>
           <div className='text-popover-foreground text-sm font-medium'>
-            {formatter ? formatter(value) : formatNumber(value)}
+            {formatter ? formatter(value) : formatNumber(value, locale)}
           </div>
         </div>
 
@@ -83,7 +86,7 @@ export function ChartTooltip({
               <span className='text-popover-foreground/60 text-sm'>{previousDateLabel}</span>
             </div>
             <div className='text-popover-foreground/60 text-sm'>
-              {formatter ? formatter(previousValue as number) : formatNumber(previousValue as number)}
+              {formatter ? formatter(previousValue as number) : formatNumber(previousValue as number, locale)}
             </div>
           </div>
         )}

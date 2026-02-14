@@ -3,7 +3,7 @@ import { Progress } from '@/components/ui/progress';
 import { TrendIndicator } from '@/components/TrendIndicator';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type PropertyValue = {
   value: string;
@@ -23,6 +23,7 @@ interface PropertyValueBarProps {
 }
 
 export function PropertyValueBar({ value, icon, respectComparison, index, leading }: PropertyValueBarProps) {
+  const locale = useLocale();
   const t = useTranslations('misc');
 
   return (
@@ -49,10 +50,10 @@ export function PropertyValueBar({ value, icon, respectComparison, index, leadin
                     <TrendPercentage percentage={value.trendPercentage} withParenthesis noChangeText={t('noChange')} />
                   </span>
                 )}
-                {formatPercentage(value.percentage)}
+                {formatPercentage(value.percentage, locale)}
               </div>
             </div>
-            <span>{formatNumber(value.count)}</span>
+            <span>{formatNumber(value.count, locale)}</span>
             {value.comparisonValue && <TrendIndicator percentage={value.trendPercentage} />}
             {!value.comparisonValue && respectComparison && <div className='size-3.5' />}
           </div>

@@ -18,20 +18,23 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { formatPercentage } from '@/utils/formatters';
+import { getLocale } from 'next-intl/server';
 
-function buildAudienceDistribution<
+async function buildAudienceDistribution<
   TLabelKey extends string,
   TItem extends { visitors: number } & Record<TLabelKey, string>,
->(audience: TItem[], labelKey: TLabelKey): { label: string; value: string }[] {
+>(audience: TItem[], labelKey: TLabelKey): Promise<{ label: string; value: string }[]> {
   const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
 
   if (totalVisitors === 0) {
     return [];
   }
 
+  const locale = await getLocale();
+
   return audience.map((item) => ({
     label: item[labelKey],
-    value: formatPercentage((item.visitors / totalVisitors) * 100, 0),
+    value: formatPercentage((item.visitors / totalVisitors) * 100, locale, { maximumFractionDigits: 0, minimumFractionDigits: 0 }),
   }));
 }
 
@@ -114,10 +117,12 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
       ]);
 
-      const devices = buildAudienceDistribution(audienceProfile.devices, 'device_type');
-      const countries = buildAudienceDistribution(audienceProfile.countries, 'country_code');
-      const browsers = buildAudienceDistribution(audienceProfile.browsers, 'browser');
-      const operatingSystems = buildAudienceDistribution(audienceProfile.operatingSystems, 'os');
+      const [devices, countries, browsers, operatingSystems] = await Promise.all([
+        buildAudienceDistribution(audienceProfile.devices, 'device_type'),
+        buildAudienceDistribution(audienceProfile.countries, 'country_code'),
+        buildAudienceDistribution(audienceProfile.browsers, 'browser'),
+        buildAudienceDistribution(audienceProfile.operatingSystems, 'os'),
+      ]);
 
       return {
         utmSource,

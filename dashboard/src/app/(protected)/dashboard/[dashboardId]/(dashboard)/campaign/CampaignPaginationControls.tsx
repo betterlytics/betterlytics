@@ -4,7 +4,7 @@ import { memo, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25, 50] as const;
@@ -180,36 +180,40 @@ type PageNumbersProps = {
   compact?: boolean;
 };
 
-const PageNumbers = memo(({ pages, currentPage, onPageChange, className, compact }: PageNumbersProps) => (
-  <div className={cn('items-center px-1', className)}>
-    {pages.map((page) =>
-      typeof page === 'string' ? (
-        <span
-          key={page}
-          className={cn('text-muted-foreground/50 text-sm select-none', compact ? 'px-0.5' : 'px-1.5')}
-        >
-          …
-        </span>
-      ) : (
-        <button
-          key={page}
-          type='button'
-          onClick={() => onPageChange(page - 1)}
-          aria-current={page === currentPage ? 'page' : undefined}
-          className={cn(
-            'cursor-pointer rounded-md py-1 text-sm font-medium tabular-nums transition-colors',
-            compact ? 'min-w-[1.5rem] px-1.5' : 'min-w-[1.75rem] px-2',
-            page === currentPage
-              ? 'bg-primary text-primary-foreground'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
-          )}
-        >
-          {page.toLocaleString()}
-        </button>
-      ),
-    )}
-  </div>
-));
+const PageNumbers = memo(({ pages, currentPage, onPageChange, className, compact }: PageNumbersProps) => {
+  const locale = useLocale();
+
+  return (
+    <div className={cn('items-center px-1', className)}>
+      {pages.map((page) =>
+        typeof page === 'string' ? (
+          <span
+            key={page}
+            className={cn('text-muted-foreground/50 text-sm select-none', compact ? 'px-0.5' : 'px-1.5')}
+          >
+            …
+          </span>
+        ) : (
+          <button
+            key={page}
+            type='button'
+            onClick={() => onPageChange(page - 1)}
+            aria-current={page === currentPage ? 'page' : undefined}
+            className={cn(
+              'cursor-pointer rounded-md py-1 text-sm font-medium tabular-nums transition-colors',
+              compact ? 'min-w-[1.5rem] px-1.5' : 'min-w-[1.75rem] px-2',
+              page === currentPage
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
+            )}
+          >
+            {page.toLocaleString(locale)}
+          </button>
+        ),
+      )}
+    </div>
+  );
+});
 
 PageNumbers.displayName = 'PageNumbers';
 

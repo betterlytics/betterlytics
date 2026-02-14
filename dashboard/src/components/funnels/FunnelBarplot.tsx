@@ -8,7 +8,7 @@ import { ChevronDown } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatQueryFilter } from '@/utils/queryFilterFormatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type EmptyStep = {
   name: string;
@@ -20,6 +20,7 @@ type FunnelChartProps = {
 };
 
 export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) {
+  const locale = useLocale();
   const tPlot = useTranslations('components.funnels.plot');
   const hasEmptySteps = Boolean(emptySteps?.length);
   return (
@@ -67,7 +68,7 @@ export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) 
               ) : (
                 <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
                   <p className='text-muted-foreground/75 text-xs'>{tPlot('conversion')}</p>
-                  <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0)}</p>
+                  <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0, locale)}</p>
                 </div>
               )}
             </div>
@@ -89,6 +90,7 @@ function FunnelStep({
   funnel: PresentedFunnel;
   hasEmptySteps: boolean;
 }) {
+  const locale = useLocale();
   const tFilters = useTranslations('components.filters');
   const tPlot = useTranslations('components.funnels.plot');
   return (
@@ -139,14 +141,14 @@ function FunnelStep({
           <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
             <div className='flex h-20 w-20 flex-col items-center justify-center gap-0.5 p-2 sm:h-full sm:w-25'>
               <p className='text-muted-foreground text-xs'>{tPlot('visitors')}</p>
-              <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
-              <p className='text-muted-foreground/80 text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
+              <p className='text-md font-semibold'>{formatNumber(step.visitors, locale)}</p>
+              <p className='text-muted-foreground/80 text-xs'>{formatPercentage(100 * step.visitorsRatio, locale)}</p>
             </div>
             {index < funnel.steps.length - 1 || hasEmptySteps ? (
               <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
                 <p className='text-muted-foreground text-xs'>{tPlot('dropOff')}</p>
                 <p className='text-md font-semibold'>
-                  {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
+                  {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount, locale)}`}
                 </p>
                 <div className='flex items-center gap-0.5'>
                   {step.dropoffCount <= 0 ? (
@@ -154,7 +156,7 @@ function FunnelStep({
                   ) : (
                     <>
                       <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
-                      <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+                      <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio, locale)}</p>
                     </>
                   )}
                 </div>
@@ -162,7 +164,7 @@ function FunnelStep({
             ) : (
               <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
                 <p className='text-muted-foreground text-xs'>{tPlot('conversion')}</p>
-                <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
+                <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio, locale)}</p>
               </div>
             )}
           </div>
