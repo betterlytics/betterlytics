@@ -1,0 +1,161 @@
+---
+title: "WordPress Plugin Events"
+description: "Track 404 errors, site searches, and file downloads with the Betterlytics WordPress plugin's built-in event tracking."
+---
+
+import { Callout } from "nextra/components";
+
+# Event Tracking
+
+The Betterlytics WordPress plugin includes built-in tracking for common events. All events documented here are sent as [custom events](/integration/custom-events) and appear in the Events section of your Betterlytics dashboard.
+
+<Callout type="info">
+For additional event tracking options like Core Web Vitals, outbound links, and Custom HTML Attribute Events, see the [Integration guides](/integration).
+</Callout>
+
+---
+
+## 404 Tracking
+
+**404 Error Tracking** allows you to see when visitors land on pages that don't exist on your site. This is helpful for identifying broken links or incorrect URLs.
+
+### How it works
+
+404 tracking uses a hybrid approach to ensure reliable capture of error pages:
+
+1. **Backend Detection**: The plugin hooks into the WordPress `template_redirect` action and uses the native `is_404()` function to detect if the current request is resulting in a "Page Not Found" state.
+2. **Event Queuing**: If a 404 is detected, the requested URL path is added to a queue.
+3. **Frontend Firing**: During page render, a JavaScript snippet processes the queue and sends the event to Betterlytics.
+
+This approach is more reliable than pure client-side detection because it hooks directly into the WordPress routing logic.
+
+### Event data
+
+| Field | Value |
+|-------|-------|
+| **Event Name** | `404` |
+| **Properties** | `path` - The full URL path that caused the error (e.g., `/non-existent-page`) |
+
+### Example payload
+
+```json
+{
+  "event": "404",
+  "properties": {
+    "path": "/broken-link-example"
+  }
+}
+```
+
+### Common use cases
+
+- **Find broken internal links** - Identify pages on your site linking to non-existent content
+- **Detect external broken links** - See when other sites link to pages you've moved or deleted
+- **Monitor after migrations** - Track 404s after changing your URL structure
+- **Catch typos** - Find common URL typos visitors make when trying to reach your content
+
+---
+
+## Site Search
+
+**Site Search Tracking** gives you insights into what your visitors are searching for on your website.
+
+### How it works
+
+Site search tracking integrates directly with the WordPress search engine:
+
+1. **Backend Detection**: The plugin hooks into the WordPress `template_redirect` action and uses `is_search()` to determine if the visitor is viewing a search results page.
+2. **Query Extraction**: If a search is active, the plugin retrieves the query string using the native `get_search_query()` function.
+3. **Event Firing**: The search query is sent to your Betterlytics dashboard.
+
+This ensures that only actual WordPress searches are tracked, and the query is sanitized according to your WordPress settings.
+
+### Event data
+
+| Field | Value |
+|-------|-------|
+| **Event Name** | `search` |
+| **Properties** | `query` - The keyword or phrase the visitor searched for |
+
+### Example payload
+
+```json
+{
+  "event": "search",
+  "properties": {
+    "query": "pricing plans"
+  }
+}
+```
+
+### Privacy Option
+
+By default, the search query term is **not** included in the event. Enable the **Include Search Query** checkbox in settings (or `track_search.include_query` in the [configuration JSON](/integration/wordpress/configuration)) to send query terms.
+
+| Setting | Behavior |
+|---------|----------|
+| **Disabled** (default) | Only the search event is tracked, query is not sent |
+| **Enabled** | Search query term is included with events |
+
+<Callout type="info">
+This is disabled by default as a privacy safeguard - users might search for personal information like names or emails on some sites.
+</Callout>
+
+### Common use cases
+
+- **Content gap analysis** - Discover topics visitors want but can't find
+- **Navigation improvement** - Identify content that's hard to find through your menu
+- **Content prioritization** - See which topics generate the most search interest
+- **Search quality monitoring** - Track what visitors search for to improve your search results
+
+---
+
+## File Downloads
+
+**File Download Tracking** automatically tracks when visitors download files from your website.
+
+### How it works
+
+Unlike 404 and search tracking, file download tracking is handled entirely on the client side:
+
+1. **Event Listener**: The plugin attaches a click event listener to the document.
+2. **Element Inspection**: When a user clicks a link, the script inspects the `href` attribute.
+3. **Extension Matching**: The script checks if the file extension matches a list of supported download formats.
+4. **Event Firing**: If a match is found, the download event is sent to Betterlytics.
+
+This approach ensures that all download links are tracked automatically, even those pointing to external servers or added dynamically via JavaScript.
+
+### Supported file types
+
+| Category | Extensions |
+|----------|------------|
+| **Documents** | `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.ppt`, `.pptx` |
+| **Archives** | `.zip`, `.rar`, `.tar`, `.gz`, `.dmg` |
+| **Executables** | `.exe` |
+
+### Event data
+
+| Field | Value |
+|-------|-------|
+| **Event Name** | `file-download` |
+| **Properties** | `url` - The full source URL of the file |
+| | `filename` - The name of the file extracted from the URL path |
+
+### Example payload
+
+```json
+{
+  "event": "file-download",
+  "properties": {
+    "url": "https://example.com/documents/annual-report-2024.pdf",
+    "filename": "annual-report-2024.pdf"
+  }
+}
+```
+
+### Common use cases
+
+- **Track resource popularity** - See which PDFs, guides, or documents get downloaded most
+- **Measure content ROI** - Understand which downloadable content drives engagement
+- **Monitor software downloads** - Track application or installer downloads
+- **Audit external file links** - See when visitors download files hosted elsewhere
