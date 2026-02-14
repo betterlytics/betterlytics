@@ -2,7 +2,7 @@
 
 import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
@@ -18,17 +18,16 @@ export function PricingSlider({
   handleSliderChange,
   className = '',
 }: PricingSliderProps) {
-  const locale = useLocale();
   const t = useTranslations('pricingSlider');
 
   return (
     <div className={className}>
-      <div className='mb-4 text-center'>
+      <div className='mb-4 flex h-16 flex-col items-center justify-end'>
         <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
         <NumberFlow
           className='text-3xl font-bold tabular-nums'
           value={currentRange.value}
-          locales={locale}
+          locales={'en-US'}
           format={{ notation: 'compact' }}
           suffix={currentRange.value > 10_000_000 ? '+' : undefined}
           willChange
@@ -46,17 +45,18 @@ export function PricingSlider({
           className='slider h-3 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
         />
 
-        <div className='mt-3 flex justify-between'>
-          {EVENT_RANGES.map((range) => (
-            <div
+        <div className='relative mt-3 h-4 w-full'>
+          {EVENT_RANGES.map((range, index) => (
+            <span
               key={range.label}
               className={cn(
-                'text-xs transition-colors',
+                'absolute -translate-x-1/2 text-xs transition-colors',
                 range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground',
               )}
+              style={{ left: `calc(0.5rem + (100% - 1rem) * ${index / (EVENT_RANGES.length - 1)})` }}
             >
               {range.label}
-            </div>
+            </span>
           ))}
         </div>
       </div>

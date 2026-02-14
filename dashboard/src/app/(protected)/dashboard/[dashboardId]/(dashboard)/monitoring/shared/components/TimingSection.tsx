@@ -111,7 +111,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             }
             valueParts={{
               value: state.failureThreshold,
-              suffix: tTiming('sensitivity.unit', { count: state.failureThreshold })
+              suffix: ` ${tTiming('sensitivity.unit', { count: state.failureThreshold })}`,
             }}
             recommendedValue={RECOMMENDED_FAILURE_THRESHOLD}
             disabled={isPending}
