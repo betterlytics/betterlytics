@@ -1994,7 +1994,9 @@
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Nuværende periode",
-      "previousPeriod": "Forrige periode"
+      "previousPeriod": "Forrige periode",
+      "partial": "Delvis",
+      "total": "Total"
     }
   },
   "misc": {
