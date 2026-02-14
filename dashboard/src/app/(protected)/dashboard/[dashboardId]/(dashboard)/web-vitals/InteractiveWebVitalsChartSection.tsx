@@ -138,7 +138,7 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
         totalAngle={240}
       >
         <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
-          <span className='text-muted-foreground/75 -mb-2 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
+          <span className='text-muted-foreground/75 -mb-1 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
             {metric}
           </span>
           <span

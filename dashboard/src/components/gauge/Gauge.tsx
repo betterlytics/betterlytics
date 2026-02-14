@@ -24,7 +24,6 @@ function Gauge({
   ...props
 }: GaugeProps) {
   const {
-    center,
     innerStrokeWidth,
     progressColor,
     segmentPaths,
@@ -74,7 +73,6 @@ function Gauge({
             } as React.CSSProperties
           }
         />
-
       </svg>
 
       {children}
