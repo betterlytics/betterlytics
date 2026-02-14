@@ -1,36 +1,34 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use chrono::{DateTime, Duration, Utc};
 use tracing::{error, info};
 
-use super::email as email_templates;
+use super::channel::{AlertChannel, AlertMessage, AlertMessageDetails, ChannelType};
 use super::repository::{AlertDetails, AlertHistoryRecord, AlertHistoryWriter};
-use crate::config::EmailConfig;
-use crate::email::{EmailRequest, EmailService};
 use crate::monitor::ReasonCode;
 
-#[derive(Clone, Debug)]
-pub struct AlertDispatcherConfig {
-    pub email_config: Option<EmailConfig>,
+pub struct NotificationEngineConfig {
+    pub channels: Vec<Box<dyn AlertChannel>>,
     pub public_base_url: String,
 }
 
-pub struct AlertContext<'a> {
-    pub check_id: &'a str,
-    pub site_id: &'a str,
-    pub dashboard_id: &'a str,
-    pub monitor_name: &'a str,
-    pub url: &'a str,
-    pub recipients: &'a [String],
+impl std::fmt::Debug for NotificationEngineConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NotificationEngineConfig")
+            .field("channel_count", &self.channels.len())
+            .field("public_base_url", &self.public_base_url)
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone)]
-pub enum Alert {
-    Down {
+pub enum NotificationEvent {
+    MonitorDown {
         reason_code: ReasonCode,
         status_code: Option<u16>,
     },
-    Recovery {
+    MonitorRecovery {
         downtime_duration: Option<Duration>,
     },
     SslExpiring {
@@ -43,136 +41,181 @@ pub enum Alert {
     },
 }
 
-impl Alert {
+impl NotificationEvent {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Alert::Down { .. } => "down",
-            Alert::Recovery { .. } => "recovery",
-            Alert::SslExpiring { .. } => "ssl_expiring",
-            Alert::SslExpired { .. } => "ssl_expired",
+            NotificationEvent::MonitorDown { .. } => "down",
+            NotificationEvent::MonitorRecovery { .. } => "recovery",
+            NotificationEvent::SslExpiring { .. } => "ssl_expiring",
+            NotificationEvent::SslExpired { .. } => "ssl_expired",
         }
     }
 
-    fn build_email(&self, ctx: &AlertContext, base_url: &str) -> EmailRequest {
-        match self {
-            Alert::Down { reason_code, status_code } => email_templates::build_down_alert(
-                ctx.recipients,
-                ctx.monitor_name,
-                ctx.url,
-                *reason_code,
-                *status_code,
-                base_url,
-                ctx.dashboard_id,
-                ctx.check_id,
-            ),
-            Alert::Recovery { downtime_duration } => email_templates::build_recovery_alert(
-                ctx.recipients,
-                ctx.monitor_name,
-                ctx.url,
-                *downtime_duration,
-                base_url,
-                ctx.dashboard_id,
-                ctx.check_id,
-            ),
-            Alert::SslExpiring { days_left, expiry_date } => email_templates::build_ssl_alert(
-                ctx.recipients,
-                ctx.monitor_name,
-                ctx.url,
-                *days_left,
-                *expiry_date,
-                false, // is_expired
-                base_url,
-                ctx.dashboard_id,
-                ctx.check_id,
-            ),
-            Alert::SslExpired { days_left, expiry_date } => email_templates::build_ssl_alert(
-                ctx.recipients,
-                ctx.monitor_name,
-                ctx.url,
-                *days_left,
-                *expiry_date,
-                true, // is_expired
-                base_url,
-                ctx.dashboard_id,
-                ctx.check_id,
-            ),
-        }
-    }
-
-    fn build_history_record(&self, ctx: &AlertContext) -> AlertHistoryRecord {
+    pub fn build_message(
+        &self,
+        monitor_name: &str,
+        url: &str,
+        monitor_url: &str,
+    ) -> AlertMessage {
         let details = match self {
-            Alert::Down { status_code, .. } => AlertDetails::Down {
+            NotificationEvent::MonitorDown {
+                reason_code,
+                status_code,
+            } => AlertMessageDetails::Down {
+                reason_message: reason_code.to_message().to_string(),
+                status_code: *status_code,
+            },
+            NotificationEvent::MonitorRecovery { downtime_duration } => {
+                AlertMessageDetails::Recovery {
+                    downtime_duration: *downtime_duration,
+                }
+            }
+            NotificationEvent::SslExpiring {
+                days_left,
+                expiry_date,
+            } => AlertMessageDetails::SslExpiring {
+                days_left: *days_left,
+                expiry_date: *expiry_date,
+            },
+            NotificationEvent::SslExpired {
+                days_left,
+                expiry_date,
+            } => AlertMessageDetails::SslExpired {
+                days_left: *days_left,
+                expiry_date: *expiry_date,
+            },
+        };
+
+        AlertMessage {
+            monitor_name: monitor_name.to_string(),
+            url: url.to_string(),
+            monitor_url: monitor_url.to_string(),
+            details,
+        }
+    }
+
+    fn build_history_details(&self) -> AlertDetails {
+        match self {
+            NotificationEvent::MonitorDown { status_code, .. } => AlertDetails::Down {
                 status_code: status_code.map(|c| c as i32),
             },
-            Alert::Recovery { .. } => AlertDetails::Recovery,
-            Alert::SslExpiring { days_left, .. } => {
+            NotificationEvent::MonitorRecovery { .. } => AlertDetails::Recovery,
+            NotificationEvent::SslExpiring { days_left, .. } => {
                 AlertDetails::SslExpiring { days_left: *days_left }
             }
-            Alert::SslExpired { days_left, .. } => {
+            NotificationEvent::SslExpired { days_left, .. } => {
                 AlertDetails::SslExpired { days_left: *days_left }
             }
-        };
-        AlertHistoryRecord::from_context(ctx, details)
+        }
     }
 }
 
-pub struct AlertDispatcher {
-    email_service: Option<EmailService>,
+impl std::fmt::Display for NotificationEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+pub struct Notification {
+    pub check_id: String,
+    pub site_id: String,
+    pub dashboard_id: String,
+    pub monitor_name: String,
+    pub url: String,
+    pub recipients: HashMap<ChannelType, Vec<String>>,
+    pub event: NotificationEvent,
+}
+
+pub struct NotificationEngine {
+    channels: Vec<Box<dyn AlertChannel>>,
     history_writer: Option<Arc<AlertHistoryWriter>>,
     public_base_url: String,
 }
 
-impl AlertDispatcher {
+impl std::fmt::Debug for NotificationEngine {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NotificationEngine")
+            .field("channel_count", &self.channels.len())
+            .field("has_history_writer", &self.history_writer.is_some())
+            .finish()
+    }
+}
+
+impl NotificationEngine {
     pub fn new(
-        config: AlertDispatcherConfig,
+        config: NotificationEngineConfig,
         history_writer: Option<Arc<AlertHistoryWriter>>,
     ) -> Self {
-        let email_service = config.email_config.map(EmailService::new);
-
         Self {
-            email_service,
+            channels: config.channels,
             history_writer,
             public_base_url: config.public_base_url,
         }
     }
 
-    pub fn has_email_service(&self) -> bool {
-        self.email_service.is_some()
+    pub fn has_channels(&self) -> bool {
+        !self.channels.is_empty()
+    }
+
+    pub fn channel_count(&self) -> usize {
+        self.channels.len()
     }
 
     #[tracing::instrument(
         level = "debug",
-        skip(self, ctx, alert),
-        fields(check_id = %ctx.check_id)
+        skip(self, notification),
+        fields(check_id = %notification.check_id, event = %notification.event)
     )]
-    pub async fn dispatch(&self, ctx: AlertContext<'_>, alert: Alert) -> bool {
-        let Some(email_service) = &self.email_service else {
+    pub async fn notify(&self, notification: Notification) -> bool {
+        if self.channels.is_empty() {
             info!(
-                recipients = ctx.recipients.len(),
-                alert_type = %alert.as_str(),
-                "Would send alert (email service not configured)"
+                event = %notification.event.as_str(),
+                "Would send notification (no channels configured)"
             );
             return false;
-        };
+        }
 
-        let request = alert.build_email(&ctx, &self.public_base_url);
+        let monitor_url = build_monitor_url(
+            &self.public_base_url,
+            &notification.dashboard_id,
+            &notification.check_id,
+        );
+        let message = notification.event.build_message(
+            &notification.monitor_name,
+            &notification.url,
+            &monitor_url,
+        );
+        let mut any_sent = false;
 
-        match email_service.send(request).await {
-            Ok(()) => {
-                let record = alert.build_history_record(&ctx);
-                self.record_alert_history(record);
-                true
-            }
-            Err(e) => {
-                error!(
-                    check_id = %ctx.check_id,
-                    alert_type = %alert.as_str(),
-                    error = ?e,
-                    "Failed to send alert email"
-                );
-                false
+        for channel in &self.channels {
+            let recipients = match notification.recipients.get(&channel.channel_type()) {
+                Some(r) if !r.is_empty() => r,
+                _ => continue,
+            };
+
+            match channel.send(&message, recipients).await {
+                Ok(()) => {
+                    let record = AlertHistoryRecord::new(
+                        &notification.check_id,
+                        &notification.site_id,
+                        channel.channel_type().as_str(),
+                        recipients,
+                        notification.event.build_history_details(),
+                    );
+                    self.record_alert_history(record);
+                    any_sent = true;
+                }
+                Err(e) => {
+                    error!(
+                        channel = %channel.channel_type(),
+                        error = ?e,
+                        "Failed to send notification"
+                    );
+                }
             }
         }
+
+        any_sent
     }
 
     fn record_alert_history(&self, record: AlertHistoryRecord) {
@@ -188,4 +231,11 @@ impl AlertDispatcher {
             }
         }
     }
+}
+
+fn build_monitor_url(public_base_url: &str, dashboard_id: &str, monitor_id: &str) -> String {
+    format!(
+        "{}/dashboard/{}/monitoring/{}",
+        public_base_url, dashboard_id, monitor_id
+    )
 }

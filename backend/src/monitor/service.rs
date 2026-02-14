@@ -4,11 +4,7 @@ use std::sync::Arc;
 use chrono::Duration;
 use tracing::{debug, info, warn};
 
-use super::alert::{
-    Alert, AlertContext, AlertDispatcher, AlertDispatcherConfig, AlertHistoryWriter,
-    NotificationTracker,
-};
-use crate::config::EmailConfig;
+use super::alert::{Notification, NotificationEngine, NotificationEvent, NotificationTracker};
 use crate::monitor::incident::{
     IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
     MonitorIncidentRow,
@@ -52,45 +48,28 @@ impl IncidentContext {
 #[derive(Clone, Debug)]
 pub struct IncidentOrchestratorConfig {
     pub evaluator_config: IncidentEvaluatorConfig,
-    pub email_config: Option<EmailConfig>,
-    pub public_base_url: String,
-}
-
-impl IncidentOrchestratorConfig {
-    pub fn from_config(config: &crate::config::Config) -> Self {
-        Self {
-            evaluator_config: IncidentEvaluatorConfig::default(),
-            email_config: config.email.clone(),
-            public_base_url: config.public_base_url.clone(),
-        }
-    }
 }
 
 pub struct IncidentOrchestrator {
     evaluator: IncidentEvaluator,
     notification_tracker: Arc<NotificationTracker>,
-    dispatcher: AlertDispatcher,
+    engine: NotificationEngine,
     incident_store: Option<Arc<IncidentStore>>,
 }
 
 impl IncidentOrchestrator {
     pub async fn new(
         config: IncidentOrchestratorConfig,
-        history_writer: Option<Arc<AlertHistoryWriter>>,
+        engine: NotificationEngine,
         incident_store: Option<Arc<IncidentStore>>,
     ) -> Self {
-        let dispatcher = AlertDispatcher::new(
-            AlertDispatcherConfig {
-                email_config: config.email_config,
-                public_base_url: config.public_base_url,
-            },
-            history_writer,
-        );
-
-        if !dispatcher.has_email_service() {
-            warn!("Email service not configured - incidents will be logged without alerts");
+        if !engine.has_channels() {
+            warn!("No alert channels configured - incidents will be logged without alerts");
         } else {
-            info!("Incident orchestrator initialized with email delivery");
+            info!(
+                channels = engine.channel_count(),
+                "Incident orchestrator initialized with alert channels"
+            );
         }
 
         let evaluator = IncidentEvaluator::new(config.evaluator_config);
@@ -109,7 +88,7 @@ impl IncidentOrchestrator {
         Self {
             evaluator,
             notification_tracker,
-            dispatcher,
+            engine,
             incident_store,
         }
     }
@@ -195,38 +174,21 @@ impl IncidentOrchestrator {
             return;
         }
 
-        let recipients = &alert_config.recipients;
-        if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
+        let Some(notification) = build_notification(ctx, NotificationEvent::MonitorDown {
+            reason_code: ctx.reason_code,
+            status_code: ctx.status_code,
+        }) else {
+            debug!("no recipients configured for any channel - skipping notification");
             return;
-        }
+        };
 
-        let result = self
-            .dispatcher
-            .dispatch(
-                AlertContext {
-                    check_id: &ctx.check.id,
-                    site_id: &ctx.check.site_id,
-                    dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
-                    url: ctx.check.url.as_str(),
-                    recipients,
-                },
-                Alert::Down {
-                    reason_code: ctx.reason_code,
-                    status_code: ctx.status_code,
-                },
-            )
-            .await;
-
-        if result {
+        if self.engine.notify(notification).await {
             self.notification_tracker.mark_notified_down(&ctx.check.id, incident_id);
             info!(
                 check_id = %ctx.check.id,
                 monitor = %ctx.monitor_name(),
-                recipients = recipients.len(),
                 incident_id = %incident_id,
-                "Down alert sent"
+                "Down notification sent"
             );
         }
     }
@@ -270,36 +232,21 @@ impl IncidentOrchestrator {
             return;
         }
 
-        let recipients = &alert_config.recipients;
-        if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
+        let Some(notification) = build_notification(ctx, NotificationEvent::MonitorRecovery {
+            downtime_duration,
+        }) else {
+            debug!("no recipients configured for any channel - skipping notification");
             return;
-        }
+        };
 
-        let result = self
-            .dispatcher
-            .dispatch(
-                AlertContext {
-                    check_id: &ctx.check.id,
-                    site_id: &ctx.check.site_id,
-                    dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
-                    url: ctx.check.url.as_str(),
-                    recipients,
-                },
-                Alert::Recovery { downtime_duration },
-            )
-            .await;
-
-        if result {
+        if self.engine.notify(notification).await {
             self.notification_tracker.mark_notified_recovery(&ctx.check.id, incident_id);
             info!(
                 check_id = %ctx.check.id,
                 monitor = %ctx.monitor_name(),
-                recipients = recipients.len(),
                 downtime = ?downtime_duration,
                 incident_id = %incident_id,
-                "Recovery alert sent"
+                "Recovery notification sent"
             );
         }
     }
@@ -333,47 +280,30 @@ impl IncidentOrchestrator {
             return;
         }
 
-        let recipients = &alert_config.recipients;
+        let event = if expired {
+            NotificationEvent::SslExpired {
+                days_left,
+                expiry_date: ctx.tls_not_after,
+            }
+        } else {
+            NotificationEvent::SslExpiring {
+                days_left,
+                expiry_date: ctx.tls_not_after,
+            }
+        };
 
-        if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
+        let Some(notification) = build_notification(ctx, event) else {
+            debug!("no recipients configured for any channel - skipping notification");
             return;
-        }
+        };
 
-        let result = self
-            .dispatcher
-            .dispatch(
-                AlertContext {
-                    check_id: &ctx.check.id,
-                    site_id: &ctx.check.site_id,
-                    dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
-                    url: ctx.check.url.as_str(),
-                    recipients,
-                },
-                if expired {
-                    Alert::SslExpired {
-                        days_left,
-                        expiry_date: ctx.tls_not_after,
-                    }
-                } else {
-                    Alert::SslExpiring {
-                        days_left,
-                        expiry_date: ctx.tls_not_after,
-                    }
-                },
-            )
-            .await;
-
-        if result {
+        if self.engine.notify(notification).await {
             self.notification_tracker.mark_notified_ssl(&ctx.check.id, expired, ctx.tls_not_after, days_left);
-
             info!(
                 check_id = %ctx.check.id,
                 monitor = %ctx.monitor_name(),
                 days_left = days_left,
-                recipients = recipients.len(),
-                "SSL alert sent"
+                "SSL notification sent"
             );
         }
     }
@@ -403,4 +333,20 @@ impl IncidentOrchestrator {
             warn!(error = ?err, "Failed to enqueue incident snapshot");
         }
     }
+}
+
+fn build_notification(ctx: &IncidentContext, event: NotificationEvent) -> Option<Notification> {
+    let recipients = ctx.check.alert.channel_recipients();
+    if recipients.is_empty() {
+        return None;
+    }
+    Some(Notification {
+        check_id: ctx.check.id.clone(),
+        site_id: ctx.check.site_id.clone(),
+        dashboard_id: ctx.check.dashboard_id.clone(),
+        monitor_name: ctx.monitor_name(),
+        url: ctx.check.url.to_string(),
+        recipients,
+        event,
+    })
 }

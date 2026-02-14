@@ -1,8 +1,9 @@
 use chrono::{DateTime, Duration, Utc};
 
+use super::channel::{AlertMessage, AlertMessageDetails};
+use super::formatting::{format_duration, format_ssl_days_left};
 use crate::email::templates::{html_escape, wrap_html, wrap_text};
 use crate::email::EmailRequest;
-use crate::monitor::ReasonCode;
 
 const SUBJECT_NAME_MAX_LEN: usize = 60;
 const TEXT_NAME_MAX_LEN: usize = 120;
@@ -15,84 +16,115 @@ fn sanitize_for_email(s: &str, max_len: usize) -> String {
         .collect()
 }
 
-pub fn build_down_alert(
-    recipients: &[String],
-    monitor_name: &str,
-    url: &str,
-    reason_code: ReasonCode,
-    status_code: Option<u16>,
-    public_base_url: &str,
-    dashboard_id: &str,
-    monitor_id: &str,
-) -> EmailRequest {
-    let safe_name = sanitize_for_email(monitor_name, SUBJECT_NAME_MAX_LEN);
-    let subject = format!("🚨 Uptime Alert: Site Is Down: {}", safe_name);
-    let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
-
-    let reason_message = reason_code.to_message();
-    let html = build_down_alert_html(monitor_name, url, reason_message, status_code, &monitor_url);
-    let text = build_down_alert_text(monitor_name, url, reason_message, status_code, &monitor_url);
-
-    EmailRequest {
-        to: recipients.to_vec(),
-        subject,
-        html,
-        text,
-    }
-}
-
-pub fn build_recovery_alert(
-    recipients: &[String],
-    monitor_name: &str,
-    url: &str,
-    downtime_duration: Option<Duration>,
-    public_base_url: &str,
-    dashboard_id: &str,
-    monitor_id: &str,
-) -> EmailRequest {
-    let safe_name = sanitize_for_email(monitor_name, SUBJECT_NAME_MAX_LEN);
-    let subject = format!("✅ Resolved: Site Is Back Online: {}", safe_name);
-    let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
-
-    let html = build_recovery_alert_html(monitor_name, url, downtime_duration, &monitor_url);
-    let text = build_recovery_alert_text(monitor_name, url, downtime_duration, &monitor_url);
-
-    EmailRequest {
-        to: recipients.to_vec(),
-        subject,
-        html,
-        text,
-    }
-}
-
-pub fn build_ssl_alert(
-    recipients: &[String],
-    monitor_name: &str,
-    url: &str,
-    days_left: i32,
-    expiry_date: Option<DateTime<Utc>>,
-    is_expired: bool,
-    public_base_url: &str,
-    dashboard_id: &str,
-    monitor_id: &str,
-) -> EmailRequest {
-    let safe_name = sanitize_for_email(monitor_name, SUBJECT_NAME_MAX_LEN);
-    let subject = if is_expired {
-        format!("🚨 SSL Certificate Expired: {}", safe_name)
-    } else {
-        format!("⚠️ SSL Certificate Expiring Soon: {}", safe_name)
-    };
-
-    let monitor_url = build_monitor_url(public_base_url, dashboard_id, monitor_id);
-
-    let html = build_ssl_alert_html(monitor_name, url, days_left, expiry_date, &monitor_url, is_expired);
-    let text = build_ssl_alert_text(monitor_name, url, days_left, expiry_date, &monitor_url, is_expired);
-
-    EmailRequest {
-        to: recipients.to_vec(),
-        subject,
-        html,
-        text,
+pub fn build_email_from_message(message: &AlertMessage, recipients: &[String]) -> EmailRequest {
+    match &message.details {
+        AlertMessageDetails::Down {
+            reason_message,
+            status_code,
+        } => {
+            let safe_name = sanitize_for_email(&message.monitor_name, SUBJECT_NAME_MAX_LEN);
+            let subject = format!("\u{1f6a8} Uptime Alert: Site Is Down: {}", safe_name);
+            let html = build_down_alert_html(
+                &message.monitor_name,
+                &message.url,
+                reason_message,
+                *status_code,
+                &message.monitor_url,
+            );
+            let text = build_down_alert_text(
+                &message.monitor_name,
+                &message.url,
+                reason_message,
+                *status_code,
+                &message.monitor_url,
+            );
+            EmailRequest {
+                to: recipients.to_vec(),
+                subject,
+                html,
+                text,
+            }
+        }
+        AlertMessageDetails::Recovery { downtime_duration } => {
+            let safe_name = sanitize_for_email(&message.monitor_name, SUBJECT_NAME_MAX_LEN);
+            let subject = format!("\u{2705} Resolved: Site Is Back Online: {}", safe_name);
+            let html = build_recovery_alert_html(
+                &message.monitor_name,
+                &message.url,
+                *downtime_duration,
+                &message.monitor_url,
+            );
+            let text = build_recovery_alert_text(
+                &message.monitor_name,
+                &message.url,
+                *downtime_duration,
+                &message.monitor_url,
+            );
+            EmailRequest {
+                to: recipients.to_vec(),
+                subject,
+                html,
+                text,
+            }
+        }
+        AlertMessageDetails::SslExpiring {
+            days_left,
+            expiry_date,
+        } => {
+            let safe_name = sanitize_for_email(&message.monitor_name, SUBJECT_NAME_MAX_LEN);
+            let subject = format!("\u{26a0}\u{fe0f} SSL Certificate Expiring Soon: {}", safe_name);
+            let html = build_ssl_alert_html(
+                &message.monitor_name,
+                &message.url,
+                *days_left,
+                *expiry_date,
+                &message.monitor_url,
+                false,
+            );
+            let text = build_ssl_alert_text(
+                &message.monitor_name,
+                &message.url,
+                *days_left,
+                *expiry_date,
+                &message.monitor_url,
+                false,
+            );
+            EmailRequest {
+                to: recipients.to_vec(),
+                subject,
+                html,
+                text,
+            }
+        }
+        AlertMessageDetails::SslExpired {
+            days_left,
+            expiry_date,
+        } => {
+            let safe_name = sanitize_for_email(&message.monitor_name, SUBJECT_NAME_MAX_LEN);
+            let subject = format!("\u{1f6a8} SSL Certificate Expired: {}", safe_name);
+            let html = build_ssl_alert_html(
+                &message.monitor_name,
+                &message.url,
+                *days_left,
+                *expiry_date,
+                &message.monitor_url,
+                true,
+            );
+            let text = build_ssl_alert_text(
+                &message.monitor_name,
+                &message.url,
+                *days_left,
+                *expiry_date,
+                &message.monitor_url,
+                true,
+            );
+            EmailRequest {
+                to: recipients.to_vec(),
+                subject,
+                html,
+                text,
+            }
+        }
     }
 }
 
@@ -144,7 +176,7 @@ fn build_down_alert_html(
         time = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
         status_section = status_section,
         reason_section = reason_section,
-        monitor_url = monitor_url,
+        monitor_url = html_escape(monitor_url),
     );
 
     wrap_html(&content)
@@ -220,7 +252,7 @@ fn build_recovery_alert_html(
         url = html_escape(url),
         time = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
         downtime_section = downtime_section,
-        monitor_url = monitor_url,
+        monitor_url = html_escape(monitor_url),
     );
 
     wrap_html(&content)
@@ -319,7 +351,7 @@ fn build_ssl_alert_html(
         url = html_escape(url),
         days_text = days_text,
         expiry_section = expiry_section,
-        monitor_url = monitor_url,
+        monitor_url = html_escape(monitor_url),
     );
 
     wrap_html(&content)
@@ -367,53 +399,54 @@ fn build_ssl_alert_text(
     wrap_text(&text)
 }
 
-fn format_duration(duration: Duration) -> String {
-    let total_seconds = duration.num_seconds();
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    if total_seconds < 60 {
-        format!("{} seconds", total_seconds)
-    } else if total_seconds < 3600 {
-        let minutes = total_seconds / 60;
-        let seconds = total_seconds % 60;
-        if seconds == 0 {
-            format!("{} minute{}", minutes, if minutes == 1 { "" } else { "s" })
-        } else {
-            format!("{} min {} sec", minutes, seconds)
-        }
-    } else if total_seconds < 86400 {
-        let hours = total_seconds / 3600;
-        let minutes = (total_seconds % 3600) / 60;
-        if minutes == 0 {
-            format!("{} hour{}", hours, if hours == 1 { "" } else { "s" })
-        } else {
-            format!("{} hr {} min", hours, minutes)
-        }
-    } else {
-        let days = total_seconds / 86400;
-        let hours = (total_seconds % 86400) / 3600;
-        if hours == 0 {
-            format!("{} day{}", days, if days == 1 { "" } else { "s" })
-        } else {
-            format!(
-                "{} day{} {} hr",
-                days,
-                if days == 1 { "" } else { "s" },
-                hours
-            )
+    fn make_message(details: AlertMessageDetails) -> AlertMessage {
+        AlertMessage {
+            monitor_name: "Production API".to_string(),
+            url: "https://api.example.com".to_string(),
+            monitor_url: "https://app.example.com/dashboard/d1/monitoring/c1".to_string(),
+            details,
         }
     }
-}
 
-fn build_monitor_url(public_base_url: &str, dashboard_id: &str, monitor_id: &str) -> String {
-    format!("{}/dashboard/{}/monitoring/{}", public_base_url, dashboard_id, monitor_id)
-}
+    #[test]
+    fn build_email_from_message_down_returns_correct_subject_and_recipients() {
+        let message = make_message(AlertMessageDetails::Down {
+            reason_message: "Connection refused".to_string(),
+            status_code: Some(503),
+        });
+        let recipients = vec!["admin@example.com".to_string()];
 
-fn format_ssl_days_left(days: i32) -> String {
-    if days <= 0 {
-        "Certificate has expired!".to_string()
-    } else if days == 1 {
-        "1 day remaining".to_string()
-    } else {
-        format!("{} days remaining", days)
+        let email = build_email_from_message(&message, &recipients);
+
+        assert!(email.subject.contains("Production API"));
+        assert!(email.subject.contains("Down"));
+        assert_eq!(email.to, recipients);
+        assert!(email.html.contains("503"));
+        assert!(email.text.contains("Connection refused"));
+    }
+
+    #[test]
+    fn build_email_from_message_ssl_expiring_vs_expired_subjects_differ() {
+        let expiring = make_message(AlertMessageDetails::SslExpiring {
+            days_left: 7,
+            expiry_date: None,
+        });
+        let expired = make_message(AlertMessageDetails::SslExpired {
+            days_left: -1,
+            expiry_date: None,
+        });
+        let recipients = vec!["admin@example.com".to_string()];
+
+        let expiring_email = build_email_from_message(&expiring, &recipients);
+        let expired_email = build_email_from_message(&expired, &recipients);
+
+        assert!(expiring_email.subject.contains("Expiring Soon"));
+        assert!(!expiring_email.subject.contains("Expired"));
+        assert!(expired_email.subject.contains("Expired"));
+        assert!(!expired_email.subject.contains("Expiring Soon"));
     }
 }

@@ -29,6 +29,7 @@ const createStateFromMonitor = (m: MonitorCheck): MonitorFormState => ({
   requestHeaders: ensureEmptyHeaderRow(m.requestHeaders ?? []),
   acceptedStatusCodes: m.acceptedStatusCodes ?? ['2xx'],
   alertEmails: m.alertEmails ?? [],
+  pushoverUserKey: m.pushoverUserKey ?? null,
 });
 
 type CreateOptions = { mode: 'create' };

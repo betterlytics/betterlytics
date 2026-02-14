@@ -1984,7 +1984,10 @@
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
       "sslExpiryDays": "Days before expiry",
       "sslExpiryDaysDescription": "Send an alert this many days before the SSL certificate expires",
-      "daysCount": "{count, plural, one {{count} day} other {{count} days}}"
+      "daysCount": "{count, plural, one {{count} day} other {{count} days}}",
+      "pushoverUserKey": "Pushover User Key",
+      "pushoverUserKeyDescription": "Enter your Pushover user key or group key to receive push notifications. Get your key from pushover.net.",
+      "pushoverUserKeyPlaceholder": "e.g. uQiRzpo4DXghDmr9QZgQ..."
     }
   },
   "charts": {
