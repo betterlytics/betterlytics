@@ -10,6 +10,7 @@ export type MonitoringCapabilities = {
   httpMethodConfigurable: boolean;
   customStatusCodes: boolean;
   customHeaders: boolean;
+  keywordValidation: boolean;
 };
 
 export type EmailReportCapabilities = {
@@ -31,6 +32,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       httpMethodConfigurable: false,
       customStatusCodes: false,
       customHeaders: false,
+      keywordValidation: false,
     },
     emailReports: { emailReportsEnabled: false },
   },
@@ -42,6 +44,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
+      keywordValidation: true,
     },
     emailReports: { emailReportsEnabled: true },
   },
@@ -53,6 +56,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
+      keywordValidation: true,
     },
     emailReports: { emailReportsEnabled: true },
   },
