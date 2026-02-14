@@ -7,6 +7,7 @@ import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
 import { usePartialBucketRange } from '@/hooks/use-partial-bucket-range';
+import { useTranslations } from 'next-intl';
 
 interface PayloadEntry {
   value: number;
@@ -34,12 +35,10 @@ export function StackedAreaChartTooltip({
   comparisonMap,
   granularity,
 }: StackedAreaChartTooltipProps) {
+  const t = useTranslations('charts.tooltip');
   const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(label)) ?? null;
 
-  const { partialRange, comparePartialRange } = usePartialBucketRange(
-    label,
-    comparisonData?.compareDate,
-  );
+  const { partialRange, comparePartialRange } = usePartialBucketRange(label, comparisonData?.compareDate);
 
   if (!active || !payload || !payload.length || !label) {
     return null;
@@ -73,7 +72,8 @@ export function StackedAreaChartTooltip({
         </div>
         {partialRange && (
           <div className='text-muted-foreground/60 mt-0.5 text-xs'>
-            (<span className='italic'>Partial: </span>{partialRange})
+            (<span className='italic'>{t('partial')}: </span>
+            {partialRange})
           </div>
         )}
         {hasComparison && comparisonData && (
@@ -81,7 +81,8 @@ export function StackedAreaChartTooltip({
             <div className='text-sm'>{labelFormatter(comparisonData.compareDate, granularity)}</div>
             {comparePartialRange && (
               <div className='text-xs'>
-                (<span className='italic'>Partial: </span>{comparePartialRange})
+                (<span className='italic'>{t('partial')}: </span>
+                {comparePartialRange})
               </div>
             )}
           </div>
@@ -127,7 +128,7 @@ export function StackedAreaChartTooltip({
         <div className='flex items-center justify-between gap-3'>
           <div className='flex items-center gap-2'>
             <div className='w-2 shrink-0' />
-            <span className='text-popover-foreground text-sm font-medium'>Total</span>
+            <span className='text-popover-foreground text-sm font-medium'>{t('total')}</span>
           </div>
           <div className='flex items-center gap-2'>
             {hasComparison && (

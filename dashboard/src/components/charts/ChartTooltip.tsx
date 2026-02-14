@@ -5,6 +5,7 @@ import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
 import { type ComparisonMapping } from '@/types/charts';
 import { formatNumber } from '@/utils/formatters';
 import { usePartialBucketRange } from '@/hooks/use-partial-bucket-range';
+import { useTranslations } from 'next-intl';
 
 interface ChartTooltipProps {
   payload?: {
@@ -30,13 +31,11 @@ export function ChartTooltip({
   comparisonMap,
   title,
 }: ChartTooltipProps) {
+  const t = useTranslations('charts.tooltip');
   const name = label || payload?.[0]?.payload.name || payload?.[0]?.payload.label;
   const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(name));
 
-  const { partialRange, comparePartialRange } = usePartialBucketRange(
-    name,
-    comparisonData?.compareDate,
-  );
+  const { partialRange, comparePartialRange } = usePartialBucketRange(name, comparisonData?.compareDate);
 
   if (!active || !payload || !payload.length) {
     return null;
@@ -79,7 +78,8 @@ export function ChartTooltip({
               <span className='text-popover-foreground text-sm'>{labelFormatter(name)}</span>
               {partialRange && (
                 <div className='text-muted-foreground/60 text-xs'>
-                  (<span className='italic'>Partial: </span>{partialRange})
+                  (<span className='italic'>{t('partial')}: </span>
+                  {partialRange})
                 </div>
               )}
             </div>
@@ -97,7 +97,8 @@ export function ChartTooltip({
                 <span className='text-popover-foreground/60 text-sm'>{previousDateLabel}</span>
                 {comparePartialRange && (
                   <div className='text-muted-foreground/60 text-xs'>
-                    (<span className='italic'>Partial: </span>{comparePartialRange})
+                    (<span className='italic'>{t('partial')}: </span>
+                    {comparePartialRange})
                   </div>
                 )}
               </div>

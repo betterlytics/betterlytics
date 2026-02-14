@@ -1991,7 +1991,9 @@
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Current Period",
-      "previousPeriod": "Previous Period"
+      "previousPeriod": "Previous Period",
+      "partial": "Partial",
+      "total": "Total"
     }
   },
   "misc": {
