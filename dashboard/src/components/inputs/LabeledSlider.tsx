@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useLocale, useTranslations } from 'next-intl';
-import NumberFlow from '@number-flow/react';
+import NumberFlow, { type Format } from '@number-flow/react';
 
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -23,7 +23,7 @@ export type LabeledSliderProps = {
   marks: SliderMark[];
   onValueChange: (value: number) => void;
   formatValue: (value: number) => string;
-  valueParts?: { value: number; intlUnit?: 'second' | 'minute' | 'hour' | 'day'; suffix?: string };
+  valueParts?: { value: number; format?: Format; suffix?: string };
   recommendedValue?: number;
   disabled?: boolean;
   minAllowed?: number;
@@ -80,21 +80,18 @@ export function LabeledSlider({
         </div>
         <Badge
           variant='secondary'
-          className='ring-border mb-1 grid items-baseline text-xs font-medium ring-1 transition-[grid-template-columns] duration-300 ease-out'
-          style={{ gridTemplateColumns: isRecommended ? 'auto 1fr' : 'auto 0fr' }}
+          className={cn(
+            'ring-border mb-1 grid items-baseline text-xs font-medium ring-1',
+            'transition-[grid-template-columns] duration-300 ease-out',
+            isRecommended ? 'grid-cols-[auto_1fr]' : 'grid-cols-[auto_0fr]',
+          )}
         >
           {valueParts ? (
             <NumberFlow
-              value={valueParts.value}
-              locales={locale}
-              format={
-                valueParts.intlUnit
-                  ? { style: 'unit', unit: valueParts.intlUnit, unitDisplay: 'narrow' }
-                  : undefined
-              }
-              suffix={valueParts.suffix ? ` ${valueParts.suffix}` : undefined}
-              willChange
               className='tabular-nums'
+              locales={locale}
+              willChange
+              {...valueParts}
             />
           ) : (
             formatValue(value)

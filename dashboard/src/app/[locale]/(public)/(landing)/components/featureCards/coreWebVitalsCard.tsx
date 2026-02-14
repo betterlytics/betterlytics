@@ -96,7 +96,7 @@ function AnimatedGaugeGrid() {
   return (
     <NumberFlowGroup>
       <div
-        className='flex w-full flex-wrap-reverse justify-evenly gap-4'
+        className='flex w-full flex-wrap-reverse justify-evenly gap-x-4 gap-y-6'
         style={{ ['--number-flow-duration' as string]: '700ms' }}
       >
         {GAUGE_CONFIGS.map((config) => (
