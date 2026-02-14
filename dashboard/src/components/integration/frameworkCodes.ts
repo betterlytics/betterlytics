@@ -119,7 +119,7 @@ export function getFrameworkCode(
   t: IntegrationTranslations,
 ): FrameworkCode {
   const { siteId, analyticsUrl, serverUrl, isCloud } = config;
-  const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}"` : '';
+  const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}/event"` : '';
 
   const trackingScript = `<script async
     src="${analyticsUrl}/analytics.js"
