@@ -82,20 +82,20 @@ export function formatCompactDuration(seconds: number): string {
 }
 
 /**
- * Splits seconds into a value and an Intl-compatible unit for animation purposes.
- * Logic matches formatCompactDuration but returns parts suitable for Intl.NumberFormat.
+ * Splits seconds into a value and an Intl.NumberFormat config for animation purposes.
+ * Logic matches formatCompactDuration but returns parts suitable for animated display.
  */
 export function splitCompactDuration(seconds: number): {
   value: number;
-  intlUnit: 'second' | 'minute' | 'hour' | 'day';
+  format: { style: 'unit'; unit: 'second' | 'minute' | 'hour' | 'day'; unitDisplay: 'narrow' };
 } {
-  if (seconds < 60) return { value: seconds, intlUnit: 'second' };
+  if (seconds < 60) return { value: seconds, format: { style: 'unit', unit: 'second', unitDisplay: 'narrow' } };
   const minutes = seconds / 60;
-  if (minutes < 60) return { value: minutes, intlUnit: 'minute' };
+  if (minutes < 60) return { value: minutes, format: { style: 'unit', unit: 'minute', unitDisplay: 'narrow' } };
   const hours = minutes / 60;
-  if (hours < 24) return { value: hours, intlUnit: 'hour' };
+  if (hours < 24) return { value: hours, format: { style: 'unit', unit: 'hour', unitDisplay: 'narrow' } };
   const days = hours / 24;
-  return { value: days, intlUnit: 'day' };
+  return { value: days, format: { style: 'unit', unit: 'day', unitDisplay: 'narrow' } };
 }
 
 /**
