@@ -2216,7 +2216,7 @@
       },
       "geography": {
         "title": "Inizializzazione mappa mondiale",
-        "description": "Preparazione di una visualizzazione geografica delle tue visite..."
+        "description": "Preparazione di una visualizzazione geografica dei dati dei visitatori..."
       }
     },
     "devices": {

@@ -2208,7 +2208,7 @@
       },
       "geography": {
         "title": "Initialiserer verdenskort",
-        "description": "Forbereder en geografisk visualisering af dine besøg..."
+        "description": "Forbereder en geografisk visualisering af besøgsdata..."
       }
     },
     "devices": {

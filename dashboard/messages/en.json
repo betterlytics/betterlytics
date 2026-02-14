@@ -2205,7 +2205,7 @@
       },
       "geography": {
         "title": "Initializing world map",
-        "description": "Preparing a geographic visualization of your visits..."
+        "description": "Preparing a geographic visualization of visitor data..."
       }
     },
     "devices": {
