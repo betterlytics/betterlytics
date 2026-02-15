@@ -31,7 +31,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
 
   return (
     <Card
-      className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'
+      className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-card'
       onClick={handleCardClick}
     >
       <div className='block h-full'>
