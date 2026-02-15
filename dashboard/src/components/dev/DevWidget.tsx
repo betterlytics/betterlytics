@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { useTheme } from 'next-themes';
-import { useRouter, usePathname } from '@/i18n/navigation';
 import { useLocale } from 'next-intl';
 import { Wrench } from 'lucide-react';
 import { toast } from 'sonner';
@@ -11,7 +10,10 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METADATA, type SupportedLanguages } from '@/constants/i18n';
 import { updateDevSubscriptionAction } from '@/app/actions/dev.actions';
+import { updateUserSettingsAction } from '@/app/actions/account/userSettings.action';
 import { TIER_TO_PLANNAME_KEY, type TierName } from '@/lib/billing/plans';
+import { useRouter } from 'next/navigation';
+import type { Theme } from '@prisma/client';
 
 interface DevWidgetProps {
   initialTier: TierName;
@@ -31,7 +33,6 @@ const THEMES = [
 export function DevWidget({ initialTier }: DevWidgetProps) {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const pathname = usePathname();
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
   const [currentTier, setCurrentTier] = useState<TierName>(initialTier);
@@ -50,8 +51,17 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
   }
 
   function handleLanguageChange(lang: string) {
-    router.push(pathname, { locale: lang as SupportedLanguages });
-    router.refresh();
+    startTransition(async () => {
+      await updateUserSettingsAction({ language: lang as SupportedLanguages });
+      router.refresh();
+    });
+  }
+
+  function handleThemeChange(value: string) {
+    setTheme(value);
+    startTransition(async () => {
+      await updateUserSettingsAction({ theme: value as Theme });
+    });
   }
 
   return (
@@ -104,7 +114,7 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
 
             <div className='grid gap-1.5'>
               <label className='text-muted-foreground text-xs'>Theme</label>
-              <Select value={theme} onValueChange={setTheme}>
+              <Select value={theme} onValueChange={handleThemeChange}>
                 <SelectTrigger size='sm' className='w-full'>
                   <SelectValue />
                 </SelectTrigger>
