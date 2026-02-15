@@ -48,7 +48,7 @@ export function TableTrendIndicator({
   return (
     <div className='flex items-center gap-1 text-xs'>
       <span className='text-foreground opacity-75'>vs {formatter(comparedData)}</span>
-      {comparedData !== 0 && <TrendPercentage percentage={percentage} withIcon />}
+      {comparedData !== 0 && <TrendPercentage percentage={percentage} withIcon locale={locale} />}
     </div>
   );
 }

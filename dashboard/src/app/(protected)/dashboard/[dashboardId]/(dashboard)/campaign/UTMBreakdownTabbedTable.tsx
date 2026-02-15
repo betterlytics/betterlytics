@@ -70,7 +70,7 @@ export default function UTMBreakdownTabbedTable({
         {
           accessorKey: 'pagesPerSession',
           header: t('columns.pagesPerSession'),
-          cell: ({ row }) => <div>{row.getValue<number>('pagesPerSession').toFixed(1)}</div>,
+          cell: ({ row }) => <div>{new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(row.getValue<number>('pagesPerSession'))}</div>,
         },
       ];
     },

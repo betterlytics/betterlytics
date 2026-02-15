@@ -47,7 +47,7 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouse
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors, locale)}</span>
             {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined && (
-              <TrendPercentage percentage={percentageChange} withParenthesis={true} withIcon={true} />
+              <TrendPercentage percentage={percentageChange} withParenthesis={true} withIcon={true} locale={locale} />
             )}
           </div>
         </div>

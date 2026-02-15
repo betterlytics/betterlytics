@@ -88,7 +88,7 @@ function MapPopupContentComponent({
       <div className='flex items-center gap-1'>
         <span className='text-muted-foreground'>{t('geography.visitors')}</span>
         {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
-          <TrendPercentage percentage={percentageChange} withParenthesis withIcon />
+          <TrendPercentage percentage={percentageChange} withParenthesis withIcon locale={locale} />
         ) : (
           <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors, locale)}</span>
         )}

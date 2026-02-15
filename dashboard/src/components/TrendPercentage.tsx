@@ -2,18 +2,18 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { formatPercentage } from '@/utils/formatters';
 import { TrendIndicator } from './TrendIndicator';
-import { useLocale } from 'next-intl';
+import { SupportedLanguages } from '@/constants/i18n';
 
 type TrendPercentageProps = {
   percentage?: number | null;
   withIcon?: boolean;
   withParenthesis?: boolean;
   noChangeText?: string;
+  locale: SupportedLanguages;
 };
 
 const TrendPercentage = React.memo(
-  ({ percentage, withIcon, withParenthesis, noChangeText }: TrendPercentageProps) => {
-    const locale = useLocale();
+  ({ percentage, withIcon, withParenthesis, noChangeText, locale }: TrendPercentageProps) => {
     if (percentage === undefined || percentage === null) {
       return null;
     }
