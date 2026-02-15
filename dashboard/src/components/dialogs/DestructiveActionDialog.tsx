@@ -2,7 +2,7 @@
 
 import { type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,8 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { useCountdown } from '@/hooks/use-countdown';
+import { CountdownButton } from '@/components/uiExtensions/CountdownButton';
 import { cn } from '@/lib/utils';
 
 type DestructiveActionDialogProps = {
@@ -54,20 +53,6 @@ export function DestructiveActionDialog({
   const resolvedPendingLabel = pendingLabel ?? t('deleting');
   const resolvedCancelLabel = cancelLabel ?? t('cancel');
 
-  const hasCountdown = countdownSeconds != null && countdownSeconds > 0;
-  const { countdown, isFinished: canConfirm } = useCountdown({
-    initialValue: countdownSeconds ?? 0,
-    isRunning: hasCountdown && open,
-  });
-
-  const isConfirmDisabled = isPending || (hasCountdown && !canConfirm);
-
-  const buttonLabel = (() => {
-    if (isPending) return resolvedPendingLabel;
-    if (hasCountdown && !canConfirm) return `${resolvedConfirmLabel} (${countdown})`;
-    return resolvedConfirmLabel;
-  })();
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent onClick={onClick}>
@@ -86,15 +71,15 @@ export function DestructiveActionDialog({
             {resolvedCancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction asChild>
-            <Button
-              variant='destructive'
+            <CountdownButton
               onClick={onConfirm}
-              disabled={isConfirmDisabled}
-              className='cursor-pointer'
+              isPending={isPending}
+              isCountdownActive={open}
+              countdownSeconds={countdownSeconds}
+              pendingLabel={resolvedPendingLabel}
             >
-              {isPending ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Trash2 className='mr-2 h-4 w-4' />}
-              {buttonLabel}
-            </Button>
+              {resolvedConfirmLabel}
+            </CountdownButton>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
