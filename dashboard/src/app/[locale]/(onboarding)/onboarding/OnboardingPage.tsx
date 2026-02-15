@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { baEvent } from '@/lib/ba-event';
 import { OnboardingProgress } from './OnboardingProgress';
 import { AnimatePresence, motion } from 'motion/react';
 import WebsiteSetup from './steps/WebsiteSetup';
@@ -12,10 +13,20 @@ type Steps = 'website' | 'integration';
 
 type OnboardingPageProps = {
   initialStep: Steps;
+  isNewUser?: boolean;
 };
 
-export default function OnboardingPage({ initialStep }: OnboardingPageProps) {
+export default function OnboardingPage({ initialStep, isNewUser }: OnboardingPageProps) {
   const [step, setStep] = useState<Steps>(initialStep);
+
+  useEffect(() => {
+    if (isNewUser) {
+      const timeout = setTimeout(() => {
+        baEvent('onboarding-account-created');
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [isNewUser]);
 
   return (
     <main className='relative mb-0 flex w-full flex-1 flex-col items-center gap-2 pt-6'>
