@@ -61,7 +61,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
         <ChevronDown className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/timing:rotate-180' />
       </CollapsibleTrigger>
 
-      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
         <div className='space-y-6 pt-4'>
           <LabeledSlider
             label={tTiming('interval.label')}

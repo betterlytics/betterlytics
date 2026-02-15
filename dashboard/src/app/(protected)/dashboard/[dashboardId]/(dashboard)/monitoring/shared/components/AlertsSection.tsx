@@ -50,7 +50,7 @@ export function AlertsSection({
         </div>
       </CollapsibleTrigger>
 
-      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
         <div className='space-y-5 pt-4'>
           <SettingToggle
             id='alerts-enabled'
