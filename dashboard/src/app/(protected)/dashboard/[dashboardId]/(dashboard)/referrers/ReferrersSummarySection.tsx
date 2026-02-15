@@ -41,7 +41,7 @@ export default function ReferrersSummarySection({
     },
     {
       title: t('avgSessionDuration'),
-      value: formatDuration(summaryData.avgSessionDuration),
+      value: formatDuration(summaryData.avgSessionDuration, locale),
       rawChartData: summaryData.avgSessionDurationChartData,
       valueField: 'avgSessionDuration',
       chartColor: 'var(--chart-1)',

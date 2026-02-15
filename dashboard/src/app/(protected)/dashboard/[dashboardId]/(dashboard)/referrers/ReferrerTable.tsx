@@ -135,7 +135,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
       accessorKey: 'avg_visit_duration',
       header: t('columns.avgVisitDuration'),
       cell: ({ row }) => (
-        <TableCompareCell row={row.original} dataKey='avg_visit_duration' formatter={formatDuration} />
+        <TableCompareCell row={row.original} dataKey='avg_visit_duration' formatter={(val) => formatDuration(val, locale)} />
       ),
       accessorFn: (row) => row.current.avg_visit_duration,
     },

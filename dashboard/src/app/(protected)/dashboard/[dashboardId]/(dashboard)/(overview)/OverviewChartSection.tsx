@@ -72,7 +72,7 @@ export default function OverviewChartSection({
         title: t('metrics.avgVisitDuration'),
         valueField: 'avg_visit_duration',
         color: 'var(--chart-1)',
-        formatValue: formatDuration,
+        formatValue: (value: number) => formatDuration(value, locale),
       },
     }),
     [t, locale],

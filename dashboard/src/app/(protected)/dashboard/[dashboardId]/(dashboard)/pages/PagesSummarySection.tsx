@@ -35,7 +35,7 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
     },
     {
       title: t('avgTimeOnPage'),
-      value: formatDuration(summaryWithCharts.avgTimeOnPage),
+      value: formatDuration(summaryWithCharts.avgTimeOnPage, locale),
       rawChartData: summaryWithCharts.avgTimeChartData,
       comparePercentage: summaryWithCharts.compareValues.avgTimeOnPage,
       valueField: 'value',

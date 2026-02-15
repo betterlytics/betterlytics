@@ -47,7 +47,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
     [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate, t, locale],
   );
 
-  const titleText = `${ctx.startDate.toLocaleString()} - ${ctx.endDate.toLocaleString()}`;
+  const titleText = `${ctx.startDate.toLocaleString(locale)} - ${ctx.endDate.toLocaleString(locale)}`;
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>

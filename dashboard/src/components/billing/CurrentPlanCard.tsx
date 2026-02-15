@@ -46,7 +46,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           <div className='flex-1'>
             <p className='text-sm font-medium text-orange-800 dark:text-orange-200'>{t('canceledBannerTitle')}</p>
             <p className='text-xs text-orange-700 dark:text-orange-300'>
-              {t('canceledBannerBody', { date: subscription.currentPeriodEnd.toLocaleDateString() })}
+              {t('canceledBannerBody', { date: subscription.currentPeriodEnd.toLocaleDateString(locale) })}
             </p>
           </div>
         </div>

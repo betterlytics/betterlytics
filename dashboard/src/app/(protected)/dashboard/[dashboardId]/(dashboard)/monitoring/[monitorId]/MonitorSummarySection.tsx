@@ -102,6 +102,7 @@ function NextCheckCard({
   onCountdownExpired?: () => void;
   currentStateSince?: string;
 }) {
+  const locale = useLocale();
   const t = useTranslations('monitoringDetailPage.summary.nextCheck');
   const tMonitoringPage = useTranslations('monitoringPage');
   const tList = useTranslations('monitoringPage.list');
@@ -149,11 +150,11 @@ function NextCheckCard({
     if (isPaused) return t('helperPaused');
     if (isPreparing) return t('helperPreparing');
     if (currentStateSince) {
-      const duration = formatElapsedTime(new Date(currentStateSince));
+      const duration = formatElapsedTime(new Date(currentStateSince), locale);
       return operationalState === 'down' ? t('helperDownFor', { duration }) : t('helperUpFor', { duration });
     }
     return null;
-  }, [isPaused, isPreparing, currentStateSince, operationalState, t]);
+  }, [isPaused, isPreparing, currentStateSince, operationalState, t, locale]);
 
   const isBackedOff = (backoffLevel ?? 0) > 0 && (effectiveIntervalSeconds ?? 0) > 0;
 

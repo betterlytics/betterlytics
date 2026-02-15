@@ -72,7 +72,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         accessorKey: 'avgTime',
         header: t('avgTime'),
         cell: ({ row }) => (
-          <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} allowNullish />
+          <TableCompareCell row={row.original} dataKey='avgTime' formatter={(val) => formatDuration(val, locale)} allowNullish />
         ),
         accessorFn: (row) => row.current.avgTime,
       },

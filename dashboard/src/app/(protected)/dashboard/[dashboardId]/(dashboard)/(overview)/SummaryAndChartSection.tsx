@@ -78,7 +78,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('avgVisitDuration'),
-      value: formatDuration(summary.avgVisitDuration),
+      value: formatDuration(summary.avgVisitDuration, locale),
       rawChartData: summary.avgVisitDurationChartData,
       valueField: 'avg_visit_duration',
       comparePercentage: summary.compareValues.avgVisitDuration,

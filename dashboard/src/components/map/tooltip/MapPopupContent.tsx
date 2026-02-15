@@ -109,14 +109,14 @@ function MapPopupContentComponent({
                     locale,
                   })
             }
-            tooltip={`${resolvedMain.start.toLocaleString()} - ${resolvedMain.end.toLocaleString()}`}
+            tooltip={`${resolvedMain.start.toLocaleString(locale)} - ${resolvedMain.end.toLocaleString(locale)}`}
             value={formatNumber(geoVisitor.visitors, locale)}
           />
           {resolvedCompare && (
             <Row
               color='bg-chart-comparison'
               label={t('timeRange.previousPeriod')}
-              tooltip={`${resolvedCompare.start.toLocaleString()} - ${resolvedCompare.end.toLocaleString()}`}
+              tooltip={`${resolvedCompare.start.toLocaleString(locale)} - ${resolvedCompare.end.toLocaleString(locale)}`}
               value={formatNumber(geoVisitor.compareVisitors ?? 0, locale)}
               muted
             />

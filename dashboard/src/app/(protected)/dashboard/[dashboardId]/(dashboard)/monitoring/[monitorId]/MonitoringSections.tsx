@@ -224,12 +224,12 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   const t = useTranslations('monitoring.incidentStatus');
   const tReason = useTranslations('monitor.reason');
+  const locale = useLocale();
   const start = new Date(segment.start);
-  const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';
+  const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000), locale) : '—';
   const presentation = presentIncidentState(segment.state);
   const label = t(presentation.labelKey);
   const reasonKey = getReasonTranslationKey(segment.reason);
-  const locale = useLocale();
   return (
     <TableRow className='text-sm'>
       <TableCell>

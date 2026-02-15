@@ -9,6 +9,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import {
   presentMonitorStatus,
@@ -98,6 +99,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                       currentStateSince: monitor.currentStateSince,
                       isUp: statusPresentation.label === 'Up',
                       t,
+                      locale,
                     }) || (!hasData ? t('list.noData') : '')}
                   </span>
                 </div>
@@ -128,6 +130,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                             currentStateSince: monitor.currentStateSince,
                             isUp: statusPresentation.label === 'Up',
                             t,
+                            locale,
                           })}
                         </span>
                       )}
@@ -248,10 +251,11 @@ type StatusDurationTextParams = {
   currentStateSince: string | null | undefined;
   isUp: boolean;
   t: ReturnType<typeof useTranslations<'monitoringPage'>>;
+  locale: SupportedLanguages;
 };
 
-function getStatusDurationText({ currentStateSince, isUp, t }: StatusDurationTextParams): string {
+function getStatusDurationText({ currentStateSince, isUp, t, locale }: StatusDurationTextParams): string {
   if (!currentStateSince) return '';
   const prefix = isUp ? t('list.upPrefix') : t('list.downPrefix');
-  return `${prefix} ${formatElapsedTime(new Date(currentStateSince))}`;
+  return `${prefix} ${formatElapsedTime(new Date(currentStateSince), locale)}`;
 }

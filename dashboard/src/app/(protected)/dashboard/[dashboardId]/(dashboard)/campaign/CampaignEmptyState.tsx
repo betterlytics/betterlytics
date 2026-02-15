@@ -1,16 +1,18 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { formatDuration } from '@/utils/dateFormatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 const MOCK_CAMPAIGNS = [
-  { name: 'summer_sale_2024', visitors: '3,847', bounceRate: '32%', duration: '2m 14s' },
-  { name: 'product_launch', visitors: '2,156', bounceRate: '28%', duration: '3m 05s' },
-  { name: 'newsletter_promo', visitors: '1,423', bounceRate: '41%', duration: '1m 48s' },
+  { name: 'summer_sale_2024', visitors: 3847, bounceRate: 32, durationSeconds: 134 },
+  { name: 'product_launch', visitors: 2156, bounceRate: 28, durationSeconds: 185 },
+  { name: 'newsletter_promo', visitors: 1423, bounceRate: 41, durationSeconds: 108 },
 ];
 
 function SkeletonCampaignRow({
@@ -21,6 +23,7 @@ function SkeletonCampaignRow({
   isMain?: boolean;
 }) {
   const t = useTranslations('components.campaign.campaignRow');
+  const locale = useLocale();
 
   return (
     <Card
@@ -46,7 +49,7 @@ function SkeletonCampaignRow({
               {campaign.name}
             </div>
             <div className='text-muted-foreground/50 text-xs'>
-              {t('visitors', { count: parseInt(campaign.visitors.replace(',', '')) })}
+              {t('visitors', { count: campaign.visitors })}
             </div>
           </div>
         </div>
@@ -62,7 +65,7 @@ function SkeletonCampaignRow({
                 isMain ? 'text-foreground/70' : 'text-foreground/40',
               )}
             >
-              {campaign.bounceRate}
+              {formatPercentage(campaign.bounceRate, locale, { minimumFractionDigits: 0 })}
             </div>
           </div>
 
@@ -76,7 +79,7 @@ function SkeletonCampaignRow({
                 isMain ? 'text-foreground/70' : 'text-foreground/40',
               )}
             >
-              {campaign.duration}
+              {formatDuration(campaign.durationSeconds, locale)}
             </div>
           </div>
 
