@@ -2225,6 +2225,10 @@
       "dashboard": {
         "initializing": "Inizializzazione dashboard",
         "loadingSettings": "Caricamento impostazioni della dashboard..."
+      },
+      "geography": {
+        "title": "Inizializzazione mappa mondiale",
+        "description": "Preparazione di una visualizzazione geografica dei dati dei visitatori..."
       }
     },
     "devices": {
@@ -2550,7 +2554,6 @@
     },
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
-      "loading": "Caricamento mappa...",
       "visitors": "Visitatori"
     },
     "userJourney": {
