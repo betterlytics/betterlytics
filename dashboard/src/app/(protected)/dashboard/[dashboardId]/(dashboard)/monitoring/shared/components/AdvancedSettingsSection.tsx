@@ -87,7 +87,11 @@ export function AdvancedSettingsSection({
               {({ locked }) => (
                 <Tabs
                   value={form.state.httpMethod}
-                  onValueChange={(v) => !locked && form.setField('httpMethod')(v as 'HEAD' | 'GET')}
+                  onValueChange={(v) => {
+                    const method = v as 'HEAD' | 'GET';
+                    if (locked && method !== 'HEAD') return;
+                    form.setField('httpMethod')(method);
+                  }}
                 >
                   <TabsList className='h-8'>
                     <TabsTrigger value='HEAD' disabled={isPending} className='px-3 py-1 text-xs font-medium'>
@@ -120,9 +124,13 @@ export function AdvancedSettingsSection({
                     type='text'
                     placeholder={t('advanced.expectedKeyword.placeholder')}
                     value={form.state.expectedKeyword ?? ''}
-                    onChange={(e) => !locked && form.setField('expectedKeyword')(e.target.value || null)}
+                    onChange={(e) => {
+                      const value = e.target.value || null;
+                      if (locked && value !== null) return;
+                      form.setField('expectedKeyword')(value);
+                    }}
                     maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
-                    disabled={isPending || locked || form.state.httpMethod !== 'GET'}
+                    disabled={isPending || (locked && !form.state.expectedKeyword) || form.state.httpMethod !== 'GET'}
                     className='h-9 text-sm'
                   />
                   <p className='text-muted-foreground text-xs'>
