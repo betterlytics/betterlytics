@@ -1,7 +1,3 @@
-import { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import { formatCompactFromMilliseconds } from './dateFormatters';
-import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
-
 /**
  * Format a number to a presentable string with K/M suffix
  * @param num The number to format
@@ -59,23 +55,6 @@ export function formatString(value: string, maxLength: number = 50) {
  */
 export function capitalizeFirstLetter(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
-  if (value === null || value === undefined) return '—';
-  if (metric === 'CLS') {
-    return Number(value.toFixed(clsDecimals)).toString();
-  }
-  return formatCompactFromMilliseconds(value);
-}
-
-export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null | undefined): string | undefined {
-  if (value === null || value === undefined) return undefined;
-  const [goodThreshold, fairThreshold] = CWV_THRESHOLDS[metric] ?? [];
-  if (goodThreshold === undefined || fairThreshold === undefined) return undefined;
-  if (value > fairThreshold) return 'var(--cwv-threshold-poor)';
-  if (value > goodThreshold) return 'var(--cwv-threshold-fair)';
-  return 'var(--cwv-threshold-good)';
 }
 
 export type DowntimeMetadata = {
