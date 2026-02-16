@@ -120,6 +120,19 @@ export function formatCompactFromMilliseconds(milliseconds: number | null | unde
   return formatCompactSeconds(milliseconds / 1000);
 }
 
+/**
+ * Splits milliseconds into a value and an Intl-compatible unit for animation purposes.
+ * < 1000ms → milliseconds (rounded), >= 1000ms → seconds (with decimal)
+ */
+export function splitCompactFromMilliseconds(ms: number): {
+  value: number;
+  format: { style: 'unit'; unit: 'millisecond' | 'second'; unitDisplay: 'narrow' };
+} {
+  const rounded = Math.round(ms);
+  if (rounded < 1000) return { value: rounded, format: { style: 'unit', unit: 'millisecond', unitDisplay: 'narrow' } };
+  return { value: ms / 1000, format: { style: 'unit', unit: 'second', unitDisplay: 'narrow' } };
+}
+
 /*
  * Format a timestamp in the format of mm:ss
  */
