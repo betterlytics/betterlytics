@@ -61,6 +61,7 @@ const envSchema = z.object({
   S3_SSE_ENABLED: zStringBoolean,
   OTEL_SERVICE_NAME: z.string().optional(),
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
+  IS_DEVELOPMENT: zStringBoolean,
 });
 
 export const env = envSchema.parse(process.env);
