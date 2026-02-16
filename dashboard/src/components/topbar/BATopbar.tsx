@@ -155,7 +155,7 @@ export default function BATopbar() {
 
                       {isCloud && (
                         <DropdownMenuItem asChild className='cursor-pointer'>
-                          <ExternalLink href='/docs' title={t('documentationTitle')}>
+                          <ExternalLink href='https://betterlytics.io/docs' title={t('documentationTitle')}>
                             <ExternalLinkIcon className='mr-2 h-4 w-4' />
                             <span>{t('documentation')}</span>
                           </ExternalLink>
