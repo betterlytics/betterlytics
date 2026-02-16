@@ -82,7 +82,7 @@ How many consecutive failures are required before we open an incident and send a
 - **Higher thresholds**: More tolerant of brief issues, but slower to alert on real outages.
 
 <Callout type="warning">
-The failure threshold only controls when a **new incident** is opened. Once an incident is open, it stays open until recovery—we don't require the threshold to be met again for subsequent failures.
+The failure threshold only controls when a **new incident** is opened. Once an incident is open, it stays open until recovery. We don't require the threshold to be met again for subsequent failures.
 </Callout>
 
 ### Calculating Alert Timing
@@ -196,7 +196,7 @@ At this point:
 
 ### When Incidents Close
 
-An incident closes when your site starts responding successfully again. We wait for a few consecutive successful checks to confirm the issue is truly resolved before sending the recovery alert—this prevents false "all clear" notifications from a single lucky request.
+An incident closes when your site starts responding successfully again. We wait for a few consecutive successful checks to confirm the issue is truly resolved before sending the recovery alert. This prevents false "all clear" notifications from a single lucky request.
 
 At recovery:
 - The monitor status changes to **Up**
