@@ -2,7 +2,7 @@
 
 import { InfoTooltip } from '@/components/ui-extended/InfoTooltip';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
-import { formatCWV } from '@/utils/formatters';
+import { formatCWV } from '@/utils/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { useTranslations } from 'next-intl';
 
