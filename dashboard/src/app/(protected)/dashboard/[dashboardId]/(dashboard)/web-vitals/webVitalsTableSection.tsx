@@ -4,7 +4,8 @@ import { use, useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
-import { formatCWV, formatString, getCwvStatusColor } from '@/utils/formatters';
+import { formatString } from '@/utils/formatters';
+import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
@@ -27,7 +28,6 @@ type Props = {
   perBrowserPromise: Promise<DimRow[]>;
   perOsPromise: Promise<DimRow[]>;
 };
-type PercentileKey = 'p50' | 'p75' | 'p90' | 'p99';
 
 export default function WebVitalsTableSection({
   perPagePromise,
@@ -95,12 +95,10 @@ export default function WebVitalsTableSection({
         const Cell = ({ row }: { row: { original: Row } }) => {
           const value = getValue(row.original, metric);
           return (
-            <div className='flex flex-col items-start'>
-              <span style={{ color: getCwvStatusColor(metric, value) }}>{formatCWV(metric, value)}</span>
-            </div>
+            <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
           );
         };
-        Cell.displayName = `CwvValueCell_${metric}`;
+        Cell.displayName = `CoreWebVitalValueCell_${metric}`;
         return Cell;
       };
 
@@ -250,7 +248,7 @@ export default function WebVitalsTableSection({
     [makeColumns, t],
   );
 
-  const defaultSorting = [{ id: 'LCP', desc: true }];
+  const defaultSorting = useMemo(() => [{ id: 'LCP', desc: true }], []);
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
@@ -284,7 +282,20 @@ export default function WebVitalsTableSection({
         defaultSorting,
       },
     ],
-    [data, devices, countries, browsers, operatingSystems, defaultSorting, t],
+    [
+      data,
+      devices,
+      countries,
+      browsers,
+      operatingSystems,
+      pageColumns,
+      deviceColumns,
+      countryColumns,
+      browserColumns,
+      osColumns,
+      defaultSorting,
+      t,
+    ],
   );
 
   const percentileButtons = useMemo(

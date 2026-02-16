@@ -1798,7 +1798,8 @@
           "label": "Sensibilit\u00e0 incidenti",
           "description": "Numero di errori consecutivi prima che venga attivato un incidente",
           "valueOne": "1 errore",
-          "valueOther": "{count} errori"
+          "valueOther": "{count} errori",
+          "unit": "{count, plural, one {errore} other {errori}}"
         }
       },
       "actions": {
@@ -2002,7 +2003,8 @@
       "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
       "sslExpiryDays": "Giorni prima della scadenza",
       "sslExpiryDaysDescription": "Invia un avviso con questo anticipo rispetto alla scadenza del certificato SSL",
-      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}"
+      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}",
+      "unit": "{count, plural, one {giorno} other {giorni}}"
     }
   },
   "charts": {

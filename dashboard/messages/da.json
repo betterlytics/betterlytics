@@ -1790,7 +1790,8 @@
           "label": "Hændelsesfølsomhed",
           "description": "Antal fejl i træk før der oprettes en hændelse",
           "valueOne": "1 fejl",
-          "valueOther": "{count} fejl"
+          "valueOther": "{count} fejl",
+          "unit": "{count, plural, one {fejl} other {fejl}}"
         }
       },
       "actions": {
@@ -1994,7 +1995,8 @@
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
       "sslExpiryDays": "Dage før udløb",
       "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
-      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}"
+      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}",
+      "unit": "{count, plural, one {dag} other {dage}}"
     }
   },
   "charts": {

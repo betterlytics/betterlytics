@@ -1,7 +1,7 @@
 'server-only';
 
 import { getUserBillingData } from '@/actions/billing.action';
-import { getCapabilitiesForTier, PlanCapabilities, isEmailReportsEnabled } from './capabilities';
+import { getCapabilitiesForTier, PlanCapabilities } from './capabilities';
 import { UserException } from '@/lib/exceptions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { PLAN_CAPABILITIES } from './capabilities';
@@ -47,15 +47,10 @@ export function requireCapability(allowed: boolean, message: string): void {
 }
 
 export async function canDashboardReceiveReports(dashboardId: string): Promise<boolean> {
-  const owner = await findDashboardOwner(dashboardId);
-  if (!owner) {
+  try {
+    const capabilities = await getDashboardCapabilities(dashboardId);
+    return capabilities.emailReports.emailReportsEnabled;
+  } catch {
     return false;
   }
-
-  const subscription = await getUserSubscription(owner.userId);
-  if (!subscription) {
-    return false;
-  }
-
-  return isEmailReportsEnabled(subscription.tier);
 }
