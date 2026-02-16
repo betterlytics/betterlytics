@@ -2,48 +2,51 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & UI-forbedringer',
-    summary: 'Spor scroll-dybde for bedre at forstå indholdsengagement og scroll-adfærd.',
+    version: 'v1.3.4',
+    releasedAt: '2026-02-08',
+    title: 'E-mailrapporter & ugentlige og månedlige indsigter',
+    summary:
+      'Modtag planlagte e-mailrapporter for dine dashboards og analysér langsigtede trends med ugentlig og månedlig visning.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v134-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: Se hvor langt brugere scroller ned på dine sider for bedre at forstå indholdsengagement og frafaldspunkter.',
+            'Planlæg e-mailrapporter med overblik over dine dashboards direkte fra indstillingerne.',
+            'Ved længere tidsperioder kan data nu vises med ugentlig og månedlig opdeling, hvilket gør det lettere at identificere langsigtede trends.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v134-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-            'Core Web Vitals-grænser: Forbedrede indikatorer gør det lettere at se, når metrics krydser "Middel" eller "Dårlig"-grænser.',
-            'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
-            'UI-polering: Tilføjet subtile animationer i appen for en mere flydende oplevelse.',
+            'Scroll depth-events er nu inkluderet uden ekstra omkostninger og tæller ikke med i dit månedlige forbrug.',
+            'Filtervælgeren viser nu, hvor mange filtre der er aktive.',
+            'Tabelceller viser nu sammenligningsdata tydeligere, når der mangler data for én af perioderne.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
-      title: 'Fixes',
+      id: 'v134-fixes',
+      title: 'Fejlrettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
-            'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
+            'Rettet et problem, hvor tracking-scriptet i visse tilfælde kunne sende ugyldige data.',
+            'Rettet et problem i datoberegningen, som kunne medføre forkerte tidsperioder.',
+            'Rettet en fejl, hvor e-mailbekræftelse ikke blev sendt korrekt ved tilmelding via OAuth.',
+            'Rettet visning af sammenligningsindikatorer, når data manglede eller var uændrede.',
           ],
         },
       ],
@@ -52,6 +55,59 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'E-mailrapporter & ugentlige og månedlige indsigter',
+      summary:
+        'Modtag planlagte e-mailrapporter for dine dashboards og analysér langsigtede trends med ugentlig og månedlig visning.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Planlæg e-mailrapporter med overblik over dine dashboards direkte fra indstillingerne.',
+              'Ved længere tidsperioder kan data nu vises med ugentlig og månedlig opdeling, hvilket gør det lettere at identificere langsigtede trends.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Scroll depth-events er nu inkluderet uden ekstra omkostninger og tæller ikke med i dit månedlige forbrug.',
+              'Filtervælgeren viser nu, hvor mange filtre der er aktive.',
+              'Tabelceller viser nu sammenligningsdata tydeligere, når der mangler data for én af perioderne.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor tracking-scriptet i visse tilfælde kunne sende ugyldige data.',
+              'Rettet et problem i datoberegningen, som kunne medføre forkerte tidsperioder.',
+              'Rettet en fejl, hvor e-mailbekræftelse ikke blev sendt korrekt ved tilmelding via OAuth.',
+              'Rettet visning af sammenligningsindikatorer, når data manglede eller var uændrede.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',

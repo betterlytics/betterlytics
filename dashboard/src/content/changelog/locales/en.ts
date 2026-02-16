@@ -2,48 +2,51 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & UI Improvements',
-    summary: 'Track scroll depth to better understand content engagement and scrolling behavior.',
+    version: 'v1.3.4',
+    releasedAt: '2026-02-08',
+    title: 'Email Reports & Weekly & Monthly Insights',
+    summary:
+      'Receive scheduled email reports for your dashboards and explore trends with week and month granularity for longer time ranges.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v134-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: See how far users scroll down your pages to better understand content engagement and drop-off points.',
+            'Schedule email reports with analytics summaries for your dashboards directly from settings.',
+            'Longer time ranges now support weekly and monthly granularity, making it easier to spot long-term trends.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v134-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
-            'Core Web Vitals Thresholds: Improved indicators make it easier to see when metrics cross into "Fair" or "Poor" territory.',
-            'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
-            'UI Polish: Added subtle animations throughout the application for a smoother experience.',
+            'Scroll depth tracking events are now included at no extra cost and don\'t count toward your monthly usage quota.',
+            'The filter selector now shows how many filters are actively applied.',
+            'Table cells now display comparison data more clearly when one period has no data.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
+      id: 'v134-fixes',
       title: 'Fixes',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
-            'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+            'Resolved an issue where the tracking script could send invalid data.',
+            'Corrected a date calculation issue that could show incorrect time ranges.',
+            'Email verification is now properly triggered for OAuth sign-ups.',
+            'Comparison indicators now display correct values when data is null or unchanged.',
           ],
         },
       ],
@@ -52,6 +55,59 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'Email Reports & Weekly & Monthly Insights',
+      summary:
+        'Receive scheduled email reports for your dashboards and explore trends with week and month granularity for longer time ranges.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Schedule email reports with analytics summaries for your dashboards directly from settings.',
+              'Longer time ranges now support weekly and monthly granularity, making it easier to spot long-term trends.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Scroll depth tracking events are now included at no extra cost and don\'t count toward your monthly usage quota.',
+              'The filter selector now shows how many filters are actively applied.',
+              'Table cells now display comparison data more clearly when one period has no data.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Resolved an issue where the tracking script could send invalid data.',
+              'Corrected a date calculation issue that could show incorrect time ranges.',
+              'Email verification is now properly triggered for OAuth sign-ups.',
+              'Comparison indicators now display correct values when data is null or unchanged.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',

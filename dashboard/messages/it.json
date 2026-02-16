@@ -1797,7 +1797,8 @@
           "label": "Sensibilit\u00e0 incidenti",
           "description": "Numero di errori consecutivi prima che venga attivato un incidente",
           "valueOne": "1 errore",
-          "valueOther": "{count} errori"
+          "valueOther": "{count} errori",
+          "unit": "{count, plural, one {errore} other {errori}}"
         }
       },
       "actions": {
@@ -1995,7 +1996,8 @@
       "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
       "sslExpiryDays": "Giorni prima della scadenza",
       "sslExpiryDaysDescription": "Invia un avviso con questo anticipo rispetto alla scadenza del certificato SSL",
-      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}"
+      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}",
+      "unit": "{count, plural, one {giorno} other {giorni}}"
     }
   },
   "charts": {
@@ -3477,6 +3479,10 @@
   },
   "reportsSettings": {
     "title": "Report Email",
+    "emailsNotConfigured": {
+      "title": "L'invio di email non è configurato",
+      "description": "Le impostazioni dei report possono essere salvate, ma le email non verranno inviate finché non viene configurato un provider email (SMTP o MailerSend)."
+    },
     "weekly": {
       "title": "Report Settimanali",
       "description": "Ricevi un riepilogo delle prestazioni del tuo sito ogni settimana",
