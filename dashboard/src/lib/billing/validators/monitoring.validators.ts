@@ -53,7 +53,7 @@ class MonitoringCapabilityValidator extends CapabilityValidator {
   }
 
   expectedKeyword(keyword: string | null | undefined, httpMethod: string | undefined): this {
-    if (keyword != null && keyword.trim() !== '' && httpMethod !== 'HEAD') {
+    if (keyword != null && keyword.trim() !== '' && httpMethod === 'GET') {
       this.addCheck(this.caps.keywordValidation, this.t('capabilities.keywordValidation'));
     }
     return this;

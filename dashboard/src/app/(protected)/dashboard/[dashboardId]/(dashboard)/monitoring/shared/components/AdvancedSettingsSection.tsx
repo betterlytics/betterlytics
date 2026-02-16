@@ -104,28 +104,35 @@ export function AdvancedSettingsSection({
                 </Tabs>
               )}
             </CapabilityGate>
+          </div>
 
-            <div className='space-y-2 pt-1'>
-              <Label className={`text-xs font-medium ${form.state.httpMethod === 'HEAD' ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>
-                {t('advanced.expectedKeyword.label')}
-              </Label>
-              <div className='space-y-1.5'>
-                <Input
-                  type='text'
-                  placeholder={t('advanced.expectedKeyword.placeholder')}
-                  value={form.state.expectedKeyword ?? ''}
-                  onChange={(e) => form.setField('expectedKeyword')(e.target.value || null)}
-                  maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
-                  disabled={isPending || !caps.monitoring.keywordValidation || form.state.httpMethod === 'HEAD'}
-                  className='h-9 text-sm'
-                />
-                <p className='text-muted-foreground text-xs'>
-                  {form.state.httpMethod === 'HEAD'
-                    ? t('advanced.expectedKeyword.requiresGet')
-                    : t('advanced.expectedKeyword.description')}
-                </p>
-              </div>
+          <Separator />
+
+          <div className='space-y-3'>
+            <div className='flex items-center justify-between'>
+              <Label className='text-sm font-medium'>{t('advanced.expectedKeyword.label')}</Label>
+              {!caps.monitoring.keywordValidation && <ProBadge />}
             </div>
+            <CapabilityGate allowed={caps.monitoring.keywordValidation}>
+              {({ locked }) => (
+                <div className='space-y-1.5'>
+                  <Input
+                    type='text'
+                    placeholder={t('advanced.expectedKeyword.placeholder')}
+                    value={form.state.expectedKeyword ?? ''}
+                    onChange={(e) => !locked && form.setField('expectedKeyword')(e.target.value || null)}
+                    maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
+                    disabled={isPending || locked || form.state.httpMethod !== 'GET'}
+                    className='h-9 text-sm'
+                  />
+                  <p className='text-muted-foreground text-xs'>
+                    {form.state.httpMethod !== 'GET'
+                      ? t('advanced.expectedKeyword.requiresGet')
+                      : t('advanced.expectedKeyword.description')}
+                  </p>
+                </div>
+              )}
+            </CapabilityGate>
           </div>
 
           <Separator />
