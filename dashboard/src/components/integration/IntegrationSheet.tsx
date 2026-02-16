@@ -44,7 +44,8 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
   const messages = useMessages();
   const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
 
-  const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
+  const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT, PUBLIC_IS_CLOUD } =
+    usePublicEnvironmentVariablesContext();
 
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
@@ -221,12 +222,14 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
                       >
                         <Info className='mr-2 h-4 w-4' /> {t('troubleshooting')}
                       </ExternalLink>
-                      <ExternalLink
-                        href='/contact'
-                        className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
-                      >
-                        <Info className='mr-2 h-4 w-4' /> {t('contactSupport')}
-                      </ExternalLink>
+                      {PUBLIC_IS_CLOUD && (
+                        <ExternalLink
+                          href='/contact'
+                          className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
+                        >
+                          <Info className='mr-2 h-4 w-4' /> {t('contactSupport')}
+                        </ExternalLink>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
