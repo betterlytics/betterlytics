@@ -1,13 +1,14 @@
 ---
 title: "Self-Hosting"
-description: "Deploy Betterlytics on your own infrastructure with Docker. Full control over your analytics data with a simple setup."
+description: "Deploy Betterlytics on your own server using Docker. Privacy-first, lightweight analytics with full data ownership."
 ---
 
 import { Callout, Tabs } from "nextra/components";
 
 # Self-Hosting Setup
 
-Run Betterlytics entirely on your own infrastructure. Everything stays on your server!
+Betterlytics is designed to be simple to self-host while remaining privacy-focused and lightweight.
+This guide walks you through deploying Betterlytics on your own infrastructure using Docker.
 
 All self-hosting files and configuration live in the [betterlytics-selfhost](https://github.com/betterlytics/betterlytics-selfhost) repository.
 
@@ -136,6 +137,44 @@ Then point your reverse proxy to that port.
     ```
   </Tabs.Tab>
 </Tabs>
+
+## Geolocation
+
+Betterlytics can resolve visitor IP addresses to countries and cities using [MaxMind's](https://www.maxmind.com/) GeoLite2 database. This is optional but required for the geography section of your dashboard to work.
+
+### 1. Create a MaxMind Account
+
+Sign up for a free account at [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup).
+
+### 2. Generate a License Key
+
+Once logged in, navigate to **Account > Manage License Keys** and click **Generate New License Key**.
+
+![MaxMind license key page](/images/self-hosting/maxmind-license-key.png)
+
+After completing the flow, you'll be shown your license key. Copy it (you won't be able to see it again).
+
+### 3. Configure Your Environment
+
+Add the following to your `.env` file:
+
+```bash
+ENABLE_GEOLOCATION=true
+MAXMIND_ACCOUNT_ID=your_account_id
+MAXMIND_LICENSE_KEY=your_license_key
+```
+
+Your Account ID is displayed at the top of the MaxMind account portal.
+
+### 4. Restart
+
+```bash
+docker compose down && docker compose up -d
+```
+
+<Callout type="info">
+When geolocation is enabled, the GeoLite2 database is downloaded automatically and refreshed periodically. No manual updates are required. The initial download may take a moment on first run.
+</Callout>
 
 ## Updating
 
