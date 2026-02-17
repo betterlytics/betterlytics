@@ -12,7 +12,7 @@
   "dependencies": {
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
-    "next": "15.4.10",
+    "next": "15.5.10",
     "nextjs-toploader": "^3.9.17",
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
