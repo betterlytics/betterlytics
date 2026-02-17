@@ -1,8 +1,216 @@
 ---
 title: "Self-Hosting"
-description: "Deploy Betterlytics on your own infrastructure with complete control and customization."
+description: "Deploy Betterlytics on your own server using Docker. Privacy-first, lightweight analytics with full data ownership."
 ---
+
+import { Callout, Tabs } from "nextra/components";
 
 # Self-Hosting Setup
 
-Coming soon...
+Betterlytics is designed to be simple to self-host while remaining privacy-focused and lightweight.
+This guide walks you through deploying Betterlytics on your own infrastructure using Docker.
+
+All self-hosting files and configuration live in the [betterlytics-selfhost](https://github.com/betterlytics/betterlytics-selfhost) repository.
+
+## Requirements
+
+- **Docker** and **Docker Compose** installed on your server
+- A **domain name** pointed to your server
+- Ports **80** and **443** open (standalone mode) or a reverse proxy configured
+
+## Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/betterlytics/betterlytics-selfhost.git
+cd betterlytics-selfhost
+```
+
+### 2. Run the Setup Script
+
+The interactive setup script generates your `.env` file and any necessary Docker Compose overrides:
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+<Callout type="info">
+Prefer to configure manually? Copy `.env.example` to `.env` and fill in the values yourself.
+</Callout>
+
+### 3. Start the Containers
+
+```bash
+docker compose up -d
+```
+
+Your Betterlytics instance will be available at your configured domain within a minute or two. Once it's running, log in and follow the in-app integration guide to [add the tracking script to your website](/installation/cloud-hosting#step-3-install-your-tracking-script).
+
+## Deployment Modes
+
+### Standalone (Default)
+
+The default mode provisions TLS certificates automatically via Let's Encrypt. Set `HTTP_SCHEME=https` (the default) and ensure ports 80 and 443 are accessible from the internet for ACME challenges and HTTPS traffic.
+
+When using `setup.sh`, this is handled automatically. The script generates a `docker-compose.override.yml` that exposes the correct ports.
+
+If you're doing a manual setup, create the `docker-compose.override.yml` and add the following:
+
+```bash
+services:
+  betterlytics-selfhost:
+    ports:
+      - "${BIND_ADDRESS}:${HTTPS_PORT}:443"
+```
+
+### Behind a Reverse Proxy
+
+If you already have a reverse proxy (Caddy, Nginx, Traefik, etc.), set `HTTP_SCHEME=http` and bind to localhost on a custom port so you don't expose port 80 directly:
+
+```bash
+HTTP_SCHEME=http
+BIND_ADDRESS=127.0.0.1
+HTTP_PORT=5566
+```
+
+Then point your reverse proxy to that port.
+
+<Tabs items={['Caddy', 'Nginx', 'Traefik']}>
+  <Tabs.Tab>
+    ```
+    analytics.example.com {
+        reverse_proxy 127.0.0.1:5566
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```nginx
+    server {
+        listen 443 ssl;
+        server_name analytics.example.com;
+
+        ssl_certificate     /etc/letsencrypt/live/analytics.example.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/analytics.example.com/privkey.pem;
+
+        location / {
+            proxy_pass http://127.0.0.1:5566;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header X-Forwarded-Proto https;
+        }
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Add a router and service in your Traefik dynamic configuration:
+
+    ```yaml
+    http:
+      routers:
+        betterlytics:
+          rule: "Host(`analytics.example.com`)"
+          entryPoints:
+            - websecure
+          tls:
+            certResolver: letsencrypt
+          service: betterlytics
+
+      services:
+        betterlytics:
+          loadBalancer:
+            servers:
+              - url: "http://127.0.0.1:5566"
+    ```
+
+    If you use Docker labels instead of file-based configuration, add these to the Betterlytics service in your `docker-compose.override.yml`:
+
+    ```yaml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.betterlytics.rule=Host(`analytics.example.com`)"
+      - "traefik.http.routers.betterlytics.entrypoints=websecure"
+      - "traefik.http.routers.betterlytics.tls.certresolver=letsencrypt"
+      - "traefik.http.services.betterlytics.loadbalancer.server.port=5566"
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+## Geolocation
+
+Betterlytics can resolve visitor IP addresses to countries and cities using [MaxMind's](https://www.maxmind.com/) GeoLite2 database. This is optional but required for the geography section of your dashboard to work.
+
+### 1. Create a MaxMind Account
+
+Sign up for a free account at [maxmind.com/en/geolite2/signup](https://www.maxmind.com/en/geolite2/signup).
+
+### 2. Generate a License Key
+
+Once logged in, navigate to **Account > Manage License Keys** and click **Generate New License Key**.
+
+![MaxMind license key page](/images/self-hosting/maxmind-license-key.webp)
+
+After completing the flow, you'll be shown your license key. Copy it (you won't be able to see it again).
+
+### 3. Configure Your Environment
+
+Add the following to your `.env` file:
+
+```bash
+ENABLE_GEOLOCATION=true
+MAXMIND_ACCOUNT_ID=your_account_id
+MAXMIND_LICENSE_KEY=your_license_key
+```
+
+Your Account ID is displayed at the top of the MaxMind account portal.
+
+### 4. Restart
+
+```bash
+docker compose down && docker compose up -d
+```
+
+<Callout type="info">
+When geolocation is enabled, the GeoLite2 database is downloaded automatically and refreshed periodically. No manual updates are required. The initial download may take a moment on first run.
+</Callout>
+
+## Updating
+
+To update your self-hosted instance to the latest version:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+## Troubleshooting
+
+### Containers won't start
+
+- Verify Docker and Docker Compose are installed and running
+- Check that required ports (80/443 in standalone mode) are not in use
+- Review container logs: `docker compose logs`
+
+### HTTPS certificate not provisioning
+
+- Ensure your domain's DNS A record points to your server
+- Ports 80 and 443 must be accessible from the internet
+- Check the container logs for ACME errors: `docker compose logs`
+
+### No analytics data appearing
+
+- Verify the tracking script is installed on your website with the correct domain and site ID
+- Check that the `/event` endpoint is reachable from the browser
+- Review backend logs: `docker compose logs`
+
+## Need Help?
+
+- Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help and discussions
+- Open an issue on [GitHub](https://github.com/betterlytics/betterlytics-selfhost/issues)
+
+---
+
+_Enjoying Betterlytics? Consider giving us a star on [GitHub](https://github.com/betterlytics/betterlytics) - it helps others discover the project!_
+
