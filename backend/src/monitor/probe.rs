@@ -466,7 +466,7 @@ fn check_keyword_match(expected: &Option<String>, body: &Option<Vec<u8>>) -> Opt
     };
 
     let haystack = String::from_utf8_lossy(body);
-    if haystack.to_lowercase().contains(&keyword.to_lowercase()) {
+    if haystack.contains(keyword) {
         None
     } else {
         Some(ReasonCode::KeywordNotFound)

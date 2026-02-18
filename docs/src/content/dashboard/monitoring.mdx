@@ -152,7 +152,7 @@ This catches scenarios where a page returns `200 OK` but serves broken content, 
 **How it works:**
 
 - The keyword is matched against the **raw HTML source code** (first 32 KB of the response)
-- Matching is **case-insensitive**
+- Matching is **case-sensitive**
 - The response is assumed to be **UTF-8 encoded**. Non-UTF-8 content may not match as expected
 - Maximum keyword length: 256 characters
 
