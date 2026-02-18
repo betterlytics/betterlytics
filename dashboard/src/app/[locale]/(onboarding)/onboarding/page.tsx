@@ -9,7 +9,7 @@ import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
 
-export default async function Onboarding({ searchParams }: { searchParams: Promise<{ newUser?: string }> }) {
+export default async function Onboarding() {
   const session = await getAuthSession();
 
   if (!session) {
@@ -55,8 +55,6 @@ export default async function Onboarding({ searchParams }: { searchParams: Promi
   };
 
   const initialStep = getStep();
-  const resolvedSearchParams = await searchParams;
-  const isNewUser = resolvedSearchParams.newUser === 'true';
 
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.onboarding);
 
@@ -64,7 +62,7 @@ export default async function Onboarding({ searchParams }: { searchParams: Promi
     <>
       <StructuredData config={seoConfig} />
       <OnboardingProvider initialDashboard={dashboard}>
-        <OnboardingPage initialStep={initialStep} isNewUser={isNewUser} />
+        <OnboardingPage initialStep={initialStep} />
       </OnboardingProvider>
     </>
   );
