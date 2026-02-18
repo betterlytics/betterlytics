@@ -1,0 +1,140 @@
+---
+title: "WordPress Plugin Setup"
+description: "Install the Betterlytics WordPress plugin and start tracking your visitors in minutes - no coding required."
+---
+
+import { Callout } from "nextra/components";
+
+# Setup Guide
+
+Get privacy-first analytics on your WordPress site in just a few minutes. Our official plugin handles everything automatically - no code, no complexity.
+
+<Callout type="info">
+**Requirements:** WordPress 6.0 or higher and admin access to install plugins.
+</Callout>
+
+## Step 1: Create Your Betterlytics Account
+
+Before installing the plugin, you'll need a Betterlytics account and your unique Site ID.
+
+1. **Visit** [betterlytics.io](https://betterlytics.io)
+2. **Sign up** with your email address/Google account (or log in if you already have an account)
+3. **Create a dashboard** for your website by entering your domain name
+4. **Copy your Site ID** - you'll find this in in the Integration step or in your dashboard settings
+
+---
+
+## Step 2: Install the Plugin
+
+1. **Log in** to your WordPress admin area
+2. **Go to** Plugins > Add New
+3. **Search** for "Betterlytics"
+4. **Click** "Install Now" on the Betterlytics plugin
+5. **Click** "Activate" once the installation completes
+
+---
+
+## Step 3: Find the Plugin Settings
+
+Once activated, you can access Betterlytics settings at any time:
+
+**Settings > Betterlytics** in your WordPress sidebar
+
+<div style={{ textAlign: "center" }}>
+  ![Find Betterlytics settings](/images/wordpress/find-betterlytics-settings.webp)
+</div>
+
+---
+
+## Step 4: Connect Your Site
+
+When you open the plugin for the first time, you'll see a helpful setup wizard on the **Home** tab:
+
+<div style={{ textAlign: "center" }}>
+  ![Onboarding Wizard](/images/wordpress/onboarding-wizard.webp)
+</div>
+
+1. **Paste your Site ID** into the Site ID field (the one you copied from your Betterlytics dashboard)
+2. **Toggle on** "Enable tracking" to activate analytics
+3. **Click** "Save Settings"
+
+<div style={{ textAlign: "center" }}>
+  ![Onboarding Settings](/images/wordpress/onboarding-settings.webp)
+</div>
+
+Your WordPress site is now connected to Betterlytics.
+
+---
+
+## Step 5: Configure Event Tracking (Optional)
+
+The **Settings** tab lets you enable additional tracking features:
+
+| Feature | What it does |
+|---------|--------------|
+| **404 Tracking** | Know when visitors hit broken pages |
+| **Search Tracking** | See what visitors search for on your site |
+| **Web Vitals** | Monitor your site's performance scores |
+| **Outbound Links** | Track which external links visitors click |
+| **Downloads** | Track file downloads (PDFs, ZIPs, etc.) |
+| **Custom HTML Attribute Events** | Track clicks on specific elements |
+
+All event tracking is **opt-in** and disabled by default. Enable only what you need. Learn more about each feature in our [Events documentation](/integration/wordpress/events).
+
+---
+
+## Step 6: View Your Analytics
+
+Your data will start appearing in your Betterlytics dashboard within a few minutes of your first visitor.
+
+**Ways to access your dashboard:**
+
+- Visit [betterlytics.io/dashboards](https://betterlytics.io/dashboards) directly
+- Click any of the quick links in the **Resources** section of the plugin's Home tab
+- Use the "View Dashboard" link in your plugin settings
+
+---
+
+## Troubleshooting
+
+**Plugin not showing up after installation?**
+- Try refreshing the page or logging out and back in
+- Check that you clicked "Activate" after installing
+
+**Can't find Settings > Betterlytics?**
+- Make sure the plugin is activated (Plugins > Installed Plugins)
+- You may need admin privileges to see plugin settings
+
+**Data not appearing in your dashboard?**
+- Double-check that your Site ID is entered correctly
+- Verify the "Enable tracking" toggle is turned on
+- Wait a few minutes and visit your site - data appears after real visitors arrive
+- Check that you saved your settings
+
+**Need more help?**
+- Check the Resources section in the plugin for documentation links
+- Visit our [FAQ](/faq) for common questions
+
+---
+
+## What's Next?
+
+Your WordPress site is now tracking visitors with privacy-first analytics. Your dashboard will automatically show:
+
+- Real-time visitor activity
+- Page view statistics
+- Geographic data
+- Device information
+- And much more
+
+**Explore further:**
+
+- **[Settings Reference](/integration/wordpress/settings)** - Detailed settings documentation
+- **[Event Tracking](/integration/wordpress/events)** - Track 404s, searches, and downloads
+- **[Advanced Configuration](/integration/wordpress/configuration)** - CI/CD and automation
+- **[Dashboard Features](/dashboard)** - Complete guide to your analytics
+
+## Need Help?
+
+- **[Discord Community](https://discord.gg/vwqSvPn6sP)** - Real-time help from users and our team
+- **[Contact Support](mailto:support@betterlytics.io)** - We're always happy to help
