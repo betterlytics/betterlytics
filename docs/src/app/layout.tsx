@@ -121,6 +121,7 @@ export default async function RootLayout({
           sidebar={{ autoCollapse: true }}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/betterlytics/betterlytics/tree/main/docs"
+          editLink={null}
           footer={footer}
         >
           {children}
