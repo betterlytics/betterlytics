@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
-import { formatCompactDuration } from '@/utils/dateFormatters';
+import { formatCompactDuration, splitCompactDuration } from '@/utils/dateFormatters';
 import { SectionHeader } from './SectionHeader';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import {
@@ -61,7 +61,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
         <ChevronDown className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]/timing:rotate-180' />
       </CollapsibleTrigger>
 
-      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
         <div className='space-y-6 pt-4'>
           <LabeledSlider
             label={tTiming('interval.label')}
@@ -74,6 +74,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             marks={INTERVAL_DISPLAY_MARKS}
             onValueChange={handleIntervalChange}
             formatValue={() => formatCompactDuration(state.intervalSeconds)}
+            valueParts={splitCompactDuration(state.intervalSeconds)}
             recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
             disabled={isPending}
             minAllowed={minIntervalIdx}
@@ -90,6 +91,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             marks={TIMEOUT_DISPLAY_MARKS}
             onValueChange={handleTimeoutChange}
             formatValue={() => formatCompactDuration(state.timeoutMs / 1000)}
+            valueParts={splitCompactDuration(state.timeoutMs / 1000)}
             recommendedValue={nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS)}
             disabled={isPending}
           />
@@ -107,6 +109,10 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             formatValue={(v) =>
               v === 1 ? tTiming('sensitivity.valueOne') : tTiming('sensitivity.valueOther', { count: v })
             }
+            valueParts={{
+              value: state.failureThreshold,
+              suffix: ` ${tTiming('sensitivity.unit', { count: state.failureThreshold })}`,
+            }}
             recommendedValue={RECOMMENDED_FAILURE_THRESHOLD}
             disabled={isPending}
           />

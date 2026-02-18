@@ -50,7 +50,7 @@ export function AlertsSection({
         </div>
       </CollapsibleTrigger>
 
-      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden'>
+      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
         <div className='space-y-5 pt-4'>
           <SettingToggle
             id='alerts-enabled'
@@ -102,6 +102,10 @@ export function AlertsSection({
                     marks={SSL_EXPIRY_DISPLAY_MARKS}
                     onValueChange={(idx) => setField('sslExpiryAlertDays')(SSL_EXPIRY_MARKS[idx])}
                     formatValue={(idx) => t('daysCount', { count: SSL_EXPIRY_MARKS[idx] })}
+                    valueParts={{
+                      value: state.sslExpiryAlertDays,
+                      suffix: ` ${t('unit', { count: state.sslExpiryAlertDays })}`,
+                    }}
                     recommendedValue={SSL_EXPIRY_MARKS.indexOf(RECOMMENDED_SSL_EXPIRY_DAYS)}
                     disabled={isPending}
                   />
