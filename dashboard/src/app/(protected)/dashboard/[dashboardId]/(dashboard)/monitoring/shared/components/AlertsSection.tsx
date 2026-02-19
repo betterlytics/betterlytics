@@ -3,9 +3,11 @@
 import { Bell, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Input } from '@/components/ui/input';
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { SettingToggle } from '@/components/inputs/SettingToggle';
 import { SectionHeader } from './SectionHeader';
+import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { SSL_EXPIRY_MARKS, SSL_EXPIRY_DISPLAY_MARKS, RECOMMENDED_SSL_EXPIRY_DAYS } from '../utils/sliderConstants';
 import type { MonitorFormInterface } from '../types';
 
@@ -111,6 +113,25 @@ export function AlertsSection({
                   />
                 </div>
               )}
+
+              <div className='space-y-1.5 pt-2'>
+                <label htmlFor='pushover-key' className='text-sm font-medium'>
+                  {t('pushoverUserKey')}
+                </label>
+                <p className='text-muted-foreground text-xs'>{t('pushoverUserKeyDescription')}</p>
+                <Input
+                  id='pushover-key'
+                  type='text'
+                  placeholder={t('pushoverUserKeyPlaceholder')}
+                  value={state.pushoverUserKey ?? ''}
+                  onChange={(e) => {
+                    const filtered = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                    setField('pushoverUserKey')(filtered || null);
+                  }}
+                  disabled={isPending}
+                  maxLength={MONITOR_LIMITS.PUSHOVER_USER_KEY_MAX}
+                />
+              </div>
             </div>
           )}
         </div>

@@ -331,6 +331,7 @@ model MonitorCheck {
   alertOnSslExpiry      Boolean   @default(true)
   sslExpiryAlertDays    Int       @default(14)  // Days before expiry to alert
   failureThreshold      Int       @default(3)   // Consecutive failures before alerting
+  pushoverUserKey       String?
 
   deletedAt             DateTime?
 

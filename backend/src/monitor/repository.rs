@@ -33,7 +33,8 @@ SELECT
     mc."alertOnSslExpiry" AS alert_on_ssl_expiry,
     mc."sslExpiryAlertDays" AS ssl_expiry_alert_days,
     mc."failureThreshold" AS failure_threshold,
-    COALESCE(mc."alertEmails", ARRAY[]::text[]) AS alert_recipients
+    COALESCE(mc."alertEmails", ARRAY[]::text[]) AS alert_recipients,
+    mc."pushoverUserKey" AS pushover_user_key
 FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
 WHERE mc."isEnabled" = TRUE
@@ -72,6 +73,7 @@ pub struct MonitorCheckRecord {
     pub ssl_expiry_alert_days: i32,
     pub failure_threshold: i32,
     pub alert_recipients: Vec<String>,
+    pub pushover_user_key: Option<String>,
 }
 
 impl TryFrom<Row> for MonitorCheckRecord {
@@ -118,6 +120,10 @@ impl TryFrom<Row> for MonitorCheckRecord {
             ssl_expiry_alert_days: row.try_get("ssl_expiry_alert_days")?,
             failure_threshold: row.try_get("failure_threshold")?,
             alert_recipients,
+            pushover_user_key: row
+                .try_get::<_, Option<String>>("pushover_user_key")?
+                .filter(|s| !s.is_empty())
+                .filter(|s| s.len() <= 50 && s.chars().all(|c| c.is_ascii_alphanumeric())),
         })
     }
 }
@@ -156,6 +162,7 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
                 ssl_expiry_days: record.ssl_expiry_alert_days,
                 failure_threshold: record.failure_threshold,
                 recipients: record.alert_recipients,
+                pushover_user_key: record.pushover_user_key,
             },
         })
     }

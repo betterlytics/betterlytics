@@ -1,6 +1,6 @@
 ---
 title: "Uptime Monitoring & SSL Certificate Checks - Betterlytics"
-description: "Monitor your website's uptime, response time, and SSL certificates with automated checks and email alerts."
+description: "Monitor your website's uptime, response time, and SSL certificates with automated checks, email alerts, and Pushover push notifications."
 ---
 
 import { Callout } from "nextra/components";
@@ -97,17 +97,37 @@ To understand when you'll receive an alert after downtime begins, multiply your 
 
 This helps you balance between fast alerts (lower values) and avoiding false alarms from transient issues (higher values).
 
-### Email Alerts
+### Alerts
 
-Alerts are sent to the dashboard owner's email address.
-
-#### Alert Types
+Alerts notify you when your site goes down, recovers, or when SSL certificates are about to expire. You can enable or disable each alert type independently:
 
 - **Down alerts**: Sent when the failure threshold is reached and an incident opens
 - **Recovery alerts**: Sent when the site comes back online after an incident
 - **SSL expiry alerts**: Sent when your certificate is approaching expiration
 
-You can enable or disable each alert type independently.
+#### Email Alerts
+
+Email alerts are sent to the dashboard owner's email address.
+
+<Callout type="info">
+Email alerts require the SMTP / MailerSend integration to be configured on your instance. See the [self-hosting guide](/installation/self-hosting) for details.
+</Callout>
+
+#### Pushover Push Notifications
+
+You can receive push notifications on your phone or desktop via [Pushover](https://pushover.net). This works alongside email alerts — you can use one or both.
+
+**Setup:**
+
+1. Create an account at [pushover.net](https://pushover.net)
+2. Copy your **User Key** from the Pushover dashboard
+3. Paste it into the **Pushover User Key** field in your monitor's alert settings
+
+Each monitor can have its own Pushover user key, so different team members can receive notifications for different monitors.
+
+<Callout type="info">
+Pushover requires a server-side API token. Self-hosted users must set `ENABLE_PUSHOVER=true` and `PUSHOVER_API_TOKEN` in their environment. See the [self-hosting guide](/installation/self-hosting) for details.
+</Callout>
 
 ### SSL Certificate Monitoring
 
@@ -214,7 +234,7 @@ An incident opens when:
 
 At this point:
 - The monitor status changes to **Down**
-- A **Down alert email** is sent (if enabled)
+- A **Down alert** is sent via email and/or Pushover (if enabled)
 - The incident start time is recorded
 
 ### When Incidents Close
@@ -223,7 +243,7 @@ An incident closes when your site starts responding successfully again. We wait 
 
 At recovery:
 - The monitor status changes to **Up**
-- A **Recovery alert email** is sent (if enabled)
+- A **Recovery alert** is sent via email and/or Pushover (if enabled)
 - The incident is marked as resolved
 
 **Example**

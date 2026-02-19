@@ -48,6 +48,8 @@ pub struct Config {
     pub public_base_url: String,
     // Email configuration (None = email disabled)
     pub email: Option<EmailConfig>,
+    // Pushover configuration (None = pushover disabled)
+    pub pushover: Option<PushoverConfig>,
 }
 
 impl Config {
@@ -136,6 +138,8 @@ impl Config {
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
             // Email configuration (None = email disabled)
             email: EmailConfig::from_env(),
+            // Pushover configuration (None = pushover disabled)
+            pushover: PushoverConfig::from_env(),
         }
     }
 }
@@ -146,6 +150,37 @@ pub struct EmailConfig {
     pub from_email: String,
     pub from_name: String,
     pub is_development: bool,
+}
+
+#[derive(Clone)]
+pub struct PushoverConfig {
+    pub api_token: String,
+}
+
+impl std::fmt::Debug for PushoverConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PushoverConfig")
+            .field("api_token", &"[REDACTED]")
+            .finish()
+    }
+}
+
+impl PushoverConfig {
+    pub fn from_env() -> Option<Self> {
+        let enabled = env::var("ENABLE_PUSHOVER")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+
+        if !enabled {
+            return None;
+        }
+
+        let api_token = env::var("PUSHOVER_API_TOKEN")
+            .ok()
+            .filter(|s| !s.is_empty())?;
+
+        Some(Self { api_token })
+    }
 }
 
 impl EmailConfig {

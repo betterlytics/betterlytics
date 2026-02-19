@@ -1,5 +1,6 @@
 pub mod alert;
 pub mod backoff;
+pub mod notification;
 pub mod cache;
 pub mod clickhouse_writer;
 pub mod guard;

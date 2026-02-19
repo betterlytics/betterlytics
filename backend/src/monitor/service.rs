@@ -2,13 +2,15 @@ use std::collections::HashSet;
 use std::sync::Arc;
 
 use chrono::Duration;
-use tracing::{debug, info, warn};
+use tracing::{debug, error, info, warn};
 
 use super::alert::{
     Alert, AlertContext, AlertDispatcher, AlertDispatcherConfig, AlertHistoryWriter,
     NotificationTracker,
 };
-use crate::config::EmailConfig;
+use crate::config::{EmailConfig, PushoverConfig};
+use crate::monitor::notification::pushover;
+use crate::monitor::notification::PushoverClient;
 use crate::monitor::incident::{
     IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
     MonitorIncidentRow,
@@ -53,6 +55,7 @@ impl IncidentContext {
 pub struct IncidentOrchestratorConfig {
     pub evaluator_config: IncidentEvaluatorConfig,
     pub email_config: Option<EmailConfig>,
+    pub pushover_config: Option<PushoverConfig>,
     pub public_base_url: String,
 }
 
@@ -61,6 +64,7 @@ impl IncidentOrchestratorConfig {
         Self {
             evaluator_config: IncidentEvaluatorConfig::default(),
             email_config: config.email.clone(),
+            pushover_config: config.pushover.clone(),
             public_base_url: config.public_base_url.clone(),
         }
     }
@@ -70,6 +74,8 @@ pub struct IncidentOrchestrator {
     evaluator: IncidentEvaluator,
     notification_tracker: Arc<NotificationTracker>,
     dispatcher: AlertDispatcher,
+    pushover_client: Option<PushoverClient>,
+    public_base_url: String,
     incident_store: Option<Arc<IncidentStore>>,
 }
 
@@ -79,6 +85,8 @@ impl IncidentOrchestrator {
         history_writer: Option<Arc<AlertHistoryWriter>>,
         incident_store: Option<Arc<IncidentStore>>,
     ) -> Self {
+        let public_base_url = config.public_base_url.clone();
+
         let dispatcher = AlertDispatcher::new(
             AlertDispatcherConfig {
                 email_config: config.email_config,
@@ -87,10 +95,16 @@ impl IncidentOrchestrator {
             history_writer,
         );
 
-        if !dispatcher.has_email_service() {
-            warn!("Email service not configured - incidents will be logged without alerts");
+        let pushover_client = config.pushover_config.map(PushoverClient::new);
+
+        if !dispatcher.has_email_service() && pushover_client.is_none() {
+            warn!("No notification channels configured - incidents will be logged only");
         } else {
-            info!("Incident orchestrator initialized with email delivery");
+            info!(
+                email = dispatcher.has_email_service(),
+                pushover = pushover_client.is_some(),
+                "Incident orchestrator initialized"
+            );
         }
 
         let evaluator = IncidentEvaluator::new(config.evaluator_config);
@@ -110,6 +124,8 @@ impl IncidentOrchestrator {
             evaluator,
             notification_tracker,
             dispatcher,
+            pushover_client,
+            public_base_url,
             incident_store,
         }
     }
@@ -196,38 +212,66 @@ impl IncidentOrchestrator {
         }
 
         let recipients = &alert_config.recipients;
-        if recipients.is_empty() {
+        let has_pushover = ctx.check.alert.pushover_user_key.is_some() && self.pushover_client.is_some();
+
+        if recipients.is_empty() && !has_pushover {
             debug!("no recipients configured - skipping notification");
             return;
         }
 
-        let result = self
-            .dispatcher
-            .dispatch(
-                AlertContext {
-                    check_id: &ctx.check.id,
-                    site_id: &ctx.check.site_id,
-                    dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
-                    url: ctx.check.url.as_str(),
-                    recipients,
-                },
-                Alert::Down {
-                    reason_code: ctx.reason_code,
-                    status_code: ctx.status_code,
-                },
-            )
-            .await;
+        let alert = Alert::Down {
+            reason_code: ctx.reason_code,
+            status_code: ctx.status_code,
+        };
 
-        if result {
+        let mut any_sent = false;
+
+        if !recipients.is_empty() {
+            let result = self
+                .dispatcher
+                .dispatch(
+                    AlertContext {
+                        check_id: &ctx.check.id,
+                        site_id: &ctx.check.site_id,
+                        dashboard_id: &ctx.check.dashboard_id,
+                        monitor_name: &ctx.monitor_name(),
+                        url: ctx.check.url.as_str(),
+                        recipients,
+                    },
+                    alert.clone(),
+                )
+                .await;
+
+            if result {
+                any_sent = true;
+                info!(
+                    check_id = %ctx.check.id,
+                    monitor = %ctx.monitor_name(),
+                    recipients = recipients.len(),
+                    incident_id = %incident_id,
+                    "Down email alert sent"
+                );
+            }
+        }
+
+        if let Some(ref pushover) = self.pushover_client {
+            if let Some(ref user_key) = ctx.check.alert.pushover_user_key {
+                let msg = pushover::build_pushover_message(
+                    &alert, &ctx.monitor_name(), ctx.check.url.as_str(),
+                    &ctx.check.dashboard_id, &ctx.check.id, &self.public_base_url,
+                );
+                match pushover.send(user_key, &msg).await {
+                    Ok(()) => {
+                        any_sent = true;
+                        info!(check_id = %ctx.check.id, "Down pushover alert sent");
+                    }
+                    Err(e) => error!(check_id = %ctx.check.id, error = ?e, "Pushover notification failed"),
+                }
+            }
+        }
+
+        if any_sent {
             self.notification_tracker.mark_notified_down(&ctx.check.id, incident_id);
-            info!(
-                check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
-                recipients = recipients.len(),
-                incident_id = %incident_id,
-                "Down alert sent"
-            );
         }
     }
 
@@ -271,36 +315,64 @@ impl IncidentOrchestrator {
         }
 
         let recipients = &alert_config.recipients;
-        if recipients.is_empty() {
+        let has_pushover = ctx.check.alert.pushover_user_key.is_some() && self.pushover_client.is_some();
+
+        if recipients.is_empty() && !has_pushover {
             debug!("no recipients configured - skipping notification");
             return;
         }
 
-        let result = self
-            .dispatcher
-            .dispatch(
-                AlertContext {
-                    check_id: &ctx.check.id,
-                    site_id: &ctx.check.site_id,
-                    dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
-                    url: ctx.check.url.as_str(),
-                    recipients,
-                },
-                Alert::Recovery { downtime_duration },
-            )
-            .await;
+        let alert = Alert::Recovery { downtime_duration };
 
-        if result {
+        let mut any_sent = false;
+
+        if !recipients.is_empty() {
+            let result = self
+                .dispatcher
+                .dispatch(
+                    AlertContext {
+                        check_id: &ctx.check.id,
+                        site_id: &ctx.check.site_id,
+                        dashboard_id: &ctx.check.dashboard_id,
+                        monitor_name: &ctx.monitor_name(),
+                        url: ctx.check.url.as_str(),
+                        recipients,
+                    },
+                    alert.clone(),
+                )
+                .await;
+
+            if result {
+                any_sent = true;
+                info!(
+                    check_id = %ctx.check.id,
+                    monitor = %ctx.monitor_name(),
+                    recipients = recipients.len(),
+                    downtime = ?downtime_duration,
+                    incident_id = %incident_id,
+                    "Recovery email alert sent"
+                );
+            }
+        }
+
+        if let Some(ref pushover) = self.pushover_client {
+            if let Some(ref user_key) = ctx.check.alert.pushover_user_key {
+                let msg = pushover::build_pushover_message(
+                    &alert, &ctx.monitor_name(), ctx.check.url.as_str(),
+                    &ctx.check.dashboard_id, &ctx.check.id, &self.public_base_url,
+                );
+                match pushover.send(user_key, &msg).await {
+                    Ok(()) => {
+                        any_sent = true;
+                        info!(check_id = %ctx.check.id, "Recovery pushover alert sent");
+                    }
+                    Err(e) => error!(check_id = %ctx.check.id, error = ?e, "Pushover notification failed"),
+                }
+            }
+        }
+
+        if any_sent {
             self.notification_tracker.mark_notified_recovery(&ctx.check.id, incident_id);
-            info!(
-                check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
-                recipients = recipients.len(),
-                downtime = ?downtime_duration,
-                incident_id = %incident_id,
-                "Recovery alert sent"
-            );
         }
     }
 
@@ -334,47 +406,73 @@ impl IncidentOrchestrator {
         }
 
         let recipients = &alert_config.recipients;
+        let has_pushover = ctx.check.alert.pushover_user_key.is_some() && self.pushover_client.is_some();
 
-        if recipients.is_empty() {
+        if recipients.is_empty() && !has_pushover {
             debug!("no recipients configured - skipping notification");
             return;
         }
 
-        let result = self
-            .dispatcher
-            .dispatch(
-                AlertContext {
-                    check_id: &ctx.check.id,
-                    site_id: &ctx.check.site_id,
-                    dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
-                    url: ctx.check.url.as_str(),
-                    recipients,
-                },
-                if expired {
-                    Alert::SslExpired {
-                        days_left,
-                        expiry_date: ctx.tls_not_after,
-                    }
-                } else {
-                    Alert::SslExpiring {
-                        days_left,
-                        expiry_date: ctx.tls_not_after,
-                    }
-                },
-            )
-            .await;
+        let alert = if expired {
+            Alert::SslExpired {
+                days_left,
+                expiry_date: ctx.tls_not_after,
+            }
+        } else {
+            Alert::SslExpiring {
+                days_left,
+                expiry_date: ctx.tls_not_after,
+            }
+        };
 
-        if result {
+        let mut any_sent = false;
+
+        if !recipients.is_empty() {
+            let result = self
+                .dispatcher
+                .dispatch(
+                    AlertContext {
+                        check_id: &ctx.check.id,
+                        site_id: &ctx.check.site_id,
+                        dashboard_id: &ctx.check.dashboard_id,
+                        monitor_name: &ctx.monitor_name(),
+                        url: ctx.check.url.as_str(),
+                        recipients,
+                    },
+                    alert.clone(),
+                )
+                .await;
+
+            if result {
+                any_sent = true;
+                info!(
+                    check_id = %ctx.check.id,
+                    monitor = %ctx.monitor_name(),
+                    days_left = days_left,
+                    recipients = recipients.len(),
+                    "SSL email alert sent"
+                );
+            }
+        }
+
+        if let Some(ref pushover) = self.pushover_client {
+            if let Some(ref user_key) = ctx.check.alert.pushover_user_key {
+                let msg = pushover::build_pushover_message(
+                    &alert, &ctx.monitor_name(), ctx.check.url.as_str(),
+                    &ctx.check.dashboard_id, &ctx.check.id, &self.public_base_url,
+                );
+                match pushover.send(user_key, &msg).await {
+                    Ok(()) => {
+                        any_sent = true;
+                        info!(check_id = %ctx.check.id, days_left = days_left, "SSL pushover alert sent");
+                    }
+                    Err(e) => error!(check_id = %ctx.check.id, error = ?e, "Pushover notification failed"),
+                }
+            }
+        }
+
+        if any_sent {
             self.notification_tracker.mark_notified_ssl(&ctx.check.id, expired, ctx.tls_not_after, days_left);
-
-            info!(
-                check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
-                days_left = days_left,
-                recipients = recipients.len(),
-                "SSL alert sent"
-            );
         }
     }
 

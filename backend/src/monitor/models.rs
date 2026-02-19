@@ -181,6 +181,7 @@ pub struct AlertConfig {
     pub ssl_expiry_days: i32,
     pub failure_threshold: i32,
     pub recipients: Vec<String>,
+    pub pushover_user_key: Option<String>,
 }
 
 #[derive(Clone, Debug)]

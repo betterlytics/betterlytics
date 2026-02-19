@@ -26,6 +26,7 @@ export const MONITOR_LIMITS = {
   ALERT_EMAILS_MAX: 5,
   ACCEPTED_STATUS_CODES_MAX: 5,
   EXPECTED_KEYWORD_MAX: 256,
+  PUSHOVER_USER_KEY_MAX: 50,
 } as const;
 
 export const MONITOR_DEFAULTS = {
@@ -43,6 +44,7 @@ export const MONITOR_DEFAULTS = {
   alertOnDown: true,
   alertOnRecovery: true,
   alertOnSslExpiry: true,
+  pushoverUserKey: null as string | null,
 } as const;
 
 export const RequestHeaderSchema = z.object({
@@ -79,6 +81,13 @@ export const MonitorCheckBaseSchema = z.object({
   alertOnSslExpiry: z.boolean().default(MONITOR_DEFAULTS.alertOnSslExpiry),
   sslExpiryAlertDays: z.number().int().min(1).max(90).default(MONITOR_DEFAULTS.sslExpiryAlertDays),
   failureThreshold: z.number().int().min(1).max(10).default(MONITOR_DEFAULTS.failureThreshold),
+  pushoverUserKey: z
+    .string()
+    .max(MONITOR_LIMITS.PUSHOVER_USER_KEY_MAX)
+    .regex(/^[a-zA-Z0-9]*$/, 'Must be alphanumeric')
+    .nullable()
+    .optional()
+    .default(null),
 });
 
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({

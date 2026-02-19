@@ -1996,7 +1996,10 @@
       "sslExpiryDays": "Dage før udløb",
       "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
       "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}",
-      "unit": "{count, plural, one {dag} other {dage}}"
+      "unit": "{count, plural, one {dag} other {dage}}",
+      "pushoverUserKey": "Pushover-brugernøgle",
+      "pushoverUserKeyDescription": "Indtast din Pushover-brugernøgle for at modtage push-notifikationer. Find den i dit Pushover-dashboard.",
+      "pushoverUserKeyPlaceholder": "f.eks. uQiRzpo4DXghDmr9QZgQ..."
     }
   },
   "charts": {

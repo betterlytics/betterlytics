@@ -2004,7 +2004,10 @@
       "sslExpiryDays": "Giorni prima della scadenza",
       "sslExpiryDaysDescription": "Invia un avviso con questo anticipo rispetto alla scadenza del certificato SSL",
       "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}",
-      "unit": "{count, plural, one {giorno} other {giorni}}"
+      "unit": "{count, plural, one {giorno} other {giorni}}",
+      "pushoverUserKey": "Chiave utente Pushover",
+      "pushoverUserKeyDescription": "Inserisci la tua chiave utente Pushover per ricevere notifiche push. Trovala nella tua dashboard Pushover.",
+      "pushoverUserKeyPlaceholder": "es. uQiRzpo4DXghDmr9QZgQ..."
     }
   },
   "charts": {
