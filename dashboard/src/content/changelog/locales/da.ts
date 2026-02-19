@@ -2,51 +2,35 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.4',
-    releasedAt: '2026-02-08',
-    title: 'E-mailrapporter & ugentlige og månedlige indsigter',
+    version: 'v1.3.5',
+    releasedAt: '2026-02-19',
+    title: 'Nøgleordsovervågning & visuelle forbedringer',
     summary:
-      'Modtag planlagte e-mailrapporter for dine dashboards og analysér langsigtede trends med ugentlig og månedlig visning.',
+      'Uptime-monitorer kan nu give besked, hvis et forventet nøgleord mangler på dine sider. Dashboardet føles desuden glattere med animerede målere, tal og andre visuelle detaljer.',
   },
   sections: [
     {
-      id: 'v134-new-features',
+      id: 'v135-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Planlæg e-mailrapporter med overblik over dine dashboards direkte fra indstillingerne.',
-            'Ved længere tidsperioder kan data nu vises med ugentlig og månedlig opdeling, hvilket gør det lettere at identificere langsigtede trends.',
+            'Uptime-monitorer kan nu kontrollere, om et forventet nøgleord findes i sidens svar, og advare dig hvis vigtigt indhold mangler, selv når siden returnerer en 200-statuskode.',
           ],
         },
       ],
     },
     {
-      id: 'v134-improvements',
+      id: 'v135-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll depth-events er nu inkluderet uden ekstra omkostninger og tæller ikke med i dit månedlige forbrug.',
-            'Filtervælgeren viser nu, hvor mange filtre der er aktive.',
-            'Tabelceller viser nu sammenligningsdata tydeligere, når der mangler data for én af perioderne.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v134-fixes',
-      title: 'Fejlrettelser',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Rettet et problem, hvor tracking-scriptet i visse tilfælde kunne sende ugyldige data.',
-            'Rettet et problem i datoberegningen, som kunne medføre forkerte tidsperioder.',
-            'Rettet en fejl, hvor e-mailbekræftelse ikke blev sendt korrekt ved tilmelding via OAuth.',
-            'Rettet visning af sammenligningsindikatorer, når data manglede eller var uændrede.',
+            'Core Web Vitals-scorer vises nu i en animeret måler, så du hurtigere kan aflæse din sides ydeevne.',
+            'Tooltips i grafer viser nu tydeligt, når en uge- eller månedsperiode kun er delvist dækket af det valgte tidsinterval.',
+            'Tal, indlæsningsindikatorer og andre små visuelle detaljer er finpudset for en glattere og mere poleret oplevelse på tværs af dashboardet.',
           ],
         },
       ],
@@ -55,6 +39,43 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Nøgleordsovervågning & visuelle forbedringer',
+      summary:
+        'Uptime-monitorer kan nu give besked, hvis et forventet nøgleord mangler på dine sider. Dashboardet føles desuden glattere med animerede målere, tal og andre visuelle detaljer.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime-monitorer kan nu kontrollere, om et forventet nøgleord findes i sidens svar, og advare dig hvis vigtigt indhold mangler — selv når siden returnerer en 200-statuskode.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Core Web Vitals-scorer vises nu i en animeret måler, så du hurtigere kan aflæse din sides ydeevne.',
+              'Tooltips i grafer viser nu tydeligt, når en uge- eller månedsperiode kun er delvist dækket af det valgte tidsinterval.',
+              'Tal, indlæsningsindikatorer og andre små visuelle detaljer er finpudset for en glattere og mere poleret oplevelse på tværs af dashboardet.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.4',
