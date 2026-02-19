@@ -1710,6 +1710,7 @@
       "blocked_ip_literal": "IP address not allowed",
       "dns_blocked": "DNS resolved to blocked address",
       "dns_error": "DNS resolution failed",
+      "keyword_not_found": "Expected keyword not found in response",
       "unknown": "Unknown error"
     }
   },
@@ -1966,6 +1967,12 @@
           "invalidFormat": "Please enter a valid status code (e.g., 200) or range (e.g., 2xx)",
           "outOfRange": "Status code must be between 100 and 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Expected keyword",
+        "description": "Alert if this text is missing from the HTML source (first 32 KB). Use text visible in the raw HTML, not content rendered by JavaScript.",
+        "placeholder": "e.g. Welcome, Dashboard, OK",
+        "requiresGet": "Keyword validation requires the GET method"
       }
     },
     "alerts": {
@@ -3105,7 +3112,8 @@
       "minInterval": "Faster monitoring intervals require a Professional plan",
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
-      "customHeaders": "Custom request headers require a Professional plan"
+      "customHeaders": "Custom request headers require a Professional plan",
+      "keywordValidation": "Keyword validation requires a Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
