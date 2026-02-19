@@ -2,13 +2,11 @@
 
 import {
   getPageAnalytics,
-  getPageDetail,
   getPageTrafficForTimePeriod,
   getEntryPageAnalyticsForSite,
   getExitPageAnalyticsForSite,
   getPagesSummaryWithChartsForSite,
 } from '@/services/analytics/pages.service';
-import { PageAnalytics } from '@/entities/analytics/pages.entities';
 import { TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
@@ -35,12 +33,6 @@ export const fetchPageAnalyticsAction = withDashboardAuthContext(
       (await getPageAnalytics(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
 
     return toDataTable({ data, compare: compareData, categoryKey: 'path' });
-  },
-);
-
-export const fetchPageDetailAction = withDashboardAuthContext(
-  async (ctx: AuthContext, path: string, startDate: Date, endDate: Date): Promise<PageAnalytics | null> => {
-    return getPageDetail(ctx.siteId, path, startDate, endDate);
   },
 );
 

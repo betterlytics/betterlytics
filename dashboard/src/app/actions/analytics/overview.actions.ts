@@ -1,6 +1,6 @@
 'use server';
 
-import { TopEntryPageRow, TopExitPageRow, PageAnalyticsCombinedSchema } from '@/entities/analytics/pages.entities';
+import { PageAnalyticsCombinedSchema } from '@/entities/analytics/pages.entities';
 import {
   getTopPagesForSite,
   getTotalPageViewsForSite,
@@ -309,30 +309,6 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         startBucketIncomplete: startIncomplete,
       }),
     };
-  },
-);
-
-export const fetchTopEntryPagesAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit: number,
-    queryFilters: QueryFilter[],
-  ): Promise<TopEntryPageRow[]> => {
-    return getTopEntryPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
-  },
-);
-
-export const fetchTopExitPagesAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit: number,
-    queryFilters: QueryFilter[],
-  ): Promise<TopExitPageRow[]> => {
-    return getTopExitPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
   },
 );
 

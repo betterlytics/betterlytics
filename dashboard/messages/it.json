@@ -1058,10 +1058,6 @@
           "title": "Core Web Vitals",
           "description": "Monitora e misura le prestazioni del tuo sito con i Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Link in uscita",
-          "description": "Tieni traccia dei clic verso siti esterni, link social, documenti e altro ancora."
-        },
         "trafficSources": {
           "title": "Fonti di traffico",
           "description": "Scopri da dove arrivano i tuoi visitatori e ottimizza i tuoi sforzi di marketing.",
@@ -1619,10 +1615,6 @@
       "noData": "Nessun dato disponibile"
     }
   },
-  "devicesPage": {
-    "title": "Dispositivi",
-    "description": "Suddivisione dei dispositivi dei visitatori e analisi d'uso"
-  },
   "dashboardsPage": {
     "title": "Le tue dashboard",
     "subtitle": "Gestisci e monitora le analitiche per tutti i tuoi siti web.",
@@ -2000,13 +1992,6 @@
       "unit": "{count, plural, one {giorno} other {giorni}}"
     }
   },
-  "charts": {
-    "tooltip": {
-      "vs": "vs",
-      "currentPeriod": "Periodo attuale",
-      "previousPeriod": "Periodo precedente"
-    }
-  },
   "misc": {
     "loading": "Caricamento...",
     "created": "Creato",
@@ -2025,23 +2010,7 @@
     "save": "Salva",
     "saving": "Salvataggio..."
   },
-  "languages": {
-    "da": "Danish",
-    "en": "English",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Lun.",
-        "tueShort": "Mar.",
-        "wedShort": "Mer.",
-        "thuShort": "Gio.",
-        "friShort": "Ven.",
-        "satShort": "Sab.",
-        "sunShort": "Dom."
-      }
-    },
     "annotations": {
       "dialogs": {
         "addTitle": "Aggiungi annotazione",
@@ -2182,9 +2151,6 @@
         "enterprise": "Enterprise"
       }
     },
-    "dataTable": {
-      "noResults": "Nessun risultato."
-    },
     "timeRange": {
       "disabled": "Disattivato",
       "disableCompare": "Disattiva confronto",
@@ -2245,10 +2211,6 @@
       "charts": {
         "deviceTypes": "Tipo di dispositivo",
         "deviceUsageTrend": "Tendenza utilizzo dispositivi"
-      },
-      "trends": {
-        "noData": "Nessun dato di tendenza disponibile",
-        "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri"
       }
     },
     "campaign": {
@@ -2309,10 +2271,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Eventi",
-        "description": "Analitiche e insight per i tuoi eventi personalizzati"
-      },
       "log": {
         "waiting": "In attesa di eventi...",
         "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
@@ -2405,13 +2363,6 @@
         "step": "Passaggio",
         "visitors": "Visitatori"
       },
-      "list": {
-        "steps": "passaggi",
-        "conversionRate": "Tasso di conversione",
-        "completed": "Completato",
-        "totalUsers": "Utenti totali",
-        "largestDropOff": "Perdita maggiore"
-      },
       "create": {
         "defaultName": "Il mio nuovo funnel",
         "createFunnel": "Crea Funnel",
@@ -2466,25 +2417,8 @@
         "successMessage": "Funnel eliminato!",
         "errorMessage": "Eliminazione funnel fallita!"
       },
-      "page": {
-        "title": "Funnel",
-        "description": "Analizza i percorsi di conversione degli utenti"
-      },
       "preview": {
-        "loading": "Caricamento anteprima...",
         "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
-      },
-      "details": {
-        "title": "Analisi funnel",
-        "steps": "passaggi",
-        "users": "utenti",
-        "dropped": "abbandoni",
-        "summary": {
-          "overallConversion": "Conversione complessiva",
-          "totalVisitors": "Visitatori totali",
-          "totalCompleted": "Completati totali",
-          "biggestDropOff": "Perdita maggiore"
-        }
       },
       "emptyState": {
         "title": "Visualizza il tuo funnel di conversione",
@@ -2516,9 +2450,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analizza le fonti di riferimento, la quota di traffico e le tendenze."
-      },
       "summary": {
         "referralSessions": "Sessioni da referrer",
         "referralTrafficPct": "Traffico da referrer %",
@@ -2562,12 +2493,6 @@
       "sessions": "Sessioni"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Clic unici totali",
-        "uniqueVisitors": "Visitatori unici",
-        "topDomain": "Dominio principale",
-        "topSourcePage": "Pagina sorgente principale"
-      },
       "table": {
         "title": "Performance link in uscita",
         "destinationUrl": "URL di destinazione",
@@ -3158,10 +3083,6 @@
     }
   },
   "members": {
-    "page": {
-      "title": "Membri",
-      "description": "Gestisci chi ha accesso a questa dashboard"
-    },
     "table": {
       "title": "Membri",
       "searchPlaceholder": "Cerca membri...",

@@ -3,15 +3,12 @@
 import {
   getOutboundLinksAnalytics,
   getDailyOutboundClicks,
-  getOutboundLinksSummary,
   getOutboundLinksDistribution,
 } from '@/repositories/clickhouse/outboundLinks.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   OutboundLinkRow,
   DailyOutboundClicksRow,
-  OutboundLinksSummaryWithCharts,
-  OutboundLinksSummaryWithChartsSchema,
   TopOutboundLinksDistrubution,
 } from '@/entities/analytics/outboundLinks.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -40,33 +37,6 @@ export async function getDailyOutboundClicksForSite(
   const formattedStart = toDateTimeString(startDate);
   const formattedEnd = toDateTimeString(endDate);
   return getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
-}
-
-export async function getOutboundLinksSummaryWithChartsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<OutboundLinksSummaryWithCharts> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  const [summary, dailyClicksChartData] = await Promise.all([
-    getOutboundLinksSummary(siteId, formattedStart, formattedEnd, queryFilters),
-    getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
-  ]);
-
-  const summaryWithCharts = {
-    totalClicks: summary.totalClicks,
-    uniqueVisitors: summary.uniqueVisitors,
-    topDomain: summary.topDomain,
-    topSourceUrl: summary.topSourceUrl,
-    dailyClicksChartData,
-  };
-
-  return OutboundLinksSummaryWithChartsSchema.parse(summaryWithCharts);
 }
 
 export async function getOutboundLinksDistributionForSite(
