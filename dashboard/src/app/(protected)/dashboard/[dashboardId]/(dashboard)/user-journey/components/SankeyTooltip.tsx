@@ -1,8 +1,9 @@
 import { formatNumber } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type { TooltipState } from '../types';
 
 export function TooltipComponent({ tooltip }: { tooltip: TooltipState }) {
+  const locale = useLocale();
   const t = useTranslations('components.userJourney');
 
   if (!tooltip.visible || !tooltip.content) return null;
@@ -23,7 +24,7 @@ export function TooltipComponent({ tooltip }: { tooltip: TooltipState }) {
             </span>
           </div>
           <div className='text-popover-foreground/80 text-xs'>
-            {t('sessions')}: {formatNumber(tooltip.content.value)}
+            {t('sessions')}: {formatNumber(tooltip.content.value, locale)}
           </div>
         </div>
       </div>

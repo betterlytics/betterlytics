@@ -10,6 +10,7 @@ import {
 } from '@/app/actions/index.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
@@ -21,7 +22,7 @@ interface MetricConfig {
   title: string;
   valueField: string;
   color: string;
-  formatValue?: (value: number) => string;
+  formatValue?: (value: number, locale?: SupportedLanguages) => string;
 }
 
 export default function OverviewChartSection({

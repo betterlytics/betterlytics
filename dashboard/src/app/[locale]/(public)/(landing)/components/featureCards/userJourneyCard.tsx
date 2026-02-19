@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 type JourneyVariant = 'entry' | 'core' | 'primary' | 'secondary';
 type PathVariant = Extract<JourneyVariant, 'primary' | 'secondary'>;
@@ -9,8 +9,6 @@ type JourneyStep = {
   name: string;
   users: number;
 };
-
-const numberFormatter = new Intl.NumberFormat('en-US');
 
 const variantStyles: Record<JourneyVariant, { ring: string; halo: string; text: string; shadow: string }> = {
   entry: {
@@ -53,9 +51,8 @@ const connectorStyles: Record<PathVariant, string> = {
 const lightModeHighlightOverlay =
   'bg-[radial-gradient(circle_at_32%_30%,rgba(255,255,255,0.92),rgba(255,255,255,0.15)_55%,rgba(255,255,255,0)_100%)]';
 
-const formatUsers = (value: number) => numberFormatter.format(value);
-
 export default async function UserJourneyCard() {
+  const locale = await getLocale();
   const t = await getTranslations('public.landing.cards.journeys');
   const journeyData = {
     start: { name: 'Landing Page', users: 1000 },
@@ -80,13 +77,13 @@ export default async function UserJourneyCard() {
       <CardContent className='pt-0'>
         <div className='relative flex items-center justify-center sm:mt-5 sm:min-h-[12.5rem]'>
           <div className='flex h-full w-full max-w-3xl flex-col items-center gap-1.5 md:gap-[0.75rem]'>
-            <JourneyNode variant='entry' name={journeyData.start.name} users={journeyData.start.users} />
+            <JourneyNode variant='entry' name={journeyData.start.name} users={journeyData.start.users} locale={locale} />
             <VerticalConnector />
-            <JourneyNode variant='core' name={journeyData.middle.name} users={journeyData.middle.users} />
+            <JourneyNode variant='core' name={journeyData.middle.name} users={journeyData.middle.users} locale={locale} />
             <BranchConnector />
             <div className='grid w-full grid-cols-2 gap-2 md:gap-3.5'>
-              <PathColumn steps={journeyData.pathA} variant='primary' />
-              <PathColumn steps={journeyData.pathB} variant='secondary' />
+              <PathColumn steps={journeyData.pathA} variant='primary' locale={locale} />
+              <PathColumn steps={journeyData.pathB} variant='secondary' locale={locale} />
             </div>
           </div>
         </div>
@@ -95,7 +92,7 @@ export default async function UserJourneyCard() {
   );
 }
 
-function JourneyNode({ name, users, variant }: { name: string; users: number; variant: JourneyVariant }) {
+function JourneyNode({ name, users, variant, locale }: { name: string; users: number; variant: JourneyVariant; locale: string }) {
   const { ring, halo, text, shadow } = variantStyles[variant];
 
   return (
@@ -108,7 +105,7 @@ function JourneyNode({ name, users, variant }: { name: string; users: number; va
           aria-hidden='true'
           className={`absolute inset-[1px] rounded-full ${lightModeHighlightOverlay} opacity-90 mix-blend-screen dark:hidden`}
         />
-        <span className={`relative text-[10px] font-semibold tracking-tight ${text}`}>{formatUsers(users)}</span>
+        <span className={`relative text-[10px] font-semibold tracking-tight ${text}`}>{users.toLocaleString(locale)}</span>
       </div>
       <span className='mt-1 text-[10.5px] font-medium text-slate-800 dark:text-slate-100'>{name}</span>
     </div>
@@ -166,14 +163,14 @@ function BranchConnector() {
   );
 }
 
-function PathColumn({ steps, variant }: { steps: ReadonlyArray<JourneyStep>; variant: PathVariant }) {
+function PathColumn({ steps, variant, locale }: { steps: ReadonlyArray<JourneyStep>; variant: PathVariant; locale: string }) {
   const gradientClass = connectorStyles[variant];
 
   return (
     <div className='relative flex flex-col items-center gap-1.5 text-center'>
       {steps.map((step, index) => (
         <Fragment key={step.name}>
-          <JourneyNode variant={variant} name={step.name} users={step.users} />
+          <JourneyNode variant={variant} name={step.name} users={step.users} locale={locale} />
           {index < steps.length - 1 ? (
             <StepConnector gradientClass={gradientClass} heightClass='h-5 md:h-7' className='-my-1' />
           ) : null}

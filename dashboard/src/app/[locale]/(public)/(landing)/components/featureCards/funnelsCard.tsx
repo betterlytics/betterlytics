@@ -1,9 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { formatPercentage } from '@/utils/formatters';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function FunnelsCard() {
   const t = await getTranslations('public.landing.cards.funnels');
+  const locale = await getLocale();
   const funnelSteps = [
     { name: 'Read Blog Post', conversion: 100, dropOff: 60.0 },
     { name: 'Click CTA', conversion: 40, dropOff: 30.0 },
@@ -22,7 +24,7 @@ export default async function FunnelsCard() {
           <div key={step.name} className='space-y-1'>
             <div className='flex items-center justify-between'>
               <span className='text-sm font-medium'>{step.name}</span>
-              <span className='text-sm font-bold'>{step.conversion}%</span>
+              <span className='text-sm font-bold'>{formatPercentage(step.conversion, locale, { minimumFractionDigits: 0 })}</span>
             </div>
             <div className='bg-muted h-2 w-full overflow-hidden rounded-full'>
               <div className='bg-primary h-full' style={{ width: `${step.conversion}%` }} />
@@ -31,7 +33,7 @@ export default async function FunnelsCard() {
               <div className='text-muted-foreground flex items-center text-xs'>
                 <TrendingDown className='mr-1 h-3 w-3' />
                 <span>
-                  {step.dropOff}% {t('dropOff')}
+                  {formatPercentage(step.dropOff, locale)} {t('dropOff')}
                 </span>
               </div>
             )}
@@ -40,10 +42,10 @@ export default async function FunnelsCard() {
 
         <div className='border-border mt-4 border-t pt-3'>
           <div className='flex items-center justify-between text-sm'>
-            <span className='font-medium'>{t('total')}: 15%</span>
+            <span className='font-medium'>{t('total')}: {formatPercentage(15, locale, { minimumFractionDigits: 0 })}</span>
             <div className='flex items-center text-green-500'>
               <TrendingUp className='mr-1 h-3 w-3' />
-              <span>2.3% {t('sinceLastWeek')}</span>
+              <span>{formatPercentage(2.3, locale)} {t('sinceLastWeek')}</span>
             </div>
           </div>
         </div>

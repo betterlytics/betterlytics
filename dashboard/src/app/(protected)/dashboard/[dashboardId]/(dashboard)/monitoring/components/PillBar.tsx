@@ -24,7 +24,7 @@ export function PillBar({ data, variant = 'default' }: PillBarProps) {
 
   const getLabel = (upRatio: number | null) => {
     if (upRatio == null) return t('noData');
-    return `${formatPercentage(upRatio * 100, 2, { trimHundred: true })} ${t('uptimeSuffix')}`;
+    return `${formatPercentage(upRatio * 100, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true })} ${t('uptimeSuffix')}`;
   };
 
   const getToneClass = (upRatio: number | null) => {

@@ -3,6 +3,7 @@
 import { List, RowComponentProps } from 'react-window';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'next-intl';
 import { formatDurationPrecise, formatTimestamp } from '@/utils/dateFormatters';
 import { TimelineGroup } from './ReplayTimeline';
 
@@ -48,6 +49,7 @@ type RenderGroupProps = RowComponentProps<{
 }>;
 
 function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
+  const locale = useLocale();
   const group = groups[index];
   return (
     <button
@@ -71,7 +73,7 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
         </div>
         {group.end > group.start && (
           <div className='text-muted-foreground mt-0.5 text-[11px]'>
-            {formatDurationPrecise(group.end - group.start)}
+            {formatDurationPrecise(group.end - group.start, locale)}
           </div>
         )}
       </div>

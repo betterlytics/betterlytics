@@ -10,7 +10,7 @@ import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
 import { toast } from 'sonner';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface CurrentPlanCardProps {
   billingData: UserBillingData;
@@ -20,6 +20,7 @@ interface CurrentPlanCardProps {
 export function CurrentPlanCard({ billingData, showManagementButtons = false }: CurrentPlanCardProps) {
   const { subscription, usage } = billingData;
   const t = useTranslations('components.billing.currentPlan');
+  const locale = useLocale();
 
   const isCanceled = subscription.cancelAtPeriodEnd;
   const isActive = subscription.status === 'active';
@@ -45,7 +46,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           <div className='flex-1'>
             <p className='text-sm font-medium text-orange-800 dark:text-orange-200'>{t('canceledBannerTitle')}</p>
             <p className='text-xs text-orange-700 dark:text-orange-300'>
-              {t('canceledBannerBody', { date: subscription.currentPeriodEnd.toLocaleDateString() })}
+              {t('canceledBannerBody', { date: subscription.currentPeriodEnd.toLocaleDateString(locale) })}
             </p>
           </div>
         </div>
@@ -84,7 +85,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
             <div className='font-semibold'>
               {subscription.pricePerMonth === 0
                 ? t('free')
-                : formatPrice(subscription.pricePerMonth, subscription.currency)}
+                : formatPrice(subscription.pricePerMonth, subscription.currency, locale)}
             </div>
           </div>
         </div>
@@ -99,12 +100,12 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
             <div className='flex items-center justify-between text-sm'>
               <span className='text-muted-foreground'>
                 {t('usageProgress', {
-                  current: formatNumber(usage.current),
-                  limit: formatNumber(usage.limit),
+                  current: formatNumber(usage.current, locale),
+                  limit: formatNumber(usage.limit, locale),
                 })}
               </span>
               <span className={`font-medium ${usage.isOverLimit ? 'text-red-500' : 'text-foreground'}`}>
-                {formatPercentage(usage.usagePercentage)}
+                {formatPercentage(usage.usagePercentage, locale)}
               </span>
             </div>
 

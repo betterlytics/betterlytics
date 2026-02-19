@@ -8,12 +8,13 @@ import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { useLocale, useTranslations } from 'next-intl';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
-import { formatNumber } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
@@ -31,14 +32,14 @@ const metricOptions = [
   { value: 'session_duration', labelKey: 'sessionDuration' },
 ] as const;
 
-function formatHeatmapMetricValue(metric: HeatmapMetric, value: number): string {
+function formatHeatmapMetricValue(metric: HeatmapMetric, value: number, locale: SupportedLanguages): string {
   switch (metric) {
     case 'session_duration':
-      return formatDuration(Math.round(value));
+      return formatDuration(Math.round(value), locale);
     case 'bounce_rate':
-      return `${value}%`;
+      return formatPercentage(value, locale);
     default:
-      return formatNumber(value);
+      return formatNumber(value, locale);
   }
 }
 
@@ -198,7 +199,7 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
                       {`${dayLabels[dayIndex]} ${String(hourIndex).padStart(2, '0')}:00 - ${String((hourIndex + 1) % 24).padStart(2, '0')}:00`}
                     </div>
                     <div className='text-popover-foreground/90'>
-                      {`${formatHeatmapMetricValue(metric, value)} ${metricLabel.toLowerCase()}`}
+                      {`${formatHeatmapMetricValue(metric, value, locale)} ${metricLabel.toLowerCase()}`}
                     </div>
                   </div>
                 </TooltipContent>

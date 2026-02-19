@@ -8,10 +8,10 @@ import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing.entities';
 import { formatPrice } from '@/utils/pricing';
-import { capitalizeFirstLetter } from '@/utils/formatters';
+import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
 import { Dispatch, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 
@@ -43,6 +43,7 @@ export function PricingCards({
   className = '',
   billingData,
 }: PricingCardsProps) {
+  const locale = useLocale();
   const t = useTranslations('pricingCards');
   const growthPrice = currency === 'EUR' ? eventRange.growth.price.eur_cents : eventRange.growth.price.usd_cents;
   const professionalPrice =
@@ -59,7 +60,7 @@ export function PricingCards({
         period: !isFree && !isCustom ? t('periodPerMonth') : '',
         description: t('descriptions.growth'),
         features: [
-          t('features.upToEventsPerMonth', { events: eventRange.label }),
+          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
           t('features.allFeatures'),
           t('features.twoSites'),
           t('features.retention1PlusYear'),
@@ -75,7 +76,7 @@ export function PricingCards({
         period: !isCustom ? t('periodPerMonth') : '',
         description: t('descriptions.professional'),
         features: [
-          t('features.upToEventsPerMonth', { events: eventRange.label }),
+          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
           t('features.everythingInStarter'),
           t('features.upTo50Sites'),
           t('features.retention3PlusYears'),
@@ -105,7 +106,7 @@ export function PricingCards({
         lookup_key: null,
       },
     ],
-    [eventRange, growthPrice, professionalPrice, isFree, isCustom, t],
+    [eventRange, growthPrice, professionalPrice, isFree, isCustom, t, locale],
   );
 
   const handlePlanClick = (plan: PlanConfig) => {
@@ -125,7 +126,7 @@ export function PricingCards({
   const formatDisplayPrice = (price: number): string => {
     if (price === 0) return t('labels.free');
     if (price < 0) return t('labels.custom');
-    return formatPrice(price, currency);
+    return formatPrice(price, currency, locale);
   };
 
   const renderButton = (plan: PlanConfig) => {

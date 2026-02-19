@@ -61,7 +61,7 @@ export function SessionReplayList({
 
   const items: ListPanelItem[] = filteredSessions.map((session) => {
     const startedAt = new Date(session.started_at);
-    const durationLabel = formatDuration(session.duration);
+    const durationLabel = formatDuration(session.duration, locale);
     const country = session?.country_code
       ? {
           code: session.country_code as FlagIconProps['countryCode'],

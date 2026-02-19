@@ -17,6 +17,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { cn } from '@/lib/utils';
 
 interface ChartDataPoint {
@@ -55,7 +56,7 @@ interface MultiSeriesChartProps {
   title: React.ReactNode;
   data: ChartDataPoint[];
   granularity?: GranularityRangeValues;
-  formatValue?: (value: number) => string;
+  formatValue?: (value: number, locale?: SupportedLanguages) => string;
   series: ReadonlyArray<MultiSeriesConfig>;
   referenceAreas?: Array<ReferenceAreaConfig>;
   yReferenceAreas?: Array<YReferenceAreaConfig>;
@@ -95,10 +96,10 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
-        const text = formatValue ? formatValue(value) : value.toLocaleString();
+        const text = formatValue ? formatValue(value, locale) : value.toLocaleString(locale);
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
-    }, [formatValue]);
+    }, [formatValue, locale]);
     const isMobile = useIsMobile();
 
     return (

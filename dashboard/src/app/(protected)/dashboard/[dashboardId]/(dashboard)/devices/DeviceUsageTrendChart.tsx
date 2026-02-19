@@ -17,7 +17,7 @@ import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartToo
 import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 
@@ -52,6 +52,7 @@ export default function DeviceUsageTrendChart({
   granularity,
 }: DeviceUsageTrendChartProps) {
   const t = useTranslations('dashboard.emptyStates');
+  const locale = useLocale();
   const isMobile = useIsMobile();
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
@@ -82,7 +83,7 @@ export default function DeviceUsageTrendChart({
               axisLine={false}
               className='text-muted-foreground'
               tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-              tickFormatter={(val) => formatNumber(val)}
+              tickFormatter={(val) => formatNumber(val, locale)}
               width={40}
               mirror={isMobile}
             />
@@ -94,7 +95,7 @@ export default function DeviceUsageTrendChart({
                   label={props.label}
                   comparisonMap={comparisonMap}
                   granularity={granularity}
-                  formatter={(value) => formatNumber(value)}
+                  formatter={formatNumber}
                 />
               )}
             />

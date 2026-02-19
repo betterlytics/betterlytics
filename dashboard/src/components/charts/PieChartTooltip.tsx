@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { useLocale } from 'next-intl';
 
 type PiePayload = {
   name: string;
@@ -29,6 +30,8 @@ export function PieChartTooltip({
   title,
   renderIcon,
 }: PieChartTooltipProps) {
+  const locale = useLocale();
+
   if (!active || !payload || payload.length === 0) return null;
 
   const p0 = payload[0];
@@ -55,10 +58,10 @@ export function PieChartTooltip({
           <div className='text-popover-foreground text-sm font-medium'>
             {percentage !== undefined && (
               <span className='text-muted-foreground me-2 text-sm font-normal'>
-                {formatPercentage(percentage)}
+                {formatPercentage(percentage, locale)}
               </span>
             )}
-            {valueFormatter ? valueFormatter(value) : formatNumber(value)}
+            {valueFormatter ? valueFormatter(value) : formatNumber(value, locale)}
           </div>
         </div>
       </div>

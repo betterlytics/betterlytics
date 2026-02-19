@@ -3,6 +3,7 @@ import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { utcDay, utcHour, utcMinute, utcWeek, utcMonth } from 'd3-time';
 import { formatNumber } from './formatters';
 import { formatWeekRange } from './dateFormatters';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export interface TrendInfo {
   icon: typeof ChevronUp | typeof ChevronDown | typeof Minus;
@@ -29,8 +30,9 @@ export function formatDifference(
   current: number,
   previous: number,
   hasComparison: boolean,
-  formatter?: (value: number) => string,
+  formatter?: (value: number, locale?: SupportedLanguages) => string,
   includePreviousNumber: boolean = true,
+  locale?: SupportedLanguages,
 ): string | null {
   if (!hasComparison || previous === 0) return null;
 
@@ -38,14 +40,18 @@ export function formatDifference(
   if (diff === 0) return null;
 
   const sign = diff > 0 ? '+' : '';
-  const formattedDiff = formatter ? formatter(diff) : formatNumber(diff);
+  const formattedDiff = formatter ? formatter(diff, locale) : formatNumber(diff, locale);
 
-  const percentage = ((diff / previous) * 100).toFixed(1);
+  const percentageValue = diff / previous;
+  const percentage = new Intl.NumberFormat(locale, {
+    style: 'percent',
+    maximumFractionDigits: 1,
+  }).format(percentageValue);
 
   if (previous !== 0 && includePreviousNumber) {
-    return `${sign}${percentage}% (${sign}${formattedDiff})`;
+    return `${sign}${percentage} (${sign}${formattedDiff})`;
   } else if (!includePreviousNumber) {
-    return `${sign}${percentage}%`;
+    return `${sign}${percentage}`;
   }
 
   return `${sign}${formattedDiff}`;
@@ -57,7 +63,7 @@ export function formatDifference(
 export function defaultDateLabelFormatter(
   date: string | number,
   granularity?: GranularityRangeValues,
-  locale?: string,
+  locale?: SupportedLanguages,
 ) {
   const d = typeof date === 'string' ? new Date(date) : new Date(date);
 
@@ -93,7 +99,7 @@ export function defaultDateLabelFormatter(
   }).format(d);
 }
 
-export function granularityDateFormatter(granularity?: GranularityRangeValues, locale?: string) {
+export function granularityDateFormatter(granularity?: GranularityRangeValues, locale?: SupportedLanguages) {
   // Month granularity
   if (granularity === 'month') {
     return (date: Date) =>

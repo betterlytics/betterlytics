@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 import {
   presentMonitorStatus,
@@ -27,6 +28,7 @@ type MonitorListProps = {
 };
 
 export function MonitorList({ monitors }: MonitorListProps) {
+  const locale = useLocale();
   const t = useTranslations('monitoringPage');
   const tMonitoringLabels = useTranslations('monitoring.labels');
   const tSsl = useTranslations('monitoring.ssl');
@@ -69,7 +71,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
         const uptimePercent = hasData ? calculateUptimePercent(monitor.uptimeBuckets ?? []) : null;
         const percentLabel =
-          uptimePercent != null ? formatPercentage(uptimePercent, 2, { trimHundred: true }) : '— %';
+          uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;
@@ -97,6 +99,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                       currentStateSince: monitor.currentStateSince,
                       isUp: statusPresentation.label === 'Up',
                       t,
+                      locale,
                     }) || (!hasData ? t('list.noData') : '')}
                   </span>
                 </div>
@@ -127,6 +130,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
                             currentStateSince: monitor.currentStateSince,
                             isUp: statusPresentation.label === 'Up',
                             t,
+                            locale,
                           })}
                         </span>
                       )}
@@ -247,10 +251,11 @@ type StatusDurationTextParams = {
   currentStateSince: string | null | undefined;
   isUp: boolean;
   t: ReturnType<typeof useTranslations<'monitoringPage'>>;
+  locale: SupportedLanguages;
 };
 
-function getStatusDurationText({ currentStateSince, isUp, t }: StatusDurationTextParams): string {
+function getStatusDurationText({ currentStateSince, isUp, t, locale }: StatusDurationTextParams): string {
   if (!currentStateSince) return '';
   const prefix = isUp ? t('list.upPrefix') : t('list.downPrefix');
-  return `${prefix} ${formatElapsedTime(new Date(currentStateSince))}`;
+  return `${prefix} ${formatElapsedTime(new Date(currentStateSince), locale)}`;
 }
