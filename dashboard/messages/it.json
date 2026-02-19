@@ -2011,7 +2011,9 @@
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Periodo attuale",
-      "previousPeriod": "Periodo precedente"
+      "previousPeriod": "Periodo precedente",
+      "partial": "Parziale",
+      "total": "Totale"
     }
   },
   "misc": {
