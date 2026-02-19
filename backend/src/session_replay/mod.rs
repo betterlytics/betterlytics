@@ -69,7 +69,7 @@ pub async fn presign_put_segment(
     Json(req): Json<PresignPutRequest>,
 ) -> Result<Json<PresignPutResponse>, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let ip_address = crate::parse_ip(headers.clone()).unwrap_or(addr.ip()).to_string();
+    let ip_address = crate::ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
     let user_agent = headers
         .get(axum::http::header::USER_AGENT)

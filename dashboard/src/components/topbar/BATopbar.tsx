@@ -45,7 +45,6 @@ export default function BATopbar() {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
-  const isCloud = isFeatureFlagEnabled('isCloud');
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -153,14 +152,12 @@ export default function BATopbar() {
                         </DropdownMenuItem>
                       )}
 
-                      {isCloud && (
-                        <DropdownMenuItem asChild className='cursor-pointer'>
-                          <ExternalLink href='/docs' title={t('documentationTitle')}>
-                            <ExternalLinkIcon className='mr-2 h-4 w-4' />
-                            <span>{t('documentation')}</span>
-                          </ExternalLink>
-                        </DropdownMenuItem>
-                      )}
+                      <DropdownMenuItem asChild className='cursor-pointer'>
+                        <ExternalLink href='https://betterlytics.io/docs' title={t('documentationTitle')}>
+                          <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                          <span>{t('documentation')}</span>
+                        </ExternalLink>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                         <LogOut className='mr-2 h-4 w-4' />
                         <span>{t('logout')}</span>
