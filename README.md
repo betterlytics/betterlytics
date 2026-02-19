@@ -22,7 +22,7 @@
 
 Betterlytics is a high-performance analytics platform that puts you in control of your data. It requires no cookies, is GDPR/CCPA/PECR ready out of the box, and never shares data with third parties. Built on Rust and ClickHouse for speed, it delivers real-time insights through a modern dashboard, all with a tracking script under 2KB.
 
-> **Want to see it in action?** Explore the [live demo](https://betterlytics.io/demo). No signup required.
+> **Want to see it in action?** Explore the [live demo](https://betterlytics.io/demo).
 
 ### Features
 
@@ -41,15 +41,15 @@ Betterlytics is a high-performance analytics platform that puts you in control o
 
 Betterlytics can be used as a managed cloud service or self-hosted on your own infrastructure.
 
-| | **Cloud** | **Self-Hosted** |
-| --- | --- | --- |
-| | [Get started free](https://betterlytics.io/signup) | [Setup guide](https://betterlytics.io/docs/installation/self-hosting) |
-| **Setup** | Instant, ready in 30 seconds | Manual installation via Docker |
-| **Infrastructure** | Managed by us (EU-based) | Managed by you |
-| **Updates** | Automatic | Manual |
-| **Data location** | EU cloud infrastructure | Your own servers |
-| **Cost** | Free tier available, paid plans to scale | Your infrastructure costs only |
-| **Support** | Included | Community |
+|                    | **Cloud**                                          | **Self-Hosted**                                                       |
+| ------------------ | -------------------------------------------------- | --------------------------------------------------------------------- |
+|                    | [Get started free](https://betterlytics.io/signup) | [Setup guide](https://betterlytics.io/docs/installation/self-hosting) |
+| **Setup**          | Instant, ready in 30 seconds                       | Manual installation via Docker                                        |
+| **Infrastructure** | Managed by us (EU-based)                           | Managed by you                                                        |
+| **Updates**        | Automatic                                          | Manual                                                                |
+| **Data location**  | EU cloud infrastructure                            | Your own servers                                                      |
+| **Cost**           | Free tier available, paid plans to scale           | Your infrastructure costs only                                        |
+| **Support**        | Included                                           | Community                                                             |
 
 **[Installation overview](https://betterlytics.io/docs/installation)**
 
@@ -69,19 +69,19 @@ Betterlytics can be used as a managed cloud service or self-hosted on your own i
 
 ### User Journey Diagram
 
-![Detailed Reports](.github/assets/betterlytics-showcase-journey.webp)
+![User Journey Diagram](.github/assets/betterlytics-showcase-journey.webp)
 
 ### Events and Live Event Insights
 
 ![Events Analytics](.github/assets/betterlytics-showcase-events.webp)
 
-### Devices Breakdown
+### Core Web Vitals
 
-![Detailed Reports](.github/assets/betterlytics-showcase-devices.webp)
+![Core Web Vitals](.github/assets/betterlytics-showcase-cwv.webp)
 
 ### Uptime & SSL Monitoring
 
-![Detailed Reports](.github/assets/betterlytics-showcase-monitoring.webp)
+![Uptime SSL Monitoring](.github/assets/betterlytics-showcase-monitoring.webp)
 
 ... and much more
 
