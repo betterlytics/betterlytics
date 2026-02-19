@@ -1713,6 +1713,7 @@
       "blocked_ip_literal": "IP-adresse ikke tilladt",
       "dns_blocked": "DNS peger på blokeret adresse",
       "dns_error": "DNS-opslag mislykkedes",
+      "keyword_not_found": "Forventet nøgleord blev ikke fundet i svaret",
       "unknown": "Ukendt fejl"
     }
   },
@@ -1969,6 +1970,12 @@
           "invalidFormat": "Indtast venligst en gyldig statuskode (f.eks. 200) eller interval (f.eks. 2xx)",
           "outOfRange": "Statuskode skal være mellem 100 og 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Forventet nøgleord",
+        "description": "Alarmér, hvis denne tekst mangler i HTML-kildekoden (første 32 KB). Brug tekst, der er synlig i rå HTML, ikke indhold gengivet af JavaScript.",
+        "placeholder": "f.eks. Velkommen, Dashboard, OK",
+        "requiresGet": "Nøgleordsvalidering kræver GET-metoden"
       }
     },
     "alerts": {
@@ -2217,6 +2224,10 @@
       "dashboard": {
         "initializing": "Initialiserer dashboard",
         "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      },
+      "geography": {
+        "title": "Initialiserer verdenskort",
+        "description": "Forbereder en geografisk visualisering af besøgsdata..."
       }
     },
     "devices": {
@@ -2542,7 +2553,6 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "loading": "Indlæser kort...",
       "visitors": "Besøgende"
     },
     "userJourney": {
@@ -3105,7 +3115,8 @@
       "minInterval": "Hurtigere overvågningsintervaller kræver en Professional plan",
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
-      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan"
+      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan",
+      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",

@@ -1721,6 +1721,7 @@
       "blocked_ip_literal": "Indirizzo IP non consentito",
       "dns_blocked": "DNS risolto a indirizzo bloccato",
       "dns_error": "Risoluzione DNS fallita",
+      "keyword_not_found": "Parola chiave prevista non trovata nella risposta",
       "unknown": "Errore sconosciuto"
     }
   },
@@ -1977,6 +1978,12 @@
           "invalidFormat": "Inserisci un codice di stato valido (es. 200) o un intervallo (es. 2xx)",
           "outOfRange": "Il codice di stato deve essere compreso tra 100 e 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Parola chiave prevista",
+        "description": "Avvisa se questo testo è assente dal codice sorgente HTML (primi 32 KB). Usa testo visibile nell'HTML grezzo, non contenuti generati da JavaScript.",
+        "placeholder": "es. Benvenuto, Dashboard, OK",
+        "requiresGet": "La validazione della parola chiave richiede il metodo GET"
       }
     },
     "alerts": {
@@ -2225,6 +2232,10 @@
       "dashboard": {
         "initializing": "Inizializzazione dashboard",
         "loadingSettings": "Caricamento impostazioni della dashboard..."
+      },
+      "geography": {
+        "title": "Inizializzazione mappa mondiale",
+        "description": "Preparazione di una visualizzazione geografica dei dati dei visitatori..."
       }
     },
     "devices": {
@@ -2550,7 +2561,6 @@
     },
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
-      "loading": "Caricamento mappa...",
       "visitors": "Visitatori"
     },
     "userJourney": {
@@ -3113,7 +3123,8 @@
       "minInterval": "Intervalli di monitoraggio più veloci richiedono un piano Professional",
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
-      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional"
+      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional",
+      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional"
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
