@@ -53,7 +53,16 @@ export const metadata: Metadata = {
 const navbar = (
   <>
     <Navbar
-      logo={<Logo variant="icon" width={32} height={32} priority />}
+      logo={
+        <>
+          <span className="md:hidden">
+            <Logo variant="icon" width={32} height={32} priority />
+          </span>
+          <span className="hidden md:inline-block">
+            <Logo variant="simple" width={28} height={28} showText textSize="sm" priority />
+          </span>
+        </>
+      }
       projectLink="https://github.com/betterlytics/betterlytics"
       chatLink="https://discord.gg/vwqSvPn6sP"
     >
@@ -121,6 +130,7 @@ export default async function RootLayout({
           sidebar={{ autoCollapse: true }}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/betterlytics/betterlytics/tree/main/docs"
+          editLink={null}
           footer={footer}
         >
           {children}
