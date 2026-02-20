@@ -3112,7 +3112,8 @@
         "showMore": "+{count} altri framework"
       },
       "redirectingIn": "Reindirizzamento tra {seconds}...",
-      "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti."
+      "noSiteId": "Nessun ID sito trovato. Completa prima i passaggi precedenti.",
+      "reportIssue": "Vedi qualcosa che non va? Segnalalo"
     }
   },
   "validation": {

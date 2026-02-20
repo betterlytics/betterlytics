@@ -3101,7 +3101,8 @@
         "showMore": "+{count} more frameworks"
       },
       "redirectingIn": "Redirecting in {seconds}...",
-      "noSiteId": "No site ID found. Please complete the previous steps first."
+      "noSiteId": "No site ID found. Please complete the previous steps first.",
+      "reportIssue": "See something wrong? Report it"
     }
   },
   "validation": {
