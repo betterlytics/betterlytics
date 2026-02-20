@@ -1567,6 +1567,7 @@
         "rules": "Rules",
         "members": "Members",
         "reports": "Email Reports",
+        "integrations": "Integrations",
         "dangerZone": "Danger Zone"
       }
     },
@@ -3504,6 +3505,78 @@
     "toast": {
       "saved": "Report settings saved",
       "error": "Failed to save report settings"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrations",
+    "section": {
+      "description": "Connect third-party services to receive notifications and alerts from your dashboard."
+    },
+    "search": {
+      "placeholder": "Search integrations...",
+      "noResults": "No integrations found matching your search."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push notifications to your mobile devices and desktop."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Slack messages are a great way to inform the entire team."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Get important status updates in your Discord messages."
+      },
+      "telegram": {
+        "name": "Telegram",
+        "description": "Telegram messages are a great way to stay alerted."
+      },
+      "msteams": {
+        "name": "MS Teams",
+        "description": "Get notifications inside your MS Teams app to alert the group."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "For advanced alerting you can send webhooks to your own system or app."
+      }
+    },
+    "status": {
+      "connected": "Connected",
+      "comingSoon": "Coming Soon"
+    },
+    "actions": {
+      "configure": "Configure",
+      "add": "Add",
+      "edit": "Edit",
+      "disconnect": "Disconnect"
+    },
+    "disconnect": {
+      "title": "Disconnect integration",
+      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications.",
+      "confirm": "Disconnect"
+    },
+    "pushoverDialog": {
+      "title": "Configure Pushover",
+      "description": "Enter your Pushover credentials to receive push notifications. You can find these in your Pushover dashboard.",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Your Pushover user key",
+      "apiTokenLabel": "API Token",
+      "apiTokenPlaceholder": "Your application API token",
+      "errors": {
+        "userKeyRequired": "User key is required",
+        "userKeyInvalid": "Invalid user key",
+        "apiTokenRequired": "API token is required",
+        "apiTokenInvalid": "Invalid API token"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "toast": {
+      "saved": "Integration saved",
+      "deleted": "Integration disconnected",
+      "error": "Failed to update integration"
     }
   }
 }

@@ -1578,6 +1578,7 @@
         "rules": "Regole",
         "members": "Membri",
         "reports": "Report Email",
+        "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -3521,6 +3522,78 @@
     "toast": {
       "saved": "Impostazioni report salvate",
       "error": "Impossibile salvare le impostazioni del report"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrazioni",
+    "section": {
+      "description": "Collega servizi di terze parti per ricevere notifiche e avvisi dalla tua dashboard."
+    },
+    "search": {
+      "placeholder": "Cerca integrazioni...",
+      "noResults": "Nessuna integrazione trovata corrispondente alla tua ricerca."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Notifiche push sui tuoi dispositivi mobili e desktop."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "I messaggi Slack sono un ottimo modo per informare l'intero team."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Ricevi aggiornamenti importanti nei tuoi messaggi Discord."
+      },
+      "telegram": {
+        "name": "Telegram",
+        "description": "I messaggi Telegram sono un ottimo modo per restare aggiornati."
+      },
+      "msteams": {
+        "name": "MS Teams",
+        "description": "Ricevi notifiche nella tua app MS Teams per avvisare il gruppo."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Per avvisi avanzati puoi inviare webhook al tuo sistema o app."
+      }
+    },
+    "status": {
+      "connected": "Connesso",
+      "comingSoon": "In arrivo"
+    },
+    "actions": {
+      "configure": "Configura",
+      "add": "Aggiungi",
+      "edit": "Modifica",
+      "disconnect": "Disconnetti"
+    },
+    "disconnect": {
+      "title": "Disconnetti integrazione",
+      "description": "Sei sicuro di voler disconnettere questa integrazione? Questo rimuoverà la configurazione e interromperà tutte le notifiche.",
+      "confirm": "Disconnetti"
+    },
+    "pushoverDialog": {
+      "title": "Configura Pushover",
+      "description": "Inserisci le tue credenziali Pushover per ricevere notifiche push. Puoi trovarle nella tua dashboard Pushover.",
+      "userKeyLabel": "Chiave utente",
+      "userKeyPlaceholder": "La tua chiave utente Pushover",
+      "apiTokenLabel": "Token API",
+      "apiTokenPlaceholder": "Il token API della tua applicazione",
+      "errors": {
+        "userKeyRequired": "La chiave utente è obbligatoria",
+        "userKeyInvalid": "Chiave utente non valida",
+        "apiTokenRequired": "Il token API è obbligatorio",
+        "apiTokenInvalid": "Token API non valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "toast": {
+      "saved": "Integrazione salvata",
+      "deleted": "Integrazione disconnessa",
+      "error": "Impossibile aggiornare l'integrazione"
     }
   }
 }
