@@ -32,7 +32,7 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(client: 
   return new Proxy(client, {
     get(target, prop, receiver) {
       if (prop === 'query') {
-        return function <R = unknown>(sql: string, reqParams?: Record<string, unknown>): QueryCursorLike {
+        return function (sql: string, reqParams?: Record<string, unknown>): QueryCursorLike {
           const statement = sql;
           const operation = inferOperation(statement);
           const sanitized = sanitizeStatement(statement);
@@ -41,7 +41,7 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(client: 
 
           // Wrap toPromise so existing callsites remain unchanged
           return {
-            toPromise: async (): Promise<R> =>
+            toPromise: async (): Promise<unknown[]> =>
               tracer.startActiveSpan(`db.clickhouse.${operation.toLowerCase()}`, async (span) => {
                 span.setAttributes({
                   'db.system': 'clickhouse',
@@ -52,7 +52,7 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(client: 
                 try {
                   const out = await cursor.toPromise();
                   span.setStatus({ code: SpanStatusCode.OK });
-                  return out as R;
+                  return out;
                 } catch (e) {
                   const err = e as Error;
                   span.recordException(err);

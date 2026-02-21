@@ -1,16 +1,14 @@
-import { createClient, type ClickHouseClient } from '@clickhouse/client';
+import { createClient, type ClickHouseClient, type DataFormat } from '@clickhouse/client';
 import { env } from './env';
 import { instrumentClickHouse } from '@/observability/clickhouse-instrumented';
 
-type SupportedFormat = 'JSONEachRow' | 'JSON' | 'CSV' | 'TSV';
-
 interface AdapterQueryOptions {
   params?: Record<string, unknown>;
-  format?: SupportedFormat;
+  format?: DataFormat;
 }
 
 export interface QueryCursorLike {
-  toPromise: () => Promise<Record<string, unknown>[]>;
+  toPromise: () => Promise<unknown[]>;
 }
 
 export interface ClickHouseAdapterClient {
@@ -44,13 +42,13 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
       const format = reqParams?.format ?? 'JSONEachRow';
 
       return {
-        async toPromise(): Promise<Record<string, unknown>[]> {
+        async toPromise(): Promise<unknown[]> {
           const resultSet = await client.query({
             query: sql,
             query_params: params,
             format,
           });
-          return resultSet.json<Record<string, unknown>>();
+          return (await resultSet.json()) as unknown[];
         },
       };
     },
