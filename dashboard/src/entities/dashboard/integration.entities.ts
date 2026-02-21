@@ -1,12 +1,16 @@
 import { z } from 'zod';
 
-export const INTEGRATION_TYPES = ['pushover', 'slack', 'discord', 'telegram', 'webhook', 'msteams'] as const;
+export const INTEGRATION_TYPES = ['pushover', 'discord'] as const;
 export type IntegrationType = (typeof INTEGRATION_TYPES)[number];
 
 const pushoverTokenRegex = /^[A-Za-z0-9]{30}$/;
 
+export const PUSHOVER_PRIORITIES = [-2, -1, 0, 1] as const;
+export type PushoverPriority = (typeof PUSHOVER_PRIORITIES)[number];
+
 export const PushoverConfigSchema = z.object({
   userKey: z.string().regex(pushoverTokenRegex),
+  priority: z.number().int().min(-2).max(1).default(0),
 });
 
 export const SlackConfigSchema = z.object({

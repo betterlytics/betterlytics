@@ -3541,6 +3541,13 @@
       "title": "Pushover Integration",
       "userKeyLabel": "User Key",
       "userKeyPlaceholder": "Your Pushover user key",
+      "priorityLabel": "Notification Priority",
+      "priorities": {
+        "-2": "Lowest: No notification",
+        "-1": "Low: No sound or vibration",
+        "0": "Normal (Recommended)",
+        "1": "High: Bypass quiet hours"
+      },
       "credentialsHint": "Find your user key at <link>pushover.net</link>",
       "errors": {
         "userKeyRequired": "User key is required",
@@ -3552,7 +3559,8 @@
     "toast": {
       "saved": "Integration saved",
       "deleted": "Integration disconnected",
-      "error": "Failed to update integration"
+      "error": "Failed to update integration",
+      "invalidPushoverKey": "Invalid Pushover user key or no devices registered"
     }
   }
 }

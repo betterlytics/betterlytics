@@ -5,6 +5,20 @@ import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/au
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import * as IntegrationService from '@/services/dashboard/integration.service';
 import { revalidatePath } from 'next/cache';
+import { env } from '@/lib/env';
+
+const integrationAvailability: Record<IntegrationType, () => boolean> = {
+  pushover: () => !!env.PUSHOVER_APP_TOKEN,
+  discord: () => true
+};
+
+export const getAvailableIntegrationTypesAction = withDashboardAuthContext(
+  async (): Promise<IntegrationType[]> => {
+    return (Object.entries(integrationAvailability) as [IntegrationType, () => boolean][])
+      .filter(([, isAvailable]) => isAvailable())
+      .map(([type]) => type);
+  },
+);
 
 export const getIntegrationsAction = withDashboardAuthContext(
   async (ctx: AuthContext): Promise<Integration[]> => {
@@ -12,16 +26,29 @@ export const getIntegrationsAction = withDashboardAuthContext(
   },
 );
 
+type SaveIntegrationResult =
+  | { success: true; integration: Integration }
+  | { success: false; error: string };
+
 export const saveIntegrationAction = withDashboardMutationAuthContext(
   async (
     ctx: AuthContext,
     type: IntegrationType,
     config: Record<string, unknown>,
     name?: string | null,
-  ): Promise<Integration> => {
-    const result = await IntegrationService.saveIntegration(ctx.dashboardId, type, config, name);
-    revalidatePath(`/dashboard/${ctx.dashboardId}/settings/integrations`);
-    return result;
+  ): Promise<SaveIntegrationResult> => {
+    const validationError = await IntegrationService.validateIntegrationConfig(type, config);
+    if (validationError) {
+      return { success: false, error: validationError };
+    }
+
+    try {
+      const result = await IntegrationService.saveIntegration(ctx.dashboardId, type, config, name);
+      revalidatePath(`/dashboard/${ctx.dashboardId}/settings/integrations`);
+      return { success: true, integration: result };
+    } catch {
+      return { success: false, error: 'unknown' };
+    }
   },
   { permission: 'canManageSettings' },
 );

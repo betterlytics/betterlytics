@@ -11,7 +11,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Integration } from '@/entities/dashboard/integration.entities';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Integration, PUSHOVER_PRIORITIES, type PushoverPriority } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -31,15 +38,17 @@ export function PushoverConfigDialog({
   onSave,
 }: PushoverConfigDialogProps) {
   const t = useTranslations('integrationsSettings.pushoverDialog');
-  const existingConfig = integration?.config as { userKey?: string } | undefined;
+  const existingConfig = integration?.config as { userKey?: string; priority?: number } | undefined;
 
   const [userKey, setUserKey] = useState(existingConfig?.userKey ?? '');
+  const [priority, setPriority] = useState<PushoverPriority>((existingConfig?.priority as PushoverPriority) ?? 0);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
     if (open) {
-      const config = integration?.config as { userKey?: string } | undefined;
+      const config = integration?.config as { userKey?: string; priority?: number } | undefined;
       setUserKey(config?.userKey ?? '');
+      setPriority((config?.priority as PushoverPriority) ?? 0);
       setError(undefined);
     }
   }, [open, integration]);
@@ -56,7 +65,7 @@ export function PushoverConfigDialog({
       return;
     }
 
-    onSave({ userKey: trimmedUserKey });
+    onSave({ userKey: trimmedUserKey, priority });
   };
 
   return (
@@ -84,6 +93,26 @@ export function PushoverConfigDialog({
               disabled={isPending}
             />
             {error && <p className='text-destructive text-sm'>{error}</p>}
+          </div>
+
+          <div className='space-y-2'>
+            <Label htmlFor='pushover-priority'>{t('priorityLabel')}</Label>
+            <Select
+              value={String(priority)}
+              onValueChange={(value) => setPriority(Number(value) as PushoverPriority)}
+              disabled={isPending}
+            >
+              <SelectTrigger id='pushover-priority' className='cursor-pointer'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PUSHOVER_PRIORITIES.map((p) => (
+                  <SelectItem key={p} value={String(p)} className='cursor-pointer'>
+                    {t(`priorities.${p}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <p className='text-muted-foreground text-xs'>

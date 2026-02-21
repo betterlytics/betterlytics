@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import SettingsPageHeader from '../SettingsPageHeader';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
+  getAvailableIntegrationTypesAction,
   getIntegrationsAction,
   saveIntegrationAction,
   deleteIntegrationAction,
@@ -28,10 +29,11 @@ export default function IntegrationsSettings() {
   const dashboardId = useDashboardId();
   const [isPending, startTransition] = useTransition();
   const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [availableTypes, setAvailableTypes] = useState<IntegrationType[]>([]);
   const [configDialogType, setConfigDialogType] = useState<IntegrationType | null>(null);
   const [disconnectType, setDisconnectType] = useState<IntegrationType | null>(null);
 
-  const availableIntegrations: IntegrationDefinition[] = useMemo(
+  const allIntegrations: IntegrationDefinition[] = useMemo(
     () => [
       {
         type: 'pushover',
@@ -49,11 +51,20 @@ export default function IntegrationsSettings() {
     [t]
   );
 
+  const availableIntegrations = useMemo(
+    () => allIntegrations.filter((def) => availableTypes.includes(def.type)),
+    [allIntegrations, availableTypes]
+  );
+
   useEffect(() => {
     startTransition(async () => {
       try {
-        const result = await getIntegrationsAction(dashboardId);
-        setIntegrations(result);
+        const [types, existing] = await Promise.all([
+          getAvailableIntegrationTypesAction(dashboardId),
+          getIntegrationsAction(dashboardId),
+        ]);
+        setAvailableTypes(types);
+        setIntegrations(existing);
       } catch {}
     });
   }, [dashboardId]);
@@ -66,14 +77,21 @@ export default function IntegrationsSettings() {
     startTransition(async () => {
       try {
         const result = await saveIntegrationAction(dashboardId, type, config);
+        if (!result.success) {
+          const errorMessages: Record<string, string> = {
+            invalid_pushover_key: t('toast.invalidPushoverKey'),
+          };
+          toast.error(errorMessages[result.error] ?? t('toast.error'));
+          return;
+        }
         setIntegrations((prev) => {
           const existing = prev.findIndex((i) => i.type === type);
           if (existing >= 0) {
             const updated = [...prev];
-            updated[existing] = result;
+            updated[existing] = result.integration;
             return updated;
           }
-          return [...prev, result];
+          return [...prev, result.integration];
         });
         setConfigDialogType(null);
         toast.success(t('toast.saved'));
