@@ -3,7 +3,6 @@ use aes_gcm::{
     aead::Aead,
 };
 use serde::Deserialize;
-use tracing::warn;
 
 const KEY_LENGTH: usize = 32;
 
