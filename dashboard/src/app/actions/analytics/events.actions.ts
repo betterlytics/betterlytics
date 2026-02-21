@@ -41,20 +41,13 @@ export const fetchEventPropertiesAnalyticsAction = withDashboardAuthContext(
 );
 
 export const fetchRecentEventsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit?: number,
-    offset?: number,
-    queryFilters?: QueryFilter[],
-  ) => {
-    return getRecentEventsForSite(ctx.siteId, startDate, endDate, limit, offset, queryFilters);
+  async (ctx: AuthContext, limit?: number, offset?: number, queryFilters?: QueryFilter[]) => {
+    return getRecentEventsForSite(ctx.siteId, limit, offset, queryFilters);
   },
 );
 
 export const fetchTotalEventCountAction = withDashboardAuthContext(
-  async (ctx: AuthContext, startDate: Date, endDate: Date, queryFilters: QueryFilter[]) => {
-    return getTotalEventCountForSite(ctx.siteId, startDate, endDate, queryFilters);
+  async (ctx: AuthContext, queryFilters: QueryFilter[]) => {
+    return getTotalEventCountForSite(ctx.siteId, queryFilters);
   },
 );

@@ -6,7 +6,6 @@ import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actions/analytics/events.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 
 import { formatNumber } from '@/utils/formatters';
@@ -68,15 +67,14 @@ const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: Ev
 };
 
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
-  const { startDate, endDate } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const dashboardId = useDashboardId();
   const t = useTranslations('components.events.log');
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['recentEvents', dashboardId, startDate, endDate, pageSize, queryFilters],
+    queryKey: ['recentEvents', dashboardId, pageSize, queryFilters],
     queryFn: ({ pageParam = 0 }) =>
-      fetchRecentEventsAction(dashboardId, startDate, endDate, pageSize, pageParam, queryFilters),
+      fetchRecentEventsAction(dashboardId, pageSize, pageParam, queryFilters),
     initialPageParam: 0,
     getNextPageParam: (lastPage: EventLogEntry[], allPages: EventLogEntry[][]) => {
       if (lastPage.length < pageSize) return undefined;
@@ -86,8 +84,8 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   });
 
   const { data: totalCount = 0 } = useQuery({
-    queryKey: ['totalEventCount', dashboardId, startDate, endDate, queryFilters],
-    queryFn: () => fetchTotalEventCountAction(dashboardId, startDate, endDate, queryFilters),
+    queryKey: ['totalEventCount', dashboardId, queryFilters],
+    queryFn: () => fetchTotalEventCountAction(dashboardId, queryFilters),
     refetchInterval: COUNT_REFRESH_INTERVAL_MS,
   });
 
