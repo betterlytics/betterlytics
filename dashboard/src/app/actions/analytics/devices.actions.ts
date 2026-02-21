@@ -9,8 +9,6 @@ import {
   getOperatingSystemRollupForSite,
 } from '@/services/analytics/devices.service';
 import { BrowserStats, DeviceBreakdownCombinedSchema } from '@/entities/analytics/devices.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toPieChart } from '@/presenters/toPieChart';
@@ -19,28 +17,21 @@ import { ToDataTable, toDataTable } from '@/presenters/toDataTable';
 import { toFormatted } from '@/presenters/toFormatted';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
 export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const data = await getDeviceTypeBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
 
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
-      (await getDeviceTypeBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+    const data = await getDeviceTypeBreakdownForSite(main);
+    const compareData = compare && (await getDeviceTypeBreakdownForSite(compare));
 
     return toPieChart({
       key: 'device_type',
       dataKey: 'visitors',
       data: toFormatted(data, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
-      compare: toFormatted(compare, (value) => ({
+      compare: toFormatted(compareData, (value) => ({
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),
       })),
@@ -49,14 +40,9 @@ export const fetchDeviceTypeBreakdownAction = withDashboardAuthContext(
 );
 
 export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
     const [
       deviceTypeBreakdown,
       compareDeviceTypeBreakdown,
@@ -65,18 +51,12 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
       operatingSystemRollup,
       compareOperatingSystemRollup,
     ] = await Promise.all([
-      getDeviceTypeBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters),
-      compareStartDate &&
-        compareEndDate &&
-        getDeviceTypeBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-      getBrowserRollupForSite(ctx.siteId, startDate, endDate, queryFilters),
-      compareStartDate &&
-        compareEndDate &&
-        getBrowserRollupForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
-      getOperatingSystemRollupForSite(ctx.siteId, startDate, endDate, queryFilters),
-      compareStartDate &&
-        compareEndDate &&
-        getOperatingSystemRollupForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters),
+      getDeviceTypeBreakdownForSite(main),
+      compare && getDeviceTypeBreakdownForSite(compare),
+      getBrowserRollupForSite(main),
+      compare && getBrowserRollupForSite(compare),
+      getOperatingSystemRollupForSite(main),
+      compare && getOperatingSystemRollupForSite(compare),
     ]);
 
     const data = DeviceBreakdownCombinedSchema.parse({
@@ -88,9 +68,8 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
       operatingSystemsRollup: operatingSystemRollup,
     });
 
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
+    const compareData =
+      compare &&
       DeviceBreakdownCombinedSchema.parse({
         devices: toFormatted(compareDeviceTypeBreakdown, (value) => ({
           ...value,
@@ -106,7 +85,7 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
           ...value,
           device_type: capitalizeFirstLetter(value.device_type),
         })),
-        compare: toFormatted(compare?.devices, (value) => ({
+        compare: toFormatted(compareData?.devices, (value) => ({
           ...value,
           device_type: capitalizeFirstLetter(value.device_type),
         })),
@@ -114,13 +93,13 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
       }).slice(0, 10),
       browsersExpanded: toHierarchicalDataTable({
         data: data.browsersRollup,
-        compare: compare?.browsersRollup,
+        compare: compareData?.browsersRollup,
         parentKey: 'browser',
         childKey: 'version',
       }).slice(0, 10),
       operatingSystemsExpanded: toHierarchicalDataTable({
         data: data.operatingSystemsRollup,
-        compare: compare?.operatingSystemsRollup,
+        compare: compareData?.operatingSystemsRollup,
         parentKey: 'os',
         childKey: 'version',
       }).slice(0, 10),
@@ -129,97 +108,54 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
 );
 
 export const fetchBrowserBreakdownAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ): Promise<ToDataTable<'browser', BrowserStats>[]> => {
-    const data = await getBrowserBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
-    const compareData =
-      compareStartDate &&
-      compareEndDate &&
-      (await getBrowserBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+  async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ToDataTable<'browser', BrowserStats>[]> => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const data = await getBrowserBreakdownForSite(main);
+    const compareData = compare && (await getBrowserBreakdownForSite(compare));
 
     return toDataTable({ data, compare: compareData, categoryKey: 'browser' });
   },
 );
 
 export const fetchOperatingSystemBreakdownAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const data = await getOperatingSystemBreakdownForSite(ctx.siteId, startDate, endDate, queryFilters);
-    const compareData =
-      compareStartDate &&
-      compareEndDate &&
-      (await getOperatingSystemBreakdownForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const data = await getOperatingSystemBreakdownForSite(main);
+    const compareData = compare && (await getOperatingSystemBreakdownForSite(compare));
 
     return toDataTable({ data, compare: compareData, categoryKey: 'os' });
   },
 );
 
 export const fetchDeviceUsageTrendAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const rawData = await getDeviceUsageTrendForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-    );
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const rawData = await getDeviceUsageTrendForSite(main);
 
     const data = toFormatted(rawData, (value) => ({
       ...value,
       device_type: capitalizeFirstLetter(value.device_type),
     }));
 
-    const compareData =
-      compareStartDate &&
-      compareEndDate &&
-      (await getDeviceUsageTrendForSite(
-        ctx.siteId,
-        compareStartDate,
-        compareEndDate,
-        granularity,
-        queryFilters,
-        timezone,
-      ));
+    const compareRawData = compare && (await getDeviceUsageTrendForSite(compare));
 
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
 
-    const result = toStackedAreaChart({
+    return toStackedAreaChart({
       data,
       categoryKey: 'device_type',
       valueKey: 'count',
       categories: sortedCategories,
-      granularity,
-      dateRange: { start: startDate, end: endDate },
-      compare: toFormatted(compareData, (value) => ({
+      granularity: main.granularity,
+      dateRange: { start: main.startDate, end: main.endDate },
+      compare: toFormatted(compareRawData, (value) => ({
         ...value,
         device_type: capitalizeFirstLetter(value.device_type),
       })),
-      compareDateRange:
-        compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+      compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
     });
-
-    return result;
   },
 );

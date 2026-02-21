@@ -6,7 +6,6 @@ import {
   getOutboundLinksSummary,
   getOutboundLinksDistribution,
 } from '@/repositories/clickhouse/outboundLinks.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   OutboundLinkRow,
   DailyOutboundClicksRow,
@@ -14,48 +13,25 @@ import {
   OutboundLinksSummaryWithChartsSchema,
   TopOutboundLinksDistrubution,
 } from '@/entities/analytics/outboundLinks.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getOutboundLinksAnalyticsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
   limit = 100,
 ): Promise<OutboundLinkRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getOutboundLinksAnalytics(siteId, formattedStart, formattedEnd, queryFilters, limit);
+  return getOutboundLinksAnalytics(siteQuery, limit);
 }
 
-export async function getDailyOutboundClicksForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailyOutboundClicksRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
+export async function getDailyOutboundClicksForSite(siteQuery: BASiteQuery): Promise<DailyOutboundClicksRow[]> {
+  return getDailyOutboundClicks(siteQuery);
 }
 
 export async function getOutboundLinksSummaryWithChartsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
+  siteQuery: BASiteQuery,
 ): Promise<OutboundLinksSummaryWithCharts> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
   const [summary, dailyClicksChartData] = await Promise.all([
-    getOutboundLinksSummary(siteId, formattedStart, formattedEnd, queryFilters),
-    getDailyOutboundClicks(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
+    getOutboundLinksSummary(siteQuery),
+    getDailyOutboundClicks(siteQuery),
   ]);
 
   const summaryWithCharts = {
@@ -70,12 +46,7 @@ export async function getOutboundLinksSummaryWithChartsForSite(
 }
 
 export async function getOutboundLinksDistributionForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
 ): Promise<Array<TopOutboundLinksDistrubution>> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getOutboundLinksDistribution(siteId, formattedStart, formattedEnd, queryFilters);
+  return getOutboundLinksDistribution(siteQuery);
 }

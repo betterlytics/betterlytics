@@ -16,8 +16,9 @@ import {
 } from '@/entities/analytics/campaign.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { formatPercentage } from '@/utils/formatters';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
 function buildAudienceDistribution<
   TLabelKey extends string,
@@ -38,10 +39,7 @@ function buildAudienceDistribution<
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    timezone: string,
+    query: BAAnalyticsQuery,
     pageIndex: number,
     pageSize: number,
   ): Promise<{
@@ -50,17 +48,10 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
     pageIndex: number;
     pageSize: number;
   }> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
-      const performancePage = await fetchCampaignDirectoryPage(
-        ctx.siteId,
-        startDate,
-        endDate,
-        granularity,
-        timezone,
-        pageIndex,
-        pageSize,
-      );
-      return performancePage;
+      return fetchCampaignDirectoryPage(main, pageIndex, pageSize);
     } catch (error) {
       console.error('Error in fetchCampaignPerformanceAction:', error);
       return {
@@ -76,14 +67,13 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
 export const fetchCampaignSparklinesAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    timezone: string,
+    query: BAAnalyticsQuery,
     campaignNames: string[],
   ): Promise<Record<string, CampaignSparklinePoint[]>> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
-      return fetchCampaignSparklines(ctx.siteId, startDate, endDate, granularity, timezone, campaignNames);
+      return fetchCampaignSparklines(main, campaignNames);
     } catch (error) {
       console.error('Error in fetchCampaignSparklinesAction:', error);
       return {};
@@ -101,17 +91,14 @@ export type CampaignExpandedDetails = {
 };
 
 export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    campaignName: string,
-  ): Promise<CampaignExpandedDetails> => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery, campaignName: string): Promise<CampaignExpandedDetails> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
       const [utmSource, landingPages, audienceProfile] = await Promise.all([
-        fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, 'source', campaignName),
-        fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
-        fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignUTMBreakdown(main, 'source', campaignName),
+        fetchCampaignLandingPagePerformance(main, campaignName),
+        fetchCampaignAudienceProfile(main, campaignName),
       ]);
 
       const devices = buildAudienceDistribution(audienceProfile.devices, 'device_type');
@@ -144,13 +131,14 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
 export const fetchCampaignUTMBreakdownAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
+    query: BAAnalyticsQuery,
     campaignName: string,
     dimension: UTMDimension,
   ): Promise<CampaignUTMBreakdownItem[]> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
-      return fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, dimension, campaignName);
+      return fetchCampaignUTMBreakdown(main, dimension, campaignName);
     } catch (error) {
       console.error('Error in fetchCampaignUTMBreakdownAction:', error);
       return [];

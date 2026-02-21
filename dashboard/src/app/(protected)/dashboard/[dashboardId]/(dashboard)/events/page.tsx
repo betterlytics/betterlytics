@@ -18,18 +18,8 @@ type EventsPageParams = {
 export default async function EventsPage({ params, searchParams }: EventsPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
-    await searchParams,
-    timezone,
-  );
-  const eventsPromise = fetchCustomEventsOverviewAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
+  const eventsPromise = fetchCustomEventsOverviewAction(dashboardId, query);
 
   const t = await getTranslations('dashboard.sidebar');
 

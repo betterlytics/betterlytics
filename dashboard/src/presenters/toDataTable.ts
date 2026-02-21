@@ -1,7 +1,7 @@
 type ToDataTableProps<K extends string, D> = {
   categoryKey: K;
   data: Array<Record<K, string> & D>;
-  compare?: Array<Record<K, string> & D>;
+  compare?: Array<Record<K, string> & D> | null;
 };
 
 type RowProps<D extends Record<string, unknown>> = {

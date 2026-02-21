@@ -34,101 +34,22 @@ type DashboardPageParams = {
 export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams, timezone);
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(
-    dashboardId,
-    startDate,
-    endDate,
-    10,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, {
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  });
-  const topCountriesPromise = getTopCountryVisitsAction(dashboardId, {
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  });
+  const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
+  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
+  const topCountriesPromise = getTopCountryVisitsAction(dashboardId, query);
 
   const summaryAndChartPromise = Promise.all([
-    fetchSummaryStatsAction(
-      dashboardId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-      compareStartDate,
-      compareEndDate,
-    ),
-    fetchUniqueVisitorsAction(
-      dashboardId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-      compareStartDate,
-      compareEndDate,
-    ),
-    fetchTotalPageViewsAction(
-      dashboardId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-      compareStartDate,
-      compareEndDate,
-    ),
-    fetchSessionMetricsAction(
-      dashboardId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-      compareStartDate,
-      compareEndDate,
-    ),
+    fetchSummaryStatsAction(dashboardId, query),
+    fetchUniqueVisitorsAction(dashboardId, query),
+    fetchTotalPageViewsAction(dashboardId, query),
+    fetchSessionMetricsAction(dashboardId, query),
   ]);
 
-  const devicePromise = fetchDeviceBreakdownCombinedAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-  const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    10,
-    compareStartDate,
-    compareEndDate,
-  );
-  const customEventsPromise = fetchCustomEventsOverviewAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
+  const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, query);
+  const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(dashboardId, query, 10);
+  const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, query);
 
   const t = await getTranslations('dashboard.sidebar');
 
@@ -159,12 +80,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <Suspense fallback={<TableSkeleton />}>
           <CustomEventsSection customEventsPromise={customEventsPromise} />
         </Suspense>
-        <WeeklyHeatmapSection
-          dashboardId={dashboardId}
-          startDate={startDate}
-          endDate={endDate}
-          queryFilters={queryFilters}
-        />
+        <WeeklyHeatmapSection dashboardId={dashboardId} />
       </div>
     </div>
   );

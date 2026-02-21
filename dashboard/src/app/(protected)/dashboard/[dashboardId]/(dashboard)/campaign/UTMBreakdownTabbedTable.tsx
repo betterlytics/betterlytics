@@ -12,7 +12,7 @@ import type {
 } from '@/entities/analytics/campaign.entities';
 import { UTM_DIMENSIONS, type UTMDimension } from '@/entities/analytics/campaign.entities';
 import { Spinner } from '@/components/ui/spinner';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
 
 type UTMTabsKey = 'entry' | UTMDimension;
@@ -39,7 +39,7 @@ export default function UTMBreakdownTabbedTable({
   landingPages,
 }: UTMBreakdownTabbedTableProps) {
   const t = useTranslations('components.campaign.utm');
-  const { startDate, endDate } = useTimeRangeContext();
+  const query = useAnalyticsQuery();
   const landingPagesBreakdown = landingPages as BaseUTMBreakdownItem[];
   const [activeTab, setActiveTab] = useState<UTMTabsKey>('entry');
 
@@ -88,8 +88,7 @@ export default function UTMBreakdownTabbedTable({
   const mediumQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    query,
     dimension: 'medium',
     enabled: activeTab === 'medium',
   });
@@ -97,8 +96,7 @@ export default function UTMBreakdownTabbedTable({
   const contentQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    query,
     dimension: 'content',
     enabled: activeTab === 'content',
   });
@@ -106,8 +104,7 @@ export default function UTMBreakdownTabbedTable({
   const termQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    query,
     dimension: 'term',
     enabled: activeTab === 'term',
   });

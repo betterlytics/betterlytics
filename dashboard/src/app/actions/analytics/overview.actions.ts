@@ -9,151 +9,68 @@ import {
 } from '@/services/analytics/pages.service';
 import { getSummaryStatsWithChartsForSite } from '@/services/analytics/visitors.service';
 import { getUniqueVisitorsForSite } from '@/services/analytics/visitors.service';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { getSessionMetrics } from '@/repositories/clickhouse/index.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 import { isStartBucketIncomplete, isEndBucketIncomplete } from '@/lib/ba-timerange';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
 export const fetchTotalPageViewsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const data = await getTotalPageViewsForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-    );
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
-      (await getTotalPageViewsForSite(
-        ctx.siteId,
-        compareStartDate,
-        compareEndDate,
-        granularity,
-        queryFilters,
-        timezone,
-      ));
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const data = await getTotalPageViewsForSite(main);
+    const compareData = compare && (await getTotalPageViewsForSite(compare));
 
     return toAreaChart({
       data,
-      granularity,
+      granularity: main.granularity,
       dataKey: 'views',
-      dateRange: {
-        start: startDate,
-        end: endDate,
-      },
-      compare,
-      compareDateRange: {
-        start: compareStartDate,
-        end: compareEndDate,
-      },
-      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
-      startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
+      dateRange: { start: main.startDate, end: main.endDate },
+      compare: compareData,
+      compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
+      bucketIncomplete:
+        main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+      startBucketIncomplete: isStartBucketIncomplete(main.startDate, main.granularity, main.timezone),
     });
   },
 );
 
 export const fetchUniqueVisitorsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const data = await getUniqueVisitorsForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-    );
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
-      (await getUniqueVisitorsForSite(
-        ctx.siteId,
-        compareStartDate,
-        compareEndDate,
-        granularity,
-        queryFilters,
-        timezone,
-      ));
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const data = await getUniqueVisitorsForSite(main);
+    const compareData = compare && (await getUniqueVisitorsForSite(compare));
+
     return toAreaChart({
       data,
-      granularity,
+      granularity: main.granularity,
       dataKey: 'unique_visitors',
-      dateRange: {
-        start: startDate,
-        end: endDate,
-      },
-      compare,
-      compareDateRange: {
-        start: compareStartDate,
-        end: compareEndDate,
-      },
-      bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
-      startBucketIncomplete: isStartBucketIncomplete(startDate, granularity, timezone),
+      dateRange: { start: main.startDate, end: main.endDate },
+      compare: compareData,
+      compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
+      bucketIncomplete:
+        main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+      startBucketIncomplete: isStartBucketIncomplete(main.startDate, main.granularity, main.timezone),
     });
   },
 );
 
-// Enhanced summary stats action that includes chart data
 export const fetchSummaryStatsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const data = await getSummaryStatsWithChartsForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-    );
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
-      (await getSummaryStatsWithChartsForSite(
-        ctx.siteId,
-        compareStartDate,
-        compareEndDate,
-        granularity,
-        queryFilters,
-        timezone,
-      ));
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const data = await getSummaryStatsWithChartsForSite(main);
+    const compareData = compare && (await getSummaryStatsWithChartsForSite(compare));
 
     const compareValues = toPartialPercentageCompare({
       data,
-      compare,
+      compare: compareData,
       keys: [
         'uniqueVisitors',
         'pageviews',
@@ -164,43 +81,43 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
       ] as const,
     });
 
-    const dateRange = { start: startDate, end: endDate };
+    const dateRange = { start: main.startDate, end: main.endDate };
 
     return {
       ...data,
       visitorsChartData: toSparklineSeries({
         data: data.visitorsChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'unique_visitors',
         dateRange,
       }),
       pageviewsChartData: toSparklineSeries({
         data: data.pageviewsChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'views',
         dateRange,
       }),
       sessionsChartData: toSparklineSeries({
         data: data.sessionsChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'sessions',
         dateRange,
       }),
       bounceRateChartData: toSparklineSeries({
         data: data.bounceRateChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'bounce_rate',
         dateRange,
       }),
       avgVisitDurationChartData: toSparklineSeries({
         data: data.avgVisitDurationChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'avg_visit_duration',
         dateRange,
       }),
       pagesPerSessionChartData: toSparklineSeries({
         data: data.pagesPerSessionChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'pages_per_session',
         dateRange,
       }),
@@ -210,102 +127,57 @@ export const fetchSummaryStatsAction = withDashboardAuthContext(
 );
 
 export const fetchSessionMetricsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    const data = await getSessionMetrics(
-      ctx.siteId,
-      toDateTimeString(startDate),
-      toDateTimeString(endDate),
-      granularity,
-      queryFilters,
-      timezone,
-    );
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
 
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
-      (await getSessionMetrics(
-        ctx.siteId,
-        toDateTimeString(compareStartDate),
-        toDateTimeString(compareEndDate),
-        granularity,
-        queryFilters,
-        timezone,
-      ));
+    const data = await getSessionMetrics(main);
+    const compareData = compare && (await getSessionMetrics(compare));
 
-    const startIncomplete = isStartBucketIncomplete(startDate, granularity, timezone);
+    const startIncomplete = isStartBucketIncomplete(main.startDate, main.granularity, main.timezone);
 
     return {
       avgVisitDuration: toAreaChart({
         data,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'avg_visit_duration',
-        dateRange: {
-          start: startDate,
-          end: endDate,
-        },
-        compare,
-        compareDateRange: {
-          start: compareStartDate,
-          end: compareEndDate,
-        },
-        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        dateRange: { start: main.startDate, end: main.endDate },
+        compare: compareData,
+        compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
+        bucketIncomplete:
+          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
       bounceRate: toAreaChart({
         data,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'bounce_rate',
-        dateRange: {
-          start: startDate,
-          end: endDate,
-        },
-        compare,
-        compareDateRange: {
-          start: compareStartDate,
-          end: compareEndDate,
-        },
-        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        dateRange: { start: main.startDate, end: main.endDate },
+        compare: compareData,
+        compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
+        bucketIncomplete:
+          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
       pagesPerSession: toAreaChart({
         data,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'pages_per_session',
-        dateRange: {
-          start: startDate,
-          end: endDate,
-        },
-        compare,
-        compareDateRange: {
-          start: compareStartDate,
-          end: compareEndDate,
-        },
-        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        dateRange: { start: main.startDate, end: main.endDate },
+        compare: compareData,
+        compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
+        bucketIncomplete:
+          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
       sessions: toAreaChart({
         data,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'sessions',
-        dateRange: {
-          start: startDate,
-          end: endDate,
-        },
-        compare,
-        compareDateRange: {
-          start: compareStartDate,
-          end: compareEndDate,
-        },
-        bucketIncomplete: endDate.getTime() > Date.now() || isEndBucketIncomplete(endDate, granularity, timezone),
+        dateRange: { start: main.startDate, end: main.endDate },
+        compare: compareData,
+        compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
+        bucketIncomplete:
+          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
     };
@@ -313,53 +185,31 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
 );
 
 export const fetchTopEntryPagesAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit: number,
-    queryFilters: QueryFilter[],
-  ): Promise<TopEntryPageRow[]> => {
-    return getTopEntryPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number): Promise<TopEntryPageRow[]> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+    return getTopEntryPagesForSite(main, limit);
   },
 );
 
 export const fetchTopExitPagesAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit: number,
-    queryFilters: QueryFilter[],
-  ): Promise<TopExitPageRow[]> => {
-    return getTopExitPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters);
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number): Promise<TopExitPageRow[]> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+    return getTopExitPagesForSite(main, limit);
   },
 );
 
 export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit: number = 5,
-    queryFilters: QueryFilter[],
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 5) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
     const [topPages, topPagesCompare, topEntryPages, topEntryPagesCompare, topExitPages, topExitPagesCompare] =
       await Promise.all([
-        getTopPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
-        compareStartDate &&
-          compareEndDate &&
-          getTopPagesForSite(ctx.siteId, compareStartDate, compareEndDate, limit, queryFilters),
-        getTopEntryPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
-        compareStartDate &&
-          compareEndDate &&
-          getTopEntryPagesForSite(ctx.siteId, compareStartDate, compareEndDate, limit, queryFilters),
-        getTopExitPagesForSite(ctx.siteId, startDate, endDate, limit, queryFilters),
-        compareStartDate &&
-          compareEndDate &&
-          getTopExitPagesForSite(ctx.siteId, compareStartDate, compareEndDate, limit, queryFilters),
+        getTopPagesForSite(main, limit),
+        compare && getTopPagesForSite(compare, limit),
+        getTopEntryPagesForSite(main, limit),
+        compare && getTopEntryPagesForSite(compare, limit),
+        getTopExitPagesForSite(main, limit),
+        compare && getTopExitPagesForSite(compare, limit),
       ]);
 
     const data = PageAnalyticsCombinedSchema.parse({
@@ -368,9 +218,8 @@ export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
       topExitPages,
     });
 
-    const compare =
-      compareStartDate &&
-      compareEndDate &&
+    const compareData =
+      compare &&
       PageAnalyticsCombinedSchema.parse({
         topPages: topPagesCompare,
         topEntryPages: topEntryPagesCompare,
@@ -380,17 +229,17 @@ export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
     return {
       topPages: toDataTable({
         data: data.topPages,
-        compare: compare?.topPages,
+        compare: compareData?.topPages,
         categoryKey: 'url',
       }),
       topEntryPages: toDataTable({
         data: data.topEntryPages,
-        compare: compare?.topEntryPages,
+        compare: compareData?.topEntryPages,
         categoryKey: 'url',
       }),
       topExitPages: toDataTable({
         data: data.topExitPages,
-        compare: compare?.topExitPages,
+        compare: compareData?.topExitPages,
         categoryKey: 'url',
       }),
     };

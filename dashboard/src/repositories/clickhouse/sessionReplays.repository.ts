@@ -1,21 +1,19 @@
 'use server';
 
 import { clickhouse } from '@/lib/clickhouse';
-import { safeSql, SQL } from '@/lib/safe-sql';
-import { DateTimeString } from '@/types/dates';
+import { safeSql } from '@/lib/safe-sql';
 import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
-import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getSessionReplays(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
   limit: number,
   offset: number,
 ): Promise<SessionReplay[]> {
-  const filters = BAQuery.getFilterQuery(queryFilters);
+  const { siteId } = siteQuery;
+  const startDate = toDateTimeString(siteQuery.startDate);
+  const endDate = toDateTimeString(siteQuery.endDate);
 
   const query = safeSql`
     SELECT

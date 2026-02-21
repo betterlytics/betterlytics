@@ -24,43 +24,15 @@ type PageParams = {
 export default async function WebVitalsPage({ params, searchParams }: PageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, queryFilters, granularity } = BAFilterSearchParams.decode(
-    await searchParams,
-    timezone,
-  );
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const summaryPromise = fetchCoreWebVitalsSummaryAction(dashboardId, startDate, endDate, queryFilters);
-  const seriesPromise = fetchCoreWebVitalChartDataAction(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    queryFilters,
-    timezone,
-  );
-  const perPagePromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'url');
-  const perDevicePromise = fetchCoreWebVitalsByDimensionAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    'device_type',
-  );
-  const perCountryPromise = fetchCoreWebVitalsByDimensionAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    'country_code',
-  );
-  const perBrowserPromise = fetchCoreWebVitalsByDimensionAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    'browser',
-  );
-  const perOsPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, startDate, endDate, queryFilters, 'os');
+  const summaryPromise = fetchCoreWebVitalsSummaryAction(dashboardId, query);
+  const seriesPromise = fetchCoreWebVitalChartDataAction(dashboardId, query);
+  const perPagePromise = fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'url');
+  const perDevicePromise = fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'device_type');
+  const perCountryPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'country_code');
+  const perBrowserPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'browser');
+  const perOsPromise = fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'os');
   const hasDataPromise = fetchHasCoreWebVitalsData(dashboardId);
   const t = await getTranslations('dashboard.sidebar');
   return (

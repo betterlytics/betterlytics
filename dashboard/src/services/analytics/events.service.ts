@@ -6,69 +6,33 @@ import {
   getRecentEvents,
   getTotalEventCount,
 } from '@/repositories/clickhouse/index.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   EventPropertiesOverview,
   EventPropertyAnalytics,
   EventPropertyValue,
 } from '@/entities/analytics/events.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const MAX_TOP_VALUES = 10;
 
-export async function getCustomEventsOverviewForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-) {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getCustomEventsOverview(siteId, formattedStart, formattedEnd, queryFilters);
+export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery) {
+  return getCustomEventsOverview(siteQuery);
 }
 
-export async function getRecentEventsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  limit?: number,
-  offset?: number,
-  queryFilters?: QueryFilter[],
-) {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getRecentEvents(siteId, formattedStart, formattedEnd, limit, offset, queryFilters);
+export async function getRecentEventsForSite(siteQuery: BASiteQuery, limit?: number, offset?: number) {
+  return getRecentEvents(siteQuery, limit, offset);
 }
 
-export async function getTotalEventCountForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-) {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getTotalEventCount(siteId, formattedStart, formattedEnd, queryFilters);
+export async function getTotalEventCountForSite(siteQuery: BASiteQuery) {
+  return getTotalEventCount(siteQuery);
 }
 
 export async function getEventPropertiesAnalyticsForSite(
-  siteId: string,
+  siteQuery: BASiteQuery,
   eventName: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
 ): Promise<EventPropertiesOverview> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  const rawPropertyData = await getEventPropertyData(
-    siteId,
-    eventName,
-    formattedStart,
-    formattedEnd,
-    queryFilters,
-  );
+  const rawPropertyData = await getEventPropertyData(siteQuery, eventName);
 
   const totalEvents = rawPropertyData.length;
   const properties = processPropertyData(rawPropertyData);

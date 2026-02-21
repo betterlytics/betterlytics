@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CampaignEmptyState } from './CampaignEmptyState';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
@@ -33,7 +33,7 @@ type CampaignListProps = {
 const DEFAULT_PAGE_SIZE = 10;
 
 export default function CampaignList({ dashboardId }: CampaignListProps) {
-  const { startDate, endDate, granularity, timeZone } = useTimeRangeContext();
+  const query = useAnalyticsQuery();
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
@@ -46,18 +46,10 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
     pageIndex: number;
     pageSize: number;
   }>({
-    queryKey: ['campaign-list', dashboardId, startDate, endDate, granularity, timeZone, pageIndex, pageSize],
+    queryKey: ['campaign-list', dashboardId, query.startDate, query.endDate, query.granularity, query.timezone, pageIndex, pageSize],
     queryFn: async () => {
       try {
-        return await fetchCampaignPerformanceAction(
-          dashboardId,
-          startDate,
-          endDate,
-          granularity,
-          timeZone,
-          pageIndex,
-          pageSize,
-        );
+        return await fetchCampaignPerformanceAction(dashboardId, query, pageIndex, pageSize);
       } catch {
         toast.error(t('campaignExpandedRow.error'));
         return {
@@ -341,12 +333,12 @@ type CampaignExpandedRowProps = {
 };
 
 function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }: CampaignExpandedRowProps) {
-  const { startDate, endDate } = useTimeRangeContext();
+  const query = useAnalyticsQuery();
   const { data, status } = useQuery({
-    queryKey: ['campaign-expanded-details', dashboardId, campaignName, startDate, endDate],
-    queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, startDate, endDate, campaignName),
+    queryKey: ['campaign-expanded-details', dashboardId, campaignName, query.startDate, query.endDate],
+    queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, query, campaignName),
     enabled: isExpanded,
-    staleTime: getExpandedDetailsStaleTime(startDate, endDate),
+    staleTime: getExpandedDetailsStaleTime(query.startDate, query.endDate),
     gcTime: 15 * 60 * 1000,
   });
   const t = useTranslations('components.campaign.campaignExpandedRow');
