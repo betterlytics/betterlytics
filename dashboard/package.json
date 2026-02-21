@@ -51,7 +51,6 @@
     "@vercel/otel": "^2.1.0",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
-    "clickhouse": "^2.6.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "country-flag-icons": "^1.5.19",
