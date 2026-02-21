@@ -21,6 +21,7 @@ import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/cha
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { Pencil, X } from 'lucide-react';
 import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
@@ -61,7 +62,7 @@ interface InteractiveChartProps {
   incomplete?: ChartDataPoint[];
   incompleteStart?: ChartDataPoint[];
   color: string;
-  formatValue?: (value: number) => string;
+  formatValue?: (value: number, locale?: SupportedLanguages) => string;
   granularity?: GranularityRangeValues;
   comparisonMap?: ComparisonMapping[];
   headerContent?: React.ReactNode;
@@ -133,10 +134,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
-        const text = formatValue ? formatValue(value) : formatNumber(value);
+        const text = formatValue ? formatValue(value, locale) : formatNumber(value, locale);
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
-    }, [formatValue]);
+    }, [formatValue, locale]);
 
     useEffect(() => {
       if (!chartContainerRef.current) return;

@@ -1,12 +1,13 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { Card } from '@/components/ui/card';
 import { LiveIndicator } from '@/components/live-indicator';
 import { RefreshCcw } from 'lucide-react';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { formatPercentage } from '@/utils/formatters';
 
 type MonitoringEmptyStateProps = {
   dashboardId: string;
@@ -21,14 +22,14 @@ const PILL_PATTERNS = [
 ];
 
 const MOCK_MONITOR_TEMPLATES = [
-  { prefix: 'api.', uptime: '99.98%', duration: 14, interval: 1, pattern: 0 },
-  { prefix: 'app.', uptime: '99.94%', duration: 7, interval: 5, pattern: 1 },
-  { prefix: '', uptime: '100%', duration: 30, interval: 1, pattern: 2 },
+  { prefix: 'api.', uptime: 99.98, duration: 14, interval: 1, pattern: 0 },
+  { prefix: 'app.', uptime: 99.94, duration: 7, interval: 5, pattern: 1 },
+  { prefix: '', uptime: 100, duration: 30, interval: 1, pattern: 2 },
 ];
 
 type MockMonitor = {
   name: string;
-  uptime: string;
+  uptime: number;
   duration: string;
   interval: string;
   pattern: number;
@@ -37,6 +38,7 @@ type MockMonitor = {
 function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
   const pillData = PILL_PATTERNS[monitor.pattern];
   const tStatus = useTranslations('monitoring.status');
+  const locale = useLocale();
 
   return (
     <Card className='border-border/40 bg-card/50 relative overflow-hidden px-4 py-3'>
@@ -76,7 +78,7 @@ function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
           </div>
 
           <span className='w-14 text-right text-xs font-medium whitespace-nowrap text-emerald-500/80'>
-            {monitor.uptime}
+            {formatPercentage(monitor.uptime, locale, { minimumFractionDigits: monitor.uptime === 100 ? 0 : 2, maximumFractionDigits: 2 })}
           </span>
         </div>
       </div>

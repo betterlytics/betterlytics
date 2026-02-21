@@ -1,9 +1,10 @@
 import { cssVar, MAP_VISITOR_COLORS } from '@/constants/mapColors';
 import { formatNumber } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import React from 'react';
 
 function MapLegendComponent({ maxVisitors = 1 }: { maxVisitors?: number }) {
+  const locale = useLocale();
   const t = useTranslations('components.geography');
 
   return (
@@ -17,7 +18,7 @@ function MapLegendComponent({ maxVisitors = 1 }: { maxVisitors?: number }) {
             background: `linear-gradient(to right, ${cssVar(MAP_VISITOR_COLORS.NO_VISITORS)} 0%, ${cssVar(MAP_VISITOR_COLORS.LOW_VISITORS)} 3%, ${cssVar(MAP_VISITOR_COLORS.HIGH_VISITORS)} 100%)`,
           }}
         ></div>
-        <span className='text-muted-foreground ml-1 text-xs'>{formatNumber(maxVisitors)}</span>
+        <span className='text-muted-foreground ml-1 text-xs'>{formatNumber(maxVisitors, locale)}</span>
       </div>
     </div>
   );

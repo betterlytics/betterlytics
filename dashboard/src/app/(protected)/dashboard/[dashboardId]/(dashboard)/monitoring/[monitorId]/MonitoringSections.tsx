@@ -160,7 +160,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   const getLabel = (upRatio: number | null) => {
     if (upRatio !== null) {
       return t('uptime.grid.uptimeLabel', {
-        value: formatPercentage(upRatio * 100, 2, { trimHundred: true }),
+        value: formatPercentage(upRatio * 100, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }),
       });
     }
     return tLabels('noData');
@@ -208,7 +208,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 </span>
                 <div className='text-right'>
                   <div className={presentUptimeTone(stat.percent).theme.text}>
-                    {stat.percent != null ? formatPercentage(stat.percent, 2) : '— %'}
+                    {stat.percent != null ? formatPercentage(stat.percent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '— %'}
                   </div>
                   <div className='text-muted-foreground text-xs'>{downtimeLabel}</div>
                 </div>
@@ -224,12 +224,12 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
 function IncidentRow({ segment }: { segment: MonitorIncidentSegment }) {
   const t = useTranslations('monitoring.incidentStatus');
   const tReason = useTranslations('monitor.reason');
+  const locale = useLocale();
   const start = new Date(segment.start);
-  const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000)) : '—';
+  const duration = segment.durationMs ? formatDuration(Math.floor(segment.durationMs / 1000), locale) : '—';
   const presentation = presentIncidentState(segment.state);
   const label = t(presentation.labelKey);
   const reasonKey = getReasonTranslationKey(segment.reason);
-  const locale = useLocale();
   return (
     <TableRow className='text-sm'>
       <TableCell>
@@ -267,7 +267,7 @@ function CheckRow({ check }: { check: MonitorResult }) {
         {formatTimeFromNow(timestamp, locale)}
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
-        <span className='text-foreground font-semibold'>{formatCompactFromMilliseconds(check.latencyMs)}</span>
+        <span className='text-foreground font-semibold'>{formatCompactFromMilliseconds(check.latencyMs, locale)}</span>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{check.statusCode ?? '—'}</TableCell>
       <TableCell className='text-muted-foreground hidden text-xs sm:table-cell sm:text-sm'>

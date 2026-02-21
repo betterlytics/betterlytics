@@ -1,11 +1,13 @@
 import { Minus } from 'lucide-react';
 import { TrendPercentage } from './TrendPercentage';
+import { useLocale } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 type TableTrendIndicatorProps = {
   current: number;
   compare?: number;
   percentage?: number;
-  formatter?: (value: number) => string;
+  formatter?: (value: number, locale?: SupportedLanguages) => string;
   allowNullish?: boolean;
 };
 
@@ -13,9 +15,12 @@ export function TableTrendIndicator({
   current,
   compare,
   percentage,
-  formatter = (val) => val.toLocaleString(),
+  formatter: formatterProp,
   allowNullish,
 }: TableTrendIndicatorProps) {
+  const locale = useLocale();
+  const formatter = (val: number) => formatterProp ? formatterProp(val, locale) : val.toLocaleString(locale);
+
   if (percentage === undefined) {
     return null;
   }
@@ -44,7 +49,7 @@ export function TableTrendIndicator({
   return (
     <div className='flex items-center gap-1 text-xs'>
       <span className='text-foreground opacity-75'>vs {formatter(comparedData)}</span>
-      {comparedData !== 0 && <TrendPercentage percentage={percentage} withIcon />}
+      {comparedData !== 0 && <TrendPercentage percentage={percentage} withIcon locale={locale} />}
     </div>
   );
 }

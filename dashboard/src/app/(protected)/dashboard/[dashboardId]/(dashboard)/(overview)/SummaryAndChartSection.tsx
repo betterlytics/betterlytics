@@ -9,8 +9,8 @@ import {
 } from '@/app/actions/index.actions';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
-import { useTranslations } from 'next-intl';
-import { formatNumber } from '@/utils/formatters';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
@@ -28,6 +28,7 @@ type SummaryAndChartSectionProps = {
 export default function SummaryAndChartSection({ data }: SummaryAndChartSectionProps) {
   const [summary, visitorsData, pageviewsData, sessionMetricsData] = use(data);
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
+  const locale = useLocale();
   const t = useTranslations('dashboard.metrics');
 
   const handleMetricChange = useCallback((metric: string) => {
@@ -37,7 +38,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
   const cards: SummaryCardData[] = [
     {
       title: t('uniqueVisitors'),
-      value: formatNumber(summary.uniqueVisitors),
+      value: formatNumber(summary.uniqueVisitors, locale),
       rawChartData: summary.visitorsChartData,
       valueField: 'unique_visitors',
       comparePercentage: summary.compareValues.uniqueVisitors,
@@ -47,7 +48,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('totalPageviews'),
-      value: formatNumber(summary.pageviews),
+      value: formatNumber(summary.pageviews, locale),
       rawChartData: summary.pageviewsChartData,
       valueField: 'views',
       comparePercentage: summary.compareValues.pageviews,
@@ -57,7 +58,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('sessions'),
-      value: formatNumber(summary.sessions),
+      value: formatNumber(summary.sessions, locale),
       rawChartData: summary.sessionsChartData,
       valueField: 'sessions',
       comparePercentage: summary.compareValues.sessions,
@@ -67,7 +68,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('pagesPerSession'),
-      value: formatNumber(summary.pagesPerSession),
+      value: formatNumber(summary.pagesPerSession, locale),
       rawChartData: summary.pagesPerSessionChartData,
       valueField: 'pages_per_session',
       comparePercentage: summary.compareValues.pagesPerSession,
@@ -77,7 +78,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('avgVisitDuration'),
-      value: formatDuration(summary.avgVisitDuration),
+      value: formatDuration(summary.avgVisitDuration, locale),
       rawChartData: summary.avgVisitDurationChartData,
       valueField: 'avg_visit_duration',
       comparePercentage: summary.compareValues.avgVisitDuration,
@@ -87,7 +88,7 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     },
     {
       title: t('bounceRate'),
-      value: summary.bounceRate !== undefined ? `${summary.bounceRate}%` : '0%',
+      value: formatPercentage(summary.bounceRate ?? 0, locale),
       rawChartData: summary.bounceRateChartData,
       valueField: 'bounce_rate',
       comparePercentage: summary.compareValues.bounceRate,

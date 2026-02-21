@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
@@ -20,6 +20,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.timeRange');
+  const locale = useLocale();
   const ctx = useTimeRangeContext();
   const actions = useImmediateTimeRange();
 
@@ -31,8 +32,8 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
       return ctx.compareMode === 'previous' ? t('previousPeriod') : t('previousYear');
     }
     const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-    return `${resolvedCompareDates.start.toLocaleDateString(undefined, opts)} - ${resolvedCompareDates.end.toLocaleDateString(
-      undefined,
+    return `${resolvedCompareDates.start.toLocaleDateString(locale, opts)} - ${resolvedCompareDates.end.toLocaleDateString(
+      locale,
       opts,
     )}`;
   };
@@ -40,7 +41,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
   const titleText =
     ctx.compareMode === 'off' || !resolvedCompareDates
       ? t('disabled')
-      : `${resolvedCompareDates.start.toLocaleString()} - ${resolvedCompareDates.end.toLocaleString()}`;
+      : `${resolvedCompareDates.start.toLocaleString(locale)} - ${resolvedCompareDates.end.toLocaleString(locale)}`;
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>

@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, ExternalLink } from 'lucide-react';
 import { formatPercentage } from '@/utils/formatters';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function TrafficSourcesCard() {
   const t = await getTranslations('public.landing.cards.trafficSources');
+  const locale = await getLocale();
   const trafficSources = [
     {
       name: t('sources.googleSearch'),
@@ -70,16 +71,16 @@ export default async function TrafficSourcesCard() {
         <div>
           <div className='text-sm font-medium'>{source.name}</div>
           <div className='text-muted-foreground text-xs'>
-            {source.visitors.toLocaleString()} {t('visitorsLabel')}
+            {source.visitors.toLocaleString(locale)} {t('visitorsLabel')}
           </div>
         </div>
       </div>
       <div className='flex items-center space-x-2'>
-        <span className='text-sm font-medium'>{formatPercentage(source.percentage)}</span>
+        <span className='text-sm font-medium'>{formatPercentage(source.percentage, locale)}</span>
         <div className='bg-muted h-2 w-16 overflow-hidden rounded-full'>
           <div
             className={`h-full ${source.color}`}
-            style={{ width: `${formatPercentage(Math.min(source.percentage * 2, 100))}` }}
+            style={{ width: `${Math.min(source.percentage * 2, 100)}%` }}
           />
         </div>
       </div>
@@ -104,7 +105,7 @@ export default async function TrafficSourcesCard() {
           <div className='flex items-center justify-between text-xs'>
             <span className='text-muted-foreground'>{t('totalVisitors')}</span>
             <div className='text-primary flex items-center'>
-              <span className='font-medium'>7,580 {t('thisMonth')}</span>
+              <span className='font-medium'>{(7580).toLocaleString(locale)} {t('thisMonth')}</span>
             </div>
           </div>
         </div>

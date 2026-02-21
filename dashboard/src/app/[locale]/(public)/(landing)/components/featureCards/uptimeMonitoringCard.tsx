@@ -1,9 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, RefreshCcw, Mail, Bell } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { formatPercentage } from '@/utils/formatters';
+import { getLocale, getTranslations } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export default async function UptimeMonitoringCard() {
   const t = await getTranslations('public.landing.cards.uptimeMonitoring');
+  const locale = await getLocale();
 
   return (
     <Card className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 gap-2 overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""] supports-[backdrop-filter]:backdrop-blur-[2px]'>
@@ -13,6 +16,7 @@ export default async function UptimeMonitoringCard() {
       </CardHeader>
       <CardContent className='pt-4'>
         <UptimeMonitoringIllustration
+          locale={locale}
           alertDown={t('alertDown', { site: 'staging.example.com' })}
           alertSent={t('alertSent', { email: 'team@example.com' })}
           incidentDetected={t('incidentDetected', { count: 1 })}
@@ -24,38 +28,39 @@ export default async function UptimeMonitoringCard() {
 }
 
 type IllustrationProps = {
+  locale: SupportedLanguages;
   alertDown: string;
   alertSent: string;
   incidentDetected: string;
   sslLabel: string;
 };
 
-function UptimeMonitoringIllustration({ alertDown, alertSent, incidentDetected, sslLabel }: IllustrationProps) {
+function UptimeMonitoringIllustration({ locale, alertDown, alertSent, incidentDetected, sslLabel }: IllustrationProps) {
   const monitors = [
     {
       name: 'staging.example.com',
-      uptime: '99.87%',
+      uptime: 99.87,
       interval: '1m',
       pattern: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1],
       isDown: true,
     },
     {
       name: 'api.example.com',
-      uptime: '99.98%',
+      uptime: 99.98,
       interval: '1m',
       pattern: [1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1],
       isDown: false,
     },
     {
       name: 'app.example.com',
-      uptime: '100%',
+      uptime: 100,
       interval: '5m',
       pattern: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       isDown: false,
     },
     {
       name: 'example.com',
-      uptime: '99.94%',
+      uptime: 99.94,
       interval: '1m',
       pattern: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       isDown: false,
@@ -131,7 +136,7 @@ function UptimeMonitoringIllustration({ alertDown, alertSent, incidentDetected, 
 
       <div className='space-y-2'>
         {monitors.map((monitor, idx) => (
-          <MonitorRow key={idx} monitor={monitor} />
+          <MonitorRow key={idx} monitor={monitor} locale={locale} />
         ))}
       </div>
 
@@ -153,21 +158,20 @@ function UptimeMonitoringIllustration({ alertDown, alertSent, incidentDetected, 
 
 type Monitor = {
   name: string;
-  uptime: string;
+  uptime: number;
   interval: string;
   pattern: number[];
   isDown: boolean;
 };
 
-function MonitorRow({ monitor }: { monitor: Monitor }) {
+function MonitorRow({ monitor, locale }: { monitor: Monitor; locale: SupportedLanguages }) {
   const getStatusColor = (value: number, isLast: boolean) => {
     if (value < 0) return `bg-red-500 ${isLast && monitor.isDown ? 'status-pill-alert' : ''}`;
     if (value < 1) return 'bg-amber-500';
     return 'bg-green-500';
   };
 
-  const uptimeValue = parseFloat(monitor.uptime);
-  const uptimeColor = monitor.isDown ? 'text-red-500' : uptimeValue >= 99.9 ? 'text-green-500' : 'text-amber-500';
+  const uptimeColor = monitor.isDown ? 'text-red-500' : monitor.uptime >= 99.9 ? 'text-green-500' : 'text-amber-500';
   const accentColor = monitor.isDown ? 'bg-red-500' : 'bg-green-500';
   const dotColor = monitor.isDown ? 'bg-red-500' : 'bg-green-500';
   const rowClass = monitor.isDown ? 'monitor-row-alert border-red-500/20' : 'border-border/50';
@@ -197,7 +201,7 @@ function MonitorRow({ monitor }: { monitor: Monitor }) {
         </div>
 
         <span className={`min-w-[2.8rem] text-right text-[11px] font-semibold tabular-nums ${uptimeColor}`}>
-          {monitor.uptime}
+          {formatPercentage(monitor.uptime, locale, { minimumFractionDigits: monitor.uptime === 100 ? 0 : 2, maximumFractionDigits: 2 })}
         </span>
       </div>
     </div>

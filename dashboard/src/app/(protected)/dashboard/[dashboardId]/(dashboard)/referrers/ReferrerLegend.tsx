@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLocale } from 'next-intl';
 import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
 
 interface ReferrerLegendProps {
@@ -10,6 +11,7 @@ interface ReferrerLegendProps {
 
 // Common legend component that can be used by all referrer charts
 export default function ReferrerLegend({ payload, showPercentage = false }: ReferrerLegendProps) {
+  const locale = useLocale();
   if (!payload || payload.length === 0) {
     return null;
   }
@@ -23,7 +25,7 @@ export default function ReferrerLegend({ payload, showPercentage = false }: Refe
         // For pie chart entries, we display percentages of the total as well
         if (showPercentage) {
           const sourceName = capitalizeFirstLetter(entry.payload?.name || '');
-          displayValue = `${sourceName}: ${formatPercentage(entry.payload?.value)}`;
+          displayValue = `${sourceName}: ${formatPercentage(entry.payload?.value, locale)}`;
         } else {
           displayValue = capitalizeFirstLetter(entry.value);
         }

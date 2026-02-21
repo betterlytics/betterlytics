@@ -3,7 +3,7 @@ import { fetchReferrerSummaryWithChartsDataForSite } from '@/app/actions/index.a
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type ReferrersSummarySectionProps = {
   referrerSummaryWithChartsPromise: ReturnType<typeof fetchReferrerSummaryWithChartsDataForSite>;
@@ -14,6 +14,7 @@ export default function ReferrersSummarySection({
 }: ReferrersSummarySectionProps) {
   const summaryResult = use(referrerSummaryWithChartsPromise);
   const summaryData = summaryResult.data;
+  const locale = useLocale();
   const t = useTranslations('components.referrers.summary');
 
   const referralPercentage =
@@ -22,14 +23,14 @@ export default function ReferrersSummarySection({
   const cards: SummaryCardData[] = [
     {
       title: t('referralSessions'),
-      value: formatNumber(summaryData.referralSessions),
+      value: formatNumber(summaryData.referralSessions, locale),
       rawChartData: summaryData.referralSessionsChartData,
       valueField: 'referralSessions',
       chartColor: 'var(--chart-1)',
     },
     {
       title: t('referralTrafficPct'),
-      value: formatPercentage(referralPercentage),
+      value: formatPercentage(referralPercentage, locale),
       rawChartData: summaryData.referralPercentageChartData,
       valueField: 'referralPercentage',
       chartColor: 'var(--chart-1)',
@@ -40,7 +41,7 @@ export default function ReferrersSummarySection({
     },
     {
       title: t('avgSessionDuration'),
-      value: formatDuration(summaryData.avgSessionDuration),
+      value: formatDuration(summaryData.avgSessionDuration, locale),
       rawChartData: summaryData.avgSessionDurationChartData,
       valueField: 'avgSessionDuration',
       chartColor: 'var(--chart-1)',

@@ -1,3 +1,4 @@
+import type { SupportedLanguages } from '@/constants/i18n';
 import { DateString, DateTimeString } from '@/types/dates';
 
 // Formats date strings to Clickhouse date column format
@@ -27,17 +28,26 @@ export function toClickHouseGridStartString(dateTime: DateTimeString): DateTimeS
   return `${dateMissingSeconds}:00`;
 }
 
+/** Formats a numeric value with an Intl unit suffix (narrow display). */
+function formatUnit(
+  value: number,
+  unit: 'second' | 'minute' | 'hour' | 'day' | 'millisecond',
+  locale?: SupportedLanguages,
+): string {
+  return new Intl.NumberFormat(locale, { style: 'unit', unit, unitDisplay: 'narrow' }).format(value);
+}
+
 // Helper function to format duration in a user-friendly way
-export function formatDuration(seconds: number): string {
+export function formatDuration(seconds: number, locale?: SupportedLanguages): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
 
   const parts: string[] = [];
 
-  if (hours > 0) parts.push(`${Math.floor(hours)}h`);
-  if (minutes > 0 || hours > 0) parts.push(`${Math.floor(minutes)}m`);
-  parts.push(`${Math.floor(remainingSeconds)}s`);
+  if (hours > 0) parts.push(formatUnit(Math.floor(hours), 'hour', locale));
+  if (minutes > 0 || hours > 0) parts.push(formatUnit(Math.floor(minutes), 'minute', locale));
+  parts.push(formatUnit(Math.floor(remainingSeconds), 'second', locale));
 
   return parts.join(' ');
 }
@@ -46,7 +56,7 @@ export function formatDuration(seconds: number): string {
  * Formats elapsed time from a start date to now in a compact two-unit format.
  * Examples: "2d 14h", "5h 32m", "45m", "< 1m"
  */
-export function formatElapsedTime(startDate: Date): string {
+export function formatElapsedTime(startDate: Date, locale?: SupportedLanguages): string {
   const diffMs = Date.now() - startDate.getTime();
   const totalMinutes = Math.max(0, Math.floor(diffMs / 60000));
   const totalHours = Math.floor(totalMinutes / 60);
@@ -54,16 +64,20 @@ export function formatElapsedTime(startDate: Date): string {
 
   if (days > 0) {
     const hoursRemainder = totalHours % 24;
-    return hoursRemainder > 0 ? `${days}d ${hoursRemainder}h` : `${days}d`;
+    return hoursRemainder > 0
+      ? `${formatUnit(days, 'day', locale)} ${formatUnit(hoursRemainder, 'hour', locale)}`
+      : formatUnit(days, 'day', locale);
   }
   if (totalHours > 0) {
     const minutesRemainder = totalMinutes % 60;
-    return minutesRemainder > 0 ? `${totalHours}h ${minutesRemainder}m` : `${totalHours}h`;
+    return minutesRemainder > 0
+      ? `${formatUnit(totalHours, 'hour', locale)} ${formatUnit(minutesRemainder, 'minute', locale)}`
+      : formatUnit(totalHours, 'hour', locale);
   }
   if (totalMinutes > 0) {
-    return `${totalMinutes}m`;
+    return formatUnit(totalMinutes, 'minute', locale);
   }
-  return '< 1m';
+  return `< ${formatUnit(1, 'minute', locale)}`;
 }
 
 /**
@@ -71,14 +85,14 @@ export function formatElapsedTime(startDate: Date): string {
  * Uses only the largest applicable unit without breakdown.
  * Examples: 30 → "30s", 120 → "2m", 3600 → "1h", 86400 → "1d"
  */
-export function formatCompactDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
+export function formatCompactDuration(seconds: number, locale?: SupportedLanguages): string {
+  if (seconds < 60) return formatUnit(seconds, 'second', locale);
   const minutes = seconds / 60;
-  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 60) return formatUnit(minutes, 'minute', locale);
   const hours = minutes / 60;
-  if (hours < 24) return `${hours}h`;
+  if (hours < 24) return formatUnit(hours, 'hour', locale);
   const days = hours / 24;
-  return `${days}d`;
+  return formatUnit(days, 'day', locale);
 }
 
 /**
@@ -102,22 +116,28 @@ export function splitCompactDuration(seconds: number): {
  * Formats seconds as either full seconds (two decimals) or milliseconds when < 1 second.
  * Examples: 1.02 seconds, 1.20 seconds, 800 ms, 340 ms
  */
-export function formatCompactSeconds(seconds: number): string {
+export function formatCompactSeconds(seconds: number, locale?: SupportedLanguages): string {
   if (!Number.isFinite(seconds)) return '—';
   if (Math.abs(seconds) < 1) {
-    return `${Math.round(seconds * 1000)} ms`;
+    return formatUnit(Math.round(seconds * 1000), 'millisecond', locale);
   }
-  return `${new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: 'second',
+    unitDisplay: 'narrow',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(seconds)} s`;
+  }).format(seconds);
 }
 
-export function formatCompactFromMilliseconds(milliseconds: number | null | undefined): string {
+export function formatCompactFromMilliseconds(
+  milliseconds: number | null | undefined,
+  locale?: SupportedLanguages,
+): string {
   if (milliseconds == null || typeof milliseconds !== 'number' || !Number.isFinite(milliseconds)) {
     return '—';
   }
-  return formatCompactSeconds(milliseconds / 1000);
+  return formatCompactSeconds(milliseconds / 1000, locale);
 }
 
 /**
@@ -146,17 +166,29 @@ export function formatTimestamp(ms: number): string {
 /*
  * Format a duration with more precision such as 0.0600 s
  */
-export function formatDurationPrecise(ms: number): string {
+export function formatDurationPrecise(ms: number, locale?: SupportedLanguages): string {
   if (ms < 1000) {
-    return `${(ms / 1000).toFixed(4)}s`;
+    return new Intl.NumberFormat(locale, {
+      style: 'unit',
+      unit: 'second',
+      unitDisplay: 'narrow',
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    }).format(ms / 1000);
   }
   if (ms < 60_000) {
-    return `${(ms / 1000).toFixed(2)}s`;
+    return new Intl.NumberFormat(locale, {
+      style: 'unit',
+      unit: 'second',
+      unitDisplay: 'narrow',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(ms / 1000);
   }
   const totalSeconds = Math.floor(ms / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
-  return `${minutes}m ${seconds}s`;
+  return `${formatUnit(minutes, 'minute', locale)} ${formatUnit(seconds, 'second', locale)}`;
 }
 
 export function formatTimeLeft(daysLeft: number | null): { value: string; unit: string } {
@@ -171,7 +203,7 @@ export function formatTimeLeft(daysLeft: number | null): { value: string; unit: 
 // Formats a date/time to a locale-aware human-readable string
 export function formatLocalDateTime(
   date: string | Date | undefined | null,
-  locale?: string,
+  locale?: SupportedLanguages,
   options?: Intl.DateTimeFormatOptions,
 ): string | undefined {
   if (!date) return undefined;
@@ -181,7 +213,7 @@ export function formatLocalDateTime(
 }
 
 // Formats a date relative to now (e.g., "3 days ago"), localized via Intl.RelativeTimeFormat
-export function formatRelativeTimeFromNow(date: string | Date, locale?: string): string {
+export function formatRelativeTimeFromNow(date: string | Date, locale?: SupportedLanguages): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   if (Number.isNaN(d.getTime())) return '';
 
@@ -211,7 +243,7 @@ export function formatRelativeTimeFromNow(date: string | Date, locale?: string):
  * Formats a week as a date range like "Jan 6 – 12" or "Dec 30 – Jan 5"
  * Optionally includes the year: "Jan 6 – 12, 2026"
  */
-export function formatWeekRange(date: Date, locale?: string, includeYear = false): string {
+export function formatWeekRange(date: Date, locale?: SupportedLanguages, includeYear = false): string {
   const weekStart = new Date(date);
   const weekEnd = new Date(date);
   weekEnd.setDate(weekEnd.getDate() + 6);

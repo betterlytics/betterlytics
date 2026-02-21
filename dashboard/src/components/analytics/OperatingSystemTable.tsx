@@ -5,7 +5,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { OSIcon } from '@/components/icons';
 import { fetchOperatingSystemBreakdownAction } from '@/app/actions/analytics/devices.actions';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
-import { useTranslations } from 'next-intl';
+import { formatPercentage } from '@/utils/formatters';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
@@ -14,6 +15,7 @@ interface OperatingSystemTableProps {
 }
 
 export default function OperatingSystemTable({ data }: OperatingSystemTableProps) {
+  const locale = useLocale();
   const tCols = useTranslations('components.devices.tables.columns');
   const tFilters = useTranslations('components.filters');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -40,7 +42,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
       header: tCols('visitors'),
       cell: ({ row }) => (
         <div className='flex flex-col'>
-          <div>{row.original.current.visitors.toLocaleString()}</div>
+          <div>{row.original.current.visitors.toLocaleString(locale)}</div>
           <TableTrendIndicator
             current={row.original.current.visitors}
             compare={row.original.compare?.visitors}
@@ -55,12 +57,12 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
       header: tCols('percentage'),
       cell: ({ row }) => (
         <div className='flex flex-col'>
-          <div>{`${row.original.current.percentage}%`}</div>
+          <div>{formatPercentage(row.original.current.percentage, locale)}</div>
           <TableTrendIndicator
             current={row.original.current.percentage}
             compare={row.original.compare?.percentage}
             percentage={row.original.change?.percentage}
-            formatter={(val) => `${val}%`}
+            formatter={formatPercentage}
           />
         </div>
       ),

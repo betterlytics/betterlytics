@@ -1,15 +1,16 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { CreateFunnelDialog } from './CreateFunnelDialog';
 import { Card } from '@/components/ui/card';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 const MOCK_FUNNEL_STEPS = [
-  { name: 'homepage', visitors: '2,847', percentage: 100 },
-  { name: 'pricing', visitors: '1,923', percentage: 68 },
-  { name: 'signup', visitors: '847', percentage: 30 },
-  { name: 'purchase', visitors: '312', percentage: 11 },
+  { name: 'homepage', visitors: 2847, percentage: 100 },
+  { name: 'pricing', visitors: 1923, percentage: 68 },
+  { name: 'signup', visitors: 847, percentage: 30 },
+  { name: 'purchase', visitors: 312, percentage: 11 },
 ];
 
 function SkeletonFunnelStep({
@@ -22,6 +23,7 @@ function SkeletonFunnelStep({
   isLast: boolean;
 }) {
   const t = useTranslations('components.funnels.skeleton');
+  const locale = useLocale();
 
   return (
     <div className='flex flex-col'>
@@ -53,8 +55,8 @@ function SkeletonFunnelStep({
 
       <div className='flex flex-col items-center py-2'>
         <p className='text-muted-foreground/60 text-[10px]'>{t('visitors')}</p>
-        <p className='text-foreground/70 text-sm font-semibold'>{step.visitors}</p>
-        <p className='text-muted-foreground/50 text-[10px]'>{step.percentage}%</p>
+        <p className='text-foreground/70 text-sm font-semibold'>{formatNumber(step.visitors, locale, { notation: 'standard' })}</p>
+        <p className='text-muted-foreground/50 text-[10px]'>{formatPercentage(step.percentage, locale, { minimumFractionDigits: 0 })}</p>
       </div>
     </div>
   );

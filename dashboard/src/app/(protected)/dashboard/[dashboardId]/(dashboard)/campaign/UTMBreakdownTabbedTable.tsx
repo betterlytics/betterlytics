@@ -5,7 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/DataTable';
 import { formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import type {
   CampaignUTMBreakdownItem,
   CampaignLandingPagePerformanceItem,
@@ -38,6 +38,7 @@ export default function UTMBreakdownTabbedTable({
   initialSource,
   landingPages,
 }: UTMBreakdownTabbedTableProps) {
+  const locale = useLocale();
   const t = useTranslations('components.campaign.utm');
   const { startDate, endDate } = useTimeRangeContext();
   const landingPagesBreakdown = landingPages as BaseUTMBreakdownItem[];
@@ -54,12 +55,12 @@ export default function UTMBreakdownTabbedTable({
         {
           accessorKey: 'visitors',
           header: t('columns.visitors'),
-          cell: ({ row }) => <div>{row.getValue<number>('visitors').toLocaleString()}</div>,
+          cell: ({ row }) => <div>{row.getValue<number>('visitors').toLocaleString(locale)}</div>,
         },
         {
           accessorKey: 'bounceRate',
           header: t('columns.bounceRate'),
-          cell: ({ row }) => <div>{formatPercentage(row.getValue<number>('bounceRate'))}</div>,
+          cell: ({ row }) => <div>{formatPercentage(row.getValue<number>('bounceRate'), locale)}</div>,
         },
         {
           accessorKey: 'avgSessionDuration',
@@ -69,11 +70,11 @@ export default function UTMBreakdownTabbedTable({
         {
           accessorKey: 'pagesPerSession',
           header: t('columns.pagesPerSession'),
-          cell: ({ row }) => <div>{row.getValue<number>('pagesPerSession').toFixed(1)}</div>,
+          cell: ({ row }) => <div>{new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(row.getValue<number>('pagesPerSession'))}</div>,
         },
       ];
     },
-    [t],
+    [t, locale],
   );
 
   const sourceColumns = useMemo(() => createUTMColumns('label', t('tabs.source')), [createUTMColumns, t]);
