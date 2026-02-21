@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Integration, PUSHOVER_PRIORITIES, type PushoverPriority } from '@/entities/dashboard/integration.entities';
+import { Integration, PUSHOVER_PRIORITIES, type PushoverPriority, type PushoverConfig } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -38,7 +38,7 @@ export function PushoverConfigDialog({
   onSave,
 }: PushoverConfigDialogProps) {
   const t = useTranslations('integrationsSettings.pushoverDialog');
-  const existingConfig = integration?.config as { userKey?: string; priority?: number } | undefined;
+  const existingConfig = integration?.config as Partial<PushoverConfig> | undefined;
 
   const [userKey, setUserKey] = useState(existingConfig?.userKey ?? '');
   const [priority, setPriority] = useState<PushoverPriority>((existingConfig?.priority as PushoverPriority) ?? 0);
@@ -46,7 +46,7 @@ export function PushoverConfigDialog({
 
   useEffect(() => {
     if (open) {
-      const config = integration?.config as { userKey?: string; priority?: number } | undefined;
+      const config = integration?.config as Partial<PushoverConfig> | undefined;
       setUserKey(config?.userKey ?? '');
       setPriority((config?.priority as PushoverPriority) ?? 0);
       setError(undefined);

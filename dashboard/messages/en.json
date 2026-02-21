@@ -3557,11 +3557,24 @@
       "cancel": "Cancel",
       "save": "Save"
     },
+    "discordDialog": {
+      "title": "Discord Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
+      "webhookHint": "Learn how to create a webhook <link>here</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Discord webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
     "toast": {
       "saved": "Integration saved",
       "deleted": "Integration disconnected",
       "error": "Failed to update integration",
-      "invalidPushoverKey": "Invalid Pushover user key or no devices registered"
+      "invalidPushoverKey": "Invalid Pushover user key or no devices registered",
+      "invalidDiscordWebhook": "Invalid Discord webhook URL"
     }
   }
 }

@@ -15,6 +15,7 @@ import { Integration, IntegrationType } from '@/entities/dashboard/integration.e
 import { useTranslations } from 'next-intl';
 import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './PushoverConfigDialog';
+import { DiscordConfigDialog } from './DiscordConfigDialog';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
 
 type IntegrationDefinition = {
@@ -80,6 +81,7 @@ export default function IntegrationsSettings() {
         if (!result.success) {
           const errorMessages: Record<string, string> = {
             invalid_pushover_key: t('toast.invalidPushoverKey'),
+            invalid_discord_webhook: t('toast.invalidDiscordWebhook'),
           };
           toast.error(errorMessages[result.error] ?? t('toast.error'));
           return;
@@ -158,6 +160,14 @@ export default function IntegrationsSettings() {
         integration={getIntegrationForType('pushover')}
         isPending={isPending}
         onSave={(config) => handleSave('pushover', config)}
+      />
+
+      <DiscordConfigDialog
+        open={configDialogType === 'discord'}
+        onOpenChange={(open) => !open && setConfigDialogType(null)}
+        integration={getIntegrationForType('discord')}
+        isPending={isPending}
+        onSave={(config) => handleSave('discord', config)}
       />
 
       <ConfirmDialog

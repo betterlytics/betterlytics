@@ -37,6 +37,11 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
     const isValid = await validatePushoverUserKey(config.userKey);
     return isValid ? null : 'invalid_pushover_key';
   },
+  discord: async (config) => {
+    if (typeof config.webhookUrl !== 'string') return 'invalid_discord_webhook';
+    const isValid = await validateDiscordWebhookUrl(config.webhookUrl);
+    return isValid ? null : 'invalid_discord_webhook';
+  },
 };
 
 export async function validateIntegrationConfig(
@@ -130,6 +135,30 @@ export async function toggleIntegration(
   } catch (error) {
     console.error('Error toggling integration:', error);
     throw new Error('Failed to toggle integration');
+  }
+}
+
+export async function validateDiscordWebhookUrl(webhookUrl: string): Promise<boolean> {
+  if (!/^https:\/\/discord\.com\/api\/webhooks\//.test(webhookUrl)) return false;
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [
+          {
+            title: 'Betterlytics Connected',
+            description: 'This channel will now receive notifications from your Betterlytics dashboard.',
+            color: 0x22c55e,
+          },
+        ],
+      }),
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error validating Discord webhook URL:', error);
+    return false;
   }
 }
 
