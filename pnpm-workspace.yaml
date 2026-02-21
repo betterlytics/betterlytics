@@ -7,3 +7,13 @@ overrides:
   tough-cookie@<4.1.3: '>=4.1.3'
   form-data@<2.5.4: '>=2.5.4'
   qs@<6.14.1: '>=6.14.1'
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@tailwindcss/oxide'
+  - bcrypt
+  - esbuild
+  - prisma
+  - sharp
+  - unrs-resolver

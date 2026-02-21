@@ -1,11 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const mockJson = vi.fn();
-const mockQuery = vi.fn().mockResolvedValue({ json: mockJson });
-const mockCreateClient = vi.fn().mockReturnValue({ query: mockQuery });
+const { mockJson, mockQuery, mockCreateClient } = vi.hoisted(() => {
+  const mockJson = vi.fn();
+  const mockQuery = vi.fn().mockResolvedValue({ json: mockJson });
+  const mockCreateClient = vi.fn().mockReturnValue({ query: mockQuery });
+  return { mockJson, mockQuery, mockCreateClient };
+});
 
 vi.mock('@clickhouse/client', () => ({
   createClient: mockCreateClient,
+}));
+
+vi.mock('./env', () => ({
+  env: {
+    CLICKHOUSE_URL: 'http://localhost:8123',
+    CLICKHOUSE_DASHBOARD_USER: 'default',
+    CLICKHOUSE_DASHBOARD_PASSWORD: '',
+    ENABLE_MONITORING: false,
+  },
+}));
+
+vi.mock('@/observability/clickhouse-instrumented', () => ({
+  instrumentClickHouse: (client: unknown) => client,
 }));
 
 import { createClickHouseAdapter } from './clickhouse';
