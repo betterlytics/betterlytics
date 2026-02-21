@@ -4,7 +4,13 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Plus } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Plus, MoreVertical } from 'lucide-react';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { Integration } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
@@ -52,43 +58,41 @@ export function IntegrationCard({
         <p className='text-muted-foreground mt-0.5 text-xs'>{description}</p>
       </div>
 
-      <div className='flex flex-shrink-0 items-center gap-3'>
-        {isConnected && (
-          <PermissionGate permission='canManageSettings'>
-            {(disabled) => (
-              <Switch
-                checked={integration.enabled}
-                onCheckedChange={onToggle}
-                disabled={isPending || disabled}
-                className='cursor-pointer'
-              />
-            )}
-          </PermissionGate>
-        )}
-
+      <div className='flex flex-shrink-0 items-center gap-2'>
         <PermissionGate permission='canManageSettings'>
           {(disabled) =>
             isConnected ? (
-              <div className='flex gap-1.5'>
-                <Button
-                  variant='outline'
-                  size='sm'
+              <>
+                <Switch
+                  checked={integration.enabled}
+                  onCheckedChange={onToggle}
+                  disabled={isPending || disabled}
                   className='cursor-pointer'
-                  disabled={isPending || disabled}
-                  onClick={onConfigure}
-                >
-                  {t('actions.edit')}
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='text-destructive hover:text-destructive cursor-pointer'
-                  disabled={isPending || disabled}
-                  onClick={onDisconnect}
-                >
-                  {t('actions.disconnect')}
-                </Button>
-              </div>
+                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-8 w-8 cursor-pointer'
+                      disabled={isPending || disabled}
+                    >
+                      <MoreVertical className='h-4 w-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem className='cursor-pointer' onClick={onConfigure}>
+                      {t('actions.edit')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className='text-destructive focus:text-destructive cursor-pointer'
+                      onClick={onDisconnect}
+                    >
+                      {t('actions.disconnect')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <Button
                 variant='default'
