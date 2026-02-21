@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
@@ -21,18 +22,35 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
   const { queryFilters } = useQueryFiltersContext();
   const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
 
-  return {
-    startDate,
-    endDate,
-    compareStartDate,
-    compareEndDate,
-    granularity,
-    queryFilters,
-    timezone: timeZone,
-    userJourney: { numberOfSteps, numberOfJourneys },
-    interval,
-    offset,
-    compare: compareMode,
-    compareAlignWeekdays,
-  };
+  return useMemo(
+    () => ({
+      startDate,
+      endDate,
+      compareStartDate,
+      compareEndDate,
+      granularity,
+      queryFilters,
+      timezone: timeZone,
+      userJourney: { numberOfSteps, numberOfJourneys },
+      interval,
+      offset,
+      compare: compareMode,
+      compareAlignWeekdays,
+    }),
+    [
+      startDate,
+      endDate,
+      compareStartDate,
+      compareEndDate,
+      granularity,
+      queryFilters,
+      timeZone,
+      numberOfSteps,
+      numberOfJourneys,
+      interval,
+      offset,
+      compareMode,
+      compareAlignWeekdays,
+    ],
+  );
 }
