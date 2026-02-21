@@ -72,6 +72,7 @@ async function main() {
 
     await client.query(`GRANT SELECT ON TABLE "SiteConfig" TO siteconfig_ro;`);
     await client.query(`GRANT SELECT ON TABLE "Dashboard" TO siteconfig_ro;`);
+    await client.query(`GRANT SELECT ON TABLE "DashboardIntegration" TO siteconfig_ro;`);
 
     console.log(
       "Post-migration (siteconfig_ro): role and privileges ensured successfully."

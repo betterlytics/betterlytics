@@ -139,11 +139,29 @@ async fn main() {
             .await
             .expect("Failed to init SiteConfigCache");
 
+    let notification_engine = match crate::notifications::initialize_notification_engine(
+        Arc::clone(&site_config_pool),
+        Arc::clone(&clickhouse),
+        &config,
+    )
+    .await
+    {
+        Ok(engine) => {
+            info!("Notification engine initialized");
+            Some(engine)
+        }
+        Err(err) => {
+            warn!(error = ?err, "Failed to initialize notification engine; continuing without push notifications");
+            None
+        }
+    };
+
     if config.enable_uptime_monitoring {
         monitor::spawn_monitoring(
             config.clone(),
             Arc::clone(&clickhouse),
             metrics_collector.clone(),
+            notification_engine,
         );
     } else {
         info!("uptime monitoring disabled by configuration");

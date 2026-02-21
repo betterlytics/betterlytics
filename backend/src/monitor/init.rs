@@ -7,10 +7,7 @@ use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
-use crate::notifications::{
-    IntegrationCache, IntegrationCacheConfig, IntegrationRepository, NotificationEngine,
-    new_notification_history_writer,
-};
+use crate::notifications::NotificationEngine;
 use crate::postgres::PostgresPool;
 
 use super::alert::new_alert_history_writer;
@@ -25,11 +22,12 @@ pub fn spawn_monitoring(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
+    notification_engine: Option<Arc<NotificationEngine>>,
 ) {
     super::init_dev_mode(config.is_development);
 
     tokio::spawn(async move {
-        run_monitoring_init_loop(config, clickhouse, metrics).await;
+        run_monitoring_init_loop(config, clickhouse, metrics, notification_engine).await;
     });
 }
 
@@ -37,6 +35,7 @@ async fn run_monitoring_init_loop(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
+    notification_engine: Option<Arc<NotificationEngine>>,
 ) {
     const RETRY_DELAY_SECS: u64 = 30;
     let retry_delay = std::time::Duration::from_secs(RETRY_DELAY_SECS);
@@ -128,24 +127,12 @@ async fn run_monitoring_init_loop(
             }
         };
 
-        let notification_engine = match initialize_notification_engine(Arc::clone(&monitor_pool), Arc::clone(&clickhouse), &config).await
-        {
-            Ok(engine) => {
-                info!("Notification engine initialized");
-                Some(engine)
-            }
-            Err(err) => {
-                warn!(error = ?err, "Failed to initialize notification engine; continuing without push notifications");
-                None
-            }
-        };
-
         let incident_orchestrator = Arc::new(
             IncidentOrchestrator::new(
                 IncidentOrchestratorConfig::from_config(&config),
                 history_writer,
                 incident_store,
-                notification_engine,
+                notification_engine.clone(),
             )
             .await,
         );
@@ -183,30 +170,3 @@ async fn run_monitoring_init_loop(
     }
 }
 
-async fn initialize_notification_engine(
-    pool: Arc<PostgresPool>,
-    clickhouse: Arc<ClickHouseClient>,
-    config: &Config,
-) -> Result<Arc<NotificationEngine>, Box<dyn std::error::Error + Send + Sync>> {
-    let data_source: Arc<dyn crate::notifications::IntegrationDataSource> =
-        Arc::new(IntegrationRepository::new(pool, config.nextauth_secret.clone()));
-
-    let cache = IntegrationCache::initialize(data_source, IntegrationCacheConfig::default()).await?;
-
-    let history_writer = match new_notification_history_writer(
-        clickhouse,
-        "analytics.notification_history",
-    ) {
-        Ok(w) => Some(w),
-        Err(err) => {
-            warn!(error = ?err, "Failed to create notification history writer; notifications will not be recorded");
-            None
-        }
-    };
-
-    Ok(Arc::new(NotificationEngine::new(
-        cache,
-        history_writer,
-        config.pushover_app_token.clone(),
-    )))
-}
