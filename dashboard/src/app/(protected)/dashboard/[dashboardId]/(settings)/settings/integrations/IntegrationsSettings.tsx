@@ -17,6 +17,7 @@ import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './PushoverConfigDialog';
 import { DiscordConfigDialog } from './DiscordConfigDialog';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
+import Image from 'next/image';
 
 type IntegrationDefinition = {
   type: IntegrationType;
@@ -173,7 +174,23 @@ export default function IntegrationsSettings() {
       <ConfirmDialog
         open={disconnectType !== null}
         onOpenChange={(open) => !open && setDisconnectType(null)}
-        title={t('disconnect.title')}
+        title={
+          disconnectType ? (
+            <span className='flex items-center gap-2'>
+              <Image
+                src={allIntegrations.find((d) => d.type === disconnectType)?.iconSrc ?? ''}
+                alt=''
+                width={20}
+                height={20}
+              />
+              {t('disconnect.title', {
+                name: allIntegrations.find((d) => d.type === disconnectType)?.name ?? '',
+              })}
+            </span>
+          ) : (
+            t('disconnect.title', { name: '' })
+          )
+        }
         description={t('disconnect.description')}
         confirmLabel={t('disconnect.confirm')}
         onConfirm={handleDisconnect}

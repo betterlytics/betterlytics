@@ -3533,7 +3533,7 @@
       "disconnect": "Disconnect"
     },
     "disconnect": {
-      "title": "Disconnect integration",
+      "title": "Disconnect {name}",
       "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications.",
       "confirm": "Disconnect"
     },
