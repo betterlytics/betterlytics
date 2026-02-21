@@ -21,8 +21,6 @@ pub struct Config {
     pub referrer_db_path: PathBuf,
     pub ua_regexes_path: PathBuf,
     pub data_retention_days: i32,
-    // Billing configuration
-    pub enable_billing: bool,
     // Monitoring configuration
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
@@ -97,10 +95,6 @@ impl Config {
                 .unwrap_or_else(|_| "365".to_string())
                 .parse()
                 .unwrap_or(365),
-            // Billing configuration
-            enable_billing: env::var("ENABLE_BILLING")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")

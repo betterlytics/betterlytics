@@ -1987,6 +1987,15 @@
       "unit": "{count, plural, one {day} other {days}}"
     }
   },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Current Period",
+      "previousPeriod": "Previous Period",
+      "partial": "Partial",
+      "total": "Total"
+    }
+  },
   "misc": {
     "loading": "Loading...",
     "created": "Created",

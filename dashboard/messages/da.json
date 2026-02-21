@@ -1991,6 +1991,15 @@
       "unit": "{count, plural, one {dag} other {dage}}"
     }
   },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Nuværende periode",
+      "previousPeriod": "Forrige periode",
+      "partial": "Delvis",
+      "total": "Total"
+    }
+  },
   "misc": {
     "loading": "Indlæser...",
     "created": "Oprettet",

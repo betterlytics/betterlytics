@@ -1999,6 +1999,15 @@
       "unit": "{count, plural, one {giorno} other {giorni}}"
     }
   },
+  "charts": {
+    "tooltip": {
+      "vs": "vs",
+      "currentPeriod": "Periodo attuale",
+      "previousPeriod": "Periodo precedente",
+      "partial": "Parziale",
+      "total": "Totale"
+    }
+  },
   "misc": {
     "loading": "Caricamento...",
     "created": "Creato",

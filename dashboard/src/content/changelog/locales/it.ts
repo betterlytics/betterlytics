@@ -2,60 +2,80 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.4',
-    releasedAt: '2026-02-08',
-    title: 'Report via email e analisi settimanali e mensili',
+    version: 'v1.3.5',
+    releasedAt: '2026-02-19',
+    title: 'Monitoraggio parole chiave e miglioramenti visivi',
     summary:
-      'Ricevi report programmati via email per le tue dashboard e analizza le tendenze nel lungo periodo con visualizzazioni settimanali e mensili.',
+      'I monitor uptime possono ora avvisarti quando una parola chiave attesa non è presente nelle tue pagine. La dashboard è inoltre più fluida grazie a indicatori animati, numeri e altri dettagli visivi.',
   },
   sections: [
     {
-      id: 'v134-new-features',
+      id: 'v135-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Programma report via email con una panoramica delle analisi delle tue dashboard direttamente dalle impostazioni.',
-            'Per intervalli di tempo più lunghi, i dati possono ora essere visualizzati con granularità settimanale e mensile, facilitando l’individuazione delle tendenze a lungo termine.',
+            'I monitor uptime possono ora verificare la presenza di una parola chiave attesa nella risposta della pagina, avvisandoti se un contenuto importante risulta mancante - anche quando la pagina restituisce uno stato 200.',
           ],
         },
       ],
     },
     {
-      id: 'v134-improvements',
+      id: 'v135-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Gli eventi di tracciamento della profondità di scorrimento sono ora inclusi senza costi aggiuntivi e non incidono sulla quota mensile.',
-            'Il selettore dei filtri mostra ora il numero di filtri attivi.',
-            'Le celle delle tabelle mostrano i dati di confronto in modo più chiaro quando uno dei periodi non contiene dati.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v134-fixes',
-      title: 'Correzioni',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Risolto un problema che in alcuni casi poteva causare l’invio di dati non validi dallo script di tracciamento.',
-            'Risolto un problema nel calcolo delle date che poteva mostrare intervalli di tempo non corretti.',
-            'Corretta un’anomalia che impediva l’invio corretto dell’email di verifica per le registrazioni tramite OAuth.',
-            'Corretta la visualizzazione degli indicatori di confronto quando i dati erano mancanti o invariati.',
+            'I punteggi Core Web Vitals vengono ora mostrati in un indicatore animato, rendendo più immediata la lettura delle prestazioni.',
+            'I tooltip dei grafici indicano ora chiaramente quando un intervallo settimanale o mensile è coperto solo parzialmente dal periodo selezionato.',
+            "Numeri, indicatori di caricamento e altri piccoli dettagli visivi sono stati perfezionati per un'esperienza più fluida e curata in tutta la dashboard.",
           ],
         },
       ],
     },
   ],
-}
-  
+};
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Monitoraggio parole chiave e miglioramenti visivi',
+      summary:
+        'I monitor uptime possono ora avvisarti quando una parola chiave attesa non è presente nelle tue pagine. La dashboard è inoltre più fluida grazie a indicatori animati, numeri e altri dettagli visivi.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I monitor uptime possono ora verificare la presenza di una parola chiave attesa nella risposta della pagina, avvisandoti se un contenuto importante risulta mancante — anche quando la pagina restituisce uno stato 200.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I punteggi Core Web Vitals vengono ora mostrati in un indicatore animato, rendendo più immediata la lettura delle prestazioni.',
+              'I tooltip dei grafici indicano ora chiaramente quando un intervallo settimanale o mensile è coperto solo parzialmente dal periodo selezionato.',
+              "Numeri, indicatori di caricamento e altri piccoli dettagli visivi sono stati perfezionati per un'esperienza più fluida e curata in tutta la dashboard.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.4',
@@ -108,7 +128,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
         ],
       },
     ],
-  },  
+  },
   {
     metadata: {
       version: 'v1.3.3',

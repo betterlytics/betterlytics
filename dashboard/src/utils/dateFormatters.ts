@@ -179,14 +179,63 @@ export function formatWeekRange(date: Date, locale?: string, includeYear = false
   const weekEnd = new Date(date);
   weekEnd.setDate(weekEnd.getDate() + 6);
 
-  const startMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(weekStart);
-  const endMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(weekEnd);
-  const startDay = weekStart.getDate();
-  const endDay = weekEnd.getDate();
-  const yearSuffix = includeYear ? `, ${weekEnd.getFullYear()}` : '';
+  return formatDateRange(weekStart, weekEnd, locale, includeYear);
+}
 
+function formatDateRange(start: Date, end: Date, locale?: string, includeYear = false): string {
+  const startMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(start);
+  const endMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(end);
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+  const yearSuffix = includeYear ? `, ${end.getFullYear()}` : '';
+
+  if (startDay === endDay && startMonth === endMonth) {
+    return `${startMonth} ${startDay}${yearSuffix}`;
+  }
   if (startMonth === endMonth) {
     return `${startMonth} ${startDay} – ${endDay}${yearSuffix}`;
   }
   return `${startMonth} ${startDay} – ${endMonth} ${endDay}${yearSuffix}`;
+}
+
+/**
+ * Returns the actual date range string for a partial bucket (e.g. "Jan 8 – 12")
+ * Returns undefined when the bucket is full
+ */
+export function getPartialBucketRange(
+  bucketDate: number | string | Date | undefined,
+  rangeStart: Date,
+  rangeEnd: Date,
+  granularity: 'week' | 'month',
+  locale?: string,
+): string | undefined {
+  if (bucketDate == null) return undefined;
+  const d = new Date(bucketDate);
+  if (Number.isNaN(d.getTime())) return undefined;
+
+  let bucketStart: Date;
+  let bucketEnd: Date;
+
+  if (granularity === 'week') {
+    bucketStart = new Date(d);
+    bucketEnd = new Date(d);
+    bucketEnd.setDate(bucketEnd.getDate() + 6);
+  } else {
+    bucketStart = new Date(d.getFullYear(), d.getMonth(), 1);
+    bucketEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+  }
+
+  const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const actualStart = startOfDay(bucketStart) < startOfDay(rangeStart) ? rangeStart : bucketStart;
+  const actualEnd = startOfDay(bucketEnd) > startOfDay(rangeEnd) ? rangeEnd : bucketEnd;
+
+  if (
+    startOfDay(actualStart).getTime() <= startOfDay(bucketStart).getTime() &&
+    startOfDay(actualEnd).getTime() >= startOfDay(bucketEnd).getTime()
+  ) {
+    return undefined;
+  }
+
+  return formatDateRange(actualStart, actualEnd, locale);
 }
