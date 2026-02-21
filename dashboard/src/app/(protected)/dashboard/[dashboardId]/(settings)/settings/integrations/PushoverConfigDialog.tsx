@@ -31,43 +31,32 @@ export function PushoverConfigDialog({
   onSave,
 }: PushoverConfigDialogProps) {
   const t = useTranslations('integrationsSettings.pushoverDialog');
-  const existingConfig = integration?.config as { userKey?: string; apiToken?: string } | undefined;
+  const existingConfig = integration?.config as { userKey?: string } | undefined;
 
   const [userKey, setUserKey] = useState(existingConfig?.userKey ?? '');
-  const [apiToken, setApiToken] = useState(existingConfig?.apiToken ?? '');
-  const [errors, setErrors] = useState<{ userKey?: string; apiToken?: string }>({});
+  const [error, setError] = useState<string>();
 
   useEffect(() => {
     if (open) {
-      const config = integration?.config as { userKey?: string; apiToken?: string } | undefined;
+      const config = integration?.config as { userKey?: string } | undefined;
       setUserKey(config?.userKey ?? '');
-      setApiToken(config?.apiToken ?? '');
-      setErrors({});
+      setError(undefined);
     }
   }, [open, integration]);
 
   const handleSave = () => {
     const trimmedUserKey = userKey.trim();
-    const trimmedApiToken = apiToken.trim();
 
-    const fieldErrors: { userKey?: string; apiToken?: string } = {};
     if (!trimmedUserKey) {
-      fieldErrors.userKey = t('errors.userKeyRequired');
-    } else if (!/^[A-Za-z0-9]{30}$/.test(trimmedUserKey)) {
-      fieldErrors.userKey = t('errors.userKeyInvalid');
+      setError(t('errors.userKeyRequired'));
+      return;
     }
-    if (!trimmedApiToken) {
-      fieldErrors.apiToken = t('errors.apiTokenRequired');
-    } else if (!/^[A-Za-z0-9]{30}$/.test(trimmedApiToken)) {
-      fieldErrors.apiToken = t('errors.apiTokenInvalid');
-    }
-
-    if (fieldErrors.userKey || fieldErrors.apiToken) {
-      setErrors(fieldErrors);
+    if (!/^[A-Za-z0-9]{30}$/.test(trimmedUserKey)) {
+      setError(t('errors.userKeyInvalid'));
       return;
     }
 
-    onSave({ userKey: trimmedUserKey, apiToken: trimmedApiToken });
+    onSave({ userKey: trimmedUserKey });
   };
 
   return (
@@ -89,28 +78,12 @@ export function PushoverConfigDialog({
               value={userKey}
               onChange={(e) => {
                 setUserKey(e.target.value);
-                if (errors.userKey) setErrors((prev) => ({ ...prev, userKey: undefined }));
+                if (error) setError(undefined);
               }}
-              className={errors.userKey ? 'border-destructive' : ''}
+              className={error ? 'border-destructive' : ''}
               disabled={isPending}
             />
-            {errors.userKey && <p className='text-destructive text-sm'>{errors.userKey}</p>}
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='pushover-api-token'>{t('apiTokenLabel')}</Label>
-            <Input
-              id='pushover-api-token'
-              placeholder={t('apiTokenPlaceholder')}
-              value={apiToken}
-              onChange={(e) => {
-                setApiToken(e.target.value);
-                if (errors.apiToken) setErrors((prev) => ({ ...prev, apiToken: undefined }));
-              }}
-              className={errors.apiToken ? 'border-destructive' : ''}
-              disabled={isPending}
-            />
-            {errors.apiToken && <p className='text-destructive text-sm'>{errors.apiToken}</p>}
+            {error && <p className='text-destructive text-sm'>{error}</p>}
           </div>
 
           <p className='text-muted-foreground text-xs'>

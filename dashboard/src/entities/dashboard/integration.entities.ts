@@ -7,7 +7,6 @@ const pushoverTokenRegex = /^[A-Za-z0-9]{30}$/;
 
 export const PushoverConfigSchema = z.object({
   userKey: z.string().regex(pushoverTokenRegex),
-  apiToken: z.string().regex(pushoverTokenRegex),
 });
 
 export const SlackConfigSchema = z.object({

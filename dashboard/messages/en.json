@@ -3541,14 +3541,10 @@
       "title": "Pushover Integration",
       "userKeyLabel": "User Key",
       "userKeyPlaceholder": "Your Pushover user key",
-      "apiTokenLabel": "API Token",
-      "apiTokenPlaceholder": "Your application API token",
-      "credentialsHint": "Find your credentials at <link>pushover.net</link>",
+      "credentialsHint": "Find your user key at <link>pushover.net</link>",
       "errors": {
         "userKeyRequired": "User key is required",
-        "userKeyInvalid": "Invalid user key",
-        "apiTokenRequired": "API token is required",
-        "apiTokenInvalid": "Invalid API token"
+        "userKeyInvalid": "Invalid user key"
       },
       "cancel": "Cancel",
       "save": "Save"
