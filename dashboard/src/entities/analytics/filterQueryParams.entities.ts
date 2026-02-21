@@ -24,12 +24,12 @@ export const FilterQueryParamsSchema = z.object({
   compareStartDate: z.date().optional(),
   compareEndDate: z.date().optional(),
   interval: z.enum(TIME_RANGE_VALUES),
-  offset: z.number().int().optional(),
+  offset: z.coerce.number().int().optional(),
   compare: z.enum(COMPARE_URL_MODES),
   compareAlignWeekdays: z.boolean().optional().default(false),
   userJourney: z.object({
-    numberOfSteps: z.number(),
-    numberOfJourneys: z.number(),
+    numberOfSteps: z.coerce.number(),
+    numberOfJourneys: z.coerce.number(),
   }),
 });
 

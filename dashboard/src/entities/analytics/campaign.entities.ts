@@ -1,18 +1,18 @@
 import { z } from 'zod';
 
 const RawMetricFields = {
-  total_visitors: z.number().int().nonnegative(),
-  bounced_sessions: z.number().int().nonnegative(),
-  total_sessions: z.number().int().nonnegative(),
-  total_pageviews: z.number().int().nonnegative(),
-  sum_session_duration_seconds: z.number().int().nonnegative(),
+  total_visitors: z.coerce.number().int().nonnegative(),
+  bounced_sessions: z.coerce.number().int().nonnegative(),
+  total_sessions: z.coerce.number().int().nonnegative(),
+  total_pageviews: z.coerce.number().int().nonnegative(),
+  sum_session_duration_seconds: z.coerce.number().int().nonnegative(),
 };
 
 const MetricFields = {
-  visitors: z.number().int().nonnegative(),
-  bounceRate: z.number().nonnegative(),
+  visitors: z.coerce.number().int().nonnegative(),
+  bounceRate: z.coerce.number().nonnegative(),
   avgSessionDuration: z.string(),
-  pagesPerSession: z.number().nonnegative(),
+  pagesPerSession: z.coerce.number().nonnegative(),
 };
 
 const RawMetricsSchema = z.object(RawMetricFields);
@@ -44,7 +44,7 @@ export const RawCampaignUTMBreakdownItemSchema = createRawBreakdownSchema('label
 
 export const CampaignSparklinePointSchema = z.object({
   date: z.string(),
-  visitors: z.number().int().nonnegative(),
+  visitors: z.coerce.number().int().nonnegative(),
 });
 
 export const CampaignPerformanceSchema = MetricSchema.extend({
@@ -70,7 +70,7 @@ export const CampaignLandingPagePerformanceItemSchema = MetricSchema.extend({
 export const CampaignTrendRowSchema = z.object({
   date: z.string(),
   utm_campaign: z.string(),
-  visitors: z.number().int().nonnegative(),
+  visitors: z.coerce.number().int().nonnegative(),
 });
 
 export type RawCampaignData = z.infer<typeof RawCampaignDataSchema>;

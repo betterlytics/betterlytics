@@ -3,37 +3,37 @@ import { z } from 'zod';
 export const PageAnalyticsSchema = z.object({
   path: z.string(),
   title: z.string(),
-  visitors: z.number(),
-  pageviews: z.number(),
+  visitors: z.coerce.number(),
+  pageviews: z.coerce.number(),
   bounceRate: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
-  }, z.number()),
+  }, z.coerce.number()),
   avgTime: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
-  }, z.number()),
-  entryRate: z.number().optional(),
-  exitRate: z.number().optional(),
+  }, z.coerce.number()),
+  entryRate: z.coerce.number().optional(),
+  exitRate: z.coerce.number().optional(),
   avgScrollDepth: z.preprocess((val) => {
     if (val === null || val === undefined) return null;
     return Number(val);
-  }, z.number().nullable()),
+  }, z.coerce.number().nullable()),
 });
 
 export const TopPageRowSchema = z.object({
   url: z.string(),
-  visitors: z.number(),
+  visitors: z.coerce.number(),
 });
 
 export const TopEntryPageRowSchema = z.object({
   url: z.string(),
-  visitors: z.number(),
+  visitors: z.coerce.number(),
 });
 
 export const TopExitPageRowSchema = z.object({
   url: z.string(),
-  visitors: z.number(),
+  visitors: z.coerce.number(),
 });
 
 export const PageAnalyticsCombinedSchema = z.object({
@@ -47,7 +47,7 @@ export const DailyAverageTimeRowSchema = z.object({
   avgTime: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
-  }, z.number()),
+  }, z.coerce.number()),
 });
 
 export const DailyBounceRateRowSchema = z.object({
@@ -55,35 +55,35 @@ export const DailyBounceRateRowSchema = z.object({
   bounceRate: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
-  }, z.number()),
+  }, z.coerce.number()),
 });
 
 export const PageviewsChartDataPointSchema = z.object({
   date: z.string(),
-  views: z.number(),
+  views: z.coerce.number(),
 });
 
 export const PagesSummaryWithChartsSchema = z.object({
-  totalPageviews: z.number(),
-  avgTimeOnPage: z.number(),
-  avgBounceRate: z.number(),
-  pagesPerSession: z.number(),
+  totalPageviews: z.coerce.number(),
+  avgTimeOnPage: z.coerce.number(),
+  avgBounceRate: z.coerce.number(),
+  pagesPerSession: z.coerce.number(),
   pagesPerSessionChartData: z.array(
     z.object({
       date: z.string(),
-      value: z.number(),
+      value: z.coerce.number(),
     }),
   ),
   avgTimeChartData: z.array(
     z.object({
       date: z.string(),
-      value: z.number(),
+      value: z.coerce.number(),
     }),
   ),
   bounceRateChartData: z.array(
     z.object({
       date: z.string(),
-      value: z.number(),
+      value: z.coerce.number(),
     }),
   ),
   pageviewsChartData: z.array(PageviewsChartDataPointSchema),

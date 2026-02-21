@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 export const EventOccurrenceAggregate = z.object({
   event_name: z.string(),
-  count: z.number(),
-  unique_users: z.number(),
+  count: z.coerce.number(),
+  unique_users: z.coerce.number(),
   last_seen: z.date(),
-  avg_per_user: z.number(),
+  avg_per_user: z.coerce.number(),
 });
 
 export const RawEventPropertyDataSchema = z.object({
@@ -16,21 +16,21 @@ export const RawEventPropertyDataArraySchema = z.array(RawEventPropertyDataSchem
 
 export const EventPropertyValueAggregateSchema = z.object({
   value: z.string(),
-  count: z.number(),
-  relativePercentage: z.number(),
-  percentage: z.number(),
+  count: z.coerce.number(),
+  relativePercentage: z.coerce.number(),
+  percentage: z.coerce.number(),
 });
 
 export const EventPropertyAnalyticsSchema = z.object({
   propertyName: z.string(),
-  uniqueValueCount: z.number(),
-  totalOccurrences: z.number(),
+  uniqueValueCount: z.coerce.number(),
+  totalOccurrences: z.coerce.number(),
   topValues: z.array(EventPropertyValueAggregateSchema),
 });
 
 export const EventPropertiesOverviewSchema = z.object({
   eventName: z.string(),
-  totalEvents: z.number(),
+  totalEvents: z.coerce.number(),
   properties: z.array(EventPropertyAnalyticsSchema),
 });
 
