@@ -13,34 +13,13 @@ export const PushoverConfigSchema = z.object({
   priority: z.number().int().min(-2).max(1).default(0),
 });
 
-export const SlackConfigSchema = z.object({
-  webhookUrl: z.string().url(),
-});
-
 export const DiscordConfigSchema = z.object({
-  webhookUrl: z.string().url(),
-});
-
-export const TelegramConfigSchema = z.object({
-  botToken: z.string().min(1),
-  chatId: z.string().min(1),
-});
-
-export const WebhookConfigSchema = z.object({
-  url: z.string().url(),
-});
-
-export const MSTeamsConfigSchema = z.object({
   webhookUrl: z.string().url(),
 });
 
 export const IntegrationConfigSchemas = {
   pushover: PushoverConfigSchema,
-  slack: SlackConfigSchema,
-  discord: DiscordConfigSchema,
-  telegram: TelegramConfigSchema,
-  webhook: WebhookConfigSchema,
-  msteams: MSTeamsConfigSchema,
+  discord: DiscordConfigSchema
 } as const;
 
 export const IntegrationSchema = z
@@ -76,8 +55,4 @@ export type Integration = z.infer<typeof IntegrationSchema>;
 export type IntegrationCreate = z.infer<typeof IntegrationCreateSchema>;
 export type IntegrationUpdate = z.infer<typeof IntegrationUpdateSchema>;
 export type PushoverConfig = z.infer<typeof PushoverConfigSchema>;
-export type SlackConfig = z.infer<typeof SlackConfigSchema>;
 export type DiscordConfig = z.infer<typeof DiscordConfigSchema>;
-export type TelegramConfig = z.infer<typeof TelegramConfigSchema>;
-export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;
-export type MSTeamsConfig = z.infer<typeof MSTeamsConfigSchema>;
