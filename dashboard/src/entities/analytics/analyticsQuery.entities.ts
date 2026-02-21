@@ -1,5 +1,7 @@
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import type { GranularityRangeValues } from '@/utils/granularityRanges';
+import type { QueryFilter } from '@/entities/analytics/filter.entities';
+import type { TimeRangeValue } from '@/utils/timeRanges';
+import type { CompareMode } from '@/utils/compareRanges';
 
 export type BAAnalyticsQuery = {
   startDate: Date;
@@ -10,6 +12,10 @@ export type BAAnalyticsQuery = {
   queryFilters: QueryFilter[];
   timezone: string;
   userJourney: { numberOfSteps: number; numberOfJourneys: number };
+  interval: TimeRangeValue;
+  offset?: number;
+  compare: CompareMode;
+  compareAlignWeekdays?: boolean;
 };
 
 export type BASiteQuery = {

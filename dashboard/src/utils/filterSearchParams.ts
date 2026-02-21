@@ -243,6 +243,10 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
     queryFilters: validated.queryFilters,
     timezone,
     userJourney: validated.userJourney,
+    interval: validated.interval,
+    offset: validated.offset,
+    compare: validated.compare,
+    compareAlignWeekdays: validated.compareAlignWeekdays,
   };
 }
 

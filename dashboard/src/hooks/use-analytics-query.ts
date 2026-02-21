@@ -2,11 +2,24 @@
 
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
+import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export function useAnalyticsQuery(): BAAnalyticsQuery {
-  const { startDate, endDate, granularity, timeZone, compareStartDate, compareEndDate } = useTimeRangeContext();
+  const {
+    startDate,
+    endDate,
+    granularity,
+    timeZone,
+    compareStartDate,
+    compareEndDate,
+    interval,
+    offset,
+    compareMode,
+    compareAlignWeekdays,
+  } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
+  const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
 
   return {
     startDate,
@@ -16,6 +29,10 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
     granularity,
     queryFilters,
     timezone: timeZone,
-    userJourney: { numberOfSteps: 3, numberOfJourneys: 50 },
+    userJourney: { numberOfSteps, numberOfJourneys },
+    interval,
+    offset,
+    compare: compareMode,
+    compareAlignWeekdays,
   };
 }
