@@ -18,19 +18,9 @@ type UserJourneyPageParams = {
 export default async function UserJourneyPage({ params, searchParams }: UserJourneyPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, userJourney, queryFilters } = BAFilterSearchParams.decode(
-    await searchParams,
-    timezone,
-  );
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const userJourneyPromise = fetchUserJourneyAction(
-    dashboardId,
-    startDate,
-    endDate,
-    userJourney?.numberOfSteps,
-    userJourney?.numberOfJourneys,
-    queryFilters,
-  );
+  const userJourneyPromise = fetchUserJourneyAction(dashboardId, query);
 
   const t = await getTranslations('dashboard.sidebar');
   return (

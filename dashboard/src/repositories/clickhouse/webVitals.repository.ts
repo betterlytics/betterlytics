@@ -1,8 +1,6 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { DateTimeString } from '@/types/dates';
 import { BAQuery } from '@/lib/ba-query';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import {
   CoreWebVitalRow,
   CoreWebVitalRowSchema,
@@ -15,13 +13,11 @@ import {
   CoreWebVitalsAllPercentilesPerDimensionRow,
   CoreWebVitalsAllPercentilesPerDimensionRowSchema,
 } from '@/entities/analytics/webVitals.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getCoreWebVitalsP75(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: any[],
-): Promise<CoreWebVitalsSummary> {
+export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`
@@ -71,13 +67,10 @@ export async function getCoreWebVitalsP75(
 }
 
 export async function getAllCoreWebVitalPercentilesSeries(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: any[],
-  timezone: string,
+  siteQuery: BASiteQuery,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -132,23 +125,22 @@ export async function getAllCoreWebVitalPercentilesSeries(
 }
 
 export async function getCoreWebVitalsAllPercentilesByDimension(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: any[],
+  siteQuery: BASiteQuery,
   dimension: CWVDimension,
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`
     WITH metrics AS (
       SELECT
-        CASE 
-          WHEN {dim:String} = 'device_type' THEN device_type 
-          WHEN {dim:String} = 'country_code' THEN country_code 
-          WHEN {dim:String} = 'browser' THEN browser 
-          WHEN {dim:String} = 'os' THEN os 
-          ELSE url 
+        CASE
+          WHEN {dim:String} = 'device_type' THEN device_type
+          WHEN {dim:String} = 'country_code' THEN country_code
+          WHEN {dim:String} = 'browser' THEN browser
+          WHEN {dim:String} = 'os' THEN os
+          ELSE url
         END AS key,
         pair.1 AS name,
         toFloat32(pair.2) AS value
@@ -195,7 +187,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
 export async function hasCoreWebVitalsData(siteId: string): Promise<boolean> {
   const query = safeSql`
     SELECT 1
-    FROM analytics.events 
+    FROM analytics.events
     WHERE site_id = {site_id:String} AND event_type = 'cwv'
     LIMIT 1
   `;

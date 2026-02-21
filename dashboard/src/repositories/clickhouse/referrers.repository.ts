@@ -17,25 +17,20 @@ import {
   DailyReferralSessionDurationRowSchema,
 } from '@/entities/analytics/referrers.entities';
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 /**
  * Get the distribution of referrers by source type using unique sessions
  */
-export async function getReferrerDistribution(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<ReferrerSourceAggregation[]> {
+export async function getReferrerDistribution(siteQuery: BASiteQuery): Promise<ReferrerSourceAggregation[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
-    SELECT 
+    SELECT
       referrer_source,
       uniq(session_id) as visitorCount
     FROM analytics.events
@@ -65,14 +60,9 @@ export async function getReferrerDistribution(
 /**
  * Get the traffic trend for referrers grouped by source with specified granularity
  */
-export async function getReferrerTrafficTrendBySource(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<ReferrerTrafficBySourceRow[]> {
+export async function getReferrerTrafficTrendBySource(siteQuery: BASiteQuery): Promise<ReferrerTrafficBySourceRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -82,7 +72,7 @@ export async function getReferrerTrafficTrendBySource(
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
     safeSql`
-      SELECT 
+      SELECT
         ${granularityFunc('timestamp')} as date,
         referrer_source,
         uniq(session_id) as count
@@ -114,13 +104,9 @@ export async function getReferrerTrafficTrendBySource(
  * Get detailed referrer data for the table display
  * Including visits, bounce rate, and visit duration by referrer source
  */
-export async function getReferrerTableData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-  limit: number = 100,
-): Promise<any[]> {
+export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number = 100): Promise<any[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -142,13 +128,13 @@ export async function getReferrerTableData(
         AND ${SQL.AND(filters)}
       GROUP BY session_id, source_type, source_name, source_url
     )
-    SELECT 
+    SELECT
       source_type,
       source_name,
       source_url,
       count() as visits,
-      if(count() > 0, 
-        round((count() - countIf(page_count > 1)) / count() * 100, 1), 
+      if(count() > 0,
+        round((count() - countIf(page_count > 1)) / count() * 100, 1),
         0
       ) as bounce_rate,
       if(countIf(page_count > 1) > 0,
@@ -179,17 +165,13 @@ export async function getReferrerTableData(
 /**
  * Get top referrer URLs with visit counts
  */
-export async function getTopReferrerUrls(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-  limit: number = 10,
-): Promise<TopReferrerUrl[]> {
+export async function getTopReferrerUrls(siteQuery: BASiteQuery, limit: number = 10): Promise<TopReferrerUrl[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
-    SELECT 
+    SELECT
       referrer_url,
       uniq(session_id) as visits
     FROM analytics.events
@@ -222,17 +204,13 @@ export async function getTopReferrerUrls(
 /**
  * Get top traffic channels (aggregated by referrer_source) with visit counts
  */
-export async function getTopChannels(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-  limit: number = 10,
-): Promise<TopChannel[]> {
+export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10): Promise<TopChannel[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
-    SELECT 
+    SELECT
       referrer_source as channel,
       uniq(session_id) as visits
     FROM analytics.events
@@ -263,17 +241,13 @@ export async function getTopChannels(
 /**
  * Get top referrer sources with visit counts
  */
-export async function getTopReferrerSources(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-  limit: number = 10,
-): Promise<TopReferrerSource[]> {
+export async function getTopReferrerSources(siteQuery: BASiteQuery, limit: number = 10): Promise<TopReferrerSource[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
-    SELECT 
+    SELECT
       referrer_source,
       uniq(session_id) as visits
     FROM analytics.events
@@ -305,14 +279,9 @@ export async function getTopReferrerSources(
 /**
  * Get daily referral sessions chart data (aggregated across all sources)
  */
-export async function getDailyReferralSessions(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailyReferralSessionsRow[]> {
+export async function getDailyReferralSessions(siteQuery: BASiteQuery): Promise<DailyReferralSessionsRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -322,7 +291,7 @@ export async function getDailyReferralSessions(
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
     safeSql`
-      SELECT 
+      SELECT
         ${granularityFunc('timestamp')} as date,
         uniq(session_id) as referralSessions
       FROM analytics.events
@@ -355,13 +324,10 @@ export async function getDailyReferralSessions(
  * Get daily referral traffic percentage chart data
  */
 export async function getDailyReferralTrafficPercentage(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
+  siteQuery: BASiteQuery,
 ): Promise<DailyReferralPercentageRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -372,7 +338,7 @@ export async function getDailyReferralTrafficPercentage(
   const query = timeWrapper(
     safeSql`
       WITH daily_stats AS (
-        SELECT 
+        SELECT
           ${granularityFunc('timestamp')} as date,
           uniq(session_id) as totalSessions,
           uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') as referralSessions
@@ -382,10 +348,10 @@ export async function getDailyReferralTrafficPercentage(
           AND ${SQL.AND(filters)}
         GROUP BY date
       )
-      SELECT 
+      SELECT
         date,
-        if(totalSessions > 0, 
-          round(referralSessions / totalSessions * 100, 1), 
+        if(totalSessions > 0,
+          round(referralSessions / totalSessions * 100, 1),
           0
         ) as referralPercentage
       FROM daily_stats
@@ -412,13 +378,10 @@ export async function getDailyReferralTrafficPercentage(
  * Get daily average session duration chart data for referral traffic
  */
 export async function getDailyReferralSessionDuration(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
+  siteQuery: BASiteQuery,
 ): Promise<DailyReferralSessionDurationRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -429,7 +392,7 @@ export async function getDailyReferralSessionDuration(
   const query = timeWrapper(
     safeSql`
       WITH session_durations AS (
-        SELECT 
+        SELECT
           ${granularityFunc('timestamp')} as date,
           session_id,
           max(timestamp) - min(timestamp) as session_duration_seconds
@@ -441,7 +404,7 @@ export async function getDailyReferralSessionDuration(
           AND ${SQL.AND(filters)}
         GROUP BY date, session_id
       )
-      SELECT 
+      SELECT
         date,
         round(avg(session_duration_seconds), 1) as avgSessionDuration
       FROM session_durations
@@ -468,12 +431,9 @@ export async function getDailyReferralSessionDuration(
 /**
  * Get the top referrer source (excluding direct and internal traffic) for summary display
  */
-export async function getTopReferrerSource(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<string | null> {
+export async function getTopReferrerSource(siteQuery: BASiteQuery): Promise<string | null> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

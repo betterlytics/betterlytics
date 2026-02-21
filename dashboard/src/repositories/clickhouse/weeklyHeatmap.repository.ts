@@ -1,5 +1,4 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
 import {
   HeatmapMetric,
   WeeklyHeatmapRow,
@@ -7,7 +6,7 @@ import {
 } from '@/entities/analytics/weeklyHeatmap.entities';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 function getBaseAggregation(metric: HeatmapMetric) {
   switch (metric) {
@@ -26,19 +25,13 @@ function getBaseAggregation(metric: HeatmapMetric) {
   }
 }
 
-export async function getWeeklyHeatmap(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  metric: HeatmapMetric,
-  queryFilters: QueryFilter[],
-  tz?: string,
-): Promise<WeeklyHeatmapRow[]> {
+export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMetric): Promise<WeeklyHeatmapRow[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const timezone = siteQuery.timezone ?? 'UTC';
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const timezone = tz ?? 'UTC';
 
   if (metric === 'bounce_rate' || metric === 'pages_per_session' || metric === 'session_duration') {
-    // Build from session_data per hour bucket then aggregate by weekday/hour across the range
     const query = safeSql`
       WITH session_data AS (
         WITH

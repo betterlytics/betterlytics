@@ -6,20 +6,13 @@ import {
   RangeSessionMetrics,
   RangeSessionMetricsSchema,
 } from '@/entities/analytics/sessionMetrics.entities';
-import { DateString } from '@/types/dates';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getUniqueVisitors(
-  siteId: string,
-  startDate: DateString,
-  endDate: DateString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailyUniqueVisitorsRow[]> {
+export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUniqueVisitorsRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -31,7 +24,7 @@ export async function getUniqueVisitors(
   const query = timeWrapper(
     safeSql`
       WITH first_visitor_appearances AS (
-        SELECT 
+        SELECT
           visitor_id,
           min(timestamp) as custom_date
         FROM analytics.events
@@ -63,12 +56,9 @@ export async function getUniqueVisitors(
   return result.map((row) => DailyUniqueVisitorsRowSchema.parse(row));
 }
 
-export async function getTotalUniqueVisitors(
-  siteId: string,
-  startDate: DateString,
-  endDate: DateString,
-  queryFilters: QueryFilter[],
-): Promise<number> {
+export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<number> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -92,14 +82,9 @@ export async function getTotalUniqueVisitors(
   return Number(result[0]?.unique_visitors ?? 0);
 }
 
-export async function getSessionMetrics(
-  siteId: string,
-  startDate: DateString,
-  endDate: DateString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailySessionMetricsRow[]> {
+export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
+  const { siteId, queryFilters, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -189,12 +174,9 @@ export async function getSessionMetrics(
   return result.map((row) => DailySessionMetricsRowSchema.parse(row));
 }
 
-export async function getSessionRangeMetrics(
-  siteId: string,
-  startDate: DateString,
-  endDate: DateString,
-  queryFilters: QueryFilter[],
-): Promise<RangeSessionMetrics> {
+export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<RangeSessionMetrics> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`

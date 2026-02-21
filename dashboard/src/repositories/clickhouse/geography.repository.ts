@@ -1,21 +1,16 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
 import { GeoVisitor, GeoVisitorSchema } from '@/entities/analytics/geography.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 /**
  * Retrieves visitor data aggregated by country code
  * @param limit Limit for top countries. Defaults to 1000 to get all countries in practice.
  */
-export async function getVisitorsByCountry(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-  limit: number = 1000,
-): Promise<GeoVisitor[]> {
+export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
+  const { siteId, queryFilters } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

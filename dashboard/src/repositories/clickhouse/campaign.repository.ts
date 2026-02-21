@@ -1,5 +1,4 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
 import {
   RawCampaignData,
   RawCampaignDataArraySchema,
@@ -13,9 +12,9 @@ import {
   UTM_DIMENSION_TO_KEY,
 } from '@/entities/analytics/campaign.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { z } from 'zod';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const UTM_DIMENSION_ALIASES = {
   utm_campaign: 'utm_campaign_name',
@@ -29,8 +28,8 @@ type ValidUTMDimension = keyof typeof UTM_DIMENSION_ALIASES;
 
 async function getCampaignBreakdownByUTMDimension(
   siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  startDate: string,
+  endDate: string,
   utmDimension: ValidUTMDimension,
   campaignName?: string,
 ): Promise<unknown[]> {
@@ -79,20 +78,16 @@ async function getCampaignBreakdownByUTMDimension(
   return resultSet;
 }
 
-export async function getCampaignPerformanceData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-): Promise<RawCampaignData[]> {
+export async function getCampaignPerformanceData(siteQuery: BASiteQuery): Promise<RawCampaignData[]> {
+  const { siteId } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, 'utm_campaign');
   return RawCampaignDataArraySchema.parse(rawData);
 }
 
-export async function getCampaignCount(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-): Promise<number> {
+export async function getCampaignCount(siteQuery: BASiteQuery): Promise<number> {
+  const { siteId } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const query = safeSql`
     SELECT
       COUNT(DISTINCT utm_campaign) AS total_campaigns
@@ -123,12 +118,12 @@ export async function getCampaignCount(
 }
 
 export async function getCampaignPerformancePageData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   limit: number,
   offset: number,
 ): Promise<RawCampaignData[]> {
+  const { siteId } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const query = safeSql`
     SELECT
       s.utm_campaign AS utm_campaign_name,
@@ -173,12 +168,12 @@ export async function getCampaignPerformancePageData(
 }
 
 export async function getCampaignUTMBreakdownData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   dimension: UTMDimension,
   campaignName?: string,
 ): Promise<RawCampaignUTMBreakdownItem[]> {
+  const { siteId } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const utmKey = UTM_DIMENSION_TO_KEY[dimension] as ValidUTMDimension;
   const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDate, endDate, utmKey, campaignName);
   return RawCampaignUTMBreakdownArraySchema.parse(
@@ -190,11 +185,11 @@ export async function getCampaignUTMBreakdownData(
 }
 
 export async function getCampaignLandingPagePerformanceData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   campaignName?: string,
 ): Promise<RawCampaignLandingPagePerformanceItem[]> {
+  const { siteId } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const campaignFilter = campaignName ? safeSql`AND e.utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = safeSql`
@@ -242,16 +237,15 @@ export async function getCampaignLandingPagePerformanceData(
 }
 
 export async function getCampaignVisitorTrendData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  timezone: string,
+  siteQuery: BASiteQuery,
   campaignNames: string[],
 ): Promise<CampaignTrendRow[]> {
   if (campaignNames.length === 0) {
     return [];
   }
+
+  const { siteId, granularity, timezone } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
 
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -304,22 +298,22 @@ const CampaignAudienceProfileRowSchema = z.object({
 type CampaignAudienceProfileRow = z.infer<typeof CampaignAudienceProfileRowSchema>;
 
 export async function getCampaignAudienceProfileData(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   campaignName: string | undefined,
   limitPerDimension: number,
 ): Promise<CampaignAudienceProfileRow[]> {
+  const { siteId } = siteQuery;
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = safeSql`
-    SELECT 
+    SELECT
       dim.1 AS dimension,
       dim.2 AS label,
       uniq(visitor_id) AS visitors
     FROM
     (
-      SELECT 
+      SELECT
         visitor_id,
         [
           ('device', device_type),

@@ -16,7 +16,6 @@ import {
 } from '@/repositories/clickhouse/index.repository';
 import { getSessionMetrics } from '@/repositories/clickhouse/visitors.repository';
 import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   PageAnalytics,
   TopPageRow,
@@ -27,149 +26,56 @@ import {
   PagesSummaryWithCharts,
   PagesSummaryWithChartsSchema,
 } from '@/entities/analytics/pages.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getTotalPageViewsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<TotalPageViewsRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getTotalPageViews(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
+export async function getTotalPageViewsForSite(siteQuery: BASiteQuery): Promise<TotalPageViewsRow[]> {
+  return getTotalPageViews(siteQuery);
 }
 
-export async function getPageViewsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  timezone: string,
-): Promise<DailyPageViewRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getPageViews(siteId, formattedStart, formattedEnd, granularity, timezone);
+export async function getPageViewsForSite(siteQuery: BASiteQuery): Promise<DailyPageViewRow[]> {
+  return getPageViews(siteQuery);
 }
 
-export async function getTopPagesForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  limit = 5,
-  queryFilters: QueryFilter[] = [],
-): Promise<TopPageRow[]> {
-  return getTopPages(siteId, toDateTimeString(startDate), toDateTimeString(endDate), limit, queryFilters);
+export async function getTopPagesForSite(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
+  return getTopPages(siteQuery, limit);
 }
 
-export async function getPageAnalytics(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<PageAnalytics[]> {
-  return getPageMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+export async function getPageAnalytics(siteQuery: BASiteQuery): Promise<PageAnalytics[]> {
+  return getPageMetrics(siteQuery);
 }
 
-export async function getPageDetail(
-  siteId: string,
-  path: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<PageAnalytics | null> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getPageDetailMetrics(siteId, path, formattedStart, formattedEnd);
+export async function getPageDetail(siteQuery: BASiteQuery, path: string): Promise<PageAnalytics | null> {
+  return getPageDetailMetrics(siteQuery, path);
 }
 
-export async function getPageTrafficForTimePeriod(
-  siteId: string,
-  path: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  timezone: string,
-): Promise<TotalPageViewsRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getPageTrafficTimeSeries(siteId, path, formattedStart, formattedEnd, granularity, timezone);
+export async function getPageTrafficForTimePeriod(siteQuery: BASiteQuery, path: string): Promise<TotalPageViewsRow[]> {
+  return getPageTrafficTimeSeries(siteQuery, path);
 }
 
-export async function getTopEntryPagesForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  limit = 5,
-  queryFilters: QueryFilter[] = [],
-): Promise<TopEntryPageRow[]> {
-  return getTopEntryPages(siteId, toDateTimeString(startDate), toDateTimeString(endDate), limit, queryFilters);
+export async function getTopEntryPagesForSite(siteQuery: BASiteQuery, limit = 5): Promise<TopEntryPageRow[]> {
+  return getTopEntryPages(siteQuery, limit);
 }
 
-export async function getTopExitPagesForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  limit = 5,
-  queryFilters: QueryFilter[] = [],
-): Promise<TopExitPageRow[]> {
-  return getTopExitPages(siteId, toDateTimeString(startDate), toDateTimeString(endDate), limit, queryFilters);
+export async function getTopExitPagesForSite(siteQuery: BASiteQuery, limit = 5): Promise<TopExitPageRow[]> {
+  return getTopExitPages(siteQuery, limit);
 }
 
-export async function getEntryPageAnalyticsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<PageAnalytics[]> {
-  return getEntryPageAnalyticsRepo(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    100,
-    queryFilters,
-  );
+export async function getEntryPageAnalyticsForSite(siteQuery: BASiteQuery): Promise<PageAnalytics[]> {
+  return getEntryPageAnalyticsRepo(siteQuery, 100);
 }
 
-export async function getExitPageAnalyticsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<PageAnalytics[]> {
-  return getExitPageAnalyticsRepo(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    100,
-    queryFilters,
-  );
+export async function getExitPageAnalyticsForSite(siteQuery: BASiteQuery): Promise<PageAnalytics[]> {
+  return getExitPageAnalyticsRepo(siteQuery, 100);
 }
 
-export async function getPagesSummaryWithChartsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<PagesSummaryWithCharts> {
+export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): Promise<PagesSummaryWithCharts> {
   const [pageAnalytics, pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] =
     await Promise.all([
-      getPageAnalytics(siteId, startDate, endDate, queryFilters),
-      getTotalPageViewsForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
-      getDailyAverageTimeOnPageForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
-      getDailyBounceRateForSite(siteId, startDate, endDate, granularity, queryFilters, timezone),
-      getSessionMetrics(
-        siteId,
-        toDateTimeString(startDate),
-        toDateTimeString(endDate),
-        granularity,
-        queryFilters,
-        timezone,
-      ),
+      getPageAnalytics(siteQuery),
+      getTotalPageViewsForSite(siteQuery),
+      getDailyAverageTimeOnPageForSite(siteQuery),
+      getDailyBounceRateForSite(siteQuery),
+      getSessionMetrics(siteQuery),
     ]);
 
   const totalPages = pageAnalytics.length;
@@ -210,28 +116,10 @@ export async function getPagesSummaryWithChartsForSite(
   });
 }
 
-export async function getDailyAverageTimeOnPageForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailyAverageTimeRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getDailyAverageTimeOnPage(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
+export async function getDailyAverageTimeOnPageForSite(siteQuery: BASiteQuery): Promise<DailyAverageTimeRow[]> {
+  return getDailyAverageTimeOnPage(siteQuery);
 }
 
-export async function getDailyBounceRateForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailyBounceRateRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getDailyBounceRate(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone);
+export async function getDailyBounceRateForSite(siteQuery: BASiteQuery): Promise<DailyBounceRateRow[]> {
+  return getDailyBounceRate(siteQuery);
 }

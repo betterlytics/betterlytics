@@ -5,6 +5,7 @@ import { getTotalUniqueVisitors, getSessionRangeMetrics } from '@/repositories/c
 import { getTopReferrerSources } from '@/repositories/clickhouse/referrers.repository';
 import { getTotalPageviewsCount, getTopPagesWithPageviews } from '@/repositories/clickhouse/reports.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
+import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export interface ReportMetrics {
   visitors: number;
@@ -114,10 +115,29 @@ async function getReportDataForPeriod(
   comparisonStart: Date,
   comparisonEnd: Date,
 ): Promise<ReportData> {
-  const currentStartStr = toDateTimeString(currentStart);
-  const currentEndStr = toDateTimeString(currentEnd);
-  const comparisonStartStr = toDateTimeString(comparisonStart);
-  const comparisonEndStr = toDateTimeString(comparisonEnd);
+  const baseSiteQuery: Omit<BASiteQuery, 'startDate' | 'endDate' | 'startDateTime' | 'endDateTime'> = {
+    siteId,
+    granularity: 'day',
+    queryFilters: [],
+    timezone: 'UTC',
+    userJourney: { numberOfSteps: 3, numberOfJourneys: 5 },
+  };
+
+  const currentQuery: BASiteQuery = {
+    ...baseSiteQuery,
+    startDate: currentStart,
+    endDate: currentEnd,
+    startDateTime: toDateTimeString(currentStart),
+    endDateTime: toDateTimeString(currentEnd),
+  };
+
+  const comparisonQuery: BASiteQuery = {
+    ...baseSiteQuery,
+    startDate: comparisonStart,
+    endDate: comparisonEnd,
+    startDateTime: toDateTimeString(comparisonStart),
+    endDateTime: toDateTimeString(comparisonEnd),
+  };
 
   const [
     currentVisitors,
@@ -129,14 +149,14 @@ async function getReportDataForPeriod(
     topPages,
     topSources,
   ] = await Promise.all([
-    getTotalUniqueVisitors(siteId, currentStartStr, currentEndStr, []),
-    getTotalUniqueVisitors(siteId, comparisonStartStr, comparisonEndStr, []),
-    getTotalPageviewsCount(siteId, currentStartStr, currentEndStr, []),
-    getTotalPageviewsCount(siteId, comparisonStartStr, comparisonEndStr, []),
-    getSessionRangeMetrics(siteId, currentStartStr, currentEndStr, []),
-    getSessionRangeMetrics(siteId, comparisonStartStr, comparisonEndStr, []),
-    getTopPagesWithPageviews(siteId, currentStartStr, currentEndStr, 10, []),
-    getTopReferrerSources(siteId, currentStartStr, currentEndStr, [], 10),
+    getTotalUniqueVisitors(currentQuery),
+    getTotalUniqueVisitors(comparisonQuery),
+    getTotalPageviewsCount(currentQuery),
+    getTotalPageviewsCount(comparisonQuery),
+    getSessionRangeMetrics(currentQuery),
+    getSessionRangeMetrics(comparisonQuery),
+    getTopPagesWithPageviews(currentQuery, 10),
+    getTopReferrerSources(currentQuery, 10),
   ]);
 
   const metrics: ReportMetrics = {
