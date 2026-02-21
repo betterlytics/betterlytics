@@ -129,6 +129,9 @@ impl IntegrationCache {
             .into_iter()
             .collect();
 
+        let updated_ids: std::collections::HashSet<String> =
+            updates.iter().map(|r| r.id.clone()).collect();
+
         let enabled_updates: Vec<_> = updates.into_iter().filter(|r| r.enabled).collect();
         let updates_map = Self::build_map(enabled_updates);
 
@@ -136,13 +139,25 @@ impl IntegrationCache {
             let mut new_map = (**current).clone();
 
             for dashboard_id in &affected_dashboard_ids {
-                match updates_map.get(dashboard_id) {
-                    Some(new_entries) => {
-                        new_map.insert(dashboard_id.clone(), new_entries.clone());
-                    }
-                    None => {
-                        new_map.remove(dashboard_id);
-                    }
+                let mut entries: Vec<Arc<IntegrationConfig>> = new_map
+                    .get(dashboard_id)
+                    .map(|existing| {
+                        existing
+                            .iter()
+                            .filter(|e| !updated_ids.contains(&e.id))
+                            .cloned()
+                            .collect()
+                    })
+                    .unwrap_or_default();
+
+                if let Some(new_entries) = updates_map.get(dashboard_id) {
+                    entries.extend(new_entries.iter().cloned());
+                }
+
+                if entries.is_empty() {
+                    new_map.remove(dashboard_id);
+                } else {
+                    new_map.insert(dashboard_id.clone(), entries);
                 }
             }
 

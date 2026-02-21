@@ -9,5 +9,4 @@ CREATE TABLE IF NOT EXISTS analytics.notification_history
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMM(ts)
-ORDER BY (dashboard_id, ts)
-TTL ts + INTERVAL 90 DAY;
+ORDER BY (dashboard_id, ts);

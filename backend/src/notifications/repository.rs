@@ -67,6 +67,7 @@ impl TryFrom<Row> for IntegrationRecord {
 #[async_trait]
 pub trait IntegrationDataSource: Send + Sync + 'static {
     async fn fetch_all_integrations(&self) -> Result<Vec<IntegrationRecord>, PostgresError>;
+
     async fn fetch_integrations_updated_since(
         &self,
         since: DateTime<Utc>,
