@@ -235,18 +235,8 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
   const validated = result.success ? result.data : getDefaultFilters();
 
   return {
-    startDate: validated.startDate,
-    endDate: validated.endDate,
-    compareStartDate: validated.compareStartDate,
-    compareEndDate: validated.compareEndDate,
-    granularity: validated.granularity,
-    queryFilters: validated.queryFilters,
+    ...validated,
     timezone,
-    userJourney: validated.userJourney,
-    interval: validated.interval,
-    offset: validated.offset,
-    compare: validated.compare,
-    compareAlignWeekdays: validated.compareAlignWeekdays,
   };
 }
 
