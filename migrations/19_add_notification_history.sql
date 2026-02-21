@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS analytics.notification_history
 (
     ts               DateTime64(3) DEFAULT now(),
     dashboard_id     String,
+    event_key        String,
     integration_type LowCardinality(String),
     title            String,
     status           LowCardinality(String),  -- sent, failed

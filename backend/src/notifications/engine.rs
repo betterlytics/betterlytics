@@ -41,6 +41,7 @@ impl NotificationEngine {
         cache: Arc<IntegrationCache>,
         history_writer: Option<Arc<NotificationHistoryWriter>>,
         pushover_app_token: Option<String>,
+        seeded_keys: impl IntoIterator<Item = String>,
     ) -> Self {
         let mut notifiers: HashMap<String, Arc<dyn Notifier>> = HashMap::new();
 
@@ -49,8 +50,13 @@ impl NotificationEngine {
             notifiers.insert(pushover.integration_type().to_string(), pushover);
         }
 
+        let now = Instant::now();
+        let delivery_log: HashMap<String, Instant> =
+            seeded_keys.into_iter().map(|key| (key, now)).collect();
+
         info!(
-            registered = notifiers.len(),
+            registered_notifiers = notifiers.len(),
+            seeded_keys = delivery_log.len(),
             "notification engine initialized"
         );
 
@@ -58,7 +64,7 @@ impl NotificationEngine {
             cache,
             notifiers,
             history_writer,
-            delivery_log: RwLock::new(HashMap::new()),
+            delivery_log: RwLock::new(delivery_log),
         }
     }
 
@@ -126,6 +132,7 @@ impl NotificationEngine {
 
             self.record_history(
                 &event.dashboard_id,
+                &event.event_key,
                 integration_type,
                 &event.notification.title,
                 status,
@@ -188,6 +195,7 @@ impl NotificationEngine {
     fn record_history(
         &self,
         dashboard_id: &str,
+        event_key: &str,
         integration_type: &str,
         title: &str,
         status: &str,
@@ -200,6 +208,7 @@ impl NotificationEngine {
         let row = super::history::NotificationHistoryRow {
             ts: chrono::Utc::now(),
             dashboard_id: dashboard_id.to_string(),
+            event_key: event_key.to_string(),
             integration_type: integration_type.to_string(),
             title: title.to_string(),
             status: status.to_string(),

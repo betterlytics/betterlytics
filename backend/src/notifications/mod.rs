@@ -29,6 +29,14 @@ pub async fn initialize_notification_engine(
 
     let cache = IntegrationCache::initialize(data_source, IntegrationCacheConfig::default()).await?;
 
+    let seeded_keys = match history::load_recent_event_keys(&clickhouse).await {
+        Ok(keys) => keys,
+        Err(err) => {
+            warn!(error = ?err, "Failed to seed delivery log from history - starting fresh");
+            std::collections::HashSet::new()
+        }
+    };
+
     let history_writer = match new_notification_history_writer(
         clickhouse,
         "analytics.notification_history",
@@ -44,5 +52,6 @@ pub async fn initialize_notification_engine(
         cache,
         history_writer,
         config.pushover_app_token.clone(),
+        seeded_keys,
     )))
 }
