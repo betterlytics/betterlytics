@@ -41,7 +41,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
       return {
         async toPromise(): Promise<unknown[]> {
           const resultSet = await client.query({
-            query: sql,
+            query: sql.replaceAll(';', ''),
             query_params: params,
             format,
           });
