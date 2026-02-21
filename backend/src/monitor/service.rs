@@ -14,7 +14,7 @@ use crate::monitor::incident::{
     MonitorIncidentRow,
 };
 use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
-use crate::notifications::{Notification, NotificationEngine};
+use crate::notifications::{DeliveryStrategy, Notification, NotificationEngine, NotificationEvent};
 
 #[derive(Clone, Debug)]
 pub struct IncidentContext {
@@ -203,9 +203,27 @@ impl IncidentOrchestrator {
             return;
         }
 
+        self.send_push_notification(
+            NotificationEvent {
+                dashboard_id: ctx.check.dashboard_id.clone(),
+                event_key: format!("monitor_down:{incident_id}"),
+                strategy: DeliveryStrategy::Once,
+                notification: Notification {
+                    title: format!("{} is down", ctx.monitor_name()),
+                    message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
+                    url: Some(format!(
+                        "{}/dashboard/{}",
+                        self.public_base_url,
+                        ctx.check.dashboard_id
+                    )),
+                    url_title: Some("View Dashboard".to_string()),
+                },
+            },
+        )
+        .await;
+
         let recipients = &alert_config.recipients;
         if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
             return;
         }
 
@@ -237,21 +255,6 @@ impl IncidentOrchestrator {
                 "Down alert sent"
             );
         }
-
-        self.send_push_notification(
-            &ctx.check.dashboard_id,
-            Notification {
-                title: format!("{} is down", ctx.monitor_name()),
-                message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
-                url: Some(format!(
-                    "{}/dashboard/{}",
-                    self.public_base_url,
-                    ctx.check.dashboard_id
-                )),
-                url_title: Some("View Dashboard".to_string()),
-            },
-        )
-        .await;
     }
 
     #[tracing::instrument(
@@ -293,9 +296,36 @@ impl IncidentOrchestrator {
             return;
         }
 
+        let downtime_msg = downtime_duration
+            .map(|d| format!(" after {}", humanize_duration(d)))
+            .unwrap_or_default();
+
+        self.send_push_notification(
+            NotificationEvent {
+                dashboard_id: ctx.check.dashboard_id.clone(),
+                event_key: format!("monitor_recovery:{incident_id}"),
+                strategy: DeliveryStrategy::Once,
+                notification: Notification {
+                    title: format!("{} is back up", ctx.monitor_name()),
+                    message: format!(
+                        "{} ({}) has recovered{}",
+                        ctx.monitor_name(),
+                        ctx.check.url,
+                        downtime_msg,
+                    ),
+                    url: Some(format!(
+                        "{}/dashboard/{}",
+                        self.public_base_url,
+                        ctx.check.dashboard_id
+                    )),
+                    url_title: Some("View Dashboard".to_string()),
+                },
+            },
+        )
+        .await;
+
         let recipients = &alert_config.recipients;
         if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
             return;
         }
 
@@ -325,30 +355,6 @@ impl IncidentOrchestrator {
                 "Recovery alert sent"
             );
         }
-
-        let downtime_msg = downtime_duration
-            .map(|d| format!(" after {}", humanize_duration(d)))
-            .unwrap_or_default();
-
-        self.send_push_notification(
-            &ctx.check.dashboard_id,
-            Notification {
-                title: format!("{} is back up", ctx.monitor_name()),
-                message: format!(
-                    "{} ({}) has recovered{}",
-                    ctx.monitor_name(),
-                    ctx.check.url,
-                    downtime_msg,
-                ),
-                url: Some(format!(
-                    "{}/dashboard/{}",
-                    self.public_base_url,
-                    ctx.check.dashboard_id
-                )),
-                url_title: Some("View Dashboard".to_string()),
-            },
-        )
-        .await;
     }
 
     #[tracing::instrument(
@@ -380,10 +386,48 @@ impl IncidentOrchestrator {
             return;
         }
 
-        let recipients = &alert_config.recipients;
+        let (ssl_title, ssl_message) = if expired {
+            (
+                format!("SSL certificate expired for {}", ctx.monitor_name()),
+                format!(
+                    "The SSL certificate for {} ({}) has expired",
+                    ctx.monitor_name(),
+                    ctx.check.url,
+                ),
+            )
+        } else {
+            (
+                format!("SSL certificate expiring for {}", ctx.monitor_name()),
+                format!(
+                    "The SSL certificate for {} ({}) expires in {} days",
+                    ctx.monitor_name(),
+                    ctx.check.url,
+                    days_left,
+                ),
+            )
+        };
 
+        self.send_push_notification(
+            NotificationEvent {
+                dashboard_id: ctx.check.dashboard_id.clone(),
+                event_key: format!("ssl_{}:{}", if expired { "expired" } else { "expiring" }, ctx.check.id),
+                strategy: DeliveryStrategy::Once,
+                notification: Notification {
+                    title: ssl_title,
+                    message: ssl_message,
+                    url: Some(format!(
+                        "{}/dashboard/{}",
+                        self.public_base_url,
+                        ctx.check.dashboard_id
+                    )),
+                    url_title: Some("View Dashboard".to_string()),
+                },
+            },
+        )
+        .await;
+
+        let recipients = &alert_config.recipients;
         if recipients.is_empty() {
-            debug!("no recipients configured - skipping notification");
             return;
         }
 
@@ -423,42 +467,6 @@ impl IncidentOrchestrator {
                 "SSL alert sent"
             );
         }
-
-        let (ssl_title, ssl_message) = if expired {
-            (
-                format!("SSL certificate expired for {}", ctx.monitor_name()),
-                format!(
-                    "The SSL certificate for {} ({}) has expired",
-                    ctx.monitor_name(),
-                    ctx.check.url,
-                ),
-            )
-        } else {
-            (
-                format!("SSL certificate expiring for {}", ctx.monitor_name()),
-                format!(
-                    "The SSL certificate for {} ({}) expires in {} days",
-                    ctx.monitor_name(),
-                    ctx.check.url,
-                    days_left,
-                ),
-            )
-        };
-
-        self.send_push_notification(
-            &ctx.check.dashboard_id,
-            Notification {
-                title: ssl_title,
-                message: ssl_message,
-                url: Some(format!(
-                    "{}/dashboard/{}",
-                    self.public_base_url,
-                    ctx.check.dashboard_id
-                )),
-                url_title: Some("View Dashboard".to_string()),
-            },
-        )
-        .await;
     }
 
     pub async fn prune_inactive(&self, active_ids: &HashSet<String>) {
@@ -466,9 +474,9 @@ impl IncidentOrchestrator {
         self.notification_tracker.prune_inactive(active_ids);
     }
 
-    async fn send_push_notification(&self, dashboard_id: &str, notification: Notification) {
+    async fn send_push_notification(&self, event: NotificationEvent) {
         if let Some(engine) = &self.notification_engine {
-            engine.notify(dashboard_id, &notification).await;
+            engine.notify(event).await;
         }
     }
 

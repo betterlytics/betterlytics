@@ -14,7 +14,7 @@ use crate::config::Config;
 use crate::postgres::PostgresPool;
 
 pub use cache::{IntegrationCache, IntegrationCacheConfig};
-pub use engine::NotificationEngine;
+pub use engine::{DeliveryStrategy, NotificationEngine, NotificationEvent};
 pub use history::new_notification_history_writer;
 pub use notifier::Notification;
 pub use repository::{IntegrationDataSource, IntegrationRepository};

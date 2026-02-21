@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 
+use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
 use super::cache::IntegrationCache;
@@ -11,10 +13,27 @@ use super::notifier::{Notification, Notifier};
 const MAX_RETRIES: u32 = 2;
 const RETRY_DELAY_MS: u64 = 500;
 
+#[derive(Debug, Clone)]
+pub enum DeliveryStrategy {
+    /// Send once per event key. Never re-sends for the same key
+    Once,
+    /// Send at most once per cooldown period
+    Cooldown(Duration),
+}
+
+pub struct NotificationEvent {
+    pub dashboard_id: String,
+    /// Unique key for deduplication
+    pub event_key: String,
+    pub strategy: DeliveryStrategy,
+    pub notification: Notification,
+}
+
 pub struct NotificationEngine {
     cache: Arc<IntegrationCache>,
     notifiers: HashMap<String, Arc<dyn Notifier>>,
     history_writer: Option<Arc<NotificationHistoryWriter>>,
+    delivery_log: RwLock<HashMap<String, Instant>>,
 }
 
 impl NotificationEngine {
@@ -39,15 +58,24 @@ impl NotificationEngine {
             cache,
             notifiers,
             history_writer,
+            delivery_log: RwLock::new(HashMap::new()),
         }
     }
 
-    pub async fn notify(&self, dashboard_id: &str, notification: &Notification) -> usize {
-        let integrations = self.cache.get(dashboard_id);
+    pub async fn notify(&self, event: NotificationEvent) -> usize {
+        if !self.should_deliver(&event).await {
+            debug!(
+                event_key = %event.event_key,
+                "notification deduplicated - skipping"
+            );
+            return 0;
+        }
+
+        let integrations = self.cache.get(&event.dashboard_id);
 
         if integrations.is_empty() {
             debug!(
-                dashboard_id = %dashboard_id,
+                dashboard_id = %event.dashboard_id,
                 "no integrations configured - skipping notification"
             );
             return 0;
@@ -58,10 +86,13 @@ impl NotificationEngine {
             .filter_map(|integration| {
                 let notifier = self.notifiers.get(&integration.integration_type)?;
                 Some(async {
-                    let result =
-                        Self::send_with_retry(notifier.as_ref(), &integration.config, notification)
-                            .await;
-                    (&integration.integration_type, &integration.config, result)
+                    let result = Self::send_with_retry(
+                        notifier.as_ref(),
+                        &integration.config,
+                        &event.notification,
+                    )
+                    .await;
+                    (&integration.integration_type, result)
                 })
             })
             .collect();
@@ -69,21 +100,23 @@ impl NotificationEngine {
         let results = futures::future::join_all(futures).await;
 
         let mut sent = 0;
-        for (integration_type, _config, result) in &results {
+        for (integration_type, result) in &results {
             let (status, error_message) = match result {
                 Ok(()) => {
                     sent += 1;
                     info!(
-                        dashboard_id = %dashboard_id,
+                        dashboard_id = %event.dashboard_id,
                         integration_type = %integration_type,
+                        event_key = %event.event_key,
                         "notification sent"
                     );
                     ("sent", None)
                 }
                 Err(err) => {
                     error!(
-                        dashboard_id = %dashboard_id,
+                        dashboard_id = %event.dashboard_id,
                         integration_type = %integration_type,
+                        event_key = %event.event_key,
                         error = ?err,
                         "failed to send notification"
                     );
@@ -92,15 +125,35 @@ impl NotificationEngine {
             };
 
             self.record_history(
-                dashboard_id,
+                &event.dashboard_id,
                 integration_type,
-                &notification.title,
+                &event.notification.title,
                 status,
                 error_message,
             );
         }
 
+        if sent > 0 {
+            self.mark_delivered(&event.event_key).await;
+        }
+
         sent
+    }
+
+    async fn should_deliver(&self, event: &NotificationEvent) -> bool {
+        let log = self.delivery_log.read().await;
+        match log.get(&event.event_key) {
+            None => true,
+            Some(last_sent) => match &event.strategy {
+                DeliveryStrategy::Once => false,
+                DeliveryStrategy::Cooldown(duration) => last_sent.elapsed() >= *duration,
+            },
+        }
+    }
+
+    async fn mark_delivered(&self, event_key: &str) {
+        let mut log = self.delivery_log.write().await;
+        log.insert(event_key.to_string(), Instant::now());
     }
 
     async fn send_with_retry(
