@@ -4,16 +4,8 @@ use async_trait::async_trait;
 pub struct Notification {
     pub title: String,
     pub message: String,
-    pub priority: NotificationPriority,
     pub url: Option<String>,
     pub url_title: Option<String>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum NotificationPriority {
-    Low,
-    Normal,
-    High,
 }
 
 #[derive(Debug, thiserror::Error)]

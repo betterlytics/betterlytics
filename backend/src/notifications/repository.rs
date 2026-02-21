@@ -8,6 +8,8 @@ use tracing::warn;
 
 use crate::postgres::{PostgresError, PostgresPool};
 
+use super::crypto;
+
 const SELECT_ENABLED: &str = r#"
 SELECT
     "id",
@@ -43,15 +45,19 @@ pub struct IntegrationRecord {
     pub updated_at: DateTime<Utc>,
 }
 
-impl TryFrom<Row> for IntegrationRecord {
-    type Error = String;
-
-    fn try_from(row: Row) -> Result<Self, Self::Error> {
+impl IntegrationRecord {
+    fn try_from_row(row: Row, encryption_key: Option<&str>) -> Result<Self, String> {
         let id: String = row.try_get("id").map_err(|e| e.to_string())?;
         let config_str: String = row.try_get("config").map_err(|e| e.to_string())?;
-        let config: serde_json::Value = serde_json::from_str(&config_str)
+        let raw_config: serde_json::Value = serde_json::from_str(&config_str)
             .map_err(|e| format!("malformed config JSON for integration {id}: {e}"))?;
         let updated_at: NaiveDateTime = row.try_get("updated_at").map_err(|e| e.to_string())?;
+
+        let config = match encryption_key {
+            Some(key) => crypto::decrypt_config(&raw_config, key)
+                .map_err(|e| format!("failed to decrypt config for integration {id}: {e}"))?,
+            None => raw_config,
+        };
 
         Ok(Self {
             id,
@@ -76,17 +82,24 @@ pub trait IntegrationDataSource: Send + Sync + 'static {
 
 pub struct IntegrationRepository {
     pool: Arc<PostgresPool>,
+    encryption_key: Option<String>,
 }
 
 impl IntegrationRepository {
-    pub fn new(pool: Arc<PostgresPool>) -> Self {
-        Self { pool }
+    pub fn new(pool: Arc<PostgresPool>, encryption_key: Option<String>) -> Self {
+        Self {
+            pool,
+            encryption_key,
+        }
     }
 
-    fn rowset_to_records(rows: Vec<Row>) -> Result<Vec<IntegrationRecord>, PostgresError> {
+    fn rowset_to_records(
+        &self,
+        rows: Vec<Row>,
+    ) -> Result<Vec<IntegrationRecord>, PostgresError> {
         let mut records = Vec::with_capacity(rows.len());
         for row in rows {
-            match IntegrationRecord::try_from(row) {
+            match IntegrationRecord::try_from_row(row, self.encryption_key.as_deref()) {
                 Ok(record) => records.push(record),
                 Err(err) => {
                     warn!(error = ?err, "skipping integration row due to parse error");
@@ -103,7 +116,7 @@ impl IntegrationDataSource for IntegrationRepository {
         let conn = self.pool.connection().await?;
         let query = format!("{SELECT_ENABLED}{ORDER_BY_UPDATED_AT}");
         let rows = conn.query(&query, &[]).await?;
-        Self::rowset_to_records(rows)
+        self.rowset_to_records(rows)
     }
 
     async fn fetch_integrations_updated_since(
@@ -115,6 +128,6 @@ impl IntegrationDataSource for IntegrationRepository {
             r#"{SELECT_ALL} WHERE "updatedAt" > $1{ORDER_BY_UPDATED_AT}"#
         );
         let rows = conn.query(&query, &[&since.naive_utc()]).await?;
-        Self::rowset_to_records(rows)
+        self.rowset_to_records(rows)
     }
 }

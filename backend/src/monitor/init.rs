@@ -128,7 +128,7 @@ async fn run_monitoring_init_loop(
             }
         };
 
-        let notification_engine = match initialize_notification_engine(Arc::clone(&monitor_pool), Arc::clone(&clickhouse)).await
+        let notification_engine = match initialize_notification_engine(Arc::clone(&monitor_pool), Arc::clone(&clickhouse), &config).await
         {
             Ok(engine) => {
                 info!("Notification engine initialized");
@@ -186,9 +186,10 @@ async fn run_monitoring_init_loop(
 async fn initialize_notification_engine(
     pool: Arc<PostgresPool>,
     clickhouse: Arc<ClickHouseClient>,
+    config: &Config,
 ) -> Result<Arc<NotificationEngine>, Box<dyn std::error::Error + Send + Sync>> {
     let data_source: Arc<dyn crate::notifications::IntegrationDataSource> =
-        Arc::new(IntegrationRepository::new(pool));
+        Arc::new(IntegrationRepository::new(pool, config.nextauth_secret.clone()));
 
     let cache = IntegrationCache::initialize(data_source, IntegrationCacheConfig::default()).await?;
 
@@ -203,5 +204,9 @@ async fn initialize_notification_engine(
         }
     };
 
-    Ok(Arc::new(NotificationEngine::new(cache, history_writer)))
+    Ok(Arc::new(NotificationEngine::new(
+        cache,
+        history_writer,
+        config.pushover_app_token.clone(),
+    )))
 }

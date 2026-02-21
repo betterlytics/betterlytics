@@ -46,6 +46,10 @@ pub struct Config {
     pub public_base_url: String,
     // Email configuration (None = email disabled)
     pub email: Option<EmailConfig>,
+    // Integration config encryption key
+    pub nextauth_secret: Option<String>,
+    // Pushover integration
+    pub pushover_app_token: Option<String>,
 }
 
 impl Config {
@@ -130,6 +134,10 @@ impl Config {
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
             // Email configuration (None = email disabled)
             email: EmailConfig::from_env(),
+            // Integration config encryption key
+            nextauth_secret: env::var("NEXTAUTH_SECRET").ok(),
+            // Pushover integration
+            pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
         }
     }
 }

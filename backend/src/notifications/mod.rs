@@ -1,4 +1,5 @@
 mod cache;
+mod crypto;
 mod engine;
 mod history;
 mod integrations;
@@ -8,5 +9,5 @@ mod repository;
 pub use cache::{IntegrationCache, IntegrationCacheConfig};
 pub use engine::NotificationEngine;
 pub use history::new_notification_history_writer;
-pub use notifier::{Notification, NotificationPriority};
+pub use notifier::Notification;
 pub use repository::{IntegrationDataSource, IntegrationRepository};

@@ -21,11 +21,14 @@ impl NotificationEngine {
     pub fn new(
         cache: Arc<IntegrationCache>,
         history_writer: Option<Arc<NotificationHistoryWriter>>,
+        pushover_app_token: Option<String>,
     ) -> Self {
         let mut notifiers: HashMap<String, Arc<dyn Notifier>> = HashMap::new();
 
-        let pushover = Arc::new(PushoverNotifier::new());
-        notifiers.insert(pushover.integration_type().to_string(), pushover);
+        if let Some(token) = pushover_app_token {
+            let pushover = Arc::new(PushoverNotifier::new(token));
+            notifiers.insert(pushover.integration_type().to_string(), pushover);
+        }
 
         info!(
             registered = notifiers.len(),

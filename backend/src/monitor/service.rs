@@ -14,7 +14,7 @@ use crate::monitor::incident::{
     MonitorIncidentRow,
 };
 use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
-use crate::notifications::{Notification, NotificationEngine, NotificationPriority};
+use crate::notifications::{Notification, NotificationEngine};
 
 #[derive(Clone, Debug)]
 pub struct IncidentContext {
@@ -243,7 +243,6 @@ impl IncidentOrchestrator {
             Notification {
                 title: format!("{} is down", ctx.monitor_name()),
                 message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
-                priority: NotificationPriority::High,
                 url: Some(format!(
                     "{}/dashboard/{}",
                     self.public_base_url,
@@ -341,7 +340,6 @@ impl IncidentOrchestrator {
                     ctx.check.url,
                     downtime_msg,
                 ),
-                priority: NotificationPriority::Normal,
                 url: Some(format!(
                     "{}/dashboard/{}",
                     self.public_base_url,
@@ -426,7 +424,7 @@ impl IncidentOrchestrator {
             );
         }
 
-        let (ssl_title, ssl_message, ssl_priority) = if expired {
+        let (ssl_title, ssl_message) = if expired {
             (
                 format!("SSL certificate expired for {}", ctx.monitor_name()),
                 format!(
@@ -434,7 +432,6 @@ impl IncidentOrchestrator {
                     ctx.monitor_name(),
                     ctx.check.url,
                 ),
-                NotificationPriority::High,
             )
         } else {
             (
@@ -445,7 +442,6 @@ impl IncidentOrchestrator {
                     ctx.check.url,
                     days_left,
                 ),
-                NotificationPriority::Normal,
             )
         };
 
@@ -454,7 +450,6 @@ impl IncidentOrchestrator {
             Notification {
                 title: ssl_title,
                 message: ssl_message,
-                priority: ssl_priority,
                 url: Some(format!(
                     "{}/dashboard/{}",
                     self.public_base_url,

@@ -2,13 +2,14 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
 
-use crate::notifications::notifier::{Notification, NotificationPriority, Notifier, NotifierError};
+use crate::notifications::notifier::{Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct PushoverConfig {
     user_key: String,
-    api_token: String,
+    #[serde(default)]
+    priority: Option<i8>,
 }
 
 #[derive(Deserialize)]
@@ -20,15 +21,17 @@ struct PushoverResponse {
 
 pub struct PushoverNotifier {
     client: reqwest::Client,
+    app_token: String,
 }
 
 impl PushoverNotifier {
-    pub fn new() -> Self {
+    pub fn new(app_token: String) -> Self {
         Self {
             client: reqwest::Client::builder()
                 .timeout(std::time::Duration::from_secs(10))
                 .build()
                 .expect("failed to build pushover HTTP client"),
+            app_token,
         }
     }
 }
@@ -47,32 +50,23 @@ impl Notifier for PushoverNotifier {
         let pushover_config: PushoverConfig = serde_json::from_value(config.clone())
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
 
-        let priority = match notification.priority {
-            NotificationPriority::Low => -1,
-            NotificationPriority::Normal => 0,
-            NotificationPriority::High => 1,
-        };
+        let priority = pushover_config.priority.unwrap_or(0);
 
+        let priority_str = priority.to_string();
         let mut form = vec![
-            ("token", pushover_config.api_token.as_str()),
+            ("token", self.app_token.as_str()),
             ("user", pushover_config.user_key.as_str()),
             ("title", notification.title.as_str()),
             ("message", notification.message.as_str()),
+            ("priority", &priority_str),
         ];
 
-        let priority_str = priority.to_string();
-        form.push(("priority", &priority_str));
-
-        let url_owned;
         if let Some(url) = &notification.url {
-            url_owned = url.clone();
-            form.push(("url", &url_owned));
+            form.push(("url", url.as_str()));
         }
 
-        let url_title_owned;
         if let Some(url_title) = &notification.url_title {
-            url_title_owned = url_title.clone();
-            form.push(("url_title", &url_title_owned));
+            form.push(("url_title", url_title.as_str()));
         }
 
         debug!(integration = "pushover", "sending notification");
