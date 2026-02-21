@@ -4,7 +4,6 @@ import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
 import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getSessionReplays(
   siteQuery: BASiteQuery,
@@ -12,8 +11,7 @@ export async function getSessionReplays(
   offset: number,
 ): Promise<SessionReplay[]> {
   const { siteId } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
 
   const query = safeSql`
     SELECT

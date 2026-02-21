@@ -3,7 +3,6 @@ import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 /**
  * Gets aggregated link transitions suitable for Sankey without client-side path expansion.
@@ -15,8 +14,7 @@ export async function getUserJourneyTransitions(
   limit: number = 50,
 ): Promise<JourneyTransition[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     WITH ordered_events AS (

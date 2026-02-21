@@ -7,7 +7,6 @@ import {
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 function getBaseAggregation(metric: HeatmapMetric) {
   switch (metric) {
@@ -28,8 +27,7 @@ function getBaseAggregation(metric: HeatmapMetric) {
 
 export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMetric): Promise<WeeklyHeatmapRow[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const timezone = siteQuery.timezone ?? 'UTC';
   const filters = BAQuery.getFilterQuery(queryFilters);
 

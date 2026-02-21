@@ -3,7 +3,6 @@ import { GeoVisitor, GeoVisitorSchema } from '@/entities/analytics/geography.ent
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 /**
  * Retrieves visitor data aggregated by country code
@@ -11,8 +10,7 @@ import { toDateTimeString } from '@/utils/dateFormatters';
  */
 export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

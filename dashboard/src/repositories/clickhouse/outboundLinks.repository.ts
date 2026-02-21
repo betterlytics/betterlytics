@@ -12,7 +12,6 @@ import { clickhouse } from '@/lib/clickhouse';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 /**
  * Get outbound links analytics data for table display
@@ -22,8 +21,7 @@ export async function getOutboundLinksAnalytics(
   limit: number = 100,
 ): Promise<OutboundLinkRow[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -85,8 +83,7 @@ export async function getOutboundLinksAnalytics(
  */
 export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<DailyOutboundClicksRow[]> {
   const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
@@ -132,8 +129,7 @@ export async function getOutboundLinksDistribution(
   siteQuery: BASiteQuery,
 ): Promise<Array<TopOutboundLinksDistrubution>> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const top9Query = safeSql`
@@ -208,8 +204,7 @@ export async function getOutboundLinksDistribution(
  */
 export async function getOutboundLinksSummary(siteQuery: BASiteQuery): Promise<OutboundLinksSummary> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`

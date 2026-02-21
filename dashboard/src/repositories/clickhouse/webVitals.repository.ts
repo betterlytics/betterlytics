@@ -14,12 +14,10 @@ import {
   CoreWebVitalsAllPercentilesPerDimensionRowSchema,
 } from '@/entities/analytics/webVitals.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`
@@ -72,8 +70,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
   siteQuery: BASiteQuery,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
   const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -132,8 +129,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
   dimension: CWVDimension,
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`

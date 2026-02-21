@@ -16,12 +16,10 @@ import {
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -49,8 +47,7 @@ export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<De
 
 export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<BrowserInfo[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     SELECT browser, uniq(visitor_id) as visitors
@@ -77,8 +74,7 @@ export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<Brows
 
 export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserRollupRow[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const query = safeSql`
     SELECT browser, browser_version as version, uniq(visitor_id) as visitors, grouping(browser_version) as is_rollup
     FROM analytics.events
@@ -102,8 +98,7 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
 
 export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promise<OperatingSystemInfo[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     SELECT os, uniq(visitor_id) as visitors
@@ -131,8 +126,7 @@ export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promi
 
 export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<OperatingSystemRollupRow[]> {
   const { siteId, queryFilters } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const query = safeSql`
     SELECT os, os_version as version, uniq(visitor_id) as visitors, grouping(os_version) as is_rollup
     FROM analytics.events
@@ -156,8 +150,7 @@ export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<
 
 export async function getDeviceUsageTrend(siteQuery: BASiteQuery): Promise<DeviceUsageTrendRow[]> {
   const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const startDate = toDateTimeString(siteQuery.startDate);
-  const endDate = toDateTimeString(siteQuery.endDate);
+  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,

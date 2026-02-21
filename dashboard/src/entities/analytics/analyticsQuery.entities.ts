@@ -16,6 +16,8 @@ export type BASiteQuery = {
   siteId: string;
   startDate: Date;
   endDate: Date;
+  startDateTime: string;
+  endDateTime: string;
   granularity: GranularityRangeValues;
   queryFilters: QueryFilter[];
   timezone: string;
