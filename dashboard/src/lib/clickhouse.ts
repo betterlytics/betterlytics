@@ -2,9 +2,11 @@ import { createClient, type ClickHouseClient } from '@clickhouse/client';
 import { env } from './env';
 import { instrumentClickHouse } from '@/observability/clickhouse-instrumented';
 
+type SupportedFormat = 'JSONEachRow' | 'JSON' | 'CSV' | 'TSV';
+
 interface AdapterQueryOptions {
   params?: Record<string, unknown>;
-  format?: string;
+  format?: SupportedFormat;
 }
 
 export interface QueryCursorLike {
@@ -36,6 +38,9 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
   return {
     query(sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
       const params = reqParams?.params ?? {};
+      // Default to JSONEachRow: the old `clickhouse` package used format:'json'
+      // but stripped the JSON envelope internally. JSONEachRow gives us the flat
+      // row array directly, preserving the same caller-facing behavior.
       const format = reqParams?.format ?? 'JSONEachRow';
 
       return {
@@ -43,7 +48,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
           const resultSet = await client.query({
             query: sql,
             query_params: params,
-            format: format as 'JSONEachRow',
+            format,
           });
           return resultSet.json<Record<string, unknown>>();
         },

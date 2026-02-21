@@ -99,4 +99,16 @@ describe('ClickHouse adapter', () => {
 
     await expect(adapter.query('SELECT 1').toPromise()).rejects.toThrow('Connection refused');
   });
+
+  it('propagates errors from resultSet.json()', async () => {
+    mockJson.mockRejectedValueOnce(new Error('Malformed response'));
+
+    const adapter = createClickHouseAdapter({
+      url: 'http://localhost:8123',
+      username: 'user',
+      password: 'pass',
+    });
+
+    await expect(adapter.query('SELECT 1').toPromise()).rejects.toThrow('Malformed response');
+  });
 });

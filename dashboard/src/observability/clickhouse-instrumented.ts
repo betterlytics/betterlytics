@@ -1,13 +1,6 @@
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { env } from '@/lib/env';
-
-type QueryCursorLike = {
-  toPromise: () => Promise<unknown>;
-};
-
-type ClickHouseClientLike = {
-  query: (sql: string, reqParams?: Record<string, unknown>) => QueryCursorLike;
-};
+import type { QueryCursorLike, ClickHouseAdapterClient } from '@/lib/clickhouse';
 
 const tracer = trace.getTracer('dashboard');
 
@@ -31,7 +24,7 @@ function inferOperation(statement: string): string {
   }
 }
 
-export function instrumentClickHouse<T extends ClickHouseClientLike>(client: T, options?: { dbName?: string }): T {
+export function instrumentClickHouse<T extends ClickHouseAdapterClient>(client: T, options?: { dbName?: string }): T {
   if (!env.ENABLE_MONITORING) return client;
 
   const dbName = options?.dbName ?? 'default';
