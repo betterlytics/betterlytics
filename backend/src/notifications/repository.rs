@@ -48,9 +48,7 @@ pub struct IntegrationRecord {
 impl IntegrationRecord {
     fn try_from_row(row: Row, encryption_key: Option<&str>) -> Result<Self, String> {
         let id: String = row.try_get("id").map_err(|e| e.to_string())?;
-        let config_str: String = row.try_get("config").map_err(|e| e.to_string())?;
-        let raw_config: serde_json::Value = serde_json::from_str(&config_str)
-            .map_err(|e| format!("malformed config JSON for integration {id}: {e}"))?;
+        let raw_config: serde_json::Value = row.try_get("config").map_err(|e| e.to_string())?;
         let updated_at: NaiveDateTime = row.try_get("updated_at").map_err(|e| e.to_string())?;
 
         let config = match encryption_key {
