@@ -78,7 +78,7 @@ export function PushoverConfigDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <div className='space-y-4 py-2'>
+        <div className='space-y-6 py-2'>
           <div className='space-y-2'>
             <Label htmlFor='pushover-user-key'>{t('userKeyLabel')}</Label>
             <Input
@@ -93,6 +93,20 @@ export function PushoverConfigDialog({
               disabled={isPending}
             />
             {error && <p className='text-destructive text-sm'>{error}</p>}
+            <p className='text-muted-foreground text-xs'>
+              {t.rich('credentialsHint', {
+                link: (chunks) => (
+                  <a
+                    href='https://pushover.net'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-primary underline'
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
+            </p>
           </div>
 
           <div className='space-y-2'>
@@ -113,22 +127,21 @@ export function PushoverConfigDialog({
                 ))}
               </SelectContent>
             </Select>
+            <p className='text-muted-foreground text-xs'>
+              {t.rich('priorityHint', {
+                link: (chunks) => (
+                  <a
+                    href='https://pushover.net/api#priority'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-primary underline'
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
+            </p>
           </div>
-
-          <p className='text-muted-foreground text-xs'>
-            {t.rich('credentialsHint', {
-              link: (chunks) => (
-                <a
-                  href='https://pushover.net'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-primary underline'
-                >
-                  {chunks}
-                </a>
-              ),
-            })}
-          </p>
         </div>
 
         <DialogFooter>

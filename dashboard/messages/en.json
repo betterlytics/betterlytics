@@ -3549,6 +3549,7 @@
         "1": "High: Bypass quiet hours"
       },
       "credentialsHint": "Find your user key at <link>pushover.net</link>",
+      "priorityHint": "Learn more about priority levels <link>here</link>.",
       "errors": {
         "userKeyRequired": "User key is required",
         "userKeyInvalid": "Invalid user key"
