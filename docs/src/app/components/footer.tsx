@@ -224,8 +224,8 @@ export function Footer() {
         </div>
         <div className="border-border/40 mt-8 border-t pt-8 text-center">
           <p className="text-muted-foreground text-sm">
-            © 2025 Betterlytics. All rights reserved. Open source under AGPL-3.0
-            license.
+            © {new Date().getFullYear()} Betterlytics. All rights reserved. Open
+            source under AGPL-3.0 license.
           </p>
         </div>
       </div>

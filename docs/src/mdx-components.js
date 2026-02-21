@@ -3,6 +3,7 @@ import {
   DashboardSectionGrid,
   DashboardSectionCard,
 } from "./app/components/DashboardSectionGrid";
+import { HostingComparisonTable } from "./app/components/HostingComparisonTable";
 
 const themeComponents = getThemeComponents();
 
@@ -11,6 +12,7 @@ export function useMDXComponents(components) {
     ...themeComponents,
     DashboardSectionGrid,
     DashboardSectionCard,
+    HostingComparisonTable,
     ...components,
   };
 }

@@ -76,7 +76,7 @@ export async function IntegrationSection() {
             className='group mb-4 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg motion-reduce:transform-none motion-reduce:transition-none'
             asChild
           >
-            <ExternalLink href='/docs/installation/cloud-hosting' title={t('guideTitle')}>
+            <ExternalLink href='https://betterlytics.io/docs/installation/cloud-hosting' title={t('guideTitle')}>
               {t('guideButton')}
             </ExternalLink>
           </Button>

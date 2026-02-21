@@ -16,7 +16,7 @@ import ReferrerLegend from './ReferrerLegend';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
@@ -34,7 +34,6 @@ export default function ReferrerTrafficTrendChart({
   comparisonMap,
   granularity,
 }: ReferrerTrafficTrendChartProps) {
-  const t = useTranslations('dashboard.emptyStates');
   const locale = useLocale();
   const isMobile = useIsMobile();
   if (!chartData || chartData.length === 0 || categories.length === 0) {

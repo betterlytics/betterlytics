@@ -136,7 +136,7 @@ export function CampaignEmptyState() {
         </div>
         <div className='flex justify-center'>
           <Button asChild className='shadow-primary/10 shadow-lg'>
-            <Link href='/docs/dashboard/campaigns' target='_blank'>
+            <Link href='https://betterlytics.io/docs/dashboard/campaigns' target='_blank'>
               <ExternalLink className='mr-2 h-4 w-4' />
               {t('docsLinkLabel')}
             </Link>

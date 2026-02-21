@@ -29,11 +29,15 @@ Yes. The Growth plan is free up to 10,000 events per month and includes the core
 ## What’s the performance impact of the tracking script?
 The script loads asynchronously and is lightweight (under 2KB), designed not to block rendering or degrade page performance. Optional add‑ons such as Core Web Vitals collection and Session Replay are disabled by default and only load when you opt in, so you stay in control of any additional overhead. See the [Cloud Hosting Setup](/installation/cloud-hosting) for the script tag and the [Web Vitals](/integration/web-vitals) and [Session Replay](/integration/session-replay) guides for details.
 
-### Does Google Analytics slow down my website?
-Heavy analytics tags can add significant page weight and extra network requests. As a reference point, Google’s Global Site Tag (gtag.js) is about 75 KB and it loads an additional analytics library of roughly 100 KB, adding around 175 KB per page load. By contrast, Betterlytics’ script is under 2KB and loads asynchronously, so it won’t block rendering and helps keep Core Web Vitals healthy in practice.
+## How does Betterlytics compare to other analytics tools?
+We have detailed comparison pages that cover features, privacy, performance, and pricing side by side:
 
-### How does this compare to Matomo?
-Matomo’s main browser script is typically around 22–23 KB. Betterlytics remains substantially smaller, which can benefit users on slower networks and mobile devices. To validate the impact on your site, compare waterfall charts and transfer sizes before and after switching scripts using your preferred performance tool.
+- [Betterlytics vs Google Analytics](https://betterlytics.io/vs/google-analytics)
+- [Betterlytics vs Matomo](https://betterlytics.io/vs/matomo)
+- [Betterlytics vs Plausible](https://betterlytics.io/vs/plausible)
+- [Betterlytics vs PostHog](https://betterlytics.io/vs/posthog)
+- [Betterlytics vs Fathom Analytics](https://betterlytics.io/vs/fathom-analytics)
+- [Betterlytics vs Umami](https://betterlytics.io/vs/umami)
 
 ## For how long is my data stored?
 Data retention depends on your plan: Growth retains data for 1+ year, Professional for 3+ years, and Enterprise for 5+ years. Session Replay recordings have a shorter retention period of 60 days to balance usefulness with privacy and storage considerations. You can review the plan‑specific policies on [Pricing & Billing](/pricing) and replay retention under [Session Replay → Storage and Security](/integration/session-replay#storage-and-security). For definitions of metrics and how we calculate them, see the [Metrics Glossary](/dashboard/metrics-glossary).
@@ -41,7 +45,6 @@ Data retention depends on your plan: Growth retains data for 1+ year, Profession
 
 ---
 
-## Ready to give it a try?
-Create your free account and start tracking in minutes with the hosted quick start in [Cloud Hosting Setup](/installation/cloud-hosting#step-3-install-your-tracking-script), or explore options in the [Installation Overview](/installation). When you’re ready to scale, review plans on [Pricing & Billing](/pricing). Have questions? Join our [Discord community](https://discord.gg/vwqSvPn6sP) or [email support](mailto:support@betterlytics.io).
+## Still have questions?
 
-
+If you didn't find what you were looking for, join our [Discord community](https://discord.gg/vwqSvPn6sP) or reach out via [email](mailto:support@betterlytics.io). You can also browse the [Installation Overview](/installation) to get started or review [Pricing & Billing](/pricing) for plan details.

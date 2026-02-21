@@ -39,7 +39,7 @@ export default function PublicTopBar() {
           <div className='hidden items-center md:flex'>
             <nav className='flex items-center space-x-6'>
               <ExternalLink
-                href='/docs'
+                href='https://betterlytics.io/docs'
                 title={t('documentation')}
                 className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
               >
@@ -112,7 +112,7 @@ export default function PublicTopBar() {
                 {t('features')}
               </Link>
               <ExternalLink
-                href='/docs'
+                href='https://betterlytics.io/docs'
                 onClick={closeMobileMenu}
                 className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
                 title={t('documentation')}

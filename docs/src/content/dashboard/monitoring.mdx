@@ -141,7 +141,30 @@ These options are available on Professional and Enterprise plans.
 Choose between **HEAD** (default) or **GET** requests.
 
 - **HEAD**: Faster, checks availability without downloading the full response body
-- **GET**: Downloads the full response. Use this if your server doesn't support HEAD requests or you need to verify the full response
+- **GET**: Downloads the full response. Required for keyword validation, or if your server doesn't support HEAD requests
+
+#### Expected Keyword
+
+When using the **GET** method, you can optionally specify a keyword or phrase that must be present in the response body. If the keyword is not found, the check is marked as failed; even if the HTTP status code is healthy.
+
+This catches scenarios where a page returns `200 OK` but serves broken content, a maintenance page, or an error message.
+
+**How it works:**
+
+- The keyword is matched against the **raw HTML source code** (first 32 KB of the response)
+- Matching is **case-sensitive**
+- The response is assumed to be **UTF-8 encoded**. Non-UTF-8 content may not match as expected
+- Maximum keyword length: 256 characters
+
+**Tips for choosing a keyword:**
+
+- Use text that appears directly in your HTML source, such as your site title, a `<meta>` description, or a footer tagline
+- Avoid text that spans across HTML tags. For example, if your HTML is `<h1>Welcome to <span>My Site</span></h1>`, use `Welcome to` or `My Site`, not `Welcome to My Site`
+- Avoid content that is rendered by JavaScript (e.g., React components that only appear after hydration). The monitoring system fetches raw HTML without executing JavaScript
+
+<Callout type="info">
+To verify what text is available for matching, run `curl -s https://your-site.com | head -c 32768` in your terminal. The output is exactly what the monitor sees.
+</Callout>
 
 #### Custom Request Headers
 
@@ -282,6 +305,14 @@ Deleting a monitor removes all configuration. Historical check data is retained 
 
 - Ensure the URL uses `https://`
 - Verify "Check SSL Errors" is enabled in Advanced Settings
+
+### Keyword Not Found (but the page looks fine)
+
+- The keyword is matched against **raw HTML**, not rendered text. View your page source to confirm the keyword exists as a continuous string
+- If your site uses client-side rendering (React, Vue, etc.), the keyword may only exist after JavaScript runs. Choose a keyword from the server-rendered HTML instead
+- Check that HTML tags don't split your keyword. For example, `<b>Hello</b> World` won't match `Hello World` as a single string
+- The monitor only checks the first **32 KB** of the response. If your keyword appears later in the page, it may not be reached
+- The response is assumed to be **UTF-8 encoded**. If your site uses a different encoding (e.g. ISO-8859-1), keywords with special characters may not match
 
 ### Check Interval Changed Unexpectedly
 

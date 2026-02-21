@@ -1,76 +1,37 @@
 ---
 title: "Introduction"
-description: "Welcome to Betterlytics - the privacy-first, open-source analytics platform. Learn about our features and choose your setup path."
+description: "Welcome to the Betterlytics documentation. Learn how to set up and use the privacy-first, cookieless analytics platform."
 ---
 
 # Introduction
 
-**Betterlytics** is a modern, privacy-first analytics platform that provides powerful insights about your website traffic without compromising user privacy.
+**Betterlytics** is a cookieless, privacy-first analytics platform. It tracks website traffic without cookies, personal data, or cross-site tracking, and is designed to be GDPR, CCPA, and PECR ready out of the box. The tracking script is under 2KB and loads asynchronously to avoid impacting page performance.
 
-## Perfect Analytics for Modern Websites
+You can run Betterlytics as a [managed cloud service](/installation/cloud-hosting) or [self-host](/installation/self-hosting) it on your own infrastructure. See the [Installation Overview](/installation) for a full comparison.
 
-We built Betterlytics because we believe you shouldn't have to choose between understanding your audience and respecting their privacy. Our **cookieless, GDPR-compliant** analytics platform is designed for the privacy-conscious web, giving you comprehensive insights without the headache of cookie consent banners or invasive user tracking.
+## What You Can Track
 
-### What Makes Us Different
+Betterlytics covers core web analytics and performance monitoring in a single platform:
 
-In a world where privacy regulations are tightening and users are increasingly concerned about their digital footprint, traditional analytics solutions feel outdated. That's where we come in.
+- **Traffic and audience** - Visitors, pageviews, bounce rate, scroll depth, visit duration, referrers, UTM campaigns, geography, and device breakdown
+- **Behavior and conversions** - User journeys, conversion funnels, custom events, and outbound link tracking
+- **Performance monitoring** - Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate checks, and scheduled email reports
+- **Session replay** - Replay visitor sessions with event timelines and privacy-first masking (cloud only)
 
-**Privacy isn't an afterthought for us. It's our foundation.** We're GDPR, CCPA, and PECR compliant straight out of the box, which means you can focus on growing your business instead of worrying about compliance. Since we don't use cookies at all, your visitors won't be bombarded with annoying consent banners that hurt your conversion rates.
+All data is available in real time through the [dashboard](/dashboard), with support for filtering across any dimension.
 
-**Speed matters, and we deliver.** Built with Rust and ClickHouse for lightning-fast performance. Your dashboard loads instantly, and our tracking script weighs in at under 2KB, so lightweight that your visitors won't even notice it's there.
+## Getting Started
 
-**Beautiful data deserves a beautiful interface.** Our dashboard, crafted with Next.js 15 and React 19, doesn't just look modern. It makes complex data feel intuitive. Whether you're a marketing manager checking campaign performance or a developer analyzing user behavior, you'll find exactly what you need without digging through endless menus.
+1. **[Choose a setup method](/installation)** - Cloud hosting or self-hosting
+2. **[Install the tracking script](/installation/cloud-hosting#step-3-install-your-tracking-script)** - Script tag or NPM package
+3. **[Explore your dashboard](/dashboard)** - Data appears within minutes
 
-Most importantly, **your data stays yours.** We don't track users across websites, we don't sell data to third parties, and we give you complete ownership of your analytics. It's that simple.
+## Using These Docs
 
-## Everything You Need to Grow
+- **[Installation & Setup](/installation)** - Cloud hosting and self-hosting guides, with a side-by-side comparison to help you decide
+- **[Integration](/integration/custom-events)** - Custom events, session replay, outbound links, dynamic URLs, and Web Vitals setup
+- **[Dashboard Features](/dashboard)** - Guides for every dashboard section
+- **[Pricing & Billing](/pricing)** - Plans, billing cycles, and subscription management
+- **[FAQ](/faq)** - Common questions about privacy, compliance, performance, and data retention
 
-Understanding your audience shouldn't require a PhD in data science. That's why we've designed Betterlytics to surface the insights that actually matter for your business growth.
-
-### Know Your Audience
-
-See who's visiting your site right now with our live tracking feature, and discover which channels are bringing you the highest-quality traffic. Whether your visitors are coming from search engines, social media, or direct referrals, you'll understand not just the quantity but the quality of each traffic source.
-
-Our geographic insights help you understand your global reach, while detailed device and browser data lets you optimize your site for the platforms your audience actually uses. No more guessing. Just actionable data that helps you make better decisions.
-
-### Improve Performance
-
-Every page on your website tells a story, and our performance metrics help you understand which stories resonate most with your audience. Track user journeys to see how visitors navigate through your site, identify where they drop off, and optimize your most important conversion funnels.
-
-Need to track specific actions that matter to your business? Our custom event tracking lets you measure everything from newsletter signups to product demos. And with comprehensive UTM campaign tracking, you'll finally know which marketing efforts are actually driving results.
-
-### Privacy Without Compromise
-
-Here's how we protect your visitors while giving you the insights you need: We collect zero personally identifiable information, not even email addresses or names. Visitor IP addresses are immediately anonymized through hashing and never stored in their original form.
-
-Each website's data is completely isolated, so there's no cross-site tracking or data sharing. We believe in transparency, which means you know exactly what data we collect, how we process it, and most importantly, that you maintain complete ownership of it.
-
-## Choose Your Setup
-
-### ☁️ Hosted Solution (Most Popular)
-
-**Ready to get started in under 60 seconds?** Our hosted solution is perfect if you want powerful analytics without the technical overhead.
-
-Our free plan gives you everything you need for small to medium sites, with no credit card required. We handle all the maintenance, updates, and security patches automatically, so you can focus on what you do best - growing your business. When you need help, our support team is here to guide you through any questions.
-
-[**Start Free Account**](https://betterlytics.io/register)
-
-### 🏠 Self-Hosted Option
-
-**Want maximum control over your data?** Our self-hosted option is perfect for teams who need complete control over their analytics infrastructure.
-
-With self-hosting, your data never leaves your servers, giving you the ultimate in privacy and security. You can customize everything to fit your specific needs, and there are no ongoing subscription fees. Just a one-time setup. Keep in mind that this option requires some technical expertise, making it ideal for development teams or organizations with dedicated IT resources.
-
-[**View Setup Guide**](/installation/self-hosting)
-
-## Ready to Get Better Insights?
-
-1. **[Choose your preferred setup](/installation)**
-2. **[Add our tracking script](/installation/cloud-hosting#step-3-install-your-tracking-script)** (takes 2 minutes)
-3. **Start understanding your audience better**
-
-Questions? Join our [Discord community](https://discord.gg/vwqSvPn6sP) or check our [FAQ](/faq).
-
----
-
-_Betterlytics: Privacy-first analytics for the modern web._
+Questions? Join our [Discord community](https://discord.gg/vwqSvPn6sP) or [email support](mailto:support@betterlytics.io).
