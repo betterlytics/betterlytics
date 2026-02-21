@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -10,11 +10,10 @@ import { Integration } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 
 type IntegrationCardProps = {
-  icon: ReactNode;
+  iconSrc: string;
   name: string;
   description: string;
   integration?: Integration;
-  comingSoon?: boolean;
   isPending: boolean;
   onConfigure: () => void;
   onDisconnect: () => void;
@@ -22,11 +21,10 @@ type IntegrationCardProps = {
 };
 
 export function IntegrationCard({
-  icon,
+  iconSrc,
   name,
   description,
   integration,
-  comingSoon,
   isPending,
   onConfigure,
   onDisconnect,
@@ -37,14 +35,12 @@ export function IntegrationCard({
 
   return (
     <div className='bg-card hover:bg-accent/30 flex items-center gap-4 rounded-lg border px-4 py-4 transition-colors'>
-      <div className='bg-muted flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg'>
-        {icon}
-      </div>
+      <Image src={iconSrc} alt={name} width={32} height={32} className='flex-shrink-0' />
 
       <div className='min-w-0 flex-1'>
         <div className='flex items-center gap-2'>
           <span className='text-sm font-semibold'>{name}</span>
-          {!comingSoon && isConnected && (
+          {isConnected && (
             <Badge
               variant='outline'
               className='rounded-full border-green-200 bg-green-50 px-2 py-0 text-[10px] text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400'
@@ -57,7 +53,7 @@ export function IntegrationCard({
       </div>
 
       <div className='flex flex-shrink-0 items-center gap-3'>
-        {!comingSoon && isConnected && (
+        {isConnected && (
           <PermissionGate permission='canManageSettings'>
             {(disabled) => (
               <Switch
@@ -70,51 +66,43 @@ export function IntegrationCard({
           </PermissionGate>
         )}
 
-        {!comingSoon && (
-          <PermissionGate permission='canManageSettings'>
-            {(disabled) =>
-              isConnected ? (
-                <div className='flex gap-1.5'>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='cursor-pointer'
-                    disabled={isPending || disabled}
-                    onClick={onConfigure}
-                  >
-                    {t('actions.edit')}
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-destructive hover:text-destructive cursor-pointer'
-                    disabled={isPending || disabled}
-                    onClick={onDisconnect}
-                  >
-                    {t('actions.disconnect')}
-                  </Button>
-                </div>
-              ) : (
+        <PermissionGate permission='canManageSettings'>
+          {(disabled) =>
+            isConnected ? (
+              <div className='flex gap-1.5'>
                 <Button
-                  variant='default'
+                  variant='outline'
                   size='sm'
                   className='cursor-pointer'
                   disabled={isPending || disabled}
                   onClick={onConfigure}
                 >
-                  <Plus className='h-3.5 w-3.5' />
-                  {t('actions.add')}
+                  {t('actions.edit')}
                 </Button>
-              )
-            }
-          </PermissionGate>
-        )}
-
-        {comingSoon && (
-          <Badge variant='secondary' className='text-muted-foreground rounded-full px-2.5 py-0.5 text-[10px]'>
-            {t('status.comingSoon')}
-          </Badge>
-        )}
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='text-destructive hover:text-destructive cursor-pointer'
+                  disabled={isPending || disabled}
+                  onClick={onDisconnect}
+                >
+                  {t('actions.disconnect')}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant='default'
+                size='sm'
+                className='cursor-pointer'
+                disabled={isPending || disabled}
+                onClick={onConfigure}
+              >
+                <Plus className='h-3.5 w-3.5' />
+                {t('actions.add')}
+              </Button>
+            )
+          }
+        </PermissionGate>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Integration } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 type PushoverConfigDialogProps = {
   open: boolean;
@@ -74,8 +74,10 @@ export function PushoverConfigDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DialogTitle className='flex items-center gap-2'>
+            <Image src='/images/integrations/pushover.svg' alt='Pushover' width={24} height={24} />
+            {t('title')}
+          </DialogTitle>
         </DialogHeader>
 
         <div className='space-y-4 py-2'>
@@ -110,6 +112,21 @@ export function PushoverConfigDialog({
             />
             {errors.apiToken && <p className='text-destructive text-sm'>{errors.apiToken}</p>}
           </div>
+
+          <p className='text-muted-foreground text-xs'>
+            {t.rich('credentialsHint', {
+              link: (chunks) => (
+                <a
+                  href='https://pushover.net'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary underline'
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
         </div>
 
         <DialogFooter>

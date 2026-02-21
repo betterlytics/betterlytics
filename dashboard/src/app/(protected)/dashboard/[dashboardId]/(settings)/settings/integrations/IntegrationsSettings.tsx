@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useMemo } from 'react';
-import { Search, Globe } from 'lucide-react';
-import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
 import SettingsPageHeader from '../SettingsPageHeader';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
@@ -18,47 +15,13 @@ import { useTranslations } from 'next-intl';
 import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './PushoverConfigDialog';
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog';
-import type { ReactNode } from 'react';
 
 type IntegrationDefinition = {
   type: IntegrationType;
-  icon: ReactNode;
-  comingSoon?: boolean;
+  iconSrc: string;
+  name: string;
+  description: string;
 };
-
-const ICON_CLASS = 'h-5 w-5';
-
-const AVAILABLE_INTEGRATIONS: IntegrationDefinition[] = [
-  {
-    type: 'pushover',
-    icon: <Icon icon='simple-icons:pushover' className={ICON_CLASS} />,
-  },
-  {
-    type: 'discord',
-    icon: <Icon icon='simple-icons:discord' className={ICON_CLASS} />,
-    comingSoon: true,
-  },
-  {
-    type: 'slack',
-    icon: <Icon icon='simple-icons:slack' className={ICON_CLASS} />,
-    comingSoon: true,
-  },
-  {
-    type: 'telegram',
-    icon: <Icon icon='simple-icons:telegram' className={ICON_CLASS} />,
-    comingSoon: true,
-  },
-  {
-    type: 'msteams',
-    icon: <Icon icon='simple-icons:microsoftteams' className={ICON_CLASS} />,
-    comingSoon: true,
-  },
-  {
-    type: 'webhook',
-    icon: <Globe className={ICON_CLASS} />,
-    comingSoon: true,
-  },
-];
 
 export default function IntegrationsSettings() {
   const t = useTranslations('integrationsSettings');
@@ -67,7 +30,24 @@ export default function IntegrationsSettings() {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [configDialogType, setConfigDialogType] = useState<IntegrationType | null>(null);
   const [disconnectType, setDisconnectType] = useState<IntegrationType | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+
+  const availableIntegrations: IntegrationDefinition[] = useMemo(
+    () => [
+      {
+        type: 'pushover',
+        iconSrc: '/images/integrations/pushover.svg',
+        name: t('integrations.pushover.name'),
+        description: t('integrations.pushover.description'),
+      },
+      {
+        type: 'discord',
+        iconSrc: '/images/integrations/discord.svg',
+        name: t('integrations.discord.name'),
+        description: t('integrations.discord.description'),
+      },
+    ],
+    [t]
+  );
 
   useEffect(() => {
     startTransition(async () => {
@@ -77,16 +57,6 @@ export default function IntegrationsSettings() {
       } catch {}
     });
   }, [dashboardId]);
-
-  const filteredIntegrations = useMemo(() => {
-    if (!searchQuery.trim()) return AVAILABLE_INTEGRATIONS;
-    const query = searchQuery.toLowerCase();
-    return AVAILABLE_INTEGRATIONS.filter((def) => {
-      const name = t(`integrations.${def.type}.name`).toLowerCase();
-      const description = t(`integrations.${def.type}.description`).toLowerCase();
-      return name.includes(query) || description.includes(query);
-    });
-  }, [searchQuery, t]);
 
   const getIntegrationForType = (type: IntegrationType): Integration | undefined => {
     return integrations.find((i) => i.type === type);
@@ -146,36 +116,23 @@ export default function IntegrationsSettings() {
 
       <p className='text-muted-foreground -mt-4 mb-6 text-sm'>{t('section.description')}</p>
 
-      <div className='relative mb-4'>
-        <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-        <Input
-          placeholder={t('search.placeholder')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className='pl-9'
-        />
-      </div>
-
       <div className='space-y-3'>
-        {filteredIntegrations.map((def) => (
+        {availableIntegrations.map((def) => (
           <IntegrationCard
             key={def.type}
-            icon={def.icon}
-            name={t(`integrations.${def.type}.name`)}
-            description={t(`integrations.${def.type}.description`)}
+            iconSrc={def.iconSrc}
+            name={def.name}
+            description={def.description}
             integration={getIntegrationForType(def.type)}
-            comingSoon={def.comingSoon}
             isPending={isPending}
             onConfigure={() => setConfigDialogType(def.type)}
             onDisconnect={() => setDisconnectType(def.type)}
             onToggle={(enabled) => handleToggle(def.type, enabled)}
           />
         ))}
-
-        {filteredIntegrations.length === 0 && (
-          <div className='text-muted-foreground py-8 text-center text-sm'>{t('search.noResults')}</div>
-        )}
       </div>
+
+      <p className='text-muted-foreground mt-6 text-center text-xs'>{t('moreIntegrations')}</p>
 
       <PushoverConfigDialog
         open={configDialogType === 'pushover'}

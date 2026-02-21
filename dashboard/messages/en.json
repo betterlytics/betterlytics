@@ -3512,39 +3512,19 @@
     "section": {
       "description": "Connect third-party services to receive notifications and alerts from your dashboard."
     },
-    "search": {
-      "placeholder": "Search integrations...",
-      "noResults": "No integrations found matching your search."
-    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
         "description": "Push notifications to your mobile devices and desktop."
       },
-      "slack": {
-        "name": "Slack",
-        "description": "Slack messages are a great way to inform the entire team."
-      },
       "discord": {
         "name": "Discord",
         "description": "Get important status updates in your Discord messages."
-      },
-      "telegram": {
-        "name": "Telegram",
-        "description": "Telegram messages are a great way to stay alerted."
-      },
-      "msteams": {
-        "name": "MS Teams",
-        "description": "Get notifications inside your MS Teams app to alert the group."
-      },
-      "webhook": {
-        "name": "Webhook",
-        "description": "For advanced alerting you can send webhooks to your own system or app."
       }
     },
+    "moreIntegrations": "Need a different integration? Contact us and we'll add it.",
     "status": {
-      "connected": "Connected",
-      "comingSoon": "Coming Soon"
+      "connected": "Connected"
     },
     "actions": {
       "configure": "Configure",
@@ -3558,12 +3538,12 @@
       "confirm": "Disconnect"
     },
     "pushoverDialog": {
-      "title": "Configure Pushover",
-      "description": "Enter your Pushover credentials to receive push notifications. You can find these in your Pushover dashboard.",
+      "title": "Pushover Integration",
       "userKeyLabel": "User Key",
       "userKeyPlaceholder": "Your Pushover user key",
       "apiTokenLabel": "API Token",
       "apiTokenPlaceholder": "Your application API token",
+      "credentialsHint": "Find your credentials at <link>pushover.net</link>",
       "errors": {
         "userKeyRequired": "User key is required",
         "userKeyInvalid": "Invalid user key",
