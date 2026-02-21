@@ -22,6 +22,7 @@ mod geoip;
 mod geoip_updater;
 mod metrics;
 mod monitor;
+mod notifications;
 mod outbound_link;
 mod postgres;
 mod processing;

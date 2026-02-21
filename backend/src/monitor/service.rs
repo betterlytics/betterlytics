@@ -14,6 +14,7 @@ use crate::monitor::incident::{
     MonitorIncidentRow,
 };
 use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
+use crate::notifications::{Notification, NotificationEngine, NotificationPriority};
 
 #[derive(Clone, Debug)]
 pub struct IncidentContext {
@@ -71,6 +72,8 @@ pub struct IncidentOrchestrator {
     notification_tracker: Arc<NotificationTracker>,
     dispatcher: AlertDispatcher,
     incident_store: Option<Arc<IncidentStore>>,
+    notification_engine: Option<Arc<NotificationEngine>>,
+    public_base_url: String,
 }
 
 impl IncidentOrchestrator {
@@ -78,7 +81,10 @@ impl IncidentOrchestrator {
         config: IncidentOrchestratorConfig,
         history_writer: Option<Arc<AlertHistoryWriter>>,
         incident_store: Option<Arc<IncidentStore>>,
+        notification_engine: Option<Arc<NotificationEngine>>,
     ) -> Self {
+        let public_base_url = config.public_base_url.clone();
+
         let dispatcher = AlertDispatcher::new(
             AlertDispatcherConfig {
                 email_config: config.email_config,
@@ -111,6 +117,8 @@ impl IncidentOrchestrator {
             notification_tracker,
             dispatcher,
             incident_store,
+            notification_engine,
+            public_base_url,
         }
     }
 
@@ -229,6 +237,22 @@ impl IncidentOrchestrator {
                 "Down alert sent"
             );
         }
+
+        self.send_push_notification(
+            &ctx.check.dashboard_id,
+            Notification {
+                title: format!("{} is down", ctx.monitor_name()),
+                message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
+                priority: NotificationPriority::High,
+                url: Some(format!(
+                    "{}/dashboard/{}",
+                    self.public_base_url,
+                    ctx.check.dashboard_id
+                )),
+                url_title: Some("View Dashboard".to_string()),
+            },
+        )
+        .await;
     }
 
     #[tracing::instrument(
@@ -302,6 +326,31 @@ impl IncidentOrchestrator {
                 "Recovery alert sent"
             );
         }
+
+        let downtime_msg = downtime_duration
+            .map(|d| format!(" after {}", humanize_duration(d)))
+            .unwrap_or_default();
+
+        self.send_push_notification(
+            &ctx.check.dashboard_id,
+            Notification {
+                title: format!("{} is back up", ctx.monitor_name()),
+                message: format!(
+                    "{} ({}) has recovered{}",
+                    ctx.monitor_name(),
+                    ctx.check.url,
+                    downtime_msg,
+                ),
+                priority: NotificationPriority::Normal,
+                url: Some(format!(
+                    "{}/dashboard/{}",
+                    self.public_base_url,
+                    ctx.check.dashboard_id
+                )),
+                url_title: Some("View Dashboard".to_string()),
+            },
+        )
+        .await;
     }
 
     #[tracing::instrument(
@@ -376,11 +425,56 @@ impl IncidentOrchestrator {
                 "SSL alert sent"
             );
         }
+
+        let (ssl_title, ssl_message, ssl_priority) = if expired {
+            (
+                format!("SSL certificate expired for {}", ctx.monitor_name()),
+                format!(
+                    "The SSL certificate for {} ({}) has expired",
+                    ctx.monitor_name(),
+                    ctx.check.url,
+                ),
+                NotificationPriority::High,
+            )
+        } else {
+            (
+                format!("SSL certificate expiring for {}", ctx.monitor_name()),
+                format!(
+                    "The SSL certificate for {} ({}) expires in {} days",
+                    ctx.monitor_name(),
+                    ctx.check.url,
+                    days_left,
+                ),
+                NotificationPriority::Normal,
+            )
+        };
+
+        self.send_push_notification(
+            &ctx.check.dashboard_id,
+            Notification {
+                title: ssl_title,
+                message: ssl_message,
+                priority: ssl_priority,
+                url: Some(format!(
+                    "{}/dashboard/{}",
+                    self.public_base_url,
+                    ctx.check.dashboard_id
+                )),
+                url_title: Some("View Dashboard".to_string()),
+            },
+        )
+        .await;
     }
 
     pub async fn prune_inactive(&self, active_ids: &HashSet<String>) {
         self.evaluator.prune_inactive(active_ids);
         self.notification_tracker.prune_inactive(active_ids);
+    }
+
+    async fn send_push_notification(&self, dashboard_id: &str, notification: Notification) {
+        if let Some(engine) = &self.notification_engine {
+            engine.notify(dashboard_id, &notification).await;
+        }
     }
 
     async fn persist_incident_snapshot(&self, ctx: &IncidentContext) {
@@ -401,6 +495,24 @@ impl IncidentOrchestrator {
 
         if let Err(err) = store.enqueue_rows(vec![row]) {
             warn!(error = ?err, "Failed to enqueue incident snapshot");
+        }
+    }
+}
+
+fn humanize_duration(d: Duration) -> String {
+    let total_secs = d.num_seconds();
+    if total_secs < 60 {
+        format!("{total_secs}s")
+    } else if total_secs < 3600 {
+        let mins = total_secs / 60;
+        format!("{mins}m")
+    } else {
+        let hours = total_secs / 3600;
+        let mins = (total_secs % 3600) / 60;
+        if mins > 0 {
+            format!("{hours}h {mins}m")
+        } else {
+            format!("{hours}h")
         }
     }
 }

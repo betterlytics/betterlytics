@@ -9,6 +9,7 @@ pub mod geoip;
 pub mod geoip_updater;
 pub mod metrics;
 pub mod monitor;
+pub mod notifications;
 pub mod outbound_link;
 pub mod postgres;
 pub mod processing;

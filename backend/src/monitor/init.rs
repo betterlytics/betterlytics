@@ -7,6 +7,10 @@ use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
+use crate::notifications::{
+    IntegrationCache, IntegrationCacheConfig, IntegrationRepository, NotificationEngine,
+    new_notification_history_writer,
+};
 use crate::postgres::PostgresPool;
 
 use super::alert::new_alert_history_writer;
@@ -124,11 +128,24 @@ async fn run_monitoring_init_loop(
             }
         };
 
+        let notification_engine = match initialize_notification_engine(Arc::clone(&monitor_pool), Arc::clone(&clickhouse)).await
+        {
+            Ok(engine) => {
+                info!("Notification engine initialized");
+                Some(engine)
+            }
+            Err(err) => {
+                warn!(error = ?err, "Failed to initialize notification engine; continuing without push notifications");
+                None
+            }
+        };
+
         let incident_orchestrator = Arc::new(
             IncidentOrchestrator::new(
                 IncidentOrchestratorConfig::from_config(&config),
                 history_writer,
                 incident_store,
+                notification_engine,
             )
             .await,
         );
@@ -164,4 +181,27 @@ async fn run_monitoring_init_loop(
         info!("uptime monitoring started");
         break;
     }
+}
+
+async fn initialize_notification_engine(
+    pool: Arc<PostgresPool>,
+    clickhouse: Arc<ClickHouseClient>,
+) -> Result<Arc<NotificationEngine>, Box<dyn std::error::Error + Send + Sync>> {
+    let data_source: Arc<dyn crate::notifications::IntegrationDataSource> =
+        Arc::new(IntegrationRepository::new(pool));
+
+    let cache = IntegrationCache::initialize(data_source, IntegrationCacheConfig::default()).await?;
+
+    let history_writer = match new_notification_history_writer(
+        clickhouse,
+        "analytics.notification_history",
+    ) {
+        Ok(w) => Some(w),
+        Err(err) => {
+            warn!(error = ?err, "Failed to create notification history writer; notifications will not be recorded");
+            None
+        }
+    };
+
+    Ok(Arc::new(NotificationEngine::new(cache, history_writer)))
 }
