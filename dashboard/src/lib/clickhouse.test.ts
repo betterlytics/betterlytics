@@ -29,10 +29,10 @@ import { createClickHouseAdapter } from './clickhouse';
 describe('ClickHouse adapter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockJson.mockResolvedValue([{ count: 1 }]);
+    mockJson.mockResolvedValue({ data: [{ count: 1 }] });
   });
 
-  it('maps query(sql, { params }) to new client query()', async () => {
+  it('maps query(sql, { params }) to new client and extracts .data', async () => {
     const adapter = createClickHouseAdapter({
       url: 'http://localhost:8123',
       username: 'user',
@@ -48,19 +48,21 @@ describe('ClickHouse adapter', () => {
     expect(mockQuery).toHaveBeenCalledWith({
       query: 'SELECT count() FROM events WHERE site_id = {site_id:String}',
       query_params: { site_id: 'abc123' },
-      format: 'JSONEachRow',
+      format: 'JSON',
     });
     expect(result).toEqual([{ count: 1 }]);
   });
 
-  it('forwards explicit format parameter', async () => {
+  it('returns raw array for JSONEachRow format', async () => {
+    mockJson.mockResolvedValue([{ count: 1 }]);
+
     const adapter = createClickHouseAdapter({
       url: 'http://localhost:8123',
       username: 'user',
       password: 'pass',
     });
 
-    await adapter
+    const result = await adapter
       .query('SELECT 1', {
         params: {},
         format: 'JSONEachRow',
@@ -70,9 +72,10 @@ describe('ClickHouse adapter', () => {
     expect(mockQuery).toHaveBeenCalledWith(
       expect.objectContaining({ format: 'JSONEachRow' }),
     );
+    expect(result).toEqual([{ count: 1 }]);
   });
 
-  it('defaults to empty params when none provided', async () => {
+  it('defaults to JSON format and empty params when none provided', async () => {
     const adapter = createClickHouseAdapter({
       url: 'http://localhost:8123',
       username: 'user',
@@ -84,7 +87,7 @@ describe('ClickHouse adapter', () => {
     expect(mockQuery).toHaveBeenCalledWith({
       query: 'SELECT 1',
       query_params: {},
-      format: 'JSONEachRow',
+      format: 'JSON',
     });
   });
 
@@ -109,6 +112,8 @@ describe('ClickHouse adapter', () => {
       password: 'pass',
     });
 
-    await expect(adapter.query('SELECT 1').toPromise()).rejects.toThrow('Malformed response');
+    await expect(
+      adapter.query('SELECT 1', { params: {}, format: 'JSONEachRow' }).toPromise(),
+    ).rejects.toThrow('Malformed response');
   });
 });

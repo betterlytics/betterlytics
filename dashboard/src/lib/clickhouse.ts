@@ -36,10 +36,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
   return {
     query(sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
       const params = reqParams?.params ?? {};
-      // Default to JSONEachRow: the old `clickhouse` package used format:'json'
-      // but stripped the JSON envelope internally. JSONEachRow gives us the flat
-      // row array directly, preserving the same caller-facing behavior.
-      const format = reqParams?.format ?? 'JSONEachRow';
+      const format = reqParams?.format ?? 'JSON';
 
       return {
         async toPromise(): Promise<unknown[]> {
@@ -48,7 +45,12 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
             query_params: params,
             format,
           });
-          return (await resultSet.json()) as unknown[];
+          const json = await resultSet.json();
+
+          if (format === 'JSON') {
+            return (json as { data: unknown[] }).data;
+          }
+          return json as unknown[];
         },
       };
     },
