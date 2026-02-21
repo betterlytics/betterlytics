@@ -1570,6 +1570,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-mail-rapporter",
+        "integrations": "Integrationer",
         "dangerZone": "Farezone"
       }
     },
@@ -3513,6 +3514,76 @@
     "toast": {
       "saved": "Rapportindstillinger gemt",
       "error": "Kunne ikke gemme rapportindstillinger"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrationer",
+    "section": {
+      "description": "Forbind tredjepartstjenester for at modtage notifikationer og advarsler fra dit dashboard."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push-notifikationer til dine mobile enheder og desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Få vigtige statusopdateringer i dine Discord-beskeder."
+      }
+    },
+    "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så tilføjer vi den.",
+    "status": {
+      "connected": "Forbundet"
+    },
+    "actions": {
+      "configure": "Konfigurer",
+      "add": "Tilføj",
+      "edit": "Rediger",
+      "disconnect": "Afbryd"
+    },
+    "disconnect": {
+      "title": "Afbryd {name}",
+      "description": "Er du sikker på, at du vil afbryde denne integration? Dette vil fjerne konfigurationen og stoppe alle notifikationer.",
+      "confirm": "Afbryd"
+    },
+    "pushoverDialog": {
+      "title": "Pushover-integration",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Din Pushover user key",
+      "priorityLabel": "Notifikationsprioritet",
+      "priorities": {
+        "-2": "Lavest: Ingen notifikation",
+        "-1": "Lav: Ingen lyd eller vibration",
+        "0": "Normal (anbefalet)",
+        "1": "Høj: Ignorer stille timer"
+      },
+      "credentialsHint": "Find din user key på <link>pushover.net</link>",
+      "priorityHint": "Læs mere om prioritetsniveauer <link>her</link>.",
+      "errors": {
+        "userKeyRequired": "User key er påkrævet",
+        "userKeyInvalid": "Ugyldig user key"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "discordDialog": {
+      "title": "Discord-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
+      "webhookHint": "Lær hvordan du opretter en webhook <link>her</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig Discord webhook URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "toast": {
+      "saved": "Integration gemt",
+      "deleted": "Integration afbrudt",
+      "error": "Kunne ikke opdatere integration",
+      "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheder registreret",
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL"
     }
   }
 }

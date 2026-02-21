@@ -1578,6 +1578,7 @@
         "rules": "Regole",
         "members": "Membri",
         "reports": "Report Email",
+        "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -3521,6 +3522,76 @@
     "toast": {
       "saved": "Impostazioni report salvate",
       "error": "Impossibile salvare le impostazioni del report"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrazioni",
+    "section": {
+      "description": "Collega servizi di terze parti per ricevere notifiche e avvisi dalla tua dashboard."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Notifiche push sui tuoi dispositivi mobili e desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Ricevi aggiornamenti di stato importanti nei tuoi messaggi Discord."
+      }
+    },
+    "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e la aggiungeremo.",
+    "status": {
+      "connected": "Connesso"
+    },
+    "actions": {
+      "configure": "Configura",
+      "add": "Aggiungi",
+      "edit": "Modifica",
+      "disconnect": "Disconnetti"
+    },
+    "disconnect": {
+      "title": "Disconnetti {name}",
+      "description": "Sei sicuro di voler disconnettere questa integrazione? Questo rimuoverà la configurazione e interromperà tutte le notifiche.",
+      "confirm": "Disconnetti"
+    },
+    "pushoverDialog": {
+      "title": "Integrazione Pushover",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "La tua user key Pushover",
+      "priorityLabel": "Priorità notifica",
+      "priorities": {
+        "-2": "Minima: Nessuna notifica",
+        "-1": "Bassa: Nessun suono o vibrazione",
+        "0": "Normale (consigliato)",
+        "1": "Alta: Ignora le ore silenziose"
+      },
+      "credentialsHint": "Trova la tua user key su <link>pushover.net</link>",
+      "priorityHint": "Scopri di più sui livelli di priorità <link>qui</link>.",
+      "errors": {
+        "userKeyRequired": "La user key è obbligatoria",
+        "userKeyInvalid": "User key non valida"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "discordDialog": {
+      "title": "Integrazione Discord",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
+      "webhookHint": "Scopri come creare un webhook <link>qui</link>.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un webhook URL Discord valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "toast": {
+      "saved": "Integrazione salvata",
+      "deleted": "Integrazione disconnessa",
+      "error": "Impossibile aggiornare l'integrazione",
+      "invalidPushoverKey": "User key Pushover non valida o nessun dispositivo registrato",
+      "invalidDiscordWebhook": "Webhook URL Discord non valido"
     }
   }
 }

@@ -161,6 +161,7 @@ model Dashboard {
   monitorChecks MonitorCheck[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
+  integrations DashboardIntegration[]
 }
 
 model UserDashboard {
@@ -452,4 +453,19 @@ model DashboardInvitation {
   @@index([email])
   @@index([token])
   @@index([status])
+}
+
+model DashboardIntegration {
+  id          String    @id @default(cuid())
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+  type        String    // "pushover", "slack", "discord", etc.
+  name        String?
+  enabled     Boolean   @default(true)
+  config      Json      // Type-specific config (e.g. { userKey, apiToken } for Pushover)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([dashboardId, type])
+  @@index([dashboardId])
 }

@@ -15,7 +15,7 @@ import {
 type ConfirmDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  title: string;
+  title: React.ReactNode;
   description: string;
   cancelLabel?: string;
   confirmLabel?: string;

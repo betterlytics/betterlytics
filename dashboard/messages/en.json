@@ -1567,6 +1567,7 @@
         "rules": "Rules",
         "members": "Members",
         "reports": "Email Reports",
+        "integrations": "Integrations",
         "dangerZone": "Danger Zone"
       }
     },
@@ -3504,6 +3505,76 @@
     "toast": {
       "saved": "Report settings saved",
       "error": "Failed to save report settings"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrations",
+    "section": {
+      "description": "Connect third-party services to receive notifications and alerts from your dashboard."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push notifications to your mobile devices and desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Get important status updates in your Discord messages."
+      }
+    },
+    "moreIntegrations": "Need a different integration? Contact us and we'll add it.",
+    "status": {
+      "connected": "Connected"
+    },
+    "actions": {
+      "configure": "Configure",
+      "add": "Add",
+      "edit": "Edit",
+      "disconnect": "Disconnect"
+    },
+    "disconnect": {
+      "title": "Disconnect {name}",
+      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications.",
+      "confirm": "Disconnect"
+    },
+    "pushoverDialog": {
+      "title": "Pushover Integration",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Your Pushover user key",
+      "priorityLabel": "Notification Priority",
+      "priorities": {
+        "-2": "Lowest: No notification",
+        "-1": "Low: No sound or vibration",
+        "0": "Normal (Recommended)",
+        "1": "High: Bypass quiet hours"
+      },
+      "credentialsHint": "Find your user key at <link>pushover.net</link>",
+      "priorityHint": "Learn more about priority levels <link>here</link>.",
+      "errors": {
+        "userKeyRequired": "User key is required",
+        "userKeyInvalid": "Invalid user key"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "discordDialog": {
+      "title": "Discord Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
+      "webhookHint": "Learn how to create a webhook <link>here</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Discord webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "toast": {
+      "saved": "Integration saved",
+      "deleted": "Integration disconnected",
+      "error": "Failed to update integration",
+      "invalidPushoverKey": "Invalid Pushover user key or no devices registered",
+      "invalidDiscordWebhook": "Invalid Discord webhook URL"
     }
   }
 }
