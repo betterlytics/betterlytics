@@ -53,26 +53,29 @@ impl NotificationEngine {
             return 0;
         }
 
+        let futures: Vec<_> = integrations
+            .iter()
+            .filter_map(|integration| {
+                let notifier = self.notifiers.get(&integration.integration_type)?;
+                Some(async {
+                    let result =
+                        Self::send_with_retry(notifier.as_ref(), &integration.config, notification)
+                            .await;
+                    (&integration.integration_type, &integration.config, result)
+                })
+            })
+            .collect();
+
+        let results = futures::future::join_all(futures).await;
+
         let mut sent = 0;
-
-        for integration in &integrations {
-            let Some(notifier) = self.notifiers.get(&integration.integration_type) else {
-                debug!(
-                    integration_type = %integration.integration_type,
-                    "no notifier registered for integration type"
-                );
-                continue;
-            };
-
-            let result =
-                Self::send_with_retry(notifier.as_ref(), &integration.config, notification).await;
-
-            let (status, error_message) = match &result {
+        for (integration_type, _config, result) in &results {
+            let (status, error_message) = match result {
                 Ok(()) => {
                     sent += 1;
                     info!(
                         dashboard_id = %dashboard_id,
-                        integration_type = %integration.integration_type,
+                        integration_type = %integration_type,
                         "notification sent"
                     );
                     ("sent", None)
@@ -80,7 +83,7 @@ impl NotificationEngine {
                 Err(err) => {
                     error!(
                         dashboard_id = %dashboard_id,
-                        integration_type = %integration.integration_type,
+                        integration_type = %integration_type,
                         error = ?err,
                         "failed to send notification"
                     );
@@ -90,7 +93,7 @@ impl NotificationEngine {
 
             self.record_history(
                 dashboard_id,
-                &integration.integration_type,
+                integration_type,
                 &notification.title,
                 status,
                 error_message,

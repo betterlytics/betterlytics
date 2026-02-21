@@ -47,7 +47,7 @@ impl Notifier for PushoverNotifier {
         config: &serde_json::Value,
         notification: &Notification,
     ) -> Result<(), NotifierError> {
-        let pushover_config: PushoverConfig = serde_json::from_value(config.clone())
+        let pushover_config = PushoverConfig::deserialize(config)
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
 
         let priority = pushover_config.priority.unwrap_or(0);
