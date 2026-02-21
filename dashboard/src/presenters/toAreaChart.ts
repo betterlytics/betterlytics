@@ -15,7 +15,7 @@ type DataToAreaChartProps<K extends string> = {
 };
 
 type ToAreaChartProps<K extends string> = DataToAreaChartProps<K> & {
-  compare?: Array<{ date: string } & Record<K, number>>;
+  compare?: Array<{ date: string } & Record<K, number>> | null;
   compareDateRange?: {
     start?: Date;
     end?: Date;

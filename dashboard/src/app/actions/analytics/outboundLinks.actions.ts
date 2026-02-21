@@ -55,7 +55,8 @@ export const fetchOutboundClicksChartAction = withDashboardAuthContext(
       dateRange: { start: main.startDate, end: main.endDate },
       compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
       bucketIncomplete:
-        main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+        main.endDate.getTime() > Date.now() ||
+        isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
       startBucketIncomplete: isStartBucketIncomplete(main.startDate, main.granularity, main.timezone),
     });
   },
