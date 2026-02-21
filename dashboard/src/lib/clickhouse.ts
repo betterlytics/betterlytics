@@ -36,7 +36,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
   return {
     query(sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
       const params = reqParams?.params ?? {};
-      const format = reqParams?.format ?? 'JSON';
+      const format = reqParams?.format ?? 'JSONEachRow';
 
       return {
         async toPromise(): Promise<unknown[]> {
@@ -45,12 +45,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
             query_params: params,
             format,
           });
-          const json = await resultSet.json();
-
-          if (format === 'JSON') {
-            return (json as { data: unknown[] }).data;
-          }
-          return json as unknown[];
+          return (await resultSet.json()) as unknown[];
         },
       };
     },

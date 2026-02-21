@@ -29,10 +29,10 @@ import { createClickHouseAdapter } from './clickhouse';
 describe('ClickHouse adapter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockJson.mockResolvedValue({ data: [{ count: 1 }] });
+    mockJson.mockResolvedValue([{ count: 1 }]);
   });
 
-  it('maps query(sql, { params }) to new client and extracts .data', async () => {
+  it('maps query(sql, { params }) to new client query()', async () => {
     const adapter = createClickHouseAdapter({
       url: 'http://localhost:8123',
       username: 'user',
@@ -48,21 +48,19 @@ describe('ClickHouse adapter', () => {
     expect(mockQuery).toHaveBeenCalledWith({
       query: 'SELECT count() FROM events WHERE site_id = {site_id:String}',
       query_params: { site_id: 'abc123' },
-      format: 'JSON',
+      format: 'JSONEachRow',
     });
     expect(result).toEqual([{ count: 1 }]);
   });
 
-  it('returns raw array for JSONEachRow format', async () => {
-    mockJson.mockResolvedValue([{ count: 1 }]);
-
+  it('forwards explicit format parameter', async () => {
     const adapter = createClickHouseAdapter({
       url: 'http://localhost:8123',
       username: 'user',
       password: 'pass',
     });
 
-    const result = await adapter
+    await adapter
       .query('SELECT 1', {
         params: {},
         format: 'JSONEachRow',
@@ -72,10 +70,9 @@ describe('ClickHouse adapter', () => {
     expect(mockQuery).toHaveBeenCalledWith(
       expect.objectContaining({ format: 'JSONEachRow' }),
     );
-    expect(result).toEqual([{ count: 1 }]);
   });
 
-  it('defaults to JSON format and empty params when none provided', async () => {
+  it('defaults to JSONEachRow format and empty params when none provided', async () => {
     const adapter = createClickHouseAdapter({
       url: 'http://localhost:8123',
       username: 'user',
@@ -87,7 +84,7 @@ describe('ClickHouse adapter', () => {
     expect(mockQuery).toHaveBeenCalledWith({
       query: 'SELECT 1',
       query_params: {},
-      format: 'JSON',
+      format: 'JSONEachRow',
     });
   });
 
