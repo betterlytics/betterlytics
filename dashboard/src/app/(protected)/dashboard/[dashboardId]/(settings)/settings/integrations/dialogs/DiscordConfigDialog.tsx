@@ -60,58 +60,66 @@ export function DiscordConfigDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            <Image src='/images/integrations/discord.svg' alt='Discord' width={24} height={24} />
-            {t('title')}
-          </DialogTitle>
-        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2'>
+              <Image src='/images/integrations/discord.svg' alt='Discord' width={24} height={24} />
+              {t('title')}
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className='py-2'>
-          <div className='space-y-2'>
-            <Label htmlFor='discord-webhook-url'>{t('webhookUrlLabel')}</Label>
-            <Input
-              id='discord-webhook-url'
-              placeholder={config?.webhookUrl ?? 'https://discord.com/api/webhooks/...'}
-              value={webhookUrl}
-              onChange={(e) => {
-                setWebhookUrl(e.target.value);
-                if (error) setError(undefined);
-              }}
-              className={error ? 'border-destructive' : ''}
-              disabled={isPending}
-            />
-            {error && <p className='text-destructive text-sm'>{error}</p>}
-            <p className='text-muted-foreground text-xs'>
-              {t.rich('webhookHint', {
-                link: (chunks) => (
-                  <ExternalLink
-                    href='https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary underline'
-                  >
-                    {chunks}
-                  </ExternalLink>
-                ),
-              })}
-            </p>
+          <div className='py-2'>
+            <div className='space-y-2'>
+              <Label htmlFor='discord-webhook-url'>{t('webhookUrlLabel')}</Label>
+              <Input
+                id='discord-webhook-url'
+                placeholder={config?.webhookUrl ?? 'https://discord.com/api/webhooks/...'}
+                value={webhookUrl}
+                onChange={(e) => {
+                  setWebhookUrl(e.target.value);
+                  if (error) setError(undefined);
+                }}
+                className={error ? 'border-destructive' : ''}
+                disabled={isPending}
+              />
+              {error && <p className='text-destructive text-sm'>{error}</p>}
+              <p className='text-muted-foreground text-xs'>
+                {t.rich('webhookHint', {
+                  link: (chunks) => (
+                    <ExternalLink
+                      href='https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-primary underline'
+                    >
+                      {chunks}
+                    </ExternalLink>
+                  ),
+                })}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <DialogFooter>
-          <Button
-            variant='outline'
-            className='cursor-pointer'
-            onClick={() => onOpenChange(false)}
-            disabled={isPending}
-          >
-            {t('cancel')}
-          </Button>
-          <Button className='cursor-pointer' onClick={handleSave} disabled={isPending}>
-            {t('save')}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button
+              type='button'
+              variant='outline'
+              className='cursor-pointer'
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
+            >
+              {t('cancel')}
+            </Button>
+            <Button type='submit' className='cursor-pointer' disabled={isPending}>
+              {t('save')}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

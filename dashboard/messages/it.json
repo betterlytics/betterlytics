@@ -3541,7 +3541,8 @@
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
     "status": {
-      "connected": "Connesso"
+      "connected": "Connesso",
+      "disabled": "Disabilitato"
     },
     "actions": {
       "configure": "Configura",

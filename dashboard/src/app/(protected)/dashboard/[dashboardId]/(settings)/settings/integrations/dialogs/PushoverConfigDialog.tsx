@@ -66,92 +66,100 @@ export function PushoverConfigDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            <Image src='/images/integrations/pushover.svg' alt='Pushover' width={24} height={24} />
-            {t('title')}
-          </DialogTitle>
-        </DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle className='flex items-center gap-2'>
+              <Image src='/images/integrations/pushover.svg' alt='Pushover' width={24} height={24} />
+              {t('title')}
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className='space-y-6 py-2'>
-          <div className='space-y-2'>
-            <Label htmlFor='pushover-user-key'>{t('userKeyLabel')}</Label>
-            <Input
-              id='pushover-user-key'
-              placeholder={config?.userKey ?? t('userKeyPlaceholder')}
-              value={userKey}
-              onChange={(e) => {
-                setUserKey(e.target.value);
-                if (error) setError(undefined);
-              }}
-              className={error ? 'border-destructive' : ''}
-              disabled={isPending}
-            />
-            {error && <p className='text-destructive text-sm'>{error}</p>}
-            <p className='text-muted-foreground text-xs'>
-              {t.rich('credentialsHint', {
-                link: (chunks) => (
-                  <ExternalLink
-                    href='https://pushover.net'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary underline'
-                  >
-                    {chunks}
-                  </ExternalLink>
-                ),
-              })}
-            </p>
+          <div className='space-y-6 py-2'>
+            <div className='space-y-2'>
+              <Label htmlFor='pushover-user-key'>{t('userKeyLabel')}</Label>
+              <Input
+                id='pushover-user-key'
+                placeholder={config?.userKey ?? t('userKeyPlaceholder')}
+                value={userKey}
+                onChange={(e) => {
+                  setUserKey(e.target.value);
+                  if (error) setError(undefined);
+                }}
+                className={error ? 'border-destructive' : ''}
+                disabled={isPending}
+              />
+              {error && <p className='text-destructive text-sm'>{error}</p>}
+              <p className='text-muted-foreground text-xs'>
+                {t.rich('credentialsHint', {
+                  link: (chunks) => (
+                    <ExternalLink
+                      href='https://pushover.net'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-primary underline'
+                    >
+                      {chunks}
+                    </ExternalLink>
+                  ),
+                })}
+              </p>
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='pushover-priority'>{t('priorityLabel')}</Label>
+              <Select
+                value={String(priority)}
+                onValueChange={(value) => setPriority(Number(value) as PushoverPriority)}
+                disabled={isPending}
+              >
+                <SelectTrigger id='pushover-priority' className='cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PUSHOVER_PRIORITIES.map((p) => (
+                    <SelectItem key={p} value={String(p)} className='cursor-pointer'>
+                      {t(`priorities.${p}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className='text-muted-foreground text-xs'>
+                {t.rich('priorityHint', {
+                  link: (chunks) => (
+                    <ExternalLink
+                      href='https://pushover.net/api#priority'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-primary underline'
+                    >
+                      {chunks}
+                    </ExternalLink>
+                  ),
+                })}
+              </p>
+            </div>
           </div>
 
-          <div className='space-y-2'>
-            <Label htmlFor='pushover-priority'>{t('priorityLabel')}</Label>
-            <Select
-              value={String(priority)}
-              onValueChange={(value) => setPriority(Number(value) as PushoverPriority)}
+          <DialogFooter>
+            <Button
+              type='button'
+              variant='outline'
+              className='cursor-pointer'
+              onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
-              <SelectTrigger id='pushover-priority' className='cursor-pointer'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PUSHOVER_PRIORITIES.map((p) => (
-                  <SelectItem key={p} value={String(p)} className='cursor-pointer'>
-                    {t(`priorities.${p}`)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className='text-muted-foreground text-xs'>
-              {t.rich('priorityHint', {
-                link: (chunks) => (
-                  <ExternalLink
-                    href='https://pushover.net/api#priority'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary underline'
-                  >
-                    {chunks}
-                  </ExternalLink>
-                ),
-              })}
-            </p>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button
-            variant='outline'
-            className='cursor-pointer'
-            onClick={() => onOpenChange(false)}
-            disabled={isPending}
-          >
-            {t('cancel')}
-          </Button>
-          <Button className='cursor-pointer' onClick={handleSave} disabled={isPending}>
-            {t('save')}
-          </Button>
-        </DialogFooter>
+              {t('cancel')}
+            </Button>
+            <Button type='submit' className='cursor-pointer' disabled={isPending}>
+              {t('save')}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

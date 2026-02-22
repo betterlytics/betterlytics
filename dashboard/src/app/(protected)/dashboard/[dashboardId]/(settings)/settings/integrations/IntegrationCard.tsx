@@ -48,10 +48,14 @@ export function IntegrationCard({
           <span className='text-sm font-semibold'>{name}</span>
           {isConnected && (
             <Badge
-              variant='outline'
-              className='rounded-full border-green-200 bg-green-50 px-2 py-0 text-[10px] text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400'
+              variant={integration.enabled ? 'outline' : 'secondary'}
+              className={`rounded-full px-2 py-0 text-[10px] ${
+                integration.enabled
+                  ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400'
+                  : 'border-border'
+              }`}
             >
-              {t('status.connected')}
+              {t(`status.${integration.enabled ? 'connected' : 'disabled'}`)}
             </Badge>
           )}
         </div>

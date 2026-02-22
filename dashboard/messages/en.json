@@ -3524,7 +3524,8 @@
     },
     "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
     "status": {
-      "connected": "Connected"
+      "connected": "Connected",
+      "disabled": "Disabled"
     },
     "actions": {
       "configure": "Configure",
