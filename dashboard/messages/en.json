@@ -1047,10 +1047,6 @@
           "title": "Core Web Vitals",
           "description": "Monitor and measure your site's performance with Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Outbound Links",
-          "description": "Track clicks to external sites, social links, docs, and more."
-        },
         "trafficSources": {
           "title": "Traffic Sources",
           "description": "Discover where your visitors are arriving from and optimize your marketing efforts.",
@@ -1608,10 +1604,6 @@
       "noData": "No data available"
     }
   },
-  "devicesPage": {
-    "title": "Devices",
-    "description": "Visitor device breakdown and usage analytics"
-  },
   "dashboardsPage": {
     "title": "Your Dashboards",
     "subtitle": "Manage and monitor analytics for all your websites.",
@@ -1716,7 +1708,6 @@
   },
   "monitoringPage": {
     "title": "Monitoring",
-    "table": {},
     "filters": {
       "statusLabel": "Status",
       "sortLabel": "Sort",
@@ -2023,23 +2014,7 @@
     "save": "Save",
     "saving": "Saving..."
   },
-  "languages": {
-    "da": "Danish",
-    "en": "English",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Mon.",
-        "tueShort": "Tue.",
-        "wedShort": "Wed.",
-        "thuShort": "Thu.",
-        "friShort": "Fri.",
-        "satShort": "Sat.",
-        "sunShort": "Sun."
-      }
-    },
     "annotations": {
       "dialogs": {
         "addTitle": "Add Annotation",
@@ -2180,9 +2155,6 @@
         "enterprise": "Enterprise"
       }
     },
-    "dataTable": {
-      "noResults": "No results."
-    },
     "timeRange": {
       "disabled": "Disabled",
       "disableCompare": "Disable Compare",
@@ -2243,10 +2215,6 @@
       "charts": {
         "deviceTypes": "Device Types",
         "deviceUsageTrend": "Device Usage Trend"
-      },
-      "trends": {
-        "noData": "No trend data available",
-        "adjustTimeRange": "Try adjusting the time range or filters"
       }
     },
     "campaign": {
@@ -2307,10 +2275,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Events",
-        "description": "Analytics and insights for your custom events"
-      },
       "log": {
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
@@ -2403,13 +2367,6 @@
         "step": "Step",
         "visitors": "Visitors"
       },
-      "list": {
-        "steps": "steps",
-        "conversionRate": "Conversion rate",
-        "completed": "Completed",
-        "totalUsers": "Total users",
-        "largestDropOff": "Largest drop-off"
-      },
       "create": {
         "defaultName": "My new funnel",
         "createFunnel": "Create Funnel",
@@ -2464,25 +2421,8 @@
         "successMessage": "Funnel deleted!",
         "errorMessage": "Funnel deletion failed!"
       },
-      "page": {
-        "title": "Funnels",
-        "description": "Analyze user conversion paths"
-      },
       "preview": {
-        "loading": "Loading preview...",
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
-      },
-      "details": {
-        "title": "Funnel Analysis",
-        "steps": "steps",
-        "users": "users",
-        "dropped": "dropped",
-        "summary": {
-          "overallConversion": "Overall conversion",
-          "totalVisitors": "Total visitors",
-          "totalCompleted": "Total completed",
-          "biggestDropOff": "Biggest drop-off"
-        }
       },
       "emptyState": {
         "title": "Visualize your conversion funnel",
@@ -2514,9 +2454,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analyze referral sources, traffic share, and performance trends."
-      },
       "summary": {
         "referralSessions": "Referral Sessions",
         "referralTrafficPct": "Referral Traffic %",
@@ -2560,12 +2497,6 @@
       "sessions": "Sessions"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors",
-        "topDomain": "Top Domain",
-        "topSourcePage": "Top Source Page"
-      },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
@@ -3157,10 +3088,6 @@
     }
   },
   "members": {
-    "page": {
-      "title": "Members",
-      "description": "Manage who has access to this dashboard"
-    },
     "table": {
       "title": "Members",
       "searchPlaceholder": "Search members...",

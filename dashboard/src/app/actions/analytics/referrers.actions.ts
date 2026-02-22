@@ -12,12 +12,7 @@ import {
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import {
-  TopReferrerUrl,
-  TopChannel,
-  TopReferrerSource,
-  TrafficSourcesCombinedSchema,
-} from '@/entities/analytics/referrers.entities';
+import { TrafficSourcesCombinedSchema } from '@/entities/analytics/referrers.entities';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { toPieChart } from '@/presenters/toPieChart';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
@@ -203,69 +198,6 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
       };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);
-      throw error;
-    }
-  },
-);
-
-/**
- * Fetches top referrer URLs
- */
-export const fetchTopReferrerUrlsForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    limit: number = 10,
-  ): Promise<TopReferrerUrl[]> => {
-    try {
-      const data = await getTopReferrerUrlsForSite(ctx.siteId, startDate, endDate, queryFilters, limit);
-      return data;
-    } catch (error) {
-      console.error('Error fetching top referrer URLs:', error);
-      throw error;
-    }
-  },
-);
-
-/**
- * Fetches top traffic channels
- */
-export const fetchTopChannelsForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    limit: number = 10,
-  ): Promise<TopChannel[]> => {
-    try {
-      const data = await getTopChannelsForSite(ctx.siteId, startDate, endDate, queryFilters, limit);
-      return data;
-    } catch (error) {
-      console.error('Error fetching top channels:', error);
-      throw error;
-    }
-  },
-);
-
-/**
- * Fetches top referrer sources
- */
-export const fetchTopReferrerSourcesForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    limit: number = 10,
-  ): Promise<TopReferrerSource[]> => {
-    try {
-      const data = await getTopReferrerSourcesForSite(ctx.siteId, startDate, endDate, queryFilters, limit);
-      return data;
-    } catch (error) {
-      console.error('Error fetching top referrer sources:', error);
       throw error;
     }
   },
