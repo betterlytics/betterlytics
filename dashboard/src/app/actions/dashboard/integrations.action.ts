@@ -1,6 +1,6 @@
 'use server';
 
-import { Integration, IntegrationConfig, IntegrationType } from '@/entities/dashboard/integration.entities';
+import { Integration, IntegrationConfigInput, IntegrationType } from '@/entities/dashboard/integration.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import * as IntegrationService from '@/services/dashboard/integration.service';
@@ -30,7 +30,7 @@ export const saveIntegrationAction = withDashboardMutationAuthContext(
   async (
     ctx: AuthContext,
     type: IntegrationType,
-    config: IntegrationConfig,
+    config: IntegrationConfigInput,
     name?: string | null,
   ): Promise<SaveIntegrationResult> => {
     const validationError = await IntegrationService.validateIntegrationConfig(type, config);

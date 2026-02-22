@@ -3577,7 +3577,6 @@
     "discordDialog": {
       "title": "Integrazione Discord",
       "webhookUrlLabel": "Webhook URL",
-      "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
       "webhookHint": "Scopri come creare un webhook <link>qui</link>.",
       "errors": {
         "webhookUrlRequired": "Il webhook URL è obbligatorio",

@@ -3569,7 +3569,6 @@
     "discordDialog": {
       "title": "Discord-integration",
       "webhookUrlLabel": "Webhook URL",
-      "webhookUrlPlaceholder": "https://discord.com/api/webhooks/...",
       "webhookHint": "Lær hvordan du opretter en webhook <link>her</link>.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrævet",

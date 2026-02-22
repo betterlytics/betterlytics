@@ -13,14 +13,14 @@ import {
 } from '@/app/actions/dashboard/integrations.action';
 import {
   Integration,
-  IntegrationConfig,
+  IntegrationConfigInput,
   IntegrationType,
   INTEGRATION_TYPES,
 } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import { IntegrationCard } from './IntegrationCard';
-import { PushoverConfigDialog } from './PushoverConfigDialog';
-import { DiscordConfigDialog } from './DiscordConfigDialog';
+import { PushoverConfigDialog } from './dialogs/PushoverConfigDialog';
+import { DiscordConfigDialog } from './dialogs/DiscordConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
 
 export default function IntegrationsSettings() {
@@ -63,7 +63,7 @@ export default function IntegrationsSettings() {
     });
   }, [dashboardId]);
 
-  const handleSave = (type: IntegrationType, config: IntegrationConfig) => {
+  const handleSave = (type: IntegrationType, config: IntegrationConfigInput) => {
     startTransition(async () => {
       try {
         const result = await saveIntegrationAction(dashboardId, type, config);

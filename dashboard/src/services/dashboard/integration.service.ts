@@ -3,6 +3,7 @@
 import {
   Integration,
   IntegrationConfig,
+  IntegrationConfigInput,
   IntegrationType,
   IntegrationConfigSchemas,
 } from '@/entities/dashboard/integration.entities';
@@ -25,16 +26,41 @@ function decryptIntegration(integration: Integration): Integration {
   return { ...integration, config: decryptConfig(integration.config as { encrypted: string }) };
 }
 
-type IntegrationValidator = (config: IntegrationConfig) => Promise<string | null>;
+const MASK_CHAR = '•';
+const VISIBLE_CHARS = 4;
+
+const SECRET_FIELDS: Record<IntegrationType, string[]> = {
+  pushover: ['userKey'],
+  discord: ['webhookUrl'],
+};
+
+function maskSecret(value: string): string {
+  if (value.length <= VISIBLE_CHARS) return MASK_CHAR.repeat(value.length);
+  return MASK_CHAR.repeat(value.length - VISIBLE_CHARS) + value.slice(-VISIBLE_CHARS);
+}
+
+function maskIntegration(integration: Integration): Integration {
+  const config = { ...integration.config };
+  for (const field of SECRET_FIELDS[integration.type as IntegrationType] ?? []) {
+    if (typeof config[field] === 'string') {
+      config[field] = maskSecret(config[field]);
+    }
+  }
+  return { ...integration, config };
+}
+
+type IntegrationValidator = (config: IntegrationConfigInput) => Promise<string | null>;
 
 const integrationValidators: Partial<Record<IntegrationType, IntegrationValidator>> = {
   pushover: async (config) => {
-    if (!('userKey' in config) || typeof config.userKey !== 'string') return 'invalid_pushover_key';
+    if (!('userKey' in config) || !config.userKey) return null;
+    if (typeof config.userKey !== 'string') return 'invalid_pushover_key';
     const isValid = await validatePushoverUserKey(config.userKey);
     return isValid ? null : 'invalid_pushover_key';
   },
   discord: async (config) => {
-    if (!('webhookUrl' in config) || typeof config.webhookUrl !== 'string') return 'invalid_discord_webhook';
+    if (!('webhookUrl' in config) || !config.webhookUrl) return null;
+    if (typeof config.webhookUrl !== 'string') return 'invalid_discord_webhook';
     const isValid = await validateDiscordWebhookUrl(config.webhookUrl);
     return isValid ? null : 'invalid_discord_webhook';
   },
@@ -42,7 +68,7 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
 
 export async function validateIntegrationConfig(
   type: IntegrationType,
-  config: IntegrationConfig,
+  config: IntegrationConfigInput,
 ): Promise<string | null> {
   const validator = integrationValidators[type];
   if (!validator) return null;
@@ -52,7 +78,7 @@ export async function validateIntegrationConfig(
 export async function getIntegrations(dashboardId: string): Promise<Integration[]> {
   try {
     const integrations = await IntegrationRepository.findIntegrationsByDashboardId(dashboardId);
-    return integrations.map(decryptIntegration);
+    return integrations.map(decryptIntegration).map(maskIntegration);
   } catch (error) {
     console.error('Error getting integrations:', error);
     throw new Error('Failed to get integrations');
@@ -63,7 +89,7 @@ export async function getIntegration(dashboardId: string, type: IntegrationType)
   try {
     const integration = await IntegrationRepository.findIntegrationByType(dashboardId, type);
     if (!integration) return null;
-    return decryptIntegration(integration);
+    return maskIntegration(decryptIntegration(integration));
   } catch (error) {
     console.error('Error getting integration:', error);
     throw new Error('Failed to get integration');
@@ -73,15 +99,24 @@ export async function getIntegration(dashboardId: string, type: IntegrationType)
 export async function saveIntegration(
   dashboardId: string,
   type: IntegrationType,
-  config: IntegrationConfig,
+  input: IntegrationConfigInput,
   name?: string | null,
 ): Promise<Integration> {
   try {
+    const existing = await IntegrationRepository.findIntegrationByType(dashboardId, type);
+
+    let config: IntegrationConfig;
+    if (existing) {
+      const existingConfig = decryptConfig(existing.config as { encrypted: string });
+      config = { ...existingConfig, ...input } as IntegrationConfig;
+    } else {
+      config = input as IntegrationConfig;
+    }
+
     const configSchema = IntegrationConfigSchemas[type];
     configSchema.parse(config);
 
     const encryptedConfig = encryptConfig(config);
-    const existing = await IntegrationRepository.findIntegrationByType(dashboardId, type);
 
     let result: Integration;
     if (existing) {
@@ -99,7 +134,7 @@ export async function saveIntegration(
       sendSetupConfirmation(type, config).catch((err) => console.error('Failed to send setup confirmation:', err));
     }
 
-    return decryptIntegration(result);
+    return maskIntegration(decryptIntegration(result));
   } catch (error) {
     console.error('Error saving integration:', error);
     throw new Error('Failed to save integration');
@@ -122,7 +157,7 @@ export async function toggleIntegration(
 ): Promise<Integration> {
   try {
     const result = await IntegrationRepository.updateIntegration(dashboardId, type, { enabled });
-    return decryptIntegration(result);
+    return maskIntegration(decryptIntegration(result));
   } catch (error) {
     console.error('Error toggling integration:', error);
     throw new Error('Failed to toggle integration');

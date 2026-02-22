@@ -57,3 +57,7 @@ export type IntegrationUpdate = z.infer<typeof IntegrationUpdateSchema>;
 export type PushoverConfig = z.infer<typeof PushoverConfigSchema>;
 export type DiscordConfig = z.infer<typeof DiscordConfigSchema>;
 export type IntegrationConfig = PushoverConfig | DiscordConfig;
+
+export type PushoverConfigInput = Omit<PushoverConfig, 'userKey'> & { userKey?: string };
+export type DiscordConfigInput = Omit<DiscordConfig, 'webhookUrl'> & { webhookUrl?: string };
+export type IntegrationConfigInput = PushoverConfigInput | DiscordConfigInput;

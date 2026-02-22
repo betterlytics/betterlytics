@@ -12,6 +12,7 @@ import {
   PUSHOVER_PRIORITIES,
   type PushoverPriority,
   type PushoverConfig,
+  type PushoverConfigInput,
 } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -21,7 +22,7 @@ type PushoverConfigDialogProps = {
   onOpenChange: (open: boolean) => void;
   integration?: Integration;
   isPending: boolean;
-  onSave: (config: PushoverConfig) => void;
+  onSave: (config: PushoverConfigInput) => void;
 };
 
 export function PushoverConfigDialog({
@@ -32,16 +33,16 @@ export function PushoverConfigDialog({
   onSave,
 }: PushoverConfigDialogProps) {
   const t = useTranslations('integrationsSettings.pushoverDialog');
-  const existingConfig = integration?.config as Partial<PushoverConfig> | undefined;
+  const config = integration?.config as Partial<PushoverConfig> | undefined;
 
-  const [userKey, setUserKey] = useState(existingConfig?.userKey ?? '');
-  const [priority, setPriority] = useState<PushoverPriority>((existingConfig?.priority as PushoverPriority) ?? 0);
+  const [userKey, setUserKey] = useState('');
+  const [priority, setPriority] = useState<PushoverPriority>((config?.priority as PushoverPriority) ?? 0);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
     if (open) {
       const config = integration?.config as Partial<PushoverConfig> | undefined;
-      setUserKey(config?.userKey ?? '');
+      setUserKey('');
       setPriority((config?.priority as PushoverPriority) ?? 0);
       setError(undefined);
     }
@@ -50,16 +51,16 @@ export function PushoverConfigDialog({
   const handleSave = () => {
     const trimmedUserKey = userKey.trim();
 
-    if (!trimmedUserKey) {
+    if (!trimmedUserKey && !integration) {
       setError(t('errors.userKeyRequired'));
       return;
     }
-    if (!/^[A-Za-z0-9]{30}$/.test(trimmedUserKey)) {
+    if (trimmedUserKey && !/^[A-Za-z0-9]{30}$/.test(trimmedUserKey)) {
       setError(t('errors.userKeyInvalid'));
       return;
     }
 
-    onSave({ userKey: trimmedUserKey, priority });
+    onSave({ ...(trimmedUserKey ? { userKey: trimmedUserKey } : {}), priority });
   };
 
   return (
@@ -77,7 +78,7 @@ export function PushoverConfigDialog({
             <Label htmlFor='pushover-user-key'>{t('userKeyLabel')}</Label>
             <Input
               id='pushover-user-key'
-              placeholder={t('userKeyPlaceholder')}
+              placeholder={config?.userKey ?? t('userKeyPlaceholder')}
               value={userKey}
               onChange={(e) => {
                 setUserKey(e.target.value);

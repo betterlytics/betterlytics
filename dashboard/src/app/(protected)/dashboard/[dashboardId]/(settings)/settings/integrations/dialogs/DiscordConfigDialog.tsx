@@ -6,7 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import ExternalLink from '@/components/ExternalLink';
-import { Integration, type DiscordConfig } from '@/entities/dashboard/integration.entities';
+import {
+  Integration,
+  type DiscordConfig,
+  type DiscordConfigInput,
+} from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -15,7 +19,7 @@ type DiscordConfigDialogProps = {
   onOpenChange: (open: boolean) => void;
   integration?: Integration;
   isPending: boolean;
-  onSave: (config: DiscordConfig) => void;
+  onSave: (config: DiscordConfigInput) => void;
 };
 
 export function DiscordConfigDialog({
@@ -26,15 +30,14 @@ export function DiscordConfigDialog({
   onSave,
 }: DiscordConfigDialogProps) {
   const t = useTranslations('integrationsSettings.discordDialog');
-  const existingConfig = integration?.config as Partial<DiscordConfig> | undefined;
+  const config = integration?.config as Partial<DiscordConfig> | undefined;
 
-  const [webhookUrl, setWebhookUrl] = useState(existingConfig?.webhookUrl ?? '');
+  const [webhookUrl, setWebhookUrl] = useState('');
   const [error, setError] = useState<string>();
 
   useEffect(() => {
     if (open) {
-      const config = integration?.config as Partial<DiscordConfig> | undefined;
-      setWebhookUrl(config?.webhookUrl ?? '');
+      setWebhookUrl('');
       setError(undefined);
     }
   }, [open, integration]);
@@ -42,16 +45,16 @@ export function DiscordConfigDialog({
   const handleSave = () => {
     const trimmedUrl = webhookUrl.trim();
 
-    if (!trimmedUrl) {
+    if (!trimmedUrl && !integration) {
       setError(t('errors.webhookUrlRequired'));
       return;
     }
-    if (!/^https:\/\/discord\.com\/api\/webhooks\//.test(trimmedUrl)) {
+    if (trimmedUrl && !/^https:\/\/discord\.com\/api\/webhooks\//.test(trimmedUrl)) {
       setError(t('errors.webhookUrlInvalid'));
       return;
     }
 
-    onSave({ webhookUrl: trimmedUrl });
+    onSave(trimmedUrl ? { webhookUrl: trimmedUrl } : {});
   };
 
   return (
@@ -69,7 +72,7 @@ export function DiscordConfigDialog({
             <Label htmlFor='discord-webhook-url'>{t('webhookUrlLabel')}</Label>
             <Input
               id='discord-webhook-url'
-              placeholder={t('webhookUrlPlaceholder')}
+              placeholder={config?.webhookUrl ?? 'https://discord.com/api/webhooks/...'}
               value={webhookUrl}
               onChange={(e) => {
                 setWebhookUrl(e.target.value);
