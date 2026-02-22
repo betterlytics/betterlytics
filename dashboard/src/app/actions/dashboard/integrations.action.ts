@@ -1,6 +1,6 @@
 'use server';
 
-import { Integration, IntegrationType } from '@/entities/dashboard/integration.entities';
+import { Integration, IntegrationConfig, IntegrationType } from '@/entities/dashboard/integration.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import * as IntegrationService from '@/services/dashboard/integration.service';
@@ -9,7 +9,7 @@ import { env } from '@/lib/env';
 
 const integrationAvailability: Record<IntegrationType, () => boolean> = {
   pushover: () => !!env.PUSHOVER_APP_TOKEN,
-  discord: () => true
+  discord: () => true,
 };
 
 export const getAvailableIntegrationTypesAction = withDashboardAuthContext(
@@ -20,21 +20,17 @@ export const getAvailableIntegrationTypesAction = withDashboardAuthContext(
   },
 );
 
-export const getIntegrationsAction = withDashboardAuthContext(
-  async (ctx: AuthContext): Promise<Integration[]> => {
-    return await IntegrationService.getIntegrations(ctx.dashboardId);
-  },
-);
+export const getIntegrationsAction = withDashboardAuthContext(async (ctx: AuthContext): Promise<Integration[]> => {
+  return await IntegrationService.getIntegrations(ctx.dashboardId);
+});
 
-type SaveIntegrationResult =
-  | { success: true; integration: Integration }
-  | { success: false; error: string };
+type SaveIntegrationResult = { success: true; integration: Integration } | { success: false; error: string };
 
 export const saveIntegrationAction = withDashboardMutationAuthContext(
   async (
     ctx: AuthContext,
     type: IntegrationType,
-    config: Record<string, unknown>,
+    config: IntegrationConfig,
     name?: string | null,
   ): Promise<SaveIntegrationResult> => {
     const validationError = await IntegrationService.validateIntegrationConfig(type, config);

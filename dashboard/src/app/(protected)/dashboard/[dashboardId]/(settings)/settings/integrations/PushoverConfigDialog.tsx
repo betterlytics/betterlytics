@@ -21,7 +21,7 @@ type PushoverConfigDialogProps = {
   onOpenChange: (open: boolean) => void;
   integration?: Integration;
   isPending: boolean;
-  onSave: (config: Record<string, unknown>) => void;
+  onSave: (config: PushoverConfig) => void;
 };
 
 export function PushoverConfigDialog({

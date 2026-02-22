@@ -56,3 +56,4 @@ export type IntegrationCreate = z.infer<typeof IntegrationCreateSchema>;
 export type IntegrationUpdate = z.infer<typeof IntegrationUpdateSchema>;
 export type PushoverConfig = z.infer<typeof PushoverConfigSchema>;
 export type DiscordConfig = z.infer<typeof DiscordConfigSchema>;
+export type IntegrationConfig = PushoverConfig | DiscordConfig;

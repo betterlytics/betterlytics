@@ -15,7 +15,7 @@ type DiscordConfigDialogProps = {
   onOpenChange: (open: boolean) => void;
   integration?: Integration;
   isPending: boolean;
-  onSave: (config: Record<string, unknown>) => void;
+  onSave: (config: DiscordConfig) => void;
 };
 
 export function DiscordConfigDialog({

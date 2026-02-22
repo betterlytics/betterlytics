@@ -2,6 +2,7 @@
 
 import {
   Integration,
+  IntegrationConfig,
   IntegrationType,
   IntegrationConfigSchemas,
 } from '@/entities/dashboard/integration.entities';
@@ -11,34 +12,29 @@ import { env } from '@/lib/env';
 
 const ENCRYPTION_KEY = env.NEXTAUTH_SECRET;
 
-function encryptConfig(config: Record<string, unknown>): Record<string, unknown> {
+function encryptConfig(config: IntegrationConfig): { encrypted: string } {
   const encrypted = symmetricEncrypt(JSON.stringify(config), ENCRYPTION_KEY);
   return { encrypted };
 }
 
-function decryptConfig(config: Record<string, unknown>): Record<string, unknown> {
-  if ('encrypted' in config && typeof config.encrypted === 'string') {
-    return JSON.parse(symmetricDecrypt(config.encrypted, ENCRYPTION_KEY));
-  }
-  return config;
+function decryptConfig(config: { encrypted: string }): IntegrationConfig {
+  return JSON.parse(symmetricDecrypt(config.encrypted, ENCRYPTION_KEY));
 }
 
 function decryptIntegration(integration: Integration): Integration {
-  return { ...integration, config: decryptConfig(integration.config) };
+  return { ...integration, config: decryptConfig(integration.config as { encrypted: string }) };
 }
 
-type IntegrationValidator = (
-  config: Record<string, unknown>,
-) => Promise<string | null>;
+type IntegrationValidator = (config: IntegrationConfig) => Promise<string | null>;
 
 const integrationValidators: Partial<Record<IntegrationType, IntegrationValidator>> = {
   pushover: async (config) => {
-    if (typeof config.userKey !== 'string') return 'invalid_pushover_key';
+    if (!('userKey' in config) || typeof config.userKey !== 'string') return 'invalid_pushover_key';
     const isValid = await validatePushoverUserKey(config.userKey);
     return isValid ? null : 'invalid_pushover_key';
   },
   discord: async (config) => {
-    if (typeof config.webhookUrl !== 'string') return 'invalid_discord_webhook';
+    if (!('webhookUrl' in config) || typeof config.webhookUrl !== 'string') return 'invalid_discord_webhook';
     const isValid = await validateDiscordWebhookUrl(config.webhookUrl);
     return isValid ? null : 'invalid_discord_webhook';
   },
@@ -46,7 +42,7 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
 
 export async function validateIntegrationConfig(
   type: IntegrationType,
-  config: Record<string, unknown>,
+  config: IntegrationConfig,
 ): Promise<string | null> {
   const validator = integrationValidators[type];
   if (!validator) return null;
@@ -63,10 +59,7 @@ export async function getIntegrations(dashboardId: string): Promise<Integration[
   }
 }
 
-export async function getIntegration(
-  dashboardId: string,
-  type: IntegrationType,
-): Promise<Integration | null> {
+export async function getIntegration(dashboardId: string, type: IntegrationType): Promise<Integration | null> {
   try {
     const integration = await IntegrationRepository.findIntegrationByType(dashboardId, type);
     if (!integration) return null;
@@ -80,7 +73,7 @@ export async function getIntegration(
 export async function saveIntegration(
   dashboardId: string,
   type: IntegrationType,
-  config: Record<string, unknown>,
+  config: IntegrationConfig,
   name?: string | null,
 ): Promise<Integration> {
   try {
@@ -103,6 +96,7 @@ export async function saveIntegration(
         config: encryptedConfig,
         name,
       });
+      sendSetupConfirmation(type, config).catch((err) => console.error('Failed to send setup confirmation:', err));
     }
 
     return decryptIntegration(result);
@@ -112,10 +106,7 @@ export async function saveIntegration(
   }
 }
 
-export async function deleteIntegration(
-  dashboardId: string,
-  type: IntegrationType,
-): Promise<void> {
+export async function deleteIntegration(dashboardId: string, type: IntegrationType): Promise<void> {
   try {
     await IntegrationRepository.deleteIntegration(dashboardId, type);
   } catch (error) {
@@ -142,19 +133,7 @@ export async function validateDiscordWebhookUrl(webhookUrl: string): Promise<boo
   if (!/^https:\/\/discord\.com\/api\/webhooks\//.test(webhookUrl)) return false;
 
   try {
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        embeds: [
-          {
-            title: 'Betterlytics Connected',
-            description: 'This channel will now receive notifications from your Betterlytics dashboard.',
-            color: 0x22c55e,
-          },
-        ],
-      }),
-    });
+    const response = await fetch(webhookUrl, { method: 'GET' });
     return response.ok;
   } catch (error) {
     console.error('Error validating Discord webhook URL:', error);
@@ -181,4 +160,44 @@ export async function validatePushoverUserKey(userKey: string): Promise<boolean>
     console.error('Error validating Pushover user key:', error);
     return false;
   }
+}
+
+type SetupConfirmationSender = (config: IntegrationConfig) => Promise<void>;
+
+const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmationSender>> = {
+  discord: async (config) => {
+    if (!('webhookUrl' in config)) return;
+    await fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [
+          {
+            title: 'Betterlytics Connected',
+            description: 'This channel will now receive notifications from your Betterlytics dashboard.',
+            color: 0x22c55e,
+          },
+        ],
+      }),
+    });
+  },
+  pushover: async (config) => {
+    if (!('userKey' in config) || !env.PUSHOVER_APP_TOKEN) return;
+    await fetch('https://api.pushover.net/1/messages.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        token: env.PUSHOVER_APP_TOKEN,
+        user: config.userKey,
+        title: 'Betterlytics Connected',
+        message: 'This device will now receive notifications from your Betterlytics dashboard.',
+        priority: '0',
+      }),
+    });
+  },
+};
+
+async function sendSetupConfirmation(type: IntegrationType, config: IntegrationConfig): Promise<void> {
+  const sender = setupConfirmationSenders[type];
+  if (sender) await sender(config);
 }

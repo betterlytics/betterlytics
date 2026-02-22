@@ -11,7 +11,12 @@ import {
   deleteIntegrationAction,
   toggleIntegrationAction,
 } from '@/app/actions/dashboard/integrations.action';
-import { Integration, IntegrationType, INTEGRATION_TYPES } from '@/entities/dashboard/integration.entities';
+import {
+  Integration,
+  IntegrationConfig,
+  IntegrationType,
+  INTEGRATION_TYPES,
+} from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './PushoverConfigDialog';
@@ -22,7 +27,7 @@ export default function IntegrationsSettings() {
   const t = useTranslations('integrationsSettings');
   const dashboardId = useDashboardId();
   const [isPending, startTransition] = useTransition();
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [integrations, setIntegrations] = useState<Partial<Record<IntegrationType, Integration>>>({});
   const [availableTypes, setAvailableTypes] = useState<IntegrationType[]>([]);
   const [configDialogType, setConfigDialogType] = useState<IntegrationType | null>(null);
   const [disconnectType, setDisconnectType] = useState<IntegrationType | null>(null);
@@ -51,18 +56,14 @@ export default function IntegrationsSettings() {
           getIntegrationsAction(dashboardId),
         ]);
         setAvailableTypes(types);
-        setIntegrations(existing);
+        setIntegrations(Object.fromEntries(existing.map((i) => [i.type, i])));
       } catch {
         toast.error(t('toast.fetchError'));
       }
     });
   }, [dashboardId]);
 
-  const getIntegrationForType = (type: IntegrationType): Integration | undefined => {
-    return integrations.find((i) => i.type === type);
-  };
-
-  const handleSave = (type: IntegrationType, config: Record<string, unknown>) => {
+  const handleSave = (type: IntegrationType, config: IntegrationConfig) => {
     startTransition(async () => {
       try {
         const result = await saveIntegrationAction(dashboardId, type, config);
@@ -74,15 +75,7 @@ export default function IntegrationsSettings() {
           toast.error(errorMessages[result.error] ?? t('toast.error'));
           return;
         }
-        setIntegrations((prev) => {
-          const existing = prev.findIndex((i) => i.type === type);
-          if (existing >= 0) {
-            const updated = [...prev];
-            updated[existing] = result.integration;
-            return updated;
-          }
-          return [...prev, result.integration];
-        });
+        setIntegrations((prev) => ({ ...prev, [type]: result.integration }));
         setConfigDialogType(null);
         toast.success(t('toast.saved'));
       } catch {
@@ -97,7 +90,11 @@ export default function IntegrationsSettings() {
     startTransition(async () => {
       try {
         await deleteIntegrationAction(dashboardId, type);
-        setIntegrations((prev) => prev.filter((i) => i.type !== type));
+        setIntegrations((prev) => {
+          const next = { ...prev };
+          delete next[type];
+          return next;
+        });
         setDisconnectType(null);
         toast.success(t('toast.deleted'));
       } catch {
@@ -110,7 +107,7 @@ export default function IntegrationsSettings() {
     startTransition(async () => {
       try {
         const result = await toggleIntegrationAction(dashboardId, type, enabled);
-        setIntegrations((prev) => prev.map((i) => (i.type === type ? result : i)));
+        setIntegrations((prev) => ({ ...prev, [type]: result }));
         toast.success(t('toast.saved'));
       } catch {
         toast.error(t('toast.error'));
@@ -131,7 +128,7 @@ export default function IntegrationsSettings() {
             iconSrc={def.iconSrc}
             name={def.name}
             description={def.description}
-            integration={getIntegrationForType(def.type)}
+            integration={integrations[def.type]}
             isPending={isPending}
             onConfigure={() => setConfigDialogType(def.type)}
             onDisconnect={() => setDisconnectType(def.type)}
@@ -145,7 +142,7 @@ export default function IntegrationsSettings() {
       <PushoverConfigDialog
         open={configDialogType === 'pushover'}
         onOpenChange={(open) => !open && setConfigDialogType(null)}
-        integration={getIntegrationForType('pushover')}
+        integration={integrations.pushover}
         isPending={isPending}
         onSave={(config) => handleSave('pushover', config)}
       />
@@ -153,7 +150,7 @@ export default function IntegrationsSettings() {
       <DiscordConfigDialog
         open={configDialogType === 'discord'}
         onOpenChange={(open) => !open && setConfigDialogType(null)}
-        integration={getIntegrationForType('discord')}
+        integration={integrations.discord}
         isPending={isPending}
         onSave={(config) => handleSave('discord', config)}
       />
