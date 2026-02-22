@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect, useTransition, useMemo } from 'react';
+import { useState, useTransition, useMemo, use } from 'react';
 import { toast } from 'sonner';
 import SettingsPageHeader from '../SettingsPageHeader';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
-  getAvailableIntegrationTypesAction,
-  getIntegrationsAction,
   saveIntegrationAction,
   deleteIntegrationAction,
   toggleIntegrationAction,
@@ -23,12 +21,23 @@ import { PushoverConfigDialog } from './dialogs/PushoverConfigDialog';
 import { DiscordConfigDialog } from './dialogs/DiscordConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
 
-export default function IntegrationsSettings() {
+interface IntegrationsSettingsProps {
+  availableTypesPromise: Promise<IntegrationType[]>;
+  integrationsPromise: Promise<Integration[]>;
+}
+
+export default function IntegrationsSettings({
+  availableTypesPromise,
+  integrationsPromise,
+}: IntegrationsSettingsProps) {
   const t = useTranslations('integrationsSettings');
   const dashboardId = useDashboardId();
+  const initialTypes = use(availableTypesPromise);
+  const initialIntegrations = use(integrationsPromise);
   const [isPending, startTransition] = useTransition();
-  const [integrations, setIntegrations] = useState<Partial<Record<IntegrationType, Integration>>>({});
-  const [availableTypes, setAvailableTypes] = useState<IntegrationType[]>([]);
+  const [integrations, setIntegrations] = useState<Partial<Record<IntegrationType, Integration>>>(() =>
+    Object.fromEntries(initialIntegrations.map((i) => [i.type, i])),
+  );
   const [configDialogType, setConfigDialogType] = useState<IntegrationType | null>(null);
   const [disconnectType, setDisconnectType] = useState<IntegrationType | null>(null);
 
@@ -44,24 +53,9 @@ export default function IntegrationsSettings() {
   );
 
   const availableIntegrations = useMemo(
-    () => allIntegrations.filter((def) => availableTypes.includes(def.type)),
-    [allIntegrations, availableTypes],
+    () => allIntegrations.filter((def) => initialTypes.includes(def.type)),
+    [allIntegrations, initialTypes],
   );
-
-  useEffect(() => {
-    startTransition(async () => {
-      try {
-        const [types, existing] = await Promise.all([
-          getAvailableIntegrationTypesAction(dashboardId),
-          getIntegrationsAction(dashboardId),
-        ]);
-        setAvailableTypes(types);
-        setIntegrations(Object.fromEntries(existing.map((i) => [i.type, i])));
-      } catch {
-        toast.error(t('toast.fetchError'));
-      }
-    });
-  }, [dashboardId]);
 
   const handleSave = (type: IntegrationType, config: IntegrationConfigInput) => {
     startTransition(async () => {
