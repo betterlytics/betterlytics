@@ -1,6 +1,6 @@
 'use server';
 
-import { TopEntryPageRow, TopExitPageRow, PageAnalyticsCombinedSchema } from '@/entities/analytics/pages.entities';
+import { PageAnalyticsCombinedSchema } from '@/entities/analytics/pages.entities';
 import {
   getTopPagesForSite,
   getTotalPageViewsForSite,
@@ -34,7 +34,8 @@ export const fetchTotalPageViewsAction = withDashboardAuthContext(
       compare: compareData,
       compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
       bucketIncomplete:
-        main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+        main.endDate.getTime() > Date.now() ||
+        isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
       startBucketIncomplete: isStartBucketIncomplete(main.startDate, main.granularity, main.timezone),
     });
   },
@@ -55,7 +56,8 @@ export const fetchUniqueVisitorsAction = withDashboardAuthContext(
       compare: compareData,
       compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
       bucketIncomplete:
-        main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+        main.endDate.getTime() > Date.now() ||
+        isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
       startBucketIncomplete: isStartBucketIncomplete(main.startDate, main.granularity, main.timezone),
     });
   },
@@ -144,7 +146,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         compare: compareData,
         compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
         bucketIncomplete:
-          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+          main.endDate.getTime() > Date.now() ||
+          isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
       bounceRate: toAreaChart({
@@ -155,7 +158,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         compare: compareData,
         compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
         bucketIncomplete:
-          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+          main.endDate.getTime() > Date.now() ||
+          isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
       pagesPerSession: toAreaChart({
@@ -166,7 +170,8 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         compare: compareData,
         compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
         bucketIncomplete:
-          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+          main.endDate.getTime() > Date.now() ||
+          isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
       sessions: toAreaChart({
@@ -177,24 +182,11 @@ export const fetchSessionMetricsAction = withDashboardAuthContext(
         compare: compareData,
         compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
         bucketIncomplete:
-          main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+          main.endDate.getTime() > Date.now() ||
+          isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
         startBucketIncomplete: startIncomplete,
       }),
     };
-  },
-);
-
-export const fetchTopEntryPagesAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number): Promise<TopEntryPageRow[]> => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-    return getTopEntryPagesForSite(main, limit);
-  },
-);
-
-export const fetchTopExitPagesAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number): Promise<TopExitPageRow[]> => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-    return getTopExitPagesForSite(main, limit);
   },
 );
 

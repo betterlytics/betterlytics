@@ -3,7 +3,6 @@
 import {
   getOutboundLinksAnalyticsForSite,
   getDailyOutboundClicksForSite,
-  getOutboundLinksSummaryWithChartsForSite,
   getOutboundLinksDistributionForSite,
 } from '@/services/analytics/outboundLinks.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
@@ -23,20 +22,6 @@ export const fetchOutboundLinksAnalyticsAction = withDashboardAuthContext(
     const compareData = compare && (await getOutboundLinksAnalyticsForSite(compare));
 
     return toDataTable({ data, compare: compareData, categoryKey: 'outbound_link_url' });
-  },
-);
-
-export const fetchOutboundLinksSummaryWithChartsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-    return getOutboundLinksSummaryWithChartsForSite(main);
-  },
-);
-
-export const fetchDailyOutboundClicksAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-    return getDailyOutboundClicksForSite(main);
   },
 );
 

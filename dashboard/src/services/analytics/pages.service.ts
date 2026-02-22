@@ -4,7 +4,6 @@ import {
   getPageViews,
   getTopPages,
   getPageMetrics,
-  getPageDetailMetrics,
   getTotalPageViews,
   getPageTrafficTimeSeries,
   getTopEntryPages,
@@ -44,11 +43,10 @@ export async function getPageAnalytics(siteQuery: BASiteQuery): Promise<PageAnal
   return getPageMetrics(siteQuery);
 }
 
-export async function getPageDetail(siteQuery: BASiteQuery, path: string): Promise<PageAnalytics | null> {
-  return getPageDetailMetrics(siteQuery, path);
-}
-
-export async function getPageTrafficForTimePeriod(siteQuery: BASiteQuery, path: string): Promise<TotalPageViewsRow[]> {
+export async function getPageTrafficForTimePeriod(
+  siteQuery: BASiteQuery,
+  path: string,
+): Promise<TotalPageViewsRow[]> {
   return getPageTrafficTimeSeries(siteQuery, path);
 }
 

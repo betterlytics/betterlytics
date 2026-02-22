@@ -2,13 +2,11 @@
 
 import {
   getPageAnalytics,
-  getPageDetail,
   getPageTrafficForTimePeriod,
   getEntryPageAnalyticsForSite,
   getExitPageAnalyticsForSite,
   getPagesSummaryWithChartsForSite,
 } from '@/services/analytics/pages.service';
-import { PageAnalytics } from '@/entities/analytics/pages.entities';
 import { TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -26,13 +24,6 @@ export const fetchPageAnalyticsAction = withDashboardAuthContext(
     const compareData = compare && (await getPageAnalytics(compare));
 
     return toDataTable({ data, compare: compareData, categoryKey: 'path' });
-  },
-);
-
-export const fetchPageDetailAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, path: string): Promise<PageAnalytics | null> => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-    return getPageDetail(main, path);
   },
 );
 

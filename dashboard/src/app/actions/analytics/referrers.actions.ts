@@ -11,12 +11,7 @@ import {
 } from '@/services/analytics/referrers.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import {
-  TopReferrerUrl,
-  TopChannel,
-  TopReferrerSource,
-  TrafficSourcesCombinedSchema,
-} from '@/entities/analytics/referrers.entities';
+import { TrafficSourcesCombinedSchema } from '@/entities/analytics/referrers.entities';
 import { toPieChart } from '@/presenters/toPieChart';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
@@ -129,45 +124,6 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
       };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);
-      throw error;
-    }
-  },
-);
-
-export const fetchTopReferrerUrlsForSite = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10): Promise<TopReferrerUrl[]> => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-
-    try {
-      return getTopReferrerUrlsForSite(main, limit);
-    } catch (error) {
-      console.error('Error fetching top referrer URLs:', error);
-      throw error;
-    }
-  },
-);
-
-export const fetchTopChannelsForSite = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10): Promise<TopChannel[]> => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-
-    try {
-      return getTopChannelsForSite(main, limit);
-    } catch (error) {
-      console.error('Error fetching top channels:', error);
-      throw error;
-    }
-  },
-);
-
-export const fetchTopReferrerSourcesForSite = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10): Promise<TopReferrerSource[]> => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-
-    try {
-      return getTopReferrerSourcesForSite(main, limit);
-    } catch (error) {
-      console.error('Error fetching top referrer sources:', error);
       throw error;
     }
   },
