@@ -19,7 +19,7 @@ export const DiscordConfigSchema = z.object({
 
 export const IntegrationConfigSchemas = {
   pushover: PushoverConfigSchema,
-  discord: DiscordConfigSchema
+  discord: DiscordConfigSchema,
 } as const;
 
 export const IntegrationSchema = z

@@ -3590,6 +3590,7 @@
       "saved": "Integrazione salvata",
       "deleted": "Integrazione disconnessa",
       "error": "Impossibile aggiornare l'integrazione",
+      "fetchError": "Impossibile caricare le integrazioni",
       "invalidPushoverKey": "User key Pushover non valida o nessun dispositivo registrato",
       "invalidDiscordWebhook": "Webhook URL Discord non valido"
     }

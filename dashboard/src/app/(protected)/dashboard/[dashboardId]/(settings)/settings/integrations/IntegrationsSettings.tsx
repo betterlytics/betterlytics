@@ -11,19 +11,12 @@ import {
   deleteIntegrationAction,
   toggleIntegrationAction,
 } from '@/app/actions/dashboard/integrations.action';
-import { Integration, IntegrationType } from '@/entities/dashboard/integration.entities';
+import { Integration, IntegrationType, INTEGRATION_TYPES } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './PushoverConfigDialog';
 import { DiscordConfigDialog } from './DiscordConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
-
-type IntegrationDefinition = {
-  type: IntegrationType;
-  iconSrc: string;
-  name: string;
-  description: string;
-};
 
 export default function IntegrationsSettings() {
   const t = useTranslations('integrationsSettings');
@@ -34,27 +27,20 @@ export default function IntegrationsSettings() {
   const [configDialogType, setConfigDialogType] = useState<IntegrationType | null>(null);
   const [disconnectType, setDisconnectType] = useState<IntegrationType | null>(null);
 
-  const allIntegrations: IntegrationDefinition[] = useMemo(
-    () => [
-      {
-        type: 'pushover',
-        iconSrc: '/images/integrations/pushover.svg',
-        name: t('integrations.pushover.name'),
-        description: t('integrations.pushover.description'),
-      },
-      {
-        type: 'discord',
-        iconSrc: '/images/integrations/discord.svg',
-        name: t('integrations.discord.name'),
-        description: t('integrations.discord.description'),
-      },
-    ],
-    [t]
+  const allIntegrations = useMemo(
+    () =>
+      INTEGRATION_TYPES.map((type) => ({
+        type,
+        iconSrc: `/images/integrations/${type}.svg`,
+        name: t(`integrations.${type}.name`),
+        description: t(`integrations.${type}.description`),
+      })),
+    [t],
   );
 
   const availableIntegrations = useMemo(
     () => allIntegrations.filter((def) => availableTypes.includes(def.type)),
-    [allIntegrations, availableTypes]
+    [allIntegrations, availableTypes],
   );
 
   useEffect(() => {
@@ -66,7 +52,9 @@ export default function IntegrationsSettings() {
         ]);
         setAvailableTypes(types);
         setIntegrations(existing);
-      } catch {}
+      } catch {
+        toast.error(t('toast.fetchError'));
+      }
     });
   }, [dashboardId]);
 

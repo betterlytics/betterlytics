@@ -3582,6 +3582,7 @@
       "saved": "Integration gemt",
       "deleted": "Integration afbrudt",
       "error": "Kunne ikke opdatere integration",
+      "fetchError": "Kunne ikke indlæse integrationer",
       "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheder registreret",
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL"
     }
