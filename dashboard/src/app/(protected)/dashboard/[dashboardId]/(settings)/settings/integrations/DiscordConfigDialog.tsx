@@ -1,16 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import ExternalLink from '@/components/ExternalLink';
 import { Integration, type DiscordConfig } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -87,14 +82,14 @@ export function DiscordConfigDialog({
             <p className='text-muted-foreground text-xs'>
               {t.rich('webhookHint', {
                 link: (chunks) => (
-                  <a
+                  <ExternalLink
                     href='https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-primary underline'
                   >
                     {chunks}
-                  </a>
+                  </ExternalLink>
                 ),
               })}
             </p>

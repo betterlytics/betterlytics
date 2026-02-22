@@ -1,24 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ExternalLink from '@/components/ExternalLink';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Integration, PUSHOVER_PRIORITIES, type PushoverPriority, type PushoverConfig } from '@/entities/dashboard/integration.entities';
+  Integration,
+  PUSHOVER_PRIORITIES,
+  type PushoverPriority,
+  type PushoverConfig,
+} from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -96,14 +90,14 @@ export function PushoverConfigDialog({
             <p className='text-muted-foreground text-xs'>
               {t.rich('credentialsHint', {
                 link: (chunks) => (
-                  <a
+                  <ExternalLink
                     href='https://pushover.net'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-primary underline'
                   >
                     {chunks}
-                  </a>
+                  </ExternalLink>
                 ),
               })}
             </p>
@@ -130,14 +124,14 @@ export function PushoverConfigDialog({
             <p className='text-muted-foreground text-xs'>
               {t.rich('priorityHint', {
                 link: (chunks) => (
-                  <a
+                  <ExternalLink
                     href='https://pushover.net/api#priority'
                     target='_blank'
                     rel='noopener noreferrer'
                     className='text-primary underline'
                   >
                     {chunks}
-                  </a>
+                  </ExternalLink>
                 ),
               })}
             </p>
