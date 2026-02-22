@@ -2,7 +2,7 @@ import { createClient, type ClickHouseClient, type DataFormat } from '@clickhous
 import { env } from './env';
 import { instrumentClickHouse } from '@/observability/clickhouse-instrumented';
 
-interface AdapterQueryOptions {
+export interface AdapterQueryOptions {
   params?: Record<string, unknown>;
   format?: DataFormat;
 }

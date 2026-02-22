@@ -1,6 +1,6 @@
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { env } from '@/lib/env';
-import type { QueryCursorLike, ClickHouseAdapterClient } from '@/lib/clickhouse';
+import type { QueryCursorLike, ClickHouseAdapterClient, AdapterQueryOptions } from '@/lib/clickhouse';
 
 const tracer = trace.getTracer('dashboard');
 
@@ -24,7 +24,10 @@ function inferOperation(statement: string): string {
   }
 }
 
-export function instrumentClickHouse<T extends ClickHouseAdapterClient>(client: T, options?: { dbName?: string }): T {
+export function instrumentClickHouse<T extends ClickHouseAdapterClient>(
+  client: T,
+  options?: { dbName?: string },
+): T {
   if (!env.ENABLE_MONITORING) return client;
 
   const dbName = options?.dbName ?? 'default';
@@ -32,14 +35,12 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(client: 
   return new Proxy(client, {
     get(target, prop, receiver) {
       if (prop === 'query') {
-        return function (sql: string, reqParams?: Record<string, unknown>): QueryCursorLike {
-          const statement = sql;
-          const operation = inferOperation(statement);
-          const sanitized = sanitizeStatement(statement);
+        return function (sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
+          const operation = inferOperation(sql);
+          const sanitized = sanitizeStatement(sql);
 
           const cursor = (target.query as T['query']).call(target, sql, reqParams) as QueryCursorLike;
 
-          // Wrap toPromise so existing callsites remain unchanged
           return {
             toPromise: async (): Promise<unknown[]> =>
               tracer.startActiveSpan(`db.clickhouse.${operation.toLowerCase()}`, async (span) => {

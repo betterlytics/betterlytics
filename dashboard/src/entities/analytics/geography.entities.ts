@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const GeoVisitorSchema = z.object({
   country_code: z.string(),
-  visitors: z.preprocess((val) => Number(val), z.coerce.number()),
+  visitors: z.coerce.number(),
 });
 
 export const worldMapResponseSchema = z.object({
