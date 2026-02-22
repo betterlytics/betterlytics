@@ -3522,7 +3522,7 @@
         "description": "Get important status updates in your Discord messages."
       }
     },
-    "moreIntegrations": "Need a different integration? Contact us and we'll add it.",
+    "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
     "status": {
       "connected": "Connected"
     },
@@ -3534,7 +3534,7 @@
     },
     "disconnect": {
       "title": "Disconnect {name}",
-      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications.",
+      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications from this source.",
       "confirm": "Disconnect"
     },
     "pushoverDialog": {

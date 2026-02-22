@@ -3539,7 +3539,7 @@
         "description": "Ricevi aggiornamenti di stato importanti nei tuoi messaggi Discord."
       }
     },
-    "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e la aggiungeremo.",
+    "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
     "status": {
       "connected": "Connesso"
     },
@@ -3551,7 +3551,7 @@
     },
     "disconnect": {
       "title": "Disconnetti {name}",
-      "description": "Sei sicuro di voler disconnettere questa integrazione? Questo rimuoverà la configurazione e interromperà tutte le notifiche.",
+      "description": "Sei sicuro di voler disconnettere questa integrazione? Questo rimuoverà la configurazione e interromperà tutte le notifiche da questa fonte.",
       "confirm": "Disconnetti"
     },
     "pushoverDialog": {

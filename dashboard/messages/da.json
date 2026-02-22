@@ -3531,7 +3531,7 @@
         "description": "Få vigtige statusopdateringer i dine Discord-beskeder."
       }
     },
-    "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så tilføjer vi den.",
+    "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
     "status": {
       "connected": "Forbundet"
     },
@@ -3543,7 +3543,7 @@
     },
     "disconnect": {
       "title": "Afbryd {name}",
-      "description": "Er du sikker på, at du vil afbryde denne integration? Dette vil fjerne konfigurationen og stoppe alle notifikationer.",
+      "description": "Er du sikker på, at du vil afbryde denne integration? Dette vil fjerne konfigurationen og stoppe alle notifikationer fra denne kilde.",
       "confirm": "Afbryd"
     },
     "pushoverDialog": {
