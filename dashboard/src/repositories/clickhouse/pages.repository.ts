@@ -224,7 +224,6 @@ export async function getPageMetrics(
         start: startDate,
         end: endDate,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 
@@ -297,7 +296,6 @@ export async function getPageDetailMetrics(
         start: startDate,
         end: endDate,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 
@@ -567,7 +565,6 @@ export async function getEntryPageAnalytics(
         end: endDate,
         limit: limit,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 
@@ -693,7 +690,6 @@ export async function getExitPageAnalytics(
         end: endDate,
         limit: limit,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 

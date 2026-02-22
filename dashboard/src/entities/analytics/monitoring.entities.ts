@@ -51,14 +51,14 @@ export const RequestHeaderSchema = z.object({
 });
 
 export const StatusCodeValueSchema = z.union([
-  z.number().int().min(100).max(599),
+  z.coerce.number().int().min(100).max(599),
   z.string().regex(/^[2-5]xx$/, 'Must be a valid range like 2xx, 3xx, 4xx, or 5xx'),
 ]);
 
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
-  intervalSeconds: z.number().int().min(60).max(3600).default(MONITOR_DEFAULTS.intervalSeconds),
-  timeoutMs: z.number().int().min(500).max(120_000).default(MONITOR_DEFAULTS.timeoutMs),
+  intervalSeconds: z.coerce.number().int().min(60).max(3600).default(MONITOR_DEFAULTS.intervalSeconds),
+  timeoutMs: z.coerce.number().int().min(500).max(120_000).default(MONITOR_DEFAULTS.timeoutMs),
   isEnabled: z.boolean().default(MONITOR_DEFAULTS.isEnabled),
   checkSslErrors: z.boolean().default(MONITOR_DEFAULTS.checkSslErrors),
   sslExpiryReminders: z.boolean().default(MONITOR_DEFAULTS.sslExpiryReminders),
@@ -77,8 +77,8 @@ export const MonitorCheckBaseSchema = z.object({
   alertOnDown: z.boolean().default(MONITOR_DEFAULTS.alertOnDown),
   alertOnRecovery: z.boolean().default(MONITOR_DEFAULTS.alertOnRecovery),
   alertOnSslExpiry: z.boolean().default(MONITOR_DEFAULTS.alertOnSslExpiry),
-  sslExpiryAlertDays: z.number().int().min(1).max(90).default(MONITOR_DEFAULTS.sslExpiryAlertDays),
-  failureThreshold: z.number().int().min(1).max(10).default(MONITOR_DEFAULTS.failureThreshold),
+  sslExpiryAlertDays: z.coerce.number().int().min(1).max(90).default(MONITOR_DEFAULTS.sslExpiryAlertDays),
+  failureThreshold: z.coerce.number().int().min(1).max(10).default(MONITOR_DEFAULTS.failureThreshold),
 });
 
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
@@ -110,44 +110,44 @@ export const MonitorIncidentSegmentSchema = z.object({
   reason: z.string().nullable(),
   start: z.string(),
   end: z.string().nullable(),
-  durationMs: z.number().nullable(),
+  durationMs: z.coerce.number().nullable(),
 });
 
 export const UptimeStatsSchema = z.object({
-  uptimeSeconds: z.number(),
-  totalSeconds: z.number(),
+  uptimeSeconds: z.coerce.number(),
+  totalSeconds: z.coerce.number(),
 });
 
 export const MonitorUptimeBucketSchema = z.object({
   bucket: z.string(), // ISO timestamp string
-  upRatio: z.number().min(0).max(1).nullable(),
-  totalSeconds: z.number().nullable(),
+  upRatio: z.coerce.number().min(0).max(1).nullable(),
+  totalSeconds: z.coerce.number().nullable(),
 });
 
 export const MonitorLatencyStatsSchema = z.object({
-  avgMs: z.number().nullable(),
-  minMs: z.number().nullable(),
-  maxMs: z.number().nullable(),
+  avgMs: z.coerce.number().nullable(),
+  minMs: z.coerce.number().nullable(),
+  maxMs: z.coerce.number().nullable(),
 });
 
 export const MonitorLatencyPointSchema = z.object({
   bucket: z.string(),
-  p50Ms: z.number().nullable(),
-  p95Ms: z.number().nullable(),
-  avgMs: z.number().nullable(),
+  p50Ms: z.coerce.number().nullable(),
+  p95Ms: z.coerce.number().nullable(),
+  avgMs: z.coerce.number().nullable(),
 });
 
 export const RawMonitorMetricsSchema = z.object({
   lastCheckAt: z.string().nullable(),
   lastStatus: MonitorStatusSchema.nullable(),
-  uptime24hPercent: z.number().nullable(),
-  uptime24hHours: z.number().nullable(),
-  incidents24h: z.number().int(),
+  uptime24hPercent: z.coerce.number().nullable(),
+  uptime24hHours: z.coerce.number().nullable(),
+  incidents24h: z.coerce.number().int(),
   uptimeBuckets: z.array(MonitorUptimeBucketSchema),
   latency: MonitorLatencyStatsSchema,
   latencySeries: z.array(MonitorLatencyPointSchema),
-  effectiveIntervalSeconds: z.number().int().nullable().optional(),
-  backoffLevel: z.number().int().nullable().optional(),
+  effectiveIntervalSeconds: z.coerce.number().int().nullable().optional(),
+  backoffLevel: z.coerce.number().int().nullable().optional(),
 });
 
 export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
@@ -159,15 +159,15 @@ export const MonitorMetricsSchema = RawMonitorMetricsSchema.extend({
 export const LatestCheckInfoSchema = z.object({
   ts: z.string().nullable(),
   status: MonitorStatusSchema.nullable(),
-  effectiveIntervalSeconds: z.number().int().nullable(),
-  backoffLevel: z.number().int().nullable(),
+  effectiveIntervalSeconds: z.coerce.number().int().nullable(),
+  backoffLevel: z.coerce.number().int().nullable(),
 });
 
 export const MonitorResultSchema = z.object({
   ts: z.string(),
   status: MonitorStatusSchema,
-  latencyMs: z.number().nullable(),
-  statusCode: z.number().int().nullable(),
+  latencyMs: z.coerce.number().nullable(),
+  statusCode: z.coerce.number().int().nullable(),
   reasonCode: z.string().nullable(),
 });
 
@@ -180,8 +180,8 @@ export const MonitorTlsResultSchema = z.object({
 
 export const MonitorDailyUptimeSchema = z.object({
   date: z.string(), // ISO date string at start of day UTC
-  upRatio: z.number().min(0).max(1).nullable(),
-  totalSeconds: z.number().nullable(),
+  upRatio: z.coerce.number().min(0).max(1).nullable(),
+  totalSeconds: z.coerce.number().nullable(),
 });
 
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;

@@ -2,13 +2,13 @@ import { z } from 'zod';
 
 export const GeoVisitorSchema = z.object({
   country_code: z.string(),
-  visitors: z.preprocess((val) => Number(val), z.number()),
+  visitors: z.coerce.number(),
 });
 
 export const worldMapResponseSchema = z.object({
   visitorData: z.array(GeoVisitorSchema),
   compareData: z.array(GeoVisitorSchema),
-  maxVisitors: z.number(),
+  maxVisitors: z.coerce.number(),
 });
 
 export type GeoVisitor = z.infer<typeof GeoVisitorSchema>;
