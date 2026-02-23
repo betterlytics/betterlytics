@@ -2187,7 +2187,7 @@
         "28d": "Seneste 28 dager",
         "90d": "Seneste 90 dager",
         "mtd": "Måned til dato",
-        "last_month": "Sidste måned",
+        "last_month": "Forrige måned",
         "ytd": "År til dato",
         "1y": "Seneste år"
       },
@@ -2852,9 +2852,9 @@
       },
       "data": {
         "title": "Datahåndtering",
-        "description": "Konfigurer dataopbevaring og indsamling",
-        "retentionTitle": "Dataopbevaring",
-        "retentionLabel": "Periode for dataopbevaring",
+        "description": "Konfigurer dataoppbevaring og innsamling",
+        "retentionTitle": "Dataoppbevaring",
+        "retentionLabel": "Periode for dataoppbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
           "d30": "30 dager",
@@ -2870,7 +2870,7 @@
         },
         "siteRules": {
           "title": "Webstedsregler",
-          "description": "Kontroller, hvilke indgående hendelser der accepteres.",
+          "description": "Kontroller hvilke innkommende hendelser som godtas.",
           "enforceDomain": "Håndhæv domene",
           "enforceDomainDescription": "Avvis hendelser hvis domenet ikke samsvarer med dashboard-domenet.",
           "enableValidation": "Aktiver domenevalidering",
