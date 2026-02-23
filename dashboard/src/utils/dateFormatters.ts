@@ -140,19 +140,6 @@ export function formatCompactFromMilliseconds(
   return formatCompactSeconds(milliseconds / 1000, locale);
 }
 
-/**
- * Splits milliseconds into a value and an Intl-compatible unit for animation purposes.
- * < 1000ms → milliseconds (rounded), >= 1000ms → seconds (with decimal)
- */
-export function splitCompactFromMilliseconds(ms: number): {
-  value: number;
-  format: { style: 'unit'; unit: 'millisecond' | 'second'; unitDisplay: 'narrow' };
-} {
-  const rounded = Math.round(ms);
-  if (rounded < 1000) return { value: rounded, format: { style: 'unit', unit: 'millisecond', unitDisplay: 'narrow' } };
-  return { value: ms / 1000, format: { style: 'unit', unit: 'second', unitDisplay: 'narrow' } };
-}
-
 /*
  * Format a timestamp in the format of mm:ss
  */
@@ -189,15 +176,6 @@ export function formatDurationPrecise(ms: number, locale?: SupportedLanguages): 
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${formatUnit(minutes, 'minute', locale)} ${formatUnit(seconds, 'second', locale)}`;
-}
-
-export function formatTimeLeft(daysLeft: number | null): { value: string; unit: string } {
-  if (daysLeft == null) {
-    return { value: '—', unit: '' };
-  }
-  const roundedDays = Math.max(0, Math.round(daysLeft));
-  const unit = roundedDays === 1 ? 'day' : 'days';
-  return { value: `${roundedDays}`, unit };
 }
 
 // Formats a date/time to a locale-aware human-readable string

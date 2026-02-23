@@ -4,7 +4,6 @@ import {
   getPageViews,
   getTopPages,
   getPageMetrics,
-  getPageDetailMetrics,
   getTotalPageViews,
   getPageTrafficTimeSeries,
   getTopEntryPages,
@@ -72,17 +71,6 @@ export async function getPageAnalytics(
   queryFilters: QueryFilter[],
 ): Promise<PageAnalytics[]> {
   return getPageMetrics(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
-}
-
-export async function getPageDetail(
-  siteId: string,
-  path: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<PageAnalytics | null> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getPageDetailMetrics(siteId, path, formattedStart, formattedEnd);
 }
 
 export async function getPageTrafficForTimePeriod(

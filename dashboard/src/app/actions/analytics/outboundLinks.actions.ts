@@ -3,7 +3,6 @@
 import {
   getOutboundLinksAnalyticsForSite,
   getDailyOutboundClicksForSite,
-  getOutboundLinksSummaryWithChartsForSite,
   getOutboundLinksDistributionForSite,
 } from '@/services/analytics/outboundLinks.service';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -32,39 +31,6 @@ export const fetchOutboundLinksAnalyticsAction = withDashboardAuthContext(
       (await getOutboundLinksAnalyticsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
 
     return toDataTable({ data, compare: compareData, categoryKey: 'outbound_link_url' });
-  },
-);
-
-export const fetchOutboundLinksSummaryWithChartsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-  ) => {
-    return getOutboundLinksSummaryWithChartsForSite(
-      ctx.siteId,
-      startDate,
-      endDate,
-      granularity,
-      queryFilters,
-      timezone,
-    );
-  },
-);
-
-export const fetchDailyOutboundClicksAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-  ) => {
-    return getDailyOutboundClicksForSite(ctx.siteId, startDate, endDate, granularity, queryFilters, timezone);
   },
 );
 
