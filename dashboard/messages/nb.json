@@ -1423,7 +1423,7 @@
     "categories": {
       "usageLimits": "Bruk og grenser",
       "analytics": "Analyse",
-      "observability": "Overvågning",
+      "observability": "Overvåking",
       "support": "Kundesupport"
     },
     "features": {
@@ -1485,7 +1485,7 @@
       "uptimeMonitoring": {
         "name": "Nedetidsovervåking",
         "values": {
-          "1": "1 overvågning",
+          "1": "1 overvåker",
           "50": "50 monitorer",
           "unlimited": "Ubegrenset antall monitorer"
         }
@@ -2091,7 +2091,7 @@
       }
     },
     "slider": {
-      "recommended": "anbefalet"
+      "recommended": "anbefalt"
     },
     "proFeature": {
       "badge": "Pro",
@@ -2173,7 +2173,7 @@
       "previousYear": "Forrige år",
       "nextPeriod": "Neste periode",
       "customPeriod": "Brukerdefinert periode",
-      "sameLengthAsMain": "Samme lengde som hovedinterval",
+      "sameLengthAsMain": "Samme lengde som hovedintervall",
       "compareToPeriod": "Sammenligningsperiode",
       "dateRange": "Datointerval",
       "granularityNotAvailable": "Granularitet er ikke tilgjengelig for valgt intervall",
@@ -2218,9 +2218,9 @@
           "os": "Operativsystem",
           "browser": "Nettleser",
           "visitors": "Besøkende",
-          "percentage": "Procent"
+          "percentage": "Prosent"
         },
-        "topOperatingSystems": "Top operativsystemer",
+        "topOperatingSystems": "Topp operativsystemer",
         "topBrowsers": "Topp nettlesere"
       },
       "charts": {
@@ -2708,7 +2708,7 @@
         "usage": "Forbruk",
         "billing": "Fakturering",
         "security": "Sikkerhet",
-        "danger": "Farezone"
+        "danger": "Faresone"
       },
       "dialog": {
         "title": "Brukerinnstillinger",
@@ -2718,7 +2718,7 @@
         "noSettings": "Ingen innstillinger funnet",
         "buttons": {
           "cancel": "Avbryt",
-          "saving": "Lagremer...",
+          "saving": "Lagrer...",
           "saveChanges": "Lagre endringer"
         },
         "toast": {
@@ -2848,14 +2848,14 @@
       "toastError": "Kunne ikke lagre innstillinger",
       "tabs": {
         "data": "Datagrunnlag",
-        "danger": "Farezone"
+        "danger": "Faresone"
       },
       "data": {
         "title": "Datahåndtering",
         "description": "Konfigurer dataoppbevaring og innsamling",
         "retentionTitle": "Dataoppbevaring",
         "retentionLabel": "Periode for dataoppbevaring",
-        "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
+        "retentionHelp": "Hvor lenge analysedata lagres før automatisk sletting",
         "presets": {
           "d30": "30 dager",
           "m3": "3 måneder",
@@ -2869,7 +2869,7 @@
           "description": "Er du sikker på at du vil endre dataoppbevaringsperioden til {period}?"
         },
         "siteRules": {
-          "title": "Webstedsregler",
+          "title": "Nettstedsregler",
           "description": "Kontroller hvilke innkommende hendelser som godtas.",
           "enforceDomain": "Håndhæv domene",
           "enforceDomainDescription": "Avvis hendelser hvis domenet ikke samsvarer med dashboard-domenet.",
