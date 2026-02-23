@@ -34,6 +34,7 @@ export function getCoreWebVitalIntlFormat(metric: CoreWebVitalName, value: numbe
 
 /**
  * Format a Core Web Vital metric value for display.
+ * Uses Intl.NumberFormat with unit styling for locale-aware output.
  */
 export function formatCWV(
   metric: CoreWebVitalName,
@@ -41,9 +42,24 @@ export function formatCWV(
   locale?: SupportedLanguages,
 ): string {
   if (value === null || value === undefined) return '—';
-  const { value: v, format, suffix } = getCoreWebVitalIntlFormat(metric, value);
-  const formatted = new Intl.NumberFormat(locale, format).format(v);
-  return suffix ? `${formatted} ${suffix}` : formatted;
+  if (metric === 'CLS') {
+    return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+  }
+  const seconds = value / 1000;
+  if (seconds < 1) {
+    return new Intl.NumberFormat(locale, {
+      style: 'unit',
+      unit: 'millisecond',
+      unitDisplay: 'narrow',
+      maximumFractionDigits: 0,
+    }).format(value);
+  }
+  return new Intl.NumberFormat(locale, {
+    style: 'unit',
+    unit: 'second',
+    unitDisplay: 'narrow',
+    maximumFractionDigits: 2,
+  }).format(seconds);
 }
 
 /**

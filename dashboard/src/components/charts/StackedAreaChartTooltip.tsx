@@ -22,7 +22,7 @@ interface StackedAreaChartTooltipProps {
   payload?: any;
   label?: string | number;
   formatter?: (value: number, locale?: SupportedLanguages) => string;
-  labelFormatter?: (date: string | number, granularity?: GranularityRangeValues) => string;
+  labelFormatter?: (date: string | number, granularity?: GranularityRangeValues, locale?: SupportedLanguages) => string;
   comparisonMap?: ComparisonMapping[];
   granularity?: GranularityRangeValues;
 }
@@ -71,7 +71,7 @@ export function StackedAreaChartTooltip({
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
       <div className='mb-2'>
         <div className='text-muted-foreground text-sm font-medium tracking-wide'>
-          {labelFormatter(label, granularity)}
+          {labelFormatter(label, granularity, locale)}
         </div>
         {partialRange && (
           <div className='text-muted-foreground/60 mt-0.5 text-xs'>
@@ -81,7 +81,7 @@ export function StackedAreaChartTooltip({
         )}
         {hasComparison && comparisonData && (
           <div className='text-muted-foreground/60 mt-0.5'>
-            <div className='text-sm'>{labelFormatter(comparisonData.compareDate, granularity)}</div>
+            <div className='text-sm'>{labelFormatter(comparisonData.compareDate, granularity, locale)}</div>
             {comparePartialRange && (
               <div className='text-xs'>
                 (<span className='italic'>{t('partial')}: </span>
