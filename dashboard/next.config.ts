@@ -14,7 +14,6 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  serverExternalPackages: ['heapdump'],
   async redirects() {
     return [
       { source: '/login', destination: '/signin', permanent: true },

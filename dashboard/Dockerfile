@@ -14,8 +14,6 @@ RUN apt-get update -y && apt-get install -y openssl
 
 FROM base AS builder
 
-RUN apt-get update -y && apt-get install -y python3 make g++
-
 WORKDIR /app
 
 RUN pnpm install -g prisma@6.9.0
@@ -47,7 +45,6 @@ COPY --from=builder /app/public ./public
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules/.pnpm/heapdump@0.3.15/node_modules/heapdump ./node_modules/.pnpm/heapdump@0.3.15/node_modules/heapdump
 
 USER nextjs
 

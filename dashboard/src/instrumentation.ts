@@ -6,15 +6,13 @@ export async function register() {
 
 async function registerHeapdump() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    try {
-      const { default: heapdump } = await import('heapdump');
+    const v8 = await import('v8');
 
-      process.on('SIGUSR2', () => {
-        heapdump.writeSnapshot('/tmp/' + Date.now() + '.heapsnapshot');
-      });
-    } catch (e) {
-      console.warn('heapdump not available', e);
-    }
+    process.on('SIGUSR2', () => {
+      const path = '/tmp/' + Date.now() + '.heapsnapshot';
+      v8.writeHeapSnapshot(path);
+      console.info('Heap snapshot written to', path);
+    });
   }
 }
 
