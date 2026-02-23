@@ -78,7 +78,7 @@ function SkeletonMonitorRow({ monitor }: { monitor: MockMonitor }) {
           </div>
 
           <span className='w-14 text-right text-xs font-medium whitespace-nowrap text-emerald-500/80'>
-            {formatPercentage(monitor.uptime, locale, { minimumFractionDigits: monitor.uptime === 100 ? 0 : 2, maximumFractionDigits: 2 })}
+            {formatPercentage(monitor.uptime, locale, { trimHundred: true, minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
       </div>

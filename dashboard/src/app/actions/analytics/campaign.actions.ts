@@ -19,18 +19,17 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { formatPercentage } from '@/utils/formatters';
 import { getLocale } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
 
-async function buildAudienceDistribution<
+function buildAudienceDistribution<
   TLabelKey extends string,
   TItem extends { visitors: number } & Record<TLabelKey, string>,
->(audience: TItem[], labelKey: TLabelKey): Promise<{ label: string; value: string }[]> {
+>(audience: TItem[], labelKey: TLabelKey, locale: SupportedLanguages): { label: string; value: string }[] {
   const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
 
   if (totalVisitors === 0) {
     return [];
   }
-
-  const locale = await getLocale();
 
   return audience.map((item) => ({
     label: item[labelKey],
@@ -117,12 +116,14 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
         fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
       ]);
 
-      const [devices, countries, browsers, operatingSystems] = await Promise.all([
-        buildAudienceDistribution(audienceProfile.devices, 'device_type'),
-        buildAudienceDistribution(audienceProfile.countries, 'country_code'),
-        buildAudienceDistribution(audienceProfile.browsers, 'browser'),
-        buildAudienceDistribution(audienceProfile.operatingSystems, 'os'),
-      ]);
+      const locale = await getLocale() as SupportedLanguages;
+
+      const [devices, countries, browsers, operatingSystems] = [
+        buildAudienceDistribution(audienceProfile.devices, 'device_type', locale),
+        buildAudienceDistribution(audienceProfile.countries, 'country_code', locale),
+        buildAudienceDistribution(audienceProfile.browsers, 'browser', locale),
+        buildAudienceDistribution(audienceProfile.operatingSystems, 'os', locale),
+      ];
 
       return {
         utmSource,

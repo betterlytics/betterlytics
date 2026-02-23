@@ -201,7 +201,7 @@ function MonitorRow({ monitor, locale }: { monitor: Monitor; locale: SupportedLa
         </div>
 
         <span className={`min-w-[2.8rem] text-right text-[11px] font-semibold tabular-nums ${uptimeColor}`}>
-          {formatPercentage(monitor.uptime, locale, { minimumFractionDigits: monitor.uptime === 100 ? 0 : 2, maximumFractionDigits: 2 })}
+          {formatPercentage(monitor.uptime, locale, { trimHundred: true, minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
       </div>
     </div>

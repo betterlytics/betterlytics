@@ -2,8 +2,6 @@ import type { SupportedLanguages } from '@/constants/i18n';
 
 /**
  * Format a number using locale-aware compact notation (e.g., 1.5K, 1,5 t).
- * Options mirror Intl.NumberFormatOptions — sensible defaults are applied first,
- * then caller options override.
  */
 export function formatNumber(
   num: number,
@@ -19,8 +17,7 @@ export function formatNumber(
 }
 
 /**
- * Format a number as a locale-aware percentage (e.g., 42.5%, 42,5 %).
- * Callers pass pre-computed percentages (e.g. 42.5); we divide by 100 for Intl.
+ * Format a number (e.g., 42.5) as a locale-aware percentage (e.g., 42.5%, 42,5 %).
  */
 export function formatPercentage(
   num: number,

@@ -1,7 +1,7 @@
 import { Minus, ChevronUp, ChevronDown } from 'lucide-react';
 import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { utcDay, utcHour, utcMinute, utcWeek, utcMonth } from 'd3-time';
-import { formatNumber } from './formatters';
+import { formatNumber, formatPercentage } from './formatters';
 import { formatWeekRange } from './dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
 
@@ -42,11 +42,8 @@ export function formatDifference(
   const sign = diff > 0 ? '+' : '';
   const formattedDiff = formatter ? formatter(diff, locale) : formatNumber(diff, locale);
 
-  const percentageValue = diff / previous;
-  const percentage = new Intl.NumberFormat(locale, {
-    style: 'percent',
-    maximumFractionDigits: 1,
-  }).format(percentageValue);
+  const percentageValue = (diff / previous) * 100;
+  const percentage = formatPercentage(percentageValue, locale, { maximumFractionDigits: 1 });
 
   if (previous !== 0 && includePreviousNumber) {
     return `${sign}${percentage} (${sign}${formattedDiff})`;

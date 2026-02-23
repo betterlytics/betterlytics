@@ -4,7 +4,7 @@ import { useMemo, useCallback, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/DataTable';
-import { formatPercentage } from '@/utils/formatters';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
 import type {
   CampaignUTMBreakdownItem,
@@ -70,7 +70,7 @@ export default function UTMBreakdownTabbedTable({
         {
           accessorKey: 'pagesPerSession',
           header: t('columns.pagesPerSession'),
-          cell: ({ row }) => <div>{new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(row.getValue<number>('pagesPerSession'))}</div>,
+          cell: ({ row }) => <div>{formatNumber(row.getValue<number>('pagesPerSession'), locale, { notation: 'standard', minimumFractionDigits: 1, maximumFractionDigits: 1 })}</div>,
         },
       ];
     },

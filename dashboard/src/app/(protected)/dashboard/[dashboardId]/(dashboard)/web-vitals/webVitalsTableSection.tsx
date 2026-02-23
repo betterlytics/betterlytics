@@ -4,7 +4,7 @@ import { use, useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
-import { formatString } from '@/utils/formatters';
+import { formatNumber, formatString } from '@/utils/formatters';
 import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
@@ -203,7 +203,7 @@ export default function WebVitalsTableSection({
             const { label, className } = scoreVisual(v);
             return (
               <Badge className={className}>
-                {label}: <span className='tabular-nums'>{new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(v)}</span>
+                {label}: <span className='tabular-nums'>{formatNumber(v, locale, { notation: 'standard', minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
               </Badge>
             );
           },
@@ -214,7 +214,7 @@ export default function WebVitalsTableSection({
           header: () => headerWithOpportunityInfo(),
           cell: ({ row }) => {
             const v = getOpportunity(row.original);
-            return <span className='tabular-nums'>{v == null ? '—' : new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)}</span>;
+            return <span className='tabular-nums'>{v == null ? '—' : formatNumber(v, locale, { notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>;
           },
           accessorFn: (r) => getOpportunity(r) ?? 0,
         },
