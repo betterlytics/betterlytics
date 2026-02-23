@@ -1039,74 +1039,74 @@
         "titleRest": "fællesskabsdrevet",
         "subtitle": "Transparent, fællesskabsdrevet udvikling. Deltag som bidragyder, ønsk funktioner eller tilpas platformen til dine behov.",
         "starOnGithub": "Giv en stjerne på GitHub",
-        "viewDocs": "Se dokumentation",
-        "docsTitle": "Komplet Betterlytics-dokumentation"
+        "viewDocs": "Se dokumentasjon",
+        "docsTitle": "Komplett Betterlytics-dokumentasjon"
       },
       "pricing": {
         "titleEmphasis": "Simpel, skalerbar",
         "titleRest": "prissætning",
-        "subtitle": "Trafikbaserede planer, der matcher din vækst. Start gratis, skalér når du vokser.",
-        "footer": "Start med vores gratis plan – intet kreditkort krævet.",
-        "compareLink": "Sammenlign alle funktioner"
+        "subtitle": "Trafikkbaserte planer som matcher veksten din. Start gratis, skaler når du vokser.",
+        "footer": "Start med gratisplanen vår – ingen kredittkort kreves.",
+        "compareLink": "Sammenlign alle funksjoner"
       },
       "cards": {
         "advancedFilters": {
-          "title": "Avancerede filtre",
-          "description": "Segmentér din analysedata efter enhver dimension for å finde handlingsklare indsigter."
+          "title": "Avanserte filtre",
+          "description": "Segmenter analysedataene dine etter enhver dimensjon for å finne handlingsrettet innsikt."
         },
         "coreWebVitals": {
           "title": "Core Web Vitals-målinger",
-          "description": "Overvåg og mål din nettsteds ydeevne med Core Web Vitals."
+          "description": "Overvåk og mål nettstedets ytelse med Core Web Vitals."
         },
         "trafficSources": {
           "title": "Trafikkilder",
-          "description": "Find ud af, hvor dine besøgende kommer fra, og optimer din markedsføring.",
-          "totalVisitors": "Samlede besøgende",
+          "description": "Finn ut hvor de besøkende kommer fra, og optimaliser markedsføringen din.",
+          "totalVisitors": "Totale besøkende",
           "thisMonth": "denne måneden",
-          "visitorsLabel": "besøgende",
+          "visitorsLabel": "besøkende",
           "sources": {
-            "googleSearch": "Google-søgning",
+            "googleSearch": "Google-søk",
             "direct": "Direkte",
-            "socialMedia": "Sociale medier",
+            "socialMedia": "Sosiale medier",
             "email": "E-mail",
-            "other": "Andet"
+            "other": "Annet"
           }
         },
         "funnels": {
-          "title": "Tragte",
-          "description": "Følg konverteringsraten for dine vigtigste brugerrejser.",
-          "total": "I alt",
-          "dropOff": "frafald",
+          "title": "Trakter",
+          "description": "Følg konverteringsraten for de viktigste brukerreisene dine.",
+          "total": "Totalt",
+          "dropOff": "frafall",
           "sinceLastWeek": "siden forrige uke"
         },
         "events": {
           "title": "Realtidshendelser",
-          "description": "Spor alle brugerinteraktioner, når de sker, med detaljeret hendelseslogning.",
-          "showing": "Viser {loaded} af {total} hendelser"
+          "description": "Spor alle brukerinteraksjoner når de skjer, med detaljert hendelseslogging.",
+          "showing": "Viser {loaded} av {total} hendelser"
         },
         "sessionReplay": {
-          "title": "Sessionsafspilning",
-          "description": "Se anonymiserede optagelser for hurtigt at opdager friktion, rasende klik og visuelle feil.",
-          "cursorClick": "Museklik registreret",
-          "sessionPlayback": "Sessionsafspilning",
-          "playing": "Afspiller"
+          "title": "Sesjonsavspilling",
+          "description": "Se anonymiserte opptak for raskt å oppdage friksjon, rasende klikk og visuelle feil.",
+          "cursorClick": "Museklikk registrert",
+          "sessionPlayback": "Sesjonsavspilling",
+          "playing": "Spiller av"
         },
         "journeys": {
-          "title": "Brukerrejser",
-          "description": "Følg flere brugerforløb og se, hvordan besøgende navigerer på ditt site."
+          "title": "Brukerreiser",
+          "description": "Følg flere brukerforløp og se hvordan besøkende navigerer på nettstedet ditt."
         },
         "worldMap": {
           "title": "Geografisk analyse",
-          "description": "Se hvor dine besøgende kommer fra i hele verden.",
-          "topCountries": "Toplande"
+          "description": "Se hvor de besøkende kommer fra i hele verden.",
+          "topCountries": "Toppland"
         },
         "uptimeMonitoring": {
-          "title": "Oppetidsovervågning",
-          "description": "Få advarsler når ditt site går ned, plus automatisk SSL-certifikatovervågning.",
+          "title": "Oppetidsovervåking",
+          "description": "Få varsler når nettstedet ditt går ned, pluss automatisk SSL-sertifikatovervåking.",
           "alertDown": "{site} er nede",
           "alertSent": "Advarsel sendt til {email}",
-          "incidentDetected": "{count, plural, one {{count} hendelse opdagert} other {{count} hendelser opdagert}}",
-          "allOperational": "Alle systemer kører",
+          "incidentDetected": "{count, plural, one {{count} hendelse oppdaget} other {{count} hendelser oppdaget}}",
+          "allOperational": "Alle systemer kjører",
           "ssl": "SSL-sertifikat"
         }
       }
@@ -2041,7 +2041,7 @@
         "cancel": "Avbryt",
         "add": "Legg til",
         "save": "Lagre",
-        "delete": "Slet",
+        "delete": "Slett",
         "deleteAnnotationAria": "Slett merknad",
         "deleteConfirmTitle": "Bekreft sletting",
         "deleteConfirmDescription": "Er du sikker på at du vil slette denne merknaden?"
@@ -2057,7 +2057,7 @@
       "popover": {
         "annotationsCount": "{count, plural, one {# merknad} other {# merknader}}",
         "edit": "Rediger",
-        "delete": "Slet",
+        "delete": "Slett",
         "editAria": "Rediger merknad",
         "deleteAria": "Slett merknad"
       }
@@ -2123,42 +2123,42 @@
             "a": "Akkurat nå tilbyr vi kun månedlig fakturering. Årlig fakturering med rabatt kommer snart!"
           },
           "freeOption": {
-            "q": "Er der en gratis mulighed?",
-            "a": "Ja! Vores Growth-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for å komme i gang."
+            "q": "Finnes det en gratis plan?",
+            "a": "Ja! Growth-planen vår inkluderer 10 000 gratis hendelser per måned for alltid. Ingen kredittkort kreves for å komme i gang."
           },
           "cancelAnytime": {
-            "q": "Kan jeg opsige når som helst?",
-            "a": "Helt sikkert. Du kan opsige ditt abonnement når som helst. din plan forbliver aktiv indtil slutningen af din nuværende faktureringsperiode."
+            "q": "Kan jeg si opp når som helst?",
+            "a": "Helt sikkert. Du kan si opp abonnementet ditt når som helst. Planen din forblir aktiv til slutten av gjeldende faktureringsperiode."
           },
           "paymentMethods": {
-            "q": "Hvilke betalingsmetoder accepterer I?",
-            "a": "Vi accepterer alle større kreditkort (Visa, MasterCard, American Express) og understøtter sikre betalinger via vores betalingsudbyder."
+            "q": "Hvilke betalingsmetoder aksepterer dere?",
+            "a": "Vi aksepterer alle større kredittkort (Visa, MasterCard, American Express) og støtter sikre betalinger via vår betalingsleverandør."
           }
         }
       },
       "interactive": {
         "checkoutCanceled": "Betalingen ble avbrutt. Du kan prøve igjen når som helst.",
-        "contactForCustomPlan": "Kontakt os for en tilpasset plan",
-        "planSelectionFailed": "kunne ikke behandle valg af plan. prøv igjen.",
-        "subscriptionChangesNote": "Ændringer i ditt abonnement behandles straks gennem Stripes sikre faktureringsportal.",
-        "freePlanNote": "Start med vores gratis plan – intet kreditkort krævet."
+        "contactForCustomPlan": "Kontakt oss for en tilpasset plan",
+        "planSelectionFailed": "Kunne ikke behandle valg av plan. Prøv igjen.",
+        "subscriptionChangesNote": "Endringer i abonnementet ditt behandles umiddelbart via Stripes sikre faktureringsportal.",
+        "freePlanNote": "Start med gratisplanen vår – ingen kredittkort kreves."
       },
       "currentPlan": {
-        "title": "Nuværende plan",
+        "title": "Nåværende plan",
         "canceledBannerTitle": "Abonnement avbrutt",
-        "canceledBannerBody": "ditt abonnement forbliver aktivt indtil {date}. Du kan genaktivere når som helst inden da.",
-        "description": "Detaljer for din nuværende abonnement",
+        "canceledBannerBody": "Abonnementet ditt forblir aktivt til {date}. Du kan reaktivere når som helst før det.",
+        "description": "Detaljer om ditt nåværende abonnement",
         "plan": "Abonnement",
         "monthlyPrice": "Månedlig pris",
         "free": "Gratis",
         "eventUsage": "Event-forbruk",
-        "usageProgress": "{current} af {limit} events",
-        "resetsInDays": "Nulstilles om {days} dager",
-        "expiresInDays": "Udløber om {days} dager",
+        "usageProgress": "{current} av {limit} hendelser",
+        "resetsInDays": "Nullstilles om {days} dager",
+        "expiresInDays": "Utløper om {days} dager",
         "canceled": "Avbrutt",
-        "manage": "Administrér abonnement",
-        "reactivate": "Genaktivér abonnement",
-        "cancel": "Annullér abonnement"
+        "manage": "Administrer abonnement",
+        "reactivate": "Reaktiver abonnement",
+        "cancel": "Avslutt abonnement"
       },
       "planNames": {
         "growth": "Growth-plan",
@@ -2176,7 +2176,7 @@
       "sameLengthAsMain": "Samme længde som hovedinterval",
       "compareToPeriod": "Sammenligningsperiode",
       "dateRange": "Datointerval",
-      "granularityNotAvailable": "Granularitet ikke tilgængelig for valgt interval",
+      "granularityNotAvailable": "Granularitet er ikke tilgjengelig for valgt intervall",
       "presets": {
         "today": "I dag",
         "yesterday": "I går",
@@ -2209,7 +2209,7 @@
       },
       "geography": {
         "title": "Initialiserer verdenskort",
-        "description": "Forbereder en geografisk visualisering af besøgsdata..."
+        "description": "Forbereder en geografisk visualisering av besøksdata..."
       }
     },
     "devices": {
@@ -2217,71 +2217,71 @@
         "columns": {
           "os": "Operativsystem",
           "browser": "Nettleser",
-          "visitors": "Besøgende",
+          "visitors": "Besøkende",
           "percentage": "Procent"
         },
         "topOperatingSystems": "Top operativsystemer",
-        "topBrowsers": "Top browsere"
+        "topBrowsers": "Topp nettlesere"
       },
       "charts": {
-        "deviceTypes": "Enhedstyper",
-        "deviceUsageTrend": "Enhedsanvendelsestrend"
+        "deviceTypes": "Enhetstyper",
+        "deviceUsageTrend": "Trend for enhetsbruk"
       }
     },
     "campaign": {
-      "title": "Kampagner",
+      "title": "Kampanjer",
       "pagination": {
-        "pageOf": "Side {currentPage} af {totalPages}",
-        "showing": "Viser {startItem}-{endItem} af {totalItems} kampagner",
+        "pageOf": "Side {currentPage} av {totalPages}",
+        "showing": "Viser {startItem}-{endItem} av {totalItems} kampanjer",
         "perPage": "pr. side"
       },
       "emptyState": {
-        "title": "Ingen kampagner registreret endnu",
-        "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for å se performance-metrics.",
-        "docsHint": "Bruk for hjælp til at få kampagner til at dukke op?",
-        "docsLinkLabel": "Læs guiden til kampagnesporing"
+        "title": "Ingen kampanjer registrert ennå",
+        "description": "Kampanjer vises her når URL-er med utm_campaign-tags blir registrert. Begynn å tagge lenkene dine for å se ytelsesmålinger.",
+        "docsHint": "Trenger du hjelp med å få kampanjer til å dukke opp?",
+        "docsLinkLabel": "Les guiden til kampanjesporing"
       },
       "loading": "Laster inn kampanjer...",
       "campaignRow": {
-        "visitors": "{count, plural, one {# besøgende} other {# besøgende}}",
-        "bounceRate": "Afvisningsprocent",
-        "avgSessionDuration": "Gns. varighed",
-        "pagesPerSession": "Sider pr. session",
-        "campaignDetails": "Kampagnedetaljer"
+        "visitors": "{count, plural, one {# besøkende} other {# besøkende}}",
+        "bounceRate": "Fluktfrekvens",
+        "avgSessionDuration": "Gj.sn. varighet",
+        "pagesPerSession": "Sider per sesjon",
+        "campaignDetails": "Kampanjedetaljer"
       },
       "campaignExpandedRow": {
-        "onlyAvailableOnLargerScreens": "Den detaljerede UTM-tabel er kun tilgængelig på større skærme.",
+        "onlyAvailableOnLargerScreens": "Den detaljerte UTM-tabellen er kun tilgjengelig på større skjermer.",
         "loading": "Laster inn kampanjedetaljer...",
-        "error": "kunne ikke indlæse kampagnedetaljer. prøv igjen.",
-        "campaignDetails": "Kampagnedetaljer"
+        "error": "Kunne ikke laste inn kampanjedetaljer. Prøv igjen.",
+        "campaignDetails": "Kampanjedetaljer"
       },
       "audienceProfile": {
         "title": "Målgruppeprofil",
-        "noData": "Ingen målgruppedata for denne kampagne i det valgte interval.",
-        "deviceTitle": "Enheder",
-        "browserTitle": "Browsere",
+        "noData": "Ingen målgruppedata for denne kampanjen i valgt intervall.",
+        "deviceTitle": "Enheter",
+        "browserTitle": "Nettlesere",
         "osTitle": "Operativsystem",
-        "countryTitle": "Lande"
+        "countryTitle": "Land"
       },
       "utm": {
         "table": {
-          "title": "UTM-parameteroversigt"
+          "title": "UTM-parameteroversikt"
         },
         "chart": {
           "title": "UTM-fordeling"
         },
         "tabs": {
-          "entryPages": "Indgangssider",
+          "entryPages": "Inngangssider",
           "source": "Kilde",
           "medium": "Mediumkanal",
-          "content": "Indhold",
+          "content": "Innhold",
           "term": "Søkeord"
         },
         "columns": {
-          "visitors": "Besøgende",
-          "bounceRate": "Afvisningsprocent",
-          "avgSessionDuration": "Gns. sessionsvarighed",
-          "pagesPerSession": "Sider / session"
+          "visitors": "Besøkende",
+          "bounceRate": "Fluktfrekvens",
+          "avgSessionDuration": "Gj.sn. sesjonsvarighet",
+          "pagesPerSession": "Sider / sesjon"
         }
       }
     },
@@ -2292,55 +2292,55 @@
         "loadingMore": "Laster inn flere hendelser...",
         "noEvents": "Ingen hendelser fundet",
         "showingAll": "Viser alle {count} hendelser",
-        "showingPartial": "Viser {loaded} af {total} hendelser",
-        "title": "Hændelseslog",
+        "showingPartial": "Viser {loaded} av {total} hendelser",
+        "title": "Hendelseslogg",
         "description": "Realtids aktivitetssporing",
         "loading": "Laster inn hendelser..."
       },
       "table": {
-        "eventName": "Hændelsesnavn",
-        "count": "Antal",
+        "eventName": "Hendelsesnavn",
+        "count": "Antall",
         "uniqueUsers": "Unikke brukere",
-        "avgPerUser": "Gennemsnit pr. bruger",
-        "lastSeen": "Sidst set",
-        "percentage": "Procent",
-        "noEvents": "Ingen hendelser fundet",
+        "avgPerUser": "Gjennomsnitt per bruker",
+        "lastSeen": "Sist sett",
+        "percentage": "Prosent",
+        "noEvents": "Ingen hendelser funnet",
         "noEventsDesc": "Ingen egendefinerte hendelser ble sporet i denne perioden. Hendelser vises her når de begynner å bli registrert.",
-        "eventDetails": "Hændelsesdetaljer",
+        "eventDetails": "Hendelsesdetaljer",
         "uniqueEvent": "Unik hendelse",
-        "uniqueEvents": "Unikke hendelser"
+        "uniqueEvents": "Unike hendelser"
       },
       "expandedEventContent": {
         "loading": "Laster inn egenskaper...",
-        "noProperties": "Ingen egenskaber",
-        "noPropertiesDesc": "Denne hendelse har ingen brugerdefinerede egenskaber."
+        "noProperties": "Ingen egenskaper",
+        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper."
       }
     },
     "tabbedTable": {
-      "searchPlaceholder": "Filtrer efter {field}..."
+      "searchPlaceholder": "Filtrer etter {field}..."
     },
     "filters": {
       "type": "Kategori",
-      "operator": "Operatør",
+      "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
-      "namePlaceholder": "Angiv trinnavn",
+      "namePlaceholder": "Angi trinnnavn",
       "columns": {
         "url": "URL-adresse",
         "domain": "Vertsnavn",
-        "device_type": "Enhedstype",
+        "device_type": "Enhetstype",
         "country_code": "Landekode",
         "browser": "Nettleser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
         "referrer_source_name": "Henvisningsnavn",
-        "referrer_search_term": "Henvisningssøgeterm",
+        "referrer_search_term": "Henvisningssøketerm",
         "referrer_url": "Henvisnings-URL",
         "utm_source": "UTM-kilde",
         "utm_medium": "UTM-medium",
-        "utm_campaign": "UTM-kampagne",
+        "utm_campaign": "UTM-kampanje",
         "utm_term": "UTM-term",
-        "utm_content": "UTM-indhold",
+        "utm_content": "UTM-innhold",
         "custom_event_name": "Hendelse",
         "event_type": "Type"
       },
@@ -2352,175 +2352,175 @@
         "cancel": "Avbryt",
         "apply": "Bruk",
         "selectValue": "Velg en verdi",
-        "noValuesForCurrentPeriod": "Ingen verdier fundet for den aktuelle periode",
+        "noValuesForCurrentPeriod": "Ingen verdier funnet for valgt periode",
         "savedFilters": "Lagrede filtre",
-        "noSavedFilters": "Ingen gemte filtre endnu",
+        "noSavedFilters": "Ingen lagrede filtre ennå",
         "saveFilters": "Lagre",
-        "saveFiltersTitle": "Lagre filtersæt",
-        "filterNamePlaceholder": "Angiv filternavn",
+        "saveFiltersTitle": "Lagre filtersett",
+        "filterNamePlaceholder": "Angi filternavn",
         "toastFilterSavedSuccess": "Filter lagret",
-        "toastFilterSavedError": "kunne ikke gemme filter",
+        "toastFilterSavedError": "Kunne ikke lagre filter",
         "toastFilterDeletedSuccess": "Filter slettet",
-        "toastFilterDeletedError": "kunne ikke slette filter",
-        "toastUndo": "Fortryd",
-        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
+        "toastFilterDeletedError": "Kunne ikke slette filter",
+        "toastUndo": "Angre",
+        "savedFiltersLimitReached": "Maksimalt antall lagrede filtre nådd"
       },
-      "filterBy": "Filtrer efter {label}"
+      "filterBy": "Filtrer etter {label}"
     },
     "funnels": {
       "skeleton": {
         "steps": {
           "homepage": "Forside",
           "pricing": "Priser",
-          "signup": "Tilmeld",
-          "purchase": "Køb"
+          "signup": "Registrer",
+          "purchase": "Kjøp"
         },
-        "step": "Trin",
-        "visitors": "Besøgende"
+        "step": "Trinn",
+        "visitors": "Besøkende"
       },
       "create": {
-        "defaultName": "Min nye tragt",
+        "defaultName": "Min nye trakt",
         "createFunnel": "Opprett trakt",
         "createFunnelLower": "Opprett trakt",
-        "name": "Tragtnavn",
-        "namePlaceholder": "Mit tragtnavn",
+        "name": "Traktnavn",
+        "namePlaceholder": "Mitt traktnavn",
         "strictMode": "Strikt tilstand",
         "addStep": "Legg til trinn",
         "livePreview": "Live forhåndsvisning",
         "cancel": "Avbryt",
         "create": "Opprett",
-        "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt verdi.",
+        "createDisabledHint": "Angi et traktnavn og definer minst to trinn. <br></br> Hvert trinn må ha både et navn og en valgt verdi.",
         "successMessage": "Trakt opprettet!",
         "errorMessage": "Traktopprettelse mislyktes!"
       },
       "edit": {
-        "title": "Rediger tragt",
-        "name": "Tragtnavn",
+        "title": "Rediger trakt",
+        "name": "Traktnavn",
         "strictMode": "Strikt tilstand",
         "addStep": "Legg til trinn",
         "cancel": "Avbryt",
         "save": "Lagre",
         "livePreview": "Live forhåndsvisning",
-        "disabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt verdi.",
-        "successMessage": "Tragt oppdateret!",
+        "disabledHint": "Angi et traktnavn og definer minst to trinn. <br></br> Hvert trinn må ha både et navn og en valgt verdi.",
+        "successMessage": "Trakt oppdatert!",
         "errorMessage": "Traktoppdatering mislyktes!"
       },
       "clone": {
-        "title": "Klon tragt",
-        "name": "Tragtnavn",
-        "namePlaceholder": "Min tragt (kopi)",
+        "title": "Klon trakt",
+        "name": "Traktnavn",
+        "namePlaceholder": "Min trakt (kopi)",
         "strictMode": "Strikt tilstand",
         "addStep": "Legg til trinn",
         "livePreview": "Live forhåndsvisning",
-        "defineAtLeastTwoSteps": "Definér mindst 2 trin for å se forhåndsvisningen.",
+        "defineAtLeastTwoSteps": "Definer minst 2 trinn for å se forhåndsvisningen.",
         "cancel": "Avbryt",
         "cta": "Opprett kopi",
-        "successMessage": "Tragt klonet!",
+        "successMessage": "Trakt klonet!",
         "errorMessage": "Kopiering av trakt mislyktes!"
       },
       "plot": {
-        "stepLabel": "Trin {index}",
-        "visitors": "Besøgende",
-        "dropOff": "Frafald",
+        "stepLabel": "Trinn {index}",
+        "visitors": "Besøkende",
+        "dropOff": "Frafall",
         "conversion": "Konvertering"
       },
       "delete": {
-        "title": "Slet tragt",
-        "description": "Er du sikker på, at du vil slette denne tragt? Denne handling kan ikke angrees.",
+        "title": "Slett trakt",
+        "description": "Er du sikker på at du vil slette denne trakten? Denne handlingen kan ikke angres.",
         "cancel": "Avbryt",
-        "delete": "Slet tragt",
-        "successMessage": "Tragt slettet!",
+        "delete": "Slett trakt",
+        "successMessage": "Trakt slettet!",
         "errorMessage": "Sletting av trakt mislyktes!"
       },
       "preview": {
-        "defineAtLeastTwoSteps": "Definér mindst 2 trin for å se forhåndsvisningen."
+        "defineAtLeastTwoSteps": "Definer minst 2 trinn for å se forhåndsvisningen."
       },
       "emptyState": {
-        "title": "Visualisér din konverteringstragt",
-        "description": "Se hvor brugerne falder fra, og optimér dine konverteringsstier trin for trin.",
+        "title": "Visualiser konverteringstrakten din",
+        "description": "Se hvor brukerne faller fra, og optimaliser konverteringsstiene dine trinn for trinn.",
         "createButton": "Opprett trakt"
       }
     },
     "pages": {
       "summary": {
-        "pagesPerSession": "Sider pr. session",
-        "totalPageviews": "Samlede sidevisninger",
-        "avgTimeOnPage": "Gns. tid på side",
-        "avgBounceRate": "Gns. afvisningsprocent"
+        "pagesPerSession": "Sider per sesjon",
+        "totalPageviews": "Totale sidevisninger",
+        "avgTimeOnPage": "Gj.sn. tid på side",
+        "avgBounceRate": "Gj.sn. fluktfrekvens"
       },
       "table": {
         "path": "Sti",
-        "filterByPath": "Filtrer efter {path}",
-        "visitors": "Besøgende",
+        "filterByPath": "Filtrer etter {path}",
+        "visitors": "Besøkende",
         "pageviews": "Sidevisninger",
-        "bounceRate": "Afvisningsprocent",
-        "avgTime": "Gns. tid",
-        "entryRate": "Indgangsrate",
-        "exitRate": "Udgangsrate",
+        "bounceRate": "Fluktfrekvens",
+        "avgTime": "Gj.sn. tid",
+        "entryRate": "Inngangsfrekvens",
+        "exitRate": "Utgangsfrekvens",
         "avgScrollDepth": "Scroll-dybde",
         "allPages": "Alle sider",
-        "entryPages": "Indgangssider",
-        "exitPages": "Udgangssider",
+        "entryPages": "Inngangssider",
+        "exitPages": "Utgangssider",
         "title": "Sideanalyse"
       }
     },
     "referrers": {
       "summary": {
-        "referralSessions": "Henvisningssessioner",
-        "referralTrafficPct": "Henvisningstrafik %",
-        "topReferrerSource": "Top henvisningskilde",
-        "avgSessionDuration": "Gns. sessionsvarighed",
+        "referralSessions": "Henvisningssesjoner",
+        "referralTrafficPct": "Henvisningstrafikk %",
+        "topReferrerSource": "Topp henvisningskilde",
+        "avgSessionDuration": "Gj.sn. sesjonsvarighet",
         "none": "Ingen"
       },
       "charts": {
         "distribution": "Henvisningsfordeling",
-        "trafficTrends": "Henvisningstrafik trends"
+        "trafficTrends": "Trend for henvisningstrafikk"
       },
       "table": {
         "details": "Henvisningsdetaljer",
         "tabs": {
           "all": "Alle",
-          "search": "Søgning",
+          "search": "Søk",
           "social": "Sosiale medier",
           "direct": "Direkte",
           "email": "E-mail",
-          "other": "Andet"
+          "other": "Annet"
         },
         "columns": {
           "source": "Kilde",
           "type": "Kategori",
-          "visits": "Besøg",
-          "percentage": "Procent",
-          "bounceRate": "Afvisningsprocent",
-          "avgVisitDuration": "Gns. besøgstid",
+          "visits": "Besøk",
+          "percentage": "Prosent",
+          "bounceRate": "Fluktfrekvens",
+          "avgVisitDuration": "Gj.sn. besøkstid",
           "direct": "Direkte",
-          "unknown": "Ukendt"
+          "unknown": "Ukjent"
         }
       }
     },
     "geography": {
-      "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "visitors": "Besøgende"
+      "noData": "Ingen geografiske data tilgjengelige for valgt periode",
+      "visitors": "Besøkende"
     },
     "userJourney": {
-      "steps": "Trin",
-      "topJourneys": "Top {journeys} rejser",
-      "sessions": "Sessioner"
+      "steps": "Trinn",
+      "topJourneys": "Topp {journeys} reiser",
+      "sessions": "Sesjoner"
     },
     "outboundLinks": {
       "table": {
-        "title": "Udgående link performance",
+        "title": "Ytelse for utgående lenker",
         "destinationUrl": "Destinations-URL",
-        "uniqueClicks": "Unikke klik",
-        "topReferrerPage": "Top henvisningsside",
+        "uniqueClicks": "Unike klikk",
+        "topReferrerPage": "Topp henvisningsside",
         "sourcePages": "Kildesider"
       },
       "chart": {
-        "title": "Unikke udgående klik over tid",
-        "tooltipTitle": "Unikke udgående klik"
+        "title": "Unike utgående klikk over tid",
+        "tooltipTitle": "Unike utgående klikk"
       },
       "pieChart": {
-        "title": "Udgående links fordeling"
+        "title": "Fordeling av utgående lenker"
       }
     },
     "webVitals": {
@@ -2537,18 +2537,18 @@
         "poor": "Dårlig"
       },
       "table": {
-        "title": "Performance-opdeling",
-        "performance": "Ydelse",
-        "performanceAria": "Om performance score",
-        "performanceDescr": "Performance-score (0–100) baseret på følgende vægte: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
+        "title": "Ytelsesfordeling",
+        "performance": "Ytelse",
+        "performanceAria": "Om ytelsesscore",
+        "performanceDescr": "Ytelsesscore (0–100) basert på følgende vekter: LCP 30%, CLS 15%, FCP 15%, TTFB 10%, INP 30%.",
         "performanceGreat": "God: ≥ {min}",
         "performanceOkay": "Bra: ≥ {min}",
         "performancePoor": "Dårlig: < {min}",
-        "opportunity": "Potentiale",
-        "opportunityAria": "Om potentiale",
-        "opportunityDescr": "Trafikvægtet potentiel forbedring: trafikandel × (100 − Performance).",
-        "opportunityNote": "Ændres med det valgte percentil (P50/P75/P90/P99)",
-        "pageloads": "Sideindlæsninger",
+        "opportunity": "Potensial",
+        "opportunityAria": "Om potensial",
+        "opportunityDescr": "Trafikkvektet forbedringspotensial: trafikkandel × (100 − ytelse).",
+        "opportunityNote": "Endres med valgt persentil (P50/P75/P90/P99)",
+        "pageloads": "Sideinnlastinger",
         "badges": {
           "great": "God",
           "okay": "Bra",
@@ -2556,107 +2556,107 @@
         },
         "tabs": {
           "page": "Side",
-          "deviceType": "Enhedstype",
+          "deviceType": "Enhetstype",
           "country": "Land",
           "browser": "Nettleser",
           "operatingSystem": "Operativsystem",
           "pages": "Sider",
-          "devices": "Enheder",
-          "countries": "Lande",
-          "browsers": "Browsere",
+          "devices": "Enheter",
+          "countries": "Land",
+          "browsers": "Nettlesere",
           "operatingSystems": "Operativsystemer"
         }
       },
       "info": {
-        "aboutMetricAria": "Om metric",
+        "aboutMetricAria": "Om måling",
         "good": "God",
         "fair": "Middel",
         "descriptions": {
-          "CLS": "Måler visuel stabilitet. CLS fanger hvor meget indhold uventet flytter sig under indlæsning.",
-          "LCP": "Måler indlæsningsperformance. LCP er det øjeblik, hvor den største tekst eller det største billede bliver synligt.",
-          "INP": "Måler responsivitet. INP er tiden fra en brugerhandling til næste visuelle oppdatering.",
-          "FCP": "Viser hvornår det første indhold vises på skærmen under indlæsning.",
-          "TTFB": "Måler serverens svartid — tiden fra forespørgsel til første byte modtages."
+          "CLS": "Måler visuell stabilitet. CLS fanger hvor mye innhold som uventet flytter seg under innlasting.",
+          "LCP": "Måler innlastingsytelse. LCP er tidspunktet når den største teksten eller bildet blir synlig.",
+          "INP": "Måler responsivitet. INP er tiden fra en brukerhandling til neste visuelle oppdatering.",
+          "FCP": "Viser når det første innholdet vises på skjermen under innlasting.",
+          "TTFB": "Måler serverens svartid — tiden fra forespørsel til første byte mottas."
         }
       }
     },
     "sessionReplay": {
       "sessionList": {
-        "header": "Sessioner",
-        "subHeader": "{count} sessioner",
-        "durationFilter": "Min. varighed (s)",
-        "durationFilterAria": "Filtrer sessioner efter minimum varighed i sekunder",
+        "header": "Sesjoner",
+        "subHeader": "{count} sesjoner",
+        "durationFilter": "Min. varighet (s)",
+        "durationFilterAria": "Filtrer sesjoner etter minimum varighet i sekunder",
         "loading": "Laster inn sesjoner…",
-        "unknownUrl": "Ukendt URL",
-        "endOfList": "Du er nået til slutningen",
+        "unknownUrl": "Ukjent URL",
+        "endOfList": "Du har nådd slutten",
         "loadingMore": "Laster inn flere…",
-        "scrollToLoadMore": "Scroll ned for å indlæse flere sessioner",
+        "scrollToLoadMore": "Bla ned for å laste inn flere sesjoner",
         "empty": {
-          "title": "Ingen sessionsafspilninger tilgængelige",
-          "description": "Prøv at udvide din tidsperiode eller juster filtrene."
+          "title": "Ingen sesjonsavspillinger tilgjengelige",
+          "description": "Prøv å utvide tidsperioden eller juster filtrene."
         }
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
-        "startUrlTitle": "Start-URL (første side i denne session)"
+        "startUrlTitle": "Start-URL (første side i denne sesjonen)"
       },
       "eventTimeline": {
         "header": "Tidslinje",
-        "subHeader": "{count} events indsamlet ({groupCount} grupper)",
+        "subHeader": "{count} hendelser samlet inn ({groupCount} grupper)",
         "prefetching": "Laster inn resterende segmenter…",
         "emptyReplay": {
-          "title": "Ingen vigtige events fundet i denne sessionsafspilning endnu.",
+          "title": "Ingen viktige hendelser funnet i denne sesjonsavspillingen ennå.",
           "noSessionSelected": "Velg en sesjonsavspilling for å se tidslinjen."
         }
       },
       "events": {
-        "fullSnapshot": "Fuld skærmbillede",
-        "mouseInteraction": "Museinteraktion",
+        "fullSnapshot": "Fullt skjermbilde",
+        "mouseInteraction": "Museinteraksjon",
         "selection": "Markering",
-        "scroll": "Rulning",
-        "input": "Indtastning",
+        "scroll": "Rulling",
+        "input": "Inntasting",
         "pageview": "Sidevisning",
-        "blacklist": "Sortlistet"
+        "blacklist": "Svartelistet"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
-        "playbackSpeedAria": "Afspilningshastighed",
+        "playbackSpeedAria": "Avspillingshastighet",
         "recordingDisabled": "Optagelse er deaktiveret på denne side"
       }
     },
     "integration": {
       "integrationSetup": "Integrationsoppsett",
-      "title": "Hjemmeside integration",
+      "title": "Nettstedsintegrasjon",
       "description": "Velg rammeverket ditt og følg oppsettstrinnene for å begynne å samle inn analysedata",
-      "fullyIntegrated": "Fuldt integreret",
-      "notFullyIntegrated": "ikke fuldt integreret",
+      "fullyIntegrated": "Fullt integrert",
+      "notFullyIntegrated": "Ikke fullt integrert",
       "loadingDetails": "Laster inn integrasjonsdetaljer...",
-      "unableToLoadSiteId": "Kan ikke indlæse site-ID",
+      "unableToLoadSiteId": "Kan ikke laste inn site-ID",
       "failedToCopy": "kunne ikke kopiere",
-      "npmPackageNote": "Eller installer vores <npm>npm</npm> pakke <package>@betterlytics/tracker</package> for nem oppsett til Node-projekter.",
+      "npmPackageNote": "Eller installer vår <npm>npm</npm>-pakke <package>@betterlytics/tracker</package> for enkelt oppsett i Node-prosjekter.",
       "yourSiteId": "ditt site-ID",
       "trackingScript": "Sporingsskript",
-      "copied": "Kopieret",
+      "copied": "Kopiert",
       "copy": "Kopier",
-      "htmlInstallation": "HTML installation",
-      "nextjsInstallation": "Next.js installation",
-      "reactInstallation": "React installation",
-      "initializeNpmPackage": "Initialiser ved hjælp af vores <npm>npm</npm> pakke",
+      "htmlInstallation": "HTML-installasjon",
+      "nextjsInstallation": "Next.js-installasjon",
+      "reactInstallation": "React-installasjon",
+      "initializeNpmPackage": "Initialiser med vår <npm>npm</npm>-pakke",
       "integrationStatus": "Integrationsstatus",
       "trackProgress": "Spor fremdriften din",
       "accountCreated": "Konto opprettet",
       "accountReady": "Kontoen din er klar",
-      "siteIdGenerated": "Site-ID genereret",
+      "siteIdGenerated": "Site-ID generert",
       "uniqueIdentifier": "Din unike identifikator",
-      "dataReceiving": "Datamodtagelse",
+      "dataReceiving": "Datamottak",
       "analyticsDataFlowing": "Analysedata strømmer inn",
       "needHelp": "Trenger du hjelp?",
       "resourcesToGetStarted": "Ressurser for å komme i gang",
-      "documentation": "Dokumentation",
+      "documentation": "Dokumentasjon",
       "troubleshooting": "Problemløsning",
       "contactSupport": "Kontakt support",
-      "verifying": "Verificerer...",
-      "verifyInstallation": "Verificer installation",
+      "verifying": "Verifiserer...",
+      "verifyInstallation": "Verifiser installasjon",
       "selectFramework": "Velg rammeverket ditt"
     },
     "settingsButton": {
@@ -2688,10 +2688,10 @@
         "userFallback": "Bruker",
         "dashboards": "Oversikter",
         "upgradePlan": "Oppgrader plan",
-        "reportBug": "Rapportér fejl",
+        "reportBug": "Rapporter feil",
         "settings": "Innstillinger",
-        "documentation": "Dokumentation",
-        "documentationTitle": "Komplet Betterlytics-dokumentation",
+        "documentation": "Dokumentasjon",
+        "documentationTitle": "Komplett Betterlytics-dokumentasjon",
         "logout": "Logg ut"
       }
     },
@@ -2728,34 +2728,34 @@
       },
       "profile": {
         "title": "Profil",
-        "description": "Redigér dine personlige oplysninger",
+        "description": "Rediger personopplysningene dine",
         "nameLabel": "Navn",
-        "namePlaceholder": "Indtast ditt navn",
-        "optional": "Valgfrit",
-        "emailLabel": "E-mail",
+        "namePlaceholder": "Skriv inn navnet ditt",
+        "optional": "Valgfritt",
+        "emailLabel": "E-post",
         "verified": "Bekreftet",
-        "unverified": "ikke bekreftet",
-        "updateButton": "Opdater profil",
+        "unverified": "Ikke bekreftet",
+        "updateButton": "Oppdater profil",
         "toast": {
-          "success": "Profil oppdateret",
-          "error": "kunne ikke oppdatere profil. prøv igjen."
+          "success": "Profil oppdatert",
+          "error": "Kunne ikke oppdatere profil. Prøv igjen."
         }
       },
       "preferences": {
         "appearance": {
           "title": "Utseende",
-          "description": "Tilpas det visuelle udtryk for ditt dashboard",
+          "description": "Tilpass det visuelle uttrykket for dashboardet ditt",
           "themeLabel": "Tema",
-          "light": "Lyst",
-          "dark": "Mørkt",
+          "light": "Lys",
+          "dark": "Mørk",
           "system": "Systemstandard"
         },
         "avatar": {
           "label": "Profilbilde",
           "none": "Ingen",
           "gravatar": "Gravatar-tjeneste",
-          "noteIntro": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
-          "terms": "du accepterer deres vilkår"
+          "noteIntro": "Merk: Gravatar er en tredjepartstjeneste – aktivering kan dele e-post-hashen din med serverne deres.",
+          "terms": "du godtar vilkårene deres"
         },
         "localization": {
           "title": "Lokalisering",
@@ -2763,10 +2763,10 @@
           "language": "Språk"
         },
         "notifications": {
-          "title": "Notifikationer",
-          "description": "Konfigurer dine notifikationspræferencer",
-          "emailNotifications": "E-mail notifikationer",
-          "marketingEmails": "Marketing-e-mails"
+          "title": "Varsler",
+          "description": "Konfigurer varslingspreferansene dine",
+          "emailNotifications": "E-postvarsler",
+          "marketingEmails": "Markedsførings-e-poster"
         }
       },
       "usage": {
@@ -2780,10 +2780,10 @@
       "billingPortal": {
         "title": "Faktureringsportal",
         "description": "Administrer faktureringsopplysningene dine og se full fakturahistorikk",
-        "access": "Adgang til faktureringsportal",
+        "access": "Tilgang til faktureringsportal",
         "accessButton": "Åpne faktureringsportal",
         "explainer": "Se tidligere fakturaer, oppdater betalingsmetoder og administrer faktureringen din via Stripes sikre kundeportal.",
-        "notAvailable": "Faktureringsportalen er tilgængelig, når du opgraderer til en betalt plan.",
+        "notAvailable": "Faktureringsportalen er tilgjengelig når du oppgraderer til en betalt plan.",
         "needHelp": "Trenger du hjelp med fakturering?",
         "contactSupport": "Kontakt support",
         "toastError": "Kunne ikke åpne faktureringsportal, prøv igjen."
@@ -2794,48 +2794,48 @@
         "currentPassword": "Nåværende passord",
         "newPassword": "Nytt passord",
         "confirmNewPassword": "Bekreft nytt passord",
-        "passwordHelp": "Adgangskoden skal være mindst 8 tegn",
-        "passwordsMatch": "Adgangskoderne matcher",
+        "passwordHelp": "Passordet må være minst 8 tegn",
+        "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
         "toast": {
           "success": "Passord oppdatert"
         },
         "totp": {
-          "title": "To-faktor-godkendelse",
+          "title": "Tofaktorautentisering",
           "description": "Legg til et ekstra sikkerhetslag ved å kreve en ekstra godkjenning i tillegg til passordet ditt",
           "enable": "Aktivér 2FA",
-          "instructions": "for å aktivere 2FA skal du scanne QR-koden med din autentificeringsapp eller bruge <setup>oppsettsnøglen</setup> til manuel konfiguration og derefter indtaste verifikationskoden nedenfor.",
+          "instructions": "For å aktivere 2FA skal du skanne QR-koden med autentiseringsappen din, eller bruke <setup>oppsettsnøkkelen</setup> for manuell konfigurasjon, og deretter skrive inn verifiseringskoden nedenfor.",
           "cancel": "Avbryt",
           "confirm": "Bekreft",
-          "enabled": "Aktiveret",
+          "enabled": "Aktivert",
           "disable": "Deaktivér",
           "disableTitle": "Deaktivér 2FA",
-          "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
-          "disabledSuccess": "To-faktor-godkendelse deaktiveret",
-          "disableFailed": "kunne ikke deaktivere to-faktor-godkendelse. prøv igjen."
+          "disableDescription": "Er du sikker på at du vil deaktivere tofaktorautentisering for kontoen din?",
+          "disabledSuccess": "Tofaktorautentisering deaktivert",
+          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen."
         }
       },
       "danger": {
-        "title": "Slet konto",
-        "description": "Slet din konto og alle tilknyttede data permanent",
-        "warning": "Advarsel: Denne handling kan ikke angrees",
-        "details": "Dette vil permanent slette kontoen din, fjerne tilgang til alle dashboards og slette alle personlige innstillinger.",
-        "delete": "Slet konto",
+        "title": "Slett konto",
+        "description": "Slett kontoen din og alle tilknyttede data permanent",
+        "warning": "Advarsel: Denne handlingen kan ikke angres",
+        "details": "Dette vil slette kontoen din permanent, fjerne tilgang til alle dashboards og slette alle personlige innstillinger.",
+        "delete": "Slett konto",
         "dialog": {
-          "title": "Slet konto permanent",
-          "description": "Er du helt sikker på, at du vil slette din konto? Denne handling kan ikke angrees og vil permanent:",
-          "li1": "Slette alle dine personlige oplysninger",
-          "li2": "Fjerne adgang til alle dine dashboards",
-          "li3": "Slette alle dine kontoinnstillinger",
-          "li4": "Logge dig ud af alle enheder",
+          "title": "Slett konto permanent",
+          "description": "Er du helt sikker på at du vil slette kontoen din? Denne handlingen kan ikke angres, og dette blir slettet permanent:",
+          "li1": "Slette alle personopplysningene dine",
+          "li2": "Fjerne tilgang til alle dashboardene dine",
+          "li3": "Slette alle kontoinnstillingene dine",
+          "li4": "Logge deg ut av alle enheter",
           "cancel": "Avbryt",
-          "confirm": "Slet konto permanent"
+          "confirm": "Slett konto permanent"
         },
         "toast": {
           "success": "Konto slettet",
-          "error": "kunne ikke slette konto. prøv igjen.",
-          "unable": "Kan ikke slette konto. Prøv at logge ind igen."
+          "error": "Kunne ikke slette konto. Prøv igjen.",
+          "unable": "Kan ikke slette konto. Prøv å logge inn igjen."
         }
       }
     },
@@ -2865,100 +2865,100 @@
           "y3": "3 år"
         },
         "retentionConfirm": {
-          "title": "Ændre opbevaringsperiode?",
-          "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
+          "title": "Endre oppbevaringsperiode?",
+          "description": "Er du sikker på at du vil endre dataoppbevaringsperioden til {period}?"
         },
         "siteRules": {
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hendelser der accepteres.",
           "enforceDomain": "Håndhæv domene",
-          "enforceDomainDescription": "Afvis hendelser, hvis domene ikke stemmer overens med dashboard-domenet.",
+          "enforceDomainDescription": "Avvis hendelser hvis domenet ikke samsvarer med dashboard-domenet.",
           "enableValidation": "Aktiver domenevalidering",
-          "enableValidationDescription": "Accepter kun hendelser fra ditt konfigurerede domene",
+          "enableValidationDescription": "Godta kun hendelser fra det konfigurerte domenet ditt",
           "rename": {
-            "title": "Ændr domene",
-            "description": "Ændr domenet tilknyttet dette dashboard. dine analysedata bevares.",
-            "info": "ditt Site ID og sporingskript forbliver uændret.",
-            "success": "Domæne oppdateret",
-            "error": "kunne ikke oppdatere domenet"
+            "title": "Endre domene",
+            "description": "Endre domenet som er knyttet til dette dashboardet. Analysedataene dine beholdes.",
+            "info": "Site-ID og sporingsskriptet ditt forblir uendret.",
+            "success": "Domene oppdatert",
+            "error": "Kunne ikke oppdatere domenet"
           }
         },
         "blacklistedIps": {
-          "title": "Blokerede IP-adresser",
-          "description": "Administrer IP-adresser, for hvilke indgående hendelser blokeres.",
+          "title": "Blokkerte IP-adresser",
+          "description": "Administrer IP-adresser som innkommende hendelser blokkeres for.",
           "addIp": "Legg til IP",
-          "addIpPlaceholder": "Indtast IPv4/IPv6 eller CIDR (f.eks. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
-          "addIpError": "Indtast en gyldig IPv4/IPv6-adresse eller CIDR-range",
-          "noIps": "Ingen IP-adresser er i øjeblikket blokeret",
+          "addIpPlaceholder": "Skriv inn IPv4/IPv6 eller CIDR (f.eks. 192.168.1.1, 10.0.0.0/8, 2001:db8::/32)",
+          "addIpError": "Skriv inn en gyldig IPv4/IPv6-adresse eller CIDR-intervall",
+          "noIps": "Ingen IP-adresser er blokkert for øyeblikket",
           "remove": "Fjern"
         }
       },
       "danger": {
         "title": "Dashboard (fare)",
-        "sectionTitle": "Slet dashboard",
-        "sectionDescription": "Slet dette dashboard og alle dets data permanent.",
-        "deleteButton": "Slet",
-        "toastSuccess": "Dashboard slettet",
-        "toastError": "kunne ikke slette dashboard",
+        "sectionTitle": "Slett dashboard",
+        "sectionDescription": "Slett dette dashboardet og alle dataene permanent.",
+        "deleteButton": "Slett",
+        "toastSuccess": "Dashboardet ble slettet",
+        "toastError": "Kunne ikke slette dashboard",
         "dialog": {
-          "title": "Slet dashboard",
-          "description": "Er du sikker på, at du vil slette dette dashboard? Denne handling kan ikke angrees.",
+          "title": "Slett dashboard",
+          "description": "Er du sikker på at du vil slette dette dashboardet? Denne handlingen kan ikke angres.",
           "cancel": "Avbryt",
-          "confirm": "Slet dashboard"
+          "confirm": "Slett dashboard"
         }
       },
       "leaveDashboard": {
-        "title": "Forlad dashboard",
-        "description": "Er du sikker på, at du vil forlade dette dashboard?",
-        "button": "Forlad dashboard",
-        "buttonPending": "Forlader...",
+        "title": "Forlat dashboard",
+        "description": "Er du sikker på at du vil forlate dette dashboardet?",
+        "button": "Forlat dashboard",
+        "buttonPending": "Forlater...",
         "dialog": {
-          "title": "Forlad dashboard",
-          "description": "Er du sikker på, at du vil forlade dette dashboard? Du vil ikke længere have adgang til det og skal inviteres igen for å deltage.",
+          "title": "Forlat dashboard",
+          "description": "Er du sikker på at du vil forlate dette dashboardet? Du vil ikke lenger ha tilgang til det og må inviteres igjen for å delta.",
           "cancel": "Avbryt",
-          "confirm": "Forlad dashboard"
+          "confirm": "Forlat dashboard"
         },
         "toast": {
-          "success": "Forlod dashboard",
-          "error": "kunne ikke forlade dashboard"
+          "success": "Forlot dashboard",
+          "error": "Kunne ikke forlate dashboard"
         }
       }
     },
     "termsRequiredDialog": {
-      "title": "Accepter oppdaterede servicevilkår",
-      "body": "for å fortsætte med at bruge din konto skal du gennemgå og acceptere vores <termsLink>servicevilkår</termsLink>.",
-      "acceptAndContinue": "Accepter og fortsæt",
+      "title": "Godta oppdaterte tjenestevilkår",
+      "body": "For å fortsette å bruke kontoen din må du gjennomgå og godta våre <termsLink>tjenestevilkår</termsLink>.",
+      "acceptAndContinue": "Godta og fortsett",
       "logout": "Log ud"
     },
     "demoMode": {
-      "notAvailable": "ikke tilgængelig på demo-dashboard",
+      "notAvailable": "ikke tilgjengelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
     },
     "permissions": {
-      "demoNotAvailable": "ikke tilgængelig på demo-dashboard",
-      "insufficientPermissions": "Du har ikke tilladelse til at udføre denne handling"
+      "demoNotAvailable": "ikke tilgjengelig på demo-dashboard",
+      "insufficientPermissions": "Du har ikke tillatelse til å utføre denne handlingen"
     },
     "bugReport": {
-      "trigger": "Rapportér fejl",
-      "title": "Rapportér en fejl",
-      "description": "Fortæl os hvad der gik galt eller føles forkert. Jo mere info, jo bedre!",
-      "placeholder": "Beskriv hvad der skete, hvad du forventede, og alt der kan hjælpe os med at genskabe problemet.",
+      "trigger": "Rapporter feil",
+      "title": "Rapporter en feil",
+      "description": "Fortell oss hva som gikk galt eller føles feil. Jo mer info, jo bedre!",
+      "placeholder": "Beskriv hva som skjedde, hva du forventet, og alt som kan hjelpe oss med å gjenskape problemet.",
       "submit": "Send rapport",
       "submitting": "Sender...",
       "toast": {
-        "success": "Tak! Vi har modtaget din rapport.",
-        "error": "Rapporten kunne ikke sendes. prøv igjen.",
+        "success": "Takk! Vi har mottatt rapporten din.",
+        "error": "Rapporten kunne ikke sendes. Prøv igjen.",
         "empty": "Skriv en kort beskrivelse før du sender."
       }
     },
     "changelog": {
-      "title": "Nyheder",
-      "haveFeedback": "Har du feedback? Sig endelig til, så næste udgivelse bliver endnu bedre.",
+      "title": "Nyheter",
+      "haveFeedback": "Har du tilbakemelding? Si gjerne ifra, så blir neste utgivelse enda bedre.",
       "viewAll": "Se alle oppdateringer",
-      "gotIt": "Forstået",
+      "gotIt": "Forstått",
       "badgeNew": "Ny",
-      "tooltipWhatsNew": "Se hvad der er nyt",
-      "openButtonAria": "Se hvad der er nyt i version {version}"
+      "tooltipWhatsNew": "Se hva som er nytt",
+      "openButtonAria": "Se hva som er nytt i versjon {version}"
     }
   },
   "onboarding": {
@@ -2981,7 +2981,7 @@
       "form": {
         "title": "Opprett kontoen din",
         "signUpWith": "Registrer deg med",
-        "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
+        "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
         "orDivider": "eller",
         "emailLabel": "E-post",
         "emailPlaceholder": "Skriv inn e-posten din",
@@ -3007,7 +3007,7 @@
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
       "domainHelp": "Skriv inn domenet ditt uten https:// eller www. (f.eks. example.com)",
-      "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
+      "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
       "createDashboardButton": "Opprett dashboard",
       "creatingDashboard": "Oppretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard opprettet!"
