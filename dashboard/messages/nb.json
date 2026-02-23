@@ -2095,7 +2095,7 @@
     },
     "proFeature": {
       "badge": "Pro",
-      "upgradeRequired": "Opgrader til Pro for å låse denne funktion op"
+      "upgradeRequired": "Oppgrader til Pro for å låse opp denne funksjonen"
     },
     "billing": {
       "navigation": {
@@ -2181,26 +2181,26 @@
         "today": "I dag",
         "yesterday": "I går",
         "realtime": "Realtid",
-        "1h": "Seneste time",
-        "24h": "Seneste 24 timer",
-        "7d": "Seneste 7 dager",
-        "28d": "Seneste 28 dager",
-        "90d": "Seneste 90 dager",
+        "1h": "Siste time",
+        "24h": "Siste 24 timer",
+        "7d": "Siste 7 dager",
+        "28d": "Siste 28 dager",
+        "90d": "Siste 90 dager",
         "mtd": "Måned til dato",
         "last_month": "Forrige måned",
         "ytd": "År til dato",
-        "1y": "Seneste år"
+        "1y": "Siste år"
       },
       "granularityLabels": {
         "month": "Måned",
-        "week": "Uge",
+        "week": "Uke",
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min.",
         "minute_15": "15 min.",
         "minute_1": "1 min."
       },
-      "matchDayOfWeek": "Match ugedag"
+      "matchDayOfWeek": "Match ukedag"
     },
     "loading": {
       "dashboard": {
@@ -2871,7 +2871,7 @@
         "siteRules": {
           "title": "Nettstedsregler",
           "description": "Kontroller hvilke innkommende hendelser som godtas.",
-          "enforceDomain": "Håndhæv domene",
+          "enforceDomain": "Håndhev domene",
           "enforceDomainDescription": "Avvis hendelser hvis domenet ikke samsvarer med dashboard-domenet.",
           "enableValidation": "Aktiver domenevalidering",
           "enableValidationDescription": "Godta kun hendelser fra det konfigurerte domenet ditt",
