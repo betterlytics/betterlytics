@@ -1,18 +1,21 @@
-// instrumentation.ts
-import heapdump from 'heapdump';
-
-if (typeof window === 'undefined') {
-  process.on('SIGUSR2', () => {
-    const filename = `/heapdumps/heapdump-${Date.now()}.heapsnapshot`;
-    heapdump.writeSnapshot(filename, (err: Error | null) =>
-      err ? console.error(err) : console.log('Heapdump written to', filename)
-    );
-  });
-}
-
 export async function register() {
+  await registerHeapdump();
   await registerOpenTelemetry();
   await registerBackgroundJobs();
+}
+
+async function registerHeapdump() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    try {
+      const { default: heapdump } = await import('heapdump');
+
+      process.on('SIGUSR2', () => {
+        heapdump.writeSnapshot('/tmp/' + Date.now() + '.heapsnapshot');
+      });
+    } catch (e) {
+      console.warn('heapdump not available', e);
+    }
+  }
 }
 
 async function registerBackgroundJobs() {
