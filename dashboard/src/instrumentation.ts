@@ -4,7 +4,7 @@ import heapdump from 'heapdump';
 if (typeof window === 'undefined') {
   process.on('SIGUSR2', () => {
     const filename = `/heapdumps/heapdump-${Date.now()}.heapsnapshot`;
-    heapdump.writeSnapshot(filename, (err) =>
+    heapdump.writeSnapshot(filename, (err: Error | null) =>
       err ? console.error(err) : console.log('Heapdump written to', filename)
     );
   });
