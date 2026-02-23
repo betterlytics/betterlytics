@@ -16,8 +16,7 @@ import {
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`
@@ -46,8 +45,8 @@ export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreW
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
         metric_names: CORE_WEB_VITAL_NAMES,
       },
     })
@@ -69,14 +68,13 @@ export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreW
 export async function getAllCoreWebVitalPercentilesSeries(
   siteQuery: BASiteQuery,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
 
   const query = timeWrapper(
@@ -114,8 +112,8 @@ export async function getAllCoreWebVitalPercentilesSeries(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
         metric_names: CORE_WEB_VITAL_NAMES,
       },
     })
@@ -128,8 +126,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
   siteQuery: BASiteQuery,
   dimension: CWVDimension,
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
 
   const query = safeSql`
@@ -173,8 +170,8 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
         dim: dimension,
         metric_names: CORE_WEB_VITAL_NAMES,
       },

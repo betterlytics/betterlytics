@@ -5,8 +5,7 @@ import { TopPageWithPageviews, TopPageWithPageviewsSchema } from '@/entities/rep
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getTotalPageviewsCount(siteQuery: BASiteQuery): Promise<number> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -23,8 +22,8 @@ export async function getTotalPageviewsCount(siteQuery: BASiteQuery): Promise<nu
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
     })
     .toPromise();
@@ -37,8 +36,7 @@ export async function getTopPagesWithPageviews(
   siteQuery: BASiteQuery,
   limit: number = 10,
 ): Promise<TopPageWithPageviews[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -60,8 +58,8 @@ export async function getTopPagesWithPageviews(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit,
       },
     })

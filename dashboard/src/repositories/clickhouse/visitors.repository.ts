@@ -11,13 +11,12 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUniqueVisitorsRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -48,8 +47,8 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
     })
     .toPromise()) as any[];
@@ -57,8 +56,7 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
 }
 
 export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<number> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -74,8 +72,8 @@ export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<nu
       params: {
         ...queryResponse.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
     })
     .toPromise()) as any[];
@@ -83,13 +81,12 @@ export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<nu
 }
 
 export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -165,8 +162,8 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
       params: {
         ...queryResponse.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
     })
     .toPromise()) as any[];
@@ -175,8 +172,7 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
 }
 
 export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<RangeSessionMetrics> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -246,8 +242,8 @@ export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<Ra
       params: {
         ...queryResponse.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
     })
     .toPromise();

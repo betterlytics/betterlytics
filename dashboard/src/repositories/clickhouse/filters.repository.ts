@@ -9,8 +9,7 @@ export async function getFilterDistinctValues(
   limit: number = 50,
   search?: string,
 ): Promise<string[]> {
-  const { siteId } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, startDateTime, endDateTime } = siteQuery;
 
   const selectExpr =
     column === 'event_type' ? safeSql`toString(${SQL.Unsafe(column)})` : safeSql`${SQL.Unsafe(column)}`;
@@ -32,7 +31,7 @@ export async function getFilterDistinctValues(
 
   const rows = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate, limit },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
     })
     .toPromise()) as Array<{ value: string }>;
 
