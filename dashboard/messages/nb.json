@@ -1036,15 +1036,15 @@
       },
       "openSource": {
         "titleEmphasis": "Open source",
-        "titleRest": "fællesskabsdrevet",
-        "subtitle": "Transparent, fællesskabsdrevet udvikling. Deltag som bidragyder, ønsk funktioner eller tilpas platformen til dine behov.",
-        "starOnGithub": "Giv en stjerne på GitHub",
+        "titleRest": "fellesskapsdrevet",
+        "subtitle": "Transparent, fellesskapsdrevet utvikling. Delta som bidragsyter, ønsk funksjoner eller tilpass plattformen til behovene dine.",
+        "starOnGithub": "Gi en stjerne på GitHub",
         "viewDocs": "Se dokumentasjon",
         "docsTitle": "Komplett Betterlytics-dokumentasjon"
       },
       "pricing": {
-        "titleEmphasis": "Simpel, skalerbar",
-        "titleRest": "prissætning",
+        "titleEmphasis": "Enkel, skalerbar",
+        "titleRest": "prising",
         "subtitle": "Trafikkbaserte planer som matcher veksten din. Start gratis, skaler når du vokser.",
         "footer": "Start med gratisplanen vår – ingen kredittkort kreves.",
         "compareLink": "Sammenlign alle funksjoner"
@@ -1068,7 +1068,7 @@
             "googleSearch": "Google-søk",
             "direct": "Direkte",
             "socialMedia": "Sosiale medier",
-            "email": "E-mail",
+            "email": "E-post",
             "other": "Annet"
           }
         },
@@ -2167,13 +2167,13 @@
       }
     },
     "timeRange": {
-      "disabled": "Deaktiveret",
+      "disabled": "Deaktivert",
       "disableCompare": "Deaktiver sammenligning",
       "previousPeriod": "Forrige periode",
       "previousYear": "Forrige år",
-      "nextPeriod": "Næste periode",
-      "customPeriod": "Brukerdefineret periode",
-      "sameLengthAsMain": "Samme længde som hovedinterval",
+      "nextPeriod": "Neste periode",
+      "customPeriod": "Brukerdefinert periode",
+      "sameLengthAsMain": "Samme lengde som hovedinterval",
       "compareToPeriod": "Sammenligningsperiode",
       "dateRange": "Datointerval",
       "granularityNotAvailable": "Granularitet er ikke tilgjengelig for valgt intervall",
@@ -2483,7 +2483,7 @@
           "search": "Søk",
           "social": "Sosiale medier",
           "direct": "Direkte",
-          "email": "E-mail",
+          "email": "E-post",
           "other": "Annet"
         },
         "columns": {
@@ -2621,11 +2621,11 @@
       "player": {
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Avspillingshastighet",
-        "recordingDisabled": "Optagelse er deaktiveret på denne side"
+        "recordingDisabled": "Opptak er deaktivert på denne siden"
       }
     },
     "integration": {
-      "integrationSetup": "Integrationsoppsett",
+      "integrationSetup": "Integrasjonsoppsett",
       "title": "Nettstedsintegrasjon",
       "description": "Velg rammeverket ditt og følg oppsettstrinnene for å begynne å samle inn analysedata",
       "fullyIntegrated": "Fullt integrert",
@@ -2928,11 +2928,11 @@
       "title": "Godta oppdaterte tjenestevilkår",
       "body": "For å fortsette å bruke kontoen din må du gjennomgå og godta våre <termsLink>tjenestevilkår</termsLink>.",
       "acceptAndContinue": "Godta og fortsett",
-      "logout": "Log ud"
+      "logout": "Logg ut"
     },
     "demoMode": {
       "notAvailable": "ikke tilgjengelig på demo-dashboard",
-      "interactionDisabled": "Filtrering fra denne interaktion er deaktiveret i demo."
+      "interactionDisabled": "Filtrering fra denne interaksjonen er deaktivert i demo."
     },
     "permissions": {
       "demoNotAvailable": "ikke tilgjengelig på demo-dashboard",
@@ -3004,7 +3004,7 @@
     "website": {
       "title": "Sett opp dashboardet ditt",
       "description": "Fortell oss om nettstedet du vil spore",
-      "domainLabel": "Domæne",
+      "domainLabel": "Domene",
       "domainPlaceholder": "eksempel.dk",
       "domainHelp": "Skriv inn domenet ditt uten https:// eller www. (f.eks. example.com)",
       "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
@@ -3104,7 +3104,7 @@
       "searchPlaceholder": "Søk medlemmer...",
       "columns": {
         "member": "Medlem",
-        "email": "E-mail",
+        "email": "E-post",
         "role": "Rolle",
         "joined": "Ble med"
       },
