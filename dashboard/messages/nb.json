@@ -975,7 +975,7 @@
           },
           "simpleSetup": {
             "title": "Enkelt oppsett, kraftige funksjoner",
-            "description": "Énlinjes integrasjon for alle nettsteder. Avanserte tilpasningsmuligheter og funksjoner på enterprise-nivå tilgjengelig."
+            "description": "Enlinjes integrasjon for alle nettsteder. Avanserte tilpasningsmuligheter og funksjoner på enterprise-nivå tilgjengelig."
           }
         }
       },
@@ -1004,9 +1004,9 @@
         "cards": {
           "script": {
             "title": "Enkelt script-tag",
-            "description": "Legg til én linje i HTML-en din og start sporing umiddelbart. Fungerer med alle nettsteder og CMS.",
+            "description": "Legg til en linje i HTML-en din og start sporing umiddelbart. Fungerer med alle nettsteder og CMS.",
             "features": {
-              "f1": "Énlinjes installasjon",
+              "f1": "Enlinjes installasjon",
               "f2": "Fungerer overalt",
               "f3": "Ingen byggeprosess nødvendig"
             }
@@ -2734,7 +2734,7 @@
         "optional": "Valgfritt",
         "emailLabel": "E-post",
         "verified": "Bekreftet",
-        "unverified": "Ikke bekreftet",
+        "unverified": "Ikke verifisert",
         "updateButton": "Oppdater profil",
         "toast": {
           "success": "Profil oppdatert",
@@ -2804,13 +2804,13 @@
         "totp": {
           "title": "Tofaktorautentisering",
           "description": "Legg til et ekstra sikkerhetslag ved å kreve en ekstra godkjenning i tillegg til passordet ditt",
-          "enable": "Aktivér 2FA",
+          "enable": "Aktiver 2FA",
           "instructions": "For å aktivere 2FA skal du skanne QR-koden med autentiseringsappen din, eller bruke <setup>oppsettsnøkkelen</setup> for manuell konfigurasjon, og deretter skrive inn verifiseringskoden nedenfor.",
           "cancel": "Avbryt",
           "confirm": "Bekreft",
           "enabled": "Aktivert",
-          "disable": "Deaktivér",
-          "disableTitle": "Deaktivér 2FA",
+          "disable": "Deaktiver",
+          "disableTitle": "Deaktiver 2FA",
           "disableDescription": "Er du sikker på at du vil deaktivere tofaktorautentisering for kontoen din?",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
           "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen."
@@ -2967,7 +2967,7 @@
       "features": {
         "feature1": {
           "title": "Kom i gang på under 2 minutter",
-          "description": "Legg bare til én kodelinje eller installer npm-pakken vår. Ingen informasjonskapsler, ingen pop-ups."
+          "description": "Legg bare til en kodelinje eller installer npm-pakken vår. Ingen informasjonskapsler, ingen pop-ups."
         },
         "feature2": {
           "title": "Gratis å komme i gang",
@@ -3005,7 +3005,7 @@
       "title": "Sett opp dashboardet ditt",
       "description": "Fortell oss om nettstedet du vil spore",
       "domainLabel": "Domene",
-      "domainPlaceholder": "eksempel.dk",
+      "domainPlaceholder": "eksempel.no",
       "domainHelp": "Skriv inn domenet ditt uten https:// eller www. (f.eks. example.com)",
       "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
       "createDashboardButton": "Opprett dashboard",
