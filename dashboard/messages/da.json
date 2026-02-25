@@ -1050,10 +1050,6 @@
           "title": "Core Web Vitals",
           "description": "Overvåg og mål din hjemmesides ydeevne med Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Udgående links",
-          "description": "Spor klik til eksterne sider, sociale links, dokumenter og mere."
-        },
         "trafficSources": {
           "title": "Trafikkilder",
           "description": "Find ud af, hvor dine besøgende kommer fra, og optimer din markedsføring.",
@@ -1611,10 +1607,6 @@
       "noData": "Ingen data tilgængelig"
     }
   },
-  "devicesPage": {
-    "title": "Enheder",
-    "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
-  },
   "dashboardsPage": {
     "title": "Dine dashboards",
     "subtitle": "Administrér og overvåg analyse for alle dine websites.",
@@ -2026,23 +2018,7 @@
     "save": "Gem",
     "saving": "Gemmer..."
   },
-  "languages": {
-    "da": "Dansk",
-    "en": "Engelsk",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Man.",
-        "tueShort": "Tir.",
-        "wedShort": "Ons.",
-        "thuShort": "Tor.",
-        "friShort": "Fre.",
-        "satShort": "Lør.",
-        "sunShort": "Søn."
-      }
-    },
     "annotations": {
       "dialogs": {
         "addTitle": "Tilføj annotation",
@@ -2183,9 +2159,6 @@
         "enterprise": "Enterprise"
       }
     },
-    "dataTable": {
-      "noResults": "Ingen resultater."
-    },
     "timeRange": {
       "disabled": "Deaktiveret",
       "disableCompare": "Deaktiver sammenligning",
@@ -2246,10 +2219,6 @@
       "charts": {
         "deviceTypes": "Enhedstyper",
         "deviceUsageTrend": "Enhedsanvendelsestrend"
-      },
-      "trends": {
-        "noData": "Ingen trenddata tilgængelig",
-        "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
       }
     },
     "campaign": {
@@ -2310,10 +2279,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Hændelser",
-        "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
-      },
       "log": {
         "waiting": "Venter på hændelser...",
         "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
@@ -2406,13 +2371,6 @@
         "step": "Trin",
         "visitors": "Besøgende"
       },
-      "list": {
-        "steps": "trin",
-        "conversionRate": "Konverteringsrate",
-        "completed": "Fuldført",
-        "totalUsers": "Totale brugere",
-        "largestDropOff": "Største frafald"
-      },
       "create": {
         "defaultName": "Min nye tragt",
         "createFunnel": "Opret tragt",
@@ -2467,25 +2425,8 @@
         "successMessage": "Tragt slettet!",
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
-      "page": {
-        "title": "Tragter",
-        "description": "Analyser brugerens konverteringsforløb"
-      },
       "preview": {
-        "loading": "Indlæser forhåndsvisning...",
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
-      },
-      "details": {
-        "title": "Tragtanalyse",
-        "steps": "trin",
-        "users": "brugere",
-        "dropped": "frafald",
-        "summary": {
-          "overallConversion": "Samlet konvertering",
-          "totalVisitors": "Samlede besøgende",
-          "totalCompleted": "Samlet fuldført",
-          "biggestDropOff": "Største frafald"
-        }
       },
       "emptyState": {
         "title": "Visualisér din konverteringstragt",
@@ -2517,9 +2458,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analyser henvisningskilder, trafikandel og præstationstrends."
-      },
       "charts": {
         "distribution": "Henvisningsfordeling",
         "trafficTrends": "Henvisningstrafik trends"
@@ -2563,12 +2501,6 @@
       "sessions": "Sessioner"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende",
-        "topDomain": "Top domæne",
-        "topSourcePage": "Top kildeside"
-      },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
@@ -3160,10 +3092,6 @@
     }
   },
   "members": {
-    "page": {
-      "title": "Medlemmer",
-      "description": "Administrer hvem der har adgang til dette dashboard"
-    },
     "table": {
       "title": "Medlemmer",
       "searchPlaceholder": "Søg medlemmer...",

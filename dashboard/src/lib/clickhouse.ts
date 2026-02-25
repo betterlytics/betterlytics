@@ -31,6 +31,9 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
       request: false,
       response: false,
     },
+    clickhouse_settings: {
+      output_format_json_quote_64bit_integers: 0,
+    },
   });
 
   return {

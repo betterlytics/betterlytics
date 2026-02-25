@@ -5,8 +5,6 @@ import {
   DailyOutboundClicksRowSchema,
   TopOutboundLinksDistrubutionSchema,
   TopOutboundLinksDistrubution,
-  OutboundLinksSummary,
-  OutboundLinkSummarySchema,
 } from '@/entities/analytics/outboundLinks.entities';
 import { clickhouse } from '@/lib/clickhouse';
 import { DateTimeString } from '@/types/dates';
@@ -206,96 +204,4 @@ export async function getOutboundLinksDistribution(
   }
 
   return result.map((res) => TopOutboundLinksDistrubutionSchema.parse(res));
-}
-
-/**
- * Get summary statistics for outbound links
- */
-export async function getOutboundLinksSummary(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<OutboundLinksSummary> {
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT 
-      uniq(visitor_id) as totalClicks,
-      uniq(visitor_id) as uniqueVisitors
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-  `;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDate,
-        end: endDate,
-      },
-    })
-    .toPromise()) as any[];
-
-  // Get top domain
-  const topDomainQuery = safeSql`
-    SELECT splitByChar('/', outbound_link_url)[1] as domain
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-    GROUP BY domain
-    ORDER BY uniq(visitor_id) DESC
-    LIMIT 1
-  `;
-
-  const topDomainResult = (await clickhouse
-    .query(topDomainQuery.taggedSql, {
-      params: {
-        ...topDomainQuery.taggedParams,
-        site_id: siteId,
-        start: startDate,
-        end: endDate,
-      },
-    })
-    .toPromise()) as any[];
-
-  // Get top source URL
-  const topSourceUrlQuery = safeSql`
-    SELECT url as source_url
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-    GROUP BY source_url
-    ORDER BY uniq(visitor_id) DESC
-    LIMIT 1
-  `;
-
-  const topSourceUrlResult = (await clickhouse
-    .query(topSourceUrlQuery.taggedSql, {
-      params: {
-        ...topSourceUrlQuery.taggedParams,
-        site_id: siteId,
-        start: startDate,
-        end: endDate,
-      },
-    })
-    .toPromise()) as any[];
-
-  return OutboundLinkSummarySchema.parse({
-    totalClicks: result[0]?.totalClicks || 0,
-    uniqueVisitors: result[0]?.uniqueVisitors || 0,
-    topDomain: topDomainResult[0]?.domain || null,
-    topSourceUrl: topSourceUrlResult[0]?.source_url || null,
-  });
 }
