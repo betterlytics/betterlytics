@@ -24,13 +24,12 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPageViewsRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -54,8 +53,8 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as unknown[];
@@ -63,13 +62,12 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
 }
 
 export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageViewRow[]> {
-  const { siteId, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
 
   const query = timeWrapper(
@@ -92,8 +90,8 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as unknown[];
@@ -101,8 +99,7 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
 }
 
 export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -124,8 +121,8 @@ export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<To
       params: {
         ...queryResponse.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit: limit,
       },
     })
@@ -135,8 +132,7 @@ export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<To
 }
 
 export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalytics[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     WITH
@@ -203,8 +199,8 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
       format: 'JSONEachRow',
     })
@@ -227,14 +223,13 @@ export async function getPageTrafficTimeSeries(
   siteQuery: BASiteQuery,
   path: string,
 ): Promise<TotalPageViewsRow[]> {
-  const { siteId, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, granularity, timezone, startDateTime, endDateTime } = siteQuery;
 
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
 
   const query = timeWrapper(
@@ -259,8 +254,8 @@ export async function getPageTrafficTimeSeries(
         ...query.taggedParams,
         site_id: siteId,
         path: path,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as unknown[];
@@ -269,8 +264,7 @@ export async function getPageTrafficTimeSeries(
 }
 
 export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promise<TopEntryPageRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -299,8 +293,8 @@ export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promi
       params: {
         ...queryResponse.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit: limit,
       },
     })
@@ -315,8 +309,7 @@ export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promi
 }
 
 export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promise<TopExitPageRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const queryResponse = safeSql`
@@ -345,8 +338,8 @@ export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promis
       params: {
         ...queryResponse.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit: limit,
       },
     })
@@ -356,8 +349,7 @@ export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promis
 }
 
 export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100): Promise<PageAnalytics[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -455,8 +447,8 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit: limit,
       },
       format: 'JSONEachRow',
@@ -478,8 +470,7 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
 }
 
 export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100): Promise<PageAnalytics[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -577,8 +568,8 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit: limit,
       },
       format: 'JSONEachRow',
@@ -600,13 +591,12 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
 }
 
 export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise<DailyAverageTimeRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -651,8 +641,8 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as unknown[];
@@ -661,13 +651,12 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
 }
 
 export async function getDailyBounceRate(siteQuery: BASiteQuery): Promise<DailyBounceRateRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -708,8 +697,8 @@ export async function getDailyBounceRate(siteQuery: BASiteQuery): Promise<DailyB
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as unknown[];

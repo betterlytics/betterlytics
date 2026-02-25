@@ -18,8 +18,7 @@ export async function getOutboundLinksAnalytics(
   siteQuery: BASiteQuery,
   limit: number = 100,
 ): Promise<OutboundLinkRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -66,8 +65,8 @@ export async function getOutboundLinksAnalytics(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit,
       },
     })
@@ -80,13 +79,12 @@ export async function getOutboundLinksAnalytics(
  * Get daily outbound clicks chart data
  */
 export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<DailyOutboundClicksRow[]> {
-  const { siteId, queryFilters, granularity, timezone } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
@@ -111,8 +109,8 @@ export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<Da
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise();
@@ -126,8 +124,7 @@ export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<Da
 export async function getOutboundLinksDistribution(
   siteQuery: BASiteQuery,
 ): Promise<Array<TopOutboundLinksDistrubution>> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const top9Query = safeSql`
@@ -162,8 +159,8 @@ export async function getOutboundLinksDistribution(
         params: {
           ...top9Query.taggedParams,
           site_id: siteId,
-          start: startDate,
-          end: endDate,
+          start: startDateTime,
+          end: endDateTime,
         },
       })
       .toPromise(),
@@ -172,8 +169,8 @@ export async function getOutboundLinksDistribution(
         params: {
           ...totalQuery.taggedParams,
           site_id: siteId,
-          start: startDate,
-          end: endDate,
+          start: startDateTime,
+          end: endDateTime,
         },
       })
       .toPromise(),

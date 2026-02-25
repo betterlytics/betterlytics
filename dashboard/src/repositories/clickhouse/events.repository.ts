@@ -12,8 +12,7 @@ import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<EventTypeRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -38,8 +37,8 @@ export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<E
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as any[];
@@ -56,8 +55,7 @@ export async function getEventPropertyData(
   siteQuery: BASiteQuery,
   eventName: string,
 ): Promise<RawEventPropertyData[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const eventsQuery = safeSql`
@@ -79,8 +77,8 @@ export async function getEventPropertyData(
         ...eventsQuery.taggedParams,
         site_id: siteId,
         event_name: eventName,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as Array<{ custom_event_json: string }>;
@@ -93,8 +91,7 @@ export async function getRecentEvents(
   limit: number = 50,
   offset: number = 0,
 ): Promise<EventLogEntry[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -123,8 +120,8 @@ export async function getRecentEvents(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
         limit,
         offset,
       },
@@ -135,8 +132,7 @@ export async function getRecentEvents(
 }
 
 export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -154,8 +150,8 @@ export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as Array<{ total: number }>;

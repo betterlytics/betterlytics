@@ -13,8 +13,7 @@ export async function getUserJourneyTransitions(
   maxPathLength: number = 3,
   limit: number = 50,
 ): Promise<JourneyTransition[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     WITH ordered_events AS (
@@ -81,8 +80,8 @@ export async function getUserJourneyTransitions(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         max_length: maxPathLength,
         limit,
       },

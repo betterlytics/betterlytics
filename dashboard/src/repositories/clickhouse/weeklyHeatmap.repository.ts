@@ -26,8 +26,7 @@ function getBaseAggregation(metric: HeatmapMetric) {
 }
 
 export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMetric): Promise<WeeklyHeatmapRow[]> {
-  const { siteId, queryFilters } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const timezone = siteQuery.timezone ?? 'UTC';
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -70,8 +69,8 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
         params: {
           ...query.taggedParams,
           site_id: siteId,
-          start: startDate,
-          end: endDate,
+          start: startDateTime,
+          end: endDateTime,
           tz: timezone,
         },
       })
@@ -111,8 +110,8 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         tz: timezone,
       },
     })

@@ -10,8 +10,7 @@ export async function getSessionReplays(
   limit: number,
   offset: number,
 ): Promise<SessionReplay[]> {
-  const { siteId } = siteQuery;
-  const { startDateTime: startDate, endDateTime: endDate } = siteQuery;
+  const { siteId, startDateTime, endDateTime } = siteQuery;
 
   const query = safeSql`
     SELECT
@@ -53,8 +52,8 @@ export async function getSessionReplays(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
         limit,
         offset,
       },
