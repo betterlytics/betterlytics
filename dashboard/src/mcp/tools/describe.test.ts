@@ -8,6 +8,7 @@ describe('getSchemaDescription', () => {
     expect(result).toHaveProperty('metrics');
     expect(result).toHaveProperty('dimensions');
     expect(result).toHaveProperty('filterColumns');
+    expect(result).toHaveProperty('filterOperators');
     expect(result).toHaveProperty('timeRanges');
     expect(result).toHaveProperty('granularities');
   });
