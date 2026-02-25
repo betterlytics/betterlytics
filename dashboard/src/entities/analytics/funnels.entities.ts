@@ -14,12 +14,12 @@ export const FunnelSchema = z.object({
 });
 
 export const FunnelDetailsSchema = FunnelSchema.extend({
-  visitors: z.coerce.number().array(),
+  visitors: z.number().array(),
 });
 
 export const FunnelPreviewSchema = z.object({
   funnelSteps: z.array(FunnelStepSchema),
-  visitors: z.coerce.number().array(),
+  visitors: z.number().array(),
   isStrict: z.boolean(),
 });
 

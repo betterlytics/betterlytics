@@ -7,10 +7,10 @@ export const SessionReplaySchema = z.object({
   visitor_id: z.string(),
   started_at: z.string().transform((val) => parseClickHouseDate(val)),
   ended_at: z.string().transform((val) => parseClickHouseDate(val)),
-  duration: z.coerce.number(),
+  duration: z.number(),
   date: z.string(),
-  size_bytes: z.coerce.number(),
-  event_count: z.coerce.number(),
+  size_bytes: z.number(),
+  event_count: z.number(),
   s3_prefix: z.string(),
   start_url: z.string(),
   device_type: z.string().optional().default(''),
@@ -26,7 +26,7 @@ export type SessionReplay = z.infer<typeof SessionReplaySchema>;
 export const ReplaySegmentManifestEntrySchema = z.object({
   key: z.string(),
   url: z.string(),
-  sizeBytes: z.coerce.number(),
+  sizeBytes: z.number(),
   lastModified: z.string().optional(),
 });
 
