@@ -1,0 +1,193 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Plus, Trash2, Copy, Check, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+import { createMcpTokenAction, deleteMcpTokenAction } from '@/app/actions/dashboard/mcpToken.action';
+import { DestructiveActionDialog } from '@/components/dialogs';
+import { useTranslations } from 'next-intl';
+
+type McpToken = {
+  id: string;
+  token: string;
+  name: string;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+};
+
+interface McpTokenManagerProps {
+  dashboardId: string;
+  tokens: McpToken[];
+}
+
+export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
+  const t = useTranslations('mcp');
+  const [name, setName] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const [newlyCreatedToken, setNewlyCreatedToken] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [deleteTokenId, setDeleteTokenId] = useState<string | null>(null);
+  const [revealedTokens, setRevealedTokens] = useState<Set<string>>(new Set());
+
+  const handleCreate = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    startTransition(async () => {
+      try {
+        const created = await createMcpTokenAction(dashboardId, trimmed);
+        setNewlyCreatedToken(created.token);
+        setName('');
+        toast.success(t('toast.created'));
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : t('toast.createError'));
+      }
+    });
+  };
+
+  const handleDelete = () => {
+    if (!deleteTokenId) return;
+    startTransition(async () => {
+      try {
+        await deleteMcpTokenAction(dashboardId, deleteTokenId);
+        setDeleteTokenId(null);
+        if (newlyCreatedToken) setNewlyCreatedToken(null);
+        toast.success(t('toast.deleted'));
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : t('toast.deleteError'));
+      }
+    });
+  };
+
+  const handleCopy = async (value: string) => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const toggleReveal = (tokenId: string) => {
+    setRevealedTokens((prev) => {
+      const next = new Set(prev);
+      if (next.has(tokenId)) {
+        next.delete(tokenId);
+      } else {
+        next.add(tokenId);
+      }
+      return next;
+    });
+  };
+
+  const maskToken = (token: string) => {
+    return token.substring(0, 7) + '\u2022'.repeat(24);
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  return (
+    <div className='space-y-4'>
+      {newlyCreatedToken && (
+        <div className='bg-primary/5 border-primary/20 space-y-2 rounded-md border p-3'>
+          <p className='text-sm font-medium'>{t('settings.newTokenNotice')}</p>
+          <div className='flex items-center gap-2'>
+            <code className='bg-muted flex-1 truncate rounded px-2 py-1 text-xs'>
+              {newlyCreatedToken}
+            </code>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='size-8 shrink-0 cursor-pointer'
+              onClick={() => handleCopy(newlyCreatedToken)}
+            >
+              {copied ? <Check className='size-4' /> : <Copy className='size-4' />}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
+        <div className='flex-1 space-y-1.5'>
+          <label className='text-muted-foreground text-sm'>{t('settings.tokenNameLabel')}</label>
+          <Input
+            type='text'
+            className='text-sm'
+            placeholder={t('settings.tokenNamePlaceholder')}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+          />
+        </div>
+        <Button
+          onClick={handleCreate}
+          disabled={!name.trim() || isPending}
+          className='cursor-pointer sm:w-auto'
+        >
+          <Plus className='size-4' />
+          {isPending ? t('settings.creating') : t('settings.createButton')}
+        </Button>
+      </div>
+
+      {tokens.length > 0 && (
+        <div className='divide-border divide-y rounded-md border'>
+          {tokens.map((tkn) => (
+            <div key={tkn.id} className='flex items-center justify-between gap-2 px-4 py-3'>
+              <div className='min-w-0 flex-1'>
+                <p className='truncate text-sm font-medium'>{tkn.name}</p>
+                <div className='flex items-center gap-1.5'>
+                  <code className='text-muted-foreground truncate text-xs'>
+                    {revealedTokens.has(tkn.id) ? tkn.token : maskToken(tkn.token)}
+                  </code>
+                  <button
+                    onClick={() => toggleReveal(tkn.id)}
+                    className='text-muted-foreground hover:text-foreground shrink-0 cursor-pointer'
+                  >
+                    {revealedTokens.has(tkn.id) ? <EyeOff className='size-3' /> : <Eye className='size-3' />}
+                  </button>
+                </div>
+                <p className='text-muted-foreground text-xs'>
+                  {t('settings.created', { date: formatDate(tkn.createdAt) })}
+                  {tkn.lastUsedAt && <> · {t('settings.lastUsed', { date: formatDate(tkn.lastUsedAt) })}</>}
+                </p>
+              </div>
+              <div className='flex shrink-0 items-center gap-1'>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='text-muted-foreground hover:text-foreground size-8 cursor-pointer'
+                  onClick={() => handleCopy(tkn.token)}
+                >
+                  <Copy className='size-3.5' />
+                </Button>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='text-muted-foreground hover:text-destructive size-8 cursor-pointer'
+                  onClick={() => setDeleteTokenId(tkn.id)}
+                  disabled={isPending}
+                >
+                  <Trash2 className='size-3.5' />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <DestructiveActionDialog
+        open={deleteTokenId !== null}
+        onOpenChange={(open) => !open && setDeleteTokenId(null)}
+        title={t('deleteDialog.title')}
+        description={t('deleteDialog.description')}
+        onConfirm={handleDelete}
+        isPending={isPending}
+      />
+    </div>
+  );
+}

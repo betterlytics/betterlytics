@@ -111,6 +111,7 @@ model User {
   bugReports BugReport[]
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
+  mcpTokens McpToken[]
 }
 
 model VerificationToken {
@@ -161,6 +162,7 @@ model Dashboard {
   monitorChecks MonitorCheck[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
+  mcpTokens McpToken[]
 }
 
 model UserDashboard {
@@ -452,4 +454,20 @@ model DashboardInvitation {
   @@index([email])
   @@index([token])
   @@index([status])
+}
+
+model McpToken {
+  id         String    @id @default(cuid())
+  token      String    @unique
+  name       String
+  dashboardId String
+  dashboard  Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  createdBy  String
+  user       User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+
+  @@index([token])
+  @@index([dashboardId])
 }

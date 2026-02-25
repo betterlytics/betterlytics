@@ -1563,6 +1563,7 @@
         "rules": "Rules",
         "members": "Members",
         "reports": "Email Reports",
+        "mcp": "MCP",
         "dangerZone": "Danger Zone"
       }
     },
@@ -3431,6 +3432,29 @@
     "toast": {
       "saved": "Report settings saved",
       "error": "Failed to save report settings"
+    }
+  },
+  "mcp": {
+    "settings": {
+      "title": "API Tokens",
+      "description": "Create tokens to connect AI agents to your analytics data via the Model Context Protocol.",
+      "tokenNameLabel": "Token name",
+      "tokenNamePlaceholder": "e.g. Claude Desktop",
+      "createButton": "Create token",
+      "creating": "Creating...",
+      "newTokenNotice": "Your new token:",
+      "created": "Created {date}",
+      "lastUsed": "Last used {date}"
+    },
+    "toast": {
+      "created": "Token created",
+      "createError": "Failed to create token",
+      "deleted": "Token deleted",
+      "deleteError": "Failed to delete token"
+    },
+    "deleteDialog": {
+      "title": "Delete token",
+      "description": "This token will be permanently revoked. Any MCP clients using it will lose access immediately."
     }
   }
 }
