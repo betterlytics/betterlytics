@@ -921,7 +921,7 @@
     },
     "landing": {
       "seo": {
-        "title": "Betterlytics | Et bedre alternativ til Google Analytics",
+        "title": "Betterlytics | Et Bedre Alternativ til Google Analytics",
         "description": "Betterlytics er en personvern-først, informasjonskapselfri analyseplattform — GDPR-kompatibel, ingen informasjonskapsler, ingen sporing, ingen samtykkebannere.",
         "keywords": [
           "Alternativ til Google Analytics",
@@ -936,7 +936,7 @@
         ]
       },
       "hero": {
-        "title": "Et <highlight>bedre alternativ</highlight> til Google Analytics",
+        "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
         "description": "Enkel og kraftig analyse som respekterer personvern.<br></br>Informasjonskapselfri, GDPR-klar og uten behov for samtykkebannere.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaGithub": "Se på GitHub",
@@ -1430,7 +1430,7 @@
       "monthlyEvents": {
         "name": "Månedlige hendelser",
         "values": {
-          "range": "10k – 10M+",
+          "range": "10K – 10M+",
           "custom": "Tilpasset"
         }
       },
@@ -1757,6 +1757,7 @@
       "create": "Ny overvåker",
       "upgradeToCreate": "Oppgrader for å legge til flere",
       "title": "Opprett overvåker",
+      "description": "Overvåk et endepunkt for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL-adresse"
@@ -1898,7 +1899,7 @@
         "hoursLeft": "{count, plural, one {time igjen} other {timer igjen}}",
         "daysLeft": "{count, plural, one {dag igjen} other {dager igjen}}",
         "expires": "Utl. {date}",
-        "httpSite": "ikke relevant",
+        "httpSite": "Ikke relevant",
         "httpSiteDescription": "Dette nettstedet bruker HTTP",
         "disabledDescription": "SSL-overvåking deaktivert",
         "enableInSettings": "Aktiver i innstillinger"
@@ -2632,9 +2633,9 @@
       "notFullyIntegrated": "Ikke fullt integrert",
       "loadingDetails": "Laster inn integrasjonsdetaljer...",
       "unableToLoadSiteId": "Kan ikke laste inn site-ID",
-      "failedToCopy": "kunne ikke kopiere",
+      "failedToCopy": "Kunne ikke kopiere",
       "npmPackageNote": "Eller installer vår <npm>npm</npm>-pakke <package>@betterlytics/tracker</package> for enkelt oppsett i Node-prosjekter.",
-      "yourSiteId": "ditt site-ID",
+      "yourSiteId": "Ditt site-ID",
       "trackingScript": "Sporingsskript",
       "copied": "Kopiert",
       "copy": "Kopier",
@@ -2931,11 +2932,11 @@
       "logout": "Logg ut"
     },
     "demoMode": {
-      "notAvailable": "ikke tilgjengelig på demo-dashboard",
+      "notAvailable": "Ikke tilgjengelig på demo-dashboard",
       "interactionDisabled": "Filtrering fra denne interaksjonen er deaktivert i demo."
     },
     "permissions": {
-      "demoNotAvailable": "ikke tilgjengelig på demo-dashboard",
+      "demoNotAvailable": "Ikke tilgjengelig på demo-dashboard",
       "insufficientPermissions": "Du har ikke tillatelse til å utføre denne handlingen"
     },
     "bugReport": {
@@ -3126,7 +3127,7 @@
       "roleUpdated": "Rolle oppdatert",
       "roleUpdateFailed": "Kunne ikke oppdatere rolle",
       "memberRemoved": "Medlem fjernet",
-      "memberRemoveFailed": "kunne ikke fjerne medlem"
+      "memberRemoveFailed": "Kunne ikke fjerne medlem"
     },
     "settings": {
       "invite": {
@@ -3408,6 +3409,12 @@
           "description": "Klikk på Submit for å publisere endringene"
         },
         "note": "Sørg for at GTM er riktig installert på nettstedet ditt."
+      },
+      "default": {
+        "step1": {
+          "title": "Legg til sporingsscriptet",
+          "description": "Sett dette inn i HTML <head>-seksjonen din"
+        }
       }
     }
   },
