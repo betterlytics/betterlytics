@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { validateToken } from '@/mcp/auth/token';
-import { createMcpServer } from '@/mcp/server';
+import { createMcpServer, type McpContext } from '@/mcp/server';
 
 export const runtime = 'nodejs';
 
@@ -20,8 +20,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  let context: McpContext;
   try {
-    await validateToken(token);
+    const tokenInfo = await validateToken(token);
+    context = { siteId: tokenInfo.siteId };
   } catch {
     return Response.json(
       { jsonrpc: '2.0', error: { code: -32001, message: 'Invalid or expired token' }, id: null },
@@ -29,8 +31,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const timezone = process.env.BETTERLYTICS_TIMEZONE ?? 'UTC';
-  const server = createMcpServer(token, timezone);
+  const server = createMcpServer(context);
   const transport = new WebStandardStreamableHTTPServerTransport({ enableJsonResponse: true });
 
   await server.connect(transport);

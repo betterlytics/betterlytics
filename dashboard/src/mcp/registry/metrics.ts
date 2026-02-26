@@ -6,7 +6,7 @@ type MetricDefinition = {
   expression: ReturnType<typeof safeSql>;
 };
 
-export const METRICS: MetricDefinition[] = [
+export const METRICS = [
   {
     key: 'visitors',
     description: 'Unique visitors',
@@ -37,7 +37,7 @@ export const METRICS: MetricDefinition[] = [
     description: 'Average scroll depth percentage',
     expression: safeSql`avgIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) as avg_scroll_depth`,
   },
-];
+] as const satisfies MetricDefinition[];
 
 export const METRIC_KEYS = METRICS.map((m) => m.key);
 
