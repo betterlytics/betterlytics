@@ -1,22 +1,30 @@
-import type { GranularityRangeValues } from '@/utils/granularityRanges';
-import type { QueryFilter } from '@/entities/analytics/filter.entities';
-import type { TimeRangeValue } from '@/utils/timeRanges';
-import type { CompareMode } from '@/utils/compareRanges';
+import { z } from 'zod';
+import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
+import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
+import { COMPARE_URL_MODES } from '@/utils/compareRanges';
 
-export type BAAnalyticsQuery = {
-  startDate: Date;
-  endDate: Date;
-  compareStartDate?: Date;
-  compareEndDate?: Date;
-  granularity: GranularityRangeValues;
-  queryFilters: QueryFilter[];
-  timezone: string;
-  userJourney: { numberOfSteps: number; numberOfJourneys: number };
-  interval: TimeRangeValue;
-  offset?: number;
-  compare: CompareMode;
-  compareAlignWeekdays?: boolean;
-};
+const UserJourneySchema = z.object({
+  numberOfSteps: z.number(),
+  numberOfJourneys: z.number(),
+});
+
+export const BAAnalyticsQuerySchema = z.object({
+  startDate: z.date(),
+  endDate: z.date(),
+  compareStartDate: z.date().optional(),
+  compareEndDate: z.date().optional(),
+  granularity: z.enum(GRANULARITY_RANGE_VALUES),
+  queryFilters: z.array(QueryFilterSchema),
+  timezone: z.string(),
+  userJourney: UserJourneySchema,
+  interval: z.enum(TIME_RANGE_VALUES),
+  offset: z.number().optional(),
+  compare: z.enum(COMPARE_URL_MODES),
+  compareAlignWeekdays: z.boolean().optional(),
+});
+
+export type BAAnalyticsQuery = z.infer<typeof BAAnalyticsQuerySchema>;
 
 export type BASiteQuery = {
   siteId: string;
@@ -24,8 +32,8 @@ export type BASiteQuery = {
   endDate: Date;
   startDateTime: string;
   endDateTime: string;
-  granularity: GranularityRangeValues;
-  queryFilters: QueryFilter[];
+  granularity: BAAnalyticsQuery['granularity'];
+  queryFilters: BAAnalyticsQuery['queryFilters'];
   timezone: string;
-  userJourney: { numberOfSteps: number; numberOfJourneys: number };
+  userJourney: BAAnalyticsQuery['userJourney'];
 };
