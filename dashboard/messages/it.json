@@ -3465,6 +3465,14 @@
       "discord": {
         "name": "Discord",
         "description": "Ricevi aggiornamenti di stato importanti nei tuoi messaggi Discord."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Ricevi notifiche in un canale Slack."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Ricevi notifiche in un canale Microsoft Teams."
       }
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
@@ -3514,13 +3522,39 @@
       "cancel": "Annulla",
       "save": "Salva"
     },
+    "slackDialog": {
+      "title": "Integrazione Slack",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Segui i passaggi 1–3 della <link>guida agli Incoming Webhooks</link> per ottenere il tuo webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un webhook URL Slack valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "teamsDialog": {
+      "title": "Integrazione Microsoft Teams",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Il tuo webhook URL di Teams",
+      "webhookHint": "Crea un Incoming Webhook usando un Teams Workflow. <link>Scopri come</link>.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
     "toast": {
       "saved": "Integrazione salvata",
       "deleted": "Integrazione disconnessa",
       "error": "Impossibile aggiornare l'integrazione",
       "fetchError": "Impossibile caricare le integrazioni",
       "invalidPushoverKey": "User key Pushover non valida o nessun dispositivo registrato",
-      "invalidDiscordWebhook": "Webhook URL Discord non valido"
+      "invalidDiscordWebhook": "Webhook URL Discord non valido",
+      "invalidSlackWebhook": "Webhook URL Slack non valido",
+      "invalidTeamsWebhook": "Webhook URL Teams non valido"
     }
   }
 }

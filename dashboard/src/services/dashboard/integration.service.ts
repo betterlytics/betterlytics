@@ -203,7 +203,7 @@ export async function validateSlackWebhookUrl(webhookUrl: string): Promise<boole
 }
 
 export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boolean> {
-  if (!/^https:\/\/.*\.webhook\.office\.com\//.test(webhookUrl)) return false;
+  if (!/^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl)) return false;
 
   try {
     const response = await fetch(webhookUrl, { method: 'GET' });
