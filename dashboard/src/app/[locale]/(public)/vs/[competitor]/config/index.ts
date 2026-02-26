@@ -1,6 +1,7 @@
 import { en } from './locales/en';
 import { da } from './locales/da';
 import { it } from './locales/it';
+import { nb } from './locales/nb';
 
 export interface ComparisonLocaleContent {
   name: string;
@@ -60,6 +61,7 @@ const LOCALES: Record<string, Record<string, ComparisonLocaleContent>> = {
   en,
   da,
   it,
+  nb,
 };
 
 export const SUPPORTED_LOCALES = Object.keys(LOCALES) as Array<keyof typeof LOCALES>;

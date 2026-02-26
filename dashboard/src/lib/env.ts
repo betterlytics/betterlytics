@@ -62,6 +62,8 @@ const envSchema = z.object({
   OTEL_SERVICE_NAME: z.string().optional(),
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
+  PUSHOVER_APP_TOKEN: z.string().optional(),
+  PUBLIC_ENABLE_INTEGRATIONS: zStringBoolean,
 });
 
 export const env = envSchema.parse(process.env);
