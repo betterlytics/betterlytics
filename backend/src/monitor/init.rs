@@ -7,6 +7,7 @@ use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
+use crate::notifications::NotificationEngine;
 use crate::postgres::PostgresPool;
 
 use super::alert::new_alert_history_writer;
@@ -21,11 +22,12 @@ pub fn spawn_monitoring(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
+    notification_engine: Option<Arc<NotificationEngine>>,
 ) {
     super::init_dev_mode(config.is_development);
 
     tokio::spawn(async move {
-        run_monitoring_init_loop(config, clickhouse, metrics).await;
+        run_monitoring_init_loop(config, clickhouse, metrics, notification_engine).await;
     });
 }
 
@@ -33,6 +35,7 @@ async fn run_monitoring_init_loop(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
+    notification_engine: Option<Arc<NotificationEngine>>,
 ) {
     const RETRY_DELAY_SECS: u64 = 30;
     let retry_delay = std::time::Duration::from_secs(RETRY_DELAY_SECS);
@@ -129,6 +132,7 @@ async fn run_monitoring_init_loop(
                 IncidentOrchestratorConfig::from_config(&config),
                 history_writer,
                 incident_store,
+                notification_engine.clone(),
             )
             .await,
         );
@@ -165,3 +169,4 @@ async fn run_monitoring_init_loop(
         break;
     }
 }
+

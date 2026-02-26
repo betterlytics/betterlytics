@@ -63,6 +63,7 @@ const envSchema = z.object({
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
   PUSHOVER_APP_TOKEN: z.string().optional(),
+  INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
   PUBLIC_ENABLE_INTEGRATIONS: zStringBoolean,
 });
 

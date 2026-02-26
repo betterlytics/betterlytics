@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const INTEGRATION_TYPES = ['pushover', 'discord'] as const;
+export const INTEGRATION_TYPES = ['pushover', 'discord', 'slack', 'teams'] as const;
 export type IntegrationType = (typeof INTEGRATION_TYPES)[number];
 
 const pushoverTokenRegex = /^[A-Za-z0-9]{30}$/;
@@ -17,9 +17,19 @@ export const DiscordConfigSchema = z.object({
   webhookUrl: z.string().url(),
 });
 
+export const SlackConfigSchema = z.object({
+  webhookUrl: z.string().url(),
+});
+
+export const TeamsConfigSchema = z.object({
+  webhookUrl: z.string().url(),
+});
+
 export const IntegrationConfigSchemas = {
   pushover: PushoverConfigSchema,
   discord: DiscordConfigSchema,
+  slack: SlackConfigSchema,
+  teams: TeamsConfigSchema,
 } as const;
 
 export const IntegrationSchema = z
@@ -56,8 +66,12 @@ export type IntegrationCreate = z.infer<typeof IntegrationCreateSchema>;
 export type IntegrationUpdate = z.infer<typeof IntegrationUpdateSchema>;
 export type PushoverConfig = z.infer<typeof PushoverConfigSchema>;
 export type DiscordConfig = z.infer<typeof DiscordConfigSchema>;
-export type IntegrationConfig = PushoverConfig | DiscordConfig;
+export type IntegrationConfig = PushoverConfig | DiscordConfig | SlackConfig | TeamsConfig;
 
 export type PushoverConfigInput = Omit<PushoverConfig, 'userKey'> & { userKey?: string };
 export type DiscordConfigInput = Omit<DiscordConfig, 'webhookUrl'> & { webhookUrl?: string };
-export type IntegrationConfigInput = PushoverConfigInput | DiscordConfigInput;
+export type SlackConfigInput = Omit<SlackConfig, 'webhookUrl'> & { webhookUrl?: string };
+export type TeamsConfigInput = Omit<TeamsConfig, 'webhookUrl'> & { webhookUrl?: string };
+export type IntegrationConfigInput = PushoverConfigInput | DiscordConfigInput | SlackConfigInput | TeamsConfigInput;
+export type SlackConfig = z.infer<typeof SlackConfigSchema>;
+export type TeamsConfig = z.infer<typeof TeamsConfigSchema>;

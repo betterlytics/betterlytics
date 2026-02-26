@@ -10,6 +10,8 @@ import { env } from '@/lib/env';
 const integrationAvailability: Record<IntegrationType, () => boolean> = {
   pushover: () => !!env.PUSHOVER_APP_TOKEN,
   discord: () => true,
+  slack: () => true,
+  teams: () => true,
 };
 
 export const getAvailableIntegrationTypesAction = withDashboardAuthContext(
