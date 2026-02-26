@@ -191,27 +191,11 @@ export async function validateDiscordWebhookUrl(webhookUrl: string): Promise<boo
 }
 
 export async function validateSlackWebhookUrl(webhookUrl: string): Promise<boolean> {
-  if (!/^https:\/\/hooks\.slack\.com\/services\//.test(webhookUrl)) return false;
-
-  try {
-    const response = await fetch(webhookUrl, { method: 'GET' });
-    return response.ok;
-  } catch (error) {
-    console.error('Error validating Slack webhook URL:', error);
-    return false;
-  }
+  return /^https:\/\/hooks\.slack\.com\/services\//.test(webhookUrl);
 }
 
 export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boolean> {
-  if (!/^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl)) return false;
-
-  try {
-    const response = await fetch(webhookUrl, { method: 'GET' });
-    return response.ok;
-  } catch (error) {
-    console.error('Error validating Teams webhook URL:', error);
-    return false;
-  }
+  return /^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl);
 }
 
 export async function validatePushoverUserKey(userKey: string): Promise<boolean> {
