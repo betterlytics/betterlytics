@@ -30,26 +30,15 @@ export async function getCustomEventsOverviewForSite(
 
 export async function getRecentEventsForSite(
   siteId: string,
-  startDate: Date,
-  endDate: Date,
   limit?: number,
   offset?: number,
   queryFilters?: QueryFilter[],
 ) {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getRecentEvents(siteId, formattedStart, formattedEnd, limit, offset, queryFilters);
+  return getRecentEvents(siteId, limit, offset, queryFilters);
 }
 
-export async function getTotalEventCountForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-) {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-  return getTotalEventCount(siteId, formattedStart, formattedEnd, queryFilters);
+export async function getTotalEventCountForSite(siteId: string, queryFilters: QueryFilter[]) {
+  return getTotalEventCount(siteId, queryFilters);
 }
 
 export async function getEventPropertiesAnalyticsForSite(

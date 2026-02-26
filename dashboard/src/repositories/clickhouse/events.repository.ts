@@ -95,8 +95,6 @@ export async function getEventPropertyData(
 
 export async function getRecentEvents(
   siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
   limit: number = 50,
   offset: number = 0,
   queryFilters?: QueryFilter[],
@@ -117,7 +115,7 @@ export async function getRecentEvents(
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp >= now() - INTERVAL 24 HOUR
       AND ${SQL.AND(filters)}
     ORDER BY timestamp DESC
     LIMIT {limit:UInt32}
@@ -129,8 +127,6 @@ export async function getRecentEvents(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
         limit,
         offset,
       },
@@ -140,12 +136,7 @@ export async function getRecentEvents(
   return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
 }
 
-export async function getTotalEventCount(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<number> {
+export async function getTotalEventCount(siteId: string, queryFilters: QueryFilter[]): Promise<number> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -154,7 +145,7 @@ export async function getTotalEventCount(
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp >= now() - INTERVAL 24 HOUR
       AND ${SQL.AND(filters)}
   `;
 
@@ -163,8 +154,6 @@ export async function getTotalEventCount(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
       },
     })
     .toPromise()) as Array<{ total: number }>;
