@@ -1574,7 +1574,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-postrapporter",
-        "integrations": "Integrations",
+        "integrations": "Integrasjoner",
         "dangerZone": "Faresone"
       }
     },
@@ -3452,74 +3452,74 @@
     }
   },
   "integrationsSettings": {
-    "title": "Integrations",
+    "title": "Integrasjoner",
     "section": {
-      "description": "Connect third-party services to receive notifications and alerts from your dashboard."
+      "description": "Koble til tredjepartstjenester for å motta varsler og advarsler fra dashboardet ditt."
     },
     "integrations": {
       "pushover": {
         "name": "Pushover",
-        "description": "Push notifications to your mobile devices and desktop."
+        "description": "Push-varsler til mobilenhetene og skrivebordet ditt."
       },
       "discord": {
         "name": "Discord",
-        "description": "Get important status updates in your Discord messages."
+        "description": "Få viktige statusoppdateringer i Discord-meldingene dine."
       }
     },
-    "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
+    "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
     "status": {
-      "connected": "Connected",
-      "disabled": "Disabled"
+      "connected": "Tilkoblet",
+      "disabled": "Deaktivert"
     },
     "actions": {
-      "configure": "Configure",
-      "add": "Add",
-      "edit": "Edit",
-      "disconnect": "Disconnect"
+      "configure": "Konfigurer",
+      "add": "Legg til",
+      "edit": "Rediger",
+      "disconnect": "Koble fra"
     },
     "disconnect": {
-      "title": "Disconnect {name}",
-      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications from this source.",
-      "confirm": "Disconnect"
+      "title": "Koble fra {name}",
+      "description": "Er du sikker på at du vil koble fra denne integrasjonen? Dette vil fjerne konfigurasjonen og stoppe alle varsler fra denne kilden.",
+      "confirm": "Koble fra"
     },
     "pushoverDialog": {
-      "title": "Pushover Integration",
+      "title": "Pushover-integrasjon",
       "userKeyLabel": "User Key",
-      "userKeyPlaceholder": "Your Pushover user key",
-      "priorityLabel": "Notification Priority",
+      "userKeyPlaceholder": "Din Pushover user key",
+      "priorityLabel": "Varslingsprioritet",
       "priorities": {
-        "-2": "Lowest: No notification",
-        "-1": "Low: No sound or vibration",
-        "0": "Normal (Recommended)",
-        "1": "High: Bypass quiet hours"
+        "-2": "Lavest: Ingen varsling",
+        "-1": "Lav: Ingen lyd eller vibrasjon",
+        "0": "Normal (anbefalt)",
+        "1": "Høy: Ignorer stille timer"
       },
-      "credentialsHint": "Find your user key at <link>pushover.net</link>",
-      "priorityHint": "Learn more about priority levels <link>here</link>.",
+      "credentialsHint": "Finn din user key på <link>pushover.net</link>",
+      "priorityHint": "Les mer om prioritetsnivåer <link>her</link>.",
       "errors": {
-        "userKeyRequired": "User key is required",
-        "userKeyInvalid": "Invalid user key"
+        "userKeyRequired": "User key er påkrevd",
+        "userKeyInvalid": "Ugyldig user key"
       },
-      "cancel": "Cancel",
-      "save": "Save"
+      "cancel": "Avbryt",
+      "save": "Lagre"
     },
     "discordDialog": {
-      "title": "Discord Integration",
+      "title": "Discord-integrasjon",
       "webhookUrlLabel": "Webhook URL",
-      "webhookHint": "Learn how to create a webhook <link>here</link>.",
+      "webhookHint": "Lær hvordan du oppretter en webhook <link>her</link>.",
       "errors": {
-        "webhookUrlRequired": "Webhook URL is required",
-        "webhookUrlInvalid": "Must be a valid Discord webhook URL"
+        "webhookUrlRequired": "Webhook URL er påkrevd",
+        "webhookUrlInvalid": "Må være en gyldig Discord webhook URL"
       },
-      "cancel": "Cancel",
-      "save": "Save"
+      "cancel": "Avbryt",
+      "save": "Lagre"
     },
     "toast": {
-      "saved": "Integration saved",
-      "deleted": "Integration disconnected",
-      "error": "Failed to update integration",
-      "fetchError": "Failed to load integrations",
-      "invalidPushoverKey": "Invalid Pushover user key or no devices registered",
-      "invalidDiscordWebhook": "Invalid Discord webhook URL"
+      "saved": "Integrasjon lagret",
+      "deleted": "Integrasjon frakoblet",
+      "error": "Kunne ikke oppdatere integrasjon",
+      "fetchError": "Kunne ikke laste integrasjoner",
+      "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheter registrert",
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL"
     }
   }
 }
