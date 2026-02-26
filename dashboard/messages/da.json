@@ -3465,6 +3465,10 @@
       "teams": {
         "name": "Microsoft Teams",
         "description": "Modtag notifikationer i en Microsoft Teams-kanal."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifikationer til enhver URL via HTTP POST."
       }
     },
     "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
@@ -3538,6 +3542,18 @@
       "cancel": "Annuller",
       "save": "Gem"
     },
+    "webhookDialog": {
+      "title": "Webhook-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://eksempel.dk/webhook",
+      "webhookHint": "Indtast en offentligt tilgængelig HTTPS URL. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
     "toast": {
       "saved": "Integration gemt",
       "deleted": "Integration afbrudt",
@@ -3546,7 +3562,8 @@
       "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheder registreret",
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
-      "invalidTeamsWebhook": "Ugyldig Teams webhook URL"
+      "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
+      "invalidWebhookUrl": "Ugyldig webhook URL"
     }
   }
 }

@@ -12,6 +12,7 @@ const integrationAvailability: Record<IntegrationType, () => boolean> = {
   discord: () => true,
   slack: () => true,
   teams: () => true,
+  webhook: () => true,
 };
 
 export const getAvailableIntegrationTypesAction = withDashboardAuthContext(

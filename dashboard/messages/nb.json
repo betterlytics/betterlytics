@@ -3473,6 +3473,10 @@
       "teams": {
         "name": "Microsoft Teams",
         "description": "Motta varsler i en Microsoft Teams-kanal."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send varsler til enhver URL via HTTP POST."
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
@@ -3546,6 +3550,18 @@
       "cancel": "Avbryt",
       "save": "Lagre"
     },
+    "webhookDialog": {
+      "title": "Webhook-integrasjon",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://eksempel.no/webhook",
+      "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrevd",
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+      },
+      "cancel": "Avbryt",
+      "save": "Lagre"
+    },
     "toast": {
       "saved": "Integrasjon lagret",
       "deleted": "Integrasjon frakoblet",
@@ -3554,7 +3570,8 @@
       "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheter registrert",
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
-      "invalidTeamsWebhook": "Ugyldig Teams webhook URL"
+      "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
+      "invalidWebhookUrl": "Ugyldig webhook URL"
     }
   }
 }

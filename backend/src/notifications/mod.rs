@@ -19,6 +19,7 @@ use integrations::discord::DiscordNotifier;
 use integrations::pushover::PushoverNotifier;
 use integrations::slack::SlackNotifier;
 use integrations::teams::TeamsNotifier;
+use integrations::webhook::WebhookNotifier;
 use notifier::Notifier;
 
 pub use cache::{IntegrationCache, IntegrationCacheConfig};
@@ -77,6 +78,11 @@ fn build_notifiers(config: &Config) -> anyhow::Result<HashMap<String, Arc<dyn No
         DiscordNotifier::new().context("failed to create Discord HTTP client")?,
     );
     notifiers.insert(discord.integration_type().to_string(), discord);
+
+    let webhook = Arc::new(
+        WebhookNotifier::new().context("failed to create Webhook HTTP client")?,
+    );
+    notifiers.insert(webhook.integration_type().to_string(), webhook);
 
     Ok(notifiers)
 }

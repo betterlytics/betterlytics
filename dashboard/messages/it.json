@@ -3473,6 +3473,10 @@
       "teams": {
         "name": "Microsoft Teams",
         "description": "Ricevi notifiche in un canale Microsoft Teams."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Invia notifiche a qualsiasi URL tramite HTTP POST."
       }
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
@@ -3546,6 +3550,18 @@
       "cancel": "Annulla",
       "save": "Salva"
     },
+    "webhookDialog": {
+      "title": "Integrazione Webhook",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://esempio.com/webhook",
+      "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
     "toast": {
       "saved": "Integrazione salvata",
       "deleted": "Integrazione disconnessa",
@@ -3554,7 +3570,8 @@
       "invalidPushoverKey": "User key Pushover non valida o nessun dispositivo registrato",
       "invalidDiscordWebhook": "Webhook URL Discord non valido",
       "invalidSlackWebhook": "Webhook URL Slack non valido",
-      "invalidTeamsWebhook": "Webhook URL Teams non valido"
+      "invalidTeamsWebhook": "Webhook URL Teams non valido",
+      "invalidWebhookUrl": "Webhook URL non valido"
     }
   }
 }

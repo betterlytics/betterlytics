@@ -34,6 +34,7 @@ const SECRET_FIELDS: Record<IntegrationType, string[]> = {
   discord: ['webhookUrl'],
   slack: ['webhookUrl'],
   teams: ['webhookUrl'],
+  webhook: ['webhookUrl'],
 };
 
 function maskSecret(value: string): string {
@@ -77,6 +78,11 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
     if (typeof config.webhookUrl !== 'string') return 'invalid_teams_webhook';
     const isValid = await validateTeamsWebhookUrl(config.webhookUrl);
     return isValid ? null : 'invalid_teams_webhook';
+  },
+  webhook: async (config) => {
+    if (!('webhookUrl' in config) || !config.webhookUrl) return null;
+    if (typeof config.webhookUrl !== 'string') return 'invalid_webhook_url';
+    return validateWebhookUrl(config.webhookUrl) ? null : 'invalid_webhook_url';
   },
 };
 
@@ -198,6 +204,10 @@ export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boole
   return /^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl);
 }
 
+export function validateWebhookUrl(webhookUrl: string): boolean {
+  return /^https:\/\//.test(webhookUrl);
+}
+
 export async function validatePushoverUserKey(userKey: string): Promise<boolean> {
   if (!env.PUSHOVER_APP_TOKEN) return false;
 
@@ -292,6 +302,17 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
             },
           },
         ],
+      }),
+    });
+  },
+  webhook: async (config) => {
+    if (!('webhookUrl' in config)) return;
+    await fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: 'Betterlytics Connected',
+        message: 'This webhook will now receive notifications from your Betterlytics dashboard.',
       }),
     });
   },
