@@ -1,5 +1,3 @@
-import { notFound } from 'next/navigation';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 import {
   getAvailableIntegrationTypesAction,
   getIntegrationsAction,
@@ -11,10 +9,6 @@ type IntegrationsPageProps = {
 };
 
 export default async function IntegrationsPage({ params }: IntegrationsPageProps) {
-  if (!isFeatureEnabled('enableIntegrations')) {
-    notFound();
-  }
-
   const { dashboardId } = await params;
   const availableTypesPromise = getAvailableIntegrationTypesAction(dashboardId);
   const integrationsPromise = getIntegrationsAction(dashboardId);
