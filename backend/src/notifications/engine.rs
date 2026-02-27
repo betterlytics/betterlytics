@@ -13,7 +13,7 @@ use super::notifier::{Notification, Notifier};
 
 const MAX_RETRIES: u32 = 2;
 const RETRY_DELAY_MS: u64 = 500;
-const DELIVERY_LOG_TTL: Duration = Duration::from_secs(30 * 24 * 60 * 60);
+const DELIVERY_LOG_TTL: Duration = Duration::from_hours(30 * 24);
 
 #[derive(Debug, Clone)]
 pub enum DeliveryStrategy {
@@ -90,7 +90,7 @@ impl NotificationEngine {
         if !self.try_claim_delivery(&event) {
             debug!(
                 event_key = %event.event_key,
-                "notification deduplicated - skipping"
+                "duplicate notification found - skipping"
             );
             return 0;
         }
@@ -182,21 +182,21 @@ impl NotificationEngine {
         config: &serde_json::Value,
         notification: &Notification,
     ) -> (Result<(), super::notifier::NotifierError>, u8) {
-        for attempt in 0..=MAX_RETRIES {
+        for attempt in 1..=(MAX_RETRIES+1) {
             match notifier.send(config, notification).await {
-                Ok(()) => return (Ok(()), attempt as u8 + 1),
+                Ok(()) => return (Ok(()), attempt as u8),
                 Err(err) => {
                     if !err.is_transient() || attempt == MAX_RETRIES {
-                        return (Err(err), attempt as u8 + 1);
+                        return (Err(err), attempt as u8);
                     }
                     warn!(
-                        attempt = attempt + 1,
+                        attempt = attempt,
                         max_retries = MAX_RETRIES,
                         error = ?err,
                         "transient notification error, retrying"
                     );
                     tokio::time::sleep(std::time::Duration::from_millis(
-                        RETRY_DELAY_MS * (attempt as u64 + 1),
+                        RETRY_DELAY_MS * (attempt as u64),
                     ))
                     .await;
                 }

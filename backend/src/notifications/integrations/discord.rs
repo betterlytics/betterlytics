@@ -62,7 +62,7 @@ impl Notifier for DiscordNotifier {
             embeds: vec![DiscordEmbed {
                 title: notification.title.clone(),
                 description,
-                color: 0x5865F2,
+                color: 0x5C7DEB,
                 url: notification.url.clone(),
             }],
         };
