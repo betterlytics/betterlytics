@@ -11,64 +11,27 @@ import {
   type CWVDimension,
   type CoreWebVitalName,
 } from '@/entities/analytics/webVitals.entities';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getCoreWebVitalsSummaryForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<CoreWebVitalsSummary> {
-  return getCoreWebVitalsP75(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+export async function getCoreWebVitalsSummaryForSite(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
+  return getCoreWebVitalsP75(siteQuery);
 }
 
 export async function getHasCoreWebVitalsData(siteId: string): Promise<boolean> {
   return hasCoreWebVitalsData(siteId);
 }
 
-export async function getAllCoreWebVitalPercentilesTimeseries(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: any,
-  queryFilters: QueryFilter[],
-  timezone: string,
-) {
-  return await getAllCoreWebVitalPercentilesSeries(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    granularity,
-    queryFilters,
-    timezone,
-  );
+export async function getAllCoreWebVitalPercentilesTimeseries(siteQuery: BASiteQuery) {
+  return getAllCoreWebVitalPercentilesSeries(siteQuery);
 }
 
-export async function getCoreWebVitalsAllPercentilesPerDimension(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-  dimension: CWVDimension,
-) {
-  return getCoreWebVitalsAllPercentilesByDimension(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    queryFilters,
-    dimension,
-  );
+export async function getCoreWebVitalsAllPercentilesPerDimension(siteQuery: BASiteQuery, dimension: CWVDimension) {
+  return getCoreWebVitalsAllPercentilesByDimension(siteQuery, dimension);
 }
 
 type ScoreArray = [number, number, number, number]; // p50, p75, p90, p99
 
-// Metric weights for the score calculation
-// These are field-values compared to lighthouse lab metrics.
-// LCP and INP are more important than FCP and TTFB.
-// CLS is less important than LCP and INP.
-// The weights are not perfect, but they are a good starting point.
 const METRIC_WEIGHTS: Record<CoreWebVitalName, number> = {
   LCP: 0.3,
   CLS: 0.15,
@@ -111,20 +74,8 @@ function computeScoreForRowPercentile(
   return weightSum > 0 ? weighted / weightSum : 0;
 }
 
-export async function getCoreWebVitalsPreparedByDimension(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-  dimension: CWVDimension,
-) {
-  const rows = await getCoreWebVitalsAllPercentilesPerDimension(
-    siteId,
-    startDate,
-    endDate,
-    queryFilters,
-    dimension,
-  );
+export async function getCoreWebVitalsPreparedByDimension(siteQuery: BASiteQuery, dimension: CWVDimension) {
+  const rows = await getCoreWebVitalsAllPercentilesPerDimension(siteQuery, dimension);
 
   const byKey = new Map<string, typeof rows>();
   for (const r of rows) {

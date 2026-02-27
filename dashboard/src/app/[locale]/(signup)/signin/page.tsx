@@ -75,7 +75,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       <main className='relative flex w-full flex-1 flex-col items-center justify-center gap-2 py-8'>
         <div className='w-full max-w-md space-y-6 px-4'>
           <div className='flex justify-center pb-2'>
-            <Link href='/'>
+            <Link href='/' tabIndex={2}>
               <Logo variant='simple' showText textSize='lg' priority />
             </Link>
           </div>

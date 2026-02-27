@@ -3,19 +3,14 @@
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { SessionReplay, ReplaySegmentManifest } from '@/entities/analytics/sessionReplays.entities';
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getReplaySegmentManifest, getSessionReplaysForSite } from '@/services/analytics/sessionReplays.service';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
 export const fetchSessionReplaysAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    limit: number,
-    offset: number,
-    queryFilters: QueryFilter[],
-  ): Promise<SessionReplay[]> => {
-    return getSessionReplaysForSite(ctx.siteId, startDate, endDate, queryFilters, limit, offset);
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number, offset: number): Promise<SessionReplay[]> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+    return getSessionReplaysForSite(main, limit, offset);
   },
 );
 

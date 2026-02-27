@@ -10,8 +10,6 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -46,8 +44,6 @@ export function EventsTable({ data }: EventsTableProps) {
   const locale = useLocale();
   const t = useTranslations('components.events.table');
 
-  const { startDate, endDate } = useTimeRangeContext();
-  const { queryFilters } = useQueryFiltersContext();
   const [expandedRows, setExpandedRows] = useState<ExpandedRowState>({});
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
 
@@ -290,9 +286,6 @@ export function EventsTable({ data }: EventsTableProps) {
                             event={event.current}
                             expandedProperties={expandedRows[event.event_name]?.expandedProperties || new Set()}
                             onToggleProperty={(propertyName) => toggleProperty(event.event_name, propertyName)}
-                            startDate={startDate}
-                            endDate={endDate}
-                            queryFilters={queryFilters}
                           />
                         </TableCell>
                       </TableRow>

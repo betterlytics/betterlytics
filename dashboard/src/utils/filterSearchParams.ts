@@ -3,6 +3,7 @@ import {
   FilterQueryParamsSchema,
   FilterQuerySearchParams,
 } from '@/entities/analytics/filterQueryParams.entities';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
@@ -196,7 +197,7 @@ function enforceGranularityAndDuration(
   } as const;
 }
 
-function decode(params: FilterQuerySearchParams, timezone: string) {
+function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQuery {
   const defaultFilters = getDefaultFilters();
 
   const decodedEntries = Object.entries(params)
@@ -231,11 +232,12 @@ function decode(params: FilterQuerySearchParams, timezone: string) {
 
   const result = FilterQueryParamsSchema.safeParse(filters);
 
-  if (!result.success) {
-    return getDefaultFilters();
-  }
+  const validated = result.success ? result.data : getDefaultFilters();
 
-  return result.data;
+  return {
+    ...validated,
+    timezone,
+  };
 }
 
 export const BAFilterSearchParams = {

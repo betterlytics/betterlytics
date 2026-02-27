@@ -24,44 +24,12 @@ type ReferrersPageParams = {
 export default async function ReferrersPage({ params, searchParams }: ReferrersPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams, timezone);
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    queryFilters,
-    timezone,
-  );
-  const distributionPromise = fetchReferrerSourceAggregationDataForSite(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-  const trendPromise = fetchReferrerTrafficTrendBySourceDataForSite(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    queryFilters,
-    timezone,
-    compareStartDate,
-    compareEndDate,
-  );
-  const tablePromise = fetchReferrerTableDataForSite(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    100,
-    compareStartDate,
-    compareEndDate,
-  );
+  const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(dashboardId, query);
+  const distributionPromise = fetchReferrerSourceAggregationDataForSite(dashboardId, query);
+  const trendPromise = fetchReferrerTrafficTrendBySourceDataForSite(dashboardId, query);
+  const tablePromise = fetchReferrerTableDataForSite(dashboardId, query, 100);
   const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>

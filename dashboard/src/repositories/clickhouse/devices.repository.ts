@@ -1,5 +1,4 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
 import {
   DeviceType,
   DeviceTypeSchema,
@@ -14,18 +13,12 @@ import {
   OperatingSystemRollupRowSchema,
   OperatingSystemRollupRow,
 } from '@/entities/analytics/devices.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { TimeRangeValue } from '@/utils/timeRanges';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getDeviceTypeBreakdown(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<DeviceType[]> {
+export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -39,7 +32,7 @@ export async function getDeviceTypeBreakdown(
   `;
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
     })
     .toPromise()) as any[];
 
@@ -51,12 +44,8 @@ export async function getDeviceTypeBreakdown(
   return DeviceTypeSchema.array().parse(mappedResults);
 }
 
-export async function getBrowserBreakdown(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<BrowserInfo[]> {
+export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<BrowserInfo[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     SELECT browser, uniq(visitor_id) as visitors
@@ -69,7 +58,7 @@ export async function getBrowserBreakdown(
   `;
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
     })
     .toPromise()) as any[];
 
@@ -81,12 +70,8 @@ export async function getBrowserBreakdown(
   return BrowserInfoSchema.array().parse(mappedResults);
 }
 
-export async function getBrowserRollup(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<BrowserRollupRow[]> {
+export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserRollupRow[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const query = safeSql`
     SELECT browser, browser_version as version, uniq(visitor_id) as visitors, grouping(browser_version) as is_rollup
     FROM analytics.events
@@ -101,19 +86,15 @@ export async function getBrowserRollup(
 
   const result = await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
     })
     .toPromise();
 
   return BrowserRollupRowSchema.array().parse(result);
 }
 
-export async function getOperatingSystemBreakdown(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<OperatingSystemInfo[]> {
+export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promise<OperatingSystemInfo[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     SELECT os, uniq(visitor_id) as visitors
@@ -127,7 +108,7 @@ export async function getOperatingSystemBreakdown(
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
     })
     .toPromise()) as any[];
 
@@ -139,12 +120,8 @@ export async function getOperatingSystemBreakdown(
   return OperatingSystemInfoSchema.array().parse(mappedResults);
 }
 
-export async function getOperatingSystemRollup(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<OperatingSystemRollupRow[]> {
+export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<OperatingSystemRollupRow[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const query = safeSql`
     SELECT os, os_version as version, uniq(visitor_id) as visitors, grouping(os_version) as is_rollup
     FROM analytics.events
@@ -159,32 +136,26 @@ export async function getOperatingSystemRollup(
 
   const result = await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
     })
     .toPromise();
 
   return OperatingSystemRollupRowSchema.array().parse(result);
 }
 
-export async function getDeviceUsageTrend(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DeviceUsageTrendRow[]> {
+export async function getDeviceUsageTrend(siteQuery: BASiteQuery): Promise<DeviceUsageTrendRow[]> {
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
 
   const query = timeWrapper(
     safeSql`
-      SELECT 
+      SELECT
         ${granularityFunc('timestamp')} as date,
         device_type,
         uniq(visitor_id) as count

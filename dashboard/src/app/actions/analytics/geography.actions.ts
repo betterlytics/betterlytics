@@ -1,49 +1,21 @@
 'use server';
 
 import { fetchVisitorsByGeography } from '@/services/analytics/geography.service';
-import { z } from 'zod';
-import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { toDataTable } from '@/presenters/toDataTable';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
-const queryParamsSchema = z.object({
-  siteId: z.string(),
-  startDate: z.date(),
-  endDate: z.date(),
-  compareStartDate: z.date().optional(),
-  compareEndDate: z.date().optional(),
-  queryFilters: QueryFilterSchema.array(),
-});
-
-/**
- * Server action to fetch geographic visitor data for world map in Alpha-2 format
- */
 export const getWorldMapDataAlpha2 = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    params: Omit<z.infer<typeof queryParamsSchema>, 'siteId'>,
-  ): Promise<WorldMapResponse> => {
-    const validatedParams = queryParamsSchema.safeParse({
-      ...params,
-      siteId: ctx.siteId,
-    });
-
-    if (!validatedParams.success) {
-      throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
-    }
-
-    const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = validatedParams.data;
+  async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<WorldMapResponse> => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
 
     try {
-      const geoVisitors = await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters);
-
-      const compareGeoVisitors =
-        compareStartDate &&
-        compareEndDate &&
-        (await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters));
+      const geoVisitors = await fetchVisitorsByGeography(main);
+      const compareGeoVisitors = compare && (await fetchVisitorsByGeography(compare));
 
       return dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original);
     } catch (error) {
@@ -53,44 +25,18 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   },
 );
 
-const topCountriesQueryParamsSchema = queryParamsSchema.extend({
-  numberOfCountries: z.number().optional(),
-});
-
 export const getTopCountryVisitsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, params: Omit<z.infer<typeof topCountriesQueryParamsSchema>, 'siteId'>) => {
-    const validatedParams = topCountriesQueryParamsSchema.safeParse({
-      ...params,
-      siteId: ctx.siteId,
-    });
-
-    if (!validatedParams.success) {
-      throw new Error(`Invalid parameters: ${validatedParams.error.message}`);
-    }
-
-    const {
-      startDate,
-      endDate,
-      queryFilters,
-      compareStartDate,
-      compareEndDate,
-      numberOfCountries = 10,
-    } = validatedParams.data;
+  async (ctx: AuthContext, query: BAAnalyticsQuery, numberOfCountries: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
 
     try {
-      const geoVisitors = (await fetchVisitorsByGeography(ctx.siteId, startDate, endDate, queryFilters)).slice(
-        0,
-        numberOfCountries,
-      );
-
+      const geoVisitors = (await fetchVisitorsByGeography(main)).slice(0, numberOfCountries);
       const topCountries = geoVisitors.map((row) => row.country_code);
 
       const compareGeoVisitors =
-        compareStartDate &&
-        compareEndDate &&
-        (await fetchVisitorsByGeography(ctx.siteId, compareStartDate, compareEndDate, queryFilters)).filter(
-          (row) => topCountries.includes(row.country_code),
-        );
+        compare &&
+        (await fetchVisitorsByGeography(compare)).filter((row) => topCountries.includes(row.country_code));
+
       return toDataTable({
         data: geoVisitors,
         compare: compareGeoVisitors,

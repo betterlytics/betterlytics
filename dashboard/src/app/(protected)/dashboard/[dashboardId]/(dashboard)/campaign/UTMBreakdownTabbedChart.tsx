@@ -10,7 +10,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/analytics/campaign.entities';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useUTMBreakdownData } from './useUTMBreakdownData';
 import { UTM_DIMENSIONS } from '@/entities/analytics/campaign.entities';
 import PieChartTooltip from '@/components/charts/PieChartTooltip';
@@ -106,7 +106,7 @@ export default function UTMBreakdownTabbedChart({
   initialSource,
 }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
-  const { startDate, endDate } = useTimeRangeContext();
+  const query = useAnalyticsQuery();
   const [activeTab, setActiveTab] = useState<UTMChartTab>('source');
 
   const tabs = useMemo(
@@ -122,8 +122,7 @@ export default function UTMBreakdownTabbedChart({
   const mediumQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    query,
     dimension: 'medium',
     enabled: activeTab === 'medium',
   });
@@ -131,8 +130,7 @@ export default function UTMBreakdownTabbedChart({
   const contentQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    query,
     dimension: 'content',
     enabled: activeTab === 'content',
   });
@@ -140,8 +138,7 @@ export default function UTMBreakdownTabbedChart({
   const termQuery = useUTMBreakdownData({
     dashboardId,
     campaignName,
-    startDate,
-    endDate,
+    query,
     dimension: 'term',
     enabled: activeTab === 'term',
   });
