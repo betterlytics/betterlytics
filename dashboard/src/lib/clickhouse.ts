@@ -29,7 +29,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
     request_timeout: 30_000,
     compression: {
       request: false,
-      response: false,
+      response: true,
     },
     clickhouse_settings: {
       output_format_json_quote_64bit_integers: 0,
