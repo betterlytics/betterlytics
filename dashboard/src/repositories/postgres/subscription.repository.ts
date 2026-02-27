@@ -6,6 +6,7 @@ import {
   UpsertSubscriptionSchema,
   buildStarterSubscription,
 } from '@/entities/billing/billing.entities';
+import { addMonths, startOfDay } from 'date-fns';
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
@@ -19,6 +20,27 @@ export async function getUserSubscription(userId: string): Promise<Subscription 
       },
       update: {},
     });
+
+    const isFreeTier = !subscription.paymentSubscriptionId;
+    const isPeriodExpired = subscription.currentPeriodEnd < new Date();
+
+    if (isFreeTier && isPeriodExpired) {
+      let newStart = startOfDay(subscription.currentPeriodEnd);
+      let newEnd = addMonths(newStart, 1);
+      const now = new Date();
+      while (newEnd < now) {
+        newStart = newEnd;
+        newEnd = addMonths(newStart, 1);
+      }
+      const updated = await prisma.subscription.update({
+        where: { userId },
+        data: {
+          currentPeriodStart: newStart,
+          currentPeriodEnd: newEnd,
+        },
+      });
+      return SubscriptionSchema.parse(updated);
+    }
 
     return SubscriptionSchema.parse(subscription);
   } catch (error) {
