@@ -5,21 +5,11 @@ import { useRouter } from 'next/navigation';
 import { setTimezoneCookieAction } from '@/app/actions/system/timezone.action';
 import moment from 'moment-timezone';
 
-function resolveTimezone() {
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  if (!tz || tz === 'Etc/Unknown') {
-    return moment.tz.guess();
-  }
-
-  return tz;
-}
-
 export default function TimezoneCookieInitializer() {
   const router = useRouter();
 
   useEffect(() => {
-    const tz = resolveTimezone();
+    const tz = moment.tz.guess() ?? 'Etc/UTC';
     setTimezoneCookieAction(tz).then((res) => {
       if (res.changed) {
         router.refresh();
