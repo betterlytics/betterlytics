@@ -1758,7 +1758,6 @@
       "create": "Nuovo monitor",
       "upgradeToCreate": "Upgrade per altri",
       "title": "Crea monitor",
-      "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
       "fields": {
         "name": "Nome",
         "url": "URL"

@@ -1758,7 +1758,6 @@
       "create": "Ny overvåker",
       "upgradeToCreate": "Oppgrader for å legge til flere",
       "title": "Opprett overvåker",
-      "description": "Overvåk et endepunkt for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL-adresse"
@@ -3460,7 +3459,7 @@
     "integrations": {
       "pushover": {
         "name": "Pushover",
-        "description": "Push-varsler til dine mobile enheter og skrivebord."
+        "description": "Push-varsler til mobilenhetene og skrivebordet ditt."
       },
       "discord": {
         "name": "Discord",
