@@ -38,13 +38,21 @@ impl Notifier for TeamsNotifier {
         let teams_config = TeamsConfig::deserialize(config)
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
 
+        let title_color = match notification.color {
+            crate::notifications::NotificationColor::Danger => "Attention",
+            crate::notifications::NotificationColor::Success => "Good",
+            crate::notifications::NotificationColor::Warning => "Warning",
+            _ => "Default",
+        };
+
         let mut body_blocks = vec![
             serde_json::json!({
                 "type": "TextBlock",
                 "text": notification.title,
                 "weight": "Bolder",
                 "size": "Medium",
-                "wrap": true
+                "wrap": true,
+                "color": title_color
             }),
             serde_json::json!({
                 "type": "TextBlock",

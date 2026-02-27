@@ -46,7 +46,16 @@ impl Notifier for SlackNotifier {
         }
 
         let payload = serde_json::json!({
-            "text": text,
+            "attachments": [{
+                "color": notification.color.to_hex_string(),
+                "blocks": [{
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": text
+                    }
+                }]
+            }]
         });
 
         debug!(integration = "slack", "sending notification");

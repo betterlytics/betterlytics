@@ -1,11 +1,41 @@
 use async_trait::async_trait;
 
+#[derive(Debug, Clone, Copy, Default)]
+pub enum NotificationColor {
+    #[default]
+    Default,
+    Success,
+    Danger,
+    Warning,
+}
+
+impl NotificationColor {
+    pub fn to_hex(self) -> u32 {
+        match self {
+            NotificationColor::Default => 0x5C7DEB,
+            NotificationColor::Success => 0x10B981,
+            NotificationColor::Danger  => 0xEF4444,
+            NotificationColor::Warning => 0xF59E0B,
+        }
+    }
+
+    pub fn to_hex_string(self) -> &'static str {
+        match self {
+            NotificationColor::Default => "#5C7DEB",
+            NotificationColor::Success => "#10B981",
+            NotificationColor::Danger  => "#EF4444",
+            NotificationColor::Warning => "#F59E0B",
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Notification {
     pub title: String,
     pub message: String,
     pub url: Option<String>,
     pub url_title: Option<String>,
+    pub color: NotificationColor,
 }
 
 #[derive(Debug, thiserror::Error)]

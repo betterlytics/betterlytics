@@ -25,7 +25,7 @@ use notifier::Notifier;
 pub use cache::{IntegrationCache, IntegrationCacheConfig};
 pub use engine::{DeliveryStrategy, NotificationEngine, NotificationEvent};
 pub use history::new_notification_history_writer;
-pub use notifier::Notification;
+pub use notifier::{Notification, NotificationColor};
 pub use repository::{IntegrationDataSource, IntegrationRepository};
 
 pub async fn initialize_notification_engine(

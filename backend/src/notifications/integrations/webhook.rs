@@ -41,6 +41,7 @@ impl Notifier for WebhookNotifier {
         let mut payload = serde_json::json!({
             "title": notification.title,
             "message": notification.message,
+            "color": notification.color.to_hex_string(),
         });
 
         if let Some(url) = &notification.url {

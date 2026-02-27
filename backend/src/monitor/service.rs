@@ -14,7 +14,7 @@ use crate::monitor::incident::{
     MonitorIncidentRow,
 };
 use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
-use crate::notifications::{DeliveryStrategy, Notification, NotificationEngine, NotificationEvent};
+use crate::notifications::{DeliveryStrategy, Notification, NotificationColor, NotificationEngine, NotificationEvent};
 
 #[derive(Clone, Debug)]
 pub struct IncidentContext {
@@ -213,6 +213,7 @@ impl IncidentOrchestrator {
                     message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
                     url: Some(self.monitor_url(ctx)),
                     url_title: Some("View Monitor".to_string()),
+                    color: NotificationColor::Danger,
                 },
             },
         )
@@ -311,6 +312,7 @@ impl IncidentOrchestrator {
                     ),
                     url: Some(self.monitor_url(ctx)),
                     url_title: Some("View Monitor".to_string()),
+                    color: NotificationColor::Success,
                 },
             },
         )
@@ -409,6 +411,7 @@ impl IncidentOrchestrator {
                     message: ssl_message,
                     url: Some(self.monitor_url(ctx)),
                     url_title: Some("View Monitor".to_string()),
+                    color: if expired { NotificationColor::Danger } else { NotificationColor::Warning },
                 },
             },
         )
