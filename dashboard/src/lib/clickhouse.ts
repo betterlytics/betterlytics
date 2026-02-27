@@ -33,6 +33,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
     },
     clickhouse_settings: {
       output_format_json_quote_64bit_integers: 0,
+      cancel_http_readonly_queries_on_client_close: 1,
     },
   });
 
@@ -44,7 +45,7 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
       return {
         async toPromise(): Promise<unknown[]> {
           const resultSet = await client.query({
-            query: sql.replaceAll(';', ''),
+            query: sql,
             query_params: params,
             format,
           });
