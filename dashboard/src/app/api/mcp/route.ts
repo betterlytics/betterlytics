@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { validateToken } from '@/mcp/auth/token';
 import { createMcpServer, type McpContext } from '@/mcp/server';
+import { checkRateLimit } from '@/mcp/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -28,6 +29,14 @@ export async function POST(req: NextRequest) {
     return Response.json(
       { jsonrpc: '2.0', error: { code: -32001, message: 'Invalid or expired token' }, id: null },
       { status: 401 },
+    );
+  }
+
+  const { allowed, retryAfterMs } = checkRateLimit(context.siteId);
+  if (!allowed) {
+    return Response.json(
+      { jsonrpc: '2.0', error: { code: -32005, message: 'Rate limit exceeded' }, id: null },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } },
     );
   }
 
