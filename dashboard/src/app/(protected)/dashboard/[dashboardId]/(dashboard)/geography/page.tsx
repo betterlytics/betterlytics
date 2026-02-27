@@ -15,18 +15,9 @@ type GeographyPageParams = {
 export default async function GeographyPage({ params, searchParams }: GeographyPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, queryFilters, compareStartDate, compareEndDate } = BAFilterSearchParams.decode(
-    await searchParams,
-    timezone,
-  );
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, {
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  });
+  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
 
   return (
     <div className='fixed inset-0 top-14 w-full'>

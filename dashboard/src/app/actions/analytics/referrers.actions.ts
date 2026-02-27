@@ -9,45 +9,29 @@ import {
   getTopChannelsForSite,
   getTopReferrerSourcesForSite,
 } from '@/services/analytics/referrers.service';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { TrafficSourcesCombinedSchema } from '@/entities/analytics/referrers.entities';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { toPieChart } from '@/presenters/toPieChart';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
-/**
- * Fetches the referrer distribution data for a site
- */
 export const fetchReferrerSourceAggregationDataForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
     try {
-      const data = await getReferrerSourceAggregationDataForSite(ctx.siteId, startDate, endDate, queryFilters);
-      const compare =
-        compareStartDate &&
-        compareEndDate &&
-        (await getReferrerSourceAggregationDataForSite(
-          ctx.siteId,
-          compareStartDate,
-          compareEndDate,
-          queryFilters,
-        ));
+      const data = await getReferrerSourceAggregationDataForSite(main);
+      const compareData = compare && (await getReferrerSourceAggregationDataForSite(compare));
       return {
         data: toPieChart({
           data,
           key: 'referrer_source',
           dataKey: 'visitorCount',
-          compare,
+          compare: compareData,
         }),
       };
     } catch (error) {
@@ -57,57 +41,26 @@ export const fetchReferrerSourceAggregationDataForSite = withDashboardAuthContex
   },
 );
 
-/**
- * Fetches the referrer traffic trend data grouped by source type for a site with specified granularity
- */
 export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
-    try {
-      const rawData = await getReferrerTrafficTrendBySourceDataForSite(
-        ctx.siteId,
-        startDate,
-        endDate,
-        granularity,
-        queryFilters,
-        timezone,
-      );
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
 
-      const compareData =
-        compareStartDate &&
-        compareEndDate &&
-        (await getReferrerTrafficTrendBySourceDataForSite(
-          ctx.siteId,
-          compareStartDate,
-          compareEndDate,
-          granularity,
-          queryFilters,
-          timezone,
-        ));
+    try {
+      const rawData = await getReferrerTrafficTrendBySourceDataForSite(main);
+      const compareData = compare && (await getReferrerTrafficTrendBySourceDataForSite(compare));
 
       const sortedCategories = getSortedCategories(rawData, 'referrer_source', 'count');
 
-      const result = toStackedAreaChart({
+      return toStackedAreaChart({
         data: rawData,
         categoryKey: 'referrer_source',
         valueKey: 'count',
         categories: sortedCategories,
-        granularity,
-        dateRange: { start: startDate, end: endDate },
+        granularity: main.granularity,
+        dateRange: { start: main.startDate, end: main.endDate },
         compare: compareData,
-        compareDateRange:
-          compareStartDate && compareEndDate ? { start: compareStartDate, end: compareEndDate } : undefined,
+        compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
       });
-
-      return result;
     } catch (error) {
       console.error('Error fetching referrer traffic trend by source:', error);
       throw error;
@@ -115,45 +68,30 @@ export const fetchReferrerTrafficTrendBySourceDataForSite = withDashboardAuthCon
   },
 );
 
-/**
- * Fetches the summary data with charts for referrers including referral sessions, total sessions, top referrer source, avg session duration, and chart data
- */
 export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    queryFilters: QueryFilter[],
-    timezone: string,
-  ) => {
-    try {
-      const raw = await getReferrerSummaryWithChartsForSite(
-        ctx.siteId,
-        startDate,
-        endDate,
-        granularity,
-        queryFilters,
-        timezone,
-      );
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main } = toSiteQuery(ctx.siteId, query);
 
-      const dateRange = { start: startDate, end: endDate };
+    try {
+      const raw = await getReferrerSummaryWithChartsForSite(main);
+
+      const dateRange = { start: main.startDate, end: main.endDate };
 
       const referralSessionsChartData = toSparklineSeries({
         data: raw.referralSessionsChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'referralSessions',
         dateRange,
       });
       const referralPercentageChartData = toSparklineSeries({
         data: raw.referralPercentageChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'referralPercentage',
         dateRange,
       });
       const avgSessionDurationChartData = toSparklineSeries({
         data: raw.avgSessionDurationChartData,
-        granularity,
+        granularity: main.granularity,
         dataKey: 'avgSessionDuration',
         dateRange,
       });
@@ -173,28 +111,16 @@ export const fetchReferrerSummaryWithChartsDataForSite = withDashboardAuthContex
   },
 );
 
-/**
- * Fetches detailed referrer data for table display
- */
 export const fetchReferrerTableDataForSite = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    limit: number = 100,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 100) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
     try {
-      const data = await getReferrerTableDataForSite(ctx.siteId, startDate, endDate, queryFilters, limit);
-      const compare =
-        compareStartDate &&
-        compareEndDate &&
-        (await getReferrerTableDataForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit));
+      const data = await getReferrerTableDataForSite(main, limit);
+      const compareData = compare && (await getReferrerTableDataForSite(compare, limit));
 
       return {
-        data: toDataTable({ data, compare, categoryKey: 'source_url' }),
+        data: toDataTable({ data, compare: compareData, categoryKey: 'source_url' }),
       };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);
@@ -204,15 +130,9 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
 );
 
 export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    queryFilters: QueryFilter[],
-    limit: number = 10,
-    compareStartDate?: Date,
-    compareEndDate?: Date,
-  ) => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
     try {
       const [
         topReferrerUrls,
@@ -222,18 +142,12 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
         topChannels,
         compareTopChannels,
       ] = await Promise.all([
-        getTopReferrerUrlsForSite(ctx.siteId, startDate, endDate, queryFilters, limit),
-        compareStartDate &&
-          compareEndDate &&
-          getTopReferrerUrlsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit),
-        getTopReferrerSourcesForSite(ctx.siteId, startDate, endDate, queryFilters, limit),
-        compareStartDate &&
-          compareEndDate &&
-          getTopReferrerSourcesForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit),
-        getTopChannelsForSite(ctx.siteId, startDate, endDate, queryFilters, limit),
-        compareStartDate &&
-          compareEndDate &&
-          getTopChannelsForSite(ctx.siteId, compareStartDate, compareEndDate, queryFilters, limit),
+        getTopReferrerUrlsForSite(main, limit),
+        compare && getTopReferrerUrlsForSite(compare, limit),
+        getTopReferrerSourcesForSite(main, limit),
+        compare && getTopReferrerSourcesForSite(compare, limit),
+        getTopChannelsForSite(main, limit),
+        compare && getTopChannelsForSite(compare, limit),
       ]);
 
       const data = TrafficSourcesCombinedSchema.parse({
@@ -242,9 +156,8 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
         topChannels,
       });
 
-      const compare =
-        compareStartDate &&
-        compareEndDate &&
+      const compareData =
+        compare &&
         TrafficSourcesCombinedSchema.parse({
           topReferrerUrls: compareTopReferrerUrls,
           topReferrerSources: compareTopReferrerSources,
@@ -254,17 +167,17 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
       return {
         topReferrerUrls: toDataTable({
           data: data.topReferrerUrls,
-          compare: compare?.topReferrerUrls,
+          compare: compareData?.topReferrerUrls,
           categoryKey: 'referrer_url',
         }),
         topReferrerSources: toDataTable({
           data: data.topReferrerSources,
-          compare: compare?.topReferrerSources,
+          compare: compareData?.topReferrerSources,
           categoryKey: 'referrer_source',
         }),
         topChannels: toDataTable({
           data: data.topChannels,
-          compare: compare?.topChannels,
+          compare: compareData?.topChannels,
           categoryKey: 'channel',
         }),
       };

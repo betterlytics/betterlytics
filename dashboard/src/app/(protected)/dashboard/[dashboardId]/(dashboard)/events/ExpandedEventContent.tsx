@@ -1,8 +1,6 @@
 import { EventTypeRow } from '@/entities/analytics/events.entities';
 import { PropertyRow } from '@/components/events/PropertyRow';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useEventProperties } from '@/hooks/use-event-properties';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
 
@@ -10,28 +8,11 @@ interface ExpandedEventContentProps {
   event: EventTypeRow;
   expandedProperties: Set<string>;
   onToggleProperty: (propertyName: string) => void;
-  startDate: Date;
-  endDate: Date;
-  queryFilters: QueryFilter[];
 }
 
-export function ExpandedEventContent({
-  event,
-  expandedProperties,
-  onToggleProperty,
-  startDate,
-  endDate,
-  queryFilters,
-}: ExpandedEventContentProps) {
+export function ExpandedEventContent({ event, expandedProperties, onToggleProperty }: ExpandedEventContentProps) {
   const t = useTranslations('components.events.expandedEventContent');
-  const dashboardId = useDashboardId();
-  const { data: propertiesData, isLoading: propertiesLoading } = useEventProperties(
-    dashboardId,
-    event.event_name,
-    startDate,
-    endDate,
-    queryFilters,
-  );
+  const { data: propertiesData, isLoading: propertiesLoading } = useEventProperties(event.event_name);
 
   return (
     <div className='bg-muted/20 border-primary/30 border-l-2'>

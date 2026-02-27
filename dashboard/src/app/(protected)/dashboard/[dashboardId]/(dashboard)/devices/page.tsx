@@ -23,43 +23,12 @@ type DevicesPageParams = {
 export default async function DevicesPage({ params, searchParams }: DevicesPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams, timezone);
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-  const browserStatsPromise = fetchBrowserBreakdownAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-  const osStatsPromise = fetchOperatingSystemBreakdownAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-  const deviceUsageTrendPromise = fetchDeviceUsageTrendAction(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    queryFilters,
-    timezone,
-    compareStartDate,
-    compareEndDate,
-  );
+  const deviceBreakdownPromise = fetchDeviceTypeBreakdownAction(dashboardId, query);
+  const browserStatsPromise = fetchBrowserBreakdownAction(dashboardId, query);
+  const osStatsPromise = fetchOperatingSystemBreakdownAction(dashboardId, query);
+  const deviceUsageTrendPromise = fetchDeviceUsageTrendAction(dashboardId, query);
 
   const t = await getTranslations('dashboard.sidebar');
 

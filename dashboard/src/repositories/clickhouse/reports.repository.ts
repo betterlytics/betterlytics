@@ -1,16 +1,11 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
-import { DateString } from '@/types/dates';
 import { TopPageWithPageviews, TopPageWithPageviewsSchema } from '@/entities/reports/reports.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getTotalPageviewsCount(
-  siteId: string,
-  startDate: DateString,
-  endDate: DateString,
-  queryFilters: QueryFilter[] = [],
-): Promise<number> {
+export async function getTotalPageviewsCount(siteQuery: BASiteQuery): Promise<number> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -27,8 +22,8 @@ export async function getTotalPageviewsCount(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
       },
     })
     .toPromise();
@@ -38,12 +33,10 @@ export async function getTotalPageviewsCount(
 }
 
 export async function getTopPagesWithPageviews(
-  siteId: string,
-  startDate: DateString,
-  endDate: DateString,
+  siteQuery: BASiteQuery,
   limit: number = 10,
-  queryFilters: QueryFilter[] = [],
 ): Promise<TopPageWithPageviews[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -65,8 +58,8 @@ export async function getTopPagesWithPageviews(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit,
       },
     })

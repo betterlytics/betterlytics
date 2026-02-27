@@ -9,17 +9,14 @@ import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/present
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber } from '@/utils/formatters';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 type WeeklyHeatmapSectionProps = {
   dashboardId: string;
-  startDate: Date;
-  endDate: Date;
-  queryFilters: QueryFilter[];
 };
 
 const metricOptions = [
@@ -42,22 +39,12 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number): string 
   }
 }
 
-export default function WeeklyHeatmapSection({
-  dashboardId,
-  startDate,
-  endDate,
-  queryFilters,
-}: WeeklyHeatmapSectionProps) {
+export default function WeeklyHeatmapSection({ dashboardId }: WeeklyHeatmapSectionProps) {
+  const query = useAnalyticsQuery();
   const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
   useEffect(() => {
-    fetchWeeklyHeatmapAllAction(
-      dashboardId,
-      startDate,
-      endDate,
-      queryFilters,
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ).then((res) => setAllData(res));
-  }, [dashboardId, startDate, endDate, queryFilters]);
+    fetchWeeklyHeatmapAllAction(dashboardId, query).then((res) => setAllData(res));
+  }, [dashboardId, query]);
 
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');

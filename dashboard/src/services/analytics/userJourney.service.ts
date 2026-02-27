@@ -2,37 +2,16 @@
 
 import { getUserJourneyTransitions } from '@/repositories/clickhouse/userJourney.repository';
 import { SankeyData, SankeyNode, SankeyLink, JourneyTransition } from '@/entities/analytics/userJourney.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-/**
- * Fetches user journey data and transforms it into Sankey diagram format
- * using pre-aggregated transitions from ClickHouse.
- */
 export async function getUserJourneyForSankeyDiagram(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
+  siteQuery: BASiteQuery,
   maxSteps: number = 3,
   limit: number = 50,
-  queryFilters: QueryFilter[],
 ): Promise<SankeyData> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  // UI exposes "steps" as transitions (hops). The ClickHouse query expects
-  // maximum path length in nodes. Convert transitions -> nodes and ensure
-  // we request at least two nodes so a single transition exists.
   const maxPathLength = Math.max(2, maxSteps + 1);
 
-  const transitions = await getUserJourneyTransitions(
-    siteId,
-    formattedStart,
-    formattedEnd,
-    maxPathLength,
-    limit,
-    queryFilters,
-  );
+  const transitions = await getUserJourneyTransitions(siteQuery, maxPathLength, limit);
 
   return buildSankeyFromTransitions(transitions);
 }
@@ -49,7 +28,6 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
     const sourceId = `${source}_${source_depth}`;
     const targetId = `${target}_${target_depth}`;
 
-    // Source node
     let sourceIndex = nodeMap.get(sourceId);
     if (sourceIndex === undefined) {
       sourceIndex = nodes.length;
@@ -64,7 +42,6 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
       nodeOutgoingTrafficMap.set(sourceIndex, 0);
     }
 
-    // Target node
     let targetIndex = nodeMap.get(targetId);
     if (targetIndex === undefined) {
       targetIndex = nodes.length;
@@ -79,16 +56,13 @@ function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyDat
       nodeOutgoingTrafficMap.set(targetIndex, 0);
     }
 
-    // Link aggregation
     const linkId = `${sourceIndex}|${targetIndex}`;
     linkMap.set(linkId, (linkMap.get(linkId) || 0) + value);
 
-    // Traffic bookkeeping
     nodeIncomingTrafficMap.set(targetIndex, (nodeIncomingTrafficMap.get(targetIndex) || 0) + value);
     nodeOutgoingTrafficMap.set(sourceIndex, (nodeOutgoingTrafficMap.get(sourceIndex) || 0) + value);
   });
 
-  // Finalize node traffic
   nodes.forEach((node, index) => {
     const traffic =
       node.depth === 0 ? nodeOutgoingTrafficMap.get(index) || 0 : nodeIncomingTrafficMap.get(index) || 0;

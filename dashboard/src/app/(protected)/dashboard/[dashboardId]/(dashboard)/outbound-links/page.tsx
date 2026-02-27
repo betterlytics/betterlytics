@@ -23,37 +23,11 @@ type OutboundLinksPageParams = {
 export default async function OutboundLinksPage({ params, searchParams }: OutboundLinksPageParams) {
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
-  const { startDate, endDate, granularity, queryFilters, compareStartDate, compareEndDate } =
-    BAFilterSearchParams.decode(await searchParams, timezone);
+  const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const outboundLinksAnalyticsPromise = fetchOutboundLinksAnalyticsAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
-
-  const outboundClicksChartPromise = fetchOutboundClicksChartAction(
-    dashboardId,
-    startDate,
-    endDate,
-    granularity,
-    queryFilters,
-    timezone,
-    compareStartDate,
-    compareEndDate,
-  );
-
-  const outboundLinksDistributionPromise = fetchOutboundLinksDistributionAction(
-    dashboardId,
-    startDate,
-    endDate,
-    queryFilters,
-    compareStartDate,
-    compareEndDate,
-  );
+  const outboundLinksAnalyticsPromise = fetchOutboundLinksAnalyticsAction(dashboardId, query);
+  const outboundClicksChartPromise = fetchOutboundClicksChartAction(dashboardId, query);
+  const outboundLinksDistributionPromise = fetchOutboundLinksDistributionAction(dashboardId, query);
   const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
