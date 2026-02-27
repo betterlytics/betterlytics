@@ -82,7 +82,8 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
   webhook: async (config) => {
     if (!('webhookUrl' in config) || !config.webhookUrl) return null;
     if (typeof config.webhookUrl !== 'string') return 'invalid_webhook_url';
-    return validateWebhookUrl(config.webhookUrl) ? null : 'invalid_webhook_url';
+    const isValid = await validateWebhookUrl(config.webhookUrl);
+    return isValid ? null : 'invalid_webhook_url';
   },
 };
 
@@ -204,7 +205,7 @@ export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boole
   return /^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl);
 }
 
-export function validateWebhookUrl(webhookUrl: string): boolean {
+export async function validateWebhookUrl(webhookUrl: string): Promise<boolean> {
   return /^https:\/\//.test(webhookUrl);
 }
 
