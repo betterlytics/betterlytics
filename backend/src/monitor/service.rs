@@ -211,12 +211,8 @@ impl IncidentOrchestrator {
                 notification: Notification {
                     title: format!("{} is down", ctx.monitor_name()),
                     message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
-                    url: Some(format!(
-                        "{}/dashboard/{}",
-                        self.public_base_url,
-                        ctx.check.dashboard_id
-                    )),
-                    url_title: Some("View Dashboard".to_string()),
+                    url: Some(self.monitor_url(ctx)),
+                    url_title: Some("View Monitor".to_string()),
                 },
             },
         )
@@ -313,12 +309,8 @@ impl IncidentOrchestrator {
                         ctx.check.url,
                         downtime_msg,
                     ),
-                    url: Some(format!(
-                        "{}/dashboard/{}",
-                        self.public_base_url,
-                        ctx.check.dashboard_id
-                    )),
-                    url_title: Some("View Dashboard".to_string()),
+                    url: Some(self.monitor_url(ctx)),
+                    url_title: Some("View Monitor".to_string()),
                 },
             },
         )
@@ -415,12 +407,8 @@ impl IncidentOrchestrator {
                 notification: Notification {
                     title: ssl_title,
                     message: ssl_message,
-                    url: Some(format!(
-                        "{}/dashboard/{}",
-                        self.public_base_url,
-                        ctx.check.dashboard_id
-                    )),
-                    url_title: Some("View Dashboard".to_string()),
+                    url: Some(self.monitor_url(ctx)),
+                    url_title: Some("View Monitor".to_string()),
                 },
             },
         )
@@ -472,6 +460,13 @@ impl IncidentOrchestrator {
     pub async fn prune_inactive(&self, active_ids: &HashSet<String>) {
         self.evaluator.prune_inactive(active_ids);
         self.notification_tracker.prune_inactive(active_ids);
+    }
+
+    fn monitor_url(&self, ctx: &IncidentContext) -> String {
+        format!(
+            "{}/dashboard/{}/monitoring/{}",
+            self.public_base_url, ctx.check.dashboard_id, ctx.check.id,
+        )
     }
 
     async fn send_push_notification(&self, event: NotificationEvent) {
