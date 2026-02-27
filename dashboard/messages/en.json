@@ -3398,6 +3398,12 @@
           "description": "Click Submit to publish the changes"
         },
         "note": "Make sure GTM is properly installed on your website."
+      },
+      "default": {
+        "step1": {
+          "title": "Add the tracking script",
+          "description": "Paste this inside your HTML <head> section"
+        }
       }
     }
   },

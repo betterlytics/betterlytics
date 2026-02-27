@@ -1574,6 +1574,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-postrapporter",
+        "integrations": "Integrasjoner",
         "dangerZone": "Faresone"
       }
     },
@@ -1757,7 +1758,6 @@
       "create": "Ny overvåker",
       "upgradeToCreate": "Oppgrader for å legge til flere",
       "title": "Opprett overvåker",
-      "description": "Overvåk et endepunkt for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL-adresse"
@@ -3449,6 +3449,77 @@
     "toast": {
       "saved": "Rapportinnstillinger lagret",
       "error": "Kunne ikke lagre rapportinnstillinger"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrasjoner",
+    "section": {
+      "description": "Koble til tredjepartstjenester for å motta varsler og advarsler fra dashboardet ditt."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push-varsler til mobilenhetene og skrivebordet ditt."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Få viktige statusoppdateringer i Discord-meldingene dine."
+      }
+    },
+    "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "status": {
+      "connected": "Tilkoblet",
+      "disabled": "Deaktivert"
+    },
+    "actions": {
+      "configure": "Konfigurer",
+      "add": "Legg til",
+      "edit": "Rediger",
+      "disconnect": "Koble fra"
+    },
+    "disconnect": {
+      "title": "Koble fra {name}",
+      "description": "Er du sikker på at du vil koble fra denne integrasjonen? Dette vil fjerne konfigurasjonen og stoppe alle varsler fra denne kilden.",
+      "confirm": "Koble fra"
+    },
+    "pushoverDialog": {
+      "title": "Pushover-integrasjon",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Din Pushover user key",
+      "priorityLabel": "Varslingsprioritet",
+      "priorities": {
+        "-2": "Lavest: Ingen varsling",
+        "-1": "Lav: Ingen lyd eller vibrasjon",
+        "0": "Normal (anbefalt)",
+        "1": "Høy: Ignorer stille timer"
+      },
+      "credentialsHint": "Finn din user key på <link>pushover.net</link>",
+      "priorityHint": "Les mer om prioritetsnivåer <link>her</link>.",
+      "errors": {
+        "userKeyRequired": "User key er påkrevd",
+        "userKeyInvalid": "Ugyldig user key"
+      },
+      "cancel": "Avbryt",
+      "save": "Lagre"
+    },
+    "discordDialog": {
+      "title": "Discord-integrasjon",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Lær hvordan du oppretter en webhook <link>her</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrevd",
+        "webhookUrlInvalid": "Må være en gyldig Discord webhook URL"
+      },
+      "cancel": "Avbryt",
+      "save": "Lagre"
+    },
+    "toast": {
+      "saved": "Integrasjon lagret",
+      "deleted": "Integrasjon frakoblet",
+      "error": "Kunne ikke oppdatere integrasjon",
+      "fetchError": "Kunne ikke laste integrasjoner",
+      "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheter registrert",
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL"
     }
   }
 }

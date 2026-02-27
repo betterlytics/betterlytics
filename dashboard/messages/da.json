@@ -1750,7 +1750,6 @@
       "create": "Ny overvågning",
       "upgradeToCreate": "Opgrader for flere",
       "title": "Opret overvågning",
-      "description": "Overvåg et endpoint for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL"
