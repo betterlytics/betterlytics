@@ -25,12 +25,18 @@ export async function getUserSubscription(userId: string): Promise<Subscription 
     const isPeriodExpired = subscription.currentPeriodEnd < new Date();
 
     if (isFreeTier && isPeriodExpired) {
-      const now = startOfDay(new Date());
+      let newStart = startOfDay(subscription.currentPeriodEnd);
+      let newEnd = addMonths(newStart, 1);
+      const now = new Date();
+      while (newEnd < now) {
+        newStart = newEnd;
+        newEnd = addMonths(newStart, 1);
+      }
       const updated = await prisma.subscription.update({
         where: { userId },
         data: {
-          currentPeriodStart: now,
-          currentPeriodEnd: addMonths(now, 1),
+          currentPeriodStart: newStart,
+          currentPeriodEnd: newEnd,
         },
       });
       return SubscriptionSchema.parse(updated);
