@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
+import { MobileTooltipWrapper, useMobileTooltipDismiss } from '@/components/charts/MobileTooltipWrapper';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -100,6 +101,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
       };
     }, [formatValue]);
     const isMobile = useIsMobile();
+    const { tooltipActive, wrapperStyle, onDismiss, onChartEvent } = useMobileTooltipDismiss(isMobile);
 
     return (
       <Card className={cn('px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5', className)}>
@@ -116,7 +118,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
           <div className='h-80 overflow-hidden py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
-              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
+              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }} onClick={onChartEvent}>
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
@@ -144,12 +146,17 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                 />
 
                 <Tooltip
-                  content={
-                    <MultiLineChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
-                      formatter={formatValue}
-                    />
-                  }
+                  content={(tooltipProps: any) => (
+                    <MobileTooltipWrapper isMobile={isMobile} onDismiss={onDismiss}>
+                      <MultiLineChartTooltip
+                        {...tooltipProps}
+                        labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
+                        formatter={formatValue}
+                      />
+                    </MobileTooltipWrapper>
+                  )}
+                  active={tooltipActive}
+                  wrapperStyle={wrapperStyle}
                 />
                 {series.map((s, idx) => (
                   <Line
