@@ -50,7 +50,7 @@ export default function ReferrersChartsSection({
         <CardHeader className='px-0 pb-0'>
           <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
         </CardHeader>
-        <CardContent className='px-0'>
+        <CardContent className='flex flex-1 flex-col px-0'>
           <BAPieChart
             data={distributionData}
             getColor={getReferrerColor}

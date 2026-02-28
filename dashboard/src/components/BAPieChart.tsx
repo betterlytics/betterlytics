@@ -29,41 +29,43 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
     }
 
     return (
-      <div className='flex flex-col items-center'>
-        <ResponsiveContainer width='100%' height={200}>
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey='value.0'
-              nameKey='name'
-              cx='50%'
-              cy='50%'
-              innerRadius={50}
-              outerRadius={70}
-              fill='#8884d8'
-              paddingAngle={2}
-              label={false}
-            >
-              {data.map((entry) => (
-                <Cell
-                  key={`cell-${entry.name}`}
-                  fill={getColor(entry.name)}
-                  onClick={onSliceClick ? () => onSliceClick(entry.name) : undefined}
-                  style={{ cursor: onSliceClick ? 'pointer' : undefined }}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              content={
-                <PieChartTooltip
-                  valueFormatter={formatValue}
-                  labelFormatter={capitalizeFirstLetter}
-                  renderIcon={getIcon}
-                />
-              }
-            />
-          </PieChart>
-        </ResponsiveContainer>
+      <div className='flex flex-1 flex-col items-center'>
+        <div className='flex w-full flex-1 items-center justify-center'>
+          <ResponsiveContainer width='100%' height={200}>
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey='value.0'
+                nameKey='name'
+                cx='50%'
+                cy='50%'
+                innerRadius={50}
+                outerRadius={70}
+                fill='#8884d8'
+                paddingAngle={2}
+                label={false}
+              >
+                {data.map((entry) => (
+                  <Cell
+                    key={`cell-${entry.name}`}
+                    fill={getColor(entry.name)}
+                    onClick={onSliceClick ? () => onSliceClick(entry.name) : undefined}
+                    style={{ cursor: onSliceClick ? 'pointer' : undefined }}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                content={
+                  <PieChartTooltip
+                    valueFormatter={formatValue}
+                    labelFormatter={capitalizeFirstLetter}
+                    renderIcon={getIcon}
+                  />
+                }
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
         <div className='mt-4 flex w-full flex-wrap justify-center gap-x-4 gap-y-2'>
           {data.slice(0, 4).map((entry) => {
             const label = getLabel?.(entry.name) ?? capitalizeFirstLetter(entry.name);
