@@ -12,6 +12,7 @@ export default {
   "session-replay": "Session Replay",
   monitoring: "Uptime Monitoring",
   "email-reports": "Email Reports",
+  integrations: "Notifications",
   filtering: "Filtering",
   "metrics-glossary": "Metrics Glossary",
 };
