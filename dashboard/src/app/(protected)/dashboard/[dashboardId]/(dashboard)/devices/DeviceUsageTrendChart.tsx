@@ -14,6 +14,7 @@ import { getDeviceColor } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
 import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
+import { MobileTooltipWrapper, useMobileTooltipDismiss } from '@/components/charts/MobileTooltipWrapper';
 import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
@@ -51,6 +52,7 @@ export default function DeviceUsageTrendChart({
   granularity,
 }: DeviceUsageTrendChartProps) {
   const isMobile = useIsMobile();
+  const { tooltipActive, wrapperStyle, onDismiss, onChartEvent } = useMobileTooltipDismiss(isMobile);
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return <DataEmptyComponent />;
@@ -63,6 +65,7 @@ export default function DeviceUsageTrendChart({
           <AreaChart
             data={chartData}
             margin={{ top: 10, right: isMobile ? 4 : 22, left: isMobile ? 4 : 22, bottom: 0 }}
+            onClick={onChartEvent}
           >
             <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
             <XAxis
@@ -86,15 +89,19 @@ export default function DeviceUsageTrendChart({
             />
             <RechartsTooltip
               content={(props) => (
-                <StackedAreaChartTooltip
-                  active={props.active}
-                  payload={props.payload}
-                  label={props.label}
-                  comparisonMap={comparisonMap}
-                  granularity={granularity}
-                  formatter={(value) => formatNumber(value)}
-                />
+                <MobileTooltipWrapper isMobile={isMobile} onDismiss={onDismiss}>
+                  <StackedAreaChartTooltip
+                    active={props.active}
+                    payload={props.payload}
+                    label={props.label}
+                    comparisonMap={comparisonMap}
+                    granularity={granularity}
+                    formatter={(value) => formatNumber(value)}
+                  />
+                </MobileTooltipWrapper>
               )}
+              active={tooltipActive}
+              wrapperStyle={wrapperStyle}
             />
 
             {categories.map((deviceType) => (

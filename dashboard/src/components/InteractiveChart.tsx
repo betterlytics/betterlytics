@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ChartTooltip } from './charts/ChartTooltip';
+import { MobileTooltipWrapper, useMobileTooltipDismiss } from '@/components/charts/MobileTooltipWrapper';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
@@ -229,22 +230,25 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     );
 
     const isMobile = useIsMobile();
+    const { tooltipActive, wrapperStyle, onDismiss, onChartEvent } = useMobileTooltipDismiss(isMobile);
     const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
 
     const renderChartTooltip = useCallback(
       (tooltipProps: any) => {
         if (hoveredPillGroup !== null) return null;
         return (
-          <ChartTooltip
-            {...tooltipProps}
-            labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
-            formatter={formatValue}
-            comparisonMap={comparisonMap}
-            title={tooltipTitle}
-          />
+          <MobileTooltipWrapper isMobile={isMobile} onDismiss={onDismiss}>
+            <ChartTooltip
+              {...tooltipProps}
+              labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
+              formatter={formatValue}
+              comparisonMap={comparisonMap}
+              title={tooltipTitle}
+            />
+          </MobileTooltipWrapper>
         );
       },
-      [hoveredPillGroup, granularity, locale, formatValue, comparisonMap, tooltipTitle],
+      [hoveredPillGroup, granularity, locale, formatValue, comparisonMap, tooltipTitle, isMobile, onDismiss],
     );
 
     return (
@@ -290,7 +294,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   bottom: CHART_MARGIN.bottom,
                   right: CHART_MARGIN.right,
                 }}
-                onClick={isAnnotationMode && canMutate ? handleChartClick : undefined}
+                onClick={isAnnotationMode && canMutate ? handleChartClick : onChartEvent}
                 style={{ cursor: isAnnotationMode && canMutate ? 'crosshair' : undefined }}
               >
                 <defs>
@@ -329,7 +333,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   mirror={isMobile}
                 />
 
-                <Tooltip content={renderChartTooltip} />
+                <Tooltip content={renderChartTooltip} active={tooltipActive} wrapperStyle={wrapperStyle} />
 
                 {incompleteStart && incompleteStart.length >= 2 ? (
                   <Area

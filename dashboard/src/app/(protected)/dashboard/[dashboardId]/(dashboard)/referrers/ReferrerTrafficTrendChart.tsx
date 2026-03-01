@@ -14,6 +14,7 @@ import { getReferrerColor } from '@/utils/referrerColors';
 import { format } from 'date-fns';
 import ReferrerLegend from './ReferrerLegend';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
+import { MobileTooltipWrapper, useMobileTooltipDismiss } from '@/components/charts/MobileTooltipWrapper';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -34,6 +35,7 @@ export default function ReferrerTrafficTrendChart({
   granularity,
 }: ReferrerTrafficTrendChartProps) {
   const isMobile = useIsMobile();
+  const { tooltipActive, wrapperStyle, onDismiss, onChartEvent } = useMobileTooltipDismiss(isMobile);
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <DataEmptyComponent />
@@ -43,7 +45,7 @@ export default function ReferrerTrafficTrendChart({
   return (
     <div className='mt-10 h-[300px] w-full'>
       <ResponsiveContainer width='100%' height='100%' className='mt-4'>
-        <AreaChart data={chartData} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }}>
+        <AreaChart data={chartData} margin={{ top: 10, left: isMobile ? 0 : 6, bottom: 0, right: 1 }} onClick={onChartEvent}>
           <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
           <XAxis
             dataKey='date'
@@ -66,15 +68,19 @@ export default function ReferrerTrafficTrendChart({
           />
           <RechartsTooltip
             content={(props) => (
-              <StackedAreaChartTooltip
-                active={props.active}
-                payload={props.payload}
-                label={props.label}
-                comparisonMap={comparisonMap}
-                granularity={granularity}
-                formatter={(value: number) => `${formatNumber(value)} visitors`}
-              />
+              <MobileTooltipWrapper isMobile={isMobile} onDismiss={onDismiss}>
+                <StackedAreaChartTooltip
+                  active={props.active}
+                  payload={props.payload}
+                  label={props.label}
+                  comparisonMap={comparisonMap}
+                  granularity={granularity}
+                  formatter={(value: number) => `${formatNumber(value)} visitors`}
+                />
+              </MobileTooltipWrapper>
             )}
+            active={tooltipActive}
+            wrapperStyle={wrapperStyle}
           />
           <Legend content={<ReferrerLegend showPercentage={false} />} verticalAlign='bottom' />
 
