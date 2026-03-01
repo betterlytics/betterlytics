@@ -3478,6 +3478,24 @@
       }
     },
     "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
+    "history": {
+      "title": "Notifikationslog",
+      "button": "Notifikationslog",
+      "loading": "Indlæser...",
+      "empty": "Ingen notifikationer sendt endnu.",
+      "attempts": "{count} forsøg",
+      "columns": {
+        "time": "Tid",
+        "integration": "Integration",
+        "notification": "Notifikation",
+        "status": "Status",
+        "error": "Fejl"
+      },
+      "status": {
+        "sent": "Sendt",
+        "failed": "Fejlet"
+      }
+    },
     "status": {
       "connected": "Forbundet",
       "disabled": "Deaktiveret"

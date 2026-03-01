@@ -1,0 +1,99 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { History, CheckCircle2, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { getNotificationHistoryAction } from '@/app/actions/dashboard/notificationHistory.action';
+import { NotificationHistoryRow } from '@/entities/dashboard/notificationHistory.entities';
+import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
+
+export function NotificationHistoryDialog() {
+  const t = useTranslations('integrationsSettings');
+  const dashboardId = useDashboardId();
+  const [open, setOpen] = useState(false);
+  const [rows, setRows] = useState<NotificationHistoryRow[] | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleOpen = () => {
+    setOpen(true);
+    startTransition(async () => {
+      const data = await getNotificationHistoryAction(dashboardId);
+      setRows(data);
+    });
+  };
+
+  return (
+    <>
+      <Button variant='ghost' size='sm' className='cursor-pointer' onClick={handleOpen}>
+        <History className='h-4 w-4' />
+        {t('history.button')}
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className='sm:max-w-5xl'>
+          <DialogHeader>
+            <DialogTitle>{t('history.title')}</DialogTitle>
+          </DialogHeader>
+
+          {isPending ? (
+            <div className='text-muted-foreground py-8 text-center text-sm'>{t('history.loading')}</div>
+          ) : rows === null || rows.length === 0 ? (
+            <div className='text-muted-foreground py-8 text-center text-sm'>{t('history.empty')}</div>
+          ) : (
+            <div className='max-h-[60vh] overflow-y-auto'>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='w-[140px]'>{t('history.columns.time')}</TableHead>
+                    <TableHead className='w-[120px]'>{t('history.columns.integration')}</TableHead>
+                    <TableHead className='w-[200px]'>{t('history.columns.notification')}</TableHead>
+                    <TableHead className='w-[100px]'>{t('history.columns.status')}</TableHead>
+                    <TableHead>{t('history.columns.error')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row, i) => (
+                    <TableRow key={i}>
+                      <TableCell className='text-muted-foreground text-xs'>
+                        {formatRelativeTimeFromNow(row.ts)}
+                      </TableCell>
+                      <TableCell>{row.integrationType}</TableCell>
+                      <TableCell>
+                        <span className='line-clamp-2 whitespace-normal'>{row.title}</span>
+                      </TableCell>
+                      <TableCell>
+                        {row.status === 'sent' ? (
+                          <span className='flex items-center gap-1.5 text-green-600'>
+                            <CheckCircle2 className='h-3.5 w-3.5 shrink-0' />
+                            <span className='text-xs font-medium'>{t('history.status.sent')}</span>
+                          </span>
+                        ) : (
+                          <span className='text-destructive flex items-center gap-1.5'>
+                            <XCircle className='h-3.5 w-3.5 shrink-0' />
+                            <span className='text-xs font-medium'>{t('history.status.failed')}</span>
+                          </span>
+                        )}
+                        {row.attemptCount > 1 && (
+                          <p className='text-muted-foreground mt-0.5 text-xs'>
+                            {t('history.attempts', { count: row.attemptCount })}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className='font-mono text-xs whitespace-normal break-words'>
+                        {row.errorMessage || null}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

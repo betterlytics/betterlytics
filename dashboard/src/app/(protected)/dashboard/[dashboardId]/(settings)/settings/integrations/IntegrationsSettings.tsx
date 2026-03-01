@@ -23,6 +23,7 @@ import { SlackConfigDialog } from './dialogs/SlackConfigDialog';
 import { TeamsConfigDialog } from './dialogs/TeamsConfigDialog';
 import { WebhookConfigDialog } from './dialogs/WebhookConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
+import { NotificationHistoryDialog } from './NotificationHistoryDialog';
 
 interface IntegrationsSettingsProps {
   availableTypesPromise: Promise<IntegrationType[]>;
@@ -137,7 +138,10 @@ export default function IntegrationsSettings({
         ))}
       </div>
 
-      <p className='text-muted-foreground mt-6 text-center text-xs'>{t('moreIntegrations')}</p>
+      <div className='mt-6 flex items-center justify-between'>
+        <p className='text-muted-foreground text-xs'>{t('moreIntegrations')}</p>
+        <NotificationHistoryDialog />
+      </div>
 
       <PushoverConfigDialog
         open={configDialogType === 'pushover'}

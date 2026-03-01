@@ -3486,6 +3486,24 @@
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "history": {
+      "title": "Varselslogg",
+      "button": "Varselslogg",
+      "loading": "Laster...",
+      "empty": "Ingen varsler sendt ennå.",
+      "attempts": "{count} forsøk",
+      "columns": {
+        "time": "Tid",
+        "integration": "Integrasjon",
+        "notification": "Varsel",
+        "status": "Status",
+        "error": "Feil"
+      },
+      "status": {
+        "sent": "Sendt",
+        "failed": "Mislyktes"
+      }
+    },
     "status": {
       "connected": "Tilkoblet",
       "disabled": "Deaktivert"

@@ -3475,6 +3475,24 @@
       }
     },
     "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
+    "history": {
+      "title": "Notification Log",
+      "button": "Notification Log",
+      "loading": "Loading...",
+      "empty": "No notifications sent yet.",
+      "attempts": "{count} attempts",
+      "columns": {
+        "time": "Time",
+        "integration": "Integration",
+        "notification": "Notification",
+        "status": "Status",
+        "error": "Error"
+      },
+      "status": {
+        "sent": "Sent",
+        "failed": "Failed"
+      }
+    },
     "status": {
       "connected": "Connected",
       "disabled": "Disabled"
