@@ -3443,7 +3443,7 @@
   "integrationsSettings": {
     "title": "Integrations",
     "section": {
-      "description": "Connect third-party services to receive notifications and alerts from your dashboard."
+      "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
     },
     "integrations": {
       "pushover": {

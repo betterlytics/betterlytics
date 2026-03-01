@@ -3446,7 +3446,7 @@
   "integrationsSettings": {
     "title": "Integrationer",
     "section": {
-      "description": "Forbind tredjepartstjenester for at modtage notifikationer og advarsler fra dit dashboard."
+      "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
     },
     "integrations": {
       "pushover": {

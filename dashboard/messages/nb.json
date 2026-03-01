@@ -3454,7 +3454,7 @@
   "integrationsSettings": {
     "title": "Integrasjoner",
     "section": {
-      "description": "Koble til tredjepartstjenester for å motta varsler og advarsler fra dashbordet ditt."
+      "description": "Koble til tredjepartstjenester for å motta oppetidsovervåkingsvarsler når nettsiden din går ned eller kommer tilbake."
     },
     "integrations": {
       "pushover": {

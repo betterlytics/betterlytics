@@ -3454,7 +3454,7 @@
   "integrationsSettings": {
     "title": "Integrazioni",
     "section": {
-      "description": "Collega servizi di terze parti per ricevere notifiche e avvisi dalla tua dashboard."
+      "description": "Collega servizi di terze parti per ricevere notifiche di monitoraggio dell'uptime quando il tuo sito web va offline o si ripristina."
     },
     "integrations": {
       "pushover": {
