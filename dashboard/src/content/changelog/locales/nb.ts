@@ -16,7 +16,7 @@ export const latestChangelogModalNb: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Oppetidsvarsler kan nå sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfritt webhook-endepunkt. Konfigurer varslingskanaler direkte fra innstillingene for oppetidsovervåkingen.',
+            'Oppetidsvarsler kan nå sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfritt webhook-endepunkt. Konfigurer varslingskanaler fra Integrasjoner-siden i dashbordinnstillingene.',
           ],
         },
       ],
@@ -80,7 +80,7 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
           {
             type: 'list',
             items: [
-              'Oppetidsvarsler kan nå sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfritt webhook-endepunkt. Konfigurer varslingskanaler direkte fra innstillingene for oppetidsovervåkingen.',
+              'Oppetidsvarsler kan nå sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfritt webhook-endepunkt. Konfigurer varslingskanaler fra Integrasjoner-siden i dashbordinnstillingene.',
             ],
           },
         ],

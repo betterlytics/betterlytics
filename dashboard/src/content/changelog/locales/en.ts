@@ -16,7 +16,7 @@ export const latestChangelogModalEn: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels directly from your uptime monitor settings.',
+            'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
           ],
         },
       ],
@@ -80,7 +80,7 @@ export const changelogEntriesEn: readonly ChangelogEntryData[] = [
           {
             type: 'list',
             items: [
-              'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels directly from your uptime monitor settings.',
+              'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
             ],
           },
         ],

@@ -16,7 +16,7 @@ export const latestChangelogModalDa: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler direkte fra indstillingerne for din uptime-monitor.',
+            'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
           ],
         },
       ],
@@ -80,7 +80,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
           {
             type: 'list',
             items: [
-              'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler direkte fra indstillingerne for din uptime-monitor.',
+              'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
             ],
           },
         ],
