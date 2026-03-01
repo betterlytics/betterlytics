@@ -118,7 +118,10 @@ export default function IntegrationsSettings({
 
   return (
     <div>
-      <SettingsPageHeader title={t('title')} />
+      <div className='flex items-start justify-between'>
+        <SettingsPageHeader title={t('title')} />
+        <NotificationHistoryDialog />
+      </div>
 
       <p className='text-muted-foreground -mt-4 mb-6 text-sm'>{t('section.description')}</p>
 
@@ -138,10 +141,7 @@ export default function IntegrationsSettings({
         ))}
       </div>
 
-      <div className='mt-6 flex items-center justify-between'>
-        <p className='text-muted-foreground text-xs'>{t('moreIntegrations')}</p>
-        <NotificationHistoryDialog />
-      </div>
+      <p className='text-muted-foreground mt-6 text-center text-xs'>{t('moreIntegrations')}</p>
 
       <PushoverConfigDialog
         open={configDialogType === 'pushover'}
