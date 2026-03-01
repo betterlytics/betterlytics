@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import * as fs from 'fs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import createNextIntlPlugin from 'next-intl/plugin';
@@ -12,8 +13,34 @@ if (result.error) {
   console.warn('Could not load .env file from root:', result.error.message);
 }
 
+function hasPageFile(dir: string): boolean {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isFile() && (entry.name === 'page.tsx' || entry.name === 'page.ts')) return true;
+    if (entry.isDirectory() && hasPageFile(path.join(dir, entry.name))) return true;
+  }
+  return false;
+}
+
+function getLocaleRouteSegments(dir: string): string[] {
+  const segments: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name.startsWith('(') && entry.name.endsWith(')')) {
+      segments.push(...getLocaleRouteSegments(path.join(dir, entry.name)));
+    } else if (!entry.name.startsWith('[') && hasPageFile(path.join(dir, entry.name))) {
+      segments.push(entry.name);
+    }
+  }
+  return segments;
+}
+
+const localeRouteSegments = getLocaleRouteSegments(path.join(process.cwd(), 'src/app/[locale]'));
+
 const nextConfig: NextConfig = {
   output: 'standalone',
+  env: {
+    LOCALE_ROUTE_SEGMENTS: JSON.stringify(localeRouteSegments),
+  },
   async redirects() {
     return [
       { source: '/login', destination: '/signin', permanent: true },
