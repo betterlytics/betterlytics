@@ -1,18 +1,12 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from '@/i18n/routing';
-import type { NextRequest } from 'next/server';
 
-const intlMiddleware = createMiddleware(routing);
-
-export function middleware(request: NextRequest) {
-  if (request.method === 'POST' && request.url.includes('[locale]')) {
-    console.error('[next-intl loop detected]', request.url);
-    return new Response('Bad request', { status: 400 });
-  }
-
-  return intlMiddleware(request);
-}
+export const middleware = createMiddleware(routing);
 
 export const config = {
-  matcher: ['/((?!api|_next|.*\\..*|dashboard|dashboards|billing).*)'],
+  matcher: [
+    '/',
+    '/(en|da|it|nb)/:path*',
+    '/(about|accept-invite|changelog|contact|demo|dpa|features|forgot-password|pricing|privacy|reset-password|subprocessors|terms|verify-email|vs|signin|signup|onboarding|share|email-preview)/:path*',
+  ],
 };
