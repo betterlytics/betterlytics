@@ -77,6 +77,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'No data sampling', betterlytics: true, competitor: false },
+          { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -128,7 +129,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Beyond Analytics',
-      content: `GA focuses on analytics. You need separate tools for uptime monitoring, session replay, and performance tracking. More tools, more complexity.\n\nBetterlytics includes it all: analytics, session replay, uptime monitoring, performance tracking. One dashboard, one privacy-first platform for everything you need.`,
+      content: `GA focuses on analytics. You need separate tools for uptime monitoring, session replay, and performance tracking. More tools, more complexity.\n\nBetterlytics includes it all: analytics, session replay, uptime monitoring with alerts via Slack, Discord, and Teams, plus performance tracking. One dashboard, one privacy-first platform for everything you need.`,
       icon: 'layers',
     },
   ],

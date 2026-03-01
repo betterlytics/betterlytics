@@ -1231,6 +1231,10 @@
           "title": "Monitoraggio Certificati SSL",
           "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
         },
+        "notificationIntegrations": {
+          "title": "Integrazioni di Notifica",
+          "description": "Ricevi avvisi tramite Slack, Discord, Microsoft Teams, webhook e altro quando qualcosa richiede la tua attenzione."
+        },
         "cookieless": {
           "title": "Nessun Cookie",
           "description": "Raccogli analytics privacy-first senza cookie, fornendo dati accurati senza richiedere banner di consenso."
@@ -1508,6 +1512,9 @@
       },
       "customStatusCodes": {
         "name": "Codici di stato accettati personalizzati"
+      },
+      "notificationIntegrations": {
+        "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
       },
       "emailSupport": {
         "name": "Supporto email"

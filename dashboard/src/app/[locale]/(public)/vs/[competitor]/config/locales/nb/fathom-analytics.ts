@@ -76,6 +76,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
+          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: false },
           { name: 'Import av GA-data', betterlytics: false, competitor: true },
         ],
       },
@@ -107,7 +108,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Mer enn aggregerte tall',
-      content: `Fathom viser sidevisninger, henvisere og grunnleggende hendelser. Rent og enkelt. Men når du trenger å vite hvorfor brukere faller fra, eller hvordan de faktisk bruker nettstedet ditt, blir du sittende igjen med bare tall.\n\nBetterlytics inkluderer session replay for å se ekte brukerøkter, trakter for å spore konverteringsløp og visualisering av reiser for å se hvordan besøkende navigerer. Problemer og muligheter som tall alene ikke avslører.`,
+      content: `Fathom viser sidevisninger, henvisere og grunnleggende hendelser. Rent og enkelt. Men når du trenger å vite hvorfor brukere faller fra, eller hvordan de faktisk bruker nettstedet ditt, blir du sittende igjen med bare tall.\n\nBetterlytics inkluderer session replay for å se ekte brukerøkter, trakter for å spore konverteringsløp, visualisering av reiser og overvåking med varsler via Slack, Discord og mer. Problemer og muligheter som tall alene ikke avslører.`,
       icon: 'eye',
     },
     {

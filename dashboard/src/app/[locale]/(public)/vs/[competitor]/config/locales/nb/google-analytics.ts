@@ -77,6 +77,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
           { name: 'Ingen datasampling', betterlytics: true, competitor: false },
+          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -128,7 +129,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Mer enn analyse',
-      content: `GA fokuserer på analyse. Du trenger separate verktøy for oppetidsovervåking, session replay og ytelsessporing. Flere verktøy, mer kompleksitet.\n\nBetterlytics inkluderer alt: analyse, session replay, oppetidsovervåking og ytelsessporing. Ett dashbord, én personvernfokusert plattform for alt du trenger.`,
+      content: `GA fokuserer på analyse. Du trenger separate verktøy for oppetidsovervåking, session replay og ytelsessporing. Flere verktøy, mer kompleksitet.\n\nBetterlytics inkluderer alt: analyse, session replay, oppetidsovervåking med varsler via Slack, Discord og Teams, samt ytelsessporing. Ett dashbord, én personvernfokusert plattform for alt du trenger.`,
       icon: 'layers',
     },
   ],

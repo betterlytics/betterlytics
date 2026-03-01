@@ -1220,6 +1220,10 @@
           "title": "SSL Certificate Monitoring",
           "description": "Monitor SSL certificate status to avoid expired or insecure connections."
         },
+        "notificationIntegrations": {
+          "title": "Notification Integrations",
+          "description": "Get alerted via Slack, Discord, Microsoft Teams, webhooks, and more when something needs your attention."
+        },
         "cookieless": {
           "title": "No Cookies",
           "description": "Collect privacy-first analytics without cookies, providing accurate data without requiring consent banners."
@@ -1497,6 +1501,9 @@
       },
       "customStatusCodes": {
         "name": "Custom accepted status codes"
+      },
+      "notificationIntegrations": {
+        "name": "Notification integrations (Slack, Discord, etc.)"
       },
       "emailSupport": {
         "name": "Email support"

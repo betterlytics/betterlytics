@@ -77,6 +77,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: 'Med add-on' },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: 'Med plugins' },
         ],
       },
       {
@@ -117,7 +118,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Alt samlet ét sted',
-      content: `Matomo har omfattende analytics, men session recording er et betalt plugin, og uptime monitoring er ikke inkluderet. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring og performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
+      content: `Matomo har omfattende analytics, men session recording er et betalt plugin, og uptime monitoring er ikke inkluderet. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
       icon: 'layers',
     },
   ],

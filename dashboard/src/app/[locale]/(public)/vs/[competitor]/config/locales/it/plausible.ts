@@ -75,6 +75,7 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -111,7 +112,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Uno strumento invece di tre',
-      content: `Plausible eccelle nelle analytics di base: pageview, referrer, conversioni, funnel. Pulito e focalizzato. Ma quando servono uptime monitoring o performance tracking, servono altri strumenti.\n\nBetterlytics riunisce analytics, session replay, percorsi utente e monitoring in un’unica piattaforma. Un solo dashboard, una sola fattura, gli stessi standard di privacy su tutto.`,
+      content: `Plausible eccelle nelle analytics di base: pageview, referrer, conversioni, funnel. Pulito e focalizzato. Ma quando servono uptime monitoring o performance tracking, servono altri strumenti.\n\nBetterlytics riunisce analytics, session replay, percorsi utente e monitoring con avvisi tramite Slack, Discord e altro in un’unica piattaforma. Un solo dashboard, una sola fattura, gli stessi standard di privacy su tutto.`,
       icon: 'layers',
     },
     {

@@ -1223,6 +1223,10 @@
           "title": "SSL-certifikatovervågning",
           "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
         },
+        "notificationIntegrations": {
+          "title": "Notifikationsintegrationer",
+          "description": "Bliv advaret via Slack, Discord, Microsoft Teams, webhooks og mere, når noget kræver din opmærksomhed."
+        },
         "cookieless": {
           "title": "Ingen cookies",
           "description": "Indsaml privacy-first analytics uden cookies, med præcise data uden behov for samtykkebannere."
@@ -1500,6 +1504,9 @@
       },
       "customStatusCodes": {
         "name": "Brugerdefinerede statuskoder"
+      },
+      "notificationIntegrations": {
+        "name": "Notifikationsintegrationer (Slack, Discord osv.)"
       },
       "emailSupport": {
         "name": "E-mail support"

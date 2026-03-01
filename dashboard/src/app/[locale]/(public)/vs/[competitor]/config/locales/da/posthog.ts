@@ -81,6 +81,7 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'Surveys (NPS/CSAT)', betterlytics: false, competitor: true },
           { name: 'Heatmaps', betterlytics: false, competitor: true },
           { name: 'Mobile app analytics', betterlytics: false, competitor: true },
+          { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: true },
         ],
       },
       {
@@ -126,7 +127,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Hvor PostHog er stærk',
-      content: `PostHog er stærk på feature flags, A/B testing og produkt-eksperimenter. Hvis du kører eksperimenter og har brug for detaljeret feature-kontrol, er det svært at slå.\n\nMen hvis du vil have rene web analytics med session replay og uptime monitoring, uden at lære en helt ny platform, er det her vi skiller os ud. Vi er virkelig gode til analytics. PostHog er god til rigtig mange andre ting også.`,
+      content: `PostHog er stærk på feature flags, A/B testing og produkt-eksperimenter. Hvis du kører eksperimenter og har brug for detaljeret feature-kontrol, er det svært at slå.\n\nMen hvis du vil have rene web analytics med session replay, uptime monitoring med advarsler via Slack, Discord og Teams, uden at lære en helt ny platform, er det her vi skiller os ud. Vi er virkelig gode til analytics. PostHog er god til rigtig mange andre ting også.`,
       icon: 'layers',
     },
   ],

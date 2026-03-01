@@ -77,6 +77,7 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
+          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -112,7 +113,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Ligg i forkant av nedetid',
-      content: `Umami fokuserer på analyse. For oppetids- eller ytelsesovervåking må du bruke et separat verktøy.\n\nBetterlytics inkluderer oppetidsovervåking og sporing av Core Web Vitals. Du får varsler når nettstedet er tregt eller nede, og kan se ytelsesdata sammen med trafikkstatistikk i samme dashbord.`,
+      content: `Umami fokuserer på analyse. For oppetids- eller ytelsesovervåking må du bruke et separat verktøy.\n\nBetterlytics inkluderer oppetidsovervåking og sporing av Core Web Vitals. Du får varsler via Slack, Discord, Teams eller webhooks når nettstedet er tregt eller nede, og kan se ytelsesdata sammen med trafikkstatistikk i samme dashbord.`,
       icon: 'gauge',
     },
     {

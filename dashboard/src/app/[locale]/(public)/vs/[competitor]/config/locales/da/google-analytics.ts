@@ -79,6 +79,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Ingen data-sampling', betterlytics: true, competitor: false },
+          { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -130,7 +131,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Mere end analytics',
-      content: `GA fokuserer udelukkende på analytics. Du har brug for separate værktøjer til uptime monitoring, session replay og performance tracking. Flere værktøjer betyder mere kompleksitet.\n\nBetterlytics samler det hele. Analytics, session replay, uptime monitoring og performance tracking. Ét dashboard og én privacy-first platform til alt, du har brug for.`,
+      content: `GA fokuserer udelukkende på analytics. Du har brug for separate værktøjer til uptime monitoring, session replay og performance tracking. Flere værktøjer betyder mere kompleksitet.\n\nBetterlytics samler det hele. Analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking. Ét dashboard og én privacy-first platform til alt, du har brug for.`,
       icon: 'layers',
     },
   ],

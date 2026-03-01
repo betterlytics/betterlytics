@@ -77,6 +77,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: 'Con add-on' },
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: 'Con plugin' },
         ],
       },
       {
@@ -117,7 +118,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Tutto in un unico posto',
-      content: `Matomo offre analytics complete, ma il session recording è un plugin a pagamento e non include uptime monitoring. L’interfaccia è potente, ma può risultare complessa.\n\nBetterlytics riunisce analytics, session replay, uptime monitoring e performance tracking in un’unica soluzione. Un’interfaccia pulita, nessun plugin da acquistare, nessun paywall sui piani a pagamento.`,
+      content: `Matomo offre analytics complete, ma il session recording è un plugin a pagamento e non include uptime monitoring. L’interfaccia è potente, ma può risultare complessa.\n\nBetterlytics riunisce analytics, session replay, uptime monitoring con avvisi tramite Slack, Discord e Teams, e performance tracking in un’unica soluzione. Un’interfaccia pulita, nessun plugin da acquistare, nessun paywall sui piani a pagamento.`,
       icon: 'layers',
     },
   ],
