@@ -3481,7 +3481,6 @@
     "history": {
       "title": "Notifikationslog",
       "button": "Notifikationslog",
-      "loading": "Indlæser...",
       "empty": "Ingen notifikationer sendt endnu.",
       "attempts": "{count} forsøg",
       "columns": {

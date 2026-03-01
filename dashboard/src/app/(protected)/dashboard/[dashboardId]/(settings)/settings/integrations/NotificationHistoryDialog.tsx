@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { History, CheckCircle2, XCircle } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -40,7 +41,9 @@ export function NotificationHistoryDialog() {
           </DialogHeader>
 
           {isPending ? (
-            <div className='text-muted-foreground py-8 text-center text-sm'>{t('history.loading')}</div>
+            <div className='flex justify-center py-8'>
+              <Spinner size='default' />
+            </div>
           ) : rows === null || rows.length === 0 ? (
             <div className='text-muted-foreground py-8 text-center text-sm'>{t('history.empty')}</div>
           ) : (

@@ -3489,7 +3489,6 @@
     "history": {
       "title": "Registro notifiche",
       "button": "Registro notifiche",
-      "loading": "Caricamento...",
       "empty": "Nessuna notifica inviata finora.",
       "attempts": "{count} tentativi",
       "columns": {

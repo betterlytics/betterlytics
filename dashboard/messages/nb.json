@@ -3489,7 +3489,6 @@
     "history": {
       "title": "Varselslogg",
       "button": "Varselslogg",
-      "loading": "Laster...",
       "empty": "Ingen varsler sendt ennå.",
       "attempts": "{count} forsøk",
       "columns": {

@@ -3478,7 +3478,6 @@
     "history": {
       "title": "Notification Log",
       "button": "Notification Log",
-      "loading": "Loading...",
       "empty": "No notifications sent yet.",
       "attempts": "{count} attempts",
       "columns": {
