@@ -65,7 +65,7 @@ function SkeletonCampaignRow({
                 isMain ? 'text-foreground/70' : 'text-foreground/40',
               )}
             >
-              {formatPercentage(campaign.bounceRate, locale, { minimumFractionDigits: 0 })}
+              {formatPercentage(campaign.bounceRate, locale)}
             </div>
           </div>
 

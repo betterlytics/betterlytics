@@ -43,7 +43,7 @@ export function formatDifference(
   const formattedDiff = formatter ? formatter(diff, locale) : formatNumber(diff, locale);
 
   const percentageValue = (diff / previous) * 100;
-  const percentage = formatPercentage(percentageValue, locale, { maximumFractionDigits: 1 });
+  const percentage = formatPercentage(percentageValue, locale);
 
   if (previous !== 0 && includePreviousNumber) {
     return `${sign}${percentage} (${sign}${formattedDiff})`;

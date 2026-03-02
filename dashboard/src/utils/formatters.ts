@@ -30,7 +30,7 @@ export function formatPercentage(
   }
   return new Intl.NumberFormat(locale, {
     style: 'percent',
-    minimumFractionDigits: 1,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 1,
     ...intlOpts,
   }).format(num / 100);

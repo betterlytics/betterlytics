@@ -34,7 +34,7 @@ function buildAudienceDistribution<
 
   return audience.map((item) => ({
     label: item[labelKey],
-    value: formatPercentage((item.visitors / totalVisitors) * 100, locale, { maximumFractionDigits: 0, minimumFractionDigits: 0 }),
+    value: formatPercentage((item.visitors / totalVisitors) * 100, locale, { maximumFractionDigits: 0 }),
   }));
 }
 

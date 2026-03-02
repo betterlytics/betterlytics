@@ -24,7 +24,7 @@ export default async function FunnelsCard() {
           <div key={step.name} className='space-y-1'>
             <div className='flex items-center justify-between'>
               <span className='text-sm font-medium'>{step.name}</span>
-              <span className='text-sm font-bold'>{formatPercentage(step.conversion, locale, { minimumFractionDigits: 0 })}</span>
+              <span className='text-sm font-bold'>{formatPercentage(step.conversion, locale)}</span>
             </div>
             <div className='bg-muted h-2 w-full overflow-hidden rounded-full'>
               <div className='bg-primary h-full' style={{ width: `${step.conversion}%` }} />
@@ -42,7 +42,7 @@ export default async function FunnelsCard() {
 
         <div className='border-border mt-4 border-t pt-3'>
           <div className='flex items-center justify-between text-sm'>
-            <span className='font-medium'>{t('total')}: {formatPercentage(15, locale, { minimumFractionDigits: 0 })}</span>
+            <span className='font-medium'>{t('total')}: {formatPercentage(15, locale)}</span>
             <div className='flex items-center text-green-500'>
               <TrendingUp className='mr-1 h-3 w-3' />
               <span>{formatPercentage(2.3, locale)} {t('sinceLastWeek')}</span>

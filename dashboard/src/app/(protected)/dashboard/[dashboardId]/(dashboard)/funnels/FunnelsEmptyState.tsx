@@ -56,7 +56,7 @@ function SkeletonFunnelStep({
       <div className='flex flex-col items-center py-2'>
         <p className='text-muted-foreground/60 text-[10px]'>{t('visitors')}</p>
         <p className='text-foreground/70 text-sm font-semibold'>{formatNumber(step.visitors, locale, { notation: 'standard' })}</p>
-        <p className='text-muted-foreground/50 text-[10px]'>{formatPercentage(step.percentage, locale, { minimumFractionDigits: 0 })}</p>
+        <p className='text-muted-foreground/50 text-[10px]'>{formatPercentage(step.percentage, locale)}</p>
       </div>
     </div>
   );
