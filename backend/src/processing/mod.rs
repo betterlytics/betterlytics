@@ -54,6 +54,10 @@ pub struct ProcessedEvent {
     pub cwv_ttfb: Option<f32>,
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
+    /// JS error tracking
+    pub exception_list: String,
+    pub error_type: String,
+    pub error_message: String,
 }
 
 /// Event processor that handles real-time processing
@@ -112,6 +116,9 @@ impl EventProcessor {
             cwv_ttfb: None,
             scroll_depth_percentage: None,
             scroll_depth_pixels: None,
+            exception_list: String::new(),
+            error_type: String::new(),
+            error_message: String::new(),
         };
 
         // Handle event types
@@ -202,6 +209,14 @@ impl EventProcessor {
             processed.event_type = "scroll_depth".to_string();
             processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
+        } else if event_name == "js_error" {
+            processed.event_type = "js_error".to_string();
+            let list = processed.event.raw.exception_list.clone().unwrap_or_default();
+            if let Ok(arr) = serde_json::from_str::<serde_json::Value>(&list) {
+                processed.error_type = arr[0]["type"].as_str().unwrap_or("").to_string();
+                processed.error_message = arr[0]["value"].as_str().unwrap_or("").to_string();
+            }
+            processed.exception_list = list;
         } else {
             processed.event_type = event_name;
         }

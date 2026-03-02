@@ -41,6 +41,10 @@
   var enableReplay = script.getAttribute("data-replay") === "true";
   var consentReplay = script.getAttribute("data-consent-replay") === "true";
 
+  var enableErrors = script.getAttribute("data-track-errors") === "true";
+  var enableConsoleErrors =
+    script.getAttribute("data-track-console-errors") === "true";
+
   var replaySamplePct = parseInt(
     script.getAttribute("data-replay-sample") || "5",
     10,
@@ -85,7 +89,6 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    // Send event data
     fetch(serverUrl, {
       method: "POST",
       keepalive: true,
@@ -106,9 +109,7 @@
       }),
     })
       .then((res) => res.text())
-      .catch(function (error) {
-        console.error("Analytics event failed:", error);
-      });
+      .catch(function () {});
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
@@ -365,6 +366,77 @@
         }
       }
     });
+  }
+
+  if (enableErrors) {
+    // Max 10 events per error type per 10 s
+    var errorCounts = {}, errorWindowStart = Date.now();
+    function isRateLimited(type) {
+      var now = Date.now();
+      if (now - errorWindowStart > 10000) { errorCounts = {}; errorWindowStart = now; }
+      errorCounts[type] = (errorCounts[type] || 0) + 1;
+      return errorCounts[type] > 10;
+    }
+
+    function captureError(err, mechanismType) {
+      var type, value, stack;
+      if (err != null && typeof err === "object") {
+        type = err.name ? String(err.name) : "Error";
+        if (err.message != null) {
+          value = String(err.message);
+        } else {
+          try { value = JSON.stringify(err); } catch (e) { value = String(err); }
+        }
+        stack = err.stack ? String(err.stack).replace(/\?[^:)\s\n]+/g, "") : "";
+      } else {
+        type = "Error";
+        value = err != null ? String(err) : "unknown error";
+        stack = "";
+      }
+      if (/chrome-extension:|moz-extension:|safari-(web-)?extension:/.test(stack)) return;
+      if (isRateLimited(type)) return;
+      sendEvent("js_error", {
+        exception_list: JSON.stringify([{
+          type: type,
+          value: value.substring(0, 1000),
+          mechanism: mechanismType,
+          stack: stack.substring(0, 10000),
+        }]),
+      });
+    }
+
+    window.addEventListener("error", function (event) {
+      if (!event.error && !event.message) return;
+      captureError(event.error || { name: "Error", message: event.message }, "onuncaughtexception");
+    });
+
+    window.addEventListener("unhandledrejection", function (event) {
+      captureError(
+        event.reason != null ? event.reason : { name: "UnhandledRejection", message: "Promise rejected with no reason" },
+        "onunhandledrejection"
+      );
+    });
+
+    if (enableConsoleErrors) {
+      var _origConsoleError = console.error;
+      var _inConsoleCapture = false;
+      console.error = function () {
+        _origConsoleError.apply(console, arguments);
+        if (_inConsoleCapture) return;
+        _inConsoleCapture = true;
+        try {
+          var args = Array.prototype.slice.call(arguments);
+          var first = args[0];
+          if (first != null && typeof first === "object") {
+            captureError(first, "onconsole");
+          } else {
+            captureError({ name: "Error", message: args.map(function (a) {
+              return typeof a === "object" ? JSON.stringify(a) : String(a);
+            }).join(" ") }, "onconsole");
+          }
+        } finally { _inConsoleCapture = false; }
+      };
+    }
   }
 
   if (enableReplay) {
