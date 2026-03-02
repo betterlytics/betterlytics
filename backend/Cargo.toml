@@ -53,8 +53,10 @@ rustls-native-certs = "0.7"
 # Regex
 regex = "1.10"
 
-# Hashing
+# Hashing / Crypto
 sha2 = "0.10"
+aes-gcm = "0.10"
+hex = "0.4"
 
 # User Agent Parsing
 uaparser = "0.6.4"

@@ -22,6 +22,7 @@ mod geoip;
 mod geoip_updater;
 mod metrics;
 mod monitor;
+mod notifications;
 mod outbound_link;
 mod postgres;
 mod processing;
@@ -138,11 +139,20 @@ async fn main() {
             .await
             .expect("Failed to init SiteConfigCache");
 
+    let notification_engine = crate::notifications::initialize_notification_engine(
+        Arc::clone(&site_config_pool),
+        Arc::clone(&clickhouse),
+        &config,
+    )
+    .await
+    .expect("Failed to initialize notification engine");
+
     if config.enable_uptime_monitoring {
         monitor::spawn_monitoring(
             config.clone(),
             Arc::clone(&clickhouse),
             metrics_collector.clone(),
+            Some(notification_engine),
         );
     } else {
         info!("uptime monitoring disabled by configuration");

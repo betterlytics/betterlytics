@@ -2,35 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.5',
-    releasedAt: '2026-02-19',
-    title: 'Nøgleordsovervågning & visuelle forbedringer',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Notifikationsintegrationer til uptime-advarsler og norsk lokalisering',
     summary:
-      'Uptime-monitorer kan nu give besked, hvis et forventet nøgleord mangler på dine sider. Dashboardet føles desuden glattere med animerede målere, tal og andre visuelle detaljer.',
+      'Advarsler fra uptime-overvågning kan nu leveres til Slack, Discord, Teams, Pushover eller et valgfrit webhook. Dashboardet er desuden nu tilgængeligt på norsk, og flere stabilitetsrettelser forbedrer pålideligheden på platformen.',
   },
   sections: [
     {
-      id: 'v135-new-features',
+      id: 'v136-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Uptime-monitorer kan nu kontrollere, om et forventet nøgleord findes i sidens svar, og advare dig hvis vigtigt indhold mangler, selv når siden returnerer en 200-statuskode.',
+            'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
           ],
         },
       ],
     },
     {
-      id: 'v135-improvements',
+      id: 'v136-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Core Web Vitals-scorer vises nu i en animeret måler, så du hurtigere kan aflæse din sides ydeevne.',
-            'Tooltips i grafer viser nu tydeligt, når en uge- eller månedsperiode kun er delvist dækket af det valgte tidsinterval.',
-            'Tal, indlæsningsindikatorer og andre små visuelle detaljer er finpudset for en glattere og mere poleret oplevelse på tværs af dashboardet.',
+            'Dashboardet er nu tilgængeligt på norsk.',
+            'Løst et problem på serversiden, der under visse betingelser kunne forårsage ustabilitet, og dermed forbedret den overordnede platformstabilitet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Opdateret centrale afhængigheder for at adressere en nyligt offentliggjort sikkerhedssårbarhed, så dine data og konti forbliver sikre.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
+      title: 'Fejlrettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem med cirkeldiagrammer, der kunne bryde layoutet på visse dashboard-visninger.',
+            'Rettet en fejl, hvor tidszonen kunne falde tilbage til en forkert standardværdi.',
+            'Rettet et problem, hvor kvotens nulstillingsdato kunne vises som et negativt tal.',
           ],
         },
       ],
@@ -39,6 +64,69 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Notifikationsintegrationer til uptime-advarsler og norsk lokalisering',
+      summary:
+        'Advarsler fra uptime-overvågning kan nu leveres til Slack, Discord, Teams, Pushover eller et valgfrit webhook. Dashboardet er desuden nu tilgængeligt på norsk, og flere stabilitetsrettelser forbedrer pålideligheden på platformen.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboardet er nu tilgængeligt på norsk.',
+              'Løst et problem på serversiden, der under visse betingelser kunne forårsage ustabilitet, og dermed forbedret den overordnede platformstabilitet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Opdateret centrale afhængigheder for at adressere en nyligt offentliggjort sikkerhedssårbarhed, så dine data og konti forbliver sikre.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem med cirkeldiagrammer, der kunne bryde layoutet på visse dashboard-visninger.',
+              'Rettet et tilgængelighedsproblem ved login, der påvirkede tastaturnavigation og hjælpeteknologier.',
+              'Rettet en fejl, hvor tidszonen kunne falde tilbage til en forkert standardværdi.',
+              'Rettet et problem, hvor kvotens nulstillingsdato kunne vises som et negativt tal.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.5',

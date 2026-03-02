@@ -2,35 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.5',
-    releasedAt: '2026-02-19',
-    title: 'Monitoraggio parole chiave e miglioramenti visivi',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
     summary:
-      'I monitor uptime possono ora avvisarti quando una parola chiave attesa non è presente nelle tue pagine. La dashboard è inoltre più fluida grazie a indicatori animati, numeri e altri dettagli visivi.',
+      'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',
   },
   sections: [
     {
-      id: 'v135-new-features',
+      id: 'v136-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'I monitor uptime possono ora verificare la presenza di una parola chiave attesa nella risposta della pagina, avvisandoti se un contenuto importante risulta mancante - anche quando la pagina restituisce uno stato 200.',
+            'Gli avvisi di monitoraggio uptime possono ora essere inviati a Slack, Discord, Microsoft Teams, Pushover o qualsiasi endpoint webhook personalizzato. Configura i tuoi canali di notifica dalla pagina Integrazioni nelle impostazioni della dashboard.',
           ],
         },
       ],
     },
     {
-      id: 'v135-improvements',
+      id: 'v136-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'I punteggi Core Web Vitals vengono ora mostrati in un indicatore animato, rendendo più immediata la lettura delle prestazioni.',
-            'I tooltip dei grafici indicano ora chiaramente quando un intervallo settimanale o mensile è coperto solo parzialmente dal periodo selezionato.',
-            "Numeri, indicatori di caricamento e altri piccoli dettagli visivi sono stati perfezionati per un'esperienza più fluida e curata in tutta la dashboard.",
+            'Il dashboard è ora disponibile in norvegese.',
+            'Risolto un problema lato server che in determinate condizioni poteva causare instabilità, migliorando la stabilità complessiva della piattaforma.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Aggiornate le dipendenze principali per risolvere una vulnerabilità di sicurezza recentemente divulgata, mantenendo al sicuro i tuoi dati e account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema con i grafici a torta che potevano compromettere il layout del dashboard in alcune viste.',
+            'Corretto un errore per cui il fuso orario poteva ripristinarsi su un valore predefinito non corretto.',
+            'Risolto un problema per cui il giorno di reset della quota di utilizzo poteva essere visualizzato come numero negativo.',
           ],
         },
       ],
@@ -39,6 +64,69 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
+      summary:
+        'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gli avvisi di monitoraggio uptime possono ora essere inviati a Slack, Discord, Microsoft Teams, Pushover o qualsiasi endpoint webhook personalizzato. Configura i tuoi canali di notifica dalla pagina Integrazioni nelle impostazioni della dashboard.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Il dashboard è ora disponibile in norvegese.',
+              'Risolto un problema lato server che in determinate condizioni poteva causare instabilità, migliorando la stabilità complessiva della piattaforma.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Aggiornate le dipendenze principali per risolvere una vulnerabilità di sicurezza recentemente divulgata, mantenendo al sicuro i tuoi dati e account.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema con i grafici a torta che potevano compromettere il layout del dashboard in alcune viste.',
+              'Risolto un problema di accessibilità al login che interessava la navigazione da tastiera e le tecnologie assistive.',
+              'Corretto un errore per cui il fuso orario poteva ripristinarsi su un valore predefinito non corretto.',
+              'Risolto un problema per cui il giorno di reset della quota di utilizzo poteva essere visualizzato come numero negativo.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.5',

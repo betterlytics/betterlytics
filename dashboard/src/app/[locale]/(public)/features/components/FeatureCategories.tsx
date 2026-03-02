@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { FeatureCard } from './FeatureCard';
 import {
   Activity,
+  Bell,
   Filter,
   Video,
   GitBranch,
@@ -77,6 +78,7 @@ const CATEGORIES = [
       { id: 'coreWebVitals', icon: Gauge },
       { id: 'uptimeMonitoring', icon: MonitorCheck },
       { id: 'sslMonitoring', icon: ShieldCheck },
+      { id: 'notificationIntegrations', icon: Bell },
     ],
   },
   {

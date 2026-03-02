@@ -81,6 +81,7 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'Surveys (NPS/CSAT)', betterlytics: false, competitor: true },
           { name: 'Heatmaps', betterlytics: false, competitor: true },
           { name: 'Mobile app analytics', betterlytics: false, competitor: true },
+          { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: true },
         ],
       },
       {
@@ -126,7 +127,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Where PostHog Wins',
-      content: `Credit where it's due: PostHog nails feature flags, A/B testing, and product experimentation. If you're running experiments and need granular feature control, it's hard to beat.\n\nBut if you want clean web analytics with session replay and uptime monitoring, without learning a whole new platform, that's where we come in. We do analytics really well. PostHog does a lot of things pretty well.`,
+      content: `Credit where it's due: PostHog nails feature flags, A/B testing, and product experimentation. If you're running experiments and need granular feature control, it's hard to beat.\n\nBut if you want clean web analytics with session replay, uptime monitoring with alerts via Slack, Discord, and Teams, without learning a whole new platform, that's where we come in. We do analytics really well. PostHog does a lot of things pretty well.`,
       icon: 'layers',
     },
   ],

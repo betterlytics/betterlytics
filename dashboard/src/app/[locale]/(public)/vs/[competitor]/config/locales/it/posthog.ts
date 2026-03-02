@@ -86,6 +86,7 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'Sondaggi (NPS / CSAT)', betterlytics: false, competitor: true },
           { name: 'Heatmap', betterlytics: false, competitor: true },
           { name: 'Analytics per app mobile', betterlytics: false, competitor: true },
+          { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: true },
         ],
       },
       {
@@ -135,7 +136,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Dove PostHog vince',
-      content: `Va riconosciuto: PostHog eccelle in feature flag, A/B testing e sperimentazione di prodotto. Se gestisci esperimenti continui e hai bisogno di un controllo granulare delle funzionalità, è difficile da battere.\n\nMa se vuoi web analytics puliti, con session replay e uptime monitoring, senza imparare una piattaforma complessa, Betterlytics è la scelta giusta. Noi facciamo analytics molto bene. PostHog fa molte cose abbastanza bene.`,
+      content: `Va riconosciuto: PostHog eccelle in feature flag, A/B testing e sperimentazione di prodotto. Se gestisci esperimenti continui e hai bisogno di un controllo granulare delle funzionalità, è difficile da battere.\n\nMa se vuoi web analytics puliti, con session replay, uptime monitoring con avvisi tramite Slack, Discord e Teams, senza imparare una piattaforma complessa, Betterlytics è la scelta giusta. Noi facciamo analytics molto bene. PostHog fa molte cose abbastanza bene.`,
       icon: 'layers',
     },
   ],

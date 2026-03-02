@@ -1,0 +1,61 @@
+---
+title: "Notifications - Betterlytics"
+description: "Connect Discord, Slack, Microsoft Teams, Pushover, or any webhook to receive monitoring alerts from your Betterlytics dashboard."
+---
+
+import { Callout } from "nextra/components";
+
+# Notifications
+
+Get notified in Slack, Discord, Teams, or on your phone when a monitor detects downtime, recovery, or SSL issues. Configure where your alerts go from the integrations settings page.
+
+Notifications are triggered by monitor events and delivered instantly. If multiple integrations are connected, alerts are sent to all active channels.
+
+<IntegrationIconRow>
+  <IntegrationIcon iconSrc="/docs/images/integrations/discord.svg" name="Discord" />
+  <IntegrationIcon iconSrc="/docs/images/integrations/slack.svg" name="Slack" />
+  <IntegrationIcon iconSrc="/docs/images/integrations/teams.svg" name="Teams" />
+  <IntegrationIcon iconSrc="/docs/images/integrations/pushover.svg" name="Pushover" />
+  <IntegrationIcon iconSrc="/docs/images/integrations/webhook.svg" name="Webhook" />
+</IntegrationIconRow>
+
+## Setting Up an Integration
+
+1. Navigate to **Dashboard > Settings > Integrations**
+2. Click **Add** on the platform you want to connect
+3. Follow the setup link in the dialog to create or retrieve your webhook URL or find your credentials
+4. Paste them into the form and click **Save**
+
+Betterlytics sends a test message when you first connect an integration to confirm everything is working.
+
+## Webhook Payload Format
+
+The generic webhook integration sends a `POST` request with `Content-Type: application/json` to your URL. This is useful for connecting custom services or automation platforms like Zapier, n8n, or Make.
+
+```json
+{
+  "title": "example.com is down",
+  "message": "MyMonitor (https://example.com) is not responding",
+  "url": "https://betterlytics.io/dashboard/abc123/monitor/abc123",
+  "url_title": "View Dashboard"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | string | Notification title |
+| `message` | string | Notification body text |
+| `url` | string (optional) | Link to the relevant dashboard page |
+| `url_title` | string (optional) | Display label for the link |
+
+You can test your webhook endpoint with `curl`:
+
+```bash
+curl -X POST https://your-webhook-url \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Test", "message": "Hello from Betterlytics"}'
+```
+
+---
+
+*Questions? Visit our [contact page](https://betterlytics.io/contact) for support.*

@@ -153,7 +153,7 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
       FROM included
       GROUP BY date
       ORDER BY date ASC ${fill}
-      LIMIT 10080;
+      LIMIT 10080
     `,
   );
 
@@ -234,7 +234,7 @@ export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<Ra
         0
       ) AS pages_per_session
     FROM included
-    LIMIT 1;
+    LIMIT 1
   `;
 
   const result = await clickhouse

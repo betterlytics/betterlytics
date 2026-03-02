@@ -76,6 +76,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: false },
           { name: 'GA data import', betterlytics: false, competitor: true },
         ],
       },
@@ -107,7 +108,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Beyond Aggregate Numbers',
-      content: `Fathom shows pageviews, referrers, and basic events. Clean and simple. But when you need to know why users drop off or how they actually use your site, you're stuck with numbers.\n\nBetterlytics includes session replay to watch real user sessions, funnels to track conversion paths, and journey visualization to see how visitors navigate. Problems and opportunities that numbers alone can't reveal.`,
+      content: `Fathom shows pageviews, referrers, and basic events. Clean and simple. But when you need to know why users drop off or how they actually use your site, you're stuck with numbers.\n\nBetterlytics includes session replay to watch real user sessions, funnels to track conversion paths, journey visualization, and monitoring with alerts via Slack, Discord, and more. Problems and opportunities that numbers alone can't reveal.`,
       icon: 'eye',
     },
     {

@@ -1231,6 +1231,10 @@
           "title": "Monitoraggio Certificati SSL",
           "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
         },
+        "notificationIntegrations": {
+          "title": "Integrazioni di Notifica",
+          "description": "Ricevi avvisi tramite Slack, Discord, Microsoft Teams, webhook e altro quando qualcosa richiede la tua attenzione."
+        },
         "cookieless": {
           "title": "Nessun Cookie",
           "description": "Raccogli analytics privacy-first senza cookie, fornendo dati accurati senza richiedere banner di consenso."
@@ -1509,6 +1513,9 @@
       "customStatusCodes": {
         "name": "Codici di stato accettati personalizzati"
       },
+      "notificationIntegrations": {
+        "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
+      },
       "emailSupport": {
         "name": "Supporto email"
       },
@@ -1575,6 +1582,7 @@
         "members": "Membri",
         "reports": "Report Email",
         "mcp": "MCP",
+        "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -1758,7 +1766,6 @@
       "create": "Nuovo monitor",
       "upgradeToCreate": "Upgrade per altri",
       "title": "Crea monitor",
-      "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
       "fields": {
         "name": "Nome",
         "url": "URL"
@@ -3473,6 +3480,128 @@
     "deleteDialog": {
       "title": "Elimina token",
       "description": "Questo token verrà revocato permanentemente. Tutti i client MCP che lo utilizzano perderanno immediatamente l'accesso."
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrazioni",
+    "section": {
+      "description": "Collega servizi di terze parti per ricevere notifiche di monitoraggio dell'uptime quando il tuo sito web va offline o si ripristina."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Notifiche push sui tuoi dispositivi mobili e desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Ricevi aggiornamenti di stato importanti nei tuoi messaggi Discord."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Ricevi notifiche in un canale Slack."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Ricevi notifiche in un canale Microsoft Teams."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Invia notifiche a qualsiasi URL tramite HTTP POST."
+      }
+    },
+    "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
+    "status": {
+      "connected": "Connesso",
+      "disabled": "Disabilitato"
+    },
+    "actions": {
+      "configure": "Configura",
+      "add": "Aggiungi",
+      "edit": "Modifica",
+      "disconnect": "Disconnetti"
+    },
+    "disconnect": {
+      "title": "Disconnetti {name}",
+      "description": "Sei sicuro di voler disconnettere questa integrazione? Questo rimuoverà la configurazione e interromperà tutte le notifiche da questa fonte.",
+      "confirm": "Disconnetti"
+    },
+    "pushoverDialog": {
+      "title": "Integrazione Pushover",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "La tua user key Pushover",
+      "priorityLabel": "Priorità notifica",
+      "priorities": {
+        "-2": "Minima: Nessuna notifica",
+        "-1": "Bassa: Nessun suono o vibrazione",
+        "0": "Normale (consigliato)",
+        "1": "Alta: Ignora le ore silenziose"
+      },
+      "credentialsHint": "Trova la tua user key su <link>pushover.net</link>",
+      "priorityHint": "Scopri di più sui livelli di priorità <link>qui</link>.",
+      "errors": {
+        "userKeyRequired": "La user key è obbligatoria",
+        "userKeyInvalid": "User key non valida"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "discordDialog": {
+      "title": "Integrazione Discord",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Scopri come creare un webhook <link>qui</link>.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un webhook URL Discord valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "slackDialog": {
+      "title": "Integrazione Slack",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Segui i passaggi 1–3 della <link>guida agli Incoming Webhooks</link> per ottenere il tuo webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un webhook URL Slack valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "teamsDialog": {
+      "title": "Integrazione Microsoft Teams",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Il tuo webhook URL di Teams",
+      "webhookHint": "Crea un Incoming Webhook usando un Teams Workflow. <link>Scopri come</link>.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "webhookDialog": {
+      "title": "Integrazione Webhook",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://esempio.com/webhook",
+      "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "toast": {
+      "saved": "Integrazione salvata",
+      "deleted": "Integrazione disconnessa",
+      "error": "Impossibile aggiornare l'integrazione",
+      "fetchError": "Impossibile caricare le integrazioni",
+      "invalidPushoverKey": "User key Pushover non valida o nessun dispositivo registrato",
+      "invalidDiscordWebhook": "Webhook URL Discord non valido",
+      "invalidSlackWebhook": "Webhook URL Slack non valido",
+      "invalidTeamsWebhook": "Webhook URL Teams non valido",
+      "invalidWebhookUrl": "Webhook URL non valido"
     }
   }
 }
