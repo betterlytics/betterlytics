@@ -75,6 +75,7 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -111,7 +112,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'One Tool Instead of Three',
-      content: `Plausible does core analytics really well: pageviews, referrers, conversions, funnels. Clean and focused. But when you need uptime monitoring or performance tracking, you're adding more tools.\n\nBetterlytics bundles analytics, session replay, user journeys, and monitoring in one place. One dashboard, one bill, same privacy standards across everything.`,
+      content: `Plausible does core analytics really well: pageviews, referrers, conversions, funnels. Clean and focused. But when you need uptime monitoring or performance tracking, you're adding more tools.\n\nBetterlytics bundles analytics, session replay, user journeys, and monitoring with alerts via Slack, Discord, and more in one place. One dashboard, one bill, same privacy standards across everything.`,
       icon: 'layers',
     },
     {

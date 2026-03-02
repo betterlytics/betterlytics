@@ -77,6 +77,7 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -112,7 +113,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Stay Ahead of Downtime',
-      content: `Umami focuses on analytics. For uptime or performance monitoring, you would use a separate tool.\n\nBetterlytics includes uptime monitoring and Core Web Vitals tracking. You get alerts when your site is slow or down, and can see performance data alongside traffic stats in the same dashboard.`,
+      content: `Umami focuses on analytics. For uptime or performance monitoring, you would use a separate tool.\n\nBetterlytics includes uptime monitoring and Core Web Vitals tracking. You get alerts via Slack, Discord, Teams, or webhooks when your site is slow or down, and can see performance data alongside traffic stats in the same dashboard.`,
       icon: 'gauge',
     },
     {

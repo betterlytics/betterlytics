@@ -1,13 +1,65 @@
-import { ClickHouse } from 'clickhouse';
+import { createClient, type ClickHouseClient, type DataFormat } from '@clickhouse/client';
 import { env } from './env';
 import { instrumentClickHouse } from '@/observability/clickhouse-instrumented';
 
-const baseClient = new ClickHouse({
+export interface AdapterQueryOptions {
+  params?: Record<string, unknown>;
+  format?: DataFormat;
+}
+
+export interface QueryCursorLike {
+  toPromise: () => Promise<unknown[]>;
+}
+
+export interface ClickHouseAdapterClient {
+  query: (sql: string, reqParams?: AdapterQueryOptions) => QueryCursorLike;
+}
+
+interface AdapterConfig {
+  url: string;
+  username: string;
+  password: string;
+}
+
+export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapterClient {
+  const client: ClickHouseClient = createClient({
+    url: config.url,
+    username: config.username,
+    password: config.password,
+    request_timeout: 30_000,
+    compression: {
+      request: false,
+      response: true,
+    },
+    clickhouse_settings: {
+      output_format_json_quote_64bit_integers: 0,
+      cancel_http_readonly_queries_on_client_close: 1,
+    },
+  });
+
+  return {
+    query(sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
+      const params = reqParams?.params ?? {};
+      const format = reqParams?.format ?? 'JSONEachRow';
+
+      return {
+        async toPromise(): Promise<unknown[]> {
+          const resultSet = await client.query({
+            query: sql,
+            query_params: params,
+            format,
+          });
+          return (await resultSet.json()) as unknown[];
+        },
+      };
+    },
+  };
+}
+
+const baseClient = createClickHouseAdapter({
   url: env.CLICKHOUSE_URL,
-  user: env.CLICKHOUSE_DASHBOARD_USER,
+  username: env.CLICKHOUSE_DASHBOARD_USER,
   password: env.CLICKHOUSE_DASHBOARD_PASSWORD,
-  isUseGzip: false,
-  format: 'json',
 });
 
 export const clickhouse = instrumentClickHouse(baseClient, { dbName: 'default' });

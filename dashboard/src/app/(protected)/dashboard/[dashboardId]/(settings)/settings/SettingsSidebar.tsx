@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Suspense, type ReactElement } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { DashboardDropdown } from '@/components/sidebar/DashboardDropdown';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/index.actions';
@@ -61,16 +60,12 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       href: `/dashboard/${dashboardId}/settings/reports`,
       icon: <Mail size={16} />,
     },
-    ...(isFeatureEnabled('enableIntegrations')
-      ? [
-          {
-            name: t('integrations'),
-            key: 'integrations',
-            href: `/dashboard/${dashboardId}/settings/integrations`,
-            icon: <Webhook size={16} />,
-          },
-        ]
-      : []),
+    {
+      name: t('integrations'),
+      key: 'integrations',
+      href: `/dashboard/${dashboardId}/settings/integrations`,
+      icon: <Webhook size={16} />,
+    },
     {
       name: t('dangerZone'),
       key: 'danger-zone',

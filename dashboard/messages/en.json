@@ -1220,6 +1220,10 @@
           "title": "SSL Certificate Monitoring",
           "description": "Monitor SSL certificate status to avoid expired or insecure connections."
         },
+        "notificationIntegrations": {
+          "title": "Notification Integrations",
+          "description": "Get alerted via Slack, Discord, Microsoft Teams, webhooks, and more when something needs your attention."
+        },
         "cookieless": {
           "title": "No Cookies",
           "description": "Collect privacy-first analytics without cookies, providing accurate data without requiring consent banners."
@@ -1496,6 +1500,9 @@
       },
       "customStatusCodes": {
         "name": "Custom accepted status codes"
+      },
+      "notificationIntegrations": {
+        "name": "Notification integrations (Slack, Discord, etc.)"
       },
       "emailSupport": {
         "name": "Email support"
@@ -3442,7 +3449,7 @@
   "integrationsSettings": {
     "title": "Integrations",
     "section": {
-      "description": "Connect third-party services to receive notifications and alerts from your dashboard."
+      "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
     },
     "integrations": {
       "pushover": {
@@ -3452,6 +3459,18 @@
       "discord": {
         "name": "Discord",
         "description": "Get important status updates in your Discord messages."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Receive notifications in a Slack channel."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Receive notifications in a Microsoft Teams channel."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifications to any URL via HTTP POST."
       }
     },
     "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
@@ -3501,13 +3520,52 @@
       "cancel": "Cancel",
       "save": "Save"
     },
+    "slackDialog": {
+      "title": "Slack Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Follow steps 1–3 of the <link>Incoming Webhooks guide</link> to get your webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Slack webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Your Teams webhook URL",
+      "webhookHint": "Create an Incoming Webhook using a Teams Workflow. <link>Learn how</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "webhookDialog": {
+      "title": "Webhook Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "webhookHint": "Enter a publicly accessible HTTPS URL. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
     "toast": {
       "saved": "Integration saved",
       "deleted": "Integration disconnected",
       "error": "Failed to update integration",
       "fetchError": "Failed to load integrations",
       "invalidPushoverKey": "Invalid Pushover user key or no devices registered",
-      "invalidDiscordWebhook": "Invalid Discord webhook URL"
+      "invalidDiscordWebhook": "Invalid Discord webhook URL",
+      "invalidSlackWebhook": "Invalid Slack webhook URL",
+      "invalidTeamsWebhook": "Invalid Teams webhook URL",
+      "invalidWebhookUrl": "Invalid webhook URL"
     }
   }
 }

@@ -19,6 +19,9 @@ import { useTranslations } from 'next-intl';
 import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './dialogs/PushoverConfigDialog';
 import { DiscordConfigDialog } from './dialogs/DiscordConfigDialog';
+import { SlackConfigDialog } from './dialogs/SlackConfigDialog';
+import { TeamsConfigDialog } from './dialogs/TeamsConfigDialog';
+import { WebhookConfigDialog } from './dialogs/WebhookConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
 
 interface IntegrationsSettingsProps {
@@ -65,6 +68,9 @@ export default function IntegrationsSettings({
           const errorMessages: Record<string, string> = {
             invalid_pushover_key: t('toast.invalidPushoverKey'),
             invalid_discord_webhook: t('toast.invalidDiscordWebhook'),
+            invalid_slack_webhook: t('toast.invalidSlackWebhook'),
+            invalid_teams_webhook: t('toast.invalidTeamsWebhook'),
+            invalid_webhook_url: t('toast.invalidWebhookUrl'),
           };
           toast.error(errorMessages[result.error] ?? t('toast.error'));
           return;
@@ -147,6 +153,30 @@ export default function IntegrationsSettings({
         integration={integrations.discord}
         isPending={isPending}
         onSave={(config) => handleSave('discord', config)}
+      />
+
+      <SlackConfigDialog
+        open={configDialogType === 'slack'}
+        onOpenChange={(open) => !open && setConfigDialogType(null)}
+        integration={integrations.slack}
+        isPending={isPending}
+        onSave={(config) => handleSave('slack', config)}
+      />
+
+      <TeamsConfigDialog
+        open={configDialogType === 'teams'}
+        onOpenChange={(open) => !open && setConfigDialogType(null)}
+        integration={integrations.teams}
+        isPending={isPending}
+        onSave={(config) => handleSave('teams', config)}
+      />
+
+      <WebhookConfigDialog
+        open={configDialogType === 'webhook'}
+        onOpenChange={(open) => !open && setConfigDialogType(null)}
+        integration={integrations.webhook}
+        isPending={isPending}
+        onSave={(config) => handleSave('webhook', config)}
       />
 
       <DestructiveActionDialog

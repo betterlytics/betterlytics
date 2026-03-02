@@ -63,7 +63,7 @@ const envSchema = z.object({
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
   PUSHOVER_APP_TOKEN: z.string().optional(),
-  PUBLIC_ENABLE_INTEGRATIONS: zStringBoolean,
+  INTEGRATION_ENCRYPTION_KEY: z.string().length(32)
 });
 
 export const env = envSchema.parse(process.env);

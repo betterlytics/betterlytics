@@ -11,7 +11,7 @@ import * as IntegrationRepository from '@/repositories/postgres/integration.repo
 import { symmetricEncrypt, symmetricDecrypt } from '@/lib/crypto';
 import { env } from '@/lib/env';
 
-const ENCRYPTION_KEY = env.NEXTAUTH_SECRET;
+const ENCRYPTION_KEY = env.INTEGRATION_ENCRYPTION_KEY;
 
 function encryptConfig(config: IntegrationConfig): { encrypted: string } {
   const encrypted = symmetricEncrypt(JSON.stringify(config), ENCRYPTION_KEY);
@@ -32,6 +32,9 @@ const VISIBLE_CHARS = 4;
 const SECRET_FIELDS: Record<IntegrationType, string[]> = {
   pushover: ['userKey'],
   discord: ['webhookUrl'],
+  slack: ['webhookUrl'],
+  teams: ['webhookUrl'],
+  webhook: ['webhookUrl'],
 };
 
 function maskSecret(value: string): string {
@@ -63,6 +66,24 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
     if (typeof config.webhookUrl !== 'string') return 'invalid_discord_webhook';
     const isValid = await validateDiscordWebhookUrl(config.webhookUrl);
     return isValid ? null : 'invalid_discord_webhook';
+  },
+  slack: async (config) => {
+    if (!('webhookUrl' in config) || !config.webhookUrl) return null;
+    if (typeof config.webhookUrl !== 'string') return 'invalid_slack_webhook';
+    const isValid = await validateSlackWebhookUrl(config.webhookUrl);
+    return isValid ? null : 'invalid_slack_webhook';
+  },
+  teams: async (config) => {
+    if (!('webhookUrl' in config) || !config.webhookUrl) return null;
+    if (typeof config.webhookUrl !== 'string') return 'invalid_teams_webhook';
+    const isValid = await validateTeamsWebhookUrl(config.webhookUrl);
+    return isValid ? null : 'invalid_teams_webhook';
+  },
+  webhook: async (config) => {
+    if (!('webhookUrl' in config) || !config.webhookUrl) return null;
+    if (typeof config.webhookUrl !== 'string') return 'invalid_webhook_url';
+    const isValid = await validateWebhookUrl(config.webhookUrl);
+    return isValid ? null : 'invalid_webhook_url';
   },
 };
 
@@ -176,6 +197,18 @@ export async function validateDiscordWebhookUrl(webhookUrl: string): Promise<boo
   }
 }
 
+export async function validateSlackWebhookUrl(webhookUrl: string): Promise<boolean> {
+  return /^https:\/\/hooks\.slack\.com\/services\//.test(webhookUrl);
+}
+
+export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boolean> {
+  return /^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl);
+}
+
+export async function validateWebhookUrl(webhookUrl: string): Promise<boolean> {
+  return /^https:\/\//.test(webhookUrl);
+}
+
 export async function validatePushoverUserKey(userKey: string): Promise<boolean> {
   if (!env.PUSHOVER_APP_TOKEN) return false;
 
@@ -227,6 +260,60 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
         title: 'Betterlytics Connected',
         message: 'This device will now receive notifications from your Betterlytics dashboard.',
         priority: '0',
+      }),
+    });
+  },
+  slack: async (config) => {
+    if (!('webhookUrl' in config)) return;
+    await fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: '*Betterlytics Connected*\nThis channel will now receive notifications from your Betterlytics dashboard.',
+      }),
+    });
+  },
+  teams: async (config) => {
+    if (!('webhookUrl' in config)) return;
+    await fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'message',
+        attachments: [
+          {
+            contentType: 'application/vnd.microsoft.card.adaptive',
+            content: {
+              type: 'AdaptiveCard',
+              $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+              version: '1.2',
+              body: [
+                {
+                  type: 'TextBlock',
+                  text: 'Betterlytics Connected',
+                  weight: 'Bolder',
+                  size: 'Medium',
+                },
+                {
+                  type: 'TextBlock',
+                  text: 'This channel will now receive notifications from your Betterlytics dashboard.',
+                  wrap: true,
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    });
+  },
+  webhook: async (config) => {
+    if (!('webhookUrl' in config)) return;
+    await fetch(config.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: 'Betterlytics Connected',
+        message: 'This webhook will now receive notifications from your Betterlytics dashboard.',
       }),
     });
   },

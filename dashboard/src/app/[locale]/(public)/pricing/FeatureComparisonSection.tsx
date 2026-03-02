@@ -51,6 +51,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'customHttpMethods', growth: false, professional: true, enterprise: true },
       { key: 'customRequestHeaders', growth: false, professional: true, enterprise: true },
       { key: 'customStatusCodes', growth: false, professional: true, enterprise: true },
+      { key: 'notificationIntegrations', growth: true, professional: true, enterprise: true },
     ],
   },
   {

@@ -75,6 +75,7 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
+          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -111,7 +112,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Ett verktøy i stedet for tre',
-      content: `Plausible gjør kjerneanalyse veldig bra: sidevisninger, henvisere, konverteringer, trakter. Rent og fokusert. Men når du trenger oppetidsovervåking eller ytelsessporing, må du legge til flere verktøy.\n\nBetterlytics samler analyse, session replay, brukerreiser og overvåking på ett sted. Ett dashbord, én faktura, samme personvernstandard overalt.`,
+      content: `Plausible gjør kjerneanalyse veldig bra: sidevisninger, henvisere, konverteringer, trakter. Rent og fokusert. Men når du trenger oppetidsovervåking eller ytelsessporing, må du legge til flere verktøy.\n\nBetterlytics samler analyse, session replay, brukerreiser og overvåking med varsler via Slack, Discord og mer på ett sted. Ett dashbord, én faktura, samme personvernstandard overalt.`,
       icon: 'layers',
     },
     {

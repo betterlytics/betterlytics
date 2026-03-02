@@ -75,6 +75,7 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },
       {
@@ -111,7 +112,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Ét værktøj i stedet for tre',
-      content: `Plausible leverer stærke kerne-analytics. Pageviews, referrers, konverteringer og funnels i et rent og fokuseret interface. Men når du har brug for uptime monitoring eller performance tracking, kræver det ekstra værktøjer.\n\nBetterlytics samler analytics, session replay, user journeys, ydeenve-indsigter og monitoring ét sted. Ét dashboard, én regning og samme privacy-standard på tværs af det hele.`,
+      content: `Plausible leverer stærke kerne-analytics. Pageviews, referrers, konverteringer og funnels i et rent og fokuseret interface. Men når du har brug for uptime monitoring eller performance tracking, kræver det ekstra værktøjer.\n\nBetterlytics samler analytics, session replay, user journeys, ydelsesindsigter og monitoring med advarsler via Slack, Discord og mere ét sted. Ét dashboard, én regning og samme privacy-standard på tværs af det hele.`,
       icon: 'layers',
     },
     {

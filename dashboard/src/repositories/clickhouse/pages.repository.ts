@@ -202,7 +202,6 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
         start: startDateTime,
         end: endDateTime,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 
@@ -451,7 +450,6 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
         end: endDateTime,
         limit: limit,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 
@@ -572,7 +570,6 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
         end: endDateTime,
         limit: limit,
       },
-      format: 'JSONEachRow',
     })
     .toPromise()) as any[];
 

@@ -1223,6 +1223,10 @@
           "title": "SSL-certifikatovervågning",
           "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
         },
+        "notificationIntegrations": {
+          "title": "Notifikationsintegrationer",
+          "description": "Bliv advaret via Slack, Discord, Microsoft Teams, webhooks og mere, når noget kræver din opmærksomhed."
+        },
         "cookieless": {
           "title": "Ingen cookies",
           "description": "Indsaml privacy-first analytics uden cookies, med præcise data uden behov for samtykkebannere."
@@ -1499,6 +1503,9 @@
       },
       "customStatusCodes": {
         "name": "Brugerdefinerede statuskoder"
+      },
+      "notificationIntegrations": {
+        "name": "Notifikationsintegrationer (Slack, Discord osv.)"
       },
       "emailSupport": {
         "name": "E-mail support"
@@ -3445,7 +3452,7 @@
   "integrationsSettings": {
     "title": "Integrationer",
     "section": {
-      "description": "Forbind tredjepartstjenester for at modtage notifikationer og advarsler fra dit dashboard."
+      "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
     },
     "integrations": {
       "pushover": {
@@ -3455,6 +3462,18 @@
       "discord": {
         "name": "Discord",
         "description": "Få vigtige statusopdateringer i dine Discord-beskeder."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Modtag notifikationer i en Slack-kanal."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Modtag notifikationer i en Microsoft Teams-kanal."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifikationer til enhver URL via HTTP POST."
       }
     },
     "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
@@ -3504,13 +3523,52 @@
       "cancel": "Annuller",
       "save": "Gem"
     },
+    "slackDialog": {
+      "title": "Slack-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Følg trin 1–3 i <link>guiden til Incoming Webhooks</link> for at få din webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig Slack webhook URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Din Teams webhook URL",
+      "webhookHint": "Opret en Incoming Webhook ved hjælp af et Teams Workflow. <link>Lær hvordan</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "webhookDialog": {
+      "title": "Webhook-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://eksempel.dk/webhook",
+      "webhookHint": "Indtast en offentligt tilgængelig HTTPS URL. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
     "toast": {
       "saved": "Integration gemt",
       "deleted": "Integration afbrudt",
       "error": "Kunne ikke opdatere integration",
       "fetchError": "Kunne ikke indlæse integrationer",
       "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheder registreret",
-      "invalidDiscordWebhook": "Ugyldig Discord webhook URL"
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
+      "invalidSlackWebhook": "Ugyldig Slack webhook URL",
+      "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
+      "invalidWebhookUrl": "Ugyldig webhook URL"
     }
   }
 }

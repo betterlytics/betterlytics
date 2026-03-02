@@ -76,6 +76,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: 'Med tillegg' },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
+          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: 'Med plugins' },
         ],
       },
       {
@@ -116,7 +117,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Alt på ett sted',
-      content: `Matomo har omfattende analyse, men øktopptak er en betalt plugin, og oppetidsovervåking finnes ikke. Grensesnittet er kraftig, men kan oppleves overveldende.\n\nBetterlytics samler analyse, session replay, oppetidsovervåking og ytelsessporing i én løsning. Ett rent grensesnitt, ingen plugins å kjøpe, ingen betalingsmurer i betalte planer.`,
+      content: `Matomo har omfattende analyse, men øktopptak er en betalt plugin, og oppetidsovervåking finnes ikke. Grensesnittet er kraftig, men kan oppleves overveldende.\n\nBetterlytics samler analyse, session replay, oppetidsovervåking med varsler via Slack, Discord og Teams, samt ytelsessporing i én løsning. Ett rent grensesnitt, ingen plugins å kjøpe, ingen betalingsmurer i betalte planer.`,
       icon: 'layers',
     },
   ],

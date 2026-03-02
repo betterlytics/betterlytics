@@ -2,35 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.5',
-    releasedAt: '2026-02-19',
-    title: 'Keyword Monitoring & Visual Refinements',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Notification Integrations for Uptime Alerts & Norwegian Localization',
     summary:
-      'Uptime monitors can now alert when expected keywords are missing from your pages, and dashboards feel smoother with animated gauges, numbers, and other visual touches.',
+      'Uptime monitoring alerts can now be delivered to Slack, Discord, Teams, Pushover, or any custom webhook. The dashboard is also now available in Norwegian, and several reliability fixes improve accuracy across the platform.',
   },
   sections: [
     {
-      id: 'v135-new-features',
+      id: 'v136-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Uptime monitors can now check for an expected keyword in the page response, alerting you if critical content goes missing, even when the page still returns a 200 status.',
+            'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
           ],
         },
       ],
     },
     {
-      id: 'v135-improvements',
+      id: 'v136-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Core Web Vitals scores now display in an animated gauge, making it easier to read performance at a glance.',
-            'Chart tooltips now clarify when a week or month bucket is only partially covered by the selected time range.',
-            'Numbers, loading indicators, and other small visual touches have been refined for a smoother, more polished feel across the dashboard.',
+            'The dashboard is now available in Norwegian.',
+            'Resolved a server-side issue that could cause instability under certain conditions, improving overall platform reliability.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Upgraded core dependencies to address a recently disclosed security vulnerability, keeping your data and accounts safe.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed pie charts that could break the dashboard layout on certain views.',
+            'Fixed a bug where the timezone could fall back to an incorrect default.',
+            'Fixed an issue where the usage quota reset day could display as a negative number.',
           ],
         },
       ],
@@ -39,6 +64,69 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Notification Integrations for Uptime Alerts & Norwegian Localization',
+      summary:
+        'Uptime monitoring alerts can now be delivered to Slack, Discord, Teams, Pushover, or any custom webhook. The dashboard is also now available in Norwegian, and several reliability fixes improve accuracy across the platform.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The dashboard is now available in Norwegian.',
+              'Resolved a server-side issue that could cause instability under certain conditions, improving overall platform reliability.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Upgraded core dependencies to address a recently disclosed security vulnerability, keeping your data and accounts safe.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed pie charts that could break the dashboard layout on certain views.',
+              'Fixed a sign-in accessibility issue affecting keyboard navigation and assistive technologies.',
+              'Fixed a bug where the timezone could fall back to an incorrect default.',
+              'Fixed an issue where the usage quota reset day could display as a negative number.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.5',

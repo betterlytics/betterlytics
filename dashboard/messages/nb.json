@@ -1231,6 +1231,10 @@
           "title": "Overvåking av SSL-sertifikat",
           "description": "Overvåk SSL-sertifikatstatus for å unngå utløpte eller usikre forbindelser."
         },
+        "notificationIntegrations": {
+          "title": "Varslingsintegrasjoner",
+          "description": "Bli varslet via Slack, Discord, Microsoft Teams, webhooks og mer når noe krever din oppmerksomhet."
+        },
         "cookieless": {
           "title": "Ingen informasjonskapsler",
           "description": "Samle personvern-først analyse uten informasjonskapsler og få nøyaktige data uten samtykkebannere."
@@ -1507,6 +1511,9 @@
       },
       "customStatusCodes": {
         "name": "Tilpassede godkjente statuskoder"
+      },
+      "notificationIntegrations": {
+        "name": "Varslingsintegrasjoner (Slack, Discord osv.)"
       },
       "emailSupport": {
         "name": "E-postsupport"
@@ -3453,7 +3460,7 @@
   "integrationsSettings": {
     "title": "Integrasjoner",
     "section": {
-      "description": "Koble til tredjepartstjenester for å motta varsler og advarsler fra dashboardet ditt."
+      "description": "Koble til tredjepartstjenester for å motta oppetidsovervåkingsvarsler når nettsiden din går ned eller kommer tilbake."
     },
     "integrations": {
       "pushover": {
@@ -3463,6 +3470,18 @@
       "discord": {
         "name": "Discord",
         "description": "Få viktige statusoppdateringer i Discord-meldingene dine."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Motta varsler i en Slack-kanal."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Motta varsler i en Microsoft Teams-kanal."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send varsler til enhver URL via HTTP POST."
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
@@ -3485,9 +3504,9 @@
       "title": "Pushover-integrasjon",
       "userKeyLabel": "User Key",
       "userKeyPlaceholder": "Din Pushover user key",
-      "priorityLabel": "Varslingsprioritet",
+      "priorityLabel": "Varselprioritet",
       "priorities": {
-        "-2": "Lavest: Ingen varsling",
+        "-2": "Lavest: Ingen varsel",
         "-1": "Lav: Ingen lyd eller vibrasjon",
         "0": "Normal (anbefalt)",
         "1": "Høy: Ignorer stille timer"
@@ -3512,13 +3531,52 @@
       "cancel": "Avbryt",
       "save": "Lagre"
     },
+    "slackDialog": {
+      "title": "Slack-integrasjon",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Følg trinn 1–3 i <link>guiden for Incoming Webhooks</link> for å få din webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrevd",
+        "webhookUrlInvalid": "Må være en gyldig Slack webhook URL"
+      },
+      "cancel": "Avbryt",
+      "save": "Lagre"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams-integrasjon",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Din Teams webhook URL",
+      "webhookHint": "Opprett en Incoming Webhook ved hjelp av en Teams Workflow. <link>Lær hvordan</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrevd",
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+      },
+      "cancel": "Avbryt",
+      "save": "Lagre"
+    },
+    "webhookDialog": {
+      "title": "Webhook-integrasjon",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://eksempel.no/webhook",
+      "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrevd",
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+      },
+      "cancel": "Avbryt",
+      "save": "Lagre"
+    },
     "toast": {
       "saved": "Integrasjon lagret",
       "deleted": "Integrasjon frakoblet",
       "error": "Kunne ikke oppdatere integrasjon",
       "fetchError": "Kunne ikke laste integrasjoner",
       "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheter registrert",
-      "invalidDiscordWebhook": "Ugyldig Discord webhook URL"
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
+      "invalidSlackWebhook": "Ugyldig Slack webhook URL",
+      "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
+      "invalidWebhookUrl": "Ugyldig webhook URL"
     }
   }
 }

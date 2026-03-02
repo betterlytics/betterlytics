@@ -2,35 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.5',
-    releasedAt: '2026-02-19',
-    title: 'Nøkkelordovervåking og visuelle forbedringer',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Varslingsintegrasjoner for oppetidsvarsler og norsk lokalisering',
     summary:
-      'Oppetidsovervåkning kan nå varsle når forventede nøkkelord mangler på sidene dine, og dashbordene føles smidigere med animerte målere, tall og andre visuelle detaljer.',
+      'Oppetidsvarsler kan nå leveres til Slack, Discord, Teams, Pushover eller et valgfritt webhook. Dashbordet er også nå tilgjengelig på norsk, og flere stabilitetsrettinger forbedrer påliteligheten på tvers av plattformen.',
   },
   sections: [
     {
-      id: 'v135-new-features',
+      id: 'v136-new-features',
       title: 'Nye funksjoner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Oppetidsovervåkning kan nå sjekke etter et forventet nøkkelord i sideresponsen, og varsle deg hvis kritisk innhold mangler, selv når siden fortsatt returnerer status 200.',
+            'Oppetidsvarsler kan nå sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfritt webhook-endepunkt. Konfigurer varslingskanaler fra Integrasjoner-siden i dashbordinnstillingene.',
           ],
         },
       ],
     },
     {
-      id: 'v135-improvements',
+      id: 'v136-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Core Web Vitals-score vises nå i en animert måler, som gjør det enklere å lese ytelse med et raskt blikk.',
-            'Diagramverktøytips forklarer nå når en uke- eller månedsbøtte bare delvis dekkes av valgt tidsrom.',
-            'Tall, lasteindikatorer og andre små visuelle detaljer er forbedret for en jevnere og mer gjennomført opplevelse i hele dashbordet.',
+            'Dashbordet er nå tilgjengelig på norsk.',
+            'Løste et problem på serversiden som under visse betingelser kunne forårsake ustabilitet, noe som forbedrer den overordnede plattformstabiliteten.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Oppgraderte kjerneavhengigheter for å adressere en nylig offentliggjort sikkerhetssårbarhet, slik at dataene og kontoene dine forblir sikre.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
+      title: 'Feilrettinger',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der sektordiagrammer kunne ødelegge dashbordoppsettet på visse visninger.',
+            'Rettet en feil der tidssonen kunne falle tilbake til en feil standardverdi.',
+            'Rettet et problem der tilbakestillingsdagen for brukskvoten kunne vises som et negativt tall.',
           ],
         },
       ],
@@ -39,6 +64,69 @@ export const latestChangelogModalNb: ChangelogEntryData = {
 };
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Varslingsintegrasjoner for oppetidsvarsler og norsk lokalisering',
+      summary:
+        'Oppetidsvarsler kan nå leveres til Slack, Discord, Teams, Pushover eller et valgfritt webhook. Dashbordet er også nå tilgjengelig på norsk, og flere stabilitetsrettinger forbedrer påliteligheten på tvers av plattformen.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'Nye funksjoner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Oppetidsvarsler kan nå sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfritt webhook-endepunkt. Konfigurer varslingskanaler fra Integrasjoner-siden i dashbordinnstillingene.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashbordet er nå tilgjengelig på norsk.',
+              'Løste et problem på serversiden som under visse betingelser kunne forårsake ustabilitet, noe som forbedrer den overordnede plattformstabiliteten.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Sikkerhet',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Oppgraderte kjerneavhengigheter for å adressere en nylig offentliggjort sikkerhetssårbarhet, slik at dataene og kontoene dine forblir sikre.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Feilrettinger',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem der sektordiagrammer kunne ødelegge dashbordoppsettet på visse visninger.',
+              'Rettet et tilgjengelighetsproblem ved innlogging som påvirket tastaturnavigering og hjelpeteknologier.',
+              'Rettet en feil der tidssonen kunne falle tilbake til en feil standardverdi.',
+              'Rettet et problem der tilbakestillingsdagen for brukskvoten kunne vises som et negativt tall.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.5',
