@@ -3456,7 +3456,7 @@
       "tokenNamePlaceholder": "e.g. Claude Desktop",
       "createButton": "Create token",
       "creating": "Creating...",
-      "newTokenNotice": "Your new token:",
+      "newTokenNotice": "Copy this token now. You won't be able to see it again.",
       "created": "Created {date}",
       "lastUsed": "Last used {date}"
     },

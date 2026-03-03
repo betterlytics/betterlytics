@@ -1,38 +1,50 @@
 import prisma from '@/lib/postgres';
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 
-type McpTokenRow = {
-  id: string;
-  token: string;
-  name: string;
-  dashboardId: string;
-  createdBy: string;
-  createdAt: Date;
-  lastUsedAt: Date | null;
-  expiresAt: Date | null;
-};
+function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
 
 function generateMcpToken(): string {
   return `btl_${randomBytes(16).toString('hex')}`;
 }
 
-export async function createMcpToken(dashboardId: string, name: string, createdBy: string): Promise<McpTokenRow> {
-  const token = generateMcpToken();
+export async function createMcpToken(dashboardId: string, name: string, createdBy: string) {
+  const plainToken = generateMcpToken();
+  const tokenHash = hashToken(plainToken);
 
-  return await prisma.mcpToken.create({
+  const row = await prisma.mcpToken.create({
     data: {
-      token,
+      tokenHash,
       name,
       dashboardId,
       createdBy,
     },
   });
+
+  return { ...row, plainToken };
 }
 
-export async function findMcpTokensByDashboard(dashboardId: string): Promise<McpTokenRow[]> {
+export async function findMcpTokensByDashboard(dashboardId: string) {
   return await prisma.mcpToken.findMany({
     where: { dashboardId },
     orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function findMcpTokenByHash(token: string) {
+  const tokenHash = hashToken(token);
+
+  return await prisma.mcpToken.findUnique({
+    where: { tokenHash },
+    include: { dashboard: true },
+  });
+}
+
+export async function updateMcpTokenLastUsed(id: string) {
+  await prisma.mcpToken.update({
+    where: { id },
+    data: { lastUsedAt: new Date() },
   });
 }
 

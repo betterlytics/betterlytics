@@ -3459,7 +3459,7 @@
       "tokenNamePlaceholder": "f.eks. Claude Desktop",
       "createButton": "Opret token",
       "creating": "Opretter...",
-      "newTokenNotice": "Din nye token:",
+      "newTokenNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
       "created": "Oprettet {date}",
       "lastUsed": "Sidst brugt {date}"
     },

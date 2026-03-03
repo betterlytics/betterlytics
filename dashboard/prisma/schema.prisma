@@ -458,18 +458,18 @@ model DashboardInvitation {
 }
 
 model McpToken {
-  id         String    @id @default(cuid())
-  token      String    @unique
-  name       String
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  name        String
   dashboardId String
-  dashboard  Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
-  createdBy  String
-  user       User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt  DateTime  @default(now())
-  lastUsedAt DateTime?
-  expiresAt  DateTime?
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  createdBy   String
+  user        User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
 
-  @@index([token])
+  @@index([tokenHash])
   @@index([dashboardId])
 }
 

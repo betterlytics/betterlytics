@@ -10,7 +10,9 @@ import {
 } from '@/services/dashboard/mcpToken.service';
 
 export const getMcpTokensAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return getMcpTokensForDashboard(ctx.dashboardId);
+  const tokens = await getMcpTokensForDashboard(ctx.dashboardId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return tokens.map(({ tokenHash, ...rest }) => rest);
 });
 
 export const createMcpTokenAction = withDashboardMutationAuthContext(

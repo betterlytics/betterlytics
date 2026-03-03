@@ -3467,7 +3467,7 @@
       "tokenNamePlaceholder": "es. Claude Desktop",
       "createButton": "Crea token",
       "creating": "Creazione...",
-      "newTokenNotice": "Il tuo nuovo token:",
+      "newTokenNotice": "Copia questo token adesso. Non potrai vederlo di nuovo.",
       "created": "Creato {date}",
       "lastUsed": "Ultimo utilizzo {date}"
     },

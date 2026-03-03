@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { findMcpTokenByHash, updateMcpTokenLastUsed } from '@/repositories/postgres/mcpToken.repository';
 
 type TokenInfo = {
   siteId: string;
@@ -6,13 +6,8 @@ type TokenInfo = {
   userId: string;
 };
 
-const prisma = new PrismaClient();
-
 export async function validateToken(token: string): Promise<TokenInfo> {
-  const mcpToken = await prisma.mcpToken.findUnique({
-    where: { token },
-    include: { dashboard: true },
-  });
+  const mcpToken = await findMcpTokenByHash(token);
 
   if (!mcpToken) {
     throw new Error('Invalid MCP token');
@@ -22,18 +17,11 @@ export async function validateToken(token: string): Promise<TokenInfo> {
     throw new Error('MCP token has expired');
   }
 
-  await prisma.mcpToken.update({
-    where: { id: mcpToken.id },
-    data: { lastUsedAt: new Date() },
-  });
+  await updateMcpTokenLastUsed(mcpToken.id);
 
   return {
     siteId: mcpToken.dashboard.siteId,
     dashboardId: mcpToken.dashboardId,
     userId: mcpToken.createdBy,
   };
-}
-
-export async function disconnectPrisma(): Promise<void> {
-  await prisma.$disconnect();
 }

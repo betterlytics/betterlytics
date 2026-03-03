@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Copy, Check, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { createMcpTokenAction, deleteMcpTokenAction } from '@/app/actions/dashboard/mcpToken.action';
 import { DestructiveActionDialog } from '@/components/dialogs';
@@ -11,7 +11,6 @@ import { useTranslations } from 'next-intl';
 
 type McpToken = {
   id: string;
-  token: string;
   name: string;
   createdAt: Date;
   lastUsedAt: Date | null;
@@ -29,7 +28,6 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [deleteTokenId, setDeleteTokenId] = useState<string | null>(null);
-  const [revealedTokens, setRevealedTokens] = useState<Set<string>>(new Set());
 
   const handleCreate = () => {
     const trimmed = name.trim();
@@ -38,7 +36,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
     startTransition(async () => {
       try {
         const created = await createMcpTokenAction(dashboardId, trimmed);
-        setNewlyCreatedToken(created.token);
+        setNewlyCreatedToken(created.plainToken);
         setName('');
         toast.success(t('toast.created'));
       } catch (error) {
@@ -65,22 +63,6 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
     await navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const toggleReveal = (tokenId: string) => {
-    setRevealedTokens((prev) => {
-      const next = new Set(prev);
-      if (next.has(tokenId)) {
-        next.delete(tokenId);
-      } else {
-        next.add(tokenId);
-      }
-      return next;
-    });
-  };
-
-  const maskToken = (token: string) => {
-    return token.substring(0, 7) + '\u2022'.repeat(24);
   };
 
   const formatDate = (date: Date) => {
@@ -140,41 +122,20 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
             <div key={tkn.id} className='flex items-center justify-between gap-2 px-4 py-3'>
               <div className='min-w-0 flex-1'>
                 <p className='truncate text-sm font-medium'>{tkn.name}</p>
-                <div className='flex items-center gap-1.5'>
-                  <code className='text-muted-foreground truncate text-xs'>
-                    {revealedTokens.has(tkn.id) ? tkn.token : maskToken(tkn.token)}
-                  </code>
-                  <button
-                    onClick={() => toggleReveal(tkn.id)}
-                    className='text-muted-foreground hover:text-foreground shrink-0 cursor-pointer'
-                  >
-                    {revealedTokens.has(tkn.id) ? <EyeOff className='size-3' /> : <Eye className='size-3' />}
-                  </button>
-                </div>
                 <p className='text-muted-foreground text-xs'>
                   {t('settings.created', { date: formatDate(tkn.createdAt) })}
                   {tkn.lastUsedAt && <> · {t('settings.lastUsed', { date: formatDate(tkn.lastUsedAt) })}</>}
                 </p>
               </div>
-              <div className='flex shrink-0 items-center gap-1'>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='text-muted-foreground hover:text-foreground size-8 cursor-pointer'
-                  onClick={() => handleCopy(tkn.token)}
-                >
-                  <Copy className='size-3.5' />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='text-muted-foreground hover:text-destructive size-8 cursor-pointer'
-                  onClick={() => setDeleteTokenId(tkn.id)}
-                  disabled={isPending}
-                >
-                  <Trash2 className='size-3.5' />
-                </Button>
-              </div>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='text-muted-foreground hover:text-destructive size-8 shrink-0 cursor-pointer'
+                onClick={() => setDeleteTokenId(tkn.id)}
+                disabled={isPending}
+              >
+                <Trash2 className='size-3.5' />
+              </Button>
             </div>
           ))}
         </div>
