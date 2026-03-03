@@ -159,7 +159,7 @@ After completing the flow, you'll be shown your license key. Copy it (you won't 
 Add the following to your `.env` file:
 
 ```bash
-ENABLE_GEOLOCATION=countries      # or "subdivisions" for region & city data
+ENABLE_GEOLOCATION=countries      # or "subdivisions" for regional drill-down
 MAXMIND_ACCOUNT_ID=your_account_id
 MAXMIND_LICENSE_KEY=your_license_key
 ```
@@ -172,9 +172,9 @@ Your Account ID is displayed at the top of the MaxMind account portal.
 |-------|----------|
 | `false` (default) | Geolocation disabled |
 | `countries` | Country-level geolocation (~9 MB) |
-| `subdivisions` | Country + subdivision + city data (~61 MB) |
+| `subdivisions` | Country + subdivision + city drill-down (~61 MB) |
 
-The `subdivisions` mode adds region and city tabs to the dashboard overview, providing granular geographic insights. Use `countries` if you only need country-level data and want to keep memory usage low.
+The `subdivisions` mode enables clicking a country on the map to see a breakdown by state, province, or region, and also provides city-level data in the Top Cities tab on the overview page. Use `countries` if you only need country-level data and want to keep memory usage low. Note that the dashboard also uses more memory with `subdivisions` as it loads additional map geometry for regional boundaries.
 
 > `true` is still accepted for backwards compatibility and behaves identically to `countries`.
 

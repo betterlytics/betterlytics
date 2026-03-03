@@ -4,12 +4,13 @@ import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { cn } from '@/lib/utils';
-import { getCountryName } from '@/utils/countryCodes';
 import { formatNumber } from '@/utils/formatters';
 import React from 'react';
 
 export type MapTooltipContentProps = {
   geoVisitor?: GeoFeatureVisitorWithCompare;
+  displayName?: string;
+  displayCountryCode?: string;
   className?: string;
   label: string;
   locale: SupportedLanguages;
@@ -17,7 +18,16 @@ export type MapTooltipContentProps = {
   onMouseEnter?: () => void;
 };
 
-function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouseEnter }: MapTooltipContentProps) {
+function MapTooltipContent({
+  geoVisitor,
+  displayName,
+  displayCountryCode,
+  size,
+  className,
+  label,
+  locale,
+  onMouseEnter,
+}: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
   const percentageChange =
@@ -36,11 +46,15 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouse
         className,
       )}
     >
-      <CountryDisplay
-        className='text-sm font-bold'
-        countryCode={geoVisitor.code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.code, locale)}
-      />
+      {displayCountryCode ? (
+        <CountryDisplay
+          className='text-sm font-bold'
+          countryCode={displayCountryCode as FlagIconProps['countryCode']}
+          countryName={displayName ?? ''}
+        />
+      ) : (
+        <span className='text-sm font-bold'>{displayName}</span>
+      )}
       <div className='flex flex-col justify-start text-sm whitespace-nowrap'>
         <div className='flex gap-2 text-sm whitespace-nowrap'>
           <span className='text-muted-foreground'>{label}:</span>

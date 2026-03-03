@@ -27,7 +27,6 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { featureFlags } from '@/lib/feature-flags';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -42,9 +41,8 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
   const topCountriesPromise = getTopCountryVisitsAction(dashboardId, query);
-  const hasSubdivisions = featureFlags.enableSubdivisionTracking;
-  const topSubdivisionsPromise = hasSubdivisions ? getTopSubdivisionVisitsAction(dashboardId, query) : undefined;
-  const topCitiesPromise = hasSubdivisions ? getTopCityVisitsAction(dashboardId, query) : undefined;
+  const topSubdivisionsPromise = getTopSubdivisionVisitsAction(dashboardId, query);
+  const topCitiesPromise = getTopCityVisitsAction(dashboardId, query);
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, query),

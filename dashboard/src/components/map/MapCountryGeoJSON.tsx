@@ -1,5 +1,6 @@
 import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
-import type { GeoMapResponse, GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoFeatureVisitor, GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { FeatureDisplayResolver } from '@/components/map/types';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import React, { useCallback, useEffect } from 'react';
@@ -10,11 +11,16 @@ import MapPopupContent from './tooltip/MapPopupContent';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
-type MapCountryGeoJSONProps = Omit<GeoMapResponse, 'maxVisitors'> & {
+type MapCountryGeoJSONProps = {
   GeoJSON: typeof GeoJSON;
   geoData: GeoJSON.FeatureCollection;
+  visitorData: GeoFeatureVisitor[];
+  compareData: GeoFeatureVisitor[];
   style: MapStyle;
   size?: 'sm' | 'lg';
+  resolveDisplay: FeatureDisplayResolver;
+  shouldHideFeature?: (featureId: string) => boolean;
+  onFeatureClick?: (featureId: string) => void;
 };
 
 const DEFAULT_OPTS = {
@@ -33,6 +39,9 @@ export default function MapCountryGeoJSON({
   compareData,
   size = 'sm',
   style,
+  resolveDisplay,
+  shouldHideFeature,
+  onFeatureClick,
 }: MapCountryGeoJSONProps) {
   const { setMapSelection } = useMapSelectionSetter();
   const locale = useLocale();
@@ -45,24 +54,25 @@ export default function MapCountryGeoJSON({
 
   const onEachFeature = useCallback(
     (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-      const code = getFeatureId(feature);
-      if (!code) return;
+      const featureId = getFeatureId(feature);
+      if (!featureId) return;
 
-      let geoVisitor = visitorData.find((d) => d.code === code);
-      if (!geoVisitor?.visitors && code === 'AQ') {
+      let geoVisitor = visitorData.find((d) => d.code === featureId);
+      if (shouldHideFeature?.(featureId) && !geoVisitor?.visitors) {
         layer.setStyle({ opacity: 0, fillOpacity: 0 });
         return;
       }
       if (!geoVisitor) {
-        geoVisitor = { code, visitors: 0 };
+        geoVisitor = { code: featureId, visitors: 0 };
       }
-      const compareVisitor = compareData.find((d) => d.code === code);
+      const compareVisitor = compareData.find((d) => d.code === featureId);
 
       const geoVisitorWithComparison: GeoFeatureVisitorWithCompare = {
         ...geoVisitor,
         compareVisitors: timeRangeCtx.compareMode === 'off' ? undefined : (compareVisitor?.visitors ?? 0),
       };
 
+      const display = resolveDisplay(featureId);
       const popupContainer = document.createElement('div');
 
       layer.setStyle(style.originalStyle(geoVisitor.visitors));
@@ -84,6 +94,7 @@ export default function MapCountryGeoJSON({
         },
         click: () => {
           setMapSelection({ clicked: { geoVisitor: geoVisitorWithComparison, layer } });
+          onFeatureClick?.(featureId);
         },
         popupopen: () => {
           if (!(popupContainer as any)._reactRoot) {
@@ -95,6 +106,8 @@ export default function MapCountryGeoJSON({
               <MapPopupContent
                 locale={locale}
                 geoVisitor={geoVisitorWithComparison}
+                displayName={display.name}
+                displayCountryCode={display.countryCode}
                 size={size}
                 t={t}
                 timeRangeCtx={timeRangeCtx}
@@ -104,6 +117,8 @@ export default function MapCountryGeoJSON({
               <MapTooltipContent
                 locale={locale}
                 geoVisitor={geoVisitorWithComparison}
+                displayName={display.name}
+                displayCountryCode={display.countryCode}
                 size={size}
                 label={t('geography.visitors')}
                 onMouseEnter={() => setMapSelection({ hovered: undefined })}
@@ -127,7 +142,9 @@ export default function MapCountryGeoJSON({
       t,
       timeRangeCtx,
       setMapSelection,
-      locale,
+      resolveDisplay,
+      shouldHideFeature,
+      onFeatureClick,
     ],
   );
 

@@ -19,8 +19,8 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
   topCountriesPromise: ReturnType<typeof getTopCountryVisitsAction>;
-  topSubdivisionsPromise?: ReturnType<typeof getTopSubdivisionVisitsAction>;
-  topCitiesPromise?: ReturnType<typeof getTopCityVisitsAction>;
+  topSubdivisionsPromise: ReturnType<typeof getTopSubdivisionVisitsAction>;
+  topCitiesPromise: ReturnType<typeof getTopCityVisitsAction>;
 };
 
 export default function GeographySection({
@@ -31,8 +31,8 @@ export default function GeographySection({
 }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
   const topCountries = use(topCountriesPromise);
-  const topSubdivisions = topSubdivisionsPromise ? use(topSubdivisionsPromise) : undefined;
-  const topCities = topCitiesPromise ? use(topCitiesPromise) : undefined;
+  const topSubdivisions = use(topSubdivisionsPromise);
+  const topCities = use(topCitiesPromise);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -82,38 +82,30 @@ export default function GeographySection({
             icon: renderFlag(country.code),
           })),
         },
-        ...(topSubdivisions
-          ? [
-              {
-                key: 'regions',
-                label: t('tabs.regions'),
-                data: topSubdivisions.map((subdivision) => ({
-                  label: getSubdivisionName(subdivision.code, locale),
-                  key: subdivision.code,
-                  value: subdivision.current.visitors,
-                  trendPercentage: subdivision.change?.visitors,
-                  comparisonValue: subdivision.compare?.visitors,
-                  icon: renderFlag(subdivision.current.countryCode),
-                })),
-              },
-            ]
-          : []),
-        ...(topCities
-          ? [
-              {
-                key: 'cities',
-                label: t('tabs.cities'),
-                data: topCities.map((city) => ({
-                  label: city.code,
-                  key: city.code,
-                  value: city.current.visitors,
-                  trendPercentage: city.change?.visitors,
-                  comparisonValue: city.compare?.visitors,
-                  icon: renderFlag(city.current.countryCode),
-                })),
-              },
-            ]
-          : []),
+        {
+          key: 'regions',
+          label: t('tabs.regions'),
+          data: topSubdivisions.map((subdivision) => ({
+            label: getSubdivisionName(subdivision.code, locale),
+            key: subdivision.code,
+            value: subdivision.current.visitors,
+            trendPercentage: subdivision.change?.visitors,
+            comparisonValue: subdivision.compare?.visitors,
+            icon: renderFlag(subdivision.current.countryCode),
+          })),
+        },
+        {
+          key: 'cities',
+          label: t('tabs.cities'),
+          data: topCities.map((city) => ({
+            label: city.code,
+            key: city.code,
+            value: city.current.visitors,
+            trendPercentage: city.change?.visitors,
+            comparisonValue: city.compare?.visitors,
+            icon: renderFlag(city.current.countryCode),
+          })),
+        },
       ]}
       footer={
         <FilterPreservingLink

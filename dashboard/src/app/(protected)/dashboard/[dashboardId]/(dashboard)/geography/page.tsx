@@ -6,6 +6,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 import GeographyLoading from '@/components/loading/GeographyLoading';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -24,7 +25,10 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
       <Suspense
         fallback={<GeographyLoading />}
       >
-        <GeographySection worldMapPromise={worldMapPromise} />
+        <GeographySection
+          worldMapPromise={worldMapPromise}
+          subdivisionEnabled={isFeatureEnabled('enableSubdivisionTracking')}
+        />
       </Suspense>
 
       <div className='fixed top-16 right-4 z-30'>

@@ -1,13 +1,13 @@
 ---
 title: "Geography Analytics - Betterlytics"
-description: "Explore your visitors’ geographic distribution with an interactive world map and city-level analytics. Gain insights into your global audience and make data-driven decisions for regional optimization."
+description: "Explore your visitors’ geographic distribution with an interactive world map, subdivision drill-down, and city-level analytics. Gain insights into your global audience and make data-driven decisions for regional optimization."
 ---
 
 import { Callout } from "nextra/components";
 
 # Geography Analytics
 
-Betterlytics provides multi-level geography analytics: an interactive world map for country-level distribution, and city-level data for granular audience insights. Together these help you understand your global audience, identify key markets, and make data-driven decisions about regional optimization.
+Betterlytics provides multi-level geography analytics: an interactive world map for country-level distribution, subdivision drill-down for regional analysis, and city-level data for granular audience insights. Together these help you understand your global audience, identify key markets, and make data-driven decisions about regional optimization.
 
 ## Accessing the World Map
 
@@ -113,6 +113,18 @@ The world map respects all dashboard filters, allowing you to segment and analyz
 - **Regional campaigns** - Targeting specific geographic areas
 - **Time zone considerations** - Scheduling content for optimal regional engagement
 - **Local partnerships** - Identifying regions for business development
+
+## Region Drill-Down
+
+On the Geography page, clicking a country on the world map opens a regional breakdown showing visitor distribution by state, province, or region.
+
+- The region view uses the same color-coded map visualization, focused on the selected country
+- A data table alongside the map shows visitor counts per region
+- Click any region to apply it as a dashboard filter
+
+<Callout type="info">
+Region data requires `ENABLE_GEOLOCATION=subdivisions` for self-hosted instances. See the [self-hosting guide](/installation/self-hosting#geolocation) for setup instructions.
+</Callout>
 
 ## Top Cities
 
