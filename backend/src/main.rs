@@ -18,6 +18,7 @@ mod clickhouse;
 mod config;
 mod db;
 mod email;
+mod error_fingerprint;
 mod geoip;
 mod geoip_updater;
 mod metrics;

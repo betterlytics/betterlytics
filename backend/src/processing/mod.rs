@@ -12,6 +12,7 @@ use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
 use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
+use crate::error_fingerprint::generate_error_fingerprint;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -58,6 +59,7 @@ pub struct ProcessedEvent {
     pub exception_list: String,
     pub error_type: String,
     pub error_message: String,
+    pub error_fingerprint: String,
 }
 
 /// Event processor that handles real-time processing
@@ -119,6 +121,7 @@ impl EventProcessor {
             exception_list: String::new(),
             error_type: String::new(),
             error_message: String::new(),
+            error_fingerprint: String::new(),
         };
 
         // Handle event types
@@ -216,6 +219,10 @@ impl EventProcessor {
                 processed.error_type = arr[0]["type"].as_str().unwrap_or("").to_string();
                 processed.error_message = arr[0]["value"].as_str().unwrap_or("").to_string();
             }
+            processed.error_fingerprint = generate_error_fingerprint(
+                &processed.error_type,
+                &list,
+            );
             processed.exception_list = list;
         } else {
             processed.event_type = event_name;
