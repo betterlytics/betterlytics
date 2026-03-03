@@ -42,9 +42,8 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
   const topCountriesPromise = getTopCountryVisitsAction(dashboardId, query);
-  const hasSubdivisions = featureFlags.enableSubdivisionTracking;
-  const topSubdivisionsPromise = hasSubdivisions ? getTopSubdivisionVisitsAction(dashboardId, query) : undefined;
-  const topCitiesPromise = hasSubdivisions ? getTopCityVisitsAction(dashboardId, query) : undefined;
+  const topSubdivisionsPromise = featureFlags.enableSubdivisionTracking ? getTopSubdivisionVisitsAction(dashboardId, query) : Promise.resolve([]);
+  const topCitiesPromise = featureFlags.enableSubdivisionTracking ? getTopCityVisitsAction(dashboardId, query) : Promise.resolve([]);
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, query),

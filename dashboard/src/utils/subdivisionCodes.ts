@@ -1,18 +1,24 @@
 import { SupportedLanguages, SUPPORTED_LANGUAGES } from '@/constants/i18n';
 
 type SubdivisionData = Record<string, string>;
+type CldrLocale = Exclude<SupportedLanguages, 'nb'> | 'no';
 
-const subdivisionsByLocale: Partial<Record<string, SubdivisionData>> = {};
+const CLDR_LOCALE_MAP: Record<SupportedLanguages, CldrLocale> = SUPPORTED_LANGUAGES.reduce(
+  (acc, lang) => ({ ...acc, [lang]: lang === 'nb' ? 'no' : lang }),
+  {} as Record<SupportedLanguages, CldrLocale>,
+);
 
-/** CLDR uses 'no' for Norwegian Bokmål, but our app uses 'nb' */
-const CLDR_LOCALE_MAP: Record<string, string> = { nb: 'no' };
+const subdivisionsByLocale: Partial<Record<SupportedLanguages, SubdivisionData>> = {};
 
 async function registerLocales() {
   await Promise.all(
-    SUPPORTED_LANGUAGES.map(async (lang) => {
-      const cldrLang = CLDR_LOCALE_MAP[lang] ?? lang;
-      const data = (await import(`cldr-subdivisions-full/subdivisions/${cldrLang}/${cldrLang}.json`)).default;
-      subdivisionsByLocale[lang] = data.subdivisions.localeDisplayNames.subdivisions;
+    (Object.entries(CLDR_LOCALE_MAP) as [SupportedLanguages, CldrLocale][]).map(async ([lang, cldrLang]) => {
+      try {
+        const data = (await import(`cldr-subdivisions-full/subdivisions/${cldrLang}/${cldrLang}.json`)).default;
+        subdivisionsByLocale[lang] = data.subdivisions.localeDisplayNames.subdivisions;
+      } catch {
+        // Locale data missing — getSubdivisionName will fall back to 'en' or raw code
+      }
     }),
   );
 }

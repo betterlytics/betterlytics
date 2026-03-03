@@ -86,20 +86,16 @@ impl Config {
         let root_env_path = PathBuf::from("../.env");
         dotenv::from_path(&root_env_path).ok();
 
-        // ENABLE_GEOLOCATION accepts: false | true | countries | subdivisions
-        // "true" and "countries" are equivalent (country-level only).
-        // "subdivisions" enables both country and regional drill-down.
-        let geo_mode_str = env::var("ENABLE_GEOLOCATION")
+        let geo_enabled = env::var("ENABLE_GEOLOCATION")
             .unwrap_or_else(|_| "false".to_string())
-            .to_lowercase();
-        let geolocation_mode = match geo_mode_str.as_str() {
-            "false" => GeolocationMode::Disabled,
-            "true" | "countries" => GeolocationMode::Countries,
-            "subdivisions" => GeolocationMode::Subdivisions,
-            other => {
-                eprintln!("WARNING: Unrecognized ENABLE_GEOLOCATION value '{}'. Expected: false, true, countries, or subdivisions. Defaulting to disabled.", other);
-                GeolocationMode::Disabled
-            }
+            .to_lowercase() == "true";
+        let geo_subdivision = env::var("PUBLIC_ENABLE_GEOSUBDIVISION")
+            .unwrap_or_else(|_| "false".to_string())
+            .to_lowercase() == "true";
+        let geolocation_mode = match (geo_enabled, geo_subdivision) {
+            (true, true) => GeolocationMode::Subdivisions,
+            (true, false) => GeolocationMode::Countries,
+            _ => GeolocationMode::Disabled,
         };
 
         Config {

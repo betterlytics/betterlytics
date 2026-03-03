@@ -162,42 +162,55 @@ impl GeoIpService {
             }
         };
 
-        let geo = match reader.lookup::<geoip2::City>(ip) {
-            Ok(Some(city)) => {
-                let country_code = city.country
-                    .and_then(|c| c.iso_code)
-                    .map(|s| s.to_string());
+        let geo = if self.geolocation_mode.has_subdivisions() {
+            match reader.lookup::<geoip2::City>(ip) {
+                Ok(Some(city)) => {
+                    let country_code = city.country
+                        .and_then(|c| c.iso_code)
+                        .map(|s| s.to_string());
 
-                let subdivision_code = if self.geolocation_mode.has_subdivisions() {
-                    city.subdivisions
+                    let subdivision_code = city.subdivisions
                         .as_ref()
                         .and_then(|subs| subs.first())
                         .and_then(|sub| sub.iso_code)
                         .and_then(|sub_code| {
                             country_code.as_ref().map(|cc| format!("{}-{}", cc, sub_code))
-                        })
-                } else {
-                    None
-                };
+                        });
 
-                let city_name = if self.geolocation_mode.has_subdivisions() {
-                    city.city
+                    let city_name = city.city
                         .and_then(|c| c.names)
-                        .and_then(|names| names.get("en").map(|s| s.to_string()))
-                } else {
-                    None
-                };
+                        .and_then(|names| names.get("en").map(|s| s.to_string()));
 
-                GeoLocation {
-                    country_code,
-                    subdivision_code,
-                    city: city_name,
+                    GeoLocation {
+                        country_code,
+                        subdivision_code,
+                        city: city_name,
+                    }
+                }
+                Ok(None) => GeoLocation::default(),
+                Err(e) => {
+                    warn!("GeoIP City lookup failed: {}", e);
+                    GeoLocation::default()
                 }
             }
-            Ok(None) => GeoLocation::default(),
-            Err(e) => {
-                warn!("GeoIP lookup failed: {}", e);
-                GeoLocation::default()
+        } else {
+            match reader.lookup::<geoip2::Country>(ip) {
+                Ok(Some(country)) => {
+                    let country_code = country.country
+                        .and_then(|c| c.iso_code)
+                        .map(|s| s.to_string());
+
+                    GeoLocation {
+                        country_code,
+                        subdivision_code: None,
+                        city: None,
+                    }
+                }
+                Ok(None) => GeoLocation::default(),
+                Err(e) => {
+                    warn!("GeoIP Country lookup failed: {}", e);
+                    GeoLocation::default()
+                }
             }
         };
 

@@ -1,7 +1,6 @@
 'use server';
 
 import { fetchVisitorsByGeoLevel } from '@/services/analytics/geography.service';
-import { z } from 'zod';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
@@ -93,44 +92,3 @@ export const getTopSubdivisionVisitsAction = withDashboardAuthContext(
   },
 );
 
-/**
- * Server action to fetch subdivision/region visitor data for a specific country
- */
-export const getSubdivisionMapData = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, countryCode: string): Promise<GeoMapResponse> => {
-    const validatedCountryCode = z
-      .string()
-      .regex(/^[A-Z]{2}$/, 'Must be a valid ISO 3166-1 alpha-2 country code')
-      .parse(countryCode);
-
-    const { main, compare } = toSiteQuery(ctx.siteId, query);
-    const settings = await getDashboardSettings(ctx.dashboardId);
-    const minVisitors = settings.geoMinThreshold;
-
-    const subdivisionVisitors = await fetchVisitorsByGeoLevel(
-      main,
-      'subdivision_code',
-      { column: 'country_code', value: validatedCountryCode },
-      1000,
-      minVisitors,
-    );
-
-    const compareSubdivisionVisitors =
-      compare &&
-      (await fetchVisitorsByGeoLevel(
-        compare,
-        'subdivision_code',
-        { column: 'country_code', value: validatedCountryCode },
-        1000,
-        minVisitors,
-      ));
-
-    const maxVisitors = Math.max(...subdivisionVisitors.map((d) => d.visitors), 1);
-
-    return {
-      visitorData: subdivisionVisitors,
-      compareData: compareSubdivisionVisitors || [],
-      maxVisitors,
-    };
-  },
-);

@@ -27,11 +27,14 @@ export async function getVisitorsByGeoLevel(
     : safeSql``;
 
   const includeCountryCode = validatedLevel !== 'country_code';
+  // Cities need country_code in GROUP BY to avoid merging same-name cities across countries (e.g. "Springfield" in US vs UK).
+  // Subdivisions already encode the country in their code (e.g. "US-CA"), so any() is safe there.
+  const groupByCountryCode = validatedLevel === 'city';
 
   const query = safeSql`
     SELECT
       ${SQL.Unsafe(validatedLevel)} AS code,
-      ${includeCountryCode ? safeSql`any(country_code) AS parent_country_code,` : safeSql``}
+      ${includeCountryCode ? safeSql`${groupByCountryCode ? safeSql`country_code` : safeSql`any(country_code)`} AS parent_country_code,` : safeSql``}
       uniq(visitor_id) as visitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -40,7 +43,7 @@ export async function getVisitorsByGeoLevel(
       AND ${SQL.Unsafe(validatedLevel)} != ''
       ${parentClause}
       AND ${SQL.AND(filters)}
-    GROUP BY code
+    GROUP BY ${groupByCountryCode ? safeSql`code, country_code` : safeSql`code`}
     ${minVisitors > 0 ? safeSql`HAVING visitors >= {min_visitors:UInt32}` : safeSql``}
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}

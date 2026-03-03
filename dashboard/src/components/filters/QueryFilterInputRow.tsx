@@ -36,6 +36,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -54,7 +55,9 @@ export function QueryFilterInputRow<TEntity>({
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
+  const geoSubdivisionColumns = new Set<FilterColumn>(['subdivision_code', 'city']);
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
@@ -83,7 +86,9 @@ export function QueryFilterInputRow<TEntity>({
         >
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+            {FILTER_COLUMN_SELECT_OPTIONS
+              .filter((column) => !geoSubdivisionColumns.has(column.value as FilterColumn) || isFeatureFlagEnabled('enableGeoSubdivision'))
+              .map((column) => {
               const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
               return (
                 <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>

@@ -1,14 +1,6 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
 
-export const GeolocationMode = {
-  Disabled: 'false',
-  Countries: 'countries',
-  Subdivisions: 'subdivisions',
-} as const;
-
-export type GeolocationMode = (typeof GeolocationMode)[keyof typeof GeolocationMode];
-
 export const zStringBoolean = z
   .enum(['true', 'false'])
   .optional()
@@ -70,14 +62,8 @@ const envSchema = z.object({
   OTEL_SERVICE_NAME: z.string().optional(),
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
-  ENABLE_GEOLOCATION: z
-    .enum(['false', 'true', 'countries', 'subdivisions'])
-    .optional()
-    .default('false')
-    .transform((val): GeolocationMode => {
-      if (val === 'true') return GeolocationMode.Countries;
-      return val as GeolocationMode;
-    }),
+  ENABLE_GEOLOCATION: zStringBoolean,
+  PUBLIC_ENABLE_GEOSUBDIVISION: zStringBoolean,
   PUSHOVER_APP_TOKEN: z.string().optional(),
   INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
 });

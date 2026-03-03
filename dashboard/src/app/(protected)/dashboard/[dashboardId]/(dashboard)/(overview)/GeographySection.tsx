@@ -19,8 +19,8 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
   topCountriesPromise: ReturnType<typeof getTopCountryVisitsAction>;
-  topSubdivisionsPromise?: ReturnType<typeof getTopSubdivisionVisitsAction>;
-  topCitiesPromise?: ReturnType<typeof getTopCityVisitsAction>;
+  topSubdivisionsPromise: ReturnType<typeof getTopSubdivisionVisitsAction>;
+  topCitiesPromise: ReturnType<typeof getTopCityVisitsAction>;
 };
 
 export default function GeographySection({
@@ -31,8 +31,8 @@ export default function GeographySection({
 }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
   const topCountries = use(topCountriesPromise);
-  const topSubdivisions = topSubdivisionsPromise ? use(topSubdivisionsPromise) : undefined;
-  const topCities = topCitiesPromise ? use(topCitiesPromise) : undefined;
+  const topSubdivisions = use(topSubdivisionsPromise);
+  const topCities = use(topCitiesPromise);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -82,7 +82,7 @@ export default function GeographySection({
             icon: renderFlag(country.code),
           })),
         },
-        ...(topSubdivisions
+        ...(topSubdivisions.length > 0
           ? [
               {
                 key: 'regions',
@@ -98,7 +98,7 @@ export default function GeographySection({
               },
             ]
           : []),
-        ...(topCities
+        ...(topCities.length > 0
           ? [
               {
                 key: 'cities',

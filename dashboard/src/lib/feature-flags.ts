@@ -1,4 +1,4 @@
-import { env, GeolocationMode } from './env';
+import { env } from './env';
 
 /**
  * Feature flags for controlling application behavior in different environments
@@ -13,7 +13,7 @@ export const featureFlags = {
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
   enableBugReports: env.IS_CLOUD,
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
-  enableSubdivisionTracking: env.ENABLE_GEOLOCATION === GeolocationMode.Subdivisions,
+  enableSubdivisionTracking: env.ENABLE_GEOLOCATION && env.PUBLIC_ENABLE_GEOSUBDIVISION,
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {

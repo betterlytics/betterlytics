@@ -180,9 +180,17 @@ impl GeoIpUpdater {
             anyhow::bail!("Download request failed: {} - {}", status, body);
         }
 
-        let content = response.bytes().await?;
         // Safety limit: City DB is ~70MB compressed, Country ~5MB; 200MB allows generous headroom
         const MAX_DOWNLOAD_SIZE: usize = 200 * 1024 * 1024;
+
+        // Check Content-Length before downloading the full body into memory
+        if let Some(content_length) = response.content_length() {
+            if content_length as usize > MAX_DOWNLOAD_SIZE {
+                anyhow::bail!("Content-Length ({} bytes) exceeds maximum expected size ({} bytes)", content_length, MAX_DOWNLOAD_SIZE);
+            }
+        }
+
+        let content = response.bytes().await?;
         if content.len() > MAX_DOWNLOAD_SIZE {
             anyhow::bail!("Downloaded archive ({} bytes) exceeds maximum expected size ({} bytes)", content.len(), MAX_DOWNLOAD_SIZE);
         }

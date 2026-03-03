@@ -13,10 +13,12 @@ import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboard
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 export default function DataSettings() {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
@@ -78,7 +80,7 @@ export default function DataSettings() {
   };
 
   const handleThresholdBlur = () => {
-    const clamped = Math.max(0, Math.min(100, geoMinThreshold));
+    const clamped = Math.max(0, Math.min(9999, geoMinThreshold));
     setGeoMinThreshold(clamped);
     saveThreshold(clamped);
   };
@@ -123,29 +125,31 @@ export default function DataSettings() {
         </div>
       </SettingsSection>
 
-      <SettingsSection title={t('data.geoThresholdTitle')}>
-        <div className='flex items-center justify-between'>
-          <div>
-            <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
-            <p className='text-muted-foreground text-xs'>{t('data.geoThresholdHelp')}</p>
+      {isFeatureFlagEnabled('enableGeoSubdivision') && (
+        <SettingsSection title={t('data.geoThresholdTitle')}>
+          <div className='flex items-center justify-between'>
+            <div>
+              <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
+              <p className='text-muted-foreground text-xs'>{t('data.geoThresholdHelp')}</p>
+            </div>
+            <PermissionGate permission='canManageSettings'>
+              {(disabled) => (
+                <Input
+                  type='number'
+                  min={0}
+                  max={9999}
+                  value={geoMinThreshold}
+                  onChange={(e) => setGeoMinThreshold(parseInt(e.target.value) || 0)}
+                  onBlur={handleThresholdBlur}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                  disabled={isPending || disabled}
+                  className='border-border w-20 text-center'
+                />
+              )}
+            </PermissionGate>
           </div>
-          <PermissionGate permission='canManageSettings'>
-            {(disabled) => (
-              <Input
-                type='number'
-                min={0}
-                max={100}
-                value={geoMinThreshold}
-                onChange={(e) => setGeoMinThreshold(parseInt(e.target.value) || 0)}
-                onBlur={handleThresholdBlur}
-                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-                disabled={isPending || disabled}
-                className='border-border w-20 text-center'
-              />
-            )}
-          </PermissionGate>
-        </div>
-      </SettingsSection>
+        </SettingsSection>
+      )}
       </div>
 
       <ConfirmDialog
