@@ -12,6 +12,7 @@ import {
   Gauge,
   Video,
   Activity,
+  Bug,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -110,6 +111,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
   const observabilityItems: SidebarItem[] = [
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={ICON_SIZE} /> },
+    { name: 'Errors', key: 'errors', href: '/errors', icon: <Bug size={ICON_SIZE} /> },
     {
       name: t('monitoring'),
       key: 'monitoring',
