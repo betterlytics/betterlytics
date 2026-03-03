@@ -1599,7 +1599,9 @@
       "pages": "Sider",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
-      "topCountries": "Top lande",
+      "countries": "Lande",
+      "regions": "Regioner",
+      "cities": "Byer",
       "worldMap": "Verdenskort",
       "browsers": "Browsere",
       "devices": "Enheder",
@@ -2330,6 +2332,8 @@
         "domain": "Hostname",
         "device_type": "Enhedstype",
         "country_code": "Landekode",
+        "subdivision_code": "Region",
+        "city": "By",
         "browser": "Browser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
@@ -2500,7 +2504,9 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "visitors": "Besøgende"
+      "loading": "Indlæser kort...",
+      "visitors": "Besøgende",
+      "regionLoadError": "Kunne ikke indlæse regionsdata"
     },
     "userJourney": {
       "steps": "Trin",
@@ -2868,6 +2874,9 @@
           "title": "Ændre opbevaringsperiode?",
           "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
         },
+        "geoThresholdTitle": "Privatliv",
+        "geoThresholdLabel": "Minimum besøgsgrænse",
+        "geoThresholdHelp": "By- og regionsdata med færre besøgende end denne værdi skjules fra dashboardet. Sæt til 0 for at deaktivere.",
         "siteRules": {
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",

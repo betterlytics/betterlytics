@@ -1,7 +1,35 @@
 use std::env;
+use std::fmt;
 use std::path::PathBuf;
 use std::time::Duration;
 
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GeolocationMode {
+    Disabled,
+    Countries,
+    Subdivisions,
+}
+
+impl GeolocationMode {
+    pub fn is_enabled(self) -> bool {
+        self != GeolocationMode::Disabled
+    }
+
+    pub fn has_subdivisions(self) -> bool {
+        self == GeolocationMode::Subdivisions
+    }
+}
+
+impl fmt::Display for GeolocationMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            GeolocationMode::Disabled => write!(f, "disabled"),
+            GeolocationMode::Countries => write!(f, "countries"),
+            GeolocationMode::Subdivisions => write!(f, "subdivisions"),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct Config {
@@ -12,7 +40,7 @@ pub struct Config {
     pub clickhouse_user: String,
     pub clickhouse_password: String,
     // GeoIP configuration
-    pub enable_geolocation: bool,
+    pub geolocation_mode: GeolocationMode,
     pub maxmind_account_id: Option<String>,
     pub maxmind_license_key: Option<String>,
     pub geoip_db_path: PathBuf,
@@ -58,6 +86,22 @@ impl Config {
         let root_env_path = PathBuf::from("../.env");
         dotenv::from_path(&root_env_path).ok();
 
+        // ENABLE_GEOLOCATION accepts: false | true | countries | subdivisions
+        // "true" and "countries" are equivalent (country-level only).
+        // "subdivisions" enables both country and regional drill-down.
+        let geo_mode_str = env::var("ENABLE_GEOLOCATION")
+            .unwrap_or_else(|_| "false".to_string())
+            .to_lowercase();
+        let geolocation_mode = match geo_mode_str.as_str() {
+            "false" => GeolocationMode::Disabled,
+            "true" | "countries" => GeolocationMode::Countries,
+            "subdivisions" => GeolocationMode::Subdivisions,
+            other => {
+                eprintln!("WARNING: Unrecognized ENABLE_GEOLOCATION value '{}'. Expected: false, true, countries, or subdivisions. Defaulting to disabled.", other);
+                GeolocationMode::Disabled
+            }
+        };
+
         Config {
             server_port: env::var("SERVER_PORT")
                 .unwrap_or_else(|_| "3000".to_string())
@@ -74,14 +118,16 @@ impl Config {
             clickhouse_password: env::var("CLICKHOUSE_BACKEND_PASSWORD")
                 .unwrap_or_else(|_| "password".to_string()),
             // GeoIP configuration
-            enable_geolocation: env::var("ENABLE_GEOLOCATION")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
+            geolocation_mode,
             maxmind_account_id: env::var("MAXMIND_ACCOUNT_ID").ok(),
             maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok(),
             geoip_db_path: env::var("GEOIP_DB_PATH")
                 .map(PathBuf::from)
-                .unwrap_or_else(|_| PathBuf::from("assets/geoip/GeoLite2-Country.mmdb")),
+                .unwrap_or_else(|_| if geolocation_mode.has_subdivisions() {
+                    PathBuf::from("assets/geoip/GeoLite2-City.mmdb")
+                } else {
+                    PathBuf::from("assets/geoip/GeoLite2-Country.mmdb")
+                }),
             geoip_update_interval: Duration::from_secs(
                 env::var("GEOIP_UPDATE_INTERVAL")
                     .ok()

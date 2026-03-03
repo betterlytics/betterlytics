@@ -1607,7 +1607,9 @@
       "pages": "Sider",
       "entryPages": "Inngangssider",
       "exitPages": "Utgangssider",
-      "topCountries": "Topp land",
+      "countries": "Land",
+      "regions": "Regioner",
+      "cities": "Byer",
       "worldMap": "Verdenskart",
       "browsers": "Nettlesere",
       "devices": "Enheter",
@@ -2338,6 +2340,8 @@
         "domain": "Vertsnavn",
         "device_type": "Enhetstype",
         "country_code": "Landekode",
+        "subdivision_code": "Region",
+        "city": "By",
         "browser": "Nettleser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
@@ -2508,7 +2512,9 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgjengelige for valgt periode",
-      "visitors": "Besøkende"
+      "loading": "Laster kart...",
+      "visitors": "Besøkende",
+      "regionLoadError": "Kunne ikke laste regiondata"
     },
     "userJourney": {
       "steps": "Trinn",
@@ -2876,6 +2882,9 @@
           "title": "Endre oppbevaringsperiode?",
           "description": "Er du sikker på at du vil endre dataoppbevaringsperioden til {period}?"
         },
+        "geoThresholdTitle": "Personvern",
+        "geoThresholdLabel": "Minimum besøksgrense",
+        "geoThresholdHelp": "By- og regiondata med færre besøkende enn denne verdien skjules fra dashbordet. Sett til 0 for å deaktivere.",
         "siteRules": {
           "title": "Nettstedsregler",
           "description": "Kontroller hvilke innkommende hendelser som godtas.",

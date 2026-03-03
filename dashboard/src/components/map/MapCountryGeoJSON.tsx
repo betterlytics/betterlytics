@@ -1,5 +1,5 @@
 import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
-import type { WorldMapResponse, GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoMapResponse, GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
 import React, { useCallback, useEffect } from 'react';
@@ -10,7 +10,7 @@ import MapPopupContent from './tooltip/MapPopupContent';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
-type MapCountryGeoJSONProps = Omit<WorldMapResponse, 'maxVisitors'> & {
+type MapCountryGeoJSONProps = Omit<GeoMapResponse, 'maxVisitors'> & {
   GeoJSON: typeof GeoJSON;
   geoData: GeoJSON.FeatureCollection;
   style: MapStyle;
@@ -45,20 +45,20 @@ export default function MapCountryGeoJSON({
 
   const onEachFeature = useCallback(
     (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
-      const country_code = getFeatureId(feature);
-      if (!country_code) return;
+      const code = getFeatureId(feature);
+      if (!code) return;
 
-      let geoVisitor = visitorData.find((d) => d.country_code === country_code);
-      if (!geoVisitor?.visitors && country_code === 'AQ') {
+      let geoVisitor = visitorData.find((d) => d.code === code);
+      if (!geoVisitor?.visitors && code === 'AQ') {
         layer.setStyle({ opacity: 0, fillOpacity: 0 });
         return;
       }
       if (!geoVisitor) {
-        geoVisitor = { country_code, visitors: 0 };
+        geoVisitor = { code, visitors: 0 };
       }
-      const compareVisitor = compareData.find((d) => d.country_code === country_code);
+      const compareVisitor = compareData.find((d) => d.code === code);
 
-      const geoVisitorWithComparison: GeoVisitorWithCompare = {
+      const geoVisitorWithComparison: GeoFeatureVisitorWithCompare = {
         ...geoVisitor,
         compareVisitors: timeRangeCtx.compareMode === 'off' ? undefined : (compareVisitor?.visitors ?? 0),
       };

@@ -159,12 +159,24 @@ After completing the flow, you'll be shown your license key. Copy it (you won't 
 Add the following to your `.env` file:
 
 ```bash
-ENABLE_GEOLOCATION=true
+ENABLE_GEOLOCATION=countries      # or "subdivisions" for region & city data
 MAXMIND_ACCOUNT_ID=your_account_id
 MAXMIND_LICENSE_KEY=your_license_key
 ```
 
 Your Account ID is displayed at the top of the MaxMind account portal.
+
+`ENABLE_GEOLOCATION` accepts three values:
+
+| Value | Behavior |
+|-------|----------|
+| `false` (default) | Geolocation disabled |
+| `countries` | Country-level geolocation (~9 MB) |
+| `subdivisions` | Country + subdivision + city data (~61 MB) |
+
+The `subdivisions` mode adds region and city tabs to the dashboard overview, providing granular geographic insights. Use `countries` if you only need country-level data and want to keep memory usage low.
+
+> `true` is still accepted for backwards compatibility and behaves identically to `countries`.
 
 ### 4. Restart
 
@@ -175,6 +187,22 @@ docker compose down && docker compose up -d
 <Callout type="info">
 When geolocation is enabled, the GeoLite2 database is downloaded automatically and refreshed periodically. No manual updates are required. The initial download may take a moment on first run.
 </Callout>
+
+### City & Subdivision Data
+
+When `ENABLE_GEOLOCATION=subdivisions` is set, both subdivision (state/province/region) and city data are extracted from the MaxMind GeoLite2-City database — the same database used for country lookups, just a larger version (~61 MB vs ~9 MB).
+
+<Callout type="warning">
+**Forward-only data:** Enabling subdivisions mode only populates city and subdivision data for **new events** going forward. Existing events recorded before enabling this mode will only have country-level data. There is no way to backfill since IP addresses are never stored.
+</Callout>
+
+#### Privacy Considerations
+
+City-level data combined with other analytics dimensions (device, browser, time) can potentially identify individuals in small geographic areas — a risk known as "singling out" under GDPR Recital 26.
+
+Betterlytics mitigates this with a **minimum visitor threshold** (default: 10). Geographic locations with fewer unique visitors than the threshold are hidden from the dashboard. This setting is configurable per-dashboard in **Settings > Data > Privacy**.
+
+For low-traffic sites (fewer than ~1,000 monthly visitors), we recommend keeping the default threshold of 10 or setting it higher. See our [privacy decision document](https://github.com/betterlytics/betterlytics/blob/main/docs/GDPR_CITY_LEVEL_GEOGRAPHY.md) for the full analysis.
 
 ## Updating
 

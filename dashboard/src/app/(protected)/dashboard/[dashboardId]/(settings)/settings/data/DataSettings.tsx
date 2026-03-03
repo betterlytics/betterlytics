@@ -1,6 +1,7 @@
 'use client';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import SettingsSection from '../SettingsSection';
 import SettingsPageHeader from '../SettingsPageHeader';
@@ -18,6 +19,7 @@ export default function DataSettings() {
   const { settings, refreshSettings } = useSettings();
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
+  const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
   const [isPending, startTransition] = useTransition();
 
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
@@ -57,6 +59,30 @@ export default function DataSettings() {
     setPendingRetentionValue(null);
   };
 
+  const saveThreshold = (newValue: number) => {
+    if (newValue === settings.geoMinThreshold) return;
+
+    const previousValue = geoMinThreshold;
+    setGeoMinThreshold(newValue);
+
+    startTransition(async () => {
+      try {
+        await updateDashboardSettingsAction(dashboardId, { geoMinThreshold: newValue });
+        await refreshSettings();
+        toast.success(t('toastSuccess'));
+      } catch {
+        setGeoMinThreshold(previousValue);
+        toast.error(t('toastError'));
+      }
+    });
+  };
+
+  const handleThresholdBlur = () => {
+    const clamped = Math.max(0, Math.min(100, geoMinThreshold));
+    setGeoMinThreshold(clamped);
+    saveThreshold(clamped);
+  };
+
   const getPendingPresetLabel = () => {
     const preset = DATA_RETENTION_PRESETS.find((p) => p.value === pendingRetentionValue);
     if (!preset) return '';
@@ -67,6 +93,7 @@ export default function DataSettings() {
     <div>
       <SettingsPageHeader title={t('title')} />
 
+      <div className='space-y-12'>
       <SettingsSection title={t('data.retentionTitle')}>
         <div className='flex items-center justify-between'>
           <div>
@@ -95,6 +122,31 @@ export default function DataSettings() {
           </PermissionGate>
         </div>
       </SettingsSection>
+
+      <SettingsSection title={t('data.geoThresholdTitle')}>
+        <div className='flex items-center justify-between'>
+          <div>
+            <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
+            <p className='text-muted-foreground text-xs'>{t('data.geoThresholdHelp')}</p>
+          </div>
+          <PermissionGate permission='canManageSettings'>
+            {(disabled) => (
+              <Input
+                type='number'
+                min={0}
+                max={100}
+                value={geoMinThreshold}
+                onChange={(e) => setGeoMinThreshold(parseInt(e.target.value) || 0)}
+                onBlur={handleThresholdBlur}
+                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                disabled={isPending || disabled}
+                className='border-border w-20 text-center'
+              />
+            )}
+          </PermissionGate>
+        </div>
+      </SettingsSection>
+      </div>
 
       <ConfirmDialog
         open={isConfirmOpen}

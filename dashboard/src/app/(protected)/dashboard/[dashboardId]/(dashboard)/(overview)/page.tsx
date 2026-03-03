@@ -15,7 +15,9 @@ import {
   fetchSummaryStatsAction,
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
+  getTopCityVisitsAction,
   getTopCountryVisitsAction,
+  getTopSubdivisionVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions/index.actions';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
@@ -25,6 +27,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
+import { featureFlags } from '@/lib/feature-flags';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -39,6 +42,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
   const topCountriesPromise = getTopCountryVisitsAction(dashboardId, query);
+  const hasSubdivisions = featureFlags.enableSubdivisionTracking;
+  const topSubdivisionsPromise = hasSubdivisions ? getTopSubdivisionVisitsAction(dashboardId, query) : undefined;
+  const topCitiesPromise = hasSubdivisions ? getTopCityVisitsAction(dashboardId, query) : undefined;
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, query),
@@ -68,7 +74,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} />
+          <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} topSubdivisionsPromise={topSubdivisionsPromise} topCitiesPromise={topCitiesPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />

@@ -31,7 +31,7 @@ import {
   type DeviceType,
   type OperatingSystemInfo,
 } from '@/entities/analytics/devices.entities';
-import { GeoVisitorSchema, type GeoVisitor } from '@/entities/analytics/geography.entities';
+import { GeoFeatureVisitorSchema, type GeoFeatureVisitor } from '@/entities/analytics/geography.entities';
 import { formatDuration } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
@@ -225,7 +225,7 @@ export async function fetchCampaignSparklines(
 
 export type CampaignAudienceProfileData = {
   devices: DeviceType[];
-  countries: GeoVisitor[];
+  countries: GeoFeatureVisitor[];
   browsers: BrowserInfo[];
   operatingSystems: OperatingSystemInfo[];
 };
@@ -248,9 +248,9 @@ export async function fetchCampaignAudienceProfile(
     })),
   );
 
-  const countries = GeoVisitorSchema.array().parse(
+  const countries = GeoFeatureVisitorSchema.array().parse(
     mapRows('country', (row) => ({
-      country_code: row.label,
+      code: row.label,
       visitors: row.visitors,
     })),
   );
