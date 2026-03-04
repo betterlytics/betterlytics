@@ -1,12 +1,6 @@
 import { z } from 'zod';
 
-type DimensionDefinition = {
-  key: string;
-  column: string;
-  description: string;
-};
-
-const DimensionColumnSchema = z.enum([
+export const DIMENSION_KEYS = [
   'url',
   'device_type',
   'country_code',
@@ -15,9 +9,16 @@ const DimensionColumnSchema = z.enum([
   'custom_event_name',
   'referrer_source',
   'referrer_source_name',
-]);
+] as const;
+export type DimensionKey = (typeof DIMENSION_KEYS)[number];
 
-export const DIMENSIONS: DimensionDefinition[] = [
+type DimensionDefinition = {
+  key: DimensionKey;
+  column: string;
+  description: string;
+};
+
+export const DIMENSIONS = [
   { key: 'url', column: 'url', description: 'Page URL' },
   { key: 'device_type', column: 'device_type', description: 'Desktop, mobile, or tablet' },
   { key: 'country_code', column: 'country_code', description: 'Two-letter ISO country code (e.g. US, DE, BR)' },
@@ -26,9 +27,10 @@ export const DIMENSIONS: DimensionDefinition[] = [
   { key: 'custom_event_name', column: 'custom_event_name', description: 'Custom event name' },
   { key: 'referrer_source', column: 'referrer_source', description: 'Traffic source type (e.g. search, social, direct)' },
   { key: 'referrer_source_name', column: 'referrer_source_name', description: 'Traffic source name (e.g. Google, Twitter, Reddit)' },
-];
+] satisfies DimensionDefinition[];
 
-export const DIMENSION_KEYS = DIMENSIONS.map((d) => d.key);
+const DIMENSION_COLUMNS = DIMENSIONS.map((d) => d.column) as [string, ...string[]];
+export const DimensionColumnSchema = z.enum(DIMENSION_COLUMNS);
 
 export function getDimensionByKey(key: string): DimensionDefinition | undefined {
   return DIMENSIONS.find((d) => d.key === key);

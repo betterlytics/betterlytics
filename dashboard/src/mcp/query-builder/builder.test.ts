@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildQuery } from '@/mcp/query-builder/builder';
-import { McpQueryInput } from '@/mcp/query-builder/validation';
+import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 
 describe('buildQuery', () => {
   const siteId = 'test-site-id';
@@ -10,6 +10,7 @@ describe('buildQuery', () => {
     const input: McpQueryInput = {
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -27,6 +28,7 @@ describe('buildQuery', () => {
       metrics: ['visitors', 'pageviews'],
       dimensions: ['device_type'],
       timeRange: '28d',
+      timezone,
       order: 'desc',
       limit: 50,
     };
@@ -46,6 +48,7 @@ describe('buildQuery', () => {
       dimensions: ['country_code'],
       timeRange: '28d',
       granularity: 'day',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -62,6 +65,7 @@ describe('buildQuery', () => {
       metrics: ['pageviews'],
       filters: [{ column: 'url', operator: '=', values: ['/landing'] }],
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -75,6 +79,7 @@ describe('buildQuery', () => {
     const input: McpQueryInput = {
       metrics: ['nonexistent_metric'] as any,
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -87,6 +92,7 @@ describe('buildQuery', () => {
       metrics: ['visitors'],
       dimensions: ['nonexistent_dimension'] as any,
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -99,6 +105,7 @@ describe('buildQuery', () => {
       metrics: ['sessions', 'visitors'],
       dimensions: ['browser'],
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -113,6 +120,7 @@ describe('buildQuery', () => {
       metrics: ['visitors'],
       dimensions: ['referrer_source'],
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -128,6 +136,7 @@ describe('buildQuery', () => {
       metrics: ['visitors'],
       dimensions: ['referrer_source_name'],
       timeRange: '7d',
+      timezone,
       order: 'desc',
       limit: 100,
     };
@@ -144,6 +153,7 @@ describe('buildQuery', () => {
       timeRange: 'custom',
       startDate: '2026-01-01',
       endDate: '2026-01-31',
+      timezone,
       order: 'desc',
       limit: 100,
     };

@@ -4,9 +4,8 @@ import { getMetricByKey } from '@/mcp/registry/metrics';
 import { getDimensionByKey, validateDimensionColumn } from '@/mcp/registry/dimensions';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { McpQueryInput, McpOrderBySchema } from '@/mcp/query-builder/validation';
+import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { TimeRangeValue } from '@/utils/timeRanges';
 
 type BuildResult = {
   taggedSql: string;
@@ -18,7 +17,7 @@ export function buildQuery(input: McpQueryInput, siteId: string, timezone: strin
   const customEnd = input.endDate ? new Date(input.endDate) : new Date();
 
   const ranges = getResolvedRanges(
-    input.timeRange as TimeRangeValue,
+    input.timeRange,
     'off',
     timezone,
     customStart,
@@ -49,7 +48,7 @@ export function buildQuery(input: McpQueryInput, siteId: string, timezone: strin
 
   const filters = BAQuery.getFilterQuery((input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` })));
 
-  const orderByKey = McpOrderBySchema.parse(input.orderBy ?? input.metrics[0]);
+  const orderByKey = input.orderBy ?? input.metrics[0];
   const orderByColumn = SQL.Unsafe(orderByKey);
   const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 

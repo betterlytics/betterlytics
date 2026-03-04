@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { McpQueryInputSchema } from '@/mcp/query-builder/validation';
+import { McpQueryInputSchema } from '@/mcp/entities/mcp.entities';
 
 describe('McpQueryInputSchema', () => {
   it('accepts valid input with all fields', () => {
@@ -13,17 +13,12 @@ describe('McpQueryInputSchema', () => {
       order: 'desc',
       limit: 50,
     };
-
     const result = McpQueryInputSchema.safeParse(input);
     expect(result.success).toBe(true);
   });
 
-  it('accepts minimal input', () => {
-    const input = {
-      metrics: ['visitors'],
-      timeRange: '7d',
-    };
-
+  it('applies defaults for limit and order', () => {
+    const input = { metrics: ['visitors'], timeRange: '7d' };
     const result = McpQueryInputSchema.safeParse(input);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -33,104 +28,85 @@ describe('McpQueryInputSchema', () => {
   });
 
   it('rejects empty metrics array', () => {
-    const input = { metrics: [], timeRange: '7d' };
-    const result = McpQueryInputSchema.safeParse(input);
+    const result = McpQueryInputSchema.safeParse({ metrics: [], timeRange: '7d' });
     expect(result.success).toBe(false);
   });
 
   it('rejects unknown metric keys', () => {
-    const input = { metrics: ['fake_metric'], timeRange: '7d' };
-    const result = McpQueryInputSchema.safeParse(input);
+    const result = McpQueryInputSchema.safeParse({ metrics: ['fake_metric'], timeRange: '7d' });
     expect(result.success).toBe(false);
   });
 
   it('rejects unknown dimension keys', () => {
-    const input = { metrics: ['visitors'], dimensions: ['fake_dim'], timeRange: '7d' };
-    const result = McpQueryInputSchema.safeParse(input);
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      dimensions: ['fake_dim'],
+      timeRange: '7d',
+    });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid time range', () => {
-    const input = { metrics: ['visitors'], timeRange: 'invalid' };
-    const result = McpQueryInputSchema.safeParse(input);
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'invalid' });
     expect(result.success).toBe(false);
   });
 
   it('rejects limit above 10000', () => {
-    const input = { metrics: ['visitors'], timeRange: '7d', limit: 50000 };
-    const result = McpQueryInputSchema.safeParse(input);
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', limit: 50000 });
     expect(result.success).toBe(false);
   });
 
   it('accepts referrer dimensions', () => {
-    const input = {
+    const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       dimensions: ['referrer_source'],
       timeRange: '7d',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
+    });
     expect(result.success).toBe(true);
   });
 
   it('accepts referrer_source_name dimension', () => {
-    const input = {
+    const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       dimensions: ['referrer_source_name'],
       timeRange: '7d',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
+    });
     expect(result.success).toBe(true);
   });
 
-  it('accepts custom time range with startDate and endDate', () => {
-    const input = {
-      metrics: ['visitors'],
-      timeRange: 'custom',
-      startDate: '2026-01-01',
-      endDate: '2026-01-31',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
-    expect(result.success).toBe(true);
-  });
-
-  it('rejects custom time range without dates', () => {
-    const input = {
-      metrics: ['visitors'],
-      timeRange: 'custom',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
-    expect(result.success).toBe(false);
-  });
-
-  it('rejects custom time range with only startDate', () => {
-    const input = {
-      metrics: ['visitors'],
-      timeRange: 'custom',
-      startDate: '2026-01-01',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
-    expect(result.success).toBe(false);
+  it('requires both dates for custom time range', () => {
+    expect(McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'custom' }).success).toBe(false);
+    expect(
+      McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'custom', startDate: '2026-01-01' })
+        .success,
+    ).toBe(false);
+    expect(
+      McpQueryInputSchema.safeParse({
+        metrics: ['visitors'],
+        timeRange: 'custom',
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+      }).success,
+    ).toBe(true);
   });
 
   it('rejects startDate after endDate', () => {
-    const input = {
+    const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: 'custom',
       startDate: '2026-02-01',
       endDate: '2026-01-01',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
+    });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid date format', () => {
-    const input = {
+    const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: 'custom',
       startDate: '01/01/2026',
       endDate: '01/31/2026',
-    };
-    const result = McpQueryInputSchema.safeParse(input);
+    });
     expect(result.success).toBe(false);
   });
 });

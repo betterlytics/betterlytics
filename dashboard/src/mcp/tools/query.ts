@@ -1,4 +1,4 @@
-import { McpQueryInputSchema } from '@/mcp/query-builder/validation';
+import { McpQueryInputSchema, McpQueryResultSchema } from '@/mcp/entities/mcp.entities';
 import { buildQuery } from '@/mcp/query-builder/builder';
 import { clickhouse } from '@/lib/clickhouse';
 
@@ -10,5 +10,5 @@ export async function executeQuery(rawInput: unknown, siteId: string, timezone: 
     .query(taggedSql, { params: taggedParams })
     .toPromise();
 
-  return result;
+  return McpQueryResultSchema.parse(result);
 }
