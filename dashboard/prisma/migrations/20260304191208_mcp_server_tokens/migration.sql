@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "McpToken" (
     "id" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "dashboardId" TEXT NOT NULL,
     "createdBy" TEXT NOT NULL,
@@ -13,10 +13,10 @@ CREATE TABLE "McpToken" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "McpToken_token_key" ON "McpToken"("token");
+CREATE UNIQUE INDEX "McpToken_tokenHash_key" ON "McpToken"("tokenHash");
 
 -- CreateIndex
-CREATE INDEX "McpToken_token_idx" ON "McpToken"("token");
+CREATE INDEX "McpToken_tokenHash_idx" ON "McpToken"("tokenHash");
 
 -- CreateIndex
 CREATE INDEX "McpToken_dashboardId_idx" ON "McpToken"("dashboardId");
