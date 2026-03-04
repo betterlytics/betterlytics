@@ -106,7 +106,7 @@ export function ErrorsOverviewChart({ chartPromise }: ErrorsOverviewChartProps) 
               <Tooltip content={renderTooltip} cursor={{ fill: 'var(--muted)', opacity: 0.3 }} />
               <Bar
                 dataKey='count'
-                fill='var(--color-destructive)'
+                fill='var(--chart-error)'
                 opacity={0.85}
                 radius={[2, 2, 0, 0]}
                 maxBarSize={32}

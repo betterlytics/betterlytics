@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ErrorCard } from './ErrorCard';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
@@ -50,12 +51,12 @@ export function ErrorCardList({ errors, volumeMap }: ErrorCardListProps) {
       <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
         <div className='relative flex-1 sm:max-w-sm'>
           <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-          <input
+          <Input
             type='text'
             placeholder='Search by type and message...'
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className='border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border py-2 pr-3 pl-9 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none'
+            className='pl-9'
           />
         </div>
         <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
