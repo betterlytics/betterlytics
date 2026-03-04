@@ -61,4 +61,76 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse(input);
     expect(result.success).toBe(false);
   });
+
+  it('accepts referrer dimensions', () => {
+    const input = {
+      metrics: ['visitors'],
+      dimensions: ['referrer_source'],
+      timeRange: '7d',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts referrer_source_name dimension', () => {
+    const input = {
+      metrics: ['visitors'],
+      dimensions: ['referrer_source_name'],
+      timeRange: '7d',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts custom time range with startDate and endDate', () => {
+    const input = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+      startDate: '2026-01-01',
+      endDate: '2026-01-31',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects custom time range without dates', () => {
+    const input = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects custom time range with only startDate', () => {
+    const input = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+      startDate: '2026-01-01',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects startDate after endDate', () => {
+    const input = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+      startDate: '2026-02-01',
+      endDate: '2026-01-01',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects invalid date format', () => {
+    const input = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+      startDate: '01/01/2026',
+      endDate: '01/31/2026',
+    };
+    const result = McpQueryInputSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
 });

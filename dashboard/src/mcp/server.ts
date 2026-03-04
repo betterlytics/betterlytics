@@ -29,7 +29,15 @@ const queryInputSchema = {
     )
     .optional()
     .describe('Filters to apply'),
-  timeRange: z.enum(MCP_TIME_RANGES).describe('Time range preset'),
+  timeRange: z.enum(MCP_TIME_RANGES).describe('Time range preset, or "custom" with startDate/endDate'),
+  startDate: z
+    .string()
+    .optional()
+    .describe('Start date in YYYY-MM-DD format. Required when timeRange is "custom".'),
+  endDate: z
+    .string()
+    .optional()
+    .describe('End date in YYYY-MM-DD format (inclusive). Required when timeRange is "custom".'),
   granularity: z
     .enum(MCP_GRANULARITIES)
     .optional()
@@ -50,7 +58,7 @@ export function createMcpServer(context: McpContext): McpServer {
   });
 
   server.registerTool(
-    'betterlytics_describe',
+    'describe',
     {
       description:
         'Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query.',
@@ -67,10 +75,10 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   server.registerTool(
-    'betterlytics_query',
+    'query',
     {
       description:
-        'Query analytics data with flexible metrics and dimensions. Use betterlytics_describe first to see available options.',
+        'Query analytics data with flexible metrics and dimensions. Use describe first to see available options.',
       inputSchema: queryInputSchema,
     },
     async (params) => {

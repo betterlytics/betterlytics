@@ -107,4 +107,50 @@ describe('buildQuery', () => {
 
     expect(result.taggedSql).toContain('ORDER BY sessions DESC');
   });
+
+  it('supports referrer_source dimension', () => {
+    const input: McpQueryInput = {
+      metrics: ['visitors'],
+      dimensions: ['referrer_source'],
+      timeRange: '7d',
+      order: 'desc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId, timezone);
+
+    expect(result.taggedSql).toContain('referrer_source');
+    expect(result.taggedSql).toContain('GROUP BY');
+  });
+
+  it('supports referrer_source_name dimension', () => {
+    const input: McpQueryInput = {
+      metrics: ['visitors'],
+      dimensions: ['referrer_source_name'],
+      timeRange: '7d',
+      order: 'desc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId, timezone);
+
+    expect(result.taggedSql).toContain('referrer_source_name');
+    expect(result.taggedSql).toContain('GROUP BY');
+  });
+
+  it('builds a query with custom date range', () => {
+    const input: McpQueryInput = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+      startDate: '2026-01-01',
+      endDate: '2026-01-31',
+      order: 'desc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId, timezone);
+
+    expect(result.taggedSql).toContain('uniq(visitor_id)');
+    expect(result.taggedParams.site_id).toBe(siteId);
+  });
 });

@@ -1,0 +1,88 @@
+---
+title: "MCP Server - Betterlytics"
+description: "Connect AI agents like Claude Desktop to your Betterlytics analytics data using the Model Context Protocol (MCP)."
+---
+
+import { Callout } from "nextra/components";
+
+# MCP Server
+
+Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server, allowing AI assistants like Claude Desktop to query your website's metrics directly.
+
+<Callout type="warning">
+This feature is currently a work in progress. The API surface may change.
+</Callout>
+
+## Creating an API Token
+
+1. Navigate to **Dashboard > Settings > MCP**
+2. Enter a name for your token (e.g. "Claude Desktop")
+3. Click **Create token**
+4. Copy the token immediately, it is only shown once
+
+## Connecting to Claude Desktop
+
+Add the following to your Claude Desktop MCP configuration file:
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "type": "streamable-http",
+      "url": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+Replace `btl_your_token_here` with the token you copied.
+
+## Available Tools
+
+Once connected, the MCP server exposes two tools:
+
+### `betterlytics_describe`
+
+Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query.
+
+### `betterlytics_query`
+
+Query analytics data with flexible parameters:
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `metrics` | Yes | Metrics to query (e.g. `["visitors", "pageviews"]`) |
+| `timeRange` | Yes | Time range preset (e.g. `7d`, `28d`, `90d`) |
+| `dimensions` | No | Dimensions to group by (e.g. `["country_code"]`) |
+| `filters` | No | Filters to apply |
+| `granularity` | No | `hour` or `day` for time-series data |
+| `timezone` | No | IANA timezone (defaults to `UTC`) |
+| `orderBy` | No | Metric to sort by |
+| `order` | No | `asc` or `desc` |
+| `limit` | No | Max rows (defaults to 100) |
+
+### Available Metrics
+
+`visitors`, `sessions`, `pageviews`, `custom_events`, `outbound_clicks`, `avg_scroll_depth`
+
+### Available Dimensions
+
+`url`, `device_type`, `country_code`, `browser`, `os`, `custom_event_name`
+
+## Managing Tokens
+
+View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date and when it was last used. You can delete tokens at any time — deleted tokens are immediately revoked.
+
+## Security
+
+- Tokens are hashed with SHA-256 before storage
+- Each token is scoped to a single dashboard
+- Tokens support optional expiration dates
+- Requests are rate-limited per site
+
+---
+
+*Questions? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!*

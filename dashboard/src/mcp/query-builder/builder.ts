@@ -1,10 +1,10 @@
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
-import { getMetricByKey, METRIC_KEYS } from '@/mcp/registry/metrics';
-import { getDimensionByKey, DIMENSION_KEYS, validateDimensionColumn } from '@/mcp/registry/dimensions';
+import { getMetricByKey } from '@/mcp/registry/metrics';
+import { getDimensionByKey, validateDimensionColumn } from '@/mcp/registry/dimensions';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { McpQueryInput } from '@/mcp/query-builder/validation';
+import { McpQueryInput, McpOrderBySchema } from '@/mcp/query-builder/validation';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { TimeRangeValue } from '@/utils/timeRanges';
 
@@ -14,12 +14,15 @@ type BuildResult = {
 };
 
 export function buildQuery(input: McpQueryInput, siteId: string, timezone: string): BuildResult {
+  const customStart = input.startDate ? new Date(input.startDate) : new Date();
+  const customEnd = input.endDate ? new Date(input.endDate) : new Date();
+
   const ranges = getResolvedRanges(
     input.timeRange as TimeRangeValue,
     'off',
     timezone,
-    new Date(),
-    new Date(),
+    customStart,
+    customEnd,
     input.granularity ?? 'day',
     undefined,
     undefined,
@@ -46,10 +49,7 @@ export function buildQuery(input: McpQueryInput, siteId: string, timezone: strin
 
   const filters = BAQuery.getFilterQuery((input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` })));
 
-  const orderByKey = input.orderBy ?? input.metrics[0];
-  if (!METRIC_KEYS.includes(orderByKey) && !DIMENSION_KEYS.includes(orderByKey)) {
-    throw new Error(`Invalid orderBy key: ${orderByKey}`);
-  }
+  const orderByKey = McpOrderBySchema.parse(input.orderBy ?? input.metrics[0]);
   const orderByColumn = SQL.Unsafe(orderByKey);
   const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 
