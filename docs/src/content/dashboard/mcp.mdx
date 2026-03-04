@@ -20,23 +20,11 @@ Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)
 
 ### Claude Desktop
 
-Add the following to your Claude Desktop MCP configuration file:
+Go to **Settings > Connectors**, add a new connector with the following URL and your authorization token:
 
-```json
-{
-  "mcpServers": {
-    "betterlytics": {
-      "type": "streamable-http",
-      "url": "https://betterlytics.io/api/mcp",
-      "headers": {
-        "Authorization": "Bearer btl_your_token_here"
-      }
-    }
-  }
-}
 ```
-
-Replace `btl_your_token_here` with the token you copied.
+https://betterlytics.io/api/mcp
+```
 
 ### Claude Code
 
@@ -44,7 +32,7 @@ Run the following command in your terminal:
 
 ```bash
 claude mcp add betterlytics \
-  --transport streamable-http \
+  --transport http \
   --header "Authorization: Bearer btl_your_token_here" \
   https://betterlytics.io/api/mcp
 ```

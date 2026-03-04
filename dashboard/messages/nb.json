@@ -1581,6 +1581,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-postrapporter",
+        "mcp": "MCP",
         "integrations": "Integrasjoner",
         "dangerZone": "Faresone"
       }
@@ -3456,6 +3457,29 @@
     "toast": {
       "saved": "Rapportinnstillinger lagret",
       "error": "Kunne ikke lagre rapportinnstillinger"
+    }
+  },
+  "mcp": {
+    "settings": {
+      "title": "API-nøkler",
+      "description": "Opprett nøkler for å koble AI-agenter til analysedataene dine via Model Context Protocol.",
+      "tokenNameLabel": "Nøkkelnavn",
+      "tokenNamePlaceholder": "f.eks. Claude Desktop",
+      "createButton": "Opprett nøkkel",
+      "creating": "Oppretter...",
+      "newTokenNotice": "Kopier denne nøkkelen nå. Du vil ikke kunne se den igjen.",
+      "created": "Opprettet {date}",
+      "lastUsed": "Sist brukt {date}"
+    },
+    "toast": {
+      "created": "Nøkkel opprettet",
+      "createError": "Kunne ikke opprette nøkkel",
+      "deleted": "Nøkkel slettet",
+      "deleteError": "Kunne ikke slette nøkkel"
+    },
+    "deleteDialog": {
+      "title": "Slett nøkkel",
+      "description": "Denne nøkkelen vil bli permanent tilbakekalt. Alle MCP-klienter som bruker den vil miste tilgang umiddelbart."
     }
   },
   "integrationsSettings": {
