@@ -156,13 +156,13 @@ impl GeoIpService {
         let reader = match reader_arc_option {
             Some(r) => r,
             None => {
-                let geo = GeoLocation::default();
-                self.ip_cache.insert(cache_key, geo.clone());
-                return geo;
+                let result = GeoLocation::default();
+                self.ip_cache.insert(cache_key, result.clone());
+                return result;
             }
         };
 
-        let geo = if self.geolocation_mode.has_subdivisions() {
+        let result = if self.geolocation_mode.has_subdivisions() {
             match reader.lookup::<geoip2::City>(ip) {
                 Ok(Some(city)) => {
                     let country_code = city.country
@@ -214,8 +214,8 @@ impl GeoIpService {
             }
         };
 
-        self.ip_cache.insert(cache_key, geo.clone());
+        self.ip_cache.insert(cache_key, result.clone());
 
-        geo
+        result
     }
 }

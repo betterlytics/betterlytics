@@ -1,5 +1,5 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { GeoFeatureVisitor, GeoFeatureVisitorSchema, GeoLevel, GeoLevelSchema } from '@/entities/analytics/geography.entities';
+import { GeoVisitor, GeoVisitorSchema, GeoLevel, GeoLevelSchema } from '@/entities/analytics/geography.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -16,7 +16,7 @@ export async function getVisitorsByGeoLevel(
   parentFilter?: { column: GeoLevel; value: string },
   limit: number = 1000,
   minVisitors: number = 0,
-): Promise<GeoFeatureVisitor[]> {
+): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   // Safe to use SQL.Unsafe: GeoLevelSchema.parse() validates against a closed enum of allowed column names
   const validatedLevel = GeoLevelSchema.parse(level);
@@ -63,10 +63,11 @@ export async function getVisitorsByGeoLevel(
     .toPromise()) as any[];
 
   return result.map((row) =>
-    GeoFeatureVisitorSchema.parse({
-      code: row.code,
+    GeoVisitorSchema.parse({
+      country_code: validatedLevel === 'country_code' ? row.code : row.parent_country_code,
       visitors: Number(row.visitors),
-      ...(includeCountryCode && row.parent_country_code ? { countryCode: row.parent_country_code } : {}),
+      ...(validatedLevel === 'subdivision_code' ? { region: row.code } : {}),
+      ...(validatedLevel === 'city' ? { city: row.code } : {}),
     }),
   );
 }

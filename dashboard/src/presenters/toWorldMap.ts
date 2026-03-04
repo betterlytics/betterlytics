@@ -1,5 +1,5 @@
 import { alpha2ToAlpha3Code, alpha3ToAlpha2Code } from '@/utils/countryCodes';
-import { GeoFeatureVisitor, GeoMapResponse } from '@/entities/analytics/geography.entities';
+import { GeoVisitor, WorldMapResponse } from '@/entities/analytics/geography.entities';
 
 export const CountryCodeFormat = {
   ToAlpha2: 'ToAlpha2',
@@ -11,16 +11,16 @@ export type CountryCodeFormat = (typeof CountryCodeFormat)[keyof typeof CountryC
 
 /**
  * Converts world map data to use Alpha-3 or Alpha-2 country codes for map compatibility
- * @param data Raw world map data with `code` as country code
+ * @param data Raw world map data in GeoVisitor format
  * @param compareData Raw world map data from the comparison period or empty array if none
  * @param format The format to convert the country codes to
  * @returns Processed world map data
  */
 export function dataToWorldMap(
-  data: GeoFeatureVisitor[],
-  compareData: GeoFeatureVisitor[],
+  data: GeoVisitor[],
+  compareData: GeoVisitor[],
   format: CountryCodeFormat,
-): GeoMapResponse {
+): WorldMapResponse {
   if (format === CountryCodeFormat.Original) {
     return {
       visitorData: data,
@@ -30,22 +30,29 @@ export function dataToWorldMap(
   }
   const transformerFunction = format === CountryCodeFormat.ToAlpha2 ? alpha3ToAlpha2Code : alpha2ToAlpha3Code;
 
+  let maxVisitors = 1;
   const processedVisitorData = data.map((visitor) => {
-    const transformedCode = transformerFunction(visitor.code);
-    return transformedCode ? { ...visitor, code: transformedCode } : visitor;
-  });
-
-  const maxVisitors = Math.max(
-    ...processedVisitorData.filter((v) => v.code !== 'Localhost').map((v) => v.visitors),
-    1,
-  );
-
-  const processedCompareData = compareData.map((visitor) => {
-    const transformedCode = transformerFunction(visitor.code);
-    return transformedCode
+    const transformedData = transformerFunction(visitor.country_code);
+    const updatedCountryData = transformedData
       ? {
           ...visitor,
-          code: transformedCode,
+          country_code: transformedData,
+        }
+      : visitor;
+
+    if (updatedCountryData.visitors > maxVisitors && updatedCountryData.country_code !== 'Localhost') {
+      maxVisitors = updatedCountryData.visitors;
+    }
+
+    return updatedCountryData;
+  });
+
+  const processedCompareData = compareData.map((visitor) => {
+    const transformedData = transformerFunction(visitor.country_code);
+    return transformedData
+      ? {
+          ...visitor,
+          country_code: transformedData,
         }
       : visitor;
   });

@@ -2,20 +2,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import LeafletMap from '@/components/map/LeafletMap';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS, MOCK_COMPARE_GEOVISITORS } from '@/constants/geographyData';
-import type { GeoFeatureVisitor } from '@/entities/analytics/geography.entities';
+import type { GeoVisitor } from '@/entities/analytics/geography.entities';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
 import { getCountryName } from '@/utils/countryCodes';
 import { Suspense } from 'react';
 
-const CountryCol = ({ geoVisitor, locale }: { geoVisitor: GeoFeatureVisitor; locale: SupportedLanguages }) => (
-  <div className='flex py-2 text-xs' key={geoVisitor.code}>
+const CountryCol = ({ geoVisitor, locale }: { geoVisitor: GeoVisitor; locale: SupportedLanguages }) => (
+  <div className='flex py-2 text-xs' key={geoVisitor.country_code}>
     <div className='flex items-center gap-0.75'>
       <FlagIcon
-        countryCode={geoVisitor.code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.code, locale)}
+        countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
+        countryName={getCountryName(geoVisitor.country_code, locale)}
       />
-      <span className='font-medium'>{geoVisitor.code}</span>
+      <span className='font-medium'>{geoVisitor.country_code}</span>
     </div>
     <span className='text-muted-foreground ml-1 flex items-center'>{geoVisitor.visitors}</span>
   </div>
@@ -52,7 +52,7 @@ export default async function WorldMapCard() {
             <div className='grid auto-cols-[70px] grid-flow-col justify-end gap-3 overflow-hidden pr-1'>
               {Array.from({ length: 2 }).map((_, i) => (
                 <CountryCol
-                  key={MOCK_WORLD_GEOVISITORS[i].code}
+                  key={MOCK_WORLD_GEOVISITORS[i].country_code}
                   geoVisitor={MOCK_WORLD_GEOVISITORS[i]}
                   locale={locale}
                 />

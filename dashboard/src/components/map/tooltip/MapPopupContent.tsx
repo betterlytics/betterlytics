@@ -4,7 +4,7 @@ import { FlagIconProps } from '@/components/icons';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
-import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
@@ -14,7 +14,7 @@ import { useTranslations } from 'next-intl';
 import React from 'react';
 
 export type MapPopupContentProps = {
-  geoVisitor?: GeoFeatureVisitorWithCompare;
+  geoVisitor?: GeoVisitorWithCompare;
   className?: string;
   locale: SupportedLanguages;
   size?: 'sm' | 'lg';
@@ -80,8 +80,8 @@ function MapPopupContentComponent({
           'text-sm font-bold',
           geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start',
         )}
-        countryCode={geoVisitor.code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.code, locale)}
+        countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
+        countryName={getCountryName(geoVisitor.country_code, locale)}
       />
       {geoVisitor.compareVisitors !== undefined && <div className='border-border my-2 border-t' />}
 

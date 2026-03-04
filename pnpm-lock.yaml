@@ -187,9 +187,6 @@ importers:
       is-ip:
         specifier: ^5.0.1
         version: 5.0.1
-      iso3166-2-db:
-        specifier: ^2.3.11
-        version: 2.3.11
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -4128,9 +4125,6 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
-
-  iso3166-2-db@2.3.11:
-    resolution: {integrity: sha512-JMt9Cheiuo5aX07AGUEIWbmPXTROb4dk33n5L8m/AGV9G3piCA78v9R9wfBrRNLL7swr5ZLhtjkE6l4dV4VDzQ==}
 
   isomorphic-unfetch@4.0.2:
     resolution: {integrity: sha512-1Yd+CF/7al18/N2BDbsLBcp6RO3tucSW+jcLq24dqdX5MNbCNTw1z4BsGsp4zNmjr/Izm2cs/cEqZPp4kvWSCA==}
@@ -10267,8 +10261,6 @@ snapshots:
   isarray@2.0.5: {}
 
   isexe@2.0.0: {}
-
-  iso3166-2-db@2.3.11: {}
 
   isomorphic-unfetch@4.0.2:
     dependencies:

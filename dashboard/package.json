@@ -68,7 +68,6 @@
     "ipaddr.js": "^2.2.0",
     "is-cidr": "^6.0.1",
     "is-ip": "^5.0.1",
-    "iso3166-2-db": "^2.3.11",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.503.0",
     "mailersend": "^2.6.0",

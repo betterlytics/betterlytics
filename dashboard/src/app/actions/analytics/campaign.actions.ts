@@ -102,7 +102,7 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
       ]);
 
       const devices = buildAudienceDistribution(audienceProfile.devices, 'device_type');
-      const countries = buildAudienceDistribution(audienceProfile.countries, 'code');
+      const countries = buildAudienceDistribution(audienceProfile.countries, 'country_code');
       const browsers = buildAudienceDistribution(audienceProfile.browsers, 'browser');
       const operatingSystems = buildAudienceDistribution(audienceProfile.operatingSystems, 'os');
 

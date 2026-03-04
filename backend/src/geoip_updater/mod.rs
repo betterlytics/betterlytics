@@ -180,20 +180,7 @@ impl GeoIpUpdater {
             anyhow::bail!("Download request failed: {} - {}", status, body);
         }
 
-        // Safety limit: City DB is ~70MB compressed, Country ~5MB; 200MB allows generous headroom
-        const MAX_DOWNLOAD_SIZE: usize = 200 * 1024 * 1024;
-
-        // Check Content-Length before downloading the full body into memory
-        if let Some(content_length) = response.content_length() {
-            if content_length as usize > MAX_DOWNLOAD_SIZE {
-                anyhow::bail!("Content-Length ({} bytes) exceeds maximum expected size ({} bytes)", content_length, MAX_DOWNLOAD_SIZE);
-            }
-        }
-
         let content = response.bytes().await?;
-        if content.len() > MAX_DOWNLOAD_SIZE {
-            anyhow::bail!("Downloaded archive ({} bytes) exceeds maximum expected size ({} bytes)", content.len(), MAX_DOWNLOAD_SIZE);
-        }
         debug!("Downloaded {} compressed bytes.", content.len());
         Ok(content)
     }
@@ -210,12 +197,6 @@ impl GeoIpUpdater {
         for entry_result in archive.entries()? {
             let mut entry = entry_result?;
             let path = entry.path()?.into_owned();
-
-            // Skip entries with path traversal components
-            if path.components().any(|c| c == std::path::Component::ParentDir) {
-                warn!("Skipping archive entry with path traversal: {:?}", path);
-                continue;
-            }
 
             if path.extension().map_or(false, |ext| ext == "mmdb") {
                 debug!("Found .mmdb file in archive: {:?}", path);

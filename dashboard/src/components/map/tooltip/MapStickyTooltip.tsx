@@ -51,7 +51,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
 
   if (
     !hoveredFeature ||
-    (selectedFeature && hoveredFeature.geoVisitor.code === selectedFeature.geoVisitor.code) ||
+    (selectedFeature && hoveredFeature.geoVisitor.country_code === selectedFeature.geoVisitor.country_code) ||
     !hasValidPosition
   ) {
     return null;

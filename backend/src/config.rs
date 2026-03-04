@@ -1,5 +1,4 @@
 use std::env;
-use std::fmt;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -18,16 +17,6 @@ impl GeolocationMode {
 
     pub fn has_subdivisions(self) -> bool {
         self == GeolocationMode::Subdivisions
-    }
-}
-
-impl fmt::Display for GeolocationMode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            GeolocationMode::Disabled => write!(f, "disabled"),
-            GeolocationMode::Countries => write!(f, "countries"),
-            GeolocationMode::Subdivisions => write!(f, "subdivisions"),
-        }
     }
 }
 

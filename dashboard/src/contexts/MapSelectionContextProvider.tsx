@@ -1,12 +1,12 @@
 'use client';
 
-import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
 import React, { createContext, useCallback, useContext } from 'react';
 
 export type MapFeatureVisitor = {
-  geoVisitor: GeoFeatureVisitorWithCompare;
+  geoVisitor: GeoVisitorWithCompare;
   layer: L.Polygon;
   mousePosition?: { x: number; y: number };
 };
@@ -70,7 +70,7 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
         }
 
         if (next.clicked) {
-          if (next.clicked.geoVisitor.code !== prev.clicked?.geoVisitor.code) {
+          if (next.clicked.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
             prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
           } else {
             next.clicked.layer.closePopup();
@@ -92,15 +92,15 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
           return { ...prev, ...next };
         }
 
-        if (prev.hovered?.geoVisitor.code === next.hovered?.geoVisitor.code) {
+        if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
           return { ...prev };
         }
 
-        if (prev.hovered && prev.hovered.geoVisitor.code !== prev.clicked?.geoVisitor.code) {
+        if (prev.hovered && prev.hovered.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
           prev.hovered.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
         }
 
-        if (!prev.clicked || next.hovered?.geoVisitor.code !== prev.clicked.geoVisitor.code) {
+        if (!prev.clicked || next.hovered?.geoVisitor.country_code !== prev.clicked.geoVisitor.country_code) {
           next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
           next.hovered?.layer.bringToFront();
 

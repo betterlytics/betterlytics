@@ -74,12 +74,12 @@ export default function GeographySection({
           key: 'countries',
           label: t('tabs.countries'),
           data: topCountries.map((country) => ({
-            label: getCountryName(country.code, locale),
-            key: country.code,
+            label: getCountryName(country.country_code, locale),
+            key: country.country_code,
             value: country.current.visitors,
             trendPercentage: country.change?.visitors,
             comparisonValue: country.compare?.visitors,
-            icon: renderFlag(country.code),
+            icon: renderFlag(country.country_code),
           })),
         },
         ...(topSubdivisions.length > 0
@@ -88,12 +88,12 @@ export default function GeographySection({
                 key: 'regions',
                 label: t('tabs.regions'),
                 data: topSubdivisions.map((subdivision) => ({
-                  label: getSubdivisionName(subdivision.code, locale),
-                  key: subdivision.code,
+                  label: getSubdivisionName(subdivision.region!, locale),
+                  key: subdivision.region!,
                   value: subdivision.current.visitors,
                   trendPercentage: subdivision.change?.visitors,
                   comparisonValue: subdivision.compare?.visitors,
-                  icon: renderFlag(subdivision.current.countryCode),
+                  icon: renderFlag(subdivision.current.country_code),
                 })),
               },
             ]
@@ -104,12 +104,12 @@ export default function GeographySection({
                 key: 'cities',
                 label: t('tabs.cities'),
                 data: topCities.map((city) => ({
-                  label: city.code,
-                  key: city.code,
+                  label: city.city!,
+                  key: city.city!,
                   value: city.current.visitors,
                   trendPercentage: city.change?.visitors,
                   comparisonValue: city.compare?.visitors,
-                  icon: renderFlag(city.current.countryCode),
+                  icon: renderFlag(city.current.country_code),
                 })),
               },
             ]

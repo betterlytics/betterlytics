@@ -1,7 +1,7 @@
 'server-only';
 
 import { getVisitorsByGeoLevel } from '@/repositories/clickhouse/geography.repository';
-import { GeoFeatureVisitor, GeoLevel } from '@/entities/analytics/geography.entities';
+import { GeoVisitor, GeoLevel } from '@/entities/analytics/geography.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 /**
@@ -16,6 +16,6 @@ export async function fetchVisitorsByGeoLevel(
   parentFilter?: { column: GeoLevel; value: string },
   limit: number = 1000,
   minVisitors: number = 0,
-): Promise<GeoFeatureVisitor[]> {
+): Promise<GeoVisitor[]> {
   return getVisitorsByGeoLevel(siteQuery, level, parentFilter, limit, minVisitors);
 }
