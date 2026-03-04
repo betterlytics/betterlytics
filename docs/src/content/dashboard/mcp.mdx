@@ -1,17 +1,13 @@
 ---
 title: "MCP Server - Betterlytics"
-description: "Connect AI agents like Claude Desktop to your Betterlytics analytics data using the Model Context Protocol (MCP)."
+description: "Connect AI assistants like Claude to your Betterlytics analytics data using the Model Context Protocol (MCP)."
 ---
 
 import { Callout } from "nextra/components";
 
 # MCP Server
 
-Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server, allowing AI assistants like Claude Desktop to query your website's metrics directly.
-
-<Callout type="warning">
-This feature is currently a work in progress. The API surface may change.
-</Callout>
+Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI assistants like Claude about your website's traffic in natural language. No dashboards or manual queries needed.
 
 ## Creating an API Token
 
@@ -20,7 +16,9 @@ This feature is currently a work in progress. The API surface may change.
 3. Click **Create token**
 4. Copy the token immediately, it is only shown once
 
-## Connecting to Claude Desktop
+## Setup
+
+### Claude Desktop
 
 Add the following to your Claude Desktop MCP configuration file:
 
@@ -40,48 +38,55 @@ Add the following to your Claude Desktop MCP configuration file:
 
 Replace `btl_your_token_here` with the token you copied.
 
-## Available Tools
+### Claude Code
 
-Once connected, the MCP server exposes two tools:
+Run the following command in your terminal:
 
-### `betterlytics_describe`
+```bash
+claude mcp add betterlytics \
+  --transport streamable-http \
+  --header "Authorization: Bearer btl_your_token_here" \
+  https://betterlytics.io/api/mcp
+```
 
-Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query.
+Replace `btl_your_token_here` with the token you copied.
 
-### `betterlytics_query`
+## What You Can Ask About
 
-Query analytics data with flexible parameters:
+Once connected, you can ask your AI assistant about any of the following:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `metrics` | Yes | Metrics to query (e.g. `["visitors", "pageviews"]`) |
-| `timeRange` | Yes | Time range preset (e.g. `7d`, `28d`, `90d`) |
-| `dimensions` | No | Dimensions to group by (e.g. `["country_code"]`) |
-| `filters` | No | Filters to apply |
-| `granularity` | No | `hour` or `day` for time-series data |
-| `timezone` | No | IANA timezone (defaults to `UTC`) |
-| `orderBy` | No | Metric to sort by |
-| `order` | No | `asc` or `desc` |
-| `limit` | No | Max rows (defaults to 100) |
+- **Traffic overview**: visitors, sessions, and pageviews over any time period
+- **Page performance**: top pages, specific URL analysis, scroll depth
+- **Devices and browsers**: desktop vs mobile vs tablet, browser breakdown
+- **Geographic distribution**: visitor counts by country
+- **Traffic sources**: where your visitors are coming from (search, social, direct, referrers)
+- **UTM campaign tracking**: analyze traffic by source, medium, campaign, term, and content
+- **Custom events**: track and analyze custom events you've set up
+- **Trends over time**: daily or hourly breakdowns to spot patterns
 
-### Available Metrics
+## Example Questions
 
-`visitors`, `sessions`, `pageviews`, `custom_events`, `outbound_clicks`, `avg_scroll_depth`
+Here are some questions you can try:
 
-### Available Dimensions
-
-`url`, `device_type`, `country_code`, `browser`, `os`, `custom_event_name`
+- "How many visitors did I get this week?"
+- "What are my top pages by pageviews over the last 28 days?"
+- "Show me a daily visitor trend for the past 7 days"
+- "Which countries do most of my visitors come from?"
+- "What's the device breakdown: desktop vs mobile vs tablet?"
+- "Which browsers do my mobile visitors use?"
+- "How did my traffic change compared to last month?"
+- "What are my top traffic sources this month?"
 
 ## Managing Tokens
 
-View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date and when it was last used. You can delete tokens at any time — deleted tokens are immediately revoked.
+View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date and when it was last used. You can delete tokens at any time. Deleted tokens are immediately revoked.
 
 ## Security
 
 - Tokens are hashed with SHA-256 before storage
 - Each token is scoped to a single dashboard
 - Tokens support optional expiration dates
-- Requests are rate-limited per site
+- Requests are rate-limited to 60 per minute per site
 
 ---
 
