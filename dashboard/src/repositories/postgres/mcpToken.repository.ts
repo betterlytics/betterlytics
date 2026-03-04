@@ -29,6 +29,7 @@ export async function findMcpTokensByDashboard(dashboardId: string) {
   return await prisma.mcpToken.findMany({
     where: { dashboardId },
     orderBy: { createdAt: 'desc' },
+    omit: { tokenHash: true },
   });
 }
 
