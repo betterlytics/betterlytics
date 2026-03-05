@@ -14,6 +14,9 @@ import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import { useInView } from '@/hooks/useInView';
+import { useIsScrollingRef } from '@/contexts/ScrollStateProvider';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type MetricGaugeProps = {
   metric: { key: CoreWebVitalName; value: number };
@@ -71,31 +74,40 @@ function StaggeredMetricGauge({
   intervalMs,
   startIndex,
   locale,
+  inView,
 }: {
   metricKey: CoreWebVitalName;
   intervalMs: number;
   startIndex: number;
   locale: SupportedLanguages;
+  inView: boolean;
 }) {
   const values = MOCK_CORE_WEB_VITAL_VALUES[metricKey];
   const [currentIndex, setCurrentIndex] = useState(startIndex % values.length);
+  const isScrollingRef = useIsScrollingRef();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
+    if (!inView || isMobile) return;
+
     const timer = setInterval(() => {
+      if (isScrollingRef.current) return;
       setCurrentIndex((prev) => (prev + 1) % values.length);
     }, intervalMs);
     return () => clearInterval(timer);
-  }, [intervalMs, values.length]);
+  }, [inView, isMobile, intervalMs, values.length, isScrollingRef]);
 
   return <MetricGauge metric={{ key: metricKey, value: values[currentIndex] }} locale={locale} />;
 }
 
 function AnimatedGaugeGrid() {
   const locale = useLocale();
+  const { ref, inView } = useInView();
 
   return (
     <NumberFlowGroup>
       <div
+        ref={ref}
         className='flex w-full flex-wrap-reverse justify-evenly gap-x-4 gap-y-6'
         style={{ ['--number-flow-duration' as string]: '700ms' }}
       >
@@ -106,6 +118,7 @@ function AnimatedGaugeGrid() {
             intervalMs={config.intervalMs}
             startIndex={config.startIndex}
             locale={locale}
+            inView={inView}
           />
         ))}
       </div>

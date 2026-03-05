@@ -10,6 +10,7 @@ import { PricingSection } from './components/pricingSection';
 import { OpenSourceCallout } from './components/openSourceCallout';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { CtaStrip } from '@/components/public/ctaStrip';
+import { ScrollStateProvider } from '@/contexts/ScrollStateProvider';
 
 export default async function LandingPage() {
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.landing);
@@ -81,7 +82,8 @@ export default async function LandingPage() {
   return (
     <>
       <StructuredData config={seoConfig} />
-      <div className='bg-background text-foreground relative overflow-x-clip'>
+      <ScrollStateProvider>
+        <div className='bg-background text-foreground relative overflow-x-clip'>
         <div className='flex flex-col'>
           {landingSections.map((section) => {
             const { id, orientation, content, showGradient = true } = section;
@@ -94,7 +96,8 @@ export default async function LandingPage() {
             );
           })}
         </div>
-      </div>
+        </div>
+      </ScrollStateProvider>
     </>
   );
 }
