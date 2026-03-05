@@ -1,65 +1,35 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ErrorCard } from './ErrorCard';
-import { fetchErrorGroupsPageAction, type ErrorGroupsPageResult } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
+import type { BarChartPoint } from '@/presenters/toBarChart';
+import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
 type SortOption = 'events' | 'last_seen' | 'alphabetical';
 
+const PAGE_SIZE = 10;
+
 type ErrorCardListProps = {
-  initialPage: ErrorGroupsPageResult;
+  errorGroups: ErrorGroupRow[];
+  initialVolumeMap: Record<string, BarChartPoint[]>;
+  timeBuckets: BarChartPoint[];
   dashboardId: string;
-  pageSize: number;
 };
 
-export function ErrorCardList({ initialPage, dashboardId, pageSize }: ErrorCardListProps) {
+export function ErrorCardList({ errorGroups, initialVolumeMap, timeBuckets, dashboardId }: ErrorCardListProps) {
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [pageIndex, setPageIndex] = useState(0);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOption>('events');
-
-  const { totalGroups, timeBuckets } = initialPage;
-  const totalPages = Math.max(1, Math.ceil(totalGroups / pageSize));
-
-  const initialPageRef = useRef(initialPage);
-  useEffect(() => {
-    if (initialPageRef.current !== initialPage) {
-      initialPageRef.current = initialPage;
-      setPageIndex(0);
-    }
-  }, [initialPage]);
-
-  const { data, isFetching } = useQuery({
-    queryKey: [
-      'error-groups',
-      dashboardId,
-      query.startDate,
-      query.endDate,
-      query.granularity,
-      query.timezone,
-      query.queryFilters,
-      pageIndex,
-      pageSize,
-    ],
-    queryFn: () => fetchErrorGroupsPageAction(dashboardId, query, pageSize, pageIndex * pageSize, timeBuckets),
-    initialData:
-      pageIndex === 0 ? { errorGroups: initialPage.errorGroups, volumeMap: initialPage.volumeMap } : undefined,
-    placeholderData: keepPreviousData,
-    staleTime,
-    gcTime,
-    refetchOnWindowFocus,
-  });
-
-  const errorGroups = data?.errorGroups ?? [];
-  const volumeMap = data?.volumeMap ?? {};
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -88,6 +58,30 @@ export function ErrorCardList({ initialPage, dashboardId, pageSize }: ErrorCardL
     return result;
   }, [errorGroups, search, sort]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePageIndex = Math.min(pageIndex, totalPages - 1);
+  const visibleGroups = filtered.slice(safePageIndex * PAGE_SIZE, (safePageIndex + 1) * PAGE_SIZE);
+  const visibleFingerprints = visibleGroups.map((g) => g.error_fingerprint);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPageIndex(0);
+  };
+
+  const fingerprintKey = visibleFingerprints.join(',');
+  const initialFingerprintKey = errorGroups.slice(0, PAGE_SIZE).map((g) => g.error_fingerprint).join(',');
+  const isInitialPage = fingerprintKey === initialFingerprintKey;
+
+  const { data: volumeMap } = useQuery({
+    queryKey: ['error-group-volumes', dashboardId, query.startDate, query.endDate, query.granularity, query.timezone, query.queryFilters, fingerprintKey],
+    queryFn: () => fetchErrorGroupVolumesAction(dashboardId, query, visibleFingerprints, timeBuckets),
+    initialData: isInitialPage ? initialVolumeMap : undefined,
+    enabled: visibleFingerprints.length > 0,
+    staleTime,
+    gcTime,
+    refetchOnWindowFocus,
+  });
+
   return (
     <div className='space-y-3'>
       <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
@@ -97,7 +91,7 @@ export function ErrorCardList({ initialPage, dashboardId, pageSize }: ErrorCardL
             type='text'
             placeholder='Search by type and message...'
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className='pl-9'
           />
         </div>
@@ -116,32 +110,32 @@ export function ErrorCardList({ initialPage, dashboardId, pageSize }: ErrorCardL
       {filtered.length === 0 ? (
         <div className='py-12 text-center'>
           <p className='text-muted-foreground text-sm'>
-            {totalGroups === 0 ? 'No errors recorded in this period.' : 'No errors matching your search.'}
+            {errorGroups.length === 0 ? 'No errors recorded in this period.' : 'No errors matching your search.'}
           </p>
         </div>
       ) : (
         <>
-          <div className={`space-y-2 ${isFetching ? 'opacity-60' : ''}`}>
-            {filtered.map((error) => (
+          <div className='space-y-2'>
+            {visibleGroups.map((error) => (
               <ErrorCard
                 key={error.error_fingerprint}
                 error={error}
-                volume={volumeMap[error.error_fingerprint] ?? []}
+                volume={volumeMap?.[error.error_fingerprint] ?? []}
               />
             ))}
           </div>
           {totalPages > 1 && (
             <div className='flex items-center justify-end gap-2 py-1'>
               <span className='text-muted-foreground text-xs'>
-                {pageIndex + 1} / {totalPages}
+                {safePageIndex + 1} / {totalPages}
               </span>
               <div className='flex items-center'>
                 <Button
                   variant='ghost'
                   size='icon'
                   className='h-7 w-7 cursor-pointer'
-                  disabled={pageIndex === 0}
-                  onClick={() => setPageIndex(pageIndex - 1)}
+                  disabled={safePageIndex === 0}
+                  onClick={() => setPageIndex(safePageIndex - 1)}
                   aria-label='Previous page'
                 >
                   <ChevronLeft className='h-4 w-4' />
@@ -150,8 +144,8 @@ export function ErrorCardList({ initialPage, dashboardId, pageSize }: ErrorCardL
                   variant='ghost'
                   size='icon'
                   className='h-7 w-7 cursor-pointer'
-                  disabled={pageIndex === totalPages - 1}
-                  onClick={() => setPageIndex(pageIndex + 1)}
+                  disabled={safePageIndex === totalPages - 1}
+                  onClick={() => setPageIndex(safePageIndex + 1)}
                   aria-label='Next page'
                 >
                   <ChevronRight className='h-4 w-4' />

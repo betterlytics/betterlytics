@@ -1,71 +1,52 @@
 'use server';
 
 import {
-  getErrorGroupCountForSite,
   getErrorGroupsForSite,
   getErrorVolumeForSite,
-  getErrorGroupVolumesPaginatedForSite,
+  getErrorGroupVolumesForSite,
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toBarChart, toGroupedBarCharts, type BarChartPoint } from '@/presenters/toBarChart';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
+import type { ErrorGroupRow, ErrorGroupVolumeRow } from '@/entities/analytics/errors.entities';
 
-export type ErrorGroupsPageResult = {
+export type ErrorGroupsResult = {
   errorGroups: ErrorGroupRow[];
-  totalGroups: number;
-  volumeMap: Record<string, BarChartPoint[]>;
-  timeBuckets: BarChartPoint[];
+  initialVolumeRows: ErrorGroupVolumeRow[];
 };
 
-export const fetchErrorGroupsInitialAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, pageSize: number): Promise<ErrorGroupsPageResult> => {
+const INITIAL_PAGE_SIZE = 10;
+
+export const fetchErrorGroupsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
     const { main } = toSiteQuery(ctx.siteId, query);
+    const errorGroups = await getErrorGroupsForSite(main);
 
-    const [totalGroups, errorGroups, volumeRows, overallData] = await Promise.all([
-      getErrorGroupCountForSite(main),
-      getErrorGroupsForSite(main, pageSize, 0),
-      getErrorGroupVolumesPaginatedForSite(main, pageSize, 0),
-      getErrorVolumeForSite(main),
-    ]);
+    const initialFingerprints = errorGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
+    const initialVolumeRows = await getErrorGroupVolumesForSite(main, initialFingerprints);
 
-    const timeBuckets = toBarChart({ dataKey: 'errorCount', data: overallData });
-    const volumeMap = toGroupedBarCharts({
-      groupKey: 'error_fingerprint',
-      dataKey: 'errorCount',
-      timeBuckets,
-      data: volumeRows,
-    });
-
-    return { errorGroups, totalGroups, volumeMap, timeBuckets };
+    return { errorGroups, initialVolumeRows };
   },
 );
 
-export const fetchErrorGroupsPageAction = withDashboardAuthContext(
+export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
     query: BAAnalyticsQuery,
-    pageSize: number,
-    offset: number,
+    fingerprints: string[],
     timeBuckets: BarChartPoint[],
-  ): Promise<{ errorGroups: ErrorGroupRow[]; volumeMap: Record<string, BarChartPoint[]> }> => {
+  ): Promise<Record<string, BarChartPoint[]>> => {
     const { main } = toSiteQuery(ctx.siteId, query);
+    const volumeRows = await getErrorGroupVolumesForSite(main, fingerprints);
 
-    const [errorGroups, volumeRows] = await Promise.all([
-      getErrorGroupsForSite(main, pageSize, offset),
-      getErrorGroupVolumesPaginatedForSite(main, pageSize, offset),
-    ]);
-
-    const volumeMap = toGroupedBarCharts({
+    return toGroupedBarCharts({
       groupKey: 'error_fingerprint',
       dataKey: 'errorCount',
       timeBuckets,
       data: volumeRows,
     });
-
-    return { errorGroups, volumeMap };
   },
 );
 

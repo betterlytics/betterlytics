@@ -1,16 +1,38 @@
 'use client';
 
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { ErrorCardList } from './ErrorCardList';
-import { fetchErrorGroupsInitialAction } from '@/app/actions/analytics/errors.actions';
+import { toGroupedBarCharts } from '@/presenters/toBarChart';
+import type { ErrorGroupsResult } from '@/app/actions/analytics/errors.actions';
+import type { BarChartPoint } from '@/presenters/toBarChart';
 
 type ErrorGroupsSectionProps = {
-  initialPagePromise: ReturnType<typeof fetchErrorGroupsInitialAction>;
+  groupsPromise: Promise<ErrorGroupsResult>;
+  timeBucketsPromise: Promise<BarChartPoint[]>;
   dashboardId: string;
-  pageSize: number;
 };
 
-export function ErrorGroupsSection({ initialPagePromise, dashboardId, pageSize }: ErrorGroupsSectionProps) {
-  const initialPage = use(initialPagePromise);
-  return <ErrorCardList initialPage={initialPage} dashboardId={dashboardId} pageSize={pageSize} />;
+export function ErrorGroupsSection({ groupsPromise, timeBucketsPromise, dashboardId }: ErrorGroupsSectionProps) {
+  const { errorGroups, initialVolumeRows } = use(groupsPromise);
+  const timeBuckets = use(timeBucketsPromise);
+
+  const initialVolumeMap = useMemo(
+    () =>
+      toGroupedBarCharts({
+        groupKey: 'error_fingerprint',
+        dataKey: 'errorCount',
+        timeBuckets,
+        data: initialVolumeRows,
+      }),
+    [initialVolumeRows, timeBuckets],
+  );
+
+  return (
+    <ErrorCardList
+      errorGroups={errorGroups}
+      initialVolumeMap={initialVolumeMap}
+      timeBuckets={timeBuckets}
+      dashboardId={dashboardId}
+    />
+  );
 }

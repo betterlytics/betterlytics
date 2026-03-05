@@ -12,35 +12,7 @@ import {
   ErrorVolumeRowSchema,
 } from '@/entities/analytics/errors.entities';
 
-export async function getErrorGroupCount(siteQuery: BASiteQuery): Promise<number> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT count(DISTINCT error_fingerprint) as total
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
-      AND error_fingerprint != ''
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND ${SQL.AND(filters)}
-  `;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise()) as any[];
-
-  return Number(result[0]?.total ?? 0);
-}
-
-export async function getErrorGroups(siteQuery: BASiteQuery, limit: number, offset: number): Promise<ErrorGroupRow[]> {
+export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroupRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
@@ -60,7 +32,6 @@ export async function getErrorGroups(siteQuery: BASiteQuery, limit: number, offs
       AND ${SQL.AND(filters)}
     GROUP BY error_fingerprint
     ORDER BY count DESC
-    LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
 
   const result = (await clickhouse
@@ -70,8 +41,6 @@ export async function getErrorGroups(siteQuery: BASiteQuery, limit: number, offs
         site_id: siteId,
         start_date: startDateTime,
         end_date: endDateTime,
-        limit,
-        offset,
       },
     })
     .toPromise()) as any[];
@@ -124,11 +93,12 @@ export async function getErrorVolume(siteQuery: BASiteQuery): Promise<ErrorVolum
   return result.map((row) => ErrorVolumeRowSchema.parse(row));
 }
 
-export async function getErrorGroupVolumesPaginated(
+export async function getErrorGroupVolumes(
   siteQuery: BASiteQuery,
-  limit: number,
-  offset: number,
+  fingerprints: string[],
 ): Promise<ErrorGroupVolumeRow[]> {
+  if (fingerprints.length === 0) return [];
+
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -148,18 +118,7 @@ export async function getErrorGroupVolumesPaginated(
       WHERE site_id = {site_id:String}
         AND ${range}
         AND event_type = 'js_error'
-        AND error_fingerprint IN (
-          SELECT error_fingerprint
-          FROM analytics.events
-          WHERE site_id = {site_id:String}
-            AND event_type = 'js_error'
-            AND error_fingerprint != ''
-            AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-            AND ${SQL.AND(filters)}
-          GROUP BY error_fingerprint
-          ORDER BY count() DESC
-          LIMIT {limit:UInt32} OFFSET {offset:UInt32}
-        )
+        AND error_fingerprint IN ({fingerprints:Array(String)})
         AND ${SQL.AND(filters)}
       GROUP BY error_fingerprint, date
       ORDER BY error_fingerprint, date ASC
@@ -173,8 +132,7 @@ export async function getErrorGroupVolumesPaginated(
         site_id: siteId,
         start_date: startDateTime,
         end_date: endDateTime,
-        limit,
-        offset,
+        fingerprints,
       },
     })
     .toPromise()) as any[];
