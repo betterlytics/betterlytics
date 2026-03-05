@@ -20,12 +20,12 @@ async function fetchTopGeoVisits(
   const minVisitors =
     level !== 'country_code' ? (await getDashboardSettings(ctx.dashboardId)).geoMinThreshold : 0;
 
-  const geoVisitors = await fetchVisitorsByGeoLevel(main, level, undefined, limit, minVisitors);
+  const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit, minVisitors);
   const topKeys = geoVisitors.map((r) => r[level]);
 
   const compareGeoVisitors =
     compare &&
-    (await fetchVisitorsByGeoLevel(compare, level, undefined, 1000, minVisitors)).filter((row) =>
+    (await fetchVisitorsByGeoLevel(compare, level, 1000, minVisitors)).filter((row) =>
       topKeys.includes(row[level]),
     );
 
