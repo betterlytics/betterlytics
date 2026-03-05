@@ -57,14 +57,14 @@ export function ErrorCard({ error, volume }: ErrorCardProps) {
           <p className='text-muted-foreground mt-0.5 truncate text-sm'>{error.error_message}</p>
         </div>
 
+        <div className='hidden shrink-0 lg:block'>
+          <ErrorMiniBarChart data={volume} />
+        </div>
+
         <div className='flex shrink-0 items-end gap-4'>
           <ErrorMetric label='Events' value={formatCount(error.count)} />
           <ErrorMetric label='Sessions' value={formatCount(error.session_count)} />
           <ErrorMetric label='Last seen' value={`${lastSeenLabel} ago`} />
-        </div>
-
-        <div className='hidden shrink-0 lg:block'>
-          <ErrorMiniBarChart data={volume} />
         </div>
       </div>
     </Card>
