@@ -2,15 +2,15 @@
 
 import { use } from 'react';
 import { ErrorCardList } from './ErrorCardList';
-import { fetchErrorGroupsAction, fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupsInitialAction } from '@/app/actions/analytics/errors.actions';
 
 type ErrorGroupsSectionProps = {
-  errorGroupsPromise: ReturnType<typeof fetchErrorGroupsAction>;
-  volumeMapPromise: ReturnType<typeof fetchErrorGroupVolumesAction>;
+  initialPagePromise: ReturnType<typeof fetchErrorGroupsInitialAction>;
+  dashboardId: string;
+  pageSize: number;
 };
 
-export function ErrorGroupsSection({ errorGroupsPromise, volumeMapPromise }: ErrorGroupsSectionProps) {
-  const errors = use(errorGroupsPromise);
-  const volumeMap = use(volumeMapPromise);
-  return <ErrorCardList errors={errors} volumeMap={volumeMap} />;
+export function ErrorGroupsSection({ initialPagePromise, dashboardId, pageSize }: ErrorGroupsSectionProps) {
+  const initialPage = use(initialPagePromise);
+  return <ErrorCardList initialPage={initialPage} dashboardId={dashboardId} pageSize={pageSize} />;
 }

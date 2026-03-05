@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { fetchErrorGroupsAction, fetchErrorVolumeAction, fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupsInitialAction, fetchErrorVolumeAction } from '@/app/actions/analytics/errors.actions';
 import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -8,6 +8,8 @@ import { getUserTimezone } from '@/lib/cookies';
 import { ErrorsOverviewChart } from './ErrorsOverviewChart';
 import { ErrorGroupsSection } from './ErrorGroupsSection';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
+
+const PAGE_SIZE = 10;
 
 type ErrorsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -20,8 +22,7 @@ export default async function ErrorsPage({ params, searchParams }: ErrorsPagePar
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const errorVolumePromise = fetchErrorVolumeAction(dashboardId, query);
-  const errorGroupsPromise = fetchErrorGroupsAction(dashboardId, query);
-  const errorGroupVolumesPromise = fetchErrorGroupVolumesAction(dashboardId, query);
+  const initialPagePromise = fetchErrorGroupsInitialAction(dashboardId, query, PAGE_SIZE);
 
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
@@ -34,7 +35,7 @@ export default async function ErrorsPage({ params, searchParams }: ErrorsPagePar
       </Suspense>
 
       <Suspense fallback={<TableSkeleton />}>
-        <ErrorGroupsSection errorGroupsPromise={errorGroupsPromise} volumeMapPromise={errorGroupVolumesPromise} />
+        <ErrorGroupsSection initialPagePromise={initialPagePromise} dashboardId={dashboardId} pageSize={PAGE_SIZE} />
       </Suspense>
     </div>
   );
