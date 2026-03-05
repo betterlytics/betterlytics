@@ -13,12 +13,10 @@ import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboard
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 export default function DataSettings() {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
-  const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
@@ -125,8 +123,7 @@ export default function DataSettings() {
         </div>
       </SettingsSection>
 
-      {isFeatureFlagEnabled('enableGeoSubdivision') && (
-        <SettingsSection title={t('data.geoThresholdTitle')}>
+      <SettingsSection title={t('data.geoThresholdTitle')}>
           <div className='flex items-center justify-between'>
             <div>
               <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
@@ -149,7 +146,6 @@ export default function DataSettings() {
             </PermissionGate>
           </div>
         </SettingsSection>
-      )}
       </div>
 
       <ConfirmDialog

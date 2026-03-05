@@ -78,7 +78,7 @@ impl Config {
         let geo_enabled = env::var("ENABLE_GEOLOCATION")
             .map(|val| val.to_lowercase() == "true")
             .unwrap_or(false);
-        let geo_subdivision = env::var("NEXT_PUBLIC_ENABLE_GEOSUBDIVISION")
+        let geo_subdivision = env::var("ENABLE_GEOSUBDIVISION")
             .map(|val| val.to_lowercase() == "true")
             .unwrap_or(false);
         let geolocation_mode = match (geo_enabled, geo_subdivision) {

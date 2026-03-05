@@ -26,7 +26,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { featureFlags } from '@/lib/feature-flags';
+import { env } from '@/lib/env';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -41,9 +41,9 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
   const topByGeoLevel: Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>> = {
-    country_code: getTopGeoVisitsAction(dashboardId, query, 'country_code'),
-    subdivision_code: featureFlags.enableSubdivisionTracking ? getTopGeoVisitsAction(dashboardId, query, 'subdivision_code') : Promise.resolve([]),
-    city: featureFlags.enableSubdivisionTracking ? getTopGeoVisitsAction(dashboardId, query, 'city') : Promise.resolve([]),
+    country_code: env.ENABLE_GEOLOCATION ? getTopGeoVisitsAction(dashboardId, query, 'country_code') : Promise.resolve([]),
+    subdivision_code: env.ENABLE_GEOLOCATION && env.ENABLE_GEOSUBDIVISION ? getTopGeoVisitsAction(dashboardId, query, 'subdivision_code') : Promise.resolve([]),
+    city: env.ENABLE_GEOLOCATION && env.ENABLE_GEOSUBDIVISION ? getTopGeoVisitsAction(dashboardId, query, 'city') : Promise.resolve([]),
   };
 
   const summaryAndChartPromise = Promise.all([

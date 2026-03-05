@@ -63,7 +63,7 @@ const envSchema = z.object({
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
   ENABLE_GEOLOCATION: zStringBoolean,
-  PUBLIC_ENABLE_GEOSUBDIVISION: zStringBoolean,
+  ENABLE_GEOSUBDIVISION: zStringBoolean,
   PUSHOVER_APP_TOKEN: z.string().optional(),
   INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
 });
