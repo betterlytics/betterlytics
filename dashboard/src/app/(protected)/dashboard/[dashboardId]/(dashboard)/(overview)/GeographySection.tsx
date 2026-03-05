@@ -39,10 +39,10 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
-  const geoLevelTabs = GEO_LEVELS.map((level) => {
-    const data = topByGeoLevel[level] ? use(topByGeoLevel[level]) : [];
-    return { level, data };
-  }).map(({ level, data }) => ({
+  const geoLevelTabs = GEO_LEVELS.map((level) => ({
+    level,
+    data: topByGeoLevel[level] ? use(topByGeoLevel[level]) : [],
+  })).map(({ level, data }) => ({
     key: level,
     label: geoLevelTabLabels[level],
     data: data.map((item) => ({
