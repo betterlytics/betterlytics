@@ -33,16 +33,6 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const renderFlag = (countryCode: string | undefined) => {
-    if (!countryCode) return undefined;
-    return (
-      <FlagIcon
-        countryCode={countryCode as FlagIconProps['countryCode']}
-        countryName={getCountryName(countryCode, locale)}
-      />
-    );
-  };
-
   const geoLevelTabLabels = {
     country_code: t('tabs.countries'),
     subdivision_code: t('tabs.regions'),
@@ -62,7 +52,12 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
       value: item.current.visitors,
       trendPercentage: item.change?.visitors,
       comparisonValue: item.compare?.visitors,
-      icon: renderFlag(item.current.country_code),
+      icon: (
+        <FlagIcon
+          countryCode={item.current.country_code as FlagIconProps['countryCode']}
+          countryName={getCountryName(item.current.country_code, locale)}
+        />
+      ),
     })),
   }));
 
