@@ -1,11 +1,10 @@
 import { Suspense } from 'react';
-import { fetchErrorGroupsAction, fetchErrorVolumeAction } from '@/app/actions/analytics/errors.actions';
-import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
+import { fetchErrorGroupsAction } from '@/app/actions/analytics/errors.actions';
+import { TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getUserTimezone } from '@/lib/cookies';
-import { ErrorsOverviewChart } from './ErrorsOverviewChart';
 import { ErrorGroupsSection } from './ErrorGroupsSection';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 
@@ -19,7 +18,6 @@ export default async function ErrorsPage({ params, searchParams }: ErrorsPagePar
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const errorVolumePromise = fetchErrorVolumeAction(dashboardId, query);
   const groupsPromise = fetchErrorGroupsAction(dashboardId, query);
 
   return (
@@ -28,16 +26,8 @@ export default async function ErrorsPage({ params, searchParams }: ErrorsPagePar
         <DashboardFilters showComparison={false} />
       </DashboardHeader>
 
-      <Suspense fallback={<ChartSkeleton />}>
-        <ErrorsOverviewChart chartPromise={errorVolumePromise} />
-      </Suspense>
-
       <Suspense fallback={<TableSkeleton />}>
-        <ErrorGroupsSection
-          groupsPromise={groupsPromise}
-          timeBucketsPromise={errorVolumePromise}
-          dashboardId={dashboardId}
-        />
+        <ErrorGroupsSection groupsPromise={groupsPromise} dashboardId={dashboardId} />
       </Suspense>
     </div>
   );

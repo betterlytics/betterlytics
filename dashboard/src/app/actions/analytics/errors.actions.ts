@@ -10,11 +10,12 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toBarChart, toGroupedBarCharts, type BarChartPoint } from '@/presenters/toBarChart';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import type { ErrorGroupRow, ErrorGroupVolumeRow } from '@/entities/analytics/errors.entities';
+import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
   errorGroups: ErrorGroupRow[];
-  initialVolumeRows: ErrorGroupVolumeRow[];
+  timeBuckets: BarChartPoint[];
+  initialVolumeMap: Record<string, BarChartPoint[]>;
 };
 
 const INITIAL_PAGE_SIZE = 10;
@@ -22,12 +23,25 @@ const INITIAL_PAGE_SIZE = 10;
 export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
     const { main } = toSiteQuery(ctx.siteId, query);
-    const errorGroups = await getErrorGroupsForSite(main);
+
+    const [errorGroups, overallData] = await Promise.all([
+      getErrorGroupsForSite(main),
+      getErrorVolumeForSite(main),
+    ]);
+
+    const timeBuckets = toBarChart({ dataKey: 'errorCount', data: overallData });
 
     const initialFingerprints = errorGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
     const initialVolumeRows = await getErrorGroupVolumesForSite(main, initialFingerprints);
 
-    return { errorGroups, initialVolumeRows };
+    const initialVolumeMap = toGroupedBarCharts({
+      groupKey: 'error_fingerprint',
+      dataKey: 'errorCount',
+      timeBuckets,
+      data: initialVolumeRows,
+    });
+
+    return { errorGroups, timeBuckets, initialVolumeMap };
   },
 );
 
@@ -47,13 +61,5 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
       timeBuckets,
       data: volumeRows,
     });
-  },
-);
-
-export const fetchErrorVolumeAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
-    const { main } = toSiteQuery(ctx.siteId, query);
-    const data = await getErrorVolumeForSite(main);
-    return toBarChart({ dataKey: 'errorCount', data });
   },
 );
