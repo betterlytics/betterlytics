@@ -66,7 +66,7 @@ export async function getVisitorsByGeoLevel(
     GeoVisitorSchema.parse({
       country_code: validatedLevel === 'country_code' ? row.code : row.parent_country_code,
       visitors: Number(row.visitors),
-      ...(validatedLevel === 'subdivision_code' ? { region: row.code } : {}),
+      ...(validatedLevel === 'subdivision_code' ? { subdivision_code: row.code } : {}),
       ...(validatedLevel === 'city' ? { city: row.code } : {}),
     }),
   );

@@ -1,12 +1,7 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import LeafletMap from '@/components/map/LeafletMap';
-import type {
-  getTopCityVisitsAction,
-  getTopCountryVisitsAction,
-  getTopSubdivisionVisitsAction,
-  getWorldMapDataAlpha2,
-} from '@/app/actions/analytics/geography.actions';
+import type { getTopGeoVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
 import { use } from 'react';
@@ -15,32 +10,28 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
+import type { SupportedLanguages } from '@/constants/i18n';
+
+type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
-  topCountriesPromise: ReturnType<typeof getTopCountryVisitsAction>;
-  topSubdivisionsPromise: ReturnType<typeof getTopSubdivisionVisitsAction>;
-  topCitiesPromise: ReturnType<typeof getTopCityVisitsAction>;
+  topByGeoLevel: Partial<Record<GeoLevel, GeoTablePromise>>;
 };
 
-export default function GeographySection({
-  worldMapPromise,
-  topCountriesPromise,
-  topSubdivisionsPromise,
-  topCitiesPromise,
-}: GeographySectionProps) {
+const GEO_LABEL_FORMATTERS: Record<GeoLevel, (code: string, locale: SupportedLanguages) => string> = {
+  country_code: getCountryName,
+  subdivision_code: getSubdivisionName,
+  city: (code) => code,
+};
+
+export default function GeographySection({ worldMapPromise, topByGeoLevel }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
-  const topCountries = use(topCountriesPromise);
-  const topSubdivisions = use(topSubdivisionsPromise);
-  const topCities = use(topCitiesPromise);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-
-  const onItemClick = (tabKey: string, item: { key?: string }) => {
-    if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
-  };
 
   const renderFlag = (countryCode: string | undefined) => {
     if (!countryCode) return undefined;
@@ -50,6 +41,33 @@ export default function GeographySection({
         countryName={getCountryName(countryCode, locale)}
       />
     );
+  };
+
+  const geoLevelTabLabels = {
+    country_code: t('tabs.countries'),
+    subdivision_code: t('tabs.regions'),
+    city: t('tabs.cities'),
+  } satisfies Record<GeoLevel, string>;
+
+  const geoLevelTabs = GEO_LEVELS.flatMap((level) => {
+    if (!topByGeoLevel[level]) return [];
+    const data = use(topByGeoLevel[level]);
+    return data.length > 0 ? [{ level, data }] : [];
+  }).map(({ level, data }) => ({
+    key: level,
+    label: geoLevelTabLabels[level],
+    data: data.map((item) => ({
+      label: GEO_LABEL_FORMATTERS[level](item[level], locale),
+      key: item[level],
+      value: item.current.visitors,
+      trendPercentage: item.change?.visitors,
+      comparisonValue: item.compare?.visitors,
+      icon: renderFlag(item.current.country_code),
+    })),
+  }));
+
+  const onItemClick = (tabKey: string, item: { key?: string }) => {
+    if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
   };
 
   return (
@@ -68,50 +86,7 @@ export default function GeographySection({
             </div>
           ),
         },
-        {
-          key: 'country_code',
-          label: t('tabs.countries'),
-          data: topCountries.map((country) => ({
-            label: getCountryName(country.country_code, locale),
-            key: country.country_code,
-            value: country.current.visitors,
-            trendPercentage: country.change?.visitors,
-            comparisonValue: country.compare?.visitors,
-            icon: renderFlag(country.country_code),
-          })),
-        },
-        ...(topSubdivisions.length > 0
-          ? [
-              {
-                key: 'subdivision_code',
-                label: t('tabs.regions'),
-                data: topSubdivisions.map((subdivision) => ({
-                  label: getSubdivisionName(subdivision.region!, locale),
-                  key: subdivision.region!,
-                  value: subdivision.current.visitors,
-                  trendPercentage: subdivision.change?.visitors,
-                  comparisonValue: subdivision.compare?.visitors,
-                  icon: renderFlag(subdivision.current.country_code),
-                })),
-              },
-            ]
-          : []),
-        ...(topCities.length > 0
-          ? [
-              {
-                key: 'city',
-                label: t('tabs.cities'),
-                data: topCities.map((city) => ({
-                  label: city.city!,
-                  key: city.city!,
-                  value: city.current.visitors,
-                  trendPercentage: city.change?.visitors,
-                  comparisonValue: city.compare?.visitors,
-                  icon: renderFlag(city.current.country_code),
-                })),
-              },
-            ]
-          : []),
+        ...geoLevelTabs,
       ]}
       footer={
         <FilterPreservingLink

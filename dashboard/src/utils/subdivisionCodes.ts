@@ -1,29 +1,17 @@
-import { SupportedLanguages, SUPPORTED_LANGUAGES } from '@/constants/i18n';
+import { SupportedLanguages } from '@/constants/i18n';
+import en from 'cldr-subdivisions-full/subdivisions/en/en.json';
+import da from 'cldr-subdivisions-full/subdivisions/da/da.json';
+import it from 'cldr-subdivisions-full/subdivisions/it/it.json';
+import no from 'cldr-subdivisions-full/subdivisions/no/no.json';
 
 type SubdivisionData = Record<string, string>;
-type CldrLocale = Exclude<SupportedLanguages, 'nb'> | 'no';
 
-const CLDR_LOCALE_MAP: Record<SupportedLanguages, CldrLocale> = SUPPORTED_LANGUAGES.reduce(
-  (acc, lang) => ({ ...acc, [lang]: lang === 'nb' ? 'no' : lang }),
-  {} as Record<SupportedLanguages, CldrLocale>,
-);
-
-const subdivisionsByLocale: Partial<Record<SupportedLanguages, SubdivisionData>> = {};
-
-async function registerLocales() {
-  await Promise.all(
-    (Object.entries(CLDR_LOCALE_MAP) as [SupportedLanguages, CldrLocale][]).map(async ([lang, cldrLang]) => {
-      try {
-        const data = (await import(`cldr-subdivisions-full/subdivisions/${cldrLang}/${cldrLang}.json`)).default;
-        subdivisionsByLocale[lang] = data.subdivisions.localeDisplayNames.subdivisions;
-      } catch {
-        // Locale data missing — getSubdivisionName will fall back to 'en' or raw code
-      }
-    }),
-  );
-}
-
-registerLocales();
+const subdivisionsByLocale: Record<SupportedLanguages, SubdivisionData> = {
+  en: en.subdivisions.localeDisplayNames.subdivisions,
+  da: da.subdivisions.localeDisplayNames.subdivisions,
+  it: it.subdivisions.localeDisplayNames.subdivisions,
+  nb: no.subdivisions.localeDisplayNames.subdivisions,
+};
 
 /**
  * Converts an ISO 3166-2 code to the CLDR BCP47 subdivision key

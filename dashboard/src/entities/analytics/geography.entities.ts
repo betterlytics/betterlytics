@@ -8,7 +8,7 @@ export type GeoLevel = z.infer<typeof GeoLevelSchema>;
 export const GeoVisitorSchema = z.object({
   country_code: z.string(),
   visitors: z.preprocess((val) => Number(val), z.number()),
-  region: z.string().optional(),
+  subdivision_code: z.string().optional(),
   city: z.string().optional(),
 });
 

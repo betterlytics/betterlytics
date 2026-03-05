@@ -10,12 +10,10 @@ import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
 import { getDashboardSettings } from '@/services/dashboard/dashboardSettings.service';
 
-async function fetchTopGeoVisits<K extends string>(
+async function fetchTopGeoVisits(
   ctx: AuthContext,
   query: BAAnalyticsQuery,
   level: GeoLevel,
-  categoryKey: K,
-  getKey: (row: GeoVisitor) => string | undefined,
   limit: number,
 ) {
   const { main, compare } = toSiteQuery(ctx.siteId, query);
@@ -23,18 +21,18 @@ async function fetchTopGeoVisits<K extends string>(
     level !== 'country_code' ? (await getDashboardSettings(ctx.dashboardId)).geoMinThreshold : 0;
 
   const geoVisitors = await fetchVisitorsByGeoLevel(main, level, undefined, limit, minVisitors);
-  const topKeys = geoVisitors.map(getKey);
+  const topKeys = geoVisitors.map((r) => r[level]);
 
   const compareGeoVisitors =
     compare &&
     (await fetchVisitorsByGeoLevel(compare, level, undefined, 1000, minVisitors)).filter((row) =>
-      topKeys.includes(getKey(row)),
+      topKeys.includes(row[level]),
     );
 
   return toDataTable({
-    data: geoVisitors as (GeoVisitor & Record<K, string>)[],
-    compare: compareGeoVisitors as (GeoVisitor & Record<K, string>)[] | null | undefined,
-    categoryKey,
+    data: geoVisitors as (GeoVisitor & Record<GeoLevel, string>)[],
+    compare: compareGeoVisitors as (GeoVisitor & Record<GeoLevel, string>)[] | null | undefined,
+    categoryKey: level,
   });
 }
 
@@ -54,17 +52,7 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   },
 );
 
-export const getTopCountryVisitsAction = withDashboardAuthContext(
-  (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) =>
-    fetchTopGeoVisits(ctx, query, 'country_code', 'country_code', (r) => r.country_code, limit),
-);
-
-export const getTopSubdivisionVisitsAction = withDashboardAuthContext(
-  (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) =>
-    fetchTopGeoVisits(ctx, query, 'subdivision_code', 'region', (r) => r.region, limit),
-);
-
-export const getTopCityVisitsAction = withDashboardAuthContext(
-  (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) =>
-    fetchTopGeoVisits(ctx, query, 'city', 'city', (r) => r.city, limit),
+export const getTopGeoVisitsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, level: GeoLevel, limit: number = 10) =>
+    fetchTopGeoVisits(ctx, query, level, limit),
 );

@@ -15,11 +15,10 @@ import {
   fetchSummaryStatsAction,
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
-  getTopCityVisitsAction,
-  getTopCountryVisitsAction,
-  getTopSubdivisionVisitsAction,
+  getTopGeoVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions/index.actions';
+import type { GeoLevel } from '@/entities/analytics/geography.entities';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -41,9 +40,11 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
   const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
-  const topCountriesPromise = getTopCountryVisitsAction(dashboardId, query);
-  const topSubdivisionsPromise = featureFlags.enableSubdivisionTracking ? getTopSubdivisionVisitsAction(dashboardId, query) : Promise.resolve([]);
-  const topCitiesPromise = featureFlags.enableSubdivisionTracking ? getTopCityVisitsAction(dashboardId, query) : Promise.resolve([]);
+  const topByGeoLevel: Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>> = {
+    country_code: getTopGeoVisitsAction(dashboardId, query, 'country_code'),
+    subdivision_code: featureFlags.enableSubdivisionTracking ? getTopGeoVisitsAction(dashboardId, query, 'subdivision_code') : Promise.resolve([]),
+    city: featureFlags.enableSubdivisionTracking ? getTopGeoVisitsAction(dashboardId, query, 'city') : Promise.resolve([]),
+  };
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, query),
@@ -73,7 +74,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} topSubdivisionsPromise={topSubdivisionsPromise} topCitiesPromise={topCitiesPromise} />
+          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
