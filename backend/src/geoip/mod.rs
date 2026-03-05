@@ -133,17 +133,7 @@ impl GeoIpService {
             };
         }
 
-        // Parse IP early so we can use canonical form as cache key
-        let ip: IpAddr = match ip_address.parse() {
-            Ok(ip) => ip,
-            Err(e) => {
-                warn!("Failed to parse IP address: {}", e);
-                return GeoLocation::default();
-            }
-        };
-        let cache_key = ip.to_string();
-
-        if let Some(cached_result) = self.ip_cache.get(&cache_key) {
+        if let Some(cached_result) = self.ip_cache.get(ip_address) {
             debug!("GeoIP cache hit");
             return cached_result;
         }
@@ -157,8 +147,16 @@ impl GeoIpService {
             Some(r) => r,
             None => {
                 let result = GeoLocation::default();
-                self.ip_cache.insert(cache_key, result.clone());
+                self.ip_cache.insert(ip_address.to_string(), result.clone());
                 return result;
+            }
+        };
+
+        let ip: IpAddr = match ip_address.parse() {
+            Ok(ip) => ip,
+            Err(e) => {
+                warn!("Failed to parse IP address: {}", e);
+                return GeoLocation::default();
             }
         };
 
@@ -214,7 +212,7 @@ impl GeoIpService {
             }
         };
 
-        self.ip_cache.insert(cache_key, result.clone());
+        self.ip_cache.insert(ip_address.to_string(), result.clone());
 
         result
     }
