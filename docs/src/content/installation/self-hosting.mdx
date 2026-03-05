@@ -160,7 +160,7 @@ Add the following to your `.env` file:
 
 ```bash
 ENABLE_GEOLOCATION=true
-ENABLE_GEOSUBDIVISION=false   # set to "true" for region & city data
+ENABLE_GEOSUBDIVISION=true
 MAXMIND_ACCOUNT_ID=your_account_id
 MAXMIND_LICENSE_KEY=your_license_key
 ```
@@ -196,7 +196,7 @@ City-level data combined with other analytics dimensions (device, browser, time)
 
 Betterlytics mitigates this with a **minimum visitor threshold** (default: 10). Geographic locations with fewer unique visitors than the threshold are hidden from the dashboard. This setting is configurable per-dashboard in **Settings > Data > Privacy**.
 
-For low-traffic sites (fewer than ~1,000 monthly visitors), we recommend keeping the default threshold of 10 or setting it higher. See our [privacy decision document](https://github.com/betterlytics/betterlytics/blob/main/docs/GDPR_CITY_LEVEL_GEOGRAPHY.md) for the full analysis.
+For low-traffic sites (fewer than ~1,000 monthly visitors), we recommend keeping the default threshold of 10 or setting it higher.
 
 ## Updating
 
