@@ -1,13 +1,13 @@
 ---
 title: "MCP Server - Betterlytics"
-description: "Connect AI assistants like Claude to your Betterlytics analytics data using the Model Context Protocol (MCP)."
+description: "Connect AI assistants to your Betterlytics analytics data using the Model Context Protocol (MCP)."
 ---
 
 import { Callout } from "nextra/components";
 
 # MCP Server
 
-Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI assistants like Claude about your website's traffic in natural language. No dashboards or manual queries needed.
+Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI assistants about your website's traffic in natural language. No dashboards or manual queries needed.
 
 ## Creating an API Token
 
@@ -28,16 +28,76 @@ https://betterlytics.io/api/mcp
 
 ### Claude Code
 
-Run the following command in your terminal:
-
 ```bash
-claude mcp add betterlytics \
+claude mcp add betterlytics https://betterlytics.io/api/mcp \
   --transport http \
-  --header "Authorization: Bearer btl_your_token_here" \
-  https://betterlytics.io/api/mcp
+  --header "Authorization: Bearer btl_your_token_here"
 ```
 
-Replace `btl_your_token_here` with the token you copied.
+### Cursor
+
+Add to `.cursor/mcp.json` in your project directory:
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "url": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to your [MCP config](https://docs.windsurf.com/windsurf/cascade/mcp) (`~/.codeium/windsurf/mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "serverUrl": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+### Antigravity
+
+Add to your [MCP config](https://ai.google.dev/gemini-api/docs/antigravity/mcp) (`~/.gemini/antigravity/mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "serverUrl": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+### Codex
+
+Add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.betterlytics]
+url = "https://betterlytics.io/api/mcp"
+http_headers = { "Authorization" = "Bearer btl_your_token_here" }
+```
+
+<Callout>
+Replace `btl_your_token_here` with the token you copied in all examples above.
+</Callout>
 
 ## What You Can Ask About
 
@@ -56,14 +116,29 @@ Once connected, you can ask your AI assistant about any of the following:
 
 Here are some questions you can try:
 
-- "How many visitors did I get this week?"
-- "What are my top pages by pageviews over the last 28 days?"
-- "Show me a daily visitor trend for the past 7 days"
-- "Which countries do most of my visitors come from?"
-- "What's the device breakdown: desktop vs mobile vs tablet?"
-- "Which browsers do my mobile visitors use?"
-- "How did my traffic change compared to last month?"
-- "What are my top traffic sources this month?"
+**Traffic analysis**
+- "Compare my daily visitors this week vs last week. Is traffic trending up or down?"
+- "What percentage of my traffic comes from search vs social vs direct over the last 90 days?"
+- "Which countries had the most visitors this month, and what devices do they use?"
+
+**Content performance**
+- "Which pages have the highest pageviews but lowest scroll depth? I might need to improve them."
+- "Show me the top 10 landing pages by sessions, broken down by traffic source."
+- "What's the average scroll depth on my blog posts vs my product pages?"
+
+**Conversion and events**
+- "How many cart-checkout events happened on mobile vs desktop this month?"
+- "What's my product-clicked to cart-checkout ratio, and is it better on desktop or mobile?"
+- "Show me a daily trend of custom events for the past 28 days, any spikes?"
+
+**Campaign attribution**
+- "Break down visitors by UTM campaign for Q1. Which campaigns drove the most traffic?"
+- "How did traffic from my spring-sale UTM campaign perform compared to organic search?"
+
+**Cross-dimensional**
+- "What browsers do my mobile visitors from Germany use?"
+- "Show me the hourly traffic pattern for today. When is my peak hour?"
+- "Which referrer sources bring visitors that scroll the deepest on my pages?"
 
 ## Managing Tokens
 
