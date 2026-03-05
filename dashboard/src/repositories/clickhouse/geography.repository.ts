@@ -54,7 +54,7 @@ export async function getVisitorsBySubdivision(
   const query = safeSql`
     SELECT
       subdivision_code AS code,
-      any(country_code) AS country_code,
+      country_code,
       uniq(visitor_id) as visitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -62,7 +62,7 @@ export async function getVisitorsBySubdivision(
       AND subdivision_code IS NOT NULL
       AND subdivision_code != ''
       AND ${SQL.AND(filters)}
-    GROUP BY code
+    GROUP BY code, country_code
     HAVING visitors >= {min_visitors:UInt32}
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
