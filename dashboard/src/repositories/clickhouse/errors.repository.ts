@@ -12,6 +12,25 @@ import {
   ErrorVolumeRowSchema,
 } from '@/entities/analytics/errors.entities';
 
+export async function hasAnyErrors(siteId: string): Promise<boolean> {
+  const query = safeSql`
+    SELECT 1
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'js_error'
+      AND error_fingerprint != ''
+    LIMIT 1
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId },
+    })
+    .toPromise();
+
+  return result.length > 0;
+}
+
 export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroupRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -23,7 +42,7 @@ export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroup
       any(error_message) as error_message,
       count() as count,
       max(timestamp) as last_seen,
-      any(JSONExtractString(exception_list, 'mechanism')) as mechanism
+      uniq(session_id) as session_count
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND event_type = 'js_error'

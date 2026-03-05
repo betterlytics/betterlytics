@@ -10,10 +10,11 @@ type ErrorGroupsSectionProps = {
 };
 
 export function ErrorGroupsSection({ groupsPromise, dashboardId }: ErrorGroupsSectionProps) {
-  const { errorGroups, timeBuckets, initialVolumeMap } = use(groupsPromise);
+  const { hasAnyErrors, errorGroups, timeBuckets, initialVolumeMap } = use(groupsPromise);
 
   return (
     <ErrorCardList
+      hasAnyErrors={hasAnyErrors}
       errorGroups={errorGroups}
       initialVolumeMap={initialVolumeMap}
       timeBuckets={timeBuckets}

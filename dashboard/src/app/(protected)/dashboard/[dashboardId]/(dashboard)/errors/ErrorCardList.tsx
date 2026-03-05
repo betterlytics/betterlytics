@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ErrorCard } from './ErrorCard';
+import { ErrorsEmptyState } from './ErrorsEmptyState';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
@@ -18,13 +19,29 @@ type SortOption = 'events' | 'last_seen' | 'alphabetical';
 const PAGE_SIZE = 10;
 
 type ErrorCardListProps = {
+  hasAnyErrors: boolean;
   errorGroups: ErrorGroupRow[];
   initialVolumeMap: Record<string, BarChartPoint[]>;
   timeBuckets: BarChartPoint[];
   dashboardId: string;
 };
 
-export function ErrorCardList({ errorGroups, initialVolumeMap, timeBuckets, dashboardId }: ErrorCardListProps) {
+export function ErrorCardList({ hasAnyErrors, errorGroups, initialVolumeMap, timeBuckets, dashboardId }: ErrorCardListProps) {
+  if (!hasAnyErrors) {
+    return <ErrorsEmptyState />;
+  }
+
+  return (
+    <ErrorCardListInner
+      errorGroups={errorGroups}
+      initialVolumeMap={initialVolumeMap}
+      timeBuckets={timeBuckets}
+      dashboardId={dashboardId}
+    />
+  );
+}
+
+function ErrorCardListInner({ errorGroups, initialVolumeMap, timeBuckets, dashboardId }: Omit<ErrorCardListProps, 'hasAnyErrors'>) {
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [pageIndex, setPageIndex] = useState(0);
@@ -110,7 +127,7 @@ export function ErrorCardList({ errorGroups, initialVolumeMap, timeBuckets, dash
       {filtered.length === 0 ? (
         <div className='py-12 text-center'>
           <p className='text-muted-foreground text-sm'>
-            {errorGroups.length === 0 ? 'No errors recorded in this period.' : 'No errors matching your search.'}
+            {search.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
           </p>
         </div>
       ) : (

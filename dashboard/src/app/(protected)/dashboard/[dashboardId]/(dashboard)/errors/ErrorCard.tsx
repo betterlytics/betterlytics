@@ -1,7 +1,6 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import { ErrorMiniBarChart } from './ErrorMiniBarChart';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
@@ -29,33 +28,22 @@ export function ErrorCard({ error, volume }: ErrorCardProps) {
     <Card className='border-border/70 bg-card/80 overflow-hidden py-3 sm:py-4'>
       <div className='flex flex-col gap-2 px-4 md:hidden'>
         <div className='min-w-0'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm font-semibold'>{error.error_type}</span>
-            {error.mechanism && (
-              <Badge variant='outline' className='text-muted-foreground border-border/50 text-[10px]'>
-                {error.mechanism.replace('on', '')}
-              </Badge>
-            )}
-          </div>
-          <p className='text-muted-foreground mt-0.5 line-clamp-2 text-sm'>{error.error_message}</p>
+          <span className='text-sm font-semibold'>{error.error_type}</span>
+          <p className='text-muted-foreground mt-0.5 line-clamp-2 break-all text-sm'>{error.error_message}</p>
         </div>
         <ErrorMiniBarChart data={volume} width={200} height={32} />
-        <div className='text-muted-foreground flex items-center gap-3 text-xs'>
+        <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
           <span className='font-semibold'>{formatCount(error.count)} events</span>
+          <span>&middot;</span>
+          <span>{formatCount(error.session_count)} sessions</span>
+          <span>&middot;</span>
           <span>Last seen {lastSeenLabel} ago</span>
         </div>
       </div>
 
       <div className='hidden px-5 md:flex md:items-center md:gap-6'>
         <div className='min-w-0 flex-1'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm font-semibold'>{error.error_type}</span>
-            {error.mechanism && (
-              <Badge variant='outline' className='text-muted-foreground border-border/50 text-[10px]'>
-                {error.mechanism.replace('on', '')}
-              </Badge>
-            )}
-          </div>
+          <span className='text-sm font-semibold'>{error.error_type}</span>
           <p className='text-muted-foreground mt-0.5 truncate text-sm'>{error.error_message}</p>
         </div>
 
@@ -65,7 +53,9 @@ export function ErrorCard({ error, volume }: ErrorCardProps) {
 
         <div className='w-36 shrink-0 text-right'>
           <p className='text-sm font-semibold'>{formatCount(error.count)} events</p>
-          <p className='text-muted-foreground text-xs'>Last seen {lastSeenLabel} ago</p>
+          <p className='text-muted-foreground text-xs'>
+            {formatCount(error.session_count)} sessions &middot; {lastSeenLabel} ago
+          </p>
         </div>
       </div>
     </Card>

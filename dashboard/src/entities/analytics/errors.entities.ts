@@ -6,7 +6,7 @@ export const ErrorGroupRowSchema = z.object({
   error_message: z.string(),
   count: z.number().int().min(0),
   last_seen: z.date(),
-  mechanism: z.string(),
+  session_count: z.number().int().min(0),
 });
 
 export const ErrorVolumeRowSchema = z.object({

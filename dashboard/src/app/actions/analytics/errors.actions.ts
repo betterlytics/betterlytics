@@ -1,6 +1,7 @@
 'use server';
 
 import {
+  hasAnyErrorsForSite,
   getErrorGroupsForSite,
   getErrorVolumeForSite,
   getErrorGroupVolumesForSite,
@@ -13,6 +14,7 @@ import { toSiteQuery } from '@/lib/toSiteQuery';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
+  hasAnyErrors: boolean;
   errorGroups: ErrorGroupRow[];
   timeBuckets: BarChartPoint[];
   initialVolumeMap: Record<string, BarChartPoint[]>;
@@ -24,7 +26,8 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
     const { main } = toSiteQuery(ctx.siteId, query);
 
-    const [errorGroups, overallData] = await Promise.all([
+    const [hasAnyErrors, errorGroups, overallData] = await Promise.all([
+      hasAnyErrorsForSite(ctx.siteId),
       getErrorGroupsForSite(main),
       getErrorVolumeForSite(main),
     ]);
@@ -41,7 +44,7 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
       data: initialVolumeRows,
     });
 
-    return { errorGroups, timeBuckets, initialVolumeMap };
+    return { hasAnyErrors, errorGroups, timeBuckets, initialVolumeMap };
   },
 );
 
