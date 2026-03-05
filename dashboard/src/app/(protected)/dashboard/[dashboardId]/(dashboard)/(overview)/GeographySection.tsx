@@ -15,6 +15,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
@@ -37,11 +38,8 @@ export default function GeographySection({
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const onItemClick = (tabKey: string, item: { key?: string; label: string }) => {
-    if (!item.key) return;
-    if (tabKey === 'cities') return makeFilterClick('city')(item.key);
-    if (tabKey === 'regions') return makeFilterClick('subdivision_code')(item.key);
-    return makeFilterClick('country_code')(item.key);
+  const onItemClick = (tabKey: string, item: { key?: string }) => {
+    if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
   };
 
   const renderFlag = (countryCode: string | undefined) => {
@@ -71,7 +69,7 @@ export default function GeographySection({
           ),
         },
         {
-          key: 'countries',
+          key: 'country_code',
           label: t('tabs.countries'),
           data: topCountries.map((country) => ({
             label: getCountryName(country.country_code, locale),
@@ -85,7 +83,7 @@ export default function GeographySection({
         ...(topSubdivisions.length > 0
           ? [
               {
-                key: 'regions',
+                key: 'subdivision_code',
                 label: t('tabs.regions'),
                 data: topSubdivisions.map((subdivision) => ({
                   label: getSubdivisionName(subdivision.region!, locale),
@@ -101,7 +99,7 @@ export default function GeographySection({
         ...(topCities.length > 0
           ? [
               {
-                key: 'cities',
+                key: 'city',
                 label: t('tabs.cities'),
                 data: topCities.map((city) => ({
                   label: city.city!,
