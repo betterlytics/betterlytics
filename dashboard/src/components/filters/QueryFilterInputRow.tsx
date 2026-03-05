@@ -13,14 +13,12 @@ import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
-  Building2Icon,
   CableIcon,
   CompassIcon,
   EarthIcon,
   ExternalLinkIcon,
   FileTextIcon,
   GlobeIcon,
-  MapPinIcon,
   MonitorSmartphoneIcon,
   ShellIcon,
   SquareMousePointerIcon,
@@ -36,7 +34,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -55,9 +52,7 @@ export function QueryFilterInputRow<TEntity>({
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
-  const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
-  const geoSubdivisionColumns = new Set<FilterColumn>(['subdivision_code', 'city']);
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
@@ -86,9 +81,7 @@ export function QueryFilterInputRow<TEntity>({
         >
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS
-              .filter((column) => !geoSubdivisionColumns.has(column.value as FilterColumn) || isFeatureFlagEnabled('enableGeoSubdivision'))
-              .map((column) => {
+            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
               const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
               return (
                 <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>
@@ -147,8 +140,6 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'domain', icon: <GlobeIcon />, label: 'Hostname' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
   { value: 'country_code', icon: <EarthIcon />, label: 'Country code' },
-  { value: 'subdivision_code', icon: <MapPinIcon />, label: 'Region' },
-  { value: 'city', icon: <Building2Icon />, label: 'City' },
   { value: 'browser', icon: <CompassIcon />, label: 'Browser' },
   { value: 'os', icon: <MonitorSmartphoneIcon />, label: 'Operating system' },
   { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },

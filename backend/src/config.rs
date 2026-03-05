@@ -76,11 +76,11 @@ impl Config {
         dotenv::from_path(&root_env_path).ok();
 
         let geo_enabled = env::var("ENABLE_GEOLOCATION")
-            .unwrap_or_else(|_| "false".to_string())
-            .to_lowercase() == "true";
-        let geo_subdivision = env::var("PUBLIC_ENABLE_GEOSUBDIVISION")
-            .unwrap_or_else(|_| "false".to_string())
-            .to_lowercase() == "true";
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+        let geo_subdivision = env::var("NEXT_PUBLIC_ENABLE_GEOSUBDIVISION")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
         let geolocation_mode = match (geo_enabled, geo_subdivision) {
             (true, true) => GeolocationMode::Subdivisions,
             (true, false) => GeolocationMode::Countries,
