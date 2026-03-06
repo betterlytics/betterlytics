@@ -18,6 +18,16 @@ import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.enti
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
 
+export async function findDashboardBySiteId(siteId: string): Promise<Dashboard | null> {
+  const dashboard = await prisma.dashboard.findFirst({
+    where: { siteId, deletedAt: null },
+  });
+
+  if (!dashboard) return null;
+
+  return DashboardSchema.parse(dashboard);
+}
+
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
     const prismaDashboard = await prisma.dashboard.findFirst({

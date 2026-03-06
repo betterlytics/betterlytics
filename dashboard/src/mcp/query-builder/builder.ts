@@ -12,7 +12,8 @@ type BuildResult = {
   taggedParams: Record<string, unknown>;
 };
 
-export function buildQuery(input: McpQueryInput, siteId: string, timezone: string): BuildResult {
+export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
+  const timezone = input.timezone;
   const customStart = input.startDate ? new Date(input.startDate) : new Date();
   const customEnd = input.endDate ? new Date(input.endDate) : new Date();
 

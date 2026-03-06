@@ -67,4 +67,16 @@ describe('getSchemaDescription', () => {
     expect(customDateRange.example.startDate).toBeDefined();
     expect(customDateRange.example.endDate).toBeDefined();
   });
+
+  it('includes tools section with user_journeys, funnel_preview, and list_funnels', () => {
+    const result = getSchemaDescription();
+    expect(result).toHaveProperty('tools');
+    expect(result.tools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'user_journeys' }),
+        expect.objectContaining({ name: 'funnel_preview' }),
+        expect.objectContaining({ name: 'list_funnels' }),
+      ]),
+    );
+  });
 });

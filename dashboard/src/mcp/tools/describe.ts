@@ -13,6 +13,7 @@ type SchemaDescription = {
   timeRanges: string[];
   customDateRange: { description: string; example: { timeRange: string; startDate: string; endDate: string } };
   granularities: readonly string[];
+  tools: { name: string; description: string }[];
 };
 
 export function getSchemaDescription(): SchemaDescription {
@@ -30,5 +31,19 @@ export function getSchemaDescription(): SchemaDescription {
       example: { timeRange: 'custom', startDate: '2026-01-01', endDate: '2026-01-31' },
     },
     granularities: MCP_GRANULARITIES,
+    tools: [
+      {
+        name: 'user_journeys',
+        description: 'Analyze user navigation paths. Returns Sankey diagram data (nodes + links) showing page-to-page transitions. Inputs: timeRange, filters (optional), maxSteps (default 3), limit (default 50).',
+      },
+      {
+        name: 'funnel_preview',
+        description: 'Run ad-hoc funnel analysis. Define ordered steps (filter conditions) to see visitor dropoff. Inputs: timeRange, steps (min 2, each with name/column/operator/values), isStrict (default false).',
+      },
+      {
+        name: 'list_funnels',
+        description: 'List saved funnels for this site with conversion data. Inputs: timeRange.',
+      },
+    ],
   };
 }

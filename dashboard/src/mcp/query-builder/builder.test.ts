@@ -4,18 +4,17 @@ import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 
 describe('buildQuery', () => {
   const siteId = 'test-site-id';
-  const timezone = 'UTC';
 
   it('builds an aggregate query with a single metric and no dimensions', () => {
     const input: McpQueryInput = {
       metrics: ['visitors'],
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('uniq(visitor_id)');
     expect(result.taggedSql).toContain('site_id');
@@ -28,12 +27,12 @@ describe('buildQuery', () => {
       metrics: ['visitors', 'pageviews'],
       dimensions: ['device_type'],
       timeRange: '28d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 50,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('uniq(visitor_id)');
     expect(result.taggedSql).toContain("countIf(event_type = 'pageview')");
@@ -48,12 +47,12 @@ describe('buildQuery', () => {
       dimensions: ['country_code'],
       timeRange: '28d',
       granularity: 'day',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('date');
     expect(result.taggedSql).toContain('country_code');
@@ -65,12 +64,12 @@ describe('buildQuery', () => {
       metrics: ['pageviews'],
       filters: [{ column: 'url', operator: '=', values: ['/landing'] }],
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('ILIKE');
   });
@@ -79,12 +78,12 @@ describe('buildQuery', () => {
     const input: McpQueryInput = {
       metrics: ['nonexistent_metric'] as any,
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    expect(() => buildQuery(input, siteId, timezone)).toThrow('Unknown metric');
+    expect(() => buildQuery(input, siteId)).toThrow('Unknown metric');
   });
 
   it('throws on unknown dimension', () => {
@@ -92,12 +91,12 @@ describe('buildQuery', () => {
       metrics: ['visitors'],
       dimensions: ['nonexistent_dimension'] as any,
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    expect(() => buildQuery(input, siteId, timezone)).toThrow('Unknown dimension');
+    expect(() => buildQuery(input, siteId)).toThrow('Unknown dimension');
   });
 
   it('defaults orderBy to first metric', () => {
@@ -105,12 +104,12 @@ describe('buildQuery', () => {
       metrics: ['sessions', 'visitors'],
       dimensions: ['browser'],
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('ORDER BY sessions DESC');
   });
@@ -120,12 +119,12 @@ describe('buildQuery', () => {
       metrics: ['visitors'],
       dimensions: ['referrer_source'],
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('referrer_source');
     expect(result.taggedSql).toContain('GROUP BY');
@@ -136,12 +135,12 @@ describe('buildQuery', () => {
       metrics: ['visitors'],
       dimensions: ['referrer_source_name'],
       timeRange: '7d',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('referrer_source_name');
     expect(result.taggedSql).toContain('GROUP BY');
@@ -153,12 +152,12 @@ describe('buildQuery', () => {
       timeRange: 'custom',
       startDate: '2026-01-01',
       endDate: '2026-01-31',
-      timezone,
+      timezone: 'UTC',
       order: 'desc',
       limit: 100,
     };
 
-    const result = buildQuery(input, siteId, timezone);
+    const result = buildQuery(input, siteId);
 
     expect(result.taggedSql).toContain('uniq(visitor_id)');
     expect(result.taggedParams.site_id).toBe(siteId);
