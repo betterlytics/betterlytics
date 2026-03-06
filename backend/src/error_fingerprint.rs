@@ -241,7 +241,6 @@ mod tests {
     fn test_no_stack_uses_message() {
         let fp1 = generate_error_fingerprint("TypeError", r#"[{"type":"TypeError","value":"msg A","stack":""}]"#);
         let fp2 = generate_error_fingerprint("TypeError", r#"[{"type":"TypeError","value":"msg B","stack":""}]"#);
-        // Different messages → different fingerprints when no stack
         assert_ne!(fp1, fp2);
     }
 
