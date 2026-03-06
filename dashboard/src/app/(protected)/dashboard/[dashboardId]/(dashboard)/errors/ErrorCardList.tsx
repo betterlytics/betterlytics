@@ -14,7 +14,7 @@ import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
-type SortOption = 'events' | 'last_seen' | 'alphabetical';
+type SortOption = 'events' | 'last_seen' | 'first_seen' | 'alphabetical';
 
 const PAGE_SIZE = 10;
 
@@ -64,6 +64,14 @@ function ErrorCardListInner({ errorGroups, initialVolumeMap, timeBuckets, dashbo
         break;
       case 'last_seen':
         result = [...result].sort((a, b) => b.last_seen.getTime() - a.last_seen.getTime());
+        break;
+      case 'first_seen':
+        result = [...result].sort((a, b) => {
+          if (!a.first_seen && !b.first_seen) return 0;
+          if (!a.first_seen) return 1;
+          if (!b.first_seen) return -1;
+          return b.first_seen.getTime() - a.first_seen.getTime();
+        });
         break;
       case 'alphabetical':
         result = [...result].sort(
@@ -119,6 +127,7 @@ function ErrorCardListInner({ errorGroups, initialVolumeMap, timeBuckets, dashbo
           <SelectContent>
             <SelectItem value='events'>Most events</SelectItem>
             <SelectItem value='last_seen'>Last seen</SelectItem>
+            <SelectItem value='first_seen'>First seen</SelectItem>
             <SelectItem value='alphabetical'>Alphabetically</SelectItem>
           </SelectContent>
         </Select>
