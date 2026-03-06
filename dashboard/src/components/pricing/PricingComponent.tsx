@@ -7,6 +7,7 @@ import { PricingCards } from './PricingCards';
 import { SelectedPlan } from '@/types/pricing';
 import { EVENT_RANGES } from '@/lib/billing/plans';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Select,
   SelectContent,
@@ -33,6 +34,7 @@ export function PricingComponent({
 }: PricingComponentProps) {
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(defaultCurrency);
+  const isMobile = useIsMobile();
   const currentRange = EVENT_RANGES[selectedRangeIndex];
 
   const handleSliderChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +55,7 @@ export function PricingComponent({
               currentRange={currentRange}
               selectedRangeIndex={selectedRangeIndex}
               handleSliderChange={handleSliderChange}
+              animated={!isMobile}
             />
           </div>
           <div className='text-muted-foreground col-start-3 flex flex-shrink-0 justify-center text-xs lg:col-start-5 lg:justify-end'>
@@ -80,6 +83,7 @@ export function PricingComponent({
           mode={onPlanSelect ? 'billing' : 'landing'}
           billingData={billingData}
           currency={selectedCurrency}
+          animated={!isMobile}
         />
       </div>
     </NumberFlowGroup>

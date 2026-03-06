@@ -49,7 +49,7 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
             ['--number-flow-char-height' as string]: '1em',
           }}
         >
-          <NumberFlow value={value} format={format} locales={locale} willChange />
+          <NumberFlow value={value} format={format} locales={locale} willChange isolate />
           {suffix && (
             <span key={suffix} className='animate-in fade-in duration-700'>
               {suffix}
@@ -105,24 +105,22 @@ function AnimatedGaugeGrid() {
   const { ref, inView } = useInView();
 
   return (
-    <NumberFlowGroup>
-      <div
-        ref={ref}
-        className='flex w-full flex-wrap-reverse justify-evenly gap-x-4 gap-y-6'
-        style={{ ['--number-flow-duration' as string]: '700ms' }}
-      >
-        {GAUGE_CONFIGS.map((config) => (
-          <StaggeredMetricGauge
-            key={config.key}
-            metricKey={config.key}
-            intervalMs={config.intervalMs}
-            startIndex={config.startIndex}
-            locale={locale}
-            inView={inView}
-          />
-        ))}
-      </div>
-    </NumberFlowGroup>
+    <div
+      ref={ref}
+      className='flex w-full flex-wrap-reverse justify-evenly gap-x-4 gap-y-6'
+      style={{ ['--number-flow-duration' as string]: '700ms' }}
+    >
+      {GAUGE_CONFIGS.map((config) => (
+        <StaggeredMetricGauge
+          key={config.key}
+          metricKey={config.key}
+          intervalMs={config.intervalMs}
+          startIndex={config.startIndex}
+          locale={locale}
+          inView={inView}
+        />
+      ))}
+    </div>
   );
 }
 
