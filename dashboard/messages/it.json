@@ -1295,6 +1295,10 @@
           "title": "Alte Prestazioni",
           "description": "Motore analytics basato su ClickHouse con tempi di query sotto il secondo a qualsiasi scala."
         },
+        "mcpServer": {
+          "title": "Server MCP",
+          "description": "Interroga i tuoi dati analytics da assistenti AI come Claude. Server MCP integrato per accesso in linguaggio naturale a metriche, funnel e percorsi utente."
+        },
         "emailSupport": {
           "title": "Supporto Email",
           "description": "Ricevi assistenza via email per qualsiasi domanda o problema."

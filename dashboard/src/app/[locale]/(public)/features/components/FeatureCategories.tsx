@@ -40,6 +40,7 @@ import {
   Cloud,
   Blocks,
   Send,
+  Bot,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -109,6 +110,7 @@ const CATEGORIES = [
       { id: 'fullyManaged', icon: Cloud },
       { id: 'lightweightScript', icon: Zap },
       { id: 'highPerformance', icon: Gauge },
+      { id: 'mcpServer', icon: Bot },
     ],
   },
   {

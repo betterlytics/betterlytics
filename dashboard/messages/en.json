@@ -1284,6 +1284,10 @@
           "title": "High Performance",
           "description": "ClickHouse-powered analytics engine delivers sub-second query times at any scale."
         },
+        "mcpServer": {
+          "title": "MCP Server",
+          "description": "Query your analytics data from AI assistants like Claude. Built-in MCP server for natural language access to metrics, funnels, and user journeys."
+        },
         "emailSupport": {
           "title": "Email Support",
           "description": "Get help via email for any questions or issues."

@@ -1295,6 +1295,10 @@
           "title": "Høy ytelse",
           "description": "ClickHouse-drevet analysemotor gir responstid under ett sekund i alle skalaer."
         },
+        "mcpServer": {
+          "title": "MCP-server",
+          "description": "Spør analysedataene dine fra AI-assistenter som Claude. Innebygd MCP-server for naturlig språktilgang til metrikker, funneler og brukerreiser."
+        },
         "emailSupport": {
           "title": "E-postsupport",
           "description": "Få hjelp via e-post for spørsmål eller problemer."
