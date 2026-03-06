@@ -2,10 +2,10 @@
 
 import { useId } from 'react';
 import { Area, AreaChart } from 'recharts';
-import type { BarChartPoint } from '@/presenters/toBarChart';
+import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 
 type ErrorSparklineProps = {
-  data: BarChartPoint[];
+  data: TimeSeriesPoint[];
   width?: number;
   height?: number;
 };

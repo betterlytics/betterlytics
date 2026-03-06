@@ -8,7 +8,7 @@ import {
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { toBarChart, toGroupedBarCharts, type BarChartPoint } from '@/presenters/toBarChart';
+import { toTimeSeries, toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
@@ -16,8 +16,8 @@ import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 export type ErrorGroupsResult = {
   hasAnyErrors: boolean;
   errorGroups: ErrorGroupRow[];
-  timeBuckets: BarChartPoint[];
-  initialVolumeMap: Record<string, BarChartPoint[]>;
+  timeBuckets: TimeSeriesPoint[];
+  initialVolumeMap: Record<string, TimeSeriesPoint[]>;
 };
 
 const INITIAL_PAGE_SIZE = 10;
@@ -32,12 +32,12 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
       getErrorVolumeForSite(main),
     ]);
 
-    const timeBuckets = toBarChart({ dataKey: 'errorCount', data: overallData });
+    const timeBuckets = toTimeSeries({ dataKey: 'errorCount', data: overallData });
 
     const initialFingerprints = errorGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
     const initialVolumeRows = await getErrorGroupVolumesForSite(main, initialFingerprints);
 
-    const initialVolumeMap = toGroupedBarCharts({
+    const initialVolumeMap = toGroupedTimeSeries({
       groupKey: 'error_fingerprint',
       dataKey: 'errorCount',
       timeBuckets,
@@ -53,12 +53,12 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
     ctx: AuthContext,
     query: BAAnalyticsQuery,
     fingerprints: string[],
-    timeBuckets: BarChartPoint[],
-  ): Promise<Record<string, BarChartPoint[]>> => {
+    timeBuckets: TimeSeriesPoint[],
+  ): Promise<Record<string, TimeSeriesPoint[]>> => {
     const { main } = toSiteQuery(ctx.siteId, query);
     const volumeRows = await getErrorGroupVolumesForSite(main, fingerprints);
 
-    return toGroupedBarCharts({
+    return toGroupedTimeSeries({
       groupKey: 'error_fingerprint',
       dataKey: 'errorCount',
       timeBuckets,

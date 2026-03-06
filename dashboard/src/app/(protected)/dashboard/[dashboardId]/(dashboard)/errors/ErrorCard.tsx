@@ -4,11 +4,11 @@ import { Card } from '@/components/ui/card';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import { ErrorMiniBarChart } from './ErrorMiniBarChart';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
-import type { BarChartPoint } from '@/presenters/toBarChart';
+import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 
 type ErrorCardProps = {
   error: ErrorGroupRow;
-  volume: BarChartPoint[];
+  volume: TimeSeriesPoint[];
 };
 
 function formatCount(count: number): string {

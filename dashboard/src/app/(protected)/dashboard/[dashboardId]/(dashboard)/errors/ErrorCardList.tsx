@@ -11,7 +11,7 @@ import { ErrorsEmptyState } from './ErrorsEmptyState';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
-import type { BarChartPoint } from '@/presenters/toBarChart';
+import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
 type SortOption = 'events' | 'last_seen' | 'alphabetical';
@@ -21,8 +21,8 @@ const PAGE_SIZE = 10;
 type ErrorCardListProps = {
   hasAnyErrors: boolean;
   errorGroups: ErrorGroupRow[];
-  initialVolumeMap: Record<string, BarChartPoint[]>;
-  timeBuckets: BarChartPoint[];
+  initialVolumeMap: Record<string, TimeSeriesPoint[]>;
+  timeBuckets: TimeSeriesPoint[];
   dashboardId: string;
 };
 

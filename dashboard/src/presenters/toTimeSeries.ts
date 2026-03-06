@@ -1,32 +1,32 @@
 import { getDateKey } from '@/utils/dateHelpers';
 
-export type BarChartPoint = { date: number; count: number };
+export type TimeSeriesPoint = { date: number; count: number };
 
-type ToBarChartProps<K extends string> = {
+type ToTimeSeriesProps<K extends string> = {
   dataKey: K;
   data: Array<{ date: string } & Record<K, number>>;
 };
 
-export function toBarChart<K extends string>({ dataKey, data }: ToBarChartProps<K>): BarChartPoint[] {
+export function toTimeSeries<K extends string>({ dataKey, data }: ToTimeSeriesProps<K>): TimeSeriesPoint[] {
   return data.map((row) => ({
     date: Number(getDateKey(row.date)),
     count: row[dataKey],
   }));
 }
 
-type ToGroupedBarChartsProps<G extends string, K extends string> = {
+type ToGroupedTimeSeriesProps<G extends string, K extends string> = {
   groupKey: G;
   dataKey: K;
-  timeBuckets: BarChartPoint[];
+  timeBuckets: TimeSeriesPoint[];
   data: Array<{ date: string } & Record<G, string> & Record<K, number>>;
 };
 
-export function toGroupedBarCharts<G extends string, K extends string>({
+export function toGroupedTimeSeries<G extends string, K extends string>({
   groupKey,
   dataKey,
   timeBuckets,
   data,
-}: ToGroupedBarChartsProps<G, K>): Record<string, BarChartPoint[]> {
+}: ToGroupedTimeSeriesProps<G, K>): Record<string, TimeSeriesPoint[]> {
   const allBuckets = timeBuckets.map((p) => p.date);
 
   const sparse: Record<string, Map<number, number>> = {};
@@ -36,7 +36,7 @@ export function toGroupedBarCharts<G extends string, K extends string>({
     sparse[key].set(Number(getDateKey(row.date)), row[dataKey]);
   }
 
-  const map: Record<string, BarChartPoint[]> = {};
+  const map: Record<string, TimeSeriesPoint[]> = {};
   for (const [group, counts] of Object.entries(sparse)) {
     map[group] = allBuckets.map((date) => ({
       date,
