@@ -1,4 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('@/services/analytics/funnels.service', () => ({
+  getFunnelPreviewData: vi.fn(),
+}));
+
 import { McpFunnelPreviewInputSchema } from '@/mcp/tools/funnelPreview';
 
 describe('McpFunnelPreviewInputSchema', () => {
