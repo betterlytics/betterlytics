@@ -49,7 +49,7 @@ export function ErrorCard({ error, volume }: ErrorCardProps) {
         </div>
         <p className='text-muted-foreground line-clamp-2 break-all text-sm'>{error.error_message}</p>
         <div className='text-muted-foreground flex flex-wrap items-center gap-x-3 text-xs'>
-          <span className='font-medium tabular-nums'>{formatCount(error.count)} events</span>
+          <span className='font-medium tabular-nums'>{formatCount(error.count)} occurrences</span>
           <span className='font-medium tabular-nums'>{formatCount(error.session_count)} sessions</span>
           {firstSeenLabel && <span>first {firstSeenLabel} ago</span>}
           <span>last {lastSeenLabel} ago</span>
@@ -71,7 +71,7 @@ export function ErrorCard({ error, volume }: ErrorCardProps) {
         </div>
 
         <div className='flex shrink-0 items-end gap-4'>
-          <ErrorMetric label='Events' value={formatCount(error.count)} />
+          <ErrorMetric label='Occurrences' value={formatCount(error.count)} />
           <ErrorMetric label='Sessions' value={formatCount(error.session_count)} />
           <ErrorMetric label='First seen' value={firstSeenLabel ? `${firstSeenLabel} ago` : '—'} />
           <ErrorMetric label='Last seen' value={`${lastSeenLabel} ago`} />

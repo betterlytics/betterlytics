@@ -14,7 +14,7 @@ import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
-type SortOption = 'events' | 'last_seen' | 'first_seen' | 'alphabetical';
+type SortOption = 'occurrences' | 'last_seen' | 'first_seen' | 'alphabetical';
 
 const PAGE_SIZE = 10;
 
@@ -46,7 +46,7 @@ function ErrorCardListInner({ errorGroups, initialVolumeMap, timeBuckets, dashbo
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [pageIndex, setPageIndex] = useState(0);
   const [search, setSearch] = useState('');
-  const [sort, setSort] = useState<SortOption>('events');
+  const [sort, setSort] = useState<SortOption>('occurrences');
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -59,7 +59,7 @@ function ErrorCardListInner({ errorGroups, initialVolumeMap, timeBuckets, dashbo
     }
 
     switch (sort) {
-      case 'events':
+      case 'occurrences':
         result = [...result].sort((a, b) => b.count - a.count);
         break;
       case 'last_seen':
@@ -125,7 +125,7 @@ function ErrorCardListInner({ errorGroups, initialVolumeMap, timeBuckets, dashbo
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='events'>Most events</SelectItem>
+            <SelectItem value='occurrences'>Most occurrences</SelectItem>
             <SelectItem value='last_seen'>Last seen</SelectItem>
             <SelectItem value='first_seen'>First seen</SelectItem>
             <SelectItem value='alphabetical'>Alphabetically</SelectItem>
