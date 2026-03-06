@@ -5,6 +5,7 @@ import {
   getErrorGroupsForSite,
   getErrorVolumeForSite,
   getErrorGroupVolumesForSite,
+  getGlobalErrorGroupFirstSeenForSite,
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -26,15 +27,18 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
     const { main } = toSiteQuery(ctx.siteId, query);
 
-    const [hasAnyErrors, errorGroups, overallData] = await Promise.all([
+    const [hasAnyErrors, errorGroups, overallData, firstSeenMap] = await Promise.all([
       hasAnyErrorsForSite(ctx.siteId),
       getErrorGroupsForSite(main),
       getErrorVolumeForSite(main),
+      getGlobalErrorGroupFirstSeenForSite(ctx.siteId),
     ]);
+
+    const enrichedGroups = errorGroups.map((g) => ({ ...g, first_seen: firstSeenMap[g.error_fingerprint] }));
 
     const timeBuckets = toTimeSeries({ dataKey: 'errorCount', data: overallData });
 
-    const initialFingerprints = errorGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
+    const initialFingerprints = enrichedGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
     const initialVolumeRows = await getErrorGroupVolumesForSite(main, initialFingerprints);
 
     const initialVolumeMap = toGroupedTimeSeries({
@@ -44,7 +48,7 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
       data: initialVolumeRows,
     });
 
-    return { hasAnyErrors, errorGroups, timeBuckets, initialVolumeMap };
+    return { hasAnyErrors, errorGroups: enrichedGroups, timeBuckets, initialVolumeMap };
   },
 );
 

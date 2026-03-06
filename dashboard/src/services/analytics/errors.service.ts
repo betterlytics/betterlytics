@@ -1,6 +1,6 @@
 'server-only';
 
-import { hasAnyErrors, getErrorGroups, getErrorVolume, getErrorGroupVolumes } from '@/repositories/clickhouse/errors.repository';
+import { hasAnyErrors, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen } from '@/repositories/clickhouse/errors.repository';
 import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow } from '@/entities/analytics/errors.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -10,6 +10,10 @@ export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
 
 export async function getErrorGroupsForSite(siteQuery: BASiteQuery): Promise<ErrorGroupRow[]> {
   return getErrorGroups(siteQuery);
+}
+
+export async function getGlobalErrorGroupFirstSeenForSite(siteId: string): Promise<Record<string, Date>> {
+  return getGlobalErrorGroupFirstSeen(siteId);
 }
 
 export async function getErrorVolumeForSite(siteQuery: BASiteQuery): Promise<ErrorVolumeRow[]> {

@@ -72,6 +72,27 @@ export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroup
   );
 }
 
+export async function getGlobalErrorGroupFirstSeen(siteId: string): Promise<Record<string, Date>> {
+  const query = safeSql`
+    SELECT
+      error_fingerprint,
+      min(timestamp) as first_seen
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'js_error'
+      AND error_fingerprint != ''
+    GROUP BY error_fingerprint
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId },
+    })
+    .toPromise()) as any[];
+
+  return Object.fromEntries(result.map((row) => [row.error_fingerprint, parseClickHouseDate(row.first_seen)]));
+}
+
 export async function getErrorVolume(siteQuery: BASiteQuery): Promise<ErrorVolumeRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
