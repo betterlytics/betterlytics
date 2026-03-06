@@ -36,6 +36,7 @@ const envSchema = z.object({
   ENABLE_MAIL_PREVIEW_PAGE: zStringBoolean,
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
   TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
+  ENABLE_ERROR_TRACKING: zStringBoolean,
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_UPTIME_MONITORING: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
