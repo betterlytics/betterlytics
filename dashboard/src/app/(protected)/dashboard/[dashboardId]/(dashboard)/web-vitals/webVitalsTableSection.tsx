@@ -4,7 +4,7 @@ import { use, useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
-import { formatString } from '@/utils/formatters';
+import { formatNumber, formatString } from '@/utils/formatters';
 import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
@@ -13,7 +13,7 @@ import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
 import { InfoTooltip } from '@/components/ui-extended/InfoTooltip';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
@@ -38,6 +38,7 @@ export default function WebVitalsTableSection({
 }: Props) {
   const t = useTranslations('components.webVitals.table');
   const tFilters = useTranslations('components.filters');
+  const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const data = use(perPagePromise);
   const devices = use(perDevicePromise);
@@ -95,7 +96,7 @@ export default function WebVitalsTableSection({
         const Cell = ({ row }: { row: { original: Row } }) => {
           const value = getValue(row.original, metric);
           return (
-            <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value)}</span>
+            <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value, locale)}</span>
           );
         };
         Cell.displayName = `CoreWebVitalValueCell_${metric}`;
@@ -202,7 +203,7 @@ export default function WebVitalsTableSection({
             const { label, className } = scoreVisual(v);
             return (
               <Badge className={className}>
-                {label}: <span className='tabular-nums'>{v.toFixed(1)}</span>
+                {label}: <span className='tabular-nums'>{formatNumber(v, locale, { notation: 'standard', minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
               </Badge>
             );
           },
@@ -213,7 +214,7 @@ export default function WebVitalsTableSection({
           header: () => headerWithOpportunityInfo(),
           cell: ({ row }) => {
             const v = getOpportunity(row.original);
-            return <span className='tabular-nums'>{v == null ? '—' : v.toFixed(2)}</span>;
+            return <span className='tabular-nums'>{v == null ? '—' : formatNumber(v, locale, { notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>;
           },
           accessorFn: (r) => getOpportunity(r) ?? 0,
         },

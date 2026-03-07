@@ -1430,7 +1430,6 @@
       "monthlyEvents": {
         "name": "Månedlige hændelser",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Tilpasset"
         }
       },

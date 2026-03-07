@@ -1427,7 +1427,6 @@
       "monthlyEvents": {
         "name": "Monthly events",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Custom"
         }
       },
