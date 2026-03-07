@@ -9,17 +9,11 @@ import { toast } from 'sonner';
 import { createMcpTokenAction, deleteMcpTokenAction } from '@/app/actions/dashboard/mcpToken.action';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useLocale, useTranslations } from 'next-intl';
-
-type McpToken = {
-  id: string;
-  name: string;
-  createdAt: Date;
-  lastUsedAt: Date | null;
-};
+import { McpTokenListItem } from '@/entities/dashboard/mcpToken.entities';
 
 interface McpTokenManagerProps {
   dashboardId: string;
-  tokens: McpToken[];
+  tokens: McpTokenListItem[];
 }
 
 export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
