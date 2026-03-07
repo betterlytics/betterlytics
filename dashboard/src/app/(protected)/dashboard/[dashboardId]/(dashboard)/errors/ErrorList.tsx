@@ -12,7 +12,7 @@ import {
   type SortingState,
   type RowSelectionState,
 } from '@tanstack/react-table';
-import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,8 @@ import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
+
+const CENTER_COLUMNS = new Set(['count', 'session_count']);
 
 function formatCount(count: number): string {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
@@ -57,12 +59,6 @@ export function ErrorList({ hasAnyErrors, errorGroups, initialVolumeMap, timeBuc
       dashboardId={dashboardId}
     />
   );
-}
-
-function SortIcon({ sorted }: { sorted: false | 'asc' | 'desc' }) {
-  if (sorted === 'asc') return <ArrowUp className='h-3 w-3' />;
-  if (sorted === 'desc') return <ArrowDown className='h-3 w-3' />;
-  return <ArrowUpDown className='h-3 w-3 opacity-40' />;
 }
 
 function ErrorTableInner({
@@ -102,20 +98,12 @@ function ErrorTableInner({
       {
         id: 'error',
         accessorFn: (row) => `${row.error_type} ${row.error_message}`,
-        header: ({ column }) => (
-          <button
-            className='flex items-center gap-1 text-sm font-medium hover:text-foreground transition-colors'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Error
-            <SortIcon sorted={column.getIsSorted()} />
-          </button>
-        ),
+        header: 'Error',
         cell: ({ row }) => {
           const error = row.original;
           return (
             <div className='min-w-0'>
-              <div className='text-sm font-semibold'>{error.error_type}</div>
+              <div className='font-mono text-sm font-semibold'>{error.error_type}</div>
               <div className='text-muted-foreground truncate text-sm'>{error.error_message}</div>
             </div>
           );
@@ -123,87 +111,43 @@ function ErrorTableInner({
       },
       {
         id: 'volume',
-        header: () => (
-          <span className='text-sm font-medium text-muted-foreground'>Volume</span>
-        ),
+        header: 'Volume',
         cell: () => null, // rendered manually below to inject volumeMap
         enableSorting: false,
       },
       {
         accessorKey: 'count',
-        header: ({ column }) => (
-          <div className='flex justify-center'>
-            <button
-              className='flex items-center gap-1 text-sm font-medium hover:text-foreground transition-colors'
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              Occurrences
-              <SortIcon sorted={column.getIsSorted()} />
-            </button>
-          </div>
-        ),
+        header: 'Occurrences',
         cell: ({ getValue }) => (
-          <div className='text-muted-foreground text-center tabular-nums text-sm'>{formatCount(getValue() as number)}</div>
+          <div className='text-center tabular-nums'>{formatCount(getValue() as number)}</div>
         ),
       },
       {
         accessorKey: 'session_count',
-        header: ({ column }) => (
-          <div className='flex justify-center'>
-            <button
-              className='flex items-center gap-1 text-sm font-medium hover:text-foreground transition-colors'
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              Sessions
-              <SortIcon sorted={column.getIsSorted()} />
-            </button>
-          </div>
-        ),
+        header: 'Sessions',
         cell: ({ getValue }) => (
-          <div className='text-muted-foreground text-center tabular-nums text-sm'>{formatCount(getValue() as number)}</div>
+          <div className='text-center tabular-nums'>{formatCount(getValue() as number)}</div>
         ),
       },
       {
         id: 'first_seen',
         accessorFn: (row) => row.first_seen?.getTime() ?? 0,
-        header: ({ column }) => (
-          <button
-            className='flex items-center gap-1 text-sm font-medium hover:text-foreground transition-colors'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            First seen
-            <SortIcon sorted={column.getIsSorted()} />
-          </button>
-        ),
+        header: 'First seen',
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
-          return (
-            <span className='text-muted-foreground tabular-nums text-sm'>
-              {firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—'}
-            </span>
-          );
+          return firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—';
         },
       },
       {
         id: 'last_seen',
         accessorFn: (row) => row.last_seen.getTime(),
-        header: ({ column }) => (
-          <button
-            className='flex items-center gap-1 text-sm font-medium hover:text-foreground transition-colors'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            Last seen
-            <SortIcon sorted={column.getIsSorted()} />
-          </button>
-        ),
+        header: 'Last seen',
         cell: ({ row }) => {
           const isRecent = Date.now() - row.original.last_seen.getTime() < RECENT_THRESHOLD_MS;
           return (
             <div className='flex items-center gap-1.5'>
               {isRecent && <span className='h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-destructive' />}
-              <span className='text-muted-foreground tabular-nums text-sm'>
-                {formatElapsedTime(row.original.last_seen)} ago
-              </span>
+              {formatElapsedTime(row.original.last_seen)} ago
             </div>
           );
         },
@@ -275,115 +219,124 @@ function ErrorTableInner({
         )}
       </div>
 
-        <div className='border-border overflow-hidden rounded-lg border'>
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className='bg-muted/50 hover:bg-muted/50 border-b'>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        className={
-                          header.id === 'select'
-                            ? 'w-10 pl-4 sm:pl-6'
-                            : header.id === 'volume'
-                              ? 'hidden lg:table-cell px-3 sm:px-6'
-                              : header.id === 'first_seen'
-                                ? 'hidden md:table-cell px-3 sm:px-6'
-                                : 'px-3 sm:px-6'
-                        }
-                      >
+      <div className='border-border overflow-hidden rounded-lg border'>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className='border-muted-foreground bg-accent hover:bg-accent border-b'>
+                {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort();
+                  const sorted = header.column.getIsSorted();
+                  const isCentered = CENTER_COLUMNS.has(header.id);
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={[
+                        'text-foreground bg-muted/50 py-3 text-sm font-medium',
+                        header.id === 'select' ? 'w-10 pl-4 sm:pl-6' : 'px-3 sm:px-6',
+                        header.id === 'volume' ? 'hidden lg:table-cell' : '',
+                        header.id === 'first_seen' ? 'hidden md:table-cell' : '',
+                        canSort ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none' : '',
+                      ].join(' ')}
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      <div className={`flex items-center gap-1 ${isCentered ? 'justify-center' : ''}`}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {filteredCount === 0 ? (
-                  <TableRow className='hover:bg-transparent'>
-                    <TableCell colSpan={7} className='py-12 text-center'>
-                      <p className='text-muted-foreground text-sm'>
-                        {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
-                      </p>
+                        {sorted && (
+                          <span className='ml-1'>
+                            {sorted === 'desc' ? <ArrowDown className='h-4 w-4' /> : <ArrowUp className='h-4 w-4' />}
+                          </span>
+                        )}
+                      </div>
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody className='divide-secondary divide-y'>
+            {filteredCount === 0 ? (
+              <TableRow className='hover:bg-transparent'>
+                <TableCell colSpan={7} className='py-12 text-center'>
+                  <p className='text-muted-foreground text-sm'>
+                    {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
+                  </p>
+                </TableCell>
+              </TableRow>
+            ) : visibleRows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() ? 'selected' : undefined}
+                className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
+              >
+                {row.getVisibleCells().map((cell) => {
+                  if (cell.column.id === 'volume') {
+                    return (
+                      <TableCell key={cell.id} className='hidden lg:table-cell px-3 py-3 sm:px-6'>
+                        <ErrorMiniBarChart data={volumeMap?.[row.original.error_fingerprint] ?? []} />
+                      </TableCell>
+                    );
+                  }
+                  if (cell.column.id === 'select') {
+                    return (
+                      <TableCell key={cell.id} className='w-10 py-3 pl-4 sm:pl-6'>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  }
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={[
+                        'text-muted-foreground px-3 py-3 text-sm sm:px-6',
+                        cell.column.id === 'error' ? 'w-full max-w-0 pl-2' : '',
+                        cell.column.id === 'first_seen' ? 'hidden md:table-cell' : '',
+                      ].join(' ')}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
-                  </TableRow>
-                ) : visibleRows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() ? 'selected' : undefined}
-                    className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      if (cell.column.id === 'volume') {
-                        return (
-                          <TableCell key={cell.id} className='hidden lg:table-cell px-3 py-4 sm:px-6'>
-                            <ErrorMiniBarChart data={volumeMap?.[row.original.error_fingerprint] ?? []} />
-                          </TableCell>
-                        );
-                      }
-                      if (cell.column.id === 'select') {
-                        return (
-                          <TableCell key={cell.id} className='w-10 py-4 pl-4 sm:pl-6'>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        );
-                      }
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          className={
-                            cell.column.id === 'error'
-                              ? 'py-4 pl-2 pr-3 w-full max-w-0 sm:pr-6'
-                              : cell.column.id === 'first_seen'
-                                ? 'hidden md:table-cell px-3 py-4 sm:px-6'
-                                : 'px-3 py-4 sm:px-6'
-                          }
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {filteredCount > 0 && table.getPageCount() > 1 && (
-            <div className='flex items-center justify-between py-1'>
-              <span className='text-muted-foreground text-sm'>
-                {filteredCount} error{filteredCount !== 1 ? 's' : ''}
-              </span>
-              <div className='flex items-center gap-2'>
-                <span className='text-muted-foreground text-xs'>
-                  Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-                </span>
-                <div className='flex items-center'>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-7 w-7 cursor-pointer'
-                    disabled={!table.getCanPreviousPage()}
-                    onClick={() => table.previousPage()}
-                    aria-label='Previous page'
-                  >
-                    <ChevronLeft className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-7 w-7 cursor-pointer'
-                    disabled={!table.getCanNextPage()}
-                    onClick={() => table.nextPage()}
-                    aria-label='Next page'
-                  >
-                    <ChevronRight className='h-4 w-4' />
-                  </Button>
-                </div>
-              </div>
+        <div className='flex items-center justify-between py-1'>
+          <span className='text-muted-foreground text-sm'>
+            {filteredCount} error{filteredCount !== 1 ? 's' : ''}
+          </span>
+          <div className='flex items-center gap-2'>
+            <span className='text-muted-foreground text-xs'>
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+            </span>
+            <div className='flex items-center'>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-7 w-7 cursor-pointer'
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+                aria-label='Previous page'
+              >
+                <ChevronLeft className='h-4 w-4' />
+              </Button>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-7 w-7 cursor-pointer'
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+                aria-label='Next page'
+              >
+                <ChevronRight className='h-4 w-4' />
+              </Button>
             </div>
-          )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
