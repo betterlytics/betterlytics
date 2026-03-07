@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,7 +13,7 @@ import {
   type SortingState,
   type RowSelectionState,
 } from '@tanstack/react-table';
-import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, RefreshCw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,8 @@ function ErrorTableInner({
   timeBuckets,
   dashboardId,
 }: Omit<ErrorListProps, 'hasAnyErrors'>) {
+  const router = useRouter();
+  const [isRefreshing, startRefreshTransition] = useTransition();
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
@@ -217,6 +220,17 @@ function ErrorTableInner({
         {selectedCount > 0 && (
           <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
         )}
+        <Button
+          variant='outline'
+          size='sm'
+          className='ml-auto shrink-0'
+          disabled={isRefreshing}
+          onClick={() => startRefreshTransition(() => router.refresh())}
+          aria-label='Reload errors'
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Reload
+        </Button>
       </div>
 
       <div className='border-border overflow-hidden rounded-lg border'>
