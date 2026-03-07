@@ -1,13 +1,13 @@
 ---
 title: "MCP Server - Betterlytics"
-description: "Connect AI assistants to your Betterlytics analytics data using the Model Context Protocol (MCP)."
+description: "Connect AI agents to your Betterlytics analytics data using the Model Context Protocol (MCP)."
 ---
 
 import { Callout } from "nextra/components";
 
 # MCP Server
 
-Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI assistants about your website's traffic in natural language. No dashboards or manual queries needed.
+Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI agents about your website's traffic in natural language — and connect real analytics data to your UI, UX, and code to make data-driven optimizations directly from your development workflow. No dashboards or manual queries needed.
 
 ## Creating an API Token
 
@@ -101,7 +101,7 @@ Replace `btl_your_token_here` with the token you copied in all examples above.
 
 ## What You Can Ask About
 
-Once connected, you can ask your AI assistant about any of the following:
+Once connected, your AI assistant has access to your analytics data. You can query it conversationally, or let your agent use it to inform UI, UX, and code changes. Here are some of the things you can explore:
 
 - **Traffic overview**: visitors, sessions, and pageviews over any time period
 - **Page performance**: top pages, specific URL analysis, scroll depth
@@ -158,9 +158,7 @@ View and manage your tokens from **Dashboard > Settings > MCP**. Each token show
 
 ## Security
 
-- Tokens are hashed with SHA-256 before storage
 - Each token is scoped to a single dashboard
-- Tokens support optional expiration dates
 - Requests are rate-limited to 60 per minute per site
 
 ---

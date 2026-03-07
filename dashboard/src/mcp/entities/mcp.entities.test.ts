@@ -56,6 +56,16 @@ describe('McpQueryInputSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects limit of 0', () => {
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', limit: 0 });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects negative limit', () => {
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', limit: -1 });
+    expect(result.success).toBe(false);
+  });
+
   it('accepts referrer dimensions', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
@@ -106,6 +116,33 @@ describe('McpQueryInputSchema', () => {
       timeRange: 'custom',
       startDate: '01/01/2026',
       endDate: '01/31/2026',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects invalid filter operator', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      filters: [{ column: 'url', operator: 'LIKE', values: ['/'] }],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects filter with empty values array', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      filters: [{ column: 'url', operator: '=', values: [] }],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects invalid granularity', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      granularity: 'yearly',
     });
     expect(result.success).toBe(false);
   });

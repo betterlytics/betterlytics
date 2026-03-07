@@ -3481,7 +3481,7 @@
       "deleteError": "Kunne ikke slette nøkkel"
     },
     "deleteDialog": {
-      "title": "Slett nøkkel",
+      "title": "Slett {name}",
       "description": "Denne nøkkelen vil bli permanent tilbakekalt. Alle MCP-klienter som bruker den vil miste tilgang umiddelbart."
     }
   },

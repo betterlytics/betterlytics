@@ -34,7 +34,7 @@ export function getSchemaDescription(): SchemaDescription {
     tools: [
       {
         name: 'user_journeys',
-        description: 'Analyze user navigation paths. Returns Sankey diagram data (nodes + links) showing page-to-page transitions. Inputs: timeRange, filters (optional), maxSteps (default 3), limit (default 50).',
+        description: 'Analyze user navigation paths. Returns Sankey diagram data (nodes + links) showing page-to-page transitions. Inputs: timeRange, filters (optional), maxSteps (default 3), limit (default 50, max number of top paths to return).',
       },
       {
         name: 'funnel_preview',

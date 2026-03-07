@@ -14,8 +14,8 @@ type BuildResult = {
 
 export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
-  const customStart = input.startDate ? new Date(input.startDate) : new Date();
-  const customEnd = input.endDate ? new Date(input.endDate) : new Date();
+  const customStart = new Date(input.startDate!);
+  const customEnd = new Date(input.endDate!);
 
   const ranges = getResolvedRanges(
     input.timeRange,
@@ -63,9 +63,7 @@ export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
       metricExpressions,
       dimensionColumns,
       filters,
-      orderByColumn,
-      orderDirection,
-      limit: input.limit ?? 100,
+      limit: input.limit,
     });
   }
 
@@ -78,7 +76,7 @@ export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
     filters,
     orderByColumn,
     orderDirection,
-    limit: input.limit ?? 100,
+    limit: input.limit,
   });
 }
 
@@ -102,7 +100,7 @@ function buildAggregateQuery(opts: {
     SELECT ${SQL.SEPARATOR(selectParts)}
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND ${SQL.AND(opts.filters)}
     ${hasGroupBy ? safeSql`GROUP BY ${SQL.SEPARATOR(groupByParts)}` : safeSql``}
     ORDER BY ${opts.orderByColumn} ${opts.orderDirection}
@@ -114,8 +112,8 @@ function buildAggregateQuery(opts: {
     taggedParams: {
       ...query.taggedParams,
       site_id: opts.siteId,
-      start: opts.startDateTime,
-      end: opts.endDateTime,
+      start_date: opts.startDateTime,
+      end_date: opts.endDateTime,
       limit: opts.limit,
     },
   };
@@ -130,8 +128,6 @@ function buildTimeSeriesQuery(opts: {
   metricExpressions: ReturnType<typeof safeSql>[];
   dimensionColumns: ReturnType<typeof safeSql>[];
   filters: ReturnType<typeof safeSql>[];
-  orderByColumn: ReturnType<typeof safeSql>;
-  orderDirection: ReturnType<typeof safeSql>;
   limit: number;
 }): BuildResult {
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(

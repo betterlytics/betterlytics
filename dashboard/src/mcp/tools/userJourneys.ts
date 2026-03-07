@@ -21,7 +21,7 @@ export const McpUserJourneysInputBaseSchema = McpDateRangeSchema.extend({
     .max(500)
     .optional()
     .default(50)
-    .describe('Max number of top paths to include. Defaults to 50.'),
+    .describe('Max number of top unique paths to include. Defaults to 50.'),
 });
 
 export const McpUserJourneysInputSchema = McpUserJourneysInputBaseSchema

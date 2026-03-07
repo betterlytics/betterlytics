@@ -1,48 +1,54 @@
 import prisma from '@/lib/postgres';
-import { createHash, randomBytes } from 'crypto';
+import {
+  McpTokenListItem,
+  McpTokenListItemSchema,
+  McpTokenWithDashboard,
+  McpTokenWithDashboardSchema,
+  CreateMcpTokenData,
+  CreateMcpTokenSchema,
+} from '@/entities/dashboard/mcpToken.entities';
 
-function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
-}
-
-function generateMcpToken(): string {
-  return `btl_${randomBytes(16).toString('hex')}`;
-}
-
-export async function createMcpToken(dashboardId: string, name: string, createdBy: string) {
-  const plainToken = generateMcpToken();
-  const tokenHash = hashToken(plainToken);
+export async function createMcpToken(
+  data: CreateMcpTokenData,
+  tokenHash: string,
+): Promise<McpTokenListItem> {
+  const validatedData = CreateMcpTokenSchema.parse(data);
 
   const row = await prisma.mcpToken.create({
     data: {
       tokenHash,
-      name,
-      dashboardId,
-      createdBy,
+      name: validatedData.name,
+      dashboardId: validatedData.dashboardId,
+      createdBy: validatedData.createdBy,
     },
+    omit: { tokenHash: true, expiresAt: true, createdBy: true },
   });
 
-  return { ...row, plainToken };
+  return McpTokenListItemSchema.parse(row);
 }
 
-export async function findMcpTokensByDashboard(dashboardId: string) {
-  return await prisma.mcpToken.findMany({
+export async function findMcpTokensByDashboard(dashboardId: string): Promise<McpTokenListItem[]> {
+  const rows = await prisma.mcpToken.findMany({
     where: { dashboardId },
     orderBy: { createdAt: 'desc' },
-    omit: { tokenHash: true },
+    omit: { tokenHash: true, expiresAt: true, createdBy: true },
   });
+
+  return rows.map((row) => McpTokenListItemSchema.parse(row));
 }
 
-export async function findMcpTokenByHash(token: string) {
-  const tokenHash = hashToken(token);
-
-  return await prisma.mcpToken.findUnique({
+export async function findMcpTokenByHash(tokenHash: string): Promise<McpTokenWithDashboard | null> {
+  const row = await prisma.mcpToken.findUnique({
     where: { tokenHash },
     include: { dashboard: true },
   });
+
+  if (!row) return null;
+
+  return McpTokenWithDashboardSchema.parse(row);
 }
 
-export async function updateMcpTokenLastUsed(id: string) {
+export async function updateMcpTokenLastUsed(id: string): Promise<void> {
   await prisma.mcpToken.update({
     where: { id },
     data: { lastUsedAt: new Date() },

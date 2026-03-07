@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { METRIC_KEYS } from '@/mcp/registry/metrics';
 import { DIMENSION_KEYS } from '@/mcp/registry/dimensions';
 import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
-import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
+import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
 
 export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
@@ -65,7 +65,7 @@ export const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
   limit: z.number().int().min(1).max(10000).optional().default(100).describe('Max rows to return. Defaults to 100.'),
 });
 
-type DateRangeFields = { timeRange: string; startDate?: string; endDate?: string };
+type DateRangeFields = { timeRange: TimeRangeValue; startDate?: string; endDate?: string };
 
 export const customDateRangeRefinement = {
   check: (data: DateRangeFields) => data.timeRange !== 'custom' || (!!data.startDate && !!data.endDate),

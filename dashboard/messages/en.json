@@ -3470,7 +3470,7 @@
       "deleteError": "Failed to delete token"
     },
     "deleteDialog": {
-      "title": "Delete token",
+      "title": "Delete {name}",
       "description": "This token will be permanently revoked. Any MCP clients using it will lose access immediately."
     }
   },

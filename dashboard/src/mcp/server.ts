@@ -8,6 +8,7 @@ import { executeListFunnels, McpListFunnelsInputBaseSchema } from '@/mcp/tools/l
 
 export type McpContext = {
   siteId: string;
+  dashboardId: string;
 };
 
 export function createMcpServer(context: McpContext): McpServer {
@@ -96,7 +97,7 @@ export function createMcpServer(context: McpContext): McpServer {
     },
     async (params) => {
       try {
-        const result = await executeListFunnels(params, context.siteId);
+        const result = await executeListFunnels(params, context.siteId, context.dashboardId);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';

@@ -21,16 +21,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let context: McpContext;
-  try {
-    const tokenInfo = await validateToken(token);
-    context = { siteId: tokenInfo.siteId };
-  } catch {
+  const result = await validateToken(token);
+  if (!result.valid) {
     return Response.json(
-      { jsonrpc: '2.0', error: { code: -32001, message: 'Invalid or expired token' }, id: null },
+      { jsonrpc: '2.0', error: { code: -32001, message: result.reason }, id: null },
       { status: 401 },
     );
   }
+
+  const context: McpContext = { siteId: result.tokenInfo.siteId, dashboardId: result.tokenInfo.dashboardId };
 
   const { allowed, retryAfterMs } = checkRateLimit(context.siteId);
   if (!allowed) {
@@ -43,22 +42,19 @@ export async function POST(req: NextRequest) {
   const server = createMcpServer(context);
   const transport = new WebStandardStreamableHTTPServerTransport({ enableJsonResponse: true });
 
-  await server.connect(transport);
-
-  const response = await transport.handleRequest(req);
-
-  req.signal.addEventListener('abort', () => {
-    transport.close();
-    server.close();
-  });
-
-  return response;
+  try {
+    await server.connect(transport);
+    return await transport.handleRequest(req);
+  } finally {
+    await transport.close();
+    await server.close();
+  }
 }
 
 export async function GET() {
-  return new Response('Method Not Allowed', { status: 405 });
+  return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST' } });
 }
 
 export async function DELETE() {
-  return new Response('Method Not Allowed', { status: 405 });
+  return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST' } });
 }

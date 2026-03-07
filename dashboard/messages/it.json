@@ -3481,7 +3481,7 @@
       "deleteError": "Impossibile eliminare il token"
     },
     "deleteDialog": {
-      "title": "Elimina token",
+      "title": "Elimina {name}",
       "description": "Questo token verrà revocato permanentemente. Tutti i client MCP che lo utilizzano perderanno immediatamente l'accesso."
     }
   },

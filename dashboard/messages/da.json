@@ -3473,7 +3473,7 @@
       "deleteError": "Kunne ikke slette token"
     },
     "deleteDialog": {
-      "title": "Slet token",
+      "title": "Slet {name}",
       "description": "Denne token vil blive permanent tilbagekaldt. Alle MCP-klienter, der bruger den, mister adgang øjeblikkeligt."
     }
   },

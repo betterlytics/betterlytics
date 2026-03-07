@@ -4,10 +4,6 @@ vi.mock('@/services/analytics/funnels.service', () => ({
   getFunnelsByDashboardId: vi.fn(),
 }));
 
-vi.mock('@/repositories/postgres/dashboard.repository', () => ({
-  findDashboardBySiteId: vi.fn(),
-}));
-
 import { McpListFunnelsInputSchema } from '@/mcp/tools/listFunnels';
 
 describe('McpListFunnelsInputSchema', () => {
