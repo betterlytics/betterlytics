@@ -27,22 +27,12 @@ export function toGroupedTimeSeries<G extends string, K extends string>({
   timeBuckets,
   data,
 }: ToGroupedTimeSeriesProps<G, K>): Record<string, TimeSeriesPoint[]> {
-  const allBuckets = timeBuckets.map((p) => p.date);
-
-  const sparse: Record<string, Map<number, number>> = {};
+  const sparse: Record<string, TimeSeriesPoint[]> = {};
   for (const row of data) {
     const key = row[groupKey];
-    if (!sparse[key]) sparse[key] = new Map();
-    sparse[key].set(Number(getDateKey(row.date)), row[dataKey]);
+    if (!sparse[key]) sparse[key] = [];
+    sparse[key].push({ date: Number(getDateKey(row.date)), count: row[dataKey] });
   }
 
-  const map: Record<string, TimeSeriesPoint[]> = {};
-  for (const [group, counts] of Object.entries(sparse)) {
-    map[group] = allBuckets.map((date) => ({
-      date,
-      count: counts.get(date) ?? 0,
-    }));
-  }
-
-  return map;
+  return sparse;
 }

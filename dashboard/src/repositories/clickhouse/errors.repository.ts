@@ -140,7 +140,7 @@ export async function getErrorGroupVolumes(
   if (fingerprints.length === 0) return [];
 
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+  const { range, timeWrapper, granularityFunc, fill } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDateTime,
@@ -162,6 +162,7 @@ export async function getErrorGroupVolumes(
         AND ${SQL.AND(filters)}
       GROUP BY error_fingerprint, date
       ORDER BY error_fingerprint, date ASC
+      ${fill}
     `,
   );
 
