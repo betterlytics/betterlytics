@@ -275,15 +275,7 @@ function ErrorTableInner({
         )}
       </div>
 
-      {filteredCount === 0 ? (
-        <div className='py-12 text-center'>
-          <p className='text-muted-foreground text-sm'>
-            {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className='border-border overflow-hidden rounded-lg border'>
+        <div className='border-border overflow-hidden rounded-lg border'>
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -308,7 +300,15 @@ function ErrorTableInner({
                 ))}
               </TableHeader>
               <TableBody>
-                {visibleRows.map((row) => (
+                {filteredCount === 0 ? (
+                  <TableRow className='hover:bg-transparent'>
+                    <TableCell colSpan={7} className='py-12 text-center'>
+                      <p className='text-muted-foreground text-sm'>
+                        {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                ) : visibleRows.map((row) => (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() ? 'selected' : undefined}
@@ -350,7 +350,7 @@ function ErrorTableInner({
             </Table>
           </div>
 
-          {table.getPageCount() > 1 && (
+      {filteredCount > 0 && table.getPageCount() > 1 && (
             <div className='flex items-center justify-between py-1'>
               <span className='text-muted-foreground text-sm'>
                 {filteredCount} error{filteredCount !== 1 ? 's' : ''}
@@ -384,8 +384,6 @@ function ErrorTableInner({
               </div>
             </div>
           )}
-        </>
-      )}
     </div>
   );
 }
