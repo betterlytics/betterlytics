@@ -142,7 +142,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
       <DestructiveActionDialog
         open={deleteTokenId !== null}
         onOpenChange={(open) => !open && setDeleteTokenId(null)}
-        title={t('deleteDialog.title', { name: tokens.find((tkn) => tkn.id === deleteTokenId)?.name })}
+        title={t('deleteDialog.title', { name: tokens.find((tkn) => tkn.id === deleteTokenId)?.name ?? 'token' })}
         description={t('deleteDialog.description')}
         onConfirm={handleDelete}
         isPending={isPending}
