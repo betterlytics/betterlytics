@@ -37,6 +37,15 @@ import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
 
+type StatusFilter = 'all' | ErrorGroupStatusValue;
+
+const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'unresolved', label: 'Unresolved' },
+  { key: 'resolved', label: 'Resolved' },
+  { key: 'ignored', label: 'Ignored' },
+];
+
 const CENTER_COLUMNS = new Set(['count', 'session_count']);
 
 function formatCount(count: number): string {
@@ -99,9 +108,21 @@ function ErrorTableInner({
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
 
   const [statusOverrides, setStatusOverrides] = useState<Record<string, ErrorGroupStatusValue>>({});
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('unresolved');
 
   const getStatus = (fingerprint: string, base: ErrorGroupStatusValue): ErrorGroupStatusValue =>
     statusOverrides[fingerprint] ?? base;
+
+  const statusCounts = useMemo(() => {
+    const counts = { all: errorGroups.length, unresolved: 0, resolved: 0, ignored: 0 };
+    for (const g of errorGroups) counts[getStatus(g.error_fingerprint, g.status)]++;
+    return counts;
+  }, [errorGroups, statusOverrides]);
+
+  const filteredByStatus = useMemo(
+    () => statusFilter === 'all' ? errorGroups : errorGroups.filter((g) => getStatus(g.error_fingerprint, g.status) === statusFilter),
+    [errorGroups, statusFilter, statusOverrides],
+  );
 
   async function setStatus(fingerprint: string, status: ErrorGroupStatusValue) {
     setStatusOverrides((prev) => ({ ...prev, [fingerprint]: status }));
@@ -261,7 +282,7 @@ function ErrorTableInner({
   );
 
   const table = useReactTable({
-    data: errorGroups,
+    data: filteredByStatus,
     columns,
     state: { sorting, rowSelection, globalFilter, pagination },
     onSortingChange: setSorting,
@@ -306,8 +327,38 @@ function ErrorTableInner({
   const selectedCount = selectedFingerprints.length;
   const filteredCount = table.getFilteredRowModel().rows.length;
 
+  function changeStatusFilter(next: StatusFilter) {
+    setStatusFilter(next);
+    setRowSelection({});
+    setPagination((p) => ({ ...p, pageIndex: 0 }));
+  }
+
   return (
     <div className='space-y-3'>
+      <div className='flex gap-1 border-b border-border'>
+        {STATUS_FILTERS.map(({ key, label }) => {
+          const isActive = statusFilter === key;
+          return (
+            <button
+              key={key}
+              type='button'
+              onClick={() => changeStatusFilter(key)}
+              className={[
+                'px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer',
+                isActive
+                  ? 'border-primary text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground',
+              ].join(' ')}
+            >
+              {label}
+              <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}>
+                {statusCounts[key]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className='flex items-center gap-3'>
         <div className='relative max-w-sm flex-1'>
           <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
