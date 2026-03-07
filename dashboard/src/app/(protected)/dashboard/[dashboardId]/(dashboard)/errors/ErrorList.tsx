@@ -465,6 +465,7 @@ function ErrorTableInner({
                 key={row.id}
                 data-state={row.getIsSelected() ? 'selected' : undefined}
                 className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
+                onClick={() => router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)}
               >
                 {row.getVisibleCells().map((cell) => {
                   if (cell.column.id === 'volume') {
