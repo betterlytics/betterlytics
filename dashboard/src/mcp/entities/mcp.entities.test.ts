@@ -66,6 +66,16 @@ describe('McpQueryInputSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('accepts date as orderBy for time-series queries', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      granularity: 'day',
+      orderBy: 'date',
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('accepts referrer dimensions', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],

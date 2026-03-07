@@ -7,7 +7,7 @@ import type { GranularityRangeValues } from '@/utils/granularityRanges';
 
 export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
 
-const VALID_ORDER_BY = new Set<string>([...METRIC_KEYS, ...DIMENSION_KEYS]);
+const VALID_ORDER_BY = new Set<string>([...METRIC_KEYS, ...DIMENSION_KEYS, 'date']);
 
 export const McpDateRangeSchema = z.object({
   timeRange: z
@@ -57,10 +57,10 @@ export const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
   orderBy: z
     .string()
     .refine((val) => VALID_ORDER_BY.has(val), {
-      message: `orderBy must be one of: ${[...METRIC_KEYS, ...DIMENSION_KEYS].join(', ')}`,
+      message: `orderBy must be one of: date, ${[...METRIC_KEYS, ...DIMENSION_KEYS].join(', ')}`,
     })
     .optional()
-    .describe('Metric or dimension to sort by. Defaults to first metric.'),
+    .describe('Metric or dimension to sort by. Defaults to first metric. Time-series queries (with granularity) are always sorted by date.'),
   order: z.enum(['asc', 'desc']).optional().default('desc').describe('Sort direction. Defaults to desc.'),
   limit: z.number().int().min(1).max(10000).optional().default(100).describe('Max rows to return. Defaults to 100.'),
 });

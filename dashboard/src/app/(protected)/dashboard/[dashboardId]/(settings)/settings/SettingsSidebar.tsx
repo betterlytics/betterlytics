@@ -1,4 +1,5 @@
-import { Database, Shield, AlertTriangle, Users, ChevronLeft, Mail, Webhook, BrainCog } from 'lucide-react';
+import { Database, Shield, AlertTriangle, Users, ChevronLeft, Mail, Webhook } from 'lucide-react';
+import { MCPIcon } from '@/components/icons';
 import {
   Sidebar,
   SidebarContent,
@@ -64,7 +65,7 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       name: t('mcp'),
       key: 'mcp',
       href: `/dashboard/${dashboardId}/settings/mcp`,
-      icon: <BrainCog size={16} />,
+      icon: <MCPIcon width={16} height={16} />,
     },
     {
       name: t('integrations'),
