@@ -13,20 +13,26 @@ import {
   type SortingState,
   type RowSelectionState,
 } from '@tanstack/react-table';
-import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, RefreshCw } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ErrorMiniBarChart } from './ErrorMiniBarChart';
 import { ErrorsEmptyState } from './ErrorsEmptyState';
-import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupVolumesAction, upsertErrorGroupAction, bulkUpsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
-import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
+import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
@@ -38,6 +44,21 @@ function formatCount(count: number): string {
   if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
   return count.toString();
 }
+
+const STATUS_CONFIG: Record<ErrorGroupStatusValue, { label: string; className: string }> = {
+  unresolved: {
+    label: 'Unresolved',
+    className: 'bg-destructive/10 text-destructive border-destructive/20',
+  },
+  resolved: {
+    label: 'Resolved',
+    className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
+  },
+  ignored: {
+    label: 'Ignored',
+    className: 'bg-muted text-muted-foreground border-border',
+  },
+};
 
 type ErrorListProps = {
   hasAnyErrors: boolean;
@@ -76,6 +97,27 @@ function ErrorTableInner({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
+
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, ErrorGroupStatusValue>>({});
+
+  const getStatus = (fingerprint: string, base: ErrorGroupStatusValue): ErrorGroupStatusValue =>
+    statusOverrides[fingerprint] ?? base;
+
+  async function setStatus(fingerprint: string, status: ErrorGroupStatusValue) {
+    setStatusOverrides((prev) => ({ ...prev, [fingerprint]: status }));
+    setRowSelection((prev) => { const next = { ...prev }; delete next[fingerprint]; return next; });
+    await upsertErrorGroupAction(dashboardId, fingerprint, status);
+  }
+
+  async function bulkSetStatus(fingerprints: string[], status: ErrorGroupStatusValue) {
+    setStatusOverrides((prev) => {
+      const next = { ...prev };
+      for (const fp of fingerprints) next[fp] = status;
+      return next;
+    });
+    await bulkUpsertErrorGroupAction(dashboardId, fingerprints, status);
+    setRowSelection({});
+  }
 
   const columns = useMemo<ColumnDef<ErrorGroupRow>[]>(
     () => [
@@ -155,8 +197,67 @@ function ErrorTableInner({
           );
         },
       },
+      {
+        id: 'status',
+        accessorFn: (row) => row.status,
+        header: 'Status',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const status = getStatus(row.original.error_fingerprint, row.original.status);
+          const cfg = STATUS_CONFIG[status];
+          return (
+            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${cfg.className}`}>
+              {cfg.label}
+            </span>
+          );
+        },
+      },
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const fp = row.original.error_fingerprint;
+          const currentStatus = getStatus(fp, row.original.status);
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100'
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label='Row actions'
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                {currentStatus !== 'resolved' && (
+                  <DropdownMenuItem onClick={() => setStatus(fp, 'resolved')}>
+                    <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
+                    Mark resolved
+                  </DropdownMenuItem>
+                )}
+                {currentStatus !== 'ignored' && (
+                  <DropdownMenuItem onClick={() => setStatus(fp, 'ignored')}>
+                    <EyeOff className='mr-2 h-4 w-4' />
+                    Ignore
+                  </DropdownMenuItem>
+                )}
+                {currentStatus !== 'unresolved' && (
+                  <DropdownMenuItem onClick={() => setStatus(fp, 'unresolved')}>
+                    <RotateCcw className='mr-2 h-4 w-4' />
+                    Mark unresolved
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
     ],
-    [],
+    [statusOverrides],
   );
 
   const table = useReactTable({
@@ -201,7 +302,8 @@ function ErrorTableInner({
     refetchOnWindowFocus,
   });
 
-  const selectedCount = Object.keys(rowSelection).length;
+  const selectedFingerprints = Object.keys(rowSelection);
+  const selectedCount = selectedFingerprints.length;
   const filteredCount = table.getFilteredRowModel().rows.length;
 
   return (
@@ -217,9 +319,6 @@ function ErrorTableInner({
             className='pl-9'
           />
         </div>
-        {selectedCount > 0 && (
-          <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
-        )}
         <Button
           variant='outline'
           size='sm'
@@ -232,6 +331,38 @@ function ErrorTableInner({
           Reload
         </Button>
       </div>
+
+      {selectedCount > 0 && (
+        <div className='bg-muted/50 border-border flex items-center gap-3 rounded-lg border px-4 py-2'>
+          <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
+          <div className='flex items-center gap-2 ml-auto'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => bulkSetStatus(selectedFingerprints, 'resolved')}
+            >
+              <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
+              Resolve
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => bulkSetStatus(selectedFingerprints, 'ignored')}
+            >
+              <EyeOff className='mr-1.5 h-3.5 w-3.5' />
+              Ignore
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => bulkSetStatus(selectedFingerprints, 'unresolved')}
+            >
+              <RotateCcw className='mr-1.5 h-3.5 w-3.5' />
+              Unresolve
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className='border-border overflow-hidden rounded-lg border'>
         <Table>
@@ -250,6 +381,7 @@ function ErrorTableInner({
                         header.id === 'select' ? 'w-10 pl-4 sm:pl-6' : 'px-3 sm:px-6',
                         header.id === 'volume' ? 'hidden lg:table-cell' : '',
                         header.id === 'first_seen' ? 'hidden md:table-cell' : '',
+                        header.id === 'actions' ? 'w-10' : '',
                         canSort ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none' : '',
                       ].join(' ')}
                       onClick={header.column.getToggleSortingHandler()}
@@ -271,7 +403,7 @@ function ErrorTableInner({
           <TableBody className='divide-secondary divide-y'>
             {filteredCount === 0 ? (
               <TableRow className='hover:bg-transparent'>
-                <TableCell colSpan={7} className='py-12 text-center'>
+                <TableCell colSpan={9} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
                     {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
                   </p>
@@ -294,6 +426,13 @@ function ErrorTableInner({
                   if (cell.column.id === 'select') {
                     return (
                       <TableCell key={cell.id} className='w-10 py-3 pl-4 sm:pl-6'>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  }
+                  if (cell.column.id === 'actions') {
+                    return (
+                      <TableCell key={cell.id} className='w-10 py-3 pr-2 sm:pr-4'>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     );

@@ -1,15 +1,44 @@
 'server-only';
 
 import { hasAnyErrors, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen } from '@/repositories/clickhouse/errors.repository';
-import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow } from '@/entities/analytics/errors.entities';
+import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow, type ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { getTrackedErrorGroups, upsertErrorGroup, bulkUpsertErrorGroup } from '@/repositories/postgres/errorGroup.repository';
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
   return hasAnyErrors(siteId);
 }
 
-export async function getErrorGroupsForSite(siteQuery: BASiteQuery): Promise<ErrorGroupRow[]> {
-  return getErrorGroups(siteQuery);
+export async function getErrorGroupsForSite(
+  siteQuery: BASiteQuery,
+  dashboardId: string,
+): Promise<ErrorGroupRow[]> {
+  const rows = await getErrorGroups(siteQuery);
+  if (rows.length === 0) return rows;
+
+  const fingerprints = rows.map((r) => r.error_fingerprint);
+  const statusMap = await getTrackedErrorGroups(dashboardId, fingerprints);
+
+  return rows.map((r) => ({
+    ...r,
+    status: statusMap[r.error_fingerprint] ?? 'unresolved',
+  }));
+}
+
+export async function upsertErrorGroupForSite(
+  dashboardId: string,
+  errorFingerprint: string,
+  status: ErrorGroupStatusValue,
+): Promise<void> {
+  return upsertErrorGroup(dashboardId, errorFingerprint, status);
+}
+
+export async function bulkUpsertErrorGroupForSite(
+  dashboardId: string,
+  fingerprints: string[],
+  status: ErrorGroupStatusValue,
+): Promise<void> {
+  return bulkUpsertErrorGroup(dashboardId, fingerprints, status);
 }
 
 export async function getGlobalErrorGroupFirstSeenForSite(siteId: string): Promise<Record<string, Date>> {

@@ -52,6 +52,12 @@ enum Currency {
   EUR
 }
 
+enum ErrorGroupStatusValue {
+  unresolved
+  resolved
+  ignored
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -162,6 +168,23 @@ model Dashboard {
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
   integrations DashboardIntegration[]
+  errorGroups ErrorGroup[]
+}
+
+model ErrorGroup {
+  id               String               @id @default(cuid())
+
+  dashboard        Dashboard            @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId      String
+
+  errorFingerprint String
+  status           ErrorGroupStatusValue @default(unresolved)
+
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@unique([dashboardId, errorFingerprint])
+  @@index([dashboardId])
 }
 
 model UserDashboard {

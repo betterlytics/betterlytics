@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+export const ErrorGroupStatusValueSchema = z.enum(['unresolved', 'resolved', 'ignored']);
+export type ErrorGroupStatusValue = z.infer<typeof ErrorGroupStatusValueSchema>;
+
 export const ErrorGroupRowSchema = z.object({
   error_fingerprint: z.string(),
   error_type: z.string(),
@@ -8,6 +11,7 @@ export const ErrorGroupRowSchema = z.object({
   first_seen: z.date().optional(),
   last_seen: z.date(),
   session_count: z.number().int().min(0),
+  status: ErrorGroupStatusValueSchema.default('unresolved'),
 });
 
 export const ErrorVolumeRowSchema = z.object({

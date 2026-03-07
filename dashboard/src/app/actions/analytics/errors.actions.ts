@@ -6,13 +6,15 @@ import {
   getErrorVolumeForSite,
   getErrorGroupVolumesForSite,
   getGlobalErrorGroupFirstSeenForSite,
+  upsertErrorGroupForSite,
+  bulkUpsertErrorGroupForSite,
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toTimeSeries, toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
+import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
   hasAnyErrors: boolean;
@@ -29,7 +31,7 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
 
     const [hasAnyErrors, errorGroups, overallData, firstSeenMap] = await Promise.all([
       hasAnyErrorsForSite(ctx.siteId),
-      getErrorGroupsForSite(main),
+      getErrorGroupsForSite(main, ctx.dashboardId),
       getErrorVolumeForSite(main),
       getGlobalErrorGroupFirstSeenForSite(ctx.siteId),
     ]);
@@ -68,5 +70,27 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
       timeBuckets,
       data: volumeRows,
     });
+  },
+);
+
+export const upsertErrorGroupAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    errorFingerprint: string,
+    status: string,
+  ): Promise<void> => {
+    const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
+    await upsertErrorGroupForSite(ctx.dashboardId, errorFingerprint, validatedStatus);
+  },
+);
+
+export const bulkUpsertErrorGroupAction = withDashboardAuthContext(
+  async (
+    ctx: AuthContext,
+    fingerprints: string[],
+    status: string,
+  ): Promise<void> => {
+    const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
+    await bulkUpsertErrorGroupForSite(ctx.dashboardId, fingerprints, validatedStatus);
   },
 );
