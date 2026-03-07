@@ -68,7 +68,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString(undefined, {
+    return new Date(date).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
