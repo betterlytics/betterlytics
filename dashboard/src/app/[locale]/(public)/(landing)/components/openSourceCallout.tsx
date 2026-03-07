@@ -1,6 +1,7 @@
 import { BookOpen, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ExternalLink from '@/components/ExternalLink';
+import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { getTranslations } from 'next-intl/server';
 
 export async function OpenSourceCallout() {
@@ -8,7 +9,7 @@ export async function OpenSourceCallout() {
   return (
     <section className='overflow-visible py-20'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='text-center'>
+        <ScrollReveal className='text-center'>
           <Github className='text-primary mx-auto mb-6 h-16 w-16' />
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
             <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span> &amp; {t('titleRest')}
@@ -43,7 +44,7 @@ export async function OpenSourceCallout() {
               </ExternalLink>
             </Button>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

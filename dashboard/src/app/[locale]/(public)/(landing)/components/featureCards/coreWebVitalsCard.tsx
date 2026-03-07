@@ -13,7 +13,7 @@ import {
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
-import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import NumberFlow from '@number-flow/react';
 import { useInView } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useIsScrollingMotionRef } from '@/hooks/use-is-scrolling-motion-ref';
