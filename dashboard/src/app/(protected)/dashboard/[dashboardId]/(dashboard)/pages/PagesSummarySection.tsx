@@ -4,7 +4,7 @@ import { use } from 'react';
 import { fetchPagesSummaryWithChartsAction } from '@/app/actions/index.actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type PagesSummarySectionProps = {
@@ -13,12 +13,13 @@ type PagesSummarySectionProps = {
 
 export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: PagesSummarySectionProps) {
   const summaryWithCharts = use(pagesSummaryWithChartsPromise);
+  const locale = useLocale();
   const t = useTranslations('components.pages.summary');
 
   const cards: SummaryCardData[] = [
     {
       title: t('pagesPerSession'),
-      value: formatNumber(summaryWithCharts.pagesPerSession),
+      value: formatNumber(summaryWithCharts.pagesPerSession, locale),
       rawChartData: summaryWithCharts.pagesPerSessionChartData,
       comparePercentage: summaryWithCharts.compareValues.pagesPerSession,
       valueField: 'value',
@@ -26,7 +27,7 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
     },
     {
       title: t('totalPageviews'),
-      value: formatNumber(summaryWithCharts.totalPageviews),
+      value: formatNumber(summaryWithCharts.totalPageviews, locale),
       rawChartData: summaryWithCharts.pageviewsChartData,
       comparePercentage: summaryWithCharts.compareValues.totalPageviews,
       valueField: 'views',
@@ -34,7 +35,7 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
     },
     {
       title: t('avgTimeOnPage'),
-      value: formatDuration(summaryWithCharts.avgTimeOnPage),
+      value: formatDuration(summaryWithCharts.avgTimeOnPage, locale),
       rawChartData: summaryWithCharts.avgTimeChartData,
       comparePercentage: summaryWithCharts.compareValues.avgTimeOnPage,
       valueField: 'value',
@@ -42,7 +43,7 @@ export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: P
     },
     {
       title: t('avgBounceRate'),
-      value: formatPercentage(summaryWithCharts.avgBounceRate),
+      value: formatPercentage(summaryWithCharts.avgBounceRate, locale),
       rawChartData: summaryWithCharts.bounceRateChartData,
       comparePercentage: summaryWithCharts.compareValues.avgBounceRate,
       valueField: 'value',

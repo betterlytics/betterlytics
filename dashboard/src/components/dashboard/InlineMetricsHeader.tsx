@@ -6,6 +6,7 @@ import { MousePointerClick } from 'lucide-react';
 import type { SummaryCardData } from './SummaryCardsSection';
 import { cn } from '@/lib/utils';
 import { TrendPercentage } from '@/components/TrendPercentage';
+import { useLocale } from 'next-intl';
 
 interface ChartDatum {
   date: string;
@@ -18,6 +19,8 @@ type InlineMetricsHeaderProps = {
 };
 
 export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsHeaderProps) {
+  const locale = useLocale();
+
   return (
     <div className='grid grid-cols-2 gap-1 lg:grid-cols-3 xl:grid-flow-col xl:grid-cols-none'>
       {cards.map((card, idx) => {
@@ -95,7 +98,7 @@ export default function InlineMetricsHeader({ cards, pinFooter }: InlineMetricsH
                   {card.value}
                 </span>
                 <span className='text-xs'>
-                  <TrendPercentage percentage={card.comparePercentage} withIcon />
+                  <TrendPercentage percentage={card.comparePercentage} withIcon locale={locale} />
                 </span>
               </div>
               {card.footer && <div className={pinFooter ? 'mt-auto pt-2' : 'mt-2'}>{card.footer}</div>}

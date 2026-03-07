@@ -10,7 +10,7 @@ import { Globe, Link } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
 import { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '@/components/TableCompareCell';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
@@ -48,6 +48,7 @@ interface ReferrerTableProps {
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
   const [activeTab, setActiveTab] = useState<ReferrerTabKey>(ReferrerTab.All);
+  const locale = useLocale();
   const t = useTranslations('components.referrers.table');
   const tFilters = useTranslations('components.filters');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -119,7 +120,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
         }
         return (row.current.visits / totalVisits) * 100;
       },
-      cell: ({ getValue }) => formatPercentage(getValue<number>()),
+      cell: ({ getValue }) => formatPercentage(getValue<number>(), locale),
       enableSorting: true,
     },
     {

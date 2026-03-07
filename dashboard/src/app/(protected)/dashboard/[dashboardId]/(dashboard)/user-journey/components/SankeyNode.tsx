@@ -1,11 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
-import { formatPercentage, formatString } from '@/utils/formatters';
+import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import { useSvgTextWidth } from '../useSvgTextWidth';
 import type { NodePosition } from '../types';
 import { COLORS, LAYOUT } from '../constants';
-import { formatNumber } from '@/utils/formatters';
+import { useLocale } from 'next-intl';
 
 export interface SankeyNodeProps {
   node: NodePosition;
@@ -24,6 +24,7 @@ export function SankeyNode({
   onClick,
   totalEntrySessions,
 }: SankeyNodeProps) {
+  const locale = useLocale();
   const cardPadding = { x: 7, y: 5 };
   const cardGap = 5;
   const cardHeight = 30;
@@ -39,10 +40,10 @@ export function SankeyNode({
   // Percentage of total sessions that reached this node
   const percentageRaw = totalEntrySessions > 0 ? (node.totalTraffic / totalEntrySessions) * 100 : 0;
   const percentageValue = Math.max(0, Math.min(100, percentageRaw));
-  const percentageLabel = formatPercentage(percentageValue, 1);
+  const percentageLabel = formatPercentage(percentageValue, locale);
 
   const titleText = formatString(node.name, 17);
-  const countText = `${formatNumber(node.totalTraffic)} (${percentageLabel})`;
+  const countText = `${formatNumber(node.totalTraffic, locale)} (${percentageLabel})`;
 
   const titleWidth = useSvgTextWidth(titleRef, [titleText], {
     min: 56,
@@ -139,7 +140,7 @@ export function SankeyNode({
         className={`pointer-events-none transition-colors duration-200 select-none`}
         opacity={labelOpacity}
       >
-        {formatNumber(node.totalTraffic)}
+        {formatNumber(node.totalTraffic, locale)}
         <tspan fontSize={7} fontWeight={600} dx={2}>
           ({percentageLabel})
         </tspan>

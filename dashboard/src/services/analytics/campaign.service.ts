@@ -33,6 +33,8 @@ import {
 } from '@/entities/analytics/devices.entities';
 import { GeoVisitorSchema, type GeoVisitor } from '@/entities/analytics/geography.entities';
 import { formatDuration } from '@/utils/dateFormatters';
+import { getLocale } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -50,12 +52,12 @@ interface CalculatedMetrics {
   pagesPerSession: number;
 }
 
-function calculateCommonCampaignMetrics(rawData: RawMetricsData): CalculatedMetrics {
+function calculateCommonCampaignMetrics(rawData: RawMetricsData, locale: SupportedLanguages): CalculatedMetrics {
   const bounceRate = rawData.total_sessions > 0 ? (rawData.bounced_sessions / rawData.total_sessions) * 100 : 0;
   const avgSessionDurationSeconds =
     rawData.total_sessions > 0 ? rawData.sum_session_duration_seconds / rawData.total_sessions : 0;
   const pagesPerSession = rawData.total_sessions > 0 ? rawData.total_pageviews / rawData.total_sessions : 0;
-  const avgSessionDurationFormatted = formatDuration(avgSessionDurationSeconds);
+  const avgSessionDurationFormatted = formatDuration(avgSessionDurationSeconds, locale);
 
   return {
     bounceRate: parseFloat(bounceRate.toFixed(1)),
@@ -84,8 +86,9 @@ async function fetchCampaignPerformancePage(
 
   const rawCampaignData: RawCampaignData[] = await getCampaignPerformancePageData(siteQuery, safePageSize, offset);
 
+  const locale = await getLocale();
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
-    const metrics = calculateCommonCampaignMetrics(raw);
+    const metrics = calculateCommonCampaignMetrics(raw, locale);
     return {
       name: raw.utm_campaign_name,
       visitors: raw.total_visitors,
@@ -141,8 +144,9 @@ export async function fetchCampaignUTMBreakdown(
 ): Promise<CampaignUTMBreakdownItem[]> {
   const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(siteQuery, dimension, campaignName);
 
+  const locale = await getLocale();
   const transformedData: CampaignUTMBreakdownItem[] = rawData.map((raw) => {
-    const metrics = calculateCommonCampaignMetrics(raw);
+    const metrics = calculateCommonCampaignMetrics(raw, locale);
     return {
       label: raw.label,
       visitors: raw.total_visitors,
@@ -162,9 +166,10 @@ export async function fetchCampaignLandingPagePerformance(
     campaignName,
   );
 
+  const locale = await getLocale();
   const transformedData: CampaignLandingPagePerformanceItem[] = rawLandingPageData.map(
     (raw: RawCampaignLandingPagePerformanceItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
+      const metrics = calculateCommonCampaignMetrics(raw, locale);
       return {
         campaignName: raw.utm_campaign_name,
         landingPageUrl: raw.landing_page_url,
