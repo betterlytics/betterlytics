@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocale, useTranslations } from 'next-intl';
 import { Gauge } from '@/components/gauge';
@@ -14,9 +14,9 @@ import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
-import { useInView } from '@/hooks/useInView';
-import { useIsScrollingRef } from '@/contexts/ScrollStateProvider';
+import { useInView } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsScrollingMotionRef } from '@/hooks/use-is-scrolling-motion-ref';
 
 type MetricGaugeProps = {
   metric: { key: CoreWebVitalName; value: number };
@@ -75,16 +75,17 @@ function StaggeredMetricGauge({
   startIndex,
   locale,
   inView,
+  isScrollingRef,
 }: {
   metricKey: CoreWebVitalName;
   intervalMs: number;
   startIndex: number;
   locale: SupportedLanguages;
   inView: boolean;
+  isScrollingRef: React.RefObject<boolean>;
 }) {
   const values = MOCK_CORE_WEB_VITAL_VALUES[metricKey];
   const [currentIndex, setCurrentIndex] = useState(startIndex % values.length);
-  const isScrollingRef = useIsScrollingRef();
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -95,14 +96,16 @@ function StaggeredMetricGauge({
       setCurrentIndex((prev) => (prev + 1) % values.length);
     }, intervalMs);
     return () => clearInterval(timer);
-  }, [inView, isMobile, intervalMs, values.length, isScrollingRef]);
+  }, [inView, isMobile, intervalMs, values.length]);
 
   return <MetricGauge metric={{ key: metricKey, value: values[currentIndex] }} locale={locale} />;
 }
 
 function AnimatedGaugeGrid() {
   const locale = useLocale();
-  const { ref, inView } = useInView();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+  const isScrollingRef = useIsScrollingMotionRef();
 
   return (
     <div
@@ -118,6 +121,7 @@ function AnimatedGaugeGrid() {
           startIndex={config.startIndex}
           locale={locale}
           inView={inView}
+          isScrollingRef={isScrollingRef}
         />
       ))}
     </div>
