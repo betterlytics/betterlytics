@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import { ErrorCardList } from './ErrorCardList';
+import { ErrorList } from './ErrorList';
 import type { ErrorGroupsResult } from '@/app/actions/analytics/errors.actions';
 
 type ErrorGroupsSectionProps = {
@@ -13,7 +13,7 @@ export function ErrorGroupsSection({ groupsPromise, dashboardId }: ErrorGroupsSe
   const { hasAnyErrors, errorGroups, timeBuckets, initialVolumeMap } = use(groupsPromise);
 
   return (
-    <ErrorCardList
+    <ErrorList
       hasAnyErrors={hasAnyErrors}
       errorGroups={errorGroups}
       initialVolumeMap={initialVolumeMap}
