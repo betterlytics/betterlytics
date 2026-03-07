@@ -468,6 +468,7 @@ model McpToken {
   createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
   expiresAt   DateTime?
+  deletedAt   DateTime?
 
   @@index([tokenHash])
   @@index([dashboardId])

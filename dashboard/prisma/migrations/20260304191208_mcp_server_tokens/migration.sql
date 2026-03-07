@@ -8,6 +8,7 @@ CREATE TABLE "McpToken" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastUsedAt" TIMESTAMP(3),
     "expiresAt" TIMESTAMP(3),
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "McpToken_pkey" PRIMARY KEY ("id")
 );
