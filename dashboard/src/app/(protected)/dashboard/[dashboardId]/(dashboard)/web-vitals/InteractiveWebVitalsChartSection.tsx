@@ -19,7 +19,7 @@ import {
 } from '@/utils/coreWebVitals';
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -37,6 +37,7 @@ export default function InteractiveWebVitalsChartSection({
   seriesPromise,
 }: InteractiveWebVitalsChartSectionProps) {
   const t = useTranslations('components.webVitals');
+  const locale = useLocale();
   const summary = use(summaryPromise);
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
@@ -63,7 +64,7 @@ export default function InteractiveWebVitalsChartSection({
         title={undefined}
         data={chartData}
         granularity={granularity}
-        formatValue={(v) => formatCWV(active, Number(v))}
+        formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
         yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
         series={SERIES_DEFS}
         yReferenceAreas={yReferenceAreas}
@@ -111,6 +112,7 @@ type CoreWebVitalGaugeCardProps = {
 };
 
 function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVitalGaugeCardProps) {
+  const locale = useLocale();
   return (
     <button
       type='button'
@@ -145,7 +147,7 @@ function CoreWebVitalGaugeCard({ metric, value, isActive, onSelect }: CoreWebVit
             className='text-lg font-semibold tracking-tight drop-shadow-sm'
             style={{ color: getCoreWebVitalLabelColor(metric, value) }}
           >
-            {formatCWV(metric, value)}
+            {formatCWV(metric, value, locale)}
           </span>
         </div>
       </Gauge>

@@ -1,6 +1,6 @@
 import { getUserBillingData } from '@/actions/billing.action';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { getPlanNameKey } from '@/lib/billing/plans';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { Calendar } from 'lucide-react';
@@ -13,6 +13,7 @@ export default async function PlanQuota({
   const billing = await billingDataPromise;
   if (!billing?.success) return null;
 
+  const locale = await getLocale();
   const { current, limit } = billing.data.usage;
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
   const tier = billing.data.subscription.tier;
@@ -34,13 +35,13 @@ export default async function PlanQuota({
       </div>
 
       <div className='text-2xl font-semibold'>
-        {formatNumber(current)}
-        <span className='text-muted-foreground text-base font-normal'> / {formatNumber(limit)}</span>
+        {formatNumber(current, locale)}
+        <span className='text-muted-foreground text-base font-normal'> / {formatNumber(limit, locale)}</span>
       </div>
 
       <div className='flex items-center justify-between text-xs'>
         <span className='text-muted-foreground'>{planLabel}</span>
-        <span>{formatPercentage(percentage)}</span>
+        <span>{formatPercentage(percentage, locale)}</span>
       </div>
 
       <div className='bg-muted h-1.5 w-full rounded'>

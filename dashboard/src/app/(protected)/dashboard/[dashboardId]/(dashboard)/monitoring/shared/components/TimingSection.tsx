@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { Clock, ChevronDown } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
@@ -32,6 +32,7 @@ export type TimingSectionProps = {
 
 export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen = true }: TimingSectionProps) {
   const tTiming = useTranslations('monitoringPage.form.timing');
+  const locale = useLocale();
   const { state, setField } = form;
   const { caps } = useCapabilities();
 
@@ -66,14 +67,14 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
           <LabeledSlider
             label={tTiming('interval.label')}
             description={tTiming('interval.description', {
-              value: formatCompactDuration(state.intervalSeconds),
+              value: formatCompactDuration(state.intervalSeconds, locale),
             })}
             value={intervalIdx}
             min={0}
             max={MONITOR_INTERVAL_MARKS.length - 1}
             marks={INTERVAL_DISPLAY_MARKS}
             onValueChange={handleIntervalChange}
-            formatValue={() => formatCompactDuration(state.intervalSeconds)}
+            formatValue={() => formatCompactDuration(state.intervalSeconds, locale)}
             valueParts={splitCompactDuration(state.intervalSeconds)}
             recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
             disabled={isPending}
@@ -90,7 +91,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             max={REQUEST_TIMEOUT_MARKS.length - 1}
             marks={TIMEOUT_DISPLAY_MARKS}
             onValueChange={handleTimeoutChange}
-            formatValue={() => formatCompactDuration(state.timeoutMs / 1000)}
+            formatValue={() => formatCompactDuration(state.timeoutMs / 1000, locale)}
             valueParts={splitCompactDuration(state.timeoutMs / 1000)}
             recommendedValue={nearestIndex(REQUEST_TIMEOUT_MARKS, RECOMMENDED_TIMEOUT_MS)}
             disabled={isPending}

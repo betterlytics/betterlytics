@@ -11,7 +11,7 @@ import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
 import { InvitationWithInviter, CreateInvitationSchema } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
@@ -25,6 +25,7 @@ interface InviteSectionProps {
 export function InviteSection({ dashboardId, pendingInvitations }: InviteSectionProps) {
   const t = useTranslations('invitations');
   const tRoles = useTranslations('members.roles');
+  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<DashboardRole>('viewer');
   const [isPending, startTransition] = useTransition();
@@ -142,7 +143,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                       <div className='min-w-0'>
                         <p className='truncate text-sm font-medium'>{invitation.email}</p>
                         <p className='text-muted-foreground hidden text-xs sm:block'>
-                          {t('section.invited')} {formatDate(invitation.createdAt)}
+                          {t('section.invited')} {formatDate(invitation.createdAt, locale)}
                         </p>
                       </div>
                     </div>
@@ -168,7 +169,7 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                   <div className='mt-1.5 ml-10 flex items-center gap-2 sm:hidden'>
                     <RoleBadge role={invitation.role} />
                     <span className='text-muted-foreground text-xs'>
-                      {t('section.invited')} {formatDate(invitation.createdAt)}
+                      {t('section.invited')} {formatDate(invitation.createdAt, locale)}
                     </span>
                   </div>
                 </div>
