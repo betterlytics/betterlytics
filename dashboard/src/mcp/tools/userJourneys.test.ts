@@ -4,10 +4,6 @@ vi.mock('@/services/analytics/userJourney.service', () => ({
   getUserJourneyForSankeyDiagram: vi.fn(),
 }));
 
-vi.mock('@/mcp/utils/resolveTimeRange', () => ({
-  resolveTimeRange: vi.fn(),
-}));
-
 import { McpUserJourneysInputSchema } from '@/mcp/tools/userJourneys';
 
 describe('McpUserJourneysInputSchema', () => {
