@@ -10,6 +10,7 @@ import { createMcpTokenAction, deleteMcpTokenAction } from '@/app/actions/dashbo
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useLocale, useTranslations } from 'next-intl';
 import { McpTokenListItem } from '@/entities/dashboard/mcpToken.entities';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 interface McpTokenManagerProps {
   dashboardId: string;
@@ -61,13 +62,8 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString(locale, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+  const formatDate = (date: Date) =>
+    formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
   return (
     <div className='space-y-4'>
