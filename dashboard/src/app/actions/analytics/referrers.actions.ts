@@ -7,7 +7,6 @@ import {
   getReferrerTrafficTrendBySourceDataForSite,
   getReferrerUrlRollupForSite,
   getTopChannelsForSite,
-  getTopReferrerSourcesForSite,
 } from '@/services/analytics/referrers.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -137,15 +136,11 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
       const [
         referrerUrlRollup,
         compareReferrerUrlRollup,
-        topReferrerSources,
-        compareTopReferrerSources,
         topChannels,
         compareTopChannels,
       ] = await Promise.all([
         getReferrerUrlRollupForSite(main, limit),
         compare && getReferrerUrlRollupForSite(compare, limit),
-        getTopReferrerSourcesForSite(main, limit),
-        compare && getTopReferrerSourcesForSite(compare, limit),
         getTopChannelsForSite(main, limit),
         compare && getTopChannelsForSite(compare, limit),
       ]);
@@ -156,11 +151,6 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
           compare: compareReferrerUrlRollup || undefined,
           parentKey: 'source_name',
           childKey: 'referrer_url',
-        }),
-        topReferrerSources: toDataTable({
-          data: topReferrerSources,
-          compare: compareTopReferrerSources || undefined,
-          categoryKey: 'referrer_source',
         }),
         topChannels: toDataTable({
           data: topChannels,

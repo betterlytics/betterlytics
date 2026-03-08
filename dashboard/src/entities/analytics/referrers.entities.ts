@@ -59,11 +59,6 @@ export const TopChannelSchema = z.object({
   visits: z.number().int(),
 });
 
-export const TopReferrerSourceSchema = z.object({
-  referrer_source: z.string(),
-  visits: z.number().int(),
-});
-
 export type ReferrerSourceAggregation = z.infer<typeof ReferrerSourceAggregationSchema>;
 export type ReferrerTrafficBySourceRow = z.infer<typeof ReferrerTrafficBySourceRowSchema>;
 export type DailyReferralSessionsRow = z.infer<typeof DailyReferralSessionsRowSchema>;
@@ -73,4 +68,3 @@ export type ReferrerSummaryWithCharts = z.infer<typeof ReferrerSummaryWithCharts
 export type ReferrerTableRow = z.infer<typeof ReferrerTableRowSchema>;
 export type ReferrerUrlRollupRow = z.infer<typeof ReferrerUrlRollupRowSchema>;
 export type TopChannel = z.infer<typeof TopChannelSchema>;
-export type TopReferrerSource = z.infer<typeof TopReferrerSourceSchema>;

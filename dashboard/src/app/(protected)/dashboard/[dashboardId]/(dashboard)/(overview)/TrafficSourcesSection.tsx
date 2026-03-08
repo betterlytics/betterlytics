@@ -22,12 +22,11 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
       if (item.children) return;
       return makeFilterClick('referrer_url')(item.label);
     }
-    if (tabKey === 'sources') return makeFilterClick('referrer_source')(item.label);
     if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
   };
 
   const isItemInteractive = (tabKey: string) =>
-    tabKey === 'referrers' || tabKey === 'sources' || tabKey === 'channels';
+    tabKey === 'referrers' || tabKey === 'channels';
 
   return (
     <MultiProgressTable
@@ -50,16 +49,6 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
               trendPercentage: child.change?.visitors,
               comparisonValue: child.compare?.visitors,
             })),
-          })),
-        },
-        {
-          key: 'sources',
-          label: t('tabs.sources'),
-          data: trafficSourcesCombined.topReferrerSources.map((item) => ({
-            label: item.referrer_source,
-            value: item.current.visits,
-            trendPercentage: item.change?.visits,
-            comparisonValue: item.compare?.visits,
           })),
         },
         {

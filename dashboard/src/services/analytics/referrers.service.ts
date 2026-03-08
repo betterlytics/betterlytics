@@ -6,7 +6,6 @@ import {
   getReferrerTrafficTrendBySource,
   getReferrerUrlRollup,
   getTopChannels,
-  getTopReferrerSources,
   getDailyReferralSessions,
   getDailyReferralTrafficPercentage,
   getDailyReferralSessionDuration,
@@ -21,7 +20,6 @@ import {
   ReferrerTrafficBySourceRow,
   ReferrerUrlRollupRow,
   TopChannel,
-  TopReferrerSource,
 } from '@/entities/analytics/referrers.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -54,13 +52,6 @@ export async function getReferrerUrlRollupForSite(
 
 export async function getTopChannelsForSite(siteQuery: BASiteQuery, limit = 10): Promise<TopChannel[]> {
   return getTopChannels(siteQuery, limit);
-}
-
-export async function getTopReferrerSourcesForSite(
-  siteQuery: BASiteQuery,
-  limit = 10,
-): Promise<TopReferrerSource[]> {
-  return getTopReferrerSources(siteQuery, limit);
 }
 
 export async function getReferrerSummaryWithChartsForSite(

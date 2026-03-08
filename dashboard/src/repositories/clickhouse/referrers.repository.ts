@@ -5,8 +5,6 @@ import {
   ReferrerTrafficBySourceRowSchema,
   TopChannel,
   TopChannelSchema,
-  TopReferrerSource,
-  TopReferrerSourceSchema,
   DailyReferralSessionsRow,
   DailyReferralSessionsRowSchema,
   DailyReferralPercentageRow,
@@ -251,46 +249,6 @@ export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10)
     .toPromise()) as any[];
 
   return TopChannelSchema.array().parse(result);
-}
-
-/**
- * Get top referrer sources with visit counts
- */
-export async function getTopReferrerSources(
-  siteQuery: BASiteQuery,
-  limit: number = 10,
-): Promise<TopReferrerSource[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT
-      referrer_source,
-      uniq(session_id) as visits
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND referrer_source != 'direct'
-      AND referrer_source != 'internal'
-      AND ${SQL.AND(filters)}
-    GROUP BY referrer_source
-    ORDER BY visits DESC
-    LIMIT {limit:UInt32}
-  `;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-        limit,
-      },
-    })
-    .toPromise()) as any[];
-
-  return TopReferrerSourceSchema.array().parse(result);
 }
 
 /**
