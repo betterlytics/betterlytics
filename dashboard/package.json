@@ -9,7 +9,8 @@
     "lint": "next lint",
     "unit-tests": "vitest run",
     "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js && node scripts/post_migrate_monitoring_ro.js",
-    "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma"
+    "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma",
+    "mcp": "tsx src/mcp/index.ts"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"
@@ -20,6 +21,7 @@
     "@betterlytics/tracker": "^0.1.6",
     "@clickhouse/client": "^1.15.0",
     "@iconify/react": "^6.0.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@number-flow/react": "^0.5.11",
     "@opentelemetry/api": "^1.9.0",

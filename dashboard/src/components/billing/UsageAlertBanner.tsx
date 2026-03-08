@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { getUserBillingData } from '@/actions/billing.action';
 
@@ -15,6 +15,7 @@ interface UsageAlertBannerProps {
 
 export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBannerProps) {
   const t = useTranslations('banners.usageAlert');
+  const locale = useLocale();
   const billingData = use(billingDataPromise);
   const { addBanner, removeBanner } = useBannerContext();
 
@@ -36,9 +37,9 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
       level: 'warning',
       title: t('title'),
       description: t.rich('description', {
-        percentage: formatPercentage(usage.usagePercentage),
-        current: usage.current.toLocaleString(),
-        limit: usage.limit.toLocaleString(),
+        percentage: formatPercentage(usage.usagePercentage, locale),
+        current: usage.current.toLocaleString(locale),
+        limit: usage.limit.toLocaleString(locale),
         strong: (chunks) => <strong>{chunks}</strong>,
       }),
       action: (
@@ -57,7 +58,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
     });
 
     return () => removeBanner('usage-alert-banner');
-  }, [addBanner, removeBanner, t]);
+  }, [billingData, addBanner, removeBanner, t, locale]);
 
   return null;
 }

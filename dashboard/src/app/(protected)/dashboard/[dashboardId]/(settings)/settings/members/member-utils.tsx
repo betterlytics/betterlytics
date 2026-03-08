@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { DashboardRole } from '@prisma/client';
 import { useTranslations } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export type Role = DashboardRole;
 
@@ -66,6 +67,6 @@ export function RoleBadge({ role }: { role: Role }) {
   );
 }
 
-export function formatDate(date: Date): string {
-  return date.toLocaleDateString();
+export function formatDate(date: Date, locale?: SupportedLanguages): string {
+  return date.toLocaleDateString(locale);
 }

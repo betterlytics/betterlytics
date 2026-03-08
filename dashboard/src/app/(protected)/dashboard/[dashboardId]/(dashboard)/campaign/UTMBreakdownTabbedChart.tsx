@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { getColorForValue } from '@/utils/colorUtils';
 import { formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { Spinner } from '@/components/ui/spinner';
 import type { CampaignUTMBreakdownItem, UTMDimension } from '@/entities/analytics/campaign.entities';
@@ -29,6 +29,7 @@ interface ChartDataItem {
 }
 
 function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
+  const locale = useLocale();
   const t = useTranslations('components.campaign.utm');
   const chartData = useMemo((): ChartDataItem[] => {
     if (!data || data.length === 0) return [];
@@ -72,7 +73,7 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
           <Tooltip
             content={
               <PieChartTooltip
-                valueFormatter={(value) => t('columns.visitors', { count: value.toLocaleString() })}
+                valueFormatter={(value) => t('columns.visitors', { count: value.toLocaleString(locale) })}
               />
             }
           />
@@ -88,7 +89,7 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
               style={{ backgroundColor: entry.color }}
             ></span>
             <span className='text-muted-foreground'>
-              {entry.name} ({formatPercentage(entry.percentage)})
+              {entry.name} ({formatPercentage(entry.percentage, locale)})
             </span>
           </div>
         ))}

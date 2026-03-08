@@ -26,6 +26,8 @@ pub enum DeliveryStrategy {
 
 pub struct NotificationEvent {
     pub dashboard_id: String,
+    /// Optional monitor ID
+    pub monitor_id: String,
     /// Unique key for deduplication
     pub event_key: String,
     pub strategy: DeliveryStrategy,
@@ -144,6 +146,7 @@ impl NotificationEngine {
             self.record_history(super::history::NotificationHistoryRow {
                 ts: chrono::Utc::now(),
                 dashboard_id: event.dashboard_id.clone(),
+                monitor_id: event.monitor_id.clone(),
                 event_key: event.event_key.clone(),
                 integration_type: integration_type.to_string(),
                 title: event.notification.title.clone(),

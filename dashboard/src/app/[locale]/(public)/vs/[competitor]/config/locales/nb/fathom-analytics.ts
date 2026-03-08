@@ -98,6 +98,12 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'E-poststøtte', betterlytics: true, competitor: true },
         ],
       },
+      {
+        name: 'AI og integrasjoner',
+        features: [
+          { name: 'MCP-server', betterlytics: true, competitor: false },
+        ],
+      },
     ],
   },
   detailedComparison: [

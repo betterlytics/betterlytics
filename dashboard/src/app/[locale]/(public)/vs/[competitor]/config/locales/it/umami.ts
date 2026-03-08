@@ -99,6 +99,12 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Supporto via email', betterlytics: true, competitor: 'Solo sui piani a pagamento' },
         ],
       },
+      {
+        name: 'AI e integrazioni',
+        features: [
+          { name: 'Server MCP', betterlytics: true, competitor: false },
+        ],
+      },
     ],
   },
   detailedComparison: [

@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use url::Url;
 use std::path::Path;
 use tracing::info;
-use crate::url_utils::normalize_url;
+use crate::url_utils::{normalize_url, extract_root_domain};
 
 /// Referrer source categories
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -197,7 +197,9 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         None
     };
     
-    let referrer_name = referrer_info.as_ref().map(|r| r.source.clone());
+    // Always use the base domain as the source name for consistent grouping
+    let referrer_name = referrer_url.host_str()
+        .and_then(|h| extract_root_domain(h));
 
     // Determine if this is a search medium and get search parameters
     let (is_search_engine, search_params) = if let Some(ref_info) = &referrer_info {

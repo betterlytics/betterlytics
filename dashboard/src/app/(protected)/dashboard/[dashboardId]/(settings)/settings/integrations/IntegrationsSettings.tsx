@@ -23,6 +23,7 @@ import { SlackConfigDialog } from './dialogs/SlackConfigDialog';
 import { TeamsConfigDialog } from './dialogs/TeamsConfigDialog';
 import { WebhookConfigDialog } from './dialogs/WebhookConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
+import { NotificationHistoryDialog } from '@/components/dialogs/NotificationHistoryDialog';
 
 interface IntegrationsSettingsProps {
   availableTypesPromise: Promise<IntegrationType[]>;
@@ -117,7 +118,10 @@ export default function IntegrationsSettings({
 
   return (
     <div>
-      <SettingsPageHeader title={t('title')} />
+      <div className='flex items-start justify-between'>
+        <SettingsPageHeader title={t('title')} />
+        <NotificationHistoryDialog />
+      </div>
 
       <p className='text-muted-foreground -mt-4 mb-6 text-sm'>{t('section.description')}</p>
 
