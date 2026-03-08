@@ -2,7 +2,7 @@
 
 import { subDays, startOfDay, endOfDay, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { getTotalUniqueVisitors, getSessionRangeMetrics } from '@/repositories/clickhouse/visitors.repository';
-import { getTopReferrerSources } from '@/repositories/clickhouse/referrers.repository';
+import { getTopChannels } from '@/repositories/clickhouse/referrers.repository';
 import { getTotalPageviewsCount, getTopPagesWithPageviews } from '@/repositories/clickhouse/reports.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -156,7 +156,7 @@ async function getReportDataForPeriod(
     getSessionRangeMetrics(currentQuery),
     getSessionRangeMetrics(comparisonQuery),
     getTopPagesWithPageviews(currentQuery, 10),
-    getTopReferrerSources(currentQuery, 10),
+    getTopChannels(currentQuery, 10),
   ]);
 
   const metrics: ReportMetrics = {
@@ -179,6 +179,6 @@ async function getReportDataForPeriod(
     comparisonPeriod: { start: comparisonStart, end: comparisonEnd },
     metrics,
     topPages: topPages.map((p) => ({ path: p.url, pageviews: p.pageviews })),
-    topSources: topSources.map((s) => ({ source: s.referrer_source, visits: s.visits })),
+    topSources: topSources.map((s) => ({ source: s.channel, visits: s.visits })),
   };
 }

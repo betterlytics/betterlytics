@@ -4,9 +4,8 @@ import {
   getReferrerDistribution,
   getReferrerTableData,
   getReferrerTrafficTrendBySource,
-  getTopReferrerUrls,
+  getReferrerUrlRollup,
   getTopChannels,
-  getTopReferrerSources,
   getDailyReferralSessions,
   getDailyReferralTrafficPercentage,
   getDailyReferralSessionDuration,
@@ -19,9 +18,8 @@ import {
   ReferrerTableRow,
   ReferrerTableRowSchema,
   ReferrerTrafficBySourceRow,
-  TopReferrerUrl,
+  ReferrerUrlRollupRow,
   TopChannel,
-  TopReferrerSource,
 } from '@/entities/analytics/referrers.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -45,22 +43,20 @@ export async function getReferrerTableDataForSite(
   return result.map((row) => ReferrerTableRowSchema.parse(row));
 }
 
-export async function getTopReferrerUrlsForSite(siteQuery: BASiteQuery, limit = 10): Promise<TopReferrerUrl[]> {
-  return getTopReferrerUrls(siteQuery, limit);
+export async function getReferrerUrlRollupForSite(
+  siteQuery: BASiteQuery,
+  limit = 10,
+): Promise<ReferrerUrlRollupRow[]> {
+  return getReferrerUrlRollup(siteQuery, limit);
 }
 
 export async function getTopChannelsForSite(siteQuery: BASiteQuery, limit = 10): Promise<TopChannel[]> {
   return getTopChannels(siteQuery, limit);
 }
 
-export async function getTopReferrerSourcesForSite(
+export async function getReferrerSummaryWithChartsForSite(
   siteQuery: BASiteQuery,
-  limit = 10,
-): Promise<TopReferrerSource[]> {
-  return getTopReferrerSources(siteQuery, limit);
-}
-
-export async function getReferrerSummaryWithChartsForSite(siteQuery: BASiteQuery): Promise<ReferrerSummaryWithCharts> {
+): Promise<ReferrerSummaryWithCharts> {
   const [referralSessionsChartData, referralPercentageChartData, avgSessionDurationChartData, topReferrerSource] =
     await Promise.all([
       getDailyReferralSessions(siteQuery),
