@@ -55,10 +55,7 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
             alt={`${framework.name} logo`}
             width={32}
             height={32}
-            className="h-8 w-8 transition-[filter] duration-500"
-            style={{
-              filter: isActive ? 'none' : 'grayscale(1) brightness(0.7)',
-            }}
+            className="h-8 w-8"
           />
         </motion.div>
 
