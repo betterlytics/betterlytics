@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { getNotificationHistoryAction } from '@/app/actions/dashboard/notificationHistory.action';
 import { NotificationHistoryRow } from '@/entities/dashboard/notificationHistory.entities';
@@ -68,7 +69,6 @@ export function NotificationHistoryDialog({ monitorId }: NotificationHistoryDial
                     <TableHead className='w-[120px]'>{t('history.columns.integration')}</TableHead>
                     <TableHead className='w-[200px]'>{t('history.columns.notification')}</TableHead>
                     <TableHead className='w-[100px]'>{t('history.columns.status')}</TableHead>
-                    <TableHead>{t('history.columns.error')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -97,6 +97,22 @@ export function NotificationHistoryDialog({ monitorId }: NotificationHistoryDial
                             <CheckCircle2 className='h-3.5 w-3.5 shrink-0' />
                             <span className='text-xs font-medium'>{t('history.status.sent')}</span>
                           </span>
+                        ) : row.errorMessage ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className='text-destructive flex cursor-help items-center gap-1.5'>
+                                  <XCircle className='h-3.5 w-3.5 shrink-0' />
+                                  <span className='text-xs font-medium underline decoration-dotted'>
+                                    {t('history.status.failed')}
+                                  </span>
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side='top' className='max-w-xs font-mono text-xs'>
+                                {row.errorMessage}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         ) : (
                           <span className='text-destructive flex items-center gap-1.5'>
                             <XCircle className='h-3.5 w-3.5 shrink-0' />
@@ -108,9 +124,6 @@ export function NotificationHistoryDialog({ monitorId }: NotificationHistoryDial
                             {t('history.attempts', { count: row.attemptCount })}
                           </p>
                         )}
-                      </TableCell>
-                      <TableCell className='font-mono text-xs break-words whitespace-normal'>
-                        {row.errorMessage || null}
                       </TableCell>
                     </TableRow>
                   ))}

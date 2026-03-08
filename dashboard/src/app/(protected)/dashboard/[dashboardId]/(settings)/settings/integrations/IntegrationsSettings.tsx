@@ -23,7 +23,7 @@ import { SlackConfigDialog } from './dialogs/SlackConfigDialog';
 import { TeamsConfigDialog } from './dialogs/TeamsConfigDialog';
 import { WebhookConfigDialog } from './dialogs/WebhookConfigDialog';
 import { DestructiveActionDialog } from '@/components/dialogs/DestructiveActionDialog';
-import { NotificationHistoryDialog } from './NotificationHistoryDialog';
+import { NotificationHistoryDialog } from '@/components/dialogs/NotificationHistoryDialog';
 
 interface IntegrationsSettingsProps {
   availableTypesPromise: Promise<IntegrationType[]>;

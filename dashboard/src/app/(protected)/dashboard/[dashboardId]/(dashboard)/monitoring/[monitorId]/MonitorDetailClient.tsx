@@ -27,7 +27,7 @@ import { MonitorHeader } from './MonitorHeader';
 import { useTranslations } from 'next-intl';
 import { MonitorActionMenu } from '../components';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { NotificationHistoryDialog } from '../../../(settings)/settings/integrations/NotificationHistoryDialog';
+import { NotificationHistoryDialog } from '@/components/dialogs/NotificationHistoryDialog';
 
 type MonitorDetailClientProps = {
   dashboardId: string;
