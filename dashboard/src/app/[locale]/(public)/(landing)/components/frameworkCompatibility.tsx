@@ -2,24 +2,25 @@ import { getTranslations } from 'next-intl/server';
 import { AnimatedCarousel } from '@/components/animations/AnimatedCarousel';
 import { FrameworkCard } from './FrameworkCard';
 
+// Ordered to spread brand colors evenly — no two similar hues adjacent
 const frameworks = [
-  { name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg', brandColor: '#ffffff' },
-  { name: 'React', logo: '/framework-logos/react-icon.svg', brandColor: '#61DAFB' },
-  { name: 'Vue.js', logo: '/framework-logos/vue-icon.svg', brandColor: '#4FC08D' },
-  { name: 'Angular', logo: '/framework-logos/angular-icon.svg', brandColor: '#DD0031' },
+  { name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg', brandColor: { light: '#4a4a4a', dark: '#ffffff' } },
   { name: 'Svelte', logo: '/framework-logos/svelte-icon.svg', brandColor: '#FF3E00' },
-  { name: 'Nuxt.js', logo: '/framework-logos/nuxtjs-icon.svg', brandColor: '#00DC82' },
-  { name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', brandColor: '#663399' },
-  { name: 'Laravel', logo: '/framework-logos/laravel-icon.svg', brandColor: '#FF2D20' },
-  { name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', brandColor: '#21759B' },
-  { name: 'Shopify', logo: '/framework-logos/shopify-icon.svg', brandColor: '#96BF48' },
+  { name: 'Vue.js', logo: '/framework-logos/vue-icon.svg', brandColor: '#4FC08D' },
   { name: 'GTM', logo: '/framework-logos/gtm-icon.svg', brandColor: '#4285F4' },
+  { name: 'Laravel', logo: '/framework-logos/laravel-icon.svg', brandColor: '#FF2D20' },
+  { name: 'Shopify', logo: '/framework-logos/shopify-icon.svg', brandColor: '#96BF48' },
   { name: 'Webflow', logo: '/framework-logos/webflow-icon.svg', brandColor: '#4353FF' },
-  { name: 'Remix', logo: '/framework-logos/remix-icon.svg', brandColor: '#3992FF' },
-  { name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg', brandColor: '#4F88C6' },
-  { name: 'Astro', logo: '/framework-logos/astro-icon.svg', brandColor: '#FF5D01' },
   { name: 'Wix', logo: '/framework-logos/wix-icon.svg', brandColor: '#FAAD4D' },
-  { name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg', brandColor: '#ffffff' },
+  { name: 'Nuxt.js', logo: '/framework-logos/nuxtjs-icon.svg', brandColor: '#00DC82' },
+  { name: 'Angular', logo: '/framework-logos/angular-icon.svg', brandColor: '#DD0031' },
+  { name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg', brandColor: '#4F88C6' },
+  { name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', brandColor: '#663399' },
+  { name: 'React', logo: '/framework-logos/react-icon.svg', brandColor: '#61DAFB' },
+  { name: 'Astro', logo: '/framework-logos/astro-icon.svg', brandColor: '#FF5D01' },
+  { name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', brandColor: '#21759B' },
+  { name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg', brandColor: { light: '#4a4a4a', dark: '#ffffff' } },
+  { name: 'Remix', logo: '/framework-logos/remix-icon.svg', brandColor: '#3992FF' },
 ];
 
 export async function FrameworkCompatibility() {

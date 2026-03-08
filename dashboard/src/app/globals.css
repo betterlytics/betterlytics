@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import './animations.css';
+@import './scroll-gradient.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -149,7 +150,7 @@
     var(--text-gradient-blue), var(--text-gradient-purple), var(--text-gradient-red), var(--text-gradient-amber);
   --text-gradient-base: var(--foreground);
 
-  /* Dot grid card overlay gradient */
+  /* Dot grid */
   --dot-grid-overlay: rgba(255, 255, 255, 0.9);
 
   --trend-up: rgb(14, 148, 70);
@@ -263,7 +264,7 @@
     var(--text-gradient-blue), var(--text-gradient-purple), var(--text-gradient-red), var(--text-gradient-amber);
   --text-gradient-base: var(--foreground);
 
-  /* Dot grid card overlay gradient */
+  /* Dot grid */
   --dot-grid-overlay: rgba(10, 10, 14, 0.9);
 
   --trend-up: rgb(88, 207, 146);

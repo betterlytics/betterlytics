@@ -3,17 +3,22 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'motion/react';
+import { useTheme } from 'next-themes';
 import { DotGrid } from '@/components/animations/DotGrid';
 
 type Framework = {
   name: string;
   logo: string;
-  brandColor: string;
+  brandColor: string | { light: string; dark: string };
 };
 
 export function FrameworkCard({ framework }: { framework: Framework }) {
   const [isActive, setIsActive] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const { resolvedTheme } = useTheme();
+  const dotColor = typeof framework.brandColor === 'string'
+    ? framework.brandColor
+    : resolvedTheme === 'dark' ? framework.brandColor.dark : framework.brandColor.light;
 
   return (
     <motion.div
@@ -25,7 +30,7 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
     >
       {/* Layer 1: Dot grid canvas */}
       <DotGrid
-        color={framework.brandColor}
+        color={dotColor}
         active={isActive}
         gap={12}
         dotRadius={1}

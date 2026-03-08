@@ -61,12 +61,14 @@ export async function FeatureShowcase() {
   return (
     <section className='relative overflow-visible py-24 sm:py-28'>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
-        <ScrollReveal className='mb-16 text-center'>
-          <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            <ScrollGradientText>{t('titleEmphasis')}</ScrollGradientText> {t('titleRest')}
-          </h2>
-          <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
-        </ScrollReveal>
+        <div className='mb-16 text-center'>
+          <ScrollReveal>
+            <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
+              <ScrollGradientText>{t('titleEmphasis')}</ScrollGradientText> {t('titleRest')}
+            </h2>
+            <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
+          </ScrollReveal>
+        </div>
 
         <div className='mx-auto max-w-7xl'>
           {featureCategories.map((category, index) => {
