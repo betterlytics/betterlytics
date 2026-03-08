@@ -12,7 +12,9 @@ const VALID_ORDER_BY = new Set<string>([...METRIC_KEYS, ...DIMENSION_KEYS, 'date
 export const McpDateRangeSchema = z.object({
   timeRange: z
     .enum(TIME_RANGE_VALUES)
-    .describe('Time range preset, or "custom" with startDate/endDate'),
+    .describe(
+      `Time range preset. Valid values: ${TIME_RANGE_VALUES.join(', ')}. Use "custom" with startDate/endDate for arbitrary ranges.`,
+    ),
   startDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'startDate must be in YYYY-MM-DD format')
@@ -41,14 +43,8 @@ export const McpFiltersSchema = z
   .describe('Filters to apply');
 
 export const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
-  metrics: z
-    .array(z.enum(METRIC_KEYS))
-    .min(1)
-    .describe('Metrics to query, e.g. ["visitors", "pageviews"]'),
-  dimensions: z
-    .array(z.enum(DIMENSION_KEYS))
-    .optional()
-    .describe('Dimensions to group by, e.g. ["device_type"]'),
+  metrics: z.array(z.enum(METRIC_KEYS)).min(1).describe('Metrics to query, e.g. ["visitors", "pageviews"]'),
+  dimensions: z.array(z.enum(DIMENSION_KEYS)).optional().describe('Dimensions to group by, e.g. ["device_type"]'),
   filters: McpFiltersSchema,
   granularity: z
     .enum(MCP_GRANULARITIES)
@@ -60,9 +56,18 @@ export const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
       message: `orderBy must be one of: date, ${[...METRIC_KEYS, ...DIMENSION_KEYS].join(', ')}`,
     })
     .optional()
-    .describe('Metric or dimension to sort by. Defaults to first metric. Time-series queries (with granularity) are always sorted by date.'),
+    .describe(
+      'Metric or dimension to sort by. Defaults to first metric. Time-series queries (with granularity) are always sorted by date.',
+    ),
   order: z.enum(['asc', 'desc']).optional().default('desc').describe('Sort direction. Defaults to desc.'),
-  limit: z.number().int().min(1).max(10000).optional().default(100).describe('Max rows to return. Defaults to 100.'),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(10000)
+    .optional()
+    .default(100)
+    .describe('Max rows to return. Defaults to 100.'),
 });
 
 type DateRangeFields = { timeRange: TimeRangeValue; startDate?: string; endDate?: string };
@@ -77,13 +82,12 @@ export const dateOrderRefinement = {
   message: 'startDate must be before or equal to endDate',
 };
 
-export const McpQueryInputSchema = McpQueryInputBaseSchema
-  .refine(customDateRangeRefinement.check, customDateRangeRefinement)
-  .refine(dateOrderRefinement.check, dateOrderRefinement);
+export const McpQueryInputSchema = McpQueryInputBaseSchema.refine(
+  customDateRangeRefinement.check,
+  customDateRangeRefinement,
+).refine(dateOrderRefinement.check, dateOrderRefinement);
 
 export type McpQueryInput = z.infer<typeof McpQueryInputSchema>;
 
-export const McpQueryResultSchema = z.array(
-  z.record(z.string(), z.union([z.string(), z.number(), z.null()])),
-);
+export const McpQueryResultSchema = z.array(z.record(z.string(), z.union([z.string(), z.number(), z.null()])));
 export type McpQueryResult = z.infer<typeof McpQueryResultSchema>;
