@@ -111,7 +111,6 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
       SELECT
         session_id,
         referrer_source,
-        referrer_domain,
         referrer_url,
         count() as page_count,
         if(count() > 1,
@@ -123,11 +122,10 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}
-      GROUP BY session_id, referrer_source, referrer_domain, referrer_url
+      GROUP BY session_id, referrer_source, referrer_url
     )
     SELECT
       referrer_source,
-      referrer_domain,
       referrer_url,
       count() as visits,
       if(count() > 0,
@@ -139,7 +137,7 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
         0
       ) as avg_visit_duration
     FROM session_data
-    GROUP BY referrer_source, referrer_domain, referrer_url
+    GROUP BY referrer_source, referrer_url
     ORDER BY visits DESC
     LIMIT {limit:UInt32}
   `;

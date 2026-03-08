@@ -38,7 +38,6 @@ export const ReferrerSummaryWithChartsSchema = z.object({
 
 export const ReferrerTableRowSchema = z.object({
   referrer_source: z.string(),
-  referrer_domain: z.string(),
   referrer_url: z.string(),
   visits: z.number().int().min(0),
   bounce_rate: z.number().min(0),
