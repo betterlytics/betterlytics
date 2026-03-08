@@ -127,7 +127,7 @@ export default async function ContactPage() {
               icon={<FileText className='text-foreground/80 h-6 w-6 shrink-0' strokeWidth={1.25} />}
               title={t('secondary.docs.title')}
               description={t('secondary.docs.description')}
-              href='/docs'
+              href='https://betterlytics.io/docs'
               cta={t('secondary.docs.cta')}
             />
           </div>

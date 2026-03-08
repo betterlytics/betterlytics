@@ -26,9 +26,10 @@ import { Label } from '@/components/ui/label';
 
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
+  forgotPasswordEnabled?: boolean;
 };
 
-export default function LoginForm({ registrationDisabledMessage }: LoginFormProps) {
+export default function LoginForm({ registrationDisabledMessage, forgotPasswordEnabled }: LoginFormProps) {
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
@@ -150,13 +151,15 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
         <div className='space-y-2'>
           <div className='flex items-center justify-between'>
             <Label htmlFor='password'>{t('passwordLabel')}</Label>
-            <ExternalLink
-              href='/forgot-password'
-              className='text-primary hover:text-primary/80 text-sm font-medium underline'
-              tabIndex={2}
-            >
-              {t('forgotPassword')}
-            </ExternalLink>
+            {forgotPasswordEnabled && (
+              <ExternalLink
+                href='/forgot-password'
+                className='text-primary hover:text-primary/80 text-sm font-medium underline'
+                tabIndex={2}
+              >
+                {t('forgotPassword')}
+              </ExternalLink>
+            )}
           </div>
           <Input
             id='password'

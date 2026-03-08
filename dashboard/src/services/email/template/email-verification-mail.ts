@@ -8,6 +8,7 @@ import {
 } from './email-components';
 import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
 import escapeHtml from 'escape-html';
+import { env } from '@/lib/env';
 
 export interface EmailVerificationData extends EmailData {
   userName: string;
@@ -56,7 +57,7 @@ export function generateEmailVerificationContent(data: EmailVerificationData): s
         },
         {
           text: 'Pricing Plans',
-          url: 'https://betterlytics.io/billing',
+          url: `${env.PUBLIC_BASE_URL}/billing`,
           description: 'Explore features and upgrade options',
         },
       ])}
@@ -108,7 +109,7 @@ What's Next?
 Check out these helpful guides to get started:
 • Installation Guide: https://betterlytics.io/docs/installation - Add tracking to your website in minutes
 • Dashboard Overview: https://betterlytics.io/docs/dashboard - Make the most of your analytics data
-• Pricing Plans: https://betterlytics.io/billing - Explore features and upgrade options
+• Pricing Plans: ${env.PUBLIC_BASE_URL}/billing - Explore features and upgrade options
 
 
 If you have any questions or need assistance, don't hesitate to reach out to our support team at support@betterlytics.io.
@@ -123,6 +124,7 @@ export function createEmailVerificationTemplate(data: EmailVerificationData) {
     subject: `Verify your email address for Betterlytics`,
     html: wrapEmailContent(generateEmailVerificationContent(data)),
     text: wrapTextEmailContent(generateEmailVerificationText(data)),
+    cloudOnly: true,
   };
 }
 

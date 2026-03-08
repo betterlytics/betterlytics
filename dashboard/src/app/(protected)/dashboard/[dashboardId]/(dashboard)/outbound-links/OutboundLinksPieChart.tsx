@@ -6,6 +6,7 @@ import BAPieChart from '@/components/BAPieChart';
 import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createColorGetter } from '@/utils/colorUtils';
+import { formatString } from '@/utils/formatters';
 
 type OutboundLinksPieChartProps = {
   distributionPromise: ReturnType<typeof fetchOutboundLinksDistributionAction>;
@@ -21,7 +22,7 @@ const getOutboundLinkColor = createColorGetter({
 });
 
 const formatUrl = (url: string): string => {
-  return url === 'Others' ? url : url.toLowerCase();
+  return url === 'Others' ? url : formatString(url.toLowerCase(), 30);
 };
 
 export default function OutboundLinksPieChart({ distributionPromise }: OutboundLinksPieChartProps) {

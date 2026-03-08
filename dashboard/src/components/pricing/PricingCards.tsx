@@ -8,11 +8,12 @@ import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing.entities';
 import { formatPrice } from '@/utils/pricing';
-import { capitalizeFirstLetter } from '@/utils/formatters';
+import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
 import { EventRange } from '@/lib/billing/plans';
-import { Dispatch } from 'react';
-import { useTranslations } from 'next-intl';
+import { Dispatch, useMemo } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import NumberFlow from '@number-flow/react';
 
 interface PricingCardsProps {
   eventRange: EventRange;
@@ -42,6 +43,7 @@ export function PricingCards({
   className = '',
   billingData,
 }: PricingCardsProps) {
+  const locale = useLocale();
   const t = useTranslations('pricingCards');
   const growthPrice = currency === 'EUR' ? eventRange.growth.price.eur_cents : eventRange.growth.price.usd_cents;
   const professionalPrice =
@@ -50,59 +52,62 @@ export function PricingCards({
   const isFree = growthPrice === 0;
   const isCustom = growthPrice < 0;
 
-  const plans: PlanConfig[] = [
-    {
-      tier: 'growth',
-      price_cents: growthPrice,
-      period: !isFree && !isCustom ? t('periodPerMonth') : '',
-      description: t('descriptions.growth'),
-      features: [
-        t('features.upToEventsPerMonth', { events: eventRange.label }),
-        t('features.allFeatures'),
-        t('features.twoSites'),
-        t('features.retention1PlusYear'),
-        t('features.emailSupport'),
-      ],
-      cta: isFree ? t('cta.getStartedForFree') : isCustom ? t('cta.contactSales') : t('cta.getStarted'),
-      popular: false,
-      lookup_key: eventRange.growth.lookup_key,
-    },
-    {
-      tier: 'professional',
-      price_cents: professionalPrice,
-      period: !isCustom ? t('periodPerMonth') : '',
-      description: t('descriptions.professional'),
-      features: [
-        t('features.upToEventsPerMonth', { events: eventRange.label }),
-        t('features.everythingInStarter'),
-        t('features.upTo50Sites'),
-        t('features.retention3PlusYears'),
-        //'Access to API',
-        //'Up to 10 team members',
-        t('features.prioritySupport'),
-      ],
-      cta: isCustom ? t('cta.contactSales') : t('cta.getStarted'),
-      popular: true,
-      lookup_key: eventRange.professional.lookup_key,
-    },
-    {
-      tier: 'enterprise',
-      price_cents: -1,
-      period: '',
-      description: t('descriptions.enterprise'),
-      features: [
-        t('features.everythingInProfessional'),
-        t('features.unlimitedSites'),
-        t('features.retention5PlusYears'),
-        //'Unlimited team members',
-        t('features.dedicatedSupport'),
-        t('features.slaGuarantee'),
-      ],
-      cta: t('cta.contactUs'),
-      popular: false,
-      lookup_key: null,
-    },
-  ];
+  const plans: PlanConfig[] = useMemo(
+    () => [
+      {
+        tier: 'growth',
+        price_cents: growthPrice,
+        period: !isFree && !isCustom ? t('periodPerMonth') : '',
+        description: t('descriptions.growth'),
+        features: [
+          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
+          t('features.allFeatures'),
+          t('features.twoSites'),
+          t('features.retention1PlusYear'),
+          t('features.emailSupport'),
+        ],
+        cta: isFree ? t('cta.getStartedForFree') : isCustom ? t('cta.contactSales') : t('cta.getStarted'),
+        popular: false,
+        lookup_key: eventRange.growth.lookup_key,
+      },
+      {
+        tier: 'professional',
+        price_cents: professionalPrice,
+        period: !isCustom ? t('periodPerMonth') : '',
+        description: t('descriptions.professional'),
+        features: [
+          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
+          t('features.everythingInStarter'),
+          t('features.upTo50Sites'),
+          t('features.retention3PlusYears'),
+          //'Access to API',
+          //'Up to 10 team members',
+          t('features.prioritySupport'),
+        ],
+        cta: isCustom ? t('cta.contactSales') : t('cta.getStarted'),
+        popular: true,
+        lookup_key: eventRange.professional.lookup_key,
+      },
+      {
+        tier: 'enterprise',
+        price_cents: -1,
+        period: '',
+        description: t('descriptions.enterprise'),
+        features: [
+          t('features.everythingInProfessional'),
+          t('features.unlimitedSites'),
+          t('features.retention5PlusYears'),
+          //'Unlimited team members',
+          t('features.dedicatedSupport'),
+          t('features.slaGuarantee'),
+        ],
+        cta: t('cta.contactUs'),
+        popular: false,
+        lookup_key: null,
+      },
+    ],
+    [eventRange, growthPrice, professionalPrice, isFree, isCustom, t, locale],
+  );
 
   const handlePlanClick = (plan: PlanConfig) => {
     if (mode === 'billing' && onPlanSelect) {
@@ -121,7 +126,7 @@ export function PricingCards({
   const formatDisplayPrice = (price: number): string => {
     if (price === 0) return t('labels.free');
     if (price < 0) return t('labels.custom');
-    return formatPrice(price, currency);
+    return formatPrice(price, currency, locale);
   };
 
   const renderButton = (plan: PlanConfig) => {
@@ -201,9 +206,21 @@ export function PricingCards({
             )}
           <CardHeader className='text-center'>
             <CardTitle className='text-2xl'>{capitalizeFirstLetter(plan.tier)}</CardTitle>
-            <div className='mt-4'>
-              <span className='text-4xl font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
-              {plan.period && <span className='text-muted-foreground text-lg'>{plan.period}</span>}
+            <div className='mt-4 flex h-12 items-baseline justify-center'>
+              {plan.price_cents > 0 ? (
+                <NumberFlow
+                  className='-translate-y-[0.2em] text-4xl leading-10 font-bold tabular-nums'
+                  value={plan.price_cents / 100}
+                  locales={'en-US'}
+                  format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
+                  willChange
+                />
+              ) : (
+                <span className='text-4xl leading-10 font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
+              )}
+              {plan.period && (
+                <span className='text-muted-foreground -translate-y-[0.4em] text-lg'>{plan.period}</span>
+              )}
             </div>
             <CardDescription className='mt-2'>{plan.description}</CardDescription>
           </CardHeader>

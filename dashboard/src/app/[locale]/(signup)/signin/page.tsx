@@ -46,6 +46,7 @@ export async function generateMetadata({
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getAuthSession();
   const registrationEnabled = isFeatureEnabled('enableRegistration');
+  const emailsEnabled = isFeatureEnabled('enableEmails');
   const { error, registration } = await searchParams;
   const t = await getTranslations('public.auth.signin');
   const tOnboarding = await getTranslations('onboarding');
@@ -74,7 +75,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       <main className='relative flex w-full flex-1 flex-col items-center justify-center gap-2 py-8'>
         <div className='w-full max-w-md space-y-6 px-4'>
           <div className='flex justify-center pb-2'>
-            <Link href='/'>
+            <Link href='/' tabIndex={2}>
               <Logo variant='simple' showText textSize='lg' priority />
             </Link>
           </div>
@@ -89,7 +90,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                   <span className='block sm:inline'>{getErrorMessage(error)}</span>
                 </div>
               )}
-              <LoginForm registrationDisabledMessage={registrationDisabledMessage} />
+              <LoginForm
+                registrationDisabledMessage={registrationDisabledMessage}
+                forgotPasswordEnabled={emailsEnabled}
+              />
             </CardContent>
           </Card>
           {registrationEnabled && (

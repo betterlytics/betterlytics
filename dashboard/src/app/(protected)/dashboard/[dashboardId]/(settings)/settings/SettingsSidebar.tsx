@@ -1,4 +1,4 @@
-import { Database, Shield, AlertTriangle, Users, ChevronLeft } from 'lucide-react';
+import { Database, Shield, AlertTriangle, Users, ChevronLeft, Mail, Webhook } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -53,6 +53,18 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       key: 'data',
       href: `/dashboard/${dashboardId}/settings/data`,
       icon: <Database size={16} />,
+    },
+    {
+      name: t('reports'),
+      key: 'reports',
+      href: `/dashboard/${dashboardId}/settings/reports`,
+      icon: <Mail size={16} />,
+    },
+    {
+      name: t('integrations'),
+      key: 'integrations',
+      href: `/dashboard/${dashboardId}/settings/integrations`,
+      icon: <Webhook size={16} />,
     },
     {
       name: t('dangerZone'),

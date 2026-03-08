@@ -1,13 +1,6 @@
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { env } from '@/lib/env';
-
-type QueryCursorLike = {
-  toPromise: () => Promise<unknown>;
-};
-
-type ClickHouseClientLike = {
-  query: (sql: string, reqParams?: Record<string, unknown>) => QueryCursorLike;
-};
+import type { QueryCursorLike, ClickHouseAdapterClient, AdapterQueryOptions } from '@/lib/clickhouse';
 
 const tracer = trace.getTracer('dashboard');
 
@@ -31,7 +24,10 @@ function inferOperation(statement: string): string {
   }
 }
 
-export function instrumentClickHouse<T extends ClickHouseClientLike>(client: T, options?: { dbName?: string }): T {
+export function instrumentClickHouse<T extends ClickHouseAdapterClient>(
+  client: T,
+  options?: { dbName?: string },
+): T {
   if (!env.ENABLE_MONITORING) return client;
 
   const dbName = options?.dbName ?? 'default';
@@ -39,16 +35,14 @@ export function instrumentClickHouse<T extends ClickHouseClientLike>(client: T, 
   return new Proxy(client, {
     get(target, prop, receiver) {
       if (prop === 'query') {
-        return function <R = unknown>(sql: string, reqParams?: Record<string, unknown>): QueryCursorLike {
-          const statement = sql;
-          const operation = inferOperation(statement);
-          const sanitized = sanitizeStatement(statement);
+        return function (sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
+          const operation = inferOperation(sql);
+          const sanitized = sanitizeStatement(sql);
 
           const cursor = (target.query as T['query']).call(target, sql, reqParams) as QueryCursorLike;
 
-          // Wrap toPromise so existing callsites remain unchanged
           return {
-            toPromise: async (): Promise<R> =>
+            toPromise: async (): Promise<unknown[]> =>
               tracer.startActiveSpan(`db.clickhouse.${operation.toLowerCase()}`, async (span) => {
                 span.setAttributes({
                   'db.system': 'clickhouse',
@@ -59,7 +53,7 @@ export function instrumentClickHouse<T extends ClickHouseClientLike>(client: T, 
                 try {
                   const out = await cursor.toPromise();
                   span.setStatus({ code: SpanStatusCode.OK });
-                  return out as R;
+                  return out;
                 } catch (e) {
                   const err = e as Error;
                   span.recordException(err);

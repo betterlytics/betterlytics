@@ -1047,10 +1047,6 @@
           "title": "Core Web Vitals",
           "description": "Monitor and measure your site's performance with Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Outbound Links",
-          "description": "Track clicks to external sites, social links, docs, and more."
-        },
         "trafficSources": {
           "title": "Traffic Sources",
           "description": "Discover where your visitors are arriving from and optimize your marketing efforts.",
@@ -1208,6 +1204,10 @@
           "title": "Outbound Link Tracking",
           "description": "Track clicks on links leaving your site to measure user engagement."
         },
+        "emailReports": {
+          "title": "Email Reports",
+          "description": "Receive automated weekly or monthly analytics summaries delivered directly to your inbox."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Measure and optimize Google's page performance metrics to improve loading, interactivity, and search rankings."
@@ -1219,6 +1219,10 @@
         "sslMonitoring": {
           "title": "SSL Certificate Monitoring",
           "description": "Monitor SSL certificate status to avoid expired or insecure connections."
+        },
+        "notificationIntegrations": {
+          "title": "Notification Integrations",
+          "description": "Get alerted via Slack, Discord, Microsoft Teams, webhooks, and more when something needs your attention."
         },
         "cookieless": {
           "title": "No Cookies",
@@ -1419,7 +1423,6 @@
       "monthlyEvents": {
         "name": "Monthly events",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Custom"
         }
       },
@@ -1468,6 +1471,9 @@
       "campaignTracking": {
         "name": "Campaign & UTM tracking"
       },
+      "emailReports": {
+        "name": "Email reports"
+      },
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
         "values": {
@@ -1494,6 +1500,9 @@
       },
       "customStatusCodes": {
         "name": "Custom accepted status codes"
+      },
+      "notificationIntegrations": {
+        "name": "Notification integrations (Slack, Discord, etc.)"
       },
       "emailSupport": {
         "name": "Email support"
@@ -1559,6 +1568,8 @@
         "data": "Data",
         "rules": "Rules",
         "members": "Members",
+        "reports": "Email Reports",
+        "integrations": "Integrations",
         "dangerZone": "Danger Zone"
       }
     },
@@ -1599,10 +1610,6 @@
       "noUserJourneyData": "No user journey data available",
       "noData": "No data available"
     }
-  },
-  "devicesPage": {
-    "title": "Devices",
-    "description": "Visitor device breakdown and usage analytics"
   },
   "dashboardsPage": {
     "title": "Your Dashboards",
@@ -1702,12 +1709,12 @@
       "blocked_ip_literal": "IP address not allowed",
       "dns_blocked": "DNS resolved to blocked address",
       "dns_error": "DNS resolution failed",
+      "keyword_not_found": "Expected keyword not found in response",
       "unknown": "Unknown error"
     }
   },
   "monitoringPage": {
     "title": "Monitoring",
-    "table": {},
     "filters": {
       "statusLabel": "Status",
       "sortLabel": "Sort",
@@ -1778,7 +1785,8 @@
           "label": "Incident sensitivity",
           "description": "Number of consecutive failures before an incident is triggered",
           "valueOne": "1 failure",
-          "valueOther": "{count} failures"
+          "valueOther": "{count} failures",
+          "unit": "{count, plural, one {failure} other {failures}}"
         }
       },
       "actions": {
@@ -1957,6 +1965,12 @@
           "invalidFormat": "Please enter a valid status code (e.g., 200) or range (e.g., 2xx)",
           "outOfRange": "Status code must be between 100 and 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Expected keyword",
+        "description": "Alert if this text is missing from the HTML source (first 32 KB). Use text visible in the raw HTML, not content rendered by JavaScript.",
+        "placeholder": "e.g. Welcome, Dashboard, OK",
+        "requiresGet": "Keyword validation requires the GET method"
       }
     },
     "alerts": {
@@ -1976,14 +1990,17 @@
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
       "sslExpiryDays": "Days before expiry",
       "sslExpiryDaysDescription": "Send an alert this many days before the SSL certificate expires",
-      "daysCount": "{count, plural, one {{count} day} other {{count} days}}"
+      "daysCount": "{count, plural, one {{count} day} other {{count} days}}",
+      "unit": "{count, plural, one {day} other {days}}"
     }
   },
   "charts": {
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Current Period",
-      "previousPeriod": "Previous Period"
+      "previousPeriod": "Previous Period",
+      "partial": "Partial",
+      "total": "Total"
     }
   },
   "misc": {
@@ -2004,23 +2021,7 @@
     "save": "Save",
     "saving": "Saving..."
   },
-  "languages": {
-    "da": "Danish",
-    "en": "English",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Mon.",
-        "tueShort": "Tue.",
-        "wedShort": "Wed.",
-        "thuShort": "Thu.",
-        "friShort": "Fri.",
-        "satShort": "Sat.",
-        "sunShort": "Sun."
-      }
-    },
     "annotations": {
       "dialogs": {
         "addTitle": "Add Annotation",
@@ -2161,9 +2162,6 @@
         "enterprise": "Enterprise"
       }
     },
-    "dataTable": {
-      "noResults": "No results."
-    },
     "timeRange": {
       "disabled": "Disabled",
       "disableCompare": "Disable Compare",
@@ -2190,6 +2188,8 @@
         "1y": "Past Year"
       },
       "granularityLabels": {
+        "month": "Month",
+        "week": "Week",
         "day": "Day",
         "hour": "Hour",
         "minute_30": "30 min",
@@ -2202,6 +2202,10 @@
       "dashboard": {
         "initializing": "Initializing Dashboard",
         "loadingSettings": "Loading your dashboard settings..."
+      },
+      "geography": {
+        "title": "Initializing world map",
+        "description": "Preparing a geographic visualization of visitor data..."
       }
     },
     "devices": {
@@ -2218,10 +2222,6 @@
       "charts": {
         "deviceTypes": "Device Types",
         "deviceUsageTrend": "Device Usage Trend"
-      },
-      "trends": {
-        "noData": "No trend data available",
-        "adjustTimeRange": "Try adjusting the time range or filters"
       }
     },
     "campaign": {
@@ -2282,10 +2282,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Events",
-        "description": "Analytics and insights for your custom events"
-      },
       "log": {
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
@@ -2378,13 +2374,6 @@
         "step": "Step",
         "visitors": "Visitors"
       },
-      "list": {
-        "steps": "steps",
-        "conversionRate": "Conversion rate",
-        "completed": "Completed",
-        "totalUsers": "Total users",
-        "largestDropOff": "Largest drop-off"
-      },
       "create": {
         "defaultName": "My new funnel",
         "createFunnel": "Create Funnel",
@@ -2439,25 +2428,8 @@
         "successMessage": "Funnel deleted!",
         "errorMessage": "Funnel deletion failed!"
       },
-      "page": {
-        "title": "Funnels",
-        "description": "Analyze user conversion paths"
-      },
       "preview": {
-        "loading": "Loading preview...",
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
-      },
-      "details": {
-        "title": "Funnel Analysis",
-        "steps": "steps",
-        "users": "users",
-        "dropped": "dropped",
-        "summary": {
-          "overallConversion": "Overall conversion",
-          "totalVisitors": "Total visitors",
-          "totalCompleted": "Total completed",
-          "biggestDropOff": "Biggest drop-off"
-        }
       },
       "emptyState": {
         "title": "Visualize your conversion funnel",
@@ -2489,9 +2461,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analyze referral sources, traffic share, and performance trends."
-      },
       "summary": {
         "referralSessions": "Referral Sessions",
         "referralTrafficPct": "Referral Traffic %",
@@ -2527,7 +2496,6 @@
     },
     "geography": {
       "noData": "No geographic data available for the selected period",
-      "loading": "Loading map...",
       "visitors": "Visitors"
     },
     "userJourney": {
@@ -2536,12 +2504,6 @@
       "sessions": "Sessions"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors",
-        "topDomain": "Top Domain",
-        "topSourcePage": "Top Source Page"
-      },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
@@ -3090,7 +3052,8 @@
       "minInterval": "Faster monitoring intervals require a Professional plan",
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
-      "customHeaders": "Custom request headers require a Professional plan"
+      "customHeaders": "Custom request headers require a Professional plan",
+      "keywordValidation": "Keyword validation requires a Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
@@ -3132,10 +3095,6 @@
     }
   },
   "members": {
-    "page": {
-      "title": "Members",
-      "description": "Manage who has access to this dashboard"
-    },
     "table": {
       "title": "Members",
       "searchPlaceholder": "Search members...",
@@ -3445,7 +3404,168 @@
           "description": "Click Submit to publish the changes"
         },
         "note": "Make sure GTM is properly installed on your website."
+      },
+      "default": {
+        "step1": {
+          "title": "Add the tracking script",
+          "description": "Paste this inside your HTML <head> section"
+        }
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "Email Reports",
+    "emailsNotConfigured": {
+      "title": "Email delivery is not configured",
+      "description": "Report settings can be saved, but emails won't be sent until an email provider is configured (SMTP or MailerSend)."
+    },
+    "weekly": {
+      "title": "Weekly Reports",
+      "description": "Receive a summary of your website's performance each week",
+      "toggle": "Enable weekly email reports",
+      "dayLabel": "Report day",
+      "dayDescription": "Which day of the week to send the report"
+    },
+    "monthly": {
+      "title": "Monthly Reports",
+      "description": "Send a monthly email report on the 1st of each month",
+      "toggle": "Enable monthly email reports"
+    },
+    "recipients": {
+      "weeklyLabel": "Recipients ({count}/{max})",
+      "monthlyLabel": "Recipients ({count}/{max})",
+      "placeholder": "colleague@example.com",
+      "addButton": "Add",
+      "invalidEmail": "Please enter a valid email address",
+      "emailRequired": "Email address is required",
+      "duplicateEmail": "This email is already added",
+      "maxReached": "Maximum of {max} recipients reached"
+    },
+    "toast": {
+      "saved": "Report settings saved",
+      "error": "Failed to save report settings"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrations",
+    "section": {
+      "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push notifications to your mobile devices and desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Get important status updates in your Discord messages."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Receive notifications in a Slack channel."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Receive notifications in a Microsoft Teams channel."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifications to any URL via HTTP POST."
+      }
+    },
+    "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
+    "status": {
+      "connected": "Connected",
+      "disabled": "Disabled"
+    },
+    "actions": {
+      "configure": "Configure",
+      "add": "Add",
+      "edit": "Edit",
+      "disconnect": "Disconnect"
+    },
+    "disconnect": {
+      "title": "Disconnect {name}",
+      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications from this source.",
+      "confirm": "Disconnect"
+    },
+    "pushoverDialog": {
+      "title": "Pushover Integration",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Your Pushover user key",
+      "priorityLabel": "Notification Priority",
+      "priorities": {
+        "-2": "Lowest: No notification",
+        "-1": "Low: No sound or vibration",
+        "0": "Normal (Recommended)",
+        "1": "High: Bypass quiet hours"
+      },
+      "credentialsHint": "Find your user key at <link>pushover.net</link>",
+      "priorityHint": "Learn more about priority levels <link>here</link>.",
+      "errors": {
+        "userKeyRequired": "User key is required",
+        "userKeyInvalid": "Invalid user key"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "discordDialog": {
+      "title": "Discord Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Learn how to create a webhook <link>here</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Discord webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "slackDialog": {
+      "title": "Slack Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Follow steps 1–3 of the <link>Incoming Webhooks guide</link> to get your webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Slack webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Your Teams webhook URL",
+      "webhookHint": "Create an Incoming Webhook using a Teams Workflow. <link>Learn how</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "webhookDialog": {
+      "title": "Webhook Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "webhookHint": "Enter a publicly accessible HTTPS URL. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "toast": {
+      "saved": "Integration saved",
+      "deleted": "Integration disconnected",
+      "error": "Failed to update integration",
+      "fetchError": "Failed to load integrations",
+      "invalidPushoverKey": "Invalid Pushover user key or no devices registered",
+      "invalidDiscordWebhook": "Invalid Discord webhook URL",
+      "invalidSlackWebhook": "Invalid Slack webhook URL",
+      "invalidTeamsWebhook": "Invalid Teams webhook URL",
+      "invalidWebhookUrl": "Invalid webhook URL"
     }
   }
 }

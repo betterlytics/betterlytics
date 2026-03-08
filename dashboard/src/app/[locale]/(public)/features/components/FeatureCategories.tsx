@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { FeatureCard } from './FeatureCard';
 import {
   Activity,
+  Bell,
   Filter,
   Video,
   GitBranch,
@@ -38,6 +39,7 @@ import {
   HardDrive,
   Cloud,
   Blocks,
+  Send,
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -67,6 +69,7 @@ const CATEGORIES = [
       { id: 'annotations', icon: StickyNote },
       { id: 'timePeriodComparison', icon: BarChart3 },
       { id: 'outboundLinks', icon: ExternalLink },
+      { id: 'emailReports', icon: Send },
     ],
   },
   {
@@ -75,6 +78,7 @@ const CATEGORIES = [
       { id: 'coreWebVitals', icon: Gauge },
       { id: 'uptimeMonitoring', icon: MonitorCheck },
       { id: 'sslMonitoring', icon: ShieldCheck },
+      { id: 'notificationIntegrations', icon: Bell },
     ],
   },
   {

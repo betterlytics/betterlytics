@@ -6,15 +6,15 @@ import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actions/analytics/events.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 import { formatNumber } from '@/utils/formatters';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -49,34 +49,33 @@ const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
   </div>
 );
 
-const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: EventLogTranslation): string => {
+const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: EventLogTranslation, locale: SupportedLanguages): string => {
   if (totalCount === 0) {
     return t('noEvents');
   }
 
   const loadedCount = allEvents.length;
-  const totalFormatted = formatNumber(totalCount);
+  const totalFormatted = formatNumber(totalCount, locale);
 
   if (loadedCount >= totalCount) {
     return t('showingAll', { count: totalFormatted });
   }
 
   return t('showingPartial', {
-    loaded: formatNumber(loadedCount),
+    loaded: formatNumber(loadedCount, locale),
     total: totalFormatted,
   });
 };
 
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
-  const { startDate, endDate } = useTimeRangeContext();
-  const { queryFilters } = useQueryFiltersContext();
+  const query = useAnalyticsQuery();
   const dashboardId = useDashboardId();
   const t = useTranslations('components.events.log');
+  const locale = useLocale();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['recentEvents', dashboardId, startDate, endDate, pageSize, queryFilters],
-    queryFn: ({ pageParam = 0 }) =>
-      fetchRecentEventsAction(dashboardId, startDate, endDate, pageSize, pageParam, queryFilters),
+    queryKey: ['recentEvents', dashboardId, query, pageSize],
+    queryFn: ({ pageParam = 0 }) => fetchRecentEventsAction(dashboardId, query, pageSize, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage: EventLogEntry[], allPages: EventLogEntry[][]) => {
       if (lastPage.length < pageSize) return undefined;
@@ -86,8 +85,8 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   });
 
   const { data: totalCount = 0 } = useQuery({
-    queryKey: ['totalEventCount', dashboardId, startDate, endDate, queryFilters],
-    queryFn: () => fetchTotalEventCountAction(dashboardId, startDate, endDate, queryFilters),
+    queryKey: ['totalEventCount', dashboardId, query],
+    queryFn: () => fetchTotalEventCountAction(dashboardId, query),
     refetchInterval: COUNT_REFRESH_INTERVAL_MS,
   });
 
@@ -119,7 +118,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     }
   }, [isFetchingNextPage]);
 
-  const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t), [allEvents, totalCount, t]);
+  const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t, locale), [allEvents, totalCount, t, locale]);
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>

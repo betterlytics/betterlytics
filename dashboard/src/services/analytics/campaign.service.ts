@@ -32,10 +32,12 @@ import {
   type OperatingSystemInfo,
 } from '@/entities/analytics/devices.entities';
 import { GeoVisitorSchema, type GeoVisitor } from '@/entities/analytics/geography.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { formatDuration } from '@/utils/dateFormatters';
+import { getLocale } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 interface RawMetricsData {
   total_sessions: number;
@@ -50,12 +52,12 @@ interface CalculatedMetrics {
   pagesPerSession: number;
 }
 
-function calculateCommonCampaignMetrics(rawData: RawMetricsData): CalculatedMetrics {
+function calculateCommonCampaignMetrics(rawData: RawMetricsData, locale: SupportedLanguages): CalculatedMetrics {
   const bounceRate = rawData.total_sessions > 0 ? (rawData.bounced_sessions / rawData.total_sessions) * 100 : 0;
   const avgSessionDurationSeconds =
     rawData.total_sessions > 0 ? rawData.sum_session_duration_seconds / rawData.total_sessions : 0;
   const pagesPerSession = rawData.total_sessions > 0 ? rawData.total_pageviews / rawData.total_sessions : 0;
-  const avgSessionDurationFormatted = formatDuration(avgSessionDurationSeconds);
+  const avgSessionDurationFormatted = formatDuration(avgSessionDurationSeconds, locale);
 
   return {
     bounceRate: parseFloat(bounceRate.toFixed(1)),
@@ -72,31 +74,21 @@ export type CampaignPerformancePage = {
 };
 
 async function fetchCampaignPerformancePage(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
+  siteQuery: BASiteQuery,
   pageIndex: number,
   pageSize: number,
 ): Promise<CampaignPerformancePage> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
   const safePageSize = pageSize > 0 ? Math.min(pageSize, 100) : 10;
-  const totalCampaigns = await getCampaignCount(siteId, startDateTime, endDateTime);
+  const totalCampaigns = await getCampaignCount(siteQuery);
   const totalPages = Math.max(1, Math.ceil(totalCampaigns / safePageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
   const offset = safePageIndex * safePageSize;
 
-  const rawCampaignData: RawCampaignData[] = await getCampaignPerformancePageData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    safePageSize,
-    offset,
-  );
+  const rawCampaignData: RawCampaignData[] = await getCampaignPerformancePageData(siteQuery, safePageSize, offset);
 
+  const locale = await getLocale();
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
-    const metrics = calculateCommonCampaignMetrics(raw);
+    const metrics = calculateCommonCampaignMetrics(raw, locale);
     return {
       name: raw.utm_campaign_name,
       visitors: raw.total_visitors,
@@ -122,21 +114,15 @@ export type CampaignDirectoryPage = {
 };
 
 export async function fetchCampaignDirectoryPage(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  timezone: string,
+  siteQuery: BASiteQuery,
   pageIndex: number,
   pageSize: number,
 ): Promise<CampaignDirectoryPage> {
-  const performancePage = await fetchCampaignPerformancePage(siteId, startDate, endDate, pageIndex, pageSize);
+  const performancePage = await fetchCampaignPerformancePage(siteQuery, pageIndex, pageSize);
   const campaignNames = performancePage.campaigns.map((campaign) => campaign.name);
 
   const sparklineMap =
-    campaignNames.length > 0
-      ? await fetchCampaignSparklines(siteId, startDate, endDate, granularity, timezone, campaignNames)
-      : {};
+    campaignNames.length > 0 ? await fetchCampaignSparklines(siteQuery, campaignNames) : {};
 
   const campaigns: CampaignListRowSummary[] = performancePage.campaigns.map((campaign) => ({
     ...campaign,
@@ -152,25 +138,15 @@ export async function fetchCampaignDirectoryPage(
 }
 
 export async function fetchCampaignUTMBreakdown(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
+  siteQuery: BASiteQuery,
   dimension: UTMDimension,
   campaignName?: string,
 ): Promise<CampaignUTMBreakdownItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
+  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(siteQuery, dimension, campaignName);
 
-  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    dimension,
-    campaignName,
-  );
-
+  const locale = await getLocale();
   const transformedData: CampaignUTMBreakdownItem[] = rawData.map((raw) => {
-    const metrics = calculateCommonCampaignMetrics(raw);
+    const metrics = calculateCommonCampaignMetrics(raw, locale);
     return {
       label: raw.label,
       visitors: raw.total_visitors,
@@ -182,24 +158,18 @@ export async function fetchCampaignUTMBreakdown(
 }
 
 export async function fetchCampaignLandingPagePerformance(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
+  siteQuery: BASiteQuery,
   campaignName?: string,
 ): Promise<CampaignLandingPagePerformanceItem[]> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
   const rawLandingPageData: RawCampaignLandingPagePerformanceItem[] = await getCampaignLandingPagePerformanceData(
-    siteId,
-    startDateTime,
-    endDateTime,
+    siteQuery,
     campaignName,
   );
 
+  const locale = await getLocale();
   const transformedData: CampaignLandingPagePerformanceItem[] = rawLandingPageData.map(
     (raw: RawCampaignLandingPagePerformanceItem) => {
-      const metrics = calculateCommonCampaignMetrics(raw);
+      const metrics = calculateCommonCampaignMetrics(raw, locale);
       return {
         campaignName: raw.utm_campaign_name,
         landingPageUrl: raw.landing_page_url,
@@ -213,27 +183,17 @@ export async function fetchCampaignLandingPagePerformance(
 }
 
 export async function fetchCampaignSparklines(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  timezone: string,
+  siteQuery: BASiteQuery,
   campaignNames: string[],
 ): Promise<Record<string, CampaignSparklinePoint[]>> {
   if (campaignNames.length === 0) {
     return {};
   }
 
-  const safeGranularity = getSafeSparklineGranularity(granularity);
+  const safeGranularity = getSafeSparklineGranularity(siteQuery.granularity);
+  const sparklineSiteQuery: BASiteQuery = { ...siteQuery, granularity: safeGranularity };
 
-  const trendRows = await getCampaignVisitorTrendData(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    safeGranularity,
-    timezone,
-    campaignNames,
-  );
+  const trendRows = await getCampaignVisitorTrendData(sparklineSiteQuery, campaignNames);
 
   const grouped = trendRows.reduce<Record<string, CampaignTrendRow[]>>((acc, row) => {
     (acc[row.utm_campaign] ??= []).push(row);
@@ -256,7 +216,7 @@ export async function fetchCampaignSparklines(
       })),
       granularity: safeGranularity,
       dataKey: 'visitors',
-      dateRange: { start: startDate, end: endDate },
+      dateRange: { start: siteQuery.startDate, end: siteQuery.endDate },
     }) as Array<{ date: Date; visitors: number }>;
 
     sparklineMap[campaignName] = sparkline.map((point) => ({
@@ -276,23 +236,12 @@ export type CampaignAudienceProfileData = {
 };
 
 export async function fetchCampaignAudienceProfile(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
+  siteQuery: BASiteQuery,
   campaignName?: string,
 ): Promise<CampaignAudienceProfileData> {
-  const startDateTime = toDateTimeString(startDate);
-  const endDateTime = toDateTimeString(endDate);
-
   const AUDIENCE_DIMENSION_LIMIT = 3;
 
-  const raw = await getCampaignAudienceProfileData(
-    siteId,
-    startDateTime,
-    endDateTime,
-    campaignName,
-    AUDIENCE_DIMENSION_LIMIT,
-  );
+  const raw = await getCampaignAudienceProfileData(siteQuery, campaignName, AUDIENCE_DIMENSION_LIMIT);
 
   const mapRows = <T>(dimension: string, mapper: (row: (typeof raw)[number]) => T): T[] =>
     raw.filter((row) => row.dimension === dimension).map(mapper);

@@ -5,6 +5,8 @@ import {
   DashboardSettingsUpdate,
   DashboardSettingsUpdateSchema,
   DashboardSettingsCreateSchema,
+  DashboardWithReportSettings,
+  DashboardWithReportSettingsSchema,
 } from '@/entities/dashboard/dashboardSettings.entities';
 
 export async function findSettingsByDashboardId(dashboardId: string): Promise<DashboardSettings | null> {
@@ -63,5 +65,71 @@ export async function createSettings(
   } catch (error) {
     console.error('Error creating settings:', error);
     throw new Error('Failed to create dashboard settings');
+  }
+}
+
+export async function findDashboardsWithReportsEnabled(): Promise<DashboardWithReportSettings[]> {
+  try {
+    const settings = await prisma.dashboardSettings.findMany({
+      where: {
+        OR: [{ weeklyReports: true }, { monthlyReports: true }],
+        dashboard: {
+          deletedAt: null,
+        },
+      },
+      include: {
+        dashboard: {
+          select: {
+            id: true,
+            siteId: true,
+            domain: true,
+          },
+        },
+      },
+    });
+
+    return settings
+      .filter((s) => s.weeklyReportRecipients.length > 0 || s.monthlyReportRecipients.length > 0)
+      .map((s) =>
+        DashboardWithReportSettingsSchema.parse({
+          id: s.id,
+          dashboardId: s.dashboardId,
+          weeklyReports: s.weeklyReports,
+          weeklyReportDay: s.weeklyReportDay,
+          weeklyReportRecipients: s.weeklyReportRecipients,
+          monthlyReports: s.monthlyReports,
+          monthlyReportRecipients: s.monthlyReportRecipients,
+          lastWeeklyReportSentAt: s.lastWeeklyReportSentAt,
+          lastMonthlyReportSentAt: s.lastMonthlyReportSentAt,
+          dashboard: s.dashboard,
+        }),
+      );
+  } catch (error) {
+    console.error('Error finding dashboards with reports enabled:', error);
+    throw new Error('Failed to find dashboards with reports enabled');
+  }
+}
+
+export async function updateWeeklyReportSentAt(settingsId: string): Promise<void> {
+  try {
+    await prisma.dashboardSettings.update({
+      where: { id: settingsId },
+      data: { lastWeeklyReportSentAt: new Date() },
+    });
+  } catch (error) {
+    console.error('Error updating weekly report sent timestamp:', error);
+    throw new Error('Failed to update weekly report sent timestamp');
+  }
+}
+
+export async function updateMonthlyReportSentAt(settingsId: string): Promise<void> {
+  try {
+    await prisma.dashboardSettings.update({
+      where: { id: settingsId },
+      data: { lastMonthlyReportSentAt: new Date() },
+    });
+  } catch (error) {
+    console.error('Error updating monthly report sent timestamp:', error);
+    throw new Error('Failed to update monthly report sent timestamp');
   }
 }

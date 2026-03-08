@@ -1,16 +1,16 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { type FilterColumn } from '@/entities/analytics/filter.entities';
-import { type DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getFilterDistinctValues(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   column: FilterColumn,
   limit: number = 50,
   search?: string,
 ): Promise<string[]> {
+  const { siteId, startDateTime, endDateTime } = siteQuery;
+
   const selectExpr =
     column === 'event_type' ? safeSql`toString(${SQL.Unsafe(column)})` : safeSql`${SQL.Unsafe(column)}`;
 
@@ -31,7 +31,7 @@ export async function getFilterDistinctValues(
 
   const rows = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDate, end: endDate, limit },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
     })
     .toPromise()) as Array<{ value: string }>;
 

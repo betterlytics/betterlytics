@@ -4,8 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchSessionReplaysAction } from '@/app/actions/analytics/sessionReplays.actions';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useUrlSearchParam } from '@/hooks/use-sync-url-filters';
 
 export type UseSessionManagerReturn = {
@@ -23,14 +22,12 @@ const PAGE_SIZE = 20;
 
 export function useSessionManager(dashboardId: string): UseSessionManagerReturn {
   const [selectedSession, setSelectedSession] = useState<SessionReplay | null>(null);
-  const { startDate, endDate } = useTimeRangeContext();
-  const { queryFilters } = useQueryFiltersContext();
+  const query = useAnalyticsQuery();
   const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
 
   const sessionQuery = useInfiniteQuery({
-    queryKey: ['session-replays', dashboardId, startDate, endDate, PAGE_SIZE, queryFilters],
-    queryFn: ({ pageParam = 0 }) =>
-      fetchSessionReplaysAction(dashboardId, startDate, endDate, PAGE_SIZE, pageParam, queryFilters),
+    queryKey: ['session-replays', dashboardId, query.startDate, query.endDate, PAGE_SIZE, query.queryFilters],
+    queryFn: ({ pageParam = 0 }) => fetchSessionReplaysAction(dashboardId, query, PAGE_SIZE, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage: SessionReplay[], allPages: SessionReplay[][]) =>
       lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,

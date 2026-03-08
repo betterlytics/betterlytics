@@ -1,5 +1,3 @@
-use chrono::Utc;
-
 /// HTML-version of emails should be wrapped by this
 pub fn wrap_html(content: &str) -> String {
     format!(
@@ -127,42 +125,23 @@ pub fn email_header() -> &'static str {
           </div>"#
 }
 
-pub fn email_signature() -> &'static str {
-    r#"<div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
-      <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 16px; font-weight: 500;">
-        Best regards,<br>
-        <strong style="color: #374151;">The Betterlytics Team</strong>
-      </p>
-    </div>"#
-}
-
-pub fn email_footer() -> String {
-    let year = Utc::now().format("%Y");
-    format!(
-        r#"</div>
+pub fn email_footer() -> &'static str {
+    r#"</div>
         <div style="text-align: center; margin-top: 30px; padding: 20px;">
           <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.5;">
-            © {year} Betterlytics. All rights reserved.<br>
-            You're receiving this email because you have an account with Betterlytics.
+            Powered by <a href="https://betterlytics.io" style="color: #9ca3af; text-decoration: underline;">Betterlytics</a><br>
+            You're receiving this email because you have an account on this analytics platform.
           </p>
         </div>
       </div>
     </body>
-    </html>"#,
-        year = year
-    )
+    </html>"#
 }
 
-pub fn text_footer() -> String {
-    let year = Utc::now().format("%Y");
-    format!(
-        "---\n\
-        Best regards,\n\
-        The Betterlytics Team\n\n\
-        © {year} Betterlytics. All rights reserved.\n\
-        You're receiving this email because you have an account with Betterlytics.",
-        year = year
-    )
+pub fn text_footer() -> &'static str {
+    "---\n\
+    Powered by Betterlytics (https://betterlytics.io)\n\
+    You're receiving this email because you have an account on this analytics platform."
 }
 
 pub fn html_escape(s: &str) -> String {

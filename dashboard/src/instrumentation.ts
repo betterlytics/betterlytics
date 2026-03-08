@@ -1,5 +1,18 @@
 export async function register() {
-  registerOpenTelemetry();
+  await registerOpenTelemetry();
+  await registerBackgroundJobs();
+}
+
+async function registerBackgroundJobs() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { env } = await import('@/lib/env');
+    if (!env.BACKGROUND_JOBS_ENABLED) {
+      console.info('Background jobs disabled, skipping');
+      return;
+    }
+    const { startBackgroundJobs } = await import('@/lib/jobs/scheduler');
+    startBackgroundJobs();
+  }
 }
 
 export async function registerOpenTelemetry() {

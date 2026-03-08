@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CampaignEmptyState } from './CampaignEmptyState';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
@@ -19,7 +19,7 @@ import {
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 import { toast } from 'sonner';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
@@ -33,7 +33,7 @@ type CampaignListProps = {
 const DEFAULT_PAGE_SIZE = 10;
 
 export default function CampaignList({ dashboardId }: CampaignListProps) {
-  const { startDate, endDate, granularity, timeZone } = useTimeRangeContext();
+  const query = useAnalyticsQuery();
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
@@ -46,18 +46,10 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
     pageIndex: number;
     pageSize: number;
   }>({
-    queryKey: ['campaign-list', dashboardId, startDate, endDate, granularity, timeZone, pageIndex, pageSize],
+    queryKey: ['campaign-list', dashboardId, query.startDate, query.endDate, query.granularity, query.timezone, pageIndex, pageSize],
     queryFn: async () => {
       try {
-        return await fetchCampaignPerformanceAction(
-          dashboardId,
-          startDate,
-          endDate,
-          granularity,
-          timeZone,
-          pageIndex,
-          pageSize,
-        );
+        return await fetchCampaignPerformanceAction(dashboardId, query, pageIndex, pageSize);
       } catch {
         toast.error(t('campaignExpandedRow.error'));
         return {
@@ -149,6 +141,7 @@ type CampaignListEntryProps = {
 };
 
 function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
+  const locale = useLocale();
   const t = useTranslations('components.campaign.campaignRow');
   const visitorsLabel = t('visitors', { count: campaign.visitors });
   const detailsId = `campaign-${campaign.name}-details`;
@@ -177,11 +170,11 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
       >
         <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
 
-        <CampaignMetric label={t('bounceRate')} value={formatPercentage(campaign.bounceRate)} className='flex' />
+        <CampaignMetric label={t('bounceRate')} value={formatPercentage(campaign.bounceRate, locale)} className='flex' />
         <CampaignMetric label={t('avgSessionDuration')} value={campaign.avgSessionDuration} className='flex' />
         <CampaignMetric
           label={t('pagesPerSession')}
-          value={formatNumber(campaign.pagesPerSession)}
+          value={formatNumber(campaign.pagesPerSession, locale)}
           className='flex'
         />
 
@@ -269,6 +262,7 @@ type CampaignInlineUTMSectionProps = {
 
 function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary }: CampaignInlineUTMSectionProps) {
   const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
+  const locale = useLocale();
   const t = useTranslations('components.campaign.campaignExpandedRow');
   const tRow = useTranslations('components.campaign.campaignRow');
 
@@ -296,7 +290,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
                   {tRow('bounceRate')}
                 </p>
                 <p className='text-foreground text-sm font-semibold tabular-nums'>
-                  {formatPercentage(summary.bounceRate)}
+                  {formatPercentage(summary.bounceRate, locale)}
                 </p>
               </div>
               <div className='space-y-0.5'>
@@ -304,7 +298,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
                   {tRow('pagesPerSession')}
                 </p>
                 <p className='text-foreground text-sm font-semibold tabular-nums'>
-                  {formatNumber(summary.pagesPerSession)}
+                  {formatNumber(summary.pagesPerSession, locale)}
                 </p>
               </div>
             </div>
@@ -341,12 +335,12 @@ type CampaignExpandedRowProps = {
 };
 
 function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }: CampaignExpandedRowProps) {
-  const { startDate, endDate } = useTimeRangeContext();
+  const query = useAnalyticsQuery();
   const { data, status } = useQuery({
-    queryKey: ['campaign-expanded-details', dashboardId, campaignName, startDate, endDate],
-    queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, startDate, endDate, campaignName),
+    queryKey: ['campaign-expanded-details', dashboardId, campaignName, query.startDate, query.endDate],
+    queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, query, campaignName),
     enabled: isExpanded,
-    staleTime: getExpandedDetailsStaleTime(startDate, endDate),
+    staleTime: getExpandedDetailsStaleTime(query.startDate, query.endDate),
     gcTime: 15 * 60 * 1000,
   });
   const t = useTranslations('components.campaign.campaignExpandedRow');

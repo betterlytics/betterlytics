@@ -21,8 +21,6 @@ pub struct Config {
     pub referrer_db_path: PathBuf,
     pub ua_regexes_path: PathBuf,
     pub data_retention_days: i32,
-    // Billing configuration
-    pub enable_billing: bool,
     // Monitoring configuration
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
@@ -48,6 +46,10 @@ pub struct Config {
     pub public_base_url: String,
     // Email configuration (None = email disabled)
     pub email: Option<EmailConfig>,
+    // Integration config encryption key (32 bytes)
+    pub integration_encryption_key: Option<[u8; 32]>,
+    // Pushover integration
+    pub pushover_app_token: Option<String>,
 }
 
 impl Config {
@@ -97,10 +99,6 @@ impl Config {
                 .unwrap_or_else(|_| "365".to_string())
                 .parse()
                 .unwrap_or(365),
-            // Billing configuration
-            enable_billing: env::var("ENABLE_BILLING")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
@@ -136,6 +134,20 @@ impl Config {
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
             // Email configuration (None = email disabled)
             email: EmailConfig::from_env(),
+            // Integration config encryption key
+            integration_encryption_key: env::var("INTEGRATION_ENCRYPTION_KEY").ok().map(|key| {
+                let bytes = key.as_bytes();
+                assert!(
+                    bytes.len() == 32,
+                    "INTEGRATION_ENCRYPTION_KEY must be exactly 32 bytes, got {}",
+                    bytes.len()
+                );
+                let mut arr = [0u8; 32];
+                arr.copy_from_slice(bytes);
+                arr
+            }),
+            // Pushover integration
+            pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
         }
     }
 }

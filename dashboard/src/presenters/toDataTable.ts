@@ -1,7 +1,7 @@
 type ToDataTableProps<K extends string, D> = {
   categoryKey: K;
   data: Array<Record<K, string> & D>;
-  compare?: Array<Record<K, string> & D>;
+  compare?: Array<Record<K, string> & D> | null;
 };
 
 type RowProps<D extends Record<string, unknown>> = {
@@ -19,7 +19,16 @@ function rowChange<D extends Record<string, unknown>>({ row, compareRow, enabled
       };
     }
 
-    const compareValue = (compareRow?.[key] as number | undefined) || 0;
+    const rawCompareValue = compareRow?.[key];
+
+    if (compareRow && rawCompareValue === null) {
+      return {
+        ...acc,
+        [key]: undefined,
+      };
+    }
+
+    const compareValue = (rawCompareValue as number | undefined) ?? 0;
     const difference = value - compareValue;
 
     return {

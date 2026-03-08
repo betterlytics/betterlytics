@@ -2,6 +2,7 @@ import { createEmailButton, createEmailSignature, createTextEmailSignature } fro
 import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
 import escapeHtml from 'escape-html';
 import { DashboardRole } from '@prisma/client';
+import { env } from '@/lib/env';
 
 export interface DashboardInvitationEmailData extends EmailData {
   inviterName: string;
@@ -27,7 +28,7 @@ function getRoleDisplayName(role: DashboardRole): string {
 }
 
 export function generateInvitationEmailContent(data: DashboardInvitationEmailData): string {
-  const acceptUrl = `https://betterlytics.io/en/accept-invite/${data.inviteToken}`;
+  const acceptUrl = `${env.PUBLIC_BASE_URL}/en/accept-invite/${data.inviteToken}`;
   const roleDisplay = getRoleDisplayName(data.role);
   const buttonText = data.userExists ? 'Accept invitation' : 'Create account to accept';
   const accountNote = data.userExists
@@ -56,7 +57,7 @@ export function generateInvitationEmailContent(data: DashboardInvitationEmailDat
 }
 
 export function generateInvitationEmailText(data: DashboardInvitationEmailData): string {
-  const acceptUrl = `https://betterlytics.io/en/accept-invite/${data.inviteToken}`;
+  const acceptUrl = `${env.PUBLIC_BASE_URL}/en/accept-invite/${data.inviteToken}`;
   const roleDisplay = getRoleDisplayName(data.role);
   const accountNote = data.userExists
     ? 'Sign in to your Betterlytics account to accept this invitation.'

@@ -1,22 +1,19 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics/userJourney.entities';
-import { DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 /**
  * Gets aggregated link transitions suitable for Sankey without client-side path expansion.
  * Each row represents a transition between consecutive steps (depth preserved).
  */
 export async function getUserJourneyTransitions(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   maxPathLength: number = 3,
   limit: number = 50,
-  queryFilters: QueryFilter[],
 ): Promise<JourneyTransition[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = safeSql`
     WITH ordered_events AS (
@@ -83,8 +80,8 @@ export async function getUserJourneyTransitions(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         max_length: maxPathLength,
         limit,
       },

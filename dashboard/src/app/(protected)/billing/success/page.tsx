@@ -55,7 +55,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                 <li>Access your billing details in User Settings</li>
                 <li>
                   <ExternalLink
-                    href='/docs'
+                    href='https://betterlytics.io/docs'
                     title='Complete Betterlytics Documentation'
                     className='text-primary font-medium hover:underline'
                   >

@@ -1050,10 +1050,6 @@
           "title": "Core Web Vitals",
           "description": "Overvåg og mål din hjemmesides ydeevne med Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Udgående links",
-          "description": "Spor klik til eksterne sider, sociale links, dokumenter og mere."
-        },
         "trafficSources": {
           "title": "Trafikkilder",
           "description": "Find ud af, hvor dine besøgende kommer fra, og optimer din markedsføring.",
@@ -1211,6 +1207,10 @@
           "title": "Udgående link-sporing",
           "description": "Spor klik på links der forlader dit site for at måle brugerengagement."
         },
+        "emailReports": {
+          "title": "E-mail-rapporter",
+          "description": "Modtag automatiske ugentlige eller månedlige analyseoversigter direkte i din indbakke."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Mål og optimér Googles performance-metrics for at forbedre loading, interaktivitet og søgerangeringer."
@@ -1222,6 +1222,10 @@
         "sslMonitoring": {
           "title": "SSL-certifikatovervågning",
           "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
+        },
+        "notificationIntegrations": {
+          "title": "Notifikationsintegrationer",
+          "description": "Bliv advaret via Slack, Discord, Microsoft Teams, webhooks og mere, når noget kræver din opmærksomhed."
         },
         "cookieless": {
           "title": "Ingen cookies",
@@ -1422,7 +1426,6 @@
       "monthlyEvents": {
         "name": "Månedlige hændelser",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Tilpasset"
         }
       },
@@ -1471,6 +1474,9 @@
       "campaignTracking": {
         "name": "Kampagne- og UTM-sporing"
       },
+      "emailReports": {
+        "name": "E-mail-rapporter"
+      },
       "uptimeMonitoring": {
         "name": "Oppetidsovervågning",
         "values": {
@@ -1497,6 +1503,9 @@
       },
       "customStatusCodes": {
         "name": "Brugerdefinerede statuskoder"
+      },
+      "notificationIntegrations": {
+        "name": "Notifikationsintegrationer (Slack, Discord osv.)"
       },
       "emailSupport": {
         "name": "E-mail support"
@@ -1562,6 +1571,8 @@
         "data": "Data",
         "rules": "Regler",
         "members": "Medlemmer",
+        "reports": "E-mail-rapporter",
+        "integrations": "Integrationer",
         "dangerZone": "Farezone"
       }
     },
@@ -1602,10 +1613,6 @@
       "noUserJourneyData": "Ingen brugerrejse data tilgængelig",
       "noData": "Ingen data tilgængelig"
     }
-  },
-  "devicesPage": {
-    "title": "Enheder",
-    "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
   },
   "dashboardsPage": {
     "title": "Dine dashboards",
@@ -1705,6 +1712,7 @@
       "blocked_ip_literal": "IP-adresse ikke tilladt",
       "dns_blocked": "DNS peger på blokeret adresse",
       "dns_error": "DNS-opslag mislykkedes",
+      "keyword_not_found": "Forventet nøgleord blev ikke fundet i svaret",
       "unknown": "Ukendt fejl"
     }
   },
@@ -1748,7 +1756,6 @@
       "create": "Ny overvågning",
       "upgradeToCreate": "Opgrader for flere",
       "title": "Opret overvågning",
-      "description": "Overvåg et endpoint for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL"
@@ -1781,7 +1788,8 @@
           "label": "Hændelsesfølsomhed",
           "description": "Antal fejl i træk før der oprettes en hændelse",
           "valueOne": "1 fejl",
-          "valueOther": "{count} fejl"
+          "valueOther": "{count} fejl",
+          "unit": "{count, plural, one {fejl} other {fejl}}"
         }
       },
       "actions": {
@@ -1960,6 +1968,12 @@
           "invalidFormat": "Indtast venligst en gyldig statuskode (f.eks. 200) eller interval (f.eks. 2xx)",
           "outOfRange": "Statuskode skal være mellem 100 og 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Forventet nøgleord",
+        "description": "Alarmér, hvis denne tekst mangler i HTML-kildekoden (første 32 KB). Brug tekst, der er synlig i rå HTML, ikke indhold gengivet af JavaScript.",
+        "placeholder": "f.eks. Velkommen, Dashboard, OK",
+        "requiresGet": "Nøgleordsvalidering kræver GET-metoden"
       }
     },
     "alerts": {
@@ -1979,14 +1993,17 @@
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
       "sslExpiryDays": "Dage før udløb",
       "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
-      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}"
+      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}",
+      "unit": "{count, plural, one {dag} other {dage}}"
     }
   },
   "charts": {
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Nuværende periode",
-      "previousPeriod": "Forrige periode"
+      "previousPeriod": "Forrige periode",
+      "partial": "Delvis",
+      "total": "Total"
     }
   },
   "misc": {
@@ -2007,23 +2024,7 @@
     "save": "Gem",
     "saving": "Gemmer..."
   },
-  "languages": {
-    "da": "Dansk",
-    "en": "Engelsk",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Man.",
-        "tueShort": "Tir.",
-        "wedShort": "Ons.",
-        "thuShort": "Tor.",
-        "friShort": "Fre.",
-        "satShort": "Lør.",
-        "sunShort": "Søn."
-      }
-    },
     "annotations": {
       "dialogs": {
         "addTitle": "Tilføj annotation",
@@ -2164,9 +2165,6 @@
         "enterprise": "Enterprise"
       }
     },
-    "dataTable": {
-      "noResults": "Ingen resultater."
-    },
     "timeRange": {
       "disabled": "Deaktiveret",
       "disableCompare": "Deaktiver sammenligning",
@@ -2193,6 +2191,8 @@
         "1y": "Seneste år"
       },
       "granularityLabels": {
+        "month": "Måned",
+        "week": "Uge",
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min",
@@ -2205,6 +2205,10 @@
       "dashboard": {
         "initializing": "Initialiserer dashboard",
         "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      },
+      "geography": {
+        "title": "Initialiserer verdenskort",
+        "description": "Forbereder en geografisk visualisering af besøgsdata..."
       }
     },
     "devices": {
@@ -2221,10 +2225,6 @@
       "charts": {
         "deviceTypes": "Enhedstyper",
         "deviceUsageTrend": "Enhedsanvendelsestrend"
-      },
-      "trends": {
-        "noData": "Ingen trenddata tilgængelig",
-        "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
       }
     },
     "campaign": {
@@ -2285,10 +2285,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Hændelser",
-        "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
-      },
       "log": {
         "waiting": "Venter på hændelser...",
         "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
@@ -2381,13 +2377,6 @@
         "step": "Trin",
         "visitors": "Besøgende"
       },
-      "list": {
-        "steps": "trin",
-        "conversionRate": "Konverteringsrate",
-        "completed": "Fuldført",
-        "totalUsers": "Totale brugere",
-        "largestDropOff": "Største frafald"
-      },
       "create": {
         "defaultName": "Min nye tragt",
         "createFunnel": "Opret tragt",
@@ -2442,25 +2431,8 @@
         "successMessage": "Tragt slettet!",
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
-      "page": {
-        "title": "Tragter",
-        "description": "Analyser brugerens konverteringsforløb"
-      },
       "preview": {
-        "loading": "Indlæser forhåndsvisning...",
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
-      },
-      "details": {
-        "title": "Tragtanalyse",
-        "steps": "trin",
-        "users": "brugere",
-        "dropped": "frafald",
-        "summary": {
-          "overallConversion": "Samlet konvertering",
-          "totalVisitors": "Samlede besøgende",
-          "totalCompleted": "Samlet fuldført",
-          "biggestDropOff": "Største frafald"
-        }
       },
       "emptyState": {
         "title": "Visualisér din konverteringstragt",
@@ -2492,9 +2464,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analyser henvisningskilder, trafikandel og præstationstrends."
-      },
       "charts": {
         "distribution": "Henvisningsfordeling",
         "trafficTrends": "Henvisningstrafik trends"
@@ -2530,7 +2499,6 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "loading": "Indlæser kort...",
       "visitors": "Besøgende"
     },
     "userJourney": {
@@ -2539,12 +2507,6 @@
       "sessions": "Sessioner"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende",
-        "topDomain": "Top domæne",
-        "topSourcePage": "Top kildeside"
-      },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
@@ -3093,7 +3055,8 @@
       "minInterval": "Hurtigere overvågningsintervaller kræver en Professional plan",
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
-      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan"
+      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan",
+      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
@@ -3135,10 +3098,6 @@
     }
   },
   "members": {
-    "page": {
-      "title": "Medlemmer",
-      "description": "Administrer hvem der har adgang til dette dashboard"
-    },
     "table": {
       "title": "Medlemmer",
       "searchPlaceholder": "Søg medlemmer...",
@@ -3455,6 +3414,161 @@
           "description": "Indsæt dette i din HTML <head>-sektion"
         }
       }
+    }
+  },
+  "reportsSettings": {
+    "title": "E-mail-rapporter",
+    "emailsNotConfigured": {
+      "title": "E-mail-afsendelse er ikke konfigureret",
+      "description": "Rapportindstillinger kan gemmes, men e-mails bliver ikke sendt, før en e-mail-udbyder er konfigureret (SMTP eller MailerSend)."
+    },
+    "weekly": {
+      "title": "Ugentlige rapporter",
+      "description": "Modtag en opsummering af dit websites præstation hver uge",
+      "toggle": "Aktivér ugentlige e-mail-rapporter",
+      "dayLabel": "Rapportdag",
+      "dayDescription": "Hvilken ugedag rapporten skal sendes"
+    },
+    "monthly": {
+      "title": "Månedlige rapporter",
+      "description": "Send en månedlig e-mail-rapport den 1. i hver måned",
+      "toggle": "Aktivér månedlige e-mail-rapporter"
+    },
+    "recipients": {
+      "weeklyLabel": "Modtagere ({count}/{max})",
+      "monthlyLabel": "Modtagere ({count}/{max})",
+      "placeholder": "kollega@eksempel.dk",
+      "addButton": "Tilføj",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "emailRequired": "E-mailadresse er påkrævet",
+      "duplicateEmail": "Denne e-mail er allerede tilføjet",
+      "maxReached": "Maksimalt {max} modtagere nået"
+    },
+    "toast": {
+      "saved": "Rapportindstillinger gemt",
+      "error": "Kunne ikke gemme rapportindstillinger"
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrationer",
+    "section": {
+      "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push-notifikationer til dine mobile enheder og desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Få vigtige statusopdateringer i dine Discord-beskeder."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Modtag notifikationer i en Slack-kanal."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Modtag notifikationer i en Microsoft Teams-kanal."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifikationer til enhver URL via HTTP POST."
+      }
+    },
+    "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
+    "status": {
+      "connected": "Forbundet",
+      "disabled": "Deaktiveret"
+    },
+    "actions": {
+      "configure": "Konfigurer",
+      "add": "Tilføj",
+      "edit": "Rediger",
+      "disconnect": "Afbryd"
+    },
+    "disconnect": {
+      "title": "Afbryd {name}",
+      "description": "Er du sikker på, at du vil afbryde denne integration? Dette vil fjerne konfigurationen og stoppe alle notifikationer fra denne kilde.",
+      "confirm": "Afbryd"
+    },
+    "pushoverDialog": {
+      "title": "Pushover-integration",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Din Pushover user key",
+      "priorityLabel": "Notifikationsprioritet",
+      "priorities": {
+        "-2": "Lavest: Ingen notifikation",
+        "-1": "Lav: Ingen lyd eller vibration",
+        "0": "Normal (anbefalet)",
+        "1": "Høj: Ignorer stille timer"
+      },
+      "credentialsHint": "Find din user key på <link>pushover.net</link>",
+      "priorityHint": "Læs mere om prioritetsniveauer <link>her</link>.",
+      "errors": {
+        "userKeyRequired": "User key er påkrævet",
+        "userKeyInvalid": "Ugyldig user key"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "discordDialog": {
+      "title": "Discord-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Lær hvordan du opretter en webhook <link>her</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig Discord webhook URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "slackDialog": {
+      "title": "Slack-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Følg trin 1–3 i <link>guiden til Incoming Webhooks</link> for at få din webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig Slack webhook URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Din Teams webhook URL",
+      "webhookHint": "Opret en Incoming Webhook ved hjælp af et Teams Workflow. <link>Lær hvordan</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "webhookDialog": {
+      "title": "Webhook-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://eksempel.dk/webhook",
+      "webhookHint": "Indtast en offentligt tilgængelig HTTPS URL. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "toast": {
+      "saved": "Integration gemt",
+      "deleted": "Integration afbrudt",
+      "error": "Kunne ikke opdatere integration",
+      "fetchError": "Kunne ikke indlæse integrationer",
+      "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheder registreret",
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
+      "invalidSlackWebhook": "Ugyldig Slack webhook URL",
+      "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
+      "invalidWebhookUrl": "Ugyldig webhook URL"
     }
   }
 }

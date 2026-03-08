@@ -87,7 +87,11 @@ export function AdvancedSettingsSection({
               {({ locked }) => (
                 <Tabs
                   value={form.state.httpMethod}
-                  onValueChange={(v) => !locked && form.setField('httpMethod')(v as 'HEAD' | 'GET')}
+                  onValueChange={(v) => {
+                    const method = v as 'HEAD' | 'GET';
+                    if (locked && method !== 'HEAD') return;
+                    form.setField('httpMethod')(method);
+                  }}
                 >
                   <TabsList className='h-8'>
                     <TabsTrigger value='HEAD' disabled={isPending} className='px-3 py-1 text-xs font-medium'>
@@ -102,6 +106,39 @@ export function AdvancedSettingsSection({
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
+              )}
+            </CapabilityGate>
+          </div>
+
+          <Separator />
+
+          <div className='space-y-3'>
+            <div className='flex items-center justify-between'>
+              <Label className='text-sm font-medium'>{t('advanced.expectedKeyword.label')}</Label>
+              {!caps.monitoring.keywordValidation && <ProBadge />}
+            </div>
+            <CapabilityGate allowed={caps.monitoring.keywordValidation}>
+              {({ locked }) => (
+                <div className='space-y-1.5'>
+                  <Input
+                    type='text'
+                    placeholder={t('advanced.expectedKeyword.placeholder')}
+                    value={form.state.expectedKeyword ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value || null;
+                      if (locked && value !== null) return;
+                      form.setField('expectedKeyword')(value);
+                    }}
+                    maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
+                    disabled={isPending || (locked && !form.state.expectedKeyword) || form.state.httpMethod !== 'GET'}
+                    className='h-9 text-sm'
+                  />
+                  <p className='text-muted-foreground text-xs'>
+                    {form.state.httpMethod !== 'GET'
+                      ? t('advanced.expectedKeyword.requiresGet')
+                      : t('advanced.expectedKeyword.description')}
+                  </p>
+                </div>
               )}
             </CapabilityGate>
           </div>
@@ -232,6 +269,7 @@ export function AdvancedSettingsSection({
               )}
             </CapabilityGate>
           </div>
+
         </div>
       </CollapsibleContent>
     </Collapsible>

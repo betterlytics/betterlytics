@@ -1,26 +1,10 @@
 'server-only';
 
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { HeatmapMetric, WeeklyHeatmap } from '@/entities/analytics/weeklyHeatmap.entities';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { getWeeklyHeatmap } from '@/repositories/clickhouse/weeklyHeatmap.repository';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getWeeklyHeatmapForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  metric: HeatmapMetric,
-  queryFilters: QueryFilter[],
-  tz?: string,
-): Promise<WeeklyHeatmap> {
-  const data = await getWeeklyHeatmap(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    metric,
-    queryFilters,
-    tz,
-  );
-
+export async function getWeeklyHeatmapForSite(siteQuery: BASiteQuery, metric: HeatmapMetric): Promise<WeeklyHeatmap> {
+  const data = await getWeeklyHeatmap(siteQuery, metric);
   return { metric, data } as WeeklyHeatmap;
 }

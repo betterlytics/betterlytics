@@ -2,48 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & UI Improvements',
-    summary: 'Track scroll depth to better understand content engagement and scrolling behavior.',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Notification Integrations for Uptime Alerts & Norwegian Localization',
+    summary:
+      'Uptime monitoring alerts can now be delivered to Slack, Discord, Teams, Pushover, or any custom webhook. The dashboard is also now available in Norwegian, and several reliability fixes improve accuracy across the platform.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v136-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: See how far users scroll down your pages to better understand content engagement and drop-off points.',
+            'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v136-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
-            'Core Web Vitals Thresholds: Improved indicators make it easier to see when metrics cross into "Fair" or "Poor" territory.',
-            'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
-            'UI Polish: Added subtle animations throughout the application for a smoother experience.',
+            'The dashboard is now available in Norwegian.',
+            'Resolved a server-side issue that could cause instability under certain conditions, improving overall platform reliability.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
+      id: 'v136-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Upgraded core dependencies to address a recently disclosed security vulnerability, keeping your data and accounts safe.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
       title: 'Fixes',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
-            'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
+            'Fixed pie charts that could break the dashboard layout on certain views.',
+            'Fixed a bug where the timezone could fall back to an incorrect default.',
+            'Fixed an issue where the usage quota reset day could display as a negative number.',
           ],
         },
       ],
@@ -52,6 +64,159 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Notification Integrations for Uptime Alerts & Norwegian Localization',
+      summary:
+        'Uptime monitoring alerts can now be delivered to Slack, Discord, Teams, Pushover, or any custom webhook. The dashboard is also now available in Norwegian, and several reliability fixes improve accuracy across the platform.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The dashboard is now available in Norwegian.',
+              'Resolved a server-side issue that could cause instability under certain conditions, improving overall platform reliability.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Upgraded core dependencies to address a recently disclosed security vulnerability, keeping your data and accounts safe.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed pie charts that could break the dashboard layout on certain views.',
+              'Fixed a sign-in accessibility issue affecting keyboard navigation and assistive technologies.',
+              'Fixed a bug where the timezone could fall back to an incorrect default.',
+              'Fixed an issue where the usage quota reset day could display as a negative number.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Keyword Monitoring & Visual Refinements',
+      summary:
+        'Uptime monitors can now alert when expected keywords are missing from your pages, and dashboards feel smoother with animated gauges, numbers, and other visual touches.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime monitors can now check for an expected keyword in the page response, alerting you if critical content goes missing — even when the page still returns a 200 status.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Core Web Vitals scores now display in an animated gauge, making it easier to read performance at a glance.',
+              'Chart tooltips now clarify when a week or month bucket is only partially covered by the selected time range.',
+              'Numbers, loading indicators, and other small visual touches have been refined for a smoother, more polished feel across the dashboard.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'Email Reports & Weekly & Monthly Insights',
+      summary:
+        'Receive scheduled email reports for your dashboards and explore trends with week and month granularity for longer time ranges.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Schedule email reports with analytics summaries for your dashboards directly from settings.',
+              'Longer time ranges now support weekly and monthly granularity, making it easier to spot long-term trends.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "Scroll depth tracking events are now included at no extra cost and don't count toward your monthly usage quota.",
+              'The filter selector now shows how many filters are actively applied.',
+              'Table cells now display comparison data more clearly when one period has no data.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Resolved an issue where the tracking script could send invalid data.',
+              'Corrected a date calculation issue that could show incorrect time ranges.',
+              'Email verification is now properly triggered for OAuth sign-ups.',
+              'Comparison indicators now display correct values when data is null or unchanged.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',

@@ -11,6 +11,7 @@ import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
 import UserThemeSelector from './UserThemeSelector';
+import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 
 interface UserPreferencesSettingsProps {
   formData: UserSettingsUpdate;
@@ -19,6 +20,8 @@ interface UserPreferencesSettingsProps {
 
 export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
   const t = useTranslations('components.userSettings.preferences');
+
+  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
 
   const updateField =
     <TSetting extends keyof UserSettingsUpdate>(key: TSetting) =>
@@ -98,18 +101,20 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             />
           </div>
 
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-2'>
-              <Mail className='h-4 w-4' />
-              <Label htmlFor='marketing-emails'>{t('notifications.marketingEmails')}</Label>
+          {PUBLIC_IS_CLOUD && (
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center space-x-2'>
+                <Mail className='h-4 w-4' />
+                <Label htmlFor='marketing-emails'>{t('notifications.marketingEmails')}</Label>
+              </div>
+              <Switch
+                id='marketing-emails'
+                checked={formData.marketingEmails ?? false}
+                onCheckedChange={updateField('marketingEmails')}
+                className='cursor-pointer'
+              />
             </div>
-            <Switch
-              id='marketing-emails'
-              checked={formData.marketingEmails ?? false}
-              onCheckedChange={updateField('marketingEmails')}
-              className='cursor-pointer'
-            />
-          </div>
+          )}
         </div>
       </SettingsCard>
     </div>

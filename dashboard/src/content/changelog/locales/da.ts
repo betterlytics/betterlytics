@@ -2,48 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & UI-forbedringer',
-    summary: 'Spor scroll-dybde for bedre at forstå indholdsengagement og scroll-adfærd.',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Notifikationsintegrationer til uptime-advarsler og norsk lokalisering',
+    summary:
+      'Advarsler fra uptime-overvågning kan nu leveres til Slack, Discord, Teams, Pushover eller et valgfrit webhook. Dashboardet er desuden nu tilgængeligt på norsk, og flere stabilitetsrettelser forbedrer pålideligheden på platformen.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v136-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: Se hvor langt brugere scroller ned på dine sider for bedre at forstå indholdsengagement og frafaldspunkter.',
+            'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v136-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-            'Core Web Vitals-grænser: Forbedrede indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
-            'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
-            'UI-polering: Tilføjet subtile animationer i appen for en mere flydende oplevelse.',
+            'Dashboardet er nu tilgængeligt på norsk.',
+            'Løst et problem på serversiden, der under visse betingelser kunne forårsage ustabilitet, og dermed forbedret den overordnede platformstabilitet.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
-      title: 'Fixes',
+      id: 'v136-security',
+      title: 'Sikkerhed',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
-            'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
+            'Opdateret centrale afhængigheder for at adressere en nyligt offentliggjort sikkerhedssårbarhed, så dine data og konti forbliver sikre.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
+      title: 'Fejlrettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem med cirkeldiagrammer, der kunne bryde layoutet på visse dashboard-visninger.',
+            'Rettet en fejl, hvor tidszonen kunne falde tilbage til en forkert standardværdi.',
+            'Rettet et problem, hvor kvotens nulstillingsdato kunne vises som et negativt tal.',
           ],
         },
       ],
@@ -52,6 +64,159 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Notifikationsintegrationer til uptime-advarsler og norsk lokalisering',
+      summary:
+        'Advarsler fra uptime-overvågning kan nu leveres til Slack, Discord, Teams, Pushover eller et valgfrit webhook. Dashboardet er desuden nu tilgængeligt på norsk, og flere stabilitetsrettelser forbedrer pålideligheden på platformen.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboardet er nu tilgængeligt på norsk.',
+              'Løst et problem på serversiden, der under visse betingelser kunne forårsage ustabilitet, og dermed forbedret den overordnede platformstabilitet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Opdateret centrale afhængigheder for at adressere en nyligt offentliggjort sikkerhedssårbarhed, så dine data og konti forbliver sikre.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem med cirkeldiagrammer, der kunne bryde layoutet på visse dashboard-visninger.',
+              'Rettet et tilgængelighedsproblem ved login, der påvirkede tastaturnavigation og hjælpeteknologier.',
+              'Rettet en fejl, hvor tidszonen kunne falde tilbage til en forkert standardværdi.',
+              'Rettet et problem, hvor kvotens nulstillingsdato kunne vises som et negativt tal.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Nøgleordsovervågning & visuelle forbedringer',
+      summary:
+        'Uptime-monitorer kan nu give besked, hvis et forventet nøgleord mangler på dine sider. Dashboardet føles desuden glattere med animerede målere, tal og andre visuelle detaljer.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime-monitorer kan nu kontrollere, om et forventet nøgleord findes i sidens svar, og advare dig hvis vigtigt indhold mangler — selv når siden returnerer en 200-statuskode.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Core Web Vitals-scorer vises nu i en animeret måler, så du hurtigere kan aflæse din sides ydeevne.',
+              'Tooltips i grafer viser nu tydeligt, når en uge- eller månedsperiode kun er delvist dækket af det valgte tidsinterval.',
+              'Tal, indlæsningsindikatorer og andre små visuelle detaljer er finpudset for en glattere og mere poleret oplevelse på tværs af dashboardet.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'E-mailrapporter & ugentlige og månedlige indsigter',
+      summary:
+        'Modtag planlagte e-mailrapporter for dine dashboards og analysér langsigtede trends med ugentlig og månedlig visning.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Planlæg e-mailrapporter med overblik over dine dashboards direkte fra indstillingerne.',
+              'Ved længere tidsperioder kan data nu vises med ugentlig og månedlig opdeling, hvilket gør det lettere at identificere langsigtede trends.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Scroll depth-events er nu inkluderet uden ekstra omkostninger og tæller ikke med i dit månedlige forbrug.',
+              'Filtervælgeren viser nu, hvor mange filtre der er aktive.',
+              'Tabelceller viser nu sammenligningsdata tydeligere, når der mangler data for én af perioderne.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor tracking-scriptet i visse tilfælde kunne sende ugyldige data.',
+              'Rettet et problem i datoberegningen, som kunne medføre forkerte tidsperioder.',
+              'Rettet en fejl, hvor e-mailbekræftelse ikke blev sendt korrekt ved tilmelding via OAuth.',
+              'Rettet visning af sammenligningsindikatorer, når data manglede eller var uændrede.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',
@@ -82,7 +247,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
+              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Middel" eller "Dårlig"-grænser.',
               'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
               'UI-polering: Tilføjet subtile animationer i appen for en mere flydende og responsiv oplevelse.',
             ],

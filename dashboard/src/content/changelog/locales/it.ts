@@ -2,48 +2,60 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & Miglioramenti UI',
-    summary: 'Traccia la profondità dello scroll per capire meglio engagement e comportamento di scrolling.',
+    version: 'v1.3.6',
+    releasedAt: '2026-02-28',
+    title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
+    summary:
+      'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v136-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: Scopri fino a che punto gli utenti scorrono le tue pagine per comprendere meglio engagement e punti di abbandono.',
+            'Gli avvisi di monitoraggio uptime possono ora essere inviati a Slack, Discord, Microsoft Teams, Pushover o qualsiasi endpoint webhook personalizzato. Configura i tuoi canali di notifica dalla pagina Integrazioni nelle impostazioni della dashboard.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v136-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
-            'Soglie Core Web Vitals: indicatori migliorati rendono più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
-            'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
-            'UI Polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida.',
+            'Il dashboard è ora disponibile in norvegese.',
+            'Risolto un problema lato server che in determinate condizioni poteva causare instabilità, migliorando la stabilità complessiva della piattaforma.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
+      id: 'v136-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Aggiornate le dipendenze principali per risolvere una vulnerabilità di sicurezza recentemente divulgata, mantenendo al sicuro i tuoi dati e account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v136-fixes',
       title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui Realtime non si aggiornava correttamente, mostrando dati obsoleti.',
-            'Risolto un problema per cui Session Replay a volte non salvava le sessioni registrate.',
+            'Risolto un problema con i grafici a torta che potevano compromettere il layout del dashboard in alcune viste.',
+            'Corretto un errore per cui il fuso orario poteva ripristinarsi su un valore predefinito non corretto.',
+            'Risolto un problema per cui il giorno di reset della quota di utilizzo poteva essere visualizzato come numero negativo.',
           ],
         },
       ],
@@ -52,6 +64,159 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-02-28',
+      title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
+      summary:
+        'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gli avvisi di monitoraggio uptime possono ora essere inviati a Slack, Discord, Microsoft Teams, Pushover o qualsiasi endpoint webhook personalizzato. Configura i tuoi canali di notifica dalla pagina Integrazioni nelle impostazioni della dashboard.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Il dashboard è ora disponibile in norvegese.',
+              'Risolto un problema lato server che in determinate condizioni poteva causare instabilità, migliorando la stabilità complessiva della piattaforma.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Aggiornate le dipendenze principali per risolvere una vulnerabilità di sicurezza recentemente divulgata, mantenendo al sicuro i tuoi dati e account.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema con i grafici a torta che potevano compromettere il layout del dashboard in alcune viste.',
+              'Risolto un problema di accessibilità al login che interessava la navigazione da tastiera e le tecnologie assistive.',
+              'Corretto un errore per cui il fuso orario poteva ripristinarsi su un valore predefinito non corretto.',
+              'Risolto un problema per cui il giorno di reset della quota di utilizzo poteva essere visualizzato come numero negativo.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Monitoraggio parole chiave e miglioramenti visivi',
+      summary:
+        'I monitor uptime possono ora avvisarti quando una parola chiave attesa non è presente nelle tue pagine. La dashboard è inoltre più fluida grazie a indicatori animati, numeri e altri dettagli visivi.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I monitor uptime possono ora verificare la presenza di una parola chiave attesa nella risposta della pagina, avvisandoti se un contenuto importante risulta mancante — anche quando la pagina restituisce uno stato 200.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I punteggi Core Web Vitals vengono ora mostrati in un indicatore animato, rendendo più immediata la lettura delle prestazioni.',
+              'I tooltip dei grafici indicano ora chiaramente quando un intervallo settimanale o mensile è coperto solo parzialmente dal periodo selezionato.',
+              "Numeri, indicatori di caricamento e altri piccoli dettagli visivi sono stati perfezionati per un'esperienza più fluida e curata in tutta la dashboard.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'Report via email e analisi settimanali e mensili',
+      summary:
+        'Ricevi report programmati via email per le tue dashboard e analizza le tendenze nel lungo periodo con visualizzazioni settimanali e mensili.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Programma report via email con una panoramica delle analisi delle tue dashboard direttamente dalle impostazioni.',
+              'Per intervalli di tempo più lunghi, i dati possono ora essere visualizzati con granularità settimanale e mensile, facilitando l’individuazione delle tendenze a lungo termine.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gli eventi di tracciamento della profondità di scorrimento sono ora inclusi senza costi aggiuntivi e non incidono sulla quota mensile.',
+              'Il selettore dei filtri mostra ora il numero di filtri attivi.',
+              'Le celle delle tabelle mostrano i dati di confronto in modo più chiaro quando uno dei periodi non contiene dati.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema che in alcuni casi poteva causare l’invio di dati non validi dallo script di tracciamento.',
+              'Risolto un problema nel calcolo delle date che poteva mostrare intervalli di tempo non corretti.',
+              'Corretta un’anomalia che impediva l’invio corretto dell’email di verifica per le registrazioni tramite OAuth.',
+              'Corretta la visualizzazione degli indicatori di confronto quando i dati erano mancanti o invariati.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',
@@ -82,7 +247,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Sidebar collassabile: le categorie della sidebar sono ora collassabili, dandoti più controllo sullo spazio di navigazione.',
-              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Fair" o "Poor".',
+              'Indicatori Core Web Vitals migliorati: ora è più facile vedere quando le metriche superano le soglie "Discreto" o "Scarso".',
               'Reset quota di utilizzo: aggiunta un’etichetta chiara nel riepilogo per mostrare quando la tua quota mensile si resetta.',
               'UI polish: aggiunte animazioni sottili in tutta l’app per un’esperienza più fluida e reattiva.',
             ],

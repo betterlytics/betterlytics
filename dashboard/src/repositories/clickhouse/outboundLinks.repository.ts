@@ -5,31 +5,25 @@ import {
   DailyOutboundClicksRowSchema,
   TopOutboundLinksDistrubutionSchema,
   TopOutboundLinksDistrubution,
-  OutboundLinksSummary,
-  OutboundLinkSummarySchema,
 } from '@/entities/analytics/outboundLinks.entities';
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 /**
  * Get outbound links analytics data for table display
  */
 export async function getOutboundLinksAnalytics(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
   limit: number = 100,
 ): Promise<OutboundLinkRow[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     WITH source_data AS (
-      SELECT 
+      SELECT
         outbound_link_url,
         url as source_url,
         count() as clicks_from_source
@@ -42,13 +36,13 @@ export async function getOutboundLinksAnalytics(
       GROUP BY outbound_link_url, source_url
     ),
     top_sources AS (
-      SELECT 
+      SELECT
         outbound_link_url,
         source_url as top_source_url,
         ROW_NUMBER() OVER (PARTITION BY outbound_link_url ORDER BY clicks_from_source DESC) as rn
       FROM source_data
     )
-    SELECT 
+    SELECT
       e.outbound_link_url,
       uniq(e.visitor_id) as clicks,
       ts.top_source_url,
@@ -71,8 +65,8 @@ export async function getOutboundLinksAnalytics(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         limit,
       },
     })
@@ -84,24 +78,18 @@ export async function getOutboundLinksAnalytics(
 /**
  * Get daily outbound clicks chart data
  */
-export async function getDailyOutboundClicks(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DailyOutboundClicksRow[]> {
+export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<DailyOutboundClicksRow[]> {
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
-    startDate,
-    endDate,
+    startDateTime,
+    endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
   const query = timeWrapper(
     safeSql`
-      SELECT 
+      SELECT
         ${granularityFunc('timestamp')} as date,
         uniq(visitor_id, outbound_link_url) as outboundClicks
       FROM analytics.events
@@ -121,8 +109,8 @@ export async function getDailyOutboundClicks(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise();
@@ -134,15 +122,13 @@ export async function getDailyOutboundClicks(
  * Get outbound links distribution for pie chart (top 9 + others)
  */
 export async function getOutboundLinksDistribution(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
 ): Promise<Array<TopOutboundLinksDistrubution>> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const top9Query = safeSql`
-    SELECT 
+    SELECT
       outbound_link_url,
       uniq(visitor_id) as clicks
     FROM analytics.events
@@ -157,7 +143,7 @@ export async function getOutboundLinksDistribution(
   `;
 
   const totalQuery = safeSql`
-    SELECT 
+    SELECT
       uniq(visitor_id) as total_clicks
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -173,8 +159,8 @@ export async function getOutboundLinksDistribution(
         params: {
           ...top9Query.taggedParams,
           site_id: siteId,
-          start: startDate,
-          end: endDate,
+          start: startDateTime,
+          end: endDateTime,
         },
       })
       .toPromise(),
@@ -183,8 +169,8 @@ export async function getOutboundLinksDistribution(
         params: {
           ...totalQuery.taggedParams,
           site_id: siteId,
-          start: startDate,
-          end: endDate,
+          start: startDateTime,
+          end: endDateTime,
         },
       })
       .toPromise(),
@@ -206,96 +192,4 @@ export async function getOutboundLinksDistribution(
   }
 
   return result.map((res) => TopOutboundLinksDistrubutionSchema.parse(res));
-}
-
-/**
- * Get summary statistics for outbound links
- */
-export async function getOutboundLinksSummary(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<OutboundLinksSummary> {
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT 
-      uniq(visitor_id) as totalClicks,
-      uniq(visitor_id) as uniqueVisitors
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-  `;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDate,
-        end: endDate,
-      },
-    })
-    .toPromise()) as any[];
-
-  // Get top domain
-  const topDomainQuery = safeSql`
-    SELECT splitByChar('/', outbound_link_url)[1] as domain
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-    GROUP BY domain
-    ORDER BY uniq(visitor_id) DESC
-    LIMIT 1
-  `;
-
-  const topDomainResult = (await clickhouse
-    .query(topDomainQuery.taggedSql, {
-      params: {
-        ...topDomainQuery.taggedParams,
-        site_id: siteId,
-        start: startDate,
-        end: endDate,
-      },
-    })
-    .toPromise()) as any[];
-
-  // Get top source URL
-  const topSourceUrlQuery = safeSql`
-    SELECT url as source_url
-    FROM analytics.events
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND event_type = 'outbound_link'
-      AND outbound_link_url != ''
-      AND ${SQL.AND(filters)}
-    GROUP BY source_url
-    ORDER BY uniq(visitor_id) DESC
-    LIMIT 1
-  `;
-
-  const topSourceUrlResult = (await clickhouse
-    .query(topSourceUrlQuery.taggedSql, {
-      params: {
-        ...topSourceUrlQuery.taggedParams,
-        site_id: siteId,
-        start: startDate,
-        end: endDate,
-      },
-    })
-    .toPromise()) as any[];
-
-  return OutboundLinkSummarySchema.parse({
-    totalClicks: result[0]?.totalClicks || 0,
-    uniqueVisitors: result[0]?.uniqueVisitors || 0,
-    topDomain: topDomainResult[0]?.domain || null,
-    topSourceUrl: topSourceUrlResult[0]?.source_url || null,
-  });
 }

@@ -1,40 +1,39 @@
-import { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import { formatCompactFromMilliseconds } from './dateFormatters';
-import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 /**
- * Format a number to a presentable string with K/M suffix
- * @param num The number to format
- * @param decimalPlaces Number of decimal places (default: 1)
- * @returns Formatted number string (e.g., "1.2K", "3.5M")
+ * Format a number using locale-aware compact notation (e.g., 1.5K, 1,5 t).
  */
-export function formatNumber(num: number, decimalPlaces = 1): string {
-  if (num === undefined || num === null) return '-';
-
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(decimalPlaces)}M`;
-  }
-
-  if (num >= 1000) {
-    return `${(num / 1000).toFixed(decimalPlaces)}K`;
-  }
-
-  return (Math.round(num * 1000) / 1000).toString();
+export function formatNumber(
+  num: number,
+  locale?: SupportedLanguages,
+  opts?: Intl.NumberFormatOptions,
+): string {
+  if (num == null) return '-';
+  return new Intl.NumberFormat(locale, {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+    ...opts,
+  }).format(num);
 }
 
 /**
- * Format a number as a percentage with % symbol
- * @param num The number to format as a percentage
- * @param decimalPlaces Number of decimal places (default: 1)
- * @param options Optional formatting tweaks
- * @returns Formatted percentage string (e.g., "42.5%")
+ * Format a number (e.g., 42.5) as a locale-aware percentage (e.g., 42.5%, 42,5 %).
  */
-export function formatPercentage(num: number, decimalPlaces = 1, options?: { trimHundred?: boolean }): string {
-  const formatted = num.toFixed(decimalPlaces);
-  if (options?.trimHundred && Math.abs(num - 100) < Number.EPSILON) {
-    return '100%';
+export function formatPercentage(
+  num: number,
+  locale?: SupportedLanguages,
+  opts?: Intl.NumberFormatOptions & { trimHundred?: boolean },
+): string {
+  const { trimHundred, ...intlOpts } = opts ?? {};
+  if (trimHundred && Math.abs(num - 100) < Number.EPSILON) {
+    return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(1);
   }
-  return `${formatted}%`;
+  return new Intl.NumberFormat(locale, {
+    style: 'percent',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+    ...intlOpts,
+  }).format(num / 100);
 }
 
 /**
@@ -61,23 +60,6 @@ export function capitalizeFirstLetter(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function formatCWV(metric: CoreWebVitalName, value: number | null | undefined, clsDecimals = 3): string {
-  if (value === null || value === undefined) return '—';
-  if (metric === 'CLS') {
-    return Number(value.toFixed(clsDecimals)).toString();
-  }
-  return formatCompactFromMilliseconds(value);
-}
-
-export function getCwvStatusColor(metric: CoreWebVitalName, value: number | null | undefined): string | undefined {
-  if (value === null || value === undefined) return undefined;
-  const [goodThreshold, fairThreshold] = CWV_THRESHOLDS[metric] ?? [];
-  if (goodThreshold === undefined || fairThreshold === undefined) return undefined;
-  if (value > fairThreshold) return 'var(--cwv-threshold-poor)';
-  if (value > goodThreshold) return 'var(--cwv-threshold-fair)';
-  return 'var(--cwv-threshold-good)';
-}
-
 export type DowntimeMetadata = {
   unit: 'days' | 'hours' | 'minutes';
   value: string;
@@ -100,7 +82,7 @@ export function computeDowntimeFromUptimeDays(uptimePercent: number, days: numbe
   return computeDowntimeFromUptimeHours(uptimePercent, days * 24);
 }
 
-export function formatTimeFromNow(date: Date, locale: string): string {
+export function formatTimeFromNow(date: Date, locale: SupportedLanguages): string {
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
   const diffMs = date.getTime() - Date.now();

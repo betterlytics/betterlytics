@@ -16,13 +16,16 @@ import {
 } from '@/entities/analytics/campaign.entities';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { formatPercentage } from '@/utils/formatters';
+import { getLocale } from 'next-intl/server';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toSiteQuery } from '@/lib/toSiteQuery';
 
 function buildAudienceDistribution<
   TLabelKey extends string,
   TItem extends { visitors: number } & Record<TLabelKey, string>,
->(audience: TItem[], labelKey: TLabelKey): { label: string; value: string }[] {
+>(audience: TItem[], labelKey: TLabelKey, locale: SupportedLanguages): { label: string; value: string }[] {
   const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
 
   if (totalVisitors === 0) {
@@ -31,17 +34,14 @@ function buildAudienceDistribution<
 
   return audience.map((item) => ({
     label: item[labelKey],
-    value: formatPercentage((item.visitors / totalVisitors) * 100, 0),
+    value: formatPercentage((item.visitors / totalVisitors) * 100, locale, { maximumFractionDigits: 0 }),
   }));
 }
 
 export const fetchCampaignPerformanceAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    timezone: string,
+    query: BAAnalyticsQuery,
     pageIndex: number,
     pageSize: number,
   ): Promise<{
@@ -50,17 +50,10 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
     pageIndex: number;
     pageSize: number;
   }> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
-      const performancePage = await fetchCampaignDirectoryPage(
-        ctx.siteId,
-        startDate,
-        endDate,
-        granularity,
-        timezone,
-        pageIndex,
-        pageSize,
-      );
-      return performancePage;
+      return fetchCampaignDirectoryPage(main, pageIndex, pageSize);
     } catch (error) {
       console.error('Error in fetchCampaignPerformanceAction:', error);
       return {
@@ -76,14 +69,13 @@ export const fetchCampaignPerformanceAction = withDashboardAuthContext(
 export const fetchCampaignSparklinesAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    granularity: GranularityRangeValues,
-    timezone: string,
+    query: BAAnalyticsQuery,
     campaignNames: string[],
   ): Promise<Record<string, CampaignSparklinePoint[]>> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
-      return fetchCampaignSparklines(ctx.siteId, startDate, endDate, granularity, timezone, campaignNames);
+      return fetchCampaignSparklines(main, campaignNames);
     } catch (error) {
       console.error('Error in fetchCampaignSparklinesAction:', error);
       return {};
@@ -101,23 +93,24 @@ export type CampaignExpandedDetails = {
 };
 
 export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
-    campaignName: string,
-  ): Promise<CampaignExpandedDetails> => {
+  async (ctx: AuthContext, query: BAAnalyticsQuery, campaignName: string): Promise<CampaignExpandedDetails> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
       const [utmSource, landingPages, audienceProfile] = await Promise.all([
-        fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, 'source', campaignName),
-        fetchCampaignLandingPagePerformance(ctx.siteId, startDate, endDate, campaignName),
-        fetchCampaignAudienceProfile(ctx.siteId, startDate, endDate, campaignName),
+        fetchCampaignUTMBreakdown(main, 'source', campaignName),
+        fetchCampaignLandingPagePerformance(main, campaignName),
+        fetchCampaignAudienceProfile(main, campaignName),
       ]);
 
-      const devices = buildAudienceDistribution(audienceProfile.devices, 'device_type');
-      const countries = buildAudienceDistribution(audienceProfile.countries, 'country_code');
-      const browsers = buildAudienceDistribution(audienceProfile.browsers, 'browser');
-      const operatingSystems = buildAudienceDistribution(audienceProfile.operatingSystems, 'os');
+      const locale = await getLocale() as SupportedLanguages;
+
+      const [devices, countries, browsers, operatingSystems] = [
+        buildAudienceDistribution(audienceProfile.devices, 'device_type', locale),
+        buildAudienceDistribution(audienceProfile.countries, 'country_code', locale),
+        buildAudienceDistribution(audienceProfile.browsers, 'browser', locale),
+        buildAudienceDistribution(audienceProfile.operatingSystems, 'os', locale),
+      ];
 
       return {
         utmSource,
@@ -144,13 +137,14 @@ export const fetchCampaignExpandedDetailsAction = withDashboardAuthContext(
 export const fetchCampaignUTMBreakdownAction = withDashboardAuthContext(
   async (
     ctx: AuthContext,
-    startDate: Date,
-    endDate: Date,
+    query: BAAnalyticsQuery,
     campaignName: string,
     dimension: UTMDimension,
   ): Promise<CampaignUTMBreakdownItem[]> => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+
     try {
-      return fetchCampaignUTMBreakdown(ctx.siteId, startDate, endDate, dimension, campaignName);
+      return fetchCampaignUTMBreakdown(main, dimension, campaignName);
     } catch (error) {
       console.error('Error in fetchCampaignUTMBreakdownAction:', error);
       return [];

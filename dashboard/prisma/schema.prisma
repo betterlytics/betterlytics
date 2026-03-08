@@ -160,6 +160,8 @@ model Dashboard {
   annotations Annotation[]
   monitorChecks MonitorCheck[]
   invitations DashboardInvitation[]
+  emailReportHistory EmailReportHistory[]
+  integrations DashboardIntegration[]
 }
 
 model UserDashboard {
@@ -256,9 +258,13 @@ model DashboardSettings {
   dataRetentionDays Int @default(365) // Number of days to retain data
 
   // Report Settings
-  weeklyReports Boolean @default(true)
+  weeklyReports Boolean @default(false)
+  weeklyReportDay Int @default(1) // ISO: 1=Monday, 2=Tuesday, ... 7=Sunday
+  weeklyReportRecipients String[] @default([])
   monthlyReports Boolean @default(false)
-  reportRecipients String[] @default([]) // Array of email addresses
+  monthlyReportRecipients String[] @default([])
+  lastWeeklyReportSentAt DateTime?
+  lastMonthlyReportSentAt DateTime?
 
   // Alert Settings
   alertsEnabled Boolean @default(false)
@@ -266,6 +272,25 @@ model DashboardSettings {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model EmailReportHistory {
+  id          String   @id @default(cuid())
+
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  reportType  String   // 'weekly' | 'monthly'
+  recipient   String
+  status      String   // 'sent' | 'failed'
+
+  periodStart DateTime
+  periodEnd   DateTime
+
+  sentAt       DateTime @default(now())
+  errorMessage String?
+
+  @@index([dashboardId, sentAt])
 }
 
 model SiteConfig {
@@ -295,6 +320,7 @@ model MonitorCheck {
   httpMethod            String    @default("HEAD")
   requestHeaders        Json?
   acceptedStatusCodes   Json      @default("[\"2xx\"]")
+  expectedKeyword       String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -427,4 +453,19 @@ model DashboardInvitation {
   @@index([email])
   @@index([token])
   @@index([status])
+}
+
+model DashboardIntegration {
+  id          String    @id @default(cuid())
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+  type        String    // "pushover", "slack", "discord", etc.
+  name        String?
+  enabled     Boolean   @default(true)
+  config      Json      // Type-specific config (e.g. { userKey, apiToken } for Pushover)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([dashboardId, type])
+  @@index([dashboardId])
 }

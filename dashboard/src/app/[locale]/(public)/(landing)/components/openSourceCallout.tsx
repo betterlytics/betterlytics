@@ -37,7 +37,7 @@ export async function OpenSourceCallout() {
               className='group relative overflow-hidden transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg motion-reduce:transform-none motion-reduce:transition-none'
               asChild
             >
-              <ExternalLink className='flex items-center justify-center gap-2' href='/docs' title={t('docsTitle')}>
+              <ExternalLink className='flex items-center justify-center gap-2' href='https://betterlytics.io/docs' title={t('docsTitle')}>
                 <BookOpen className='h-5 w-5' />
                 {t('viewDocs')}
               </ExternalLink>

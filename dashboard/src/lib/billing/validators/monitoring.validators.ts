@@ -51,6 +51,13 @@ class MonitoringCapabilityValidator extends CapabilityValidator {
     }
     return this;
   }
+
+  expectedKeyword(keyword: string | null | undefined, httpMethod: string | undefined): this {
+    if (keyword != null && keyword.trim() !== '' && httpMethod === 'GET') {
+      this.addCheck(this.caps.keywordValidation, this.t('capabilities.keywordValidation'));
+    }
+    return this;
+  }
 }
 
 export async function monitoringValidator(caps: MonitoringCapabilities): Promise<MonitoringCapabilityValidator> {

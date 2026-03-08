@@ -10,11 +10,17 @@ export type MonitoringCapabilities = {
   httpMethodConfigurable: boolean;
   customStatusCodes: boolean;
   customHeaders: boolean;
+  keywordValidation: boolean;
+};
+
+export type EmailReportCapabilities = {
+  emailReportsEnabled: boolean;
 };
 
 export type PlanCapabilities = {
   dashboards: DashboardCapabilities;
   monitoring: MonitoringCapabilities;
+  emailReports: EmailReportCapabilities;
 };
 
 export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
@@ -26,7 +32,9 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       httpMethodConfigurable: false,
       customStatusCodes: false,
       customHeaders: false,
+      keywordValidation: false,
     },
+    emailReports: { emailReportsEnabled: false },
   },
   professional: {
     dashboards: { maxDashboards: 50 },
@@ -36,7 +44,9 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
+      keywordValidation: true,
     },
+    emailReports: { emailReportsEnabled: true },
   },
   enterprise: {
     dashboards: { maxDashboards: 9999 },
@@ -46,7 +56,9 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
+      keywordValidation: true,
     },
+    emailReports: { emailReportsEnabled: true },
   },
 };
 
@@ -56,4 +68,8 @@ export function getCapabilitiesForTier(tier: TierName): PlanCapabilities {
 
 export function getDashboardLimitForTier(tier: TierName): number {
   return PLAN_CAPABILITIES[tier].dashboards.maxDashboards;
+}
+
+export function isEmailReportsEnabled(tier: TierName): boolean {
+  return PLAN_CAPABILITIES[tier].emailReports.emailReportsEnabled;
 }

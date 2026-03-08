@@ -6,7 +6,7 @@ use axum::{
     routing::{get, post},
 };
 use std::sync::Arc;
-use std::{net::IpAddr, net::SocketAddr, str::FromStr};
+use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -22,11 +22,13 @@ mod geoip;
 mod geoip_updater;
 mod metrics;
 mod monitor;
+mod notifications;
 mod outbound_link;
 mod postgres;
 mod processing;
 mod referrer;
 mod session;
+mod ip_parser;
 mod session_replay;
 mod site_config;
 mod storage;
@@ -137,11 +139,20 @@ async fn main() {
             .await
             .expect("Failed to init SiteConfigCache");
 
+    let notification_engine = crate::notifications::initialize_notification_engine(
+        Arc::clone(&site_config_pool),
+        Arc::clone(&clickhouse),
+        &config,
+    )
+    .await
+    .expect("Failed to initialize notification engine");
+
     if config.enable_uptime_monitoring {
         monitor::spawn_monitoring(
             config.clone(),
             Arc::clone(&clickhouse),
             metrics_collector.clone(),
+            Some(notification_engine),
         );
     } else {
         info!("uptime monitoring disabled by configuration");
@@ -254,7 +265,7 @@ async fn track_event(
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
 
-    let ip_address = parse_ip(headers).unwrap_or(addr.ip()).to_string();
+    let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
     let validation_start = std::time::Instant::now();
 
@@ -349,20 +360,6 @@ async fn fallback_handler() -> impl IntoResponse {
     (StatusCode::NOT_FOUND, "Not found")
 }
 
-pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
-    // Get IP from X-Forwarded-For header
-    if let Some(forwarded_for) = headers.get("x-forwarded-for") {
-        if let Ok(forwarded_str) = forwarded_for.to_str() {
-            if let Some(first_ip) = forwarded_str.split(',').next() {
-                if let Ok(ip) = IpAddr::from_str(first_ip.trim()) {
-                    return Ok(ip);
-                }
-            }
-        }
-    }
-
-    Err(())
-}
 
 /// Temporary endpoint to generate a site ID
 async fn generate_site_id_handler() -> impl IntoResponse {
