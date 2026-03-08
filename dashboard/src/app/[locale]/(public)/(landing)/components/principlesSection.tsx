@@ -3,6 +3,7 @@ import { Shield, Zap, Database, Eye, Code, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { ScrollGradientText } from '@/components/animations/ScrollGradientText';
 
 export async function PrinciplesSection() {
   const t = await getTranslations('public.landing.principles');
@@ -53,7 +54,7 @@ export async function PrinciplesSection() {
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <ScrollReveal className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span> {t('titleRest')}
+            <ScrollGradientText>{t('titleEmphasis')}</ScrollGradientText> {t('titleRest')}
           </h2>
           <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
         </ScrollReveal>

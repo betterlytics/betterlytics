@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { ScrollGradientText } from '@/components/animations/ScrollGradientText';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import AdvancedFiltersCard from './featureCards/advancedFiltersCard';
@@ -62,7 +63,7 @@ export async function FeatureShowcase() {
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <ScrollReveal className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span> {t('titleRest')}
+            <ScrollGradientText>{t('titleEmphasis')}</ScrollGradientText> {t('titleRest')}
           </h2>
           <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
         </ScrollReveal>
