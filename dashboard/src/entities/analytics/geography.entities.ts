@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 
 /** Supported geographic aggregation levels (ClickHouse column names) */
 export const GEO_LEVELS = ['country_code', 'subdivision_code', 'city'] as const;
@@ -24,8 +25,6 @@ export type WorldMapResponse = z.infer<typeof worldMapResponseSchema>;
 export type GeoVisitorWithCompare = GeoVisitor & {
   compareVisitors?: number;
 };
-
-import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 
 /** Maps a dashboard geoLevel setting to the ClickHouse geo levels it permits */
 export function getAllowedGeoLevels(geoLevel: GeoLevelSetting): GeoLevel[] {

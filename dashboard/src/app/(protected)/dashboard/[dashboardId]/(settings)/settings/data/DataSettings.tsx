@@ -21,7 +21,7 @@ export default function DataSettings() {
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
-  const [geoLevel, setGeoLevel] = useState<string>(settings.geoLevel);
+  const [geoLevel, setGeoLevel] = useState<GeoLevelSetting>(settings.geoLevel);
   const [isPending, startTransition] = useTransition();
 
   const isThresholdDisabled = geoLevel === 'OFF' || geoLevel === 'COUNTRY';
@@ -63,14 +63,14 @@ export default function DataSettings() {
     setPendingRetentionValue(null);
   };
 
-  const saveGeoLevel = (newLevel: string) => {
+  const saveGeoLevel = (newLevel: GeoLevelSetting) => {
     if (newLevel === settings.geoLevel) return;
     const previousLevel = geoLevel;
     setGeoLevel(newLevel);
 
     startTransition(async () => {
       try {
-        await updateDashboardSettingsAction(dashboardId, { geoLevel: newLevel as GeoLevelSetting });
+        await updateDashboardSettingsAction(dashboardId, { geoLevel: newLevel });
         await refreshSettings();
         toast.success(t('toastSuccess'));
       } catch {
@@ -155,7 +155,7 @@ export default function DataSettings() {
               {(disabled) => (
                 <Select
                   value={geoLevel}
-                  onValueChange={saveGeoLevel}
+                  onValueChange={(value) => saveGeoLevel(value as GeoLevelSetting)}
                   disabled={isPending || disabled}
                 >
                   <SelectTrigger className='border-border w-36 cursor-pointer'>

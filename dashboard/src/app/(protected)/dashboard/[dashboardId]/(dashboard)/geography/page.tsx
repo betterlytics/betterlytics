@@ -6,6 +6,8 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 import GeographyLoading from '@/components/loading/GeographyLoading';
+import { getDashboardSettings } from '@/services/dashboard/dashboardSettings.service';
+import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -17,14 +19,19 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
+  const settings = await getDashboardSettings(dashboardId);
+  const allowedLevels = getAllowedGeoLevels(settings.geoLevel);
+
+  const worldMapPromise = allowedLevels.includes('country_code')
+    ? getWorldMapDataAlpha2(dashboardId, query)
+    : Promise.resolve({ visitorData: [], compareData: [], maxVisitors: 0 });
 
   return (
     <div className='fixed inset-0 top-14 w-full'>
       <Suspense
         fallback={<GeographyLoading />}
       >
-        <GeographySection worldMapPromise={worldMapPromise} />
+        <GeographySection worldMapPromise={worldMapPromise} geoLevel={settings.geoLevel} />
       </Suspense>
 
       <div className='fixed top-16 right-4 z-30'>

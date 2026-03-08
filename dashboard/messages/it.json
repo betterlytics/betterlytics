@@ -2518,7 +2518,8 @@
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
       "visitors": "Visitatori",
-      "regionLoadError": "Impossibile caricare i dati della regione"
+      "regionLoadError": "Impossibile caricare i dati della regione",
+      "disabled": "Il tracciamento geografico è disattivato per questa dashboard. Puoi attivarlo nelle impostazioni della dashboard."
     },
     "userJourney": {
       "steps": "Passaggi",

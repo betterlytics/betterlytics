@@ -2518,7 +2518,8 @@
       "noData": "Ingen geografiske data tilgjengelige for valgt periode",
       "loading": "Laster kart...",
       "visitors": "Besøkende",
-      "regionLoadError": "Kunne ikke laste regiondata"
+      "regionLoadError": "Kunne ikke laste regiondata",
+      "disabled": "Geografisporing er deaktivert for dette dashbordet. Du kan aktivere det i dashbordinnstillinger."
     },
     "userJourney": {
       "steps": "Trinn",

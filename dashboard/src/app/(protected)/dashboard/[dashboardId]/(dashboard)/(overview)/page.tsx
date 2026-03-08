@@ -20,7 +20,6 @@ import {
 } from '@/app/actions/index.actions';
 import type { GeoLevel } from '@/entities/analytics/geography.entities';
 import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
-import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -41,7 +40,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
   const settings = await getDashboardSettings(dashboardId);
-  const allowedLevels = getAllowedGeoLevels(settings.geoLevel as GeoLevelSetting);
+  const allowedLevels = getAllowedGeoLevels(settings.geoLevel);
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
 
@@ -82,7 +81,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} geoLevel={settings.geoLevel as GeoLevelSetting} />
+          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} geoLevel={settings.geoLevel} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />

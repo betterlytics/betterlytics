@@ -2510,7 +2510,8 @@
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
       "loading": "Indlæser kort...",
       "visitors": "Besøgende",
-      "regionLoadError": "Kunne ikke indlæse regionsdata"
+      "regionLoadError": "Kunne ikke indlæse regionsdata",
+      "disabled": "Geografisporing er deaktiveret for dette dashboard. Du kan aktivere det i dashboard-indstillinger."
     },
     "userJourney": {
       "steps": "Trin",

@@ -42,7 +42,7 @@ pub enum GeoLevel {
 }
 
 impl GeoLevel {
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_db_str(s: &str) -> Self {
         match s {
             "OFF" => GeoLevel::Off,
             "REGION" => GeoLevel::Region,
@@ -78,7 +78,7 @@ impl From<SiteConfigRecord> for SiteConfig {
             domain: record.domain,
             blacklisted_ips: record.blacklisted_ips,
             enforce_domain: record.enforce_domain,
-            geo_level: GeoLevel::from_str(&record.geo_level),
+            geo_level: GeoLevel::from_db_str(&record.geo_level),
         }
     }
 }
