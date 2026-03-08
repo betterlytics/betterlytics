@@ -33,11 +33,43 @@ impl Default for RefreshConfig {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum GeoLevel {
+    Off,
+    Country,
+    Region,
+    City,
+}
+
+impl GeoLevel {
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "OFF" => GeoLevel::Off,
+            "REGION" => GeoLevel::Region,
+            "CITY" => GeoLevel::City,
+            _ => GeoLevel::Country, // default for unknown values
+        }
+    }
+
+    pub fn includes_country(self) -> bool {
+        self != GeoLevel::Off
+    }
+
+    pub fn includes_subdivision(self) -> bool {
+        matches!(self, GeoLevel::Region | GeoLevel::City)
+    }
+
+    pub fn includes_city(self) -> bool {
+        self == GeoLevel::City
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct SiteConfig {
     pub domain: String,
     pub blacklisted_ips: Vec<String>,
     pub enforce_domain: bool,
+    pub geo_level: GeoLevel,
 }
 
 impl From<SiteConfigRecord> for SiteConfig {
@@ -46,6 +78,7 @@ impl From<SiteConfigRecord> for SiteConfig {
             domain: record.domain,
             blacklisted_ips: record.blacklisted_ips,
             enforce_domain: record.enforce_domain,
+            geo_level: GeoLevel::from_str(&record.geo_level),
         }
     }
 }
