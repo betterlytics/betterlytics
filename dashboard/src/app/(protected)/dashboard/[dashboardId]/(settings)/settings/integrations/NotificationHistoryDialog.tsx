@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Image from 'next/image';
 import { History, CheckCircle2, XCircle } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
@@ -29,7 +30,7 @@ export function NotificationHistoryDialog() {
 
   return (
     <>
-      <Button variant='ghost' size='sm' className='cursor-pointer' onClick={handleOpen}>
+      <Button variant='outline' size='sm' className='cursor-pointer' onClick={handleOpen}>
         <History className='h-4 w-4' />
         {t('history.button')}
       </Button>
@@ -64,7 +65,17 @@ export function NotificationHistoryDialog() {
                       <TableCell className='text-muted-foreground text-xs'>
                         {formatRelativeTimeFromNow(row.ts)}
                       </TableCell>
-                      <TableCell>{row.integrationType}</TableCell>
+                      <TableCell>
+                        <span className='flex items-center gap-2'>
+                          <Image
+                            src={`/images/integrations/${row.integrationType}.svg`}
+                            alt={row.integrationType}
+                            width={18}
+                            height={18}
+                          />
+                          <span className='capitalize'>{row.integrationType}</span>
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <span className='line-clamp-2 whitespace-normal'>{row.title}</span>
                       </TableCell>
@@ -86,7 +97,7 @@ export function NotificationHistoryDialog() {
                           </p>
                         )}
                       </TableCell>
-                      <TableCell className='font-mono text-xs whitespace-normal break-words'>
+                      <TableCell className='font-mono text-xs break-words whitespace-normal'>
                         {row.errorMessage || null}
                       </TableCell>
                     </TableRow>
