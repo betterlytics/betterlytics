@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
+import { AnimatedCarousel } from '@/components/animations/AnimatedCarousel';
 
 const frameworks = [
   { name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg' },
@@ -21,6 +22,17 @@ const frameworks = [
   { name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg' },
 ];
 
+function FrameworkItem({ name, logo }: { name: string; logo: string }) {
+  return (
+    <div className='hover:bg-card flex min-w-[120px] flex-shrink-0 flex-col items-center space-y-2 rounded-lg p-4 transition-colors'>
+      <div className='flex h-8 w-8 items-center justify-center'>
+        <Image src={logo} alt={`${name} logo`} width={32} height={32} className='h-8 w-8' />
+      </div>
+      <span className='text-center text-sm font-medium'>{name}</span>
+    </div>
+  );
+}
+
 export async function FrameworkCompatibility() {
   const t = await getTranslations('public.landing.framework');
   return (
@@ -31,51 +43,18 @@ export async function FrameworkCompatibility() {
           <p className='text-muted-foreground'>{t('subtitle')}</p>
         </div>
 
-        <div className='relative overflow-hidden'>
-          <div className='flex w-max animate-[scroll_20s_linear_infinite] space-x-3 will-change-transform hover:[animation-play-state:paused] sm:space-x-6 lg:animate-[scroll_40s_linear_infinite] lg:space-x-8'>
+        <div className='relative'>
+          <AnimatedCarousel className='gap-3 sm:gap-6 lg:gap-8' speed={40}>
             {frameworks.map((framework) => (
-              <div
-                key={`first-${framework.name}`}
-                className='hover:bg-card flex min-w-[120px] flex-shrink-0 flex-col items-center space-y-2 rounded-lg p-4 transition-colors'
-              >
-                <div className='flex h-8 w-8 items-center justify-center'>
-                  <Image
-                    src={framework.logo}
-                    alt={`${framework.name} logo`}
-                    width={32}
-                    height={32}
-                    className='h-8 w-8'
-                  />
-                </div>
-                <span className='text-center text-sm font-medium'>{framework.name}</span>
-              </div>
+              <FrameworkItem key={framework.name} name={framework.name} logo={framework.logo} />
             ))}
-
-            {/* Duplicate set of frameworks to reduce the flickering when the loop reaches the end */}
-            {frameworks.map((framework) => (
-              <div
-                key={`second-${framework.name}`}
-                className='hover:bg-card flex min-w-[120px] flex-shrink-0 flex-col items-center space-y-2 rounded-lg p-4 transition-colors'
-              >
-                <div className='flex h-8 w-8 items-center justify-center'>
-                  <Image
-                    src={framework.logo}
-                    alt={`${framework.name} logo`}
-                    width={32}
-                    height={32}
-                    className='h-8 w-8'
-                  />
-                </div>
-                <span className='text-center text-sm font-medium'>{framework.name}</span>
-              </div>
-            ))}
-          </div>
+          </AnimatedCarousel>
 
           {/* Left fade gradient */}
-          <div className='from-background pointer-events-none absolute top-0 left-0 z-10 h-full w-32 bg-gradient-to-r to-transparent'></div>
+          <div className='from-background pointer-events-none absolute top-0 left-0 z-10 h-full w-32 bg-gradient-to-r to-transparent' />
 
           {/* Right fade gradient */}
-          <div className='from-background pointer-events-none absolute top-0 right-0 z-10 h-full w-32 bg-gradient-to-l to-transparent'></div>
+          <div className='from-background pointer-events-none absolute top-0 right-0 z-10 h-full w-32 bg-gradient-to-l to-transparent' />
         </div>
 
         <div className='mt-8 text-center'>
