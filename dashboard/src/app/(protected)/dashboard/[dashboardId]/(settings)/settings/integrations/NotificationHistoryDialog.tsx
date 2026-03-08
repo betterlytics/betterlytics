@@ -18,13 +18,19 @@ export function NotificationHistoryDialog() {
   const dashboardId = useDashboardId();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<NotificationHistoryRow[] | null>(null);
+  const [error, setError] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleOpen = () => {
     setOpen(true);
+    setError(false);
     startTransition(async () => {
-      const data = await getNotificationHistoryAction(dashboardId);
-      setRows(data);
+      try {
+        const data = await getNotificationHistoryAction(dashboardId);
+        setRows(data);
+      } catch {
+        setError(true);
+      }
     });
   };
 
@@ -45,6 +51,8 @@ export function NotificationHistoryDialog() {
             <div className='flex justify-center py-8'>
               <Spinner size='default' />
             </div>
+          ) : error ? (
+            <div className='text-destructive py-8 text-center text-sm'>{t('history.error')}</div>
           ) : rows === null || rows.length === 0 ? (
             <div className='text-muted-foreground py-8 text-center text-sm'>{t('history.empty')}</div>
           ) : (

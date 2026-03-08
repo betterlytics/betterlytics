@@ -3490,6 +3490,7 @@
       "title": "Registro notifiche",
       "button": "Registro notifiche",
       "empty": "Nessuna notifica inviata finora.",
+      "error": "Impossibile caricare la cronologia delle notifiche.",
       "attempts": "{count} tentativi",
       "columns": {
         "time": "Ora",

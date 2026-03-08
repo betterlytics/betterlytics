@@ -3482,6 +3482,7 @@
       "title": "Notifikationslog",
       "button": "Notifikationslog",
       "empty": "Ingen notifikationer sendt endnu.",
+      "error": "Kunne ikke indlæse notifikationshistorik.",
       "attempts": "{count} forsøg",
       "columns": {
         "time": "Tid",

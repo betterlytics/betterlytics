@@ -3479,6 +3479,7 @@
       "title": "Notification Log",
       "button": "Notification Log",
       "empty": "No notifications sent yet.",
+      "error": "Failed to load notification history.",
       "attempts": "{count} attempts",
       "columns": {
         "time": "Time",

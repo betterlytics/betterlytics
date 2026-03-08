@@ -3490,6 +3490,7 @@
       "title": "Varselslogg",
       "button": "Varselslogg",
       "empty": "Ingen varsler sendt ennå.",
+      "error": "Kunne ikke laste inn varslingshistorikk.",
       "attempts": "{count} forsøk",
       "columns": {
         "time": "Tid",
