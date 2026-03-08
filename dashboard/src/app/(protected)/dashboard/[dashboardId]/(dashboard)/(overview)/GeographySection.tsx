@@ -10,7 +10,8 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
+import { getAllowedGeoLevels, type GeoLevel } from '@/entities/analytics/geography.entities';
+import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 
@@ -19,6 +20,7 @@ type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
   topByGeoLevel: Partial<Record<GeoLevel, GeoTablePromise>>;
+  geoLevel: GeoLevelSetting;
 };
 
 const GEO_LABEL_FORMATTERS: Record<GeoLevel, (code: string, locale: SupportedLanguages) => string> = {
@@ -27,11 +29,15 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (code: string, locale: SupportedLan
   city: (code) => code,
 };
 
-export default function GeographySection({ worldMapPromise, topByGeoLevel }: GeographySectionProps) {
+export default function GeographySection({ worldMapPromise, topByGeoLevel, geoLevel }: GeographySectionProps) {
+  if (geoLevel === 'OFF') return null;
+
   const worldMapData = use(worldMapPromise);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const allowedLevels = getAllowedGeoLevels(geoLevel);
 
   const geoLevelTabLabels = {
     country_code: t('tabs.countries'),
@@ -39,7 +45,7 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
-  const geoLevelTabs = GEO_LEVELS.map((level) => ({
+  const geoLevelTabs = allowedLevels.map((level) => ({
     level,
     data: topByGeoLevel[level] ? use(topByGeoLevel[level]) : [],
   })).map(({ level, data }) => ({

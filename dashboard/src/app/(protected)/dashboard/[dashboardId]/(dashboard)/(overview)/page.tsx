@@ -19,6 +19,8 @@ import {
   getWorldMapDataAlpha2,
 } from '@/app/actions/index.actions';
 import type { GeoLevel } from '@/entities/analytics/geography.entities';
+import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
+import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -26,7 +28,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { env } from '@/lib/env';
+import { getDashboardSettings } from '@/services/dashboard/dashboardSettings.service';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -38,13 +40,19 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
+  const settings = await getDashboardSettings(dashboardId);
+  const allowedLevels = getAllowedGeoLevels(settings.geoLevel as GeoLevelSetting);
+
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
-  const topByGeoLevel: Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>> = {
-    country_code: env.ENABLE_GEOLOCATION ? getTopGeoVisitsAction(dashboardId, query, 'country_code') : Promise.resolve([]),
-    subdivision_code: env.ENABLE_GEOLOCATION && env.ENABLE_GEOSUBDIVISION ? getTopGeoVisitsAction(dashboardId, query, 'subdivision_code') : Promise.resolve([]),
-    city: env.ENABLE_GEOLOCATION && env.ENABLE_GEOSUBDIVISION ? getTopGeoVisitsAction(dashboardId, query, 'city') : Promise.resolve([]),
-  };
+
+  const worldMapPromise = allowedLevels.includes('country_code')
+    ? getWorldMapDataAlpha2(dashboardId, query)
+    : Promise.resolve({ visitorData: [], compareData: [], maxVisitors: 0 });
+
+  const topByGeoLevel: Partial<Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>>> = {};
+  for (const level of allowedLevels) {
+    topByGeoLevel[level] = getTopGeoVisitsAction(dashboardId, query, level);
+  }
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, query),
@@ -74,7 +82,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} />
+          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} geoLevel={settings.geoLevel as GeoLevelSetting} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
