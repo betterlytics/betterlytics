@@ -2334,7 +2334,6 @@
         "browser": "Browser",
         "os": "Operating system",
         "referrer_source": "Referrer source",
-        "referrer_search_term": "Referrer term",
         "referrer_url": "Referrer URL",
         "referrer_domain": "Referrer domain",
         "utm_source": "UTM source",

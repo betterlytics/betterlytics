@@ -8,7 +8,6 @@ const FILTER_COLUMN_DESCRIPTIONS: Record<FilterColumn, string> = {
   browser: 'Browser name',
   os: 'Operating system',
   referrer_source: 'Traffic source type (e.g. search, social, direct)',
-  referrer_search_term: 'Search term used to reach the site',
   referrer_url: 'Full referrer URL',
   referrer_domain: 'Referrer base domain (e.g. reddit.com, google.com)',
   utm_source: 'UTM source parameter',

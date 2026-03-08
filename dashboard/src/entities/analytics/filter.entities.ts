@@ -8,7 +8,6 @@ export const FILTER_COLUMNS = [
   'browser',
   'os',
   'referrer_source',
-  'referrer_search_term',
   'referrer_url',
   'referrer_domain',
   'utm_source',

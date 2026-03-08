@@ -2337,7 +2337,6 @@
         "browser": "Browser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
-        "referrer_search_term": "Henvisningssøgeterm",
         "referrer_url": "Henvisnings-URL",
         "referrer_domain": "Henvisningsdomæne",
         "utm_source": "UTM-kilde",
