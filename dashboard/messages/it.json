@@ -1295,6 +1295,10 @@
           "title": "Alte Prestazioni",
           "description": "Motore analytics basato su ClickHouse con tempi di query sotto il secondo a qualsiasi scala."
         },
+        "mcpServer": {
+          "title": "Server MCP",
+          "description": "Interroga i tuoi dati analytics da assistenti AI come Claude. Server MCP integrato per accesso in linguaggio naturale a metriche, funnel e percorsi utente."
+        },
         "emailSupport": {
           "title": "Supporto Email",
           "description": "Ricevi assistenza via email per qualsiasi domanda o problema."
@@ -1580,6 +1584,7 @@
         "rules": "Regole",
         "members": "Membri",
         "reports": "Report Email",
+        "mcp": "MCP",
         "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
@@ -3455,6 +3460,29 @@
     "toast": {
       "saved": "Impostazioni report salvate",
       "error": "Impossibile salvare le impostazioni del report"
+    }
+  },
+  "mcp": {
+    "settings": {
+      "title": "Token API",
+      "description": "Crea token per connettere agenti AI ai tuoi dati analitici tramite il Model Context Protocol.",
+      "tokenNameLabel": "Nome token",
+      "tokenNamePlaceholder": "es. Claude Desktop",
+      "createButton": "Crea token",
+      "creating": "Creazione...",
+      "newTokenNotice": "Copia questo token adesso. Non potrai vederlo di nuovo.",
+      "created": "Creato {date}",
+      "lastUsed": "Ultimo utilizzo {date}"
+    },
+    "toast": {
+      "created": "Token creato",
+      "createError": "Impossibile creare il token",
+      "deleted": "Token eliminato",
+      "deleteError": "Impossibile eliminare il token"
+    },
+    "deleteDialog": {
+      "title": "Elimina {name}",
+      "description": "Questo token verrà revocato permanentemente. Tutti i client MCP che lo utilizzano perderanno immediatamente l'accesso."
     }
   },
   "integrationsSettings": {

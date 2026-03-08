@@ -42,6 +42,8 @@ import {
   Send,
 } from 'lucide-react';
 
+import { MCPIcon } from '@/components/icons';
+
 const CATEGORIES = [
   {
     id: 'coreAnalytics',
@@ -109,6 +111,7 @@ const CATEGORIES = [
       { id: 'fullyManaged', icon: Cloud },
       { id: 'lightweightScript', icon: Zap },
       { id: 'highPerformance', icon: Gauge },
+      { id: 'mcpServer', icon: MCPIcon },
     ],
   },
   {

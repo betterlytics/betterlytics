@@ -99,6 +99,12 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'BigQuery export', betterlytics: false, competitor: true },
         ],
       },
+      {
+        name: 'AI & Integrations',
+        features: [
+          { name: 'MCP server', betterlytics: true, competitor: true },
+        ],
+      },
     ],
   },
   detailedComparison: [
