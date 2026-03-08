@@ -5,6 +5,8 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import type { WorldMapResponse, GeoVisitor, GeoLevel } from '@/entities/analytics/geography.entities';
+import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
+import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
@@ -16,9 +18,15 @@ async function fetchTopGeoVisits(
   level: GeoLevel,
   limit: number,
 ) {
+  const settings = await getDashboardSettings(ctx.dashboardId);
+  const allowedLevels = getAllowedGeoLevels(settings.geoLevel as GeoLevelSetting);
+
+  if (!allowedLevels.includes(level)) {
+    return [];
+  }
+
   const { main, compare } = toSiteQuery(ctx.siteId, query);
-  const minVisitors =
-    level !== 'country_code' ? (await getDashboardSettings(ctx.dashboardId)).geoMinThreshold : 0;
+  const minVisitors = level !== 'country_code' ? settings.geoMinThreshold : 0;
 
   const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit, minVisitors);
   const topKeys = geoVisitors.map((r) => r[level]);
@@ -38,6 +46,13 @@ async function fetchTopGeoVisits(
 
 export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<WorldMapResponse> => {
+    const settings = await getDashboardSettings(ctx.dashboardId);
+    const allowedLevels = getAllowedGeoLevels(settings.geoLevel as GeoLevelSetting);
+
+    if (!allowedLevels.includes('country_code')) {
+      return { visitorData: [], compareData: [], maxVisitors: 0 };
+    }
+
     const { main, compare } = toSiteQuery(ctx.siteId, query);
 
     try {

@@ -24,3 +24,15 @@ export type WorldMapResponse = z.infer<typeof worldMapResponseSchema>;
 export type GeoVisitorWithCompare = GeoVisitor & {
   compareVisitors?: number;
 };
+
+import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
+
+/** Maps a dashboard geoLevel setting to the ClickHouse geo levels it permits */
+export function getAllowedGeoLevels(geoLevel: GeoLevelSetting): GeoLevel[] {
+  switch (geoLevel) {
+    case 'OFF': return [];
+    case 'COUNTRY': return ['country_code'];
+    case 'REGION': return ['country_code', 'subdivision_code'];
+    case 'CITY': return ['country_code', 'subdivision_code', 'city'];
+  }
+}
