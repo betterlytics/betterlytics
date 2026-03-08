@@ -130,10 +130,10 @@ describe('buildQuery', () => {
     expect(result.taggedSql).toContain('GROUP BY');
   });
 
-  it('supports referrer_source_name dimension', () => {
+  it('supports referrer_domain dimension', () => {
     const input: McpQueryInput = {
       metrics: ['visitors'],
-      dimensions: ['referrer_source_name'],
+      dimensions: ['referrer_domain'],
       timeRange: '7d',
       timezone: 'UTC',
       order: 'desc',
@@ -142,7 +142,7 @@ describe('buildQuery', () => {
 
     const result = buildQuery(input, siteId);
 
-    expect(result.taggedSql).toContain('referrer_source_name');
+    expect(result.taggedSql).toContain('referrer_domain');
     expect(result.taggedSql).toContain('GROUP BY');
   });
 

@@ -19,7 +19,7 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
 
   const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
     if (tabKey === 'referrers') {
-      if (item.children) return;
+      if (item.children) return makeFilterClick('referrer_domain')(item.label);
       return makeFilterClick('referrer_url')(item.label);
     }
     if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
@@ -39,7 +39,7 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
           key: 'referrers',
           label: t('tabs.referrers'),
           data: trafficSourcesCombined.topReferrerUrls.map((item) => ({
-            label: item.source_name,
+            label: item.referrer_domain,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
             comparisonValue: item.compare?.visitors,

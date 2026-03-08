@@ -8,7 +8,7 @@ export const DIMENSION_KEYS = [
   'os',
   'custom_event_name',
   'referrer_source',
-  'referrer_source_name',
+  'referrer_domain',
 ] as const;
 export type DimensionKey = (typeof DIMENSION_KEYS)[number];
 
@@ -26,7 +26,7 @@ export const DIMENSIONS = [
   { key: 'os', column: 'os', description: 'Operating system (e.g. Windows, macOS, iOS)' },
   { key: 'custom_event_name', column: 'custom_event_name', description: 'Custom event name' },
   { key: 'referrer_source', column: 'referrer_source', description: 'Traffic source type (e.g. search, social, direct)' },
-  { key: 'referrer_source_name', column: 'referrer_source_name', description: 'Traffic source name (e.g. Google, Twitter, Reddit)' },
+  { key: 'referrer_domain', column: 'referrer_domain', description: 'Referrer base domain (e.g. reddit.com, google.com)' },
 ] satisfies DimensionDefinition[];
 
 const DIMENSION_COLUMNS = DIMENSIONS.map((d) => d.column) as [string, ...string[]];

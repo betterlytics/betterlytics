@@ -110,9 +110,9 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
     WITH session_data AS (
       SELECT
         session_id,
-        referrer_source as source_type,
-        referrer_source_name as source_name,
-        referrer_url as source_url,
+        referrer_source,
+        referrer_domain,
+        referrer_url,
         count() as page_count,
         if(count() > 1,
           dateDiff('second', min(timestamp), max(timestamp)),
@@ -123,12 +123,12 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}
-      GROUP BY session_id, source_type, source_name, source_url
+      GROUP BY session_id, referrer_source, referrer_domain, referrer_url
     )
     SELECT
-      source_type,
-      source_name,
-      source_url,
+      referrer_source,
+      referrer_domain,
+      referrer_url,
       count() as visits,
       if(count() > 0,
         round((count() - countIf(page_count > 1)) / count() * 100, 1),
@@ -139,7 +139,7 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
         0
       ) as avg_visit_duration
     FROM session_data
-    GROUP BY source_type, source_name, source_url
+    GROUP BY referrer_source, referrer_domain, referrer_url
     ORDER BY visits DESC
     LIMIT {limit:UInt32}
   `;
@@ -167,35 +167,32 @@ export async function getReferrerUrlRollup(
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
-    WITH enriched AS (
-      SELECT
-        cutToFirstSignificantSubdomain(concat('http://', referrer_url)) as source_name,
-        referrer_url,
-        session_id
+    WITH top_parents AS (
+      SELECT referrer_domain
       FROM analytics.events
       WHERE site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND referrer_url != ''
+        AND referrer_domain != ''
         AND referrer_source != 'direct'
         AND referrer_source != 'internal'
         AND ${SQL.AND(filters)}
-    ),
-    top_parents AS (
-      SELECT source_name
-      FROM enriched
-      WHERE source_name != ''
-      GROUP BY source_name
+      GROUP BY referrer_domain
       ORDER BY uniq(session_id) DESC
       LIMIT {limit:UInt32}
     )
     SELECT
-      source_name,
+      referrer_domain,
       referrer_url,
       uniq(session_id) as visitors,
       grouping(referrer_url) as is_rollup
-    FROM enriched
-    WHERE source_name IN (SELECT source_name FROM top_parents)
-    GROUP BY GROUPING SETS ((source_name, referrer_url), (source_name))
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+      AND referrer_domain IN (SELECT referrer_domain FROM top_parents)
+      AND referrer_source != 'direct'
+      AND referrer_source != 'internal'
+      AND ${SQL.AND(filters)}
+    GROUP BY GROUPING SETS ((referrer_domain, referrer_url), (referrer_domain))
     HAVING (is_rollup = 0 AND referrer_url != '') OR is_rollup = 1
     ORDER BY is_rollup DESC, visitors DESC
   `;

@@ -39,7 +39,7 @@ describe('getSchemaDescription', () => {
   it('includes referrer dimensions', () => {
     const { dimensions } = getSchemaDescription();
     expect(dimensions.some((d) => d.key === 'referrer_source')).toBe(true);
-    expect(dimensions.some((d) => d.key === 'referrer_source_name')).toBe(true);
+    expect(dimensions.some((d) => d.key === 'referrer_domain')).toBe(true);
   });
 
   it('returns filter columns with key and description', () => {

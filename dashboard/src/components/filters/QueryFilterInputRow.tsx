@@ -12,7 +12,6 @@ import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
-  BatteryIcon,
   CableIcon,
   CompassIcon,
   EarthIcon,
@@ -144,9 +143,9 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'os', icon: <MonitorSmartphoneIcon />, label: 'Operating system' },
   { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },
   { value: 'referrer_source', icon: <StepBackIcon />, label: 'Referrer source' },
-  { value: 'referrer_source_name', icon: <BatteryIcon />, label: 'Referrer name' },
   { value: 'referrer_search_term', icon: <ShellIcon />, label: 'Referrer term' },
   { value: 'referrer_url', icon: <ExternalLinkIcon />, label: 'Referrer URL' },
+  { value: 'referrer_domain', icon: <GlobeIcon />, label: 'Referrer domain' },
   { value: 'utm_source', icon: <ArrowRightToLineIcon />, label: 'UTM source' },
   { value: 'utm_medium', icon: <CableIcon />, label: 'UTM medium' },
   { value: 'utm_campaign', icon: <FileTextIcon />, label: 'UTM campaign' },
