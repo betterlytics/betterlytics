@@ -3513,6 +3513,24 @@
       }
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
+    "history": {
+      "title": "Registro notifiche",
+      "button": "Registro notifiche",
+      "empty": "Nessuna notifica inviata finora.",
+      "error": "Impossibile caricare la cronologia delle notifiche.",
+      "attempts": "{count} tentativi",
+      "columns": {
+        "time": "Ora",
+        "integration": "Integrazione",
+        "notification": "Notifica",
+        "status": "Stato",
+        "error": "Errore"
+      },
+      "status": {
+        "sent": "Inviata",
+        "failed": "Fallita"
+      }
+    },
     "status": {
       "connected": "Connesso",
       "disabled": "Disabilitato"

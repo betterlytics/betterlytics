@@ -13,6 +13,7 @@ pub struct NotificationHistoryRow {
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis")]
     pub ts: DateTime<Utc>,
     pub dashboard_id: String,
+    pub monitor_id: String,
     pub event_key: String,
     pub integration_type: String,
     pub title: String,

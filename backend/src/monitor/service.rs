@@ -206,6 +206,7 @@ impl IncidentOrchestrator {
         self.send_push_notification(
             NotificationEvent {
                 dashboard_id: ctx.check.dashboard_id.clone(),
+                monitor_id: ctx.check.id.to_string(),
                 event_key: format!("monitor_down:{incident_id}"),
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
@@ -300,6 +301,7 @@ impl IncidentOrchestrator {
         self.send_push_notification(
             NotificationEvent {
                 dashboard_id: ctx.check.dashboard_id.clone(),
+                monitor_id: ctx.check.id.to_string(),
                 event_key: format!("monitor_recovery:{incident_id}"),
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
@@ -404,6 +406,7 @@ impl IncidentOrchestrator {
         self.send_push_notification(
             NotificationEvent {
                 dashboard_id: ctx.check.dashboard_id.clone(),
+                monitor_id: ctx.check.id.to_string(),
                 event_key: format!("ssl_{}:{}", if expired { "expired" } else { "expiring" }, ctx.check.id),
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
