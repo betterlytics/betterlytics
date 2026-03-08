@@ -2,60 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.6',
-    releasedAt: '2026-02-28',
-    title: 'Notifikationsintegrationer til uptime-advarsler og norsk lokalisering',
+    version: 'v1.3.7',
+    releasedAt: '2026-03-08',
+    title: 'MCP-server, smartere referrergruppering og notifikationslogger',
     summary:
-      'Advarsler fra uptime-overvågning kan nu leveres til Slack, Discord, Teams, Pushover eller et valgfrit webhook. Dashboardet er desuden nu tilgængeligt på norsk, og flere stabilitetsrettelser forbedrer pålideligheden på platformen.',
+      'Forespørg dine analysedata direkte fra AI-agenter med den nye MCP-server. Referrerkilder er nu grupperet mere præcist og kan udvides i oversigten. Integrationer viser nu en komplet leveringslog for notifikationer, og talformatering er forbedret på tværs af dashboardet.',
   },
   sections: [
     {
-      id: 'v136-new-features',
+      id: 'v137-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
+            'Tilføjet en MCP-server (Model Context Protocol), der lader dig forbinde dine analysedata til AI-assistenter og -agenter. Du kan nu bede din AI om at hente trafikstatistik, udforske User Journeys eller analysere funnels — og kombinere disse indsigter med anden kontekst, f.eks. din egen kodebase.',
+            'Integrationer inkluderer nu en notifikationsleveringslog, så du kan se præcis hvilke notifikationer der blev sendt, hvornår de blev leveret, og om nogen fejlede — herunder årsagen hvis noget gik galt.',
           ],
         },
       ],
     },
     {
-      id: 'v136-improvements',
+      id: 'v137-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Dashboardet er nu tilgængeligt på norsk.',
-            'Løst et problem på serversiden, der under visse betingelser kunne forårsage ustabilitet, og dermed forbedret den overordnede platformstabilitet.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v136-security',
-      title: 'Sikkerhed',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Opdateret centrale afhængigheder for at adressere en nyligt offentliggjort sikkerhedssårbarhed, så dine data og konti forbliver sikre.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v136-fixes',
-      title: 'Fejlrettelser',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Rettet et problem med cirkeldiagrammer, der kunne bryde layoutet på visse dashboard-visninger.',
-            'Rettet en fejl, hvor tidszonen kunne falde tilbage til en forkert standardværdi.',
-            'Rettet et problem, hvor kvotens nulstillingsdato kunne vises som et negativt tal.',
+            'Referrerkilder i oversigtstabellen kan nu udvides, så du med ét blik kan se fordelingen bag hver trafikkilde.',
+            'Referrergruppering er forbedret, så trafik fra forskellige subdomæner på samme site nu korrekt slås sammen under én kilde.',
+            'Tal på tværs af dashboardet er nu konsekvent formateret i henhold til din region.',
           ],
         },
       ],
@@ -64,6 +40,44 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.7',
+      releasedAt: '2026-03-08',
+      title: 'MCP-server, smartere referrergruppering og notifikationslogger',
+      summary:
+        'Forespørg dine analysedata direkte fra AI-agenter med den nye MCP-server. Referrerkilder er nu grupperet mere præcist og kan udvides i oversigten. Integrationer viser nu en komplet leveringslog for notifikationer, og talformatering er forbedret på tværs af dashboardet.',
+    },
+    sections: [
+      {
+        id: 'v137-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Tilføjet en MCP-server (Model Context Protocol), der lader dig forbinde dine analysedata til AI-assistenter og -agenter. Du kan nu bede din AI om at hente trafikstatistik, udforske User Journeys eller analysere funnels — og kombinere disse indsigter med anden kontekst, f.eks. din egen kodebase.',
+              'Integrationer inkluderer nu en notifikationsleveringslog, så du kan se præcis hvilke notifikationer der blev sendt, hvornår de blev leveret, og om nogen fejlede — herunder årsagen hvis noget gik galt.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v137-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Referrerkilder i oversigtstabellen kan nu udvides, så du med ét blik kan se fordelingen bag hver trafikkilde.',
+              'Referrergruppering er forbedret, så trafik fra forskellige subdomæner på samme site nu korrekt slås sammen under én kilde.',
+              'Tal på tværs af dashboardet er nu konsekvent formateret i henhold til din region.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.6',
