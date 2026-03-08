@@ -2,60 +2,36 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.6',
-    releasedAt: '2026-02-28',
-    title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
+    version: 'v1.3.7',
+    releasedAt: '2026-03-08',
+    title: 'Server MCP, raggruppamento referrer migliorato e log delle notifiche',
     summary:
-      'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',
+      'Interroga i tuoi dati analitici direttamente dagli agenti AI con il nuovo server MCP. Le sorgenti referrer sono ora raggruppate in modo più accurato ed espandibili nella panoramica. Le integrazioni mostrano ora un log completo di consegna delle notifiche e la formattazione dei numeri è stata migliorata in tutta la dashboard.',
   },
   sections: [
     {
-      id: 'v136-new-features',
+      id: 'v137-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Gli avvisi di monitoraggio uptime possono ora essere inviati a Slack, Discord, Microsoft Teams, Pushover o qualsiasi endpoint webhook personalizzato. Configura i tuoi canali di notifica dalla pagina Integrazioni nelle impostazioni della dashboard.',
+            'Aggiunto un server MCP (Model Context Protocol) che ti permette di connettere i tuoi dati analitici ad assistenti e agenti AI. Ora puoi chiedere alla tua AI di recuperare statistiche sul traffico, esplorare i percorsi utente o analizzare i funnel — e combinare queste informazioni con altro contesto, come la tua codebase.',
+            'Le integrazioni includono ora un log di consegna delle notifiche, così puoi vedere esattamente quali notifiche sono state inviate, quando sono state consegnate e se qualcuna ha fallito — inclusa la causa in caso di errore.',
           ],
         },
       ],
     },
     {
-      id: 'v136-improvements',
+      id: 'v137-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Il dashboard è ora disponibile in norvegese.',
-            'Risolto un problema lato server che in determinate condizioni poteva causare instabilità, migliorando la stabilità complessiva della piattaforma.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v136-security',
-      title: 'Sicurezza',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Aggiornate le dipendenze principali per risolvere una vulnerabilità di sicurezza recentemente divulgata, mantenendo al sicuro i tuoi dati e account.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v136-fixes',
-      title: 'Correzioni',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Risolto un problema con i grafici a torta che potevano compromettere il layout del dashboard in alcune viste.',
-            'Corretto un errore per cui il fuso orario poteva ripristinarsi su un valore predefinito non corretto.',
-            'Risolto un problema per cui il giorno di reset della quota di utilizzo poteva essere visualizzato come numero negativo.',
+            'Le sorgenti referrer nella tabella panoramica sono ora espandibili, permettendoti di vedere subito il dettaglio dietro ogni fonte di traffico.',
+            'Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un\'unica fonte.',
+            'I numeri in tutta la dashboard sono ora formattati in modo coerente in base alla tua lingua e regione.',
           ],
         },
       ],
@@ -66,8 +42,46 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
   {
     metadata: {
+      version: 'v1.3.7',
+      releasedAt: '2026-03-08',
+      title: 'Server MCP, raggruppamento referrer migliorato e log delle notifiche',
+      summary:
+        'Interroga i tuoi dati analitici direttamente dagli agenti AI con il nuovo server MCP. Le sorgenti referrer sono ora raggruppate in modo più accurato ed espandibili nella panoramica. Le integrazioni mostrano ora un log completo di consegna delle notifiche e la formattazione dei numeri è stata migliorata in tutta la dashboard.',
+    },
+    sections: [
+      {
+        id: 'v137-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Aggiunto un server MCP (Model Context Protocol) che ti permette di connettere i tuoi dati analitici ad assistenti e agenti AI. Ora puoi chiedere alla tua AI di recuperare statistiche sul traffico, esplorare i percorsi utente o analizzare i funnel — e combinare queste informazioni con altro contesto, come la tua codebase.',
+              'Le integrazioni includono ora un log di consegna delle notifiche, così puoi vedere esattamente quali notifiche sono state inviate, quando sono state consegnate e se qualcuna ha fallito — inclusa la causa in caso di errore.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v137-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le sorgenti referrer nella tabella panoramica sono ora espandibili, permettendoti di vedere subito il dettaglio dietro ogni fonte di traffico.',
+              'Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un\'unica fonte.',
+              'I numeri in tutta la dashboard sono ora formattati in modo coerente in base alla tua lingua e regione.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
       version: 'v1.3.6',
-      releasedAt: '2026-02-28',
+      releasedAt: '2026-03-01',
       title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
       summary:
         'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',
