@@ -156,7 +156,7 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
           compare: compareReferrerUrlRollup || undefined,
           parentKey: 'source_name',
           childKey: 'referrer_url',
-        }).slice(0, limit),
+        }),
         topReferrerSources: toDataTable({
           data: topReferrerSources,
           compare: compareTopReferrerSources || undefined,
