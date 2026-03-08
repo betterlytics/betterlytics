@@ -2886,9 +2886,18 @@
           "title": "Cambiare periodo di conservazione?",
           "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
         },
-        "geoThresholdTitle": "Privacy",
+        "geographyTitle": "Traccia dati geografici",
+        "geoLevelLabel": "Livello geografico",
+        "geoLevelHelp": "Controlla quali dati di posizione vengono raccolti e mostrati. I livelli superiori includono tutti i livelli inferiori.",
+        "geoLevelOptions": {
+          "OFF": "Disattivato",
+          "COUNTRY": "Paese",
+          "REGION": "Regione",
+          "CITY": "Città"
+        },
         "geoThresholdLabel": "Soglia minima visitatori",
         "geoThresholdHelp": "I dati di città e regioni con meno visitatori di questo valore saranno nascosti dalla dashboard. Impostare a 0 per disattivare.",
+        "geoThresholdDisabledHelp": "Disponibile solo quando il livello geografico è Regione o Città.",
         "siteRules": {
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",

@@ -3,6 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
+import { GEO_LEVEL_VALUES, type GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 import SettingsSection from '../SettingsSection';
 import SettingsPageHeader from '../SettingsPageHeader';
 import { useTranslations } from 'next-intl';
@@ -20,7 +21,10 @@ export default function DataSettings() {
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
+  const [geoLevel, setGeoLevel] = useState<string>(settings.geoLevel);
   const [isPending, startTransition] = useTransition();
+
+  const isThresholdDisabled = geoLevel === 'OFF' || geoLevel === 'COUNTRY';
 
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -57,6 +61,23 @@ export default function DataSettings() {
   const handleCancelChange = () => {
     setIsConfirmOpen(false);
     setPendingRetentionValue(null);
+  };
+
+  const saveGeoLevel = (newLevel: string) => {
+    if (newLevel === settings.geoLevel) return;
+    const previousLevel = geoLevel;
+    setGeoLevel(newLevel);
+
+    startTransition(async () => {
+      try {
+        await updateDashboardSettingsAction(dashboardId, { geoLevel: newLevel as GeoLevelSetting });
+        await refreshSettings();
+        toast.success(t('toastSuccess'));
+      } catch {
+        setGeoLevel(previousLevel);
+        toast.error(t('toastError'));
+      }
+    });
   };
 
   const saveThreshold = (newValue: number) => {
@@ -123,11 +144,42 @@ export default function DataSettings() {
         </div>
       </SettingsSection>
 
-      <SettingsSection title={t('data.geoThresholdTitle')}>
+      <SettingsSection title={t('data.geographyTitle')}>
+          {/* Geography Level Selector */}
+          <div className='flex items-center justify-between'>
+            <div>
+              <span className='text-sm font-medium'>{t('data.geoLevelLabel')}</span>
+              <p className='text-muted-foreground text-xs'>{t('data.geoLevelHelp')}</p>
+            </div>
+            <PermissionGate permission='canManageSettings'>
+              {(disabled) => (
+                <Select
+                  value={geoLevel}
+                  onValueChange={saveGeoLevel}
+                  disabled={isPending || disabled}
+                >
+                  <SelectTrigger className='border-border w-36 cursor-pointer'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GEO_LEVEL_VALUES.map((level) => (
+                      <SelectItem key={level} value={level} className='cursor-pointer'>
+                        {t(`data.geoLevelOptions.${level}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </PermissionGate>
+          </div>
+
+          {/* Minimum Visitor Threshold */}
           <div className='flex items-center justify-between'>
             <div>
               <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
-              <p className='text-muted-foreground text-xs'>{t('data.geoThresholdHelp')}</p>
+              <p className='text-muted-foreground text-xs'>
+                {isThresholdDisabled ? t('data.geoThresholdDisabledHelp') : t('data.geoThresholdHelp')}
+              </p>
             </div>
             <PermissionGate permission='canManageSettings'>
               {(disabled) => (
@@ -139,7 +191,7 @@ export default function DataSettings() {
                   onChange={(e) => setGeoMinThreshold(parseInt(e.target.value) || 0)}
                   onBlur={handleThresholdBlur}
                   onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-                  disabled={isPending || disabled}
+                  disabled={isPending || disabled || isThresholdDisabled}
                   className='border-border w-20 text-center'
                 />
               )}

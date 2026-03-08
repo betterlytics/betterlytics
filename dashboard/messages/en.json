@@ -2875,9 +2875,18 @@
           "title": "Change retention period?",
           "description": "Are you sure you want to change the data retention period to {period}?"
         },
-        "geoThresholdTitle": "Privacy",
+        "geographyTitle": "Track Geography Data",
+        "geoLevelLabel": "Geography Level",
+        "geoLevelHelp": "Controls what location data is collected and shown. Higher levels include all lower levels.",
+        "geoLevelOptions": {
+          "OFF": "Off",
+          "COUNTRY": "Country",
+          "REGION": "Region",
+          "CITY": "City"
+        },
         "geoThresholdLabel": "Minimum visitor threshold",
         "geoThresholdHelp": "City and region data with fewer visitors than this value will be hidden from the dashboard. Set to 0 to disable.",
+        "geoThresholdDisabledHelp": "Only available when geography level is Region or City.",
         "siteRules": {
           "title": "Site Rules",
           "description": "Control which incoming events are accepted.",

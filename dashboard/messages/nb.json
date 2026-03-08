@@ -2886,9 +2886,18 @@
           "title": "Endre oppbevaringsperiode?",
           "description": "Er du sikker på at du vil endre dataoppbevaringsperioden til {period}?"
         },
-        "geoThresholdTitle": "Personvern",
+        "geographyTitle": "Spor geografidata",
+        "geoLevelLabel": "Geografisk nivå",
+        "geoLevelHelp": "Kontrollerer hvilke stedsdata som samles inn og vises. Høyere nivåer inkluderer alle lavere nivåer.",
+        "geoLevelOptions": {
+          "OFF": "Av",
+          "COUNTRY": "Land",
+          "REGION": "Region",
+          "CITY": "By"
+        },
         "geoThresholdLabel": "Minimum besøksgrense",
         "geoThresholdHelp": "By- og regiondata med færre besøkende enn denne verdien skjules fra dashbordet. Sett til 0 for å deaktivere.",
+        "geoThresholdDisabledHelp": "Kun tilgjengelig når geografisk nivå er Region eller By.",
         "siteRules": {
           "title": "Nettstedsregler",
           "description": "Kontroller hvilke innkommende hendelser som godtas.",
