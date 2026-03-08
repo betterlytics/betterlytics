@@ -81,7 +81,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
   {
     metadata: {
       version: 'v1.3.6',
-      releasedAt: '2026-02-28',
+      releasedAt: '2026-03-01',
       title: 'Integrazioni di notifica per gli avvisi uptime e localizzazione norvegese',
       summary:
         'Gli avvisi di monitoraggio uptime possono ora essere recapitati su Slack, Discord, Teams, Pushover o qualsiasi webhook personalizzato. Il dashboard è ora disponibile anche in norvegese, e diverse correzioni migliorano l\u2019affidabilità della piattaforma.',

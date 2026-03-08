@@ -81,7 +81,7 @@ export const changelogEntriesEn: readonly ChangelogEntryData[] = [
   {
     metadata: {
       version: 'v1.3.6',
-      releasedAt: '2026-02-28',
+      releasedAt: '2026-03-01',
       title: 'Notification Integrations for Uptime Alerts & Norwegian Localization',
       summary:
         'Uptime monitoring alerts can now be delivered to Slack, Discord, Teams, Pushover, or any custom webhook. The dashboard is also now available in Norwegian, and several reliability fixes improve accuracy across the platform.',
