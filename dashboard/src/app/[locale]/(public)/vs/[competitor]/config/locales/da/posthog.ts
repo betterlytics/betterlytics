@@ -102,6 +102,12 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'Email-support', betterlytics: true, competitor: true },
         ],
       },
+      {
+        name: 'AI og integrationer',
+        features: [
+          { name: 'MCP-server', betterlytics: true, competitor: true },
+        ],
+      },
     ],
   },
   detailedComparison: [

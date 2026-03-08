@@ -15,4 +15,5 @@ export default {
   integrations: "Notifications",
   filtering: "Filtering",
   "metrics-glossary": "Metrics Glossary",
+  mcp: "MCP Server",
 };

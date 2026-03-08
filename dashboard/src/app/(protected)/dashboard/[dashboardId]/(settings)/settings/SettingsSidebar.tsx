@@ -1,4 +1,5 @@
 import { Database, Shield, AlertTriangle, Users, ChevronLeft, Mail, Webhook } from 'lucide-react';
+import { MCPIcon } from '@/components/icons';
 import {
   Sidebar,
   SidebarContent,
@@ -59,6 +60,12 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
       key: 'reports',
       href: `/dashboard/${dashboardId}/settings/reports`,
       icon: <Mail size={16} />,
+    },
+    {
+      name: t('mcp'),
+      key: 'mcp',
+      href: `/dashboard/${dashboardId}/settings/mcp`,
+      icon: <MCPIcon width={16} height={16} />,
     },
     {
       name: t('integrations'),

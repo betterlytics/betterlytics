@@ -98,6 +98,12 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Supporto via email', betterlytics: true, competitor: 'A pagamento' },
         ],
       },
+      {
+        name: 'AI e integrazioni',
+        features: [
+          { name: 'Server MCP', betterlytics: true, competitor: false },
+        ],
+      },
     ],
   },
   detailedComparison: [

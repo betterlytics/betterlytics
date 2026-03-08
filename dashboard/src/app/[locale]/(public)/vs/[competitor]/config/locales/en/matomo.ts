@@ -97,6 +97,12 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Email support', betterlytics: true, competitor: 'Paid' },
         ],
       },
+      {
+        name: 'AI & Integrations',
+        features: [
+          { name: 'MCP server', betterlytics: true, competitor: false },
+        ],
+      },
     ],
   },
   detailedComparison: [

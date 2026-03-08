@@ -1287,6 +1287,10 @@
           "title": "Høj performance",
           "description": "ClickHouse-drevet analysemotor leverer sub-sekund query-tider ved enhver skala."
         },
+        "mcpServer": {
+          "title": "MCP-server",
+          "description": "Forespørg dine analysedata fra AI-assistenter som Claude. Indbygget MCP-server til naturlig sprogadgang til metrics, funnels og brugerrejser."
+        },
         "emailSupport": {
           "title": "E-mail-support",
           "description": "Få hjælp via e-mail til spørgsmål eller problemer."
@@ -1572,6 +1576,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-mail-rapporter",
+        "mcp": "MCP",
         "integrations": "Integrationer",
         "dangerZone": "Farezone"
       }
@@ -3449,6 +3454,29 @@
       "error": "Kunne ikke gemme rapportindstillinger"
     }
   },
+  "mcp": {
+    "settings": {
+      "title": "API-tokens",
+      "description": "Opret tokens for at forbinde AI-agenter til dine analysedata via Model Context Protocol.",
+      "tokenNameLabel": "Token-navn",
+      "tokenNamePlaceholder": "f.eks. Claude Desktop",
+      "createButton": "Opret token",
+      "creating": "Opretter...",
+      "newTokenNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
+      "created": "Oprettet {date}",
+      "lastUsed": "Sidst brugt {date}"
+    },
+    "toast": {
+      "created": "Token oprettet",
+      "createError": "Kunne ikke oprette token",
+      "deleted": "Token slettet",
+      "deleteError": "Kunne ikke slette token"
+    },
+    "deleteDialog": {
+      "title": "Slet {name}",
+      "description": "Denne token vil blive permanent tilbagekaldt. Alle MCP-klienter, der bruger den, mister adgang øjeblikkeligt."
+    }
+  },
   "integrationsSettings": {
     "title": "Integrationer",
     "section": {
@@ -3477,6 +3505,24 @@
       }
     },
     "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
+    "history": {
+      "title": "Notifikationslog",
+      "button": "Notifikationslog",
+      "empty": "Ingen notifikationer sendt endnu.",
+      "error": "Kunne ikke indlæse notifikationshistorik.",
+      "attempts": "{count} forsøg",
+      "columns": {
+        "time": "Tid",
+        "integration": "Integration",
+        "notification": "Notifikation",
+        "status": "Status",
+        "error": "Fejl"
+      },
+      "status": {
+        "sent": "Sendt",
+        "failed": "Fejlet"
+      }
+    },
     "status": {
       "connected": "Forbundet",
       "disabled": "Deaktiveret"
