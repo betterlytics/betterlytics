@@ -17,8 +17,11 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const onItemClick = (tabKey: string, item: { label: string }) => {
-    if (tabKey === 'referrers') return makeFilterClick('referrer_url')(item.label);
+  const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
+    if (tabKey === 'referrers') {
+      if (item.children) return;
+      return makeFilterClick('referrer_url')(item.label);
+    }
     if (tabKey === 'sources') return makeFilterClick('referrer_source')(item.label);
     if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
   };
@@ -36,14 +39,18 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
         {
           key: 'referrers',
           label: t('tabs.referrers'),
-          data: trafficSourcesCombined.topReferrerUrls
-            .filter((item) => item.referrer_url && item.referrer_url.trim() !== '')
-            .map((item) => ({
-              label: item.referrer_url,
-              value: item.current.visits,
-              trendPercentage: item.change?.visits,
-              comparisonValue: item.compare?.visits,
+          data: trafficSourcesCombined.topReferrerUrls.map((item) => ({
+            label: item.source_name,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            children: item.children?.map((child) => ({
+              label: child.referrer_url,
+              value: child.current.visitors,
+              trendPercentage: child.change?.visitors,
+              comparisonValue: child.compare?.visitors,
             })),
+          })),
         },
         {
           key: 'sources',

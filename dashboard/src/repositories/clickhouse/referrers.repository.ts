@@ -15,6 +15,8 @@ import {
   DailyReferralPercentageRowSchema,
   DailyReferralSessionDurationRow,
   DailyReferralSessionDurationRowSchema,
+  ReferrerUrlRollupRow,
+  ReferrerUrlRollupRowSchema,
 } from '@/entities/analytics/referrers.entities';
 import { clickhouse } from '@/lib/clickhouse';
 import { BAQuery } from '@/lib/ba-query';
@@ -59,7 +61,9 @@ export async function getReferrerDistribution(siteQuery: BASiteQuery): Promise<R
 /**
  * Get the traffic trend for referrers grouped by source with specified granularity
  */
-export async function getReferrerTrafficTrendBySource(siteQuery: BASiteQuery): Promise<ReferrerTrafficBySourceRow[]> {
+export async function getReferrerTrafficTrendBySource(
+  siteQuery: BASiteQuery,
+): Promise<ReferrerTrafficBySourceRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -197,6 +201,53 @@ export async function getTopReferrerUrls(siteQuery: BASiteQuery, limit: number =
   return TopReferrerUrlSchema.array().parse(result);
 }
 
+export async function getReferrerUrlRollup(
+  siteQuery: BASiteQuery,
+  limit: number = 10,
+): Promise<ReferrerUrlRollupRow[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  const query = safeSql`
+    WITH enriched AS (
+      SELECT
+        cutToFirstSignificantSubdomain(concat('http://', referrer_url)) as source_name,
+        referrer_url,
+        session_id
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND referrer_url != ''
+        AND referrer_source != 'direct'
+        AND referrer_source != 'internal'
+        AND ${SQL.AND(filters)}
+    )
+    SELECT
+      source_name,
+      referrer_url,
+      uniq(session_id) as visitors,
+      grouping(referrer_url) as is_rollup
+    FROM enriched
+    WHERE source_name != ''
+    GROUP BY GROUPING SETS ((source_name, referrer_url), (source_name))
+    HAVING (is_rollup = 0 AND referrer_url != '') OR is_rollup = 1
+    ORDER BY source_name ASC, is_rollup DESC, visitors DESC
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+      },
+    })
+    .toPromise();
+
+  return ReferrerUrlRollupRowSchema.array().parse(result);
+}
+
 /**
  * Get top traffic channels (aggregated by referrer_source) with visit counts
  */
@@ -236,7 +287,10 @@ export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10)
 /**
  * Get top referrer sources with visit counts
  */
-export async function getTopReferrerSources(siteQuery: BASiteQuery, limit: number = 10): Promise<TopReferrerSource[]> {
+export async function getTopReferrerSources(
+  siteQuery: BASiteQuery,
+  limit: number = 10,
+): Promise<TopReferrerSource[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 

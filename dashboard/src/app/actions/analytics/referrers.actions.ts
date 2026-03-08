@@ -5,16 +5,16 @@ import {
   getReferrerSummaryWithChartsForSite,
   getReferrerTableDataForSite,
   getReferrerTrafficTrendBySourceDataForSite,
-  getTopReferrerUrlsForSite,
+  getReferrerUrlRollupForSite,
   getTopChannelsForSite,
   getTopReferrerSourcesForSite,
 } from '@/services/analytics/referrers.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { TrafficSourcesCombinedSchema } from '@/entities/analytics/referrers.entities';
 import { toPieChart } from '@/presenters/toPieChart';
 import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
@@ -135,49 +135,36 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
 
     try {
       const [
-        topReferrerUrls,
-        compareTopReferrerUrls,
+        referrerUrlRollup,
+        compareReferrerUrlRollup,
         topReferrerSources,
         compareTopReferrerSources,
         topChannels,
         compareTopChannels,
       ] = await Promise.all([
-        getTopReferrerUrlsForSite(main, limit),
-        compare && getTopReferrerUrlsForSite(compare, limit),
+        getReferrerUrlRollupForSite(main, limit),
+        compare && getReferrerUrlRollupForSite(compare, limit),
         getTopReferrerSourcesForSite(main, limit),
         compare && getTopReferrerSourcesForSite(compare, limit),
         getTopChannelsForSite(main, limit),
         compare && getTopChannelsForSite(compare, limit),
       ]);
 
-      const data = TrafficSourcesCombinedSchema.parse({
-        topReferrerUrls,
-        topReferrerSources,
-        topChannels,
-      });
-
-      const compareData =
-        compare &&
-        TrafficSourcesCombinedSchema.parse({
-          topReferrerUrls: compareTopReferrerUrls,
-          topReferrerSources: compareTopReferrerSources,
-          topChannels: compareTopChannels,
-        });
-
       return {
-        topReferrerUrls: toDataTable({
-          data: data.topReferrerUrls,
-          compare: compareData?.topReferrerUrls,
-          categoryKey: 'referrer_url',
-        }),
+        topReferrerUrls: toHierarchicalDataTable({
+          data: referrerUrlRollup,
+          compare: compareReferrerUrlRollup || undefined,
+          parentKey: 'source_name',
+          childKey: 'referrer_url',
+        }).slice(0, limit),
         topReferrerSources: toDataTable({
-          data: data.topReferrerSources,
-          compare: compareData?.topReferrerSources,
+          data: topReferrerSources,
+          compare: compareTopReferrerSources || undefined,
           categoryKey: 'referrer_source',
         }),
         topChannels: toDataTable({
-          data: data.topChannels,
-          compare: compareData?.topChannels,
+          data: topChannels,
+          compare: compareTopChannels || undefined,
           categoryKey: 'channel',
         }),
       };

@@ -5,6 +5,7 @@ import {
   getReferrerTableData,
   getReferrerTrafficTrendBySource,
   getTopReferrerUrls,
+  getReferrerUrlRollup,
   getTopChannels,
   getTopReferrerSources,
   getDailyReferralSessions,
@@ -19,6 +20,7 @@ import {
   ReferrerTableRow,
   ReferrerTableRowSchema,
   ReferrerTrafficBySourceRow,
+  ReferrerUrlRollupRow,
   TopReferrerUrl,
   TopChannel,
   TopReferrerSource,
@@ -47,6 +49,10 @@ export async function getReferrerTableDataForSite(
 
 export async function getTopReferrerUrlsForSite(siteQuery: BASiteQuery, limit = 10): Promise<TopReferrerUrl[]> {
   return getTopReferrerUrls(siteQuery, limit);
+}
+
+export async function getReferrerUrlRollupForSite(siteQuery: BASiteQuery, limit = 10): Promise<ReferrerUrlRollupRow[]> {
+  return getReferrerUrlRollup(siteQuery, limit);
 }
 
 export async function getTopChannelsForSite(siteQuery: BASiteQuery, limit = 10): Promise<TopChannel[]> {
