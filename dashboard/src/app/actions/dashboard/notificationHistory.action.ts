@@ -6,7 +6,7 @@ import { NotificationHistoryRow } from '@/entities/dashboard/notificationHistory
 import * as NotificationHistoryService from '@/services/dashboard/notificationHistory.service';
 
 export const getNotificationHistoryAction = withDashboardAuthContext(
-  async (ctx: AuthContext): Promise<NotificationHistoryRow[]> => {
-    return await NotificationHistoryService.getNotificationHistory(ctx.dashboardId);
+  async (ctx: AuthContext, monitorId?: string): Promise<NotificationHistoryRow[]> => {
+    return await NotificationHistoryService.getNotificationHistory(ctx.dashboardId, monitorId);
   },
 );

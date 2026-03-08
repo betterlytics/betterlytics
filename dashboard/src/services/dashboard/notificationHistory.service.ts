@@ -5,9 +5,12 @@ import * as NotificationHistoryRepository from '@/repositories/clickhouse/notifi
 
 const MAX_ERROR_LENGTH = 200;
 
-export async function getNotificationHistory(dashboardId: string): Promise<NotificationHistoryRow[]> {
+export async function getNotificationHistory(
+  dashboardId: string,
+  monitorId?: string,
+): Promise<NotificationHistoryRow[]> {
   try {
-    const rows = await NotificationHistoryRepository.getNotificationHistory(dashboardId);
+    const rows = await NotificationHistoryRepository.getNotificationHistory(dashboardId, monitorId);
     return rows.map((row) => ({
       ...row,
       errorMessage: row.errorMessage.slice(0, MAX_ERROR_LENGTH),

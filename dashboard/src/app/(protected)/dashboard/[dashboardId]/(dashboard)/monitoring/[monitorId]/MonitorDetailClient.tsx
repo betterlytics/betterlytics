@@ -27,6 +27,7 @@ import { MonitorHeader } from './MonitorHeader';
 import { useTranslations } from 'next-intl';
 import { MonitorActionMenu } from '../components';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { NotificationHistoryDialog } from '../../../(settings)/settings/integrations/NotificationHistoryDialog';
 
 type MonitorDetailClientProps = {
   dashboardId: string;
@@ -179,6 +180,7 @@ export function MonitorDetailClient({
                   </Button>
                 )}
               </PermissionGate>
+              <NotificationHistoryDialog monitorId={monitorId} />
               <PermissionGate>
                 {(disabled) => (
                   <EditMonitorSheet

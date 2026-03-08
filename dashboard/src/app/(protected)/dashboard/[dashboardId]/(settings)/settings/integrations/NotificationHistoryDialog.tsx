@@ -13,7 +13,11 @@ import { getNotificationHistoryAction } from '@/app/actions/dashboard/notificati
 import { NotificationHistoryRow } from '@/entities/dashboard/notificationHistory.entities';
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 
-export function NotificationHistoryDialog() {
+type NotificationHistoryDialogProps = {
+  monitorId?: string;
+};
+
+export function NotificationHistoryDialog({ monitorId }: NotificationHistoryDialogProps = {}) {
   const t = useTranslations('integrationsSettings');
   const dashboardId = useDashboardId();
   const [open, setOpen] = useState(false);
@@ -26,7 +30,7 @@ export function NotificationHistoryDialog() {
     setError(false);
     startTransition(async () => {
       try {
-        const data = await getNotificationHistoryAction(dashboardId);
+        const data = await getNotificationHistoryAction(dashboardId, monitorId);
         setRows(data);
       } catch {
         setError(true);

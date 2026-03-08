@@ -1,23 +1,28 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { safeSql } from '@/lib/safe-sql';
+import { safeSql, SQL } from '@/lib/safe-sql';
 import { NotificationHistoryRow, NotificationHistoryRowSchema } from '@/entities/dashboard/notificationHistory.entities';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 
-export async function getNotificationHistory(dashboardId: string): Promise<NotificationHistoryRow[]> {
+export async function getNotificationHistory(
+  dashboardId: string,
+  monitorId?: string,
+): Promise<NotificationHistoryRow[]> {
+  const monitorFilter = monitorId
+    ? safeSql`AND monitor_id = ${SQL.String({ monitor_id: monitorId })}`
+    : safeSql``;
+
   const query = safeSql`
     SELECT ts, integration_type, title, status, error_message, attempt_count
     FROM analytics.notification_history
-    WHERE dashboard_id = {dashboard_id:String}
+    WHERE dashboard_id = ${SQL.String({ dashboard_id: dashboardId })}
+    ${monitorFilter}
     ORDER BY ts DESC
     LIMIT 50
   `;
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        dashboard_id: dashboardId,
-      },
+      params: query.taggedParams,
     })
     .toPromise()) as any[];
 
