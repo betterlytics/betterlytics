@@ -149,6 +149,9 @@
     var(--text-gradient-blue), var(--text-gradient-purple), var(--text-gradient-red), var(--text-gradient-amber);
   --text-gradient-base: var(--foreground);
 
+  /* Dot grid card overlay gradient */
+  --dot-grid-overlay: rgba(255, 255, 255, 0.9);
+
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
 
@@ -259,6 +262,9 @@
   --text-gradient:
     var(--text-gradient-blue), var(--text-gradient-purple), var(--text-gradient-red), var(--text-gradient-amber);
   --text-gradient-base: var(--foreground);
+
+  /* Dot grid card overlay gradient */
+  --dot-grid-overlay: rgba(10, 10, 14, 0.9);
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);

@@ -1,37 +1,26 @@
-import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { AnimatedCarousel } from '@/components/animations/AnimatedCarousel';
+import { FrameworkCard } from './FrameworkCard';
 
 const frameworks = [
-  { name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg' },
-  { name: 'React', logo: '/framework-logos/react-icon.svg' },
-  { name: 'Vue.js', logo: '/framework-logos/vue-icon.svg' },
-  { name: 'Angular', logo: '/framework-logos/angular-icon.svg' },
-  { name: 'Svelte', logo: '/framework-logos/svelte-icon.svg' },
-  { name: 'Nuxt.js', logo: '/framework-logos/nuxtjs-icon.svg' },
-  { name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg' },
-  { name: 'Laravel', logo: '/framework-logos/laravel-icon.svg' },
-  { name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg' },
-  { name: 'Shopify', logo: '/framework-logos/shopify-icon.svg' },
-  { name: 'GTM', logo: '/framework-logos/gtm-icon.svg' },
-  { name: 'Webflow', logo: '/framework-logos/webflow-icon.svg' },
-  { name: 'Remix', logo: '/framework-logos/remix-icon.svg' },
-  { name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg' },
-  { name: 'Astro', logo: '/framework-logos/astro-icon.svg' },
-  { name: 'Wix', logo: '/framework-logos/wix-icon.svg' },
-  { name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg' },
+  { name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg', brandColor: '#ffffff' },
+  { name: 'React', logo: '/framework-logos/react-icon.svg', brandColor: '#61DAFB' },
+  { name: 'Vue.js', logo: '/framework-logos/vue-icon.svg', brandColor: '#4FC08D' },
+  { name: 'Angular', logo: '/framework-logos/angular-icon.svg', brandColor: '#DD0031' },
+  { name: 'Svelte', logo: '/framework-logos/svelte-icon.svg', brandColor: '#FF3E00' },
+  { name: 'Nuxt.js', logo: '/framework-logos/nuxtjs-icon.svg', brandColor: '#00DC82' },
+  { name: 'Gatsby', logo: '/framework-logos/gatsby-icon.svg', brandColor: '#663399' },
+  { name: 'Laravel', logo: '/framework-logos/laravel-icon.svg', brandColor: '#FF2D20' },
+  { name: 'WordPress', logo: '/framework-logos/wordpress-icon.svg', brandColor: '#21759B' },
+  { name: 'Shopify', logo: '/framework-logos/shopify-icon.svg', brandColor: '#96BF48' },
+  { name: 'GTM', logo: '/framework-logos/gtm-icon.svg', brandColor: '#4285F4' },
+  { name: 'Webflow', logo: '/framework-logos/webflow-icon.svg', brandColor: '#4353FF' },
+  { name: 'Remix', logo: '/framework-logos/remix-icon.svg', brandColor: '#3992FF' },
+  { name: 'Solid.js', logo: '/framework-logos/solidjs-icon.svg', brandColor: '#4F88C6' },
+  { name: 'Astro', logo: '/framework-logos/astro-icon.svg', brandColor: '#FF5D01' },
+  { name: 'Wix', logo: '/framework-logos/wix-icon.svg', brandColor: '#FAAD4D' },
+  { name: 'Squarespace', logo: '/framework-logos/squarespace-icon.svg', brandColor: '#ffffff' },
 ];
-
-function FrameworkItem({ name, logo }: { name: string; logo: string }) {
-  return (
-    <div className='hover:bg-card flex min-w-[120px] flex-shrink-0 flex-col items-center space-y-2 rounded-lg p-4 transition-colors'>
-      <div className='flex h-8 w-8 items-center justify-center'>
-        <Image src={logo} alt={`${name} logo`} width={32} height={32} className='h-8 w-8' />
-      </div>
-      <span className='text-center text-sm font-medium'>{name}</span>
-    </div>
-  );
-}
 
 export async function FrameworkCompatibility() {
   const t = await getTranslations('public.landing.framework');
@@ -46,7 +35,7 @@ export async function FrameworkCompatibility() {
         <div className='relative'>
           <AnimatedCarousel className='gap-3 sm:gap-6 lg:gap-8' speed={40}>
             {frameworks.map((framework) => (
-              <FrameworkItem key={framework.name} name={framework.name} logo={framework.logo} />
+              <FrameworkCard key={framework.name} framework={framework} />
             ))}
           </AnimatedCarousel>
 
