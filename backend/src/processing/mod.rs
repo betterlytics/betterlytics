@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
@@ -12,6 +14,7 @@ use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
 use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
+use crate::site_config::SiteConfigCache;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
@@ -64,12 +67,16 @@ pub struct ProcessedEvent {
 pub struct EventProcessor {
     event_tx: mpsc::Sender<ProcessedEvent>,
     geoip_service: GeoIpService,
+    site_config_cache: Arc<SiteConfigCache>,
 }
 
 impl EventProcessor {
-    pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
+    pub fn new(
+        geoip_service: GeoIpService,
+        site_config_cache: Arc<SiteConfigCache>,
+    ) -> (Self, mpsc::Receiver<ProcessedEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { event_tx, geoip_service }, event_rx)
+        (Self { event_tx, geoip_service, site_config_cache }, event_rx)
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -215,15 +222,36 @@ impl EventProcessor {
         Ok(())
     }
 
-    /// Get geolocation data for the IP
+    /// Get geolocation data for the IP, respecting the dashboard's geo_level setting
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        debug!("Performing Geolocation lookup");
+        use crate::site_config::cache::GeoLevel;
+
+        let geo_level = self.site_config_cache
+            .get(&processed.site_id)
+            .map(|cfg| cfg.geo_level)
+            .unwrap_or(GeoLevel::Country);
+
+        if geo_level == GeoLevel::Off {
+            debug!("Geolocation disabled for site {}", processed.site_id);
+            return Ok(());
+        }
+
+        debug!("Performing Geolocation lookup (level: {:?})", geo_level);
         let geo = self.geoip_service.lookup(&processed.event.ip_address);
-        processed.country_code = geo.country_code;
-        processed.subdivision_code = geo.subdivision_code;
-        processed.city = geo.city;
+
+        if geo_level.includes_country() {
+            processed.country_code = geo.country_code;
+        }
+        if geo_level.includes_subdivision() {
+            processed.subdivision_code = geo.subdivision_code;
+        }
+        if geo_level.includes_city() {
+            processed.city = geo.city;
+        }
+
         if processed.country_code.is_some() {
-            debug!("Geolocation successful: country={:?}, subdivision={:?}, city={:?}", processed.country_code, processed.subdivision_code, processed.city);
+            debug!("Geolocation successful: country={:?}, subdivision={:?}, city={:?}",
+                processed.country_code, processed.subdivision_code, processed.city);
         } else {
             debug!("Geolocation lookup returned no country code.");
         }
