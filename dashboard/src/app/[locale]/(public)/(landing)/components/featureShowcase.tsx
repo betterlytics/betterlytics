@@ -82,7 +82,7 @@ export async function FeatureShowcase() {
                 </ScrollReveal>
                 <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
                   {category.cards.map(({ id, element }, cardIndex) => (
-                    <ScrollReveal key={id} delay={cardIndex * 0.08}>
+                    <ScrollReveal key={id} delay={cardIndex * 0.08} className='[&>*]:h-full'>
                       {element}
                     </ScrollReveal>
                   ))}
