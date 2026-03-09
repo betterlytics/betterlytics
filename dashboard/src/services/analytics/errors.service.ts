@@ -1,9 +1,21 @@
 'server-only';
 
-import { hasAnyErrors, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen } from '@/repositories/clickhouse/errors.repository';
+import { hasAnyErrors, getErrorGroup, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen } from '@/repositories/clickhouse/errors.repository';
 import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow, type ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getTrackedErrorGroups, upsertErrorGroup, bulkUpsertErrorGroup } from '@/repositories/postgres/errorGroup.repository';
+
+export async function getErrorGroupForSite(
+  siteId: string,
+  dashboardId: string,
+  fingerprint: string,
+): Promise<ErrorGroupRow | null> {
+  const row = await getErrorGroup(siteId, fingerprint);
+  if (!row) return null;
+
+  const statusMap = await getTrackedErrorGroups(dashboardId, [fingerprint]);
+  return { ...row, status: statusMap[fingerprint] ?? 'unresolved' };
+}
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
   return hasAnyErrors(siteId);

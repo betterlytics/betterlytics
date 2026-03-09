@@ -12,6 +12,38 @@ import {
   ErrorVolumeRowSchema,
 } from '@/entities/analytics/errors.entities';
 
+export async function getErrorGroup(siteId: string, fingerprint: string): Promise<ErrorGroupRow | null> {
+  const query = safeSql`
+    SELECT
+      error_fingerprint,
+      any(error_type) as error_type,
+      any(error_message) as error_message,
+      count() as count,
+      min(timestamp) as first_seen,
+      max(timestamp) as last_seen,
+      uniq(session_id) as session_count
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'js_error'
+      AND error_fingerprint = {fingerprint:String}
+    GROUP BY error_fingerprint
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, fingerprint },
+    })
+    .toPromise()) as any[];
+
+  if (result.length === 0) return null;
+
+  return ErrorGroupRowSchema.parse({
+    ...result[0],
+    first_seen: parseClickHouseDate(result[0].first_seen),
+    last_seen: parseClickHouseDate(result[0].last_seen),
+  });
+}
+
 export async function hasAnyErrors(siteId: string): Promise<boolean> {
   const query = safeSql`
     SELECT 1
