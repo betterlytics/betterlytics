@@ -2,6 +2,7 @@
 
 import {
   hasAnyErrorsForSite,
+  getErrorGroupForSite,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
   getErrorGroupTimestampsForSite,
@@ -22,6 +23,12 @@ export type ErrorGroupsResult = {
 };
 
 const INITIAL_PAGE_SIZE = 10;
+
+export const fetchErrorGroupAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
+    return getErrorGroupForSite(ctx.siteId, ctx.dashboardId, fingerprint);
+  },
+);
 
 export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {

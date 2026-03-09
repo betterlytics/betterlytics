@@ -6,6 +6,7 @@ import {
   getErrorGroupVolumes,
   getErrorGroupTimestamps,
   type ErrorGroupTimestamps,
+  getErrorGroup,
 } from '@/repositories/clickhouse/errors.repository';
 import {
   ErrorGroupRow,
@@ -18,6 +19,18 @@ import {
   upsertErrorGroup,
   bulkUpsertErrorGroup,
 } from '@/repositories/postgres/errorGroup.repository';
+
+export async function getErrorGroupForSite(
+  siteId: string,
+  dashboardId: string,
+  fingerprint: string,
+): Promise<ErrorGroupRow | null> {
+  const row = await getErrorGroup(siteId, fingerprint);
+  if (!row) return null;
+
+  const statusMap = await getTrackedErrorGroups(dashboardId, [fingerprint]);
+  return { ...row, status: statusMap[fingerprint] ?? 'unresolved' };
+}
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
   return hasAnyErrors(siteId);
