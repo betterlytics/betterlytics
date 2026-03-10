@@ -23,19 +23,19 @@ type GeographySectionProps = {
   geoLevel: GeoLevelSetting;
 };
 
-const GEO_LABEL_FORMATTERS: Record<GeoLevel, (code: string, locale: SupportedLanguages) => string> = {
+const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLanguages) => string> = {
   country_code: getCountryName,
   subdivision_code: getSubdivisionName,
-  city: (code) => code,
+  city: (value) => value,
 };
 
 export default function GeographySection({ worldMapPromise, topByGeoLevel, geoLevel }: GeographySectionProps) {
-  if (geoLevel === 'OFF') return null;
-
   const worldMapData = use(worldMapPromise);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  if (geoLevel === 'OFF') return null;
 
   const allowedLevels = getAllowedGeoLevels(geoLevel);
 
