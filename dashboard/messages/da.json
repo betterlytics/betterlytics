@@ -2888,9 +2888,6 @@
           "REGION": "Region",
           "CITY": "By"
         },
-        "geoThresholdLabel": "Minimum besøgsgrænse",
-        "geoThresholdHelp": "By- og regionsdata med færre besøgende end denne værdi skjules fra dashboardet. Sæt til 0 for at deaktivere.",
-        "geoThresholdDisabledHelp": "Kun tilgængelig når geografisk niveau er Region eller By.",
         "siteRules": {
           "title": "Webstedsregler",
           "description": "Kontroller, hvilke indgående hændelser der accepteres.",

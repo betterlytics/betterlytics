@@ -9,7 +9,6 @@ import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { getDashboardSettings } from '@/services/dashboard/dashboardSettings.service';
 import { getSiteConfig } from '@/services/dashboard/siteConfig.service';
 
 async function fetchTopGeoVisits(
@@ -26,15 +25,13 @@ async function fetchTopGeoVisits(
   }
 
   const { main, compare } = toSiteQuery(ctx.siteId, query);
-  const minVisitors =
-    level !== 'country_code' ? (await getDashboardSettings(ctx.dashboardId)).geoMinThreshold : 0;
 
-  const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit, minVisitors);
+  const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit);
   const topKeys = geoVisitors.map((r) => r[level]);
 
   const compareGeoVisitors =
     compare &&
-    (await fetchVisitorsByGeoLevel(compare, level, 1000, minVisitors)).filter((row) =>
+    (await fetchVisitorsByGeoLevel(compare, level, 1000)).filter((row) =>
       topKeys.includes(row[level]),
     );
 

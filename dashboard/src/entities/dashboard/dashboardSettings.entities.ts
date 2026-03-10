@@ -36,9 +36,6 @@ export const DashboardSettingsSchema = z
     alertsEnabled: z.boolean(),
     alertsThreshold: z.number().int().positive(),
 
-    // Privacy Settings
-    geoMinThreshold: z.number().int().min(0).max(9999),
-
     createdAt: z.date(),
     updatedAt: z.date(),
   })
@@ -57,7 +54,6 @@ export const DashboardSettingsCreateSchema = z
     monthlyReportRecipients: z.array(z.string().email()),
     alertsEnabled: z.boolean(),
     alertsThreshold: z.number().int().positive(),
-    geoMinThreshold: z.number().int().min(0).max(9999),
   })
   .strict();
 
@@ -72,7 +68,6 @@ export const DashboardSettingsUpdateSchema = z.object({
   monthlyReportRecipients: z.array(z.string().email()).max(MAX_REPORT_RECIPIENTS).optional(),
   alertsEnabled: z.boolean().optional(),
   alertsThreshold: z.number().int().positive().optional(),
-  geoMinThreshold: z.number().int().min(0).max(9999).optional(),
 });
 
 export const DashboardWithReportSettingsSchema = z.object({
@@ -107,7 +102,6 @@ export const DEFAULT_DASHBOARD_SETTINGS: Omit<
   monthlyReportRecipients: [],
   alertsEnabled: false,
   alertsThreshold: 1000,
-  geoMinThreshold: 10,
 };
 
 export type DashboardSettingsUpdate = z.infer<typeof DashboardSettingsUpdateSchema>;

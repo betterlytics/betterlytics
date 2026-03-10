@@ -2896,9 +2896,6 @@
           "REGION": "Regione",
           "CITY": "Città"
         },
-        "geoThresholdLabel": "Soglia minima visitatori",
-        "geoThresholdHelp": "I dati di città e regioni con meno visitatori di questo valore saranno nascosti dalla dashboard. Impostare a 0 per disattivare.",
-        "geoThresholdDisabledHelp": "Disponibile solo quando il livello geografico è Regione o Città.",
         "siteRules": {
           "title": "Regole del sito",
           "description": "Controlla quali eventi in ingresso vengono accettati.",

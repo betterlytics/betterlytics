@@ -46,7 +46,6 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
 export async function getVisitorsBySubdivision(
   siteQuery: BASiteQuery,
   limit: number = 1000,
-  minVisitors: number = 0,
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -63,7 +62,6 @@ export async function getVisitorsBySubdivision(
       AND subdivision_code != ''
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
-    HAVING visitors >= {min_visitors:UInt32}
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
   `;
@@ -76,7 +74,6 @@ export async function getVisitorsBySubdivision(
         start: startDateTime,
         end: endDateTime,
         limit,
-        min_visitors: minVisitors,
       },
     })
     .toPromise()) as any[];
@@ -93,7 +90,6 @@ export async function getVisitorsBySubdivision(
 export async function getVisitorsByCity(
   siteQuery: BASiteQuery,
   limit: number = 1000,
-  minVisitors: number = 0,
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -110,7 +106,6 @@ export async function getVisitorsByCity(
       AND city != ''
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
-    HAVING visitors >= {min_visitors:UInt32}
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
   `;
@@ -123,7 +118,6 @@ export async function getVisitorsByCity(
         start: startDateTime,
         end: endDateTime,
         limit,
-        min_visitors: minVisitors,
       },
     })
     .toPromise()) as any[];

@@ -12,14 +12,13 @@ export async function fetchVisitorsByGeoLevel(
   siteQuery: BASiteQuery,
   level: GeoLevel,
   limit: number = 1000,
-  minVisitors: number = 0,
 ): Promise<GeoVisitor[]> {
   switch (level) {
     case 'country_code':
       return getVisitorsByCountry(siteQuery, limit);
     case 'subdivision_code':
-      return getVisitorsBySubdivision(siteQuery, limit, minVisitors);
+      return getVisitorsBySubdivision(siteQuery, limit);
     case 'city':
-      return getVisitorsByCity(siteQuery, limit, minVisitors);
+      return getVisitorsByCity(siteQuery, limit);
   }
 }

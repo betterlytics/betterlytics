@@ -272,9 +272,6 @@ model DashboardSettings {
   alertsEnabled Boolean @default(false)
   alertsThreshold Int @default(1000) // Threshold for traffic alerts
 
-  // Geography Settings
-  geoMinThreshold   Int     @default(10) // Minimum visitors to show city/subdivision data
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

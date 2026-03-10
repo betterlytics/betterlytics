@@ -1,7 +1,6 @@
 'use client';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import { GEO_LEVEL_VALUES, type GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
@@ -25,11 +24,8 @@ export default function DataSettings() {
   const { settings, refreshSettings } = useSettings();
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
-  const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
   const [geoLevel, setGeoLevel] = useState<GeoLevelSetting>(config.geoLevel ?? 'COUNTRY');
   const [isPending, startTransition] = useTransition();
-
-  const isThresholdDisabled = geoLevel === 'OFF' || geoLevel === 'COUNTRY';
 
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -83,30 +79,6 @@ export default function DataSettings() {
         toast.error(t('toastError'));
       }
     });
-  };
-
-  const saveThreshold = (newValue: number) => {
-    if (newValue === settings.geoMinThreshold) return;
-
-    const previousValue = geoMinThreshold;
-    setGeoMinThreshold(newValue);
-
-    startTransition(async () => {
-      try {
-        await updateDashboardSettingsAction(dashboardId, { geoMinThreshold: newValue });
-        await refreshSettings();
-        toast.success(t('toastSuccess'));
-      } catch {
-        setGeoMinThreshold(previousValue);
-        toast.error(t('toastError'));
-      }
-    });
-  };
-
-  const handleThresholdBlur = () => {
-    const clamped = Math.max(0, Math.min(9999, geoMinThreshold));
-    setGeoMinThreshold(clamped);
-    saveThreshold(clamped);
   };
 
   const getPendingPresetLabel = () => {
@@ -174,31 +146,6 @@ export default function DataSettings() {
                     ))}
                   </SelectContent>
                 </Select>
-              )}
-            </PermissionGate>
-          </div>
-
-          {/* Minimum Visitor Threshold */}
-          <div className='flex items-center justify-between gap-2'>
-            <div>
-              <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
-              <p className='text-muted-foreground text-xs'>
-                {isThresholdDisabled ? t('data.geoThresholdDisabledHelp') : t('data.geoThresholdHelp')}
-              </p>
-            </div>
-            <PermissionGate permission='canManageSettings'>
-              {(disabled) => (
-                <Input
-                  type='number'
-                  min={0}
-                  max={9999}
-                  value={geoMinThreshold}
-                  onChange={(e) => setGeoMinThreshold(parseInt(e.target.value) || 0)}
-                  onBlur={handleThresholdBlur}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-                  disabled={isPending || disabled || isThresholdDisabled}
-                  className='border-border w-20 text-center'
-                />
               )}
             </PermissionGate>
           </div>
