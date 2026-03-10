@@ -4,26 +4,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import { GEO_LEVEL_VALUES, type GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
-import type { SiteConfig } from '@/entities/dashboard/siteConfig.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
 import SettingsSection from '../SettingsSection';
 import SettingsPageHeader from '../SettingsPageHeader';
 import { useTranslations } from 'next-intl';
-import { use, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useSettings } from '@/contexts/SettingsProvider';
+import { useSiteConfig } from '@/contexts/SiteConfigProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
-interface DataSettingsProps {
-  siteConfigPromise: Promise<SiteConfig | null>;
-}
-
-export default function DataSettings({ siteConfigPromise }: DataSettingsProps) {
-  const siteConfig = use(siteConfigPromise);
+export default function DataSettings() {
+  const { siteConfig, refreshSiteConfig } = useSiteConfig();
   const config = siteConfig ?? DEFAULT_SITE_CONFIG_VALUES;
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
@@ -73,13 +69,14 @@ export default function DataSettings({ siteConfigPromise }: DataSettingsProps) {
   };
 
   const saveGeoLevel = (newLevel: GeoLevelSetting) => {
-    if (newLevel === config.geoLevel) return;
+    if (newLevel === geoLevel) return;
     const previousLevel = geoLevel;
     setGeoLevel(newLevel);
 
     startTransition(async () => {
       try {
         await saveSiteConfigAction(dashboardId, { geoLevel: newLevel });
+        await refreshSiteConfig();
         toast.success(t('toastSuccess'));
       } catch {
         setGeoLevel(previousLevel);
@@ -154,7 +151,7 @@ export default function DataSettings({ siteConfigPromise }: DataSettingsProps) {
 
       <SettingsSection title={t('data.geographyTitle')}>
           {/* Geography Level Selector */}
-          <div className='flex items-center justify-between'>
+          <div className='flex items-center justify-between gap-2'>
             <div>
               <span className='text-sm font-medium'>{t('data.geoLevelLabel')}</span>
               <p className='text-muted-foreground text-xs'>{t('data.geoLevelHelp')}</p>
@@ -166,8 +163,8 @@ export default function DataSettings({ siteConfigPromise }: DataSettingsProps) {
                   onValueChange={(value) => saveGeoLevel(value as GeoLevelSetting)}
                   disabled={isPending || disabled}
                 >
-                  <SelectTrigger className='border-border w-36 cursor-pointer'>
-                    <SelectValue />
+                  <SelectTrigger className='border-border max-w-36 cursor-pointer'>
+                    <SelectValue className='truncate' />
                   </SelectTrigger>
                   <SelectContent>
                     {GEO_LEVEL_VALUES.map((level) => (
@@ -182,7 +179,7 @@ export default function DataSettings({ siteConfigPromise }: DataSettingsProps) {
           </div>
 
           {/* Minimum Visitor Threshold */}
-          <div className='flex items-center justify-between'>
+          <div className='flex items-center justify-between gap-2'>
             <div>
               <span className='text-sm font-medium'>{t('data.geoThresholdLabel')}</span>
               <p className='text-muted-foreground text-xs'>

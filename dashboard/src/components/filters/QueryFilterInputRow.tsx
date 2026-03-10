@@ -36,6 +36,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useSiteConfig } from '@/contexts/SiteConfigProvider';
+import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
+import type { GeoLevel } from '@/entities/analytics/geography.entities';
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -55,6 +58,8 @@ export function QueryFilterInputRow<TEntity>({
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
+  const { siteConfig } = useSiteConfig();
+  const allowedGeoLevels = getAllowedGeoLevels(siteConfig?.geoLevel ?? 'COUNTRY');
 
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
@@ -83,7 +88,10 @@ export function QueryFilterInputRow<TEntity>({
         >
           <SelectGroup>
             <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+            {FILTER_COLUMN_SELECT_OPTIONS.filter((column) => {
+              const geoLevel = GEO_FILTER_COLUMNS[column.value];
+              return !geoLevel || allowedGeoLevels.includes(geoLevel);
+            }).map((column) => {
               const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
               return (
                 <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>
@@ -134,6 +142,12 @@ export function QueryFilterInputRow<TEntity>({
     </div>
   );
 }
+
+const GEO_FILTER_COLUMNS: Record<string, GeoLevel> = {
+  country_code: 'country_code',
+  subdivision_code: 'subdivision_code',
+  city: 'city',
+};
 
 type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: string }[];
 
