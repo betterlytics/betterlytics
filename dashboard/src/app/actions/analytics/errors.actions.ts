@@ -3,11 +3,13 @@
 import {
   hasAnyErrorsForSite,
   getErrorGroupForSite,
+  getErrorGroupSidebarDataForSite,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
   getErrorGroupTimestampsForSite,
   upsertErrorGroupForSite,
   bulkUpsertErrorGroupForSite,
+  type ErrorGroupSidebarData,
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -27,6 +29,12 @@ const INITIAL_PAGE_SIZE = 10;
 export const fetchErrorGroupAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
     return getErrorGroupForSite(ctx.siteId, ctx.dashboardId, fingerprint);
+  },
+);
+
+export const fetchErrorGroupSidebarAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupSidebarData> => {
+    return getErrorGroupSidebarDataForSite(ctx.siteId, fingerprint);
   },
 );
 

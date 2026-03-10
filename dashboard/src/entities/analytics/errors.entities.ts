@@ -20,5 +20,17 @@ export const ErrorGroupVolumeRowSchema = z.object({
   error_count: z.number().int().min(0),
 });
 
+export const ErrorGroupEnvironmentRowSchema = z.object({
+  label: z.string(),
+  count: z.number().int().min(0),
+});
+
+export const ErrorGroupVolumePointSchema = z.object({
+  date: z.string(),
+  count: z.number().int().min(0),
+});
+
 export type ErrorGroupRow = z.infer<typeof ErrorGroupRowSchema>;
 export type ErrorGroupVolumeRow = z.infer<typeof ErrorGroupVolumeRowSchema>;
+export type ErrorGroupEnvironmentRow = z.infer<typeof ErrorGroupEnvironmentRowSchema>;
+export type ErrorGroupVolumePoint = z.infer<typeof ErrorGroupVolumePointSchema>;

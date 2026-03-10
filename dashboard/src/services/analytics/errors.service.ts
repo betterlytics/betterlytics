@@ -7,9 +7,14 @@ import {
   getErrorGroupTimestamps,
   type ErrorGroupTimestamps,
   getErrorGroup,
+  getErrorGroupBrowserBreakdown,
+  getErrorGroupDailyVolume,
+  getErrorGroupDeviceTypeBreakdown,
 } from '@/repositories/clickhouse/errors.repository';
 import {
+  ErrorGroupEnvironmentRow,
   ErrorGroupRow,
+  ErrorGroupVolumePoint,
   ErrorGroupVolumeRow,
   type ErrorGroupStatusValue,
 } from '@/entities/analytics/errors.entities';
@@ -30,6 +35,24 @@ export async function getErrorGroupForSite(
 
   const statusMap = await getTrackedErrorGroups(dashboardId, [fingerprint]);
   return { ...row, status: statusMap[fingerprint] ?? 'unresolved' };
+}
+
+export type ErrorGroupSidebarData = {
+  browsers: ErrorGroupEnvironmentRow[];
+  deviceTypes: ErrorGroupEnvironmentRow[];
+  dailyVolume: ErrorGroupVolumePoint[];
+};
+
+export async function getErrorGroupSidebarDataForSite(
+  siteId: string,
+  fingerprint: string,
+): Promise<ErrorGroupSidebarData> {
+  const [browsers, deviceTypes, dailyVolume] = await Promise.all([
+    getErrorGroupBrowserBreakdown(siteId, fingerprint),
+    getErrorGroupDeviceTypeBreakdown(siteId, fingerprint),
+    getErrorGroupDailyVolume(siteId, fingerprint),
+  ]);
+  return { browsers, deviceTypes, dailyVolume };
 }
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
