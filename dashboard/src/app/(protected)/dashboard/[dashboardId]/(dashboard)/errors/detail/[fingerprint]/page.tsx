@@ -3,6 +3,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { fetchErrorGroupAction, fetchErrorGroupSidebarAction } from '@/app/actions/analytics/errors.actions';
 import { ErrorDetailHeader } from './ErrorDetailHeader';
 import { ErrorDetailSidebar } from './ErrorDetailSidebar';
+import { ErrorOccurrencePanel } from './ErrorOccurrencePanel';
 
 type ErrorDetailPageParams = {
   params: Promise<{ dashboardId: string; fingerprint: string }>;
@@ -29,7 +30,13 @@ export default async function ErrorDetailPage({ params }: ErrorDetailPageParams)
       <ErrorDetailHeader dashboardId={dashboardId} errorGroup={errorGroup} />
 
       <div className='grid grid-cols-4 items-start gap-4'>
-        <div className='col-span-3 min-w-0' />
+        <div className='col-span-3 min-w-0'>
+          <ErrorOccurrencePanel
+            dashboardId={dashboardId}
+            fingerprint={fingerprint}
+            totalCount={errorGroup.count}
+          />
+        </div>
 
         <ErrorDetailSidebar errorGroup={errorGroup} sidebarData={sidebarData} />
       </div>

@@ -4,6 +4,7 @@ import {
   hasAnyErrorsForSite,
   getErrorGroupForSite,
   getErrorGroupSidebarDataForSite,
+  getErrorOccurrenceForSite,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
   getErrorGroupTimestampsForSite,
@@ -16,7 +17,7 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
+import { type ErrorGroupRow, type ErrorOccurrence, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
   hasAnyErrors: boolean;
@@ -29,6 +30,12 @@ const INITIAL_PAGE_SIZE = 10;
 export const fetchErrorGroupAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
     return getErrorGroupForSite(ctx.siteId, ctx.dashboardId, fingerprint);
+  },
+);
+
+export const fetchErrorOccurrenceAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string, offset: number): Promise<ErrorOccurrence | null> => {
+    return getErrorOccurrenceForSite(ctx.siteId, fingerprint, offset);
   },
 );
 
