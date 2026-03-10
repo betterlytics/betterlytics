@@ -6,7 +6,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 import GeographyLoading from '@/components/loading/GeographyLoading';
-import { getDashboardSettings } from '@/services/dashboard/dashboardSettings.service';
+import { getSiteConfig } from '@/services/dashboard/siteConfig.service';
 import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
 
 type GeographyPageParams = {
@@ -19,8 +19,8 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const settings = await getDashboardSettings(dashboardId);
-  const allowedLevels = getAllowedGeoLevels(settings.geoLevel);
+  const siteConfig = await getSiteConfig(dashboardId);
+  const allowedLevels = getAllowedGeoLevels(siteConfig?.geoLevel ?? 'COUNTRY');
 
   const worldMapPromise = allowedLevels.includes('country_code')
     ? getWorldMapDataAlpha2(dashboardId, query)
@@ -31,7 +31,7 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
       <Suspense
         fallback={<GeographyLoading />}
       >
-        <GeographySection worldMapPromise={worldMapPromise} geoLevel={settings.geoLevel} />
+        <GeographySection worldMapPromise={worldMapPromise} geoLevel={siteConfig?.geoLevel ?? 'COUNTRY'} />
       </Suspense>
 
       <div className='fixed top-16 right-4 z-30'>

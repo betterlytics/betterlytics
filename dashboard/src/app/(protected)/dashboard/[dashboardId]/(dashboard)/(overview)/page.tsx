@@ -27,7 +27,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
-import { getDashboardSettings } from '@/services/dashboard/dashboardSettings.service';
+import { getSiteConfig } from '@/services/dashboard/siteConfig.service';
 
 type DashboardPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -39,8 +39,8 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const settings = await getDashboardSettings(dashboardId);
-  const allowedLevels = getAllowedGeoLevels(settings.geoLevel);
+  const siteConfig = await getSiteConfig(dashboardId);
+  const allowedLevels = getAllowedGeoLevels(siteConfig?.geoLevel ?? 'COUNTRY');
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
 
@@ -81,7 +81,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} geoLevel={settings.geoLevel} />
+          <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} geoLevel={siteConfig?.geoLevel ?? 'COUNTRY'} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
           <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />

@@ -273,7 +273,6 @@ model DashboardSettings {
   alertsThreshold Int @default(1000) // Threshold for traffic alerts
 
   // Geography Settings
-  geoLevel          String  @default("COUNTRY") // OFF, COUNTRY, REGION, CITY
   geoMinThreshold   Int     @default(10) // Minimum visitors to show city/subdivision data
 
   createdAt DateTime @default(now())
@@ -306,6 +305,7 @@ model SiteConfig {
 
   blacklistedIps String[] @default([])
   enforceDomain Boolean @default(false)
+  geoLevel      String   @default("COUNTRY")
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

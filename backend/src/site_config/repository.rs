@@ -12,15 +12,13 @@ SELECT
     d."domain" AS domain,
     sc."blacklistedIps" AS blacklisted_ips,
     sc."enforceDomain" AS enforce_domain,
-    COALESCE(ds."geoLevel", 'COUNTRY') AS geo_level,
-    GREATEST(sc."updatedAt", COALESCE(ds."updatedAt", sc."updatedAt")) AS updated_at
+    sc."geoLevel" AS geo_level,
+    sc."updatedAt" AS updated_at
 FROM "SiteConfig" sc
 INNER JOIN "Dashboard" d ON d."id" = sc."dashboardId"
-LEFT JOIN "DashboardSettings" ds ON ds."dashboardId" = d."id"
 "#;
 
-const ORDER_BY_UPDATED_AT: &str =
-    r#" ORDER BY GREATEST(sc."updatedAt", COALESCE(ds."updatedAt", sc."updatedAt")) ASC"#;
+const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY sc."updatedAt" ASC"#;
 
 #[derive(Clone, Debug)]
 pub struct SiteConfigRecord {
@@ -42,8 +40,7 @@ impl TryFrom<Row> for SiteConfigRecord {
             domain: row.try_get("domain")?,
             blacklisted_ips: row.try_get("blacklisted_ips")?,
             enforce_domain: row.try_get("enforce_domain")?,
-            geo_level: row.try_get::<_, String>("geo_level")
-                .unwrap_or_else(|_| "COUNTRY".to_string()),
+            geo_level: row.try_get("geo_level")?,
             updated_at: DateTime::<Utc>::from_naive_utc_and_offset(updated_at, Utc),
         })
     }
@@ -91,7 +88,7 @@ impl SiteConfigDataSource for SiteConfigRepository {
     ) -> Result<Vec<SiteConfigRecord>, PostgresError> {
         let conn = self.pool.connection().await?;
         let query = format!(
-            r#"{BASE_SELECT} WHERE GREATEST(sc."updatedAt", COALESCE(ds."updatedAt", sc."updatedAt")) > $1{ORDER_BY_UPDATED_AT}"#
+            r#"{BASE_SELECT} WHERE sc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#
         );
         let rows = conn
             .query(&query, &[&since.naive_utc()])

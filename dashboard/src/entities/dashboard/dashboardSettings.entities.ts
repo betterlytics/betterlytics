@@ -37,7 +37,6 @@ export const DashboardSettingsSchema = z
     alertsThreshold: z.number().int().positive(),
 
     // Privacy Settings
-    geoLevel: GeoLevelSettingSchema,
     geoMinThreshold: z.number().int().min(0).max(9999),
 
     createdAt: z.date(),
@@ -58,7 +57,6 @@ export const DashboardSettingsCreateSchema = z
     monthlyReportRecipients: z.array(z.string().email()),
     alertsEnabled: z.boolean(),
     alertsThreshold: z.number().int().positive(),
-    geoLevel: GeoLevelSettingSchema,
     geoMinThreshold: z.number().int().min(0).max(9999),
   })
   .strict();
@@ -74,7 +72,6 @@ export const DashboardSettingsUpdateSchema = z.object({
   monthlyReportRecipients: z.array(z.string().email()).max(MAX_REPORT_RECIPIENTS).optional(),
   alertsEnabled: z.boolean().optional(),
   alertsThreshold: z.number().int().positive().optional(),
-  geoLevel: GeoLevelSettingSchema.optional(),
   geoMinThreshold: z.number().int().min(0).max(9999).optional(),
 });
 
@@ -110,7 +107,6 @@ export const DEFAULT_DASHBOARD_SETTINGS: Omit<
   monthlyReportRecipients: [],
   alertsEnabled: false,
   alertsThreshold: 1000,
-  geoLevel: 'COUNTRY' as const,
   geoMinThreshold: 10,
 };
 

@@ -4,10 +4,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
 import { GEO_LEVEL_VALUES, type GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
+import type { SiteConfig } from '@/entities/dashboard/siteConfig.entities';
+import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
+import { saveSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
 import SettingsSection from '../SettingsSection';
 import SettingsPageHeader from '../SettingsPageHeader';
 import { useTranslations } from 'next-intl';
-import { useState, useTransition } from 'react';
+import { use, useState, useTransition } from 'react';
 import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
@@ -15,13 +18,19 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
-export default function DataSettings() {
+interface DataSettingsProps {
+  siteConfigPromise: Promise<SiteConfig | null>;
+}
+
+export default function DataSettings({ siteConfigPromise }: DataSettingsProps) {
+  const siteConfig = use(siteConfigPromise);
+  const config = siteConfig ?? DEFAULT_SITE_CONFIG_VALUES;
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [geoMinThreshold, setGeoMinThreshold] = useState<number>(settings.geoMinThreshold);
-  const [geoLevel, setGeoLevel] = useState<GeoLevelSetting>(settings.geoLevel);
+  const [geoLevel, setGeoLevel] = useState<GeoLevelSetting>(config.geoLevel ?? 'COUNTRY');
   const [isPending, startTransition] = useTransition();
 
   const isThresholdDisabled = geoLevel === 'OFF' || geoLevel === 'COUNTRY';
@@ -64,14 +73,13 @@ export default function DataSettings() {
   };
 
   const saveGeoLevel = (newLevel: GeoLevelSetting) => {
-    if (newLevel === settings.geoLevel) return;
+    if (newLevel === config.geoLevel) return;
     const previousLevel = geoLevel;
     setGeoLevel(newLevel);
 
     startTransition(async () => {
       try {
-        await updateDashboardSettingsAction(dashboardId, { geoLevel: newLevel });
-        await refreshSettings();
+        await saveSiteConfigAction(dashboardId, { geoLevel: newLevel });
         toast.success(t('toastSuccess'));
       } catch {
         setGeoLevel(previousLevel);
