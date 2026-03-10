@@ -1,7 +1,7 @@
 'server-only';
 
-import { hasAnyErrors, getErrorGroup, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen } from '@/repositories/clickhouse/errors.repository';
-import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow, type ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
+import { hasAnyErrors, getErrorGroup, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen, getErrorGroupBrowserBreakdown, getErrorGroupDeviceTypeBreakdown, getErrorGroupDailyVolume } from '@/repositories/clickhouse/errors.repository';
+import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow, ErrorGroupEnvironmentRow, ErrorGroupVolumePoint, type ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getTrackedErrorGroups, upsertErrorGroup, bulkUpsertErrorGroup } from '@/repositories/postgres/errorGroup.repository';
 
@@ -15,6 +15,24 @@ export async function getErrorGroupForSite(
 
   const statusMap = await getTrackedErrorGroups(dashboardId, [fingerprint]);
   return { ...row, status: statusMap[fingerprint] ?? 'unresolved' };
+}
+
+export type ErrorGroupSidebarData = {
+  browsers: ErrorGroupEnvironmentRow[];
+  deviceTypes: ErrorGroupEnvironmentRow[];
+  dailyVolume: ErrorGroupVolumePoint[];
+};
+
+export async function getErrorGroupSidebarDataForSite(
+  siteId: string,
+  fingerprint: string,
+): Promise<ErrorGroupSidebarData> {
+  const [browsers, deviceTypes, dailyVolume] = await Promise.all([
+    getErrorGroupBrowserBreakdown(siteId, fingerprint),
+    getErrorGroupDeviceTypeBreakdown(siteId, fingerprint),
+    getErrorGroupDailyVolume(siteId, fingerprint),
+  ]);
+  return { browsers, deviceTypes, dailyVolume };
 }
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {

@@ -8,6 +8,10 @@ import {
   ErrorGroupRowSchema,
   ErrorGroupVolumeRow,
   ErrorGroupVolumeRowSchema,
+  ErrorGroupEnvironmentRow,
+  ErrorGroupEnvironmentRowSchema,
+  ErrorGroupVolumePoint,
+  ErrorGroupVolumePointSchema,
   ErrorVolumeRow,
   ErrorVolumeRowSchema,
 } from '@/entities/analytics/errors.entities';
@@ -211,4 +215,89 @@ export async function getErrorGroupVolumes(
     .toPromise()) as any[];
 
   return result.map((row) => ErrorGroupVolumeRowSchema.parse(row));
+}
+
+export async function getErrorGroupBrowserBreakdown(
+  siteId: string,
+  fingerprint: string,
+): Promise<ErrorGroupEnvironmentRow[]> {
+  const query = safeSql`
+    SELECT
+      browser as label,
+      count() as count
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'js_error'
+      AND error_fingerprint = {fingerprint:String}
+      AND browser != ''
+    GROUP BY browser
+    ORDER BY count DESC
+    LIMIT 5
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, fingerprint },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) => ErrorGroupEnvironmentRowSchema.parse(row));
+}
+
+export async function getErrorGroupDeviceTypeBreakdown(
+  siteId: string,
+  fingerprint: string,
+): Promise<ErrorGroupEnvironmentRow[]> {
+  const query = safeSql`
+    SELECT
+      device_type as label,
+      count() as count
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'js_error'
+      AND error_fingerprint = {fingerprint:String}
+      AND device_type != ''
+    GROUP BY device_type
+    ORDER BY count DESC
+    LIMIT 5
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, fingerprint },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) => ErrorGroupEnvironmentRowSchema.parse(row));
+}
+
+export async function getErrorGroupDailyVolume(
+  siteId: string,
+  fingerprint: string,
+  days: number = 30,
+): Promise<ErrorGroupVolumePoint[]> {
+  const fillFrom = safeSql`toDate(now() - INTERVAL {days:UInt16} DAY)`;
+  const fillTo = safeSql`toDate(now() + INTERVAL 1 DAY)`;
+  const fill = safeSql`WITH FILL FROM ${fillFrom} TO ${fillTo} STEP INTERVAL 1 DAY`;
+
+  const query = safeSql`
+    SELECT
+      toString(day) as date,
+      count() as count
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'js_error'
+      AND error_fingerprint = {fingerprint:String}
+      AND timestamp >= now() - INTERVAL {days:UInt16} DAY
+    GROUP BY toDate(timestamp) AS day
+    ORDER BY day ASC ${fill}
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, fingerprint, days },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) => ErrorGroupVolumePointSchema.parse(row));
 }
