@@ -1,7 +1,8 @@
 'server-only';
 
-import { hasAnyErrors, getErrorGroup, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen, getErrorGroupBrowserBreakdown, getErrorGroupDeviceTypeBreakdown, getErrorGroupDailyVolume } from '@/repositories/clickhouse/errors.repository';
-import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow, ErrorGroupEnvironmentRow, ErrorGroupVolumePoint, type ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
+import { hasAnyErrors, getErrorGroup, getErrorGroups, getErrorVolume, getErrorGroupVolumes, getGlobalErrorGroupFirstSeen, getErrorGroupBrowserBreakdown, getErrorGroupDeviceTypeBreakdown, getErrorGroupDailyVolume, getErrorOccurrence } from '@/repositories/clickhouse/errors.repository';
+import { ErrorGroupRow, ErrorGroupVolumeRow, ErrorVolumeRow, ErrorGroupEnvironmentRow, ErrorGroupVolumePoint, ErrorOccurrence, StackFrame, type ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
+import { parseStackTrace } from '@/utils/parseStackTrace';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getTrackedErrorGroups, upsertErrorGroup, bulkUpsertErrorGroup } from '@/repositories/postgres/errorGroup.repository';
 
@@ -33,6 +34,40 @@ export async function getErrorGroupSidebarDataForSite(
     getErrorGroupDailyVolume(siteId, fingerprint),
   ]);
   return { browsers, deviceTypes, dailyVolume };
+}
+
+export async function getErrorOccurrenceForSite(
+  siteId: string,
+  fingerprint: string,
+  offset: number,
+): Promise<ErrorOccurrence | null> {
+  const raw = await getErrorOccurrence(siteId, fingerprint, offset);
+  if (!raw) return null;
+
+  let mechanism = '';
+  let frames: StackFrame[] = [];
+  try {
+    const exceptions = JSON.parse(raw.exception_list);
+    const ex = exceptions?.[0];
+    mechanism = ex?.mechanism ?? '';
+    frames = ex?.stack ? parseStackTrace(ex.stack) : [];
+  } catch {
+    // If we encounter a malformed exception_list we leave frames empty
+  }
+
+  return {
+    timestamp: raw.timestamp,
+    url: raw.url,
+    browser: raw.browser,
+    os: raw.os,
+    device_type: raw.device_type,
+    country_code: raw.country_code,
+    session_id: raw.session_id,
+    error_type: raw.error_type,
+    error_message: raw.error_message,
+    mechanism,
+    frames,
+  };
 }
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
