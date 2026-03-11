@@ -11,7 +11,6 @@ import {
   flexRender,
   type ColumnDef,
   type SortingState,
-  type RowSelectionState,
 } from '@tanstack/react-table';
 import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,17 +26,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
-import { fetchErrorGroupVolumesAction, upsertErrorGroupAction, bulkUpsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
+import { useErrorGroupActions, type StatusFilter } from '@/hooks/use-error-group-actions';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
-
-type StatusFilter = 'all' | ErrorGroupStatusValue;
 
 const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -86,42 +85,22 @@ export function ErrorTable({
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
 
-  const [statusOverrides, setStatusOverrides] = useState<Record<string, ErrorGroupStatusValue>>({});
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('unresolved');
-
-  const getStatus = (fingerprint: string, base: ErrorGroupStatusValue): ErrorGroupStatusValue =>
-    statusOverrides[fingerprint] ?? base;
-
-  const statusCounts = useMemo(() => {
-    const counts = { all: errorGroups.length, unresolved: 0, resolved: 0, ignored: 0 };
-    for (const g of errorGroups) counts[getStatus(g.error_fingerprint, g.status)]++;
-    return counts;
-  }, [errorGroups, statusOverrides]);
-
-  const filteredByStatus = useMemo(
-    () => statusFilter === 'all' ? errorGroups : errorGroups.filter((g) => getStatus(g.error_fingerprint, g.status) === statusFilter),
-    [errorGroups, statusFilter, statusOverrides],
-  );
-
-  async function setStatus(fingerprint: string, status: ErrorGroupStatusValue) {
-    setStatusOverrides((prev) => ({ ...prev, [fingerprint]: status }));
-    setRowSelection((prev) => { const next = { ...prev }; delete next[fingerprint]; return next; });
-    await upsertErrorGroupAction(dashboardId, fingerprint, status);
-  }
-
-  async function bulkSetStatus(fingerprints: string[], status: ErrorGroupStatusValue) {
-    setStatusOverrides((prev) => {
-      const next = { ...prev };
-      for (const fp of fingerprints) next[fp] = status;
-      return next;
-    });
-    await bulkUpsertErrorGroupAction(dashboardId, fingerprints, status);
-    setRowSelection({});
-  }
+  const {
+    statusFilter,
+    statusCounts,
+    filteredByStatus,
+    getStatus,
+    setStatus,
+    bulkSetStatus,
+    changeStatusFilter: setStatusFilterWithReset,
+    rowSelection,
+    setRowSelection,
+    selectedFingerprints,
+    selectedCount,
+  } = useErrorGroupActions(errorGroups, dashboardId);
 
   const columns = useMemo<ColumnDef<ErrorGroupRow>[]>(
     () => [
@@ -161,7 +140,7 @@ export function ErrorTable({
       {
         id: 'volume',
         header: 'Volume',
-        cell: () => null, // rendered manually below to inject volumeMap
+        cell: () => null, // rendered via override below
         enableSorting: false,
       },
       {
@@ -209,11 +188,7 @@ export function ErrorTable({
         cell: ({ row }) => {
           const status = getStatus(row.original.error_fingerprint, row.original.status);
           const cfg = STATUS_CONFIG[status];
-          return (
-            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${cfg.className}`}>
-              {cfg.label}
-            </span>
-          );
+          return <Badge variant='outline' className={cfg.className}>{cfg.label}</Badge>;
         },
       },
       {
@@ -261,7 +236,7 @@ export function ErrorTable({
         },
       },
     ],
-    [statusOverrides],
+    [getStatus],
   );
 
   const table = useReactTable({
@@ -306,13 +281,10 @@ export function ErrorTable({
     refetchOnWindowFocus,
   });
 
-  const selectedFingerprints = Object.keys(rowSelection);
-  const selectedCount = selectedFingerprints.length;
   const filteredCount = table.getFilteredRowModel().rows.length;
 
   function changeStatusFilter(next: StatusFilter) {
-    setStatusFilter(next);
-    setRowSelection({});
+    setStatusFilterWithReset(next);
     setPagination((p) => ({ ...p, pageIndex: 0 }));
   }
 
@@ -437,7 +409,7 @@ export function ErrorTable({
           <TableBody className='divide-secondary divide-y'>
             {filteredCount === 0 ? (
               <TableRow className='hover:bg-transparent'>
-                <TableCell colSpan={9} className='py-12 text-center'>
+                <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
                     {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
                   </p>
