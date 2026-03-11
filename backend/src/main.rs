@@ -1,6 +1,6 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, State},
+    extract::{ConnectInfo, DefaultBodyLimit, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
     routing::{get, post},
@@ -189,7 +189,8 @@ async fn main() {
 		.route("/event", post(track_event))
 		.route("/track", post(track_event)) // Deprecated: use /event instead
 		.route("/site-id", get(generate_site_id_handler))
-		.route("/metrics", get(metrics_handler));
+		.route("/metrics", get(metrics_handler))
+		.layer(DefaultBodyLimit::max(64 * 1024));
 
     if config.enable_session_replay {
         router = router
