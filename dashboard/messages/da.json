@@ -2510,8 +2510,7 @@
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
       "loading": "Indlæser kort...",
       "visitors": "Besøgende",
-      "regionLoadError": "Kunne ikke indlæse regionsdata",
-      "disabled": "Geografisporing er deaktiveret for dette dashboard. Du kan aktivere det i dashboard-indstillinger."
+      "regionLoadError": "Kunne ikke indlæse regionsdata"
     },
     "userJourney": {
       "steps": "Trin",
@@ -2878,15 +2877,6 @@
         "retentionConfirm": {
           "title": "Ændre opbevaringsperiode?",
           "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
-        },
-        "geographyTitle": "Spor geografidata",
-        "geoLevelLabel": "Geografisk niveau",
-        "geoLevelHelp": "Kontrollerer, hvilke lokationsdata der indsamles og vises. Højere niveauer inkluderer alle lavere niveauer.",
-        "geoLevelOptions": {
-          "OFF": "Fra",
-          "COUNTRY": "Land",
-          "REGION": "Region",
-          "CITY": "By"
         },
         "siteRules": {
           "title": "Webstedsregler",

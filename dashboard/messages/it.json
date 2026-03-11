@@ -2518,8 +2518,7 @@
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
       "visitors": "Visitatori",
-      "regionLoadError": "Impossibile caricare i dati della regione",
-      "disabled": "Il tracciamento geografico è disattivato per questa dashboard. Puoi attivarlo nelle impostazioni della dashboard."
+      "regionLoadError": "Impossibile caricare i dati della regione"
     },
     "userJourney": {
       "steps": "Passaggi",
@@ -2886,15 +2885,6 @@
         "retentionConfirm": {
           "title": "Cambiare periodo di conservazione?",
           "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
-        },
-        "geographyTitle": "Traccia dati geografici",
-        "geoLevelLabel": "Livello geografico",
-        "geoLevelHelp": "Controlla quali dati di posizione vengono raccolti e mostrati. I livelli superiori includono tutti i livelli inferiori.",
-        "geoLevelOptions": {
-          "OFF": "Disattivato",
-          "COUNTRY": "Paese",
-          "REGION": "Regione",
-          "CITY": "Città"
         },
         "siteRules": {
           "title": "Regole del sito",

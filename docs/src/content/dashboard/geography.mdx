@@ -127,19 +127,6 @@ Both city and region are available as dashboard filter dimensions. You can filte
 
 For example, filtering by city "Berlin" shows all analytics — pages, referrers, devices, and more — for visitors from Berlin only.
 
-## Privacy: Minimum Visitor Threshold
-
-Betterlytics includes a configurable **minimum visitor threshold** for city and region data to prevent potential re-identification of individuals in small geographic areas.
-
-- **Default: 10 visitors** — geographic locations with fewer unique visitors than the threshold are hidden from the dashboard
-- **Configurable per-dashboard** in **Settings > Data > Privacy**
-- **Setting to 0** disables this protection
-- **Country-level data** is not affected by this threshold, as it is sufficiently aggregated
-
-<Callout type="info">
-This threshold is a display-level safeguard. City data is still stored (IP addresses are discarded at ingestion), but the dashboard won't surface rows that could enable singling out.
-</Callout>
-
 ## Understanding Data Limitations
 
 <Callout type="warning">
