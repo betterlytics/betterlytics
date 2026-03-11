@@ -215,9 +215,7 @@ impl EventProcessor {
         Ok(())
     }
 
-    /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        debug!("Performing Geolocation lookup");
         let geo = self.geoip_service.lookup(&processed.event.ip_address);
 
         processed.country_code = geo.country_code;
