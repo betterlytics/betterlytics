@@ -207,7 +207,7 @@ async fn main() {
 
     let app = router
         .fallback(fallback_handler)
-        .layer(DefaultBodyLimit::max(64 * 1024)) // 64KB — well above any legitimate payload on any endpoint
+        .layer(DefaultBodyLimit::max(64 * 1024))
         .with_state((
             db,
             processor,

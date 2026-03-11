@@ -8,10 +8,6 @@ struct StackFrame {
     line: String,
 }
 
-/// Generate a "stable" fingerprint for an error event.
-///
-/// Primary: hash error_type + top stack frames (function, filename, line number)
-/// Fallback: hash error_type + error_message when no stack trace is available
 pub fn generate_error_fingerprint(error_type: &str, exception_list_json: &str) -> String {
     if exception_list_json.is_empty() {
         return String::new();
@@ -48,12 +44,6 @@ fn extract_from_exception_list(json: &str) -> (String, String) {
     }
 }
 
-/// Parse a JavaScript stack trace string into structured frames.
-///
-/// Handles V8 (Chrome/Node), SpiderMonkey (Firefox), and JSC (Safari) formats:
-/// - V8:     `at functionName (http://host/file.js:10:5)`
-/// - V8 anon:`at http://host/file.js:10:5`
-/// - Firefox: `functionName@http://host/file.js:10:5`
 fn parse_stack_frames(stack: &str) -> Vec<StackFrame> {
     let mut frames = Vec::new();
 
