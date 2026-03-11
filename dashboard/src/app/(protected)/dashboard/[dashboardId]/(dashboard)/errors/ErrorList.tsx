@@ -26,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
-import { ErrorsEmptyState } from './ErrorsEmptyState';
 import { fetchErrorGroupVolumesAction, upsertErrorGroupAction, bulkUpsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
@@ -69,35 +68,19 @@ const STATUS_CONFIG: Record<ErrorGroupStatusValue, { label: string; className: s
   },
 };
 
-type ErrorListProps = {
-  hasAnyErrors: boolean;
+type ErrorTableProps = {
   errorGroups: ErrorGroupRow[];
   initialVolumeMap: Record<string, TimeSeriesPoint[]>;
   timeBuckets: TimeSeriesPoint[];
   dashboardId: string;
 };
 
-export function ErrorList({ hasAnyErrors, errorGroups, initialVolumeMap, timeBuckets, dashboardId }: ErrorListProps) {
-  if (!hasAnyErrors) {
-    return <ErrorsEmptyState />;
-  }
-
-  return (
-    <ErrorTableInner
-      errorGroups={errorGroups}
-      initialVolumeMap={initialVolumeMap}
-      timeBuckets={timeBuckets}
-      dashboardId={dashboardId}
-    />
-  );
-}
-
-function ErrorTableInner({
+export function ErrorTable({
   errorGroups,
   initialVolumeMap,
   timeBuckets,
   dashboardId,
-}: Omit<ErrorListProps, 'hasAnyErrors'>) {
+}: ErrorTableProps) {
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
   const query = useAnalyticsQuery();
