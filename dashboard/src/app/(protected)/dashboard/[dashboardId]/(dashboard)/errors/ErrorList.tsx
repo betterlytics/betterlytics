@@ -25,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ErrorMiniBarChart } from './ErrorMiniBarChart';
+import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { ErrorsEmptyState } from './ErrorsEmptyState';
 import { fetchErrorGroupVolumesAction, upsertErrorGroupAction, bulkUpsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -471,7 +471,7 @@ function ErrorTableInner({
                   if (cell.column.id === 'volume') {
                     return (
                       <TableCell key={cell.id} className='hidden lg:table-cell px-3 py-3 sm:px-6'>
-                        <ErrorMiniBarChart data={volumeMap?.[row.original.error_fingerprint] ?? []} />
+                        <ErrorSparklineChart data={volumeMap?.[row.original.error_fingerprint] ?? []} />
                       </TableCell>
                     );
                   }

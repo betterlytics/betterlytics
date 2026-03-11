@@ -10,7 +10,7 @@ type ErrorSparklineProps = {
   height?: number;
 };
 
-export function ErrorMiniBarChart({ data, width = 160, height = 40 }: ErrorSparklineProps) {
+export function ErrorSparklineChart({ data, width = 160, height = 40 }: ErrorSparklineProps) {
   const gradientId = useId();
 
   if (data.length === 0) return null;
