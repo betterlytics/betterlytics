@@ -12,7 +12,6 @@ SELECT
     d."domain" AS domain,
     sc."blacklistedIps" AS blacklisted_ips,
     sc."enforceDomain" AS enforce_domain,
-    sc."geoLevel" AS geo_level,
     sc."updatedAt" AS updated_at
 FROM "SiteConfig" sc
 INNER JOIN "Dashboard" d ON d."id" = sc."dashboardId"
@@ -26,7 +25,6 @@ pub struct SiteConfigRecord {
     pub domain: String,
     pub blacklisted_ips: Vec<String>,
     pub enforce_domain: bool,
-    pub geo_level: String,
     pub updated_at: DateTime<Utc>,
 }
 
@@ -40,7 +38,6 @@ impl TryFrom<Row> for SiteConfigRecord {
             domain: row.try_get("domain")?,
             blacklisted_ips: row.try_get("blacklisted_ips")?,
             enforce_domain: row.try_get("enforce_domain")?,
-            geo_level: row.try_get("geo_level")?,
             updated_at: DateTime::<Utc>::from_naive_utc_and_offset(updated_at, Utc),
         })
     }

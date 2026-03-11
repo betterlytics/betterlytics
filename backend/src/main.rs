@@ -116,6 +116,9 @@ async fn main() {
         None
     };
 
+    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
+    let processor = Arc::new(processor);
+
     let site_config_pool = Arc::new(
         PostgresPool::new(
             &config.site_config_database_url,
@@ -135,9 +138,6 @@ async fn main() {
         SiteConfigCache::initialize(site_config_repo, refresh_config, metrics_collector.clone())
             .await
             .expect("Failed to init SiteConfigCache");
-
-    let (processor, mut processed_rx) = EventProcessor::new(geoip_service, site_cfg_cache.clone());
-    let processor = Arc::new(processor);
 
     let notification_engine = crate::notifications::initialize_notification_engine(
         Arc::clone(&site_config_pool),
