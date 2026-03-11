@@ -189,8 +189,7 @@ async fn main() {
 		.route("/event", post(track_event))
 		.route("/track", post(track_event)) // Deprecated: use /event instead
 		.route("/site-id", get(generate_site_id_handler))
-		.route("/metrics", get(metrics_handler))
-		.layer(DefaultBodyLimit::max(64 * 1024));
+		.route("/metrics", get(metrics_handler));
 
     if config.enable_session_replay {
         router = router
@@ -208,6 +207,7 @@ async fn main() {
 
     let app = router
         .fallback(fallback_handler)
+        .layer(DefaultBodyLimit::max(64 * 1024)) // 64KB — well above any legitimate payload on any endpoint
         .with_state((
             db,
             processor,
