@@ -5,11 +5,10 @@ import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import type { WorldMapResponse, GeoVisitor, GeoLevel } from '@/entities/analytics/geography.entities';
-import { getAllowedGeoLevels } from '@/entities/analytics/geography.entities';
+import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { getSiteConfig } from '@/services/dashboard/siteConfig.service';
 
 async function fetchTopGeoVisits(
   ctx: AuthContext,
@@ -17,10 +16,9 @@ async function fetchTopGeoVisits(
   level: GeoLevel,
   limit: number,
 ) {
-  const siteConfig = await getSiteConfig(ctx.dashboardId);
-  const allowedLevels = getAllowedGeoLevels(siteConfig?.geoLevel ?? 'COUNTRY');
+  const enabledLevels = getEnabledGeoLevels();
 
-  if (!allowedLevels.includes(level)) {
+  if (!enabledLevels.includes(level)) {
     return [];
   }
 
@@ -44,10 +42,9 @@ async function fetchTopGeoVisits(
 
 export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<WorldMapResponse> => {
-    const siteConfig = await getSiteConfig(ctx.dashboardId);
-    const allowedLevels = getAllowedGeoLevels(siteConfig?.geoLevel ?? 'COUNTRY');
+    const enabledLevels = getEnabledGeoLevels();
 
-    if (!allowedLevels.includes('country_code')) {
+    if (!enabledLevels.includes('country_code')) {
       return { visitorData: [], compareData: [], maxVisitors: 0 };
     }
 

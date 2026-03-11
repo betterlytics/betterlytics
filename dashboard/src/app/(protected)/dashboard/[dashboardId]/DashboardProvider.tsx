@@ -4,13 +4,11 @@ import React, { useEffect } from 'react';
 import { TimeRangeContextProvider, useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { QueryFiltersContextProvider } from '@/contexts/QueryFiltersContextProvider';
 import { SettingsProvider } from '@/contexts/SettingsProvider';
-import { SiteConfigProvider } from '@/contexts/SiteConfigProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
-import { getSiteConfigAction } from '@/app/actions/dashboard/siteConfig.action';
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
@@ -28,30 +26,23 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
     queryFn: () => getDashboardSettingsAction(dashboardId),
   });
 
-  const { data: initialSiteConfig, isLoading: siteConfigLoading } = useQuery({
-    queryKey: ['site-config', dashboardId],
-    queryFn: () => getSiteConfigAction(dashboardId),
-  });
-
-  if (!initialSettings || siteConfigLoading) {
+  if (!initialSettings) {
     return <DashboardLoading />;
   }
 
   return (
     <CapabilitiesProvider dashboardId={dashboardId}>
       <SettingsProvider initialSettings={initialSettings} dashboardId={dashboardId}>
-        <SiteConfigProvider initialSiteConfig={initialSiteConfig ?? null} dashboardId={dashboardId}>
-          <TimeRangeContextProvider>
-            <QueryFiltersContextProvider>
-              <UserJourneyFilterProvider>
-                <SyncURLFilters />
-                <RealtimeRefresh />
-                <PrefetchSavedFilters />
-                {children}
-              </UserJourneyFilterProvider>
-            </QueryFiltersContextProvider>
-          </TimeRangeContextProvider>
-        </SiteConfigProvider>
+        <TimeRangeContextProvider>
+          <QueryFiltersContextProvider>
+            <UserJourneyFilterProvider>
+              <SyncURLFilters />
+              <RealtimeRefresh />
+              <PrefetchSavedFilters />
+              {children}
+            </UserJourneyFilterProvider>
+          </QueryFiltersContextProvider>
+        </TimeRangeContextProvider>
       </SettingsProvider>
     </CapabilitiesProvider>
   );

@@ -3,10 +3,6 @@ import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
 
 export const MAX_REPORT_RECIPIENTS = 5;
 
-export const GEO_LEVEL_VALUES = ['OFF', 'COUNTRY', 'REGION', 'CITY'] as const;
-export const GeoLevelSettingSchema = z.enum(GEO_LEVEL_VALUES);
-export type GeoLevelSetting = z.infer<typeof GeoLevelSettingSchema>;
-
 export const TimeRangeValueSchema = z.enum(
   TIME_RANGE_PRESETS.map((preset) => preset.value) as [string, ...string[]],
 );

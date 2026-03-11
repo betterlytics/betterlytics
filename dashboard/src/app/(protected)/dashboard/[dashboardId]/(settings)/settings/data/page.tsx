@@ -1,5 +1,5 @@
 import DataSettings from './DataSettings';
 
-export default function DataPage() {
+export default function SettingsPage() {
   return <DataSettings />;
 }

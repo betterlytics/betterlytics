@@ -302,7 +302,6 @@ model SiteConfig {
 
   blacklistedIps String[] @default([])
   enforceDomain Boolean @default(false)
-  geoLevel      String   @default("COUNTRY")
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

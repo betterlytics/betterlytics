@@ -10,8 +10,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { getAllowedGeoLevels, type GeoLevel } from '@/entities/analytics/geography.entities';
-import type { GeoLevelSetting } from '@/entities/dashboard/dashboardSettings.entities';
+import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 
@@ -20,7 +19,6 @@ type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
   topByGeoLevel: Partial<Record<GeoLevel, GeoTablePromise>>;
-  geoLevel: GeoLevelSetting;
 };
 
 const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLanguages) => string> = {
@@ -29,15 +27,11 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
   city: (value) => value,
 };
 
-export default function GeographySection({ worldMapPromise, topByGeoLevel, geoLevel }: GeographySectionProps) {
+export default function GeographySection({ worldMapPromise, topByGeoLevel }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-
-  if (geoLevel === 'OFF') return null;
-
-  const allowedLevels = getAllowedGeoLevels(geoLevel);
 
   const geoLevelTabLabels = {
     country_code: t('tabs.countries'),
@@ -45,26 +39,28 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel, geoLe
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
-  const geoLevelTabs = allowedLevels.map((level) => ({
-    level,
-    data: topByGeoLevel[level] ? use(topByGeoLevel[level]) : [],
-  })).map(({ level, data }) => ({
-    key: level,
-    label: geoLevelTabLabels[level],
-    data: data.map((item) => ({
-      label: GEO_LABEL_FORMATTERS[level](item[level], locale),
-      key: item[level],
-      value: item.current.visitors,
-      trendPercentage: item.change?.visitors,
-      comparisonValue: item.compare?.visitors,
-      icon: (
-        <FlagIcon
-          countryCode={item.current.country_code as FlagIconProps['countryCode']}
-          countryName={getCountryName(item.current.country_code, locale)}
-        />
-      ),
-    })),
-  }));
+  const geoLevelTabs = GEO_LEVELS
+    .filter((level) => level in topByGeoLevel)
+    .map((level) => ({
+      level,
+      data: topByGeoLevel[level] ? use(topByGeoLevel[level]) : [],
+    })).map(({ level, data }) => ({
+      key: level,
+      label: geoLevelTabLabels[level],
+      data: data.map((item) => ({
+        label: GEO_LABEL_FORMATTERS[level](item[level], locale),
+        key: item[level],
+        value: item.current.visitors,
+        trendPercentage: item.change?.visitors,
+        comparisonValue: item.compare?.visitors,
+        icon: (
+          <FlagIcon
+            countryCode={item.current.country_code as FlagIconProps['countryCode']}
+            countryName={getCountryName(item.current.country_code, locale)}
+          />
+        ),
+      })),
+    }));
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
