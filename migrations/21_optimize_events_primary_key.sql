@@ -1,10 +1,11 @@
--- Migration 21: Optimize events primary key
--- Changes ORDER BY from (site_id, date, visitor_id, session_id, timestamp)
--- to (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
+-- Migration 21: Optimize events primary key with sampling support
+-- Changes visitor_id from String to UInt64
+-- ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
+-- Adds SAMPLE BY visitor_id for approximate query support
 
 CREATE TABLE IF NOT EXISTS analytics.events_new (
     site_id String,
-    visitor_id String,
+    visitor_id UInt64,
     session_id String,
     domain String DEFAULT '',
     url String,
@@ -53,6 +54,7 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(date)
 ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
+SAMPLE BY visitor_id
 TTL timestamp + toIntervalDay(365)
 SETTINGS index_granularity = 8192;
 
@@ -76,7 +78,7 @@ INSERT INTO analytics.events_new (
     scroll_depth_percentage, scroll_depth_pixels
 )
 SELECT
-    site_id, visitor_id, session_id, domain, url, device_type, country_code,
+    site_id, reinterpretAsUInt64(reverse(unhex(substring(visitor_id, 1, 16)))) as visitor_id, session_id, domain, url, device_type, country_code,
     timestamp, date, browser, browser_version, os, os_version,
     referrer_source, referrer_source_name, referrer_search_term, referrer_url,
     utm_source, utm_medium, utm_campaign, utm_term, utm_content,

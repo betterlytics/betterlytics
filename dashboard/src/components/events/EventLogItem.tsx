@@ -97,13 +97,11 @@ export const EventLogItem = React.memo(function EventLogItem({
           </div>
 
           <div className='flex flex-wrap items-center gap-4 text-xs'>
-            {event.visitor_id && (
-              <MetadataItem icon={User}>
-                <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
-                  {event.visitor_id.slice(-6)}
-                </span>
-              </MetadataItem>
-            )}
+            <MetadataItem icon={User}>
+              <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
+                {String(event.visitor_id).slice(-6)}
+              </span>
+            </MetadataItem>
 
             <MetadataItem icon={<DeviceIcon type={event.device_type} />}>
               <span className='capitalize'>{event.device_type}</span>

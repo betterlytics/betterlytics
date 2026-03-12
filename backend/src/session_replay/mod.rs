@@ -58,7 +58,7 @@ pub struct PresignPutResponse {
     pub url: String,
     pub key: String,
     pub session_id: String,
-    pub visitor_id: String,
+    pub visitor_id: u64,
     pub sse: bool,
 }
 
@@ -94,7 +94,7 @@ pub async fn presign_put_segment(
         root_domain.as_deref(),
     );
 
-    let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
+    let session_id = session::get_or_create_session_id(&req.site_id, fingerprint)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
 
     if req.content_length == 0 || req.content_length > MAX_CONTENT_LENGTH_BYTES {
@@ -121,7 +121,7 @@ pub async fn presign_put_segment(
 pub struct FinalizeRequest {
     pub site_id: String,
     pub session_id: String,
-    pub visitor_id: String,
+    pub visitor_id: u64,
     pub started_at: i64,
     pub ended_at: i64,
     pub size_bytes: u64,

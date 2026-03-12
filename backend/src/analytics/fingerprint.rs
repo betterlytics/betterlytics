@@ -31,13 +31,13 @@ fn generate_daily_salt() -> String {
 
 /// Uses: anonymized IP + device type + browser family + major version + OS family + root domain + daily salt
 pub fn generate_fingerprint(
-    ip: &str, 
+    ip: &str,
     device_type: Option<&str>,
     browser: Option<&str>,
-    browser_version: Option<&str>, 
+    browser_version: Option<&str>,
     os: Option<&str>,
     root_domain: Option<&str>,
-) -> String {
+) -> u64 {
     let anonymized_ip = anonymize_ip(ip).unwrap_or_else(|| "unknown".to_string());
     let device_category = device_type.unwrap_or("unknown").to_lowercase();
     let browser_family = browser.unwrap_or("unknown").to_lowercase();
@@ -60,5 +60,5 @@ pub fn generate_fingerprint(
     ));
     
     let result = hasher.finalize();
-    format!("{:x}", result)
+    u64::from_be_bytes(result[..8].try_into().unwrap())
 }
