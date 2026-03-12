@@ -142,10 +142,15 @@
   --map-feature-border-none: #9ca3af;
 
   /* Scroll-linked gradient text fill */
-  --text-gradient-blue: oklch(52% 0.2 266);
+  /* --text-gradient-blue: oklch(52% 0.2 266);
   --text-gradient-purple: oklch(62% 0.17 280);
   --text-gradient-amber: rgb(230, 138, 8);
-  --text-gradient-red: rgb(220, 38, 38);
+  --text-gradient-red: rgb(220, 38, 38); */
+
+  --graph-fill-low: #8cc9f9;
+  --graph-fill-high: #1d5fae;
+  --graph-fill-high: #1d5fae;
+
   --text-gradient:
     var(--text-gradient-blue), var(--text-gradient-purple), var(--text-gradient-red), var(--text-gradient-amber);
   --text-gradient-base: var(--foreground);
@@ -156,9 +161,11 @@
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
 
-  --graph-fill-low: #8cc9f9;
-  --graph-fill-high: #1d5fae;
-  --graph-fill-none: #c4c4c4;
+  /* --text-gradient-blue: #1d5fae; */
+  --text-gradient-blue: oklch(54.6% 0.245 262.881);
+  --text-gradient-purple: oklch(58% 0.22 275);
+  --text-gradient-red: oklch(65% 0.17 264.71);
+  --text-gradient-amber: oklch(75.901% 0.13456 216.512);
 
   --weekly-heatmap-fill-low: #8cc9f9;
   --weekly-heatmap-fill-high: #1d5fae;
