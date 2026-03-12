@@ -18,7 +18,7 @@ function getFlag(name, fallback) {
   return arg ? arg.split("=").slice(1).join("=") : fallback;
 }
 
-const RUNS = parseInt(getFlag("runs", "5"));
+const RUNS = parseInt(getFlag("runs", "20"));
 const COMPARE_FILE = getFlag("compare", "");
 const OUTPUT_FILE = getFlag(
   "output",
