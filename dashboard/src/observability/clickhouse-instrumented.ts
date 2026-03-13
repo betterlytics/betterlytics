@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { env } from '@/lib/env';
 import type { QueryCursorLike, ClickHouseAdapterClient, AdapterQueryOptions } from '@/lib/clickhouse';
@@ -7,6 +8,19 @@ const tracer = trace.getTracer('dashboard');
 function sanitizeStatement(statement: string, maxLength: number = 2000): string {
   const condensed = statement.replace(/\s+/g, ' ').trim();
   return condensed.length > maxLength ? condensed.slice(0, maxLength) : condensed;
+}
+
+function normalizeQuery(sql: string): { hash: string; normalized: string } {
+  const normalized = sql
+    .replace(/\s+/g, ' ')
+    .replace(/'(?:[^'\\]|\\.)*'/g, '?')
+    .replace(/\b\d+(\.\d+)?\b/g, '?')
+    .replace(/\(\s*\?(?:\s*,\s*\?)+\s*\)/g, '(?)')
+    .trim();
+
+  const hash = createHash('sha256').update(normalized).digest('hex').slice(0, 8);
+  const truncated = normalized.length > 200 ? normalized.slice(0, 200) + '…' : normalized;
+  return { hash, normalized: truncated };
 }
 
 function inferOperation(statement: string): string {
@@ -37,6 +51,7 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(
       if (prop === 'query') {
         return function (sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
           const operation = inferOperation(sql);
+          const { hash: queryHash, normalized: queryNormalized } = normalizeQuery(sql);
           const sanitized = sanitizeStatement(sql);
 
           const cursor = (target.query as T['query']).call(target, sql, reqParams) as QueryCursorLike;
@@ -49,6 +64,8 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(
                   'db.operation': operation,
                   'db.name': dbName,
                   'db.statement': sanitized,
+                  'db.query.name': queryHash,
+                  'db.query.normalized': queryNormalized,
                 });
                 try {
                   const out = await cursor.toPromise();
