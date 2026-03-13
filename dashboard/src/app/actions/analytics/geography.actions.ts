@@ -1,6 +1,6 @@
 'use server';
 
-import { fetchVisitorsByGeoLevel } from '@/services/analytics/geography.service';
+import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/services/analytics/geography.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
@@ -25,13 +25,12 @@ async function fetchTopGeoVisits(
   const { main, compare } = toSiteQuery(ctx.siteId, query);
 
   const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit);
-  const topKeys = geoVisitors.map((r) => r[level]);
+  const topKeys = geoVisitors.map((r) => r[level]).filter(Boolean) as string[];
 
   const compareGeoVisitors =
-    compare &&
-    (await fetchVisitorsByGeoLevel(compare, level, 1000)).filter((row) =>
-      topKeys.includes(row[level]),
-    );
+    compare && topKeys.length > 0
+      ? await fetchCompareVisitorsByGeoLevel(compare, level, topKeys)
+      : undefined;
 
   return toDataTable({
     data: geoVisitors as (GeoVisitor & Record<GeoLevel, string>)[],
