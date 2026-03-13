@@ -1,6 +1,6 @@
 -- Migration 21: Optimize events primary key
 -- Changes ORDER BY from (site_id, date, visitor_id, session_id, timestamp)
--- to (site_id, event_type, timestamp)
+-- to (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 
 CREATE TABLE analytics.events_new (
     site_id String,
@@ -52,7 +52,7 @@ CREATE TABLE analytics.events_new (
     INDEX custom_event_name_idx custom_event_name TYPE bloom_filter GRANULARITY 3
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(date)
-ORDER BY (site_id, event_type, timestamp)
+ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 TTL timestamp + toIntervalDay(365)
 SETTINGS index_granularity = 8192;
 
