@@ -2,7 +2,7 @@
 -- Changes ORDER BY from (site_id, date, visitor_id, session_id, timestamp)
 -- to (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 
-CREATE TABLE analytics.events_new (
+CREATE TABLE IF NOT EXISTS analytics.events_new (
     site_id String,
     visitor_id String,
     session_id String,
@@ -61,6 +61,10 @@ DROP VIEW IF EXISTS analytics.daily_page_views;
 DROP VIEW IF EXISTS analytics.daily_unique_visitors;
 
 DROP VIEW IF EXISTS analytics.usage_by_site_daily;
+
+SET max_execution_time = 0;
+SET send_progress_in_http_headers = 1;
+SET http_headers_progress_interval_ms = 30000;
 
 INSERT INTO analytics.events_new (
     site_id, visitor_id, session_id, domain, url, device_type, country_code,
