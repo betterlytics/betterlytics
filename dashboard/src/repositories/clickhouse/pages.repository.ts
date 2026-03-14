@@ -150,20 +150,13 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
             next_timestamp IS NOT NULL AND timestamp <= next_timestamp,
             toFloat64(next_timestamp - timestamp),
             NULL
-          ) as duration_seconds
+          ) as duration_seconds,
+          count() OVER (PARTITION BY session_id) as page_count
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview'
           AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
           AND ${SQL.AND(filters)}
-      ),
-      session_page_counts AS (
-        SELECT session_id, count() as page_count FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND event_type = 'pageview'
-          AND ${SQL.AND(filters)}
-        GROUP BY session_id
       ),
       scroll_depth_per_session AS (
         SELECT
@@ -180,10 +173,9 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
       page_aggregates AS (
         SELECT pvd.path, uniq(pvd.session_id) as visitors, count() as pageviews,
                 avgIf(pvd.duration_seconds, pvd.duration_seconds IS NOT NULL) as avg_time_seconds,
-                countIf(spc.page_count = 1) as single_page_sessions,
+                countIf(pvd.page_count = 1) as single_page_sessions,
                 avgIf(sdps.max_scroll_depth, sdps.max_scroll_depth IS NOT NULL) as avg_scroll_depth
         FROM page_view_durations pvd
-        JOIN session_page_counts spc ON pvd.session_id = spc.session_id
         LEFT JOIN scroll_depth_per_session sdps ON pvd.session_id = sdps.session_id AND pvd.path = sdps.url
         GROUP BY pvd.path
       )
@@ -353,14 +345,6 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
 
   const query = safeSql`
     WITH
-      all_pageviews AS (
-        SELECT count() as total_pageviews
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'pageview'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
-      ),
       session_entry_pages AS (
         SELECT
           session_id,
@@ -386,20 +370,13 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
             next_timestamp IS NOT NULL AND timestamp <= next_timestamp,
             toFloat64(next_timestamp - timestamp),
             NULL
-          ) as duration_seconds
+          ) as duration_seconds,
+          count() OVER (PARTITION BY session_id) as page_count
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview'
           AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
           AND ${SQL.AND(filters)}
-      ),
-      session_page_counts AS (
-        SELECT session_id, count() as page_count FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND event_type = 'pageview'
-          AND ${SQL.AND(filters)}
-        GROUP BY session_id
       ),
       scroll_depth_per_session AS (
         SELECT
@@ -419,14 +396,16 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
           uniq(pvd.session_id) as visitors,
           count() as pageviews,
           avgIf(pvd.duration_seconds, pvd.duration_seconds IS NOT NULL) as avg_time_seconds,
-          countIf(spc.page_count = 1) as single_page_sessions,
+          countIf(pvd.page_count = 1) as single_page_sessions,
           count() as entry_pageviews,
           avgIf(sdps.max_scroll_depth, sdps.max_scroll_depth IS NOT NULL) as avg_scroll_depth
         FROM session_entry_pages sep
         JOIN page_view_durations pvd ON sep.entry_page = pvd.path AND sep.session_id = pvd.session_id
-        JOIN session_page_counts spc ON pvd.session_id = spc.session_id
         LEFT JOIN scroll_depth_per_session sdps ON pvd.session_id = sdps.session_id AND pvd.path = sdps.url
         GROUP BY sep.entry_page
+      ),
+      total AS (
+        SELECT sum(pageviews) as total_pageviews FROM entry_page_aggregates
       )
     SELECT
       path,
@@ -434,9 +413,9 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
       pageviews,
       if(visitors > 0, round(single_page_sessions / visitors * 100, 2), 0) as bounceRate,
       avg_time_seconds as avgTime,
-      if(ap.total_pageviews > 0, round(entry_pageviews / ap.total_pageviews * 100, 2), 0) as entryRate,
+      if(t.total_pageviews > 0, round(entry_pageviews / t.total_pageviews * 100, 2), 0) as entryRate,
       avg_scroll_depth as avgScrollDepth
-    FROM entry_page_aggregates, all_pageviews ap
+    FROM entry_page_aggregates, total t
     ORDER BY visitors DESC, pageviews DESC
     LIMIT {limit:UInt64}
   `;
@@ -473,14 +452,6 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
 
   const query = safeSql`
     WITH
-      all_pageviews AS (
-        SELECT count() as total_pageviews
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'pageview'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
-      ),
       session_exit_pages AS (
         SELECT
           session_id,
@@ -506,20 +477,13 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
             next_timestamp IS NOT NULL AND timestamp <= next_timestamp,
             toFloat64(next_timestamp - timestamp),
             NULL
-          ) as duration_seconds
+          ) as duration_seconds,
+          count() OVER (PARTITION BY session_id) as page_count
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview'
           AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
           AND ${SQL.AND(filters)}
-      ),
-      session_page_counts AS (
-        SELECT session_id, count() as page_count FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND event_type = 'pageview'
-          AND ${SQL.AND(filters)}
-        GROUP BY session_id
       ),
       scroll_depth_per_session AS (
         SELECT
@@ -539,14 +503,16 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
           uniq(pvd.session_id) as visitors,
           count() as pageviews,
           avgIf(pvd.duration_seconds, pvd.duration_seconds IS NOT NULL) as avg_time_seconds,
-          countIf(spc.page_count = 1) as single_page_sessions,
+          countIf(pvd.page_count = 1) as single_page_sessions,
           count() as exit_pageviews,
           avgIf(sdps.max_scroll_depth, sdps.max_scroll_depth IS NOT NULL) as avg_scroll_depth
         FROM session_exit_pages sep
         JOIN page_view_durations pvd ON sep.exit_page = pvd.path AND sep.session_id = pvd.session_id
-        JOIN session_page_counts spc ON pvd.session_id = spc.session_id
         LEFT JOIN scroll_depth_per_session sdps ON pvd.session_id = sdps.session_id AND pvd.path = sdps.url
         GROUP BY sep.exit_page
+      ),
+      total AS (
+        SELECT sum(pageviews) as total_pageviews FROM exit_page_aggregates
       )
     SELECT
       path,
@@ -554,9 +520,9 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
       pageviews,
       if(visitors > 0, round(single_page_sessions / visitors * 100, 2), 0) as bounceRate,
       avg_time_seconds as avgTime,
-      if(ap.total_pageviews > 0, round(exit_pageviews / ap.total_pageviews * 100, 2), 0) as exitRate,
+      if(t.total_pageviews > 0, round(exit_pageviews / t.total_pageviews * 100, 2), 0) as exitRate,
       avg_scroll_depth as avgScrollDepth
-    FROM exit_page_aggregates, all_pageviews ap
+    FROM exit_page_aggregates, total t
     ORDER BY visitors DESC, pageviews DESC
     LIMIT {limit:UInt64}
   `;

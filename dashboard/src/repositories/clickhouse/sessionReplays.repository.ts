@@ -34,12 +34,12 @@ export async function getSessionReplays(
       SELECT
         site_id,
         session_id,
-        any(device_type) AS device_type,
-        any(browser) AS browser,
-        any(os) AS os,
-        any(country_code) AS country_code
-      FROM analytics.events
-      GROUP BY site_id, session_id
+        device_type,
+        browser,
+        os,
+        country_code
+      FROM analytics.sessions FINAL
+      WHERE site_id = {site_id:String}
     ) AS e USING (site_id, session_id)
     WHERE r.site_id = {site_id:String}
       AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}

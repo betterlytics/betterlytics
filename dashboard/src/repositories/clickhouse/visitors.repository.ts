@@ -9,6 +9,7 @@ import {
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { canUseSessionsTable } from '@/repositories/clickhouse/sessions.helpers';
 
 export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUniqueVisitorsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
@@ -22,20 +23,14 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
 
   const query = timeWrapper(
     safeSql`
-      WITH first_visitor_appearances AS (
-        SELECT
-          visitor_id,
-          min(timestamp) as custom_date
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND ${range}
-          AND ${SQL.AND(filters)}
-        GROUP BY visitor_id
-      )
       SELECT
-        ${granularityFunc('custom_date')} as date,
+        ${granularityFunc('timestamp')} as date,
         uniq(visitor_id) as unique_visitors
-      FROM first_visitor_appearances
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND event_type = 'pageview'
+        AND ${range}
+        AND ${SQL.AND(filters)}
       GROUP BY date
       ORDER BY date ASC ${fill}
       LIMIT 10080
@@ -63,6 +58,7 @@ export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<nu
     SELECT uniq(visitor_id) as unique_visitors
     FROM analytics.events
     WHERE site_id = {site_id:String}
+      AND event_type = 'pageview'
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}
   `;
@@ -81,6 +77,69 @@ export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<nu
 }
 
 export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
+
+  if (!canUseSessionsTable(queryFilters)) {
+    return getSessionMetricsFromEvents(siteQuery);
+  }
+
+  const { fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+    granularity,
+    timezone,
+    startDateTime,
+    endDateTime,
+  );
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  const queryResponse = timeWrapper(
+    safeSql`
+      SELECT
+        ${granularityFunc('custom_date')} as date,
+        count() AS sessions,
+        countIf(pageview_count > 1) AS sessions_with_multiple_page_views,
+        sum(pageview_count) AS number_of_page_views,
+        sum(duration_seconds) AS sum_duration,
+        if(sessions_with_multiple_page_views > 0,
+            round(sum_duration / sessions_with_multiple_page_views),
+            0
+        ) AS avg_visit_duration,
+        if(sessions > 0,
+            100 * (sessions - sessions_with_multiple_page_views) / sessions,
+            0
+        ) AS bounce_rate,
+        if(number_of_page_views > 0,
+          round(number_of_page_views / sessions, 1),
+          0
+        ) AS pages_per_session
+      FROM (
+        SELECT session_start as custom_date, dateDiff('second', session_start, session_end) as duration_seconds, pageview_count
+        FROM analytics.sessions FINAL
+        WHERE site_id = {site_id:String}
+          AND session_start >= {start:DateTime}
+          AND session_start <= {end:DateTime}
+          AND ${SQL.AND(filters)}
+      )
+      GROUP BY date
+      ORDER BY date ASC ${fill}
+      LIMIT 10080
+    `,
+  );
+
+  const result = (await clickhouse
+    .query(queryResponse.taggedSql, {
+      params: {
+        ...queryResponse.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+      },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) => DailySessionMetricsRowSchema.parse(row));
+}
+
+async function getSessionMetricsFromEvents(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -172,6 +231,55 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
 }
 
 export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<RangeSessionMetrics> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+
+  if (!canUseSessionsTable(queryFilters)) {
+    return getSessionRangeMetricsFromEvents(siteQuery);
+  }
+
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  const queryResponse = safeSql`
+    SELECT
+      count() AS sessions,
+      countIf(pageview_count > 1) AS sessions_with_multiple_page_views,
+      sum(pageview_count) AS number_of_page_views,
+      sum(dateDiff('second', session_start, session_end)) AS sum_duration,
+      if(sessions_with_multiple_page_views > 0,
+          round(sum_duration / sessions_with_multiple_page_views),
+          0
+      ) AS avg_visit_duration,
+      if(sessions > 0,
+          100 * (sessions - sessions_with_multiple_page_views) / sessions,
+          0
+      ) AS bounce_rate,
+      if(number_of_page_views > 0,
+        round(number_of_page_views / sessions, 1),
+        0
+      ) AS pages_per_session
+    FROM analytics.sessions FINAL
+    WHERE site_id = {site_id:String}
+      AND session_start >= {start:DateTime}
+      AND session_start <= {end:DateTime}
+      AND ${SQL.AND(filters)}
+    LIMIT 1
+  `;
+
+  const result = await clickhouse
+    .query(queryResponse.taggedSql, {
+      params: {
+        ...queryResponse.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+      },
+    })
+    .toPromise();
+
+  return RangeSessionMetricsSchema.parse(result[0]);
+}
+
+async function getSessionRangeMetricsFromEvents(siteQuery: BASiteQuery): Promise<RangeSessionMetrics> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 

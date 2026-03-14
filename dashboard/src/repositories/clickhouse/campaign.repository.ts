@@ -38,29 +38,19 @@ async function getCampaignBreakdownByUTMDimension(
 
   const query = safeSql`
     SELECT
-      s.${SQL.Unsafe(utmDimension)} AS ${SQL.Unsafe(dimensionAlias)},
-      COUNT(DISTINCT s.visitor_id) AS total_visitors,
-      COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
-      COUNT(DISTINCT s.session_id) AS total_sessions,
-      SUM(s.session_pageviews) AS total_pageviews,
-      SUM(s.session_duration_seconds) AS sum_session_duration_seconds
-    FROM (
-      SELECT
-        visitor_id,
-        session_id,
-        ${SQL.Unsafe(utmDimension)},
-        dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
-        COUNT(*) AS session_pageviews
-      FROM analytics.events
-      WHERE site_id = {siteId:String}
-        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 'pageview'
-        AND utm_campaign != ''
-        AND ${SQL.Unsafe(utmDimension)} != ''
-        ${campaignFilter}
-      GROUP BY visitor_id, session_id, ${SQL.Unsafe(utmDimension)}
-    ) s
-    GROUP BY s.${SQL.Unsafe(utmDimension)}
+      ${SQL.Unsafe(utmDimension)} AS ${SQL.Unsafe(dimensionAlias)},
+      COUNT(DISTINCT visitor_id) AS total_visitors,
+      COUNT(DISTINCT IF(pageview_count = 1, session_id, NULL)) AS bounced_sessions,
+      COUNT(DISTINCT session_id) AS total_sessions,
+      SUM(pageview_count) AS total_pageviews,
+      SUM(dateDiff('second', session_start, session_end)) AS sum_session_duration_seconds
+    FROM analytics.sessions FINAL
+    WHERE site_id = {siteId:String}
+      AND session_start BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND utm_campaign != ''
+      AND ${SQL.Unsafe(utmDimension)} != ''
+      ${campaignFilter}
+    GROUP BY ${SQL.Unsafe(utmDimension)}
     ORDER BY total_visitors DESC
   `;
 
@@ -123,28 +113,18 @@ export async function getCampaignPerformancePageData(
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const query = safeSql`
     SELECT
-      s.utm_campaign AS utm_campaign_name,
-      COUNT(DISTINCT s.visitor_id) AS total_visitors,
-      COUNT(DISTINCT IF(s.session_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
-      COUNT(DISTINCT s.session_id) AS total_sessions,
-      SUM(s.session_pageviews) AS total_pageviews,
-      SUM(s.session_duration_seconds) AS sum_session_duration_seconds
-    FROM (
-      SELECT
-        visitor_id,
-        session_id,
-        utm_campaign,
-        dateDiff('second', MIN(timestamp), MAX(timestamp)) AS session_duration_seconds,
-        COUNT(*) AS session_pageviews
-      FROM analytics.events
-      WHERE site_id = {siteId:String}
-        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-        AND event_type = 'pageview'
-        AND utm_campaign != ''
-      GROUP BY visitor_id, session_id, utm_campaign
-    ) s
-    GROUP BY s.utm_campaign
-    ORDER BY total_visitors DESC, total_sessions DESC, s.utm_campaign ASC
+      utm_campaign AS utm_campaign_name,
+      COUNT(DISTINCT visitor_id) AS total_visitors,
+      COUNT(DISTINCT IF(pageview_count = 1, session_id, NULL)) AS bounced_sessions,
+      COUNT(DISTINCT session_id) AS total_sessions,
+      SUM(pageview_count) AS total_pageviews,
+      SUM(dateDiff('second', session_start, session_end)) AS sum_session_duration_seconds
+    FROM analytics.sessions FINAL
+    WHERE site_id = {siteId:String}
+      AND session_start BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND utm_campaign != ''
+    GROUP BY utm_campaign
+    ORDER BY total_visitors DESC, total_sessions DESC, utm_campaign ASC
     LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
 
@@ -185,35 +165,36 @@ export async function getCampaignLandingPagePerformanceData(
   campaignName?: string,
 ): Promise<RawCampaignLandingPagePerformanceItem[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
-  const campaignFilter = campaignName ? safeSql`AND e.utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+  const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
 
   const query = safeSql`
+    WITH landing_pages AS (
+      SELECT
+        session_id,
+        argMin(url, timestamp) as landing_page_url
+      FROM analytics.events
+      WHERE site_id = {siteId:String}
+        AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+        AND event_type = 'pageview'
+        AND utm_campaign != ''
+        ${campaignFilter}
+      GROUP BY session_id
+    )
     SELECT
-        s.utm_campaign AS utm_campaign_name,
-        s.landing_page_url,
-        COUNT(DISTINCT s.visitor_id) AS total_visitors,
-        COUNT(DISTINCT IF(s.session_total_pageviews = 1, s.session_id, NULL)) AS bounced_sessions,
-        COUNT(DISTINCT s.session_id) AS total_sessions,
-        SUM(s.session_total_pageviews) AS total_pageviews,
-        SUM(s.session_total_duration_seconds) AS sum_session_duration_seconds
-    FROM (
-        SELECT
-            e.visitor_id,
-            e.session_id,
-            e.utm_campaign,
-            FIRST_VALUE(e.url) OVER (PARTITION BY e.session_id, e.utm_campaign ORDER BY e.timestamp ASC) as landing_page_url,
-            COUNT(e.url) OVER (PARTITION BY e.session_id) as session_total_pageviews,
-            dateDiff('second', MIN(e.timestamp) OVER (PARTITION BY e.session_id), MAX(e.timestamp) OVER (PARTITION BY e.session_id)) as session_total_duration_seconds,
-            ROW_NUMBER() OVER (PARTITION BY e.session_id, e.utm_campaign ORDER BY e.timestamp ASC) as rn
-        FROM analytics.events e
-        WHERE e.site_id = {siteId:String}
-          AND e.timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
-          AND e.event_type = 'pageview'
-          AND e.utm_campaign != ''
-          ${campaignFilter}
-    ) s
-    WHERE s.rn = 1
-    GROUP BY s.utm_campaign, s.landing_page_url
+      s.utm_campaign AS utm_campaign_name,
+      lp.landing_page_url,
+      COUNT(DISTINCT s.visitor_id) AS total_visitors,
+      COUNT(DISTINCT IF(s.pageview_count = 1, s.session_id, NULL)) AS bounced_sessions,
+      COUNT(DISTINCT s.session_id) AS total_sessions,
+      SUM(s.pageview_count) AS total_pageviews,
+      SUM(dateDiff('second', s.session_start, s.session_end)) AS sum_session_duration_seconds
+    FROM analytics.sessions AS s FINAL
+    INNER JOIN landing_pages lp ON s.session_id = lp.session_id
+    WHERE s.site_id = {siteId:String}
+      AND s.session_start BETWEEN {startDate:DateTime} AND {endDate:DateTime}
+      AND s.utm_campaign != ''
+      ${campaignFilter}
+    GROUP BY s.utm_campaign, lp.landing_page_url
     ORDER BY s.utm_campaign ASC, total_visitors DESC
   `;
 
