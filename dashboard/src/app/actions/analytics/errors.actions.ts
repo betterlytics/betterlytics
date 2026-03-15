@@ -6,6 +6,8 @@ import {
   getErrorGroupSidebarDataForSite,
   getErrorOccurrenceForSite,
   getSessionTrailForSite,
+  hasSessionReplayForSite,
+  findReplaySessionForErrorGroup,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
   getErrorGroupTimestampsForSite,
@@ -98,6 +100,18 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
       dataKey: 'error_count',
       data: volumeRows,
     });
+  },
+);
+
+export const checkSessionReplayAction = withDashboardAuthContext(
+  async (ctx: AuthContext, sessionId: string): Promise<boolean> => {
+    return hasSessionReplayForSite(ctx.siteId, sessionId);
+  },
+);
+
+export const findReplaySessionForErrorAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string): Promise<string | null> => {
+    return findReplaySessionForErrorGroup(ctx.siteId, fingerprint);
   },
 );
 

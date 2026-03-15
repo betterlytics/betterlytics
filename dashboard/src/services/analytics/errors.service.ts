@@ -13,6 +13,7 @@ import {
   getErrorOccurrence,
   getSessionTrailEvents,
 } from '@/repositories/clickhouse/errors.repository';
+import { hasSessionReplay, findReplaySessionForError } from '@/repositories/clickhouse/sessionReplays.repository';
 import {
   ErrorGroupEnvironmentRow,
   ErrorGroupRow,
@@ -100,6 +101,17 @@ export async function getSessionTrailForSite(
   sessionId: string,
 ): Promise<SessionTrailEvent[]> {
   return getSessionTrailEvents(siteId, sessionId);
+}
+
+export async function hasSessionReplayForSite(siteId: string, sessionId: string): Promise<boolean> {
+  return hasSessionReplay(siteId, sessionId);
+}
+
+export async function findReplaySessionForErrorGroup(
+  siteId: string,
+  fingerprint: string,
+): Promise<string | null> {
+  return findReplaySessionForError(siteId, fingerprint);
 }
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {

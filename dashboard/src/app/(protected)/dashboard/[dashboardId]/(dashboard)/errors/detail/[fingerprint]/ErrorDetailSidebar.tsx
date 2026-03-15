@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { Play } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
@@ -8,11 +10,13 @@ import type { ErrorGroupSidebarData } from '@/services/analytics/errors.service'
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 
 type ErrorDetailSidebarProps = {
+  dashboardId: string;
   errorGroup: ErrorGroupRow;
   sidebarData: ErrorGroupSidebarData;
+  replaySessionId: string | null;
 };
 
-export function ErrorDetailSidebar({ errorGroup, sidebarData }: ErrorDetailSidebarProps) {
+export function ErrorDetailSidebar({ dashboardId, errorGroup, sidebarData, replaySessionId }: ErrorDetailSidebarProps) {
   const { browsers, deviceTypes, dailyVolume } = sidebarData;
 
   const browserItems = browsers.map((row) => ({
@@ -63,6 +67,32 @@ export function ErrorDetailSidebar({ errorGroup, sidebarData }: ErrorDetailSideb
           {browserItems.length > 0 && <EnvironmentDistribution title='Browsers' items={browserItems} />}
 
           {deviceTypeItems.length > 0 && <EnvironmentDistribution title='Device type' items={deviceTypeItems} />}
+        </CardContent>
+      </Card>
+
+      <Card className={replaySessionId ? 'border-primary/20 bg-primary/5' : ''}>
+        <CardContent className='px-4 py-3'>
+          {replaySessionId ? (
+            <Link
+              href={`/dashboard/${dashboardId}/replay?sessionId=${replaySessionId}`}
+              className='flex flex-col items-center gap-2 text-center'
+            >
+              <div className='bg-primary/15 flex h-8 w-8 items-center justify-center rounded-full'>
+                <Play className='text-primary h-3.5 w-3.5 translate-x-[1px]' />
+              </div>
+              <div>
+                <p className='text-sm font-medium'>Watch session replay</p>
+                <p className='text-muted-foreground text-xs'>See what the user did before this error</p>
+              </div>
+            </Link>
+          ) : (
+            <div className='flex flex-col items-center gap-2 text-center'>
+              <div className='bg-muted flex h-8 w-8 items-center justify-center rounded-full'>
+                <Play className='text-muted-foreground h-3.5 w-3.5 translate-x-[1px]' />
+              </div>
+              <p className='text-muted-foreground text-sm'>No session replay available</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </aside>

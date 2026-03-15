@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { ExternalLink, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
+import Link from 'next/link';
+import { ExternalLink, Film, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from 'next-themes';
-import { fetchSessionTrailAction } from '@/app/actions/analytics/errors.actions';
+import { fetchSessionTrailAction, checkSessionReplayAction } from '@/app/actions/analytics/errors.actions';
 import type { SessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
@@ -54,14 +55,19 @@ function getEventLabel(event: SessionTrailEvent): string {
 
 export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: SessionTrailProps) {
   const [events, setEvents] = useState<SessionTrailEvent[] | null>(null);
+  const [hasReplay, setHasReplay] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   useEffect(() => {
     startTransition(async () => {
-      const data = await fetchSessionTrailAction(dashboardId, sessionId);
+      const [data, replay] = await Promise.all([
+        fetchSessionTrailAction(dashboardId, sessionId),
+        checkSessionReplayAction(dashboardId, sessionId),
+      ]);
       setEvents(data);
+      setHasReplay(replay);
     });
   }, [dashboardId, sessionId]);
 
@@ -88,13 +94,22 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
 
   return (
     <Card className='!gap-0 !p-0'>
-      <CardHeader className='border-border/60 bg-muted/60 border-b px-4 py-3 !pb-3'>
+      <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3 !pb-3'>
         <div className='space-y-1'>
           <CardTitle className='text-sm font-medium tracking-tight'>Session trail</CardTitle>
           <CardDescription className='text-xs leading-relaxed'>
             {events.length} {events.length === 1 ? 'event' : 'events'} in this session
           </CardDescription>
         </div>
+        {hasReplay && (
+          <Link
+            href={`/dashboard/${dashboardId}/replay?sessionId=${sessionId}`}
+            className='text-primary hover:text-primary/80 flex shrink-0 items-center gap-1.5 text-xs font-medium transition-colors'
+          >
+            <Film className='h-3.5 w-3.5' />
+            Watch replay
+          </Link>
+        )}
       </CardHeader>
       <CardContent className='!px-2 !py-2'>
         {events.map((event, i) => {

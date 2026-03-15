@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { fetchErrorGroupAction, fetchErrorGroupSidebarAction } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupAction, fetchErrorGroupSidebarAction, findReplaySessionForErrorAction } from '@/app/actions/analytics/errors.actions';
 import { ErrorDetailHeader } from './ErrorDetailHeader';
 import { ErrorDetailSidebar } from './ErrorDetailSidebar';
 import { ErrorOccurrencePanel } from './ErrorOccurrencePanel';
@@ -16,9 +16,10 @@ export default async function ErrorDetailPage({ params }: ErrorDetailPageParams)
 
   const { dashboardId, fingerprint } = await params;
 
-  const [errorGroup, sidebarData] = await Promise.all([
+  const [errorGroup, sidebarData, replaySessionId] = await Promise.all([
     fetchErrorGroupAction(dashboardId, fingerprint),
     fetchErrorGroupSidebarAction(dashboardId, fingerprint),
+    findReplaySessionForErrorAction(dashboardId, fingerprint),
   ]);
 
   if (!errorGroup) {
@@ -38,7 +39,12 @@ export default async function ErrorDetailPage({ params }: ErrorDetailPageParams)
           />
         </div>
 
-        <ErrorDetailSidebar errorGroup={errorGroup} sidebarData={sidebarData} />
+        <ErrorDetailSidebar
+          dashboardId={dashboardId}
+          errorGroup={errorGroup}
+          sidebarData={sidebarData}
+          replaySessionId={replaySessionId}
+        />
       </div>
     </div>
   );
