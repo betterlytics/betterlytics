@@ -1,5 +1,4 @@
-use md5::Digest;
-use sha2::Sha256;
+use sha2::{Digest, Sha256};
 
 #[derive(Debug, PartialEq)]
 struct StackFrame {
