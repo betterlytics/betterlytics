@@ -369,11 +369,14 @@
   }
 
   if (enableErrors) {
-    // Max 10 events per error type per 10 s
-    var errorCounts = {}, errorWindowStart = Date.now();
+    var errorCounts = {},
+      errorWindowStart = Date.now();
     function isRateLimited(type) {
       var now = Date.now();
-      if (now - errorWindowStart > 10000) { errorCounts = {}; errorWindowStart = now; }
+      if (now - errorWindowStart > 10000) {
+        errorCounts = {};
+        errorWindowStart = now;
+      }
       errorCounts[type] = (errorCounts[type] || 0) + 1;
       return errorCounts[type] > 10;
     }
@@ -385,7 +388,11 @@
         if (err.message != null) {
           value = String(err.message);
         } else {
-          try { value = JSON.stringify(err); } catch (e) { value = String(err); }
+          try {
+            value = JSON.stringify(err);
+          } catch (e) {
+            value = String(err);
+          }
         }
         stack = err.stack ? String(err.stack).replace(/\?[^:)\s\n]+/g, "") : "";
       } else {
@@ -393,27 +400,40 @@
         value = err != null ? String(err) : "unknown error";
         stack = "";
       }
-      if (/chrome-extension:|moz-extension:|safari-(web-)?extension:/.test(stack)) return;
+      if (
+        /chrome-extension:|moz-extension:|safari-(web-)?extension:/.test(stack)
+      )
+        return;
       if (isRateLimited(type)) return;
       sendEvent("js_error", {
-        exception_list: JSON.stringify([{
-          type: type,
-          value: value.substring(0, 1000),
-          mechanism: mechanismType,
-          stack: stack.substring(0, 10000),
-        }]),
+        exception_list: JSON.stringify([
+          {
+            type: type,
+            value: value.substring(0, 1000),
+            mechanism: mechanismType,
+            stack: stack.substring(0, 10000),
+          },
+        ]),
       });
     }
 
     window.addEventListener("error", function (event) {
       if (!event.error && !event.message) return;
-      captureError(event.error || { name: "Error", message: event.message }, "onuncaughtexception");
+      captureError(
+        event.error || { name: "Error", message: event.message },
+        "onuncaughtexception",
+      );
     });
 
     window.addEventListener("unhandledrejection", function (event) {
       captureError(
-        event.reason != null ? event.reason : { name: "UnhandledRejection", message: "Promise rejected with no reason" },
-        "onunhandledrejection"
+        event.reason != null
+          ? event.reason
+          : {
+              name: "UnhandledRejection",
+              message: "Promise rejected with no reason",
+            },
+        "onunhandledrejection",
       );
     });
 
@@ -430,11 +450,23 @@
           if (first != null && typeof first === "object") {
             captureError(first, "onconsole");
           } else {
-            captureError({ name: "Error", message: args.map(function (a) {
-              return typeof a === "object" ? JSON.stringify(a) : String(a);
-            }).join(" ") }, "onconsole");
+            captureError(
+              {
+                name: "Error",
+                message: args
+                  .map(function (a) {
+                    return typeof a === "object"
+                      ? JSON.stringify(a)
+                      : String(a);
+                  })
+                  .join(" "),
+              },
+              "onconsole",
+            );
           }
-        } finally { _inConsoleCapture = false; }
+        } finally {
+          _inConsoleCapture = false;
+        }
       };
     }
   }
