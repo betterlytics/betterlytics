@@ -70,5 +70,3 @@ node_modules
 # Backups
 /postgresbackups
 /clickhousebackups
-
-/data-seeder/target/
