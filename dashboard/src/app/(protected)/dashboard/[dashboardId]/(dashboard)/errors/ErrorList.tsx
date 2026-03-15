@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useTransition } from 'react';
+import { useState, useMemo, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   useReactTable,
@@ -44,8 +44,6 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ignored', label: 'Ignored' },
 ];
 
-const CENTER_COLUMNS = new Set(['count', 'session_count']);
-
 function formatCount(count: number): string {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
   if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
@@ -88,6 +86,8 @@ export function ErrorTable({
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
 
+  const volumeMapRef = useRef<Record<string, TimeSeriesPoint[]> | undefined>(undefined);
+
   const {
     statusFilter,
     statusCounts,
@@ -102,10 +102,11 @@ export function ErrorTable({
     selectedCount,
   } = useErrorGroupActions(errorGroups, dashboardId);
 
-  const columns = useMemo<ColumnDef<ErrorGroupRow>[]>(
+  const columns = useMemo<ColumnDef<ErrorGroupRow, unknown>[]>(
     () => [
       {
         id: 'select',
+        meta: { cellClassName: 'w-10 py-3 pl-4 sm:pl-6', headerClassName: 'w-10 pl-4 sm:pl-6' },
         header: ({ table }) => (
           <Checkbox
             checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
@@ -127,6 +128,7 @@ export function ErrorTable({
         id: 'error',
         accessorFn: (row) => `${row.error_type} ${row.error_message}`,
         header: 'Error',
+        meta: { cellClassName: 'w-full max-w-0 pl-2' },
         cell: ({ row }) => {
           const error = row.original;
           return (
@@ -140,12 +142,16 @@ export function ErrorTable({
       {
         id: 'volume',
         header: 'Volume',
-        cell: () => null, // rendered via override below
+        meta: { cellClassName: 'hidden lg:table-cell', headerClassName: 'hidden lg:table-cell' },
+        cell: ({ row }) => (
+          <ErrorSparklineChart data={volumeMapRef.current?.[row.original.error_fingerprint] ?? []} />
+        ),
         enableSorting: false,
       },
       {
         accessorKey: 'count',
         header: 'Occurrences',
+        meta: { centered: true },
         cell: ({ getValue }) => (
           <div className='text-center tabular-nums'>{formatCount(getValue() as number)}</div>
         ),
@@ -153,6 +159,7 @@ export function ErrorTable({
       {
         accessorKey: 'session_count',
         header: 'Sessions',
+        meta: { centered: true },
         cell: ({ getValue }) => (
           <div className='text-center tabular-nums'>{formatCount(getValue() as number)}</div>
         ),
@@ -161,6 +168,7 @@ export function ErrorTable({
         id: 'first_seen',
         accessorFn: (row) => row.first_seen?.getTime() ?? 0,
         header: 'First seen',
+        meta: { cellClassName: 'hidden md:table-cell', headerClassName: 'hidden md:table-cell' },
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
           return firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—';
@@ -194,6 +202,7 @@ export function ErrorTable({
       {
         id: 'actions',
         header: '',
+        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10' },
         enableSorting: false,
         cell: ({ row }) => {
           const fp = row.original.error_fingerprint;
@@ -280,6 +289,7 @@ export function ErrorTable({
     gcTime,
     refetchOnWindowFocus,
   });
+  volumeMapRef.current = volumeMap;
 
   const filteredCount = table.getFilteredRowModel().rows.length;
 
@@ -378,21 +388,18 @@ export function ErrorTable({
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
                   const sorted = header.column.getIsSorted();
-                  const isCentered = CENTER_COLUMNS.has(header.id);
+                  const meta = header.column.columnDef.meta as { centered?: boolean; headerClassName?: string } | undefined;
                   return (
                     <TableHead
                       key={header.id}
                       className={[
                         'text-foreground bg-muted/50 py-3 text-sm font-medium',
-                        header.id === 'select' ? 'w-10 pl-4 sm:pl-6' : 'px-3 sm:px-6',
-                        header.id === 'volume' ? 'hidden lg:table-cell' : '',
-                        header.id === 'first_seen' ? 'hidden md:table-cell' : '',
-                        header.id === 'actions' ? 'w-10' : '',
+                        meta?.headerClassName ?? 'px-3 sm:px-6',
                         canSort ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none' : '',
                       ].join(' ')}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className={`flex items-center gap-1 ${isCentered ? 'justify-center' : ''}`}>
+                      <div className={`flex items-center gap-1 ${meta?.centered ? 'justify-center' : ''}`}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {sorted && (
                           <span className='ml-1'>
@@ -423,34 +430,13 @@ export function ErrorTable({
                 onClick={() => router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)}
               >
                 {row.getVisibleCells().map((cell) => {
-                  if (cell.column.id === 'volume') {
-                    return (
-                      <TableCell key={cell.id} className='hidden lg:table-cell px-3 py-3 sm:px-6'>
-                        <ErrorSparklineChart data={volumeMap?.[row.original.error_fingerprint] ?? []} />
-                      </TableCell>
-                    );
-                  }
-                  if (cell.column.id === 'select') {
-                    return (
-                      <TableCell key={cell.id} className='w-10 py-3 pl-4 sm:pl-6'>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    );
-                  }
-                  if (cell.column.id === 'actions') {
-                    return (
-                      <TableCell key={cell.id} className='w-10 py-3 pr-2 sm:pr-4'>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    );
-                  }
+                  const meta = cell.column.columnDef.meta as { cellClassName?: string } | undefined;
                   return (
                     <TableCell
                       key={cell.id}
                       className={[
                         'text-muted-foreground px-3 py-3 text-sm sm:px-6',
-                        cell.column.id === 'error' ? 'w-full max-w-0 pl-2' : '',
-                        cell.column.id === 'first_seen' ? 'hidden md:table-cell' : '',
+                        meta?.cellClassName ?? '',
                       ].join(' ')}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
