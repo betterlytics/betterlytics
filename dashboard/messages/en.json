@@ -2023,6 +2023,11 @@
     "saving": "Saving..."
   },
   "components": {
+    "pagination": {
+      "pageOf": "Page {currentPage} of {totalPages}",
+      "showing": "Showing {startItem}-{endItem} of {totalItems} items",
+      "perPage": "per page"
+    },
     "annotations": {
       "dialogs": {
         "addTitle": "Add Annotation",

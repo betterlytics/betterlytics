@@ -2034,6 +2034,11 @@
     "saving": "Lagrer..."
   },
   "components": {
+    "pagination": {
+      "pageOf": "Side {currentPage} av {totalPages}",
+      "showing": "Viser {startItem}-{endItem} av {totalItems} elementer",
+      "perPage": "pr. side"
+    },
     "annotations": {
       "dialogs": {
         "addTitle": "Legg til merknad",

@@ -12,7 +12,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import { Search, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw } from 'lucide-react';
+import { Search, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -88,6 +89,38 @@ function BulkActionBar({ selectedCount, onResolve, onIgnore, onUnresolve }: {
           Unresolve
         </Button>
       </div>
+    </div>
+  );
+}
+
+function StatusFilterTabs({ value, counts, onChange }: {
+  value: StatusFilter;
+  counts: Record<StatusFilter, number>;
+  onChange: (filter: StatusFilter) => void;
+}) {
+  return (
+    <div className='flex gap-1 border-b border-border'>
+      {STATUS_FILTERS.map(({ key, label }) => {
+        const isActive = value === key;
+        return (
+          <button
+            key={key}
+            type='button'
+            onClick={() => onChange(key)}
+            className={[
+              'px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer',
+              isActive
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
+            ].join(' ')}
+          >
+            {label}
+            <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}>
+              {counts[key]}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -327,29 +360,7 @@ export function ErrorTable({
 
   return (
     <div className='space-y-3'>
-      <div className='flex gap-1 border-b border-border'>
-        {STATUS_FILTERS.map(({ key, label }) => {
-          const isActive = statusFilter === key;
-          return (
-            <button
-              key={key}
-              type='button'
-              onClick={() => changeStatusFilter(key)}
-              className={[
-                'px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer',
-                isActive
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground',
-              ].join(' ')}
-            >
-              {label}
-              <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}>
-                {statusCounts[key]}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      <StatusFilterTabs value={statusFilter} counts={statusCounts} onChange={changeStatusFilter} />
 
       <div className='flex items-center gap-3'>
         <div className='relative max-w-sm flex-1'>
@@ -454,38 +465,14 @@ export function ErrorTable({
       </div>
 
       {filteredCount > 0 && table.getPageCount() > 1 && (
-        <div className='flex items-center justify-between py-1'>
-          <span className='text-muted-foreground text-sm'>
-            {filteredCount} error{filteredCount !== 1 ? 's' : ''}
-          </span>
-          <div className='flex items-center gap-2'>
-            <span className='text-muted-foreground text-xs'>
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-            </span>
-            <div className='flex items-center'>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='h-7 w-7 cursor-pointer'
-                disabled={!table.getCanPreviousPage()}
-                onClick={() => table.previousPage()}
-                aria-label='Previous page'
-              >
-                <ChevronLeft className='h-4 w-4' />
-              </Button>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='h-7 w-7 cursor-pointer'
-                disabled={!table.getCanNextPage()}
-                onClick={() => table.nextPage()}
-                aria-label='Next page'
-              >
-                <ChevronRight className='h-4 w-4' />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <PaginationControls
+          pageIndex={table.getState().pagination.pageIndex}
+          totalPages={table.getPageCount()}
+          pageSize={pagination.pageSize}
+          totalItems={filteredCount}
+          onPageChange={(p) => table.setPageIndex(p)}
+          onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
+        />
       )}
     </div>
   );

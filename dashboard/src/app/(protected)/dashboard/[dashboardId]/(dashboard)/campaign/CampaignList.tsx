@@ -18,7 +18,8 @@ import {
 } from '@/app/actions/analytics/campaign.actions';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
-import { CompactPaginationControls, PaginationControls } from './CampaignPaginationControls';
+import { CompactPagination } from '@/components/CompactPagination';
+import { PaginationControls } from '@/components/PaginationControls';
 import { useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 import { toast } from 'sonner';
@@ -100,7 +101,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
   return (
     <div className='space-y-4 pb-8 md:pb-0'>
       {showTopPagination && (
-        <CompactPaginationControls
+        <CompactPagination
           pageIndex={safePageIndex}
           totalPages={totalPages}
           onPageChange={handlePageChange}

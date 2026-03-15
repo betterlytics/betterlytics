@@ -2034,6 +2034,11 @@
     "saving": "Salvataggio..."
   },
   "components": {
+    "pagination": {
+      "pageOf": "Pagina {currentPage} di {totalPages}",
+      "showing": "Mostrando {startItem}-{endItem} di {totalItems} elementi",
+      "perPage": "per pagina"
+    },
     "annotations": {
       "dialogs": {
         "addTitle": "Aggiungi annotazione",
