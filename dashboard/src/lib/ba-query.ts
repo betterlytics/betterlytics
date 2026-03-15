@@ -134,7 +134,19 @@ function getTimestampRange(
   };
 }
 
+function getSampleClause(sampleFactor?: number) {
+  if (!sampleFactor || sampleFactor >= 1) return safeSql``;
+  return safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}`;
+}
+
+function sampleCorrection(sampleFactor?: number) {
+  if (!sampleFactor || sampleFactor >= 1) return safeSql``;
+  return safeSql`* ${SQL.Unsafe((1 / sampleFactor).toString())}`;
+}
+
 export const BAQuery = {
   getFilterQuery,
   getTimestampRange,
+  getSampleClause,
+  sampleCorrection,
 };

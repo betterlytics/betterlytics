@@ -87,6 +87,8 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
   }
 
   const aggregation = getBaseAggregation(metric);
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const query = safeSql`
     WITH
@@ -95,8 +97,8 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
       any(toStartOfHour(toTimeZone(timestamp, {tz:String}))) as date,
       toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
       toHour(toTimeZone(timestamp, {tz:String})) as hour,
-      ${aggregation} / uniq(week_start) as value
-    FROM analytics.events
+      ${aggregation}${correction} / uniq(week_start) as value
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}

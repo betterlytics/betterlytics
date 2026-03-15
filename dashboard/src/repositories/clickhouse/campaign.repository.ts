@@ -247,6 +247,8 @@ export async function getCampaignVisitorTrendData(
     startDateTime,
     endDateTime,
   );
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const campaignFilter = safeSql`AND utm_campaign IN (${SQL.SEPARATOR(
     campaignNames.map((name, index) => SQL.String({ [`campaign_${index}`]: name })),
@@ -257,8 +259,8 @@ export async function getCampaignVisitorTrendData(
       SELECT
         ${granularityFunc('timestamp')} AS date,
         utm_campaign,
-        COUNT(DISTINCT visitor_id) AS visitors
-      FROM analytics.events
+        COUNT(DISTINCT visitor_id) ${correction} AS visitors
+      FROM analytics.events ${sample}
       WHERE site_id = {siteId:String}
         AND ${range}
         ${campaignFilter}
@@ -298,12 +300,14 @@ export async function getCampaignAudienceProfileData(
 ): Promise<CampaignAudienceProfileRow[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const query = safeSql`
     SELECT
       dim.1 AS dimension,
       dim.2 AS label,
-      uniq(visitor_id) AS visitors
+      uniq(visitor_id) ${correction} AS visitors
     FROM
     (
       SELECT
@@ -314,7 +318,7 @@ export async function getCampaignAudienceProfileData(
           ('browser', browser),
           ('os', os)
         ] AS dims
-      FROM analytics.events
+      FROM analytics.events ${sample}
       WHERE site_id = {siteId:String}
         AND timestamp BETWEEN {startDate:DateTime} AND {endDate:DateTime}
         AND utm_campaign != ''

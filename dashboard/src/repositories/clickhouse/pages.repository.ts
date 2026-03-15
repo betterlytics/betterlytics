@@ -32,13 +32,15 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        count() as views
-      FROM analytics.events
+        count() ${correction} as views
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
         AND ${range}
@@ -69,14 +71,16 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
     startDateTime,
     endDateTime,
   );
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
         url,
-        count() as views
-      FROM analytics.events
+        count() ${correction} as views
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
         AND ${range}
@@ -101,12 +105,14 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
 export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const queryResponse = safeSql`
     SELECT
       url,
-      uniq(session_id) as visitors
-    FROM analytics.events
+      uniq(session_id) ${correction} as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -230,13 +236,15 @@ export async function getPageTrafficTimeSeries(
     startDateTime,
     endDateTime,
   );
+  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
+  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        count() as views
-      FROM analytics.events
+        count() ${correction} as views
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND url = {path:String}
         AND event_type = 'pageview'

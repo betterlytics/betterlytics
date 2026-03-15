@@ -12,17 +12,19 @@ import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<EventTypeRow[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime, sampleFactor } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const sample = BAQuery.getSampleClause(sampleFactor);
+  const correction = BAQuery.sampleCorrection(sampleFactor);
 
   const query = safeSql`
     SELECT
       custom_event_name as event_name,
-      count() as count,
-      uniq(visitor_id) as unique_users,
+      count() ${correction} as count,
+      uniq(visitor_id) ${correction} as unique_users,
       max(timestamp) as last_seen,
-      round(count() / uniq(visitor_id), 2) as avg_per_user
-    FROM analytics.events
+      round(count() ${correction} / uniq(visitor_id) ${correction}, 2) as avg_per_user
+    FROM analytics.events ${sample}
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'

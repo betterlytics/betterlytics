@@ -16,15 +16,16 @@ import {
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime, sampleFactor } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
+  const sample = BAQuery.getSampleClause(sampleFactor);
 
   const query = safeSql`
     WITH metrics AS (
       SELECT
         pair.1 AS name,
         toFloat32(pair.2) AS value
-      FROM analytics.events
+      FROM analytics.events ${sample}
       ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
@@ -68,7 +69,7 @@ export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreW
 export async function getAllCoreWebVitalPercentilesSeries(
   siteQuery: BASiteQuery,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
-  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime, sampleFactor } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -76,6 +77,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
     startDateTime,
     endDateTime,
   );
+  const sample = BAQuery.getSampleClause(sampleFactor);
 
   const query = timeWrapper(
     safeSql`
@@ -84,7 +86,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
           ${granularityFunc('timestamp')} as date,
           pair.1 AS name,
           toFloat32(pair.2) AS value
-        FROM analytics.events
+        FROM analytics.events ${sample}
         ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
         WHERE site_id = {site_id:String}
           AND event_type = 'cwv'
@@ -126,8 +128,10 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
   siteQuery: BASiteQuery,
   dimension: CWVDimension,
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime, sampleFactor } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
+  const sample = BAQuery.getSampleClause(sampleFactor);
+  const correction = BAQuery.sampleCorrection(sampleFactor);
 
   const query = safeSql`
     WITH metrics AS (
@@ -141,7 +145,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
         END AS key,
         pair.1 AS name,
         toFloat32(pair.2) AS value
-      FROM analytics.events
+      FROM analytics.events ${sample}
       ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
@@ -157,7 +161,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
       quantileTDigest(0.75)(value) AS p75,
       quantileTDigest(0.90)(value) AS p90,
       quantileTDigest(0.99)(value) AS p99,
-      count() AS samples
+      count() ${correction} AS samples
     FROM metrics
     WHERE name IN {metric_names:Array(String)}
     GROUP BY key, name
