@@ -11,6 +11,7 @@ import {
   getErrorGroupDailyVolume,
   getErrorGroupDeviceTypeBreakdown,
   getErrorOccurrence,
+  getSessionTrailEvents,
 } from '@/repositories/clickhouse/errors.repository';
 import {
   ErrorGroupEnvironmentRow,
@@ -18,6 +19,7 @@ import {
   ErrorGroupVolumePoint,
   ErrorGroupVolumeRow,
   ErrorOccurrence,
+  SessionTrailEvent,
   StackFrame,
   type ErrorGroupStatusValue,
 } from '@/entities/analytics/errors.entities';
@@ -91,6 +93,13 @@ export async function getErrorOccurrenceForSite(
     mechanism,
     frames,
   };
+}
+
+export async function getSessionTrailForSite(
+  siteId: string,
+  sessionId: string,
+): Promise<SessionTrailEvent[]> {
+  return getSessionTrailEvents(siteId, sessionId);
 }
 
 export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {

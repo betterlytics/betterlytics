@@ -14,6 +14,8 @@ import {
   ErrorGroupVolumePointSchema,
   RawErrorOccurrenceRow,
   RawErrorOccurrenceRowSchema,
+  SessionTrailEvent,
+  SessionTrailEventSchema,
 } from '@/entities/analytics/errors.entities';
 
 export async function getErrorGroup(siteId: string, fingerprint: string): Promise<ErrorGroupRow | null> {
@@ -272,6 +274,41 @@ export async function getErrorGroupDailyVolume(
     .toPromise()) as any[];
 
   return result.map((row) => ErrorGroupVolumePointSchema.parse(row));
+}
+
+export async function getSessionTrailEvents(
+  siteId: string,
+  sessionId: string,
+): Promise<SessionTrailEvent[]> {
+  const query = safeSql`
+    SELECT
+      timestamp,
+      event_type,
+      url,
+      custom_event_name,
+      outbound_link_url,
+      error_type,
+      error_message,
+      error_fingerprint
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND session_id = {session_id:String}
+      AND event_type IN ('pageview', 'custom', 'outbound_link', 'js_error')
+    ORDER BY timestamp ASC
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) =>
+    SessionTrailEventSchema.parse({
+      ...row,
+      timestamp: parseClickHouseDate(row.timestamp),
+    }),
+  );
 }
 
 export async function getErrorOccurrence(

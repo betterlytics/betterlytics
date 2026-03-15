@@ -65,6 +65,17 @@ export const ErrorOccurrenceSchema = z.object({
   frames: z.array(StackFrameSchema),
 });
 
+export const SessionTrailEventSchema = z.object({
+  timestamp: z.date(),
+  event_type: z.string(),
+  url: z.string(),
+  custom_event_name: z.string(),
+  outbound_link_url: z.string(),
+  error_type: z.string(),
+  error_message: z.string(),
+  error_fingerprint: z.string(),
+});
+
 export type ErrorGroupRow = z.infer<typeof ErrorGroupRowSchema>;
 export type ErrorGroupVolumeRow = z.infer<typeof ErrorGroupVolumeRowSchema>;
 export type ErrorGroupEnvironmentRow = z.infer<typeof ErrorGroupEnvironmentRowSchema>;
@@ -72,3 +83,4 @@ export type ErrorGroupVolumePoint = z.infer<typeof ErrorGroupVolumePointSchema>;
 export type RawErrorOccurrenceRow = z.infer<typeof RawErrorOccurrenceRowSchema>;
 export type StackFrame = z.infer<typeof StackFrameSchema>;
 export type ErrorOccurrence = z.infer<typeof ErrorOccurrenceSchema>;
+export type SessionTrailEvent = z.infer<typeof SessionTrailEventSchema>;

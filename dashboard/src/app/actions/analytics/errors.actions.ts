@@ -5,6 +5,7 @@ import {
   getErrorGroupForSite,
   getErrorGroupSidebarDataForSite,
   getErrorOccurrenceForSite,
+  getSessionTrailForSite,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
   getErrorGroupTimestampsForSite,
@@ -17,7 +18,12 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { type ErrorGroupRow, type ErrorOccurrence, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
+import {
+  type ErrorGroupRow,
+  type ErrorOccurrence,
+  type SessionTrailEvent,
+  ErrorGroupStatusValueSchema,
+} from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
   hasAnyErrors: boolean;
@@ -92,6 +98,12 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
       dataKey: 'error_count',
       data: volumeRows,
     });
+  },
+);
+
+export const fetchSessionTrailAction = withDashboardAuthContext(
+  async (ctx: AuthContext, sessionId: string): Promise<SessionTrailEvent[]> => {
+    return getSessionTrailForSite(ctx.siteId, sessionId);
   },
 );
 

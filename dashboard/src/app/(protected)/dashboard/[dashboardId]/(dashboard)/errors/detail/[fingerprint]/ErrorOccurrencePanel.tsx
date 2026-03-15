@@ -10,6 +10,7 @@ import { OSIcon } from '@/components/icons/OSIcon';
 import { FlagIcon, type FlagIconProps } from '@/components/icons/FlagIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { StacktraceView } from './StacktraceView';
+import { SessionTrail } from './SessionTrail';
 import { fetchErrorOccurrenceAction } from '@/app/actions/analytics/errors.actions';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
@@ -45,66 +46,76 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
   const canGoOlder = offset < totalCount - 1;
 
   return (
-    <Card className='gap-0 py-0'>
-      {/* Occurrence navigator */}
-      <div className='border-border bg-muted/30 flex items-center justify-between rounded-t-xl border-b px-4 py-2'>
-        <div className='flex items-center gap-1'>
-          <Button
-            variant='ghost'
-            size='icon'
-            onClick={() => navigate(offset + 1)}
-            disabled={!canGoOlder || isPending}
-            className='text-muted-foreground h-7 w-7'
-            title='Older occurrence'
-          >
-            <ChevronLeft className='h-3.5 w-3.5' />
-          </Button>
-          <Button
-            variant='ghost'
-            size='icon'
-            onClick={() => navigate(offset - 1)}
-            disabled={!canGoNewer || isPending}
-            className='text-muted-foreground h-7 w-7'
-            title='Newer occurrence'
-          >
-            <ChevronRight className='h-3.5 w-3.5' />
-          </Button>
-          <span className='text-muted-foreground text-xs'>
-            Occurrence <span className='text-foreground font-medium'>{occurrenceNumber}</span> of {totalCount}
-          </span>
-        </div>
-        {occurrence && (
-          <div className='flex min-w-0 items-center gap-3 text-xs'>
-            {occurrence.url && (
-              <span className='text-muted-foreground truncate'>{occurrence.url}</span>
-            )}
-            <span className='text-muted-foreground shrink-0'>
-              {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+    <div className='space-y-4'>
+      <Card className='gap-0 py-0'>
+        {/* Occurrence navigator */}
+        <div className='border-border bg-muted/30 flex items-center justify-between rounded-t-xl border-b px-4 py-2'>
+          <div className='flex items-center gap-1'>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => navigate(offset + 1)}
+              disabled={!canGoOlder || isPending}
+              className='text-muted-foreground h-7 w-7'
+              title='Older occurrence'
+            >
+              <ChevronLeft className='h-3.5 w-3.5' />
+            </Button>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => navigate(offset - 1)}
+              disabled={!canGoNewer || isPending}
+              className='text-muted-foreground h-7 w-7'
+              title='Newer occurrence'
+            >
+              <ChevronRight className='h-3.5 w-3.5' />
+            </Button>
+            <span className='text-muted-foreground text-xs'>
+              Occurrence <span className='text-foreground font-medium'>{occurrenceNumber}</span> of {totalCount}
             </span>
           </div>
-        )}
-      </div>
+          {occurrence && (
+            <div className='flex min-w-0 items-center gap-3 text-xs'>
+              {occurrence.url && (
+                <span className='text-muted-foreground truncate'>{occurrence.url}</span>
+              )}
+              <span className='text-muted-foreground shrink-0'>
+                {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+              </span>
+            </div>
+          )}
+        </div>
 
-      <CardContent className='space-y-6 px-6 py-6'>
-        {!occurrence || isPending ? (
-          <OccurrenceSkeleton />
-        ) : (
-          <>
-            <OccurrenceContext occurrence={occurrence} />
-            {occurrence.frames.length > 0 && (
-              <div className='border-border border-t pt-6'>
-                <StacktraceView
-                  errorType={occurrence.error_type}
-                  errorMessage={occurrence.error_message}
-                  frames={occurrence.frames}
-                  mechanism={occurrence.mechanism}
-                />
-              </div>
-            )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+        <CardContent className='space-y-6 px-6 py-6'>
+          {!occurrence || isPending ? (
+            <OccurrenceSkeleton />
+          ) : (
+            <>
+              <OccurrenceContext occurrence={occurrence} />
+              {occurrence.frames.length > 0 && (
+                <div className='border-border border-t pt-6'>
+                  <StacktraceView
+                    errorType={occurrence.error_type}
+                    errorMessage={occurrence.error_message}
+                    frames={occurrence.frames}
+                    mechanism={occurrence.mechanism}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {occurrence?.session_id && (
+        <SessionTrail
+          dashboardId={dashboardId}
+          sessionId={occurrence.session_id}
+          currentFingerprint={fingerprint}
+        />
+      )}
+    </div>
   );
 }
 
