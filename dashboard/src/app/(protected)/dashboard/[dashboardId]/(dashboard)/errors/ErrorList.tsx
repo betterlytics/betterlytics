@@ -33,7 +33,9 @@ import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
 import { useErrorGroupActions, type StatusFilter } from '@/hooks/use-error-group-actions';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
-import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
+import { formatNumber } from '@/utils/formatters';
+import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
+import { STATUS_CONFIG } from './errors.constants';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
@@ -44,27 +46,6 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'resolved', label: 'Resolved' },
   { key: 'ignored', label: 'Ignored' },
 ];
-
-function formatCount(count: number): string {
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
-  return count.toString();
-}
-
-const STATUS_CONFIG: Record<ErrorGroupStatusValue, { label: string; className: string }> = {
-  unresolved: {
-    label: 'Unresolved',
-    className: 'bg-destructive/10 text-destructive border-destructive/20',
-  },
-  resolved: {
-    label: 'Resolved',
-    className: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
-  },
-  ignored: {
-    label: 'Ignored',
-    className: 'bg-muted text-muted-foreground border-border',
-  },
-};
 
 function BulkActionBar({ selectedCount, onResolve, onIgnore, onUnresolve }: {
   selectedCount: number;
@@ -213,7 +194,7 @@ export function ErrorTable({
         header: 'Occurrences',
         meta: { centered: true },
         cell: ({ getValue }) => (
-          <div className='text-center tabular-nums'>{formatCount(getValue() as number)}</div>
+          <div className='text-center tabular-nums'>{formatNumber(getValue() as number)}</div>
         ),
       },
       {
@@ -221,7 +202,7 @@ export function ErrorTable({
         header: 'Sessions',
         meta: { centered: true },
         cell: ({ getValue }) => (
-          <div className='text-center tabular-nums'>{formatCount(getValue() as number)}</div>
+          <div className='text-center tabular-nums'>{formatNumber(getValue() as number)}</div>
         ),
       },
       {
