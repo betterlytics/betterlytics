@@ -74,9 +74,14 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
           </span>
         </div>
         {occurrence && (
-          <span className='text-muted-foreground text-xs'>
-            {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-          </span>
+          <div className='flex min-w-0 items-center gap-3 text-xs'>
+            {occurrence.url && (
+              <span className='text-muted-foreground truncate'>{occurrence.url}</span>
+            )}
+            <span className='text-muted-foreground shrink-0'>
+              {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+            </span>
+          </div>
         )}
       </div>
 
@@ -92,6 +97,7 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
                   errorType={occurrence.error_type}
                   errorMessage={occurrence.error_message}
                   frames={occurrence.frames}
+                  mechanism={occurrence.mechanism}
                 />
               </div>
             )}

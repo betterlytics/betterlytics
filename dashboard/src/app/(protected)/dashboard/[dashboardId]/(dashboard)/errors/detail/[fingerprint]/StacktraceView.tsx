@@ -11,9 +11,10 @@ type StacktraceViewProps = {
   errorType: string;
   errorMessage: string;
   frames: StackFrame[];
+  mechanism?: string;
 };
 
-export function StacktraceView({ errorType, errorMessage, frames }: StacktraceViewProps) {
+export function StacktraceView({ errorType, errorMessage, frames, mechanism }: StacktraceViewProps) {
   const [expanded, setExpanded] = useState(false);
 
   const visibleFrames = expanded ? frames : frames.slice(0, INITIAL_FRAMES);
@@ -23,9 +24,16 @@ export function StacktraceView({ errorType, errorMessage, frames }: StacktraceVi
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
         <p className='text-base font-medium'>Stacktrace</p>
-        <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs tabular-nums'>
-          {frames.length} frames
-        </span>
+        <div className='flex items-center gap-2'>
+          {mechanism && (
+            <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs'>
+              {mechanism}
+            </span>
+          )}
+          <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs tabular-nums'>
+            {frames.length} frames
+          </span>
+        </div>
       </div>
 
       <div className='border-border overflow-hidden rounded-lg border font-mono text-xs'>
