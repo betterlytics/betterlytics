@@ -270,7 +270,6 @@ mod tests {
     #[test]
     fn test_invalid_json() {
         let fp = generate_error_fingerprint("TypeError", "not json");
-        // Falls back to type + empty message
         assert_eq!(fp.len(), 32);
     }
 
