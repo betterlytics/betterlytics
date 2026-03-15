@@ -74,7 +74,7 @@ export async function getMonitorUptimeBuckets(
             i -> ${toStartOfStartedAt} + INTERVAL i ${interval},
             range(
               0,
-              toUInt32(dateDiff(${granularityStr}, ${toStartOfStartedAt}, coalesce(resolved_at, now() + INTERVAL 1 ${interval}))) + 1
+              toUInt32(dateDiff(${granularityStr}, ${toStartOfStartedAt}, coalesce(resolved_at, now() + INTERVAL 1 ${interval}), {timezone:String})) + 1
             )
           )
         ) AS bucket_key
