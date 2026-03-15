@@ -2,65 +2,38 @@
 
 import {
   hasAnyErrorsForSite,
-  getErrorGroupForSite,
-  getErrorGroupSidebarDataForSite,
-  getErrorOccurrenceForSite,
   getErrorGroupsForSite,
-  getErrorVolumeForSite,
   getErrorGroupVolumesForSite,
   getGlobalErrorGroupFirstSeenForSite,
   upsertErrorGroupForSite,
   bulkUpsertErrorGroupForSite,
-  type ErrorGroupSidebarData,
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { toTimeSeries, toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
+import { toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { type ErrorGroupRow, type ErrorOccurrence, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
+import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
   hasAnyErrors: boolean;
   errorGroups: ErrorGroupRow[];
-  timeBuckets: TimeSeriesPoint[];
   initialVolumeMap: Record<string, TimeSeriesPoint[]>;
 };
 
 const INITIAL_PAGE_SIZE = 10;
 
-export const fetchErrorGroupAction = withDashboardAuthContext(
-  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
-    return getErrorGroupForSite(ctx.siteId, ctx.dashboardId, fingerprint);
-  },
-);
-
-export const fetchErrorOccurrenceAction = withDashboardAuthContext(
-  async (ctx: AuthContext, fingerprint: string, offset: number): Promise<ErrorOccurrence | null> => {
-    return getErrorOccurrenceForSite(ctx.siteId, fingerprint, offset);
-  },
-);
-
-export const fetchErrorGroupSidebarAction = withDashboardAuthContext(
-  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupSidebarData> => {
-    return getErrorGroupSidebarDataForSite(ctx.siteId, fingerprint);
-  },
-);
-
 export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
     const { main } = toSiteQuery(ctx.siteId, query);
 
-    const [hasAnyErrors, errorGroups, overallData, firstSeenMap] = await Promise.all([
+    const [hasAnyErrors, errorGroups, firstSeenMap] = await Promise.all([
       hasAnyErrorsForSite(ctx.siteId),
       getErrorGroupsForSite(main, ctx.dashboardId),
-      getErrorVolumeForSite(main),
       getGlobalErrorGroupFirstSeenForSite(ctx.siteId),
     ]);
 
     const enrichedGroups = errorGroups.map((g) => ({ ...g, first_seen: firstSeenMap[g.error_fingerprint] }));
-
-    const timeBuckets = toTimeSeries({ dataKey: 'errorCount', data: overallData });
 
     const initialFingerprints = enrichedGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
     const initialVolumeRows = await getErrorGroupVolumesForSite(main, initialFingerprints);
@@ -68,11 +41,10 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
     const initialVolumeMap = toGroupedTimeSeries({
       groupKey: 'error_fingerprint',
       dataKey: 'errorCount',
-      timeBuckets,
       data: initialVolumeRows,
     });
 
-    return { hasAnyErrors, errorGroups: enrichedGroups, timeBuckets, initialVolumeMap };
+    return { hasAnyErrors, errorGroups: enrichedGroups, initialVolumeMap };
   },
 );
 
@@ -81,7 +53,6 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
     ctx: AuthContext,
     query: BAAnalyticsQuery,
     fingerprints: string[],
-    timeBuckets: TimeSeriesPoint[],
   ): Promise<Record<string, TimeSeriesPoint[]>> => {
     const { main } = toSiteQuery(ctx.siteId, query);
     const volumeRows = await getErrorGroupVolumesForSite(main, fingerprints);
@@ -89,29 +60,20 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
     return toGroupedTimeSeries({
       groupKey: 'error_fingerprint',
       dataKey: 'errorCount',
-      timeBuckets,
       data: volumeRows,
     });
   },
 );
 
 export const upsertErrorGroupAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    errorFingerprint: string,
-    status: string,
-  ): Promise<void> => {
+  async (ctx: AuthContext, errorFingerprint: string, status: string): Promise<void> => {
     const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
     await upsertErrorGroupForSite(ctx.dashboardId, errorFingerprint, validatedStatus);
   },
 );
 
 export const bulkUpsertErrorGroupAction = withDashboardAuthContext(
-  async (
-    ctx: AuthContext,
-    fingerprints: string[],
-    status: string,
-  ): Promise<void> => {
+  async (ctx: AuthContext, fingerprints: string[], status: string): Promise<void> => {
     const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
     await bulkUpsertErrorGroupForSite(ctx.dashboardId, fingerprints, validatedStatus);
   },

@@ -109,14 +109,12 @@ function StatusFilterTabs({ value, counts, onChange }: {
 type ErrorTableProps = {
   errorGroups: ErrorGroupRow[];
   initialVolumeMap: Record<string, TimeSeriesPoint[]>;
-  timeBuckets: TimeSeriesPoint[];
   dashboardId: string;
 };
 
 export function ErrorTable({
   errorGroups,
   initialVolumeMap,
-  timeBuckets,
   dashboardId,
 }: ErrorTableProps) {
   const router = useRouter();
@@ -322,7 +320,7 @@ export function ErrorTable({
       query.queryFilters,
       fingerprintKey,
     ],
-    queryFn: () => fetchErrorGroupVolumesAction(dashboardId, query, visibleFingerprints, timeBuckets),
+    queryFn: () => fetchErrorGroupVolumesAction(dashboardId, query, visibleFingerprints),
     initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
     enabled: visibleFingerprints.length > 0,
     staleTime,

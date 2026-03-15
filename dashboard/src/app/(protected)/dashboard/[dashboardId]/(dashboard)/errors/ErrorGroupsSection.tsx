@@ -11,7 +11,7 @@ type ErrorGroupsSectionProps = {
 };
 
 export function ErrorGroupsSection({ groupsPromise, dashboardId }: ErrorGroupsSectionProps) {
-  const { hasAnyErrors, errorGroups, timeBuckets, initialVolumeMap } = use(groupsPromise);
+  const { hasAnyErrors, errorGroups, initialVolumeMap } = use(groupsPromise);
 
   if (!hasAnyErrors) {
     return <ErrorsEmptyState />;
@@ -21,7 +21,6 @@ export function ErrorGroupsSection({ groupsPromise, dashboardId }: ErrorGroupsSe
     <ErrorTable
       errorGroups={errorGroups}
       initialVolumeMap={initialVolumeMap}
-      timeBuckets={timeBuckets}
       dashboardId={dashboardId}
     />
   );

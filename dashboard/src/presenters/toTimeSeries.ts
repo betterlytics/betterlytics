@@ -17,14 +17,12 @@ export function toTimeSeries<K extends string>({ dataKey, data }: ToTimeSeriesPr
 type ToGroupedTimeSeriesProps<G extends string, K extends string> = {
   groupKey: G;
   dataKey: K;
-  timeBuckets: TimeSeriesPoint[];
   data: Array<{ date: string } & Record<G, string> & Record<K, number>>;
 };
 
 export function toGroupedTimeSeries<G extends string, K extends string>({
   groupKey,
   dataKey,
-  timeBuckets,
   data,
 }: ToGroupedTimeSeriesProps<G, K>): Record<string, TimeSeriesPoint[]> {
   const sparse: Record<string, TimeSeriesPoint[]> = {};
