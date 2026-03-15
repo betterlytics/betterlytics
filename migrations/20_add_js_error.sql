@@ -5,3 +5,4 @@ ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS exception_list String DEFAULT '' AFTER scroll_depth_pixels,
     ADD COLUMN IF NOT EXISTS error_type LowCardinality(String) DEFAULT '' AFTER exception_list,
     ADD COLUMN IF NOT EXISTS error_message String DEFAULT '' AFTER error_type;
+    ADD COLUMN IF NOT EXISTS error_fingerprint String DEFAULT '' AFTER error_message;
