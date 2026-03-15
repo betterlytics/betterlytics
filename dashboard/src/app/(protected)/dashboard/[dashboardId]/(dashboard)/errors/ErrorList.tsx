@@ -65,6 +65,33 @@ const STATUS_CONFIG: Record<ErrorGroupStatusValue, { label: string; className: s
   },
 };
 
+function BulkActionBar({ selectedCount, onResolve, onIgnore, onUnresolve }: {
+  selectedCount: number;
+  onResolve: () => void;
+  onIgnore: () => void;
+  onUnresolve: () => void;
+}) {
+  return (
+    <div className='bg-muted/50 border-border flex items-center gap-3 rounded-lg border px-4 py-2'>
+      <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
+      <div className='flex items-center gap-2 ml-auto'>
+        <Button variant='outline' size='sm' onClick={onResolve}>
+          <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
+          Resolve
+        </Button>
+        <Button variant='outline' size='sm' onClick={onIgnore}>
+          <EyeOff className='mr-1.5 h-3.5 w-3.5' />
+          Ignore
+        </Button>
+        <Button variant='outline' size='sm' onClick={onUnresolve}>
+          <RotateCcw className='mr-1.5 h-3.5 w-3.5' />
+          Unresolve
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 type ErrorTableProps = {
   errorGroups: ErrorGroupRow[];
   initialVolumeMap: Record<string, TimeSeriesPoint[]>;
@@ -349,35 +376,12 @@ export function ErrorTable({
       </div>
 
       {selectedCount > 0 && (
-        <div className='bg-muted/50 border-border flex items-center gap-3 rounded-lg border px-4 py-2'>
-          <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
-          <div className='flex items-center gap-2 ml-auto'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => bulkSetStatus(selectedFingerprints, 'resolved')}
-            >
-              <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
-              Resolve
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => bulkSetStatus(selectedFingerprints, 'ignored')}
-            >
-              <EyeOff className='mr-1.5 h-3.5 w-3.5' />
-              Ignore
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => bulkSetStatus(selectedFingerprints, 'unresolved')}
-            >
-              <RotateCcw className='mr-1.5 h-3.5 w-3.5' />
-              Unresolve
-            </Button>
-          </div>
-        </div>
+        <BulkActionBar
+          selectedCount={selectedCount}
+          onResolve={() => bulkSetStatus(selectedFingerprints, 'resolved')}
+          onIgnore={() => bulkSetStatus(selectedFingerprints, 'ignored')}
+          onUnresolve={() => bulkSetStatus(selectedFingerprints, 'unresolved')}
+        />
       )}
 
       <div className='border-border overflow-hidden rounded-lg border'>
