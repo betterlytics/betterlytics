@@ -169,7 +169,7 @@ export function ErrorTable({
         id: 'error',
         accessorFn: (row) => `${row.error_type} ${row.error_message}`,
         header: 'Error',
-        meta: { cellClassName: 'w-full max-w-0 pl-2' },
+        meta: { cellClassName: 'w-full min-w-[200px] max-w-0 pl-2' },
         cell: ({ row }) => {
           const error = row.original;
           return (
@@ -183,7 +183,7 @@ export function ErrorTable({
       {
         id: 'volume',
         header: 'Volume',
-        meta: { cellClassName: 'hidden lg:table-cell', headerClassName: 'hidden lg:table-cell' },
+        meta: { cellClassName: 'hidden xl:table-cell', headerClassName: 'hidden xl:table-cell' },
         cell: ({ row }) => (
           <ErrorSparklineChart data={volumeMapRef.current?.[row.original.error_fingerprint] ?? []} />
         ),
@@ -209,7 +209,6 @@ export function ErrorTable({
         id: 'first_seen',
         accessorFn: (row) => row.first_seen?.getTime() ?? 0,
         header: 'First seen',
-        meta: { cellClassName: 'hidden md:table-cell', headerClassName: 'hidden md:table-cell' },
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
           return firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—';
@@ -376,8 +375,8 @@ export function ErrorTable({
         />
       )}
 
-      <div className='border-border overflow-hidden rounded-lg border'>
-        <Table>
+      <div className='border-border overflow-x-auto rounded-lg border'>
+        <Table className='min-w-[800px]'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className='border-muted-foreground bg-accent hover:bg-accent border-b'>
