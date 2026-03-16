@@ -119,7 +119,7 @@ export const fetchReferrerTableDataForSite = withDashboardAuthContext(
       const compareData = compare && (await getReferrerTableDataForSite(compare, limit));
 
       return {
-        data: toDataTable({ data, compare: compareData, categoryKey: 'source_url' }),
+        data: toDataTable({ data, compare: compareData, categoryKey: 'referrer_url' }),
       };
     } catch (error) {
       console.error('Error fetching referrer table data:', error);
@@ -149,7 +149,7 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
         topReferrerUrls: toHierarchicalDataTable({
           data: referrerUrlRollup,
           compare: compareReferrerUrlRollup || undefined,
-          parentKey: 'source_name',
+          parentKey: 'referrer_domain',
           childKey: 'referrer_url',
         }),
         topChannels: toDataTable({

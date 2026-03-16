@@ -43,7 +43,7 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 };
 
 interface ReferrerTableProps {
-  data?: ToDataTable<'source_url', ReferrerTableRow>[];
+  data?: ToDataTable<'referrer_url', ReferrerTableRow>[];
 }
 
 export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
@@ -57,26 +57,26 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
 
   const filteredData = data.filter((row) => {
     if (activeTab === ReferrerTab.All) return true;
-    return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
+    return row.current.referrer_source.toLowerCase() === activeTab.toLowerCase();
   });
 
-  const columns: ColumnDef<ToDataTable<'source_url', ReferrerTableRow>>[] = [
+  const columns: ColumnDef<ToDataTable<'referrer_url', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
       header: t('columns.source'),
       cell: ({ row }) => {
         const data = row.original.current;
-        const label = data.source_url
-          ? formatString(data.source_url)
-          : data.source_type.toLowerCase() === 'direct'
+        const label = data.referrer_url
+          ? formatString(data.referrer_url)
+          : data.referrer_source.toLowerCase() === 'direct'
             ? t('columns.direct')
             : t('columns.unknown');
         const handleClick = () => {
-          if (data.source_url && data.source_url.trim() !== '') {
-            makeFilterClick('referrer_url')(data.source_url);
+          if (data.referrer_url && data.referrer_url.trim() !== '') {
+            makeFilterClick('referrer_url')(data.referrer_url);
             return;
           } else {
-            makeFilterClick('referrer_source')(data.source_type);
+            makeFilterClick('referrer_source')(data.referrer_source);
           }
         };
         return (
@@ -88,7 +88,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
               title={typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
             >
               <span className='flex items-center gap-2'>
-                {data.source_type.toLowerCase() === 'direct' ? (
+                {data.referrer_source.toLowerCase() === 'direct' ? (
                   <Globe className='h-4 w-4 text-gray-500' />
                 ) : (
                   <Link className='h-4 w-4 text-gray-500' />
@@ -101,9 +101,9 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
       },
     },
     {
-      accessorKey: 'source_type',
+      accessorKey: 'referrer_source',
       header: t('columns.type'),
-      cell: ({ row }) => <SourceTypeBadge type={row.original.current.source_type} />,
+      cell: ({ row }) => <SourceTypeBadge type={row.original.current.referrer_source} />,
     },
     {
       accessorKey: 'visits',

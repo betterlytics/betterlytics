@@ -57,6 +57,8 @@ pub struct ReferrerInfo {
     pub source_type: ReferrerSource,
     /// Source name (e.g., "Google", "Facebook", etc.)
     pub source_name: Option<String>,
+    /// Base domain extracted from referrer URL (e.g., "reddit.com")
+    pub domain: Option<String>,
     /// Search term (if available from search engines)
     pub search_term: Option<String>,
 }
@@ -134,6 +136,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
                 url: None,
                 source_type: ReferrerSource::Direct,
                 source_name: None,
+                domain: None,
                 search_term: None,
             }
         }
@@ -146,6 +149,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
                 url: Some(referrer_str.to_string()),
                 source_type: ReferrerSource::Other,
                 source_name: None,
+                domain: None,
                 search_term: None,
             };
         }
@@ -211,10 +215,15 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     // Sanitize the referrer URL to ensure privacy compliance to ensure that the referrer url does not contain any sensitive information
     let sanitized_referrer = sanitize_referrer_url(&referrer_url, is_search_engine, search_params);
 
+    let referrer_domain = referrer_url.host_str()
+        .and_then(|h| extract_root_domain(h))
+        .map(|s| s.to_string());
+
     ReferrerInfo {
         url: Some(sanitized_referrer),
         source_type,
         source_name: referrer_name,
+        domain: referrer_domain,
         search_term,
     }
 }

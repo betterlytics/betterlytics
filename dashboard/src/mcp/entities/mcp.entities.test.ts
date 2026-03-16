@@ -85,10 +85,10 @@ describe('McpQueryInputSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts referrer_source_name dimension', () => {
+  it('accepts referrer_domain dimension', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
-      dimensions: ['referrer_source_name'],
+      dimensions: ['referrer_domain'],
       timeRange: '7d',
     });
     expect(result.success).toBe(true);
