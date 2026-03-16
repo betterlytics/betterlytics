@@ -48,8 +48,7 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
   return (
     <div className='space-y-4'>
       <Card className='gap-0 py-0'>
-        {/* Occurrence navigator */}
-        <div className='border-border bg-muted/30 flex items-center justify-between rounded-t-xl border-b px-4 py-2'>
+        <div className='border-border bg-muted/30 grid grid-cols-3 items-center rounded-t-xl border-b px-4 py-2'>
           <div className='flex items-center gap-1'>
             <Button
               variant='ghost'
@@ -75,15 +74,15 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
               Occurrence <span className='text-foreground font-medium'>{occurrenceNumber}</span> of {totalCount}
             </span>
           </div>
+          {occurrence?.url ? (
+            <span className='text-muted-foreground min-w-0 truncate text-center text-xs'>{occurrence.url}</span>
+          ) : (
+            <span />
+          )}
           {occurrence && (
-            <div className='flex min-w-0 items-center gap-3 text-xs'>
-              {occurrence.url && (
-                <span className='text-muted-foreground truncate'>{occurrence.url}</span>
-              )}
-              <span className='text-muted-foreground shrink-0'>
-                {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-              </span>
-            </div>
+            <span className='text-muted-foreground text-right text-xs'>
+              {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+            </span>
           )}
         </div>
 
@@ -103,18 +102,19 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
                   />
                 </div>
               )}
+              {occurrence.session_id && (
+                <div className='border-border border-t pt-6'>
+                  <SessionTrail
+                    dashboardId={dashboardId}
+                    sessionId={occurrence.session_id}
+                    currentFingerprint={fingerprint}
+                  />
+                </div>
+              )}
             </>
           )}
         </CardContent>
       </Card>
-
-      {occurrence?.session_id && (
-        <SessionTrail
-          dashboardId={dashboardId}
-          sessionId={occurrence.session_id}
-          currentFingerprint={fingerprint}
-        />
-      )}
     </div>
   );
 }
@@ -134,26 +134,32 @@ function OccurrenceContext({ occurrence }: { occurrence: ErrorOccurrence }) {
     {
       label: 'Device',
       value: occurrence.device_type || '—',
-      icon: occurrence.device_type
-        ? <DeviceIcon type={occurrence.device_type} className='h-6 w-6' />
-        : <Monitor className='text-muted-foreground h-6 w-6' />,
+      icon: occurrence.device_type ? (
+        <DeviceIcon type={occurrence.device_type} className='h-6 w-6' />
+      ) : (
+        <Monitor className='text-muted-foreground h-6 w-6' />
+      ),
     },
     {
       label: 'Country',
       value: occurrence.country_code || '—',
-      icon: occurrence.country_code
-        ? <FlagIcon countryCode={occurrence.country_code as FlagIconProps['countryCode']} countryName={occurrence.country_code} className='h-6 w-6' />
-        : <Monitor className='text-muted-foreground h-6 w-6' />,
+      icon: occurrence.country_code ? (
+        <FlagIcon
+          countryCode={occurrence.country_code as FlagIconProps['countryCode']}
+          countryName={occurrence.country_code}
+          className='h-6 w-6'
+        />
+      ) : (
+        <Monitor className='text-muted-foreground h-6 w-6' />
+      ),
     },
   ];
 
   return (
-    <dl className='-mx-6 flex divide-x divide-border'>
+    <dl className='divide-border -mx-6 flex divide-x'>
       {details.map(({ label, value, icon }) => (
         <div key={label} className='flex min-w-0 flex-1 items-center gap-3 px-6 py-1'>
-          <div className='bg-muted flex h-11 w-11 shrink-0 items-center justify-center rounded-xl'>
-            {icon}
-          </div>
+          <div className='bg-muted flex h-11 w-11 shrink-0 items-center justify-center rounded-xl'>{icon}</div>
           <div className='min-w-0'>
             <dt className='text-muted-foreground text-xs'>{label}</dt>
             <dd className='text-foreground mt-0.5 truncate text-sm font-semibold'>{value}</dd>
@@ -167,7 +173,7 @@ function OccurrenceContext({ occurrence }: { occurrence: ErrorOccurrence }) {
 function OccurrenceSkeleton() {
   return (
     <div className='space-y-6'>
-      <div className='-mx-6 flex divide-x divide-border'>
+      <div className='divide-border -mx-6 flex divide-x'>
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className='flex min-w-0 flex-1 items-center gap-3 px-6 py-1'>
             <Skeleton className='h-11 w-11 rounded-xl' />

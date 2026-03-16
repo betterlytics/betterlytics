@@ -23,6 +23,7 @@ import {
   SessionTrailEvent,
   StackFrame,
   type ErrorGroupStatusValue,
+  type GroupedSessionTrailEvent,
 } from '@/entities/analytics/errors.entities';
 import { parseStackTrace } from '@/utils/parseStackTrace';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -99,8 +100,38 @@ export async function getErrorOccurrenceForSite(
 export async function getSessionTrailForSite(
   siteId: string,
   sessionId: string,
-): Promise<SessionTrailEvent[]> {
-  return getSessionTrailEvents(siteId, sessionId);
+): Promise<GroupedSessionTrailEvent[]> {
+  const events = await getSessionTrailEvents(siteId, sessionId);
+  return groupConsecutiveEvents(events);
+}
+
+function getSessionTrailEventLabel(event: SessionTrailEvent): string {
+  switch (event.event_type) {
+    case 'pageview':
+      return event.url;
+    case 'custom':
+      return event.custom_event_name;
+    case 'outbound_link':
+      return event.outbound_link_url;
+    case 'js_error':
+      return `${event.error_type}: ${event.error_message}`;
+    default:
+      return event.event_type;
+  }
+}
+
+function groupConsecutiveEvents(events: SessionTrailEvent[]): GroupedSessionTrailEvent[] {
+  const groups: GroupedSessionTrailEvent[] = [];
+  for (const event of events) {
+    const label = getSessionTrailEventLabel(event);
+    const prev = groups[groups.length - 1];
+    if (prev && prev.label === label) {
+      prev.count++;
+    } else {
+      groups.push({ event, count: 1, label });
+    }
+  }
+  return groups;
 }
 
 export async function hasSessionReplayForSite(siteId: string, sessionId: string): Promise<boolean> {

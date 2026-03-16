@@ -2,12 +2,11 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ExternalLink, Film, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronDown, ExternalLink, Film, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from 'next-themes';
 import { fetchSessionTrailAction, checkSessionReplayAction } from '@/app/actions/analytics/errors.actions';
-import type { SessionTrailEvent } from '@/entities/analytics/errors.entities';
+import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 type SessionTrailProps = {
@@ -38,24 +37,10 @@ const EVENT_COLORS: Record<string, Record<string, string>> = {
   },
 };
 
-function getEventLabel(event: SessionTrailEvent): string {
-  switch (event.event_type) {
-    case 'pageview':
-      return event.url || 'Page view';
-    case 'custom':
-      return event.custom_event_name || 'Custom event';
-    case 'outbound_link':
-      return event.outbound_link_url || 'Outbound link';
-    case 'js_error':
-      return `${event.error_type}: ${event.error_message}`;
-    default:
-      return event.event_type;
-  }
-}
-
 export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: SessionTrailProps) {
-  const [events, setEvents] = useState<SessionTrailEvent[] | null>(null);
+  const [groups, setGroups] = useState<GroupedSessionTrailEvent[] | null>(null);
   const [hasReplay, setHasReplay] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
@@ -66,40 +51,63 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
         fetchSessionTrailAction(dashboardId, sessionId),
         checkSessionReplayAction(dashboardId, sessionId),
       ]);
-      setEvents(data);
+      setGroups(data);
       setHasReplay(replay);
     });
   }, [dashboardId, sessionId]);
 
-  if (isPending || !events) {
+  if (isPending || !groups) {
     return (
-      <Card className='!gap-0 !p-0'>
-        <CardHeader className='border-border/60 bg-muted/60 border-b px-4 py-3'>
-          <Skeleton className='h-4 w-24' />
-        </CardHeader>
-        <CardContent className='space-y-1 !px-2 !py-2'>
+      <div className='space-y-3'>
+        <Skeleton className='h-4 w-24' />
+        <div className='space-y-1'>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className='flex items-center gap-3 px-2 py-2'>
+            <div key={i} className='flex items-center gap-3 py-2'>
               <Skeleton className='h-3 w-12' />
               <Skeleton className='h-5 w-5 rounded' />
               <Skeleton className='h-3.5 w-48' />
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
-  if (events.length === 0) return null;
+  if (groups.length === 0) return null;
+
+  const totalEvents = groups.reduce((sum, g) => sum + g.count, 0);
+
+  const COLLAPSED_LIMIT = 10;
+  const needsCollapse = groups.length > COLLAPSED_LIMIT;
+
+  let visibleGroups: GroupedSessionTrailEvent[];
+  if (!needsCollapse || expanded) {
+    visibleGroups = groups;
+  } else {
+    const currentIndex = groups.findIndex(
+      (g) => g.event.event_type === 'js_error' && g.event.error_fingerprint === currentFingerprint,
+    );
+    const center = currentIndex >= 0 ? currentIndex : groups.length - 1;
+    const half = Math.floor(COLLAPSED_LIMIT / 2);
+    let start = Math.max(0, center - half);
+    let end = start + COLLAPSED_LIMIT;
+    if (end > groups.length) {
+      end = groups.length;
+      start = Math.max(0, end - COLLAPSED_LIMIT);
+    }
+    visibleGroups = groups.slice(start, end);
+  }
+
+  const hiddenCount = groups.length - visibleGroups.length;
 
   return (
-    <Card className='!gap-0 !p-0'>
-      <CardHeader className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-b px-4 py-3 !pb-3'>
+    <div className='space-y-3'>
+      <div className='flex items-center justify-between gap-3'>
         <div className='space-y-1'>
-          <CardTitle className='text-sm font-medium tracking-tight'>Session trail</CardTitle>
-          <CardDescription className='text-xs leading-relaxed'>
-            {events.length} {events.length === 1 ? 'event' : 'events'} in this session
-          </CardDescription>
+          <p className='text-sm font-medium'>Session trail</p>
+          <p className='text-muted-foreground text-xs leading-relaxed'>
+            {totalEvents} {totalEvents === 1 ? 'event' : 'events'} in this session
+          </p>
         </div>
         {hasReplay && (
           <Link
@@ -110,19 +118,18 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
             Watch replay
           </Link>
         )}
-      </CardHeader>
-      <CardContent className='!px-2 !py-2'>
-        {events.map((event, i) => {
+      </div>
+      <div>
+        {visibleGroups.map(({ event, count, label }, i) => {
           const Icon = EVENT_ICONS[event.event_type] ?? Eye;
           const color = EVENT_COLORS[theme][event.event_type] ?? EVENT_COLORS[theme].pageview;
-          const isCurrent =
-            event.event_type === 'js_error' && event.error_fingerprint === currentFingerprint;
+          const isCurrent = event.event_type === 'js_error' && event.error_fingerprint === currentFingerprint;
 
           return (
             <div
               key={i}
               className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-xs ${
-                isCurrent ? 'bg-destructive/8' : ''
+                isCurrent ? 'border-destructive/50 bg-destructive/8 border-l-2' : ''
               }`}
             >
               <span className='text-muted-foreground w-16 shrink-0 text-left text-[11px] tabular-nums'>
@@ -131,13 +138,27 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
               <span className='flex h-5 w-5 shrink-0 items-center justify-center'>
                 <Icon className='h-5 w-5' style={{ color }} />
               </span>
-              <span className='min-w-0 flex-1 truncate text-xs font-medium'>
-                {getEventLabel(event)}
+              <span className='flex min-w-0 flex-1 items-center gap-1.5'>
+                <span className='truncate text-xs font-medium'>{label}</span>
+                {count > 1 && (
+                  <span className='text-muted-foreground bg-muted shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium'>
+                    x{count}
+                  </span>
+                )}
               </span>
             </div>
           );
         })}
-      </CardContent>
-    </Card>
+        {needsCollapse && !expanded && (
+          <button
+            onClick={() => setExpanded(true)}
+            className='text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1.5 py-2 text-xs transition-colors'
+          >
+            <ChevronDown className='h-3.5 w-3.5' />
+            Show {hiddenCount} more
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

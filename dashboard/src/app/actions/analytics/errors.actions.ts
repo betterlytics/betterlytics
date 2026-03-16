@@ -23,8 +23,9 @@ import { toSiteQuery } from '@/lib/toSiteQuery';
 import {
   type ErrorGroupRow,
   type ErrorOccurrence,
-  type SessionTrailEvent,
+  type GroupedSessionTrailEvent,
   ErrorGroupStatusValueSchema,
+  SessionTrailEvent,
 } from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
@@ -116,7 +117,7 @@ export const findReplaySessionForErrorAction = withDashboardAuthContext(
 );
 
 export const fetchSessionTrailAction = withDashboardAuthContext(
-  async (ctx: AuthContext, sessionId: string): Promise<SessionTrailEvent[]> => {
+  async (ctx: AuthContext, sessionId: string): Promise<GroupedSessionTrailEvent[]> => {
     return getSessionTrailForSite(ctx.siteId, sessionId);
   },
 );

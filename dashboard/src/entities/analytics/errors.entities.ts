@@ -84,3 +84,9 @@ export type RawErrorOccurrenceRow = z.infer<typeof RawErrorOccurrenceRowSchema>;
 export type StackFrame = z.infer<typeof StackFrameSchema>;
 export type ErrorOccurrence = z.infer<typeof ErrorOccurrenceSchema>;
 export type SessionTrailEvent = z.infer<typeof SessionTrailEventSchema>;
+
+export type GroupedSessionTrailEvent = {
+  event: SessionTrailEvent;
+  label: string;
+  count: number;
+};

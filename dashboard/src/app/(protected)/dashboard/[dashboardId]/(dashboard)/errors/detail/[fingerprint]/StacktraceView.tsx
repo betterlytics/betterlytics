@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import type { StackFrame } from '@/entities/analytics/errors.entities';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 const INITIAL_FRAMES = 3;
@@ -23,16 +24,16 @@ export function StacktraceView({ errorType, errorMessage, frames, mechanism }: S
   return (
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
-        <p className='text-base font-medium'>Stacktrace</p>
+        <p className='text-sm font-medium'>Stacktrace</p>
         <div className='flex items-center gap-2'>
           {mechanism && (
-            <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs'>
+            <Badge variant='secondary' className='border-border border text-xs font-normal shadow-xs'>
               {mechanism}
-            </span>
+            </Badge>
           )}
-          <span className='text-muted-foreground bg-muted rounded px-1.5 py-0.5 text-xs tabular-nums'>
-            {frames.length} frames
-          </span>
+          <Badge variant='secondary' className='border-border border text-xs font-normal tabular-nums shadow-xs'>
+            {frames.length} {frames.length === 1 ? 'frame' : 'frames'}
+          </Badge>
         </div>
       </div>
 

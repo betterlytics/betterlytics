@@ -34,7 +34,7 @@ export function ErrorDetailSidebar({ dashboardId, errorGroup, sidebarData, repla
       <Card>
         <CardContent className='space-y-4 px-6'>
           <div className='space-y-2'>
-            <p className='text-foreground text-sm font-medium'>Activity</p>
+            <p className='text-foreground text-sm font-medium'>Overview</p>
             <dl className='space-y-1.5'>
               {errorGroup.first_seen && (
                 <div className='flex justify-between gap-2'>
