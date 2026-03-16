@@ -4,10 +4,10 @@
 -- Adds SAMPLE BY visitor_id for approximate query support
 
 CREATE TABLE IF NOT EXISTS analytics.events_new (
-    site_id String,
+    site_id LowCardinality(String),
     visitor_id UInt64,
     session_id String,
-    domain String DEFAULT '',
+    domain LowCardinality(String) DEFAULT '',
     url String,
     device_type LowCardinality(String),
     country_code LowCardinality(Nullable(String)),
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
     browser_version LowCardinality(String) DEFAULT '',
     os LowCardinality(String) DEFAULT '',
     os_version LowCardinality(String) DEFAULT '',
-    referrer_source String DEFAULT 'direct',
+    referrer_source LowCardinality(String) DEFAULT 'direct',
     referrer_source_name String DEFAULT '',
     referrer_search_term String DEFAULT '',
     referrer_url String DEFAULT '',
