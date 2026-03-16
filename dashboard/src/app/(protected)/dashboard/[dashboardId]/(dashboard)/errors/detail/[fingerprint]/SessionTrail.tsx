@@ -124,19 +124,21 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
           const Icon = EVENT_ICONS[event.event_type] ?? Eye;
           const color = EVENT_COLORS[theme][event.event_type] ?? EVENT_COLORS[theme].pageview;
           const isCurrent = event.event_type === 'js_error' && event.error_fingerprint === currentFingerprint;
+          const isLast = i === visibleGroups.length - 1;
 
           return (
             <div
               key={i}
               className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-xs ${
-                isCurrent ? 'border-destructive/50 bg-destructive/8 border-l-2' : ''
+                isCurrent ? 'bg-destructive/8 shadow-[inset_1px_0_0_0_var(--destructive)]' : ''
               }`}
             >
               <span className='text-muted-foreground w-16 shrink-0 text-left text-[11px] tabular-nums'>
                 {formatLocalDateTime(event.timestamp, undefined, { timeStyle: 'medium' })}
               </span>
-              <span className='flex h-5 w-5 shrink-0 items-center justify-center'>
-                <Icon className='h-5 w-5' style={{ color }} />
+              <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
+                {!isLast && <span className='bg-border absolute top-full h-[calc(100%+8px)] w-px' />}
+                <Icon className='relative z-10 h-4 w-4' style={{ color }} />
               </span>
               <span className='flex min-w-0 flex-1 items-center gap-1.5'>
                 <span className='truncate text-xs font-medium'>{label}</span>
@@ -149,13 +151,13 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
             </div>
           );
         })}
-        {needsCollapse && !expanded && (
+        {needsCollapse && (
           <button
-            onClick={() => setExpanded(true)}
+            onClick={() => setExpanded((v) => !v)}
             className='text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1.5 py-2 text-xs transition-colors'
           >
-            <ChevronDown className='h-3.5 w-3.5' />
-            Show {hiddenCount} more
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+            {expanded ? 'Show less' : `Show ${hiddenCount} more`}
           </button>
         )}
       </div>

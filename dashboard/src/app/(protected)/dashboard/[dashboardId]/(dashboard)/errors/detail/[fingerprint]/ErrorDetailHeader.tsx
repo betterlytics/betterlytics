@@ -41,20 +41,18 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
         Back to errors
       </Link>
 
-      <div className='flex items-start justify-between gap-4'>
-        <div className='min-w-0 space-y-1'>
-          <div className='flex flex-wrap items-center gap-2.5'>
-            <h1 className='font-mono text-2xl font-bold'>{errorGroup.error_type}</h1>
-            <span
-              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cfg.className}`}
-            >
-              {cfg.label}
-            </span>
-          </div>
-          <p className='text-muted-foreground line-clamp-2 text-sm'>{errorGroup.error_message}</p>
+      <div className='space-y-1'>
+        <div className='flex flex-wrap items-center gap-2.5'>
+          <h1 className='font-mono text-2xl font-bold'>{errorGroup.error_type}</h1>
+          <span
+            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cfg.className}`}
+          >
+            {cfg.label}
+          </span>
         </div>
-
-        <div className='flex shrink-0 items-center gap-2 pt-1'>
+        <div className='flex items-center justify-between gap-4'>
+          <p className='text-muted-foreground line-clamp-2 min-w-0 text-sm'>{errorGroup.error_message}</p>
+          <div className='flex shrink-0 items-center gap-2'>
           {status === 'unresolved' ? (
             <div className='flex'>
               <Button
@@ -91,6 +89,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
             <Share2 className='mr-1.5 h-4 w-4' />
             Share
           </Button>
+          </div>
         </div>
       </div>
     </div>

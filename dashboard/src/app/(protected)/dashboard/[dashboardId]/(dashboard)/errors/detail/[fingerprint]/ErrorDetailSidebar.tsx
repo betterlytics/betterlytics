@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Play } from 'lucide-react';
+import { MonitorPlay, Play, VideoOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
@@ -16,7 +16,12 @@ type ErrorDetailSidebarProps = {
   replaySessionId: string | null;
 };
 
-export function ErrorDetailSidebar({ dashboardId, errorGroup, sidebarData, replaySessionId }: ErrorDetailSidebarProps) {
+export function ErrorDetailSidebar({
+  dashboardId,
+  errorGroup,
+  sidebarData,
+  replaySessionId,
+}: ErrorDetailSidebarProps) {
   const { browsers, deviceTypes, dailyVolume } = sidebarData;
 
   const browserItems = browsers.map((row) => ({
@@ -70,9 +75,9 @@ export function ErrorDetailSidebar({ dashboardId, errorGroup, sidebarData, repla
         </CardContent>
       </Card>
 
-      <Card className={replaySessionId ? 'border-primary/20 bg-primary/5' : ''}>
-        <CardContent className='px-4 py-3'>
-          {replaySessionId ? (
+      {replaySessionId ? (
+        <Card className='border-primary/20 bg-primary/5'>
+          <CardContent className='px-4 py-3'>
             <Link
               href={`/dashboard/${dashboardId}/replay?sessionId=${replaySessionId}`}
               className='flex flex-col items-center gap-2 text-center'
@@ -85,16 +90,31 @@ export function ErrorDetailSidebar({ dashboardId, errorGroup, sidebarData, repla
                 <p className='text-muted-foreground text-xs'>See what the user did before this error</p>
               </div>
             </Link>
-          ) : (
-            <div className='flex flex-col items-center gap-2 text-center'>
-              <div className='bg-muted flex h-8 w-8 items-center justify-center rounded-full'>
-                <Play className='text-muted-foreground h-3.5 w-3.5 translate-x-[1px]' />
-              </div>
-              <p className='text-muted-foreground text-sm'>No session replay available</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className='px-4'>
+            <div className='space-y-1.5'>
+              <p className='text-muted-foreground flex items-center gap-2 text-sm'>
+                <VideoOff className='h-4 w-4 shrink-0' />
+                No session replay for this error
+              </p>
+              <p className='text-muted-foreground/60 text-xs'>
+                Replay captures what users did before an error occurred.
+              </p>
+              <a
+                href='https://betterlytics.io/docs/dashboard/session-replay'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-muted-foreground hover:text-foreground inline-block text-xs underline underline-offset-2 transition-colors'
+              >
+                Learn more
+              </a>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </aside>
   );
 }

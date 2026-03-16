@@ -84,9 +84,9 @@ function StackFrameRow({ frame }: { frame: StackFrame }) {
         </span>
       </span>
       {frame.inApp && (
-        <span className='border-border text-muted-foreground shrink-0 rounded border px-1.5 py-0.5 text-[10px]'>
+        <Badge variant='secondary' className='border-border border text-[10px] font-normal shadow-xs'>
           in app
-        </span>
+        </Badge>
       )}
     </div>
   );
