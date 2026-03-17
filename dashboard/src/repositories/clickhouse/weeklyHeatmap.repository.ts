@@ -25,7 +25,10 @@ function getBaseAggregation(metric: HeatmapMetric) {
   }
 }
 
-export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMetric): Promise<WeeklyHeatmapRow[]> {
+export async function getWeeklyHeatmap(
+  siteQuery: BASiteQuery,
+  metric: HeatmapMetric,
+): Promise<WeeklyHeatmapRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const timezone = siteQuery.timezone ?? 'UTC';
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -87,8 +90,7 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
   }
 
   const aggregation = getBaseAggregation(metric);
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const query = safeSql`
     WITH

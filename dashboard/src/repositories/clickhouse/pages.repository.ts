@@ -32,8 +32,7 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const query = timeWrapper(
     safeSql`
@@ -71,8 +70,7 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
     startDateTime,
     endDateTime,
   );
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const query = timeWrapper(
     safeSql`
@@ -105,8 +103,7 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
 export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const queryResponse = safeSql`
     SELECT
@@ -236,8 +233,7 @@ export async function getPageTrafficTimeSeries(
     startDateTime,
     endDateTime,
   );
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const query = timeWrapper(
     safeSql`

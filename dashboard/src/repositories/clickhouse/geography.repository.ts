@@ -11,8 +11,7 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const query = safeSql`
     SELECT

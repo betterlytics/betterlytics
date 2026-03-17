@@ -36,5 +36,4 @@ export type BASiteQuery = {
   queryFilters: BAAnalyticsQuery['queryFilters'];
   timezone: string;
   userJourney: BAAnalyticsQuery['userJourney'];
-  sampleFactor?: number;
 };

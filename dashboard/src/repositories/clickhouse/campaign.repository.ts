@@ -171,7 +171,13 @@ export async function getCampaignUTMBreakdownData(
 ): Promise<RawCampaignUTMBreakdownItem[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const utmKey = UTM_DIMENSION_TO_KEY[dimension] as ValidUTMDimension;
-  const rawData = await getCampaignBreakdownByUTMDimension(siteId, startDateTime, endDateTime, utmKey, campaignName);
+  const rawData = await getCampaignBreakdownByUTMDimension(
+    siteId,
+    startDateTime,
+    endDateTime,
+    utmKey,
+    campaignName,
+  );
   return RawCampaignUTMBreakdownArraySchema.parse(
     rawData.map((row) => ({
       ...(row as RawCampaignUTMBreakdownItem),
@@ -247,8 +253,7 @@ export async function getCampaignVisitorTrendData(
     startDateTime,
     endDateTime,
   );
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const campaignFilter = safeSql`AND utm_campaign IN (${SQL.SEPARATOR(
     campaignNames.map((name, index) => SQL.String({ [`campaign_${index}`]: name })),
@@ -300,8 +305,7 @@ export async function getCampaignAudienceProfileData(
 ): Promise<CampaignAudienceProfileRow[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
-  const sample = BAQuery.getSampleClause(siteQuery.sampleFactor);
-  const correction = BAQuery.sampleCorrection(siteQuery.sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
 
   const query = safeSql`
     SELECT

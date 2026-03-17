@@ -5,6 +5,11 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
+import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
+import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
+
+const HIGH_TRAFFIC_SAMPLE_FACTOR = 0.25;
+const HIGH_TRAFFIC_CONCURRENCY_LIMIT = 20;
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -134,19 +139,22 @@ function getTimestampRange(
   };
 }
 
-function getSampleClause(sampleFactor?: number) {
-  if (!sampleFactor || sampleFactor >= 1) return safeSql``;
-  return safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}`;
-}
+async function getSampling(siteId: string) {
+  const highTraffic = await isHighTrafficSite(siteId);
+  const sampleFactor = highTraffic ? HIGH_TRAFFIC_SAMPLE_FACTOR : 1;
 
-function sampleCorrection(sampleFactor?: number) {
-  if (!sampleFactor || sampleFactor >= 1) return safeSql``;
-  return safeSql`* ${SQL.Unsafe((1 / sampleFactor).toString())}`;
+  if (highTraffic) {
+    setSiteConcurrencyLimit(siteId, HIGH_TRAFFIC_CONCURRENCY_LIMIT);
+  }
+
+  const sample = sampleFactor < 1 ? safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}` : safeSql``;
+  const correction = sampleFactor < 1 ? safeSql`* ${SQL.Unsafe((1 / sampleFactor).toString())}` : safeSql``;
+
+  return { sample, correction };
 }
 
 export const BAQuery = {
   getFilterQuery,
   getTimestampRange,
-  getSampleClause,
-  sampleCorrection,
+  getSampling,
 };

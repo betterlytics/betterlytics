@@ -16,9 +16,9 @@ import {
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
-  const { siteId, queryFilters, startDateTime, endDateTime, sampleFactor } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const sample = BAQuery.getSampleClause(sampleFactor);
+  const { sample } = await BAQuery.getSampling(siteId);
 
   const query = safeSql`
     WITH metrics AS (
@@ -69,7 +69,7 @@ export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreW
 export async function getAllCoreWebVitalPercentilesSeries(
   siteQuery: BASiteQuery,
 ): Promise<CoreWebVitalNamedPercentilesRow[]> {
-  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime, sampleFactor } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -77,7 +77,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
     startDateTime,
     endDateTime,
   );
-  const sample = BAQuery.getSampleClause(sampleFactor);
+  const { sample } = await BAQuery.getSampling(siteId);
 
   const query = timeWrapper(
     safeSql`
@@ -128,10 +128,9 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
   siteQuery: BASiteQuery,
   dimension: CWVDimension,
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime, sampleFactor } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const sample = BAQuery.getSampleClause(sampleFactor);
-  const correction = BAQuery.sampleCorrection(sampleFactor);
+  const { sample, correction } = await BAQuery.getSampling(siteId);
 
   const query = safeSql`
     WITH metrics AS (

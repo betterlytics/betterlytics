@@ -13,7 +13,6 @@ export function toSiteQuery(siteId: string, query: unknown): { main: BASiteQuery
     queryFilters: parsed.queryFilters,
     timezone: parsed.timezone,
     userJourney: parsed.userJourney,
-    sampleFactor: 1,
   };
   const compare =
     parsed.compareStartDate && parsed.compareEndDate
