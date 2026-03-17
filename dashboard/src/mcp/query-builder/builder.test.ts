@@ -1,7 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@/lib/clickhouse', () => ({
-  clickhouse: { query: vi.fn() },
+vi.mock('@/repositories/clickhouse/usage.repository', () => ({
+  isHighTrafficSite: vi.fn().mockResolvedValue(false),
+}));
+
+vi.mock('@/observability/clickhouse-concurrency', () => ({
+  setSiteConcurrencyLimit: vi.fn(),
 }));
 
 import { buildQuery } from '@/mcp/query-builder/builder';
