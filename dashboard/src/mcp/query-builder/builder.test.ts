@@ -1,4 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('@/lib/clickhouse', () => ({
+  clickhouse: { query: vi.fn() },
+}));
+
 import { buildQuery } from '@/mcp/query-builder/builder';
 import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 
