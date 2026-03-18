@@ -12,7 +12,7 @@ export async function getTrackedErrorGroups(
     select: { errorFingerprint: true, status: true },
   });
 
-  return Object.fromEntries(rows.map((r) => [r.errorFingerprint, r.status as ErrorGroupStatusValue]));
+  return Object.fromEntries(rows.map((r) => [r.errorFingerprint, r.status]));
 }
 
 export async function upsertErrorGroup(

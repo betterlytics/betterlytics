@@ -406,7 +406,7 @@
         return;
       if (isRateLimited(type)) return;
       sendEvent("js_error", {
-        exception_list: JSON.stringify([
+        error_exceptions: JSON.stringify([
           {
             type: type,
             value: value.substring(0, 1000),

@@ -4,7 +4,7 @@ use sha2::{Digest, Sha256};
 struct StackFrame {
     function_name: String,
     filename: String,
-    line: String,
+    line_number: String,
 }
 
 pub fn generate_error_fingerprint(error_type: &str, exception_list_json: &str) -> String {
@@ -19,7 +19,7 @@ pub fn generate_error_fingerprint(error_type: &str, exception_list_json: &str) -
         let frames_str: Vec<String> = frames
             .iter()
             .take(5)
-            .map(|f| format!("{}:{}:{}", f.function_name, f.filename, f.line))
+            .map(|f| format!("{}:{}:{}", f.function_name, f.filename, f.line_number))
             .collect();
         format!("{}:{}", error_type, frames_str.join("|"))
     } else {
@@ -67,19 +67,19 @@ fn parse_v8_frame(line: &str) -> Option<StackFrame> {
         // `at functionName (location)`
         let func_name = rest[..paren_start].trim().to_string();
         let location = rest[paren_start + 1..].trim_end_matches(')');
-        let (filename, line_num) = parse_location(location)?;
+        let (filename, line_number) = parse_location(location)?;
         Some(StackFrame {
             function_name: if func_name.is_empty() { "<anonymous>".to_string() } else { func_name },
             filename,
-            line: line_num,
+            line_number: line_number,
         })
     } else {
         // `at location` (anonymous)
-        let (filename, line_num) = parse_location(rest.trim())?;
+        let (filename, line_number) = parse_location(rest.trim())?;
         Some(StackFrame {
             function_name: "<anonymous>".to_string(),
             filename,
-            line: line_num,
+            line_number: line_number,
         })
     }
 }
@@ -91,11 +91,11 @@ fn parse_firefox_frame(line: &str) -> Option<StackFrame> {
     let location = &line[at_pos + 1..];
 
     // Must look like a location (contains `:` and a number)
-    let (filename, line_num) = parse_location(location)?;
+    let (filename, line_number) = parse_location(location)?;
     Some(StackFrame {
         function_name: if func_name.is_empty() { "<anonymous>".to_string() } else { func_name.to_string() },
         filename,
-        line: line_num,
+        line_number: line_number,
     })
 }
 
@@ -104,21 +104,21 @@ fn parse_location(location: &str) -> Option<(String, String)> {
     // Split from the right to find :line:col or :line (e.g., http://example.com/app.js:42:15 or http://example.com/app.js:42)
     let parts: Vec<&str> = location.rsplitn(3, ':').collect();
 
-    let (path, line_num) = match parts.len() {
+    let (path, line_number) = match parts.len() {
         // path:line:col (e.g., http://example.com/app.js:42:15)
         3 => {
-            let line_str = parts[1];
-            if line_str.parse::<u32>().is_ok() {
-                (parts[2], line_str.to_string())
+            let line_number_str = parts[1];
+            if line_number_str.parse::<u32>().is_ok() {
+                (parts[2], line_number_str.to_string())
             } else {
                 return None;
             }
         }
         // path:line (e.g., http://example.com/app.js:42)
         2 => {
-            let line_str = parts[0];
-            if line_str.parse::<u32>().is_ok() {
-                (parts[1], line_str.to_string())
+            let line_number_str = parts[0];
+            if line_number_str.parse::<u32>().is_ok() {
+                (parts[1], line_number_str.to_string())
             } else {
                 return None;
             }
@@ -131,7 +131,7 @@ fn parse_location(location: &str) -> Option<(String, String)> {
         return None;
     }
 
-    Some((filename, line_num))
+    Some((filename, line_number))
 }
 
 fn normalize_filename(raw: &str) -> String {
@@ -162,7 +162,7 @@ mod tests {
         assert_eq!(frames.len(), 1);
         assert_eq!(frames[0].function_name, "UserList");
         assert_eq!(frames[0].filename, "_next/static/chunks/app.js");
-        assert_eq!(frames[0].line, "42");
+        assert_eq!(frames[0].line_number, "42");
     }
 
     #[test]
@@ -173,7 +173,7 @@ mod tests {
         assert_eq!(frames.len(), 1);
         assert_eq!(frames[0].function_name, "<anonymous>");
         assert_eq!(frames[0].filename, "app.js");
-        assert_eq!(frames[0].line, "10");
+        assert_eq!(frames[0].line_number, "10");
     }
 
     #[test]
@@ -184,7 +184,7 @@ mod tests {
         assert_eq!(frames.len(), 1);
         assert_eq!(frames[0].function_name, "handleClick");
         assert_eq!(frames[0].filename, "static/main.js");
-        assert_eq!(frames[0].line, "25");
+        assert_eq!(frames[0].line_number, "25");
     }
 
     #[test]
@@ -195,7 +195,7 @@ mod tests {
         assert_eq!(frames.len(), 1);
         assert_eq!(frames[0].function_name, "<anonymous>");
         assert_eq!(frames[0].filename, "bundle.js");
-        assert_eq!(frames[0].line, "100");
+        assert_eq!(frames[0].line_number, "100");
     }
 
     #[test]
@@ -215,8 +215,8 @@ mod tests {
     fn test_column_dropped() {
         let frames_with_col = parse_stack_frames("    at f (http://example.com/a.js:10:99)");
         let frames_with_diff_col = parse_stack_frames("    at f (http://example.com/a.js:10:1)");
-        assert_eq!(frames_with_col[0].line, "10");
-        assert_eq!(frames_with_diff_col[0].line, "10");
+        assert_eq!(frames_with_col[0].line_number, "10");
+        assert_eq!(frames_with_diff_col[0].line_number, "10");
     }
 
     #[test]

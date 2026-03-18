@@ -56,7 +56,7 @@ pub struct ProcessedEvent {
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
     /// JS error tracking
-    pub exception_list: String,
+    pub error_exceptions: String,
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
@@ -118,7 +118,7 @@ impl EventProcessor {
             cwv_ttfb: None,
             scroll_depth_percentage: None,
             scroll_depth_pixels: None,
-            exception_list: String::new(),
+            error_exceptions: String::new(),
             error_type: String::new(),
             error_message: String::new(),
             error_fingerprint: String::new(),
@@ -214,16 +214,7 @@ impl EventProcessor {
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else if event_name == "js_error" {
             processed.event_type = "js_error".to_string();
-            let list = processed.event.raw.exception_list.clone().unwrap_or_default();
-            if let Ok(arr) = serde_json::from_str::<serde_json::Value>(&list) {
-                processed.error_type = arr[0]["type"].as_str().unwrap_or("").to_string();
-                processed.error_message = arr[0]["value"].as_str().unwrap_or("").to_string();
-            }
-            processed.error_fingerprint = generate_error_fingerprint(
-                &processed.error_type,
-                &list,
-            );
-            processed.exception_list = list;
+            self.process_js_error(processed);
         } else {
             processed.event_type = event_name;
         }
@@ -259,6 +250,19 @@ impl EventProcessor {
         Ok(())
     }
     
+    fn process_js_error(&self, processed: &mut ProcessedEvent) {
+        let list = processed.event.raw.error_exceptions.clone().unwrap_or_default();
+        if let Ok(arr) = serde_json::from_str::<serde_json::Value>(&list) {
+            processed.error_type = arr[0]["type"].as_str().unwrap_or("").to_string();
+            processed.error_message = arr[0]["value"].as_str().unwrap_or("").to_string();
+        }
+        processed.error_fingerprint = generate_error_fingerprint(
+            &processed.error_type,
+            &list,
+        );
+        processed.error_exceptions = list;
+    }
+
     async fn detect_device_type_from_resolution(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let device_type = detect_device_type_from_resolution_with_fallback(&processed.event.raw.screen_resolution);
         processed.device_type = Some(device_type);

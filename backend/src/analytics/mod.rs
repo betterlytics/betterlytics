@@ -38,8 +38,8 @@ pub struct RawTrackingEvent {
     /// Scroll depth metrics (only for scroll depth events)
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
-    /// JS error exception list
-    pub exception_list: Option<String>,
+    /// JS error exception payload
+    pub error_exceptions: Option<String>,
 }
 
 /// The main analytics event type that includes server-side data

@@ -40,7 +40,7 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
 
     const initialVolumeMap = toGroupedTimeSeries({
       groupKey: 'error_fingerprint',
-      dataKey: 'errorCount',
+      dataKey: 'error_count',
       data: initialVolumeRows,
     });
 
@@ -59,16 +59,16 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
 
     return toGroupedTimeSeries({
       groupKey: 'error_fingerprint',
-      dataKey: 'errorCount',
+      dataKey: 'error_count',
       data: volumeRows,
     });
   },
 );
 
 export const upsertErrorGroupAction = withDashboardAuthContext(
-  async (ctx: AuthContext, errorFingerprint: string, status: string): Promise<void> => {
+  async (ctx: AuthContext, fingerprint: string, status: string): Promise<void> => {
     const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
-    await upsertErrorGroupForSite(ctx.dashboardId, errorFingerprint, validatedStatus);
+    await upsertErrorGroupForSite(ctx.dashboardId, fingerprint, validatedStatus);
   },
 );
 

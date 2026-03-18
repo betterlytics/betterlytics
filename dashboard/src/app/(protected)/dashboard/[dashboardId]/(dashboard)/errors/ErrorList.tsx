@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useTransition } from 'react';
+import { useState, useMemo, useRef, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   useReactTable,
@@ -30,7 +30,7 @@ import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
-import { useErrorGroupActions, type StatusFilter } from '@/hooks/use-error-group-actions';
+import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
@@ -122,8 +122,17 @@ export function ErrorTable({
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
+  const [searchInput, setSearchInput] = useState('');
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setGlobalFilter(searchInput);
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
+    }, 200);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   const volumeMapRef = useRef<Record<string, TimeSeriesPoint[]> | undefined>(undefined);
 
@@ -292,10 +301,7 @@ export function ErrorTable({
     state: { sorting, rowSelection, globalFilter, pagination },
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: (value) => {
-      setGlobalFilter(value);
-      setPagination((p) => ({ ...p, pageIndex: 0 }));
-    },
+    onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -346,8 +352,8 @@ export function ErrorTable({
           <Input
             type='text'
             placeholder='Search by type and message...'
-            value={globalFilter}
-            onChange={(e) => table.setGlobalFilter(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className='pl-9'
           />
         </div>

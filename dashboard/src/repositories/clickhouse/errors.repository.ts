@@ -111,7 +111,7 @@ export async function getErrorGroupVolumes(
       SELECT
         error_fingerprint,
         ${granularityFunc('timestamp')} as date,
-        count() as errorCount
+        count() as error_count
       FROM analytics.events
       WHERE site_id = {site_id:String}
         AND ${range}

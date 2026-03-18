@@ -17,7 +17,7 @@ export const ErrorGroupRowSchema = z.object({
 export const ErrorGroupVolumeRowSchema = z.object({
   error_fingerprint: z.string(),
   date: z.string(),
-  errorCount: z.number().int().min(0),
+  error_count: z.number().int().min(0),
 });
 
 export type ErrorGroupRow = z.infer<typeof ErrorGroupRowSchema>;

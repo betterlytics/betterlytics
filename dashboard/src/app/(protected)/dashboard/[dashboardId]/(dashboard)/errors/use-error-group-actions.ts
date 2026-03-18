@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { RowSelectionState } from '@tanstack/react-table';
 import { upsertErrorGroupAction, bulkUpsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
@@ -10,40 +10,51 @@ export function useErrorGroupActions(errorGroups: ErrorGroupRow[], dashboardId: 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('unresolved');
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const getStatus = (fingerprint: string, base: ErrorGroupStatusValue): ErrorGroupStatusValue =>
-    statusOverrides[fingerprint] ?? base;
+  const getStatus = useCallback(
+    (fingerprint: string, base: ErrorGroupStatusValue): ErrorGroupStatusValue =>
+      statusOverrides[fingerprint] ?? base,
+    [statusOverrides],
+  );
 
   const statusCounts = useMemo(() => {
     const counts = { all: errorGroups.length, unresolved: 0, resolved: 0, ignored: 0 };
-    for (const g of errorGroups) counts[getStatus(g.error_fingerprint, g.status)]++;
+    for (const g of errorGroups) {
+      counts[getStatus(g.error_fingerprint, g.status)]++;
+    }
     return counts;
-  }, [errorGroups, statusOverrides]);
+  }, [errorGroups, getStatus]);
 
-  const filteredByStatus = useMemo(
-    () => statusFilter === 'all' ? errorGroups : errorGroups.filter((g) => getStatus(g.error_fingerprint, g.status) === statusFilter),
-    [errorGroups, statusFilter, statusOverrides],
-  );
+  const filteredByStatus = useMemo(() => {
+    if (statusFilter === 'all') return errorGroups;
+    return errorGroups.filter((g) => getStatus(g.error_fingerprint, g.status) === statusFilter);
+  }, [errorGroups, statusFilter, getStatus]);
 
-  async function setStatus(fingerprint: string, status: ErrorGroupStatusValue) {
+  const setStatus = useCallback(async (fingerprint: string, status: ErrorGroupStatusValue) => {
     setStatusOverrides((prev) => ({ ...prev, [fingerprint]: status }));
-    setRowSelection((prev) => { const next = { ...prev }; delete next[fingerprint]; return next; });
+    setRowSelection((prev) => {
+      const next = { ...prev };
+      delete next[fingerprint];
+      return next;
+    });
     await upsertErrorGroupAction(dashboardId, fingerprint, status);
-  }
+  }, [dashboardId]);
 
-  async function bulkSetStatus(fingerprints: string[], status: ErrorGroupStatusValue) {
+  const bulkSetStatus = useCallback(async (fingerprints: string[], status: ErrorGroupStatusValue) => {
     setStatusOverrides((prev) => {
       const next = { ...prev };
-      for (const fp of fingerprints) next[fp] = status;
+      for (const fp of fingerprints) {
+        next[fp] = status;
+      }
       return next;
     });
     await bulkUpsertErrorGroupAction(dashboardId, fingerprints, status);
     setRowSelection({});
-  }
+  }, [dashboardId]);
 
-  function changeStatusFilter(next: StatusFilter) {
+  const changeStatusFilter = useCallback((next: StatusFilter) => {
     setStatusFilter(next);
     setRowSelection({});
-  }
+  }, []);
 
   const selectedFingerprints = Object.keys(rowSelection);
 
