@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ResponsiveContainer, Bar, BarChart, XAxis, Tooltip, Cell } from 'recharts';
+import { ResponsiveContainer, Bar, BarChart, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import type { ErrorGroupVolumePoint } from '@/entities/analytics/errors.entities';
 
 type ErrorVolumeChartProps = {
@@ -23,12 +23,14 @@ export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
     <div className='h-24'>
       <ResponsiveContainer width='100%' height='100%'>
         <BarChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
-          <XAxis
-            dataKey='date'
+          <XAxis dataKey='date' hide />
+          <YAxis
             tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
             tickLine={false}
             axisLine={false}
-            interval='preserveStartEnd'
+            width={30}
+            allowDecimals={false}
+            tickCount={6}
           />
           <Tooltip
             cursor={{ fill: 'var(--muted)', opacity: 0.5 }}
@@ -36,9 +38,9 @@ export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
               if (!active || !payload?.[0]) return null;
               const count = payload[0].payload.count as number;
               return (
-                <div className='bg-popover border-border rounded-md border px-3 py-1.5 text-xs shadow-sm'>
-                  <p className='text-muted-foreground'>{label}</p>
-                  <p className='text-foreground font-medium'>
+                <div className='bg-popover border-border rounded-md border px-3 py-1.5 shadow-sm'>
+                  <p className='text-popover-foreground text-sm'>{label}</p>
+                  <p className='text-popover-foreground text-sm font-medium'>
                     {count} {count === 1 ? 'error' : 'errors'}
                   </p>
                 </div>

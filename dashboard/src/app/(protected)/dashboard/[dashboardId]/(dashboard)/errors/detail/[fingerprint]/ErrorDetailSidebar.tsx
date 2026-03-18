@@ -4,10 +4,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { EnvironmentDistribution } from './EnvironmentDistribution';
+import { getDeviceLabel } from '@/constants/deviceTypes';
 import { ErrorVolumeChart } from './ErrorVolumeChart';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 import type { ErrorGroupSidebarData } from '@/services/analytics/errors.service';
-import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 type ErrorDetailSidebarProps = {
   dashboardId: string;
@@ -31,52 +32,65 @@ export function ErrorDetailSidebar({
 
   const deviceTypeItems = deviceTypes.map((row) => ({
     ...row,
+    label: getDeviceLabel(row.label),
     icon: <DeviceIcon type={row.label} className='h-4 w-4' />,
   }));
 
   return (
-    <aside className='col-span-1 space-y-4'>
+    <aside className='order-1 col-span-1 space-y-4 lg:order-none'>
       <Card>
         <CardContent className='space-y-4 px-6'>
           <div className='space-y-2'>
-            <p className='text-foreground text-sm font-medium'>Overview</p>
-            <dl className='space-y-1.5'>
+            <p className='text-foreground text-base font-medium'>Overview</p>
+            <dl className='grid grid-cols-2 gap-x-6 gap-y-1.5 lg:grid-cols-1'>
               {errorGroup.first_seen && (
-                <div className='flex justify-between gap-2'>
+                <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
                   <dt className='text-muted-foreground text-sm'>First seen</dt>
-                  <dd className='text-sm font-medium'>{formatRelativeTimeFromNow(errorGroup.first_seen)}</dd>
+                  <dd className='text-sm font-semibold'>
+                    {formatLocalDateTime(errorGroup.first_seen, undefined, {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })}
+                  </dd>
                 </div>
               )}
-              <div className='flex justify-between gap-2'>
+              <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
                 <dt className='text-muted-foreground text-sm'>Last seen</dt>
-                <dd className='text-sm font-medium'>{formatRelativeTimeFromNow(errorGroup.last_seen)}</dd>
+                <dd className='text-sm font-semibold'>
+                  {formatLocalDateTime(errorGroup.last_seen, undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  })}
+                </dd>
               </div>
-              <div className='flex justify-between gap-2'>
+              <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
                 <dt className='text-muted-foreground text-sm'>Occurrences</dt>
-                <dd className='text-sm font-medium'>{errorGroup.count.toLocaleString()}</dd>
+                <dd className='text-sm font-semibold'>{errorGroup.count.toLocaleString()}</dd>
               </div>
-              <div className='flex justify-between gap-2'>
+              <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
                 <dt className='text-muted-foreground text-sm'>Sessions</dt>
-                <dd className='text-sm font-medium'>{errorGroup.session_count.toLocaleString()}</dd>
+                <dd className='text-sm font-semibold'>{errorGroup.session_count.toLocaleString()}</dd>
               </div>
             </dl>
           </div>
 
-          {dailyVolume.length > 0 && (
-            <div className='border-border space-y-2 border-t pt-2'>
-              <p className='text-foreground text-sm font-medium'>Error volume</p>
-              <ErrorVolumeChart data={dailyVolume} />
-            </div>
-          )}
+          <div className='grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-1'>
+            {dailyVolume.length > 0 && (
+              <div className='border-border space-y-2 border-t pt-2'>
+                <p className='text-foreground text-base font-medium'>Occurrence history</p>
+                <ErrorVolumeChart data={dailyVolume} />
+              </div>
+            )}
 
-          {browserItems.length > 0 && <EnvironmentDistribution title='Browsers' items={browserItems} />}
+            {browserItems.length > 0 && <EnvironmentDistribution title='Browsers' items={browserItems} />}
 
-          {deviceTypeItems.length > 0 && <EnvironmentDistribution title='Device type' items={deviceTypeItems} />}
+            {deviceTypeItems.length > 0 && <EnvironmentDistribution title='Device type' items={deviceTypeItems} />}
+          </div>
         </CardContent>
       </Card>
 
       {replaySessionId ? (
-        <Card className='border-primary/20 bg-primary/5'>
+        <Card className='border-primary/30 bg-primary/10'>
           <CardContent className='px-4 py-3'>
             <Link
               href={`/dashboard/${dashboardId}/replay?sessionId=${replaySessionId}`}
@@ -93,14 +107,14 @@ export function ErrorDetailSidebar({
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className='hidden lg:block'>
           <CardContent className='px-4'>
             <div className='space-y-1.5'>
-              <p className='text-muted-foreground flex items-center gap-2 text-sm'>
+              <p className='text-foreground flex items-center gap-2 text-sm'>
                 <VideoOff className='h-4 w-4 shrink-0' />
                 No session replay for this error
               </p>
-              <p className='text-muted-foreground/60 text-xs'>
+              <p className='text-muted-foreground text-xs'>
                 Replay captures what users did before an error occurred.
               </p>
               <a

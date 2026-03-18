@@ -24,7 +24,7 @@ export function StacktraceView({ errorType, errorMessage, frames, mechanism }: S
   return (
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
-        <p className='text-sm font-medium'>Stacktrace</p>
+        <p className='text-base font-medium'>Stacktrace</p>
         <div className='flex items-center gap-2'>
           {mechanism && (
             <Badge variant='secondary' className='border-border border text-xs font-normal shadow-xs'>

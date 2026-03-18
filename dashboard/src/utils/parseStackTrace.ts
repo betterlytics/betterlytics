@@ -14,7 +14,11 @@ export function parseStackTrace(stack: string): StackFrame[] {
       const file = namedFile ?? anonFile ?? '';
       const line_ = parseInt(namedLine ?? anonLine ?? '0', 10);
       const col = parseInt(namedCol ?? anonCol ?? '0', 10);
-      const inApp = !file.includes('node_modules') && !file.startsWith('node:');
+      const inApp =
+        !file.includes('node_modules') &&
+        !file.startsWith('node:') &&
+        !file.includes('[native code]') &&
+        !file.includes('native code');
       return [{ fn, file, line: line_, col, inApp }] satisfies StackFrame[];
     });
 }

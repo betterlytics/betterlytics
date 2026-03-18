@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { ChevronLeft, ChevronRight, Monitor } from 'lucide-react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import { OccurrenceSkeleton } from './OccurrenceSkeleton';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
 import { FlagIcon, type FlagIconProps } from '@/components/icons/FlagIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
+import { OccurrenceNavigator } from './OccurrenceNavigator';
 import { StacktraceView } from './StacktraceView';
 import { SessionTrail } from './SessionTrail';
 import { fetchErrorOccurrenceAction } from '@/app/actions/analytics/errors.actions';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
-import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { getDeviceLabel } from '@/constants/deviceTypes';
 
 type ErrorOccurrencePanelProps = {
   dashboardId: string;
@@ -22,19 +22,38 @@ type ErrorOccurrencePanelProps = {
 };
 
 export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: ErrorOccurrencePanelProps) {
-  const [offset, setOffset] = useState(0);
+  const searchParams = useSearchParams();
+  const occurrenceParam = searchParams.get('occurrence');
+  const rawOffset = occurrenceParam ? totalCount - Number(occurrenceParam) : 0;
+  const initialOffset = Math.max(0, Math.min(rawOffset, totalCount - 1));
+
+  const [offset, setOffset] = useState(initialOffset);
   const [occurrence, setOccurrence] = useState<ErrorOccurrence | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const updateUrl = useCallback(
+    (newOffset: number) => {
+      const url = new URL(window.location.href);
+      if (newOffset === 0) {
+        url.searchParams.delete('occurrence');
+      } else {
+        url.searchParams.set('occurrence', String(totalCount - newOffset));
+      }
+      window.history.replaceState(null, '', url);
+    },
+    [totalCount],
+  );
+
   useEffect(() => {
     startTransition(async () => {
-      const data = await fetchErrorOccurrenceAction(dashboardId, fingerprint, 0);
+      const data = await fetchErrorOccurrenceAction(dashboardId, fingerprint, initialOffset);
       setOccurrence(data);
     });
-  }, [dashboardId, fingerprint]);
+  }, [dashboardId, fingerprint, initialOffset]);
 
   function navigate(newOffset: number) {
     setOffset(newOffset);
+    updateUrl(newOffset);
     startTransition(async () => {
       const data = await fetchErrorOccurrenceAction(dashboardId, fingerprint, newOffset);
       setOccurrence(data);
@@ -48,43 +67,16 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
   return (
     <div className='space-y-4'>
       <Card className='gap-0 py-0'>
-        <div className='border-border bg-muted/30 grid grid-cols-3 items-center rounded-t-xl border-b px-4 py-2'>
-          <div className='flex items-center gap-1'>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => navigate(offset + 1)}
-              disabled={!canGoOlder || isPending}
-              className='text-muted-foreground h-7 w-7'
-              title='Older occurrence'
-            >
-              <ChevronLeft className='h-3.5 w-3.5' />
-            </Button>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => navigate(offset - 1)}
-              disabled={!canGoNewer || isPending}
-              className='text-muted-foreground h-7 w-7'
-              title='Newer occurrence'
-            >
-              <ChevronRight className='h-3.5 w-3.5' />
-            </Button>
-            <span className='text-muted-foreground text-xs'>
-              Occurrence <span className='text-foreground font-medium'>{occurrenceNumber}</span> of {totalCount}
-            </span>
-          </div>
-          {occurrence?.url ? (
-            <span className='text-muted-foreground min-w-0 truncate text-center text-xs'>{occurrence.url}</span>
-          ) : (
-            <span />
-          )}
-          {occurrence && (
-            <span className='text-muted-foreground text-right text-xs'>
-              {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
-            </span>
-          )}
-        </div>
+        <OccurrenceNavigator
+          occurrence={occurrence}
+          occurrenceNumber={occurrenceNumber}
+          totalCount={totalCount}
+          canGoOlder={canGoOlder}
+          canGoNewer={canGoNewer}
+          isPending={isPending}
+          onNavigate={navigate}
+          currentOffset={offset}
+        />
 
         <CardContent className='space-y-6 px-6 py-6'>
           {!occurrence || isPending ? (
@@ -127,38 +119,32 @@ function OccurrenceContext({ occurrence }: { occurrence: ErrorOccurrence }) {
       icon: <BrowserIcon name={occurrence.browser} className='h-6 w-6' />,
     },
     {
-      label: 'OS',
+      label: 'Operating System',
       value: occurrence.os || '—',
       icon: <OSIcon name={occurrence.os} className='h-6 w-6' />,
     },
     {
       label: 'Device',
-      value: occurrence.device_type || '—',
-      icon: occurrence.device_type ? (
-        <DeviceIcon type={occurrence.device_type} className='h-6 w-6' />
-      ) : (
-        <Monitor className='text-muted-foreground h-6 w-6' />
-      ),
+      value: occurrence.device_type ? getDeviceLabel(occurrence.device_type) : '—',
+      icon: <DeviceIcon type={occurrence.device_type || 'unknown'} className='h-6 w-6' />,
     },
     {
       label: 'Country',
       value: occurrence.country_code || '—',
-      icon: occurrence.country_code ? (
+      icon: (
         <FlagIcon
           countryCode={occurrence.country_code as FlagIconProps['countryCode']}
           countryName={occurrence.country_code}
           className='h-6 w-6'
         />
-      ) : (
-        <Monitor className='text-muted-foreground h-6 w-6' />
       ),
     },
   ];
 
   return (
-    <dl className='divide-border -mx-6 flex divide-x'>
+    <dl className='divide-border -mx-6 grid grid-cols-2 divide-x sm:grid-cols-4'>
       {details.map(({ label, value, icon }) => (
-        <div key={label} className='flex min-w-0 flex-1 items-center gap-3 px-6 py-1'>
+        <div key={label} className='flex min-w-0 items-center gap-3 px-6 py-1'>
           <div className='bg-muted flex h-11 w-11 shrink-0 items-center justify-center rounded-xl'>{icon}</div>
           <div className='min-w-0'>
             <dt className='text-muted-foreground text-xs'>{label}</dt>
@@ -167,27 +153,5 @@ function OccurrenceContext({ occurrence }: { occurrence: ErrorOccurrence }) {
         </div>
       ))}
     </dl>
-  );
-}
-
-function OccurrenceSkeleton() {
-  return (
-    <div className='space-y-6'>
-      <div className='divide-border -mx-6 flex divide-x'>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className='flex min-w-0 flex-1 items-center gap-3 px-6 py-1'>
-            <Skeleton className='h-11 w-11 rounded-xl' />
-            <div className='space-y-1.5'>
-              <Skeleton className='h-3 w-12' />
-              <Skeleton className='h-4 w-20' />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className='border-border space-y-2 border-t pt-6'>
-        <Skeleton className='h-4 w-24' />
-        <Skeleton className='h-32 w-full rounded-lg' />
-      </div>
-    </div>
   );
 }

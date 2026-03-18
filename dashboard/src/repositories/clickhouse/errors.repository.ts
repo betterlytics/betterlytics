@@ -256,7 +256,7 @@ export async function getErrorGroupDailyVolume(
 
   const query = safeSql`
     SELECT
-      toString(day) as date,
+      day as date,
       count() as count
     FROM analytics.events
     WHERE site_id = {site_id:String}

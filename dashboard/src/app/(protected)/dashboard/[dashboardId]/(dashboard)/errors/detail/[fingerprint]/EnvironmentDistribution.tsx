@@ -12,7 +12,7 @@ export function EnvironmentDistribution({ title, items }: EnvironmentDistributio
 
   return (
     <div className='border-border space-y-2 border-t pt-2'>
-      <p className='text-foreground text-sm font-medium'>{title}</p>
+      <p className='text-foreground text-base font-medium'>{title}</p>
       <div className='space-y-2'>
         {items.map((item, index) => (
           <PropertyValueBar

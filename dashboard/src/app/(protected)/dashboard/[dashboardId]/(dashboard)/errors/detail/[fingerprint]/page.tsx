@@ -30,8 +30,8 @@ export default async function ErrorDetailPage({ params }: ErrorDetailPageParams)
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <ErrorDetailHeader dashboardId={dashboardId} errorGroup={errorGroup} />
 
-      <div className='grid grid-cols-4 items-start gap-4'>
-        <div className='col-span-3 min-w-0'>
+      <div className='grid grid-cols-1 items-start gap-4 lg:grid-cols-4'>
+        <div className='order-2 lg:order-none lg:col-span-3'>
           <ErrorOccurrencePanel
             dashboardId={dashboardId}
             fingerprint={fingerprint}

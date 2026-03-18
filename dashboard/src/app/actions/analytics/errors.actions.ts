@@ -44,7 +44,7 @@ export const fetchErrorGroupAction = withDashboardAuthContext(
 
 export const fetchErrorOccurrenceAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string, offset: number): Promise<ErrorOccurrence | null> => {
-    return getErrorOccurrenceForSite(ctx.siteId, fingerprint, offset);
+    return getErrorOccurrenceForSite(ctx.siteId, fingerprint, Math.max(0, offset));
   },
 );
 
