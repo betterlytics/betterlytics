@@ -4,13 +4,15 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicU64, Ordering};
 use tracing::{info, warn, error, debug};
 use crate::config::{Config, GeolocationMode};
+use crate::analytics::anonymize_ip;
 use crate::geoip_updater::GeoIpWatchRx;
 use anyhow::Result;
 use moka::sync::Cache;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-const CACHE_SIZE: u64 = 100000;
-const READER_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(1200);
+const CACHE_TTI: Duration = Duration::from_secs(1200);
+const CACHE_SIZE: u64 = 100000; // Cache up to 100k IP addresses
+const READER_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(1200); // Check for reader updates every 20 minutes
 
 #[derive(Clone, Debug, Default)]
 pub struct GeoLocation {
@@ -57,8 +59,10 @@ impl GeoIpService {
 
         let reader_to_use = current_reader_state.or(initial_reader);
 
+        // LRU cache with session-aligned TTI
         let cache = Cache::builder()
             .max_capacity(CACHE_SIZE)
+            .time_to_idle(CACHE_TTI)
             .build();
 
         let now_secs = SystemTime::now()
@@ -87,6 +91,8 @@ impl GeoIpService {
             return;
         }
 
+        // Try to atomically update the timestamp to claim the right to check
+        // If another thread beats us to it, we can just return
         if self.last_reader_check
             .compare_exchange_weak(last_check_secs, now_secs, Ordering::Relaxed, Ordering::Relaxed)
             .is_err()
@@ -94,6 +100,7 @@ impl GeoIpService {
             return;
         }
 
+        // We successfully claimed the right to check for update
         let mut rx_guard = match self.geoip_watch_rx.try_lock() {
             Ok(guard) => guard,
             Err(_) => {
@@ -106,6 +113,7 @@ impl GeoIpService {
             let latest_reader_option = rx_guard.borrow_and_update().clone();
             debug!("GeoIpService detected database update via watch channel.");
 
+            // Drop the rx_guard before acquiring the write lock to avoid holding multiple locks
             drop(rx_guard);
 
             let mut current_reader_guard = self.current_reader.write().unwrap();
@@ -126,9 +134,9 @@ impl GeoIpService {
             };
         }
 
-        let truncated = truncate_last_octet(ip_address);
+        let anonymized = anonymize_ip(ip_address).unwrap_or_else(|| ip_address.to_string());
 
-        if let Some(cached_result) = self.cache.get(&truncated) {
+        if let Some(cached_result) = self.cache.get(&anonymized) {
             debug!("GeoIP cache hit");
             return cached_result;
         }
@@ -142,12 +150,12 @@ impl GeoIpService {
             Some(r) => r,
             None => {
                 let result = GeoLocation::default();
-                self.cache.insert(truncated, result.clone());
+                self.cache.insert(anonymized, result.clone());
                 return result;
             }
         };
 
-        let ip: IpAddr = match truncated.parse() {
+        let ip: IpAddr = match anonymized.parse() {
             Ok(ip) => ip,
             Err(e) => {
                 warn!("Failed to parse IP address: {}", e);
@@ -207,15 +215,8 @@ impl GeoIpService {
             }
         };
 
-        self.cache.insert(truncated, result.clone());
+        self.cache.insert(anonymized, result.clone());
 
         result
-    }
-}
-
-fn truncate_last_octet(ip: &str) -> String {
-    match ip.rfind('.') {
-        Some(pos) => format!("{}.0", &ip[..pos]),
-        None => ip.to_string(),
     }
 }

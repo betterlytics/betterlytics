@@ -18,7 +18,7 @@ type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
 
 type GeographySectionProps = {
   worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
-  topByGeoLevel: Partial<Record<GeoLevel, GeoTablePromise>>;
+  topByGeoLevel: Record<GeoLevel, GeoTablePromise>;
 };
 
 const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLanguages) => string> = {
@@ -40,11 +40,12 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
   } satisfies Record<GeoLevel, string>;
 
   const geoLevelTabs = GEO_LEVELS
-    .filter((level) => level in topByGeoLevel)
     .map((level) => ({
       level,
-      data: topByGeoLevel[level] ? use(topByGeoLevel[level]) : [],
-    })).map(({ level, data }) => ({
+      data: use(topByGeoLevel[level]),
+    }))
+    .filter(({ data }) => data.length > 0)
+    .map(({ level, data }) => ({
       key: level,
       label: geoLevelTabLabels[level],
       data: data.map((item) => ({
@@ -69,9 +70,10 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
   return (
     <MultiProgressTable
       title={t('sections.geography')}
-      defaultTab='worldmap'
+      defaultTab={geoLevelTabs[0].key}
       onItemClick={onItemClick}
       tabs={[
+        ...geoLevelTabs,
         {
           key: 'worldmap',
           label: t('tabs.worldMap'),
@@ -82,7 +84,6 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
             </div>
           ),
         },
-        ...geoLevelTabs,
       ]}
       footer={
         <FilterPreservingLink

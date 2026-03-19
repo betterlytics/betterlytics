@@ -4,7 +4,7 @@ use md5::Digest;
 use sha2::Sha256;
 
 /// Anonymize IP address by removing last octet
-fn anonymize_ip(ip: &str) -> Option<String> {
+pub fn anonymize_ip(ip: &str) -> Option<String> {
     if let Ok(ip_addr) = ip.parse::<IpAddr>() {
         match ip_addr {
             IpAddr::V4(ipv4) => {

@@ -58,7 +58,6 @@ export async function getVisitorsBySubdivision(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND subdivision_code IS NOT NULL
       AND subdivision_code != ''
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
@@ -102,7 +101,6 @@ export async function getVisitorsByCity(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND city IS NOT NULL
       AND city != ''
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
