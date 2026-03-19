@@ -20,6 +20,7 @@
     script
       .getAttribute("data-dynamic-urls")
       ?.split(",")
+      .filter(function (s) { return s.trim(); })
       .map(function (p) {
         p = p.trim();
         return {
