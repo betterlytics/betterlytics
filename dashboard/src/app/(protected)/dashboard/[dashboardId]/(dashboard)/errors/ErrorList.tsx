@@ -12,7 +12,17 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import { Search, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw, ChevronDown } from 'lucide-react';
+import {
+  Search,
+  ArrowUp,
+  ArrowDown,
+  RefreshCw,
+  MoreHorizontal,
+  CheckCircle,
+  EyeOff,
+  RotateCcw,
+  ChevronDown,
+} from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -47,14 +57,17 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ignored', label: 'Ignored' },
 ];
 
-
-function StatusFilterTabs({ value, counts, onChange }: {
+function StatusFilterTabs({
+  value,
+  counts,
+  onChange,
+}: {
   value: StatusFilter;
   counts: Record<StatusFilter, number>;
   onChange: (filter: StatusFilter) => void;
 }) {
   return (
-    <div className='flex gap-1 border-b border-border'>
+    <div className='border-border flex gap-1 border-b'>
       {STATUS_FILTERS.map(({ key, label }) => {
         const isActive = value === key;
         return (
@@ -63,14 +76,16 @@ function StatusFilterTabs({ value, counts, onChange }: {
             type='button'
             onClick={() => onChange(key)}
             className={[
-              'px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer',
+              '-mb-px cursor-pointer border-b-2 px-3 py-2 text-sm font-medium transition-colors',
               isActive
                 ? 'border-primary text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground',
+                : 'text-muted-foreground hover:text-foreground border-transparent',
             ].join(' ')}
           >
             {label}
-            <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}>
+            <span
+              className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}
+            >
               {counts[key]}
             </span>
           </button>
@@ -80,7 +95,17 @@ function StatusFilterTabs({ value, counts, onChange }: {
   );
 }
 
-function ErrorToolbar({ selectedCount, selectedStatuses, isRefreshing, onResolve, onIgnore, onUnresolve, onReload, searchInput, onSearchChange }: {
+function ErrorToolbar({
+  selectedCount,
+  selectedStatuses,
+  isRefreshing,
+  onResolve,
+  onIgnore,
+  onUnresolve,
+  onReload,
+  searchInput,
+  onSearchChange,
+}: {
   selectedCount: number;
   selectedStatuses: Set<ErrorGroupStatusValue>;
   isRefreshing: boolean;
@@ -109,9 +134,7 @@ function ErrorToolbar({ selectedCount, selectedStatuses, isRefreshing, onResolve
         />
       </div>
       <div className='ml-auto flex items-center gap-2'>
-        {hasSelection && (
-          <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
-        )}
+        {hasSelection && <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>}
         <div className='flex'>
           <Button
             variant='outline'
@@ -146,7 +169,14 @@ function ErrorToolbar({ selectedCount, selectedStatuses, isRefreshing, onResolve
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Button variant='outline' size='sm' className='shrink-0 cursor-pointer' disabled={isRefreshing} onClick={onReload} aria-label='Reload errors'>
+        <Button
+          variant='outline'
+          size='sm'
+          className='shrink-0 cursor-pointer'
+          disabled={isRefreshing}
+          onClick={onReload}
+          aria-label='Reload errors'
+        >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           Reload
         </Button>
@@ -161,11 +191,7 @@ type ErrorTableProps = {
   dashboardId: string;
 };
 
-export function ErrorTable({
-  errorGroups,
-  initialVolumeMap,
-  dashboardId,
-}: ErrorTableProps) {
+export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: ErrorTableProps) {
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
   const query = useAnalyticsQuery();
@@ -209,7 +235,7 @@ export function ErrorTable({
           <Checkbox
             checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            className='cursor-pointer'
+            className='mr-2 cursor-pointer'
             aria-label='Select all'
           />
         ),
@@ -228,7 +254,7 @@ export function ErrorTable({
         id: 'error',
         accessorFn: (row) => `${row.error_type} ${row.error_message}`,
         header: 'Error',
-        meta: { cellClassName: 'w-full min-w-[200px] max-w-0 pl-2' },
+        meta: { cellClassName: 'w-full min-w-[200px] max-w-0' },
         cell: ({ row }) => {
           const error = row.original;
           return (
@@ -285,7 +311,7 @@ export function ErrorTable({
           const isRecent = Date.now() - row.original.last_seen.getTime() < RECENT_THRESHOLD_MS;
           return (
             <div className='flex items-center gap-1.5'>
-              {isRecent && <span className='h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-destructive' />}
+              {isRecent && <span className='bg-destructive h-1.5 w-1.5 shrink-0 animate-pulse rounded-full' />}
               {formatElapsedTime(row.original.last_seen)} ago
             </div>
           );
@@ -300,7 +326,11 @@ export function ErrorTable({
         cell: ({ row }) => {
           const status = getStatus(row.original.error_fingerprint, row.original.status);
           const cfg = STATUS_CONFIG[status];
-          return <Badge variant='outline' className={cfg.className}>{cfg.label}</Badge>;
+          return (
+            <Badge variant='outline' className={cfg.className}>
+              {cfg.label}
+            </Badge>
+          );
         },
       },
       {
@@ -370,7 +400,10 @@ export function ErrorTable({
   const visibleRows = table.getRowModel().rows;
   const visibleFingerprints = visibleRows.map((r) => r.original.error_fingerprint);
   const fingerprintKey = visibleFingerprints.join(',');
-  const initialFingerprintKey = errorGroups.slice(0, PAGE_SIZE).map((g) => g.error_fingerprint).join(',');
+  const initialFingerprintKey = errorGroups
+    .slice(0, PAGE_SIZE)
+    .map((g) => g.error_fingerprint)
+    .join(',');
 
   const { data: volumeMap } = useQuery({
     queryKey: [
@@ -419,11 +452,16 @@ export function ErrorTable({
         <Table className='min-w-[800px]'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className='border-muted-foreground bg-accent hover:bg-accent border-b'>
+              <TableRow
+                key={headerGroup.id}
+                className='border-muted-foreground bg-accent hover:bg-accent border-b'
+              >
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
                   const sorted = header.column.getIsSorted();
-                  const meta = header.column.columnDef.meta as { centered?: boolean; headerClassName?: string } | undefined;
+                  const meta = header.column.columnDef.meta as
+                    | { centered?: boolean; headerClassName?: string }
+                    | undefined;
                   return (
                     <TableHead
                       key={header.id}
@@ -438,7 +476,11 @@ export function ErrorTable({
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {sorted && (
                           <span className='ml-1'>
-                            {sorted === 'desc' ? <ArrowDown className='h-4 w-4' /> : <ArrowUp className='h-4 w-4' />}
+                            {sorted === 'desc' ? (
+                              <ArrowDown className='h-4 w-4' />
+                            ) : (
+                              <ArrowUp className='h-4 w-4' />
+                            )}
                           </span>
                         )}
                       </div>
@@ -453,33 +495,39 @@ export function ErrorTable({
               <TableRow className='hover:bg-transparent'>
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
-                    {globalFilter.trim() ? 'No errors matching your search.' : 'No errors recorded in this period.'}
+                    {globalFilter.trim()
+                      ? 'No errors matching your search.'
+                      : 'No errors recorded in this period.'}
                   </p>
                 </TableCell>
               </TableRow>
-            ) : visibleRows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() ? 'selected' : undefined}
-                className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
-                onClick={() => router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const meta = cell.column.columnDef.meta as { cellClassName?: string } | undefined;
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={[
-                        'text-muted-foreground px-3 py-3 text-sm sm:px-6',
-                        meta?.cellClassName ?? '',
-                      ].join(' ')}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
+            ) : (
+              visibleRows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() ? 'selected' : undefined}
+                  className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
+                  onClick={() =>
+                    router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)
+                  }
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const meta = cell.column.columnDef.meta as { cellClassName?: string } | undefined;
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={[
+                          'text-muted-foreground px-3 py-3 text-sm sm:px-6',
+                          meta?.cellClassName ?? '',
+                        ].join(' ')}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
