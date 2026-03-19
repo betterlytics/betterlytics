@@ -58,6 +58,15 @@ export function useErrorGroupActions(errorGroups: ErrorGroupRow[], dashboardId: 
 
   const selectedFingerprints = Object.keys(rowSelection);
 
+  const selectedStatuses = useMemo(() => {
+    const statuses = new Set<ErrorGroupStatusValue>();
+    for (const fp of selectedFingerprints) {
+      const group = errorGroups.find((g) => g.error_fingerprint === fp);
+      if (group) statuses.add(getStatus(fp, group.status));
+    }
+    return statuses;
+  }, [selectedFingerprints, errorGroups, getStatus]);
+
   return {
     statusFilter,
     statusCounts,
@@ -70,5 +79,6 @@ export function useErrorGroupActions(errorGroups: ErrorGroupRow[], dashboardId: 
     setRowSelection,
     selectedFingerprints,
     selectedCount: selectedFingerprints.length,
+    selectedStatuses,
   };
 }

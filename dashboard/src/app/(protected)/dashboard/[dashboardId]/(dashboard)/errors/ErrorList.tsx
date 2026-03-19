@@ -12,7 +12,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import { Search, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw } from 'lucide-react';
+import { Search, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw, ChevronDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ import { useErrorGroupActions, type StatusFilter } from './use-error-group-actio
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
-import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
+import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { STATUS_CONFIG } from './errors.constants';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
@@ -47,32 +47,6 @@ const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'ignored', label: 'Ignored' },
 ];
 
-function BulkActionBar({ selectedCount, onResolve, onIgnore, onUnresolve }: {
-  selectedCount: number;
-  onResolve: () => void;
-  onIgnore: () => void;
-  onUnresolve: () => void;
-}) {
-  return (
-    <div className='bg-muted/50 border-border flex items-center gap-3 rounded-lg border px-4 py-2'>
-      <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
-      <div className='flex items-center gap-2 ml-auto'>
-        <Button variant='outline' size='sm' onClick={onResolve}>
-          <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
-          Resolve
-        </Button>
-        <Button variant='outline' size='sm' onClick={onIgnore}>
-          <EyeOff className='mr-1.5 h-3.5 w-3.5' />
-          Ignore
-        </Button>
-        <Button variant='outline' size='sm' onClick={onUnresolve}>
-          <RotateCcw className='mr-1.5 h-3.5 w-3.5' />
-          Unresolve
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 function StatusFilterTabs({ value, counts, onChange }: {
   value: StatusFilter;
@@ -102,6 +76,81 @@ function StatusFilterTabs({ value, counts, onChange }: {
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function ErrorToolbar({ selectedCount, selectedStatuses, isRefreshing, onResolve, onIgnore, onUnresolve, onReload, searchInput, onSearchChange }: {
+  selectedCount: number;
+  selectedStatuses: Set<ErrorGroupStatusValue>;
+  isRefreshing: boolean;
+  onResolve: () => void;
+  onIgnore: () => void;
+  onUnresolve: () => void;
+  onReload: () => void;
+  searchInput: string;
+  onSearchChange: (value: string) => void;
+}) {
+  const hasSelection = selectedCount > 0;
+  const canResolve = hasSelection && (selectedStatuses.has('unresolved') || selectedStatuses.has('ignored'));
+  const canIgnore = hasSelection && (selectedStatuses.has('unresolved') || selectedStatuses.has('resolved'));
+  const canUnresolve = hasSelection && (selectedStatuses.has('resolved') || selectedStatuses.has('ignored'));
+
+  return (
+    <div className='flex items-center gap-3'>
+      <div className='relative max-w-sm flex-1'>
+        <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+        <Input
+          type='text'
+          placeholder='Search by type and message...'
+          value={searchInput}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className='pl-9'
+        />
+      </div>
+      <div className='ml-auto flex items-center gap-2'>
+        {hasSelection && (
+          <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>
+        )}
+        <div className='flex'>
+          <Button
+            variant='outline'
+            size='sm'
+            className='cursor-pointer rounded-r-none border-r-0'
+            disabled={!canResolve}
+            onClick={onResolve}
+          >
+            <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
+            Resolve
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='outline'
+                size='sm'
+                className='cursor-pointer rounded-l-none px-1.5'
+                disabled={!hasSelection}
+              >
+                <ChevronDown className='h-3.5 w-3.5' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem className='cursor-pointer' disabled={!canIgnore} onClick={onIgnore}>
+                <EyeOff className='mr-2 h-4 w-4' />
+                Ignore
+              </DropdownMenuItem>
+              <DropdownMenuItem className='cursor-pointer' disabled={!canUnresolve} onClick={onUnresolve}>
+                <RotateCcw className='mr-2 h-4 w-4' />
+                Unresolve
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Button variant='outline' size='sm' className='shrink-0 cursor-pointer' disabled={isRefreshing} onClick={onReload} aria-label='Reload errors'>
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Reload
+        </Button>
+      </div>
     </div>
   );
 }
@@ -148,6 +197,7 @@ export function ErrorTable({
     setRowSelection,
     selectedFingerprints,
     selectedCount,
+    selectedStatuses,
   } = useErrorGroupActions(errorGroups, dashboardId);
 
   const columns = useMemo<ColumnDef<ErrorGroupRow, unknown>[]>(
@@ -159,11 +209,13 @@ export function ErrorTable({
           <Checkbox
             checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            className='cursor-pointer'
             aria-label='Select all'
           />
         ),
         cell: ({ row }) => (
           <Checkbox
+            className='cursor-pointer'
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             onClick={(e) => e.stopPropagation()}
@@ -199,6 +251,7 @@ export function ErrorTable({
       {
         accessorKey: 'count',
         header: 'Occurrences',
+        enableGlobalFilter: false,
         meta: { centered: true },
         cell: ({ getValue }) => (
           <div className='text-center tabular-nums'>{formatNumber(getValue() as number)}</div>
@@ -207,6 +260,7 @@ export function ErrorTable({
       {
         accessorKey: 'session_count',
         header: 'Sessions',
+        enableGlobalFilter: false,
         meta: { centered: true },
         cell: ({ getValue }) => (
           <div className='text-center tabular-nums'>{formatNumber(getValue() as number)}</div>
@@ -216,6 +270,7 @@ export function ErrorTable({
         id: 'first_seen',
         accessorFn: (row) => row.first_seen?.getTime() ?? 0,
         header: 'First seen',
+        enableGlobalFilter: false,
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
           return firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—';
@@ -225,6 +280,7 @@ export function ErrorTable({
         id: 'last_seen',
         accessorFn: (row) => row.last_seen.getTime(),
         header: 'Last seen',
+        enableGlobalFilter: false,
         cell: ({ row }) => {
           const isRecent = Date.now() - row.original.last_seen.getTime() < RECENT_THRESHOLD_MS;
           return (
@@ -240,6 +296,7 @@ export function ErrorTable({
         accessorFn: (row) => row.status,
         header: 'Status',
         enableSorting: false,
+        enableGlobalFilter: false,
         cell: ({ row }) => {
           const status = getStatus(row.original.error_fingerprint, row.original.status);
           const cfg = STATUS_CONFIG[status];
@@ -260,7 +317,7 @@ export function ErrorTable({
                 <Button
                   variant='ghost'
                   size='icon'
-                  className='h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100'
+                  className='h-7 w-7 cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100'
                   onClick={(e) => e.stopPropagation()}
                   aria-label='Row actions'
                 >
@@ -269,19 +326,19 @@ export function ErrorTable({
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
                 {currentStatus !== 'resolved' && (
-                  <DropdownMenuItem onClick={() => setStatus(fp, 'resolved')}>
+                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
                     <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
                     Mark resolved
                   </DropdownMenuItem>
                 )}
                 {currentStatus !== 'ignored' && (
-                  <DropdownMenuItem onClick={() => setStatus(fp, 'ignored')}>
+                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
                     <EyeOff className='mr-2 h-4 w-4' />
                     Ignore
                   </DropdownMenuItem>
                 )}
                 {currentStatus !== 'unresolved' && (
-                  <DropdownMenuItem onClick={() => setStatus(fp, 'unresolved')}>
+                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
                     <RotateCcw className='mr-2 h-4 w-4' />
                     Mark unresolved
                   </DropdownMenuItem>
@@ -346,38 +403,17 @@ export function ErrorTable({
     <div className='space-y-3'>
       <StatusFilterTabs value={statusFilter} counts={statusCounts} onChange={changeStatusFilter} />
 
-      <div className='flex items-center gap-3'>
-        <div className='relative max-w-sm flex-1'>
-          <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-          <Input
-            type='text'
-            placeholder='Search by type and message...'
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className='pl-9'
-          />
-        </div>
-        <Button
-          variant='outline'
-          size='sm'
-          className='ml-auto shrink-0'
-          disabled={isRefreshing}
-          onClick={() => startRefreshTransition(() => router.refresh())}
-          aria-label='Reload errors'
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Reload
-        </Button>
-      </div>
-
-      {selectedCount > 0 && (
-        <BulkActionBar
-          selectedCount={selectedCount}
-          onResolve={() => bulkSetStatus(selectedFingerprints, 'resolved')}
-          onIgnore={() => bulkSetStatus(selectedFingerprints, 'ignored')}
-          onUnresolve={() => bulkSetStatus(selectedFingerprints, 'unresolved')}
-        />
-      )}
+      <ErrorToolbar
+        selectedCount={selectedCount}
+        selectedStatuses={selectedStatuses}
+        isRefreshing={isRefreshing}
+        onResolve={() => bulkSetStatus(selectedFingerprints, 'resolved')}
+        onIgnore={() => bulkSetStatus(selectedFingerprints, 'ignored')}
+        onUnresolve={() => bulkSetStatus(selectedFingerprints, 'unresolved')}
+        onReload={() => startRefreshTransition(() => router.refresh())}
+        searchInput={searchInput}
+        onSearchChange={setSearchInput}
+      />
 
       <div className='border-border overflow-x-auto rounded-lg border'>
         <Table className='min-w-[800px]'>

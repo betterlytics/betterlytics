@@ -75,7 +75,7 @@ pub enum EventType {
     OutboundLink = 3,
     Cwv = 4,
     ScrollDepth = 5,
-    JsError = 6,
+    ClientError = 6,
 }
 
 impl EventRow {
