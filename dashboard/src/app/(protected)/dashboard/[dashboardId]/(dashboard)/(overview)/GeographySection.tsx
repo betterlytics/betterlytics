@@ -70,7 +70,7 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
   return (
     <MultiProgressTable
       title={t('sections.geography')}
-      defaultTab={geoLevelTabs[0].key}
+      defaultTab={geoLevelTabs[0]?.key ?? 'worldmap'}
       onItemClick={onItemClick}
       tabs={[
         ...geoLevelTabs,

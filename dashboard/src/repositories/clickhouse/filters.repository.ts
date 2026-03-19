@@ -25,7 +25,6 @@ export async function getFilterDistinctValues(
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       ${searchClause}
-      AND value IS NOT NULL
       AND value != ''
     LIMIT {limit:UInt32}
   `;

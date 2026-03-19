@@ -14,8 +14,8 @@ pub struct EventRow {
     pub url: String,
     pub device_type: String,
     pub country_code: Option<String>,
-    pub subdivision_code: Option<String>,
-    pub city: Option<String>,
+    pub subdivision_code: String,
+    pub city: String,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub timestamp: DateTime<Utc>,
     #[serde(with = "clickhouse::serde::chrono::date")]
@@ -87,8 +87,8 @@ impl EventRow {
             url: event.url,
             device_type: event.device_type.unwrap_or_else(|| "unknown".to_string()),
             country_code: event.country_code,
-            subdivision_code: event.subdivision_code,
-            city: event.city,
+            subdivision_code: event.subdivision_code.unwrap_or_default(),
+            city: event.city.unwrap_or_default(),
             timestamp,
             date: timestamp.date_naive(),
             browser: event.browser.unwrap_or_else(|| "unknown".to_string()),
