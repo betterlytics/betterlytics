@@ -8,7 +8,7 @@ import {
   upsertErrorGroupForSite,
   bulkUpsertErrorGroupForSite,
 } from '@/services/analytics/errors.service';
-import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -65,14 +65,14 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
   },
 );
 
-export const upsertErrorGroupAction = withDashboardAuthContext(
+export const upsertErrorGroupAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, fingerprint: string, status: string): Promise<void> => {
     const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
     await upsertErrorGroupForSite(ctx.dashboardId, fingerprint, validatedStatus);
   },
 );
 
-export const bulkUpsertErrorGroupAction = withDashboardAuthContext(
+export const bulkUpsertErrorGroupAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, fingerprints: string[], status: string): Promise<void> => {
     const validatedStatus = ErrorGroupStatusValueSchema.parse(status);
     await bulkUpsertErrorGroupForSite(ctx.dashboardId, fingerprints, validatedStatus);
