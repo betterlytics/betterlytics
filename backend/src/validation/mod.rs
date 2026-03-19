@@ -115,8 +115,8 @@ impl EventValidator {
             self.validate_scroll_depth_fields(raw_event)?;
         }
 
-        if raw_event.event_name == "js_error" {
-            self.validate_js_error_fields(raw_event)?;
+        if raw_event.event_name == "client_error" {
+            self.validate_client_error_fields(raw_event)?;
         }
 
         // only present for custom events
@@ -308,10 +308,10 @@ impl EventValidator {
         Ok(())
     }
 
-    fn validate_js_error_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+    fn validate_client_error_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         let error_exceptions = match &raw_event.error_exceptions {
             Some(l) if !l.is_empty() => l,
-            _ => return Err(ValidationError::InvalidJson("js_error event missing error_exceptions".to_string())),
+            _ => return Err(ValidationError::InvalidJson("client_error event missing error_exceptions".to_string())),
         };
 
         match serde_json::from_str::<serde_json::Value>(error_exceptions) {

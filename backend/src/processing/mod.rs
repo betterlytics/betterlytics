@@ -212,9 +212,9 @@ impl EventProcessor {
             processed.event_type = "scroll_depth".to_string();
             processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
-        } else if event_name == "js_error" {
-            processed.event_type = "js_error".to_string();
-            self.process_js_error(processed);
+        } else if event_name == "client_error" {
+            processed.event_type = "client_error".to_string();
+            self.process_client_error(processed);
         } else {
             processed.event_type = event_name;
         }
@@ -250,7 +250,7 @@ impl EventProcessor {
         Ok(())
     }
     
-    fn process_js_error(&self, processed: &mut ProcessedEvent) {
+    fn process_client_error(&self, processed: &mut ProcessedEvent) {
         let list = processed.event.raw.error_exceptions.clone().unwrap_or_default();
         if let Ok(arr) = serde_json::from_str::<serde_json::Value>(&list) {
             processed.error_type = arr[0]["type"].as_str().unwrap_or("").to_string();

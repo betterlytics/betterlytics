@@ -15,7 +15,7 @@ export async function hasAnyErrors(siteId: string): Promise<boolean> {
     SELECT 1
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint != ''
     LIMIT 1
   `;
@@ -43,7 +43,7 @@ export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroup
       uniq(session_id) as session_count
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint != ''
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND ${SQL.AND(filters)}
@@ -77,7 +77,7 @@ export async function getGlobalErrorGroupFirstSeen(siteId: string): Promise<Reco
       min(timestamp) as first_seen
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint != ''
     GROUP BY error_fingerprint
   `;
@@ -115,7 +115,7 @@ export async function getErrorGroupVolumes(
       FROM analytics.events
       WHERE site_id = {site_id:String}
         AND ${range}
-        AND event_type = 'js_error'
+        AND event_type = 'client_error'
         AND error_fingerprint IN ({fingerprints:Array(String)})
         AND ${SQL.AND(filters)}
       GROUP BY error_fingerprint, date
