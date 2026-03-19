@@ -14,7 +14,7 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<EventTypeRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT

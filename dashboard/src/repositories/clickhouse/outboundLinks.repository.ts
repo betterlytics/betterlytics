@@ -87,7 +87,7 @@ export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<Da
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = timeWrapper(
     safeSql`
       SELECT
@@ -127,7 +127,7 @@ export async function getOutboundLinksDistribution(
 ): Promise<Array<TopOutboundLinksDistrubution>> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const top9Query = safeSql`
     SELECT

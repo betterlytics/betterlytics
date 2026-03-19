@@ -139,8 +139,8 @@ function getTimestampRange(
   };
 }
 
-async function getSampling(siteId: string) {
-  const highTraffic = await isHighTrafficSite(siteId);
+async function getSampling(siteId: string, startDate: DateTimeString, endDate: DateTimeString) {
+  const highTraffic = await isHighTrafficSite(siteId, startDate, endDate);
   const sampleFactor = highTraffic ? HIGH_TRAFFIC_SAMPLE_FACTOR : 1;
 
   if (highTraffic) {

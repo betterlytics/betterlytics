@@ -18,7 +18,7 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const { sample } = await BAQuery.getSampling(siteId);
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH metrics AS (
@@ -77,7 +77,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
     startDateTime,
     endDateTime,
   );
-  const { sample } = await BAQuery.getSampling(siteId);
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
@@ -130,7 +130,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
-  const { sample, correction } = await BAQuery.getSampling(siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH metrics AS (

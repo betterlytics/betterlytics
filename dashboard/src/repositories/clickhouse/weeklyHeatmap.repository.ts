@@ -90,7 +90,7 @@ export async function getWeeklyHeatmap(
   }
 
   const aggregation = getBaseAggregation(metric);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH

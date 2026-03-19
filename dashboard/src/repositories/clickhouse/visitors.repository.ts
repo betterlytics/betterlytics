@@ -19,7 +19,7 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
@@ -59,7 +59,7 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
 export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<number> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const queryResponse = safeSql`
     SELECT uniq(visitor_id) ${correction} as unique_visitors

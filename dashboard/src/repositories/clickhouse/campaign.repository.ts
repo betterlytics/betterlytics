@@ -253,7 +253,7 @@ export async function getCampaignVisitorTrendData(
     startDateTime,
     endDateTime,
   );
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const campaignFilter = safeSql`AND utm_campaign IN (${SQL.SEPARATOR(
     campaignNames.map((name, index) => SQL.String({ [`campaign_${index}`]: name })),
@@ -305,7 +305,7 @@ export async function getCampaignAudienceProfileData(
 ): Promise<CampaignAudienceProfileRow[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const campaignFilter = campaignName ? safeSql`AND utm_campaign = ${SQL.String({ campaignName })}` : safeSql``;
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId);
+  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
