@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS analytics.session_replays_new (
-    site_id String,
+    site_id LowCardinality(String),
     session_id String,
     visitor_id UInt64,
     started_at DateTime,
