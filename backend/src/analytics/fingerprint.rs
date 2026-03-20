@@ -1,27 +1,8 @@
-use std::net::IpAddr;
 use chrono::{Utc, Datelike};
 use md5::Digest;
 use sha2::Sha256;
 
-/// Anonymize IP address by removing last octet
-pub fn anonymize_ip(ip: &str) -> Option<String> {
-    if let Ok(ip_addr) = ip.parse::<IpAddr>() {
-        match ip_addr {
-            IpAddr::V4(ipv4) => {
-                let octets = ipv4.octets();
-                Some(format!("{}.{}.{}.0", octets[0], octets[1], octets[2]))
-            },
-            IpAddr::V6(ipv6) => {
-                // For IPv6, we'll use the first 64 bits (8 bytes)
-                let segments = ipv6.segments();
-                Some(format!("{:x}:{:x}:{:x}:{:x}::", 
-                    segments[0], segments[1], segments[2], segments[3]))
-            }
-        }
-    } else {
-        None
-    }
-}
+use crate::ip_parser::anonymize_ip;
 
 /// Generate a daily salt based on the current date
 fn generate_daily_salt() -> String {

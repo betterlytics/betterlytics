@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::sync::atomic::{AtomicU64, Ordering};
 use tracing::{info, warn, error, debug};
 use crate::config::{Config, GeolocationMode};
-use crate::analytics::anonymize_ip;
+use crate::ip_parser::anonymize_ip;
 use crate::geoip_updater::GeoIpWatchRx;
 use anyhow::Result;
 use moka::sync::Cache;
