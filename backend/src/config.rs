@@ -7,7 +7,7 @@ use std::time::Duration;
 pub enum GeolocationMode {
     Disabled,
     Countries,
-    Full,
+    Subdivisions,
 }
 
 impl GeolocationMode {
@@ -15,8 +15,8 @@ impl GeolocationMode {
         self != GeolocationMode::Disabled
     }
 
-    pub fn is_full(self) -> bool {
-        self == GeolocationMode::Full
+    pub fn has_subdivisions(self) -> bool {
+        self == GeolocationMode::Subdivisions
     }
 }
 
@@ -75,13 +75,15 @@ impl Config {
         let root_env_path = PathBuf::from("../.env");
         dotenv::from_path(&root_env_path).ok();
 
-        let geolocation_mode = match env::var("GEOLOCATION_MODE")
-            .unwrap_or_else(|_| "disabled".to_string())
-            .to_lowercase()
-            .as_str()
-        {
-            "full" => GeolocationMode::Full,
-            "countries" => GeolocationMode::Countries,
+        let geo_enabled = env::var("ENABLE_GEOLOCATION")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+        let geo_subdivision = env::var("ENABLE_GEOSUBDIVISION")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+        let geolocation_mode = match (geo_enabled, geo_subdivision) {
+            (true, true) => GeolocationMode::Subdivisions,
+            (true, false) => GeolocationMode::Countries,
             _ => GeolocationMode::Disabled,
         };
 
@@ -106,7 +108,7 @@ impl Config {
             maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok(),
             geoip_db_path: env::var("GEOIP_DB_PATH")
                 .map(PathBuf::from)
-                .unwrap_or_else(|_| if geolocation_mode.is_full() {
+                .unwrap_or_else(|_| if geolocation_mode.has_subdivisions() {
                     PathBuf::from("assets/geoip/GeoLite2-City.mmdb")
                 } else {
                     PathBuf::from("assets/geoip/GeoLite2-Country.mmdb")

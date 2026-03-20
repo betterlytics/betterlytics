@@ -62,7 +62,8 @@ const envSchema = z.object({
   OTEL_SERVICE_NAME: z.string().optional(),
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
-  GEOLOCATION_MODE: z.enum(['disabled', 'countries', 'full']).default('disabled'),
+  ENABLE_GEOLOCATION: zStringBoolean,
+  ENABLE_GEOSUBDIVISION: zStringBoolean,
   PUSHOVER_APP_TOKEN: z.string().optional(),
   INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
 });
