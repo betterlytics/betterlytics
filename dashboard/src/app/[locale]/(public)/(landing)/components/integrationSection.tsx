@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 import { ScrollReveal } from '@/components/animations/ScrollReveal';
-import { ScrollGradientText } from '@/components/animations/ScrollGradientText';
+import { ScrollShimmerText } from '@/components/animations/ScrollShimmerText';
 
 export async function IntegrationSection() {
   const t = await getTranslations('public.landing.integration');
@@ -42,7 +42,7 @@ export async function IntegrationSection() {
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
         <ScrollReveal className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            {t('titleStart')} <ScrollGradientText>{t('titleEmphasis')}</ScrollGradientText>
+            {t('titleStart')} <ScrollShimmerText>{t('titleEmphasis')}</ScrollShimmerText>
           </h2>
           <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
         </ScrollReveal>

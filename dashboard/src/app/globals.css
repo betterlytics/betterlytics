@@ -2,6 +2,7 @@
 @import 'tw-animate-css';
 @import './animations.css';
 @import './scroll-gradient.css';
+@import './scroll-shimmer.css';
 
 @custom-variant dark (&:is(.dark *));
 
