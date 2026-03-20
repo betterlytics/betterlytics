@@ -427,7 +427,7 @@ export async function getTopReferrerSource(siteQuery: BASiteQuery): Promise<stri
       AND referrer_source != 'internal'
       AND ${SQL.AND(filters)}
     GROUP BY referrer_source
-    ORDER BY uniq(session_id) * any(_sample_factor) DESC
+    ORDER BY uniq(session_id) DESC
     LIMIT 1
   `;
 

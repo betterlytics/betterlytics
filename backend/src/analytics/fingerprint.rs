@@ -60,5 +60,5 @@ pub fn generate_fingerprint(
     ));
     
     let result = hasher.finalize();
-    u64::from_be_bytes(result[..8].try_into().unwrap())
+    u64::from_be_bytes(result[..8].try_into().expect("always produces 32 bytes"))
 }
