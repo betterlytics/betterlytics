@@ -163,7 +163,7 @@ impl GeoIpService {
             }
         };
 
-        let result = if self.geolocation_mode.has_subdivisions() {
+        let result = if self.geolocation_mode.is_full() {
             match reader.lookup::<geoip2::City>(ip) {
                 Ok(Some(city)) => {
                     let country_code = city.country

@@ -37,7 +37,7 @@ impl GeoIpUpdater {
     pub fn new(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
         let (watch_tx, watch_rx) = watch::channel(None);
 
-        let database_url = if config.geolocation_mode.has_subdivisions() {
+        let database_url = if config.geolocation_mode.is_full() {
             GEOIP_CITY_DATABASE_URL
         } else {
             GEOIP_COUNTRY_DATABASE_URL
