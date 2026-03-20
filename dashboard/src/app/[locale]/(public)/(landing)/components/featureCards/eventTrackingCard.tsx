@@ -22,7 +22,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Button Click',
         timestamp: new Date(Date.now() - 2 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'desktop',
         browser: 'chrome',
         country_code: 'US',
@@ -35,7 +35,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Form Submit',
         timestamp: new Date(Date.now() - 8 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'tablet',
         browser: 'firefox',
         country_code: 'GB',
@@ -48,7 +48,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Video Play',
         timestamp: new Date(Date.now() - 12 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'desktop',
         browser: 'edge',
         country_code: 'DE',
@@ -61,7 +61,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Download',
         timestamp: new Date(Date.now() - 15 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'mobile',
         browser: 'chrome',
         country_code: 'FR',
@@ -74,7 +74,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Search',
         timestamp: new Date(Date.now() - 18 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'desktop',
         browser: 'safari',
         country_code: 'AU',
@@ -87,7 +87,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Newsletter Signup',
         timestamp: new Date(Date.now() - 22 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'mobile',
         browser: 'firefox',
         country_code: 'JP',
@@ -100,7 +100,7 @@ export default async function EventTrackingCard() {
       event: {
         event_name: 'Add to Cart',
         timestamp: new Date(Date.now() - 25 * 60 * 1000),
-        visitor_id: 0,
+        visitor_id: '',
         device_type: 'tablet',
         browser: 'chrome',
         country_code: 'BR',

@@ -37,7 +37,7 @@ export const EventPropertiesOverviewSchema = z.object({
 export const EventLogEntrySchema = z.object({
   timestamp: z.date(),
   event_name: z.string(),
-  visitor_id: z.number(),
+  visitor_id: z.string(),
   url: z.string(),
   custom_event_json: z.string(),
   country_code: z.string().nullable(),

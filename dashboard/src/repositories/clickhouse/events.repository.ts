@@ -99,7 +99,7 @@ export async function getRecentEvents(
     SELECT
       timestamp,
       custom_event_name as event_name,
-      visitor_id,
+      toString(visitor_id) as visitor_id,
       url,
       custom_event_json,
       country_code,

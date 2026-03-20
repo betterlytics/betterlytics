@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const SessionReplaySchema = z.object({
   site_id: z.string(),
   session_id: z.string(),
-  visitor_id: z.number(),
+  visitor_id: z.string(),
   started_at: z.string().transform((val) => parseClickHouseDate(val)),
   ended_at: z.string().transform((val) => parseClickHouseDate(val)),
   duration: z.number(),
