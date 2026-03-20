@@ -32,13 +32,13 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        count() ${correction} as views
+        count() * any(_sample_factor) as views
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
@@ -70,14 +70,14 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
     startDateTime,
     endDateTime,
   );
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
         url,
-        count() ${correction} as views
+        count() * any(_sample_factor) as views
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
@@ -103,12 +103,12 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
 export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const queryResponse = safeSql`
     SELECT
       url,
-      uniq(session_id) ${correction} as visitors
+      uniq(session_id) * any(_sample_factor) as visitors
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
@@ -233,13 +233,13 @@ export async function getPageTrafficTimeSeries(
     startDateTime,
     endDateTime,
   );
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        count() ${correction} as views
+        count() * any(_sample_factor) as views
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND url = {path:String}

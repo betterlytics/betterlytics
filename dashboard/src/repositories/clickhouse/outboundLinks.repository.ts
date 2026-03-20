@@ -87,12 +87,12 @@ export async function getDailyOutboundClicks(siteQuery: BASiteQuery): Promise<Da
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        uniq(visitor_id, outbound_link_url)${correction} as outboundClicks
+        uniq(visitor_id, outbound_link_url) * any(_sample_factor) as outboundClicks
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND ${range}
@@ -127,12 +127,12 @@ export async function getOutboundLinksDistribution(
 ): Promise<Array<TopOutboundLinksDistrubution>> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const top9Query = safeSql`
     SELECT
       outbound_link_url,
-      uniq(visitor_id)${correction} as clicks
+      uniq(visitor_id) * any(_sample_factor) as clicks
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -146,7 +146,7 @@ export async function getOutboundLinksDistribution(
 
   const totalQuery = safeSql`
     SELECT
-      uniq(visitor_id)${correction} as total_clicks
+      uniq(visitor_id) * any(_sample_factor) as total_clicks
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}

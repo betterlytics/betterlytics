@@ -3,8 +3,7 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import { EventCountResultSchema } from '@/entities/billing/billing.entities';
 import { DateString, DateTimeString } from '@/types/dates';
 import { cache } from 'react';
-
-const HIGH_TRAFFIC_THRESHOLD = 100_000;
+import { env } from '@/lib/env';
 
 async function _getSiteEventCountForRange(siteId: string, startDate: DateTimeString, endDate: DateTimeString): Promise<number> {
   const query = safeSql`
@@ -34,7 +33,7 @@ export const getSiteEventCountForRange = cache(_getSiteEventCountForRange);
 
 export async function isHighTrafficSite(siteId: string, startDate: DateTimeString, endDate: DateTimeString): Promise<boolean> {
   const count = await getSiteEventCountForRange(siteId, startDate, endDate);
-  return count > HIGH_TRAFFIC_THRESHOLD;
+  return count > env.SAMPLING_TRAFFIC_THRESHOLD;
 }
 
 /**

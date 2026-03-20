@@ -14,13 +14,13 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<EventTypeRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       custom_event_name as event_name,
-      count() ${correction} as count,
-      uniq(visitor_id) ${correction} as unique_users,
+      count() * any(_sample_factor) as count,
+      uniq(visitor_id) * any(_sample_factor) as unique_users,
       max(timestamp) as last_seen,
       round(count() / uniq(visitor_id), 2) as avg_per_user
     FROM analytics.events ${sample}

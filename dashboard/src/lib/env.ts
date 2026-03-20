@@ -63,7 +63,10 @@ const envSchema = z.object({
   BACKGROUND_JOBS_ENABLED: zStringBoolean,
   IS_DEVELOPMENT: zStringBoolean,
   PUSHOVER_APP_TOKEN: z.string().optional(),
-  INTEGRATION_ENCRYPTION_KEY: z.string().length(32)
+  INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
+  SAMPLING_TRAFFIC_THRESHOLD: z.coerce.number().optional().default(100_000),
+  SAMPLING_FACTOR: z.coerce.number().min(0).max(1).optional().default(0.25),
+  HIGH_TRAFFIC_CONCURRENCY_LIMIT: z.coerce.number().optional().default(20)
 });
 
 export const env = envSchema.parse(process.env);

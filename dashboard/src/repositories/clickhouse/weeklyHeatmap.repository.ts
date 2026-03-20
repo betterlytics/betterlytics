@@ -90,7 +90,7 @@ export async function getWeeklyHeatmap(
   }
 
   const aggregation = getBaseAggregation(metric);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH
@@ -99,7 +99,7 @@ export async function getWeeklyHeatmap(
       any(toStartOfHour(toTimeZone(timestamp, {tz:String}))) as date,
       toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
       toHour(toTimeZone(timestamp, {tz:String})) as hour,
-      ${aggregation}${correction} / uniq(week_start) as value
+      ${aggregation} * any(_sample_factor) / uniq(week_start) as value
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}

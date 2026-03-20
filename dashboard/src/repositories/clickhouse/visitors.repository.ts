@@ -19,14 +19,15 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       WITH first_visitor_appearances AS (
         SELECT
           visitor_id,
-          min(timestamp) as custom_date
+          min(timestamp) as custom_date,
+          any(_sample_factor) as _sample_factor
         FROM analytics.events ${sample}
         WHERE site_id = {site_id:String}
           AND ${range}
@@ -35,7 +36,7 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
       )
       SELECT
         ${granularityFunc('custom_date')} as date,
-        uniq(visitor_id) ${correction} as unique_visitors
+        uniq(visitor_id) * any(_sample_factor) as unique_visitors
       FROM first_visitor_appearances
       GROUP BY date
       ORDER BY date ASC ${fill}
@@ -59,10 +60,10 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
 export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<number> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample, correction } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const queryResponse = safeSql`
-    SELECT uniq(visitor_id) ${correction} as unique_visitors
+    SELECT uniq(visitor_id) * any(_sample_factor) as unique_visitors
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}

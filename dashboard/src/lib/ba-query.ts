@@ -7,9 +7,7 @@ import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
 import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
-
-const HIGH_TRAFFIC_SAMPLE_FACTOR = 0.25;
-const HIGH_TRAFFIC_CONCURRENCY_LIMIT = 20;
+import { env } from '@/lib/env';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -141,16 +139,15 @@ function getTimestampRange(
 
 async function getSampling(siteId: string, startDate: DateTimeString, endDate: DateTimeString) {
   const highTraffic = await isHighTrafficSite(siteId, startDate, endDate);
-  const sampleFactor = highTraffic ? HIGH_TRAFFIC_SAMPLE_FACTOR : 1;
+  const sampleFactor = highTraffic ? env.SAMPLING_FACTOR : 1;
 
   if (highTraffic) {
-    setSiteConcurrencyLimit(siteId, HIGH_TRAFFIC_CONCURRENCY_LIMIT);
+    setSiteConcurrencyLimit(siteId, env.HIGH_TRAFFIC_CONCURRENCY_LIMIT);
   }
 
-  const sample = sampleFactor < 1 ? safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}` : safeSql``;
-  const correction = sampleFactor < 1 ? safeSql`* ${SQL.Unsafe((1 / sampleFactor).toString())}` : safeSql``;
+  const sample = safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}`;
 
-  return { sample, correction };
+  return { sample };
 }
 
 export const BAQuery = {

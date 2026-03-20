@@ -24,6 +24,11 @@ export async function getFunnelDetails(
     );
   }
 
+  const { sample } =
+    startDate && endDate
+      ? await BAQuery.getSampling(siteId, startDate, endDate)
+      : { sample: safeSql`SAMPLE 1` };
+
   const windowDurationSeconds = 24 * 60 * 60;
   let funnelWindowFunctionDefinition;
 
@@ -37,17 +42,18 @@ export async function getFunnelDetails(
     WITH
       baseFunnel AS (
           SELECT
-              ${funnelWindowFunctionDefinition}(timestamp, ${SQL.SEPARATOR(filters)}) AS level
-          FROM analytics.events
+              ${funnelWindowFunctionDefinition}(timestamp, ${SQL.SEPARATOR(filters)}) AS level,
+              any(_sample_factor) as _sample_factor
+          FROM analytics.events ${sample}
           WHERE
             site_id = ${SQL.String({ siteId })}
-            AND ${SQL.AND(whereConditions)} 
+            AND ${SQL.AND(whereConditions)}
           GROUP BY visitor_id
       ),
       funnelCounts AS (
           SELECT
               level,
-              count() AS raw_count
+              count() * any(_sample_factor) AS raw_count
           FROM baseFunnel
           GROUP BY level
       ),
