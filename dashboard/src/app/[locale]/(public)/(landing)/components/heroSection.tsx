@@ -12,7 +12,7 @@ export async function HeroSection() {
 
   return (
     <section className='relative overflow-visible pt-20 pb-24 sm:pt-36 sm:pb-32'>
-      <div className='pointer-events-none absolute inset-0 -z-10 overflow-hidden'>
+      <div className='pointer-events-none absolute inset-0 -top-(--topbar-height) -z-10 overflow-hidden'>
         <HeroSmoke />
       </div>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
