@@ -1603,7 +1603,9 @@
       "pages": "Sider",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
-      "topCountries": "Top lande",
+      "countries": "Lande",
+      "regions": "Regioner",
+      "cities": "Byer",
       "worldMap": "Verdenskort",
       "browsers": "Browsere",
       "devices": "Enheder",
@@ -2334,6 +2336,8 @@
         "domain": "Hostname",
         "device_type": "Enhedstype",
         "country_code": "Landekode",
+        "subdivision_code": "Region",
+        "city": "By",
         "browser": "Browser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
@@ -2504,7 +2508,9 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
-      "visitors": "Besøgende"
+      "loading": "Indlæser kort...",
+      "visitors": "Besøgende",
+      "regionLoadError": "Kunne ikke indlæse regionsdata"
     },
     "userJourney": {
       "steps": "Trin",

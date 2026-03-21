@@ -1600,7 +1600,9 @@
       "pages": "Pages",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
-      "topCountries": "Top Countries",
+      "countries": "Countries",
+      "regions": "Regions",
+      "cities": "Cities",
       "worldMap": "World Map",
       "browsers": "Browsers",
       "devices": "Devices",
@@ -2331,6 +2333,8 @@
         "domain": "Hostname",
         "device_type": "Device type",
         "country_code": "Country",
+        "subdivision_code": "Region",
+        "city": "City",
         "browser": "Browser",
         "os": "Operating system",
         "referrer_source": "Referrer source",
@@ -2501,7 +2505,9 @@
     },
     "geography": {
       "noData": "No geographic data available for the selected period",
-      "visitors": "Visitors"
+      "loading": "Loading map...",
+      "visitors": "Visitors",
+      "regionLoadError": "Failed to load region data"
     },
     "userJourney": {
       "steps": "Steps",

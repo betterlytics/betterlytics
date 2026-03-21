@@ -1,19 +1,19 @@
 ---
 title: "Geography Analytics - Betterlytics"
-description: "Explore your visitors’ geographic distribution with an interactive world map. Gain insights into your global audience and make data-driven decisions for regional optimization."
+description: "Explore your visitors’ geographic distribution with an interactive world map and city-level analytics. Gain insights into your global audience and make data-driven decisions for regional optimization."
 ---
 
 import { Callout } from "nextra/components";
 
-# World Map Analytics
+# Geography Analytics
 
-The World Map provides a visual representation of where your website's visitors are located around the world. This interactive map helps you understand your global audience distribution, identify key markets, and make data-driven decisions about international expansion, content localization, and regional marketing strategies.
+Betterlytics provides multi-level geography analytics: an interactive world map for country-level distribution, and city-level data for granular audience insights. Together these help you understand your global audience, identify key markets, and make data-driven decisions about regional optimization.
 
 ## Accessing the World Map
 
 Navigate to **Dashboard > Geography** to view your world map analytics data.
 
-A compact version of the world map is also available in the Dashboard Overview for a quick glance at visitor distribution.
+A compact version of the world map is also available in the Dashboard Overview, along with **Top Countries** and **Top Cities** tabs for a quick glance at visitor distribution.
 
 ## What the World Map Shows
 
@@ -70,7 +70,7 @@ See the [Metrics Glossary](/dashboard/metrics-glossary) for details on how uniqu
 
 **How Location is Determined:**
 - **IP-based geolocation** - Visitor location is determined from their IP address
-- **Country-level precision** - Data is aggregated at the country level
+- **Multi-level precision** - Data is available at country, subdivision (state/province/region), and city level depending on your [geolocation configuration](/installation/self-hosting#geolocation)
 - **GeoIP database** - Uses [MaxMind GeoLite2](https://www.maxmind.com/en/geoip2-databases) database for accurate location mapping
 
 ### Data Considerations
@@ -113,6 +113,19 @@ The world map respects all dashboard filters, allowing you to segment and analyz
 - **Regional campaigns** - Targeting specific geographic areas
 - **Time zone considerations** - Scheduling content for optimal regional engagement
 - **Local partnerships** - Identifying regions for business development
+
+## Top Cities
+
+The Dashboard Overview includes a **Top Cities** tab in the geography card, showing the top 10 cities by unique visitor count.
+
+- City names are displayed alongside visitor counts and comparison data
+- Clicking a city applies it as a dashboard filter to view all analytics for visitors from that city
+
+## City & Region Filters
+
+Both city and region are available as dashboard filter dimensions. You can filter your entire dashboard to show data only from a specific city or region.
+
+For example, filtering by city "Berlin" shows all analytics for visitors from Berlin only.
 
 ## Understanding Data Limitations
 

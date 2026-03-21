@@ -1,15 +1,14 @@
-import { SupportedLanguages, SUPPORTED_LANGUAGES } from '@/constants/i18n';
+import { SupportedLanguages } from '@/constants/i18n';
 import countries from 'i18n-iso-countries';
+import en from 'i18n-iso-countries/langs/en.json';
+import da from 'i18n-iso-countries/langs/da.json';
+import it from 'i18n-iso-countries/langs/it.json';
+import nb from 'i18n-iso-countries/langs/nb.json';
 
-async function registerLocales() {
-  await Promise.all(
-    SUPPORTED_LANGUAGES.map(async (lang) => {
-      countries.registerLocale((await import(`i18n-iso-countries/langs/${lang}.json`)).default);
-    }),
-  );
-}
-
-registerLocales();
+countries.registerLocale(en);
+countries.registerLocale(da);
+countries.registerLocale(it);
+countries.registerLocale(nb);
 
 /**
  * Converts an ISO 3166-1 alpha-2 country code to alpha-3

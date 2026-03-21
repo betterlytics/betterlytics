@@ -61,7 +61,7 @@ Thumbs.db
 node_modules
 
 # GeoLite
-/backend/assets/geoip/GeoLite2-Country.mmdb
+/backend/assets/geoip/*.mmdb
 
 # Docker volumnes
 /data/

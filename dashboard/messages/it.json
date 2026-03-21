@@ -1611,7 +1611,9 @@
       "pages": "Pagine",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
-      "topCountries": "Paesi principali",
+      "countries": "Paesi",
+      "regions": "Regioni",
+      "cities": "Città",
       "worldMap": "Mappa mondiale",
       "browsers": "Browser",
       "devices": "Dispositivi",
@@ -2342,6 +2344,8 @@
         "domain": "Hostname",
         "device_type": "Tipo di dispositivo",
         "country_code": "Prefisso internazionale",
+        "subdivision_code": "Regione",
+        "city": "Città",
         "browser": "Browser",
         "os": "Sistema operativo",
         "referrer_source": "Sorgente referrer",
@@ -2512,7 +2516,9 @@
     },
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
-      "visitors": "Visitatori"
+      "loading": "Caricamento mappa...",
+      "visitors": "Visitatori",
+      "regionLoadError": "Impossibile caricare i dati della regione"
     },
     "userJourney": {
       "steps": "Passaggi",

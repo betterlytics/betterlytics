@@ -5,6 +5,8 @@ export const FILTER_COLUMNS = [
   'domain',
   'device_type',
   'country_code',
+  'subdivision_code',
+  'city',
   'browser',
   'os',
   'referrer_source',

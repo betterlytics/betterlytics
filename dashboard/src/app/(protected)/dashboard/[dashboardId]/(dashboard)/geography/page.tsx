@@ -6,6 +6,7 @@ import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { getUserTimezone } from '@/lib/cookies';
 import GeographyLoading from '@/components/loading/GeographyLoading';
+import { getEnabledGeoLevels } from '@/lib/geoLevels';
 
 type GeographyPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -17,7 +18,11 @@ export default async function GeographyPage({ params, searchParams }: GeographyP
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
+  const enabledLevels = getEnabledGeoLevels();
+
+  const worldMapPromise = enabledLevels.includes('country_code')
+    ? getWorldMapDataAlpha2(dashboardId, query)
+    : Promise.resolve({ visitorData: [], compareData: [], maxVisitors: 0 });
 
   return (
     <div className='fixed inset-0 top-14 w-full'>
