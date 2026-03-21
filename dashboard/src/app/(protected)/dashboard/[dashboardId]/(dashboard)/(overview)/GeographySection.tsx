@@ -4,7 +4,7 @@ import LeafletMap from '@/components/map/LeafletMap';
 import type { getTopGeoVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
@@ -29,36 +29,47 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
 
 export default function GeographySection({ worldMapPromise, topByGeoLevel }: GeographySectionProps) {
   const worldMapData = use(worldMapPromise);
+  const countryData = use(topByGeoLevel.country_code);
+  const subdivisionData = use(topByGeoLevel.subdivision_code);
+  const cityData = use(topByGeoLevel.city);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const geoLevelTabLabels = {
-    country_code: t('tabs.countries'),
-    subdivision_code: t('tabs.regions'),
-    city: t('tabs.cities'),
-  } satisfies Record<GeoLevel, string>;
+  const resolvedByLevel = useMemo<Record<GeoLevel, Awaited<GeoTablePromise>>>(
+    () => ({
+      country_code: countryData,
+      subdivision_code: subdivisionData,
+      city: cityData,
+    }),
+    [countryData, subdivisionData, cityData],
+  );
 
-  const geoLevelTabs = GEO_LEVELS.map((level) => ({
-    level,
-    data: use(topByGeoLevel[level]),
-  })).map(({ level, data }) => ({
-    key: level,
-    label: geoLevelTabLabels[level],
-    data: data.map((item) => ({
-      label: GEO_LABEL_FORMATTERS[level](item[level], locale),
-      key: item[level],
-      value: item.current.visitors,
-      trendPercentage: item.change?.visitors,
-      comparisonValue: item.compare?.visitors,
-      icon: (
-        <FlagIcon
-          countryCode={item.current.country_code as FlagIconProps['countryCode']}
-          countryName={getCountryName(item.current.country_code, locale)}
-        />
-      ),
-    })),
-  }));
+  const geoLevelTabs = useMemo(() => {
+    const geoLevelTabLabels = {
+      country_code: t('tabs.countries'),
+      subdivision_code: t('tabs.regions'),
+      city: t('tabs.cities'),
+    } satisfies Record<GeoLevel, string>;
+
+    return GEO_LEVELS.map((level) => ({
+      key: level,
+      label: geoLevelTabLabels[level],
+      data: resolvedByLevel[level].map((item) => ({
+        label: GEO_LABEL_FORMATTERS[level](item[level], locale),
+        key: item[level],
+        value: item.current.visitors,
+        trendPercentage: item.change?.visitors,
+        comparisonValue: item.compare?.visitors,
+        icon: (
+          <FlagIcon
+            countryCode={item.current.country_code as FlagIconProps['countryCode']}
+            countryName={getCountryName(item.current.country_code, locale)}
+          />
+        ),
+      })),
+    }));
+  }, [resolvedByLevel, t, locale]);
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
