@@ -4,7 +4,7 @@ import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/servi
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
-import type { WorldMapResponse, GeoVisitor, GeoLevel } from '@/entities/analytics/geography.entities';
+import { GeoLevelSchema, type WorldMapResponse, type GeoVisitor, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -63,5 +63,5 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
 
 export const getTopGeoVisitsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery, level: GeoLevel, limit: number = 10) =>
-    fetchTopGeoVisits(ctx, query, level, limit),
+    fetchTopGeoVisits(ctx, query, GeoLevelSchema.parse(level), limit),
 );
