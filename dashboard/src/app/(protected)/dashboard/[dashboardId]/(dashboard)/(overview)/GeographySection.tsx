@@ -39,29 +39,26 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
-  const geoLevelTabs = GEO_LEVELS
-    .map((level) => ({
-      level,
-      data: use(topByGeoLevel[level]),
-    }))
-    .filter(({ data }) => data.length > 0)
-    .map(({ level, data }) => ({
-      key: level,
-      label: geoLevelTabLabels[level],
-      data: data.map((item) => ({
-        label: GEO_LABEL_FORMATTERS[level](item[level], locale),
-        key: item[level],
-        value: item.current.visitors,
-        trendPercentage: item.change?.visitors,
-        comparisonValue: item.compare?.visitors,
-        icon: (
-          <FlagIcon
-            countryCode={item.current.country_code as FlagIconProps['countryCode']}
-            countryName={getCountryName(item.current.country_code, locale)}
-          />
-        ),
-      })),
-    }));
+  const geoLevelTabs = GEO_LEVELS.map((level) => ({
+    level,
+    data: use(topByGeoLevel[level]),
+  })).map(({ level, data }) => ({
+    key: level,
+    label: geoLevelTabLabels[level],
+    data: data.map((item) => ({
+      label: GEO_LABEL_FORMATTERS[level](item[level], locale),
+      key: item[level],
+      value: item.current.visitors,
+      trendPercentage: item.change?.visitors,
+      comparisonValue: item.compare?.visitors,
+      icon: (
+        <FlagIcon
+          countryCode={item.current.country_code as FlagIconProps['countryCode']}
+          countryName={getCountryName(item.current.country_code, locale)}
+        />
+      ),
+    })),
+  }));
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
