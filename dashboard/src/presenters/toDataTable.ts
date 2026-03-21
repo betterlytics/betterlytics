@@ -1,5 +1,6 @@
 type ToDataTableProps<K extends string, D> = {
   categoryKey: K;
+  matchKeys?: string[];
   data: Array<Record<K, string> & D>;
   compare?: Array<Record<K, string> & D> | null;
 };
@@ -44,9 +45,13 @@ export type ToDataTable<K extends string, D> = Record<K, string> & {
   change?: D;
 };
 
-export function toDataTable<K extends string, D>({ categoryKey, data, compare }: ToDataTableProps<K, D>) {
+export function toDataTable<K extends string, D>({ categoryKey, matchKeys, data, compare }: ToDataTableProps<K, D>) {
+  const keysToMatch = matchKeys ?? [categoryKey];
+
   return data.map((row) => {
-    const compareRow = compare?.find((comp) => comp[categoryKey] === row[categoryKey]);
+    const compareRow = compare?.find((comp) =>
+      keysToMatch.every((key) => (comp as Record<string, unknown>)[key] === (row as Record<string, unknown>)[key]),
+    );
 
     return {
       [categoryKey]: row[categoryKey],

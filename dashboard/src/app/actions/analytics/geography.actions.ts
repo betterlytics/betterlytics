@@ -42,6 +42,7 @@ async function fetchTopGeoVisits(
     data: geoVisitors as (GeoVisitor & Record<GeoLevel, string>)[],
     compare: compareGeoVisitors as (GeoVisitor & Record<GeoLevel, string>)[] | null | undefined,
     categoryKey: level,
+    matchKeys: needsCompoundKey ? [level, 'country_code'] : undefined,
   });
 }
 
