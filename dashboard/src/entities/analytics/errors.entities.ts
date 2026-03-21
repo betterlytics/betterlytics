@@ -40,7 +40,7 @@ export const RawErrorOccurrenceRowSchema = z.object({
   session_id: z.string(),
   error_type: z.string(),
   error_message: z.string(),
-  exception_list: z.string(),
+  error_exceptions: z.string(),
 });
 
 export const StackFrameSchema = z.object({

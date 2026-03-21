@@ -30,7 +30,7 @@ export async function getErrorGroup(siteId: string, fingerprint: string): Promis
       uniq(session_id) as session_count
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint = {fingerprint:String}
     GROUP BY error_fingerprint
   `;
@@ -201,7 +201,7 @@ export async function getErrorGroupBrowserBreakdown(
       count() as count
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint = {fingerprint:String}
       AND browser != ''
     GROUP BY browser
@@ -228,7 +228,7 @@ export async function getErrorGroupDeviceTypeBreakdown(
       count() as count
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint = {fingerprint:String}
       AND device_type != ''
     GROUP BY device_type
@@ -260,7 +260,7 @@ export async function getErrorGroupDailyVolume(
       count() as count
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint = {fingerprint:String}
       AND timestamp >= now() - INTERVAL {days:UInt16} DAY
     GROUP BY toDate(timestamp) AS day
@@ -293,7 +293,7 @@ export async function getSessionTrailEvents(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND session_id = {session_id:String}
-      AND event_type IN ('pageview', 'custom', 'outbound_link', 'js_error')
+      AND event_type IN ('pageview', 'custom', 'outbound_link', 'client_error')
     ORDER BY timestamp ASC
   `;
 
@@ -327,10 +327,10 @@ export async function getErrorOccurrence(
       session_id,
       error_type,
       error_message,
-      exception_list
+      error_exceptions
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND event_type = 'js_error'
+      AND event_type = 'client_error'
       AND error_fingerprint = {fingerprint:String}
     ORDER BY timestamp DESC
     LIMIT 1

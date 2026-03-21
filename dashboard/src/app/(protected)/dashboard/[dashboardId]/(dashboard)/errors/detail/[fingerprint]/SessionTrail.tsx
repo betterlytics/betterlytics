@@ -20,7 +20,7 @@ const EVENT_ICONS: Record<string, typeof Eye> = {
   pageview: Eye,
   custom: MousePointerClick,
   outbound_link: ExternalLink,
-  js_error: AlertTriangle,
+  client_error: AlertTriangle,
 };
 
 const EVENT_COLORS: Record<string, Record<string, string>> = {
@@ -28,13 +28,13 @@ const EVENT_COLORS: Record<string, Record<string, string>> = {
     pageview: '#0ea5e9',
     custom: '#8b5cf6',
     outbound_link: '#f97316',
-    js_error: '#ef4444',
+    client_error: '#ef4444',
   },
   dark: {
     pageview: '#38bdf8',
     custom: '#a78bfa',
     outbound_link: '#fb923c',
-    js_error: '#f87171',
+    client_error: '#f87171',
   },
 };
 
@@ -107,7 +107,7 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
           {groups.map(({ event, count, label }, i) => {
             const Icon = EVENT_ICONS[event.event_type] ?? Eye;
             const color = EVENT_COLORS[theme][event.event_type] ?? EVENT_COLORS[theme].pageview;
-            const isCurrent = event.event_type === 'js_error' && event.error_fingerprint === currentFingerprint;
+            const isCurrent = event.event_type === 'client_error' && event.error_fingerprint === currentFingerprint;
             const isLast = i === groups.length - 1;
 
             return (

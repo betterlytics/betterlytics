@@ -34,7 +34,7 @@ export async function findReplaySessionForError(
       SELECT DISTINCT session_id
       FROM analytics.events
       WHERE site_id = {site_id:String}
-        AND event_type = 'js_error'
+        AND event_type = 'client_error'
         AND error_fingerprint = {fingerprint:String}
     ) AS e ON r.session_id = e.session_id
     WHERE r.site_id = {site_id:String}

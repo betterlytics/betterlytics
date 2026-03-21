@@ -74,7 +74,7 @@ export async function getErrorOccurrenceForSite(
   let mechanism = '';
   let frames: StackFrame[] = [];
   try {
-    const exceptions = JSON.parse(raw.exception_list);
+    const exceptions = JSON.parse(raw.error_exceptions);
     const ex = exceptions?.[0];
     mechanism = ex?.mechanism ?? '';
     frames = ex?.stack ? parseStackTrace(ex.stack) : [];
@@ -113,7 +113,7 @@ function getSessionTrailEventLabel(event: SessionTrailEvent): string {
       return event.custom_event_name;
     case 'outbound_link':
       return event.outbound_link_url;
-    case 'js_error':
+    case 'client_error':
       return `${event.error_type}: ${event.error_message}`;
     default:
       return event.event_type;
