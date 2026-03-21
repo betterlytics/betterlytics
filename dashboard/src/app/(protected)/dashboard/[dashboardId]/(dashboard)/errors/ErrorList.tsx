@@ -12,17 +12,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import {
-  Search,
-  ArrowUp,
-  ArrowDown,
-  RefreshCw,
-  MoreHorizontal,
-  CheckCircle,
-  EyeOff,
-  RotateCcw,
-  ChevronDown,
-} from 'lucide-react';
+import { Search, ArrowUp, ArrowDown, RefreshCw, MoreHorizontal, CheckCircle, EyeOff, RotateCcw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -35,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ErrorStatusActions } from './ErrorStatusActions';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
@@ -136,40 +127,14 @@ function ErrorToolbar({
       </div>
       <div className='ml-auto flex items-center gap-2'>
         {hasSelection && <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>}
-        <div className='flex'>
-          <Button
-            variant='outline'
-            size='sm'
-            className='cursor-pointer rounded-r-none border-r-0'
-            disabled={!canResolve}
-            onClick={onResolve}
-          >
-            <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
-            Resolve
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant='outline'
-                size='sm'
-                className='cursor-pointer rounded-l-none px-1.5'
-                disabled={!hasSelection}
-              >
-                <ChevronDown className='h-3.5 w-3.5' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem className='cursor-pointer' disabled={!canIgnore} onClick={onIgnore}>
-                <EyeOff className='mr-2 h-4 w-4' />
-                Ignore
-              </DropdownMenuItem>
-              <DropdownMenuItem className='cursor-pointer' disabled={!canUnresolve} onClick={onUnresolve}>
-                <RotateCcw className='mr-2 h-4 w-4' />
-                Unresolve
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <ErrorStatusActions
+          canResolve={canResolve}
+          canIgnore={canIgnore}
+          canUnresolve={canUnresolve}
+          onResolve={onResolve}
+          onIgnore={onIgnore}
+          onUnresolve={onUnresolve}
+        />
         <Button
           variant='outline'
           size='sm'
