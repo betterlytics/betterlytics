@@ -4,18 +4,18 @@ import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/servi
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
-import { GeoLevelSchema, type WorldMapResponse, type GeoVisitor, type GeoLevel } from '@/entities/analytics/geography.entities';
+import {
+  GeoLevelSchema,
+  type WorldMapResponse,
+  type GeoVisitor,
+  type GeoLevel,
+} from '@/entities/analytics/geography.entities';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
 
-async function fetchTopGeoVisits(
-  ctx: AuthContext,
-  query: BAAnalyticsQuery,
-  level: GeoLevel,
-  limit: number,
-) {
+async function fetchTopGeoVisits(ctx: AuthContext, query: BAAnalyticsQuery, level: GeoLevel, limit: number) {
   const enabledLevels = getEnabledGeoLevels();
 
   if (!enabledLevels.includes(level)) {
@@ -26,23 +26,24 @@ async function fetchTopGeoVisits(
 
   const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit);
 
-  const needsCompoundKey = level === 'city' || level === 'subdivision_code';
-  const topKeys = needsCompoundKey
-    ? geoVisitors
-        .map((r) => [r[level], r.country_code] as [string, string])
-        .filter(([key, cc]) => key && cc)
-    : geoVisitors.map((r) => r[level]).filter(Boolean) as string[];
+  const compoundKey: GeoLevel[] =
+    level === 'country_code'
+      ? [level]
+      : level === 'subdivision_code'
+        ? [level, 'country_code']
+        : [level, 'subdivision_code', 'country_code'];
+
+  const topKeys = geoVisitors
+    .map((r) => compoundKey.map((k) => r[k]))
+    .filter((v) => v.reduce((acc, curr) => acc && Boolean(curr), true)) as Array<string>[];
 
   const compareGeoVisitors =
-    compare && topKeys.length > 0
-      ? await fetchCompareVisitorsByGeoLevel(compare, level, topKeys)
-      : undefined;
+    compare && topKeys.length > 0 ? await fetchCompareVisitorsByGeoLevel(compare, level, topKeys) : undefined;
 
   return toDataTable({
     data: geoVisitors as (GeoVisitor & Record<GeoLevel, string>)[],
     compare: compareGeoVisitors as (GeoVisitor & Record<GeoLevel, string>)[] | null | undefined,
-    categoryKey: level,
-    matchKeys: needsCompoundKey ? [level, 'country_code'] : undefined,
+    categoryKey: compoundKey,
   });
 }
 
