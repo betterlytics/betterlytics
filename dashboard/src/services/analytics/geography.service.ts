@@ -29,14 +29,14 @@ export async function fetchVisitorsByGeoLevel(
 export async function fetchCompareVisitorsByGeoLevel(
   siteQuery: BASiteQuery,
   level: GeoLevel,
-  keys: string[],
+  keys: string[] | [string, string][],
 ): Promise<GeoVisitor[]> {
   switch (level) {
     case 'country_code':
-      return getCompareVisitorsByCountry(siteQuery, keys);
+      return getCompareVisitorsByCountry(siteQuery, keys as string[]);
     case 'subdivision_code':
-      return getCompareVisitorsBySubdivision(siteQuery, keys);
+      return getCompareVisitorsBySubdivision(siteQuery, keys as [string, string][]);
     case 'city':
-      return getCompareVisitorsByCity(siteQuery, keys);
+      return getCompareVisitorsByCity(siteQuery, keys as [string, string][]);
   }
 }

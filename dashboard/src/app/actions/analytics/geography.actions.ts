@@ -25,7 +25,13 @@ async function fetchTopGeoVisits(
   const { main, compare } = toSiteQuery(ctx.siteId, query);
 
   const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit);
-  const topKeys = geoVisitors.map((r) => r[level]).filter(Boolean) as string[];
+
+  const needsCompoundKey = level === 'city' || level === 'subdivision_code';
+  const topKeys = needsCompoundKey
+    ? geoVisitors
+        .map((r) => [r[level], r.country_code] as [string, string])
+        .filter(([key, cc]) => key && cc)
+    : geoVisitors.map((r) => r[level]).filter(Boolean) as string[];
 
   const compareGeoVisitors =
     compare && topKeys.length > 0

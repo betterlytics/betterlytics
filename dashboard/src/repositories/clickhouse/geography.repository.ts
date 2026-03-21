@@ -171,7 +171,7 @@ export async function getCompareVisitorsByCountry(
 
 export async function getCompareVisitorsBySubdivision(
   siteQuery: BASiteQuery,
-  keys: string[],
+  keys: [string, string][],
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -184,7 +184,7 @@ export async function getCompareVisitorsBySubdivision(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND subdivision_code IN {keys:Array(String)}
+      AND (subdivision_code, country_code) IN {keys:Array(Tuple(String, String))}
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
     ORDER BY visitors DESC
@@ -213,7 +213,7 @@ export async function getCompareVisitorsBySubdivision(
 
 export async function getCompareVisitorsByCity(
   siteQuery: BASiteQuery,
-  keys: string[],
+  keys: [string, string][],
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -226,7 +226,7 @@ export async function getCompareVisitorsByCity(
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND city IN {keys:Array(String)}
+      AND (city, country_code) IN {keys:Array(Tuple(String, String))}
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
     ORDER BY visitors DESC
