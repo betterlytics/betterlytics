@@ -78,13 +78,15 @@ impl Config {
         let geo_enabled = env::var("ENABLE_GEOLOCATION")
             .map(|val| val.to_lowercase() == "true")
             .unwrap_or(false);
-        let geo_subdivision = env::var("ENABLE_GEOSUBDIVISION")
-            .map(|val| val.to_lowercase() == "true")
-            .unwrap_or(false);
-        let geolocation_mode = match (geo_enabled, geo_subdivision) {
-            (true, true) => GeolocationMode::Subdivisions,
-            (true, false) => GeolocationMode::Countries,
-            _ => GeolocationMode::Disabled,
+        let geo_mode = env::var("GEOLOCATION_MODE")
+            .unwrap_or_else(|_| "country".to_string())
+            .to_lowercase();
+        let geolocation_mode = if !geo_enabled {
+            GeolocationMode::Disabled
+        } else if geo_mode == "full" {
+            GeolocationMode::Subdivisions
+        } else {
+            GeolocationMode::Countries
         };
 
         Config {
