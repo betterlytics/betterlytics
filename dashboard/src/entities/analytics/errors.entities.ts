@@ -9,7 +9,7 @@ export const ErrorGroupRowSchema = z.object({
   error_message: z.string(),
   count: z.number().int().min(0),
   first_seen: z.date().optional(),
-  last_seen: z.date(),
+  last_seen: z.date().optional(),
   session_count: z.number().int().min(0),
   status: ErrorGroupStatusValueSchema.default('unresolved'),
 });

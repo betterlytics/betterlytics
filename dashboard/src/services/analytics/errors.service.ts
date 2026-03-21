@@ -4,7 +4,8 @@ import {
   hasAnyErrors,
   getErrorGroups,
   getErrorGroupVolumes,
-  getGlobalErrorGroupFirstSeen,
+  getErrorGroupTimestamps,
+  type ErrorGroupTimestamps,
 } from '@/repositories/clickhouse/errors.repository';
 import {
   ErrorGroupRow,
@@ -54,8 +55,11 @@ export async function bulkUpsertErrorGroupForSite(
   return bulkUpsertErrorGroup(dashboardId, fingerprints, status);
 }
 
-export async function getGlobalErrorGroupFirstSeenForSite(siteId: string): Promise<Record<string, Date>> {
-  return getGlobalErrorGroupFirstSeen(siteId);
+export async function getErrorGroupTimestampsForSite(
+  siteId: string,
+  fingerprints: string[],
+): Promise<ErrorGroupTimestamps> {
+  return getErrorGroupTimestamps(siteId, fingerprints);
 }
 
 export async function getErrorGroupVolumesForSite(

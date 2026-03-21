@@ -4,7 +4,7 @@ import {
   hasAnyErrorsForSite,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
-  getGlobalErrorGroupFirstSeenForSite,
+  getErrorGroupTimestampsForSite,
   upsertErrorGroupForSite,
   bulkUpsertErrorGroupForSite,
 } from '@/services/analytics/errors.service';
@@ -27,16 +27,24 @@ export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
     const { main } = toSiteQuery(ctx.siteId, query);
 
-    const [hasAnyErrors, errorGroups, firstSeenMap] = await Promise.all([
+    const [hasAnyErrors, errorGroups] = await Promise.all([
       hasAnyErrorsForSite(ctx.siteId),
       getErrorGroupsForSite(main, ctx.dashboardId),
-      getGlobalErrorGroupFirstSeenForSite(ctx.siteId),
     ]);
 
-    const enrichedGroups = errorGroups.map((g) => ({ ...g, first_seen: firstSeenMap[g.error_fingerprint] }));
+    const fingerprints = errorGroups.map((g) => g.error_fingerprint);
+    const initialFingerprints = fingerprints.slice(0, INITIAL_PAGE_SIZE);
 
-    const initialFingerprints = enrichedGroups.slice(0, INITIAL_PAGE_SIZE).map((g) => g.error_fingerprint);
-    const initialVolumeRows = await getErrorGroupVolumesForSite(main, initialFingerprints);
+    const [{ firstSeenMap, lastSeenMap }, initialVolumeRows] = await Promise.all([
+      getErrorGroupTimestampsForSite(ctx.siteId, fingerprints),
+      getErrorGroupVolumesForSite(main, initialFingerprints),
+    ]);
+
+    const enrichedGroups = errorGroups.map((g) => ({
+      ...g,
+      first_seen: firstSeenMap[g.error_fingerprint],
+      last_seen: lastSeenMap[g.error_fingerprint],
+    }));
 
     const initialVolumeMap = toGroupedTimeSeries({
       groupKey: 'error_fingerprint',

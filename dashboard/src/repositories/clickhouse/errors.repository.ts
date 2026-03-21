@@ -39,7 +39,6 @@ export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroup
       any(error_type) as error_type,
       any(error_message) as error_message,
       count() as count,
-      max(timestamp) as last_seen,
       uniq(session_id) as session_count
     FROM analytics.events
     WHERE site_id = {site_id:String}
@@ -62,33 +61,46 @@ export async function getErrorGroups(siteQuery: BASiteQuery): Promise<ErrorGroup
     })
     .toPromise()) as any[];
 
-  return result.map((row) =>
-    ErrorGroupRowSchema.parse({
-      ...row,
-      last_seen: parseClickHouseDate(row.last_seen),
-    }),
-  );
+  return result.map((row) => ErrorGroupRowSchema.parse(row));
 }
 
-export async function getGlobalErrorGroupFirstSeen(siteId: string): Promise<Record<string, Date>> {
+export type ErrorGroupTimestamps = {
+  firstSeenMap: Record<string, Date>;
+  lastSeenMap: Record<string, Date>;
+};
+
+export async function getErrorGroupTimestamps(
+  siteId: string,
+  fingerprints: string[],
+): Promise<ErrorGroupTimestamps> {
+  if (fingerprints.length === 0) return { firstSeenMap: {}, lastSeenMap: {} };
+
   const query = safeSql`
     SELECT
       error_fingerprint,
-      min(timestamp) as first_seen
+      min(timestamp) as first_seen,
+      max(timestamp) as last_seen
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND event_type = 'client_error'
-      AND error_fingerprint != ''
+      AND error_fingerprint IN ({fingerprints:Array(String)})
     GROUP BY error_fingerprint
   `;
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId },
+      params: { ...query.taggedParams, site_id: siteId, fingerprints },
     })
     .toPromise()) as any[];
 
-  return Object.fromEntries(result.map((row) => [row.error_fingerprint, parseClickHouseDate(row.first_seen)]));
+  const firstSeenMap: Record<string, Date> = {};
+  const lastSeenMap: Record<string, Date> = {};
+  for (const row of result) {
+    firstSeenMap[row.error_fingerprint] = parseClickHouseDate(row.first_seen);
+    lastSeenMap[row.error_fingerprint] = parseClickHouseDate(row.last_seen);
+  }
+
+  return { firstSeenMap, lastSeenMap };
 }
 
 export async function getErrorGroupVolumes(
