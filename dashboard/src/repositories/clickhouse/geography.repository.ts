@@ -93,6 +93,7 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
   const query = safeSql`
     SELECT
       city AS code,
+      subdivision_code,
       country_code,
       uniq(visitor_id) as visitors
     FROM analytics.events
@@ -100,7 +101,7 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND city != ''
       AND ${SQL.AND(filters)}
-    GROUP BY code, country_code
+    GROUP BY code, subdivision_code, country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
   `;
@@ -120,6 +121,7 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
   return result.map((row) =>
     GeoVisitorSchema.parse({
       country_code: row.country_code,
+      subdivision_code: row.subdivision_code,
       city: row.code,
       visitors: Number(row.visitors),
     }),
@@ -219,6 +221,7 @@ export async function getCompareVisitorsByCity(
   const query = safeSql`
     SELECT
       city AS code,
+      subdivision_code,
       country_code,
       uniq(visitor_id) as visitors
     FROM analytics.events
@@ -226,7 +229,7 @@ export async function getCompareVisitorsByCity(
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND (coalesce(city, ''), coalesce(subdivision_code, ''), coalesce(country_code, '')) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_subdivisions:Array(String)}, {keys_countries:Array(String)})))
       AND ${SQL.AND(filters)}
-    GROUP BY code, country_code
+    GROUP BY code, subdivision_code, country_code
     ORDER BY visitors DESC
   `;
 
@@ -247,6 +250,7 @@ export async function getCompareVisitorsByCity(
   return result.map((row) =>
     GeoVisitorSchema.parse({
       country_code: row.country_code,
+      subdivision_code: row.subdivision_code,
       city: row.code,
       visitors: Number(row.visitors),
     }),
