@@ -7,6 +7,7 @@ import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
+import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { useTranslations } from 'next-intl';
 import NextLink from 'next/link';
 
@@ -59,19 +60,26 @@ export default function PublicTopBar() {
               </Link>
             </nav>
 
-            <div className='flex items-center'>
+            <div className='ml-6 flex items-center gap-6'>
+              <ExternalLink
+                href='https://github.com/betterlytics/betterlytics'
+                className='text-muted-foreground hover:text-foreground transition-colors'
+                title='GitHub'
+              >
+                <GitHubIcon className='h-5 w-5' />
+              </ExternalLink>
               {status === 'loading' ? (
-                <div className='ml-4 flex items-center space-x-2'>
+                <div className='flex items-center space-x-2'>
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
               ) : session ? (
-                <NextLink href='/dashboards' className='ml-6'>
+                <NextLink href='/dashboards'>
                   <Button variant='default' className='cursor-pointer'>
                     {t('goToDashboard')}
                   </Button>
                 </NextLink>
               ) : !isOnAuthPage ? (
-                <div className='ml-8 flex items-center space-x-2'>
+                <div className='flex items-center space-x-2'>
                   <Link href='/signin'>
                     <Button variant='outline' className='cursor-pointer'>
                       {t('login')}
@@ -118,6 +126,15 @@ export default function PublicTopBar() {
                 title={t('documentation')}
               >
                 {t('documentation')}
+              </ExternalLink>
+              <ExternalLink
+                href='https://github.com/betterlytics/betterlytics'
+                onClick={closeMobileMenu}
+                className='text-foreground hover:text-foreground flex items-center text-sm font-medium transition-colors'
+                title='GitHub'
+              >
+                <GitHubIcon className='mr-2 h-4 w-4' />
+                GitHub
               </ExternalLink>
 
               <div className='border-t pt-3'>
