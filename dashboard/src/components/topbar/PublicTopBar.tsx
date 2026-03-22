@@ -65,6 +65,8 @@ export default function PublicTopBar() {
                 href='https://github.com/betterlytics/betterlytics'
                 className='text-muted-foreground hover:text-foreground transition-colors'
                 title='GitHub'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 <GitHubIcon className='h-5 w-5' />
               </ExternalLink>
@@ -132,6 +134,8 @@ export default function PublicTopBar() {
                 onClick={closeMobileMenu}
                 className='text-foreground hover:text-foreground flex items-center text-sm font-medium transition-colors'
                 title='GitHub'
+                target='_blank'
+                rel='noopener noreferrer'
               >
                 <GitHubIcon className='mr-2 h-4 w-4' />
                 GitHub
