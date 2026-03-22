@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
     url String,
     device_type LowCardinality(String),
     country_code LowCardinality(Nullable(String)),
+    subdivision_code LowCardinality(String) DEFAULT '', 
+    city LowCardinality(String) DEFAULT '',
     timestamp DateTime,
     date Date DEFAULT toDate(timestamp),
     browser LowCardinality(String) DEFAULT '',
@@ -42,6 +44,8 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
     INDEX session_idx session_id TYPE bloom_filter GRANULARITY 3,
     INDEX url_idx url TYPE bloom_filter GRANULARITY 3,
     INDEX country_code_idx country_code TYPE bloom_filter GRANULARITY 3,
+    INDEX subdivision_code_idx subdivision_code TYPE bloom_filter GRANULARITY 3,
+    INDEX city_idx city TYPE bloom_filter GRANULARITY 3,
     INDEX browser_idx browser TYPE bloom_filter GRANULARITY 3,
     INDEX browser_version_idx browser_version TYPE bloom_filter GRANULARITY 3,
     INDEX os_idx os TYPE bloom_filter GRANULARITY 3,
@@ -69,7 +73,7 @@ SET send_progress_in_http_headers = 1;
 SET http_headers_progress_interval_ms = 30000;
 
 INSERT INTO analytics.events_new (
-    site_id, visitor_id, session_id, domain, url, device_type, country_code,
+    site_id, visitor_id, session_id, domain, url, device_type, country_code, subdivision_code, city,
     timestamp, date, browser, browser_version, os, os_version,
     referrer_source, referrer_source_name, referrer_search_term, referrer_url,
     utm_source, utm_medium, utm_campaign, utm_term, utm_content,
@@ -78,7 +82,8 @@ INSERT INTO analytics.events_new (
     scroll_depth_percentage, scroll_depth_pixels
 )
 SELECT
-    site_id, reinterpretAsUInt64(reverse(unhex(substring(visitor_id, 1, 16)))) as visitor_id, session_id, domain, url, device_type, country_code,
+    site_id, reinterpretAsUInt64(reverse(unhex(substring(visitor_id, 1, 16)))) as visitor_id, session_id, domain, url,
+    device_type, country_code, subdivision_code, city,
     timestamp, date, browser, browser_version, os, os_version,
     referrer_source, referrer_source_name, referrer_search_term, referrer_url,
     utm_source, utm_medium, utm_campaign, utm_term, utm_content,
