@@ -2,36 +2,45 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.7',
-    releasedAt: '2026-03-08',
-    title: 'Server MCP, raggruppamento referrer migliorato e log delle notifiche',
+    version: 'v1.3.8',
+    releasedAt: '2026-03-22',
+    title: 'Geolocalizzazione per città e regione, miglioramenti delle prestazioni e correzioni',
     summary:
-      'Interroga i tuoi dati analitici direttamente dagli agenti AI con il nuovo server MCP. Le sorgenti referrer sono ora raggruppate in modo più accurato ed espandibili nella panoramica. Le integrazioni mostrano ora un log completo di consegna delle notifiche e la formattazione dei numeri è stata migliorata in tutta la dashboard.',
+      'La posizione dei visitatori è ora disponibile a livello di città e regione. Le dashboard con molto traffico si caricano più velocemente grazie ai miglioramenti delle prestazioni. È stato corretto un bug che impediva il caricamento della pagina di monitoraggio uptime per alcuni fusi orari.',
   },
   sections: [
     {
-      id: 'v137-new-features',
+      id: 'v138-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Aggiunto un server MCP (Model Context Protocol) che ti permette di connettere i tuoi dati analitici ad assistenti e agenti AI. Ora puoi chiedere alla tua AI di recuperare statistiche sul traffico, esplorare i percorsi utente o analizzare i funnel — e combinare queste informazioni con altro contesto, come la tua codebase.',
-            'Le integrazioni includono ora un log di consegna delle notifiche, così puoi vedere esattamente quali notifiche sono state inviate, quando sono state consegnate e se qualcuna ha fallito — inclusa la causa in caso di errore.',
+            'La geolocalizzazione include ora il livello di città e regione, offrendo un quadro più dettagliato della provenienza dei tuoi visitatori.',
           ],
         },
       ],
     },
     {
-      id: 'v137-improvements',
+      id: 'v138-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Le sorgenti referrer nella tabella panoramica sono ora espandibili, permettendoti di vedere subito il dettaglio dietro ogni fonte di traffico.',
-            'Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un\'unica fonte.',
-            'I numeri in tutta la dashboard sono ora formattati in modo coerente in base alla tua lingua e regione.',
+            'Migliorate le prestazioni per le dashboard con grandi volumi di dati, riducendo i tempi di caricamento per i siti ad alto traffico.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v138-bug-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Corretto un problema nella pagina di monitoraggio uptime che ne impediva il caricamento per alcuni fusi orari.',
           ],
         },
       ],
@@ -40,6 +49,53 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.8',
+      releasedAt: '2026-03-22',
+      title: 'Geolocalizzazione per città e regione, miglioramenti delle prestazioni e correzioni',
+      summary:
+        'La posizione dei visitatori è ora disponibile a livello di città e regione. Le dashboard con molto traffico si caricano più velocemente grazie ai miglioramenti delle prestazioni. È stato corretto un bug che impediva il caricamento della pagina di monitoraggio uptime per alcuni fusi orari.',
+    },
+    sections: [
+      {
+        id: 'v138-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La geolocalizzazione include ora il livello di città e regione, offrendo un quadro più dettagliato della provenienza dei tuoi visitatori.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Migliorate le prestazioni per le dashboard con grandi volumi di dati, riducendo i tempi di caricamento per i siti ad alto traffico.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-bug-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Corretto un problema nella pagina di monitoraggio uptime che ne impediva il caricamento per alcuni fusi orari.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.7',

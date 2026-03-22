@@ -2,36 +2,45 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.7',
-    releasedAt: '2026-03-08',
-    title: 'MCP-server, smartere referrergruppering og notifikationslogger',
+    version: 'v1.3.8',
+    releasedAt: '2026-03-22',
+    title: 'By- og regiongeolokation, forbedret ydeevne og fejlrettelser',
     summary:
-      'Forespørg dine analysedata direkte fra AI-agenter med den nye MCP-server. Referrerkilder er nu grupperet mere præcist og kan udvides i oversigten. Integrationer viser nu en komplet leveringslog for notifikationer, og talformatering er forbedret på tværs af dashboardet.',
+      'Besøgendes placering vises nu på by- og regionniveau. Store dashboards loader hurtigere takket være forbedringer af ydeevnen. En fejl, der forhindrede uptime-monitoreringssiden i at loade for visse tidszoner, er nu rettet.',
   },
   sections: [
     {
-      id: 'v137-new-features',
+      id: 'v138-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Tilføjet en MCP-server (Model Context Protocol), der lader dig forbinde dine analysedata til AI-assistenter og -agenter. Du kan nu bede din AI om at hente trafikstatistik, udforske User Journeys eller analysere funnels — og kombinere disse indsigter med anden kontekst, f.eks. din egen kodebase.',
-            'Integrationer inkluderer nu en notifikationsleveringslog, så du kan se præcis hvilke notifikationer der blev sendt, hvornår de blev leveret, og om nogen fejlede — herunder årsagen hvis noget gik galt.',
+            'Geolokation inkluderer nu by- og regionniveau, så du får et mere detaljeret billede af, hvor dine besøgende kommer fra.',
           ],
         },
       ],
     },
     {
-      id: 'v137-improvements',
+      id: 'v138-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Referrerkilder i oversigtstabellen kan nu udvides, så du med ét blik kan se fordelingen bag hver trafikkilde.',
-            'Referrergruppering er forbedret, så trafik fra forskellige subdomæner på samme site nu korrekt slås sammen under én kilde.',
-            'Tal på tværs af dashboardet er nu konsekvent formateret i henhold til din region.',
+            'Forbedret ydeevne for store dashboards, hvilket reducerer indlæsningstider for sites med meget trafik.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v138-bug-fixes',
+      title: 'Fejlrettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet en fejl på uptime-monitoreringssiden, der forhindrede den i at loade for visse tidszoner.',
           ],
         },
       ],
@@ -40,6 +49,53 @@ export const latestChangelogModalDa: ChangelogEntryData = {
 };
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.8',
+      releasedAt: '2026-03-22',
+      title: 'By- og regiongeolokation, forbedret ydeevne og fejlrettelser',
+      summary:
+        'Besøgendes placering vises nu på by- og regionniveau. Store dashboards loader hurtigere takket være forbedringer af ydeevnen. En fejl, der forhindrede uptime-monitoreringssiden i at loade for visse tidszoner, er nu rettet.',
+    },
+    sections: [
+      {
+        id: 'v138-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Geolokation inkluderer nu by- og regionniveau, så du får et mere detaljeret billede af, hvor dine besøgende kommer fra.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Forbedret ydeevne for store dashboards, hvilket reducerer indlæsningstider for sites med meget trafik.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-bug-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet en fejl på uptime-monitoreringssiden, der forhindrede den i at loade for visse tidszoner.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.7',

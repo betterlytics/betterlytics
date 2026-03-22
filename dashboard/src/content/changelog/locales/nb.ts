@@ -2,36 +2,45 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.7',
-    releasedAt: '2026-03-08',
-    title: 'MCP-server, smartere referrergruppering og varsellogger',
+    version: 'v1.3.8',
+    releasedAt: '2026-03-22',
+    title: 'By- og regiongeolokasjon, ytelsesforbedringer og feilrettinger',
     summary:
-      'Spørr analysedata direkte fra AI-agenter med den nye MCP-serveren. Referrerkilder grupperes nå mer nøyaktig og kan utvides i oversikten. Integrasjoner viser nå en komplett leveringslogg for varsler, og tallformatering er forbedret i hele dashbordet.',
+      'Besøkendes plassering vises nå på by- og regionnivå. Store dashbord laster raskere takket være ytelsesforbedringer. En feil som hindret uptime-overvåkingssiden fra å laste for enkelte tidssoner, er nå rettet.',
   },
   sections: [
     {
-      id: 'v137-new-features',
+      id: 'v138-new-features',
       title: 'Nye funksjoner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Lagt til en MCP-server (Model Context Protocol) som lar deg koble analysedata til AI-assistenter og -agenter. Du kan nå be AI-en din hente trafikkstatistikk, utforske brukerreiser eller analysere trakter — og kombinere disse innsiktene med annen kontekst, som din egen kodebase.',
-            'Integrasjoner inkluderer nå en leveringslogg for varsler, slik at du kan se nøyaktig hvilke varsler som ble sendt, når de ble levert, og om noen mislyktes.',
+            'Geolokasjon inkluderer nå by- og regionnivå, slik at du får et mer detaljert bilde av hvor besøkende kommer fra.',
           ],
         },
       ],
     },
     {
-      id: 'v137-improvements',
+      id: 'v138-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Referrerkilder i oversiktstabellen kan nå utvides, slik at du raskt kan se fordelingen bak hver trafikkilde.',
-            'Referrergruppering er forbedret slik at trafikk fra ulike underdomener av samme nettsted slås korrekt sammen under én kilde.',
-            'Tall i hele dashbordet er nå konsekvent formatert i henhold til din region.',
+            'Forbedret ytelse for store dashbord, noe som reduserer lastetider for nettsteder med mye trafikk.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v138-bug-fixes',
+      title: 'Feilrettinger',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet en feil på uptime-overvåkingssiden som hindret den fra å laste for enkelte tidssoner.',
           ],
         },
       ],
@@ -40,6 +49,53 @@ export const latestChangelogModalNb: ChangelogEntryData = {
 };
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.8',
+      releasedAt: '2026-03-22',
+      title: 'By- og regiongeolokasjon, ytelsesforbedringer og feilrettinger',
+      summary:
+        'Besøkendes plassering vises nå på by- og regionnivå. Store dashbord laster raskere takket være ytelsesforbedringer. En feil som hindret uptime-overvåkingssiden fra å laste for enkelte tidssoner, er nå rettet.',
+    },
+    sections: [
+      {
+        id: 'v138-new-features',
+        title: 'Nye funksjoner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Geolokasjon inkluderer nå by- og regionnivå, slik at du får et mer detaljert bilde av hvor besøkende kommer fra.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Forbedret ytelse for store dashbord, noe som reduserer lastetider for nettsteder med mye trafikk.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-bug-fixes',
+        title: 'Feilrettinger',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet en feil på uptime-overvåkingssiden som hindret den fra å laste for enkelte tidssoner.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.7',
