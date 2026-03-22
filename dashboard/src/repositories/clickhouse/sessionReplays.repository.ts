@@ -28,17 +28,11 @@ export async function findReplaySessionForError(
   fingerprint: string,
 ): Promise<string | null> {
   const query = safeSql`
-    SELECT r.session_id
-    FROM analytics.session_replays AS r FINAL
-    INNER JOIN (
-      SELECT DISTINCT session_id
-      FROM analytics.events
-      WHERE site_id = {site_id:String}
-        AND event_type = 'client_error'
-        AND error_fingerprint = {fingerprint:String}
-    ) AS e ON r.session_id = e.session_id
-    WHERE r.site_id = {site_id:String}
-    ORDER BY r.started_at DESC
+    SELECT session_id
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND has(error_fingerprints, {fingerprint:String})
+    ORDER BY started_at DESC
     LIMIT 1
   `;
 

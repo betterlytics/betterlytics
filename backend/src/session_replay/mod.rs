@@ -19,6 +19,7 @@ use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::EventValidator;
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
+use crate::error_fingerprint::generate_error_fingerprint;
 
 #[derive(Clone)]
 pub struct FinalizeMeta {
@@ -27,6 +28,7 @@ pub struct FinalizeMeta {
     pub size_bytes: u64,
     pub start_url: String,
     pub event_count: u32,
+    pub error_fingerprints: Vec<String>,
 }
 
 static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
@@ -127,6 +129,8 @@ pub struct FinalizeRequest {
     pub size_bytes: u64,
     pub start_url: Option<String>,
     pub event_count: Option<u32>,
+    pub error_type: Option<String>,
+    pub error_exceptions: Option<String>,
 }
 
 pub async fn finalize_session_replay(
@@ -154,6 +158,7 @@ pub async fn finalize_session_replay(
             size_bytes: 0,
             start_url: normalized_start_url.clone(),
             event_count: 0,
+            error_fingerprints: Vec::new(),
         }
     };
 
@@ -163,6 +168,13 @@ pub async fn finalize_session_replay(
     meta.event_count = meta.event_count.saturating_add(req.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
         meta.start_url = normalized_start_url.clone();
+    }
+
+    if let (Some(error_type), Some(error_exceptions)) = (&req.error_type, &req.error_exceptions) {
+        let fp = generate_error_fingerprint(error_type, error_exceptions);
+        if !fp.is_empty() && !meta.error_fingerprints.contains(&fp) {
+            meta.error_fingerprints.push(fp);
+        }
     }
 
     let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
@@ -181,6 +193,7 @@ pub async fn finalize_session_replay(
         event_count: meta.event_count,
         s3_prefix,
         start_url: meta.start_url.clone(),
+        error_fingerprints: meta.error_fingerprints.clone(),
     };
 
     db.upsert_session_replay(row).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
