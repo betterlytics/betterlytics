@@ -13,12 +13,14 @@ import { useTranslations } from 'next-intl';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
+  Building2Icon,
   CableIcon,
   CompassIcon,
   EarthIcon,
   ExternalLinkIcon,
   FileTextIcon,
   GlobeIcon,
+  MapPinIcon,
   MonitorSmartphoneIcon,
   ShellIcon,
   SquareMousePointerIcon,
@@ -53,7 +55,6 @@ export function QueryFilterInputRow<TEntity>({
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
   const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
-
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
     if (filter.column !== filterColumnRef.current) {
@@ -140,6 +141,8 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'domain', icon: <GlobeIcon />, label: 'Hostname' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
   { value: 'country_code', icon: <EarthIcon />, label: 'Country code' },
+  { value: 'subdivision_code', icon: <MapPinIcon />, label: 'Region' },
+  { value: 'city', icon: <Building2Icon />, label: 'City' },
   { value: 'browser', icon: <CompassIcon />, label: 'Browser' },
   { value: 'os', icon: <MonitorSmartphoneIcon />, label: 'Operating system' },
   { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },

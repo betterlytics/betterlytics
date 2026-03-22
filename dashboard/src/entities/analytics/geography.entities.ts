@@ -1,8 +1,14 @@
 import { z } from 'zod';
 
+export const GEO_LEVELS = ['country_code', 'subdivision_code', 'city'] as const;
+export const GeoLevelSchema = z.enum(GEO_LEVELS);
+export type GeoLevel = z.infer<typeof GeoLevelSchema>;
+
 export const GeoVisitorSchema = z.object({
   country_code: z.string(),
   visitors: z.preprocess((val) => Number(val), z.number()),
+  subdivision_code: z.string().optional(),
+  city: z.string().optional(),
 });
 
 export const worldMapResponseSchema = z.object({
@@ -17,3 +23,4 @@ export type WorldMapResponse = z.infer<typeof worldMapResponseSchema>;
 export type GeoVisitorWithCompare = GeoVisitor & {
   compareVisitors?: number;
 };
+

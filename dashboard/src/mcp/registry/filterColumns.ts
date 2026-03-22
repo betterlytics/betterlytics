@@ -5,6 +5,8 @@ const FILTER_COLUMN_DESCRIPTIONS: Record<FilterColumn, string> = {
   domain: 'Site domain',
   device_type: 'Device type (desktop, mobile, tablet)',
   country_code: 'Two-letter ISO country code',
+  subdivision_code: 'ISO 3166-2 subdivision (state/province) code',
+  city: 'City name',
   browser: 'Browser name',
   os: 'Operating system',
   referrer_source: 'Traffic source type (e.g. search, social, direct)',

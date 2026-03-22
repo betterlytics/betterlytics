@@ -52,7 +52,7 @@ pnpm simulate $SITE_ID
 
 You can customize the simulation with flags like `--events=1000`, `--users=200`, etc.
 
-For geolocation to work, add `ENABLE_GEOLOCATION=true` and your MaxMind credentials to `.env`.
+For geolocation to work, set `ENABLE_GEOLOCATION=true` and add your MaxMind credentials to `.env`. For city and subdivision drill-down, also set `GEOLOCATION_MODE=full`.
 
 ---
 

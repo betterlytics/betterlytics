@@ -139,6 +139,9 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      cldr-subdivisions-full:
+        specifier: ^48.1.0
+        version: 48.1.0(cldr-core@48.1.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -3078,6 +3081,14 @@ packages:
   class-variance-authority@0.7.1:
     resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
 
+  cldr-core@48.1.0:
+    resolution: {integrity: sha512-Br9lHQHRhFVyQ/4dY2AnTOuJVEwzDSFR9tE4EzaZxdtux4BFZ4V6oY0SiSAe/8H9+CJ6njpBiPJdDv+vdXnvfA==}
+
+  cldr-subdivisions-full@48.1.0:
+    resolution: {integrity: sha512-2YzKBwQCXk3WCDzt2BbfVife4AIgAbBltXsHYMldvLL5PDbqVmclFw72xtZP/wKFS+2OErS94y8U0vZhkNdFzg==}
+    peerDependencies:
+      cldr-core: 48.1.0
+
   clickhouse-migrations@1.0.4:
     resolution: {integrity: sha512-AKRrNivsBYqm5IQf2siuA8kNQrwbnzxbSbtdpTv1SM9h7vxsO/6rgW88EbZKp11berCCPqUzVARPusw+gkyz0w==}
     engines: {node: '>=20'}
@@ -5730,6 +5741,7 @@ packages:
   tar@7.4.3:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tdigest@0.1.2:
     resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
@@ -9180,6 +9192,12 @@ snapshots:
   class-variance-authority@0.7.1:
     dependencies:
       clsx: 2.1.1
+
+  cldr-core@48.1.0: {}
+
+  cldr-subdivisions-full@48.1.0(cldr-core@48.1.0):
+    dependencies:
+      cldr-core: 48.1.0
 
   clickhouse-migrations@1.0.4:
     dependencies:
