@@ -38,7 +38,7 @@ pub struct ProcessedEvent {
     /// Device type (mobile, desktop, tablet) - Parsed from user_agent string
     pub device_type: Option<String>,
     pub site_id: String,
-    pub visitor_fingerprint: String,
+    pub visitor_fingerprint: u64,
     pub timestamp: chrono::DateTime<chrono::Utc>,
     /// Parsed referrer information
     pub referrer_info: ReferrerInfo,
@@ -101,7 +101,7 @@ impl EventProcessor {
             os_version: None,
             device_type: None,
             site_id: site_id.clone(),
-            visitor_fingerprint: String::new(),
+            visitor_fingerprint: 0u64,
             timestamp: timestamp.clone(),
             domain,
             url: path,
@@ -157,8 +157,8 @@ impl EventProcessor {
         );
 
         let session_id_result = session::get_or_create_session_id(
-            &site_id, 
-            &processed.visitor_fingerprint, 
+            &site_id,
+            processed.visitor_fingerprint,
         );
 
         match session_id_result {

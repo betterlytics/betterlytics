@@ -8,7 +8,7 @@ use crate::processing::ProcessedEvent;
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
 pub struct EventRow {
     pub site_id: String,
-    pub visitor_id: String,
+    pub visitor_id: u64,
     pub session_id: String,
     pub domain: String,
     pub url: String,
@@ -50,7 +50,7 @@ pub struct EventRow {
 pub struct SessionReplayRow {
     pub site_id: String,
     pub session_id: String,
-    pub visitor_id: String,
+    pub visitor_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub started_at: DateTime<Utc>,
     #[serde(with = "clickhouse::serde::chrono::datetime")]

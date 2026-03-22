@@ -21,6 +21,11 @@ export async function registerOpenTelemetry() {
     if (!env.ENABLE_MONITORING) return;
     if (!env.OTEL_SERVICE_NAME) throw new Error('OTEL_SERVICE_NAME is not set');
     const { registerOTel } = await import('@vercel/otel');
-    registerOTel({ serviceName: env.OTEL_SERVICE_NAME });
+    registerOTel({
+      serviceName: env.OTEL_SERVICE_NAME,
+      attributesFromHeaders: {
+        'next.prefetch': 'Next-Router-Prefetch',
+      },
+    });
   }
 }

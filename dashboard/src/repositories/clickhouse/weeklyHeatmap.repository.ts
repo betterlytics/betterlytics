@@ -25,7 +25,10 @@ function getBaseAggregation(metric: HeatmapMetric) {
   }
 }
 
-export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMetric): Promise<WeeklyHeatmapRow[]> {
+export async function getWeeklyHeatmap(
+  siteQuery: BASiteQuery,
+  metric: HeatmapMetric,
+): Promise<WeeklyHeatmapRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const timezone = siteQuery.timezone ?? 'UTC';
   const filters = BAQuery.getFilterQuery(queryFilters);
@@ -87,6 +90,7 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
   }
 
   const aggregation = getBaseAggregation(metric);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH
@@ -95,8 +99,8 @@ export async function getWeeklyHeatmap(siteQuery: BASiteQuery, metric: HeatmapMe
       any(toStartOfHour(toTimeZone(timestamp, {tz:String}))) as date,
       toDayOfWeek(toTimeZone(timestamp, {tz:String})) as weekday,
       toHour(toTimeZone(timestamp, {tz:String})) as hour,
-      ${aggregation} / uniq(week_start) as value
-    FROM analytics.events
+      ${aggregation} * any(_sample_factor) / uniq(week_start) as value
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}

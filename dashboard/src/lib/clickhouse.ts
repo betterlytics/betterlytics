@@ -1,6 +1,7 @@
 import { createClient, type ClickHouseClient, type DataFormat } from '@clickhouse/client';
 import { env } from './env';
 import { instrumentClickHouse } from '@/observability/clickhouse-instrumented';
+import { withConcurrencyLimiter } from '@/observability/clickhouse-concurrency';
 
 export interface AdapterQueryOptions {
   params?: Record<string, unknown>;
@@ -62,4 +63,4 @@ const baseClient = createClickHouseAdapter({
   password: env.CLICKHOUSE_DASHBOARD_PASSWORD,
 });
 
-export const clickhouse = instrumentClickHouse(baseClient, { dbName: 'default' });
+export const clickhouse = withConcurrencyLimiter(instrumentClickHouse(baseClient, { dbName: 'default' }));

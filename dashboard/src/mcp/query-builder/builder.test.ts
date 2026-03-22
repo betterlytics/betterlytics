@@ -1,4 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('@/lib/env', () => ({
+  env: {
+    SAMPLING_TRAFFIC_THRESHOLD: 100_000,
+    SAMPLING_FACTOR: 0.25,
+    HIGH_TRAFFIC_CONCURRENCY_LIMIT: 20,
+  },
+}));
+
+vi.mock('@/repositories/clickhouse/usage.repository', () => ({
+  isHighTrafficSite: vi.fn().mockResolvedValue(false),
+}));
+
+vi.mock('@/observability/clickhouse-concurrency', () => ({
+  setSiteConcurrencyLimit: vi.fn(),
+}));
+
 import { buildQuery } from '@/mcp/query-builder/builder';
 import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 

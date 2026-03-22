@@ -20,10 +20,11 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
-    SELECT device_type, uniq(visitor_id) as visitors
-    FROM analytics.events
+    SELECT device_type, uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}
@@ -47,9 +48,10 @@ export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<De
 export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<BrowserInfo[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = safeSql`
-    SELECT browser, uniq(visitor_id) as visitors
-    FROM analytics.events
+    SELECT browser, uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}
@@ -72,9 +74,10 @@ export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<Brows
 
 export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserRollupRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = safeSql`
-    SELECT browser, browser_version as version, uniq(visitor_id) as visitors, grouping(browser_version) as is_rollup
-    FROM analytics.events
+    SELECT browser, browser_version as version, uniq(visitor_id) * any(_sample_factor) as visitors, grouping(browser_version) as is_rollup
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND browser != ''
@@ -96,9 +99,10 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
 export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promise<OperatingSystemInfo[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = safeSql`
-    SELECT os, uniq(visitor_id) as visitors
-    FROM analytics.events
+    SELECT os, uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${SQL.AND(filters)}
@@ -122,9 +126,10 @@ export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promi
 
 export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<OperatingSystemRollupRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = safeSql`
-    SELECT os, os_version as version, uniq(visitor_id) as visitors, grouping(os_version) as is_rollup
-    FROM analytics.events
+    SELECT os, os_version as version, uniq(visitor_id) * any(_sample_factor) as visitors, grouping(os_version) as is_rollup
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND os != ''
@@ -152,14 +157,15 @@ export async function getDeviceUsageTrend(siteQuery: BASiteQuery): Promise<Devic
     startDateTime,
     endDateTime,
   );
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
         device_type,
-        uniq(visitor_id) as count
-      FROM analytics.events
+        uniq(visitor_id) * any(_sample_factor) as count
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND ${range}
         AND ${SQL.AND(filters)}

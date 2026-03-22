@@ -16,7 +16,7 @@ export async function getSessionReplays(
     SELECT
       r.site_id,
       r.session_id,
-      r.visitor_id,
+      toString(r.visitor_id) as visitor_id,
       r.started_at,
       r.ended_at,
       r.duration,

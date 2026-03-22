@@ -66,6 +66,9 @@ const envSchema = z.object({
   GEOLOCATION_MODE: z.enum(['country', 'full']).optional().default('country'),
   PUSHOVER_APP_TOKEN: z.string().optional(),
   INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
+  SAMPLING_TRAFFIC_THRESHOLD: z.coerce.number().optional().default(100_000),
+  SAMPLING_FACTOR: z.coerce.number().min(0).max(1).optional().default(0.25),
+  HIGH_TRAFFIC_CONCURRENCY_LIMIT: z.coerce.number().optional().default(20)
 });
 
 export const env = envSchema.parse(process.env);

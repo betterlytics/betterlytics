@@ -18,13 +18,14 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 export async function getCoreWebVitalsP75(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH metrics AS (
       SELECT
         pair.1 AS name,
         toFloat32(pair.2) AS value
-      FROM analytics.events
+      FROM analytics.events ${sample}
       ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
@@ -76,6 +77,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
     startDateTime,
     endDateTime,
   );
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
@@ -84,7 +86,7 @@ export async function getAllCoreWebVitalPercentilesSeries(
           ${granularityFunc('timestamp')} as date,
           pair.1 AS name,
           toFloat32(pair.2) AS value
-        FROM analytics.events
+        FROM analytics.events ${sample}
         ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
         WHERE site_id = {site_id:String}
           AND event_type = 'cwv'
@@ -128,6 +130,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
 ): Promise<CoreWebVitalsAllPercentilesPerDimensionRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters || []);
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     WITH metrics AS (
@@ -140,8 +143,9 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
           ELSE url
         END AS key,
         pair.1 AS name,
-        toFloat32(pair.2) AS value
-      FROM analytics.events
+        toFloat32(pair.2) AS value,
+        _sample_factor
+      FROM analytics.events ${sample}
       ARRAY JOIN arrayZip(['CLS','LCP','INP','FCP','TTFB'], [cwv_cls, cwv_lcp, cwv_inp, cwv_fcp, cwv_ttfb]) AS pair
       WHERE site_id = {site_id:String}
         AND event_type = 'cwv'
@@ -157,7 +161,7 @@ export async function getCoreWebVitalsAllPercentilesByDimension(
       quantileTDigest(0.75)(value) AS p75,
       quantileTDigest(0.90)(value) AS p90,
       quantileTDigest(0.99)(value) AS p99,
-      count() AS samples
+      count() * any(_sample_factor) AS samples
     FROM metrics
     WHERE name IN {metric_names:Array(String)}
     GROUP BY key, name
