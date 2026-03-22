@@ -50,13 +50,14 @@ export async function getVisitorsBySubdivision(
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       subdivision_code AS code,
       country_code,
-      uniq(visitor_id) as visitors
-    FROM analytics.events
+      uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND subdivision_code != ''
@@ -90,14 +91,15 @@ export async function getVisitorsBySubdivision(
 export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       city AS code,
       subdivision_code,
       country_code,
-      uniq(visitor_id) as visitors
-    FROM analytics.events
+      uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND city != ''
@@ -135,12 +137,13 @@ export async function getCompareVisitorsByCountry(
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       country_code,
-      uniq(visitor_id) as visitors
-    FROM analytics.events
+      uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND country_code IN ({keys:Array(String)})
@@ -175,13 +178,14 @@ export async function getCompareVisitorsBySubdivision(
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       subdivision_code AS code,
       country_code,
-      uniq(visitor_id) as visitors
-    FROM analytics.events
+      uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND (coalesce(subdivision_code, ''), coalesce(country_code, '')) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_countries:Array(String)})))
@@ -218,14 +222,15 @@ export async function getCompareVisitorsByCity(
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       city AS code,
       subdivision_code,
       country_code,
-      uniq(visitor_id) as visitors
-    FROM analytics.events
+      uniq(visitor_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND (coalesce(city, ''), coalesce(subdivision_code, ''), coalesce(country_code, '')) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_subdivisions:Array(String)}, {keys_countries:Array(String)})))
