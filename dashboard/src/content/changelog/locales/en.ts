@@ -2,36 +2,45 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.7',
-    releasedAt: '2026-03-08',
-    title: 'MCP Server, Smarter Referrer Grouping & Notification Logs',
+    version: 'v1.3.8',
+    releasedAt: '2026-03-22',
+    title: 'City & Region Geolocation, Performance Improvements & Bug Fixes',
     summary:
-      'Query your analytics data directly from AI agents with the new MCP server. Referrer sources are now grouped more accurately and expandable in the overview. Integrations now show a full notification delivery log, and number formatting has been improved throughout the dashboard.',
+      'Visitor locations are now shown at the city and region level. Large dashboards load faster thanks to performance improvements across the board. A bug causing the uptime monitoring page to fail for certain timezones has been fixed.',
   },
   sections: [
     {
-      id: 'v137-new-features',
+      id: 'v138-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Added an MCP (Model Context Protocol) server, allowing you to connect your analytics data to AI assistants and agents. You can now ask your AI to pull traffic stats, explore user journeys, or analyze funnels - and combine those insights with other context like your own codebase.',
-            'Integrations now include a notification delivery log, so you can see exactly which notifications were sent, when they were delivered, and whether any failed.',
+            'Geolocation now includes city and region-level data, giving you a more detailed picture of where your visitors are coming from.',
           ],
         },
       ],
     },
     {
-      id: 'v137-improvements',
+      id: 'v138-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Referrer sources in the overview table are now expandable, letting you see the breakdown behind each traffic source at a glance.',
-            'Referrer grouping has been improved so that traffic from different subdomains of the same site is correctly merged under one source.',
-            'Numbers throughout the dashboard are now consistently formatted according to your locale.',
+            'Improved performance for large dashboards, reducing load times when working with high-traffic sites.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v138-bug-fixes',
+      title: 'Bug Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue on the uptime monitoring page that caused it to fail to load for certain timezones.',
           ],
         },
       ],
@@ -40,6 +49,53 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.8',
+      releasedAt: '2026-03-22',
+      title: 'City & Region Geolocation, Performance Improvements & Bug Fixes',
+      summary:
+        'Visitor locations are now shown at the city and region level. Large dashboards load faster thanks to performance improvements across the board. A bug causing the uptime monitoring page to fail for certain timezones has been fixed.',
+    },
+    sections: [
+      {
+        id: 'v138-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Geolocation now includes city and region-level data, giving you a more detailed picture of where your visitors are coming from.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Improved performance for large dashboards, reducing load times when working with high-traffic sites.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-bug-fixes',
+        title: 'Bug Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue on the uptime monitoring page that caused it to fail to load for certain timezones.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.7',
