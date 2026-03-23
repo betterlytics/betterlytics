@@ -42,7 +42,7 @@ fn cache_key(site_id: &str, session_id: &str) -> String {
 }
 
 const PRESIGNED_PUT_TTL_SECS: u64 = 30;
-const MAX_CONTENT_LENGTH_BYTES: u64 = 1 * 1024 * 1024;
+const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const CONTENT_TYPE: &str = "application/json";
 
 #[derive(serde::Deserialize)]
