@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 const vertexSrc =
   '#version 300 es\nprecision highp float;\nin vec4 position;\nvoid main(){gl_Position=position;}';
 
+// Reconstructed from the actual Stitch "Nebula V2" GLSL source
 const fragmentSrc = `#version 300 es
 precision highp float;
 
@@ -13,126 +14,188 @@ out vec4 fragColor;
 uniform float uTime;
 uniform vec2 uResolution;
 uniform float uAmplitude;
+uniform float uBrightness;
+uniform vec2 uShapeOffset;
 uniform vec3 uBgColor;
 
-// 2D noise
-float hash(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 45.32);
-  return fract(p.x * p.y);
-}
-float noise(vec2 p) {
-  vec2 i = floor(p), f = fract(p);
-  f = f*f*(3.0-2.0*f);
-  return mix(
-    mix(hash(i),hash(i+vec2(1,0)),f.x),
-    mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),
-    f.y
-  );
-}
-float fbm(vec2 p) {
-  float v = 0.0, a = 0.5;
-  mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-  for(int i = 0; i < 5; i++) {
-    v += a * noise(p);
-    p = rot * p * 2.0;
-    a *= 0.5;
-  }
-  return v;
+const int ITERATIONS = 40;
+const float TAU = 6.28318530718;
+
+// Actual Stitch rotation matrices
+const mat3 GOLD = mat3(
+  -0.571464913, +0.814921382, +0.096597072,
+  -0.278044873, -0.303026659, +0.911518454,
+  +0.772087367, +0.494042493, +0.399753815
+);
+const mat3 GOLD_PHI = mat3(
+  -0.924648, -0.449886, 1.249265,
+   1.318571, -0.490308, 0.800377,
+   0.156297,  1.474868, 0.646816
+);
+const mat3 ROT1 = mat3(0.80,0.36,-0.48, -0.60,0.48,-0.64, 0.00,0.80,0.60);
+const mat3 ROT2 = mat3(0.60,0.48,0.64, -0.80,0.36,0.48, 0.00,-0.80,0.60);
+
+// Actual Stitch noise — dual golden matrix transform
+float dot_noise(vec3 p) {
+  return dot(cos(GOLD * p), sin(GOLD_PHI * p));
 }
 
-// ACES tonemapping
-vec3 aces(vec3 x) {
-  return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0);
+// Actual Stitch density — anisotropic scaling, per-octave rotation
+float density(vec3 q, float amplitude, float depth, vec2 skew) {
+  float d = 0.0;
+  q.xy = (q.xy - 0.5) * skew + 0.5;
+  q.z = q.z * depth;
+  float n = dot_noise(q * vec3(1.6, 0.8, 1.1)) - 0.2;
+  d += amplitude * n;
+  float val = d * 0.5 + 0.5;
+  float fd = max(0.0, val) * amplitude;
+  q = (ROT1 * (q * vec3(0.8, 1.6, 0.9))) * 2.2 + vec3(1.025, 0.575, 0.425);
+  amplitude *= 0.5 + 0.5 * (n * 0.5);
+  n = dot_noise(q) - 0.2;
+  d += amplitude * n;
+  val = d * 0.5 + 0.5;
+  fd += (val * val) * amplitude;
+  q = (ROT2 * (q * vec3(1.6, 0.8, 1.1))) * 2.6 + vec3(2.05, 1.15, 0.85);
+  amplitude *= 0.5 + 0.5 * abs(n);
+  n = dot_noise(q) + 0.2;
+  d += amplitude * n;
+  val = d * 0.5 + 0.5;
+  fd += (val * val) * amplitude;
+  return fd;
 }
 
-// A single aurora ribbon — defined as a 1D curve with vertical glow
-float ribbon(vec2 uv, float ribbonY, float thickness, float sharpness) {
-  float dist = uv.y - ribbonY;
-  // Sharp bright edge at the ribbon line, soft falloff below
-  float bright = exp(-abs(dist) * sharpness);
-  // Longer trailing glow downward
-  float trail = smoothstep(0.0, -thickness, dist) * smoothstep(-thickness, -thickness * 0.3, dist);
-  return bright * 0.6 + trail * 0.4;
+// OKLab
+vec3 safeCbrt(vec3 v) {
+  return sign(v) * pow(abs(v), vec3(1.0/3.0));
+}
+vec3 oklab_mix(vec3 lin1, vec3 lin2, float a) {
+  const mat3 kCONEtoLMS = mat3(
+    0.4121656120, 0.2118591070, 0.0883097947,
+    0.5362752080, 0.6807189584, 0.2818474174,
+    0.0514575653, 0.1074065790, 0.6302613616);
+  const mat3 kLMStoCONE = mat3(
+    4.0767245293,-1.2681437731,-0.0041119885,
+   -3.3072168827, 2.6093323231,-0.7034763098,
+    0.2307590544,-0.3411344290, 1.7068625689);
+  vec3 lms1 = safeCbrt(kCONEtoLMS * lin1);
+  vec3 lms2 = safeCbrt(kCONEtoLMS * lin2);
+  vec3 lms = mix(lms1, lms2, a);
+  lms *= 1.0 + 0.025 * a * (1.0 - a);
+  return kLMStoCONE * (lms * lms * lms);
+}
+
+// ACES
+vec3 Tonemap_ACES(vec3 x) {
+  return (x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14);
+}
+
+// Cosine palette
+vec3 pal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+  return a + b * cos(TAU * (c * t + d));
+}
+
+// Interleaved gradient noise for dithering
+float interleavedGradientNoise(vec2 p) {
+  return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715))));
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy - 0.5*uResolution) / uResolution.y;
-  // Three timescales
-  float Tslow = uTime * 0.06;   // overall shape drift
-  float Tmed  = uTime * 0.18;   // curtain sway
-  float Tfast = uTime * 0.5;    // brightness ripples
+  vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
+  vec2 uv = gl_FragCoord.xy / uResolution;
 
-  // Top cutoff — never bleeds into title area
-  float topMask = smoothstep(0.25, 0.05, uv.y);
-  if(topMask < 0.01) {
-    fragColor = vec4(uBgColor, 1.0);
-    return;
-  }
+  vec2 center = vec2(0.514, 0.259);
 
-  // Parabolic base curve
-  float arc = uv.x * uv.x * 0.4;
-
-  // Domain warp x — medium speed sway for dancing folds
-  float sway1 = fbm(vec2(uv.x * 0.4 + Tmed * 0.5, Tmed * 0.3)) * 0.35;
-  float sway2 = fbm(vec2(uv.x * 0.8 + sway1 + Tmed * 0.4, Tmed * 0.2 + 3.0)) * 0.2;
-  float wx = uv.x + sway1 + sway2;
-
-  // Fast brightness ripple that travels along the ribbons
-  float ripple1 = fbm(vec2(wx * 3.0 - Tfast, Tslow)) * 0.5 + 0.5;
-  float ripple2 = fbm(vec2(wx * 2.5 + Tfast * 0.7 + 5.0, Tslow + 3.0)) * 0.5 + 0.5;
+  // SDF elliptical mask — positive inside, negative outside
+  vec2 sdfUv = (uv - center - uShapeOffset) * aspect;
+  float sdfDist = length(sdfUv);
+  float ampSdf = 1.0 - smoothstep(0.5, 1.38, sdfDist);
 
   vec3 col = vec3(0.0);
+  float transmittance = 1.0;
 
-  // Vertical sway — each ribbon gets a different phase of medium-speed bobbing
-  float vBob1 = fbm(vec2(Tmed * 0.6, wx * 0.5)) * 0.08;
-  float vBob2 = fbm(vec2(Tmed * 0.5 + 3.0, wx * 0.4)) * 0.07;
-  float vBob3 = fbm(vec2(Tmed * 0.7 + 7.0, wx * 0.6)) * 0.06;
-  float vBob4 = fbm(vec2(Tmed * 0.4 + 11.0, wx * 0.3)) * 0.08;
+  if(ampSdf > 0.0) {
+    vec2 uvCentered = (uv - center) * aspect;
+    vec3 ro = vec3(center.x, center.y, -3.0);
+    vec3 rd = normalize(vec3(uvCentered, 1.0));
 
-  // --- Ribbon 1: main aurora curtain ---
-  {
-    float n = fbm(vec2(wx * 1.8 + Tslow * 0.3, Tmed * 0.3));
-    float ribbonY = -0.02 + arc + vBob1 - n * 0.12;
-    float brightness = ribbon(uv, ribbonY, 0.18, 20.0) * n * ripple1;
-    col += vec3(0.23, 0.39, 0.92) * brightness * 1.4;
+    float MAX_DIST = 1.0 + 1.32;
+    float baseStep = MAX_DIST / float(ITERATIONS);
+    float ign = interleavedGradientNoise(uResolution * uv);
+    float t = baseStep * ign * 0.999;
+    float wrappedTime = uTime * 0.05;
+
+    // Color params from Stitch source
+    vec3 colorCenter = oklab_mix(vec3(0.333, 0.976, 1.0), vec3(0.267, 0.314, 0.518), 0.5);
+    vec3 colorDelta = oklab_mix(vec3(0.267, 0.314, 0.518), vec3(0.333, 0.976, 1.0), 0.5);
+    float absorptionFactor = baseStep * mix(-2.0, -6.0, uBrightness);
+    float scale = mix(2.0, 8.0, 1.22);
+    float ampBase = mix(0.2, 1.2, uAmplitude) * 2.0;
+    float amplitude = ampBase * ampSdf;
+    float depth = mix(1.0, 0.001, 0.66);
+    vec2 skew = vec2(0.5, 1.5);
+
+    vec3 q_ro = ro * scale + vec3(0.0, 0.42, 0.5 + 1.32) * wrappedTime;
+    vec3 q_rd = rd * scale;
+
+    float maxDepth = MAX_DIST * (0.2 + 0.8 * ampSdf * ampSdf);
+    int emptySteps = 0;
+    float accLight = 0.0;
+    float lastDensity = 0.0;
+    bool hit = false;
+
+    for(int i = 0; i < ITERATIONS; i++) {
+      if(transmittance < 0.01 || t > maxDepth) break;
+      if(!hit && emptySteps > 20) break;
+      if(accLight > 0.33) break;
+
+      float pz = ro.z + rd.z * t;
+      if(lastDensity > 2.0 && pz < -2.0) break;
+
+      vec3 q = q_ro + q_rd * t;
+      float d = density(q, amplitude, depth, skew);
+
+      float dr = t / maxDepth;
+      float pzSS = smoothstep(-3.0, -2.0, pz);
+      float zFade = pzSS * (1.0 - dr * dr * (1.0 - ampSdf));
+      d *= zFade;
+      lastDensity = d;
+
+      if(d > 0.0001) {
+        float d_val = 0.25 / max(d, 0.0001);
+        float atten = smoothstep(0.0, 1.0, d_val);
+        float chroma = 0.5;
+        vec3 mixed = pal(atten,
+          colorCenter,
+          colorDelta,
+          vec3(1.0 - chroma, 1.0, 1.0 + chroma),
+          vec3(chroma, 0.0, -chroma)
+        );
+        vec3 light = mixed * atten;
+        float absorption = exp(-d * baseStep * 20.0);
+        vec3 contribution = light * d * transmittance * absorptionFactor;
+        col += contribution;
+        accLight += abs(dot(contribution, vec3(0.299, 0.587, 0.114)));
+        transmittance *= absorption;
+        emptySteps = 0;
+        hit = true;
+      } else {
+        emptySteps++;
+      }
+      t += baseStep;
+    }
   }
 
-  // --- Ribbon 2: offset, different speed ---
-  {
-    float n = fbm(vec2(wx * 1.4 - Tslow * 0.25 + 5.0, Tmed * 0.25 + 2.0));
-    float ribbonY = -0.06 + arc + vBob2 - n * 0.10;
-    float brightness = ribbon(uv, ribbonY, 0.15, 25.0) * n * ripple2;
-    col += vec3(0.15, 0.51, 0.96) * brightness * 1.0;
-  }
+  float maskStrength = ampSdf;
+  col = Tonemap_ACES(col * maskStrength);
+  transmittance = mix(1.0, transmittance, maskStrength);
+  transmittance = smoothstep(0.0, 1.0, transmittance);
 
-  // --- Ribbon 3: subtle background layer ---
-  {
-    float n = fbm(vec2(wx * 2.2 + Tslow * 0.15 + 10.0, Tmed * 0.2 + 5.0));
-    float ribbonY = -0.10 + arc + vBob3 - n * 0.08;
-    float brightness = ribbon(uv, ribbonY, 0.22, 15.0) * n * ripple1 * 0.8;
-    col += vec3(0.11, 0.31, 0.83) * brightness * 0.7;
-  }
-
-  // --- Ribbon 4: violet accent ---
-  {
-    float n = fbm(vec2(wx * 1.0 - Tslow * 0.12 + 15.0, Tmed * 0.35 + 8.0));
-    float ribbonY = 0.02 + arc + vBob4 - n * 0.10;
-    float brightness = ribbon(uv, ribbonY, 0.12, 30.0) * n * ripple2 * 0.7;
-    col += vec3(0.38, 0.65, 0.98) * brightness * 0.5;
-  }
-
-  col *= topMask;
-  col = aces(col * 1.6);
+  vec3 blended = col + uBgColor * transmittance;
 
   // Dithering
-  col += (fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))) - 0.5) / 255.0;
+  blended += (interleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
 
-  // Blend onto background with amplitude reveal
-  float reveal = min(uAmplitude / 0.32, 1.0);
-  col = uBgColor + col * reveal;
-
-  fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+  fragColor = vec4(clamp(blended, 0.0, 1.0), 1.0);
 }`;
 
 const vertices = [-1, 1, -1, -1, 1, 1, 1, -1];
@@ -140,9 +203,12 @@ const RENDER_SCALE = 0.5;
 const FPS_CAP = 30;
 const FRAME_INTERVAL = 1000 / FPS_CAP;
 
-const AMPLITUDE_TARGET = 0.64;
-const AMPLITUDE_DURATION = 2000;
-const AMPLITUDE_DELAY = 500;
+// Stitch entry animation spec
+const ANIM = {
+  amplitude: { from: 0, to: 0.64, duration: 2000, delay: 500 },
+  brightness: { from: 0, to: 0.4, duration: 2000, delay: 500 },
+  shapeY: { from: 0.6, to: 0.85, duration: 2000, delay: 500 },
+} as const;
 
 function hexToRgb(hex: string): [number, number, number] {
   const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -155,10 +221,18 @@ function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
 }
 
+function animateValue(elapsed: number, delay: number, duration: number, from: number, to: number): number {
+  if (elapsed < delay) return from;
+  const t = Math.min((elapsed - delay) / duration, 1);
+  return from + (to - from) * easeOutCubic(t);
+}
+
 interface UniformLocations {
   uTime: WebGLUniformLocation | null;
   uResolution: WebGLUniformLocation | null;
   uAmplitude: WebGLUniformLocation | null;
+  uBrightness: WebGLUniformLocation | null;
+  uShapeOffset: WebGLUniformLocation | null;
   uBgColor: WebGLUniformLocation | null;
 }
 
@@ -223,6 +297,8 @@ export function NebulaBackground({ bgColor = '#000000', className }: NebulaBackg
       uTime: gl.getUniformLocation(program, 'uTime'),
       uResolution: gl.getUniformLocation(program, 'uResolution'),
       uAmplitude: gl.getUniformLocation(program, 'uAmplitude'),
+      uBrightness: gl.getUniformLocation(program, 'uBrightness'),
+      uShapeOffset: gl.getUniformLocation(program, 'uShapeOffset'),
       uBgColor: gl.getUniformLocation(program, 'uBgColor'),
     };
 
@@ -258,11 +334,9 @@ export function NebulaBackground({ bgColor = '#000000', className }: NebulaBackg
       s.lastFrame = now;
 
       const elapsed = now - s.startTime;
-      let amplitude = 0;
-      if (elapsed > AMPLITUDE_DELAY) {
-        const t = Math.min((elapsed - AMPLITUDE_DELAY) / AMPLITUDE_DURATION, 1);
-        amplitude = AMPLITUDE_TARGET * easeOutCubic(t);
-      }
+      const amplitude = animateValue(elapsed, ANIM.amplitude.delay, ANIM.amplitude.duration, ANIM.amplitude.from, ANIM.amplitude.to);
+      const brightness = animateValue(elapsed, ANIM.brightness.delay, ANIM.brightness.duration, ANIM.brightness.from, ANIM.brightness.to);
+      const shapeY = animateValue(elapsed, ANIM.shapeY.delay, ANIM.shapeY.duration, ANIM.shapeY.from, ANIM.shapeY.to);
 
       gl.clearColor(s.bg[0], s.bg[1], s.bg[2], 1);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -271,6 +345,8 @@ export function NebulaBackground({ bgColor = '#000000', className }: NebulaBackg
       gl.uniform1f(s.uniforms.uTime, now * 1e-3);
       gl.uniform2f(s.uniforms.uResolution, canvas.width, canvas.height);
       gl.uniform1f(s.uniforms.uAmplitude, amplitude);
+      gl.uniform1f(s.uniforms.uBrightness, brightness);
+      gl.uniform2f(s.uniforms.uShapeOffset, 0.0, shapeY);
       gl.uniform3fv(s.uniforms.uBgColor, s.bg);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };

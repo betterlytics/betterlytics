@@ -10,7 +10,7 @@ export function HeroNebula() {
   return (
     <NebulaBackground
       bgColor={isDark ? '#101114' : '#f9f9f9'}
-      className='block h-full w-full'
+      className='block h-full w-full blur-sm'
     />
   );
 }
