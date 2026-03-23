@@ -8357,6 +8357,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       replaySession: { id: null },
       consecutiveFlushErrors: 0,
       errorMatrix: [[]],
+      errorCheckoutTimer: null,
       errorLastFlushAt: 0,
       errorFlushPending: false,
       pendingErrorType: null,
@@ -8531,7 +8532,25 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }, Math.max(3000, config.maxChunkMs));
     }
 
-    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs) {
+    var ERROR_CHECKOUT_INTERVAL_MS = 60 * 1000;
+
+    function startErrorCheckoutTimer() {
+      if (state.errorCheckoutTimer) clearInterval(state.errorCheckoutTimer);
+      state.errorCheckoutTimer = setInterval(function () {
+        if (window.rrweb && window.rrweb.record && typeof window.rrweb.record.takeFullSnapshot === 'function') {
+          window.rrweb.record.takeFullSnapshot(true);
+        }
+      }, ERROR_CHECKOUT_INTERVAL_MS);
+    }
+
+    function stopErrorCheckoutTimer() {
+      if (state.errorCheckoutTimer) {
+        clearInterval(state.errorCheckoutTimer);
+        state.errorCheckoutTimer = null;
+      }
+    }
+
+    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs, startedAtMs) {
       if (state.disabled) return;
       if (!state.pendingErrorType && !hasReachedMinDuration()) return;
       if (!state.replaySession.id || !state.visId) return;
@@ -8541,7 +8560,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         site_id: siteId,
         session_id: state.replaySession.id,
         visitor_id: state.visId,
-        started_at: Math.floor((state.firstActivity || state.startedAt) / 1000),
+        started_at: Math.floor((startedAtMs || state.firstActivity || state.startedAt) / 1000),
         ended_at: Math.floor(endedAtMs / 1000),
         size_bytes: deltaSizeBytes,
         start_url: normalize(window.location.href),
@@ -8572,8 +8591,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       var json = JSON.stringify(events);
       var flushedEventCount = events.length;
+      var firstEventTs = state.firstActivity || state.startedAt;
       var lastEventTs = state.lastActivity;
       try {
+        var first = events[0];
+        if (first && typeof first.timestamp === "number") {
+          firstEventTs = first.timestamp;
+        }
         var last = events[events.length - 1];
         if (last && typeof last.timestamp === "number") {
           lastEventTs = last.timestamp;
@@ -8592,7 +8616,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         .then(function (data) {
           var uploadedBytes = data.payload.bytes.byteLength;
           state.errorMatrix = [[]];
-          finalizeSession(uploadedBytes, flushedEventCount, lastEventTs);
+          finalizeSession(uploadedBytes, flushedEventCount, lastEventTs, firstEventTs);
         })
         .catch(function () {
           state.pendingErrorType = null;
@@ -8650,6 +8674,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         clearInterval(state.flushTimer);
         state.flushTimer = null;
       }
+      stopErrorCheckoutTimer();
       flushAll()
         .catch(function () {})
         .finally(function () {
@@ -8690,7 +8715,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
       } else if (enableReplayOnError) {
         // Case 2: maintain two-segment ring buffer, no periodic flushes.
-        if (isCheckout) {
+        if (isCheckout && e.type === 2) {
           state.errorMatrix.push([]);
           if (state.errorMatrix.length > 2) state.errorMatrix.shift();
         }
@@ -8714,7 +8739,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       state.recordingStop = window.rrweb.record({
         emit: handleRecordingEmit,
-        checkoutEveryNms: isSampledRecording ? 5 * 60 * 1000 : 60 * 1000,
+        checkoutEveryNms: isSampledRecording ? 5 * 60 * 1000 : undefined,
         maskAllInputs: true,
         maskInputOptions: {
           text: true,
@@ -8759,6 +8784,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       emitReplayPageview(window.location.href, false);
       if (isSampledRecording) {
         startFlushLoop();
+      } else if (enableReplayOnError) {
+        startErrorCheckoutTimer();
       }
       state.isRecording = true;
     }
