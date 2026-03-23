@@ -8612,28 +8612,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
       } catch (_) {}
 
-      if (isSampledRecording) {
-        state.pendingErrorType = errorType;
-        state.pendingErrorExceptionsJson = errorExceptionsJson;
-        flush();
-      } else if (enableReplayOnError) {
-        var now = Date.now();
-        if (state.errorFlushPending) return;
-        if (now - state.errorLastFlushAt < 10000) return;
+      var now = Date.now();
+      if (now - state.errorLastFlushAt < 10000) return;
 
-        state.errorFlushPending = true;
-        var timer = null;
+      state.errorLastFlushAt = now;
+      state.errorFlushPending = true;
+      var timer = null;
 
-        function doFlush() {
-          if (!state.errorFlushPending) return;
-          if (timer) { clearTimeout(timer); timer = null; }
-          window.removeEventListener("beforeunload", doFlush);
+      function doFlush() {
+        if (!state.errorFlushPending) return;
+        if (timer) { clearTimeout(timer); timer = null; }
+        window.removeEventListener("beforeunload", doFlush);
+        state.errorFlushPending = false;
+        if (isSampledRecording) {
+          state.pendingErrorType = errorType;
+          state.pendingErrorExceptionsJson = errorExceptionsJson;
+          flush();
+        } else if (enableReplayOnError) {
           flushErrorMatrix(errorType, errorExceptionsJson);
         }
-
-        window.addEventListener("beforeunload", doFlush);
-        timer = setTimeout(doFlush, 3000);
       }
+
+      window.addEventListener("beforeunload", doFlush);
+      timer = setTimeout(doFlush, 3000);
     }
 
     function stopRecording(finalize) {
@@ -8770,7 +8771,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
         started = true;
         try {
           startRecording();
-          resolve(true);
         } catch (_) {}
       }
 
