@@ -1,5 +1,6 @@
 import { ArrowUpRight, ChevronRight, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { HeroNebula } from './heroNebula';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { env } from '@/lib/env';
@@ -11,6 +12,9 @@ export async function HeroSection() {
 
   return (
     <section className='relative overflow-visible pt-20 pb-24 sm:pt-36 sm:pb-32'>
+      <div className='pointer-events-none absolute inset-0 -top-(--topbar-height) -z-10 overflow-hidden'>
+        <HeroNebula />
+      </div>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='text-center'>
           <h1 className='mb-8 text-4xl font-bold tracking-[-0.02em] sm:text-6xl lg:text-7xl'>
