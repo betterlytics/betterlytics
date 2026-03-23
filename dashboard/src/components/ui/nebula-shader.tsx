@@ -2,10 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-const vertexSrc =
-  '#version 300 es\nprecision highp float;\nin vec4 position;\nvoid main(){gl_Position=position;}';
+const vertexSrc = '#version 300 es\nprecision highp float;\nin vec4 position;\nvoid main(){gl_Position=position;}';
 
-// Reconstructed from the actual Stitch "Nebula V2" GLSL source
 const fragmentSrc = `#version 300 es
 precision highp float;
 
@@ -15,7 +13,7 @@ uniform float uTime;
 uniform vec2 uResolution;
 uniform float uAmplitude;
 uniform float uBrightness;
-uniform vec2 uShapeOffset;
+uniform float uOpacity;
 uniform vec3 uBgColor;
 
 const int ITERATIONS = 40;
@@ -103,12 +101,13 @@ void main() {
   vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
   vec2 uv = gl_FragCoord.xy / uResolution;
 
-  vec2 center = vec2(0.514, 0.259);
+  vec2 center = vec2(0.5, 0.3);
 
-  // SDF elliptical mask — positive inside, negative outside
-  vec2 sdfUv = (uv - center - uShapeOffset) * aspect;
-  float sdfDist = length(sdfUv);
-  float ampSdf = 1.0 - smoothstep(0.5, 1.38, sdfDist);
+  // SDF elliptical mask — fixed position, contained to lower hero
+  // Arc-shaped mask — curves higher at edges, lower in center
+  float arc = (uv.x - 0.5) * (uv.x - 0.5) * 0.4;
+  float cutoff = 0.25 + arc;
+  float ampSdf = smoothstep(cutoff + 0.15, cutoff, uv.y);
 
   vec3 col = vec3(0.0);
   float transmittance = 1.0;
@@ -122,7 +121,7 @@ void main() {
     float baseStep = MAX_DIST / float(ITERATIONS);
     float ign = interleavedGradientNoise(uResolution * uv);
     float t = baseStep * ign * 0.999;
-    float wrappedTime = uTime * 0.05;
+    float wrappedTime = uTime * 0.15;
 
     // Color params from Stitch source
     vec3 colorCenter = oklab_mix(vec3(0.333, 0.976, 1.0), vec3(0.267, 0.314, 0.518), 0.5);
@@ -190,7 +189,7 @@ void main() {
   transmittance = mix(1.0, transmittance, maskStrength);
   transmittance = smoothstep(0.0, 1.0, transmittance);
 
-  vec3 blended = col + uBgColor * transmittance;
+  vec3 blended = mix(uBgColor, col + uBgColor * transmittance, uOpacity);
 
   // Dithering
   blended += (interleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
@@ -203,18 +202,37 @@ const RENDER_SCALE = 0.5;
 const FPS_CAP = 30;
 const FRAME_INTERVAL = 1000 / FPS_CAP;
 
-// Stitch entry animation spec
+// Delay before shader starts rendering (lets page load finish)
+const STARTUP_DELAY = 5000;
+
+// Entry animation spec
 const ANIM = {
-  amplitude: { from: 0, to: 0.64, duration: 2000, delay: 500 },
-  brightness: { from: 0, to: 0.4, duration: 2000, delay: 500 },
-  shapeY: { from: 0.6, to: 0.85, duration: 2000, delay: 500 },
+  amplitude: { from: 0, to: 0.64, duration: 2000, delay: 0 },
+  brightness: { from: 0, to: 0.4, duration: 2000, delay: 0 },
 } as const;
+
+// Opacity loop: fade in → hold → fade out → hold → repeat
+const LOOP = {
+  fadeIn: 3000,
+  hold: 20000,
+  fadeOut: 3000,
+  pause: 5000,
+} as const;
+const LOOP_TOTAL = LOOP.fadeIn + LOOP.hold + LOOP.fadeOut + LOOP.pause;
+
+function loopOpacity(elapsed: number): number {
+  const t = elapsed % LOOP_TOTAL;
+  if (t < LOOP.fadeIn) return easeOutCubic(t / LOOP.fadeIn);
+  if (t < LOOP.fadeIn + LOOP.hold) return 1.0;
+  if (t < LOOP.fadeIn + LOOP.hold + LOOP.fadeOut) {
+    return 1.0 - easeOutCubic((t - LOOP.fadeIn - LOOP.hold) / LOOP.fadeOut);
+  }
+  return 0.0;
+}
 
 function hexToRgb(hex: string): [number, number, number] {
   const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return r
-    ? [parseInt(r[1], 16) / 255, parseInt(r[2], 16) / 255, parseInt(r[3], 16) / 255]
-    : [0, 0, 0];
+  return r ? [parseInt(r[1], 16) / 255, parseInt(r[2], 16) / 255, parseInt(r[3], 16) / 255] : [0, 0, 0];
 }
 
 function easeOutCubic(t: number): number {
@@ -232,7 +250,7 @@ interface UniformLocations {
   uResolution: WebGLUniformLocation | null;
   uAmplitude: WebGLUniformLocation | null;
   uBrightness: WebGLUniformLocation | null;
-  uShapeOffset: WebGLUniformLocation | null;
+  uOpacity: WebGLUniformLocation | null;
   uBgColor: WebGLUniformLocation | null;
 }
 
@@ -298,7 +316,7 @@ export function NebulaBackground({ bgColor = '#000000', className }: NebulaBackg
       uResolution: gl.getUniformLocation(program, 'uResolution'),
       uAmplitude: gl.getUniformLocation(program, 'uAmplitude'),
       uBrightness: gl.getUniformLocation(program, 'uBrightness'),
-      uShapeOffset: gl.getUniformLocation(program, 'uShapeOffset'),
+      uOpacity: gl.getUniformLocation(program, 'uOpacity'),
       uBgColor: gl.getUniformLocation(program, 'uBgColor'),
     };
 
@@ -324,19 +342,43 @@ export function NebulaBackground({ bgColor = '#000000', className }: NebulaBackg
     updateScale();
     window.addEventListener('resize', updateScale);
 
+    // Clear to bg color immediately so canvas isn't black during delay
+    gl.clearColor(stateRef.current.bg[0], stateRef.current.bg[1], stateRef.current.bg[2], 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
     let rafId: number;
+    let renderStartTime = 0;
+
     const loop = (now: number) => {
       rafId = requestAnimationFrame(loop);
       const s = stateRef.current;
       if (!s) return;
 
+      // Wait for page to finish loading before starting the shader
+      if (!renderStartTime) {
+        if (now - s.startTime < STARTUP_DELAY) return;
+        renderStartTime = now;
+      }
+
       if (now - s.lastFrame < FRAME_INTERVAL) return;
       s.lastFrame = now;
 
-      const elapsed = now - s.startTime;
-      const amplitude = animateValue(elapsed, ANIM.amplitude.delay, ANIM.amplitude.duration, ANIM.amplitude.from, ANIM.amplitude.to);
-      const brightness = animateValue(elapsed, ANIM.brightness.delay, ANIM.brightness.duration, ANIM.brightness.from, ANIM.brightness.to);
-      const shapeY = animateValue(elapsed, ANIM.shapeY.delay, ANIM.shapeY.duration, ANIM.shapeY.from, ANIM.shapeY.to);
+      const elapsed = now - renderStartTime;
+      const amplitude = animateValue(
+        elapsed,
+        ANIM.amplitude.delay,
+        ANIM.amplitude.duration,
+        ANIM.amplitude.from,
+        ANIM.amplitude.to,
+      );
+      const brightness = animateValue(
+        elapsed,
+        ANIM.brightness.delay,
+        ANIM.brightness.duration,
+        ANIM.brightness.from,
+        ANIM.brightness.to,
+      );
+      const opacity = loopOpacity(elapsed);
 
       gl.clearColor(s.bg[0], s.bg[1], s.bg[2], 1);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -346,7 +388,7 @@ export function NebulaBackground({ bgColor = '#000000', className }: NebulaBackg
       gl.uniform2f(s.uniforms.uResolution, canvas.width, canvas.height);
       gl.uniform1f(s.uniforms.uAmplitude, amplitude);
       gl.uniform1f(s.uniforms.uBrightness, brightness);
-      gl.uniform2f(s.uniforms.uShapeOffset, 0.0, shapeY);
+      gl.uniform1f(s.uniforms.uOpacity, opacity);
       gl.uniform3fv(s.uniforms.uBgColor, s.bg);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
