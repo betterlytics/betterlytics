@@ -1295,6 +1295,10 @@
           "title": "Høy ytelse",
           "description": "ClickHouse-drevet analysemotor gir responstid under ett sekund i alle skalaer."
         },
+        "mcpServer": {
+          "title": "MCP-server",
+          "description": "Spør analysedataene dine fra AI-assistenter som Claude. Innebygd MCP-server for naturlig språktilgang til metrikker, funneler og brukerreiser."
+        },
         "emailSupport": {
           "title": "E-postsupport",
           "description": "Få hjelp via e-post for spørsmål eller problemer."
@@ -1434,7 +1438,6 @@
       "monthlyEvents": {
         "name": "Månedlige hendelser",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Tilpasset"
         }
       },
@@ -1581,6 +1584,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-postrapporter",
+        "mcp": "MCP",
         "integrations": "Integrasjoner",
         "dangerZone": "Faresone"
       }
@@ -1607,7 +1611,9 @@
       "pages": "Sider",
       "entryPages": "Inngangssider",
       "exitPages": "Utgangssider",
-      "topCountries": "Topp land",
+      "countries": "Land",
+      "regions": "Regioner",
+      "cities": "Byer",
       "worldMap": "Verdenskart",
       "browsers": "Nettlesere",
       "devices": "Enheter",
@@ -2343,6 +2349,8 @@
         "domain": "Vertsnavn",
         "device_type": "Enhetstype",
         "country_code": "Landekode",
+        "subdivision_code": "Region",
+        "city": "By",
         "browser": "Nettleser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
@@ -2513,7 +2521,9 @@
     },
     "geography": {
       "noData": "Ingen geografiske data tilgjengelige for valgt periode",
-      "visitors": "Besøkende"
+      "loading": "Laster kart...",
+      "visitors": "Besøkende",
+      "regionLoadError": "Kunne ikke laste regiondata"
     },
     "userJourney": {
       "steps": "Trinn",
@@ -3463,6 +3473,29 @@
       "error": "Kunne ikke lagre rapportinnstillinger"
     }
   },
+  "mcp": {
+    "settings": {
+      "title": "API-nøkler",
+      "description": "Opprett nøkler for å koble AI-agenter til analysedataene dine via Model Context Protocol.",
+      "tokenNameLabel": "Nøkkelnavn",
+      "tokenNamePlaceholder": "f.eks. Claude Desktop",
+      "createButton": "Opprett nøkkel",
+      "creating": "Oppretter...",
+      "newTokenNotice": "Kopier denne nøkkelen nå. Du vil ikke kunne se den igjen.",
+      "created": "Opprettet {date}",
+      "lastUsed": "Sist brukt {date}"
+    },
+    "toast": {
+      "created": "Nøkkel opprettet",
+      "createError": "Kunne ikke opprette nøkkel",
+      "deleted": "Nøkkel slettet",
+      "deleteError": "Kunne ikke slette nøkkel"
+    },
+    "deleteDialog": {
+      "title": "Slett {name}",
+      "description": "Denne nøkkelen vil bli permanent tilbakekalt. Alle MCP-klienter som bruker den vil miste tilgang umiddelbart."
+    }
+  },
   "integrationsSettings": {
     "title": "Integrasjoner",
     "section": {
@@ -3491,6 +3524,24 @@
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "history": {
+      "title": "Varselslogg",
+      "button": "Varselslogg",
+      "empty": "Ingen varsler sendt ennå.",
+      "error": "Kunne ikke laste inn varslingshistorikk.",
+      "attempts": "{count} forsøk",
+      "columns": {
+        "time": "Tid",
+        "integration": "Integrasjon",
+        "notification": "Varsel",
+        "status": "Status",
+        "error": "Feil"
+      },
+      "status": {
+        "sent": "Sendt",
+        "failed": "Mislyktes"
+      }
+    },
     "status": {
       "connected": "Tilkoblet",
       "disabled": "Deaktivert"

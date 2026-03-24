@@ -160,11 +160,17 @@ Add the following to your `.env` file:
 
 ```bash
 ENABLE_GEOLOCATION=true
+GEOLOCATION_MODE=full
 MAXMIND_ACCOUNT_ID=your_account_id
 MAXMIND_LICENSE_KEY=your_license_key
 ```
 
 Your Account ID is displayed at the top of the MaxMind account portal.
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `ENABLE_GEOLOCATION` | `false` | Master switch for geolocation. When disabled, no geo data is collected |
+| `GEOLOCATION_MODE` | `country` | `country` — country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
 
 ### 4. Restart
 
@@ -175,6 +181,15 @@ docker compose down && docker compose up -d
 <Callout type="info">
 When geolocation is enabled, the GeoLite2 database is downloaded automatically and refreshed periodically. No manual updates are required. The initial download may take a moment on first run.
 </Callout>
+
+### City & Subdivision Data
+
+When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both subdivision (state/province/region) and city data are extracted from the MaxMind GeoLite2-City database — the same database used for country lookups, just a larger version (~61 MB vs ~9 MB).
+
+<Callout type="warning">
+**Forward-only data:** Enabling subdivisions mode only populates city and subdivision data for **new events** going forward. Existing events recorded before enabling this mode will only have country-level data. There is no way to backfill since IP addresses are never stored.
+</Callout>
+
 
 ## Updating
 

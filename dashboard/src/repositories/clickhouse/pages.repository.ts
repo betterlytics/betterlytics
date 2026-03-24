@@ -32,13 +32,14 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
     endDateTime,
   );
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        count() as views
-      FROM analytics.events
+        count() * any(_sample_factor) as views
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
         AND ${range}
@@ -69,14 +70,15 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
     startDateTime,
     endDateTime,
   );
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
         url,
-        count() as views
-      FROM analytics.events
+        count() * any(_sample_factor) as views
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
         AND ${range}
@@ -101,12 +103,13 @@ export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageVie
 export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const queryResponse = safeSql`
     SELECT
       url,
-      uniq(session_id) as visitors
-    FROM analytics.events
+      uniq(session_id) * any(_sample_factor) as visitors
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -230,13 +233,14 @@ export async function getPageTrafficTimeSeries(
     startDateTime,
     endDateTime,
   );
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        count() as views
-      FROM analytics.events
+        count() * any(_sample_factor) as views
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND url = {path:String}
         AND event_type = 'pageview'
@@ -265,13 +269,15 @@ export async function getPageTrafficTimeSeries(
 export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promise<TopEntryPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const queryResponse = safeSql`
     WITH session_first_pages AS (
       SELECT
         session_id,
-        argMin(url, timestamp) as entry_page
-      FROM analytics.events
+        argMin(url, timestamp) as entry_page,
+        any(_sample_factor) as _sample_factor
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -280,7 +286,7 @@ export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promi
     )
     SELECT
       entry_page as url,
-      uniq(session_id) as visitors
+      uniq(session_id) * any(_sample_factor) as visitors
     FROM session_first_pages
     GROUP BY entry_page
     ORDER BY visitors DESC
@@ -310,13 +316,15 @@ export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promi
 export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promise<TopExitPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const queryResponse = safeSql`
     WITH session_last_pages AS (
       SELECT
         session_id,
-        argMax(url, timestamp) as exit_page
-      FROM analytics.events
+        argMax(url, timestamp) as exit_page,
+        any(_sample_factor) as _sample_factor
+      FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND event_type = 'pageview'
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -325,7 +333,7 @@ export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promis
     )
     SELECT
       exit_page as url,
-      uniq(session_id) as visitors
+      uniq(session_id) * any(_sample_factor) as visitors
     FROM session_last_pages
     GROUP BY exit_page
     ORDER BY visitors DESC

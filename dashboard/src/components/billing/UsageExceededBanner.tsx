@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { getUserBillingData } from '@/actions/billing.action';
 
@@ -15,6 +15,7 @@ interface UsageExceededBannerProps {
 
 export default function UsageExceededBanner({ billingDataPromise }: UsageExceededBannerProps) {
   const t = useTranslations('banners.usageLimitExceeded');
+  const locale = useLocale();
   const billingData = use(billingDataPromise);
   const { addBanner, removeBanner } = useBannerContext();
 
@@ -38,9 +39,9 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
       level: 'error',
       title: t('title'),
       description: t('description', {
-        percentage: formatPercentage(overagePercentage),
-        current: usage.current.toLocaleString(),
-        limit: usage.limit.toLocaleString(),
+        percentage: formatPercentage(overagePercentage, locale),
+        current: usage.current.toLocaleString(locale),
+        limit: usage.limit.toLocaleString(locale),
       }),
       action: (
         <Button
@@ -58,7 +59,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
     });
 
     return () => removeBanner('usage-exceeded-banner');
-  }, [billingData, addBanner, removeBanner, t]);
+  }, [billingData, addBanner, removeBanner, t, locale]);
 
   return null;
 }

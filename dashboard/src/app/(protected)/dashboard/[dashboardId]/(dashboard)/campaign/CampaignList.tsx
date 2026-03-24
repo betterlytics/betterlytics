@@ -18,9 +18,9 @@ import {
 } from '@/app/actions/analytics/campaign.actions';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
+import { useLocale, useTranslations } from 'next-intl';
 import { CompactPagination } from '@/components/CompactPagination';
 import { PaginationControls } from '@/components/PaginationControls';
-import { useTranslations } from 'next-intl';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
 import { toast } from 'sonner';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
@@ -47,7 +47,16 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
     pageIndex: number;
     pageSize: number;
   }>({
-    queryKey: ['campaign-list', dashboardId, query.startDate, query.endDate, query.granularity, query.timezone, pageIndex, pageSize],
+    queryKey: [
+      'campaign-list',
+      dashboardId,
+      query.startDate,
+      query.endDate,
+      query.granularity,
+      query.timezone,
+      pageIndex,
+      pageSize,
+    ],
     queryFn: async () => {
       try {
         return await fetchCampaignPerformanceAction(dashboardId, query, pageIndex, pageSize);
@@ -101,11 +110,7 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
   return (
     <div className='space-y-4 pb-8 md:pb-0'>
       {showTopPagination && (
-        <CompactPagination
-          pageIndex={safePageIndex}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        <CompactPagination pageIndex={safePageIndex} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
 
       {isInitialLoading
@@ -142,6 +147,7 @@ type CampaignListEntryProps = {
 };
 
 function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
+  const locale = useLocale();
   const t = useTranslations('components.campaign.campaignRow');
   const visitorsLabel = t('visitors', { count: campaign.visitors });
   const detailsId = `campaign-${campaign.name}-details`;
@@ -170,11 +176,15 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
       >
         <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
 
-        <CampaignMetric label={t('bounceRate')} value={formatPercentage(campaign.bounceRate)} className='flex' />
+        <CampaignMetric
+          label={t('bounceRate')}
+          value={formatPercentage(campaign.bounceRate, locale)}
+          className='flex'
+        />
         <CampaignMetric label={t('avgSessionDuration')} value={campaign.avgSessionDuration} className='flex' />
         <CampaignMetric
           label={t('pagesPerSession')}
-          value={formatNumber(campaign.pagesPerSession)}
+          value={formatNumber(campaign.pagesPerSession, locale)}
           className='flex'
         />
 
@@ -262,6 +272,7 @@ type CampaignInlineUTMSectionProps = {
 
 function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary }: CampaignInlineUTMSectionProps) {
   const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
+  const locale = useLocale();
   const t = useTranslations('components.campaign.campaignExpandedRow');
   const tRow = useTranslations('components.campaign.campaignRow');
 
@@ -289,7 +300,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
                   {tRow('bounceRate')}
                 </p>
                 <p className='text-foreground text-sm font-semibold tabular-nums'>
-                  {formatPercentage(summary.bounceRate)}
+                  {formatPercentage(summary.bounceRate, locale)}
                 </p>
               </div>
               <div className='space-y-0.5'>
@@ -297,7 +308,7 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
                   {tRow('pagesPerSession')}
                 </p>
                 <p className='text-foreground text-sm font-semibold tabular-nums'>
-                  {formatNumber(summary.pagesPerSession)}
+                  {formatNumber(summary.pagesPerSession, locale)}
                 </p>
               </div>
             </div>

@@ -4,6 +4,7 @@ export { OSIcon } from './OSIcon';
 export { FlagIcon } from './FlagIcon';
 export { GoogleIcon } from './GoogleIcon';
 export { GitHubIcon } from './GitHubIcon';
+export { MCPIcon } from './MCPIcon';
 
 export type { DeviceType } from '@/constants/deviceIcons';
 export type { OSType } from '@/constants/operatingSystemIcons';

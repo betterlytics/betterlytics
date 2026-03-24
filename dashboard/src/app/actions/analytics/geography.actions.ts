@@ -1,21 +1,65 @@
 'use server';
 
-import { fetchVisitorsByGeography } from '@/services/analytics/geography.service';
+import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/services/analytics/geography.service';
 import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
-import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
+import {
+  GeoLevelSchema,
+  type WorldMapResponse,
+  type GeoVisitor,
+  type GeoLevel,
+} from '@/entities/analytics/geography.entities';
+import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
 
+async function fetchTopGeoVisits(ctx: AuthContext, query: BAAnalyticsQuery, level: GeoLevel, limit: number) {
+  const enabledLevels = getEnabledGeoLevels();
+
+  if (!enabledLevels.includes(level)) {
+    return [];
+  }
+
+  const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+  const geoVisitors = await fetchVisitorsByGeoLevel(main, level, limit);
+
+  const compoundKey: GeoLevel[] =
+    level === 'country_code'
+      ? [level]
+      : level === 'subdivision_code'
+        ? [level, 'country_code']
+        : [level, 'subdivision_code', 'country_code'];
+
+  const topKeys = geoVisitors
+    .map((r) => compoundKey.map((k) => r[k]))
+    .filter((v) => v.reduce((acc, curr) => acc && Boolean(curr), true)) as Array<string>[];
+
+  const compareGeoVisitors =
+    compare && topKeys.length > 0 ? await fetchCompareVisitorsByGeoLevel(compare, level, topKeys) : undefined;
+
+  return toDataTable({
+    data: geoVisitors as (GeoVisitor & Record<GeoLevel, string>)[],
+    compare: compareGeoVisitors as (GeoVisitor & Record<GeoLevel, string>)[] | null | undefined,
+    categoryKey: compoundKey,
+  });
+}
+
 export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<WorldMapResponse> => {
+    const enabledLevels = getEnabledGeoLevels();
+
+    if (!enabledLevels.includes('country_code')) {
+      return { visitorData: [], compareData: [], maxVisitors: 0 };
+    }
+
     const { main, compare } = toSiteQuery(ctx.siteId, query);
 
     try {
-      const geoVisitors = await fetchVisitorsByGeography(main);
-      const compareGeoVisitors = compare && (await fetchVisitorsByGeography(compare));
+      const geoVisitors = await fetchVisitorsByGeoLevel(main, 'country_code');
+      const compareGeoVisitors = compare && (await fetchVisitorsByGeoLevel(compare, 'country_code'));
 
       return dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original);
     } catch (error) {
@@ -25,26 +69,7 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
   },
 );
 
-export const getTopCountryVisitsAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, numberOfCountries: number = 10) => {
-    const { main, compare } = toSiteQuery(ctx.siteId, query);
-
-    try {
-      const geoVisitors = (await fetchVisitorsByGeography(main)).slice(0, numberOfCountries);
-      const topCountries = geoVisitors.map((row) => row.country_code);
-
-      const compareGeoVisitors =
-        compare &&
-        (await fetchVisitorsByGeography(compare)).filter((row) => topCountries.includes(row.country_code));
-
-      return toDataTable({
-        data: geoVisitors,
-        compare: compareGeoVisitors,
-        categoryKey: 'country_code',
-      });
-    } catch (error) {
-      console.error('Error fetching visitor map data:', error);
-      throw new Error('Failed to fetch visitor map data');
-    }
-  },
+export const getTopGeoVisitsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, level: GeoLevel, limit: number = 10) =>
+    fetchTopGeoVisits(ctx, query, GeoLevelSchema.parse(level), limit),
 );

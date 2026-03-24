@@ -5,6 +5,9 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
+import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
+import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
+import { env } from '@/lib/env';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -134,7 +137,21 @@ function getTimestampRange(
   };
 }
 
+async function getSampling(siteId: string, startDate: DateTimeString, endDate: DateTimeString) {
+  const highTraffic = await isHighTrafficSite(siteId, startDate, endDate);
+  const sampleFactor = highTraffic ? env.SAMPLING_FACTOR : 1;
+
+  if (highTraffic) {
+    setSiteConcurrencyLimit(siteId, env.HIGH_TRAFFIC_CONCURRENCY_LIMIT);
+  }
+
+  const sample = safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}`;
+
+  return { sample };
+}
+
 export const BAQuery = {
   getFilterQuery,
   getTimestampRange,
+  getSampling,
 };

@@ -15,9 +15,11 @@ import {
   fetchSummaryStatsAction,
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
-  getTopCountryVisitsAction,
+  getTopGeoVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions/index.actions';
+import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
+import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
@@ -36,9 +38,22 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
 
+  const enabledLevels = getEnabledGeoLevels();
+
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
-  const worldMapPromise = getWorldMapDataAlpha2(dashboardId, query);
-  const topCountriesPromise = getTopCountryVisitsAction(dashboardId, query);
+
+  const worldMapPromise = enabledLevels.includes('country_code')
+    ? getWorldMapDataAlpha2(dashboardId, query)
+    : Promise.resolve({ visitorData: [], compareData: [], maxVisitors: 0 });
+
+  const topByGeoLevel = Object.fromEntries(
+    GEO_LEVELS.map((level) => [
+      level,
+      enabledLevels.includes(level)
+        ? getTopGeoVisitsAction(dashboardId, query, level)
+        : Promise.resolve([]) as ReturnType<typeof getTopGeoVisitsAction>,
+    ]),
+  ) as Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>>;
 
   const summaryAndChartPromise = Promise.all([
     fetchSummaryStatsAction(dashboardId, query),
@@ -67,9 +82,11 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <Suspense fallback={<TableSkeleton />}>
           <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
         </Suspense>
-        <Suspense fallback={<TableSkeleton />}>
-          <GeographySection worldMapPromise={worldMapPromise} topCountriesPromise={topCountriesPromise} />
-        </Suspense>
+        {enabledLevels.length > 0 && (
+          <Suspense fallback={<TableSkeleton />}>
+            <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} />
+          </Suspense>
+        )}
         <Suspense fallback={<TableSkeleton />}>
           <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
         </Suspense>

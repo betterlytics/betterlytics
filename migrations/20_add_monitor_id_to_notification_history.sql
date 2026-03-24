@@ -1,0 +1,1 @@
+ALTER TABLE analytics.notification_history ADD COLUMN IF NOT EXISTS monitor_id String DEFAULT '';

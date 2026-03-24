@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MousePointerClick } from 'lucide-react';
 import { TrendPercentage } from './TrendPercentage';
+import { useLocale } from 'next-intl';
 
 interface ChartData {
   date: string;
@@ -45,6 +46,7 @@ const SummaryCard = React.memo(
     onClick,
   }: SummaryCardProps<T>) => {
     const gradientId = useId();
+    const locale = useLocale();
 
     return (
       <Card
@@ -100,7 +102,7 @@ const SummaryCard = React.memo(
             {icon && <div className='text-foreground pt-1'>{icon}</div>}
             <span className='text-foreground text-2xl font-bold tracking-tight'>{value}</span>
             <Badge variant='outline' className='border-none p-0 text-xs'>
-              <TrendPercentage percentage={comparePercentage} withIcon />
+              <TrendPercentage percentage={comparePercentage} withIcon locale={locale} />
             </Badge>
           </div>
           {footer && <div className='mt-auto pt-3'>{footer}</div>}

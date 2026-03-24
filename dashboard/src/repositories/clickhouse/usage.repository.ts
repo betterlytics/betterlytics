@@ -1,7 +1,40 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { EventCountResultSchema } from '@/entities/billing/billing.entities';
-import { DateString } from '@/types/dates';
+import { DateString, DateTimeString } from '@/types/dates';
+import { cache } from 'react';
+import { env } from '@/lib/env';
+
+async function _getSiteEventCountForRange(siteId: string, startDate: DateTimeString, endDate: DateTimeString): Promise<number> {
+  const query = safeSql`
+    SELECT sum(event_count) as total
+    FROM analytics.usage_by_site_daily
+    WHERE site_id = {site_id:String}
+      AND date >= toDate({start_date:String})
+      AND date <= toDate({end_date:String})
+  `;
+
+  try {
+    const result = await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, site_id: siteId, start_date: startDate, end_date: endDate },
+      })
+      .toPromise();
+
+    const parsed = result as Array<{ total: number }>;
+    return parsed[0]?.total || 0;
+  } catch (error) {
+    console.error('Failed to get site event count for range:', error);
+    return 0;
+  }
+}
+
+export const getSiteEventCountForRange = cache(_getSiteEventCountForRange);
+
+export async function isHighTrafficSite(siteId: string, startDate: DateTimeString, endDate: DateTimeString): Promise<boolean> {
+  const count = await getSiteEventCountForRange(siteId, startDate, endDate);
+  return count > env.SAMPLING_TRAFFIC_THRESHOLD;
+}
 
 /**
  * Get total event count for user's sites within billing period

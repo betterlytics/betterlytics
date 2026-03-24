@@ -20,7 +20,7 @@ fn generate_session_id() -> String {
 /// Get or create a session ID for a visitor
 pub fn get_or_create_session_id(
     site_id: &str,
-    visitor_fingerprint: &str,
+    visitor_fingerprint: u64,
 ) -> Result<String> {
     let cache_key = format!("{}-{}", site_id, visitor_fingerprint);
     

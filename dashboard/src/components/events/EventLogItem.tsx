@@ -97,10 +97,10 @@ export const EventLogItem = React.memo(function EventLogItem({
           </div>
 
           <div className='flex flex-wrap items-center gap-4 text-xs'>
-            {event.visitor_id && (
+            {Boolean(event.visitor_id) && (
               <MetadataItem icon={User}>
                 <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
-                  {event.visitor_id.slice(-6)}
+                  {String(event.visitor_id).slice(0, 6)}
                 </span>
               </MetadataItem>
             )}

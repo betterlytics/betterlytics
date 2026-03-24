@@ -3,6 +3,24 @@ use std::str::FromStr;
 
 use axum::http::HeaderMap;
 
+pub fn anonymize_ip(ip: &str) -> Option<String> {
+    if let Ok(ip_addr) = ip.parse::<IpAddr>() {
+        match ip_addr {
+            IpAddr::V4(ipv4) => {
+                let octets = ipv4.octets();
+                Some(format!("{}.{}.{}.0", octets[0], octets[1], octets[2]))
+            },
+            IpAddr::V6(ipv6) => {
+                let segments = ipv6.segments();
+                Some(format!("{:x}:{:x}:{:x}:{:x}::",
+                    segments[0], segments[1], segments[2], segments[3]))
+            }
+        }
+    } else {
+        None
+    }
+}
+
 const HEADER_CANDIDATES: [&str; 5] = [
     "cf-connecting-ip",
     "true-client-ip",

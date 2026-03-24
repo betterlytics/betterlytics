@@ -23,7 +23,7 @@ import { RoleBadge, getInitials, formatDate, getAvatarColor } from './member-uti
 import { updateMemberRoleAction, removeMemberAction } from '@/app/actions/dashboard/members.action';
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
@@ -41,6 +41,7 @@ const ASSIGNABLE_ROLES: DashboardRole[] = ['admin', 'editor', 'viewer'];
 
 export function MembersTable({ dashboardId, members, currentUserId, currentUserRole }: MembersTableProps) {
   const t = useTranslations('members');
+  const locale = useLocale();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('role');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -190,7 +191,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                     <RoleBadge role={member.role} />
                   </TableCell>
                   <TableCell className='text-muted-foreground hidden py-3 sm:table-cell'>
-                    {formatDate(member.createdAt)}
+                    {formatDate(member.createdAt, locale)}
                   </TableCell>
                   <TableCell className='py-3'>
                     {member.role !== 'owner' &&

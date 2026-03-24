@@ -26,6 +26,10 @@ pub struct ProcessedEvent {
     pub url: String,
     /// Geolocation data - Planning to use ip-api.com or maxmind to get this data
     pub country_code: Option<String>,
+    /// Subdivision/region code in ISO 3166-2 format (e.g. "US-CA")
+    pub subdivision_code: Option<String>,
+    /// City name from GeoIP lookup (English)
+    pub city: Option<String>,
     /// Browser information - Parsed from user_agent string
     pub browser: Option<String>,
     pub browser_version: Option<String>,
@@ -35,7 +39,7 @@ pub struct ProcessedEvent {
     /// Device type (mobile, desktop, tablet) - Parsed from user_agent string
     pub device_type: Option<String>,
     pub site_id: String,
-    pub visitor_fingerprint: String,
+    pub visitor_fingerprint: u64,
     pub timestamp: chrono::DateTime<chrono::Utc>,
     /// Parsed referrer information
     pub referrer_info: ReferrerInfo,
@@ -95,13 +99,15 @@ impl EventProcessor {
             event_type: String::new(),
             session_id: String::new(),
             country_code: None,
+            subdivision_code: None,
+            city: None,
             browser: None,
             browser_version: None,
             os: None,
             os_version: None,
             device_type: None,
             site_id: site_id.clone(),
-            visitor_fingerprint: String::new(),
+            visitor_fingerprint: 0u64,
             timestamp: timestamp.clone(),
             domain,
             url: path,
@@ -161,8 +167,8 @@ impl EventProcessor {
         );
 
         let session_id_result = session::get_or_create_session_id(
-            &site_id, 
-            &processed.visitor_fingerprint, 
+            &site_id,
+            processed.visitor_fingerprint,
         );
 
         match session_id_result {
@@ -222,12 +228,16 @@ impl EventProcessor {
         Ok(())
     }
 
-    /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        debug!("Performing Geolocation lookup");
-        processed.country_code = self.geoip_service.lookup_country_code(&processed.event.ip_address);
+        let geo = self.geoip_service.lookup(&processed.event.ip_address);
+
+        processed.country_code = geo.country_code;
+        processed.subdivision_code = geo.subdivision_code;
+        processed.city = geo.city;
+
         if processed.country_code.is_some() {
-            debug!("Geolocation successful: {:?}", processed.country_code);
+            debug!("Geolocation successful: country={:?}, subdivision={:?}, city={:?}",
+                processed.country_code, processed.subdivision_code, processed.city);
         } else {
             debug!("Geolocation lookup returned no country code.");
         }
