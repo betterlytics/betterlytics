@@ -35,6 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ErrorStatusActions } from './ErrorStatusActions';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
@@ -46,6 +47,7 @@ import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { STATUS_CONFIG } from './errors.constants';
+import { ErrorTestScript } from './ErrorTestScript';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
@@ -135,40 +137,14 @@ function ErrorToolbar({
       </div>
       <div className='ml-auto flex items-center gap-2'>
         {hasSelection && <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>}
-        <div className='flex'>
-          <Button
-            variant='outline'
-            size='sm'
-            className='cursor-pointer rounded-r-none border-r-0'
-            disabled={!canResolve}
-            onClick={onResolve}
-          >
-            <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
-            Resolve
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant='outline'
-                size='sm'
-                className='cursor-pointer rounded-l-none px-1.5'
-                disabled={!hasSelection}
-              >
-                <ChevronDown className='h-3.5 w-3.5' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem className='cursor-pointer' disabled={!canIgnore} onClick={onIgnore}>
-                <EyeOff className='mr-2 h-4 w-4' />
-                Ignore
-              </DropdownMenuItem>
-              <DropdownMenuItem className='cursor-pointer' disabled={!canUnresolve} onClick={onUnresolve}>
-                <RotateCcw className='mr-2 h-4 w-4' />
-                Unresolve
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <ErrorStatusActions
+          canResolve={canResolve}
+          canIgnore={canIgnore}
+          canUnresolve={canUnresolve}
+          onResolve={onResolve}
+          onIgnore={onIgnore}
+          onUnresolve={onUnresolve}
+        />
         <Button
           variant='outline'
           size='sm'
@@ -436,6 +412,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
 
   return (
     <div className='space-y-3'>
+      <ErrorTestScript />
       <StatusFilterTabs value={statusFilter} counts={statusCounts} onChange={changeStatusFilter} />
 
       <ErrorToolbar

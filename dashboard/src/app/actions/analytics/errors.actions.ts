@@ -2,18 +2,30 @@
 
 import {
   hasAnyErrorsForSite,
+  getErrorGroupForSite,
+  getErrorGroupSidebarDataForSite,
+  getErrorOccurrenceForSite,
+  getSessionTrailForSite,
+  hasSessionReplayForSite,
+  findReplaySessionForErrorGroup,
   getErrorGroupsForSite,
   getErrorGroupVolumesForSite,
   getErrorGroupTimestampsForSite,
   upsertErrorGroupForSite,
   bulkUpsertErrorGroupForSite,
+  type ErrorGroupSidebarData,
 } from '@/services/analytics/errors.service';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
+import {
+  type ErrorGroupRow,
+  type ErrorOccurrence,
+  type GroupedSessionTrailEvent,
+  ErrorGroupStatusValueSchema,
+} from '@/entities/analytics/errors.entities';
 
 export type ErrorGroupsResult = {
   hasAnyErrors: boolean;
@@ -22,6 +34,24 @@ export type ErrorGroupsResult = {
 };
 
 const INITIAL_PAGE_SIZE = 10;
+
+export const fetchErrorGroupAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
+    return getErrorGroupForSite(ctx.siteId, ctx.dashboardId, fingerprint);
+  },
+);
+
+export const fetchErrorOccurrenceAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string, offset: number): Promise<ErrorOccurrence | null> => {
+    return getErrorOccurrenceForSite(ctx.siteId, fingerprint, Math.max(0, offset));
+  },
+);
+
+export const fetchErrorGroupSidebarAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupSidebarData> => {
+    return getErrorGroupSidebarDataForSite(ctx.siteId, fingerprint);
+  },
+);
 
 export const fetchErrorGroupsAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ErrorGroupsResult> => {
@@ -70,6 +100,24 @@ export const fetchErrorGroupVolumesAction = withDashboardAuthContext(
       dataKey: 'error_count',
       data: volumeRows,
     });
+  },
+);
+
+export const checkSessionReplayAction = withDashboardAuthContext(
+  async (ctx: AuthContext, sessionId: string): Promise<boolean> => {
+    return hasSessionReplayForSite(ctx.siteId, sessionId);
+  },
+);
+
+export const findReplaySessionForErrorAction = withDashboardAuthContext(
+  async (ctx: AuthContext, fingerprint: string): Promise<string | null> => {
+    return findReplaySessionForErrorGroup(ctx.siteId, fingerprint);
+  },
+);
+
+export const fetchSessionTrailAction = withDashboardAuthContext(
+  async (ctx: AuthContext, sessionId: string): Promise<GroupedSessionTrailEvent[]> => {
+    return getSessionTrailForSite(ctx.siteId, sessionId);
   },
 );
 
