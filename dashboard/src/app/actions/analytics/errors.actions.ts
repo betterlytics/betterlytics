@@ -13,8 +13,8 @@ import {
   getErrorGroupTimestampsForSite,
   upsertErrorGroupForSite,
   bulkUpsertErrorGroupForSite,
-  type ErrorGroupSidebarData,
 } from '@/services/analytics/errors.service';
+import type { ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { toGroupedTimeSeries, type TimeSeriesPoint } from '@/presenters/toTimeSeries';

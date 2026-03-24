@@ -22,6 +22,7 @@ import {
   ErrorOccurrence,
   SessionTrailEvent,
   StackFrame,
+  type ErrorGroupSidebarData,
   type ErrorGroupStatusValue,
   type GroupedSessionTrailEvent,
 } from '@/entities/analytics/errors.entities';
@@ -44,12 +45,6 @@ export async function getErrorGroupForSite(
   const statusMap = await getTrackedErrorGroups(dashboardId, [fingerprint]);
   return { ...row, status: statusMap[fingerprint] ?? 'unresolved' };
 }
-
-export type ErrorGroupSidebarData = {
-  browsers: ErrorGroupEnvironmentRow[];
-  deviceTypes: ErrorGroupEnvironmentRow[];
-  dailyVolume: ErrorGroupVolumePoint[];
-};
 
 export async function getErrorGroupSidebarDataForSite(
   siteId: string,

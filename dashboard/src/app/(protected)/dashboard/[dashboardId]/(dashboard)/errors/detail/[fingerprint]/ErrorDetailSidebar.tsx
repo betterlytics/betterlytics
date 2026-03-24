@@ -6,8 +6,7 @@ import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { EnvironmentDistribution } from './EnvironmentDistribution';
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { ErrorVolumeChart } from './ErrorVolumeChart';
-import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
-import type { ErrorGroupSidebarData } from '@/services/analytics/errors.service';
+import type { ErrorGroupRow, ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 type ErrorDetailSidebarProps = {
