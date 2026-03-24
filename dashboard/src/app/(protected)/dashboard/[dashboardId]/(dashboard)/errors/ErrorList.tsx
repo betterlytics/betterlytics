@@ -304,15 +304,17 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         id: 'last_seen',
-        accessorFn: (row) => row.last_seen.getTime(),
+        accessorFn: (row) => row.last_seen?.getTime() ?? 0,
         header: 'Last seen',
         enableGlobalFilter: false,
         cell: ({ row }) => {
-          const isRecent = Date.now() - row.original.last_seen.getTime() < RECENT_THRESHOLD_MS;
+          const lastSeen = row.original.last_seen;
+          if (!lastSeen) return '—';
+          const isRecent = Date.now() - lastSeen.getTime() < RECENT_THRESHOLD_MS;
           return (
             <div className='flex items-center gap-1.5'>
               {isRecent && <span className='bg-destructive h-1.5 w-1.5 shrink-0 animate-pulse rounded-full' />}
-              {formatElapsedTime(row.original.last_seen)} ago
+              {formatElapsedTime(lastSeen)} ago
             </div>
           );
         },
