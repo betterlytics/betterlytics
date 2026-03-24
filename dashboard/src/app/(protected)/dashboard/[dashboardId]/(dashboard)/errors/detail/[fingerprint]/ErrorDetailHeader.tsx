@@ -6,6 +6,7 @@ import { ChevronLeft, Check, Share2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
+import { cn } from '@/lib/utils';
 import { upsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import { STATUS_CONFIG } from '../../errors.constants';
 import { ErrorStatusActions } from '../../ErrorStatusActions';
@@ -47,7 +48,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
       <div className='space-y-1'>
         <div className='flex flex-wrap items-center gap-2.5'>
           <h1 className='font-mono text-2xl font-bold'>{errorGroup.error_type}</h1>
-          <Badge variant='outline' className={`mt-1.5 rounded-full ${cfg.className}`}>
+          <Badge variant='outline' className={cn('mt-1.5 rounded-full', cfg.className)}>
             {cfg.label}
           </Badge>
         </div>

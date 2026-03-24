@@ -3,8 +3,24 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
+
+function UrlTooltip({ url, className }: { url: string; className?: string }) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className={cn('text-muted-foreground cursor-default truncate text-xs', className)}>{url}</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{url}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 type OccurrenceNavigatorProps = {
   occurrence: ErrorOccurrence | null;
@@ -38,18 +54,7 @@ export function OccurrenceNavigator({
           <span />
         )}
         {occurrence?.url ? (
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className='text-muted-foreground hidden min-w-0 cursor-default truncate text-center text-xs xl:block'>
-                  {occurrence.url}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{occurrence.url}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <UrlTooltip url={occurrence.url} className='hidden min-w-0 text-center xl:block' />
         ) : (
           <span className='hidden xl:block' />
         )}
@@ -99,20 +104,7 @@ export function OccurrenceNavigator({
           </Button>
         </div>
       </div>
-      {occurrence?.url ? (
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className='text-muted-foreground block cursor-default truncate text-xs xl:hidden'>
-                {occurrence.url}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{occurrence.url}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ) : null}
+      {occurrence?.url ? <UrlTooltip url={occurrence.url} className='block xl:hidden' /> : null}
     </div>
   );
 }

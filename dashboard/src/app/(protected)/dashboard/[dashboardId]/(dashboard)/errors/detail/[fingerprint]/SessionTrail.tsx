@@ -17,27 +17,19 @@ type SessionTrailProps = {
   currentFingerprint: string;
 };
 
-const EVENT_ICONS: Record<string, typeof Eye> = {
-  pageview: Eye,
-  custom: MousePointerClick,
-  outbound_link: ExternalLink,
-  client_error: AlertTriangle,
+type EventConfig = {
+  icon: typeof Eye;
+  light: string;
+  dark: string;
 };
 
-const EVENT_COLORS: Record<string, Record<string, string>> = {
-  light: {
-    pageview: '#0ea5e9',
-    custom: '#8b5cf6',
-    outbound_link: '#f97316',
-    client_error: '#ef4444',
-  },
-  dark: {
-    pageview: '#38bdf8',
-    custom: '#a78bfa',
-    outbound_link: '#fb923c',
-    client_error: '#f87171',
-  },
-};
+const EVENT_CONFIG = {
+  pageview: { icon: Eye, light: '#0ea5e9', dark: '#38bdf8' },
+  custom: { icon: MousePointerClick, light: '#8b5cf6', dark: '#a78bfa' },
+  outbound_link: { icon: ExternalLink, light: '#f97316', dark: '#fb923c' },
+  client_error: { icon: AlertTriangle, light: '#ef4444', dark: '#f87171' },
+  default: { icon: Eye, light: '#0ea5e9', dark: '#38bdf8' },
+} as const satisfies Record<string, EventConfig>;
 
 export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: SessionTrailProps) {
   const [groups, setGroups] = useState<GroupedSessionTrailEvent[] | null>(null);
@@ -106,9 +98,11 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
       <div className='relative'>
         <div className='bg-muted/50 ring-border/60 max-h-80 overflow-y-auto rounded-lg p-1 shadow-inner ring-1 ring-inset'>
           {groups.map(({ event, count, label }, i) => {
-            const Icon = EVENT_ICONS[event.event_type] ?? Eye;
-            const color = EVENT_COLORS[theme][event.event_type] ?? EVENT_COLORS[theme].pageview;
-            const isCurrent = event.event_type === 'client_error' && event.error_fingerprint === currentFingerprint;
+            const config = EVENT_CONFIG[event.event_type as keyof typeof EVENT_CONFIG] ?? EVENT_CONFIG.default;
+            const Icon = config.icon;
+            const color = config[theme];
+            const isCurrent =
+              event.event_type === 'client_error' && event.error_fingerprint === currentFingerprint;
             const isLast = i === groups.length - 1;
 
             return (
