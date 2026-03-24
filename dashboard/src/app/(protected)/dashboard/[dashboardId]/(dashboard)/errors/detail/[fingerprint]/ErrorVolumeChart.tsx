@@ -13,8 +13,7 @@ export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
     const maxCount = Math.max(...data.map((d) => d.count), 1);
     return data.map((d) => ({
       ...d,
-      // Give zero-count bars a tiny visual presence (roughly 4% of max)
-      displayCount: d.count === 0 ? maxCount * 0.04 : d.count,
+      displayCount: d.count === 0 ? maxCount * 0.04 : d.count, // Fallback to 4% to give zero-count bars a tiny visual presence
       isEmpty: d.count === 0,
     }));
   }, [data]);

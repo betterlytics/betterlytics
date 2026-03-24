@@ -47,6 +47,7 @@ import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { STATUS_CONFIG } from './errors.constants';
+import { cn } from '@/lib/utils';
 import { ErrorTestScript } from './ErrorTestScript';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
@@ -77,16 +78,19 @@ function StatusFilterTabs({
             key={key}
             type='button'
             onClick={() => onChange(key)}
-            className={[
+            className={cn(
               '-mb-px cursor-pointer border-b-2 px-3 py-2 text-sm font-medium transition-colors',
               isActive
                 ? 'border-primary text-foreground'
                 : 'text-muted-foreground hover:text-foreground border-transparent',
-            ].join(' ')}
+            )}
           >
             {label}
             <span
-              className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={cn(
+                'ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums',
+                isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground',
+              )}
             >
               {counts[key]}
             </span>
@@ -153,7 +157,7 @@ function ErrorToolbar({
           onClick={onReload}
           aria-label='Reload errors'
         >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
           Reload
         </Button>
       </div>
@@ -444,14 +448,14 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   return (
                     <TableHead
                       key={header.id}
-                      className={[
+                      className={cn(
                         'text-foreground bg-muted/50 py-3 text-sm font-medium',
                         meta?.headerClassName ?? 'px-3 sm:px-6',
-                        canSort ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none' : '',
-                      ].join(' ')}
+                        canSort && 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none',
+                      )}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className={`flex items-center gap-1 ${meta?.centered ? 'justify-center' : ''}`}>
+                      <div className={cn('flex items-center gap-1', meta?.centered && 'justify-center')}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {sorted && (
                           <span className='ml-1'>
@@ -495,10 +499,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                     return (
                       <TableCell
                         key={cell.id}
-                        className={[
-                          'text-muted-foreground px-3 py-3 text-sm sm:px-6',
-                          meta?.cellClassName ?? '',
-                        ].join(' ')}
+                        className={cn('text-muted-foreground px-3 py-3 text-sm sm:px-6', meta?.cellClassName)}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>

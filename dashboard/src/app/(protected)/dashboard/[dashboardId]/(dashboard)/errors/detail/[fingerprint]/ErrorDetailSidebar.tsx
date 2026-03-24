@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MonitorPlay, Play, VideoOff } from 'lucide-react';
+import { Play, VideoOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
@@ -8,6 +8,16 @@ import { getDeviceLabel } from '@/constants/deviceTypes';
 import { ErrorVolumeChart } from './ErrorVolumeChart';
 import type { ErrorGroupRow, ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+
+function StatRow({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+  return (
+    <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
+      <dt className='text-muted-foreground text-sm'>{label}</dt>
+      <dd className='text-sm font-semibold'>{value}</dd>
+    </div>
+  );
+}
 
 type ErrorDetailSidebarProps = {
   dashboardId: string;
@@ -42,34 +52,22 @@ export function ErrorDetailSidebar({
           <div className='space-y-2'>
             <p className='text-foreground text-base font-medium'>Overview</p>
             <dl className='grid grid-cols-2 gap-x-6 gap-y-1.5 lg:grid-cols-1'>
-              {errorGroup.first_seen && (
-                <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
-                  <dt className='text-muted-foreground text-sm'>First seen</dt>
-                  <dd className='text-sm font-semibold'>
-                    {formatLocalDateTime(errorGroup.first_seen, undefined, {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </dd>
-                </div>
-              )}
-              <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
-                <dt className='text-muted-foreground text-sm'>Last seen</dt>
-                <dd className='text-sm font-semibold'>
-                  {formatLocalDateTime(errorGroup.last_seen, undefined, {
-                    dateStyle: 'medium',
-                    timeStyle: 'short',
-                  })}
-                </dd>
-              </div>
-              <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
-                <dt className='text-muted-foreground text-sm'>Occurrences</dt>
-                <dd className='text-sm font-semibold'>{errorGroup.count.toLocaleString()}</dd>
-              </div>
-              <div className='flex flex-col lg:flex-col xl:flex-row xl:justify-between xl:gap-2'>
-                <dt className='text-muted-foreground text-sm'>Sessions</dt>
-                <dd className='text-sm font-semibold'>{errorGroup.session_count.toLocaleString()}</dd>
-              </div>
+              <StatRow
+                label='First seen'
+                value={formatLocalDateTime(errorGroup.first_seen, undefined, {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })}
+              />
+              <StatRow
+                label='Last seen'
+                value={formatLocalDateTime(errorGroup.last_seen, undefined, {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })}
+              />
+              <StatRow label='Occurrences' value={errorGroup.count.toLocaleString()} />
+              <StatRow label='Sessions' value={errorGroup.session_count.toLocaleString()} />
             </dl>
           </div>
 

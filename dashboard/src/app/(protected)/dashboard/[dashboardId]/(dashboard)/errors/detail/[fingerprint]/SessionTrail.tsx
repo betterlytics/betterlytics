@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { ExternalLink, Film, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from 'next-themes';
 import { fetchSessionTrailAction, checkSessionReplayAction } from '@/app/actions/analytics/errors.actions';
@@ -114,9 +115,10 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
               <div
                 key={i}
                 ref={isCurrent ? currentRef : undefined}
-                className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-xs transition-colors ${
-                  isCurrent ? 'bg-destructive/8 shadow-[inset_2px_0_0_0_var(--destructive)]' : 'hover:bg-muted'
-                }`}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-md px-2 py-2 text-xs transition-colors',
+                  isCurrent ? 'bg-destructive/8 shadow-[inset_2px_0_0_0_var(--destructive)]' : 'hover:bg-muted',
+                )}
               >
                 <span className='text-muted-foreground w-16 shrink-0 text-left text-[11px] tabular-nums'>
                   {formatLocalDateTime(event.timestamp, undefined, { timeStyle: 'medium' })}
