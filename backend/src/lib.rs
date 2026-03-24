@@ -5,6 +5,7 @@ pub mod clickhouse;
 pub mod config;
 pub mod db;
 pub mod email;
+pub mod error_fingerprint;
 pub mod geoip;
 pub mod geoip_updater;
 pub mod ip_parser;

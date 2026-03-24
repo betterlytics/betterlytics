@@ -16,6 +16,7 @@ pub struct ValidationConfig {
     pub max_event_name_length: usize,
     pub max_site_id_length: usize,
     pub max_user_agent_length: usize,
+    pub max_error_exceptions_size: usize,
     pub max_timestamp_drift_seconds: i64,
     pub enforce_timestamp_validation: bool,
 }
@@ -28,6 +29,7 @@ impl Default for ValidationConfig {
             max_event_name_length: 100,               // Event name is usually short, but we should keep leeway for extra long event names
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
+            max_error_exceptions_size: 16 * 1024,     // 16KB - client caps stack at 10KB + type/value/mechanism overhead
             max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
             enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
@@ -113,6 +115,10 @@ impl EventValidator {
             self.validate_scroll_depth_fields(raw_event)?;
         }
 
+        if raw_event.event_name == "client_error" {
+            self.validate_client_error_fields(raw_event)?;
+        }
+
         // only present for custom events
         if !raw_event.properties.is_empty() {
             self.validate_properties_json(&raw_event.properties)?;
@@ -176,6 +182,11 @@ impl EventValidator {
         }
         if raw_event.properties.len() > self.config.max_custom_properties_size {
             return Err(ValidationError::PayloadTooLarge("Properties payload too large".to_string()));
+        }
+        if let Some(ref error_exceptions) = raw_event.error_exceptions {
+            if error_exceptions.len() > self.config.max_error_exceptions_size {
+                return Err(ValidationError::PayloadTooLarge("error_exceptions payload too large".to_string()));
+            }
         }
         Ok(())
     }
@@ -266,7 +277,6 @@ impl EventValidator {
         Ok(())
     }
 
-    /// Validate Core Web Vitals fields when present
     fn validate_cwv_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         fn valid_f32(v: f32) -> bool { v.is_finite() }
 
@@ -278,7 +288,6 @@ impl EventValidator {
         Ok(())
     }
 
-    /// Validate scroll depth fields when present
     fn validate_scroll_depth_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         fn valid_f32(v: f32) -> bool { v.is_finite() }
 
@@ -297,6 +306,20 @@ impl EventValidator {
             }
         }
         Ok(())
+    }
+
+    fn validate_client_error_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+        let error_exceptions = match &raw_event.error_exceptions {
+            Some(l) if !l.is_empty() => l,
+            _ => return Err(ValidationError::InvalidJson("client_error event missing error_exceptions".to_string())),
+        };
+
+        match serde_json::from_str::<serde_json::Value>(error_exceptions) {
+            Ok(v) if v.is_array() && !v.as_array().unwrap().is_empty() => Ok(()),
+            Ok(v) if v.is_array() => Err(ValidationError::InvalidJson("error_exceptions must not be empty".to_string())),
+            Ok(_) => Err(ValidationError::InvalidJson("error_exceptions must be a JSON array".to_string())),
+            Err(e) => Err(ValidationError::InvalidJson(format!("error_exceptions is not valid JSON: {}", e))),
+        }
     }
 
     /// Log sanitized rejection details for debugging

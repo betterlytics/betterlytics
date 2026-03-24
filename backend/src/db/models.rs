@@ -44,6 +44,10 @@ pub struct EventRow {
     pub cwv_ttfb: Option<f32>,
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
+    pub error_exceptions: String,
+    pub error_type: String,
+    pub error_message: String,
+    pub error_fingerprint: String,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -73,6 +77,7 @@ pub enum EventType {
     OutboundLink = 3,
     Cwv = 4,
     ScrollDepth = 5,
+    ClientError = 6,
 }
 
 impl EventRow {
@@ -115,6 +120,10 @@ impl EventRow {
             cwv_ttfb: event.cwv_ttfb,
             scroll_depth_percentage: event.scroll_depth_percentage,
             scroll_depth_pixels: event.scroll_depth_pixels,
+            error_exceptions: event.error_exceptions,
+            error_type: event.error_type,
+            error_message: event.error_message,
+            error_fingerprint: event.error_fingerprint,
         }
     }
 }

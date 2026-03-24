@@ -2032,6 +2032,11 @@
     "saving": "Gemmer..."
   },
   "components": {
+    "pagination": {
+      "pageOf": "Side {currentPage} af {totalPages}",
+      "showing": "Viser {startItem}-{endItem} af {totalItems} elementer",
+      "perPage": "pr. side"
+    },
     "annotations": {
       "dialogs": {
         "addTitle": "Tilføj annotation",

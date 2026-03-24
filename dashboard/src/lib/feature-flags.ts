@@ -12,6 +12,7 @@ export const featureFlags = {
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
   enableBugReports: env.IS_CLOUD,
+  enableErrorTracking: env.ENABLE_ERROR_TRACKING,
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
 } as const;
 

@@ -109,6 +109,7 @@
   --chart-4: oklch(0.6 0.18 80); /* Yellow-green */
   --chart-5: oklch(0.6 0.18 40); /* Orange */
   --chart-comparison: oklch(0.7 0.02 265); /* Neutral gray */
+  --chart-error: rgb(248, 113, 113); /* red-400 */
 
   /* Core Web Vitals percentile series */
   --cwv-p50: oklch(85% 0.08 255); /* light blue */
@@ -211,6 +212,7 @@
   --chart-4: oklch(0.7 0.25 40); /* Orange */
   --chart-5: oklch(0.7 0.25 320); /* Purple */
   --chart-comparison: oklch(0.65 0.02 265); /* Slightly lighter gray */
+  --chart-error: rgb(248, 113, 113); /* red-400 */
 
   /* Core Web Vitals percentile series */
   --cwv-p50: oklch(82% 0.1 255);

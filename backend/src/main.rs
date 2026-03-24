@@ -1,6 +1,6 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, State},
+    extract::{ConnectInfo, DefaultBodyLimit, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
     routing::{get, post},
@@ -18,6 +18,7 @@ mod clickhouse;
 mod config;
 mod db;
 mod email;
+mod error_fingerprint;
 mod geoip;
 mod geoip_updater;
 mod metrics;
@@ -206,6 +207,7 @@ async fn main() {
 
     let app = router
         .fallback(fallback_handler)
+        .layer(DefaultBodyLimit::max(64 * 1024))
         .with_state((
             db,
             processor,
