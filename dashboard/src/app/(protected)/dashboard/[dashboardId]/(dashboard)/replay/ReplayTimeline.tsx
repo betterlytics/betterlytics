@@ -156,7 +156,7 @@ const MARKER_KEYS = [
   'Media Interaction',
   'Pageview',
   'Blacklist',
-  'js_error',
+  'client_error',
 ] as const;
 
 type MarkerKey = (typeof MARKER_KEYS)[number];
@@ -198,7 +198,7 @@ function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.Rea
       return <Eye className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Blacklist':
       return <Lock className={ICON_BASE_CLASS} style={{ color }} />;
-    case 'js_error':
+    case 'client_error':
       return <AlertTriangle className={ICON_BASE_CLASS} style={{ color }} />;
     default:
       return <Tag className={ICON_BASE_CLASS} style={{ color }} />;
@@ -225,7 +225,7 @@ function labelForKey(key: MarkerKey | string, t: any) {
       return t('pageview');
     case 'Blacklist':
       return t('blacklist');
-    case 'js_error':
+    case 'client_error':
       return 'JavaScript Error';
     default:
       return key;

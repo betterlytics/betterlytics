@@ -8629,7 +8629,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
           var parsed = null;
           try { parsed = JSON.parse(errorExceptionsJson); } catch (_) {}
-          window.rrweb.record.addCustomEvent("js_error", {
+          window.rrweb.record.addCustomEvent("client_error", {
             type: errorType,
             message: (parsed && parsed[0] && parsed[0].value) || "",
           });
