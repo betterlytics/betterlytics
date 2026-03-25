@@ -8593,16 +8593,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       var flushedEventCount = events.length;
       var firstEventTs = state.firstActivity || state.startedAt;
       var lastEventTs = state.lastActivity;
-      try {
-        var first = events[0];
-        if (first && typeof first.timestamp === "number") {
-          firstEventTs = first.timestamp;
-        }
-        var last = events[events.length - 1];
-        if (last && typeof last.timestamp === "number") {
-          lastEventTs = last.timestamp;
-        }
-      } catch (_) {}
+      var first = events[0];
+      if (first && typeof first.timestamp === "number") {
+        firstEventTs = first.timestamp;
+      }
 
       state.pendingErrorType = errorType;
       state.pendingErrorExceptionsJson = errorExceptionsJson;
