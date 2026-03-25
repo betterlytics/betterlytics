@@ -3,6 +3,7 @@ use std::time::Duration;
 use std::sync::Arc;
 
 use axum::{extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, Json};
+use tracing::error;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
@@ -97,7 +98,10 @@ pub async fn presign_put_segment(
     );
 
     let session_id = session::get_or_create_session_id(&req.site_id, fingerprint)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+        .map_err(|e| {
+            error!("Failed to get session ID: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+        })?;
 
     if req.content_length == 0 || req.content_length > MAX_CONTENT_LENGTH_BYTES {
         return Err((StatusCode::BAD_REQUEST, "invalid content_length".to_string()));
@@ -114,7 +118,10 @@ pub async fn presign_put_segment(
         },
         req.content_length,
         PRESIGNED_PUT_TTL_SECS,
-    ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    ).await.map_err(|e| {
+        error!("Failed to presign replay PUT: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })?;
 
     Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint, sse: s3.sse_enabled }))
 }
@@ -196,7 +203,10 @@ pub async fn finalize_session_replay(
         error_fingerprints: meta.error_fingerprints.clone(),
     };
 
-    db.upsert_session_replay(row).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    db.upsert_session_replay(row).await.map_err(|e| {
+        error!("Failed to upsert session replay: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })?;
     FINALIZE_CACHE.insert(key, meta);
     Ok(StatusCode::OK)
 }
