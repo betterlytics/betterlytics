@@ -8517,8 +8517,15 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
     }
 
+    function stopFlushTimer() {
+      if (state.flushTimer) {
+        clearInterval(state.flushTimer);
+        state.flushTimer = null;
+      }
+    }
+
     function startFlushLoop() {
-      if (state.flushTimer) clearInterval(state.flushTimer);
+      stopFlushTimer();
       state.flushTimer = setInterval(function () {
         if (Date.now() - state.lastActivity > idleCutoffMs) {
           stopRecording(true);
@@ -8663,10 +8670,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           state.recordingStop = null;
         }
       } catch (e) {}
-      if (state.flushTimer) {
-        clearInterval(state.flushTimer);
-        state.flushTimer = null;
-      }
+      stopFlushTimer();
       stopErrorCheckoutTimer();
       flushAll()
         .catch(function () {})
