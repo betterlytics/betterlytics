@@ -8455,6 +8455,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
+    function uploadEventChunk(events, lastEventTs) {
+      var json = JSON.stringify(events);
+      return encodeReplayChunk(json)
+        .then(function (enc) {
+          enc.lastEventTs = lastEventTs;
+          return fetchPresignedUrl(enc);
+        })
+        .then(uploadToS3);
+    }
+
     function flush() {
       if (state.disabled) return Promise.resolve();
       if (state.buffer.length === 0) return Promise.resolve();
@@ -8468,24 +8478,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
         return Promise.resolve();
       }
 
-      var json = JSON.stringify(events);
       var flushedEventCount = events.length;
       state.approxBytes = 0;
 
       var lastEventTs = state.lastActivity;
-      try {
-        var last = events[events.length - 1];
-        if (last && typeof last.timestamp === "number") {
-          lastEventTs = last.timestamp;
-        }
-      } catch (_) {}
+      var last = events[events.length - 1];
+      if (last && typeof last.timestamp === "number") {
+        lastEventTs = last.timestamp;
+      }
 
-      state.ongoingFlush = encodeReplayChunk(json)
-        .then(function (enc) {
-          enc.lastEventTs = lastEventTs;
-          return fetchPresignedUrl(enc);
-        })
-        .then(uploadToS3)
+      state.ongoingFlush = uploadEventChunk(events, lastEventTs)
         .then(function (data) {
           handleUploadSuccess(data, flushedEventCount, lastEventTs);
         })
@@ -8550,6 +8552,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
+    function clearPendingError() {
+      state.pendingErrorType = null;
+      state.pendingErrorExceptionsJson = null;
+    }
+
     function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs, startedAtMs) {
       if (state.disabled) return;
       if (!state.pendingErrorType && !hasReachedMinDuration()) return;
@@ -8570,8 +8577,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.pendingErrorType) {
         body.error_type = state.pendingErrorType;
         body.error_exceptions = state.pendingErrorExceptionsJson;
-        state.pendingErrorType = null;
-        state.pendingErrorExceptionsJson = null;
+        clearPendingError();
       }
 
       return fetch(apiBase + "/replay/finalize", {
@@ -8589,7 +8595,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (events.length === 0) return Promise.resolve();
 
-      var json = JSON.stringify(events);
       var flushedEventCount = events.length;
       var firstEventTs = state.firstActivity || state.startedAt;
       var lastEventTs = state.lastActivity;
@@ -8601,20 +8606,14 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.pendingErrorType = errorType;
       state.pendingErrorExceptionsJson = errorExceptionsJson;
 
-      return encodeReplayChunk(json)
-        .then(function (enc) {
-          enc.lastEventTs = lastEventTs;
-          return fetchPresignedUrl(enc);
-        })
-        .then(uploadToS3)
+      return uploadEventChunk(events, lastEventTs)
         .then(function (data) {
           var uploadedBytes = data.payload.bytes.byteLength;
           state.errorMatrix = [[]];
           finalizeSession(uploadedBytes, flushedEventCount, lastEventTs, firstEventTs);
         })
         .catch(function () {
-          state.pendingErrorType = null;
-          state.pendingErrorExceptionsJson = null;
+          clearPendingError();
         });
     }
 
