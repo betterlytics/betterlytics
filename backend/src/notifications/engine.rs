@@ -13,7 +13,8 @@ use super::notifier::{Notification, Notifier};
 
 const MAX_RETRIES: u32 = 2;
 const RETRY_DELAY_MS: u64 = 500;
-const DELIVERY_LOG_TTL: Duration = Duration::from_hours(30 * 24);
+const HOURS_IN_SECONDS: u64 = 3600;
+const DELIVERY_LOG_TTL: Duration = Duration::from_secs(HOURS_IN_SECONDS * 30 * 24);
 
 #[derive(Debug, Clone)]
 pub enum DeliveryStrategy {

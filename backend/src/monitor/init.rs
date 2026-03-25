@@ -18,6 +18,8 @@ use super::{
     MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
 };
 
+const HOURS_IN_SECONDS: u64 = 3600;
+
 pub fn spawn_monitoring(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
@@ -139,7 +141,7 @@ async fn run_monitoring_init_loop(
         info!("Incident orchestrator initialized");
 
         let http_rate_limiter = Arc::new(DomainRateLimiter::default());
-        let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_hours(1)));
+        let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_secs(HOURS_IN_SECONDS)));
         info!("Domain rate limiter initialized");
 
         let http_runner = HttpRunner::new(
@@ -169,4 +171,3 @@ async fn run_monitoring_init_loop(
         break;
     }
 }
-
