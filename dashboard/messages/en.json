@@ -3562,8 +3562,8 @@
       "priorities": {
         "-2": "Lowest: No notification",
         "-1": "Low: No sound or vibration",
-        "1": "High: Bypass quiet hours",
-        "0": "Normal (Recommended)"
+        "0": "Normal (Recommended)",
+        "1": "High: Bypass quiet hours"
       },
       "credentialsHint": "Find your user key at <link>pushover.net</link>",
       "priorityHint": "Learn more about priority levels <link>here</link>.",
