@@ -1184,6 +1184,10 @@
           "title": "Session Replay",
           "description": "Replay user sessions to see exactly how visitors interact with your site and uncover usability issues."
         },
+        "errorTracking": {
+          "title": "Error Tracking",
+          "description": "Automatically capture and group client-side errors, with stack traces and session replay links so you can reproduce and fix bugs fast."
+        },
         "userJourneys": {
           "title": "User Journeys",
           "description": "Visualize the paths visitors take across your site from entry to exit."
@@ -1475,6 +1479,9 @@
       "campaignTracking": {
         "name": "Campaign & UTM tracking"
       },
+      "errorTracking": {
+        "name": "Client-side error tracking"
+      },
       "emailReports": {
         "name": "Email reports"
       },
@@ -1538,7 +1545,8 @@
         "outboundLinks": "Outbound link tracking",
         "advancedFiltering": "Advanced filtering",
         "cookieFree": "Cookie-free",
-        "gdprCcpa": "GDPR & CCPA ready"
+        "gdprCcpa": "GDPR & CCPA ready",
+        "errorTracking": "Client-side error tracking"
       }
     }
   },

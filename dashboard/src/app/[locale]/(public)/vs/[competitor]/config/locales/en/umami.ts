@@ -75,6 +75,7 @@ export const umami: ComparisonLocaleContent = {
           { name: 'User retention', betterlytics: false, competitor: true },
           { name: 'Annotations', betterlytics: true, competitor: false },
           { name: 'Session replay', betterlytics: true, competitor: false },
+          { name: 'Client-side error tracking', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: false },

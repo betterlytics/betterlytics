@@ -74,6 +74,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'User journey tracking', betterlytics: true, competitor: 'Limited' },
           { name: 'Funnel analysis', betterlytics: true, competitor: 'With add-on' },
           { name: 'Session replay', betterlytics: true, competitor: 'With add-on' },
+          { name: 'Client-side error tracking', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: 'With plugins' },
