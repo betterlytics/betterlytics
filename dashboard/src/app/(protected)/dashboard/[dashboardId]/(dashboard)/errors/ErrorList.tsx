@@ -37,12 +37,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ErrorStatusActions } from './ErrorStatusActions';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
 import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
@@ -138,26 +140,37 @@ function ErrorToolbar({
         />
       </div>
       <div className='ml-auto flex items-center gap-2'>
-        {hasSelection && <span className='text-muted-foreground text-sm'>{t('selectedCount', { count: selectedCount })}</span>}
-        <ErrorStatusActions
-          canResolve={canResolve}
-          canIgnore={canIgnore}
-          canUnresolve={canUnresolve}
-          onResolve={onResolve}
-          onIgnore={onIgnore}
-          onUnresolve={onUnresolve}
-        />
-        <Button
-          variant='outline'
-          size='sm'
-          className='shrink-0 cursor-pointer'
-          disabled={isRefreshing}
-          onClick={onReload}
-          aria-label={t('reloadAria')}
-        >
-          <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
-          {t('reload')}
-        </Button>
+        {hasSelection && (
+          <span className='text-muted-foreground text-sm'>{t('selectedCount', { count: selectedCount })}</span>
+        )}
+        <PermissionGate>
+          {(disabled) => (
+            <ErrorStatusActions
+              canResolve={canResolve && !disabled}
+              canIgnore={canIgnore && !disabled}
+              canUnresolve={canUnresolve && !disabled}
+              onResolve={onResolve}
+              onIgnore={onIgnore}
+              onUnresolve={onUnresolve}
+              isPending={disabled}
+            />
+          )}
+        </PermissionGate>
+        <PermissionGate allowViewer>
+          {(disabled) => (
+            <Button
+              variant='outline'
+              size='sm'
+              className='shrink-0 cursor-pointer'
+              disabled={isRefreshing || disabled}
+              onClick={onReload}
+              aria-label={t('reloadAria')}
+            >
+              <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
+              {t('reload')}
+            </Button>
+          )}
+        </PermissionGate>
       </div>
     </div>
   );
@@ -173,6 +186,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
   const t = useTranslations('errors');
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
+  const { resolveHref } = useDashboardNavigation();
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
@@ -209,23 +223,40 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
     () => [
       {
         id: 'select',
-        meta: { cellClassName: 'w-10 py-3 pl-4 sm:pl-6', headerClassName: 'w-10 pl-4 sm:pl-6', stopRowClick: true },
+        meta: {
+          cellClassName: 'w-10 py-3 pl-4 sm:pl-6',
+          headerClassName: 'w-10 pl-4 sm:pl-6',
+          stopRowClick: true,
+        },
         header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            className='mr-2 cursor-pointer'
-            aria-label={t('table.selectAll')}
-          />
+          <PermissionGate>
+            {(disabled) => (
+              <Checkbox
+                checked={
+                  !disabled &&
+                  (table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'))
+                }
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                className={cn('mr-2', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                disabled={disabled}
+                aria-label={t('table.selectAll')}
+              />
+            )}
+          </PermissionGate>
         ),
         cell: ({ row }) => (
-          <Checkbox
-            className='cursor-pointer'
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            onClick={(e) => e.stopPropagation()}
-            aria-label={t('table.selectRow')}
-          />
+          <PermissionGate>
+            {(disabled) => (
+              <Checkbox
+                className={cn(disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                checked={!disabled && row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                onClick={(e) => e.stopPropagation()}
+                disabled={disabled}
+                aria-label={t('table.selectRow')}
+              />
+            )}
+          </PermissionGate>
         ),
         enableSorting: false,
       },
@@ -273,27 +304,28 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         id: 'first_seen',
-        accessorFn: (row) => row.first_seen?.getTime() ?? 0,
+        accessorFn: (row) => (row.first_seen ? new Date(row.first_seen).getTime() : 0),
         header: t('table.columns.firstSeen'),
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
-          return firstSeen ? t('table.ago', { time: formatElapsedTime(firstSeen) }) : '—';
+          return firstSeen ? t('table.ago', { time: formatElapsedTime(new Date(firstSeen)) }) : '—';
         },
       },
       {
         id: 'last_seen',
-        accessorFn: (row) => row.last_seen?.getTime() ?? 0,
+        accessorFn: (row) => (row.last_seen ? new Date(row.last_seen).getTime() : 0),
         header: t('table.columns.lastSeen'),
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const lastSeen = row.original.last_seen;
           if (!lastSeen) return '—';
-          const isRecent = Date.now() - lastSeen.getTime() < RECENT_THRESHOLD_MS;
+          const lastSeenDate = new Date(lastSeen);
+          const isRecent = Date.now() - lastSeenDate.getTime() < RECENT_THRESHOLD_MS;
           return (
             <div className='flex items-center gap-1.5'>
               {isRecent && <span className='bg-destructive h-1.5 w-1.5 shrink-0 animate-pulse rounded-full' />}
-              {t('table.ago', { time: formatElapsedTime(lastSeen) })}
+              {t('table.ago', { time: formatElapsedTime(lastSeenDate) })}
             </div>
           );
         },
@@ -323,39 +355,43 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
           const fp = row.original.error_fingerprint;
           const currentStatus = getStatus(fp, row.original.status);
           return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='h-7 w-7 cursor-pointer sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100'
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label={t('table.rowActionsAria')}
-                >
-                  <MoreHorizontal className='h-4 w-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                {currentStatus !== 'resolved' && (
-                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
-                    <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
-                    {t('statusActions.markResolved')}
-                  </DropdownMenuItem>
-                )}
-                {currentStatus !== 'ignored' && (
-                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
-                    <EyeOff className='mr-2 h-4 w-4' />
-                    {t('statusActions.ignore')}
-                  </DropdownMenuItem>
-                )}
-                {currentStatus !== 'unresolved' && (
-                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
-                    <RotateCcw className='mr-2 h-4 w-4' />
-                    {t('statusActions.markUnresolved')}
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <PermissionGate hideWhenDisabled>
+              {() => (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-7 w-7 cursor-pointer focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={t('table.rowActionsAria')}
+                    >
+                      <MoreHorizontal className='h-4 w-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    {currentStatus !== 'resolved' && (
+                      <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
+                        <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
+                        {t('statusActions.markResolved')}
+                      </DropdownMenuItem>
+                    )}
+                    {currentStatus !== 'ignored' && (
+                      <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
+                        <EyeOff className='mr-2 h-4 w-4' />
+                        {t('statusActions.ignore')}
+                      </DropdownMenuItem>
+                    )}
+                    {currentStatus !== 'unresolved' && (
+                      <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
+                        <RotateCcw className='mr-2 h-4 w-4' />
+                        {t('statusActions.markUnresolved')}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </PermissionGate>
           );
         },
       },
@@ -477,9 +513,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
               <TableRow className='hover:bg-transparent'>
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
-                    {globalFilter.trim()
-                      ? t('table.emptySearch')
-                      : t('table.emptyPeriod')}
+                    {globalFilter.trim() ? t('table.emptySearch') : t('table.emptyPeriod')}
                   </p>
                 </TableCell>
               </TableRow>
@@ -490,7 +524,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   data-state={row.getIsSelected() ? 'selected' : undefined}
                   className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
                   onClick={(e) => {
-                    const href = `/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`;
+                    const href = resolveHref(`/errors/detail/${row.original.error_fingerprint}`);
                     if (e.metaKey || e.ctrlKey) {
                       window.open(href, '_blank');
                     } else {

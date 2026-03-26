@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import { Play, VideoOff } from 'lucide-react';
+import { VideoOff } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
@@ -7,6 +6,7 @@ import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { EnvironmentDistribution } from './EnvironmentDistribution';
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { ErrorVolumeChart } from './ErrorVolumeChart';
+import { ReplayCard } from './ReplayCard';
 import type { ErrorGroupRow, ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
@@ -21,14 +21,12 @@ function StatRow({ label, value }: { label: string; value?: string }) {
 }
 
 type ErrorDetailSidebarProps = {
-  dashboardId: string;
   errorGroup: ErrorGroupRow;
   sidebarData: ErrorGroupSidebarData;
   replaySessionId: string | null;
 };
 
 export async function ErrorDetailSidebar({
-  dashboardId,
   errorGroup,
   sidebarData,
   replaySessionId,
@@ -89,22 +87,7 @@ export async function ErrorDetailSidebar({
       </Card>
 
       {replaySessionId ? (
-        <Card className='border-primary/30 bg-primary/10'>
-          <CardContent className='px-4 py-3'>
-            <Link
-              href={`/dashboard/${dashboardId}/replay?sessionId=${replaySessionId}`}
-              className='flex flex-col items-center gap-2 text-center'
-            >
-              <div className='bg-primary/15 flex h-8 w-8 items-center justify-center rounded-full'>
-                <Play className='text-primary h-3.5 w-3.5 translate-x-[1px]' />
-              </div>
-              <div>
-                <p className='text-sm font-medium'>{t('watchReplay')}</p>
-                <p className='text-muted-foreground text-xs'>{t('watchReplayDescription')}</p>
-              </div>
-            </Link>
-          </CardContent>
-        </Card>
+        <ReplayCard replaySessionId={replaySessionId} />
       ) : (
         <Card className='hidden lg:block'>
           <CardContent className='px-4'>
