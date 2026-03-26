@@ -65,6 +65,7 @@ export async function getSessionReplays(
       r.event_count,
       r.s3_prefix,
       r.start_url,
+      r.error_fingerprints,
       e.device_type,
       e.browser,
       e.os,

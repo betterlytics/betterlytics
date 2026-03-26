@@ -22,6 +22,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { markerFillColorForLabel } from './utils/colors';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 export type TimelineMarkerDescriptor = {
   key: string;
@@ -43,12 +44,14 @@ export type TimelineGroup = {
   end: number;
   jumpTo: number;
   icon: React.ReactNode;
+  href?: string;
 };
 
 type ReplayTimelineProps = {
   markers: TimelineMarker[];
   onJump: (timestamp: number) => void;
   isSessionSelected?: boolean;
+  errorFingerprints?: string[];
 };
 
 export function buildTimelineMarkers(
@@ -232,11 +235,22 @@ function labelForKey(key: MarkerKey | string, t: any) {
   }
 }
 
-function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any): TimelineGroup[] {
+function errorDetailHref(dashboardId: string, fingerprint: string): string {
+  return `/dashboard/${dashboardId}/errors/detail/${fingerprint}`;
+}
+
+function buildGroups(
+  markers: TimelineMarker[],
+  theme: 'light' | 'dark',
+  t: any,
+  dashboardId: string,
+  errorFingerprints: string[] | undefined,
+): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];
   let current: TimelineGroup | null = null;
+  const firstFingerprint = errorFingerprints?.[0];
 
   sorted.forEach((m, index) => {
     if (!current || current.key !== m.key) {
@@ -250,6 +264,7 @@ function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any)
         end: m.timestamp,
         jumpTo: m.timestamp,
         icon: iconForKey(key, theme),
+        href: key === 'client_error' && firstFingerprint ? errorDetailHref(dashboardId, firstFingerprint) : undefined,
       };
       groups.push(current!);
     } else {
@@ -261,14 +276,18 @@ function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any)
   return groups;
 }
 
-function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }: ReplayTimelineProps) {
+function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false, errorFingerprints }: ReplayTimelineProps) {
   const tTimeline = useTranslations('components.sessionReplay.eventTimeline');
   const tEvents = useTranslations('components.sessionReplay.events');
+  const dashboardId = useDashboardId();
 
   const { resolvedTheme } = useTheme();
   const theme: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light';
 
-  const groups = useMemo(() => buildGroups(markers, theme, tEvents), [markers, theme, tEvents]);
+  const groups = useMemo(
+    () => buildGroups(markers, theme, tEvents, dashboardId, errorFingerprints),
+    [markers, theme, tEvents, dashboardId, errorFingerprints],
+  );
   const totalEvents = markers.length;
 
   const timelineEmptyState = useMemo(

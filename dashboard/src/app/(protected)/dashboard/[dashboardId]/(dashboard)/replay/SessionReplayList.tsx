@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, ListVideo } from 'lucide-react';
+import { Clock, ListVideo, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ import { formatDuration, formatRelativeTimeFromNow } from '@/utils/dateFormatter
 import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -95,9 +96,19 @@ export function SessionReplayList({
           <CardContent className='px-3 py-3'>
             <div className='text-muted-foreground flex w-full items-center justify-between gap-3 text-xs'>
               <span>{capitalizeFirstLetter(formatRelativeTimeFromNow(startedAt, locale))}</span>
-              <span className='inline-flex items-center gap-1 font-medium'>
-                <Clock className='h-3 w-3' aria-hidden='true' />
-                {durationLabel}
+              <span className='inline-flex items-center gap-2 font-medium'>
+                {session.error_fingerprints && session.error_fingerprints.length > 0 && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <AlertTriangle className='h-3 w-3 text-red-500' aria-label='Session contains errors' />
+                    </TooltipTrigger>
+                    <TooltipContent side='bottom'>Session contains {session.error_fingerprints.length} captured errors</TooltipContent>
+                  </Tooltip>
+                )}
+                <span className='inline-flex items-center gap-1'>
+                  <Clock className='h-3 w-3' aria-hidden='true' />
+                  {durationLabel}
+                </span>
               </span>
             </div>
 
