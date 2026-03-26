@@ -3554,8 +3554,8 @@
       "priorities": {
         "-2": "Lowest: No notification",
         "-1": "Low: No sound or vibration",
-        "0": "Normal (Recommended)",
-        "1": "High: Bypass quiet hours"
+        "1": "High: Bypass quiet hours",
+        "0": "Normal (Recommended)"
       },
       "credentialsHint": "Find your user key at <link>pushover.net</link>",
       "priorityHint": "Learn more about priority levels <link>here</link>.",
@@ -3623,6 +3623,108 @@
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
       "invalidWebhookUrl": "Invalid webhook URL"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Errors"
+    },
+    "table": {
+      "columns": {
+        "error": "Error",
+        "volume": "Volume",
+        "occurrences": "Occurrences",
+        "sessions": "Sessions",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "status": "Status"
+      },
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "rowActionsAria": "Row actions",
+      "ago": "{time} ago",
+      "emptySearch": "No errors matching your search.",
+      "emptyPeriod": "No errors recorded in this period."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by type and message...",
+      "selectedCount": "{count} selected",
+      "reload": "Reload",
+      "reloadAria": "Reload errors"
+    },
+    "statusFilter": {
+      "all": "All",
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored"
+    },
+    "statusActions": {
+      "resolve": "Resolve",
+      "ignore": "Ignore",
+      "unresolve": "Unresolve",
+      "markResolved": "Mark resolved",
+      "markUnresolved": "Mark unresolved"
+    },
+    "status": {
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored"
+    },
+    "emptyState": {
+      "title": "No errors detected",
+      "description": "When JavaScript errors occur on your site, they will appear here grouped by type. Set up error tracking to catch and monitor client-side exceptions.",
+      "learnMore": "Learn about error tracking"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Back to errors",
+        "copied": "Copied!",
+        "share": "Share"
+      },
+      "sidebar": {
+        "overview": "Overview",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "occurrences": "Occurrences",
+        "sessions": "Sessions",
+        "occurrenceHistory": "Occurrence history",
+        "browsers": "Browsers",
+        "deviceType": "Device type",
+        "watchReplay": "Watch session replay",
+        "watchReplayDescription": "See what the user did before this error",
+        "noReplay": "No session replay for this error",
+        "noReplayDescription": "Replay captures what users did before an error occurred.",
+        "learnMore": "Learn more"
+      },
+      "navigator": {
+        "occurrenceOf": "Occurrence {number} of {total}",
+        "firstOccurrence": "First occurrence",
+        "olderOccurrence": "Older occurrence",
+        "newerOccurrence": "Newer occurrence",
+        "latestOccurrence": "Latest occurrence"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frames}}",
+        "showLess": "Show less",
+        "showMoreFrames": "Show {count} more {count, plural, one {frame} other {frames}}",
+        "at": "at",
+        "inApp": "in app"
+      },
+      "sessionTrail": {
+        "title": "Session trail",
+        "eventCount": "{count, plural, one {# event} other {# events}} in this session",
+        "watchReplay": "Watch replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Operating System",
+        "device": "Device",
+        "country": "Country"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# error} other {# errors}}"
+      }
     }
   }
 }
