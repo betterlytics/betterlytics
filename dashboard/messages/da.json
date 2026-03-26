@@ -1187,6 +1187,10 @@
           "title": "Session Replay",
           "description": "Afspil brugersessioner for at se præcis hvordan besøgende interagerer med dit site og find usability-problemer."
         },
+        "errorTracking": {
+          "title": "Fejlsporing",
+          "description": "Registrer automatisk klientfejl og gruppér dem med stack traces og session replay-links, så du hurtigt kan genskabe og rette fejl."
+        },
         "userJourneys": {
           "title": "Brugerrejser",
           "description": "Visualiser de stier besøgende tager på tværs af dit site fra indgang til udgang."
@@ -1478,6 +1482,9 @@
       "campaignTracking": {
         "name": "Kampagne- og UTM-sporing"
       },
+      "errorTracking": {
+        "name": "Klientside-fejlsporing"
+      },
       "emailReports": {
         "name": "E-mail-rapporter"
       },
@@ -1541,7 +1548,8 @@
         "outboundLinks": "Udgående linksporing",
         "advancedFiltering": "Avanceret filtrering",
         "cookieFree": "Cookie-fri",
-        "gdprCcpa": "GDPR og CCPA klar"
+        "gdprCcpa": "GDPR og CCPA klar",
+        "errorTracking": "Klientside-fejlsporing"
       }
     }
   },
@@ -1566,7 +1574,8 @@
         "behavior": "Adfærd",
         "observability": "Overvågning"
       },
-      "collapseNav": "Skjul navigation"
+      "collapseNav": "Skjul navigation",
+      "errorTracking": "Fejlsporing"
     },
     "settings": {
       "sidebar": {
@@ -2609,7 +2618,8 @@
         "empty": {
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
-        }
+        },
+        "errorBadge": "Session indeholder {count} registrerede {count, plural, one {fejl} other {fejl}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -2631,12 +2641,18 @@
         "scroll": "Rulning",
         "input": "Indtastning",
         "pageview": "Sidevisning",
-        "blacklist": "Sortlistet"
+        "blacklist": "Sortlistet",
+        "viewportResize": "Viewport-ændring",
+        "mediaInteraction": "Medieinteraktion",
+        "clientError": "Klientfejl"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Afspilningshastighed",
         "recordingDisabled": "Optagelse er deaktiveret på denne side"
+      },
+      "timeline": {
+        "viewErrorDetails": "Se fejldetaljer"
       }
     },
     "integration": {
@@ -3626,6 +3642,108 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Fejl"
+    },
+    "table": {
+      "columns": {
+        "error": "Fejl",
+        "volume": "Volumen",
+        "occurrences": "Forekomster",
+        "sessions": "Sessioner",
+        "firstSeen": "Først set",
+        "lastSeen": "Senest set",
+        "status": "Status"
+      },
+      "selectAll": "Vælg alle",
+      "selectRow": "Vælg række",
+      "rowActionsAria": "Rækkehandlinger",
+      "ago": "{time} siden",
+      "emptySearch": "Ingen fejl matcher din søgning.",
+      "emptyPeriod": "Ingen fejl registreret i denne periode."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Søg efter type og besked...",
+      "selectedCount": "{count} valgt",
+      "reload": "Genindlæs",
+      "reloadAria": "Genindlæs fejl"
+    },
+    "statusFilter": {
+      "all": "Alle",
+      "unresolved": "Ikke løst",
+      "resolved": "Løst",
+      "ignored": "Ignoreret"
+    },
+    "statusActions": {
+      "resolve": "Løs",
+      "ignore": "Ignorér",
+      "unresolve": "Fjern som løst",
+      "markResolved": "Markér som løst",
+      "markUnresolved": "Markér som ikke løst"
+    },
+    "status": {
+      "unresolved": "Ikke løst",
+      "resolved": "Løst",
+      "ignored": "Ignoreret"
+    },
+    "emptyState": {
+      "title": "Ingen fejl registreret",
+      "description": "Når der opstår klientside-fejl på dit site, vises de her grupperet efter type. Opsæt fejlsporing for at fange og overvåge klientside-fejl.",
+      "learnMore": "Læs om fejlsporing"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Tilbage til fejl",
+        "copied": "Kopieret!",
+        "share": "Del"
+      },
+      "sidebar": {
+        "overview": "Overblik",
+        "firstSeen": "Først set",
+        "lastSeen": "Senest set",
+        "occurrences": "Forekomster",
+        "sessions": "Sessioner",
+        "occurrenceHistory": "Historik",
+        "browsers": "Browsere",
+        "deviceType": "Enhedstype",
+        "watchReplay": "Se session replay",
+        "watchReplayDescription": "Se hvad brugeren gjorde før fejlen",
+        "noReplay": "Ingen session replay for denne fejl",
+        "noReplayDescription": "Replay viser hvad brugere gjorde før en fejl opstod.",
+        "learnMore": "Læs mere"
+      },
+      "navigator": {
+        "occurrenceOf": "Forekomst {number} af {total}",
+        "firstOccurrence": "Første forekomst",
+        "olderOccurrence": "Ældre forekomst",
+        "newerOccurrence": "Nyere forekomst",
+        "latestOccurrence": "Seneste forekomst"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frames}}",
+        "showLess": "Vis mindre",
+        "showMoreFrames": "Vis {count} flere {count, plural, one {frame} other {frames}}",
+        "at": "ved",
+        "inApp": "i app"
+      },
+      "sessionTrail": {
+        "title": "Sessionsforløb",
+        "eventCount": "{count, plural, one {# hændelse} other {# hændelser}} i denne session",
+        "watchReplay": "Se replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Operativsystem",
+        "device": "Enhed",
+        "country": "Land"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# fejl} other {# fejl}}"
+      }
     }
   }
 }

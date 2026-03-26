@@ -2636,7 +2636,10 @@
         "scroll": "Scroll",
         "input": "Input",
         "pageview": "Pageview",
-        "blacklist": "Blacklisted"
+        "blacklist": "Blacklisted",
+        "viewportResize": "Viewport Resize",
+        "mediaInteraction": "Media Interaction",
+        "clientError": "Client Error"
       },
       "player": {
         "skipInactive": "Skip inactivity",
@@ -3680,7 +3683,7 @@
     },
     "emptyState": {
       "title": "No errors detected",
-      "description": "When JavaScript errors occur on your site, they will appear here grouped by type. Set up error tracking to catch and monitor client-side exceptions.",
+      "description": "When client-side errors occur on your site, they will appear here grouped by type. Set up error tracking to catch and monitor client-side exceptions.",
       "learnMore": "Learn about error tracking"
     },
     "detail": {
