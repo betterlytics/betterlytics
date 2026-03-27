@@ -48,6 +48,7 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 | `data-replay-max-duration` | seconds | `1200` | Hard cap on total recording length. |
 | `data-dynamic-urls` | string list | - | Comma‑separated SPA normalization patterns (supports `*` and `**`). |
 | `data-disable-replay-on-urls` | string list | - | Comma‑separated patterns where recording is disabled. |
+| `data-replay-on-error` | boolean | `false` | Capture a replay when an error occurs, even for sessions not selected for regular recording. Requires [Error Tracking](/integration/errors). |
 | `data-scripts-base-url` | string (URL) | Betterlytics CDN | Base to load `replay.js` when replay is enabled. |
 
 ### Using the npm package
@@ -154,6 +155,14 @@ Session Replay operates with privacy‑first defaults:
 
 - We emit a custom `Pageview` event and may capture a fresh snapshot on client‑side navigations to make timelines meaningful on SPAs.
 - Use `data-dynamic-urls` to normalize variable path segments for aggregation (e.g. `/product/**`).
+
+## Error-triggered recording
+
+By default, only sampled sessions are recorded. With `data-replay-on-error="true"`, non-sampled sessions are silently recorded in the background. When a JavaScript error occurs, approximately 1–2 minutes of replay context is uploaded automatically.
+
+This lets you get replay coverage for error sessions without recording every session. Sessions without errors are never uploaded.
+
+See the [Error Tracking integration guide](/integration/errors#error-triggered-replay) for setup and configuration details.
 
 ## Disabling on sensitive pages
 

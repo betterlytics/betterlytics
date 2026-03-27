@@ -1,0 +1,55 @@
+---
+title: "Error Tracking - Betterlytics"
+description: "Catch and debug JavaScript errors on your site. See which errors affect the most users, inspect stack traces, and watch session replays to understand what went wrong."
+---
+
+import { Callout } from "nextra/components";
+
+# Error Tracking in Your Dashboard
+
+Error Tracking captures JavaScript errors on your site and groups identical ones together, so you can see which issues affect the most users, inspect where they occurred, and watch a session replay to understand what happened.
+
+{/* IMAGE: Screenshot of the errors list page */}
+
+Go to **Dashboard > Errors** to see all error groups detected for the selected time range.
+
+<Callout type="info">
+Error tracking must be enabled in your tracking script. See the [Error Tracking integration guide](/integration/errors) for setup instructions.
+</Callout>
+
+## Status management
+
+Each error group has one of three statuses: **Unresolved**, **Resolved**, or **Ignored**. Use the filter tabs at the top to show only the errors you care about. You can update the status per error or select multiple and apply a bulk change.
+
+## Error detail page
+
+Selecting an error group opens a detail view with a full breakdown: when it first appeared, how often it occurs, which browsers and devices are affected, and a stack trace for each occurrence.
+
+{/* IMAGE: Screenshot of the error detail page */}
+
+### Stack trace
+
+The stack trace shows where the error happened in your code. Frames from your own code are highlighted separately from third-party libraries.
+
+### Session trail
+
+The **session trail** shows everything that happened in the user's session before the error: pageviews, custom events, outbound link clicks, and other errors. It helps you understand what led to the problem.
+
+## Session replay
+
+For recorded sessions, a **Watch session replay** link appears on the detail page. It takes you directly to the moment the error occurred so you can see the full user experience, not just the stack trace.
+
+<Callout type="info">
+Replay links are available when [Session Replay](/integration/session-replay) is enabled and the session was recorded, either through regular sampling or [error-triggered recording](/integration/errors#error-triggered-replay).
+</Callout>
+
+## Troubleshooting
+
+- **No errors appearing**: Verify error tracking is enabled in your tracking script. See the [integration guide](/integration/errors) for setup instructions.
+- **Too many errors**: Browser extension errors are filtered out automatically. Use the Ignored status to suppress known issues.
+- **Missing stack traces**: If you only see `"Script error."`, your scripts are likely served from a different domain. See the [integration guide](/integration/errors#scripts-hosted-on-a-cdn-or-different-domain) for how to fix this.
+- **No session replay link**: The session needs to have been recorded. See the [integration guide](/integration/errors#error-triggered-replay) for how to enable error-triggered recording.
+
+---
+
+**Related**: Learn how to [enable and configure Error Tracking](/integration/errors).

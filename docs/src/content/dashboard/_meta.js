@@ -9,6 +9,7 @@ export default {
   funnels: "Funnels",
   "outbound-links": "Outbound Links",
   "web-vitals": "Web Vitals",
+  errors: "Error Tracking",
   "session-replay": "Session Replay",
   monitoring: "Uptime Monitoring",
   "email-reports": "Email Reports",

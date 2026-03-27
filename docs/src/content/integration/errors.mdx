@@ -1,0 +1,106 @@
+---
+title: "Error Tracking"
+description: "Enable JavaScript error tracking with Betterlytics. Catch errors automatically, link them to session replays, and debug issues faster."
+---
+
+import { Callout } from "nextra/components";
+
+# Error Tracking
+
+Betterlytics captures JavaScript errors from your site and sends them to your dashboard. Identical errors are automatically grouped so you can track unique issues over time.
+
+## Quick start
+
+### Using the script tag
+
+Add `data-track-errors="true"` to your analytics script to start capturing errors.
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-track-errors="true"
+  data-track-console-errors="true"
+>
+</script>
+```
+
+### Configuration reference
+
+| Attribute | Type | Default | Description |
+| --- | --- | --- | --- |
+| `data-track-errors` | boolean | `false` | Enables error tracking. |
+| `data-track-console-errors` | boolean | `false` | Also captures `console.error()` calls. Requires `data-track-errors="true"`. |
+| `data-replay-on-error` | boolean | `false` | Captures a replay when an error occurs, even for sessions not selected for regular recording. Requires `data-replay="true"` and consent. See [Error-triggered replay](#error-triggered-replay). |
+
+### Using the npm package
+
+Coming soon...
+
+## What gets captured
+
+Betterlytics captures three types of errors:
+
+- **JavaScript errors**: runtime errors like `TypeError`, `ReferenceError`, etc. that are not caught by your code.
+- **Failed promises**: promises that reject without being handled.
+- **Console errors** (optional): `console.error()` calls. Enable with `data-track-console-errors="true"`.
+
+## Errors and Session Replay
+
+When error tracking is combined with [Session Replay](/integration/session-replay), errors are automatically linked to replay recordings. You can jump from any error in the dashboard directly to the session replay to see what the user experienced and vice versa.
+
+If a session is already being recorded, errors are linked to it automatically with no extra configuration needed.
+
+### Error-triggered replay
+
+For sessions that are not being recorded, you can enable `data-replay-on-error` to capture a replay anyway. Betterlytics records in the background and only uploads when an error occurs, giving you around **1-2 minutes of context** before the error. Sessions without errors are never uploaded.
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-track-errors="true"
+  data-replay="true"
+  data-consent-replay="true"
+  data-replay-sample="5"
+  data-replay-on-error="true"
+>
+</script>
+```
+
+<Callout type="info">
+Error-triggered recording requires replay consent. Recording only starts once consent is granted.
+</Callout>
+
+## Scripts hosted on a CDN or different domain
+
+If your JavaScript is served from a different domain than your page, browsers block error details from cross-origin scripts. You will only see `"Script error."` with no stack trace.
+
+To fix this, add `crossorigin="anonymous"` to your script tags and make sure your CDN is configured to allow it:
+
+```html
+<script src="https://cdn.example.com/app.js" crossorigin="anonymous"></script>
+```
+
+## Privacy
+
+Error messages may occasionally contain sensitive data, such as URLs with user IDs. Make sure your application does not include personal data in error messages.
+
+## Best practices
+
+- Enable alongside [Session Replay](/integration/session-replay) to get full context for every error.
+- Use `data-track-console-errors` if your dependencies log errors rather than throw them.
+- Triage errors regularly using the Resolved and Ignored statuses.
+- Check for new error groups after each deploy.
+
+## Troubleshooting
+
+- **No errors appearing**: Verify `data-track-errors="true"` is set on your analytics script.
+- **Missing stack traces**: If you only see `"Script error."`, see [Scripts hosted on a CDN or different domain](#scripts-hosted-on-a-cdn-or-different-domain).
+- **Console errors not captured**: Set `data-track-console-errors="true"` alongside `data-track-errors="true"`.
+
+---
+
+**Next steps**: Learn how to view and manage errors in the [Error Tracking dashboard](/dashboard/errors).
