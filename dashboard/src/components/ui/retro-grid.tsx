@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 interface RetroGridProps {
   gridColor?: string;
+  bgColor?: string;
   showScanlines?: boolean;
   glowEffect?: boolean;
   className?: string;
@@ -11,6 +12,7 @@ interface RetroGridProps {
 
 function RetroGrid({
   gridColor = '#ff00ff',
+  bgColor = '#000000',
   showScanlines = true,
   glowEffect = true,
   className = '',
@@ -123,6 +125,7 @@ function RetroGrid({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const rgb = hexToRgb(gridColor);
+      const bg = hexToRgb(bgColor);
 
       const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.55);
       skyGradient.addColorStop(0, `rgba(${rgb.r * 0.05}, ${rgb.g * 0.05}, ${rgb.b * 0.15}, 1)`);
@@ -137,7 +140,7 @@ function RetroGrid({
       const groundGradient = ctx.createLinearGradient(0, canvas.height * 0.55, 0, canvas.height);
       groundGradient.addColorStop(0, `rgba(${rgb.r * 0.1}, ${rgb.g * 0.08}, ${rgb.b * 0.15}, 1)`);
       groundGradient.addColorStop(0.3, `rgba(${rgb.r * 0.05}, ${rgb.g * 0.03}, ${rgb.b * 0.08}, 1)`);
-      groundGradient.addColorStop(1, '#000000');
+      groundGradient.addColorStop(1, `rgb(${bg.r}, ${bg.g}, ${bg.b})`);
       ctx.fillStyle = groundGradient;
       ctx.fillRect(0, canvas.height * 0.55, canvas.width, canvas.height * 0.45);
 
@@ -181,13 +184,13 @@ function RetroGrid({
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(rafId);
     };
-  }, [gridColor, showScanlines, glowEffect]);
+  }, [gridColor, bgColor, showScanlines, glowEffect]);
 
   return (
     <canvas
       ref={canvasRef}
       className={className}
-      style={{ background: '#000000', width: '100%', height: '100%' }}
+      style={{ background: bgColor, width: '100%', height: '100%' }}
     />
   );
 }

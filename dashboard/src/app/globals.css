@@ -153,7 +153,7 @@
   --weekly-heatmap-fill-none: #e2e2e2;
 
   --globe-bg: hsl(0, 0%, 97%);
-  --globe-grid: hsl(0, 0%, 90%);
+  --globe-grid: hsl(0, 0%, 80%);
   --globe-data-path: #3b82f6;
   --globe-node-bg: white;
   --globe-node-border: hsl(0, 0%, 90%);
@@ -263,7 +263,7 @@
   --weekly-heatmap-fill-none: #33363b;
 
   --globe-bg: hsl(222, 5%, 12%);
-  --globe-grid: hsl(0, 0%, 22%);
+  --globe-grid: hsl(0, 0%, 30%);
   --globe-data-path: #60a5fa;
   --globe-node-bg: hsl(222, 5%, 15%);
   --globe-node-border: hsl(0, 0%, 22%);

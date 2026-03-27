@@ -12,10 +12,11 @@ export function HeroGlobe() {
   return (
     <div className='relative h-full w-full'>
       <RetroGrid
-        gridColor='#3b82f6'
+        gridColor={isDark ? '#3b82f6' : '#93c5fd'}
+        bgColor={isDark ? '#0a0a0f' : '#f9f9f9'}
         showScanlines={false}
         glowEffect={true}
-        className='absolute inset-0'
+        className='absolute bottom-[5vh]'
       />
       <div className='relative h-full w-full'>
         <GlobeBackground className='h-full w-full' logoSrc={logoSrc} />
