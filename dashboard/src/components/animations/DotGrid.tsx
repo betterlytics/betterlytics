@@ -5,7 +5,6 @@ import { useRef, useEffect, useCallback } from 'react';
 type Dot = {
   x: number;
   y: number;
-  baseOpacity: number;
   activeOpacity: number;
   delay: number;
 };
@@ -35,6 +34,9 @@ export function DotGrid({
   const progressRef = useRef(0);
   const sizeRef = useRef({ width: 0, height: 0 });
   const rafRef = useRef<number>(0);
+  const hasActivatedRef = useRef(false);
+  const colorRef = useRef(color);
+  colorRef.current = color;
 
   const buildDots = useCallback(
     (width: number, height: number): Dot[] => {
@@ -49,7 +51,6 @@ export function DotGrid({
           dots.push({
             x: offsetX + c * gap,
             y: offsetY + r * gap,
-            baseOpacity: 0,
             activeOpacity: 0.3 + Math.random() * 0.7,
             delay: Math.random(),
           });
@@ -75,31 +76,29 @@ export function DotGrid({
           0,
           Math.min(1, (progress - dot.delay * 0.3) / (1 - dot.delay * 0.3))
         );
-        const opacity =
-          dot.baseOpacity + (dot.activeOpacity - dot.baseOpacity) * staggered;
 
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.globalAlpha = opacity;
+        ctx.fillStyle = colorRef.current;
+        ctx.globalAlpha = dot.activeOpacity * staggered;
         ctx.fill();
       }
 
       ctx.globalAlpha = 1;
     },
-    [color, dotRadius]
+    [dotRadius]
   );
 
-  // Resize handling
   useEffect(() => {
+    if (active) hasActivatedRef.current = true;
+    if (!hasActivatedRef.current) return;
+
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
     const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      const { width, height } = entry.contentRect;
+      const { width, height } = entries[0].contentRect;
       const dpr = window.devicePixelRatio || 1;
 
       canvas.width = width * dpr;
@@ -108,7 +107,10 @@ export function DotGrid({
       canvas.style.height = `${height}px`;
 
       const ctx = canvas.getContext('2d');
-      if (ctx) ctx.scale(dpr, dpr);
+      if (ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+      }
 
       sizeRef.current = { width, height };
       dotsRef.current = buildDots(width, height);
@@ -117,18 +119,23 @@ export function DotGrid({
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, [buildDots, drawFrame]);
+  }, [active, buildDots, drawFrame]);
 
-  // Activation animation via requestAnimationFrame
   useEffect(() => {
+    if (!hasActivatedRef.current) return;
+
     const target = active ? 1 : 0;
     const start = progressRef.current;
+    if (start === target) {
+      drawFrame(target);
+      return;
+    }
+
     const duration = active ? 600 : 800;
     const startTime = performance.now();
 
     function tick(now: number) {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
+      const t = Math.min((now - startTime) / duration, 1);
       progressRef.current = start + (target - start) * easeOut(t);
       drawFrame(progressRef.current);
       if (t < 1) {
@@ -142,7 +149,7 @@ export function DotGrid({
 
   return (
     <div ref={containerRef} className={className}>
-      <canvas ref={canvasRef} className="h-full w-full" />
+      <canvas ref={canvasRef} className="h-full w-full" aria-hidden="true" />
     </div>
   );
 }
