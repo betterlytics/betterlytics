@@ -8645,9 +8645,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       function doFlush() {
         if (!state.errorFlushPending) return;
+        state.errorFlushPending = false;
         if (timer) { clearTimeout(timer); timer = null; }
         window.removeEventListener("beforeunload", doFlush);
-        state.errorFlushPending = false;
         if (isSampledRecording) {
           state.pendingErrorType = errorType;
           state.pendingErrorExceptionsJson = errorExceptionsJson;
