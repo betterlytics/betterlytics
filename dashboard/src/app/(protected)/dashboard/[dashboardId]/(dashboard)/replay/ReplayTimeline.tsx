@@ -222,11 +222,17 @@ function buildGroups(
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];
   let current: TimelineGroup | null = null;
-  const firstFingerprint = errorFingerprints?.[0];
+  let errorGroupIndex = 0;
 
   sorted.forEach((m, index) => {
     if (!current || current.key !== m.key) {
       const key = keyForMarker(m);
+      let href: string | undefined;
+      if (key === 'client_error' && errorFingerprints && errorFingerprints.length > 0) {
+        const fpIndex = Math.min(errorGroupIndex, errorFingerprints.length - 1);
+        href = errorDetailHref(dashboardId, errorFingerprints[fpIndex]);
+        errorGroupIndex++;
+      }
       current = {
         id: `group-${index}-${key}-${Math.round(m.timestamp)}`,
         key: key,
@@ -236,7 +242,7 @@ function buildGroups(
         end: m.timestamp,
         jumpTo: m.timestamp,
         icon: iconForKey(key, theme),
-        href: key === 'client_error' && firstFingerprint ? errorDetailHref(dashboardId, firstFingerprint) : undefined,
+        href,
       };
       groups.push(current!);
     } else {
