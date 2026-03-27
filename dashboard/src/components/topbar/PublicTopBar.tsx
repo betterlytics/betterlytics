@@ -5,17 +5,35 @@ import { Button } from '@/components/ui/button';
 import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Blend, Grid3x3, Menu, X } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { useTranslations } from 'next-intl';
 import NextLink from 'next/link';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import {
+  useHeroBackground,
+  type HeroBackground,
+  type HeroGradient,
+} from '@/components/landing/background-context';
 
 export default function PublicTopBar() {
   const t = useTranslations('public.nav');
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { background, setBackground, gradients, toggleGradient } = useHeroBackground();
+
+  const isLandingPage = pathname === '/';
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -61,6 +79,81 @@ export default function PublicTopBar() {
             </nav>
 
             <div className='ml-6 flex items-center gap-6'>
+              {isLandingPage && (
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className='text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
+                        aria-label='Switch background'
+                      >
+                        <Grid3x3 className='h-5 w-5' />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end'>
+                      <DropdownMenuLabel>Background</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuRadioGroup
+                        value={background}
+                        onValueChange={(v) => setBackground(v as HeroBackground)}
+                      >
+                        <DropdownMenuRadioItem value='retro-grid'>
+                          Retro Grid
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value='grid'>Grid</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value='dots'>Dots</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value='diagonal-stripes'>
+                          Diagonal Lines
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className='text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
+                        aria-label='Switch gradient'
+                      >
+                        <Blend className='h-5 w-5' />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end'>
+                      <DropdownMenuLabel>Gradient</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuCheckboxItem
+                        checked={gradients.has('bottom-fade')}
+                        onCheckedChange={() => toggleGradient('bottom-fade')}
+                      >
+                        Bottom Fade
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={gradients.has('text-spotlight')}
+                        onCheckedChange={() => toggleGradient('text-spotlight')}
+                      >
+                        Text Spotlight
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={gradients.has('radial-center')}
+                        onCheckedChange={() => toggleGradient('radial-center')}
+                      >
+                        Radial Center
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={gradients.has('top-vignette')}
+                        onCheckedChange={() => toggleGradient('top-vignette')}
+                      >
+                        Top Vignette
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={gradients.has('blue-wash')}
+                        onCheckedChange={() => toggleGradient('blue-wash')}
+                      >
+                        Blue Wash
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
               <ExternalLink
                 href='https://github.com/betterlytics/betterlytics'
                 className='text-muted-foreground hover:text-foreground transition-colors'

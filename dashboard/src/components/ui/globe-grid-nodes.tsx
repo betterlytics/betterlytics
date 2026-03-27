@@ -13,6 +13,7 @@ interface GlobeGridNodesProps {
   readonly layer: GlobeGridNodesLayer;
   readonly nodes: ReadonlyArray<GlobeNodePoint>;
   readonly hub: GlobeNodePoint;
+  readonly hubFrontRadius: number;
   readonly hubLogoClipId: string;
   readonly logoSrc: string;
 }
@@ -20,11 +21,10 @@ interface GlobeGridNodesProps {
 const SOURCE_BACKPLATE_RADIUS = 12;
 const SOURCE_OCCLUDER_RADIUS = 5;
 const HUB_BACKPLATE_RADIUS = 20;
-const HUB_FRONT_OCCLUDER_RADIUS = 9;
 const LOGO_SIZE = 28;
 const LOGO_OFFSET = LOGO_SIZE / 2;
 
-export function GlobeGridNodes({ layer, nodes, hub, hubLogoClipId, logoSrc }: GlobeGridNodesProps) {
+export function GlobeGridNodes({ layer, nodes, hub, hubFrontRadius, hubLogoClipId, logoSrc }: GlobeGridNodesProps) {
   if (layer === 'backplates') {
     return (
       <g className='globe-grid-backplates'>
@@ -83,7 +83,7 @@ export function GlobeGridNodes({ layer, nodes, hub, hubLogoClipId, logoSrc }: Gl
       ))}
 
       <g>
-        <circle cx={hub.x} cy={hub.y} r={HUB_FRONT_OCCLUDER_RADIUS} fill='var(--globe-node-bg)' />
+        <circle cx={hub.x} cy={hub.y} r={hubFrontRadius} fill='var(--globe-node-bg)' />
         <image
           href={logoSrc}
           x={hub.x - LOGO_OFFSET}

@@ -12,8 +12,8 @@ const ROUTE_PULSE_LENGTH = 120;
 const TUNNEL_EXTRA_LENGTH = 60;
 const SOURCE_OCCLUSION_RADIUS = 5;
 const SOURCE_TUNNEL_STROKE = 10;
-const HUB_VISIBLE_OCCLUDER_RADIUS = 9;
-const ROUTE_PIXELS_PER_SECOND = 72;
+const HUB_FRONT_OCCLUDER_RADIUS = 13;
+const ROUTE_PIXELS_PER_SECOND = 164;
 const ARC_LENGTH_SAMPLES = 32;
 
 const MERIDIAN_RX = [400, 328.7, 235.36, 123.1, 0];
@@ -107,6 +107,17 @@ function roundMetric(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+function meridianPoint(rx: number, y: number, side: 'left' | 'right'): Vec2 {
+  const dy = (y - CY) / R;
+  const sign = side === 'right' ? 1 : -1;
+  const x = CX + sign * rx * Math.sqrt(Math.max(0, 1 - dy * dy));
+
+  return {
+    x: roundMetric(x),
+    y: roundMetric(y),
+  };
+}
+
 function normalize(vec: Vec2): Vec2 {
   const length = Math.hypot(vec.x, vec.y);
   if (length === 0) return { x: 0, y: 0 };
@@ -133,6 +144,66 @@ function travelDirection(from: GridPt, to: GridPt, at: 'start' | 'end'): Vec2 {
     x: directionSign * (-sideSign * from.rx * Math.sin(theta)),
     y: directionSign * (R * Math.cos(theta)),
   });
+}
+
+function pointBeforeRouteStart(source: GridPt, next: GridPt, distance: number): Vec2 {
+  if (distance <= 0) return { x: source.x, y: source.y };
+
+  if (source.y === next.y) {
+    const direction = Math.sign(next.x - source.x) || 1;
+    return {
+      x: roundMetric(source.x - direction * distance),
+      y: source.y,
+    };
+  }
+
+  if (source.rx === 0) {
+    const direction = Math.sign(next.y - source.y) || 1;
+    return {
+      x: source.x,
+      y: roundMetric(source.y - direction * distance),
+    };
+  }
+
+  const extendingUpward = next.y > source.y;
+  const lowerBound = extendingUpward ? 0 : source.y;
+  const upperBound = extendingUpward ? source.y : CY * 2;
+  const maxReach = meridianArcLength(source.rx, lowerBound, upperBound);
+
+  if (distance >= maxReach) {
+    return meridianPoint(source.rx, extendingUpward ? lowerBound : upperBound, source.side);
+  }
+
+  let low = lowerBound;
+  let high = upperBound;
+
+  for (let i = 0; i < 24; i++) {
+    const mid = (low + high) / 2;
+    const travelled = meridianArcLength(source.rx, mid, source.y);
+
+    if (travelled > distance) {
+      if (extendingUpward) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    } else if (extendingUpward) {
+      high = mid;
+    } else {
+      low = mid;
+    }
+  }
+
+  const y = extendingUpward ? high : low;
+  return meridianPoint(source.rx, y, source.side);
+}
+
+function segmentCommand(from: Vec2, to: Vec2, templateFrom: GridPt, templateTo: GridPt): string {
+  if (templateFrom.y === templateTo.y || templateFrom.rx === 0) {
+    return `L ${to.x},${to.y}`;
+  }
+
+  return arcSegment(templateFrom.rx, templateFrom.side, from, to);
 }
 
 // Nodes — spread across the hemisphere
@@ -206,16 +277,18 @@ const ROUTES: ReadonlyArray<Route> = [
 
 function buildRouteData(waypoints: ReadonlyArray<GridPt>): RouteData {
   const source = waypoints[0];
-  const sourceTravelDirection = travelDirection(source, waypoints[1], 'start');
+  const firstHop = waypoints[1];
+  const sourceTravelDirection = travelDirection(source, firstHop, 'start');
   const sourceTunnelLength = ROUTE_PULSE_LENGTH + TUNNEL_EXTRA_LENGTH;
-  const hiddenSource = offsetPoint(source, { x: -sourceTravelDirection.x, y: -sourceTravelDirection.y }, sourceTunnelLength);
-  const sourceTunnelMouth = offsetPoint(
-    source,
+  const sourceTunnelMouth = pointBeforeRouteStart(source, firstHop, SOURCE_OCCLUSION_RADIUS);
+  const hiddenSource = offsetPoint(
+    sourceTunnelMouth,
     { x: -sourceTravelDirection.x, y: -sourceTravelDirection.y },
-    SOURCE_OCCLUSION_RADIUS,
+    sourceTunnelLength - SOURCE_OCCLUSION_RADIUS,
   );
 
-  let d = `M ${hiddenSource.x},${hiddenSource.y} L ${source.x},${source.y}`;
+  let d = `M ${hiddenSource.x},${hiddenSource.y} L ${sourceTunnelMouth.x},${sourceTunnelMouth.y} `;
+  d += segmentCommand(sourceTunnelMouth, source, source, firstHop);
   let length = sourceTunnelLength;
 
   for (let i = 1; i < waypoints.length; i++) {
@@ -261,7 +334,10 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
     });
 
     setRouteLengths((prev) => {
-      if (prev.length === nextLengths.length && prev.every((value, i) => Math.abs(value - nextLengths[i]) < 0.01)) {
+      if (
+        prev.length === nextLengths.length &&
+        prev.every((value, i) => Math.abs(value - nextLengths[i]) < 0.01)
+      ) {
         return prev;
       }
 
@@ -278,11 +354,19 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
             <stop offset='100%' stopColor='var(--globe-grid)' />
           </linearGradient>
           <clipPath id={`g-hub-logo-clip-${uid}`} clipPathUnits='userSpaceOnUse'>
-            <circle cx={HUB.x} cy={HUB.y} r={HUB_VISIBLE_OCCLUDER_RADIUS} />
+            <circle cx={HUB.x} cy={HUB.y} r={HUB_FRONT_OCCLUDER_RADIUS} />
           </clipPath>
           {ROUTE_DATA.map((route, i) => {
             return (
-              <mask key={i} id={`g-route-mask-${i}-${uid}`} maskUnits='userSpaceOnUse' x='-1' y='-1' width='802' height='322'>
+              <mask
+                key={i}
+                id={`g-route-mask-${i}-${uid}`}
+                maskUnits='userSpaceOnUse'
+                x='-1'
+                y='-1'
+                width='802'
+                height='322'
+              >
                 <rect x='-1' y='-1' width='802' height='322' fill='white' />
                 <path
                   d={route.sourceTunnelPath}
@@ -328,6 +412,7 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
           layer='backplates'
           nodes={NODES}
           hub={HUB}
+          hubFrontRadius={HUB_FRONT_OCCLUDER_RADIUS}
           logoSrc={logoSrc}
           hubLogoClipId={`g-hub-logo-clip-${uid}`}
         />
@@ -396,6 +481,7 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
           layer='occluders'
           nodes={NODES}
           hub={HUB}
+          hubFrontRadius={HUB_FRONT_OCCLUDER_RADIUS}
           logoSrc={logoSrc}
           hubLogoClipId={`g-hub-logo-clip-${uid}`}
         />
