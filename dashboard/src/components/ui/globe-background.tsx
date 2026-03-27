@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useId } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { GlobeGridNodes } from './globe-grid-nodes';
 
 const R = 400;
 const CX = 400;
 const CY = 400;
 const VIEWBOX = '-1 -1 802 322';
-const ROUTE_PATH_LENGTH = 100;
-const ROUTE_PULSE_LENGTH = 18;
-const ROUTE_PULSE_KEYTIMES = '0;0.1;0.9;1';
-const ROUTE_PULSE_DASHOFFSET_VALUES = `${ROUTE_PULSE_LENGTH};0;-${ROUTE_PATH_LENGTH};-${ROUTE_PATH_LENGTH}`;
-const ROUTE_PULSE_OPACITY_VALUES = '0;1;1;0';
+const ROUTE_PULSE_LENGTH = 120;
+const TUNNEL_EXTRA_LENGTH = 60;
+const SOURCE_OCCLUSION_RADIUS = 5;
+const SOURCE_TUNNEL_STROKE = 10;
+const HUB_VISIBLE_OCCLUDER_RADIUS = 9;
+const ROUTE_PIXELS_PER_SECOND = 72;
+const ARC_LENGTH_SAMPLES = 32;
 
 const MERIDIAN_RX = [400, 328.7, 235.36, 123.1, 0];
 const LATITUDE_YS = [80, 160, 240, 320, 400];
@@ -21,6 +24,11 @@ interface GridPt {
   readonly y: number;
   readonly rx: number;
   readonly side: 'left' | 'right';
+}
+
+interface Vec2 {
+  readonly x: number;
+  readonly y: number;
 }
 
 function gridPoint(rx: number, y: number, side: 'left' | 'right'): GridPt {
@@ -64,6 +72,69 @@ function arcSegment(
   return `A ${rx} ${R} 0 0 ${sweep} ${to.x},${to.y}`;
 }
 
+function angleForY(y: number): number {
+  return Math.asin((y - CY) / R);
+}
+
+function meridianArcLength(rx: number, fromY: number, toY: number): number {
+  if (rx === 0) return Math.abs(toY - fromY);
+
+  const fromAngle = angleForY(fromY);
+  const toAngle = angleForY(toY);
+  let prevX = rx * Math.cos(fromAngle);
+  let prevY = R * Math.sin(fromAngle);
+  let length = 0;
+
+  for (let i = 1; i <= ARC_LENGTH_SAMPLES; i++) {
+    const t = i / ARC_LENGTH_SAMPLES;
+    const angle = fromAngle + (toAngle - fromAngle) * t;
+    const x = rx * Math.cos(angle);
+    const y = R * Math.sin(angle);
+    length += Math.hypot(x - prevX, y - prevY);
+    prevX = x;
+    prevY = y;
+  }
+
+  return length;
+}
+
+function segmentLength(from: GridPt, to: GridPt): number {
+  if (from.y === to.y) return Math.abs(to.x - from.x);
+  return meridianArcLength(from.rx, from.y, to.y);
+}
+
+function roundMetric(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function normalize(vec: Vec2): Vec2 {
+  const length = Math.hypot(vec.x, vec.y);
+  if (length === 0) return { x: 0, y: 0 };
+  return { x: vec.x / length, y: vec.y / length };
+}
+
+function offsetPoint(point: Vec2, direction: Vec2, distance: number): Vec2 {
+  return {
+    x: roundMetric(point.x + direction.x * distance),
+    y: roundMetric(point.y + direction.y * distance),
+  };
+}
+
+function travelDirection(from: GridPt, to: GridPt, at: 'start' | 'end'): Vec2 {
+  if (from.y === to.y) return normalize({ x: to.x - from.x, y: 0 });
+  if (from.rx === 0) return normalize({ x: 0, y: to.y - from.y });
+
+  const y = at === 'start' ? from.y : to.y;
+  const theta = angleForY(y);
+  const sideSign = from.side === 'right' ? 1 : -1;
+  const directionSign = to.y > from.y ? 1 : -1;
+
+  return normalize({
+    x: directionSign * (-sideSign * from.rx * Math.sin(theta)),
+    y: directionSign * (R * Math.cos(theta)),
+  });
+}
+
 // Nodes — spread across the hemisphere
 // Hub node (Betterlytics logo) — node 26
 const HUB = gridPoint(0, 240, 'right'); // (400, 240)
@@ -76,13 +147,15 @@ const NODES: ReadonlyArray<GridPt> = [
   gridPoint(235.36, 320, 'right'), // node 32
 ];
 
-// Pulse cycle — all timing derives from this
-const PULSE_DUR = 4;
-
 interface Route {
   readonly waypoints: ReadonlyArray<GridPt>;
   readonly begin: number;
-  readonly duration: number;
+}
+
+interface RouteData {
+  readonly d: string;
+  readonly length: number;
+  readonly sourceTunnelPath: string;
 }
 
 // All routes flow INWARD to the hub (node 26), following grid lines
@@ -96,7 +169,6 @@ const ROUTES: ReadonlyArray<Route> = [
       gridPoint(0, 240, 'right'), // 26 (hub)
     ],
     begin: 0,
-    duration: 4,
   },
   // [31] → 33 → 35 → 26
   {
@@ -107,7 +179,6 @@ const ROUTES: ReadonlyArray<Route> = [
       gridPoint(0, 240, 'right'), // 26 (hub)
     ],
     begin: 1.5,
-    duration: 4.7,
   },
   // [3] → 12 → 14 → 16 → 17 → 26
   {
@@ -120,7 +191,6 @@ const ROUTES: ReadonlyArray<Route> = [
       gridPoint(0, 240, 'right'), // 26 (hub)
     ],
     begin: 3,
-    duration: 5.3,
   },
   // [32] → 34 → 25 → 26
   {
@@ -131,16 +201,27 @@ const ROUTES: ReadonlyArray<Route> = [
       gridPoint(0, 240, 'right'), // 26 (hub)
     ],
     begin: 5,
-    duration: 4.3,
   },
 ];
 
-function buildRoutePath(waypoints: ReadonlyArray<GridPt>) {
-  let d = `M ${waypoints[0].x},${waypoints[0].y}`;
+function buildRouteData(waypoints: ReadonlyArray<GridPt>): RouteData {
+  const source = waypoints[0];
+  const sourceTravelDirection = travelDirection(source, waypoints[1], 'start');
+  const sourceTunnelLength = ROUTE_PULSE_LENGTH + TUNNEL_EXTRA_LENGTH;
+  const hiddenSource = offsetPoint(source, { x: -sourceTravelDirection.x, y: -sourceTravelDirection.y }, sourceTunnelLength);
+  const sourceTunnelMouth = offsetPoint(
+    source,
+    { x: -sourceTravelDirection.x, y: -sourceTravelDirection.y },
+    SOURCE_OCCLUSION_RADIUS,
+  );
+
+  let d = `M ${hiddenSource.x},${hiddenSource.y} L ${source.x},${source.y}`;
+  let length = sourceTunnelLength;
 
   for (let i = 1; i < waypoints.length; i++) {
     const from = waypoints[i - 1];
     const to = waypoints[i];
+    length += segmentLength(from, to);
 
     if (from.y === to.y) {
       d += ` L ${to.x},${to.y}`;
@@ -149,13 +230,19 @@ function buildRoutePath(waypoints: ReadonlyArray<GridPt>) {
     }
   }
 
-  return d;
+  const totalLength = roundMetric(length);
+
+  return {
+    d,
+    length: totalLength,
+    sourceTunnelPath: `M ${sourceTunnelMouth.x},${sourceTunnelMouth.y} L ${hiddenSource.x},${hiddenSource.y}`,
+  };
 }
 
 // Precompute
 const LATITUDES = latitudeLines();
 const MERIDIANS = meridianPaths();
-const ROUTE_DATA = ROUTES.map((r) => ({ d: buildRoutePath(r.waypoints), begin: r.begin, duration: r.duration }));
+const ROUTE_DATA = ROUTES.map((route) => ({ ...buildRouteData(route.waypoints), begin: route.begin }));
 
 interface GlobeBackgroundProps {
   className?: string;
@@ -164,22 +251,50 @@ interface GlobeBackgroundProps {
 
 export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg' }: GlobeBackgroundProps) {
   const uid = useId().replace(/:/g, '');
+  const pathRefs = useRef<Array<SVGPathElement | null>>([]);
+  const [routeLengths, setRouteLengths] = useState(() => ROUTE_DATA.map((route) => route.length));
+
+  useEffect(() => {
+    const nextLengths = ROUTE_DATA.map((route, i) => {
+      const path = pathRefs.current[i];
+      return path ? roundMetric(path.getTotalLength()) : route.length;
+    });
+
+    setRouteLengths((prev) => {
+      if (prev.length === nextLengths.length && prev.every((value, i) => Math.abs(value - nextLengths[i]) < 0.01)) {
+        return prev;
+      }
+
+      return nextLengths;
+    });
+  }, []);
 
   return (
     <div className={cn('flex items-end justify-center', className)}>
       <svg viewBox={VIEWBOX} width='100%' height='100%' aria-hidden='true' className='max-w-5xl'>
         <defs>
-          <radialGradient id={`g-ripple-${uid}`}>
-            <stop offset='0%' stopColor='var(--globe-data-path)' stopOpacity='0.6' />
-            <stop offset='60%' stopColor='var(--globe-data-path)' stopOpacity='0.2' />
-            <stop offset='100%' stopColor='var(--globe-data-path)' stopOpacity='0' />
-          </radialGradient>
-
           <linearGradient id={`g-wire-${uid}`} x1='0' y1='0' x2='0' y2={`${CY}`} gradientUnits='userSpaceOnUse'>
             <stop offset='0%' stopColor='var(--globe-grid)' stopOpacity='0.4' />
             <stop offset='100%' stopColor='var(--globe-grid)' />
           </linearGradient>
-
+          <clipPath id={`g-hub-logo-clip-${uid}`} clipPathUnits='userSpaceOnUse'>
+            <circle cx={HUB.x} cy={HUB.y} r={HUB_VISIBLE_OCCLUDER_RADIUS} />
+          </clipPath>
+          {ROUTE_DATA.map((route, i) => {
+            return (
+              <mask key={i} id={`g-route-mask-${i}-${uid}`} maskUnits='userSpaceOnUse' x='-1' y='-1' width='802' height='322'>
+                <rect x='-1' y='-1' width='802' height='322' fill='white' />
+                <path
+                  d={route.sourceTunnelPath}
+                  fill='none'
+                  stroke='black'
+                  strokeWidth={SOURCE_TUNNEL_STROKE}
+                  strokeLinecap='round'
+                  vectorEffect='non-scaling-stroke'
+                />
+              </mask>
+            );
+          })}
         </defs>
 
         {/* Background hemisphere */}
@@ -209,122 +324,81 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
           ))}
         </g>
 
+        <GlobeGridNodes
+          layer='backplates'
+          nodes={NODES}
+          hub={HUB}
+          logoSrc={logoSrc}
+          hubLogoClipId={`g-hub-logo-clip-${uid}`}
+        />
+
         {/* Animated data paths */}
         <g className='globe-data-paths'>
-          {ROUTE_DATA.map((rd, i) => (
-            <g key={i}>
-              <path
-                d={rd.d}
-                fill='none'
-                stroke='var(--globe-data-path)'
-                strokeLinecap='round'
-                strokeOpacity='0.22'
-                strokeWidth='6'
-                vectorEffect='non-scaling-stroke'
-                pathLength={ROUTE_PATH_LENGTH}
-                strokeDasharray={`${ROUTE_PULSE_LENGTH} ${ROUTE_PATH_LENGTH}`}
-                strokeDashoffset={ROUTE_PULSE_LENGTH}
-                opacity='0'
-              >
-                <animate
-                  attributeName='stroke-dashoffset'
-                  values={ROUTE_PULSE_DASHOFFSET_VALUES}
-                  keyTimes={ROUTE_PULSE_KEYTIMES}
-                  dur={`${rd.duration}s`}
-                  begin={`${rd.begin}s`}
-                  repeatCount='indefinite'
-                />
-                <animate
-                  attributeName='opacity'
-                  values={ROUTE_PULSE_OPACITY_VALUES}
-                  keyTimes={ROUTE_PULSE_KEYTIMES}
-                  dur={`${rd.duration}s`}
-                  begin={`${rd.begin}s`}
-                  repeatCount='indefinite'
-                />
-              </path>
-              <path
-                d={rd.d}
-                fill='none'
-                stroke='var(--globe-data-path)'
-                strokeLinecap='round'
-                strokeWidth='2'
-                vectorEffect='non-scaling-stroke'
-                pathLength={ROUTE_PATH_LENGTH}
-                strokeDasharray={`${ROUTE_PULSE_LENGTH} ${ROUTE_PATH_LENGTH}`}
-                strokeDashoffset={ROUTE_PULSE_LENGTH}
-                opacity='0'
-              >
-                <animate
-                  attributeName='stroke-dashoffset'
-                  values={ROUTE_PULSE_DASHOFFSET_VALUES}
-                  keyTimes={ROUTE_PULSE_KEYTIMES}
-                  dur={`${rd.duration}s`}
-                  begin={`${rd.begin}s`}
-                  repeatCount='indefinite'
-                />
-                <animate
-                  attributeName='opacity'
-                  values={ROUTE_PULSE_OPACITY_VALUES}
-                  keyTimes={ROUTE_PULSE_KEYTIMES}
-                  dur={`${rd.duration}s`}
-                  begin={`${rd.begin}s`}
-                  repeatCount='indefinite'
-                />
-              </path>
-            </g>
-          ))}
+          {ROUTE_DATA.map((rd, i) => {
+            const routeLength = routeLengths[i] ?? rd.length;
+            const pulseLength = Math.min(ROUTE_PULSE_LENGTH, Math.max(1, routeLength - 0.01));
+            const dashOffsetStart = pulseLength;
+            const dashOffsetEnd = roundMetric(-routeLength);
+            const routeDuration = roundMetric((routeLength + pulseLength) / ROUTE_PIXELS_PER_SECOND);
+
+            return (
+              <g key={i} mask={`url(#g-route-mask-${i}-${uid})`}>
+                <path
+                  ref={(node) => {
+                    pathRefs.current[i] = node;
+                  }}
+                  d={rd.d}
+                  fill='none'
+                  stroke='var(--globe-data-path)'
+                  strokeLinecap='round'
+                  strokeOpacity='0.22'
+                  strokeWidth='6'
+                  vectorEffect='non-scaling-stroke'
+                  strokeDasharray={`${pulseLength} ${routeLength}`}
+                  strokeDashoffset={dashOffsetStart}
+                >
+                  <animate
+                    attributeName='stroke-dashoffset'
+                    from={`${dashOffsetStart}`}
+                    to={`${dashOffsetEnd}`}
+                    calcMode='linear'
+                    dur={`${routeDuration}s`}
+                    begin={`${rd.begin}s`}
+                    repeatCount='indefinite'
+                  />
+                </path>
+                <path
+                  d={rd.d}
+                  fill='none'
+                  stroke='var(--globe-data-path)'
+                  strokeLinecap='round'
+                  strokeWidth='2'
+                  vectorEffect='non-scaling-stroke'
+                  strokeDasharray={`${pulseLength} ${routeLength}`}
+                  strokeDashoffset={dashOffsetStart}
+                >
+                  <animate
+                    attributeName='stroke-dashoffset'
+                    from={`${dashOffsetStart}`}
+                    to={`${dashOffsetEnd}`}
+                    calcMode='linear'
+                    dur={`${routeDuration}s`}
+                    begin={`${rd.begin}s`}
+                    repeatCount='indefinite'
+                  />
+                </path>
+              </g>
+            );
+          })}
         </g>
 
-        {/* Source nodes with ping ripple */}
-        <g>
-          {NODES.map((node, i) => (
-            <g key={i}>
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r='8'
-                fill='var(--globe-data-path)'
-                opacity='0.4'
-                className='animate-ping'
-                style={{ transformOrigin: `${node.x}px ${node.y}px` }}
-              />
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r='12'
-                fill='var(--globe-node-bg)'
-                stroke='var(--globe-node-border)'
-                strokeWidth='1'
-                vectorEffect='non-scaling-stroke'
-              />
-              <circle cx={node.x} cy={node.y} r='4' fill='var(--globe-data-path)' />
-            </g>
-          ))}
-        </g>
-
-        {/* Hub node — Betterlytics logo */}
-        <g>
-          <circle
-            cx={HUB.x}
-            cy={HUB.y}
-            r='10'
-            fill='var(--globe-data-path)'
-            opacity='0.3'
-            className='animate-ping'
-            style={{ transformOrigin: `${HUB.x}px ${HUB.y}px` }}
-          />
-          <circle
-            cx={HUB.x}
-            cy={HUB.y}
-            r='20'
-            fill='var(--globe-node-bg)'
-            stroke='var(--globe-data-path)'
-            strokeWidth='1.5'
-            vectorEffect='non-scaling-stroke'
-          />
-          <image href={logoSrc} x={HUB.x - 14} y={HUB.y - 14} width='28' height='28' />
-        </g>
+        <GlobeGridNodes
+          layer='occluders'
+          nodes={NODES}
+          hub={HUB}
+          logoSrc={logoSrc}
+          hubLogoClipId={`g-hub-logo-clip-${uid}`}
+        />
 
         {/* DEBUG: numbered labels at every grid intersection */}
         {/* <g>
