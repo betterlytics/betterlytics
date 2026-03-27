@@ -1,84 +1,38 @@
 'use client';
 
-import { Check, Loader2, User, X } from 'lucide-react';
+import { Check, User, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { User as SessionUser } from 'next-auth';
-import { useEffect, useState, useTransition } from 'react';
-import { toast } from 'sonner';
-import { ZodError } from 'zod';
-import { updateUserAction } from '@/app/actions/account/userSettings.action';
 import SettingsCard from '@/components/SettingsCard';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UpdateUserData, UpdateUserSchema } from '@/entities/auth/user.entities';
 import { useTranslations } from 'next-intl';
-import useIsChanged from '@/hooks/use-is-changed';
+import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 
-export default function UserProfileSettings() {
-  const [isPending, startTransition] = useTransition();
-  const { data: session, update: setSession } = useSession();
-  const [name, setName] = useState(session?.user?.name || '');
-  const [email] = useState(session?.user?.email || '');
-  const [emailVerified] = useState(session?.user?.emailVerified);
-  const [user, setUser] = useState<UpdateUserData>();
-  const [errors, setErrors] = useState<Partial<Record<keyof UpdateUserData, string>>>({});
-  const isFormChanged = useIsChanged({ name } as Partial<SessionUser>, session?.user);
+interface UserProfileSettingsProps {
+  formData: UserSettingsUpdate & { name?: string | null };
+  onUpdate: (updates: Partial<UserSettingsUpdate & { name?: string | null }>) => void;
+}
+
+export default function UserProfileSettings({ formData, onUpdate }: UserProfileSettingsProps) {
+  const { data: session } = useSession();
   const t = useTranslations('components.userSettings.profile');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
-
-    try {
-      const validatedData = UpdateUserSchema.parse(user);
-
-      startTransition(async () => {
-        try {
-          await updateUserAction(validatedData);
-          await setSession(validatedData);
-
-          toast.success(t('toast.success'));
-        } catch (error) {
-          toast.error(t('toast.error'));
-        }
-      });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const fieldErrors: Partial<Record<keyof UpdateUserData, string>> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as keyof UpdateUserData] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
-    }
-  };
-
-  useEffect(() => {
-    setUser((prev) => ({
-      ...prev,
-      name: name.trim(),
-    }));
-  }, [name]);
+  const email = session?.user?.email ?? '';
+  const emailVerified = session?.user?.emailVerified;
+  const name = formData.name ?? '';
 
   return (
     <div className='space-y-6'>
       <SettingsCard icon={User} title={t('title')} description={t('description')}>
-        <form onSubmit={handleSubmit} className='space-y-4'>
+        <div className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='name'>{t('nameLabel')}</Label>
             <Input
               id='name'
               type='text'
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={errors.name ? 'border-destructive' : ''}
-              disabled={isPending}
+              onChange={(e) => onUpdate({ name: e.target.value })}
               placeholder={t('namePlaceholder')}
             />
-            {errors.name && <p className='text-destructive text-sm'>{errors.name}</p>}
             <p className='text-muted-foreground text-xs'>{t('optional')}</p>
           </div>
 
@@ -99,17 +53,7 @@ export default function UserProfileSettings() {
             </Label>
             <Input id='email' type='email' value={email} disabled readOnly />
           </div>
-
-          <Button
-            type='submit'
-            disabled={isPending || !isFormChanged}
-            className='w-full cursor-pointer sm:w-auto'
-            tabIndex={4}
-          >
-            {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            {t('updateButton')}
-          </Button>
-        </form>
+        </div>
       </SettingsCard>
     </div>
   );
