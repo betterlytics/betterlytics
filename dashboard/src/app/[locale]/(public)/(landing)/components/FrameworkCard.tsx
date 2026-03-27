@@ -14,37 +14,32 @@ type Framework = {
 export function FrameworkCard({ framework }: { framework: Framework }) {
   const [isActive, setIsActive] = useState(false);
   const { resolvedTheme } = useTheme();
-  const dotColor =
-    typeof framework.brandColor === 'string'
-      ? framework.brandColor
-      : resolvedTheme === 'dark'
-        ? framework.brandColor.dark
-        : framework.brandColor.light;
 
   return (
     <div
+      tabIndex={0}
       className="group relative flex min-w-[120px] flex-shrink-0 flex-col items-center justify-center rounded-lg border border-transparent p-6 transition-[border-color,background-color] duration-300 hover:border-border hover:bg-card focus-within:border-border focus-within:bg-card"
       onMouseEnter={() => setIsActive(true)}
       onMouseLeave={() => setIsActive(false)}
       onFocus={() => setIsActive(true)}
       onBlur={() => setIsActive(false)}
     >
-      {/* Layer 1: Dot grid canvas */}
       <DotGrid
-        color={dotColor}
+        color={
+          typeof framework.brandColor === 'string'
+            ? framework.brandColor
+            : resolvedTheme === 'dark'
+              ? framework.brandColor.dark
+              : framework.brandColor.light
+        }
         active={isActive}
         gap={12}
         dotRadius={1}
         className="absolute inset-0 overflow-hidden rounded-lg"
       />
 
-      {/* Layer 2: Gradient overlay to keep logo readable */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t to-transparent to-[70%] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{ '--tw-gradient-from': 'var(--dot-grid-overlay)' } as React.CSSProperties}
-      />
+      <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-[--dot-grid-overlay] to-transparent to-[70%] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100" />
 
-      {/* Layer 3: Logo + label */}
       <div className="relative flex flex-col items-center">
         <div
           className="transition-transform duration-300 ease-out"

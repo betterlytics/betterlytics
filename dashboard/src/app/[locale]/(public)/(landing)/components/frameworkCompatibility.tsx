@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { FrameworkCard } from './FrameworkCard';
 
-// Ordered to spread brand colors evenly — no two similar hues adjacent
 const frameworks = [
   { name: 'Next.js', logo: '/framework-logos/nextjs-icon.svg', brandColor: { light: '#4a4a4a', dark: '#ffffff' } },
   { name: 'Svelte', logo: '/framework-logos/svelte-icon.svg', brandColor: '#FF3E00' },
@@ -33,7 +32,7 @@ export async function FrameworkCompatibility() {
         </div>
 
         <div className='relative overflow-hidden'>
-          <div className='flex w-max animate-[scroll_20s_linear_infinite] gap-3 will-change-transform hover:[animation-play-state:paused] sm:gap-6 lg:animate-[scroll_40s_linear_infinite] lg:gap-8'>
+          <div className='flex w-max animate-[scroll_20s_linear_infinite] gap-3 will-change-transform hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] sm:gap-6 lg:animate-[scroll_40s_linear_infinite] lg:gap-8'>
             {frameworks.map((framework) => (
               <FrameworkCard key={`first-${framework.name}`} framework={framework} />
             ))}
