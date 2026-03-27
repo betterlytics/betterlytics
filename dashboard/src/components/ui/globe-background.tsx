@@ -1,12 +1,17 @@
 'use client';
 
-import { useId } from 'react';
+import React, { useId } from 'react';
 import { cn } from '@/lib/utils';
 
 const R = 400;
 const CX = 400;
 const CY = 400;
 const VIEWBOX = '-1 -1 802 322';
+const ROUTE_PATH_LENGTH = 100;
+const ROUTE_PULSE_LENGTH = 18;
+const ROUTE_PULSE_KEYTIMES = '0;0.1;0.9;1';
+const ROUTE_PULSE_DASHOFFSET_VALUES = `${ROUTE_PULSE_LENGTH};0;-${ROUTE_PATH_LENGTH};-${ROUTE_PATH_LENGTH}`;
+const ROUTE_PULSE_OPACITY_VALUES = '0;1;1;0';
 
 const MERIDIAN_RX = [400, 328.7, 235.36, 123.1, 0];
 const LATITUDE_YS = [80, 160, 240, 320, 400];
@@ -23,26 +28,6 @@ function gridPoint(rx: number, y: number, side: 'left' | 'right'): GridPt {
   const sign = side === 'right' ? 1 : -1;
   const x = CX + sign * rx * Math.sqrt(Math.max(0, 1 - dy * dy));
   return { x: Math.round(x * 100) / 100, y, rx, side };
-}
-
-// Sample intermediate points along a meridian arc between two y values
-function sampleArc(
-  rx: number,
-  side: 'left' | 'right',
-  fromY: number,
-  toY: number,
-  count: number,
-): Array<{ x: number; y: number }> {
-  const pts: Array<{ x: number; y: number }> = [];
-  const sign = side === 'right' ? 1 : -1;
-  for (let i = 1; i <= count; i++) {
-    const t = i / (count + 1);
-    const y = fromY + (toY - fromY) * t;
-    const dy = (y - CY) / R;
-    const x = CX + sign * rx * Math.sqrt(Math.max(0, 1 - dy * dy));
-    pts.push({ x: Math.round(x * 100) / 100, y: Math.round(y * 100) / 100 });
-  }
-  return pts;
 }
 
 function latitudeLines(): ReadonlyArray<{ y: number; x1: number; x2: number }> {
@@ -150,10 +135,8 @@ const ROUTES: ReadonlyArray<Route> = [
   },
 ];
 
-// Build SVG path + animation waypoints (no intermediate samples — keep it simple)
-function buildRouteData(waypoints: ReadonlyArray<GridPt>) {
+function buildRoutePath(waypoints: ReadonlyArray<GridPt>) {
   let d = `M ${waypoints[0].x},${waypoints[0].y}`;
-  const animPts: Array<{ x: number; y: number }> = [{ x: waypoints[0].x, y: waypoints[0].y }];
 
   for (let i = 1; i < waypoints.length; i++) {
     const from = waypoints[i - 1];
@@ -164,39 +147,15 @@ function buildRouteData(waypoints: ReadonlyArray<GridPt>) {
     } else {
       d += ` ${arcSegment(from.rx, from.side, from, to)}`;
     }
-    animPts.push({ x: to.x, y: to.y });
   }
 
-  return { d, animPts };
-}
-
-// Build animation data — matches Vercel's exact pattern:
-// evenly spaced keyTimes, path opacity handles visibility, gradient just moves
-function buildAnimationData(animPts: ReadonlyArray<{ x: number; y: number }>) {
-  // hold at start, travel through waypoints, hold at end, jump to 0
-  // Total entries = 1 (hold start) + waypoints + 1 (hold end) + 1 (reset)
-  const n = animPts.length + 3;
-  const step = 1 / (n - 1);
-  const keyTimes = Array.from({ length: n }, (_, i) => (i * step).toFixed(3)).join(';');
-
-  const first = animPts[0];
-  const last = animPts[animPts.length - 1];
-
-  const cxValues = [first.x, ...animPts.map((p) => p.x), last.x, 0].map((v) => v.toFixed(1)).join(';');
-  const cyValues = [first.y, ...animPts.map((p) => p.y), last.y, 0].map((v) => v.toFixed(1)).join(';');
-  const rValues = ['0', ...Array(animPts.length).fill('40'), '0', '0'].join(';');
-  const opacityValues = ['0', ...Array(animPts.length).fill('1'), '0', '0'].join(';');
-
-  return { keyTimes, cxValues, cyValues, rValues, opacityValues };
+  return d;
 }
 
 // Precompute
 const LATITUDES = latitudeLines();
 const MERIDIANS = meridianPaths();
-const ROUTE_DATA = ROUTES.map((r) => {
-  const { d, animPts } = buildRouteData(r.waypoints);
-  return { d, anim: buildAnimationData(animPts), begin: r.begin, duration: r.duration };
-});
+const ROUTE_DATA = ROUTES.map((r) => ({ d: buildRoutePath(r.waypoints), begin: r.begin, duration: r.duration }));
 
 interface GlobeBackgroundProps {
   className?: string;
@@ -221,37 +180,6 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
             <stop offset='100%' stopColor='var(--globe-grid)' />
           </linearGradient>
 
-          {ROUTE_DATA.map((rd, i) => (
-            <radialGradient key={i} id={`g-path-${i}-${uid}`} r='0' gradientUnits='userSpaceOnUse'>
-              <stop offset='0' stopColor='var(--globe-data-path)' />
-              <stop offset='0.4' stopColor='var(--globe-data-path)' />
-              <stop offset='1' stopColor='var(--globe-data-path)' stopOpacity='0' />
-              <animate
-                attributeName='cx'
-                values={rd.anim.cxValues}
-                keyTimes={rd.anim.keyTimes}
-                dur={`${rd.duration}s`}
-                begin={`${rd.begin}s`}
-                repeatCount='indefinite'
-              />
-              <animate
-                attributeName='cy'
-                values={rd.anim.cyValues}
-                keyTimes={rd.anim.keyTimes}
-                dur={`${rd.duration}s`}
-                begin={`${rd.begin}s`}
-                repeatCount='indefinite'
-              />
-              <animate
-                attributeName='r'
-                values={rd.anim.rValues}
-                keyTimes={rd.anim.keyTimes}
-                dur={`${rd.duration}s`}
-                begin={`${rd.begin}s`}
-                repeatCount='indefinite'
-              />
-            </radialGradient>
-          ))}
         </defs>
 
         {/* Background hemisphere */}
@@ -284,25 +212,67 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
         {/* Animated data paths */}
         <g className='globe-data-paths'>
           {ROUTE_DATA.map((rd, i) => (
-            <path
-              key={i}
-              d={rd.d}
-              fill='none'
-              stroke={`url(#g-path-${i}-${uid})`}
-              strokeLinecap='round'
-              strokeWidth='2'
-              vectorEffect='non-scaling-stroke'
-              opacity='0'
-            >
-              <animate
-                attributeName='opacity'
-                values={rd.anim.opacityValues}
-                keyTimes={rd.anim.keyTimes}
-                dur={`${rd.duration}s`}
-                begin={`${rd.begin}s`}
-                repeatCount='indefinite'
-              />
-            </path>
+            <g key={i}>
+              <path
+                d={rd.d}
+                fill='none'
+                stroke='var(--globe-data-path)'
+                strokeLinecap='round'
+                strokeOpacity='0.22'
+                strokeWidth='6'
+                vectorEffect='non-scaling-stroke'
+                pathLength={ROUTE_PATH_LENGTH}
+                strokeDasharray={`${ROUTE_PULSE_LENGTH} ${ROUTE_PATH_LENGTH}`}
+                strokeDashoffset={ROUTE_PULSE_LENGTH}
+                opacity='0'
+              >
+                <animate
+                  attributeName='stroke-dashoffset'
+                  values={ROUTE_PULSE_DASHOFFSET_VALUES}
+                  keyTimes={ROUTE_PULSE_KEYTIMES}
+                  dur={`${rd.duration}s`}
+                  begin={`${rd.begin}s`}
+                  repeatCount='indefinite'
+                />
+                <animate
+                  attributeName='opacity'
+                  values={ROUTE_PULSE_OPACITY_VALUES}
+                  keyTimes={ROUTE_PULSE_KEYTIMES}
+                  dur={`${rd.duration}s`}
+                  begin={`${rd.begin}s`}
+                  repeatCount='indefinite'
+                />
+              </path>
+              <path
+                d={rd.d}
+                fill='none'
+                stroke='var(--globe-data-path)'
+                strokeLinecap='round'
+                strokeWidth='2'
+                vectorEffect='non-scaling-stroke'
+                pathLength={ROUTE_PATH_LENGTH}
+                strokeDasharray={`${ROUTE_PULSE_LENGTH} ${ROUTE_PATH_LENGTH}`}
+                strokeDashoffset={ROUTE_PULSE_LENGTH}
+                opacity='0'
+              >
+                <animate
+                  attributeName='stroke-dashoffset'
+                  values={ROUTE_PULSE_DASHOFFSET_VALUES}
+                  keyTimes={ROUTE_PULSE_KEYTIMES}
+                  dur={`${rd.duration}s`}
+                  begin={`${rd.begin}s`}
+                  repeatCount='indefinite'
+                />
+                <animate
+                  attributeName='opacity'
+                  values={ROUTE_PULSE_OPACITY_VALUES}
+                  keyTimes={ROUTE_PULSE_KEYTIMES}
+                  dur={`${rd.duration}s`}
+                  begin={`${rd.begin}s`}
+                  repeatCount='indefinite'
+                />
+              </path>
+            </g>
           ))}
         </g>
 
