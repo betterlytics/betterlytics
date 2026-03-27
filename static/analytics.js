@@ -529,9 +529,10 @@
       if (replayLoaded) return;
 
       var hasConsent = checkReplayConsent();
-      var consentSatisfied = !consentReplay || hasConsent;
-      var sampled = enableReplay && consentSatisfied && shouldSample();
-      var shouldLoadForError = enableReplayOnError && consentSatisfied;
+      if (!hasConsent) return;
+
+      var sampled = enableReplay && shouldSample();
+      var shouldLoadForError = enableReplayOnError;
 
       if (sampled || shouldLoadForError) {
         window.__betterlytics_replay_sampled__ = sampled;
