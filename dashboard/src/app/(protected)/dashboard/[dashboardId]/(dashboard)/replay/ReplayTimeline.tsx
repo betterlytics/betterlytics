@@ -7,9 +7,7 @@ import { TimelinePanel } from './TimelinePanel';
 import {
   MousePointer2,
   MousePointerSquareDashed,
-  FilePen,
   ScrollText,
-  Route,
   Keyboard,
   Eye,
   Tag,
@@ -22,6 +20,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { markerFillColorForLabel } from './utils/colors';
+import { keyForMarker, type MarkerKey } from './utils/marker-keys';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 export type TimelineMarkerDescriptor = {
@@ -149,33 +148,6 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-const MARKER_KEYS = [
-  'Mouse Interaction',
-  'Selection',
-  'Scroll',
-  'Input',
-  'Full snapshot',
-  'Viewport Resize',
-  'Media Interaction',
-  'Pageview',
-  'Blacklist',
-  'client_error',
-] as const;
-
-type MarkerKey = (typeof MARKER_KEYS)[number];
-
-const MARKER_KEYS_SET = new Set<string>(MARKER_KEYS);
-function keyForMarker(marker: TimelineMarker): MarkerKey | string {
-  if (marker.key !== 'Custom event' && MARKER_KEYS_SET.has(marker.key)) {
-    return marker.key as MarkerKey;
-  }
-
-  if (marker.label !== undefined && MARKER_KEYS_SET.has(marker.label)) {
-    return marker.label as MarkerKey;
-  }
-
-  return marker.label ?? marker.key;
-}
 
 function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
