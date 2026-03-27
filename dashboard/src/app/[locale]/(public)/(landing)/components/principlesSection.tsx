@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import { Shield, Zap, Database, Eye, Code, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTranslations } from 'next-intl/server';
+import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { ScrollShimmerText } from '@/components/animations/ScrollShimmerText';
 
 export async function PrinciplesSection() {
   const t = await getTranslations('public.landing.principles');
@@ -50,26 +52,31 @@ export async function PrinciplesSection() {
   return (
     <section id='features' className='overflow-visible py-20'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='mb-16 text-center'>
+        <ScrollReveal className='mb-16 text-center'>
           <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span> {t('titleRest')}
+            <ScrollShimmerText>{t('titleEmphasis')}</ScrollShimmerText> {t('titleRest')}
           </h2>
           <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
-        </div>
+        </ScrollReveal>
         <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
           {featureItems.map((feature, index) => (
-            <Card
+            <ScrollReveal
               key={index}
-              className={`${feature.isHiddenOnMobile ? 'hidden sm:flex' : ''} bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 relative overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""]`}
+              delay={index * 0.08}
+              className={feature.isHiddenOnMobile ? 'hidden sm:block' : undefined}
             >
-              <CardHeader className='pb-2'>
-                <div className='text-primary mb-2'>{feature.icon}</div>
-                <CardTitle className='text-lg font-semibold tracking-tight'>{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className='text-base'>{feature.description}</CardDescription>
-              </CardContent>
-            </Card>
+              <Card
+                className='bg-card/70 border-border/70 dark:border-border/60 before:via-primary/40 relative h-full overflow-hidden border shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:to-transparent before:content-[""]'
+              >
+                <CardHeader className='pb-2'>
+                  <div className='text-primary mb-2'>{feature.icon}</div>
+                  <CardTitle className='text-lg font-semibold tracking-tight'>{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className='text-base'>{feature.description}</CardDescription>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
           ))}
         </div>
       </div>

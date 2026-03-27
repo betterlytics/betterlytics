@@ -11,6 +11,7 @@ interface PricingSliderProps {
   selectedRangeIndex: number;
   handleSliderChange: React.ChangeEventHandler<HTMLInputElement>;
   className?: string;
+  animated?: boolean;
 }
 
 export function PricingSlider({
@@ -18,6 +19,7 @@ export function PricingSlider({
   selectedRangeIndex,
   handleSliderChange,
   className = '',
+  animated = true,
 }: PricingSliderProps) {
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
@@ -34,7 +36,8 @@ export function PricingSlider({
           locales={locale}
           format={{ notation: 'compact' }}
           suffix={isUnlimited ? '+' : undefined}
-          willChange
+          animated={animated}
+          willChange={animated}
         />
       </div>
 

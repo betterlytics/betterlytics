@@ -22,6 +22,7 @@ interface PricingCardsProps {
   mode?: 'landing' | 'billing';
   className?: string;
   billingData?: UserBillingData;
+  animated?: boolean;
 }
 
 interface PlanConfig {
@@ -41,6 +42,7 @@ export function PricingCards({
   onPlanSelect,
   mode = 'landing',
   className = '',
+  animated = true,
   billingData,
 }: PricingCardsProps) {
   const locale = useLocale();
@@ -213,7 +215,8 @@ export function PricingCards({
                   value={plan.price_cents / 100}
                   locales={'en-US'}
                   format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
-                  willChange
+                  animated={animated}
+                  willChange={animated}
                 />
               ) : (
                 <span className='text-4xl leading-10 font-bold'>{formatDisplayPrice(plan.price_cents)}</span>

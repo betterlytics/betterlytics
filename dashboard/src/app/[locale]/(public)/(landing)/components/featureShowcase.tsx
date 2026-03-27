@@ -1,4 +1,6 @@
-import { Fragment, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
+import { ScrollReveal } from '@/components/animations/ScrollReveal';
+import { ScrollGradientText } from '@/components/animations/ScrollGradientText';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import AdvancedFiltersCard from './featureCards/advancedFiltersCard';
@@ -60,10 +62,12 @@ export async function FeatureShowcase() {
     <section className='relative overflow-visible py-24 sm:py-28'>
       <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='mb-16 text-center'>
-          <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
-            <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span> {t('titleRest')}
-          </h2>
-          <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
+          <ScrollReveal>
+            <h2 className='mb-4 text-3xl font-bold sm:text-4xl'>
+              <ScrollGradientText>{t('titleEmphasis')}</ScrollGradientText> {t('titleRest')}
+            </h2>
+            <p className='text-muted-foreground mx-auto max-w-2xl text-xl'>{t('subtitle')}</p>
+          </ScrollReveal>
         </div>
 
         <div className='mx-auto max-w-7xl'>
@@ -73,15 +77,17 @@ export async function FeatureShowcase() {
 
             return (
               <div key={category.id} className={wrapperClasses}>
-                <div className='flex flex-col items-center gap-4 text-center'>
+                <ScrollReveal className='flex flex-col items-center gap-4 text-center'>
                   <span className='from-primary/40 via-primary to-primary/40 h-[1.5px] w-16 bg-gradient-to-r' />
                   <h3 className='text-muted-foreground text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm'>
                     {category.title}
                   </h3>
-                </div>
+                </ScrollReveal>
                 <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-                  {category.cards.map(({ id, element }) => (
-                    <Fragment key={id}>{element}</Fragment>
+                  {category.cards.map(({ id, element }, cardIndex) => (
+                    <ScrollReveal key={id} delay={cardIndex * 0.08} className='[&>*]:h-full'>
+                      {element}
+                    </ScrollReveal>
                   ))}
                 </div>
               </div>
@@ -89,7 +95,7 @@ export async function FeatureShowcase() {
           })}
         </div>
 
-        <div className='mt-8 flex justify-center'>
+        <ScrollReveal className='mt-8 flex justify-center'>
           <Button
             variant='outline'
             size='lg'
@@ -101,7 +107,7 @@ export async function FeatureShowcase() {
               <ChevronRight className='ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transform-none' />
             </Link>
           </Button>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

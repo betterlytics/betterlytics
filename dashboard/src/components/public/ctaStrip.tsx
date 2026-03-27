@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
+import { ScrollReveal } from '@/components/animations/ScrollReveal';
 import { getTranslations } from 'next-intl/server';
 
 interface CtaStripProps {
@@ -13,7 +14,7 @@ export async function CtaStrip({ eyebrow, title, subtitle, buttonText }: CtaStri
   const t = await getTranslations('public.landing.ctaStrip');
 
   return (
-    <div className='container mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8'>
+    <ScrollReveal className='container mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8'>
       <div className='relative flex w-full flex-col gap-6 overflow-hidden rounded-2xl border border-blue-200/60 bg-gradient-to-br from-blue-600/15 via-blue-500/10 to-blue-400/10 p-6 text-center shadow-md shadow-xl ring-1 shadow-blue-500/5 ring-white/30 backdrop-blur ring-inset sm:flex-row sm:items-center sm:justify-between sm:p-8 sm:text-left dark:border-blue-900/40 dark:from-blue-900/35 dark:via-blue-900/20 dark:to-blue-800/20 dark:ring-white/5'>
         <div className='space-y-2'>
           <p className='text-xs font-semibold tracking-[0.2em] text-blue-700/80 uppercase dark:text-blue-300/80'>
@@ -36,6 +37,6 @@ export async function CtaStrip({ eyebrow, title, subtitle, buttonText }: CtaStri
           </Link>
         </div>
       </div>
-    </div>
+    </ScrollReveal>
   );
 }

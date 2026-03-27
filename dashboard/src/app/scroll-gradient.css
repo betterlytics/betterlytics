@@ -1,0 +1,32 @@
+/**
+ * Scroll-linked gradient text fill styles
+ */
+
+@layer utilities {
+  /* Static gradient text fallback */
+  .sgt-static {
+    background-image: linear-gradient(90deg, var(--text-gradient));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Animated scroll-driven gradient text */
+  .sgt-animated {
+    --sgt-bg-pos-x: 100%;
+    background-image: linear-gradient(
+      90deg,
+      var(--text-gradient-blue),
+      var(--text-gradient-purple) 11%,
+      var(--text-gradient-red) 22%,
+      var(--text-gradient-amber) 34%,
+      var(--text-gradient-base) 48%
+    );
+    background-size: 300% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-position-x: var(--sgt-bg-pos-x);
+    background-position-y: 0%;
+  }
+}
