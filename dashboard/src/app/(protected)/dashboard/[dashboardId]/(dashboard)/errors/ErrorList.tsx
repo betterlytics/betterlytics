@@ -329,7 +329,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                 <Button
                   variant='ghost'
                   size='icon'
-                  className='h-7 w-7 cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100'
+                  className='h-7 w-7 cursor-pointer sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100'
                   onClick={(e) => e.stopPropagation()}
                   aria-label='Row actions'
                 >
