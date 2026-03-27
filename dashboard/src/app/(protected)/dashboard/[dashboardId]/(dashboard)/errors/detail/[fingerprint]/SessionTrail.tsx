@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ExternalLink, Film, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
+import { ExternalLink, Play, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -88,9 +88,9 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
         {hasReplay && (
           <Link
             href={`/dashboard/${dashboardId}/replay?sessionId=${sessionId}`}
-            className='text-primary hover:text-primary/80 flex shrink-0 items-center gap-1.5 text-xs font-medium transition-colors'
+            className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
           >
-            <Film className='h-3.5 w-3.5' />
+            <Play className='h-3 w-3 fill-current' />
             Watch replay
           </Link>
         )}
