@@ -22,6 +22,13 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import type { Theme } from '@prisma/client';
+import { useSession } from 'next-auth/react';
+import { updateUserAction } from '@/app/actions/account/userSettings.action';
+
+type UserSettingsFormData = UserSettingsUpdate & {
+  name?: string | null;
+  email?: string;
+};
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -33,8 +40,8 @@ interface UserSettingsTabConfig {
   label: string;
   icon: React.ElementType;
   component: React.ComponentType<{
-    formData: UserSettingsUpdate;
-    onUpdate: (updates: Partial<UserSettingsUpdate>) => void;
+    formData: UserSettingsFormData;
+    onUpdate: (updates: Partial<UserSettingsFormData>) => void;
     onCloseDialog?: () => void;
   }>;
   disabled?: boolean;
@@ -120,6 +127,7 @@ function UserSettingsDialogContent({
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
   const tDialog = useTranslations('components.userSettings.dialog');
+  const { data: session, update: setSession } = useSession();
 
   const USER_SETTINGS_TABS: UserSettingsTabConfig[] = useMemo(
     () => [
@@ -167,23 +175,47 @@ function UserSettingsDialogContent({
 
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
-  const [formData, setFormData] = useState<UserSettingsUpdate>({ ...settings });
+  const buildFormData = (): UserSettingsFormData => ({
+    ...settings,
+    name: session?.user?.name ?? null,
+    email: session?.user?.email ?? '',
+  });
+  const [formData, setFormData] = useState<UserSettingsFormData>(buildFormData());
+  const [originalFormData, setOriginalFormData] = useState<UserSettingsFormData>(buildFormData());
   const { refreshSession } = useSessionRefresh();
-  const isFormChanged = useIsChanged(formData, settings);
+  const isFormChanged = useIsChanged(formData, originalFormData);
 
   useEffect(() => {
     if (open) {
-      setFormData({ ...settings });
+      const initialData = buildFormData();
+      setFormData(initialData);
+      setOriginalFormData(initialData);
     }
-  }, [settings, open]);
+  }, [settings, open, session?.user?.name, session?.user?.email]);
 
-  const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
+  const handleUpdate = (updates: Partial<UserSettingsFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const handleSave = async () => {
-    const result = await saveSettings(formData);
+    const settingsUpdate: UserSettingsUpdate = {
+      theme: formData.theme,
+      language: formData.language,
+      avatar: formData.avatar,
+      emailNotifications: formData.emailNotifications,
+      marketingEmails: formData.marketingEmails,
+    };
+
+    const result = await saveSettings(settingsUpdate);
     if (result.success) {
+      const originalName = originalFormData.name ?? null;
+      const updatedName = formData.name?.trim() ?? null;
+
+      if (updatedName !== originalName) {
+        await updateUserAction({ name: updatedName });
+        await setSession({ name: updatedName ?? undefined });
+      }
+
       await refreshSession();
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
