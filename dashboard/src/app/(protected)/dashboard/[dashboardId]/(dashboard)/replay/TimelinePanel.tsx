@@ -6,8 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useLocale } from 'next-intl';
 import { formatDurationPrecise, formatTimestamp } from '@/utils/dateFormatters';
 import { TimelineGroup } from './ReplayTimeline';
-import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
 
 type TimelinePanelProps = {
   title: string;
@@ -79,17 +77,6 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
           )}
         </div>
       </button>
-      {group.href && (
-        <Link
-          href={group.href}
-          target='_blank'
-          rel='noopener noreferrer'
-          className='text-muted-foreground hover:text-foreground mr-1 shrink-0 rounded p-1 transition-colors'
-          title='View error details'
-        >
-          <ExternalLink className='h-3.5 w-3.5' />
-        </Link>
-      )}
     </div>
   );
 }

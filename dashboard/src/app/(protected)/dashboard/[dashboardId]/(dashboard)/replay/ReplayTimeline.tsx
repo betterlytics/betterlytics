@@ -21,8 +21,6 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { markerFillColorForLabel } from './utils/colors';
 import { keyForMarker, type MarkerKey } from './utils/marker-keys';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
-
 export type TimelineMarkerDescriptor = {
   key: string;
   timestamp: number;
@@ -43,14 +41,12 @@ export type TimelineGroup = {
   end: number;
   jumpTo: number;
   icon: React.ReactNode;
-  href?: string;
 };
 
 type ReplayTimelineProps = {
   markers: TimelineMarker[];
   onJump: (timestamp: number) => void;
   isSessionSelected?: boolean;
-  errorFingerprints?: string[];
 };
 
 export function buildTimelineMarkers(
@@ -207,32 +203,19 @@ function labelForKey(key: MarkerKey | string, t: any) {
   }
 }
 
-function errorDetailHref(dashboardId: string, fingerprint: string): string {
-  return `/dashboard/${dashboardId}/errors/detail/${fingerprint}`;
-}
-
 function buildGroups(
   markers: TimelineMarker[],
   theme: 'light' | 'dark',
   t: any,
-  dashboardId: string,
-  errorFingerprints: string[] | undefined,
 ): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];
   let current: TimelineGroup | null = null;
-  let errorGroupIndex = 0;
 
   sorted.forEach((m, index) => {
     if (!current || current.key !== m.key) {
       const key = keyForMarker(m);
-      let href: string | undefined;
-      if (key === 'client_error' && errorFingerprints && errorFingerprints.length > 0) {
-        const fpIndex = Math.min(errorGroupIndex, errorFingerprints.length - 1);
-        href = errorDetailHref(dashboardId, errorFingerprints[fpIndex]);
-        errorGroupIndex++;
-      }
       current = {
         id: `group-${index}-${key}-${Math.round(m.timestamp)}`,
         key: key,
@@ -242,7 +225,6 @@ function buildGroups(
         end: m.timestamp,
         jumpTo: m.timestamp,
         icon: iconForKey(key, theme),
-        href,
       };
       groups.push(current!);
     } else {
@@ -254,17 +236,16 @@ function buildGroups(
   return groups;
 }
 
-function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false, errorFingerprints }: ReplayTimelineProps) {
+function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }: ReplayTimelineProps) {
   const tTimeline = useTranslations('components.sessionReplay.eventTimeline');
   const tEvents = useTranslations('components.sessionReplay.events');
-  const dashboardId = useDashboardId();
 
   const { resolvedTheme } = useTheme();
   const theme: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   const groups = useMemo(
-    () => buildGroups(markers, theme, tEvents, dashboardId, errorFingerprints),
-    [markers, theme, tEvents, dashboardId, errorFingerprints],
+    () => buildGroups(markers, theme, tEvents),
+    [markers, theme, tEvents],
   );
   const totalEvents = markers.length;
 

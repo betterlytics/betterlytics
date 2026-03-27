@@ -50,10 +50,7 @@ export function SessionReplayContainer({ dashboardId }: SessionReplayContainerPr
         session={sessionManager.selectedSession}
         error={combinedError}
       />
-      <ReplayTimelinePanel
-        playerState={playerState}
-        errorFingerprints={sessionManager.selectedSession?.error_fingerprints}
-      />
+      <ReplayTimelinePanel playerState={playerState} />
     </div>
   );
 }

@@ -6,10 +6,9 @@ import { useTranslations } from 'next-intl';
 
 type ReplayTimelinePanelProps = {
   playerState: UsePlayerStateReturn;
-  errorFingerprints?: string[];
 };
 
-export function ReplayTimelinePanel({ playerState, errorFingerprints }: ReplayTimelinePanelProps) {
+export function ReplayTimelinePanel({ playerState }: ReplayTimelinePanelProps) {
   const t = useTranslations('components.sessionReplay.eventTimeline');
 
   return (
@@ -18,7 +17,6 @@ export function ReplayTimelinePanel({ playerState, errorFingerprints }: ReplayTi
         markers={playerState.timelineMarkers}
         onJump={playerState.jumpTo}
         isSessionSelected={Boolean(playerState.durationMs)}
-        errorFingerprints={errorFingerprints}
       />
       {playerState.isPrefetching && <p className='text-muted-foreground px-1 text-xs'>{t('prefetching')}</p>}
     </div>
