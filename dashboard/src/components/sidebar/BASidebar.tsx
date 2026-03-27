@@ -111,13 +111,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
   const observabilityItems: SidebarItem[] = [
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={ICON_SIZE} /> },
-    {
-      name: t('errorTracking'),
-      key: 'errors',
-      href: '/errors',
-      icon: <AlertTriangle size={ICON_SIZE} />,
-      hidden: !isFeatureEnabled('enableErrorTracking'),
-    },
+    { name: t('errorTracking'), key: 'errors', href: '/errors', icon: <AlertTriangle size={ICON_SIZE} /> },
     {
       name: t('monitoring'),
       key: 'monitoring',

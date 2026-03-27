@@ -8,7 +8,6 @@ import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { STATUS_CONFIG } from './errors.constants';
-import { ErrorTestScript } from './ErrorTestScript';
 
 const MOCK_ERRORS = [
   {
@@ -64,7 +63,6 @@ export function ErrorsEmptyState() {
   const t = useTranslations('errors');
   return (
     <div className='relative mx-auto flex min-h-[60vh] max-w-4xl flex-col items-center justify-center'>
-      <ErrorTestScript></ErrorTestScript>
       <div className='relative w-full'>
         <div className='border-border overflow-hidden rounded-lg border opacity-40'>
           <Table className='min-w-[800px]'>

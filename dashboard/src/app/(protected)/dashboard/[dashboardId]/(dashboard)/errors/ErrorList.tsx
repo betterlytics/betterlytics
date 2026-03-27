@@ -51,7 +51,6 @@ import { formatNumber } from '@/utils/formatters';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { STATUS_CONFIG } from './errors.constants';
 import { cn } from '@/lib/utils';
-import { ErrorTestScript } from './ErrorTestScript';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
@@ -451,7 +450,6 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
 
   return (
     <div className='space-y-3'>
-      <ErrorTestScript />
       <StatusFilterTabs value={statusFilter} counts={statusCounts} onChange={changeStatusFilter} />
 
       <ErrorToolbar
