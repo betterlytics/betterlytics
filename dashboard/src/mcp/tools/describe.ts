@@ -82,7 +82,7 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'timeRange',
             type: 'string',
             required: true,
-            description: 'Time range preset (see timeRanges above).',
+            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
           {
             name: 'startDate',
@@ -133,7 +133,7 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'timeRange',
             type: 'string',
             required: true,
-            description: 'Time range preset (see timeRanges above).',
+            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
           { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
           {
@@ -165,7 +165,7 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'timeRange',
             type: 'string',
             required: true,
-            description: 'Time range preset (see timeRanges above).',
+            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
           { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
           {
@@ -192,7 +192,7 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'timeRange',
             type: 'string',
             required: true,
-            description: 'Time range preset (see timeRanges above).',
+            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
           { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
         ],
@@ -206,7 +206,7 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'timeRange',
             type: 'string',
             required: true,
-            description: 'Time range preset (see timeRanges above).',
+            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
           { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
           {
