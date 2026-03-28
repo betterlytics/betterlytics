@@ -452,11 +452,14 @@
           var args = Array.prototype.slice.call(arguments);
           var first = args[0];
           if (first != null && typeof first === "object") {
+            if (!first.name) {
+              first = Object.assign({ name: "ConsoleError" }, first);
+            }
             captureError(first, "onconsole");
           } else {
             captureError(
               {
-                name: "Error",
+                name: "ConsoleError",
                 message: args
                   .map(function (a) {
                     return typeof a === "object"
