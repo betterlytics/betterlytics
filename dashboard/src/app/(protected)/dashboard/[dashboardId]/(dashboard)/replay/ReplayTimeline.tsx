@@ -189,15 +189,15 @@ function labelForKey(key: MarkerKey | string, t: any) {
     case 'Full snapshot':
       return t('fullSnapshot');
     case 'Viewport Resize':
-      return 'Viewport Resize'; // Missing translation
+      return t('viewportResize');
     case 'Media Interaction':
-      return 'Media Interaction'; // Missing translation
+      return t('mediaInteraction');
     case 'Pageview':
       return t('pageview');
     case 'Blacklist':
       return t('blacklist');
     case 'client_error':
-      return 'JavaScript Error';
+      return t('clientError');
     default:
       return key;
   }
