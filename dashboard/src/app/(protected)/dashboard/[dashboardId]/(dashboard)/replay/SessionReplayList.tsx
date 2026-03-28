@@ -136,7 +136,7 @@ export function SessionReplayList({
                       <span>{session.error_fingerprints.length}+</span>
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side='bottom'>{t('sessionErrorsTooltip')}</TooltipContent>
+                  <TooltipContent side='bottom'>{t('sessionErrorsTooltip', { count: session.error_fingerprints.length })}</TooltipContent>
                 </Tooltip>
               )}
             </div>

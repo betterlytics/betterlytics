@@ -2627,7 +2627,7 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Økten inneholder registrerte feil"
+        "sessionErrorsTooltip": "Denne økten fanget {count}+ klientsidefeil"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
