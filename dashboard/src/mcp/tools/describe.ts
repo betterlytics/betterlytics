@@ -197,6 +197,71 @@ export function getSchemaDescription(): SchemaDescription {
           { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
         ],
       },
+      {
+        name: 'list_errors',
+        description:
+          'List client-side JavaScript errors grouped by type, sorted by occurrence count. Returns fingerprints, types, messages, counts, status, and timestamps.',
+        inputs: [
+          {
+            name: 'timeRange',
+            type: 'string',
+            required: true,
+            description: 'Time range preset (see timeRanges above).',
+          },
+          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          {
+            name: 'search',
+            type: 'string',
+            required: false,
+            description:
+              'Case-insensitive text search across error type and message. E.g. "TypeError" or "Cannot read properties".',
+          },
+          {
+            name: 'fingerprint',
+            type: 'string',
+            required: false,
+            description: 'Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+          },
+          {
+            name: 'filters',
+            type: 'array',
+            required: false,
+            description: 'Filters to narrow results. Same format as the query tool: { column, operator, values }.',
+          },
+          {
+            name: 'limit',
+            type: 'number',
+            required: false,
+            description: 'Max error groups to return (1-50). Defaults to 10.',
+          },
+        ],
+      },
+      {
+        name: 'get_error',
+        description:
+          'Get detailed info about a specific error: stack trace, browser/OS/device context, and breadcrumbs (user actions leading up to the error). Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+        inputs: [
+          {
+            name: 'fingerprint',
+            type: 'string',
+            required: true,
+            description: 'The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+          },
+          {
+            name: 'occurrenceOffset',
+            type: 'number',
+            required: false,
+            description: 'Occurrence index. 0 = latest, 1 = second latest, etc. Defaults to 0.',
+          },
+          {
+            name: 'includeBreadcrumbs',
+            type: 'boolean',
+            required: false,
+            description:
+              'Include breadcrumbs. The trail of user actions (page views, clicks, navigations) before the error. Defaults to true.',
+          },
+        ],
+      },
     ],
   };
 }
