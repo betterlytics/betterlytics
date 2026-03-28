@@ -5,6 +5,9 @@ import { useCallback } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 
+// Params that are page-specific and should NOT be persisted across navigations
+const EXCLUDED_PARAMS = ['occurrence'];
+
 /**
  * Hook for navigation that preserves current search parameters (filters)
  */
@@ -26,7 +29,9 @@ export function useNavigateWithFilters() {
 
       // Preserve current search params if the new URL doesn't have any
       if (!url.search && searchParams?.toString()) {
-        url.search = searchParams.toString();
+        const filtered = new URLSearchParams(searchParams.toString());
+        EXCLUDED_PARAMS.forEach((p) => filtered.delete(p));
+        url.search = filtered.toString();
       }
 
       const finalUrl = url.pathname + url.search + url.hash;
@@ -48,7 +53,9 @@ export function useNavigateWithFilters() {
 
       // Preserve current search params if the new URL doesn't have any
       if (!url.search && searchParams?.toString()) {
-        url.search = searchParams.toString();
+        const filtered = new URLSearchParams(searchParams.toString());
+        EXCLUDED_PARAMS.forEach((p) => filtered.delete(p));
+        url.search = filtered.toString();
       }
 
       return url.pathname + url.search + url.hash;

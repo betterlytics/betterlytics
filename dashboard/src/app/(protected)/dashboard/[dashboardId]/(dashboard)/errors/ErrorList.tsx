@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useTransition, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
   useReactTable,
@@ -35,27 +36,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ErrorStatusActions } from './ErrorStatusActions';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
 import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
 import type { ErrorGroupRow, ErrorGroupStatusValue } from '@/entities/analytics/errors.entities';
 import { STATUS_CONFIG } from './errors.constants';
+import { cn } from '@/lib/utils';
+import { ErrorTestScript } from './ErrorTestScript';
 
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
 
-const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'unresolved', label: 'Unresolved' },
-  { key: 'resolved', label: 'Resolved' },
-  { key: 'ignored', label: 'Ignored' },
-];
+const STATUS_FILTER_KEYS: StatusFilter[] = ['all', 'unresolved', 'resolved', 'ignored'];
 
 function StatusFilterTabs({
   value,
@@ -66,25 +67,29 @@ function StatusFilterTabs({
   counts: Record<StatusFilter, number>;
   onChange: (filter: StatusFilter) => void;
 }) {
+  const t = useTranslations('errors.statusFilter');
   return (
     <div className='border-border flex gap-1 border-b'>
-      {STATUS_FILTERS.map(({ key, label }) => {
+      {STATUS_FILTER_KEYS.map((key) => {
         const isActive = value === key;
         return (
           <button
             key={key}
             type='button'
             onClick={() => onChange(key)}
-            className={[
+            className={cn(
               '-mb-px cursor-pointer border-b-2 px-3 py-2 text-sm font-medium transition-colors',
               isActive
                 ? 'border-primary text-foreground'
                 : 'text-muted-foreground hover:text-foreground border-transparent',
-            ].join(' ')}
+            )}
           >
-            {label}
+            {t(key)}
             <span
-              className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground'}`}
+              className={cn(
+                'ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums',
+                isActive ? 'bg-primary/10 text-foreground' : 'bg-muted text-muted-foreground',
+              )}
             >
               {counts[key]}
             </span>
@@ -121,65 +126,51 @@ function ErrorToolbar({
   const canIgnore = hasSelection && (selectedStatuses.has('unresolved') || selectedStatuses.has('resolved'));
   const canUnresolve = hasSelection && (selectedStatuses.has('resolved') || selectedStatuses.has('ignored'));
 
+  const t = useTranslations('errors.toolbar');
   return (
     <div className='flex items-center gap-3'>
       <div className='relative max-w-sm flex-1'>
         <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
         <Input
           type='text'
-          placeholder='Search by type and message...'
+          placeholder={t('searchPlaceholder')}
           value={searchInput}
           onChange={(e) => onSearchChange(e.target.value)}
           className='pl-9'
         />
       </div>
       <div className='ml-auto flex items-center gap-2'>
-        {hasSelection && <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>}
-        <div className='flex'>
-          <Button
-            variant='outline'
-            size='sm'
-            className='cursor-pointer rounded-r-none border-r-0'
-            disabled={!canResolve}
-            onClick={onResolve}
-          >
-            <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
-            Resolve
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant='outline'
-                size='sm'
-                className='cursor-pointer rounded-l-none px-1.5'
-                disabled={!hasSelection}
-              >
-                <ChevronDown className='h-3.5 w-3.5' />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem className='cursor-pointer' disabled={!canIgnore} onClick={onIgnore}>
-                <EyeOff className='mr-2 h-4 w-4' />
-                Ignore
-              </DropdownMenuItem>
-              <DropdownMenuItem className='cursor-pointer' disabled={!canUnresolve} onClick={onUnresolve}>
-                <RotateCcw className='mr-2 h-4 w-4' />
-                Unresolve
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <Button
-          variant='outline'
-          size='sm'
-          className='shrink-0 cursor-pointer'
-          disabled={isRefreshing}
-          onClick={onReload}
-          aria-label='Reload errors'
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Reload
-        </Button>
+        {hasSelection && (
+          <span className='text-muted-foreground text-sm'>{t('selectedCount', { count: selectedCount })}</span>
+        )}
+        <PermissionGate>
+          {(disabled) => (
+            <ErrorStatusActions
+              canResolve={canResolve && !disabled}
+              canIgnore={canIgnore && !disabled}
+              canUnresolve={canUnresolve && !disabled}
+              onResolve={onResolve}
+              onIgnore={onIgnore}
+              onUnresolve={onUnresolve}
+              isPending={disabled}
+            />
+          )}
+        </PermissionGate>
+        <PermissionGate allowViewer>
+          {(disabled) => (
+            <Button
+              variant='outline'
+              size='sm'
+              className='shrink-0 cursor-pointer'
+              disabled={isRefreshing || disabled}
+              onClick={onReload}
+              aria-label={t('reloadAria')}
+            >
+              <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
+              {t('reload')}
+            </Button>
+          )}
+        </PermissionGate>
       </div>
     </div>
   );
@@ -192,8 +183,10 @@ type ErrorTableProps = {
 };
 
 export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: ErrorTableProps) {
+  const t = useTranslations('errors');
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
+  const { resolveHref } = useDashboardNavigation();
   const query = useAnalyticsQuery();
   const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
@@ -230,30 +223,47 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
     () => [
       {
         id: 'select',
-        meta: { cellClassName: 'w-10 py-3 pl-4 sm:pl-6', headerClassName: 'w-10 pl-4 sm:pl-6' },
+        meta: {
+          cellClassName: 'w-10 py-3 pl-4 sm:pl-6',
+          headerClassName: 'w-10 pl-4 sm:pl-6',
+          stopRowClick: true,
+        },
         header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            className='mr-2 cursor-pointer'
-            aria-label='Select all'
-          />
+          <PermissionGate>
+            {(disabled) => (
+              <Checkbox
+                checked={
+                  !disabled &&
+                  (table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'))
+                }
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                className={cn('mr-2', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                disabled={disabled}
+                aria-label={t('table.selectAll')}
+              />
+            )}
+          </PermissionGate>
         ),
         cell: ({ row }) => (
-          <Checkbox
-            className='cursor-pointer'
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            onClick={(e) => e.stopPropagation()}
-            aria-label='Select row'
-          />
+          <PermissionGate>
+            {(disabled) => (
+              <Checkbox
+                className={cn(disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                checked={!disabled && row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                onClick={(e) => e.stopPropagation()}
+                disabled={disabled}
+                aria-label={t('table.selectRow')}
+              />
+            )}
+          </PermissionGate>
         ),
         enableSorting: false,
       },
       {
         id: 'error',
         accessorFn: (row) => `${row.error_type} ${row.error_message}`,
-        header: 'Error',
+        header: t('table.columns.error'),
         meta: { cellClassName: 'w-full min-w-[200px] max-w-0' },
         cell: ({ row }) => {
           const error = row.original;
@@ -267,7 +277,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         id: 'volume',
-        header: 'Volume',
+        header: t('table.columns.volume'),
         meta: { cellClassName: 'hidden xl:table-cell', headerClassName: 'hidden xl:table-cell' },
         cell: ({ row }) => (
           <ErrorSparklineChart data={volumeMapRef.current?.[row.original.error_fingerprint] ?? []} />
@@ -276,7 +286,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         accessorKey: 'count',
-        header: 'Occurrences',
+        header: t('table.columns.occurrences'),
         enableGlobalFilter: false,
         meta: { centered: true },
         cell: ({ getValue }) => (
@@ -285,7 +295,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         accessorKey: 'session_count',
-        header: 'Sessions',
+        header: t('table.columns.sessions'),
         enableGlobalFilter: false,
         meta: { centered: true },
         cell: ({ getValue }) => (
@@ -294,27 +304,28 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         id: 'first_seen',
-        accessorFn: (row) => row.first_seen?.getTime() ?? 0,
-        header: 'First seen',
+        accessorFn: (row) => (row.first_seen ? new Date(row.first_seen).getTime() : 0),
+        header: t('table.columns.firstSeen'),
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
-          return firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—';
+          return firstSeen ? t('table.ago', { time: formatElapsedTime(new Date(firstSeen)) }) : '—';
         },
       },
       {
         id: 'last_seen',
-        accessorFn: (row) => row.last_seen?.getTime() ?? 0,
-        header: 'Last seen',
+        accessorFn: (row) => (row.last_seen ? new Date(row.last_seen).getTime() : 0),
+        header: t('table.columns.lastSeen'),
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const lastSeen = row.original.last_seen;
           if (!lastSeen) return '—';
-          const isRecent = Date.now() - lastSeen.getTime() < RECENT_THRESHOLD_MS;
+          const lastSeenDate = new Date(lastSeen);
+          const isRecent = Date.now() - lastSeenDate.getTime() < RECENT_THRESHOLD_MS;
           return (
             <div className='flex items-center gap-1.5'>
               {isRecent && <span className='bg-destructive h-1.5 w-1.5 shrink-0 animate-pulse rounded-full' />}
-              {formatElapsedTime(lastSeen)} ago
+              {t('table.ago', { time: formatElapsedTime(lastSeenDate) })}
             </div>
           );
         },
@@ -322,7 +333,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       {
         id: 'status',
         accessorFn: (row) => row.status,
-        header: 'Status',
+        header: t('table.columns.status'),
         enableSorting: false,
         enableGlobalFilter: false,
         cell: ({ row }) => {
@@ -330,7 +341,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
           const cfg = STATUS_CONFIG[status];
           return (
             <Badge variant='outline' className={cfg.className}>
-              {cfg.label}
+              {t(`status.${status}`)}
             </Badge>
           );
         },
@@ -338,50 +349,54 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       {
         id: 'actions',
         header: '',
-        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10' },
+        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10', stopRowClick: true },
         enableSorting: false,
         cell: ({ row }) => {
           const fp = row.original.error_fingerprint;
           const currentStatus = getStatus(fp, row.original.status);
           return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='h-7 w-7 cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100'
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label='Row actions'
-                >
-                  <MoreHorizontal className='h-4 w-4' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end'>
-                {currentStatus !== 'resolved' && (
-                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
-                    <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
-                    Mark resolved
-                  </DropdownMenuItem>
-                )}
-                {currentStatus !== 'ignored' && (
-                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
-                    <EyeOff className='mr-2 h-4 w-4' />
-                    Ignore
-                  </DropdownMenuItem>
-                )}
-                {currentStatus !== 'unresolved' && (
-                  <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
-                    <RotateCcw className='mr-2 h-4 w-4' />
-                    Mark unresolved
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <PermissionGate hideWhenDisabled>
+              {() => (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='h-7 w-7 cursor-pointer focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={t('table.rowActionsAria')}
+                    >
+                      <MoreHorizontal className='h-4 w-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    {currentStatus !== 'resolved' && (
+                      <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
+                        <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
+                        {t('statusActions.markResolved')}
+                      </DropdownMenuItem>
+                    )}
+                    {currentStatus !== 'ignored' && (
+                      <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
+                        <EyeOff className='mr-2 h-4 w-4' />
+                        {t('statusActions.ignore')}
+                      </DropdownMenuItem>
+                    )}
+                    {currentStatus !== 'unresolved' && (
+                      <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
+                        <RotateCcw className='mr-2 h-4 w-4' />
+                        {t('statusActions.markUnresolved')}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </PermissionGate>
           );
         },
       },
     ],
-    [getStatus],
+    [getStatus, t],
   );
 
   const table = useReactTable({
@@ -436,6 +451,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
 
   return (
     <div className='space-y-3'>
+      <ErrorTestScript />
       <StatusFilterTabs value={statusFilter} counts={statusCounts} onChange={changeStatusFilter} />
 
       <ErrorToolbar
@@ -467,14 +483,14 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   return (
                     <TableHead
                       key={header.id}
-                      className={[
+                      className={cn(
                         'text-foreground bg-muted/50 py-3 text-sm font-medium',
                         meta?.headerClassName ?? 'px-3 sm:px-6',
-                        canSort ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none' : '',
-                      ].join(' ')}
+                        canSort && 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none',
+                      )}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className={`flex items-center gap-1 ${meta?.centered ? 'justify-center' : ''}`}>
+                      <div className={cn('flex items-center gap-1', meta?.centered && 'justify-center')}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {sorted && (
                           <span className='ml-1'>
@@ -497,9 +513,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
               <TableRow className='hover:bg-transparent'>
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
-                    {globalFilter.trim()
-                      ? 'No errors matching your search.'
-                      : 'No errors recorded in this period.'}
+                    {globalFilter.trim() ? t('table.emptySearch') : t('table.emptyPeriod')}
                   </p>
                 </TableCell>
               </TableRow>
@@ -509,19 +523,24 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   key={row.id}
                   data-state={row.getIsSelected() ? 'selected' : undefined}
                   className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
-                  onClick={() =>
-                    router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)
-                  }
+                  onClick={(e) => {
+                    const href = resolveHref(`/errors/detail/${row.original.error_fingerprint}`);
+                    if (e.metaKey || e.ctrlKey) {
+                      window.open(href, '_blank');
+                    } else {
+                      router.push(href);
+                    }
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const meta = cell.column.columnDef.meta as { cellClassName?: string } | undefined;
+                    const meta = cell.column.columnDef.meta as
+                      | { cellClassName?: string; stopRowClick?: boolean }
+                      | undefined;
                     return (
                       <TableCell
                         key={cell.id}
-                        className={[
-                          'text-muted-foreground px-3 py-3 text-sm sm:px-6',
-                          meta?.cellClassName ?? '',
-                        ].join(' ')}
+                        className={cn('text-muted-foreground px-3 py-3 text-sm sm:px-6', meta?.cellClassName)}
+                        onClick={meta?.stopRowClick ? (e) => e.stopPropagation() : undefined}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>

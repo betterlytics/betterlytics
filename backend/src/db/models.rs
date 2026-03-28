@@ -66,6 +66,7 @@ pub struct SessionReplayRow {
     pub event_count: u32,
     pub s3_prefix: String,
     pub start_url: String,
+    pub error_fingerprints: Vec<String>,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]

@@ -8243,6 +8243,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
     apiBase = new URL(serverUrl).origin;
   } catch (e) {}
 
+  var enableReplayOnError = script.getAttribute("data-replay-on-error") === "true";
+  var isSampledRecording = window.__betterlytics_replay_sampled__ === true;
+
   // Track current path for SPA navigation
   var currentPath = window.location.pathname;
 
@@ -8353,6 +8356,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
       visId: null,
       replaySession: { id: null },
       consecutiveFlushErrors: 0,
+      errorMatrix: [[]],
+      errorCheckoutTimer: null,
+      errorLastFlushAt: 0,
+      errorFlushPending: false,
+      pendingErrorType: null,
+      pendingErrorExceptionsJson: null,
     };
 
     var config = {
@@ -8446,6 +8455,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
+    function uploadEventChunk(events, lastEventTs) {
+      var json = JSON.stringify(events);
+      return encodeReplayChunk(json)
+        .then(function (enc) {
+          enc.lastEventTs = lastEventTs;
+          return fetchPresignedUrl(enc);
+        })
+        .then(uploadToS3);
+    }
+
     function flush() {
       if (state.disabled) return Promise.resolve();
       if (state.buffer.length === 0) return Promise.resolve();
@@ -8459,24 +8478,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
         return Promise.resolve();
       }
 
-      var json = JSON.stringify(events);
       var flushedEventCount = events.length;
       state.approxBytes = 0;
 
       var lastEventTs = state.lastActivity;
-      try {
-        var last = events[events.length - 1];
-        if (last && typeof last.timestamp === "number") {
-          lastEventTs = last.timestamp;
-        }
-      } catch (_) {}
+      var last = events[events.length - 1];
+      if (last && typeof last.timestamp === "number") {
+        lastEventTs = last.timestamp;
+      }
 
-      state.ongoingFlush = encodeReplayChunk(json)
-        .then(function (enc) {
-          enc.lastEventTs = lastEventTs;
-          return fetchPresignedUrl(enc);
-        })
-        .then(uploadToS3)
+      state.ongoingFlush = uploadEventChunk(events, lastEventTs)
         .then(function (data) {
           handleUploadSuccess(data, flushedEventCount, lastEventTs);
         })
@@ -8506,8 +8517,15 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
     }
 
+    function stopFlushTimer() {
+      if (state.flushTimer) {
+        clearInterval(state.flushTimer);
+        state.flushTimer = null;
+      }
+    }
+
     function startFlushLoop() {
-      if (state.flushTimer) clearInterval(state.flushTimer);
+      stopFlushTimer();
       state.flushTimer = setInterval(function () {
         if (Date.now() - state.lastActivity > idleCutoffMs) {
           stopRecording(true);
@@ -8523,27 +8541,124 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }, Math.max(3000, config.maxChunkMs));
     }
 
-    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs) {
+    var ERROR_CHECKOUT_INTERVAL_MS = 60 * 1000;
+
+    function startErrorCheckoutTimer() {
+      if (state.errorCheckoutTimer) clearInterval(state.errorCheckoutTimer);
+      state.errorCheckoutTimer = setInterval(function () {
+        if (window.rrweb && window.rrweb.record && typeof window.rrweb.record.takeFullSnapshot === 'function') {
+          window.rrweb.record.takeFullSnapshot(true);
+        }
+      }, ERROR_CHECKOUT_INTERVAL_MS);
+    }
+
+    function stopErrorCheckoutTimer() {
+      if (state.errorCheckoutTimer) {
+        clearInterval(state.errorCheckoutTimer);
+        state.errorCheckoutTimer = null;
+      }
+    }
+
+    function clearPendingError() {
+      state.pendingErrorType = null;
+      state.pendingErrorExceptionsJson = null;
+    }
+
+    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs, startedAtMs) {
       if (state.disabled) return;
-      if (!hasReachedMinDuration()) return;
+      if (!state.pendingErrorType && !hasReachedMinDuration()) return;
       if (!state.replaySession.id || !state.visId) return;
       if (!deltaSizeBytes || !deltaEventCount) return;
+
+      var body = {
+        site_id: siteId,
+        session_id: state.replaySession.id,
+        visitor_id: state.visId,
+        started_at: Math.floor((startedAtMs || state.firstActivity || state.startedAt) / 1000),
+        ended_at: Math.floor(endedAtMs / 1000),
+        size_bytes: deltaSizeBytes,
+        start_url: normalize(window.location.href),
+        event_count: deltaEventCount,
+      };
+
+      if (state.pendingErrorType) {
+        body.error_type = state.pendingErrorType;
+        body.error_exceptions = state.pendingErrorExceptionsJson;
+        clearPendingError();
+      }
 
       return fetch(apiBase + "/replay/finalize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          site_id: siteId,
-          session_id: state.replaySession.id,
-          visitor_id: state.visId,
-          started_at: Math.floor(state.firstActivity / 1000),
-          ended_at: Math.floor(endedAtMs / 1000),
-          size_bytes: deltaSizeBytes,
-          start_url: normalize(window.location.href),
-          event_count: deltaEventCount,
-        }),
+        body: JSON.stringify(body),
         keepalive: true,
       }).catch(function () {});
+    }
+
+    function flushErrorMatrix(errorType, errorExceptionsJson) {
+      var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
+      state.errorFlushPending = false;
+      state.errorLastFlushAt = Date.now();
+
+      if (events.length === 0) return Promise.resolve();
+
+      var flushedEventCount = events.length;
+      var firstEventTs = state.firstActivity || state.startedAt;
+      var lastEventTs = state.lastActivity;
+      var first = events[0];
+      if (first && typeof first.timestamp === "number") {
+        firstEventTs = first.timestamp;
+      }
+
+      state.pendingErrorType = errorType;
+      state.pendingErrorExceptionsJson = errorExceptionsJson;
+
+      return uploadEventChunk(events, lastEventTs)
+        .then(function (data) {
+          var uploadedBytes = data.payload.bytes.byteLength;
+          state.errorMatrix = [[]];
+          finalizeSession(uploadedBytes, flushedEventCount, lastEventTs, firstEventTs);
+        })
+        .catch(function () {
+          clearPendingError();
+        });
+    }
+
+    function notifyError(errorType, errorExceptionsJson) {
+      try {
+        if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
+          var parsed = null;
+          try { parsed = JSON.parse(errorExceptionsJson); } catch (_) {}
+          window.rrweb.record.addCustomEvent("client_error", {
+            type: errorType,
+            message: (parsed && parsed[0] && parsed[0].value) || "",
+          });
+        }
+      } catch (_) {}
+
+      var now = Date.now();
+      if (now - state.errorLastFlushAt < 10000) return;
+
+      state.errorLastFlushAt = now;
+      state.errorFlushPending = true;
+      var timer = null;
+
+      function doFlush() {
+        if (!state.errorFlushPending) return;
+        state.errorFlushPending = false;
+        if (timer) { clearTimeout(timer); timer = null; }
+        window.removeEventListener("beforeunload", doFlush);
+        if (isSampledRecording) {
+          state.pendingErrorType = errorType;
+          state.pendingErrorExceptionsJson = errorExceptionsJson;
+          flush();
+        } else if (enableReplayOnError) {
+          flushErrorMatrix(errorType, errorExceptionsJson);
+        }
+      }
+
+      window.addEventListener("beforeunload", doFlush);
+      timer = setTimeout(doFlush, 3000);
     }
 
     function stopRecording(finalize) {
@@ -8555,10 +8670,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
           state.recordingStop = null;
         }
       } catch (e) {}
-      if (state.flushTimer) {
-        clearInterval(state.flushTimer);
-        state.flushTimer = null;
-      }
+      stopFlushTimer();
+      stopErrorCheckoutTimer();
       flushAll()
         .catch(function () {})
         .finally(function () {
@@ -8576,7 +8689,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
-    function handleRecordingEmit(e) {
+    function handleRecordingEmit(e, isCheckout) {
       if (
         isReplayEnabledOnPage() === false &&
         (e.type == 5 && e.data.tag === "Blacklist") === false
@@ -8589,10 +8702,21 @@ or you can use record.mirror to access the mirror instance during recording.`;
         e.timestamp
       );
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
-      state.buffer.push(e);
-      state.approxBytes += estimateEventSize(e) + 1;
-      if (state.approxBytes >= config.maxUncompressedBytes) {
-        flush();
+
+      if (isSampledRecording) {
+        // Case 1: push to regular buffer, periodic S3 flushes.
+        state.buffer.push(e);
+        state.approxBytes += estimateEventSize(e) + 1;
+        if (state.approxBytes >= config.maxUncompressedBytes) {
+          flush();
+        }
+      } else if (enableReplayOnError) {
+        // Case 2: maintain two-segment ring buffer, no periodic flushes.
+        if (isCheckout && e.type === 2) {
+          state.errorMatrix.push([]);
+          if (state.errorMatrix.length > 2) state.errorMatrix.shift();
+        }
+        state.errorMatrix[state.errorMatrix.length - 1].push(e);
       }
     }
 
@@ -8612,7 +8736,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       state.recordingStop = window.rrweb.record({
         emit: handleRecordingEmit,
-        checkoutEveryNms: 5 * 60 * 1000,
+        checkoutEveryNms: isSampledRecording ? 5 * 60 * 1000 : undefined,
         maskAllInputs: true,
         maskInputOptions: {
           text: true,
@@ -8655,7 +8779,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
         },
       });
       emitReplayPageview(window.location.href, false);
-      startFlushLoop();
+      if (isSampledRecording) {
+        startFlushLoop();
+      } else if (enableReplayOnError) {
+        startErrorCheckoutTimer();
+      }
       state.isRecording = true;
     }
 
@@ -8667,7 +8795,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
         started = true;
         try {
           startRecording();
-          resolve(true);
         } catch (_) {}
       }
 
@@ -8739,6 +8866,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
       }
     }
+
+    window.__betterlytics_replay__ = {
+      stop: function () { stopRecording(true); },
+      notifyError: notifyError,
+    };
 
     setupEventListeners();
 
