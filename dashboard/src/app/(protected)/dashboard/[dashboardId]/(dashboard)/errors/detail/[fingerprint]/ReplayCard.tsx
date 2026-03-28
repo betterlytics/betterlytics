@@ -32,7 +32,7 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
   );
 
   return (
-    <PermissionGate>
+    <PermissionGate allowViewer>
       {() => (
         <Card className='border-primary/30 bg-primary/10'>
           <CardContent className='px-4 py-3'>
