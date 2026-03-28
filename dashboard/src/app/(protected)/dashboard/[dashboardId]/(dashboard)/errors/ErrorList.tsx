@@ -210,7 +210,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
     () => [
       {
         id: 'select',
-        meta: { cellClassName: 'w-10 py-3 pl-4 sm:pl-6', headerClassName: 'w-10 pl-4 sm:pl-6' },
+        meta: { cellClassName: 'w-10 py-3 pl-4 sm:pl-6', headerClassName: 'w-10 pl-4 sm:pl-6', stopRowClick: true },
         header: ({ table }) => (
           <Checkbox
             checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
@@ -318,7 +318,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       {
         id: 'actions',
         header: '',
-        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10' },
+        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10', stopRowClick: true },
         enableSorting: false,
         cell: ({ row }) => {
           const fp = row.original.error_fingerprint;
@@ -329,7 +329,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                 <Button
                   variant='ghost'
                   size='icon'
-                  className='h-7 w-7 cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100'
+                  className='h-7 w-7 cursor-pointer sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100'
                   onClick={(e) => e.stopPropagation()}
                   aria-label='Row actions'
                 >
@@ -495,11 +495,14 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   }
                 >
                   {row.getVisibleCells().map((cell) => {
-                    const meta = cell.column.columnDef.meta as { cellClassName?: string } | undefined;
+                    const meta = cell.column.columnDef.meta as
+                      | { cellClassName?: string; stopRowClick?: boolean }
+                      | undefined;
                     return (
                       <TableCell
                         key={cell.id}
                         className={cn('text-muted-foreground px-3 py-3 text-sm sm:px-6', meta?.cellClassName)}
+                        onClick={meta?.stopRowClick ? (e) => e.stopPropagation() : undefined}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
