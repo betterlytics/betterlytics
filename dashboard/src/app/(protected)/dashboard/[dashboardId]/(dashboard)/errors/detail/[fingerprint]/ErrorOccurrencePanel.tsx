@@ -14,6 +14,7 @@ import { SessionTrail } from './SessionTrail';
 import { fetchErrorOccurrenceAction } from '@/app/actions/analytics/errors.actions';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
 import { getDeviceLabel } from '@/constants/deviceTypes';
+import { useTranslations } from 'next-intl';
 
 type ErrorOccurrencePanelProps = {
   dashboardId: string;
@@ -112,24 +113,25 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
 }
 
 function OccurrenceContext({ occurrence }: { occurrence: ErrorOccurrence }) {
+  const t = useTranslations('errors.detail.occurrence');
   const details = [
     {
-      label: 'Browser',
+      label: t('browser'),
       value: occurrence.browser || '—',
       icon: <BrowserIcon name={occurrence.browser} className='h-6 w-6' />,
     },
     {
-      label: 'Operating System',
+      label: t('operatingSystem'),
       value: occurrence.os || '—',
       icon: <OSIcon name={occurrence.os} className='h-6 w-6' />,
     },
     {
-      label: 'Device',
+      label: t('device'),
       value: occurrence.device_type ? getDeviceLabel(occurrence.device_type) : '—',
       icon: <DeviceIcon type={occurrence.device_type || 'unknown'} className='h-6 w-6' />,
     },
     {
-      label: 'Country',
+      label: t('country'),
       value: occurrence.country_code || '—',
       icon: (
         <FlagIcon

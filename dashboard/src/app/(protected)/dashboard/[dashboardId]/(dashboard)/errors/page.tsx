@@ -9,6 +9,7 @@ import { getUserTimezone } from '@/lib/cookies';
 import { ErrorGroupsSection } from './ErrorGroupsSection';
 import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getTranslations } from 'next-intl/server';
 
 type ErrorsPageParams = {
   params: Promise<{ dashboardId: string }>;
@@ -22,12 +23,13 @@ export default async function ErrorsPage({ params, searchParams }: ErrorsPagePar
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const query = BAFilterSearchParams.decode(await searchParams, timezone);
+  const t = await getTranslations('errors.page');
 
   const groupsPromise = fetchErrorGroupsAction(dashboardId, query);
 
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
-      <DashboardHeader title='Errors'>
+      <DashboardHeader title={t('title')}>
         <DashboardFilters showComparison={false} />
       </DashboardHeader>
 

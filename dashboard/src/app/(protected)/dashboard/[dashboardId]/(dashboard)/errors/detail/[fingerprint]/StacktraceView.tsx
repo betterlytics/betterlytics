@@ -6,6 +6,7 @@ import type { StackFrame } from '@/entities/analytics/errors.entities';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 const INITIAL_FRAMES = 3;
 
@@ -17,6 +18,7 @@ type StacktraceViewProps = {
 };
 
 export function StacktraceView({ errorType, errorMessage, frames, mechanism }: StacktraceViewProps) {
+  const t = useTranslations('errors.detail.stacktrace');
   const [expanded, setExpanded] = useState(false);
 
   const visibleFrames = expanded ? frames : frames.slice(0, INITIAL_FRAMES);
@@ -25,7 +27,7 @@ export function StacktraceView({ errorType, errorMessage, frames, mechanism }: S
   return (
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
-        <p className='text-base font-medium'>Stacktrace</p>
+        <p className='text-base font-medium'>{t('title')}</p>
         <div className='flex items-center gap-2'>
           {mechanism && (
             <Badge variant='secondary' className='border-border border text-xs font-normal shadow-xs'>
@@ -33,7 +35,7 @@ export function StacktraceView({ errorType, errorMessage, frames, mechanism }: S
             </Badge>
           )}
           <Badge variant='secondary' className='border-border border text-xs font-normal tabular-nums shadow-xs'>
-            {frames.length} {frames.length === 1 ? 'frame' : 'frames'}
+            {t('frames', { count: frames.length })}
           </Badge>
         </div>
       </div>
@@ -57,7 +59,7 @@ export function StacktraceView({ errorType, errorMessage, frames, mechanism }: S
           className='text-muted-foreground hover:text-foreground h-auto px-0 py-0 text-xs'
         >
           <ChevronRight className={cn('h-3.5 w-3.5 transition-transform', expanded && 'rotate-90')} />
-          {expanded ? 'Show less' : `Show ${hiddenCount} more frames`}
+          {expanded ? t('showLess') : t('showMoreFrames', { count: hiddenCount })}
         </Button>
       )}
     </div>
@@ -65,6 +67,7 @@ export function StacktraceView({ errorType, errorMessage, frames, mechanism }: S
 }
 
 function StackFrameRow({ frame }: { frame: StackFrame }) {
+  const t = useTranslations('errors.detail.stacktrace');
   const isCulprit = frame.inApp;
   return (
     <div
@@ -77,7 +80,7 @@ function StackFrameRow({ frame }: { frame: StackFrame }) {
         {frame.line ?? ''}
       </span>
       <span className='flex min-w-0 flex-1 items-center gap-2'>
-        <span className='text-muted-foreground/60 shrink-0'>at</span>
+        <span className='text-muted-foreground/60 shrink-0'>{t('at')}</span>
         <span className={cn('shrink-0 font-semibold', isCulprit ? 'text-foreground' : 'text-muted-foreground/50')}>
           {frame.fn}
         </span>
@@ -87,7 +90,7 @@ function StackFrameRow({ frame }: { frame: StackFrame }) {
       </span>
       {frame.inApp && (
         <Badge variant='secondary' className='border-border border text-[10px] font-normal shadow-xs'>
-          in app
+          {t('inApp')}
         </Badge>
       )}
     </div>

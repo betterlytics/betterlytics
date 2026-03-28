@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { upsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import { STATUS_CONFIG } from '../../errors.constants';
 import { ErrorStatusActions } from '../../ErrorStatusActions';
+import { useTranslations } from 'next-intl';
 
 type ErrorDetailHeaderProps = {
   dashboardId: string;
@@ -17,6 +18,8 @@ type ErrorDetailHeaderProps = {
 };
 
 export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeaderProps) {
+  const t = useTranslations('errors.detail.header');
+  const tStatus = useTranslations('errors.status');
   const [status, setStatus] = useState<ErrorGroupStatusValue>(errorGroup.status);
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
@@ -42,14 +45,14 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
         className='text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors'
       >
         <ChevronLeft className='h-4 w-4' />
-        Back to errors
+        {t('backToErrors')}
       </Link>
 
       <div className='space-y-1'>
         <div className='flex flex-wrap items-center gap-2.5'>
           <h1 className='font-mono text-2xl font-bold'>{errorGroup.error_type}</h1>
           <Badge variant='outline' className={cn('mt-1.5 rounded-full', cfg.className)}>
-            {cfg.label}
+            {tStatus(status)}
           </Badge>
         </div>
         <div className='flex items-center justify-between gap-4'>
@@ -70,7 +73,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
               ) : (
                 <Share2 className='mr-1.5 h-4 w-4' />
               )}
-              {copied ? 'Copied!' : 'Share'}
+              {copied ? t('copied') : t('share')}
             </Button>
           </div>
         </div>

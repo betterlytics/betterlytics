@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useTransition, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
   useReactTable,
@@ -53,12 +54,7 @@ import { ErrorTestScript } from './ErrorTestScript';
 const RECENT_THRESHOLD_MS = 60 * 60 * 1000;
 const PAGE_SIZE = 10;
 
-const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'unresolved', label: 'Unresolved' },
-  { key: 'resolved', label: 'Resolved' },
-  { key: 'ignored', label: 'Ignored' },
-];
+const STATUS_FILTER_KEYS: StatusFilter[] = ['all', 'unresolved', 'resolved', 'ignored'];
 
 function StatusFilterTabs({
   value,
@@ -69,9 +65,10 @@ function StatusFilterTabs({
   counts: Record<StatusFilter, number>;
   onChange: (filter: StatusFilter) => void;
 }) {
+  const t = useTranslations('errors.statusFilter');
   return (
     <div className='border-border flex gap-1 border-b'>
-      {STATUS_FILTERS.map(({ key, label }) => {
+      {STATUS_FILTER_KEYS.map((key) => {
         const isActive = value === key;
         return (
           <button
@@ -85,7 +82,7 @@ function StatusFilterTabs({
                 : 'text-muted-foreground hover:text-foreground border-transparent',
             )}
           >
-            {label}
+            {t(key)}
             <span
               className={cn(
                 'ml-1.5 rounded-full px-1.5 py-0.5 text-xs tabular-nums',
@@ -127,20 +124,21 @@ function ErrorToolbar({
   const canIgnore = hasSelection && (selectedStatuses.has('unresolved') || selectedStatuses.has('resolved'));
   const canUnresolve = hasSelection && (selectedStatuses.has('resolved') || selectedStatuses.has('ignored'));
 
+  const t = useTranslations('errors.toolbar');
   return (
     <div className='flex items-center gap-3'>
       <div className='relative max-w-sm flex-1'>
         <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
         <Input
           type='text'
-          placeholder='Search by type and message...'
+          placeholder={t('searchPlaceholder')}
           value={searchInput}
           onChange={(e) => onSearchChange(e.target.value)}
           className='pl-9'
         />
       </div>
       <div className='ml-auto flex items-center gap-2'>
-        {hasSelection && <span className='text-muted-foreground text-sm'>{selectedCount} selected</span>}
+        {hasSelection && <span className='text-muted-foreground text-sm'>{t('selectedCount', { count: selectedCount })}</span>}
         <ErrorStatusActions
           canResolve={canResolve}
           canIgnore={canIgnore}
@@ -155,10 +153,10 @@ function ErrorToolbar({
           className='shrink-0 cursor-pointer'
           disabled={isRefreshing}
           onClick={onReload}
-          aria-label='Reload errors'
+          aria-label={t('reloadAria')}
         >
           <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
-          Reload
+          {t('reload')}
         </Button>
       </div>
     </div>
@@ -172,6 +170,7 @@ type ErrorTableProps = {
 };
 
 export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: ErrorTableProps) {
+  const t = useTranslations('errors');
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
   const query = useAnalyticsQuery();
@@ -216,7 +215,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
             checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             className='mr-2 cursor-pointer'
-            aria-label='Select all'
+            aria-label={t('table.selectAll')}
           />
         ),
         cell: ({ row }) => (
@@ -225,7 +224,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             onClick={(e) => e.stopPropagation()}
-            aria-label='Select row'
+            aria-label={t('table.selectRow')}
           />
         ),
         enableSorting: false,
@@ -233,7 +232,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       {
         id: 'error',
         accessorFn: (row) => `${row.error_type} ${row.error_message}`,
-        header: 'Error',
+        header: t('table.columns.error'),
         meta: { cellClassName: 'w-full min-w-[200px] max-w-0' },
         cell: ({ row }) => {
           const error = row.original;
@@ -247,7 +246,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         id: 'volume',
-        header: 'Volume',
+        header: t('table.columns.volume'),
         meta: { cellClassName: 'hidden xl:table-cell', headerClassName: 'hidden xl:table-cell' },
         cell: ({ row }) => (
           <ErrorSparklineChart data={volumeMapRef.current?.[row.original.error_fingerprint] ?? []} />
@@ -256,7 +255,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         accessorKey: 'count',
-        header: 'Occurrences',
+        header: t('table.columns.occurrences'),
         enableGlobalFilter: false,
         meta: { centered: true },
         cell: ({ getValue }) => (
@@ -265,7 +264,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       },
       {
         accessorKey: 'session_count',
-        header: 'Sessions',
+        header: t('table.columns.sessions'),
         enableGlobalFilter: false,
         meta: { centered: true },
         cell: ({ getValue }) => (
@@ -275,17 +274,17 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       {
         id: 'first_seen',
         accessorFn: (row) => row.first_seen?.getTime() ?? 0,
-        header: 'First seen',
+        header: t('table.columns.firstSeen'),
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const firstSeen = row.original.first_seen;
-          return firstSeen ? `${formatElapsedTime(firstSeen)} ago` : '—';
+          return firstSeen ? t('table.ago', { time: formatElapsedTime(firstSeen) }) : '—';
         },
       },
       {
         id: 'last_seen',
         accessorFn: (row) => row.last_seen?.getTime() ?? 0,
-        header: 'Last seen',
+        header: t('table.columns.lastSeen'),
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const lastSeen = row.original.last_seen;
@@ -294,7 +293,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
           return (
             <div className='flex items-center gap-1.5'>
               {isRecent && <span className='bg-destructive h-1.5 w-1.5 shrink-0 animate-pulse rounded-full' />}
-              {formatElapsedTime(lastSeen)} ago
+              {t('table.ago', { time: formatElapsedTime(lastSeen) })}
             </div>
           );
         },
@@ -302,7 +301,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
       {
         id: 'status',
         accessorFn: (row) => row.status,
-        header: 'Status',
+        header: t('table.columns.status'),
         enableSorting: false,
         enableGlobalFilter: false,
         cell: ({ row }) => {
@@ -310,7 +309,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
           const cfg = STATUS_CONFIG[status];
           return (
             <Badge variant='outline' className={cfg.className}>
-              {cfg.label}
+              {t(`status.${status}`)}
             </Badge>
           );
         },
@@ -331,7 +330,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   size='icon'
                   className='h-7 w-7 cursor-pointer sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100'
                   onClick={(e) => e.stopPropagation()}
-                  aria-label='Row actions'
+                  aria-label={t('table.rowActionsAria')}
                 >
                   <MoreHorizontal className='h-4 w-4' />
                 </Button>
@@ -340,19 +339,19 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                 {currentStatus !== 'resolved' && (
                   <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
                     <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
-                    Mark resolved
+                    {t('statusActions.markResolved')}
                   </DropdownMenuItem>
                 )}
                 {currentStatus !== 'ignored' && (
                   <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
                     <EyeOff className='mr-2 h-4 w-4' />
-                    Ignore
+                    {t('statusActions.ignore')}
                   </DropdownMenuItem>
                 )}
                 {currentStatus !== 'unresolved' && (
                   <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
                     <RotateCcw className='mr-2 h-4 w-4' />
-                    Mark unresolved
+                    {t('statusActions.markUnresolved')}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -361,7 +360,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
         },
       },
     ],
-    [getStatus],
+    [getStatus, t],
   );
 
   const table = useReactTable({
@@ -479,8 +478,8 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
                     {globalFilter.trim()
-                      ? 'No errors matching your search.'
-                      : 'No errors recorded in this period.'}
+                      ? t('table.emptySearch')
+                      : t('table.emptyPeriod')}
                   </p>
                 </TableCell>
               </TableRow>
@@ -490,9 +489,14 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   key={row.id}
                   data-state={row.getIsSelected() ? 'selected' : undefined}
                   className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
-                  onClick={() =>
-                    router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)
-                  }
+                  onClick={(e) => {
+                    const href = `/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`;
+                    if (e.metaKey || e.ctrlKey) {
+                      window.open(href, '_blank');
+                    } else {
+                      router.push(href);
+                    }
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => {
                     const meta = cell.column.columnDef.meta as

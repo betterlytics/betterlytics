@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
+import { useTranslations } from 'next-intl';
 
 function UrlTooltip({ url, className }: { url: string; className?: string }) {
   return (
@@ -43,6 +44,7 @@ export function OccurrenceNavigator({
   onNavigate,
   currentOffset,
 }: OccurrenceNavigatorProps) {
+  const t = useTranslations('errors.detail.navigator');
   return (
     <div className='border-border bg-muted/30 min-w-0 overflow-hidden rounded-t-xl border-b px-4 py-2'>
       <div className='flex items-center justify-between gap-2 xl:grid xl:grid-cols-3'>
@@ -60,7 +62,7 @@ export function OccurrenceNavigator({
         )}
         <div className='flex items-center justify-end gap-1'>
           <span className='text-muted-foreground shrink-0 text-xs'>
-            Occurrence <span className='text-foreground font-medium'>{occurrenceNumber}</span> of {totalCount}
+            {t('occurrenceOf', { number: occurrenceNumber, total: totalCount })}
           </span>
           <Button
             variant='ghost'
@@ -68,7 +70,7 @@ export function OccurrenceNavigator({
             onClick={() => onNavigate(totalCount - 1)}
             disabled={!canGoOlder || isPending}
             className='text-muted-foreground h-7 w-7 cursor-pointer'
-            title='First occurrence'
+            title={t('firstOccurrence')}
           >
             <ChevronsLeft className='h-3.5 w-3.5' />
           </Button>
@@ -78,7 +80,7 @@ export function OccurrenceNavigator({
             onClick={() => onNavigate(currentOffset + 1)}
             disabled={!canGoOlder || isPending}
             className='text-muted-foreground h-7 w-7 cursor-pointer'
-            title='Older occurrence'
+            title={t('olderOccurrence')}
           >
             <ChevronLeft className='h-3.5 w-3.5' />
           </Button>
@@ -88,7 +90,7 @@ export function OccurrenceNavigator({
             onClick={() => onNavigate(currentOffset - 1)}
             disabled={!canGoNewer || isPending}
             className='text-muted-foreground h-7 w-7 cursor-pointer'
-            title='Newer occurrence'
+            title={t('newerOccurrence')}
           >
             <ChevronRight className='h-3.5 w-3.5' />
           </Button>
@@ -98,7 +100,7 @@ export function OccurrenceNavigator({
             onClick={() => onNavigate(0)}
             disabled={!canGoNewer || isPending}
             className='text-muted-foreground h-7 w-7 cursor-pointer'
-            title='Latest occurrence'
+            title={t('latestOccurrence')}
           >
             <ChevronsRight className='h-3.5 w-3.5' />
           </Button>

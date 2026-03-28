@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircle, ChevronDown, EyeOff, RotateCcw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -28,6 +29,7 @@ export function ErrorStatusActions({
   onUnresolve,
   isPending = false,
 }: ErrorStatusActionsProps) {
+  const t = useTranslations('errors.statusActions');
   const dropdownDisabled = isPending || (!canIgnore && !canUnresolve);
 
   return (
@@ -40,7 +42,7 @@ export function ErrorStatusActions({
         onClick={onResolve}
       >
         <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
-        Resolve
+        {t('resolve')}
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -56,11 +58,11 @@ export function ErrorStatusActions({
         <DropdownMenuContent align='end'>
           <DropdownMenuItem className='cursor-pointer' disabled={!canIgnore} onClick={onIgnore}>
             <EyeOff className='mr-2 h-4 w-4' />
-            Ignore
+            {t('ignore')}
           </DropdownMenuItem>
           <DropdownMenuItem className='cursor-pointer' disabled={!canUnresolve} onClick={onUnresolve}>
             <RotateCcw className='mr-2 h-4 w-4' />
-            Unresolve
+            {t('unresolve')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
