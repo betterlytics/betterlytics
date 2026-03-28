@@ -7,13 +7,13 @@ import { Callout } from "nextra/components";
 
 # Error Tracking
 
-Betterlytics captures JavaScript errors from your site and sends them to your dashboard. Identical errors are automatically grouped so you can track unique issues over time.
+Betterlytics captures client-side errors from your site and sends them to your dashboard. Identical errors are automatically grouped so you can track unique issues over time.
 
 ## Quick start
 
 ### Using the script tag
 
-Add `data-track-errors="true"` to your analytics script to start capturing errors.
+Add `data-track-errors="true"` to your analytics script to start capturing errors and `data-track-console-errors="true"` to also capture `console.error()` calls:
 
 ```html
 <script
@@ -32,7 +32,7 @@ Add `data-track-errors="true"` to your analytics script to start capturing error
 | --- | --- | --- | --- |
 | `data-track-errors` | boolean | `false` | Enables error tracking. |
 | `data-track-console-errors` | boolean | `false` | Also captures `console.error()` calls. Requires `data-track-errors="true"`. |
-| `data-replay-on-error` | boolean | `false` | Captures a replay when an error occurs, even for sessions not selected for regular recording. Requires `data-replay="true"` and consent. See [Error-triggered replay](#error-triggered-replay). |
+| `data-replay-on-error` | boolean | `false` | Captures a replay when an error occurs, even for sessions not sampled for regular recording. Requires `data-replay="true"` and consent. See [Error-triggered replay](#error-triggered-replay). |
 
 ### Using the npm package
 
@@ -48,7 +48,7 @@ Betterlytics captures three types of errors:
 
 ## Errors and Session Replay
 
-When error tracking is combined with [Session Replay](/integration/session-replay), errors are automatically linked to replay recordings. You can jump from any error in the dashboard directly to the session replay to see what the user experienced and vice versa.
+When error tracking is combined with [Session Replay](/integration/session-replay), errors are automatically linked to replay recordings. You can jump from any error in the dashboard directly to the session replay to see what the user experienced.
 
 If a session is already being recorded, errors are linked to it automatically with no extra configuration needed.
 
@@ -64,15 +64,10 @@ For sessions that are not being recorded, you can enable `data-replay-on-error` 
   data-track-errors="true"
   data-replay="true"
   data-consent-replay="true"
-  data-replay-sample="5"
   data-replay-on-error="true"
 >
 </script>
 ```
-
-<Callout type="info">
-Error-triggered recording requires replay consent. Recording only starts once consent is granted.
-</Callout>
 
 ## Scripts hosted on a CDN or different domain
 
