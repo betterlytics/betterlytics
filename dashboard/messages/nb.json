@@ -1576,6 +1576,7 @@
       "activeUsers": "{count, plural, =0 {aktive brukere} one {aktiv bruker} other {aktive brukere}}",
       "webVitals": "Web-vitals",
       "sessionReplay": "Sesjonsavspilling",
+      "errorTracking": "Feilsporing",
       "monitoring": "Overvåking",
       "categories": {
         "analytics": "Analyse",
