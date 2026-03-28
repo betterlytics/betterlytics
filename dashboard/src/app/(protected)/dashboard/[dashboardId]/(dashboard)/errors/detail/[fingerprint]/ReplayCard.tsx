@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type ReplayCardProps = {
   replaySessionId: string;
@@ -31,12 +32,16 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
   );
 
   return (
-    <Card className='border-primary/30 bg-primary/10'>
-      <CardContent className='px-4 py-3'>
-        {isDemo ? content : (
-          <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>{content}</Link>
-        )}
-      </CardContent>
-    </Card>
+    <PermissionGate>
+      {() => (
+        <Card className='border-primary/30 bg-primary/10'>
+          <CardContent className='px-4 py-3'>
+            {isDemo ? content : (
+              <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>{content}</Link>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </PermissionGate>
   );
 }
