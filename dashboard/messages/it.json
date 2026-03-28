@@ -1576,7 +1576,6 @@
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Replay sessioni",
-      "errorTracking": "Tracciamento errori",
       "monitoring": "Monitoraggio",
       "categories": {
         "analytics": "Analisi",
