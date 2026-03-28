@@ -489,9 +489,14 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
                   key={row.id}
                   data-state={row.getIsSelected() ? 'selected' : undefined}
                   className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
-                  onClick={() =>
-                    router.push(`/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`)
-                  }
+                  onClick={(e) => {
+                    const href = `/dashboard/${dashboardId}/errors/detail/${row.original.error_fingerprint}`;
+                    if (e.metaKey || e.ctrlKey) {
+                      window.open(href, '_blank');
+                    } else {
+                      router.push(href);
+                    }
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => {
                     const meta = cell.column.columnDef.meta as
