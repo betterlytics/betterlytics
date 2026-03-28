@@ -13,7 +13,6 @@ const DEFAULT_ARGS = {
   CUSTOM_EVENT_FREQUENCY: 0.2,
   CAMPAIGN_FREQUENCY: 0.3,
   NUM_CAMPAIGNS: 6,
-  ERROR_FREQUENCY: 0.03,
 }
 
 
@@ -36,7 +35,6 @@ if (!args[0] || args[0].startsWith("--")) {
     | '--event-freq'   | Fraction (0–1) of events that are custom (non-pageview)    | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
     | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
     | '--campaigns'    | Number of unique campaigns to generate                     | ${formatNumber(DEFAULT_ARGS.NUM_CAMPAIGNS)} |
-    | '--error-freq'   | Fraction (0–1) of events that are client errors            | ${formatNumber(DEFAULT_ARGS.ERROR_FREQUENCY)} |
     ------------------------------------------------------------------------------------------------
 
     Example:
@@ -47,8 +45,7 @@ if (!args[0] || args[0].startsWith("--")) {
       --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
       --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
-      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS} \\
-      --error-freq=${DEFAULT_ARGS.ERROR_FREQUENCY}
+      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS}
   `);
   process.exit(1);
 }
@@ -70,7 +67,6 @@ const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
 const NUM_CAMPAIGNS = getFlag("campaigns", DEFAULT_ARGS.NUM_CAMPAIGNS);
-const ERROR_FREQUENCY = getFlag("error-freq", DEFAULT_ARGS.ERROR_FREQUENCY);
 
 const CUSTOM_EVENTS = [
   {
@@ -83,103 +79,6 @@ const CUSTOM_EVENTS = [
   },
 ];
 const SCREEN_SIZES = ["1920x1080", "900x400", "500x300"];
-
-/**
- * Simulated React client errors with weighted probabilities.
- * Higher weight = more frequent. Weights don't need to sum to 1.
- */
-const CLIENT_ERRORS = [
-  {
-    weight: 30,
-    type: "TypeError",
-    value: "Cannot read properties of undefined (reading 'map')",
-    mechanism: "onuncaughtexception",
-    stack: `TypeError: Cannot read properties of undefined (reading 'map')
-    at UserList (webpack-internal:///./src/components/UserList.tsx:24:18)
-    at renderWithHooks (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:16305:18)
-    at mountIndeterminateComponent (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:20074:13)
-    at beginWork (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:21587:16)
-    at HTMLUnknownElement.callCallback (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:4164:14)`,
-  },
-  {
-    weight: 25,
-    type: "TypeError",
-    value: "Cannot destructure property 'user' of 'props' as it is undefined",
-    mechanism: "onuncaughtexception",
-    stack: `TypeError: Cannot destructure property 'user' of 'props' as it is undefined
-    at ProfileCard (webpack-internal:///./src/components/ProfileCard.tsx:11:9)
-    at renderWithHooks (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:16305:18)
-    at updateFunctionComponent (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:19588:20)
-    at beginWork (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:21587:16)`,
-  },
-  {
-    weight: 15,
-    type: "Error",
-    value: "Objects are not valid as a React child (found: object with keys {id, name, email}). If you meant to render a collection of children, use an array instead.",
-    mechanism: "onuncaughtexception",
-    stack: `Error: Objects are not valid as a React child (found: object with keys {id, name, email}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:14887:9)
-    at createChild (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:15135:7)
-    at reconcileChildrenArray (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:15398:25)
-    at reconcileChildFibers (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:15821:14)`,
-  },
-  {
-    weight: 10,
-    type: "TypeError",
-    value: "fetchUserData is not a function",
-    mechanism: "onunhandledrejection",
-    stack: `TypeError: fetchUserData is not a function
-    at DashboardPage (webpack-internal:///./src/pages/DashboardPage.tsx:42:5)
-    at async Promise.all (index 0)
-    at async loadDashboardData (webpack-internal:///./src/hooks/useDashboard.ts:18:22)`,
-  },
-  {
-    weight: 8,
-    type: "RangeError",
-    value: "Maximum call stack size exceeded",
-    mechanism: "onuncaughtexception",
-    stack: `RangeError: Maximum call stack size exceeded
-    at SettingsPanel (webpack-internal:///./src/components/SettingsPanel.tsx:31:3)
-    at renderWithHooks (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:16305:18)
-    at updateFunctionComponent (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:19588:20)
-    at beginWork (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:21587:16)
-    at performUnitOfWork (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:26557:12)
-    at workLoopSync (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:26466:5)`,
-  },
-  {
-    weight: 7,
-    type: "ChunkLoadError",
-    value: "Loading chunk 14 failed. (error: https://app.example.com/static/js/14.a3b8f2c1.chunk.js)",
-    mechanism: "onunhandledrejection",
-    stack: `ChunkLoadError: Loading chunk 14 failed.
-    at Function.requireEnsure [as e] (webpack-internal:///./node_modules/webpack/lib/web/JsonpMainTemplate.runtime.js:29:12)
-    at _callee$ (webpack-internal:///./src/routes/index.tsx:58:53)
-    at tryCatch (webpack-internal:///./node_modules/regenerator-runtime/runtime.js:63:40)`,
-  },
-  {
-    weight: 5,
-    type: "TypeError",
-    value: "Cannot read properties of null (reading 'addEventListener')",
-    mechanism: "onuncaughtexception",
-    stack: `TypeError: Cannot read properties of null (reading 'addEventListener')
-    at ChartContainer (webpack-internal:///./src/components/ChartContainer.tsx:19:8)
-    at commitHookEffectListMount (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:23150:26)
-    at commitPassiveMountOnFiber (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:24926:11)
-    at commitPassiveMountEffects_complete (webpack-internal:///./node_modules/react-dom/cjs/react-dom.development.js:24891:9)`,
-  },
-];
-
-// Build cumulative weights for weighted random selection
-const ERROR_TOTAL_WEIGHT = CLIENT_ERRORS.reduce((sum, e) => sum + e.weight, 0);
-
-function getWeightedError() {
-  let r = Math.random() * ERROR_TOTAL_WEIGHT;
-  for (const err of CLIENT_ERRORS) {
-    r -= err.weight;
-    if (r <= 0) return err;
-  }
-  return CLIENT_ERRORS[CLIENT_ERRORS.length - 1];
-}
 
 /**
  * Campaign UTM data for simulating marketing campaigns
@@ -324,24 +223,6 @@ CAMPAIGN_DATA.utm_campaign = new Array(NUM_CAMPAIGNS)
 function getExtraPayload(payload) {
   const hasCampaign = Math.random() < CAMPAIGN_FREQUENCY;
   const baseUrl = `${PUBLIC_BASE_URL}/dashboard`;
-
-  // Error events take priority — they are not also custom events
-  if (Math.random() < ERROR_FREQUENCY) {
-    const err = getWeightedError();
-    return {
-      ...payload,
-      url: hasCampaign ? generateCampaignUrl(baseUrl) : baseUrl,
-      event_name: "client_error",
-      error_exceptions: JSON.stringify([
-        {
-          type: err.type,
-          value: err.value,
-          mechanism: err.mechanism,
-          stack: err.stack,
-        },
-      ]),
-    };
-  }
 
   return {
     ...payload,
