@@ -43,6 +43,17 @@ For recorded sessions, a **Watch session replay** link appears on the detail pag
 Replay links are available when [Session Replay](/integration/session-replay) is enabled and the session was recorded, either through regular sampling or [error-triggered recording](/integration/errors#error-triggered-replay).
 </Callout>
 
+## Debugging with AI
+
+Errors are available through the [MCP server](/dashboard/mcp). You can ask your AI assistant to list errors, inspect stack traces, and walk through the session trail - without leaving your editor.
+
+```
+"What are the top errors on my site today?"
+"Show me the stack trace for the TypeError affecting the most users."
+"Where in my code is this error occurring?"
+"What was the user doing before this error? Walk me through the session trail."
+```
+
 ## Troubleshooting
 
 - **No errors appearing**: Verify error tracking is enabled in your tracking script. See the [integration guide](/integration/errors) for setup instructions.
