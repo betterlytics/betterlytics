@@ -59,7 +59,7 @@ export default async function ErrorTrackingCard() {
               >
                 {t(`status.${error.status}`)}
               </span>
-              <span className='text-muted-foreground ml-auto flex shrink-0 items-center gap-1 text-[10px] tabular-nums'>
+              <span className='text-muted-foreground ml-auto flex shrink-0 items-center gap-1 text-[11px] tabular-nums'>
                 <Users className='h-2.5 w-2.5' />
                 {t('usersAffected', { count: error.users })}
               </span>
@@ -68,9 +68,9 @@ export default async function ErrorTrackingCard() {
             <p className='text-foreground/80 mt-0.5 truncate text-xs font-medium'>{error.message}</p>
 
             <div className='mt-1 flex items-center gap-2'>
-              <p className='text-muted-foreground/60 min-w-0 truncate font-mono text-[10px]'>at {error.frame}</p>
-              <span className='text-muted-foreground/80 ml-auto flex shrink-0 items-center gap-1 text-[10px]'>
-                <Play className='h-2 w-2' />
+              <p className='dark:text-muted-foreground/60 text-muted-foreground min-w-0 truncate font-mono text-[10px]'>at {error.frame}</p>
+              <span className='text-muted-foreground/80 ml-auto flex shrink-0 items-center gap-1 text-[11px]'>
+                <Play className='h-2.5 w-2.5' />
                 {t('watchReplay')}
               </span>
             </div>
