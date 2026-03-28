@@ -53,7 +53,31 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 
 ### Using the npm package
 
-Coming soon...
+Session Replay is disabled by default. Enable it with `enableSessionReplay`:
+
+```ts
+import betterlytics from '@betterlytics/tracker';
+
+betterlytics.init('your-site-id', {
+  enableSessionReplay: true, // true | false (default)
+});
+```
+
+You can also configure sampling, consent, and recording limits:
+
+```ts
+betterlytics.init('your-site-id', {
+  enableSessionReplay: true,
+  consentReplay: true,            // true | false (default) — indicates consent is already granted
+  replaySample: 20,               // 0–100 (default: 5) — percent of eligible sessions to record
+  replayMinDuration: 15,          // seconds (default: 15) — minimum recording length to upload
+  replayIdleCutoff: 600,          // seconds (default: 600) — auto-stop after inactivity
+  replayMaxDuration: 1200,        // seconds (default: 1200) — hard cap on recording length
+  disableReplayOnUrls: ['/admin/**', '/billing/**'], // URL patterns where recording is disabled
+});
+```
+
+See the package docs for the full API and options: [@betterlytics/tracker on npm](https://www.npmjs.com/package/@betterlytics/tracker).
 
 ## What is recorded
 

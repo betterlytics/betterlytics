@@ -36,7 +36,26 @@ Add `data-track-errors="true"` to your analytics script to start capturing error
 
 ### Using the npm package
 
-Coming soon...
+Error tracking is disabled by default. Enable it with `trackErrors`:
+
+```ts
+import betterlytics from '@betterlytics/tracker';
+
+betterlytics.init('your-site-id', {
+  trackErrors: true, // true | false (default)
+});
+```
+
+To also capture `console.error()` calls:
+
+```ts
+betterlytics.init('your-site-id', {
+  trackErrors: true,
+  trackConsoleErrors: true, // true | false (default)
+});
+```
+
+See the package docs for the full API and options: [@betterlytics/tracker on npm](https://www.npmjs.com/package/@betterlytics/tracker).
 
 ## What gets captured
 
@@ -67,6 +86,16 @@ For sessions that are not being recorded, you can enable `data-replay-on-error` 
   data-replay-on-error="true"
 >
 </script>
+```
+
+Or with the npm package:
+
+```ts
+betterlytics.init('your-site-id', {
+  enableSessionReplay: true,
+  trackErrors: true,
+  replayOnError: true, // true | false (default)
+});
 ```
 
 ## Scripts hosted on a CDN or different domain
