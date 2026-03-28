@@ -3,6 +3,7 @@ import { FeatureCard } from './FeatureCard';
 import {
   Activity,
   Bell,
+  Bug,
   Filter,
   Video,
   GitBranch,
@@ -66,6 +67,7 @@ const CATEGORIES = [
     id: 'advancedAnalytics',
     features: [
       { id: 'sessionReplay', icon: Video },
+      { id: 'errorTracking', icon: Bug },
       { id: 'userJourneys', icon: GitBranch },
       { id: 'funnels', icon: TrendingUp },
       { id: 'annotations', icon: StickyNote },

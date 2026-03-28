@@ -4,6 +4,7 @@ import { useId } from 'react';
 import { Area, AreaChart, Tooltip } from 'recharts';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
+import { useTranslations } from 'next-intl';
 
 type ErrorSparklineProps = {
   data: TimeSeriesPoint[];
@@ -12,6 +13,7 @@ type ErrorSparklineProps = {
 };
 
 function SparklineTooltipContent({ active, payload }: { active?: boolean; payload?: { payload: TimeSeriesPoint }[] }) {
+  const t = useTranslations('errors.detail.volumeChart');
   if (!active || !payload?.length) return null;
   const point = payload[0].payload;
   const date = new Date(point.date);
@@ -20,7 +22,7 @@ function SparklineTooltipContent({ active, payload }: { active?: boolean; payloa
   return (
     <div className='bg-popover text-popover-foreground rounded border px-2 py-1 text-xs shadow-sm'>
       <div className='text-muted-foreground'>{label}</div>
-      <div className='font-medium'>{formatNumber(point.count)} errors</div>
+      <div className='font-medium'>{t('errorCount', { count: point.count })}</div>
     </div>
   );
 }

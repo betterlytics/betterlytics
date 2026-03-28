@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ExternalLink, Film, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
+import { ExternalLink, Play, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,6 +10,9 @@ import { useTheme } from 'next-themes';
 import { fetchSessionTrailAction, checkSessionReplayAction } from '@/app/actions/analytics/errors.actions';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useTranslations } from 'next-intl';
 
 type SessionTrailProps = {
   dashboardId: string;
@@ -32,10 +35,13 @@ const EVENT_CONFIG = {
 } as const satisfies Record<string, EventConfig>;
 
 export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: SessionTrailProps) {
+  const t = useTranslations('errors.detail.sessionTrail');
   const [groups, setGroups] = useState<GroupedSessionTrailEvent[] | null>(null);
   const [hasReplay, setHasReplay] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { resolvedTheme } = useTheme();
+  const { resolveHref } = useDashboardNavigation();
+  const { isDemo } = useDashboardAuth();
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   const currentRef = useCallback((node: HTMLDivElement | null) => {
@@ -80,18 +86,18 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
     <div className='space-y-3'>
       <div className='flex items-center justify-between gap-3'>
         <div className='space-y-1'>
-          <p className='text-base font-medium'>Session trail</p>
+          <p className='text-base font-medium'>{t('title')}</p>
           <p className='text-muted-foreground text-xs leading-relaxed'>
-            {totalEvents} {totalEvents === 1 ? 'event' : 'events'} in this session
+            {t('eventCount', { count: totalEvents })}
           </p>
         </div>
-        {hasReplay && (
+        {hasReplay && !isDemo && (
           <Link
-            href={`/dashboard/${dashboardId}/replay?sessionId=${sessionId}`}
-            className='text-primary hover:text-primary/80 flex shrink-0 items-center gap-1.5 text-xs font-medium transition-colors'
+            href={resolveHref(`/replay?sessionId=${sessionId}`)}
+            className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
           >
-            <Film className='h-3.5 w-3.5' />
-            Watch replay
+            <Play className='full-current h-3.5 w-3.5' />
+            {t('watchReplay')}
           </Link>
         )}
       </div>

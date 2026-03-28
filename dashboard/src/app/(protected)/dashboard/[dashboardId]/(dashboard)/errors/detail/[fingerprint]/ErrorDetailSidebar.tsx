@@ -1,11 +1,12 @@
-import Link from 'next/link';
-import { Play, VideoOff } from 'lucide-react';
+import { VideoOff } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { EnvironmentDistribution } from './EnvironmentDistribution';
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { ErrorVolumeChart } from './ErrorVolumeChart';
+import { ReplayCard } from './ReplayCard';
 import type { ErrorGroupRow, ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
@@ -20,18 +21,17 @@ function StatRow({ label, value }: { label: string; value?: string }) {
 }
 
 type ErrorDetailSidebarProps = {
-  dashboardId: string;
   errorGroup: ErrorGroupRow;
   sidebarData: ErrorGroupSidebarData;
   replaySessionId: string | null;
 };
 
-export function ErrorDetailSidebar({
-  dashboardId,
+export async function ErrorDetailSidebar({
   errorGroup,
   sidebarData,
   replaySessionId,
 }: ErrorDetailSidebarProps) {
+  const t = await getTranslations('errors.detail.sidebar');
   const { browsers, deviceTypes, dailyVolume } = sidebarData;
 
   const browserItems = browsers.map((row) => ({
@@ -50,69 +50,54 @@ export function ErrorDetailSidebar({
       <Card>
         <CardContent className='space-y-4 px-6'>
           <div className='space-y-2'>
-            <p className='text-foreground text-base font-medium'>Overview</p>
+            <p className='text-foreground text-base font-medium'>{t('overview')}</p>
             <dl className='grid grid-cols-2 gap-x-6 gap-y-1.5 lg:grid-cols-1'>
               <StatRow
-                label='First seen'
+                label={t('firstSeen')}
                 value={formatLocalDateTime(errorGroup.first_seen, undefined, {
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 })}
               />
               <StatRow
-                label='Last seen'
+                label={t('lastSeen')}
                 value={formatLocalDateTime(errorGroup.last_seen, undefined, {
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 })}
               />
-              <StatRow label='Occurrences' value={errorGroup.count.toLocaleString()} />
-              <StatRow label='Sessions' value={errorGroup.session_count.toLocaleString()} />
+              <StatRow label={t('occurrences')} value={errorGroup.count.toLocaleString()} />
+              <StatRow label={t('sessions')} value={errorGroup.session_count.toLocaleString()} />
             </dl>
           </div>
 
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-1'>
             {dailyVolume.length > 0 && (
               <div className='border-border space-y-2 border-t pt-2'>
-                <p className='text-foreground text-base font-medium'>Occurrence history</p>
+                <p className='text-foreground text-base font-medium'>{t('occurrenceHistory')}</p>
                 <ErrorVolumeChart data={dailyVolume} />
               </div>
             )}
 
-            {browserItems.length > 0 && <EnvironmentDistribution title='Browsers' items={browserItems} />}
+            {browserItems.length > 0 && <EnvironmentDistribution title={t('browsers')} items={browserItems} />}
 
-            {deviceTypeItems.length > 0 && <EnvironmentDistribution title='Device type' items={deviceTypeItems} />}
+            {deviceTypeItems.length > 0 && <EnvironmentDistribution title={t('deviceType')} items={deviceTypeItems} />}
           </div>
         </CardContent>
       </Card>
 
       {replaySessionId ? (
-        <Card className='border-primary/30 bg-primary/10'>
-          <CardContent className='px-4 py-3'>
-            <Link
-              href={`/dashboard/${dashboardId}/replay?sessionId=${replaySessionId}`}
-              className='flex flex-col items-center gap-2 text-center'
-            >
-              <div className='bg-primary/15 flex h-8 w-8 items-center justify-center rounded-full'>
-                <Play className='text-primary h-3.5 w-3.5 translate-x-[1px]' />
-              </div>
-              <div>
-                <p className='text-sm font-medium'>Watch session replay</p>
-                <p className='text-muted-foreground text-xs'>See what the user did before this error</p>
-              </div>
-            </Link>
-          </CardContent>
-        </Card>
+        <ReplayCard replaySessionId={replaySessionId} />
       ) : (
         <Card className='hidden lg:block'>
           <CardContent className='px-4'>
             <div className='space-y-1.5'>
               <p className='text-foreground flex items-center gap-2 text-sm'>
                 <VideoOff className='h-4 w-4 shrink-0' />
-                No session replay for this error
+                {t('noReplay')}
               </p>
               <p className='text-muted-foreground text-xs'>
-                Replay captures what users did before an error occurred.
+                {t('noReplayDescription')}
               </p>
               <a
                 href='https://betterlytics.io/docs/dashboard/session-replay'
@@ -120,7 +105,7 @@ export function ErrorDetailSidebar({
                 rel='noopener noreferrer'
                 className='text-muted-foreground hover:text-foreground inline-block text-xs underline underline-offset-2 transition-colors'
               >
-                Learn more
+                {t('learnMore')}
               </a>
             </div>
           </CardContent>
