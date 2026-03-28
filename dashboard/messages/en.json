@@ -1571,7 +1571,8 @@
         "behavior": "Behavior",
         "observability": "Observability"
       },
-      "collapseNav": "Collapse nav"
+      "collapseNav": "Collapse nav",
+      "errorTracking": "Error Tracking"
     },
     "settings": {
       "sidebar": {
