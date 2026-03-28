@@ -183,7 +183,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -210,7 +209,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'monitoring' && <Badge variant='outline'>Beta</Badge>}
+                      {item.key === 'errors' && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
