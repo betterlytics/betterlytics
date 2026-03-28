@@ -2,22 +2,21 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { useTheme } from 'next-themes';
 import { DotGrid } from '@/components/animations/DotGrid';
 
-type Framework = {
+type FrameworkCardProps = {
   name: string;
   logo: string;
-  brandColor: string | { light: string; dark: string };
+  color: string;
 };
 
-export function FrameworkCard({ framework }: { framework: Framework }) {
+export function FrameworkCard({ name, logo, color }: FrameworkCardProps) {
   const [isActive, setIsActive] = useState(false);
-  const { resolvedTheme } = useTheme();
 
   return (
     <div
       tabIndex={0}
+      aria-label={name}
       className="group relative flex min-w-[120px] flex-shrink-0 flex-col items-center justify-center rounded-lg border border-transparent p-6 transition-[border-color,background-color] duration-300 hover:border-border hover:bg-card focus-within:border-border focus-within:bg-card"
       onMouseEnter={() => setIsActive(true)}
       onMouseLeave={() => setIsActive(false)}
@@ -25,13 +24,7 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
       onBlur={() => setIsActive(false)}
     >
       <DotGrid
-        color={
-          typeof framework.brandColor === 'string'
-            ? framework.brandColor
-            : resolvedTheme === 'dark'
-              ? framework.brandColor.dark
-              : framework.brandColor.light
-        }
+        color={color}
         active={isActive}
         gap={12}
         dotRadius={1}
@@ -46,8 +39,8 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
           style={{ transform: isActive ? 'translateY(0px)' : 'translateY(8px)' }}
         >
           <Image
-            src={framework.logo}
-            alt={`${framework.name} logo`}
+            src={logo}
+            alt={`${name} logo`}
             width={32}
             height={32}
             className="h-8 w-8"
@@ -61,7 +54,7 @@ export function FrameworkCard({ framework }: { framework: Framework }) {
             transitionDelay: isActive ? '75ms' : '0ms',
           }}
         >
-          {framework.name}
+          {name}
         </span>
       </div>
     </div>

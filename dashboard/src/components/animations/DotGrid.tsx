@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 type Dot = {
   x: number;
@@ -17,24 +17,23 @@ type DotGridProps = {
   className?: string;
 };
 
+const MIN_DOT_OPACITY = 0.3;
+const STAGGER_SPREAD = 0.3;
+const ACTIVATE_MS = 600;
+const DEACTIVATE_MS = 800;
+
 function easeOut(t: number): number {
   return 1 - (1 - t) * (1 - t);
 }
 
-export function DotGrid({
-  color,
-  active,
-  gap = 12,
-  dotRadius = 1,
-  className,
-}: DotGridProps) {
+export function DotGrid({ color, active, gap = 12, dotRadius = 1, className }: DotGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<Dot[]>([]);
   const progressRef = useRef(0);
   const sizeRef = useRef({ width: 0, height: 0 });
   const rafRef = useRef<number>(0);
-  const hasActivatedRef = useRef(false);
+  const [initialized, setInitialized] = useState(false);
   const colorRef = useRef(color);
   colorRef.current = color;
 
@@ -51,14 +50,14 @@ export function DotGrid({
           dots.push({
             x: offsetX + c * gap,
             y: offsetY + r * gap,
-            activeOpacity: 0.3 + Math.random() * 0.7,
+            activeOpacity: MIN_DOT_OPACITY + Math.random() * (1 - MIN_DOT_OPACITY),
             delay: Math.random(),
           });
         }
       }
       return dots;
     },
-    [gap]
+    [gap],
   );
 
   const drawFrame = useCallback(
@@ -72,10 +71,7 @@ export function DotGrid({
       ctx.clearRect(0, 0, width, height);
 
       for (const dot of dotsRef.current) {
-        const staggered = Math.max(
-          0,
-          Math.min(1, (progress - dot.delay * 0.3) / (1 - dot.delay * 0.3))
-        );
+        const staggered = Math.max(0, Math.min(1, (progress - dot.delay * STAGGER_SPREAD) / (1 - dot.delay * STAGGER_SPREAD)));
 
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
@@ -86,12 +82,15 @@ export function DotGrid({
 
       ctx.globalAlpha = 1;
     },
-    [dotRadius]
+    [dotRadius],
   );
 
   useEffect(() => {
-    if (active) hasActivatedRef.current = true;
-    if (!hasActivatedRef.current) return;
+    if (active && !initialized) setInitialized(true);
+  }, [active, initialized]);
+
+  useEffect(() => {
+    if (!initialized) return;
 
     const container = containerRef.current;
     const canvas = canvasRef.current;
@@ -119,10 +118,10 @@ export function DotGrid({
 
     observer.observe(container);
     return () => observer.disconnect();
-  }, [active, buildDots, drawFrame]);
+  }, [initialized, buildDots, drawFrame]);
 
   useEffect(() => {
-    if (!hasActivatedRef.current) return;
+    if (!initialized) return;
 
     const target = active ? 1 : 0;
     const start = progressRef.current;
@@ -131,7 +130,7 @@ export function DotGrid({
       return;
     }
 
-    const duration = active ? 600 : 800;
+    const duration = active ? ACTIVATE_MS : DEACTIVATE_MS;
     const startTime = performance.now();
 
     function tick(now: number) {
@@ -145,11 +144,11 @@ export function DotGrid({
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [active, drawFrame]);
+  }, [active, initialized, drawFrame]);
 
   return (
     <div ref={containerRef} className={className}>
-      <canvas ref={canvasRef} className="h-full w-full" aria-hidden="true" />
+      <canvas ref={canvasRef} className='h-full w-full' aria-hidden='true' />
     </div>
   );
 }
