@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 import {
   fetchErrorGroupAction,
   fetchErrorGroupSidebarAction,
@@ -14,10 +13,6 @@ type ErrorDetailPageParams = {
 };
 
 export default async function ErrorDetailPage({ params }: ErrorDetailPageParams) {
-  if (!isFeatureEnabled('enableErrorTracking')) {
-    notFound();
-  }
-
   const { dashboardId, fingerprint } = await params;
 
   const [errorGroup, sidebarData, replaySessionId] = await Promise.all([

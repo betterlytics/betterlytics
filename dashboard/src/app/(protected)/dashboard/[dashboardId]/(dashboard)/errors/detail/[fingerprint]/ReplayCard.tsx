@@ -31,16 +31,22 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
     </div>
   );
 
+  const card = (
+    <Card className='border-primary/30 bg-primary/10'>
+      <CardContent className='px-4 py-3'>
+        {content}
+      </CardContent>
+    </Card>
+  );
+
   return (
     <PermissionGate allowViewer>
       {() => (
-        <Card className='border-primary/30 bg-primary/10'>
-          <CardContent className='px-4 py-3'>
-            {isDemo ? content : (
-              <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>{content}</Link>
-            )}
-          </CardContent>
-        </Card>
+        isDemo ? card : (
+          <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>
+            {card}
+          </Link>
+        )
       )}
     </PermissionGate>
   );
