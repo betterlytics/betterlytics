@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { upsertErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 import { STATUS_CONFIG } from '../../errors.constants';
 import { ErrorStatusActions } from '../../ErrorStatusActions';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useTranslations } from 'next-intl';
 
 type ErrorDetailHeaderProps = {
@@ -23,6 +25,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
   const [status, setStatus] = useState<ErrorGroupStatusValue>(errorGroup.status);
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
+  const { resolveHref } = useDashboardNavigation();
 
   function copyShareUrl() {
     navigator.clipboard.writeText(window.location.href);
@@ -41,7 +44,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
   return (
     <div className='space-y-4'>
       <Link
-        href={`/dashboard/${dashboardId}/errors`}
+        href={resolveHref('/errors')}
         className='text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors'
       >
         <ChevronLeft className='h-4 w-4' />
@@ -58,15 +61,19 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
         <div className='flex items-center justify-between gap-4'>
           <p className='text-muted-foreground line-clamp-2 min-w-0 text-sm'>{errorGroup.error_message}</p>
           <div className='flex shrink-0 items-center gap-2'>
-            <ErrorStatusActions
-              canResolve={status !== 'resolved'}
-              canIgnore={status !== 'ignored'}
-              canUnresolve={status !== 'unresolved'}
-              onResolve={() => updateStatus('resolved')}
-              onIgnore={() => updateStatus('ignored')}
-              onUnresolve={() => updateStatus('unresolved')}
-              isPending={isPending}
-            />
+            <PermissionGate>
+              {(disabled) => (
+                <ErrorStatusActions
+                  canResolve={status !== 'resolved' && !disabled}
+                  canIgnore={status !== 'ignored' && !disabled}
+                  canUnresolve={status !== 'unresolved' && !disabled}
+                  onResolve={() => updateStatus('resolved')}
+                  onIgnore={() => updateStatus('ignored')}
+                  onUnresolve={() => updateStatus('unresolved')}
+                  isPending={isPending || disabled}
+                />
+              )}
+            </PermissionGate>
             <Button variant='outline' size='sm' className='cursor-pointer' onClick={copyShareUrl}>
               {copied ? (
                 <Check className='mr-1.5 h-4 w-4 text-emerald-600' />

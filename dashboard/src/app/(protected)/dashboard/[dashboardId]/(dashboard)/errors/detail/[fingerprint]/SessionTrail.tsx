@@ -10,6 +10,8 @@ import { useTheme } from 'next-themes';
 import { fetchSessionTrailAction, checkSessionReplayAction } from '@/app/actions/analytics/errors.actions';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { useTranslations } from 'next-intl';
 
 type SessionTrailProps = {
@@ -38,6 +40,8 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
   const [hasReplay, setHasReplay] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { resolvedTheme } = useTheme();
+  const { resolveHref } = useDashboardNavigation();
+  const { isDemo } = useDashboardAuth();
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   const currentRef = useCallback((node: HTMLDivElement | null) => {
@@ -87,9 +91,9 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
             {t('eventCount', { count: totalEvents })}
           </p>
         </div>
-        {hasReplay && (
+        {hasReplay && !isDemo && (
           <Link
-            href={`/dashboard/${dashboardId}/replay?sessionId=${sessionId}`}
+            href={resolveHref(`/replay?sessionId=${sessionId}`)}
             className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
           >
             <Play className='full-current h-3.5 w-3.5' />
