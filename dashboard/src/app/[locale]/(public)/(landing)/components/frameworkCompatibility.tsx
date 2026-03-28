@@ -10,14 +10,7 @@ export async function FrameworkCompatibility() {
           <h2 className='mb-4 text-2xl font-bold'>{t('title')}</h2>
           <p className='text-muted-foreground'>{t('subtitle')}</p>
         </div>
-
-        <div className='relative overflow-hidden'>
-          <FrameworkCarousel />
-
-          <div className='from-background pointer-events-none absolute top-0 left-0 z-10 h-full w-32 bg-gradient-to-r to-transparent' />
-          <div className='from-background pointer-events-none absolute top-0 right-0 z-10 h-full w-32 bg-gradient-to-l to-transparent' />
-        </div>
-
+        <FrameworkCarousel />
         <div className='mt-8 text-center'>
           <p className='text-muted-foreground text-sm'>{t('footer')}</p>
         </div>

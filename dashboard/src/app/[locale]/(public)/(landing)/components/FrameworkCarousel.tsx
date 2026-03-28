@@ -54,9 +54,13 @@ export function FrameworkCarousel() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className='flex w-max animate-[scroll_20s_linear_infinite] gap-3 will-change-transform focus-within:[animation-play-state:paused] hover:[animation-play-state:paused] sm:gap-6 lg:animate-[scroll_40s_linear_infinite] lg:gap-8'>
-      <FrameworkList resolvedTheme={resolvedTheme} />
-      <FrameworkList resolvedTheme={resolvedTheme} />
+    <div className='relative overflow-hidden'>
+      <div className='flex w-max animate-[scroll_20s_linear_infinite] gap-3 will-change-transform focus-within:[animation-play-state:paused] hover:[animation-play-state:paused] sm:gap-6 lg:animate-[scroll_40s_linear_infinite] lg:gap-8'>
+        <FrameworkList resolvedTheme={resolvedTheme} />
+        <FrameworkList resolvedTheme={resolvedTheme} />
+      </div>
+      <div className='from-background pointer-events-none absolute top-0 left-0 z-10 h-full w-32 bg-gradient-to-r to-transparent' />
+      <div className='from-background pointer-events-none absolute top-0 right-0 z-10 h-full w-32 bg-gradient-to-l to-transparent' />
     </div>
   );
 }
