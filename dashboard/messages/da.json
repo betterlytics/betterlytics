@@ -2619,7 +2619,7 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "errorBadge": "Session indeholder {count} registrerede {count, plural, one {fejl} other {fejl}}"
+        "errorBadge": "Session indeholder opfangede fejl"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3709,7 +3709,7 @@
         "occurrenceHistory": "Historik",
         "browsers": "Browsere",
         "deviceType": "Enhedstype",
-        "watchReplay": "Se session replay",
+        "watchReplay": "Se seneste session replay",
         "watchReplayDescription": "Se hvad brugeren gjorde før fejlen",
         "noReplay": "Ingen session replay for denne fejl",
         "noReplayDescription": "Replay viser hvad brugere gjorde før en fejl opstod.",

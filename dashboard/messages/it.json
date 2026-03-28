@@ -2627,7 +2627,7 @@
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         },
-        "errorBadge": "La sessione contiene {count} {count, plural, one {errore acquisito} other {errori acquisiti}}"
+        "sessionErrorsTooltip": "La sessione contiene errori registrati"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -3717,7 +3717,7 @@
         "occurrenceHistory": "Cronologia",
         "browsers": "Browser",
         "deviceType": "Tipo di dispositivo",
-        "watchReplay": "Guarda replay sessione",
+        "watchReplay": "Guarda l’ultima sessione",
         "watchReplayDescription": "Scopri cosa ha fatto l’utente prima dell’errore",
         "noReplay": "Nessun replay disponibile",
         "noReplayDescription": "I replay mostrano cosa fanno gli utenti prima di un errore.",

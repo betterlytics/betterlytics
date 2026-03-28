@@ -102,7 +102,7 @@ export function SessionReplayList({
                     <TooltipTrigger asChild>
                       <AlertTriangle className='h-3 w-3 text-red-500' aria-label='Session contains errors' />
                     </TooltipTrigger>
-                    <TooltipContent side='bottom'>Session contains {session.error_fingerprints.length} captured errors</TooltipContent>
+                    <TooltipContent side='bottom'>{t('sessionErrorsTooltip')}</TooltipContent>
                   </Tooltip>
                 )}
                 <span className='inline-flex items-center gap-1'>

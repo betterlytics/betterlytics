@@ -2614,7 +2614,8 @@
         "empty": {
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
-        }
+        },
+        "sessionErrorsTooltip": "Session contains captured errors"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3701,7 +3702,7 @@
         "occurrenceHistory": "Occurrence history",
         "browsers": "Browsers",
         "deviceType": "Device type",
-        "watchReplay": "Watch session replay",
+        "watchReplay": "Watch latest session replay",
         "watchReplayDescription": "See what the user did before this error",
         "noReplay": "No session replay for this error",
         "noReplayDescription": "Replay captures what users did before an error occurred.",

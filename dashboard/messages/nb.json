@@ -1198,7 +1198,7 @@
         "errorTracking": {
           "title": "Feilsporing",
           "description": "Fang automatisk opp klientside-feil og grupper dem med stack traces og session replay-lenker, slik at du raskt kan gjenskape og fikse feil."
-        },      
+        },
         "userJourneys": {
           "title": "Brukerreiser",
           "description": "Visualiser stiene besøkende tar gjennom nettstedet fra inngang til utgang."
@@ -2627,7 +2627,7 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "errorBadge": "Økten inneholder {count} registrerte {count, plural, one {feil} other {feil}}"
+        "sessionErrorsTooltip": "Økten inneholder registrerte feil"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
@@ -3717,7 +3717,7 @@
         "occurrenceHistory": "Historikk",
         "browsers": "Nettlesere",
         "deviceType": "Enhetstype",
-        "watchReplay": "Se session replay",
+        "watchReplay": "Se siste øktopptak",
         "watchReplayDescription": "Se hva brukeren gjorde før feilen",
         "noReplay": "Ingen session replay for denne feilen",
         "noReplayDescription": "Replay viser hva brukere gjorde før en feil oppstod.",
