@@ -987,7 +987,7 @@
         "categories": {
           "analytics": "Analytics & Insights",
           "engagement": "Engagement & Behavior",
-          "performance": "Performance & Sources"
+          "performance": "Monitoring & Performance"
         },
         "featuresButton": "Explore All Features",
         "featuresTitle": "Explore all Betterlytics features"
@@ -1060,6 +1060,18 @@
             "email": "Email",
             "other": "Other"
           }
+        },
+        "errorTracking": {
+          "title": "Error Tracking",
+          "description": "Catch client-side errors early. Inspect stack traces and replay sessions to see exactly what went wrong.",
+          "status": {
+            "unresolved": "Unresolved",
+            "resolved": "Resolved"
+          },
+          "watchReplay": "Watch replay",
+          "usersAffected": "{count} users",
+          "summary": "37 errors this month",
+          "unresolved": "{count} unresolved"
         },
         "funnels": {
           "title": "Funnels",
