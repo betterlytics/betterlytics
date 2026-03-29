@@ -1,12 +1,7 @@
 'use client';
 import { useState, useCallback, use } from 'react';
 import { formatDuration } from '@/utils/dateFormatters';
-import {
-  fetchSummaryStatsAction,
-  fetchUniqueVisitorsAction,
-  fetchTotalPageViewsAction,
-  fetchSessionMetricsAction,
-} from '@/app/actions/index.actions';
+import { fetchOverviewDataAction } from '@/app/actions/index.actions';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useLocale, useTranslations } from 'next-intl';
@@ -15,18 +10,11 @@ import { formatNumber, formatPercentage } from '@/utils/formatters';
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
 type SummaryAndChartSectionProps = {
-  data: Promise<
-    [
-      Awaited<ReturnType<typeof fetchSummaryStatsAction>>,
-      visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>,
-      pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>,
-      sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>,
-    ]
-  >;
+  data: Promise<Awaited<ReturnType<typeof fetchOverviewDataAction>>>;
 };
 
 export default function SummaryAndChartSection({ data }: SummaryAndChartSectionProps) {
-  const [summary, visitorsData, pageviewsData, sessionMetricsData] = use(data);
+  const summary = use(data);
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
   const locale = useLocale();
   const t = useTranslations('dashboard.metrics');
@@ -102,9 +90,9 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     <div className='space-y-6'>
       <OverviewChartSection
         activeMetric={activeMetric}
-        visitorsData={visitorsData}
-        pageviewsData={pageviewsData}
-        sessionMetricsData={sessionMetricsData}
+        visitorsData={summary.visitorsAreaChart}
+        pageviewsData={summary.pageviewsAreaChart}
+        sessionMetricsData={summary.sessionMetricsAreaCharts}
         cards={cards}
       />
     </div>
