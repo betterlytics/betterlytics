@@ -986,7 +986,7 @@
         "categories": {
           "analytics": "Analisi e approfondimenti",
           "engagement": "Coinvolgimento e comportamento",
-          "performance": "Prestazioni e sorgenti"
+          "performance": "Monitoraggio e prestazioni"
         },
         "featuresButton": "Esplora tutte le funzionalità",
         "featuresTitle": "Esplora tutte le funzionalità di Betterlytics"
@@ -1071,6 +1071,18 @@
             "email": "Email",
             "other": "Altro"
           }
+        },
+        "errorTracking": {
+          "title": "Tracciamento errori",
+          "description": "Cattura gli errori lato client in anticipo. Ispeziona gli stack trace e riproduci le sessioni per capire cosa è andato storto.",
+          "status": {
+            "unresolved": "Non risolto",
+            "resolved": "Risolto"
+          },
+          "watchReplay": "Guarda registrazione",
+          "usersAffected": "{count} utenti",
+          "summary": "37 errori questo mese",
+          "unresolved": "{count} non risolti"
         },
         "funnels": {
           "title": "Funnel",

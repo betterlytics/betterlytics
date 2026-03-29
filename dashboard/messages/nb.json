@@ -986,7 +986,7 @@
         "categories": {
           "analytics": "Analyse og innsikt",
           "engagement": "Engasjement og atferd",
-          "performance": "Ytelse og kilder"
+          "performance": "Overvåking og ytelse"
         },
         "featuresButton": "Utforsk alle funksjoner",
         "featuresTitle": "Utforsk alle Betterlytics-funksjoner"
@@ -1071,6 +1071,18 @@
             "email": "E-post",
             "other": "Annet"
           }
+        },
+        "errorTracking": {
+          "title": "Feilsporing",
+          "description": "Fang feil på klientsiden tidlig. Undersøk stack traces og spill av sesjoner for å se hva som gikk galt.",
+          "status": {
+            "unresolved": "Uløst",
+            "resolved": "Løst"
+          },
+          "watchReplay": "Se opptak",
+          "usersAffected": "{count} brukere",
+          "summary": "37 feil denne måneden",
+          "unresolved": "{count} uløste"
         },
         "funnels": {
           "title": "Trakter",
