@@ -57,8 +57,8 @@ export default async function RootLayout({
             data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/event`}
             data-dynamic-urls='/dashboard/*/errors/detail/*,/dashboard/*/funnels/*,/dashboard/*/monitoring/*,/dashboard/*,/share/*/errors/detail/*,/*/share/*/errors/detail/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*/monitoring/*,/*/share/*/monitoring/*,/share/*,/*/share/*,/accept-invite/*,/*/accept-invite/*'
             data-web-vitals='true'
-            data-track-errors="true"
-            data-track-console-errors="true"
+            data-track-errors='true'
+            data-track-console-errors='true'
           />
         )}
         <StructuredData config={seoConfig} />
