@@ -6,7 +6,7 @@ import FunnelsCard from './featureCards/funnelsCard';
 import EventTrackingCard from './featureCards/eventTrackingCard';
 import UserJourneyCard from './featureCards/userJourneyCard';
 import WorldMapCard from './featureCards/worldMapCard';
-import TrafficSourcesCard from './featureCards/trafficSourcesCard';
+import ErrorTrackingCard from './featureCards/errorTrackingCard';
 import CoreWebVitalsCard from './featureCards/coreWebVitalsCard';
 import SessionReplayCard from './featureCards/sessionReplayCard';
 import { Link } from '@/i18n/navigation';
@@ -49,7 +49,7 @@ export async function FeatureShowcase() {
       id: 'performance',
       title: t('categories.performance'),
       cards: [
-        { id: 'traffic-sources', element: <TrafficSourcesCard /> },
+        { id: 'error-tracking', element: <ErrorTrackingCard /> },
         { id: 'outbound-links', element: <UptimeMonitoringCard /> },
         { id: 'core-web-vitals', element: <CoreWebVitalsCard /> },
       ],
