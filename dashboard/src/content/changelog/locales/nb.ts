@@ -2,45 +2,23 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.8',
-    releasedAt: '2026-03-22',
-    title: 'By- og regiongeolokasjon, ytelsesforbedringer og feilrettinger',
+    version: 'v1.3.9',
+    releasedAt: '2026-03-29',
+    title: 'Client-Side Error Tracking',
     summary:
-      'Besøkendes plassering vises nå på by- og regionnivå. Store dashbord laster raskere takket være ytelsesforbedringer. En feil som hindret uptime-overvåkingssiden fra å laste for enkelte tidssoner, er nå rettet.',
+      'Betterlytics sporer nå feil på klientsiden. Se hver feil med stack traces og breadcrumbs, følg trender over tid, og spill eventuelt av sesjonen som utløste feilen.',
   },
   sections: [
     {
-      id: 'v138-new-features',
+      id: 'v139-new-features',
       title: 'Nye funksjoner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Geolokasjon inkluderer nå by- og regionnivå, slik at du får et mer detaljert bilde av hvor besøkende kommer fra.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v138-improvements',
-      title: 'Forbedringer',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Forbedret ytelse for store dashbord, noe som reduserer lastetider for nettsteder med mye trafikk.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v138-bug-fixes',
-      title: 'Feilrettinger',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Rettet en feil på uptime-overvåkingssiden som hindret den fra å laste for enkelte tidssoner.',
+            'Client-side error tracking er her. Feil og console.error-kall kan nå fanges opp og grupperes etter fingerprint, slik at du kan se hvilke feil som rammer flest brukere og hvor ofte de oppstår.',
+            'Hver feil inkluderer en stack trace og et breadcrumb-spor som viser hva brukeren gjorde før feilen oppsto. Aktiver session replay on error for også å fange opp en fullstendig avspilling av sesjonen.',
+            'Feilene er fullt tilgjengelige via MCP-serveren, slik at AI-assistentene dine kan hente feildata og hjelpe deg med å forstå og feilsøke hva som forårsaker hver feil.',
           ],
         },
       ],
@@ -49,6 +27,31 @@ export const latestChangelogModalNb: ChangelogEntryData = {
 };
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.9',
+      releasedAt: '2026-03-29',
+      title: 'Client-Side Error Tracking',
+      summary:
+        'Betterlytics sporer nå feil på klientsiden. Se hver feil med stack traces og breadcrumbs, følg trender over tid, og spill eventuelt av sesjonen som utløste feilen.',
+    },
+    sections: [
+      {
+        id: 'v139-new-features',
+        title: 'Nye funksjoner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Client-side error tracking er her. Feil og console.error-kall kan nå fanges opp og grupperes etter fingerprint, slik at du kan se hvilke feil som rammer flest brukere og hvor ofte de oppstår.',
+              'Hver feil inkluderer en stack trace og et breadcrumb-spor som viser hva brukeren gjorde før feilen oppsto. Aktiver session replay on error for også å fange opp en fullstendig avspilling av sesjonen.',
+              'Feilene er fullt tilgjengelige via MCP-serveren, slik at AI-assistentene dine kan hente feildata og hjelpe deg med å forstå og feilsøke hva som forårsaker hver feil.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.8',
