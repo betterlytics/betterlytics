@@ -80,6 +80,8 @@ export async function getSessionReplays(
         any(os) AS os,
         any(country_code) AS country_code
       FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       GROUP BY site_id, session_id
     ) AS e USING (site_id, session_id)
     WHERE r.site_id = {site_id:String}

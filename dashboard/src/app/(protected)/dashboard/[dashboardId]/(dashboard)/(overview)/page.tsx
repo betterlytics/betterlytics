@@ -11,10 +11,7 @@ import WeeklyHeatmapSection from './WeeklyHeatmapSection';
 import {
   fetchDeviceBreakdownCombinedAction,
   fetchPageAnalyticsCombinedAction,
-  fetchSessionMetricsAction,
-  fetchSummaryStatsAction,
-  fetchTotalPageViewsAction,
-  fetchUniqueVisitorsAction,
+  fetchOverviewDataAction,
   getTopGeoVisitsAction,
   getWorldMapDataAlpha2,
 } from '@/app/actions/index.actions';
@@ -55,12 +52,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     ]),
   ) as Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>>;
 
-  const summaryAndChartPromise = Promise.all([
-    fetchSummaryStatsAction(dashboardId, query),
-    fetchUniqueVisitorsAction(dashboardId, query),
-    fetchTotalPageViewsAction(dashboardId, query),
-    fetchSessionMetricsAction(dashboardId, query),
-  ]);
+  const summaryAndChartPromise = fetchOverviewDataAction(dashboardId, query);
 
   const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, query);
   const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(dashboardId, query, 10);
