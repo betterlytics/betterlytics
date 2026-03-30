@@ -13,7 +13,7 @@ const TUNNEL_EXTRA_LENGTH = 60;
 const SOURCE_OCCLUSION_RADIUS = 5;
 const SOURCE_TUNNEL_STROKE = 10;
 const HUB_FRONT_OCCLUDER_RADIUS = 13;
-const ROUTE_PIXELS_PER_SECOND = 164;
+const ROUTE_PIXELS_PER_SECOND = 324;
 const ARC_LENGTH_SAMPLES = 32;
 
 const MERIDIAN_RX = [400, 328.7, 235.36, 123.1, 0];
@@ -251,13 +251,13 @@ const ROUTES: ReadonlyArray<Route> = [
     ],
     begin: 1.5,
   },
-  // [3] → 12 → 14 → 16 → 17 → 26
+  // [3] → 5 → 7 → 8 → 17 → 26
   {
     waypoints: [
       gridPoint(328.7, 80, 'right'), // 3
-      gridPoint(328.7, 160, 'right'), // 12
-      gridPoint(235.36, 160, 'right'), // 14
-      gridPoint(123.1, 160, 'right'), // 16
+      gridPoint(235.36, 80, 'right'), // 5
+      gridPoint(123.1, 80, 'right'), // 7
+      gridPoint(0, 80, 'right'), // 8
       gridPoint(0, 160, 'right'), // 17
       gridPoint(0, 240, 'right'), // 26 (hub)
     ],
@@ -323,7 +323,11 @@ interface GlobeBackgroundProps {
   showDataPaths?: boolean;
 }
 
-export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg', showDataPaths = true }: GlobeBackgroundProps) {
+export function GlobeBackground({
+  className,
+  logoSrc = '/images/favicon-dark.svg',
+  showDataPaths = true,
+}: GlobeBackgroundProps) {
   const uid = useId().replace(/:/g, '');
   const pathRefs = useRef<Array<SVGPathElement | null>>([]);
   const [routeLengths, setRouteLengths] = useState(() => ROUTE_DATA.map((route) => route.length));
@@ -496,7 +500,7 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
         )}
 
         {/* DEBUG: numbered labels at every grid intersection */}
-        {/* <g>
+        <g>
           {(() => {
             const pts: Array<{ x: number; y: number; id: number }> = [];
             let id = 0;
@@ -526,7 +530,7 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
               </g>
             ));
           })()}
-        </g> */}
+        </g>
       </svg>
     </div>
   );

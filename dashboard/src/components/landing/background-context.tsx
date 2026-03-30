@@ -30,7 +30,7 @@ const BackgroundContext = createContext<BackgroundContextValue>({
 });
 
 export function BackgroundProvider({ children }: { children: React.ReactNode }) {
-  const [background, setBackground] = useState<HeroBackground>('retro-grid');
+  const [background, setBackground] = useState<HeroBackground>('diagonal-stripes');
   const [gradients, setGradients] = useState<Set<HeroGradient>>(
     new Set(['bottom-fade', 'text-spotlight', 'radial-center', 'top-vignette', 'blue-wash']),
   );
