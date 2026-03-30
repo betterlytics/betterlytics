@@ -13,7 +13,7 @@ const LATITUDE_YS = [80, 160, 240, 320, 400];
 const RAY_EXTEND_Y = 700;
 const ARC_SAMPLES = 32;
 const SCROLL_RANGE = 1200;
-const TAIL_LENGTH = 160;
+const TAIL_LENGTH = 240;
 
 // --- Grid helpers (same logic as globe-background.tsx) ---
 
@@ -49,17 +49,20 @@ function buildRoutePath(waypoints: ReadonlyArray<GridPt>): string {
         d += ` L ${to.x},${to.y}`;
       } else {
         const goingDown = to.y > from.y;
-        const fromPole = from.y === 0 && from.rx === 0;
-        const sweep = fromPole
-          ? (to.side === 'right' ? 1 : 0)
-          : ((to.side === 'right') === goingDown ? 0 : 1);
+        const sweep = (to.side === 'right') === goingDown ? 1 : 0;
         d += ` A ${rx} ${R} 0 0 ${sweep} ${to.x},${to.y}`;
       }
     }
   }
 
   const last = waypoints[waypoints.length - 1];
-  d += ` L ${last.x},${RAY_EXTEND_Y}`;
+  if (last.rx === 0) {
+    d += ` L ${CX},${RAY_EXTEND_Y}`;
+  } else {
+    const endPt = gp(last.rx, RAY_EXTEND_Y, last.side);
+    const sweep = last.side === 'right' ? 1 : 0;
+    d += ` A ${last.rx} ${R} 0 0 ${sweep} ${endPt.x},${endPt.y}`;
+  }
   return d;
 }
 
@@ -70,8 +73,13 @@ const TOP = gp(0, 0, 'right');
 function meridianRoute(rx: number, side: 'left' | 'right'): ReadonlyArray<GridPt> {
   return [
     TOP,
-    gp(rx, 80, side), gp(rx, 160, side), gp(rx, 240, side), gp(rx, 320, side),
-    gp(rx, 400, side), gp(rx, 500, side), gp(rx, 600, side),
+    gp(rx, 80, side),
+    gp(rx, 160, side),
+    gp(rx, 240, side),
+    gp(rx, 320, side),
+    gp(rx, 400, side),
+    gp(rx, 500, side),
+    gp(rx, 600, side),
   ];
 }
 

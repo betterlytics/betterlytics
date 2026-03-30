@@ -499,8 +499,8 @@ export function GlobeBackground({
           </>
         )}
 
-        {/* DEBUG: numbered labels at every grid intersection */}
-        <g>
+        {/* {DEBUG: numbered labels at every grid intersection } */}
+        {/* <g>
           {(() => {
             const pts: Array<{ x: number; y: number; id: number }> = [];
             let id = 0;
@@ -530,7 +530,7 @@ export function GlobeBackground({
               </g>
             ));
           })()}
-        </g>
+        </g> */}
       </svg>
     </div>
   );
