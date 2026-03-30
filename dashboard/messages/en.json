@@ -987,7 +987,7 @@
         "categories": {
           "analytics": "Analytics & Insights",
           "engagement": "Engagement & Behavior",
-          "performance": "Performance & Sources"
+          "performance": "Monitoring & Performance"
         },
         "featuresButton": "Explore All Features",
         "featuresTitle": "Explore all Betterlytics features"
@@ -1060,6 +1060,18 @@
             "email": "Email",
             "other": "Other"
           }
+        },
+        "errorTracking": {
+          "title": "Error Tracking",
+          "description": "Catch client-side errors early. Inspect stack traces and replay sessions to see exactly what went wrong.",
+          "status": {
+            "unresolved": "Unresolved",
+            "resolved": "Resolved"
+          },
+          "watchReplay": "Watch replay",
+          "usersAffected": "{count} users",
+          "summary": "37 errors this month",
+          "unresolved": "{count} unresolved"
         },
         "funnels": {
           "title": "Funnels",
@@ -1183,6 +1195,10 @@
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Replay user sessions to see exactly how visitors interact with your site and uncover usability issues."
+        },
+        "errorTracking": {
+          "title": "Error Tracking",
+          "description": "Automatically capture and group client-side errors, with stack traces and session replay links so you can reproduce and fix bugs fast."
         },
         "userJourneys": {
           "title": "User Journeys",
@@ -1475,6 +1491,9 @@
       "campaignTracking": {
         "name": "Campaign & UTM tracking"
       },
+      "errorTracking": {
+        "name": "Client-side error tracking"
+      },
       "emailReports": {
         "name": "Email reports"
       },
@@ -1538,7 +1557,8 @@
         "outboundLinks": "Outbound link tracking",
         "advancedFiltering": "Advanced filtering",
         "cookieFree": "Cookie-free",
-        "gdprCcpa": "GDPR & CCPA ready"
+        "gdprCcpa": "GDPR & CCPA ready",
+        "errorTracking": "Client-side error tracking"
       }
     }
   },
@@ -1563,7 +1583,8 @@
         "behavior": "Behavior",
         "observability": "Observability"
       },
-      "collapseNav": "Collapse nav"
+      "collapseNav": "Collapse nav",
+      "errorTracking": "Error Tracking"
     },
     "settings": {
       "sidebar": {
@@ -2606,7 +2627,8 @@
         "empty": {
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
-        }
+        },
+        "sessionErrorsTooltip": "This session captured {count}+ client-side errors"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -2628,7 +2650,10 @@
         "scroll": "Scroll",
         "input": "Input",
         "pageview": "Pageview",
-        "blacklist": "Blacklisted"
+        "blacklist": "Blacklisted",
+        "viewportResize": "Viewport Resize",
+        "mediaInteraction": "Media Interaction",
+        "clientError": "Client Error"
       },
       "player": {
         "skipInactive": "Skip inactivity",
@@ -3623,6 +3648,108 @@
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
       "invalidWebhookUrl": "Invalid webhook URL"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Error Overview"
+    },
+    "table": {
+      "columns": {
+        "error": "Error",
+        "volume": "Volume",
+        "occurrences": "Occurrences",
+        "sessions": "Sessions",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "status": "Status"
+      },
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "rowActionsAria": "Row actions",
+      "ago": "{time} ago",
+      "emptySearch": "No errors matching your search.",
+      "emptyPeriod": "No errors recorded in this period."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by type and message...",
+      "selectedCount": "{count} selected",
+      "reload": "Reload",
+      "reloadAria": "Reload errors"
+    },
+    "statusFilter": {
+      "all": "All",
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored"
+    },
+    "statusActions": {
+      "resolve": "Resolve",
+      "ignore": "Ignore",
+      "unresolve": "Unresolve",
+      "markResolved": "Mark resolved",
+      "markUnresolved": "Mark unresolved"
+    },
+    "status": {
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored"
+    },
+    "emptyState": {
+      "title": "No errors detected",
+      "description": "When client-side errors occur on your site, they will appear here grouped by type. Set up error tracking to catch and monitor client-side exceptions.",
+      "learnMore": "Learn about error tracking"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Back to errors",
+        "copied": "Copied!",
+        "share": "Share"
+      },
+      "sidebar": {
+        "overview": "Overview",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "occurrences": "Occurrences",
+        "sessions": "Sessions",
+        "occurrenceHistory": "Occurrence history",
+        "browsers": "Browsers",
+        "deviceType": "Device type",
+        "watchReplay": "Watch latest session replay",
+        "watchReplayDescription": "See what the user did before this error",
+        "noReplay": "No session replay for this error",
+        "noReplayDescription": "Replay captures what users did before an error occurred.",
+        "learnMore": "Learn more"
+      },
+      "navigator": {
+        "occurrenceOf": "Occurrence {number} of {total}",
+        "firstOccurrence": "First occurrence",
+        "olderOccurrence": "Older occurrence",
+        "newerOccurrence": "Newer occurrence",
+        "latestOccurrence": "Latest occurrence"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frames}}",
+        "showLess": "Show less",
+        "showMoreFrames": "Show {count} more {count, plural, one {frame} other {frames}}",
+        "at": "at",
+        "inApp": "in app"
+      },
+      "sessionTrail": {
+        "title": "Session trail",
+        "eventCount": "{count, plural, one {# event} other {# events}} in this session",
+        "watchReplay": "Watch replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Operating System",
+        "device": "Device",
+        "country": "Country"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# error} other {# errors}}"
+      }
     }
   }
 }

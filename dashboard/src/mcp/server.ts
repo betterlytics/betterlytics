@@ -5,6 +5,12 @@ import { McpQueryInputBaseSchema } from '@/mcp/entities/mcp.entities';
 import { executeUserJourneys, McpUserJourneysInputBaseSchema } from '@/mcp/tools/userJourneys';
 import { executeFunnelPreview, McpFunnelPreviewInputBaseSchema } from '@/mcp/tools/funnelPreview';
 import { executeListFunnels, McpListFunnelsInputBaseSchema } from '@/mcp/tools/listFunnels';
+import {
+  executeListErrors,
+  McpListErrorsInputBaseSchema,
+  executeGetError,
+  McpGetErrorInputBaseSchema,
+} from '@/mcp/tools/errors';
 
 export type McpContext = {
   siteId: string;
@@ -98,6 +104,42 @@ export function createMcpServer(context: McpContext): McpServer {
     async (params) => {
       try {
         const result = await executeListFunnels(params, context.siteId, context.dashboardId);
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+      }
+    },
+  );
+
+  server.registerTool(
+    'list_errors',
+    {
+      description:
+        'List client-side JavaScript errors grouped by type. Returns error groups with occurrence counts, affected sessions, status, and first/last seen timestamps. Use this to identify the most impactful errors on the site.',
+      inputSchema: McpListErrorsInputBaseSchema.shape,
+    },
+    async (params) => {
+      try {
+        const result = await executeListErrors(params, context.siteId, context.dashboardId);
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+      }
+    },
+  );
+
+  server.registerTool(
+    'get_error',
+    {
+      description:
+        'Get detailed information about a specific error, including the full stack trace, browser/OS/device context, and the session trail of events leading up to the error. Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+      inputSchema: McpGetErrorInputBaseSchema.shape,
+    },
+    async (params) => {
+      try {
+        const result = await executeGetError(params, context.siteId);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';

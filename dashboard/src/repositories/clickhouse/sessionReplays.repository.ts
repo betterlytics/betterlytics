@@ -5,6 +5,46 @@ import { safeSql } from '@/lib/safe-sql';
 import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
+export async function hasSessionReplay(siteId: string, sessionId: string): Promise<boolean> {
+  const query = safeSql`
+    SELECT 1
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND session_id = {session_id:String}
+    LIMIT 1
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+    })
+    .toPromise();
+
+  return result.length > 0;
+}
+
+export async function findReplaySessionForError(
+  siteId: string,
+  fingerprint: string,
+): Promise<string | null> {
+  const query = safeSql`
+    SELECT session_id
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND has(error_fingerprints, {fingerprint:String})
+    ORDER BY started_at DESC
+    LIMIT 1
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, fingerprint },
+    })
+    .toPromise()) as any[];
+
+  return result.length > 0 ? result[0].session_id : null;
+}
+
 export async function getSessionReplays(
   siteQuery: BASiteQuery,
   limit: number,
@@ -25,6 +65,7 @@ export async function getSessionReplays(
       r.event_count,
       r.s3_prefix,
       r.start_url,
+      r.error_fingerprints,
       e.device_type,
       e.browser,
       e.os,

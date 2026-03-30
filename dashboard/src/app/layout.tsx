@@ -55,8 +55,10 @@ export default async function RootLayout({
             src={`${env.PUBLIC_ANALYTICS_BASE_URL}/analytics.js`}
             data-site-id={env.APP_TRACKING_SITE_ID}
             data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/event`}
-            data-dynamic-urls='/dashboard/*/funnels/*,/dashboard/*/monitoring/*,/dashboard/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*/monitoring/*,/*/share/*/monitoring/*,/share/*,/*/share/*,/accept-invite/*,/*/accept-invite/*'
+            data-dynamic-urls='/dashboard/*/errors/detail/*,/dashboard/*/funnels/*,/dashboard/*/monitoring/*,/dashboard/*,/share/*/errors/detail/*,/*/share/*/errors/detail/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*/monitoring/*,/*/share/*/monitoring/*,/share/*,/*/share/*,/accept-invite/*,/*/accept-invite/*'
             data-web-vitals='true'
+            data-track-errors='true'
+            data-track-console-errors='true'
           />
         )}
         <StructuredData config={seoConfig} />

@@ -986,7 +986,7 @@
         "categories": {
           "analytics": "Analisi e approfondimenti",
           "engagement": "Coinvolgimento e comportamento",
-          "performance": "Prestazioni e sorgenti"
+          "performance": "Monitoraggio e prestazioni"
         },
         "featuresButton": "Esplora tutte le funzionalità",
         "featuresTitle": "Esplora tutte le funzionalità di Betterlytics"
@@ -1071,6 +1071,18 @@
             "email": "Email",
             "other": "Altro"
           }
+        },
+        "errorTracking": {
+          "title": "Tracciamento errori",
+          "description": "Cattura gli errori lato client in anticipo. Ispeziona gli stack trace e riproduci le sessioni per capire cosa è andato storto.",
+          "status": {
+            "unresolved": "Non risolto",
+            "resolved": "Risolto"
+          },
+          "watchReplay": "Guarda registrazione",
+          "usersAffected": "{count} utenti",
+          "summary": "37 errori questo mese",
+          "unresolved": "{count} non risolti"
         },
         "funnels": {
           "title": "Funnel",
@@ -1194,6 +1206,10 @@
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Riproduci le sessioni utente per vedere esattamente come i visitatori interagiscono con il tuo sito e scoprire problemi di usabilità."
+        },
+        "errorTracking": {
+          "title": "Monitoraggio errori",
+          "description": "Acquisisci automaticamente gli errori lato client e raggruppali con stack trace e link ai replay di sessione per riprodurre e risolvere i bug rapidamente."
         },
         "userJourneys": {
           "title": "Percorsi Utente",
@@ -1486,6 +1502,9 @@
       "campaignTracking": {
         "name": "Tracciamento campagne e UTM"
       },
+      "errorTracking": {
+        "name": "Monitoraggio errori lato client"
+      },
       "emailReports": {
         "name": "Report email"
       },
@@ -1549,7 +1568,8 @@
         "outboundLinks": "Tracciamento link in uscita",
         "advancedFiltering": "Filtri avanzati",
         "cookieFree": "Senza cookie",
-        "gdprCcpa": "Pronto per GDPR e CCPA"
+        "gdprCcpa": "Pronto per GDPR e CCPA",
+        "errorTracking": "Monitoraggio errori lato client"
       }
     }
   },
@@ -1574,7 +1594,8 @@
         "behavior": "Comportamento",
         "observability": "Osservabilità"
       },
-      "collapseNav": "Comprimi navigazione"
+      "collapseNav": "Comprimi navigazione",
+      "errorTracking": "Monitoraggio errori"
     },
     "settings": {
       "sidebar": {
@@ -2617,7 +2638,8 @@
         "empty": {
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
-        }
+        },
+        "sessionErrorsTooltip": "Questa sessione ha catturato {count}+ errori lato client"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -2639,12 +2661,18 @@
         "scroll": "Scorrimento",
         "input": "Inserimento",
         "pageview": "Visualizzazione pagina",
-        "blacklist": "Nascosto"
+        "blacklist": "Nascosto",
+        "viewportResize": "Ridimensionamento viewport",
+        "mediaInteraction": "Interazione media",
+        "clientError": "Errore lato client"
       },
       "player": {
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
         "recordingDisabled": "Registrazione disabilitata su questa pagina"
+      },
+      "timeline": {
+        "viewErrorDetails": "Visualizza dettagli errore"
       }
     },
     "integration": {
@@ -3634,6 +3662,108 @@
       "invalidSlackWebhook": "Webhook URL Slack non valido",
       "invalidTeamsWebhook": "Webhook URL Teams non valido",
       "invalidWebhookUrl": "Webhook URL non valido"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Panoramica errori"
+    },
+    "table": {
+      "columns": {
+        "error": "Errore",
+        "volume": "Volume",
+        "occurrences": "Occorrenze",
+        "sessions": "Sessioni",
+        "firstSeen": "Prima occorrenza",
+        "lastSeen": "Ultima occorrenza",
+        "status": "Stato"
+      },
+      "selectAll": "Seleziona tutto",
+      "selectRow": "Seleziona riga",
+      "rowActionsAria": "Azioni riga",
+      "ago": "{time} fa",
+      "emptySearch": "Nessun errore corrisponde alla ricerca.",
+      "emptyPeriod": "Nessun errore registrato in questo periodo."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Cerca per tipo e messaggio...",
+      "selectedCount": "{count} selezionati",
+      "reload": "Ricarica",
+      "reloadAria": "Ricarica errori"
+    },
+    "statusFilter": {
+      "all": "Tutti",
+      "unresolved": "Non risolto",
+      "resolved": "Risolto",
+      "ignored": "Ignorato"
+    },
+    "statusActions": {
+      "resolve": "Risolvi",
+      "ignore": "Ignora",
+      "unresolve": "Segna come non risolto",
+      "markResolved": "Segna come risolto",
+      "markUnresolved": "Segna come non risolto"
+    },
+    "status": {
+      "unresolved": "Non risolto",
+      "resolved": "Risolto",
+      "ignored": "Ignorato"
+    },
+    "emptyState": {
+      "title": "Nessun errore rilevato",
+      "description": "Quando si verificano errori lato client sul tuo sito, verranno mostrati qui raggruppati per tipo. Configura il monitoraggio errori per rilevare e monitorare le eccezioni lato client.",
+      "learnMore": "Scopri di più sul monitoraggio errori"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Torna agli errori",
+        "copied": "Copiato!",
+        "share": "Condividi"
+      },
+      "sidebar": {
+        "overview": "Panoramica",
+        "firstSeen": "Prima occorrenza",
+        "lastSeen": "Ultima occorrenza",
+        "occurrences": "Occorrenze",
+        "sessions": "Sessioni",
+        "occurrenceHistory": "Cronologia",
+        "browsers": "Browser",
+        "deviceType": "Tipo di dispositivo",
+        "watchReplay": "Guarda l’ultima sessione",
+        "watchReplayDescription": "Scopri cosa ha fatto l’utente prima dell’errore",
+        "noReplay": "Nessun replay disponibile",
+        "noReplayDescription": "I replay mostrano cosa fanno gli utenti prima di un errore.",
+        "learnMore": "Scopri di più"
+      },
+      "navigator": {
+        "occurrenceOf": "Occorrenza {number} di {total}",
+        "firstOccurrence": "Prima occorrenza",
+        "olderOccurrence": "Occorrenza precedente",
+        "newerOccurrence": "Occorrenza successiva",
+        "latestOccurrence": "Ultima occorrenza"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frame}}",
+        "showLess": "Mostra meno",
+        "showMoreFrames": "Mostra {count} altri {count, plural, one {frame} other {frame}}",
+        "at": "in",
+        "inApp": "nell'app"
+      },
+      "sessionTrail": {
+        "title": "Traccia sessione",
+        "eventCount": "{count, plural, one {# evento} other {# eventi}} in questa sessione",
+        "watchReplay": "Guarda replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Sistema operativo",
+        "device": "Dispositivo",
+        "country": "Paese"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# errore} other {# errori}}"
+      }
     }
   }
 }

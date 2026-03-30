@@ -3,6 +3,7 @@
 import { Maximize2, Minimize2, Pause, Play, ChevronDown } from 'lucide-react';
 import { memo, useCallback, useEffect, useId, useMemo, useState } from 'react';
 import type { TimelineMarker } from './ReplayTimeline';
+import { keyForMarker } from './utils/marker-keys';
 import { markerFillColorForLabel } from './utils/colors';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { useTheme } from 'next-themes';
@@ -82,7 +83,7 @@ function createMarkerCanvas(
 
   ctx.clearRect(0, 0, cssWidth, cssHeight);
   markers.forEach((marker) => {
-    ctx.fillStyle = markerFillColorForLabel(resolvedTheme, marker.key);
+    ctx.fillStyle = markerFillColorForLabel(resolvedTheme, keyForMarker(marker));
     const left = cssWidth * (marker.timestamp / durationMs);
     ctx.fillRect(left, 0, 4, cssHeight);
   });

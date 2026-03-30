@@ -7,9 +7,7 @@ import { TimelinePanel } from './TimelinePanel';
 import {
   MousePointer2,
   MousePointerSquareDashed,
-  FilePen,
   ScrollText,
-  Route,
   Keyboard,
   Eye,
   Tag,
@@ -17,11 +15,12 @@ import {
   Lock,
   PlayCircle,
   Expand,
+  AlertTriangle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { markerFillColorForLabel } from './utils/colors';
-
+import { keyForMarker, type MarkerKey } from './utils/marker-keys';
 export type TimelineMarkerDescriptor = {
   key: string;
   timestamp: number;
@@ -145,32 +144,6 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-const MARKER_KEYS = [
-  'Mouse Interaction',
-  'Selection',
-  'Scroll',
-  'Input',
-  'Full snapshot',
-  'Viewport Resize',
-  'Media Interaction',
-  'Pageview',
-  'Blacklist',
-] as const;
-
-type MarkerKey = (typeof MARKER_KEYS)[number];
-
-const MARKER_KEYS_SET = new Set<string>(MARKER_KEYS);
-function keyForMarker(marker: TimelineMarker): MarkerKey | string {
-  if (marker.key !== 'Custom event' && MARKER_KEYS_SET.has(marker.key)) {
-    return marker.key as MarkerKey;
-  }
-
-  if (marker.label !== undefined && MARKER_KEYS_SET.has(marker.label)) {
-    return marker.label as MarkerKey;
-  }
-
-  return marker.label ?? marker.key;
-}
 
 function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
@@ -196,6 +169,8 @@ function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.Rea
       return <Eye className={ICON_BASE_CLASS} style={{ color }} />;
     case 'Blacklist':
       return <Lock className={ICON_BASE_CLASS} style={{ color }} />;
+    case 'client_error':
+      return <AlertTriangle className={ICON_BASE_CLASS} style={{ color }} />;
     default:
       return <Tag className={ICON_BASE_CLASS} style={{ color }} />;
   }
@@ -214,19 +189,25 @@ function labelForKey(key: MarkerKey | string, t: any) {
     case 'Full snapshot':
       return t('fullSnapshot');
     case 'Viewport Resize':
-      return 'Viewport Resize'; // Missing translation
+      return t('viewportResize');
     case 'Media Interaction':
-      return 'Media Interaction'; // Missing translation
+      return t('mediaInteraction');
     case 'Pageview':
       return t('pageview');
     case 'Blacklist':
       return t('blacklist');
+    case 'client_error':
+      return t('clientError');
     default:
       return key;
   }
 }
 
-function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any): TimelineGroup[] {
+function buildGroups(
+  markers: TimelineMarker[],
+  theme: 'light' | 'dark',
+  t: any,
+): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];
@@ -262,7 +243,10 @@ function ReplayTimelineComponent({ markers, onJump, isSessionSelected = false }:
   const { resolvedTheme } = useTheme();
   const theme: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light';
 
-  const groups = useMemo(() => buildGroups(markers, theme, tEvents), [markers, theme, tEvents]);
+  const groups = useMemo(
+    () => buildGroups(markers, theme, tEvents),
+    [markers, theme, tEvents],
+  );
   const totalEvents = markers.length;
 
   const timelineEmptyState = useMemo(
