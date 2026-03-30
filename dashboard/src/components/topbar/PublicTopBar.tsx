@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
-import { Blend, Grid3x3, Menu, X } from 'lucide-react';
+import { Blend, Grid3x3, Menu, Orbit, X, Zap } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { useTranslations } from 'next-intl';
@@ -31,7 +31,8 @@ export default function PublicTopBar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { background, setBackground, gradients, toggleGradient } = useHeroBackground();
+  const { background, setBackground, gradients, toggleGradient, heroMode, setHeroMode } =
+    useHeroBackground();
 
   const isLandingPage = pathname === '/';
 
@@ -81,6 +82,18 @@ export default function PublicTopBar() {
             <div className='ml-6 flex items-center gap-6'>
               {isLandingPage && (
                 <>
+                  <button
+                    className='text-muted-foreground hover:text-foreground cursor-pointer transition-colors'
+                    aria-label='Toggle hero mode'
+                    title={heroMode === 'nodes' ? 'Switch to Event Rays' : 'Switch to Nodes'}
+                    onClick={() => setHeroMode(heroMode === 'nodes' ? 'event-rays' : 'nodes')}
+                  >
+                    {heroMode === 'nodes' ? (
+                      <Zap className='h-5 w-5' />
+                    ) : (
+                      <Orbit className='h-5 w-5' />
+                    )}
+                  </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button

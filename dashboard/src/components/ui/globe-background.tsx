@@ -320,9 +320,10 @@ const ROUTE_DATA = ROUTES.map((route) => ({ ...buildRouteData(route.waypoints), 
 interface GlobeBackgroundProps {
   className?: string;
   logoSrc?: string;
+  showDataPaths?: boolean;
 }
 
-export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg' }: GlobeBackgroundProps) {
+export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg', showDataPaths = true }: GlobeBackgroundProps) {
   const uid = useId().replace(/:/g, '');
   const pathRefs = useRef<Array<SVGPathElement | null>>([]);
   const [routeLengths, setRouteLengths] = useState(() => ROUTE_DATA.map((route) => route.length));
@@ -353,32 +354,36 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
             <stop offset='0%' stopColor='var(--globe-grid)' stopOpacity='0.4' />
             <stop offset='100%' stopColor='var(--globe-grid)' />
           </linearGradient>
-          <clipPath id={`g-hub-logo-clip-${uid}`} clipPathUnits='userSpaceOnUse'>
-            <circle cx={HUB.x} cy={HUB.y} r={HUB_FRONT_OCCLUDER_RADIUS} />
-          </clipPath>
-          {ROUTE_DATA.map((route, i) => {
-            return (
-              <mask
-                key={i}
-                id={`g-route-mask-${i}-${uid}`}
-                maskUnits='userSpaceOnUse'
-                x='-1'
-                y='-1'
-                width='802'
-                height='322'
-              >
-                <rect x='-1' y='-1' width='802' height='322' fill='white' />
-                <path
-                  d={route.sourceTunnelPath}
-                  fill='none'
-                  stroke='black'
-                  strokeWidth={SOURCE_TUNNEL_STROKE}
-                  strokeLinecap='round'
-                  vectorEffect='non-scaling-stroke'
-                />
-              </mask>
-            );
-          })}
+          {showDataPaths && (
+            <>
+              <clipPath id={`g-hub-logo-clip-${uid}`} clipPathUnits='userSpaceOnUse'>
+                <circle cx={HUB.x} cy={HUB.y} r={HUB_FRONT_OCCLUDER_RADIUS} />
+              </clipPath>
+              {ROUTE_DATA.map((route, i) => {
+                return (
+                  <mask
+                    key={i}
+                    id={`g-route-mask-${i}-${uid}`}
+                    maskUnits='userSpaceOnUse'
+                    x='-1'
+                    y='-1'
+                    width='802'
+                    height='322'
+                  >
+                    <rect x='-1' y='-1' width='802' height='322' fill='white' />
+                    <path
+                      d={route.sourceTunnelPath}
+                      fill='none'
+                      stroke='black'
+                      strokeWidth={SOURCE_TUNNEL_STROKE}
+                      strokeLinecap='round'
+                      vectorEffect='non-scaling-stroke'
+                    />
+                  </mask>
+                );
+              })}
+            </>
+          )}
         </defs>
 
         {/* Background hemisphere */}
@@ -408,83 +413,87 @@ export function GlobeBackground({ className, logoSrc = '/images/favicon-dark.svg
           ))}
         </g>
 
-        <GlobeGridNodes
-          layer='backplates'
-          nodes={NODES}
-          hub={HUB}
-          hubFrontRadius={HUB_FRONT_OCCLUDER_RADIUS}
-          logoSrc={logoSrc}
-          hubLogoClipId={`g-hub-logo-clip-${uid}`}
-        />
+        {showDataPaths && (
+          <>
+            <GlobeGridNodes
+              layer='backplates'
+              nodes={NODES}
+              hub={HUB}
+              hubFrontRadius={HUB_FRONT_OCCLUDER_RADIUS}
+              logoSrc={logoSrc}
+              hubLogoClipId={`g-hub-logo-clip-${uid}`}
+            />
 
-        {/* Animated data paths */}
-        <g className='globe-data-paths'>
-          {ROUTE_DATA.map((rd, i) => {
-            const routeLength = routeLengths[i] ?? rd.length;
-            const pulseLength = Math.min(ROUTE_PULSE_LENGTH, Math.max(1, routeLength - 0.01));
-            const dashOffsetStart = pulseLength;
-            const dashOffsetEnd = roundMetric(-routeLength);
-            const routeDuration = roundMetric((routeLength + pulseLength) / ROUTE_PIXELS_PER_SECOND);
+            {/* Animated data paths */}
+            <g className='globe-data-paths'>
+              {ROUTE_DATA.map((rd, i) => {
+                const routeLength = routeLengths[i] ?? rd.length;
+                const pulseLength = Math.min(ROUTE_PULSE_LENGTH, Math.max(1, routeLength - 0.01));
+                const dashOffsetStart = pulseLength;
+                const dashOffsetEnd = roundMetric(-routeLength);
+                const routeDuration = roundMetric((routeLength + pulseLength) / ROUTE_PIXELS_PER_SECOND);
 
-            return (
-              <g key={i} mask={`url(#g-route-mask-${i}-${uid})`}>
-                <path
-                  ref={(node) => {
-                    pathRefs.current[i] = node;
-                  }}
-                  d={rd.d}
-                  fill='none'
-                  stroke='var(--globe-data-path)'
-                  strokeLinecap='round'
-                  strokeOpacity='0.22'
-                  strokeWidth='6'
-                  vectorEffect='non-scaling-stroke'
-                  strokeDasharray={`${pulseLength} ${routeLength}`}
-                  strokeDashoffset={dashOffsetStart}
-                >
-                  <animate
-                    attributeName='stroke-dashoffset'
-                    from={`${dashOffsetStart}`}
-                    to={`${dashOffsetEnd}`}
-                    calcMode='linear'
-                    dur={`${routeDuration}s`}
-                    begin={`${rd.begin}s`}
-                    repeatCount='indefinite'
-                  />
-                </path>
-                <path
-                  d={rd.d}
-                  fill='none'
-                  stroke='var(--globe-data-path)'
-                  strokeLinecap='round'
-                  strokeWidth='2'
-                  vectorEffect='non-scaling-stroke'
-                  strokeDasharray={`${pulseLength} ${routeLength}`}
-                  strokeDashoffset={dashOffsetStart}
-                >
-                  <animate
-                    attributeName='stroke-dashoffset'
-                    from={`${dashOffsetStart}`}
-                    to={`${dashOffsetEnd}`}
-                    calcMode='linear'
-                    dur={`${routeDuration}s`}
-                    begin={`${rd.begin}s`}
-                    repeatCount='indefinite'
-                  />
-                </path>
-              </g>
-            );
-          })}
-        </g>
+                return (
+                  <g key={i} mask={`url(#g-route-mask-${i}-${uid})`}>
+                    <path
+                      ref={(node) => {
+                        pathRefs.current[i] = node;
+                      }}
+                      d={rd.d}
+                      fill='none'
+                      stroke='var(--globe-data-path)'
+                      strokeLinecap='round'
+                      strokeOpacity='0.22'
+                      strokeWidth='6'
+                      vectorEffect='non-scaling-stroke'
+                      strokeDasharray={`${pulseLength} ${routeLength}`}
+                      strokeDashoffset={dashOffsetStart}
+                    >
+                      <animate
+                        attributeName='stroke-dashoffset'
+                        from={`${dashOffsetStart}`}
+                        to={`${dashOffsetEnd}`}
+                        calcMode='linear'
+                        dur={`${routeDuration}s`}
+                        begin={`${rd.begin}s`}
+                        repeatCount='indefinite'
+                      />
+                    </path>
+                    <path
+                      d={rd.d}
+                      fill='none'
+                      stroke='var(--globe-data-path)'
+                      strokeLinecap='round'
+                      strokeWidth='2'
+                      vectorEffect='non-scaling-stroke'
+                      strokeDasharray={`${pulseLength} ${routeLength}`}
+                      strokeDashoffset={dashOffsetStart}
+                    >
+                      <animate
+                        attributeName='stroke-dashoffset'
+                        from={`${dashOffsetStart}`}
+                        to={`${dashOffsetEnd}`}
+                        calcMode='linear'
+                        dur={`${routeDuration}s`}
+                        begin={`${rd.begin}s`}
+                        repeatCount='indefinite'
+                      />
+                    </path>
+                  </g>
+                );
+              })}
+            </g>
 
-        <GlobeGridNodes
-          layer='occluders'
-          nodes={NODES}
-          hub={HUB}
-          hubFrontRadius={HUB_FRONT_OCCLUDER_RADIUS}
-          logoSrc={logoSrc}
-          hubLogoClipId={`g-hub-logo-clip-${uid}`}
-        />
+            <GlobeGridNodes
+              layer='occluders'
+              nodes={NODES}
+              hub={HUB}
+              hubFrontRadius={HUB_FRONT_OCCLUDER_RADIUS}
+              logoSrc={logoSrc}
+              hubLogoClipId={`g-hub-logo-clip-${uid}`}
+            />
+          </>
+        )}
 
         {/* DEBUG: numbered labels at every grid intersection */}
         {/* <g>

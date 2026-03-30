@@ -9,12 +9,15 @@ export type HeroGradient =
   | 'radial-center'
   | 'top-vignette'
   | 'blue-wash';
+export type HeroMode = 'nodes' | 'event-rays';
 
 interface BackgroundContextValue {
   background: HeroBackground;
   setBackground: (bg: HeroBackground) => void;
   gradients: Set<HeroGradient>;
   toggleGradient: (g: HeroGradient) => void;
+  heroMode: HeroMode;
+  setHeroMode: (m: HeroMode) => void;
 }
 
 const BackgroundContext = createContext<BackgroundContextValue>({
@@ -22,6 +25,8 @@ const BackgroundContext = createContext<BackgroundContextValue>({
   setBackground: () => {},
   gradients: new Set(),
   toggleGradient: () => {},
+  heroMode: 'nodes',
+  setHeroMode: () => {},
 });
 
 export function BackgroundProvider({ children }: { children: React.ReactNode }) {
@@ -29,6 +34,7 @@ export function BackgroundProvider({ children }: { children: React.ReactNode }) 
   const [gradients, setGradients] = useState<Set<HeroGradient>>(
     new Set(['bottom-fade', 'text-spotlight', 'radial-center', 'top-vignette', 'blue-wash']),
   );
+  const [heroMode, setHeroMode] = useState<HeroMode>('nodes');
 
   const toggleGradient = useCallback((g: HeroGradient) => {
     setGradients((prev) => {
@@ -43,7 +49,9 @@ export function BackgroundProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   return (
-    <BackgroundContext.Provider value={{ background, setBackground, gradients, toggleGradient }}>
+    <BackgroundContext.Provider
+      value={{ background, setBackground, gradients, toggleGradient, heroMode, setHeroMode }}
+    >
       {children}
     </BackgroundContext.Provider>
   );

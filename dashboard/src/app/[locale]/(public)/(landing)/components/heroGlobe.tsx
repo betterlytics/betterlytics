@@ -33,7 +33,7 @@ export function HeroGlobe() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const logoSrc = isDark ? '/images/favicon-light.svg' : '/images/favicon-dark.svg';
-  const { background, gradients } = useHeroBackground();
+  const { background, gradients, heroMode } = useHeroBackground();
 
   const patternFill = isDark ? 'hsl(222, 20%, 25%)' : 'hsl(220, 20%, 82%)';
   const styles = gradientStyles(isDark);
@@ -66,7 +66,11 @@ export function HeroGlobe() {
         />
       ))}
       <div className='relative z-[2] h-full w-full'>
-        <GlobeBackground className='h-full w-full' logoSrc={logoSrc} />
+        <GlobeBackground
+          className='h-full w-full'
+          logoSrc={logoSrc}
+          showDataPaths={heroMode === 'nodes'}
+        />
       </div>
     </div>
   );
