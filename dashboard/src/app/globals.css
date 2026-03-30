@@ -141,6 +141,8 @@
   --map-feature-border-clicked: #08e966;
   --map-feature-border-none: #9ca3af;
 
+  --dot-grid-overlay: rgba(255, 255, 255, 0.9);
+
   --trend-up: rgb(14, 148, 70);
   --trend-down: rgb(207, 51, 23);
 
@@ -243,6 +245,8 @@
   --map-feature-border-hovered: #00ffe1;
   --map-feature-border-clicked: #2ecc2e;
   --map-feature-border-none: #888888;
+
+  --dot-grid-overlay: rgba(10, 10, 14, 0.9);
 
   --trend-up: rgb(88, 207, 146);
   --trend-down: rgb(212, 89, 81);
