@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import { UserSettings, UserSettingsFormData, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { toast } from 'sonner';
 import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
@@ -42,10 +42,6 @@ interface UserSettingsTabConfig {
   }>;
   disabled?: boolean;
 }
-
-type UserSettingsFormData = UserSettingsUpdate & {
-  name?: string | null;
-};
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
   const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
@@ -180,7 +176,11 @@ function UserSettingsDialogContent({
     name: session?.user?.name ?? '',
   });
   const { refreshSession } = useSessionRefresh();
-  const isSettingsChanged = useIsChanged(formData, { ...settings, name: session?.user?.name ?? '' });
+  const originalData = useMemo(
+    () => ({ ...settings, name: session?.user?.name ?? '' }),
+    [settings, session?.user?.name],
+  );
+  const isSettingsChanged = useIsChanged(formData, originalData);
 
   useEffect(() => {
     if (open) {

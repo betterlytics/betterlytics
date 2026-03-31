@@ -6,7 +6,7 @@ import SettingsCard from '@/components/SettingsCard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
-import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import type { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 
 interface UserProfileSettingsProps {
   formData: UserSettingsUpdate & { name?: string | null };
