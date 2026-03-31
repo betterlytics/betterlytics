@@ -152,7 +152,10 @@
   --weekly-heatmap-fill-high: #1d5fae;
   --weekly-heatmap-fill-none: #e2e2e2;
 
-  --globe-bg: hsl(0, 0%, 97%);
+  /* color-mix(in oklab, var(--color-white) 10%, transparent) */
+  /* color-mix(in oklab, var(--input) 30%, transparent) */
+
+  --globe-bg: color-mix(in oklab, var(--color-white) 30%, transparent);
   --globe-grid: hsl(0, 0%, 80%);
   --globe-data-path: #3b82f6;
   --globe-node-bg: white;
@@ -262,7 +265,7 @@
   --weekly-heatmap-fill-high: #8ba5fa;
   --weekly-heatmap-fill-none: #33363b;
 
-  --globe-bg: hsl(222, 5%, 12%);
+  --globe-bg: color-mix(in oklab, var(--input) 30%, transparent);
   --globe-grid: hsl(0, 0%, 30%);
   --globe-data-path: #60a5fa;
   --globe-node-bg: hsl(222, 5%, 15%);
