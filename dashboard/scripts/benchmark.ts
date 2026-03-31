@@ -326,7 +326,7 @@ async function main() {
 
   process.stdout.write('Optimizing ClickHouse tables...');
   try {
-    const tables = ['analytics.events', 'analytics.session_replays'];
+    const tables = ['analytics.events', 'analytics.session_replays', 'analytics.session_stats', 'analytics.page_session_stats'];
     for (const table of tables) {
       execSync(`docker exec clickhouse clickhouse-client --query "OPTIMIZE TABLE ${table} FINAL"`, {
         timeout: 120_000,

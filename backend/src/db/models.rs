@@ -20,6 +20,8 @@ pub struct EventRow {
     pub timestamp: DateTime<Utc>,
     #[serde(with = "clickhouse::serde::chrono::date")]
     pub date: NaiveDate,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub session_created_at: DateTime<Utc>,
     pub browser: String,
     pub browser_version: String,
     pub os: String,
@@ -97,6 +99,7 @@ impl EventRow {
             city: event.city.unwrap_or_default(),
             timestamp,
             date: timestamp.date_naive(),
+            session_created_at: event.session_created_at,
             browser: event.browser.unwrap_or_else(|| "unknown".to_string()),
             browser_version: event.browser_version.unwrap_or_default(),
             os: event.os.unwrap_or_else(|| "unknown".to_string()),

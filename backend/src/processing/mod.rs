@@ -41,6 +41,8 @@ pub struct ProcessedEvent {
     pub site_id: String,
     pub visitor_fingerprint: u64,
     pub timestamp: chrono::DateTime<chrono::Utc>,
+    /// Timestamp of the first event that created this session
+    pub session_created_at: chrono::DateTime<chrono::Utc>,
     /// Parsed referrer information
     pub referrer_info: ReferrerInfo,
     /// Parsed campaign parameters
@@ -98,6 +100,7 @@ impl EventProcessor {
             event: event.clone(),
             event_type: String::new(),
             session_id: String::new(),
+            session_created_at: timestamp,
             country_code: None,
             subdivision_code: None,
             city: None,
@@ -166,13 +169,17 @@ impl EventProcessor {
             root_domain.as_deref(),
         );
 
-        let session_id_result = session::get_or_create_session_id(
+        let session_result = session::get_or_create_session(
             &site_id,
             processed.visitor_fingerprint,
+            processed.timestamp,
         );
 
-        match session_id_result {
-            Ok(id) => processed.session_id = id,
+        match session_result {
+            Ok(info) => {
+                processed.session_id = info.session_id;
+                processed.session_created_at = info.created_at;
+            }
             Err(e) => {
                 error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
                 return Ok(());
