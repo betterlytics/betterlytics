@@ -12,6 +12,7 @@ const colorMap: Record<string, Record<string, string>> = {
     'Media Interaction': `#f97316`,
     Pageview: `#0ea5e9`,
     Blacklist: `oklch(0.5 0 0)`,
+    client_error: `#ef4444`,
     default: `oklch(0.5 0 0)`,
   },
   dark: {
@@ -25,6 +26,7 @@ const colorMap: Record<string, Record<string, string>> = {
     'Media Interaction': `#fb923c`,
     Pageview: `#38bdf8`,
     Blacklist: `oklch(0.86 0.02 265)`,
+    client_error: `#f87171`,
     default: `oklch(0.86 0.02 265)`,
   },
 };

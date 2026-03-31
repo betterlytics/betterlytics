@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, ListVideo } from 'lucide-react';
+import { Clock, ListVideo, Bug } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ import { formatDuration, formatRelativeTimeFromNow } from '@/utils/dateFormatter
 import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -126,6 +127,18 @@ export function SessionReplayList({
                 ariaLabel={deviceName ?? tMisc('unknown')}
                 icon={deviceName && <DeviceIcon type={deviceName} />}
               />
+
+              {session.error_fingerprints && session.error_fingerprints.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className='ml-auto inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-500'>
+                      <Bug className='h-3 w-3' aria-hidden='true' />
+                      <span>{session.error_fingerprints.length}+</span>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side='bottom'>{t('sessionErrorsTooltip', { count: session.error_fingerprints.length })}</TooltipContent>
+                </Tooltip>
+              )}
             </div>
           </CardContent>
         </Card>

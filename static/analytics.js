@@ -43,6 +43,7 @@
   var consentReplay = script.getAttribute("data-consent-replay") === "true";
 
   var enableErrors = script.getAttribute("data-track-errors") === "true";
+  var enableReplayOnError = script.getAttribute("data-replay-on-error") === "true";
   var enableConsoleErrors =
     script.getAttribute("data-track-console-errors") === "true";
 
@@ -369,7 +370,7 @@
     });
   }
 
-  if (enableErrors) {
+  if (enableErrors || enableReplayOnError) {
     var errorCounts = {},
       errorWindowStart = Date.now();
     function isRateLimited(type) {
@@ -406,16 +407,18 @@
       )
         return;
       if (isRateLimited(type)) return;
-      sendEvent("client_error", {
-        error_exceptions: JSON.stringify([
-          {
-            type: type,
-            value: value.substring(0, 1000),
-            mechanism: mechanismType,
-            stack: stack.substring(0, 10000),
-          },
-        ]),
-      });
+      var errorExceptionsJson = JSON.stringify([
+        {
+          type: type,
+          value: value.substring(0, 1000),
+          mechanism: mechanismType,
+          stack: stack.substring(0, 10000),
+        },
+      ]);
+      sendEvent("client_error", { error_exceptions: errorExceptionsJson });
+      if (window.__betterlytics_replay__?.notifyError) {
+        window.__betterlytics_replay__.notifyError(type, errorExceptionsJson);
+      }
     }
 
     window.addEventListener("error", function (event) {
@@ -449,11 +452,14 @@
           var args = Array.prototype.slice.call(arguments);
           var first = args[0];
           if (first != null && typeof first === "object") {
+            if (!first.name) {
+              first = Object.assign({ name: "ConsoleError" }, first);
+            }
             captureError(first, "onconsole");
           } else {
             captureError(
               {
-                name: "Error",
+                name: "ConsoleError",
                 message: args
                   .map(function (a) {
                     return typeof a === "object"
@@ -472,7 +478,7 @@
     }
   }
 
-  if (enableReplay) {
+  if (enableReplay || enableReplayOnError) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
@@ -525,27 +531,29 @@
     function initReplay() {
       if (replayLoaded) return;
 
-      var hasCustomConsent = checkReplayConsent();
+      var hasConsent = checkReplayConsent();
+      if (!hasConsent) return;
 
-      if (hasCustomConsent) {
-        if (shouldSample()) {
-          replayLoaded = true;
-          loadScript(`${scriptsBaseUrl}/replay.js`);
-        }
+      var sampled = enableReplay && shouldSample();
+      var shouldLoadForError = enableReplayOnError;
+
+      if (sampled || shouldLoadForError) {
+        window.__betterlytics_replay_sampled__ = sampled;
+        replayLoaded = true;
+        loadScript(`${scriptsBaseUrl}/replay.js`);
       }
     }
 
     replayConsentCallbacks.push(function (consented) {
-      if (consented && !replayLoaded && shouldSample()) {
-        replayLoaded = true;
-        loadScript(`${scriptsBaseUrl}/replay.js`);
-      } else if (!consented && replayLoaded && window.__betterlytics_replay__) {
-        if (
-          window.__betterlytics_replay__.stop &&
-          typeof window.__betterlytics_replay__.stop === "function"
-        ) {
-          window.__betterlytics_replay__.stop();
+      if (consented && !replayLoaded) {
+        var sampled = enableReplay && shouldSample();
+        if (sampled || enableReplayOnError) {
+          window.__betterlytics_replay_sampled__ = sampled;
+          replayLoaded = true;
+          loadScript(`${scriptsBaseUrl}/replay.js`);
         }
+      } else if (!consented && replayLoaded) {
+        window.__betterlytics_replay__?.stop();
       }
     });
 

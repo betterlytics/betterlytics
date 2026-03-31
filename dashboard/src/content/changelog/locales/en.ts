@@ -2,45 +2,23 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.8',
-    releasedAt: '2026-03-22',
-    title: 'City & Region Geolocation, Performance Improvements & Bug Fixes',
+    version: 'v1.3.9',
+    releasedAt: '2026-03-29',
+    title: 'Client-Side Error Tracking',
     summary:
-      'Visitor locations are now shown at the city and region level. Large dashboards load faster thanks to performance improvements across the board. A bug causing the uptime monitoring page to fail for certain timezones has been fixed.',
+      'Betterlytics now tracks client-side errors. See every error with stack traces and breadcrumbs, track trends over time, and optionally replay the session that triggered each error.',
   },
   sections: [
     {
-      id: 'v138-new-features',
+      id: 'v139-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Geolocation now includes city and region-level data, giving you a more detailed picture of where your visitors are coming from.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v138-improvements',
-      title: 'Improvements',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Improved performance for large dashboards, reducing load times when working with high-traffic sites.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v138-bug-fixes',
-      title: 'Bug Fixes',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Fixed an issue on the uptime monitoring page that caused it to fail to load for certain timezones.',
+            'Client-side error tracking is here. Errors and console.error calls can now be captured and grouped by fingerprint, so you can see which errors affect the most users and how often they occur.',
+            'Every error comes with a stack trace and a breadcrumb trail showing what the user did leading up to it. Enable session replay on error to also capture a full replay of the session.',
+            'Errors are fully accessible through the MCP server, so your AI assistants can query error data and help you understand and debug what causes each error.',
           ],
         },
       ],
@@ -49,6 +27,31 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.9',
+      releasedAt: '2026-03-29',
+      title: 'Client-Side Error Tracking',
+      summary:
+        'Betterlytics now tracks client-side errors. See every error with stack traces and breadcrumbs, track trends over time, and optionally replay the session that triggered each error.',
+    },
+    sections: [
+      {
+        id: 'v139-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Client-side error tracking is here. Errors and console.error calls can now be captured and grouped by fingerprint, so you can see which errors affect the most users and how often they occur.',
+              'Every error comes with a stack trace and a breadcrumb trail showing what the user did leading up to it. Enable session replay on error to also capture a full replay of the session.',
+              'Errors are fully accessible through the MCP server, so your AI assistants can query error data and help you understand and debug what causes each error.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.8',

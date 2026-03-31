@@ -74,6 +74,7 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'User journey tracking', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: true },
+          { name: 'Client-side error tracking', betterlytics: true, competitor: true },
           { name: 'Core Web Vitals', betterlytics: true, competitor: true },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Feature flags', betterlytics: false, competitor: true },

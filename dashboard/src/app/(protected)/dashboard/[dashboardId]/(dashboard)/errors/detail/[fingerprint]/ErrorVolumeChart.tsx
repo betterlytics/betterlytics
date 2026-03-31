@@ -3,12 +3,14 @@
 import { useMemo } from 'react';
 import { ResponsiveContainer, Bar, BarChart, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import type { ErrorGroupVolumePoint } from '@/entities/analytics/errors.entities';
+import { useTranslations } from 'next-intl';
 
 type ErrorVolumeChartProps = {
   data: ErrorGroupVolumePoint[];
 };
 
 export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
+  const t = useTranslations('errors.detail.volumeChart');
   const chartData = useMemo(() => {
     const maxCount = Math.max(...data.map((d) => d.count), 1);
     return data.map((d) => ({
@@ -40,7 +42,7 @@ export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
                 <div className='bg-popover border-border rounded-md border px-3 py-1.5 shadow-sm'>
                   <p className='text-popover-foreground text-sm'>{label}</p>
                   <p className='text-popover-foreground text-sm font-medium'>
-                    {count} {count === 1 ? 'error' : 'errors'}
+                    {t('errorCount', { count })}
                   </p>
                 </div>
               );

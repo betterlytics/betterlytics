@@ -2,45 +2,23 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.8',
-    releasedAt: '2026-03-22',
-    title: 'Geolocalizzazione per città e regione, miglioramenti delle prestazioni e correzioni',
+    version: 'v1.3.9',
+    releasedAt: '2026-03-29',
+    title: 'Error Tracking Client-Side',
     summary:
-      'La posizione dei visitatori è ora disponibile a livello di città e regione. Le dashboard con molto traffico si caricano più velocemente grazie ai miglioramenti delle prestazioni. È stato corretto un bug che impediva il caricamento della pagina di monitoraggio uptime per alcuni fusi orari.',
+      'Betterlytics ora traccia gli errori client-side. Visualizza ogni errore con stack trace e breadcrumb, monitora i trend nel tempo e, se vuoi, riproduci la sessione che ha generato ciascun errore.',
   },
   sections: [
     {
-      id: 'v138-new-features',
+      id: 'v139-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'La geolocalizzazione include ora il livello di città e regione, offrendo un quadro più dettagliato della provenienza dei tuoi visitatori.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v138-improvements',
-      title: 'Miglioramenti',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Migliorate le prestazioni per le dashboard con grandi volumi di dati, riducendo i tempi di caricamento per i siti ad alto traffico.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v138-bug-fixes',
-      title: 'Correzioni',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Corretto un problema nella pagina di monitoraggio uptime che ne impediva il caricamento per alcuni fusi orari.',
+            'L\'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.',
+            'Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l\'utente prima dell\'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.',
+            'Gli errori sono completamente accessibili tramite il server MCP, così i tuoi assistenti AI possono interrogare i dati sugli errori e aiutarti a capire e risolvere la causa di ciascun errore.',
           ],
         },
       ],
@@ -49,6 +27,31 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.3.9',
+      releasedAt: '2026-03-29',
+      title: 'Error Tracking Client-Side',
+      summary:
+        'Betterlytics ora traccia gli errori client-side. Visualizza ogni errore con stack trace e breadcrumb, monitora i trend nel tempo e, se vuoi, riproduci la sessione che ha generato ciascun errore.',
+    },
+    sections: [
+      {
+        id: 'v139-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'L\'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.',
+              'Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l\'utente prima dell\'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.',
+              'Gli errori sono completamente accessibili tramite il server MCP, così i tuoi assistenti AI possono interrogare i dati sugli errori e aiutarti a capire e risolvere la causa di ciascun errore.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.8',
