@@ -1,0 +1,157 @@
+'server only';
+
+import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { z } from 'zod';
+import { safeSql, SQL } from './safe-sql';
+import { DateTimeString } from '@/types/dates';
+
+// Filters
+const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
+
+// Utility for filter query
+const INTERNAL_FILTER_OPERATORS = {
+  '=': {
+    quantifier: safeSql`arrayExists`,
+    operater: safeSql`ILIKE`,
+  },
+  '!=': {
+    quantifier: safeSql`arrayAll`,
+    operater: safeSql`NOT ILIKE`,
+  },
+} as const;
+
+const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
+  ...filter,
+  operator: INTERNAL_FILTER_OPERATORS[filter.operator],
+  values: filter.values.map((value) => value.replaceAll('*', '%')),
+}));
+
+/**
+ * Build query filters using `safeSql`
+ */
+function getSessionFilterQuery(
+  queryFilters: QueryFilter[],
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const nonEmptyFilters = queryFilters.filter(
+    (filter) =>
+      Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
+  );
+
+  const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
+
+  if (filters.length === 0) {
+    return [safeSql`1=1`];
+  }
+
+  const sessionsFilters = filters.filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column) === false);
+  const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
+
+  const sessionQueries = sessionsFilters.map((filter, index) => buildSessionTableFilterQuery(filter, index));
+
+  if (hasEventsFilters) {
+    const eventsQueries = filters.map((filter, index) => buildSessionTableFilterQuery(filter, index));
+    const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
+    return [...sessionQueries, eventsQuery];
+  }
+
+  return sessionQueries;
+}
+
+function buildSessionTableFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
+  const column = SQL.Unsafe(filter.column);
+  const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
+  const quantifier = filter.operator.quantifier;
+  const operator = filter.operator.operater;
+
+  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+}
+
+// Utility for granularity
+const GranularityIntervalSchema = z.enum([
+  '1 MONTH',
+  '1 WEEK',
+  '1 DAY',
+  '1 HOUR',
+  '30 MINUTE',
+  '15 MINUTE',
+  '1 MINUTE',
+]);
+const granularityIntervalMapper = {
+  month: GranularityIntervalSchema.enum['1 MONTH'],
+  week: GranularityIntervalSchema.enum['1 WEEK'],
+  day: GranularityIntervalSchema.enum['1 DAY'],
+  hour: GranularityIntervalSchema.enum['1 HOUR'],
+  minute_30: GranularityIntervalSchema.enum['30 MINUTE'],
+  minute_15: GranularityIntervalSchema.enum['15 MINUTE'],
+  minute_1: GranularityIntervalSchema.enum['1 MINUTE'],
+} as const;
+
+const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
+
+function getGranularityInterval(granularity: GranularityRangeValues) {
+  const clickhouseInterval = granularityIntervalMapper[granularity];
+  const validatedInterval = GranularityIntervalSchema.parse(clickhouseInterval);
+  return safeSql`INTERVAL ${SQL.Unsafe(validatedInterval)}`;
+}
+
+/**
+ * Returns SQL function to be used for granularity.
+ * This will throw an exception if parameter is illegal
+ */
+function getGranularitySQLFunctionFromGranularityRange(granularity: GranularityRangeValues, timezone: string) {
+  const clickhouseInterval = getGranularityInterval(granularity);
+  return (column: z.infer<typeof DateColumnSchema>) => {
+    const validatedColumn = DateColumnSchema.parse(column);
+    const interval = safeSql`toStartOfInterval(${SQL.Unsafe(validatedColumn)}, ${clickhouseInterval}, ${SQL.String({ timezone })})`;
+    return safeSql`${interval}`;
+  };
+}
+
+function getSessionStartRange(
+  granularity: GranularityRangeValues,
+  timezone: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const start = SQL.DateTime({ startDate });
+  const end = SQL.DateTime({ endDate });
+
+  const interval = getGranularityInterval(granularity);
+
+  const range = safeSql`session_start BETWEEN ${start} AND ${end}`;
+
+  // Create the fill
+  const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
+
+  const isCoarseGranularity = granularity === 'week' || granularity === 'month';
+  const intervalTo = isCoarseGranularity
+    ? safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })}) + ${interval}`
+    : safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
+
+  const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
+
+  // Wrapper for converting final date from user timezone to UTC
+  // Note: toStartOfInterval with week/month returns Date type, not DateTime, hence the cast
+  const timeWrapper = (sql: ReturnType<typeof safeSql>) => {
+    return safeSql`SELECT toTimezone(toDateTime64(date, 0), 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
+  };
+
+  // Granularity function
+  const granularityFunc = getGranularitySQLFunctionFromGranularityRange(granularity, timezone);
+
+  return {
+    range,
+    fill,
+    timeWrapper,
+    granularityFunc,
+  };
+}
+
+export const BASessionQuery = {
+  getSessionFilterQuery,
+  getSessionStartRange,
+};
