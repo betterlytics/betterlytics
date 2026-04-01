@@ -54,7 +54,7 @@ function getSessionFilterQuery(
 
   if (hasEventsFilters) {
     const eventsQueries = filters.map((filter, index) => buildSessionTableFilterQuery(filter, index));
-    const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)}`;
+    const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
     return [...sessionQueries, eventsQuery];
   }
 
