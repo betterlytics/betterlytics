@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS analytics.sessions (
 
     session_start SimpleAggregateFunction(min, DateTime),
     session_end SimpleAggregateFunction(max, DateTime),
-    pageview_count SimpleAggregateFunction(sum, UInt32),
+    pageview_count SimpleAggregateFunction(sum, UInt64),
 
     entry_page AggregateFunction(argMin, String, DateTime),
     exit_page AggregateFunction(argMax, String, DateTime),
