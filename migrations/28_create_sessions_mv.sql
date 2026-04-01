@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS analytics.sessions (
     utm_content AggregateFunction(argMin, String, DateTime)
 ) ENGINE = AggregatingMergeTree()
 PARTITION BY toYYYYMM(session_created_at)
-ORDER BY (site_id, session_created_at, session_id)
-TTL session_created_at + toIntervalDay(365);
+ORDER BY (site_id, session_created_at, session_id);
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.sessions_mv TO analytics.sessions AS
 SELECT
