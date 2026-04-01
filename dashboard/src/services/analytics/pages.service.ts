@@ -13,7 +13,7 @@ import {
   getDailyAverageTimeOnPage,
   getDailyBounceRate,
 } from '@/repositories/clickhouse/index.repository';
-import { getSessionMetrics } from '@/repositories/clickhouse/visitors.repository';
+import { getSessionMetrics } from '@/repositories/clickhouse/sessions.repository';
 import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import {
   PageAnalytics,
