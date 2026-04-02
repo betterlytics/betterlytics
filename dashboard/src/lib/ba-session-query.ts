@@ -9,6 +9,8 @@ import { DateTimeString } from '@/types/dates';
 // Filters
 const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
 const SESSION_AGGREGATE_FILTERS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
+  'entry_page',
+  'exit_page',
   'referrer_source',
   'referrer_source_name',
   'referrer_search_term',
@@ -98,14 +100,17 @@ function getSessionTableSubQuery(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
+  time: z.infer<typeof DateColumnSchema> = 'session_created_at',
 ) {
   const selectors = getSessionSelector(columns);
   const { WHERE, HAVING, FINAL } = getSessionFilterQuery(queryFilters, siteId, startDate, endDate);
 
+  const timeParsed = DateColumnSchema.parse(time);
+
   return safeSql`
     ( SELECT ${SQL.SEPARATOR(selectors)}
       FROM analytics.sessions ${FINAL}
-      WHERE site_id = ${SQL.String({ siteId })} AND session_created_at BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(WHERE)}
+      WHERE site_id = ${SQL.String({ siteId })} AND ${SQL.Unsafe(timeParsed)} BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(WHERE)}
       HAVING ${SQL.AND(HAVING)} )
   `;
 }

@@ -22,6 +22,7 @@ import {
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPageViewsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
@@ -268,26 +269,19 @@ export async function getPageTrafficTimeSeries(
 
 export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promise<TopEntryPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_id', 'entry_page'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
 
   const queryResponse = safeSql`
-    WITH session_first_pages AS (
-      SELECT
-        session_id,
-        argMin(url, timestamp) as entry_page,
-        any(_sample_factor) as _sample_factor
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND event_type = 'pageview'
-        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND ${SQL.AND(filters)}
-      GROUP BY session_id
-    )
     SELECT
       entry_page as url,
-      uniq(session_id) * any(_sample_factor) as visitors
-    FROM session_first_pages
+      count() as visitors
+    FROM ${sessionSubQuery}
     GROUP BY entry_page
     ORDER BY visitors DESC
     LIMIT {limit:UInt64}
@@ -315,26 +309,20 @@ export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promi
 
 export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promise<TopExitPageRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_id', 'exit_page'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+    'session_end',
+  );
 
   const queryResponse = safeSql`
-    WITH session_last_pages AS (
-      SELECT
-        session_id,
-        argMax(url, timestamp) as exit_page,
-        any(_sample_factor) as _sample_factor
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND event_type = 'pageview'
-        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND ${SQL.AND(filters)}
-      GROUP BY session_id
-    )
     SELECT
       exit_page as url,
-      uniq(session_id) * any(_sample_factor) as visitors
-    FROM session_last_pages
+      count() as visitors
+    FROM ${sessionSubQuery}
     GROUP BY exit_page
     ORDER BY visitors DESC
     LIMIT {limit:UInt64}
