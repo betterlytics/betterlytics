@@ -132,18 +132,23 @@ export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promi
 
 export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<OperatingSystemRollupRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['os', 'os_version', 'visitor_id'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
+
   const query = safeSql`
-    SELECT os, os_version as version, uniq(visitor_id) * any(_sample_factor) as visitors, grouping(os_version) as is_rollup
-    FROM analytics.events ${sample}
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND os != ''
-      AND ${SQL.AND(BAQuery.getFilterQuery(queryFilters))}
-    GROUP BY GROUPING SETS ((os, os_version), (os))
-    HAVING (is_rollup = 0 AND version != '') OR is_rollup = 1
-    ORDER BY os ASC, is_rollup DESC, visitors DESC
-  `;
+      SELECT os, os_version as version, uniq(visitor_id) as visitors, grouping(os_version) as is_rollup
+      FROM ${sessionSubQuery}
+      WHERE os != ''
+      GROUP BY GROUPING SETS ((os, os_version), (os))
+      HAVING (is_rollup = 0 AND version != '') OR is_rollup = 1
+      ORDER BY os ASC, is_rollup DESC, visitors DESC
+    `;
 
   const result = await clickhouse
     .query(query.taggedSql, {
