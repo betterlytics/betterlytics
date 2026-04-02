@@ -5,54 +5,30 @@ import {
   DailySessionMetricsRow,
   DailySessionMetricsRowSchema,
 } from '@/entities/analytics/sessionMetrics.entities';
-import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-
-// url/event_type/custom_event_name don't exist on the sessions table at all. TODO: needs to be supported
-export const UNSUPPORTED_SESSION_FILTERS = ['url', 'event_type', 'custom_event_name'] as const;
-
-// AggregateFunction(argMin) columns: stored as binary states, finalized in SELECT.
-// Filters on these must use HAVING (which sees the finalized alias), not WHERE (which sees the binary state).
-export const SESSION_AGG_FINALIZE_COLS = new Set([
-  'referrer_source',
-  'referrer_source_name',
-  'referrer_search_term',
-  'referrer_url',
-  'utm_source',
-  'utm_medium',
-  'utm_campaign',
-  'utm_term',
-  'utm_content',
-]);
+import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
 
-  const unsupported = queryFilters.filter((f) => UNSUPPORTED_SESSION_FILTERS.includes(f.column as any));
-  if (unsupported.length > 0) {
-    throw new Error(
-      `getSessionMetrics does not support filters on: ${unsupported.map((f) => f.column).join(', ')}`,
-    );
-  }
-
-  const { fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+  const { fill, timeWrapper, granularityFunc, range } = BASessionQuery.getSessionStartRange(
     granularity,
     timezone,
     startDateTime,
     endDateTime,
   );
-  const simpleFilters = BAQuery.getFilterQuery(
-    queryFilters.filter((f) => !SESSION_AGG_FINALIZE_COLS.has(f.column)),
+  const { WHERE, HAVING, FINAL } = BASessionQuery.getSessionFilterQuery(
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
   );
-  const aggFilters = queryFilters.filter((f) => SESSION_AGG_FINALIZE_COLS.has(f.column));
-  const having =
-    aggFilters.length > 0 ? safeSql`HAVING ${SQL.AND(BAQuery.getFilterQuery(aggFilters))}` : safeSql``;
 
   const queryResponse = timeWrapper(
     safeSql`
       SELECT
-        ${granularityFunc('custom_date')} AS date,
+        ${granularityFunc('session_start')} AS date,
         count() AS sessions,
         countIf(pageview_count > 1) AS sessions_with_multiple_page_views,
         sum(pageview_count) AS number_of_page_views,
@@ -65,24 +41,15 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
           round(number_of_page_views / sessions, 1), 0) AS pages_per_session
       FROM (
         SELECT
-          session_created_at AS custom_date,
+          session_created_at,
           session_start,
           session_end,
-          pageview_count,
-          finalizeAggregation(referrer_source) AS referrer_source,
-          finalizeAggregation(referrer_source_name) AS referrer_source_name,
-          finalizeAggregation(referrer_search_term) AS referrer_search_term,
-          finalizeAggregation(referrer_url) AS referrer_url,
-          finalizeAggregation(utm_source) AS utm_source,
-          finalizeAggregation(utm_medium) AS utm_medium,
-          finalizeAggregation(utm_campaign) AS utm_campaign,
-          finalizeAggregation(utm_term) AS utm_term,
-          finalizeAggregation(utm_content) AS utm_content
-        FROM analytics.sessions FINAL
+          pageview_count
+        FROM analytics.sessions ${FINAL}
         WHERE site_id = {site_id:String}
-          AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(simpleFilters)}
-        ${having}
+          AND ${range}
+          AND ${SQL.AND(WHERE)}
+        HAVING ${SQL.AND(HAVING)}
       )
       GROUP BY date
       ORDER BY date ASC ${fill}

@@ -8,6 +8,17 @@ import { DateTimeString } from '@/types/dates';
 
 // Filters
 const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
+const SESSION_AGGREGATE_FILTERS: QueryFilter['column'][] = [
+  'referrer_source',
+  'referrer_source_name',
+  'referrer_search_term',
+  'referrer_url',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+];
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -44,30 +55,82 @@ function getSessionFilterQuery(
   const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
 
   if (filters.length === 0) {
-    return [safeSql`1=1`];
+    return {
+      WHERE: [safeSql`1=1`],
+      HAVING: [safeSql`1=1`],
+      FINAL: safeSql``,
+    };
   }
 
-  const sessionsFilters = filters.filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column) === false);
   const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
+  const hasAggregateFilters = filters.some((filter) => SESSION_AGGREGATE_FILTERS.includes(filter.column));
+  const hasBaseFilters = filters.some(
+    (filter) =>
+      MAIN_TABLE_FILTERS.includes(filter.column) === false &&
+      SESSION_AGGREGATE_FILTERS.includes(filter.column) === false,
+  );
 
-  const sessionQueries = sessionsFilters.map((filter, index) => buildSessionTableFilterQuery(filter, index));
+  const sessionWHEREFilters = hasBaseFilters
+    ? filters
+        .filter(
+          (filter) =>
+            MAIN_TABLE_FILTERS.includes(filter.column) === false &&
+            SESSION_AGGREGATE_FILTERS.includes(filter.column) === false,
+        )
+        .map((filter) => buildFilterQuery(filter))
+    : [safeSql`1=1`];
+  const sessionFinalizeAggregationFilters = hasAggregateFilters
+    ? filters
+        .filter((filter) => SESSION_AGGREGATE_FILTERS.includes(filter.column))
+        .map((filter) => buildSessionAggregateTableFilterQuery(filter))
+    : [safeSql`1=1`];
+
+  const FINAL = hasAggregateFilters ? safeSql`FINAL` : safeSql``;
 
   if (hasEventsFilters) {
-    const eventsQueries = filters.map((filter, index) => buildSessionTableFilterQuery(filter, index));
+    const eventsQueries = filters.map((filter) => buildFilterQuery(filter));
     const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
-    return [...sessionQueries, eventsQuery];
+    return {
+      WHERE: [...sessionWHEREFilters, eventsQuery],
+      HAVING: sessionFinalizeAggregationFilters,
+      FINAL,
+    };
   }
 
-  return sessionQueries;
+  return {
+    WHERE: sessionWHEREFilters,
+    HAVING: sessionFinalizeAggregationFilters,
+    FINAL,
+  };
 }
 
-function buildSessionTableFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
+function hashFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
+  const str = JSON.stringify(filter);
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h).toString(16);
+}
+
+function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
   const column = SQL.Unsafe(filter.column);
-  const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
+  const filterHash = hashFilterQuery(filter);
+  const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
   return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+}
+
+function buildSessionAggregateTableFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
+  const column = SQL.Unsafe(filter.column);
+  const filterHash = hashFilterQuery(filter);
+  const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
+  const quantifier = filter.operator.quantifier;
+  const operator = filter.operator.operater;
+
+  return safeSql`${quantifier}(pattern -> finalizeAggregation(${column}) ${operator} pattern, ${values})`;
 }
 
 // Utility for granularity
@@ -90,7 +153,7 @@ const granularityIntervalMapper = {
   minute_1: GranularityIntervalSchema.enum['1 MINUTE'],
 } as const;
 
-const DateColumnSchema = z.enum(['timestamp', 'date', 'custom_date']);
+const DateColumnSchema = z.enum(['date', 'session_start', 'session_end', 'session_created_at']);
 
 function getGranularityInterval(granularity: GranularityRangeValues) {
   const clickhouseInterval = granularityIntervalMapper[granularity];
