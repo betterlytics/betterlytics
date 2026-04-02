@@ -292,7 +292,6 @@ function getSessionStartRange(
 }
 
 export const BASessionQuery = {
-  getSessionFilterQuery,
   getSessionStartRange,
   getSessionTableSubQuery,
 };
