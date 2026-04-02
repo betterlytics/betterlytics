@@ -7,20 +7,22 @@ import {
   RangeSessionMetrics,
   RangeSessionMetricsSchema,
 } from '@/entities/analytics/sessionMetrics.entities';
-import { safeSql, SQL } from '@/lib/safe-sql';
+import { safeSql } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
 
-  const { fill, timeWrapper, granularityFunc, range } = BASessionQuery.getSessionStartRange(
+  const { fill, timeWrapper, granularityFunc } = BASessionQuery.getSessionStartRange(
     granularity,
     timezone,
     startDateTime,
     endDateTime,
   );
-  const { WHERE, HAVING, FINAL } = BASessionQuery.getSessionFilterQuery(
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_created_at', 'session_start', 'session_end', 'pageview_count'],
     queryFilters,
     siteId,
     startDateTime,
@@ -30,7 +32,7 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
   const queryResponse = timeWrapper(
     safeSql`
       SELECT
-        ${granularityFunc('session_start')} AS date,
+        ${granularityFunc('session_created_at')} AS date,
         count() AS sessions,
         countIf(pageview_count > 1) AS sessions_with_multiple_page_views,
         sum(pageview_count) AS number_of_page_views,
@@ -41,18 +43,7 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
            100 * (sessions - sessions_with_multiple_page_views) / sessions, 0) AS bounce_rate,
         if(number_of_page_views > 0,
           round(number_of_page_views / sessions, 1), 0) AS pages_per_session
-      FROM (
-        SELECT
-          session_created_at,
-          session_start,
-          session_end,
-          pageview_count
-        FROM analytics.sessions ${FINAL}
-        WHERE site_id = {site_id:String}
-          AND ${range}
-          AND ${SQL.AND(WHERE)}
-        HAVING ${SQL.AND(HAVING)}
-      )
+      FROM ${sessionSubQuery}
       GROUP BY date
       ORDER BY date ASC ${fill}
       LIMIT 10080
@@ -76,7 +67,8 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
 export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<RangeSessionMetrics> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  const { WHERE, HAVING, FINAL } = BASessionQuery.getSessionFilterQuery(
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_start', 'session_end', 'pageview_count'],
     queryFilters,
     siteId,
     startDateTime,
@@ -95,17 +87,7 @@ export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<Ra
          100 * (sessions - sessions_with_multiple_page_views) / sessions, 0) AS bounce_rate,
       if(number_of_page_views > 0,
         round(number_of_page_views / sessions, 1), 0) AS pages_per_session
-    FROM (
-      SELECT
-        session_start,
-        session_end,
-        pageview_count
-      FROM analytics.sessions ${FINAL}
-      WHERE site_id = {site_id:String}
-        AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
-        AND ${SQL.AND(WHERE)}
-      HAVING ${SQL.AND(HAVING)}
-    )
+    FROM ${sessionSubQuery}
     LIMIT 1
   `;
 

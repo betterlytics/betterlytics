@@ -8,7 +8,7 @@ import { DateTimeString } from '@/types/dates';
 
 // Filters
 const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
-const SESSION_AGGREGATE_FILTERS: QueryFilter['column'][] = [
+const SESSION_AGGREGATE_FILTERS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
   'referrer_source',
   'referrer_source_name',
   'referrer_search_term',
@@ -37,6 +37,78 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
   values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
+
+// Selectors
+const SESSIONS_TABLE_SELECTABLE_COLUMNS = [
+  'site_id',
+  'session_created_at',
+  'session_id',
+  'session_start',
+  'session_end',
+  'pageview_count',
+  'entry_page',
+  'exit_page',
+  'visitor_id',
+  'domain',
+  'device_type',
+  'browser',
+  'browser_version',
+  'os',
+  'os_version',
+  'country_code',
+  'subdivision_code',
+  'city',
+  'referrer_source',
+  'referrer_source_name',
+  'referrer_search_term',
+  'referrer_url',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+] as const;
+
+// Utilities for selectors
+const SESSIONS_TABLE_SELECT_VALIDATOR = z.enum(SESSIONS_TABLE_SELECTABLE_COLUMNS);
+type SessionsTableSelectableColumn = z.infer<typeof SESSIONS_TABLE_SELECT_VALIDATOR>;
+
+function getSessionSelector(columns: SessionsTableSelectableColumn[]) {
+  if (columns.length === 0) {
+    return [safeSql`1`];
+  }
+  const parsedSelectors = SESSIONS_TABLE_SELECT_VALIDATOR.array().parse(columns);
+  return parsedSelectors.map((sel) => buildSessionSelectColumn(sel));
+}
+
+function buildSessionSelectColumn(column: SessionsTableSelectableColumn) {
+  const columnSql = SQL.Unsafe(column);
+  if (SESSION_AGGREGATE_FILTERS.includes(column)) {
+    return safeSql`finalizeAggregation(${columnSql}) as ${columnSql}`;
+  }
+  return columnSql;
+}
+
+/**
+ * Build subquery for session table
+ */
+function getSessionTableSubQuery(
+  columns: SessionsTableSelectableColumn[],
+  queryFilters: QueryFilter[],
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const selectors = getSessionSelector(columns);
+  const { WHERE, HAVING, FINAL } = getSessionFilterQuery(queryFilters, siteId, startDate, endDate);
+
+  return safeSql`
+    ( SELECT ${SQL.SEPARATOR(selectors)}
+      FROM analytics.sessions ${FINAL}
+      WHERE site_id = ${SQL.String({ siteId })} AND session_created_at BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(WHERE)}
+      HAVING ${SQL.AND(HAVING)} )
+  `;
+}
 
 /**
  * Build query filters using `safeSql`
@@ -185,7 +257,7 @@ function getSessionStartRange(
 
   const interval = getGranularityInterval(granularity);
 
-  const range = safeSql`session_start BETWEEN ${start} AND ${end}`;
+  const range = safeSql`session_created_at BETWEEN ${start} AND ${end}`;
 
   // Create the fill
   const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
@@ -217,4 +289,5 @@ function getSessionStartRange(
 export const BASessionQuery = {
   getSessionFilterQuery,
   getSessionStartRange,
+  getSessionTableSubQuery,
 };
