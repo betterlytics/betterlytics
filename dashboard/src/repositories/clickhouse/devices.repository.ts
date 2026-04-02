@@ -20,23 +20,23 @@ import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['visitor_id', 'device_type'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
 
   const query = safeSql`
-    SELECT device_type, uniq(visitor_id) * any(_sample_factor) as visitors
-    FROM analytics.events ${sample}
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+    SELECT device_type, uniq(visitor_id) as visitors
+    FROM ${sessionSubQuery}
     GROUP BY device_type
     ORDER BY visitors DESC
   `;
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-    })
-    .toPromise()) as any[];
+
+  const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
 
   const mappedResults = result.map((row) => ({
     device_type: row.device_type,
