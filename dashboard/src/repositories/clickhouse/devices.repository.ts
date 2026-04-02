@@ -16,6 +16,7 @@ import {
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
@@ -74,14 +75,19 @@ export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<Brows
 
 export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserRollupRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['browser', 'browser_version', 'visitor_id'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
+
   const query = safeSql`
-    SELECT browser, browser_version as version, uniq(visitor_id) * any(_sample_factor) as visitors, grouping(browser_version) as is_rollup
-    FROM analytics.events ${sample}
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND browser != ''
-      AND ${SQL.AND(BAQuery.getFilterQuery(queryFilters))}
+    SELECT browser, browser_version as version, uniq(visitor_id) as visitors, grouping(browser_version) as is_rollup
+    FROM ${sessionSubQuery}
+    WHERE browser != ''
     GROUP BY GROUPING SETS ((browser, browser_version), (browser))
     HAVING (is_rollup = 0 AND version != '') OR is_rollup = 1
     ORDER BY browser ASC, is_rollup DESC, visitors DESC
