@@ -76,19 +76,12 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
 export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<RangeSessionMetrics> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  const unsupported = queryFilters.filter((f) => UNSUPPORTED_SESSION_FILTERS.includes(f.column as any));
-  if (unsupported.length > 0) {
-    throw new Error(
-      `getSessionRangeMetrics does not support filters on: ${unsupported.map((f) => f.column).join(', ')}`,
-    );
-  }
-
-  const simpleFilters = BAQuery.getFilterQuery(
-    queryFilters.filter((f) => !SESSION_AGG_FINALIZE_COLS.has(f.column)),
+  const { WHERE, HAVING, FINAL } = BASessionQuery.getSessionFilterQuery(
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
   );
-  const aggFilters = queryFilters.filter((f) => SESSION_AGG_FINALIZE_COLS.has(f.column));
-  const having =
-    aggFilters.length > 0 ? safeSql`HAVING ${SQL.AND(BAQuery.getFilterQuery(aggFilters))}` : safeSql``;
 
   const queryResponse = safeSql`
     SELECT
@@ -106,21 +99,12 @@ export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<Ra
       SELECT
         session_start,
         session_end,
-        pageview_count,
-        finalizeAggregation(referrer_source) AS referrer_source,
-        finalizeAggregation(referrer_source_name) AS referrer_source_name,
-        finalizeAggregation(referrer_search_term) AS referrer_search_term,
-        finalizeAggregation(referrer_url) AS referrer_url,
-        finalizeAggregation(utm_source) AS utm_source,
-        finalizeAggregation(utm_medium) AS utm_medium,
-        finalizeAggregation(utm_campaign) AS utm_campaign,
-        finalizeAggregation(utm_term) AS utm_term,
-        finalizeAggregation(utm_content) AS utm_content
-      FROM analytics.sessions FINAL
+        pageview_count
+      FROM analytics.sessions ${FINAL}
       WHERE site_id = {site_id:String}
         AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
-        AND ${SQL.AND(simpleFilters)}
-      ${having}
+        AND ${SQL.AND(WHERE)}
+      HAVING ${SQL.AND(HAVING)}
     )
     LIMIT 1
   `;
