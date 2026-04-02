@@ -3,39 +3,42 @@ import { DailyUniqueVisitorsRow, DailyUniqueVisitorsRowSchema } from '@/entities
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUniqueVisitorsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+  const { fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
     timezone,
     startDateTime,
     endDateTime,
   );
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['visitor_id', 'session_created_at'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
 
   const query = timeWrapper(
     safeSql`
-      WITH first_visitor_appearances AS (
+        WITH first_visitor_appearances AS (
+          SELECT
+            visitor_id,
+            min(session_created_at) as custom_date
+          FROM ${sessionSubQuery}
+          GROUP BY visitor_id
+        )
         SELECT
-          visitor_id,
-          min(timestamp) as custom_date,
-          any(_sample_factor) as _sample_factor
-        FROM analytics.events ${sample}
-        WHERE site_id = {site_id:String}
-          AND ${range}
-          AND ${SQL.AND(filters)}
-        GROUP BY visitor_id
-      )
-      SELECT
-        ${granularityFunc('custom_date')} as date,
-        uniq(visitor_id) * any(_sample_factor) as unique_visitors
-      FROM first_visitor_appearances
-      GROUP BY date
-      ORDER BY date ASC ${fill}
-      LIMIT 10080
-    `,
+          ${granularityFunc('custom_date')} as date,
+          uniq(visitor_id) as unique_visitors
+        FROM first_visitor_appearances
+        GROUP BY date
+        ORDER BY date ASC ${fill}
+        LIMIT 10080
+      `,
   );
 
   const result = (await clickhouse
