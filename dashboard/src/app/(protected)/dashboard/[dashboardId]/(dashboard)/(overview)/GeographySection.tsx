@@ -1,23 +1,28 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import LeafletMap from '@/components/map/LeafletMap';
-import type { getTopGeoVisitsAction, getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
+import type { getTopGeoVisitsAction } from '@/app/actions/analytics/geography.actions';
+import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
-import { use, useMemo } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
+import { GEO_LEVELS, type GeoLevel, type WorldMapResponse } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import GeographyLoading from '@/components/loading/GeographyLoading';
+
+const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
 type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
 
 type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
   topByGeoLevel: Record<GeoLevel, GeoTablePromise>;
 };
 
@@ -27,8 +32,27 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
   city: (value) => value,
 };
 
-export default function GeographySection({ worldMapPromise, topByGeoLevel }: GeographySectionProps) {
-  const worldMapData = use(worldMapPromise);
+function WorldMapContent({ dashboardId }: { dashboardId: string }) {
+  const query = useAnalyticsQuery();
+  const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
+
+  useEffect(() => {
+    getWorldMapDataAlpha2(dashboardId, query).then(setWorldMapData);
+  }, [dashboardId, query]);
+
+  return (
+    <div className='h-[280px] w-full'>
+      {worldMapData ? (
+        <LeafletMap {...worldMapData} showZoomControls={false} initialZoom={1} />
+      ) : (
+        <GeographyLoading />
+      )}
+    </div>
+  );
+}
+
+export default function GeographySection({ topByGeoLevel }: GeographySectionProps) {
+  const { dashboardId } = useParams<{ dashboardId: string }>();
   const countryData = use(topByGeoLevel.country_code);
   const subdivisionData = use(topByGeoLevel.subdivision_code);
   const cityData = use(topByGeoLevel.city);
@@ -86,11 +110,7 @@ export default function GeographySection({ worldMapPromise, topByGeoLevel }: Geo
           key: 'worldmap',
           label: t('tabs.worldMap'),
           data: [],
-          customContent: (
-            <div className='h-[280px] w-full'>
-              <LeafletMap {...worldMapData} showZoomControls={false} initialZoom={1} />
-            </div>
-          ),
+          customContent: <WorldMapContent dashboardId={dashboardId} />,
         },
       ]}
       footer={

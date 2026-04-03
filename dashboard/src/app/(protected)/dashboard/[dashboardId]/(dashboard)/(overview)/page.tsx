@@ -16,7 +16,6 @@ import {
   fetchTotalPageViewsAction,
   fetchUniqueVisitorsAction,
   getTopGeoVisitsAction,
-  getWorldMapDataAlpha2,
 } from '@/app/actions/index.actions';
 import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
@@ -41,10 +40,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   const enabledLevels = getEnabledGeoLevels();
 
   const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
-
-  const worldMapPromise = enabledLevels.includes('country_code')
-    ? getWorldMapDataAlpha2(dashboardId, query)
-    : Promise.resolve({ visitorData: [], compareData: [], maxVisitors: 0 });
 
   const topByGeoLevel = Object.fromEntries(
     GEO_LEVELS.map((level) => [
@@ -84,7 +79,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         </Suspense>
         {enabledLevels.length > 0 && (
           <Suspense fallback={<TableSkeleton />}>
-            <GeographySection worldMapPromise={worldMapPromise} topByGeoLevel={topByGeoLevel} />
+            <GeographySection topByGeoLevel={topByGeoLevel} />
           </Suspense>
         )}
         <Suspense fallback={<TableSkeleton />}>
