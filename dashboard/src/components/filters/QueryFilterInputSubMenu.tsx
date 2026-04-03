@@ -51,12 +51,21 @@ export function QueryFilterInputSubMenu({ label, icon, items, disabled, onSelect
         className='[&_svg:not([class*="text-"])]:text-muted-foreground gap-2'
         onPointerEnter={cancelSubClose}
         onPointerLeave={scheduleSubClose}
+        onClick={() => {
+          if (subOpen) setSubOpen(false);
+        }}
       >
         {icon}
         {label}
         {disabled && <span className='text-muted-foreground ml-auto text-xs'>{t('notAvailable')}</span>}
       </DropdownMenuSubTrigger>
-      <DropdownMenuSubContent onPointerEnter={cancelSubClose} onPointerLeave={scheduleSubClose}>
+      <DropdownMenuSubContent
+        onPointerEnter={cancelSubClose}
+        onPointerLeave={scheduleSubClose}
+        collisionPadding={16}
+        sticky='always'
+        className='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))] overflow-y-auto'
+      >
         {items.length > 0 ? (
           items.map((item) => (
             <DropdownMenuItem key={item.key} onSelect={() => onSelect(item.key)}>
