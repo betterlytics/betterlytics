@@ -92,6 +92,18 @@ const CAMPAIGN_DATA = {
   utm_content: ["banner_a", "banner_b", "sidebar", "footer", "hero", ""],
 };
 
+const GLOBAL_PROPERTIES_POOL = [
+  { plan: "free", region: "us-east", theme: "light", locale: "en", role: "viewer" },
+  { plan: "premium", region: "eu-west", theme: "dark", locale: "de", role: "editor", org_id: "org-acme" },
+  { plan: "enterprise", region: "ap-south", theme: "system", locale: "ja", role: "admin", org_id: "org-globex", app_version: "2.1.0" },
+  { plan: "premium", environment: "production", browser_lang: "en-US", signup_source: "google", referral_code: "REF123", team_size: "10" },
+  { plan: "free", environment: "staging", app_version: "3.0.0-beta", feature_flags: "beta_ui", onboarding_step: "3", user_tier: "trial" },
+  { plan: "enterprise", department: "engineering", cost_center: "CC-100", project: "atlas", sprint: "24", priority: "high" },
+  { plan: "premium", country: "US", currency: "USD", timezone: "America/New_York", device_class: "desktop", connection_type: "wifi" },
+  {},
+  {},
+];
+
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -213,6 +225,7 @@ console.log("[+] Setting up...");
 const users = new Array(NUMBER_OF_USERS).fill(0).map(() => ({
   visitor_id: uuidv4(),
   ip: getRandomPublicIp(),
+  globalProperties: getRandomElement(GLOBAL_PROPERTIES_POOL),
 }));
 
 // Generate unique campaign IDs (short UUIDs)
@@ -236,6 +249,8 @@ function getExtraPayload(payload) {
   };
 }
 
+const usersByVisitorId = new Map(users.map((u) => [u.visitor_id, u]));
+
 const events = new Array(NUMBER_OF_EVENTS)
   .fill(0)
   .map(() => {
@@ -258,7 +273,14 @@ const events = new Array(NUMBER_OF_EVENTS)
   })
   .sort((a, b) => a.timestamp - b.timestamp)
   .map((payload) => getExtraPayload(payload))
-  .map((payload) => ({ ...BASE_PAYLOAD, ...payload }));
+  .map((payload) => {
+    const gp = usersByVisitorId.get(payload.visitor_id)?.globalProperties ?? {};
+    return {
+      ...BASE_PAYLOAD,
+      ...payload,
+      ...(Object.keys(gp).length > 0 ? { global_properties: gp } : {}),
+    };
+  });
 
 console.log("[+] Running...");
 console.time("events");

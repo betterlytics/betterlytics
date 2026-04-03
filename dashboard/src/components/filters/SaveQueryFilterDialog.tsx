@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useCreateSavedFilter } from '@/hooks/use-saved-filters';
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type QueryFilter, type FilterColumn } from '@/entities/analytics/filter.entities';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { baEvent } from '@/lib/ba-event';
 
@@ -32,7 +32,7 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
       await createSavedFilterMutation.mutateAsync({
         name: filterName.trim(),
         entries: validFilters.map((f) => ({
-          column: f.column,
+          column: f.column as FilterColumn,
           operator: f.operator,
           values: f.values,
         })),

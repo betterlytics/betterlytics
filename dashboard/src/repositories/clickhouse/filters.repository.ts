@@ -37,3 +37,68 @@ export async function getFilterDistinctValues(
 
   return rows.map((r) => r.value);
 }
+
+export async function getGlobalPropertyKeys(
+  siteQuery: BASiteQuery,
+  search?: string,
+  limit: number = 50,
+): Promise<string[]> {
+  const { siteId, startDateTime, endDateTime } = siteQuery;
+
+  const searchClause =
+    search && search.trim()
+      ? safeSql`HAVING key ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
+      : safeSql``;
+
+  const query = safeSql`
+    SELECT DISTINCT arrayJoin(JSONExtractKeys(global_properties_json)) AS key
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+      AND global_properties_json != ''
+    ${searchClause}
+    ORDER BY key
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+    })
+    .toPromise()) as Array<{ key: string }>;
+
+  return rows.map((r) => r.key);
+}
+
+export async function getGlobalPropertyValues(
+  siteQuery: BASiteQuery,
+  propertyKey: string,
+  search?: string,
+  limit: number = 50,
+): Promise<string[]> {
+  const { siteId, startDateTime, endDateTime } = siteQuery;
+
+  const searchClause =
+    search && search.trim()
+      ? safeSql`AND value ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
+      : safeSql``;
+
+  const query = safeSql`
+    SELECT DISTINCT JSONExtractString(global_properties_json, ${SQL.String({ prop_key: propertyKey })}) AS value
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+      AND global_properties_json != ''
+      AND value != ''
+      ${searchClause}
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+    })
+    .toPromise()) as Array<{ value: string }>;
+
+  return rows.map((r) => r.value);
+}

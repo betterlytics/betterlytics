@@ -63,6 +63,13 @@
   // Store current URL for SPA navigation
   var currentPath = window.location.pathname;
 
+  var GP_KEY = "betterlytics:global_properties";
+  var globalProperties = {};
+  try {
+    var stored = sessionStorage.getItem(GP_KEY);
+    if (stored) globalProperties = JSON.parse(stored);
+  } catch (e) {}
+
   // Scroll depth tracking state
   var currentUrl = null;
   var maxScrollDepthPx = 0;
@@ -91,24 +98,30 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
+    var payload = {
+      site_id: siteId,
+      event_name: eventName,
+      is_custom_event: false,
+      properties: "{}",
+      url: url,
+      referrer: referrer,
+      user_agent: userAgent,
+      screen_resolution: screenResolution,
+      timestamp: Math.floor(Date.now() / 1000),
+      ...overrides,
+    };
+
+    if (Object.keys(globalProperties).length > 0) {
+      payload.global_properties = Object.assign({}, globalProperties);
+    }
+
     fetch(serverUrl, {
       method: "POST",
       keepalive: true,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        site_id: siteId,
-        event_name: eventName,
-        is_custom_event: false,
-        properties: "{}",
-        url: url,
-        referrer: referrer,
-        user_agent: userAgent,
-        screen_resolution: screenResolution,
-        timestamp: Math.floor(Date.now() / 1000),
-        ...overrides,
-      }),
+      body: JSON.stringify(payload),
     })
       .then((res) => res.text())
       .catch(function () {});
@@ -124,6 +137,24 @@
         is_custom_event: true,
         properties: JSON.stringify(eventProps),
       }),
+    setGlobalProperties: function (props) {
+      if (props == null || typeof props !== "object" || Array.isArray(props)) {
+        return console.error("Betterlytics: setGlobalProperties requires a flat object");
+      }
+      globalProperties = {};
+      var keys = Object.keys(props);
+      for (var i = 0; i < keys.length; i++) {
+        var val = props[keys[i]];
+        var type = typeof val;
+        if (type === "string" || type === "number" || type === "boolean") {
+          globalProperties[keys[i]] = val;
+        }
+      }
+      try { sessionStorage.setItem(GP_KEY, JSON.stringify(globalProperties)); } catch (e) {}
+    },
+    getGlobalProperties: function () {
+      return Object.assign({}, globalProperties);
+    },
     setReplayConsent: function (consented) {
       var CONSENT_KEY = "betterlytics:replay_consent";
       try {

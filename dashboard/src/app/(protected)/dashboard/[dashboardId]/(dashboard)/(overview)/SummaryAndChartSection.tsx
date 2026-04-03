@@ -1,7 +1,12 @@
 'use client';
 import { useState, useCallback, use } from 'react';
 import { formatDuration } from '@/utils/dateFormatters';
-import { fetchSummaryAndChartDataAction } from '@/app/actions/index.actions';
+import {
+  fetchSummaryStatsAction,
+  fetchUniqueVisitorsAction,
+  fetchTotalPageViewsAction,
+  fetchSessionMetricsAction,
+} from '@/app/actions/index.actions';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useLocale, useTranslations } from 'next-intl';
@@ -10,11 +15,18 @@ import { formatNumber, formatPercentage } from '@/utils/formatters';
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
 type SummaryAndChartSectionProps = {
-  data: Promise<Awaited<ReturnType<typeof fetchSummaryAndChartDataAction>>>;
+  data: Promise<
+    [
+      Awaited<ReturnType<typeof fetchSummaryStatsAction>>,
+      visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>,
+      pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>,
+      sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>,
+    ]
+  >;
 };
 
 export default function SummaryAndChartSection({ data }: SummaryAndChartSectionProps) {
-  const summaryData = use(data);
+  const [summary, visitorsData, pageviewsData, sessionMetricsData] = use(data);
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
   const locale = useLocale();
   const t = useTranslations('dashboard.metrics');
@@ -26,60 +38,60 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
   const cards: SummaryCardData[] = [
     {
       title: t('uniqueVisitors'),
-      value: formatNumber(summaryData.uniqueVisitors, locale),
-      rawChartData: summaryData.visitorsChartData,
+      value: formatNumber(summary.uniqueVisitors, locale),
+      rawChartData: summary.visitorsChartData,
       valueField: 'unique_visitors',
-      comparePercentage: summaryData.compareValues.uniqueVisitors,
+      comparePercentage: summary.compareValues.uniqueVisitors,
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'visitors',
       onClick: () => handleMetricChange('visitors'),
     },
     {
       title: t('totalPageviews'),
-      value: formatNumber(summaryData.pageviews, locale),
-      rawChartData: summaryData.pageviewsChartData,
+      value: formatNumber(summary.pageviews, locale),
+      rawChartData: summary.pageviewsChartData,
       valueField: 'views',
-      comparePercentage: summaryData.compareValues.pageviews,
+      comparePercentage: summary.compareValues.pageviews,
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'pageviews',
       onClick: () => handleMetricChange('pageviews'),
     },
     {
       title: t('sessions'),
-      value: formatNumber(summaryData.sessions, locale),
-      rawChartData: summaryData.sessionsChartData,
+      value: formatNumber(summary.sessions, locale),
+      rawChartData: summary.sessionsChartData,
       valueField: 'sessions',
-      comparePercentage: summaryData.compareValues.sessions,
+      comparePercentage: summary.compareValues.sessions,
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'sessions',
       onClick: () => handleMetricChange('sessions'),
     },
     {
       title: t('pagesPerSession'),
-      value: formatNumber(summaryData.pagesPerSession, locale),
-      rawChartData: summaryData.pagesPerSessionChartData,
+      value: formatNumber(summary.pagesPerSession, locale),
+      rawChartData: summary.pagesPerSessionChartData,
       valueField: 'pages_per_session',
-      comparePercentage: summaryData.compareValues.pagesPerSession,
+      comparePercentage: summary.compareValues.pagesPerSession,
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'pagesPerSession',
       onClick: () => handleMetricChange('pagesPerSession'),
     },
     {
       title: t('avgVisitDuration'),
-      value: formatDuration(summaryData.avgVisitDuration, locale),
-      rawChartData: summaryData.avgVisitDurationChartData,
+      value: formatDuration(summary.avgVisitDuration, locale),
+      rawChartData: summary.avgVisitDurationChartData,
       valueField: 'avg_visit_duration',
-      comparePercentage: summaryData.compareValues.avgVisitDuration,
+      comparePercentage: summary.compareValues.avgVisitDuration,
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'avgDuration',
       onClick: () => handleMetricChange('avgDuration'),
     },
     {
       title: t('bounceRate'),
-      value: formatPercentage(summaryData.bounceRate ?? 0, locale),
-      rawChartData: summaryData.bounceRateChartData,
+      value: formatPercentage(summary.bounceRate ?? 0, locale),
+      rawChartData: summary.bounceRateChartData,
       valueField: 'bounce_rate',
-      comparePercentage: summaryData.compareValues.bounceRate,
+      comparePercentage: summary.compareValues.bounceRate,
       chartColor: 'var(--chart-1)',
       isActive: activeMetric === 'bounceRate',
       onClick: () => handleMetricChange('bounceRate'),
@@ -90,9 +102,9 @@ export default function SummaryAndChartSection({ data }: SummaryAndChartSectionP
     <div className='space-y-6'>
       <OverviewChartSection
         activeMetric={activeMetric}
-        visitorsData={summaryData.visitorsAreaChart}
-        pageviewsData={summaryData.pageviewsAreaChart}
-        sessionMetricsData={summaryData.sessionMetrics}
+        visitorsData={visitorsData}
+        pageviewsData={pageviewsData}
+        sessionMetricsData={sessionMetricsData}
         cards={cards}
       />
     </div>

@@ -1,4 +1,13 @@
-import { FilterColumn, FilterOperator, QueryFilter } from '@/entities/analytics/filter.entities';
+import {
+  FilterColumn,
+  FilterOperator,
+  QueryFilter,
+  StaticFilterColumn,
+  toGlobalPropertyColumn,
+  isGlobalPropertyFilter,
+  getGlobalPropertyKey,
+} from '@/entities/analytics/filter.entities';
+import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
 import {
   Select,
   SelectContent,
@@ -8,13 +17,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { QueryFilterInputSubMenu } from './QueryFilterInputSubMenu';
 import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
   Building2Icon,
   CableIcon,
+  ChevronDownIcon,
   CompassIcon,
   EarthIcon,
   ExternalLinkIcon,
@@ -27,6 +50,7 @@ import {
   StepBackIcon,
   SunsetIcon,
   TabletSmartphoneIcon,
+  TagsIcon,
   TextCursorInputIcon,
   TextSearchIcon,
   Trash2,
@@ -36,6 +60,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+
+const DEMO_ALLOWED_COLUMNS = new Set<FilterColumn>(['url', 'device_type']);
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -54,7 +80,15 @@ export function QueryFilterInputRow<TEntity>({
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
-  const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
+  const dashboardId = useDashboardId();
+  const analyticsQuery = useAnalyticsQuery();
+
+  const { data: globalPropertyKeys = [] } = useQuery({
+    queryKey: ['global-property-keys', analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
+    queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
   const filterColumnRef = useRef<string>(filter.column);
   useEffect(() => {
     if (filter.column !== filterColumnRef.current) {
@@ -63,40 +97,60 @@ export function QueryFilterInputRow<TEntity>({
     }
   }, [filter.column]);
 
+  const { category, label: columnLabel } = getColumnDisplay(filter.column, t);
+
   return (
-    <div className='grid grid-cols-12 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
-      <Select
-        value={filter.column}
-        onValueChange={(column: FilterColumn) => {
-          if (isDemo && !demoAllowedColumns.has(column)) return;
-          onFilterUpdate({ ...filter, column });
-        }}
-      >
-        <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent
-          align={'start'}
-          position={'popper'}
-          className={cn('w-[--radix-select-trigger-width]', isMobile && 'max-h-72')}
-        >
-          <SelectGroup>
-            <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-              const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
-              return (
-                <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>
-                  {column.icon}
-                  {t(`columns.${column.value}`)}
-                  {disabled && (
-                    <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
-                  )}
-                </SelectItem>
-              );
-            })}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+    <div className='grid grid-cols-12 items-end gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+      <div className='col-span-8 flex flex-col md:col-span-4'>
+        {category && (
+          <span className='text-muted-foreground/60 mb-0.5 px-1 text-xs leading-none'>
+            {category}
+          </span>
+        )}
+        <DropdownMenu modal>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                'border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*="text-"])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs outline-none focus-visible:ring-[3px]',
+              )}
+            >
+              <span className='flex items-center gap-2 truncate'>{columnLabel}</span>
+              <ChevronDownIcon className='size-4 opacity-50' />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='start' className={cn('w-56', isMobile && 'max-h-72')}>
+            <DropdownMenuLabel>{t('type')}</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+                const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value as FilterColumn);
+                return (
+                  <DropdownMenuItem
+                    key={column.value}
+                    disabled={disabled}
+                    onSelect={() => onFilterUpdate({ ...filter, column: column.value as FilterColumn })}
+                  >
+                    {column.icon}
+                    {t(`columns.${column.value}`)}
+                    {disabled && (
+                      <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
+                    )}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <QueryFilterInputSubMenu
+              label={t('globalProperties', { count: 2 })}
+              icon={<TagsIcon className='size-4' />}
+              items={globalPropertyKeys.map((key) => ({ key, label: key }))}
+              disabled={isDemo}
+              onSelect={(key) =>
+                onFilterUpdate({ ...filter, column: toGlobalPropertyColumn(key) as FilterColumn })
+              }
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <Select
         value={filter.operator}
         onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
@@ -134,7 +188,22 @@ export function QueryFilterInputRow<TEntity>({
   );
 }
 
-type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: string }[];
+type ColumnDisplay = { category?: string; label: string };
+
+function getColumnDisplay(
+  column: string,
+  t: ReturnType<typeof useTranslations<'components.filters'>>,
+): ColumnDisplay {
+  if (isGlobalPropertyFilter(column)) {
+    return {
+      category: t('globalProperties', { count: 1 }),
+      label: getGlobalPropertyKey(column) || '...',
+    };
+  }
+  return { label: t(`columns.${column}` as Parameters<typeof t>[0]) };
+}
+
+type FilterColumnSelectOptions = { value: StaticFilterColumn; icon: ReactNode; label: string }[];
 
 export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },

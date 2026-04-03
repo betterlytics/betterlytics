@@ -1,6 +1,6 @@
 'server only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { QueryFilter, QueryFilterSchema, isGlobalPropertyFilter, getGlobalPropertyKey } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
@@ -46,11 +46,16 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
-  const column = SQL.Unsafe(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
+  if (isGlobalPropertyFilter(filter.column)) {
+    const key = SQL.String({ [`gp_key_${filterIndex}`]: getGlobalPropertyKey(filter.column) });
+    return safeSql`${quantifier}(pattern -> JSONExtractString(global_properties_json, ${key}) ${operator} pattern, ${values})`;
+  }
+
+  const column = SQL.Unsafe(filter.column);
   return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
 }
 

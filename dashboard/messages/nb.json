@@ -2364,6 +2364,9 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "globalProperties": "{count, plural, one {Global egenskap} other {Globale egenskaper}}",
+      "selectProperty": "Velg egenskap",
+      "noProperties": "Ingen egenskaper funnet",
       "namePlaceholder": "Angi trinnnavn",
       "columns": {
         "url": "URL-adresse",

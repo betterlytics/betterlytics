@@ -3,7 +3,11 @@
 import { useMemo } from 'react';
 import InteractiveChart from '@/components/InteractiveChart';
 import { formatDuration } from '@/utils/dateFormatters';
-import { type fetchSummaryAndChartDataAction } from '@/app/actions/index.actions';
+import {
+  type fetchSessionMetricsAction,
+  type fetchTotalPageViewsAction,
+  type fetchUniqueVisitorsAction,
+} from '@/app/actions/index.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -21,8 +25,6 @@ interface MetricConfig {
   formatValue?: (value: number, locale?: SupportedLanguages) => string;
 }
 
-type SummaryAndChartData = Awaited<ReturnType<typeof fetchSummaryAndChartDataAction>>;
-
 export default function OverviewChartSection({
   activeMetric,
   visitorsData,
@@ -31,9 +33,9 @@ export default function OverviewChartSection({
   cards,
 }: {
   activeMetric: ActiveMetric;
-  visitorsData: SummaryAndChartData['visitorsAreaChart'];
-  pageviewsData: SummaryAndChartData['pageviewsAreaChart'];
-  sessionMetricsData: SummaryAndChartData['sessionMetrics'];
+  visitorsData: Awaited<ReturnType<typeof fetchUniqueVisitorsAction>>;
+  pageviewsData: Awaited<ReturnType<typeof fetchTotalPageViewsAction>>;
+  sessionMetricsData: Awaited<ReturnType<typeof fetchSessionMetricsAction>>;
   cards?: SummaryCardData[];
 }) {
   const t = useTranslations('dashboard');

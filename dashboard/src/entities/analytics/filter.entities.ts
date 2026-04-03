@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const FILTER_COLUMNS = [
+export const STATIC_FILTER_COLUMNS = [
   'url',
   'domain',
   'device_type',
@@ -24,13 +24,36 @@ export const FILTER_COLUMNS = [
 
 export const FILTER_OPERATORS = ['=', '!='] as const;
 
+export const GLOBAL_PROPERTY_PREFIX = 'gp:';
+
+export function isGlobalPropertyFilter(column: string): boolean {
+  return column.startsWith(GLOBAL_PROPERTY_PREFIX);
+}
+
+export function getGlobalPropertyKey(column: string): string {
+  return column.slice(GLOBAL_PROPERTY_PREFIX.length);
+}
+
+export function toGlobalPropertyColumn(key: string): string {
+  return `${GLOBAL_PROPERTY_PREFIX}${key}`;
+}
+
+export const FilterColumnSchema = z.string().refine(
+  (val) => {
+    if (val.startsWith(GLOBAL_PROPERTY_PREFIX)) return true;
+    return (STATIC_FILTER_COLUMNS as readonly string[]).includes(val);
+  },
+  { message: 'Invalid filter column' },
+);
+
 export const QueryFilterSchema = z.object({
   id: z.string(),
-  column: z.enum(FILTER_COLUMNS),
+  column: FilterColumnSchema,
   operator: z.enum(FILTER_OPERATORS),
   values: z.array(z.string()),
 });
 
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
-export type FilterColumn = (typeof FILTER_COLUMNS)[number];
+export type StaticFilterColumn = (typeof STATIC_FILTER_COLUMNS)[number];
+export type FilterColumn = StaticFilterColumn | `gp:${string}`;
 export type FilterOperator = (typeof FILTER_OPERATORS)[number];

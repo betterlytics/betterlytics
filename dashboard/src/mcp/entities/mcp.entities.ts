@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { METRIC_KEYS } from '@/mcp/registry/metrics';
 import { DIMENSION_KEYS } from '@/mcp/registry/dimensions';
-import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
+import { STATIC_FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
 
@@ -34,7 +34,7 @@ export const McpDateRangeSchema = z.object({
 export const McpFiltersSchema = z
   .array(
     z.object({
-      column: z.enum(FILTER_COLUMNS),
+      column: z.enum(STATIC_FILTER_COLUMNS),
       operator: z.enum(FILTER_OPERATORS),
       values: z.array(z.string()).min(1),
     }),
