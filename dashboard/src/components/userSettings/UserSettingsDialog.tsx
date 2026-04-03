@@ -273,7 +273,7 @@ function UserSettingsDialogContent({
           <Button variant='outline' onClick={() => handleOpenChange(false)} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || !isSettingsChanged} className='cursor-pointer'>
+          <Button onClick={handleSave} disabled={isSaving || !isSettingsChanged || formData.name === ''} className='cursor-pointer'>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
