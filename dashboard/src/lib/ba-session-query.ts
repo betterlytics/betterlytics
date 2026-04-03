@@ -135,7 +135,7 @@ function getSessionFilterQuery(
     return {
       WHERE: [safeSql`1=1`],
       HAVING: [safeSql`1=1`],
-      FINAL: safeSql``,
+      FINAL: safeSql`FINAL`,
     };
   }
 
@@ -162,7 +162,7 @@ function getSessionFilterQuery(
         .map((filter) => buildSessionAggregateTableFilterQuery(filter))
     : [safeSql`1=1`];
 
-  const FINAL = hasAggregateFilters ? safeSql`FINAL` : safeSql``;
+  const FINAL = safeSql`FINAL`;
 
   if (hasEventsFilters) {
     const eventsQueries = filters.map((filter) => buildFilterQuery(filter));
