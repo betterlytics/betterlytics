@@ -103,15 +103,14 @@ function getSessionTableSubQuery(
   time: z.infer<typeof DateColumnSchema> = 'session_created_at',
 ) {
   const selectors = getSessionSelector(columns);
-  const { WHERE, HAVING, FINAL } = getSessionFilterQuery(queryFilters, siteId, startDate, endDate);
+  const filters = getSessionFilterQuery(queryFilters, siteId, startDate, endDate);
 
   const timeParsed = DateColumnSchema.parse(time);
 
   return safeSql`
     ( SELECT ${SQL.SEPARATOR(selectors)}
-      FROM analytics.sessions ${FINAL}
-      WHERE site_id = ${SQL.String({ siteId })} AND ${SQL.Unsafe(timeParsed)} BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(WHERE)}
-      HAVING ${SQL.AND(HAVING)} )
+      FROM analytics.sessions FINAL
+      WHERE site_id = ${SQL.String({ siteId })} AND ${SQL.Unsafe(timeParsed)} BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(filters)} )
   `;
 }
 
@@ -132,53 +131,26 @@ function getSessionFilterQuery(
   const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
 
   if (filters.length === 0) {
-    return {
-      WHERE: [safeSql`1=1`],
-      HAVING: [safeSql`1=1`],
-      FINAL: safeSql`FINAL`,
-    };
+    return [safeSql`1=1`];
   }
 
   const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
-  const hasTupleFilters = filters.some((filter) => SESSION_TUPLE_COLUMNS.includes(filter.column));
-  const hasBaseFilters = filters.some(
-    (filter) =>
-      MAIN_TABLE_FILTERS.includes(filter.column) === false &&
-      SESSION_TUPLE_COLUMNS.includes(filter.column) === false,
-  );
 
-  const sessionWHEREFilters = hasBaseFilters
-    ? filters
-        .filter(
-          (filter) =>
-            MAIN_TABLE_FILTERS.includes(filter.column) === false &&
-            SESSION_TUPLE_COLUMNS.includes(filter.column) === false,
-        )
-        .map((filter) => buildFilterQuery(filter))
-    : [safeSql`1=1`];
-  const sessionTupleFilters = hasTupleFilters
-    ? filters
-        .filter((filter) => SESSION_TUPLE_COLUMNS.includes(filter.column))
-        .map((filter) => buildSessionAggregateTableFilterQuery(filter))
-    : [safeSql`1=1`];
+  const sessionFilters = filters
+    .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.column))
+    .map((filter) => buildSessionFilterQuery(filter));
 
-  const FINAL = safeSql`FINAL`;
+  const WHERE = sessionFilters.length > 0 ? sessionFilters : [safeSql`1=1`];
 
   if (hasEventsFilters) {
-    const eventsQueries = filters.map((filter) => buildFilterQuery(filter));
+    const eventsQueries = filters
+      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column))
+      .map((filter) => buildFilterQuery(filter));
     const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
-    return {
-      WHERE: [...sessionWHEREFilters, eventsQuery],
-      HAVING: sessionTupleFilters,
-      FINAL,
-    };
+    return [...WHERE, eventsQuery];
   }
 
-  return {
-    WHERE: sessionWHEREFilters,
-    HAVING: sessionTupleFilters,
-    FINAL,
-  };
+  return WHERE;
 }
 
 function hashFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
@@ -200,14 +172,15 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
   return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
 }
 
-function buildSessionAggregateTableFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
-  const column = SQL.Unsafe(filter.column);
+function buildSessionFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
+  const isTupleColumn = SESSION_TUPLE_COLUMNS.includes(filter.column);
+  const column = SQL.Unsafe(isTupleColumn ? `${filter.column}.2` : filter.column);
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column}.2 ${operator} pattern, ${values})`;
+  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
 }
 
 // Utility for granularity
