@@ -63,12 +63,7 @@
   // Store current URL for SPA navigation
   var currentPath = window.location.pathname;
 
-  var GP_KEY = "betterlytics:global_properties";
   var globalProperties = {};
-  try {
-    var stored = sessionStorage.getItem(GP_KEY);
-    if (stored) globalProperties = JSON.parse(stored);
-  } catch (e) {}
 
   // Scroll depth tracking state
   var currentUrl = null;
@@ -150,7 +145,6 @@
           globalProperties[keys[i]] = val;
         }
       }
-      try { sessionStorage.setItem(GP_KEY, JSON.stringify(globalProperties)); } catch (e) {}
     },
     getGlobalProperties: function () {
       return Object.assign({}, globalProperties);
