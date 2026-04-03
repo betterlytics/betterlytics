@@ -8,7 +8,7 @@ import { DateTimeString } from '@/types/dates';
 
 // Filters
 const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
-const SESSION_AGGREGATE_FILTERS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
+const SESSION_TUPLE_COLUMNS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
   'entry_page',
   'exit_page',
   'referrer_source',
@@ -85,8 +85,8 @@ function getSessionSelector(columns: SessionsTableSelectableColumn[]) {
 
 function buildSessionSelectColumn(column: SessionsTableSelectableColumn) {
   const columnSql = SQL.Unsafe(column);
-  if (SESSION_AGGREGATE_FILTERS.includes(column)) {
-    return safeSql`finalizeAggregation(${columnSql}) as ${columnSql}`;
+  if (SESSION_TUPLE_COLUMNS.includes(column)) {
+    return safeSql`${columnSql}.2 as ${columnSql}`;
   }
   return columnSql;
 }
@@ -140,11 +140,11 @@ function getSessionFilterQuery(
   }
 
   const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
-  const hasAggregateFilters = filters.some((filter) => SESSION_AGGREGATE_FILTERS.includes(filter.column));
+  const hasTupleFilters = filters.some((filter) => SESSION_TUPLE_COLUMNS.includes(filter.column));
   const hasBaseFilters = filters.some(
     (filter) =>
       MAIN_TABLE_FILTERS.includes(filter.column) === false &&
-      SESSION_AGGREGATE_FILTERS.includes(filter.column) === false,
+      SESSION_TUPLE_COLUMNS.includes(filter.column) === false,
   );
 
   const sessionWHEREFilters = hasBaseFilters
@@ -152,13 +152,13 @@ function getSessionFilterQuery(
         .filter(
           (filter) =>
             MAIN_TABLE_FILTERS.includes(filter.column) === false &&
-            SESSION_AGGREGATE_FILTERS.includes(filter.column) === false,
+            SESSION_TUPLE_COLUMNS.includes(filter.column) === false,
         )
         .map((filter) => buildFilterQuery(filter))
     : [safeSql`1=1`];
-  const sessionFinalizeAggregationFilters = hasAggregateFilters
+  const sessionTupleFilters = hasTupleFilters
     ? filters
-        .filter((filter) => SESSION_AGGREGATE_FILTERS.includes(filter.column))
+        .filter((filter) => SESSION_TUPLE_COLUMNS.includes(filter.column))
         .map((filter) => buildSessionAggregateTableFilterQuery(filter))
     : [safeSql`1=1`];
 
@@ -169,14 +169,14 @@ function getSessionFilterQuery(
     const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
     return {
       WHERE: [...sessionWHEREFilters, eventsQuery],
-      HAVING: sessionFinalizeAggregationFilters,
+      HAVING: sessionTupleFilters,
       FINAL,
     };
   }
 
   return {
     WHERE: sessionWHEREFilters,
-    HAVING: sessionFinalizeAggregationFilters,
+    HAVING: sessionTupleFilters,
     FINAL,
   };
 }
@@ -207,7 +207,7 @@ function buildSessionAggregateTableFilterQuery(filter: z.infer<typeof TransformQ
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> finalizeAggregation(${column}) ${operator} pattern, ${values})`;
+  return safeSql`${quantifier}(pattern -> ${column}.2 ${operator} pattern, ${values})`;
 }
 
 // Utility for granularity
