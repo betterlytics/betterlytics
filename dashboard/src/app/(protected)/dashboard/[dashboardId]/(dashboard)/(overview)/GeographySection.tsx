@@ -32,18 +32,26 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
   city: (value) => value,
 };
 
-function WorldMapContent({ dashboardId }: { dashboardId: string }) {
+function WorldMapContent({
+  dashboardId,
+  data,
+  onLoad,
+}: {
+  dashboardId: string;
+  data: WorldMapResponse | null;
+  onLoad: (data: WorldMapResponse) => void;
+}) {
   const query = useAnalyticsQuery();
-  const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
 
   useEffect(() => {
-    getWorldMapDataAlpha2(dashboardId, query).then(setWorldMapData);
-  }, [dashboardId, query]);
+    if (data !== null) return;
+    getWorldMapDataAlpha2(dashboardId, query).then(onLoad);
+  }, [dashboardId, query, data, onLoad]);
 
   return (
     <div className='h-[280px] w-full'>
-      {worldMapData ? (
-        <LeafletMap {...worldMapData} showZoomControls={false} initialZoom={1} />
+      {data ? (
+        <LeafletMap {...data} showZoomControls={false} initialZoom={1} />
       ) : (
         <GeographyLoading />
       )}
@@ -53,12 +61,18 @@ function WorldMapContent({ dashboardId }: { dashboardId: string }) {
 
 export default function GeographySection({ topByGeoLevel }: GeographySectionProps) {
   const { dashboardId } = useParams<{ dashboardId: string }>();
+  const query = useAnalyticsQuery();
+  const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
   const countryData = use(topByGeoLevel.country_code);
   const subdivisionData = use(topByGeoLevel.subdivision_code);
   const cityData = use(topByGeoLevel.city);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  useEffect(() => {
+    setWorldMapData(null);
+  }, [query]);
 
   const resolvedByLevel = useMemo<Record<GeoLevel, Awaited<GeoTablePromise>>>(
     () => ({
@@ -110,7 +124,9 @@ export default function GeographySection({ topByGeoLevel }: GeographySectionProp
           key: 'worldmap',
           label: t('tabs.worldMap'),
           data: [],
-          customContent: <WorldMapContent dashboardId={dashboardId} />,
+          customContent: (
+            <WorldMapContent dashboardId={dashboardId} data={worldMapData} onLoad={setWorldMapData} />
+          ),
         },
       ]}
       footer={
