@@ -83,13 +83,14 @@ export function QueryFilterInputRow<TEntity>({
     staleTime: 5 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
-  const filterColumnRef = useRef<string>(filter.column);
+  const filterKeyRef = useRef<string>(filter.column + (filter.propertyKey ?? ''));
   useEffect(() => {
-    if (filter.column !== filterColumnRef.current) {
+    const key = filter.column + (filter.propertyKey ?? '');
+    if (key !== filterKeyRef.current) {
       onFilterUpdate({ ...filter, values: [] });
-      filterColumnRef.current = filter.column;
+      filterKeyRef.current = key;
     }
-  }, [filter.column]);
+  }, [filter.column, filter.propertyKey]);
 
   const isGlobalProperty = filter.column === 'global_property';
   const columnLabel = isGlobalProperty
