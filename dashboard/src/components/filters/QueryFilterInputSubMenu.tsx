@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 import { Skeleton } from '../ui/skeleton';
 import { DropdownContentController } from '../DropdownContentController';
 import { CheckIcon } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SUB_CLOSE_DELAY_MS = 300;
 
@@ -36,6 +37,7 @@ export function QueryFilterInputSubMenu({
   onSelect,
 }: QueryFilterInputSubMenuProps) {
   const t = useTranslations('components.demoMode');
+  const isMobile = useIsMobile();
   const [subOpen, setSubOpen] = useState(false);
   const subCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tFilters = useTranslations('components.filters');
@@ -86,8 +88,8 @@ export function QueryFilterInputSubMenu({
       <DropdownMenuSubContent
         onPointerEnter={cancelSubClose}
         onPointerLeave={scheduleSubClose}
-        collisionPadding={16}
-        sticky='always'
+        collisionPadding={isMobile ? 8 : 16}
+        style={{ maxWidth: 'calc(var(--radix-dropdown-menu-content-available-width))', minWidth: 0 }}
       >
         {isLoading ? (
           <div className='space-y-1 p-1'>
@@ -102,8 +104,8 @@ export function QueryFilterInputSubMenu({
           >
             {items.map((item) => (
               <DropdownMenuItem key={item.key} data-scroll-key={item.key} onSelect={() => onSelect(item.key)}>
-                {item.label}
-                {item.key === activeKey && <CheckIcon className='ml-auto size-4' />}
+                <span className='truncate'>{item.label}</span>
+                {item.key === activeKey && <CheckIcon className='ml-auto size-4 shrink-0' />}
               </DropdownMenuItem>
             ))}
           </DropdownContentController>

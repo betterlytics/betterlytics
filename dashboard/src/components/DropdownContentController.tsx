@@ -11,7 +11,7 @@ type DropdownContentControllerProps = {
 };
 
 const SCROLL_PX_PER_FRAME = 3;
-const INDICATOR_HEIGHT = 28;
+const INDICATOR_HEIGHT = 18;
 
 export function DropdownContentController({ children, className, scrollToKey }: DropdownContentControllerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -40,8 +40,10 @@ export function DropdownContentController({ children, className, scrollToKey }: 
         hasScrolledToKey = true;
         const target = el.querySelector<HTMLElement>(`[data-scroll-key="${scrollToKey}"]`);
         if (target) {
-          target.scrollIntoView({ block: 'nearest' });
-          target.focus({ preventScroll: true });
+          requestAnimationFrame(() => {
+            target.scrollIntoView({ block: 'nearest' });
+            target.focus({ preventScroll: true });
+          });
         }
       }
     }
@@ -81,7 +83,7 @@ export function DropdownContentController({ children, className, scrollToKey }: 
       {canScrollUp && (
         <div
           aria-hidden
-          className='bg-popover sticky top-0 z-10 flex cursor-default items-center justify-center py-1'
+          className='bg-popover sticky top-0 z-10 flex cursor-default items-center justify-center pb-0.5'
           onPointerDown={() => startAutoScroll('up')}
           onPointerMove={() => startAutoScroll('up')}
           onPointerLeave={clearTimer}
@@ -93,7 +95,7 @@ export function DropdownContentController({ children, className, scrollToKey }: 
       {canScrollDown && (
         <div
           aria-hidden
-          className='bg-popover sticky bottom-0 z-10 flex cursor-default items-center justify-center py-1'
+          className='bg-popover sticky -bottom-0.25 z-10 flex cursor-default items-center justify-center pt-0.5'
           onPointerDown={() => startAutoScroll('down')}
           onPointerMove={() => startAutoScroll('down')}
           onPointerLeave={clearTimer}

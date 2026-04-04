@@ -115,12 +115,18 @@ export function QueryFilterInputRow<TEntity>({
               <ChevronDownIcon className='size-4 opacity-50' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent collisionPadding={16} align='start' className='min-w-56 overflow-hidden!'>
+          <DropdownMenuContent collisionPadding={16} align='start' className='min-w-56 overflow-clip!'>
             <DropdownContentController
-              className={isMobile ? 'max-h-72' : 'max-h-[min(28rem,var(--radix-dropdown-menu-content-available-height))]'}
+              className={
+                isMobile
+                  ? 'max-h-72'
+                  : 'max-h-[min(36rem,calc(var(--radix-dropdown-menu-content-available-height)-0.5rem))]'
+              }
               scrollToKey={filter.column}
             >
-              <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>{t('type')}</DropdownMenuLabel>
+              <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>
+                {t('type')}
+              </DropdownMenuLabel>
               <DropdownMenuGroup>
                 {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
                   const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
@@ -142,7 +148,7 @@ export function QueryFilterInputRow<TEntity>({
                   );
                 })}
               </DropdownMenuGroup>
-              <DropdownMenuSeparator />
+              {/* <DropdownMenuSeparator /> */}
               <QueryFilterInputSubMenu
                 label={t('globalProperties', { count: 2 })}
                 icon={<TagsIcon className='size-4' />}
