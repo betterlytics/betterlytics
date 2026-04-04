@@ -100,19 +100,15 @@ function getSessionTableSubQuery(
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
-  allowFinal: boolean = true,
+  finalize: boolean = true,
 ) {
-  const dateDiff = new Date(endDate).getTime() - new Date(startDate).getTime();
-
-  // Only finalize for query ranges less than 2 hours, as Clickhouse merges MVs within seconds - few minutes
-  const optionalFinalize = allowFinal && dateDiff < 2 * 60 * 1000 ? safeSql`FINAL` : safeSql``;
-
   const selectors = getSessionSelector(columns);
   const filters = getSessionFilterQuery(queryFilters, siteId, startDate, endDate);
 
+  const final = finalize ? safeSql`FINAL` : safeSql``;
   return safeSql`
     ( SELECT ${SQL.SEPARATOR(selectors)}
-      FROM analytics.sessions ${optionalFinalize}
+      FROM analytics.sessions ${final}
       WHERE site_id = ${SQL.String({ siteId })} AND session_created_at BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(filters)} )
   `;
 }
