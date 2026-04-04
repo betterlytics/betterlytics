@@ -293,6 +293,7 @@
     () => document.visibilityState === "hidden" && flushScrollDepth(),
   );
   window.addEventListener("pagehide", () => flushScrollDepth());
+  window.addEventListener("pagehide", () => sendEvent("pagehide"));
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);

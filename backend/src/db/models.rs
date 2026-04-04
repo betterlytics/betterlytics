@@ -50,6 +50,8 @@ pub struct EventRow {
     pub error_fingerprint: String,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub session_created_at: DateTime<Utc>,
+    pub prev_url: String,
+    pub prev_pageview_duration: Option<u32>,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -81,6 +83,7 @@ pub enum EventType {
     Cwv = 4,
     ScrollDepth = 5,
     ClientError = 6,
+    Pagehide = 7,
 }
 
 impl EventRow {
@@ -128,6 +131,8 @@ impl EventRow {
             error_message: event.error_message,
             error_fingerprint: event.error_fingerprint,
             session_created_at: event.session_created_at,
+            prev_url: event.prev_url,
+            prev_pageview_duration: event.prev_pageview_duration,
         }
     }
 }
