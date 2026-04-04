@@ -200,9 +200,9 @@ export function QueryFilterInputRow<TEntity>({
   );
 }
 
-type FilterColumnSelectOption = { value: FilterColumn; icon: ReactNode; label: string };
+type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: string }[];
 
-export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOption[] = [
+export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },
   { value: 'domain', icon: <GlobeIcon />, label: 'Hostname' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },
