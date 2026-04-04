@@ -9,7 +9,7 @@ use crate::processing::ProcessedEvent;
 pub struct EventRow {
     pub site_id: String,
     pub visitor_id: u64,
-    pub session_id: String,
+    pub session_id: u64,
     pub domain: String,
     pub url: String,
     pub device_type: String,
@@ -48,12 +48,14 @@ pub struct EventRow {
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub session_created_at: DateTime<Utc>,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
 pub struct SessionReplayRow {
     pub site_id: String,
-    pub session_id: String,
+    pub session_id: u64,
     pub visitor_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub started_at: DateTime<Utc>,
@@ -125,6 +127,7 @@ impl EventRow {
             error_type: event.error_type,
             error_message: event.error_message,
             error_fingerprint: event.error_fingerprint,
+            session_created_at: event.session_created_at,
         }
     }
 }
