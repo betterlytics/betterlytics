@@ -9,7 +9,7 @@ import {
 } from '../ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '../ui/skeleton';
-import { ScrollIndicators } from '../scroll-indicators';
+import { DropdownContentController } from '../DropdownContentController';
 import { CheckIcon } from 'lucide-react';
 
 const SUB_CLOSE_DELAY_MS = 300;
@@ -19,6 +19,7 @@ type QueryFilterInputSubMenuProps = {
   icon?: ReactNode;
   items: { key: string; label: string }[];
   activeKey?: string;
+  scrollKey?: string;
   isLoading?: boolean;
   disabled?: boolean;
   onSelect: Dispatch<string>;
@@ -29,6 +30,7 @@ export function QueryFilterInputSubMenu({
   icon,
   items,
   activeKey,
+  scrollKey,
   isLoading,
   disabled,
   onSelect,
@@ -37,7 +39,6 @@ export function QueryFilterInputSubMenu({
   const [subOpen, setSubOpen] = useState(false);
   const subCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tFilters = useTranslations('components.filters');
-  const isTouch = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 
   useEffect(() => {
     return () => {
@@ -46,7 +47,8 @@ export function QueryFilterInputSubMenu({
   }, []);
 
   function scheduleSubClose() {
-    if (isTouch) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (subCloseTimer.current) clearTimeout(subCloseTimer.current);
     subCloseTimer.current = setTimeout(() => setSubOpen(false), SUB_CLOSE_DELAY_MS);
   }
 
@@ -70,6 +72,7 @@ export function QueryFilterInputSubMenu({
   return (
     <DropdownMenuSub open={subOpen} onOpenChange={setSubOpen}>
       <DropdownMenuSubTrigger
+        data-scroll-key={scrollKey}
         className='[&_svg:not([class*="text-"])]:text-muted-foreground gap-2'
         onPointerEnter={cancelSubClose}
         onPointerLeave={scheduleSubClose}
@@ -93,7 +96,7 @@ export function QueryFilterInputSubMenu({
             ))}
           </div>
         ) : items.length > 0 ? (
-          <ScrollIndicators
+          <DropdownContentController
             className='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))]'
             scrollToKey={activeKey}
           >
@@ -103,7 +106,7 @@ export function QueryFilterInputSubMenu({
                 {item.key === activeKey && <CheckIcon className='ml-auto size-4' />}
               </DropdownMenuItem>
             ))}
-          </ScrollIndicators>
+          </DropdownContentController>
         ) : (
           <DropdownMenuItem disabled>{tFilters('noProperties')}</DropdownMenuItem>
         )}

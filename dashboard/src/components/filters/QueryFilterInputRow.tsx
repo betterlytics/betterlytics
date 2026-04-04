@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { QueryFilterInputSubMenu } from './QueryFilterInputSubMenu';
+import { DropdownContentController } from '../DropdownContentController';
 import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -114,38 +115,45 @@ export function QueryFilterInputRow<TEntity>({
               <ChevronDownIcon className='size-4 opacity-50' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent collisionPadding={16} align='start' className={cn('min-w-56', isMobile && 'max-h-72')}>
-            <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>{t('type')}</DropdownMenuLabel>
-            <DropdownMenuGroup>
-              {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-                const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
-                const active = filter.column === column.value;
-                return (
-                  <DropdownMenuItem
-                    key={column.value}
-                    disabled={disabled}
-                    onSelect={() => onFilterUpdate({ ...filter, column: column.value })}
-                  >
-                    {column.icon}
-                    {t(`columns.${column.value}`)}
-                    {disabled && (
-                      <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
-                    )}
-                    {active && <CheckIcon className='ml-auto size-4' />}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <QueryFilterInputSubMenu
-              label={t('globalProperties', { count: 2 })}
-              icon={<TagsIcon className='size-4' />}
-              items={globalPropertyKeys.map((key) => ({ key, label: key }))}
-              activeKey={isGlobalProperty ? filter.propertyKey : undefined}
-              isLoading={isLoadingPropertyKeys}
-              disabled={isDemo}
-              onSelect={(key) => onFilterUpdate({ ...filter, column: 'global_property', propertyKey: key })}
-            />
+          <DropdownMenuContent collisionPadding={16} align='start' className='min-w-56 overflow-hidden!'>
+            <DropdownContentController
+              className={isMobile ? 'max-h-72' : 'max-h-[min(28rem,var(--radix-dropdown-menu-content-available-height))]'}
+              scrollToKey={isGlobalProperty ? 'global_property' : filter.column}
+            >
+              <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>{t('type')}</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+                  const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
+                  const active = filter.column === column.value;
+                  return (
+                    <DropdownMenuItem
+                      key={column.value}
+                      disabled={disabled}
+                      data-scroll-key={column.value}
+                      onSelect={() => onFilterUpdate({ ...filter, column: column.value })}
+                    >
+                      {column.icon}
+                      {t(`columns.${column.value}`)}
+                      {disabled && (
+                        <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
+                      )}
+                      {active && <CheckIcon className='ml-auto size-4' />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <QueryFilterInputSubMenu
+                label={t('globalProperties', { count: 2 })}
+                icon={<TagsIcon className='size-4' />}
+                items={globalPropertyKeys.map((key) => ({ key, label: key }))}
+                activeKey={isGlobalProperty ? filter.propertyKey : undefined}
+                scrollKey='global_property'
+                isLoading={isLoadingPropertyKeys}
+                disabled={isDemo}
+                onSelect={(key) => onFilterUpdate({ ...filter, column: 'global_property', propertyKey: key })}
+              />
+            </DropdownContentController>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
