@@ -148,7 +148,7 @@ export function QueryFilterInputRow<TEntity>({
                   );
                 })}
               </DropdownMenuGroup>
-              {/* <DropdownMenuSeparator /> */}
+              <DropdownMenuSeparator />
               <QueryFilterInputSubMenu
                 label={t('globalProperties', { count: 2 })}
                 icon={<TagsIcon className='size-4' />}

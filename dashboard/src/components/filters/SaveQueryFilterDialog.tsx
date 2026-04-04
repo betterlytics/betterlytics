@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useCreateSavedFilter } from '@/hooks/use-saved-filters';
-import { type QueryFilter, type FilterColumn } from '@/entities/analytics/filter.entities';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { baEvent } from '@/lib/ba-event';
 

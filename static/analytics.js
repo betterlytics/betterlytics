@@ -93,30 +93,25 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    var payload = {
-      site_id: siteId,
-      event_name: eventName,
-      is_custom_event: false,
-      properties: "{}",
-      url: url,
-      referrer: referrer,
-      user_agent: userAgent,
-      screen_resolution: screenResolution,
-      timestamp: Math.floor(Date.now() / 1000),
-      ...overrides,
-    };
-
-    if (Object.keys(globalProperties).length > 0) {
-      payload.global_properties = Object.assign({}, globalProperties);
-    }
-
     fetch(serverUrl, {
       method: "POST",
       keepalive: true,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        site_id: siteId,
+        event_name: eventName,
+        is_custom_event: false,
+        properties: "{}",
+        url: url,
+        referrer: referrer,
+        user_agent: userAgent,
+        screen_resolution: screenResolution,
+        timestamp: Math.floor(Date.now() / 1000),
+        global_properties: Object.assign({}, globalProperties),
+        ...overrides,
+      }),
     })
       .then((res) => res.text())
       .catch(function () {});
@@ -140,8 +135,7 @@
       var keys = Object.keys(props);
       for (var i = 0; i < keys.length; i++) {
         var val = props[keys[i]];
-        var type = typeof val;
-        if (type === "string" || type === "number" || type === "boolean") {
+        if (["string", "number", "boolean"].includes(typeof val)) {
           globalProperties[keys[i]] = val;
         }
       }
