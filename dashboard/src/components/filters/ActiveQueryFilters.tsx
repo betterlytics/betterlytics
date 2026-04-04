@@ -20,7 +20,9 @@ export function ActiveQueryFilters() {
           variant='outline'
           className='text-muted-foreground border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 px-2 py-1'
         >
-          <span className='text-muted-foreground/60 mr-1 text-xs'>{t('globalProperties', { count: 1 })}</span>
+          {filter.column === 'global_property' && (
+            <span className='text-muted-foreground/60 mr-1 text-xs'>{t('globalProperties', { count: 1 })}</span>
+          )}
           {formatQueryFilter(filter, t)}
           <div
             className='mt-0.5 size-3.5 cursor-pointer opacity-80 hover:opacity-100'

@@ -32,7 +32,7 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
       await createSavedFilterMutation.mutateAsync({
         name: filterName.trim(),
         entries: validFilters.map((f) => ({
-          column: f.column as FilterColumn,
+          column: f.column,
           operator: f.operator,
           values: f.values,
         })),

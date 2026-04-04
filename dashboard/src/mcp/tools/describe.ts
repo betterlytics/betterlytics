@@ -1,6 +1,6 @@
 import { METRICS, METRIC_KEYS } from '@/mcp/registry/metrics';
 import { DIMENSIONS, DIMENSION_KEYS } from '@/mcp/registry/dimensions';
-import { STATIC_FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
+import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { getFilterColumnDescription } from '@/mcp/registry/filterColumns';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { MCP_GRANULARITIES } from '@/mcp/entities/mcp.entities';
@@ -26,7 +26,7 @@ export function getSchemaDescription(): SchemaDescription {
   return {
     metrics: METRICS.map((m) => ({ key: m.key, description: m.description })),
     dimensions: DIMENSIONS.map((d) => ({ key: d.key, description: d.description })),
-    filterColumns: STATIC_FILTER_COLUMNS.map((col) => {
+    filterColumns: FILTER_COLUMNS.map((col) => {
       const isDimension = (DIMENSION_KEYS as readonly string[]).includes(col);
       return {
         key: col,

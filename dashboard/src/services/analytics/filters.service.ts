@@ -1,6 +1,6 @@
 'server-only';
 
-import { FilterColumn, isGlobalPropertyFilter, getGlobalPropertyKey, StaticFilterColumn } from '@/entities/analytics/filter.entities';
+import { FilterColumn } from '@/entities/analytics/filter.entities';
 import { getFilterDistinctValues, getGlobalPropertyKeys, getGlobalPropertyValues } from '@/repositories/clickhouse/filters.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -9,12 +9,12 @@ export async function getDistinctValuesForFilterColumn(
   column: FilterColumn,
   search?: string,
   limit?: number,
+  propertyKey?: string,
 ) {
-  if (isGlobalPropertyFilter(column)) {
-    const key = getGlobalPropertyKey(column);
-    return getGlobalPropertyValues(siteQuery, key, search?.trim(), limit);
+  if (column === 'global_property' && propertyKey) {
+    return getGlobalPropertyValues(siteQuery, propertyKey, search?.trim(), limit);
   }
-  return getFilterDistinctValues(siteQuery, column as StaticFilterColumn, limit, search?.trim());
+  return getFilterDistinctValues(siteQuery, column, limit, search?.trim());
 }
 
 export async function getAvailableGlobalPropertyKeys(

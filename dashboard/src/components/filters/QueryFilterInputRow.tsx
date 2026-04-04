@@ -1,12 +1,4 @@
-import {
-  FilterColumn,
-  FilterOperator,
-  QueryFilter,
-  StaticFilterColumn,
-  toGlobalPropertyColumn,
-  isGlobalPropertyFilter,
-  getGlobalPropertyKey,
-} from '@/entities/analytics/filter.entities';
+import { FilterColumn, FilterOperator, QueryFilter } from '@/entities/analytics/filter.entities';
 import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
 import {
   Select,
@@ -97,14 +89,17 @@ export function QueryFilterInputRow<TEntity>({
     }
   }, [filter.column]);
 
-  const { category, label: columnLabel } = getColumnDisplay(filter.column, t);
+  const isGlobalProperty = filter.column === 'global_property';
+  const columnLabel = isGlobalProperty
+    ? filter.propertyKey || '...'
+    : t(`columns.${filter.column}` as Parameters<typeof t>[0]);
 
   return (
     <div className='grid grid-cols-12 items-end gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <div className='col-span-8 flex flex-col md:col-span-4'>
-        {category && (
+        {isGlobalProperty && (
           <span className='text-muted-foreground/60 mb-0.5 px-1 text-xs leading-none'>
-            {category}
+            {t('globalProperties', { count: 1 })}
           </span>
         )}
         <DropdownMenu modal>
@@ -118,16 +113,16 @@ export function QueryFilterInputRow<TEntity>({
               <ChevronDownIcon className='size-4 opacity-50' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='start' className={cn('w-56', isMobile && 'max-h-72')}>
+          <DropdownMenuContent collisionPadding={16} align='start' className={cn('w-56', isMobile && 'max-h-72')}>
             <DropdownMenuLabel>{t('type')}</DropdownMenuLabel>
             <DropdownMenuGroup>
               {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-                const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value as FilterColumn);
+                const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
                 return (
                   <DropdownMenuItem
                     key={column.value}
                     disabled={disabled}
-                    onSelect={() => onFilterUpdate({ ...filter, column: column.value as FilterColumn })}
+                    onSelect={() => onFilterUpdate({ ...filter, column: column.value })}
                   >
                     {column.icon}
                     {t(`columns.${column.value}`)}
@@ -144,9 +139,7 @@ export function QueryFilterInputRow<TEntity>({
               icon={<TagsIcon className='size-4' />}
               items={globalPropertyKeys.map((key) => ({ key, label: key }))}
               disabled={isDemo}
-              onSelect={(key) =>
-                onFilterUpdate({ ...filter, column: toGlobalPropertyColumn(key) as FilterColumn })
-              }
+              onSelect={(key) => onFilterUpdate({ ...filter, column: 'global_property', propertyKey: key })}
             />
           </DropdownMenuContent>
         </DropdownMenu>
@@ -188,24 +181,9 @@ export function QueryFilterInputRow<TEntity>({
   );
 }
 
-type ColumnDisplay = { category?: string; label: string };
+type FilterColumnSelectOption = { value: FilterColumn; icon: ReactNode; label: string };
 
-function getColumnDisplay(
-  column: string,
-  t: ReturnType<typeof useTranslations<'components.filters'>>,
-): ColumnDisplay {
-  if (isGlobalPropertyFilter(column)) {
-    return {
-      category: t('globalProperties', { count: 1 }),
-      label: getGlobalPropertyKey(column) || '...',
-    };
-  }
-  return { label: t(`columns.${column}` as Parameters<typeof t>[0]) };
-}
-
-type FilterColumnSelectOptions = { value: StaticFilterColumn; icon: ReactNode; label: string }[];
-
-export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
+export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOption[] = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },
   { value: 'domain', icon: <GlobeIcon />, label: 'Hostname' },
   { value: 'device_type', icon: <TabletSmartphoneIcon />, label: 'Device type' },

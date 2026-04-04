@@ -2387,7 +2387,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-innhold",
         "custom_event_name": "Hendelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "global_property": "Global egenskap"
       },
       "selector": {
         "triggerLabel": "Filtre",
