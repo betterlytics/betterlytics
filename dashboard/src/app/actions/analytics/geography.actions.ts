@@ -14,6 +14,7 @@ import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
+import { compareable } from '@/lib/parallel-query';
 
 async function fetchTopGeoVisits(ctx: AuthContext, query: BAAnalyticsQuery, level: GeoLevel, limit: number) {
   const enabledLevels = getEnabledGeoLevels();
@@ -55,11 +56,11 @@ export const getWorldMapDataAlpha2 = withDashboardAuthContext(
       return { visitorData: [], compareData: [], maxVisitors: 0 };
     }
 
-    const { main, compare } = toSiteQuery(ctx.siteId, query);
-
     try {
-      const geoVisitors = await fetchVisitorsByGeoLevel(main, 'country_code');
-      const compareGeoVisitors = compare && (await fetchVisitorsByGeoLevel(compare, 'country_code'));
+      const { main: geoVisitors, compare: compareGeoVisitors } = await compareable(
+        toSiteQuery(ctx.siteId, query),
+        (q) => fetchVisitorsByGeoLevel(q, 'country_code'),
+      );
 
       return dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original);
     } catch (error) {

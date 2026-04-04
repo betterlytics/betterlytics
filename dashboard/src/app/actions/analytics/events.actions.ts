@@ -11,13 +11,14 @@ import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
+import { compareable } from '@/lib/parallel-query';
 
 export const fetchCustomEventsOverviewAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery) => {
-    const { main, compare } = toSiteQuery(ctx.siteId, query);
-
-    const data = await getCustomEventsOverviewForSite(main);
-    const compareData = compare && (await getCustomEventsOverviewForSite(compare));
+    const { main: data, compare: compareData } = await compareable(
+      toSiteQuery(ctx.siteId, query),
+      getCustomEventsOverviewForSite,
+    );
 
     return toDataTable({
       data,
