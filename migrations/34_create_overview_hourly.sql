@@ -42,3 +42,5 @@ SELECT
     uniqState(visitor_id) AS visitors
 FROM analytics.events
 GROUP BY site_id, hour, device_type, browser, os, country_code;
+
+OPTIMIZE TABLE analytics.overview_hourly FINAL;

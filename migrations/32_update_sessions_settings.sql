@@ -4,3 +4,5 @@ ALTER TABLE analytics.sessions
 ALTER TABLE analytics.sessions ADD INDEX idx_session_end session_end TYPE minmax GRANULARITY 4;
 
 ALTER TABLE analytics.sessions MATERIALIZE INDEX idx_session_end;
+
+OPTIMIZE TABLE analytics.sessions FINAL;

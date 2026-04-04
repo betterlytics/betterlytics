@@ -39,3 +39,5 @@ SELECT
     uniqState(visitor_id) AS visitors
 FROM analytics.events
 GROUP BY site_id, hour, country_code, subdivision_code, city;
+
+OPTIMIZE TABLE analytics.geo_hourly FINAL;
