@@ -118,7 +118,7 @@ export function QueryFilterInputRow<TEntity>({
           <DropdownMenuContent collisionPadding={16} align='start' className='min-w-56 overflow-hidden!'>
             <DropdownContentController
               className={isMobile ? 'max-h-72' : 'max-h-[min(28rem,var(--radix-dropdown-menu-content-available-height))]'}
-              scrollToKey={isGlobalProperty ? 'global_property' : filter.column}
+              scrollToKey={filter.column}
             >
               <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>{t('type')}</DropdownMenuLabel>
               <DropdownMenuGroup>
