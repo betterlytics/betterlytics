@@ -676,34 +676,16 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
 
   const query = timeWrapper(
     safeSql`
-      WITH
-        page_view_durations AS (
-          SELECT
-            session_id,
-            url,
-            timestamp,
-            ${granularityFunc('timestamp')} as date,
-            leadInFrame(timestamp) OVER (
-                PARTITION BY site_id, session_id
-                ORDER BY timestamp
-                ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-            ) as next_timestamp,
-            if(
-              // Keep check to prevent negative durations from timestamp precision issues
-              next_timestamp IS NOT NULL AND timestamp <= next_timestamp,
-              toFloat64(next_timestamp - timestamp),
-              NULL
-            ) as duration_seconds
-          FROM analytics.events
-          WHERE site_id = {site_id:String}
-            AND event_type = 'pageview'
-            AND ${range}
-            AND ${SQL.AND(filters)}
-        )
       SELECT
-        date,
-        avgIf(duration_seconds, duration_seconds IS NOT NULL) as avgTime
-      FROM page_view_durations
+        ${granularityFunc('timestamp')} as date,
+        avg(toFloat64(prev_pageview_duration)) as avgTime
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND event_type IN ('pageview', 'pagehide')
+        AND prev_url != ''
+        AND prev_pageview_duration IS NOT NULL
+        AND ${range}
+        AND ${SQL.AND(filters)}
       GROUP BY date
       ORDER BY date ASC ${fill}
       LIMIT 10080
