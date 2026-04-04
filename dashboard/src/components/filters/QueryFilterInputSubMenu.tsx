@@ -9,6 +9,7 @@ import {
 } from '../ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from '../ui/skeleton';
+import { ScrollIndicators } from '../scroll-indicators';
 import { CheckIcon } from 'lucide-react';
 
 const SUB_CLOSE_DELAY_MS = 300;
@@ -84,7 +85,6 @@ export function QueryFilterInputSubMenu({
         onPointerLeave={scheduleSubClose}
         collisionPadding={16}
         sticky='always'
-        className='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))] overflow-y-auto'
       >
         {isLoading ? (
           <div className='space-y-1 p-1'>
@@ -93,12 +93,17 @@ export function QueryFilterInputSubMenu({
             ))}
           </div>
         ) : items.length > 0 ? (
-          items.map((item) => (
-            <DropdownMenuItem key={item.key} onSelect={() => onSelect(item.key)}>
-              {item.label}
-              {item.key === activeKey && <CheckIcon className='ml-auto size-4' />}
-            </DropdownMenuItem>
-          ))
+          <ScrollIndicators
+            className='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))]'
+            scrollToKey={activeKey}
+          >
+            {items.map((item) => (
+              <DropdownMenuItem key={item.key} data-scroll-key={item.key} onSelect={() => onSelect(item.key)}>
+                {item.label}
+                {item.key === activeKey && <CheckIcon className='ml-auto size-4' />}
+              </DropdownMenuItem>
+            ))}
+          </ScrollIndicators>
         ) : (
           <DropdownMenuItem disabled>{tFilters('noProperties')}</DropdownMenuItem>
         )}
