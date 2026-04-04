@@ -315,7 +315,6 @@ export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promis
     siteId,
     startDateTime,
     endDateTime,
-    'session_end',
   );
 
   const queryResponse = safeSql`

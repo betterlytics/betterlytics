@@ -21,56 +21,83 @@ import { BASessionQuery } from '@/lib/ba-session-query';
 export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-    ['visitor_id', 'device_type'],
-    queryFilters,
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
+  if (queryFilters.length) {
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['visitor_id', 'device_type'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
+    const query = safeSql`
+      SELECT device_type, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      GROUP BY device_type
+      ORDER BY visitors DESC
+    `;
+
+    const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
+    return DeviceTypeSchema.array().parse(
+      result.map((row) => ({ device_type: row.device_type, visitors: Number(row.visitors) })),
+    );
+  }
 
   const query = safeSql`
-    SELECT device_type, uniq(visitor_id) as visitors
-    FROM ${sessionSubQuery}
+    SELECT device_type, uniqMerge(visitors) as visitors
+    FROM analytics.overview_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
     GROUP BY device_type
     ORDER BY visitors DESC
   `;
 
   const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
-
-  const mappedResults = result.map((row) => ({
-    device_type: row.device_type,
-    visitors: Number(row.visitors),
-  }));
-
-  return DeviceTypeSchema.array().parse(mappedResults);
+  return DeviceTypeSchema.array().parse(
+    result.map((row) => ({ device_type: row.device_type, visitors: Number(row.visitors) })),
+  );
 }
 
 export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<BrowserInfo[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  if (queryFilters.length) {
+    const filters = BAQuery.getFilterQuery(queryFilters);
+    const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+    const query = safeSql`
+      SELECT browser, uniq(visitor_id) * any(_sample_factor) as visitors
+      FROM analytics.events ${sample}
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+      GROUP BY browser
+      ORDER BY visitors DESC
+    `;
+    const result = (await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
+      })
+      .toPromise()) as any[];
+
+    return BrowserInfoSchema.array().parse(
+      result.map((row) => ({ browser: row.browser, visitors: Number(row.visitors) })),
+    );
+  }
+
   const query = safeSql`
-    SELECT browser, uniq(visitor_id) * any(_sample_factor) as visitors
-    FROM analytics.events ${sample}
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+    SELECT browser, uniqMerge(visitors) as visitors
+    FROM analytics.overview_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND browser != ''
     GROUP BY browser
     ORDER BY visitors DESC
   `;
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-    })
-    .toPromise()) as any[];
 
-  const mappedResults = result.map((row) => ({
-    browser: row.browser,
-    visitors: Number(row.visitors),
-  }));
-
-  return BrowserInfoSchema.array().parse(mappedResults);
+  const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
+  return BrowserInfoSchema.array().parse(
+    result.map((row) => ({ browser: row.browser, visitors: Number(row.visitors) })),
+  );
 }
 
 export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserRollupRow[]> {
@@ -82,6 +109,7 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
     siteId,
     startDateTime,
     endDateTime,
+    false,
   );
 
   const query = safeSql`
@@ -104,24 +132,42 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
 
 export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promise<OperatingSystemInfo[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  if (queryFilters.length) {
+    const filters = BAQuery.getFilterQuery(queryFilters);
+    const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+    const query = safeSql`
+      SELECT os, uniq(visitor_id) * any(_sample_factor) as visitors
+      FROM analytics.events ${sample}
+      WHERE site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+      GROUP BY os
+      ORDER BY visitors DESC
+    `;
+
+    const result = (await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
+      })
+      .toPromise()) as any[];
+
+    return OperatingSystemInfoSchema.array().parse(
+      result.map((row) => ({ os: row.os, visitors: Number(row.visitors) })),
+    );
+  }
+
   const query = safeSql`
-    SELECT os, uniq(visitor_id) * any(_sample_factor) as visitors
-    FROM analytics.events ${sample}
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+    SELECT os, uniqMerge(visitors) as visitors
+    FROM analytics.overview_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND os != ''
     GROUP BY os
     ORDER BY visitors DESC
   `;
 
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-    })
-    .toPromise()) as any[];
-
+  const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
   const mappedResults = result.map((row) => ({
     os: row.os,
     visitors: Number(row.visitors),
@@ -139,6 +185,7 @@ export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<
     siteId,
     startDateTime,
     endDateTime,
+    false,
   );
 
   const query = safeSql`

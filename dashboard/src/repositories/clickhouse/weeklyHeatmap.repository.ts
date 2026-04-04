@@ -80,6 +80,7 @@ async function getSessionCountHeatmap(
     siteId,
     startDateTime,
     endDateTime,
+    false,
   );
 
   const tz = SQL.String({ tz: timezone });

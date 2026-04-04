@@ -20,6 +20,7 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
     siteId,
     startDateTime,
     endDateTime,
+    false,
   );
 
   const query = timeWrapper(
@@ -79,8 +80,6 @@ export async function getTotalUniqueVisitors(siteQuery: BASiteQuery): Promise<nu
     .toPromise()) as any[];
   return Number(result[0]?.unique_visitors ?? 0);
 }
-
-
 
 export async function getActiveUsersCount(siteId: string, minutesWindow: number = 5): Promise<number> {
   const query = safeSql`
