@@ -29,6 +29,7 @@ import {
   BatteryIcon,
   Building2Icon,
   CableIcon,
+  CheckIcon,
   ChevronDownIcon,
   CompassIcon,
   EarthIcon,
@@ -75,7 +76,7 @@ export function QueryFilterInputRow<TEntity>({
   const dashboardId = useDashboardId();
   const analyticsQuery = useAnalyticsQuery();
 
-  const { data: globalPropertyKeys = [] } = useQuery({
+  const { data: globalPropertyKeys = [], isLoading: isLoadingPropertyKeys } = useQuery({
     queryKey: ['global-property-keys', analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
     queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
     staleTime: 5 * 60 * 1000,
@@ -113,11 +114,12 @@ export function QueryFilterInputRow<TEntity>({
               <ChevronDownIcon className='size-4 opacity-50' />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent collisionPadding={16} align='start' className={cn('w-56', isMobile && 'max-h-72')}>
-            <DropdownMenuLabel>{t('type')}</DropdownMenuLabel>
+          <DropdownMenuContent collisionPadding={16} align='start' className={cn('min-w-56', isMobile && 'max-h-72')}>
+            <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>{t('type')}</DropdownMenuLabel>
             <DropdownMenuGroup>
               {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
                 const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
+                const active = filter.column === column.value;
                 return (
                   <DropdownMenuItem
                     key={column.value}
@@ -129,6 +131,7 @@ export function QueryFilterInputRow<TEntity>({
                     {disabled && (
                       <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
                     )}
+                    {active && <CheckIcon className='ml-auto size-4' />}
                   </DropdownMenuItem>
                 );
               })}
@@ -138,6 +141,8 @@ export function QueryFilterInputRow<TEntity>({
               label={t('globalProperties', { count: 2 })}
               icon={<TagsIcon className='size-4' />}
               items={globalPropertyKeys.map((key) => ({ key, label: key }))}
+              activeKey={isGlobalProperty ? filter.propertyKey : undefined}
+              isLoading={isLoadingPropertyKeys}
               disabled={isDemo}
               onSelect={(key) => onFilterUpdate({ ...filter, column: 'global_property', propertyKey: key })}
             />

@@ -34,7 +34,7 @@ impl Default for ValidationConfig {
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
             max_error_exceptions_size: 16 * 1024,     // 16KB - client caps stack at 10KB + type/value/mechanism overhead
             max_global_properties_keys: 30,
-            max_global_property_key_length: 200,
+            max_global_property_key_length: 64,
             max_global_property_value_length: 500,
             max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
             enforce_timestamp_validation: true,       // Enforce timestamp validation

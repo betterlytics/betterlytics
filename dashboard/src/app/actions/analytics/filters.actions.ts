@@ -14,7 +14,7 @@ const FilterOptionsSchema = z.object({
   column: z.enum(FILTER_COLUMNS),
   search: z.string().trim().max(128).optional(),
   limit: z.number().int().min(1).max(5000).optional().default(200),
-  propertyKey: z.string().max(200).optional(),
+  propertyKey: z.string().max(64).optional(),
 });
 
 export const getFilterOptionsAction = withDashboardAuthContext(

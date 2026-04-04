@@ -8,6 +8,8 @@ import {
   DropdownMenuSubTrigger,
 } from '../ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
+import { Skeleton } from '../ui/skeleton';
+import { CheckIcon } from 'lucide-react';
 
 const SUB_CLOSE_DELAY_MS = 300;
 
@@ -15,11 +17,21 @@ type QueryFilterInputSubMenuProps = {
   label: ReactNode;
   icon?: ReactNode;
   items: { key: string; label: string }[];
+  activeKey?: string;
+  isLoading?: boolean;
   disabled?: boolean;
   onSelect: Dispatch<string>;
 };
 
-export function QueryFilterInputSubMenu({ label, icon, items, disabled, onSelect }: QueryFilterInputSubMenuProps) {
+export function QueryFilterInputSubMenu({
+  label,
+  icon,
+  items,
+  activeKey,
+  isLoading,
+  disabled,
+  onSelect,
+}: QueryFilterInputSubMenuProps) {
   const t = useTranslations('components.demoMode');
   const [subOpen, setSubOpen] = useState(false);
   const subCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -44,10 +56,19 @@ export function QueryFilterInputSubMenu({ label, icon, items, disabled, onSelect
     }
   }
 
+  if (disabled) {
+    return (
+      <DropdownMenuItem disabled>
+        {icon}
+        {label}
+        <span className='text-muted-foreground ml-auto text-xs'>{t('notAvailable')}</span>
+      </DropdownMenuItem>
+    );
+  }
+
   return (
     <DropdownMenuSub open={subOpen} onOpenChange={setSubOpen}>
       <DropdownMenuSubTrigger
-        disabled={disabled}
         className='[&_svg:not([class*="text-"])]:text-muted-foreground gap-2'
         onPointerEnter={cancelSubClose}
         onPointerLeave={scheduleSubClose}
@@ -57,7 +78,6 @@ export function QueryFilterInputSubMenu({ label, icon, items, disabled, onSelect
       >
         {icon}
         {label}
-        {disabled && <span className='text-muted-foreground ml-auto text-xs'>{t('notAvailable')}</span>}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent
         onPointerEnter={cancelSubClose}
@@ -66,10 +86,17 @@ export function QueryFilterInputSubMenu({ label, icon, items, disabled, onSelect
         sticky='always'
         className='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))] overflow-y-auto'
       >
-        {items.length > 0 ? (
+        {isLoading ? (
+          <div className='space-y-1 p-1'>
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className='h-7 w-full rounded-sm' />
+            ))}
+          </div>
+        ) : items.length > 0 ? (
           items.map((item) => (
             <DropdownMenuItem key={item.key} onSelect={() => onSelect(item.key)}>
               {item.label}
+              {item.key === activeKey && <CheckIcon className='ml-auto size-4' />}
             </DropdownMenuItem>
           ))
         ) : (
