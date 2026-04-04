@@ -67,6 +67,11 @@ pub struct ProcessedEvent {
     pub error_fingerprint: String,
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
+    /// Pageview duration tracking
+    /// URL of the previous pageview whose duration is being recorded
+    pub prev_url: String,
+    /// Duration in seconds spent on prev_url (None if no previous pageview in session)
+    pub prev_pageview_duration: Option<u32>,
 }
 
 /// Event processor that handles real-time processing
@@ -134,6 +139,8 @@ impl EventProcessor {
             error_fingerprint: String::new(),
             global_properties_keys: Vec::new(),
             global_properties_values: Vec::new(),
+            prev_url: String::new(),
+            prev_pageview_duration: None,
         };
 
         // Handle event types
@@ -188,6 +195,19 @@ impl EventProcessor {
             }
         };
 
+        if processed.event_type == "pageview" || processed.event_type == "pagehide" {
+            if let Some((prev_url, duration)) = session::get_and_update_pageview_state(
+                &site_id,
+                processed.visitor_fingerprint,
+                &processed.event_type,
+                &processed.url,
+                processed.timestamp,
+            ) {
+                processed.prev_url = prev_url;
+                processed.prev_pageview_duration = Some(duration);
+            }
+        }
+
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
 
@@ -230,6 +250,8 @@ impl EventProcessor {
         } else if event_name == "client_error" {
             processed.event_type = "client_error".to_string();
             self.process_client_error(processed);
+        } else if event_name == "pagehide" {
+            processed.event_type = "pagehide".to_string();
         } else {
             processed.event_type = event_name;
         }
