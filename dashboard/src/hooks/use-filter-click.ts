@@ -47,7 +47,13 @@ export function useFilterClick(defaults?: Options) {
       }
 
       if (behavior === 'replace-same-column') {
-        setQueryFilters((fs) => fs.filter((f) => f.column !== column));
+        setQueryFilters((fs) =>
+          fs.filter((f) => {
+            if (f.column !== column) return true;
+            if (column === 'global_property') return f.propertyKey !== propertyKey;
+            return false;
+          }),
+        );
         addQueryFilter({ column, operator, values: [value], propertyKey });
         return;
       }

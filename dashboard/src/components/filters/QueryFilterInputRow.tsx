@@ -93,9 +93,15 @@ export function QueryFilterInputRow<TEntity>({
   }, [filter.column, filter.propertyKey]);
 
   const isGlobalProperty = filter.column === 'global_property';
+  const isKeyExistence = isGlobalProperty && !filter.propertyKey;
   const columnLabel = isGlobalProperty
     ? filter.propertyKey || '...'
     : t(`columns.${filter.column}` as Parameters<typeof t>[0]);
+
+  const getOperatorLabel = (operator: FilterOperator) => {
+    if (isKeyExistence) return operator === '=' ? t('isPresent') : t('isNotPresent');
+    return operator === '=' ? t('is') : t('isNot');
+  };
 
   return (
     <div className='grid grid-cols-12 items-end gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
@@ -175,20 +181,22 @@ export function QueryFilterInputRow<TEntity>({
           <SelectGroup>
             <SelectLabel>{t('operator')}</SelectLabel>
             <SelectItem className='cursor-pointer' value={'='}>
-              {t('is')}
+              {getOperatorLabel('=')}
             </SelectItem>
             <SelectItem className='cursor-pointer' value={'!='}>
-              {t('isNot')}
+              {getOperatorLabel('!=')}
             </SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
-      <FilterValueSearch
-        filter={filter}
-        onFilterUpdate={onFilterUpdate}
-        key={filter.column}
-        className='col-span-10 md:col-span-5'
-      />
+      {!isKeyExistence && (
+        <FilterValueSearch
+          filter={filter}
+          onFilterUpdate={onFilterUpdate}
+          key={filter.column}
+          className='col-span-10 md:col-span-5'
+        />
+      )}
       <Button
         variant='ghost'
         className='col-span-2 cursor-pointer md:col-span-1'
