@@ -32,14 +32,5 @@ export function QuerySection<T>(props: QuerySectionProps<T>) {
 }
 
 function LoadingWrapper({ loading, children }: { loading: boolean; children: ReactNode }) {
-  return (
-    <div className={cn('relative transition-opacity duration-200', loading && 'pointer-events-none opacity-80')}>
-      {loading && (
-        <div className='absolute top-0 right-0 left-0 z-10 h-0.5 overflow-hidden rounded-full'>
-          <div className='bg-primary h-full w-full animate-pulse' />
-        </div>
-      )}
-      {children}
-    </div>
-  );
+  return <div className={cn('relative', loading && 'pointer-events-none animate-pulse')}>{children}</div>;
 }
