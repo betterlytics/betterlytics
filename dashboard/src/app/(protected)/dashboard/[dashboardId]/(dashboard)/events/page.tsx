@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { TableSkeleton } from '@/components/skeleton';
 import EventsTableSection from './EventsTableSection';
 import { EventLog } from './EventLog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
@@ -15,9 +13,7 @@ export default async function EventsPage() {
         <DashboardFilters />
       </DashboardHeader>
 
-      <Suspense fallback={<TableSkeleton />}>
-        <EventsTableSection />
-      </Suspense>
+      <EventsTableSection />
 
       <EventLog />
     </div>

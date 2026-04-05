@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import DevicesChartsSection from './DevicesChartsSection';
 import DevicesTablesSection from './DevicesTablesSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
@@ -15,32 +13,9 @@ export default async function DevicesPage() {
         <DashboardFilters />
       </DashboardHeader>
 
-      <Suspense
-        fallback={
-          <div className='grid grid-cols-1 gap-3 md:grid-cols-3'>
-            <div className='md:col-span-2'>
-              <ChartSkeleton />
-            </div>
+      <DevicesChartsSection />
 
-            <div className='md:col-span-1'>
-              <ChartSkeleton />
-            </div>
-          </div>
-        }
-      >
-        <DevicesChartsSection />
-      </Suspense>
-
-      <Suspense
-        fallback={
-          <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-            <TableSkeleton />
-            <TableSkeleton />
-          </div>
-        }
-      >
-        <DevicesTablesSection />
-      </Suspense>
+      <DevicesTablesSection />
     </div>
   );
 }

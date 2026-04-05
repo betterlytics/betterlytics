@@ -9,7 +9,9 @@ import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/util
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
-import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
@@ -28,28 +30,29 @@ export default function WebVitalsTableSection() {
   const tFilters = useTranslations('components.filters');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-  const { data } = useBASuspenseQuery({
+  const urlQuery = useBAQuery({
     queryKey: ['cwv-by-dimension', 'url'],
     queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'url'),
   });
-  const { data: devices } = useBASuspenseQuery({
+  const devicesQuery = useBAQuery({
     queryKey: ['cwv-by-dimension', 'device_type'],
     queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'device_type'),
   });
-  const { data: countries } = useBASuspenseQuery({
+  const countriesQuery = useBAQuery({
     queryKey: ['cwv-by-dimension', 'country_code'],
     queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'country_code'),
   });
-  const { data: browsers } = useBASuspenseQuery({
+  const browsersQuery = useBAQuery({
     queryKey: ['cwv-by-dimension', 'browser'],
     queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'browser'),
   });
-  const { data: operatingSystems } = useBASuspenseQuery({
+  const osQuery = useBAQuery({
     queryKey: ['cwv-by-dimension', 'os'],
     queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'os'),
   });
 
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
+  const [activeTab, setActiveTab] = useState<string>('pages');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
 
   const makeColumns = useCallback(
@@ -256,42 +259,42 @@ export default function WebVitalsTableSection() {
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
-      { key: 'pages', label: t('tabs.pages'), data, columns: pageColumns, defaultSorting },
+      { key: 'pages', label: t('tabs.pages'), data: urlQuery.data!, columns: pageColumns, defaultSorting },
       {
         key: 'devices',
         label: t('tabs.devices'),
-        data: devices,
+        data: devicesQuery.data!,
         columns: deviceColumns,
         defaultSorting,
       },
       {
         key: 'countries',
         label: t('tabs.countries'),
-        data: countries,
+        data: countriesQuery.data!,
         columns: countryColumns,
         defaultSorting,
       },
       {
         key: 'browsers',
         label: t('tabs.browsers'),
-        data: browsers,
+        data: browsersQuery.data!,
         columns: browserColumns,
         defaultSorting,
       },
       {
         key: 'os',
         label: t('tabs.operatingSystems'),
-        data: operatingSystems,
+        data: osQuery.data!,
         columns: osColumns,
         defaultSorting,
       },
     ],
     [
-      data,
-      devices,
-      countries,
-      browsers,
-      operatingSystems,
+      urlQuery.data,
+      devicesQuery.data,
+      countriesQuery.data,
+      browsersQuery.data,
+      osQuery.data,
       pageColumns,
       deviceColumns,
       countryColumns,
@@ -344,8 +347,6 @@ export default function WebVitalsTableSection() {
     [percentileButtons],
   );
 
-  const [activeTab, setActiveTab] = useState<string>('pages');
-
   const mobileTabsRowLeft = useMemo(
     () => (
       <div className='flex w-full items-center gap-2'>
@@ -367,16 +368,20 @@ export default function WebVitalsTableSection() {
     [activeTab, tabs, percentileButtons],
   );
 
+  if (urlQuery.isPending || devicesQuery.isPending || countriesQuery.isPending || browsersQuery.isPending || osQuery.isPending) return <TableSkeleton />;
+
   return (
-    <TabbedTable
-      title={t('title')}
-      tabs={tabs}
-      defaultTab='pages'
-      tabValue={activeTab}
-      onTabValueChange={setActiveTab}
-      headerActions={headerActions}
-      tabsRowLeftMobile={mobileTabsRowLeft}
-      hideTabsListOnMobile
-    />
+    <QuerySection loading={urlQuery.isFetching || devicesQuery.isFetching || countriesQuery.isFetching || browsersQuery.isFetching || osQuery.isFetching}>
+      <TabbedTable
+        title={t('title')}
+        tabs={tabs}
+        defaultTab='pages'
+        tabValue={activeTab}
+        onTabValueChange={setActiveTab}
+        headerActions={headerActions}
+        tabsRowLeftMobile={mobileTabsRowLeft}
+        hideTabsListOnMobile
+      />
+    </QuerySection>
   );
 }

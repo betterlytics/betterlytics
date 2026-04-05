@@ -1,6 +1,4 @@
-import { Suspense } from 'react';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import SummaryAndChartSection from './SummaryAndChartSection';
 import PagesAnalyticsSection from './PagesAnalyticsSection';
 import GeographySection from './GeographySection';
@@ -22,31 +20,15 @@ export default async function DashboardPage() {
         <DashboardFilters />
       </DashboardHeader>
 
-      <Suspense fallback={<ChartSkeleton />}>
-        <SummaryAndChartSection />
-      </Suspense>
+      <SummaryAndChartSection />
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-        <Suspense fallback={<TableSkeleton />}>
-          <PagesAnalyticsSection />
-        </Suspense>
-        {enabledLevels.length > 0 && (
-          <Suspense fallback={<TableSkeleton />}>
-            <GeographySection />
-          </Suspense>
-        )}
-        <Suspense fallback={<TableSkeleton />}>
-          <DevicesSection />
-        </Suspense>
-        <Suspense fallback={<TableSkeleton />}>
-          <TrafficSourcesSection />
-        </Suspense>
-        <Suspense fallback={<TableSkeleton />}>
-          <CustomEventsSection />
-        </Suspense>
-        <Suspense fallback={<TableSkeleton />}>
-          <WeeklyHeatmapSection />
-        </Suspense>
+        <PagesAnalyticsSection />
+        {enabledLevels.length > 0 && <GeographySection />}
+        <DevicesSection />
+        <TrafficSourcesSection />
+        <CustomEventsSection />
+        <WeeklyHeatmapSection />
       </div>
     </div>
   );

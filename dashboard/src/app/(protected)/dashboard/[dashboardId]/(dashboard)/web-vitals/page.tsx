@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { ChartSkeleton, TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import InteractiveWebVitalsChartSection from './InteractiveWebVitalsChartSection';
 import WebVitalsTableSection from './webVitalsTableSection';
@@ -14,15 +12,9 @@ export default async function WebVitalsPage() {
       <DashboardHeader title={t('webVitals')}>
         <DashboardFilters showComparison={false} />
       </DashboardHeader>
-      <Suspense>
-        <WebVitalsBanner />
-      </Suspense>
-      <Suspense fallback={<ChartSkeleton />}>
-        <InteractiveWebVitalsChartSection />
-      </Suspense>
-      <Suspense fallback={<TableSkeleton />}>
-        <WebVitalsTableSection />
-      </Suspense>
+      <WebVitalsBanner />
+      <InteractiveWebVitalsChartSection />
+      <WebVitalsTableSection />
     </div>
   );
 }

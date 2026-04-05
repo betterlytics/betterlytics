@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { Spinner } from '@/components/ui/spinner';
 import UserJourneySection from './UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { UserJourneyFilters } from './UserJourneyFilters';
@@ -22,20 +20,7 @@ export default async function UserJourneyPage() {
         <UserJourneyFilters />
       </div>
 
-      <Suspense
-        fallback={
-          <div className='relative min-h-[400px]'>
-            <div className='bg-background/70 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm'>
-              <div className='flex flex-col items-center'>
-                <Spinner size='lg' className='mb-2' />
-                <p className='text-muted-foreground'>Loading journey data...</p>
-              </div>
-            </div>
-          </div>
-        }
-      >
-        <UserJourneySection />
-      </Suspense>
+      <UserJourneySection />
     </div>
   );
 }

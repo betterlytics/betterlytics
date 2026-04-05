@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
 import CreateFunnelButton from './CreateFunnelButton';
-import FunnelsStack, { FunnelsStackSkeleton } from './FunnelsStack';
+import FunnelsStack from './FunnelsStack';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
@@ -18,9 +17,7 @@ export default async function FunnelsPage() {
         </div>
       </DashboardHeader>
 
-      <Suspense fallback={<FunnelsStackSkeleton />}>
-        <FunnelsStack />
-      </Suspense>
+      <FunnelsStack />
     </div>
   );
 }

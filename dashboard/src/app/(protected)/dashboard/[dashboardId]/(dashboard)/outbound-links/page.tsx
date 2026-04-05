@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import OutboundLinksTableSection from './OutboundLinksTableSection';
 import OutboundLinksChartSection from './OutboundLinksChartSection';
 import OutboundLinksPieChart from './OutboundLinksPieChart';
@@ -16,19 +14,13 @@ export default async function OutboundLinksPage() {
       </DashboardHeader>
 
       <div className='grid grid-cols-1 gap-4 xl:grid-cols-3'>
-        <Suspense fallback={<ChartSkeleton />}>
-          <OutboundLinksPieChart />
-        </Suspense>
+        <OutboundLinksPieChart />
         <div className='xl:col-span-2'>
-          <Suspense fallback={<ChartSkeleton />}>
-            <OutboundLinksChartSection />
-          </Suspense>
+          <OutboundLinksChartSection />
         </div>
       </div>
 
-      <Suspense fallback={<TableSkeleton />}>
-        <OutboundLinksTableSection />
-      </Suspense>
+      <OutboundLinksTableSection />
     </div>
   );
 }

@@ -10,12 +10,14 @@ import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
-import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 
 type TableOutboundLinkRow = Awaited<ReturnType<typeof fetchOutboundLinksAnalyticsAction>>[number];
 
 export default function OutboundLinksTableSection() {
-  const { data: outboundLinksData } = useBASuspenseQuery({
+  const query = useBAQuery({
     queryKey: ['outbound-links-table'],
     queryFn: (dashboardId, query) => fetchOutboundLinksAnalyticsAction(dashboardId, query),
   });
@@ -68,13 +70,17 @@ export default function OutboundLinksTableSection() {
   );
 
   return (
-    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-      <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
-      </CardHeader>
-      <CardContent className='px-0'>
-        <DataTable data={outboundLinksData} columns={columns} />
-      </CardContent>
-    </Card>
+    <QuerySection query={query} fallback={<TableSkeleton />}>
+      {(outboundLinksData) => (
+        <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+          </CardHeader>
+          <CardContent className='px-0'>
+            <DataTable data={outboundLinksData} columns={columns} />
+          </CardContent>
+        </Card>
+      )}
+    </QuerySection>
   );
 }

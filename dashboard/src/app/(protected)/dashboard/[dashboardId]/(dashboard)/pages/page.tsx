@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { SummaryCardsSkeleton, TableSkeleton } from '@/components/skeleton';
 import PagesSummarySection from './PagesSummarySection';
 import PagesTableSection from './PagesTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
@@ -14,13 +12,9 @@ export default async function PagesPage() {
         <DashboardFilters />
       </DashboardHeader>
 
-      <Suspense fallback={<SummaryCardsSkeleton />}>
-        <PagesSummarySection />
-      </Suspense>
+      <PagesSummarySection />
 
-      <Suspense fallback={<TableSkeleton />}>
-        <PagesTableSection />
-      </Suspense>
+      <PagesTableSection />
     </div>
   );
 }

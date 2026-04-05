@@ -3,14 +3,11 @@ import { useEffect } from 'react';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 import { fetchHasCoreWebVitalsData } from '@/app/actions/index.actions';
 
-export function WebVitalsBanner() {
-  const { data: hasData } = useBASuspenseQuery({
-    queryKey: ['cwv-has-data'],
-    queryFn: (dashboardId) => fetchHasCoreWebVitalsData(dashboardId),
-  });
+function WebVitalsBannerInner({ hasData }: { hasData: boolean }) {
   const t = useTranslations('banners.webVitalsNoData');
   const { addBanner, removeBanner } = useBannerContext();
   useEffect(() => {
@@ -39,4 +36,17 @@ export function WebVitalsBanner() {
   }, [hasData, t]);
 
   return null;
+}
+
+export function WebVitalsBanner() {
+  const query = useBAQuery({
+    queryKey: ['cwv-has-data'],
+    queryFn: (dashboardId) => fetchHasCoreWebVitalsData(dashboardId),
+  });
+
+  return (
+    <QuerySection query={query} fallback={null}>
+      {(hasData) => <WebVitalsBannerInner hasData={hasData} />}
+    </QuerySection>
+  );
 }

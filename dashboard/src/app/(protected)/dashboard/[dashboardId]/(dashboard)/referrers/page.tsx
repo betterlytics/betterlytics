@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import ReferrersSummarySection from './ReferrersSummarySection';
 import ReferrersChartsSection from './ReferrersChartsSection';
 import ReferrersTableSection from './ReferrersTableSection';
@@ -14,22 +12,9 @@ export default async function ReferrersPage() {
       <DashboardHeader title={t('referrers')}>
         <DashboardFilters />
       </DashboardHeader>
-      <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
-        <ReferrersSummarySection />
-      </Suspense>
-      <Suspense
-        fallback={
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <ChartSkeleton />
-            <ChartSkeleton />
-          </div>
-        }
-      >
-        <ReferrersChartsSection />
-      </Suspense>
-      <Suspense fallback={<TableSkeleton />}>
-        <ReferrersTableSection />
-      </Suspense>
+      <ReferrersSummarySection />
+      <ReferrersChartsSection />
+      <ReferrersTableSection />
     </div>
   );
 }

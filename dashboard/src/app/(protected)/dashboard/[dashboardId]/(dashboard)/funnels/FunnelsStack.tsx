@@ -4,26 +4,33 @@ import { fetchFunnelsAction } from '@/app/actions/index.actions';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from './FunnelsEmptyState';
 import { FunnelActionButtons } from './FunnelActionButtons';
-import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 
 export function FunnelsStack() {
-  const { data: funnels } = useBASuspenseQuery({
+  const query = useBAQuery({
     queryKey: ['funnels'],
-    queryFn: (dashboardId, query) => fetchFunnelsAction(dashboardId, query.startDate, query.endDate),
+    queryFn: (dashboardId, q) => fetchFunnelsAction(dashboardId, q.startDate, q.endDate),
   });
-  if (!funnels.length) return <FunnelsEmptyState />;
   return (
-    <div className='space-y-10'>
-      {funnels.map((funnel, i) => (
-        <div key={funnel.id + i} className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
-          <div className='flex w-full items-center justify-between'>
-            <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
-            <FunnelActionButtons funnel={funnel} />
+    <QuerySection query={query} fallback={<FunnelsStackSkeleton />}>
+      {(funnels) => {
+        if (!funnels.length) return <FunnelsEmptyState />;
+        return (
+          <div className='space-y-10'>
+            {funnels.map((funnel, i) => (
+              <div key={funnel.id + i} className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
+                <div className='flex w-full items-center justify-between'>
+                  <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
+                  <FunnelActionButtons funnel={funnel} />
+                </div>
+                <FunnelBarplot funnel={funnel} />
+              </div>
+            ))}
           </div>
-          <FunnelBarplot funnel={funnel} />
-        </div>
-      ))}
-    </div>
+        );
+      }}
+    </QuerySection>
   );
 }
 

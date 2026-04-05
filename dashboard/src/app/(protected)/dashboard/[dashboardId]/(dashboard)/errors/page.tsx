@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import { TableSkeleton } from '@/components/skeleton';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ErrorGroupsSection } from './ErrorGroupsSection';
@@ -14,9 +12,7 @@ export default async function ErrorsPage() {
         <DashboardFilters showComparison={false} />
       </DashboardHeader>
 
-      <Suspense fallback={<TableSkeleton />}>
-        <ErrorGroupsSection />
-      </Suspense>
+      <ErrorGroupsSection />
     </div>
   );
 }
