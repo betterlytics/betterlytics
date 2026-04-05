@@ -40,7 +40,7 @@ export function DropdownContentController({ children, className, scrollToKey }: 
         hasScrolledToKey = true;
         const target = el.querySelector<HTMLElement>(`[data-scroll-key="${scrollToKey}"]`);
         if (target) {
-          requestAnimationFrame(() => {
+          setTimeout(() => {
             target.scrollIntoView({ block: 'nearest' });
             target.focus({ preventScroll: true });
           });
