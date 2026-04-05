@@ -23,6 +23,7 @@ const INTERNAL_FILTER_OPERATORS = {
 
 const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
+  rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
   values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
@@ -53,6 +54,11 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
   if (filter.column === 'global_property' && filter.propertyKey) {
     const key = SQL.String({ [`gp_key_${filterIndex}`]: filter.propertyKey });
     return safeSql`${quantifier}(pattern -> JSONExtractString(global_properties_json, ${key}) ${operator} pattern, ${values})`;
+  }
+
+  if (filter.column === 'global_property' && !filter.propertyKey) {
+    const key = SQL.String({ [`gp_key_${filterIndex}`]: filter.values[0] });
+    return safeSql`JSONHas(global_properties_json, ${key}) = ${SQL.Unsafe(filter.rawOperator === '=' ? '1' : '0')}`;
   }
 
   const column = SQL.Unsafe(filter.column);

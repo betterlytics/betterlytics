@@ -2358,6 +2358,8 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "isPresent": "is present",
+      "isNotPresent": "is not present",
       "globalProperties": "{count, plural, one {Global Property} other {Global Properties}}",
       "selectProperty": "Select property",
       "noProperties": "No properties found",

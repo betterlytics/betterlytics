@@ -25,7 +25,7 @@ export default function CustomEventsSection({ eventsAndPropertiesPromise }: Cust
     } else if (tabKey === 'properties' && item.parentPropertyKey) {
       applyFilter('global_property', item.label, { propertyKey: item.parentPropertyKey });
     } else if (tabKey === 'properties') {
-      applyFilter('global_property', item.label, { propertyKey: item.label });
+      applyFilter('global_property', item.label);
     }
   };
 
@@ -66,7 +66,6 @@ export default function CustomEventsSection({ eventsAndPropertiesPromise }: Cust
       title={t('sections.customEvents')}
       defaultTab='events'
       onItemClick={onItemClick}
-      isItemInteractive={isItemInteractive}
       tabs={tabs}
       footer={
         <FilterPreservingLink

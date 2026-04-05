@@ -2369,6 +2369,8 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "isPresent": "er til stede",
+      "isNotPresent": "er ikke til stede",
       "globalProperties": "{count, plural, one {Global egenskap} other {Globale egenskaper}}",
       "selectProperty": "Velg egenskap",
       "noProperties": "Ingen egenskaper funnet",

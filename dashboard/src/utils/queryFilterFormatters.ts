@@ -9,6 +9,11 @@ type QueryFilterTranslation = ReturnType<typeof useTranslations<'components.filt
  * Formats a Query Filter using translations
  */
 export function formatQueryFilter(filter: QueryFilter, t: QueryFilterTranslation, locale?: SupportedLanguages) {
+  if (filter.column === 'global_property' && !filter.propertyKey) {
+    const presence = filter.operator === '=' ? t('isPresent') : t('isNotPresent');
+    return `${filter.values.join(', ')} ${presence}`;
+  }
+
   const column =
     filter.column === 'global_property' && filter.propertyKey
       ? filter.propertyKey
