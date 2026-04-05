@@ -2,18 +2,19 @@
 
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 
-type CustomEventsSectionProps = {
-  customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
-};
-
-export default function CustomEventsSection({ customEventsPromise }: CustomEventsSectionProps) {
-  const customEvents = use(customEventsPromise);
+export default function CustomEventsSection() {
+  const query = useBAQuery({
+    queryKey: ['custom-events'],
+    queryFn: (dashboardId, q) => fetchCustomEventsOverviewAction(dashboardId, q),
+  });
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
@@ -22,31 +23,35 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
   };
 
   return (
-    <MultiProgressTable
-      title={t('sections.customEvents')}
-      defaultTab='events'
-      onItemClick={onItemClick}
-      tabs={[
-        {
-          key: 'events',
-          label: t('tabs.events'),
-          data: customEvents.map((event) => ({
-            label: event.event_name,
-            value: event.current.count,
-            trendPercentage: event.change?.count,
-            comparisonValue: event.compare?.count,
-          })),
-        },
-      ]}
-      footer={
-        <FilterPreservingLink
-          href='events'
-          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-        >
-          <span>{t('goTo', { section: t('sidebar.events') })}</span>
-          <ArrowRight className='h-3.5 w-3.5' />
-        </FilterPreservingLink>
-      }
-    />
+    <QuerySection query={query} fallback={<TableSkeleton />}>
+      {(data) => (
+        <MultiProgressTable
+          title={t('sections.customEvents')}
+          defaultTab='events'
+          onItemClick={onItemClick}
+          tabs={[
+            {
+              key: 'events',
+              label: t('tabs.events'),
+              data: data.map((event) => ({
+                label: event.event_name,
+                value: event.current.count,
+                trendPercentage: event.change?.count,
+                comparisonValue: event.compare?.count,
+              })),
+            },
+          ]}
+          footer={
+            <FilterPreservingLink
+              href='events'
+              className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+            >
+              <span>{t('goTo', { section: t('sidebar.events') })}</span>
+              <ArrowRight className='h-3.5 w-3.5' />
+            </FilterPreservingLink>
+          }
+        />
+      )}
+    </QuerySection>
   );
 }

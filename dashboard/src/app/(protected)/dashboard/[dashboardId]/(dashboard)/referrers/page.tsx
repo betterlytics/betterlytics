@@ -1,57 +1,20 @@
-import { Suspense } from 'react';
-import {
-  fetchReferrerSourceAggregationDataForSite,
-  fetchReferrerSummaryWithChartsDataForSite,
-  fetchReferrerTableDataForSite,
-  fetchReferrerTrafficTrendBySourceDataForSite,
-} from '@/app/actions/index.actions';
-import { SummaryCardsSkeleton, TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import ReferrersSummarySection from './ReferrersSummarySection';
 import ReferrersChartsSection from './ReferrersChartsSection';
 import ReferrersTableSection from './ReferrersTableSection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
-import { getUserTimezone } from '@/lib/cookies';
 
-type ReferrersPageParams = {
-  params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<FilterQuerySearchParams>;
-};
-
-export default async function ReferrersPage({ params, searchParams }: ReferrersPageParams) {
-  const { dashboardId } = await params;
-  const timezone = await getUserTimezone();
-  const query = BAFilterSearchParams.decode(await searchParams, timezone);
-
-  const referrerSummaryWithChartsPromise = fetchReferrerSummaryWithChartsDataForSite(dashboardId, query);
-  const distributionPromise = fetchReferrerSourceAggregationDataForSite(dashboardId, query);
-  const trendPromise = fetchReferrerTrafficTrendBySourceDataForSite(dashboardId, query);
-  const tablePromise = fetchReferrerTableDataForSite(dashboardId, query, 100);
+export default async function ReferrersPage() {
   const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <DashboardHeader title={t('referrers')}>
         <DashboardFilters />
       </DashboardHeader>
-      <Suspense fallback={<SummaryCardsSkeleton count={4} />}>
-        <ReferrersSummarySection referrerSummaryWithChartsPromise={referrerSummaryWithChartsPromise} />
-      </Suspense>
-      <Suspense
-        fallback={
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <ChartSkeleton />
-            <ChartSkeleton />
-          </div>
-        }
-      >
-        <ReferrersChartsSection distributionPromise={distributionPromise} trendPromise={trendPromise} />
-      </Suspense>
-      <Suspense fallback={<TableSkeleton />}>
-        <ReferrersTableSection referrerTablePromise={tablePromise} />
-      </Suspense>
+      <ReferrersSummarySection />
+      <ReferrersChartsSection />
+      <ReferrersTableSection />
     </div>
   );
 }

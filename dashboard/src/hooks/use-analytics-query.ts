@@ -1,26 +1,24 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { useUrlFilters } from './use-url-filters';
 
 export function useAnalyticsQuery(): BAAnalyticsQuery {
   const {
     startDate,
     endDate,
     granularity,
-    timeZone,
+    timezone,
     compareStartDate,
     compareEndDate,
     interval,
     offset,
-    compareMode,
+    compare,
     compareAlignWeekdays,
-  } = useTimeRangeContext();
-  const { queryFilters } = useQueryFiltersContext();
-  const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
+    queryFilters,
+    userJourney: { numberOfSteps, numberOfJourneys },
+  } = useUrlFilters();
 
   return useMemo(
     () => ({
@@ -30,11 +28,11 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       compareEndDate,
       granularity,
       queryFilters,
-      timezone: timeZone,
+      timezone,
       userJourney: { numberOfSteps, numberOfJourneys },
       interval,
       offset,
-      compare: compareMode,
+      compare,
       compareAlignWeekdays,
     }),
     [
@@ -44,12 +42,12 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       compareEndDate,
       granularity,
       queryFilters,
-      timeZone,
+      timezone,
       numberOfSteps,
       numberOfJourneys,
       interval,
       offset,
-      compareMode,
+      compare,
       compareAlignWeekdays,
     ],
   );

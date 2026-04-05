@@ -1,6 +1,5 @@
 'use client';
 
-import { use } from 'react';
 import DeviceUsageTrendChart from './DeviceUsageTrendChart';
 import { fetchDeviceTypeBreakdownAction, fetchDeviceUsageTrendAction } from '@/app/actions/index.actions';
 import BAPieChart from '@/components/BAPieChart';
@@ -10,51 +9,56 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { ChartSkeleton } from '@/components/skeleton';
 
-type DevicesChartsSectionProps = {
-  deviceBreakdownPromise: ReturnType<typeof fetchDeviceTypeBreakdownAction>;
-  deviceUsageTrendPromise: ReturnType<typeof fetchDeviceUsageTrendAction>;
-};
-
-export default function DevicesChartsSection({
-  deviceBreakdownPromise,
-  deviceUsageTrendPromise,
-}: DevicesChartsSectionProps) {
-  const deviceBreakdown = use(deviceBreakdownPromise);
-  const deviceUsageTrend = use(deviceUsageTrendPromise);
+export default function DevicesChartsSection() {
+  const breakdownQuery = useBAQuery({
+    queryKey: ['device-type-breakdown'],
+    queryFn: (dashboardId, query) => fetchDeviceTypeBreakdownAction(dashboardId, query),
+  });
+  const trendQuery = useBAQuery({
+    queryKey: ['device-usage-trend'],
+    queryFn: (dashboardId, query) => fetchDeviceUsageTrendAction(dashboardId, query),
+  });
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.devices.charts');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
+  if (breakdownQuery.isPending || trendQuery.isPending) return <ChartSkeleton />;
+
   return (
-    <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
-        <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-base font-medium'>{t('deviceUsageTrend')}</CardTitle>
-        </CardHeader>
-        <CardContent className='px-0'>
-          <DeviceUsageTrendChart
-            chartData={deviceUsageTrend.data}
-            categories={deviceUsageTrend.categories}
-            comparisonMap={deviceUsageTrend.comparisonMap}
-            granularity={granularity}
-          />
-        </CardContent>
-      </Card>
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
-        <CardHeader className='px-0 pb-0'>
-          <CardTitle className='text-base font-medium'>{t('deviceTypes')}</CardTitle>
-        </CardHeader>
-        <CardContent className='flex flex-1 flex-col px-0'>
-          <BAPieChart
-            data={deviceBreakdown}
-            getColor={getDeviceColor}
-            getLabel={getDeviceLabel}
-            getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
-            onSliceClick={makeFilterClick('device_type')}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <QuerySection loading={breakdownQuery.isFetching || trendQuery.isFetching}>
+      <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
+        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-5'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('deviceUsageTrend')}</CardTitle>
+          </CardHeader>
+          <CardContent className='px-0'>
+            <DeviceUsageTrendChart
+              chartData={trendQuery.data!.data}
+              categories={trendQuery.data!.categories}
+              comparisonMap={trendQuery.data!.comparisonMap}
+              granularity={granularity}
+            />
+          </CardContent>
+        </Card>
+        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4 xl:col-span-3'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('deviceTypes')}</CardTitle>
+          </CardHeader>
+          <CardContent className='flex flex-1 flex-col px-0'>
+            <BAPieChart
+              data={breakdownQuery.data!}
+              getColor={getDeviceColor}
+              getLabel={getDeviceLabel}
+              getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
+              onSliceClick={makeFilterClick('device_type')}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </QuerySection>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { TimeRangeContextProvider, useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import React from 'react';
+import { TimeRangeContextProvider } from '@/contexts/TimeRangeContextProvider';
 import { QueryFiltersContextProvider } from '@/contexts/QueryFiltersContextProvider';
 import { SettingsProvider } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -12,7 +12,6 @@ import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSet
 import DashboardLoading from '@/components/loading/DashboardLoading';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
-import { useBARouter } from '@/hooks/use-ba-router';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -37,7 +36,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
           <QueryFiltersContextProvider>
             <UserJourneyFilterProvider>
               <SyncURLFilters />
-              <RealtimeRefresh />
+
               <PrefetchSavedFilters />
               {children}
             </UserJourneyFilterProvider>
@@ -53,21 +52,6 @@ function SyncURLFilters() {
   return undefined;
 }
 
-function RealtimeRefresh() {
-  const { interval } = useTimeRangeContext();
-  const router = useBARouter();
-
-  useEffect(() => {
-    if (interval === 'realtime') {
-      const refreshInterval = setInterval(() => {
-        router.refresh();
-      }, 30_000);
-      return () => clearInterval(refreshInterval);
-    }
-  }, [interval, router]);
-
-  return undefined;
-}
 
 function PrefetchSavedFilters() {
   useSavedFilters();

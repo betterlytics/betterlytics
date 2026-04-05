@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
@@ -8,7 +8,10 @@ import { formatNumber, formatString } from '@/utils/formatters';
 import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
+import { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
@@ -21,32 +24,35 @@ import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
-type Props = {
-  perPagePromise: Promise<Row[]>;
-  perDevicePromise: Promise<DimRow[]>;
-  perCountryPromise: Promise<DimRow[]>;
-  perBrowserPromise: Promise<DimRow[]>;
-  perOsPromise: Promise<DimRow[]>;
-};
 
-export default function WebVitalsTableSection({
-  perPagePromise,
-  perDevicePromise,
-  perCountryPromise,
-  perBrowserPromise,
-  perOsPromise,
-}: Props) {
+export default function WebVitalsTableSection() {
   const t = useTranslations('components.webVitals.table');
   const tFilters = useTranslations('components.filters');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-  const data = use(perPagePromise);
-  const devices = use(perDevicePromise);
-  const countries = use(perCountryPromise);
-  const browsers = use(perBrowserPromise);
-  const operatingSystems = use(perOsPromise);
+  const urlQuery = useBAQuery({
+    queryKey: ['cwv-by-dimension', 'url'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'url'),
+  });
+  const devicesQuery = useBAQuery({
+    queryKey: ['cwv-by-dimension', 'device_type'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'device_type'),
+  });
+  const countriesQuery = useBAQuery({
+    queryKey: ['cwv-by-dimension', 'country_code'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'country_code'),
+  });
+  const browsersQuery = useBAQuery({
+    queryKey: ['cwv-by-dimension', 'browser'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'browser'),
+  });
+  const osQuery = useBAQuery({
+    queryKey: ['cwv-by-dimension', 'os'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'os'),
+  });
 
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
+  const [activeTab, setActiveTab] = useState<string>('pages');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
 
   const makeColumns = useCallback(
@@ -253,42 +259,42 @@ export default function WebVitalsTableSection({
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
-      { key: 'pages', label: t('tabs.pages'), data, columns: pageColumns, defaultSorting },
+      { key: 'pages', label: t('tabs.pages'), data: urlQuery.data!, columns: pageColumns, defaultSorting },
       {
         key: 'devices',
         label: t('tabs.devices'),
-        data: devices,
+        data: devicesQuery.data!,
         columns: deviceColumns,
         defaultSorting,
       },
       {
         key: 'countries',
         label: t('tabs.countries'),
-        data: countries,
+        data: countriesQuery.data!,
         columns: countryColumns,
         defaultSorting,
       },
       {
         key: 'browsers',
         label: t('tabs.browsers'),
-        data: browsers,
+        data: browsersQuery.data!,
         columns: browserColumns,
         defaultSorting,
       },
       {
         key: 'os',
         label: t('tabs.operatingSystems'),
-        data: operatingSystems,
+        data: osQuery.data!,
         columns: osColumns,
         defaultSorting,
       },
     ],
     [
-      data,
-      devices,
-      countries,
-      browsers,
-      operatingSystems,
+      urlQuery.data,
+      devicesQuery.data,
+      countriesQuery.data,
+      browsersQuery.data,
+      osQuery.data,
       pageColumns,
       deviceColumns,
       countryColumns,
@@ -341,8 +347,6 @@ export default function WebVitalsTableSection({
     [percentileButtons],
   );
 
-  const [activeTab, setActiveTab] = useState<string>('pages');
-
   const mobileTabsRowLeft = useMemo(
     () => (
       <div className='flex w-full items-center gap-2'>
@@ -364,16 +368,20 @@ export default function WebVitalsTableSection({
     [activeTab, tabs, percentileButtons],
   );
 
+  if (urlQuery.isPending || devicesQuery.isPending || countriesQuery.isPending || browsersQuery.isPending || osQuery.isPending) return <TableSkeleton />;
+
   return (
-    <TabbedTable
-      title={t('title')}
-      tabs={tabs}
-      defaultTab='pages'
-      tabValue={activeTab}
-      onTabValueChange={setActiveTab}
-      headerActions={headerActions}
-      tabsRowLeftMobile={mobileTabsRowLeft}
-      hideTabsListOnMobile
-    />
+    <QuerySection loading={urlQuery.isFetching || devicesQuery.isFetching || countriesQuery.isFetching || browsersQuery.isFetching || osQuery.isFetching}>
+      <TabbedTable
+        title={t('title')}
+        tabs={tabs}
+        defaultTab='pages'
+        tabValue={activeTab}
+        onTabValueChange={setActiveTab}
+        headerActions={headerActions}
+        tabsRowLeftMobile={mobileTabsRowLeft}
+        hideTabsListOnMobile
+      />
+    </QuerySection>
   );
 }

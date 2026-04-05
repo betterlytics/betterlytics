@@ -1,6 +1,4 @@
-import { Suspense } from 'react';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { TableSkeleton, ChartSkeleton } from '@/components/skeleton';
 import SummaryAndChartSection from './SummaryAndChartSection';
 import PagesAnalyticsSection from './PagesAnalyticsSection';
 import GeographySection from './GeographySection';
@@ -8,51 +6,12 @@ import DevicesSection from './DevicesSection';
 import TrafficSourcesSection from './TrafficSourcesSection';
 import CustomEventsSection from './CustomEventsSection';
 import WeeklyHeatmapSection from './WeeklyHeatmapSection';
-import {
-  fetchDeviceBreakdownCombinedAction,
-  fetchPageAnalyticsCombinedAction,
-  fetchSummaryAndChartDataAction,
-  getTopGeoVisitsAction,
-} from '@/app/actions/index.actions';
-import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
-import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
-import { getUserTimezone } from '@/lib/cookies';
 
-type DashboardPageParams = {
-  params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<FilterQuerySearchParams>;
-};
-
-export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
-  const { dashboardId } = await params;
-  const timezone = await getUserTimezone();
-  const query = BAFilterSearchParams.decode(await searchParams, timezone);
-
+export default async function DashboardPage() {
   const enabledLevels = getEnabledGeoLevels();
-
-  const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
-
-  const topByGeoLevel = Object.fromEntries(
-    GEO_LEVELS.map((level) => [
-      level,
-      enabledLevels.includes(level)
-        ? getTopGeoVisitsAction(dashboardId, query, level)
-        : Promise.resolve([]) as ReturnType<typeof getTopGeoVisitsAction>,
-    ]),
-  ) as Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>>;
-
-  const summaryAndChartPromise = fetchSummaryAndChartDataAction(dashboardId, query);
-
-  const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, query);
-  const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(dashboardId, query, 10);
-  const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, query);
-
   const t = await getTranslations('dashboard.sidebar');
 
   return (
@@ -61,30 +20,15 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         <DashboardFilters />
       </DashboardHeader>
 
-      <Suspense fallback={<ChartSkeleton />}>
-        <SummaryAndChartSection data={summaryAndChartPromise} />
-      </Suspense>
+      <SummaryAndChartSection />
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-        <Suspense fallback={<TableSkeleton />}>
-          <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
-        </Suspense>
-        {enabledLevels.length > 0 && (
-          <Suspense fallback={<TableSkeleton />}>
-            <GeographySection topByGeoLevel={topByGeoLevel} />
-          </Suspense>
-        )}
-        <Suspense fallback={<TableSkeleton />}>
-          <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
-        </Suspense>
-
-        <Suspense fallback={<TableSkeleton />}>
-          <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
-        </Suspense>
-        <Suspense fallback={<TableSkeleton />}>
-          <CustomEventsSection customEventsPromise={customEventsPromise} />
-        </Suspense>
-        <WeeklyHeatmapSection dashboardId={dashboardId} />
+        <PagesAnalyticsSection />
+        {enabledLevels.length > 0 && <GeographySection enabledLevels={enabledLevels} />}
+        <DevicesSection />
+        <TrafficSourcesSection />
+        <CustomEventsSection />
+        <WeeklyHeatmapSection />
       </div>
     </div>
   );
