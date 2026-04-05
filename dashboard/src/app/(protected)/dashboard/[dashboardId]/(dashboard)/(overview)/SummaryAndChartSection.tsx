@@ -1,5 +1,6 @@
 'use client';
-import { useState, useCallback, use } from 'react';
+import { useState, useCallback } from 'react';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 import { formatDuration } from '@/utils/dateFormatters';
 import { fetchSummaryAndChartDataAction } from '@/app/actions/index.actions';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
@@ -9,12 +10,11 @@ import { formatNumber, formatPercentage } from '@/utils/formatters';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
-type SummaryAndChartSectionProps = {
-  data: Promise<Awaited<ReturnType<typeof fetchSummaryAndChartDataAction>>>;
-};
-
-export default function SummaryAndChartSection({ data }: SummaryAndChartSectionProps) {
-  const summaryData = use(data);
+export default function SummaryAndChartSection() {
+  const { data: summaryData } = useBASuspenseQuery({
+    queryKey: ['summary-chart'],
+    queryFn: (dashboardId, query) => fetchSummaryAndChartDataAction(dashboardId, query),
+  });
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
   const locale = useLocale();
   const t = useTranslations('dashboard.metrics');

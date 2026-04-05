@@ -8,51 +8,12 @@ import DevicesSection from './DevicesSection';
 import TrafficSourcesSection from './TrafficSourcesSection';
 import CustomEventsSection from './CustomEventsSection';
 import WeeklyHeatmapSection from './WeeklyHeatmapSection';
-import {
-  fetchDeviceBreakdownCombinedAction,
-  fetchPageAnalyticsCombinedAction,
-  fetchSummaryAndChartDataAction,
-  getTopGeoVisitsAction,
-} from '@/app/actions/index.actions';
-import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
-import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
-import { getUserTimezone } from '@/lib/cookies';
 
-type DashboardPageParams = {
-  params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<FilterQuerySearchParams>;
-};
-
-export default async function DashboardPage({ params, searchParams }: DashboardPageParams) {
-  const { dashboardId } = await params;
-  const timezone = await getUserTimezone();
-  const query = BAFilterSearchParams.decode(await searchParams, timezone);
-
+export default async function DashboardPage() {
   const enabledLevels = getEnabledGeoLevels();
-
-  const analyticsCombinedPromise = fetchPageAnalyticsCombinedAction(dashboardId, query, 10);
-
-  const topByGeoLevel = Object.fromEntries(
-    GEO_LEVELS.map((level) => [
-      level,
-      enabledLevels.includes(level)
-        ? getTopGeoVisitsAction(dashboardId, query, level)
-        : Promise.resolve([]) as ReturnType<typeof getTopGeoVisitsAction>,
-    ]),
-  ) as Record<GeoLevel, ReturnType<typeof getTopGeoVisitsAction>>;
-
-  const summaryAndChartPromise = fetchSummaryAndChartDataAction(dashboardId, query);
-
-  const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, query);
-  const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(dashboardId, query, 10);
-  const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, query);
-
   const t = await getTranslations('dashboard.sidebar');
 
   return (
@@ -62,29 +23,30 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
       </DashboardHeader>
 
       <Suspense fallback={<ChartSkeleton />}>
-        <SummaryAndChartSection data={summaryAndChartPromise} />
+        <SummaryAndChartSection />
       </Suspense>
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
         <Suspense fallback={<TableSkeleton />}>
-          <PagesAnalyticsSection analyticsCombinedPromise={analyticsCombinedPromise} />
+          <PagesAnalyticsSection />
         </Suspense>
         {enabledLevels.length > 0 && (
           <Suspense fallback={<TableSkeleton />}>
-            <GeographySection topByGeoLevel={topByGeoLevel} />
+            <GeographySection />
           </Suspense>
         )}
         <Suspense fallback={<TableSkeleton />}>
-          <DevicesSection deviceBreakdownCombinedPromise={devicePromise} />
-        </Suspense>
-
-        <Suspense fallback={<TableSkeleton />}>
-          <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
+          <DevicesSection />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <CustomEventsSection customEventsPromise={customEventsPromise} />
+          <TrafficSourcesSection />
         </Suspense>
-        <WeeklyHeatmapSection dashboardId={dashboardId} />
+        <Suspense fallback={<TableSkeleton />}>
+          <CustomEventsSection />
+        </Suspense>
+        <Suspense fallback={<TableSkeleton />}>
+          <WeeklyHeatmapSection />
+        </Suspense>
       </div>
     </div>
   );

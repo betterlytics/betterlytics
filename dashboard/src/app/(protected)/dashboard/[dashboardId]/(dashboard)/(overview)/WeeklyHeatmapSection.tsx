@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo, useState, type CSSProperties, useCallback, useEffect } from 'react';
+import { Fragment, useMemo, useState, useCallback, type CSSProperties } from 'react';
 import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
 import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,15 +10,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { formatDuration } from '@/utils/dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { useLocale, useTranslations } from 'next-intl';
-import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-
-type WeeklyHeatmapSectionProps = {
-  dashboardId: string;
-};
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -40,12 +35,11 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number, locale: 
   }
 }
 
-export default function WeeklyHeatmapSection({ dashboardId }: WeeklyHeatmapSectionProps) {
-  const query = useAnalyticsQuery();
-  const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
-  useEffect(() => {
-    fetchWeeklyHeatmapAllAction(dashboardId, query).then((res) => setAllData(res));
-  }, [dashboardId, query]);
+export default function WeeklyHeatmapSection() {
+  const { data: allData } = useBASuspenseQuery({
+    queryKey: ['weekly-heatmap'],
+    queryFn: (dashboardId, query) => fetchWeeklyHeatmapAllAction(dashboardId, query),
+  });
 
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
@@ -72,10 +66,6 @@ export default function WeeklyHeatmapSection({ dashboardId }: WeeklyHeatmapSecti
   const onMetricChange = (next: string) => {
     setSelectedMetric(next as HeatmapMetric);
   };
-
-  if (!allData) {
-    return <HeatmapSkeleton />;
-  }
 
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>

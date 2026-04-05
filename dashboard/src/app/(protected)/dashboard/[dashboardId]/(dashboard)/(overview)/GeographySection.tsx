@@ -1,10 +1,10 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import type { getTopGeoVisitsAction } from '@/app/actions/analytics/geography.actions';
+import { getTopGeoVisitsAction } from '@/app/actions/analytics/geography.actions';
 import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
-import { use, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
@@ -14,17 +14,12 @@ import { GEO_LEVELS, type GeoLevel, type WorldMapResponse } from '@/entities/ana
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useParams } from 'next/navigation';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 import dynamic from 'next/dynamic';
 import GeographyLoading from '@/components/loading/GeographyLoading';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
-
-type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
-
-type GeographySectionProps = {
-  topByGeoLevel: Record<GeoLevel, GeoTablePromise>;
-};
 
 const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLanguages) => string> = {
   country_code: getCountryName,
@@ -33,14 +28,13 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
 };
 
 function WorldMapContent({
-  dashboardId,
   data,
   onLoad,
 }: {
-  dashboardId: string;
   data: WorldMapResponse | null;
   onLoad: (data: WorldMapResponse) => void;
 }) {
+  const dashboardId = useDashboardId();
   const query = useAnalyticsQuery();
 
   useEffect(() => {
@@ -59,13 +53,23 @@ function WorldMapContent({
   );
 }
 
-export default function GeographySection({ topByGeoLevel }: GeographySectionProps) {
-  const { dashboardId } = useParams<{ dashboardId: string }>();
+export default function GeographySection() {
   const query = useAnalyticsQuery();
   const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
-  const countryData = use(topByGeoLevel.country_code);
-  const subdivisionData = use(topByGeoLevel.subdivision_code);
-  const cityData = use(topByGeoLevel.city);
+
+  const { data: countryData } = useBASuspenseQuery({
+    queryKey: ['geo-visits', 'country_code'],
+    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'country_code'),
+  });
+  const { data: subdivisionData } = useBASuspenseQuery({
+    queryKey: ['geo-visits', 'subdivision_code'],
+    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'subdivision_code'),
+  });
+  const { data: cityData } = useBASuspenseQuery({
+    queryKey: ['geo-visits', 'city'],
+    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'city'),
+  });
+
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -74,7 +78,7 @@ export default function GeographySection({ topByGeoLevel }: GeographySectionProp
     setWorldMapData(null);
   }, [query]);
 
-  const resolvedByLevel = useMemo<Record<GeoLevel, Awaited<GeoTablePromise>>>(
+  const resolvedByLevel = useMemo<Record<GeoLevel, Awaited<ReturnType<typeof getTopGeoVisitsAction>>>>(
     () => ({
       country_code: countryData,
       subdivision_code: subdivisionData,
@@ -125,7 +129,7 @@ export default function GeographySection({ topByGeoLevel }: GeographySectionProp
           label: t('tabs.worldMap'),
           data: [],
           customContent: (
-            <WorldMapContent dashboardId={dashboardId} data={worldMapData} onLoad={setWorldMapData} />
+            <WorldMapContent data={worldMapData} onLoad={setWorldMapData} />
           ),
         },
       ]}

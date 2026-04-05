@@ -1,18 +1,17 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchPageAnalyticsCombinedAction } from '@/app/actions/index.actions';
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type PageAnalyticsSectionProps = {
-  analyticsCombinedPromise: ReturnType<typeof fetchPageAnalyticsCombinedAction>;
-};
-
-export default function PagesAnalyticsSection({ analyticsCombinedPromise }: PageAnalyticsSectionProps) {
-  const pageAnalyticsCombined = use(analyticsCombinedPromise);
+export default function PagesAnalyticsSection() {
+  const { data: pageAnalyticsCombined } = useBASuspenseQuery({
+    queryKey: ['pages-analytics'],
+    queryFn: (dashboardId, query) => fetchPageAnalyticsCombinedAction(dashboardId, query, 10),
+  });
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 

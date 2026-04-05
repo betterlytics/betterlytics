@@ -1,7 +1,6 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchDeviceBreakdownCombinedAction } from '@/app/actions/analytics/devices.actions';
-import { use } from 'react';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
@@ -9,13 +8,13 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type DevicesSectionProps = {
-  deviceBreakdownCombinedPromise: ReturnType<typeof fetchDeviceBreakdownCombinedAction>;
-};
-
-export default function DevicesSection({ deviceBreakdownCombinedPromise }: DevicesSectionProps) {
-  const deviceBreakdownCombined = use(deviceBreakdownCombinedPromise);
+export default function DevicesSection() {
+  const { data: deviceBreakdownCombined } = useBASuspenseQuery({
+    queryKey: ['devices-breakdown'],
+    queryFn: (dashboardId, query) => fetchDeviceBreakdownCombinedAction(dashboardId, query),
+  });
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 

@@ -2,18 +2,17 @@
 
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type TrafficSourcesSectionProps = {
-  trafficSourcesCombinedPromise: ReturnType<typeof fetchTrafficSourcesCombinedAction>;
-};
-
-export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }: TrafficSourcesSectionProps) {
-  const trafficSourcesCombined = use(trafficSourcesCombinedPromise);
+export default function TrafficSourcesSection() {
+  const { data: trafficSourcesCombined } = useBASuspenseQuery({
+    queryKey: ['traffic-sources'],
+    queryFn: (dashboardId, query) => fetchTrafficSourcesCombinedAction(dashboardId, query, 10),
+  });
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 

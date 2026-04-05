@@ -2,18 +2,17 @@
 
 import MultiProgressTable from '@/components/MultiProgressTable';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type CustomEventsSectionProps = {
-  customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
-};
-
-export default function CustomEventsSection({ customEventsPromise }: CustomEventsSectionProps) {
-  const customEvents = use(customEventsPromise);
+export default function CustomEventsSection() {
+  const { data: customEvents } = useBASuspenseQuery({
+    queryKey: ['custom-events'],
+    queryFn: (dashboardId, query) => fetchCustomEventsOverviewAction(dashboardId, query),
+  });
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
