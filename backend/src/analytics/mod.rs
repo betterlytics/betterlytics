@@ -40,6 +40,9 @@ pub struct RawTrackingEvent {
     pub scroll_depth_pixels: Option<f32>,
     /// JS error exception payload
     pub error_exceptions: Option<String>,
+    /// Global properties - user-defined metadata attached to all events
+    #[serde(default)]
+    pub global_properties: Option<serde_json::Value>,
 }
 
 /// The main analytics event type that includes server-side data

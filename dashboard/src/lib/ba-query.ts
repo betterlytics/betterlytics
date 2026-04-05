@@ -46,11 +46,16 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
-  const column = SQL.Unsafe(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
+  if (filter.column === 'global_property' && filter.propertyKey) {
+    const key = SQL.String({ [`gp_key_${filterIndex}`]: filter.propertyKey });
+    return safeSql`${quantifier}(pattern -> JSONExtractString(global_properties_json, ${key}) ${operator} pattern, ${values})`;
+  }
+
+  const column = SQL.Unsafe(filter.column);
   return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
 }
 

@@ -2364,6 +2364,9 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
+      "globalProperties": "{count, plural, one {Proprietà globale} other {Proprietà globali}}",
+      "selectProperty": "Seleziona proprietà",
+      "noProperties": "Nessuna proprietà trovata",
       "namePlaceholder": "Inserisci nome passaggio",
       "columns": {
         "url": "URL",
@@ -2384,7 +2387,8 @@
         "utm_term": "Termine UTM",
         "utm_content": "Contenuto UTM",
         "custom_event_name": "Evento",
-        "event_type": "Tipo di evento"
+        "event_type": "Tipo di evento",
+        "global_property": "Proprietà globale"
       },
       "selector": {
         "triggerLabel": "Filtri",

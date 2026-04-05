@@ -1,0 +1,33 @@
+---
+title: "Global Properties"
+description: "Attach persistent key-value metadata to all analytics events. Filter your dashboard by plan, environment, app version, and more."
+---
+
+# Global Properties
+
+Attach key-value metadata to every analytics event sent from a page. Unlike [custom event properties](/integration/custom-events), which are per-event, global properties persist across all events for the lifetime of the page.
+
+## Setting Global Properties
+
+Call `setGlobalProperties()` once your app has the data available:
+
+```javascript
+betterlytics.setGlobalProperties({
+  plan: "premium",
+  app_version: "2.1.0",
+  environment: "production",
+});
+```
+
+All subsequent events will include these properties automatically.
+
+Calling `setGlobalProperties()` again replaces all previously set properties. You can read the current properties with `betterlytics.getGlobalProperties()`.
+
+## Property Guidelines
+
+- Values must be strings, numbers, or booleans
+- Maximum 30 keys, 64 characters per key, 500 characters per value
+
+## Filtering in the Dashboard
+
+Once events with global properties are collected, they appear in the filter dropdown under **Global Properties**. Select a property key to filter all dashboard views by its values.

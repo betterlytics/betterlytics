@@ -2364,6 +2364,9 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "globalProperties": "{count, plural, one {Global egenskap} other {Globale egenskaper}}",
+      "selectProperty": "Velg egenskap",
+      "noProperties": "Ingen egenskaper funnet",
       "namePlaceholder": "Angi trinnnavn",
       "columns": {
         "url": "URL-adresse",
@@ -2384,7 +2387,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-innhold",
         "custom_event_name": "Hendelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "global_property": "Global egenskap"
       },
       "selector": {
         "triggerLabel": "Filtre",

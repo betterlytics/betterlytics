@@ -1,4 +1,5 @@
 import { FilterColumn, FilterOperator, QueryFilter } from '@/entities/analytics/filter.entities';
+import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
 import {
   Select,
   SelectContent,
@@ -8,13 +9,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { QueryFilterInputSubMenu } from './QueryFilterInputSubMenu';
+import { DropdownContentController } from '../DropdownContentController';
 import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
   Building2Icon,
   CableIcon,
+  CheckIcon,
+  ChevronDownIcon,
   CompassIcon,
   EarthIcon,
   ExternalLinkIcon,
@@ -27,6 +44,7 @@ import {
   StepBackIcon,
   SunsetIcon,
   TabletSmartphoneIcon,
+  TagsIcon,
   TextCursorInputIcon,
   TextSearchIcon,
   Trash2,
@@ -36,6 +54,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from './FilterValueSearch';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+
+const DEMO_ALLOWED_COLUMNS = new Set<FilterColumn>(['url', 'device_type']);
 
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
@@ -54,49 +74,96 @@ export function QueryFilterInputRow<TEntity>({
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
-  const demoAllowedColumns = new Set<FilterColumn>(['url', 'device_type']);
-  const filterColumnRef = useRef<string>(filter.column);
+  const dashboardId = useDashboardId();
+  const analyticsQuery = useAnalyticsQuery();
+
+  const { data: globalPropertyKeys = [], isLoading: isLoadingPropertyKeys } = useQuery({
+    queryKey: ['global-property-keys', analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
+    queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+  const filterKeyRef = useRef<string>(filter.column + (filter.propertyKey ?? ''));
   useEffect(() => {
-    if (filter.column !== filterColumnRef.current) {
+    const key = filter.column + (filter.propertyKey ?? '');
+    if (key !== filterKeyRef.current) {
       onFilterUpdate({ ...filter, values: [] });
-      filterColumnRef.current = filter.column;
+      filterKeyRef.current = key;
     }
-  }, [filter.column]);
+  }, [filter.column, filter.propertyKey]);
+
+  const isGlobalProperty = filter.column === 'global_property';
+  const columnLabel = isGlobalProperty
+    ? filter.propertyKey || '...'
+    : t(`columns.${filter.column}` as Parameters<typeof t>[0]);
 
   return (
-    <div className='grid grid-cols-12 gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
-      <Select
-        value={filter.column}
-        onValueChange={(column: FilterColumn) => {
-          if (isDemo && !demoAllowedColumns.has(column)) return;
-          onFilterUpdate({ ...filter, column });
-        }}
-      >
-        <SelectTrigger className='col-span-8 w-full cursor-pointer md:col-span-4'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent
-          align={'start'}
-          position={'popper'}
-          className={cn('w-[--radix-select-trigger-width]', isMobile && 'max-h-72')}
-        >
-          <SelectGroup>
-            <SelectLabel>{t('type')}</SelectLabel>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-              const disabled = isDemo && !demoAllowedColumns.has(column.value as FilterColumn);
-              return (
-                <SelectItem className='cursor-pointer' key={column.value} value={column.value} disabled={disabled}>
-                  {column.icon}
-                  {t(`columns.${column.value}`)}
-                  {disabled && (
-                    <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
-                  )}
-                </SelectItem>
-              );
-            })}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+    <div className='grid grid-cols-12 items-end gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+      <div className='col-span-8 flex flex-col md:col-span-4'>
+        {isGlobalProperty && (
+          <span className='text-muted-foreground/60 mb-0.5 px-1 text-xs leading-none'>
+            {t('globalProperties', { count: 1 })}
+          </span>
+        )}
+        <DropdownMenu modal>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                'border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*="text-"])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs outline-none focus-visible:ring-[3px]',
+              )}
+            >
+              <span className='flex items-center gap-2 truncate'>{columnLabel}</span>
+              <ChevronDownIcon className='size-4 opacity-50' />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent collisionPadding={16} align='start' className='min-w-56 overflow-clip!'>
+            <DropdownContentController
+              className={
+                isMobile
+                  ? 'max-h-72'
+                  : 'max-h-[min(36rem,calc(var(--radix-dropdown-menu-content-available-height)-0.5rem))]'
+              }
+              scrollToKey={filter.column}
+            >
+              <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>
+                {t('type')}
+              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+                  const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
+                  const active = filter.column === column.value;
+                  return (
+                    <DropdownMenuItem
+                      key={column.value}
+                      disabled={disabled}
+                      data-scroll-key={column.value}
+                      onSelect={() => onFilterUpdate({ ...filter, column: column.value })}
+                    >
+                      {column.icon}
+                      {t(`columns.${column.value}`)}
+                      {disabled && (
+                        <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
+                      )}
+                      {active && <CheckIcon className='ml-auto size-4' />}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <QueryFilterInputSubMenu
+                label={t('globalProperties', { count: 2 })}
+                icon={<TagsIcon className='size-4' />}
+                items={globalPropertyKeys.map((key) => ({ key, label: key }))}
+                activeKey={isGlobalProperty ? filter.propertyKey : undefined}
+                scrollKey='global_property'
+                isLoading={isLoadingPropertyKeys}
+                disabled={isDemo}
+                onSelect={(key) => onFilterUpdate({ ...filter, column: 'global_property', propertyKey: key })}
+              />
+            </DropdownContentController>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <Select
         value={filter.operator}
         onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}

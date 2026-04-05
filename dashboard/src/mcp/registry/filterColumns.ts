@@ -20,6 +20,7 @@ const FILTER_COLUMN_DESCRIPTIONS: Record<FilterColumn, string> = {
   utm_content: 'UTM content parameter',
   event_type: 'Event type (pageview, custom, outbound_link)',
   custom_event_name: 'Name of custom event',
+  global_property: 'Global property filter (requires propertyKey)',
 };
 
 export function getFilterColumnDescription(column: FilterColumn): string {

@@ -2356,6 +2356,9 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "globalProperties": "{count, plural, one {Global egenskab} other {Globale egenskaber}}",
+      "selectProperty": "Vælg egenskab",
+      "noProperties": "Ingen egenskaber fundet",
       "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
@@ -2376,7 +2379,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-indhold",
         "custom_event_name": "Hændelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "global_property": "Global egenskab"
       },
       "selector": {
         "triggerLabel": "Filtre",

@@ -64,6 +64,7 @@ pub struct ProcessedEvent {
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
+    pub global_properties_json: String,
 }
 
 /// Event processor that handles real-time processing
@@ -128,6 +129,7 @@ impl EventProcessor {
             error_type: String::new(),
             error_message: String::new(),
             error_fingerprint: String::new(),
+            global_properties_json: String::new(),
         };
 
         // Handle event types
@@ -224,7 +226,11 @@ impl EventProcessor {
         } else {
             processed.event_type = event_name;
         }
-        
+
+        if let Some(ref gp) = processed.event.raw.global_properties {
+            processed.global_properties_json = gp.to_string();
+        }
+
         Ok(())
     }
 

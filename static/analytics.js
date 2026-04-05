@@ -63,6 +63,8 @@
   // Store current URL for SPA navigation
   var currentPath = window.location.pathname;
 
+  var globalProperties = {};
+
   // Scroll depth tracking state
   var currentUrl = null;
   var maxScrollDepthPx = 0;
@@ -107,6 +109,7 @@
         user_agent: userAgent,
         screen_resolution: screenResolution,
         timestamp: Math.floor(Date.now() / 1000),
+        global_properties: Object.assign({}, globalProperties),
         ...overrides,
       }),
     })
@@ -124,6 +127,22 @@
         is_custom_event: true,
         properties: JSON.stringify(eventProps),
       }),
+    setGlobalProperties: function (props) {
+      if (props == null || typeof props !== "object" || Array.isArray(props)) {
+        return console.error("Betterlytics: setGlobalProperties requires a flat object");
+      }
+      globalProperties = {};
+      var keys = Object.keys(props);
+      for (var i = 0; i < keys.length; i++) {
+        var val = props[keys[i]];
+        if (["string", "number", "boolean"].includes(typeof val)) {
+          globalProperties[keys[i]] = val;
+        }
+      }
+    },
+    getGlobalProperties: function () {
+      return Object.assign({}, globalProperties);
+    },
     setReplayConsent: function (consented) {
       var CONSENT_KEY = "betterlytics:replay_consent";
       try {

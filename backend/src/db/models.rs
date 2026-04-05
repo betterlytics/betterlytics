@@ -48,6 +48,7 @@ pub struct EventRow {
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
+    pub global_properties_json: String,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -125,6 +126,7 @@ impl EventRow {
             error_type: event.error_type,
             error_message: event.error_message,
             error_fingerprint: event.error_fingerprint,
+            global_properties_json: event.global_properties_json,
         }
     }
 }

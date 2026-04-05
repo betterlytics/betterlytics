@@ -2353,6 +2353,9 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "globalProperties": "{count, plural, one {Global Property} other {Global Properties}}",
+      "selectProperty": "Select property",
+      "noProperties": "No properties found",
       "namePlaceholder": "Enter step name",
       "columns": {
         "url": "URL",
@@ -2373,7 +2376,8 @@
         "utm_term": "UTM term",
         "utm_content": "UTM content",
         "custom_event_name": "Event",
-        "event_type": "Event type"
+        "event_type": "Event type",
+        "global_property": "Global Property"
       },
       "selector": {
         "triggerLabel": "Filters",

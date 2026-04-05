@@ -20,6 +20,7 @@ export const FILTER_COLUMNS = [
   'utm_content',
   'event_type',
   'custom_event_name',
+  'global_property',
 ] as const;
 
 export const FILTER_OPERATORS = ['=', '!='] as const;
@@ -29,6 +30,7 @@ export const QueryFilterSchema = z.object({
   column: z.enum(FILTER_COLUMNS),
   operator: z.enum(FILTER_OPERATORS),
   values: z.array(z.string()),
+  propertyKey: z.string().optional(),
 });
 
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
