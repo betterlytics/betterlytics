@@ -92,7 +92,7 @@ export function QueryFilterInputSubMenu({
         style={{ maxWidth: 'calc(var(--radix-dropdown-menu-content-available-width))', minWidth: 0 }}
       >
         {isLoading ? (
-          <div className='space-y-1 p-1'>
+          <div className='min-w-32 space-y-1 p-1'>
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className='h-7 w-full rounded-sm' />
             ))}

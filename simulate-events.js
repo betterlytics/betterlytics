@@ -99,7 +99,9 @@ const GLOBAL_PROPERTIES_POOL = [
   { plan: "premium", environment: "production", browser_lang: "en-US", signup_source: "google", referral_code: "REF123", team_size: "10" },
   { plan: "free", environment: "staging", app_version: "3.0.0-beta", feature_flags: "beta_ui", onboarding_step: "3", user_tier: "trial" },
   { plan: "enterprise", department: "engineering", cost_center: "CC-100", project: "atlas", sprint: "24", priority: "high" },
-  { plan: "premium", country: "US", currency: "USD", timezone: "America/New_York", device_class: "desktop", connection_type: "wifi" },
+  { plan: "premium", country: "US", currency: "USD", timezone: "America/New_York", device_class: "desktop", connection_type: "wifi", price: 19.99 },
+  { plan: "free", app_version: "v2.3.1", score: 4.5, active: true, seats: 1 },
+  { plan: "enterprise", app_version: "v1.0.0", score: 87.125, active: false, seats: 250 },
   {},
   {},
 ];
