@@ -1,18 +1,17 @@
 'use client';
 
-import { use } from 'react';
 import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
 import { Card, CardContent } from '@/components/ui/card';
 import UserJourneyChart from './UserJourneyChart';
 import { useTranslations } from 'next-intl';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type UserJourneySectionProps = {
-  userJourneyPromise: ReturnType<typeof fetchUserJourneyAction>;
-};
-
-export default function UserJourneySection({ userJourneyPromise }: UserJourneySectionProps) {
+export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
-  const journeyData = use(userJourneyPromise);
+  const { data: journeyData } = useBASuspenseQuery({
+    queryKey: ['user-journey'],
+    queryFn: (dashboardId, query) => fetchUserJourneyAction(dashboardId, query),
+  });
 
   if (journeyData?.nodes.length === 0) {
     return (

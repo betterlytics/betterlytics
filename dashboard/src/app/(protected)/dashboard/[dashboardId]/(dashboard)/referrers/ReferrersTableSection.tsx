@@ -1,17 +1,16 @@
 'use client';
 
-import { use } from 'react';
 import ReferrerTable from './ReferrerTable';
 import { fetchReferrerTableDataForSite } from '@/app/actions/index.actions';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type ReferrersTableSectionProps = {
-  referrerTablePromise: ReturnType<typeof fetchReferrerTableDataForSite>;
-};
-
-export default function ReferrersTableSection({ referrerTablePromise }: ReferrersTableSectionProps) {
-  const tableResult = use(referrerTablePromise);
+export default function ReferrersTableSection() {
+  const { data: tableResult } = useBASuspenseQuery({
+    queryKey: ['referrer-table'],
+    queryFn: (dashboardId, query) => fetchReferrerTableDataForSite(dashboardId, query, 100),
+  });
   const tableData = tableResult.data;
   const t = useTranslations('components.referrers.table');
 

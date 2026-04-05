@@ -1,15 +1,16 @@
-import { use } from 'react';
-import type { fetchFunnelsAction } from '@/app/actions/index.actions';
+'use client';
+
+import { fetchFunnelsAction } from '@/app/actions/index.actions';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from './FunnelsEmptyState';
 import { FunnelActionButtons } from './FunnelActionButtons';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type FunnelsStackProps = {
-  promise: ReturnType<typeof fetchFunnelsAction>;
-};
-
-export function FunnelsStack({ promise }: FunnelsStackProps) {
-  const funnels = use(promise);
+export function FunnelsStack() {
+  const { data: funnels } = useBASuspenseQuery({
+    queryKey: ['funnels'],
+    queryFn: (dashboardId, query) => fetchFunnelsAction(dashboardId, query.startDate, query.endDate),
+  });
   if (!funnels.length) return <FunnelsEmptyState />;
   return (
     <div className='space-y-10'>
@@ -26,7 +27,7 @@ export function FunnelsStack({ promise }: FunnelsStackProps) {
   );
 }
 
-FunnelsStack.Skeleton = function Skeleton() {
+export function FunnelsStackSkeleton() {
   return (
     <div className='space-y-10'>
       {Array.from({ length: 2 }).map((_, i) => (
@@ -37,6 +38,6 @@ FunnelsStack.Skeleton = function Skeleton() {
       ))}
     </div>
   );
-};
+}
 
 export default FunnelsStack;

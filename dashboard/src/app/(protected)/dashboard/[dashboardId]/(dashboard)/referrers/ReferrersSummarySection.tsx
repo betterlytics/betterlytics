@@ -1,18 +1,17 @@
-import { use } from 'react';
+'use client';
+
 import { fetchReferrerSummaryWithChartsDataForSite } from '@/app/actions/index.actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type ReferrersSummarySectionProps = {
-  referrerSummaryWithChartsPromise: ReturnType<typeof fetchReferrerSummaryWithChartsDataForSite>;
-};
-
-export default function ReferrersSummarySection({
-  referrerSummaryWithChartsPromise,
-}: ReferrersSummarySectionProps) {
-  const summaryResult = use(referrerSummaryWithChartsPromise);
+export default function ReferrersSummarySection() {
+  const { data: summaryResult } = useBASuspenseQuery({
+    queryKey: ['referrer-summary-charts'],
+    queryFn: (dashboardId, query) => fetchReferrerSummaryWithChartsDataForSite(dashboardId, query),
+  });
   const summaryData = summaryResult.data;
   const locale = useLocale();
   const t = useTranslations('components.referrers.summary');

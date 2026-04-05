@@ -1,26 +1,12 @@
 import { Suspense } from 'react';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableSkeleton } from '@/components/skeleton';
 import EventsTableSection from './EventsTableSection';
 import { EventLog } from './EventLog';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getTranslations } from 'next-intl/server';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
-import { getUserTimezone } from '@/lib/cookies';
 
-type EventsPageParams = {
-  params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<FilterQuerySearchParams>;
-};
-
-export default async function EventsPage({ params, searchParams }: EventsPageParams) {
-  const { dashboardId } = await params;
-  const timezone = await getUserTimezone();
-  const query = BAFilterSearchParams.decode(await searchParams, timezone);
-  const eventsPromise = fetchCustomEventsOverviewAction(dashboardId, query);
-
+export default async function EventsPage() {
   const t = await getTranslations('dashboard.sidebar');
 
   return (
@@ -30,7 +16,7 @@ export default async function EventsPage({ params, searchParams }: EventsPagePar
       </DashboardHeader>
 
       <Suspense fallback={<TableSkeleton />}>
-        <EventsTableSection eventsPromise={eventsPromise} />
+        <EventsTableSection />
       </Suspense>
 
       <EventLog />

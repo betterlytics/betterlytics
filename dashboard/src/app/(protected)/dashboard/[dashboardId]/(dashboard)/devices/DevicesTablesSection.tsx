@@ -1,20 +1,21 @@
 'use client';
 
-import { use } from 'react';
 import BrowserTable from '@/components/analytics/BrowserTable';
 import OperatingSystemTable from '@/components/analytics/OperatingSystemTable';
 import { fetchBrowserBreakdownAction, fetchOperatingSystemBreakdownAction } from '@/app/actions/index.actions';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type DevicesTablesSectionProps = {
-  browserStatsPromise: ReturnType<typeof fetchBrowserBreakdownAction>;
-  osStatsPromise: ReturnType<typeof fetchOperatingSystemBreakdownAction>;
-};
-
-export default function DevicesTablesSection({ browserStatsPromise, osStatsPromise }: DevicesTablesSectionProps) {
-  const browserStats = use(browserStatsPromise);
-  const osStats = use(osStatsPromise);
+export default function DevicesTablesSection() {
+  const { data: browserStats } = useBASuspenseQuery({
+    queryKey: ['browser-breakdown'],
+    queryFn: (dashboardId, query) => fetchBrowserBreakdownAction(dashboardId, query),
+  });
+  const { data: osStats } = useBASuspenseQuery({
+    queryKey: ['os-breakdown'],
+    queryFn: (dashboardId, query) => fetchOperatingSystemBreakdownAction(dashboardId, query),
+  });
   const t = useTranslations('components.devices.tables');
 
   return (

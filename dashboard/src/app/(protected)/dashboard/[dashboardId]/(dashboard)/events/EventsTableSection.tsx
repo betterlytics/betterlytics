@@ -1,13 +1,13 @@
-import { use } from 'react';
+'use client';
+
 import { EventsTable } from './EventsTable';
 import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type EventsTableSectionProps = {
-  eventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
-};
-
-export default function EventsTableSection({ eventsPromise }: EventsTableSectionProps) {
-  const events = use(eventsPromise);
-
+export default function EventsTableSection() {
+  const { data: events } = useBASuspenseQuery({
+    queryKey: ['events-overview'],
+    queryFn: (dashboardId, query) => fetchCustomEventsOverviewAction(dashboardId, query),
+  });
   return <EventsTable data={events} />;
 }

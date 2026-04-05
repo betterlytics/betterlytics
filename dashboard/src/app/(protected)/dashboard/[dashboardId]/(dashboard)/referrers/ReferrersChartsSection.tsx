@@ -1,6 +1,5 @@
 'use client';
 
-import { use } from 'react';
 import ReferrerTrafficTrendChart from './ReferrerTrafficTrendChart';
 import {
   fetchReferrerSourceAggregationDataForSite,
@@ -13,18 +12,17 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type ReferrersChartsSectionProps = {
-  distributionPromise: ReturnType<typeof fetchReferrerSourceAggregationDataForSite>;
-  trendPromise: ReturnType<typeof fetchReferrerTrafficTrendBySourceDataForSite>;
-};
-
-export default function ReferrersChartsSection({
-  distributionPromise,
-  trendPromise,
-}: ReferrersChartsSectionProps) {
-  const distributionResult = use(distributionPromise);
-  const trendResult = use(trendPromise);
+export default function ReferrersChartsSection() {
+  const { data: distributionResult } = useBASuspenseQuery({
+    queryKey: ['referrer-source-aggregation'],
+    queryFn: (dashboardId, query) => fetchReferrerSourceAggregationDataForSite(dashboardId, query),
+  });
+  const { data: trendResult } = useBASuspenseQuery({
+    queryKey: ['referrer-traffic-trend'],
+    queryFn: (dashboardId, query) => fetchReferrerTrafficTrendBySourceDataForSite(dashboardId, query),
+  });
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.referrers.charts');
 

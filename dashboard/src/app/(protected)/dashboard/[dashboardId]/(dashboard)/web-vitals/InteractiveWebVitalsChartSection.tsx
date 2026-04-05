@@ -1,5 +1,5 @@
 'use client';
-import { use, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { cn } from '@/lib/utils';
 import { Gauge } from '@/components/gauge';
 import {
@@ -20,6 +20,8 @@ import {
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useLocale, useTranslations } from 'next-intl';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
+import { fetchCoreWebVitalsSummaryAction, fetchCoreWebVitalChartDataAction } from '@/app/actions/index.actions';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -27,21 +29,19 @@ const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, 
   name: key.toUpperCase(),
 }));
 
-type InteractiveWebVitalsChartSectionProps = {
-  summaryPromise: Promise<CoreWebVitalsSummary>;
-  seriesPromise: Promise<CoreWebVitalsSeries>;
-};
-
-export default function InteractiveWebVitalsChartSection({
-  summaryPromise,
-  seriesPromise,
-}: InteractiveWebVitalsChartSectionProps) {
+export default function InteractiveWebVitalsChartSection() {
   const t = useTranslations('components.webVitals');
   const locale = useLocale();
-  const summary = use(summaryPromise);
+  const { data: summary } = useBASuspenseQuery({
+    queryKey: ['cwv-summary'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsSummaryAction(dashboardId, query),
+  });
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
-  const seriesByMetric = use(seriesPromise);
+  const { data: seriesByMetric } = useBASuspenseQuery({
+    queryKey: ['cwv-chart'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalChartDataAction(dashboardId, query),
+  });
 
   const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
 

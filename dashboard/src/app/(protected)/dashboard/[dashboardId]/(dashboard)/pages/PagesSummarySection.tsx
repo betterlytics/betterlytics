@@ -1,18 +1,17 @@
 'use client';
 
-import { use } from 'react';
 import { fetchPagesSummaryWithChartsAction } from '@/app/actions/index.actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type PagesSummarySectionProps = {
-  pagesSummaryWithChartsPromise: ReturnType<typeof fetchPagesSummaryWithChartsAction>;
-};
-
-export default function PagesSummarySection({ pagesSummaryWithChartsPromise }: PagesSummarySectionProps) {
-  const summaryWithCharts = use(pagesSummaryWithChartsPromise);
+export default function PagesSummarySection() {
+  const { data: summaryWithCharts } = useBASuspenseQuery({
+    queryKey: ['pages-summary-charts'],
+    queryFn: (dashboardId, query) => fetchPagesSummaryWithChartsAction(dashboardId, query),
+  });
   const locale = useLocale();
   const t = useTranslations('components.pages.summary');
 

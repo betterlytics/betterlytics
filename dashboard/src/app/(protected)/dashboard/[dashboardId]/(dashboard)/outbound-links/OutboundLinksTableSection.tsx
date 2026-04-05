@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
@@ -10,17 +10,15 @@ import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
 type TableOutboundLinkRow = Awaited<ReturnType<typeof fetchOutboundLinksAnalyticsAction>>[number];
 
-type OutboundLinksTableSectionProps = {
-  outboundLinksAnalyticsPromise: ReturnType<typeof fetchOutboundLinksAnalyticsAction>;
-};
-
-export default function OutboundLinksTableSection({
-  outboundLinksAnalyticsPromise,
-}: OutboundLinksTableSectionProps) {
-  const outboundLinksData = use(outboundLinksAnalyticsPromise);
+export default function OutboundLinksTableSection() {
+  const { data: outboundLinksData } = useBASuspenseQuery({
+    queryKey: ['outbound-links-table'],
+    queryFn: (dashboardId, query) => fetchOutboundLinksAnalyticsAction(dashboardId, query),
+  });
   const t = useTranslations('components.outboundLinks.table');
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(

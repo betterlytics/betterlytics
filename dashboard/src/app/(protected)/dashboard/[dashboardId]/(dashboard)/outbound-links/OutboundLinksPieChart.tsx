@@ -1,16 +1,12 @@
 'use client';
 
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import BAPieChart from '@/components/BAPieChart';
 import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createColorGetter } from '@/utils/colorUtils';
 import { formatString } from '@/utils/formatters';
-
-type OutboundLinksPieChartProps = {
-  distributionPromise: ReturnType<typeof fetchOutboundLinksDistributionAction>;
-};
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
 const getOutboundLinkColor = createColorGetter({
   colorMap: {
@@ -25,8 +21,11 @@ const formatUrl = (url: string): string => {
   return url === 'Others' ? url : formatString(url.toLowerCase(), 30);
 };
 
-export default function OutboundLinksPieChart({ distributionPromise }: OutboundLinksPieChartProps) {
-  const distributionData = use(distributionPromise);
+export default function OutboundLinksPieChart() {
+  const { data: distributionData } = useBASuspenseQuery({
+    queryKey: ['outbound-links-distribution'],
+    queryFn: (dashboardId, query) => fetchOutboundLinksDistributionAction(dashboardId, query),
+  });
   const t = useTranslations('components.outboundLinks.pieChart');
 
   return (

@@ -1,18 +1,17 @@
 'use client';
 
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import InteractiveChart from '@/components/InteractiveChart';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { fetchOutboundClicksChartAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type OutboundLinksChartSectionProps = {
-  outboundClicksChartPromise: ReturnType<typeof fetchOutboundClicksChartAction>;
-};
-
-export default function OutboundLinksChartSection({ outboundClicksChartPromise }: OutboundLinksChartSectionProps) {
-  const chartData = use(outboundClicksChartPromise);
+export default function OutboundLinksChartSection() {
+  const { data: chartData } = useBASuspenseQuery({
+    queryKey: ['outbound-clicks-chart'],
+    queryFn: (dashboardId, query) => fetchOutboundClicksChartAction(dashboardId, query),
+  });
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.outboundLinks.chart');
 

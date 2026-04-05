@@ -1,27 +1,12 @@
 import { Suspense } from 'react';
-import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
 import { Spinner } from '@/components/ui/spinner';
 import UserJourneySection from './UserJourneySection';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { UserJourneyFilters } from './UserJourneyFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
-import type { FilterQuerySearchParams } from '@/entities/analytics/filterQueryParams.entities';
-import { getUserTimezone } from '@/lib/cookies';
 
-type UserJourneyPageParams = {
-  params: Promise<{ dashboardId: string }>;
-  searchParams: Promise<FilterQuerySearchParams>;
-};
-
-export default async function UserJourneyPage({ params, searchParams }: UserJourneyPageParams) {
-  const { dashboardId } = await params;
-  const timezone = await getUserTimezone();
-  const query = BAFilterSearchParams.decode(await searchParams, timezone);
-
-  const userJourneyPromise = fetchUserJourneyAction(dashboardId, query);
-
+export default async function UserJourneyPage() {
   const t = await getTranslations('dashboard.sidebar');
   return (
     <div className='container flex flex-col space-y-3 overflow-y-auto p-2 pt-4 pb-0 sm:p-6'>
@@ -49,7 +34,7 @@ export default async function UserJourneyPage({ params, searchParams }: UserJour
           </div>
         }
       >
-        <UserJourneySection userJourneyPromise={userJourneyPromise} />
+        <UserJourneySection />
       </Suspense>
     </div>
   );

@@ -1,27 +1,17 @@
 'use client';
 
-import { use } from 'react';
 import { ErrorTable } from './ErrorList';
 import { ErrorsEmptyState } from './ErrorsEmptyState';
-import type { ErrorGroupsResult } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupsAction } from '@/app/actions/analytics/errors.actions';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 
-type ErrorGroupsSectionProps = {
-  groupsPromise: Promise<ErrorGroupsResult>;
-  dashboardId: string;
-};
-
-export function ErrorGroupsSection({ groupsPromise, dashboardId }: ErrorGroupsSectionProps) {
-  const { hasAnyErrors, errorGroups, initialVolumeMap } = use(groupsPromise);
-
-  if (!hasAnyErrors) {
-    return <ErrorsEmptyState />;
-  }
-
-  return (
-    <ErrorTable
-      errorGroups={errorGroups}
-      initialVolumeMap={initialVolumeMap}
-      dashboardId={dashboardId}
-    />
-  );
+export function ErrorGroupsSection() {
+  const dashboardId = useDashboardId();
+  const { data: { hasAnyErrors, errorGroups, initialVolumeMap } } = useBASuspenseQuery({
+    queryKey: ['error-groups'],
+    queryFn: (dashboardId, query) => fetchErrorGroupsAction(dashboardId, query),
+  });
+  if (!hasAnyErrors) return <ErrorsEmptyState />;
+  return <ErrorTable errorGroups={errorGroups} initialVolumeMap={initialVolumeMap} dashboardId={dashboardId} />;
 }

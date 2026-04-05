@@ -1,16 +1,15 @@
 'use client';
 
-import { use } from 'react';
 import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useTranslations } from 'next-intl';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 
-type GeographySectionProps = {
-  worldMapPromise: ReturnType<typeof getWorldMapDataAlpha2>;
-};
-
-export default function GeographySection({ worldMapPromise }: GeographySectionProps) {
-  const mapData = use(worldMapPromise);
+export default function GeographySection() {
+  const { data: mapData } = useBASuspenseQuery({
+    queryKey: ['world-map'],
+    queryFn: (dashboardId, query) => getWorldMapDataAlpha2(dashboardId, query),
+  });
   const t = useTranslations('components.geography');
 
   return (

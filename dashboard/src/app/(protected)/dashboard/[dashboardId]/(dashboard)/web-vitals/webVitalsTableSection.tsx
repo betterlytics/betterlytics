@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
@@ -8,7 +8,8 @@ import { formatNumber, formatString } from '@/utils/formatters';
 import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
+import { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
+import { useBASuspenseQuery } from '@/hooks/useBASuspenseQuery';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
@@ -21,30 +22,32 @@ import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
 type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
 type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
-type Props = {
-  perPagePromise: Promise<Row[]>;
-  perDevicePromise: Promise<DimRow[]>;
-  perCountryPromise: Promise<DimRow[]>;
-  perBrowserPromise: Promise<DimRow[]>;
-  perOsPromise: Promise<DimRow[]>;
-};
 
-export default function WebVitalsTableSection({
-  perPagePromise,
-  perDevicePromise,
-  perCountryPromise,
-  perBrowserPromise,
-  perOsPromise,
-}: Props) {
+export default function WebVitalsTableSection() {
   const t = useTranslations('components.webVitals.table');
   const tFilters = useTranslations('components.filters');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-  const data = use(perPagePromise);
-  const devices = use(perDevicePromise);
-  const countries = use(perCountryPromise);
-  const browsers = use(perBrowserPromise);
-  const operatingSystems = use(perOsPromise);
+  const { data } = useBASuspenseQuery({
+    queryKey: ['cwv-by-dimension', 'url'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'url'),
+  });
+  const { data: devices } = useBASuspenseQuery({
+    queryKey: ['cwv-by-dimension', 'device_type'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'device_type'),
+  });
+  const { data: countries } = useBASuspenseQuery({
+    queryKey: ['cwv-by-dimension', 'country_code'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'country_code'),
+  });
+  const { data: browsers } = useBASuspenseQuery({
+    queryKey: ['cwv-by-dimension', 'browser'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'browser'),
+  });
+  const { data: operatingSystems } = useBASuspenseQuery({
+    queryKey: ['cwv-by-dimension', 'os'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsByDimensionAction(dashboardId, query, 'os'),
+  });
 
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
