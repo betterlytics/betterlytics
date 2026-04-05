@@ -1195,6 +1195,10 @@
           "title": "Eventi Personalizzati",
           "description": "Traccia interazioni utente specifiche come click, invii form o download per misurare l'engagement."
         },
+        "globalProperties": {
+          "title": "Proprietà Globali",
+          "description": "Arricchisci i tuoi dati con metadati personalizzati e filtra esattamente ciò che conta per te."
+        },
         "utmTracking": {
           "title": "Tracciamento UTM",
           "description": "Misura le performance delle campagne marketing con parametri UTM."
@@ -1624,7 +1628,7 @@
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi personalizzati",
+      "customEvents": "Eventi",
       "weeklyTrends": "Andamenti settimanali"
     },
     "goTo": "Vai a {section}",
@@ -1642,7 +1646,8 @@
       "referrers": "Siti di riferimento",
       "sources": "Fonti",
       "channels": "Canali",
-      "events": "Eventi"
+      "events": "Eventi personalizzati",
+      "topProperties": "Proprietà globali principali"
     },
     "emptyStates": {
       "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",

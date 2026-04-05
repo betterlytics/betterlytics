@@ -17,7 +17,7 @@ import {
 import { GEO_LEVELS, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
+import { fetchEventsAndPropertiesAction } from '@/app/actions/analytics/events.actions';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
@@ -51,7 +51,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
 
   const devicePromise = fetchDeviceBreakdownCombinedAction(dashboardId, query);
   const trafficSourcesPromise = fetchTrafficSourcesCombinedAction(dashboardId, query, 10);
-  const customEventsPromise = fetchCustomEventsOverviewAction(dashboardId, query);
+  const eventsAndPropertiesPromise = fetchEventsAndPropertiesAction(dashboardId, query);
 
   const t = await getTranslations('dashboard.sidebar');
 
@@ -82,7 +82,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
           <TrafficSourcesSection trafficSourcesCombinedPromise={trafficSourcesPromise} />
         </Suspense>
         <Suspense fallback={<TableSkeleton />}>
-          <CustomEventsSection customEventsPromise={customEventsPromise} />
+          <CustomEventsSection eventsAndPropertiesPromise={eventsAndPropertiesPromise} />
         </Suspense>
         <WeeklyHeatmapSection dashboardId={dashboardId} />
       </div>

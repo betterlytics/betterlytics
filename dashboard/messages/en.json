@@ -1184,6 +1184,10 @@
           "title": "Custom Events",
           "description": "Track specific user interactions like clicks, form submissions, or downloads to measure engagement."
         },
+        "globalProperties": {
+          "title": "Global Properties",
+          "description": "Enrich your data with custom metadata and filter by exactly what matters to you."
+        },
         "utmTracking": {
           "title": "UTM Tracking",
           "description": "Measure the performance of marketing campaigns with UTM parameters."
@@ -1613,7 +1617,7 @@
       "geography": "Geography",
       "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
-      "customEvents": "Custom Events",
+      "customEvents": "Events",
       "weeklyTrends": "Weekly Trends"
     },
     "goTo": "Go to {section}",
@@ -1631,7 +1635,8 @@
       "referrers": "Referrers",
       "sources": "Sources",
       "channels": "Channels",
-      "events": "Events"
+      "events": "Custom Events",
+      "topProperties": "Top Global Properties"
     },
     "emptyStates": {
       "adjustTimeRange": "Adjust time range or filters",

@@ -1187,6 +1187,10 @@
           "title": "Brugerdefinerede events",
           "description": "Spor specifikke brugerinteraktioner som klik, formularindsendelser eller downloads for at måle engagement."
         },
+        "globalProperties": {
+          "title": "Globale egenskaber",
+          "description": "Berig dine data med metadata og filtrer efter præcis det der er vigtigt for dig."
+        },
         "utmTracking": {
           "title": "UTM-sporing",
           "description": "Mål performance af marketingkampagner med UTM-parametre."
@@ -1616,7 +1620,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Brugerdefinerede hændelser",
+      "customEvents": "Hændelser",
       "weeklyTrends": "Ugentlige trends"
     },
     "goTo": "Gå til {section}",
@@ -1634,7 +1638,8 @@
       "referrers": "Henvisninger",
       "sources": "Kilder",
       "channels": "Kanaler",
-      "events": "Hændelser"
+      "events": "Brugerdefinerede hændelser",
+      "topProperties": "Top globale egenskaber"
     },
     "emptyStates": {
       "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",

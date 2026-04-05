@@ -12,6 +12,7 @@ type Behavior = 'append' | 'replace-same-column' | 'toggle';
 type Options = {
   operator?: FilterOperator;
   behavior?: Behavior;
+  propertyKey?: string;
 };
 
 export function useFilterClick(defaults?: Options) {
@@ -31,6 +32,7 @@ export function useFilterClick(defaults?: Options) {
 
       const operator: FilterOperator = (opts?.operator ?? defaultOperator) as FilterOperator;
       const behavior: Behavior = (opts?.behavior ?? defaultBehavior) as Behavior;
+      const propertyKey = opts?.propertyKey;
 
       if (behavior === 'toggle') {
         const existing = queryFilters.find(
@@ -40,17 +42,17 @@ export function useFilterClick(defaults?: Options) {
           removeQueryFilter(existing.id);
           return;
         }
-        addQueryFilter({ column, operator, values: [value] });
+        addQueryFilter({ column, operator, values: [value], propertyKey });
         return;
       }
 
       if (behavior === 'replace-same-column') {
         setQueryFilters((fs) => fs.filter((f) => f.column !== column));
-        addQueryFilter({ column, operator, values: [value] });
+        addQueryFilter({ column, operator, values: [value], propertyKey });
         return;
       }
 
-      addQueryFilter({ column, operator, values: [value] });
+      addQueryFilter({ column, operator, values: [value], propertyKey });
     },
     [
       addQueryFilter,

@@ -41,6 +41,7 @@ import {
   Cloud,
   Blocks,
   Send,
+  Tags,
 } from 'lucide-react';
 
 import { MCPIcon } from '@/components/icons';
@@ -74,6 +75,7 @@ const CATEGORIES = [
       { id: 'timePeriodComparison', icon: BarChart3 },
       { id: 'outboundLinks', icon: ExternalLink },
       { id: 'emailReports', icon: Send },
+      { id: 'globalProperties', icon: Tags },
     ],
   },
   {

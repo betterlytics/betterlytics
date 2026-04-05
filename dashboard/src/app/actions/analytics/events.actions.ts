@@ -7,6 +7,7 @@ import {
   getRecentEventsForSite,
   getTotalEventCountForSite,
 } from '@/services/analytics/events.service';
+import { getGlobalPropertiesOverview } from '@/services/analytics/globalProperties.service';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { toDataTable } from '@/presenters/toDataTable';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -24,6 +25,24 @@ export const fetchCustomEventsOverviewAction = withDashboardAuthContext(
       compare: compareData,
       categoryKey: 'event_name',
     }).slice(0, 10);
+  },
+);
+
+export const fetchEventsAndPropertiesAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+
+    const [events, compareEvents, properties, compareProperties] = await Promise.all([
+      getCustomEventsOverviewForSite(main),
+      compare ? getCustomEventsOverviewForSite(compare) : null,
+      getGlobalPropertiesOverview(main),
+      compare ? getGlobalPropertiesOverview(compare) : null,
+    ]);
+
+    return {
+      events: toDataTable({ data: events, compare: compareEvents, categoryKey: 'event_name' }).slice(0, 10),
+      properties: toDataTable({ data: properties, compare: compareProperties, categoryKey: 'property_key' }),
+    };
   },
 );
 

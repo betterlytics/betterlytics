@@ -1195,6 +1195,10 @@
           "title": "Egendefinerte hendelser",
           "description": "Spor spesifikke brukerinteraksjoner som klikk, skjemainnsendinger eller nedlastinger for å måle engasjement."
         },
+        "globalProperties": {
+          "title": "Globale egenskaper",
+          "description": "Berik dataene dine med metadata og filtrer etter akkurat det som er viktig for deg."
+        },
         "utmTracking": {
           "title": "UTM-sporing",
           "description": "Mål ytelsen til markedsføringskampanjer med UTM-parametere."
@@ -1624,7 +1628,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enheter",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Egendefinerte hendelser",
+      "customEvents": "Hendelser",
       "weeklyTrends": "Ukentlige trender"
     },
     "goTo": "Gå til {section}",
@@ -1642,7 +1646,8 @@
       "referrers": "Henvisere",
       "sources": "Kilder",
       "channels": "Kanaler",
-      "events": "Hendelser"
+      "events": "Egendefinerte hendelser",
+      "topProperties": "Topp globale egenskaper"
     },
     "emptyStates": {
       "adjustTimeRange": "Juster tidsrom eller filtre",
