@@ -15,7 +15,7 @@ export default function GeographySection() {
   const t = useTranslations('components.geography');
 
   return (
-    <QuerySection query={query} fallback={<GeographyLoading />}>
+    <QuerySection query={query} fallback={<GeographyLoading />} className='h-full w-full'>
       {(mapData) => (
         <>
           <div className='h-full w-full'>
