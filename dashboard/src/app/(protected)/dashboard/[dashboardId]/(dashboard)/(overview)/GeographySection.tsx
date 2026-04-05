@@ -10,7 +10,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { GEO_LEVELS, type GeoLevel, type WorldMapResponse } from '@/entities/analytics/geography.entities';
+import { type GeoLevel, type WorldMapResponse } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -46,30 +46,32 @@ function WorldMapContent({
 
   return (
     <div className='h-[280px] w-full'>
-      {data ? (
-        <LeafletMap {...data} showZoomControls={false} initialZoom={1} />
-      ) : (
-        <GeographyLoading />
-      )}
+      {data ? <LeafletMap {...data} showZoomControls={false} initialZoom={1} /> : <GeographyLoading />}
     </div>
   );
 }
 
-export default function GeographySection() {
+type GeographySectionProps = {
+  enabledLevels: GeoLevel[];
+};
+
+export default function GeographySection({ enabledLevels }: GeographySectionProps) {
   const query = useAnalyticsQuery();
   const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
-
   const countryQuery = useBAQuery({
     queryKey: ['geo-visits', 'country_code'],
     queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'country_code'),
+    enabled: enabledLevels.includes('country_code'),
   });
   const subdivisionQuery = useBAQuery({
     queryKey: ['geo-visits', 'subdivision_code'],
     queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'subdivision_code'),
+    enabled: enabledLevels.includes('subdivision_code'),
   });
   const cityQuery = useBAQuery({
     queryKey: ['geo-visits', 'city'],
     queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'city'),
+    enabled: enabledLevels.includes('city'),
   });
 
   const t = useTranslations('dashboard');
@@ -80,12 +82,18 @@ export default function GeographySection() {
     setWorldMapData(null);
   }, [query]);
 
-  if (countryQuery.isPending || subdivisionQuery.isPending || cityQuery.isPending) return <TableSkeleton />;
+  const enabledQueries = [
+    enabledLevels.includes('country_code') && countryQuery,
+    enabledLevels.includes('subdivision_code') && subdivisionQuery,
+    enabledLevels.includes('city') && cityQuery,
+  ].filter((q) => q != false);
 
-  const resolvedByLevel: Record<GeoLevel, Awaited<ReturnType<typeof getTopGeoVisitsAction>>> = {
-    country_code: countryQuery.data!,
-    subdivision_code: subdivisionQuery.data!,
-    city: cityQuery.data!,
+  if (enabledQueries.some((q) => q.isPending)) return <TableSkeleton />;
+
+  const resolvedByLevel = {
+    country_code: countryQuery.data ?? [],
+    subdivision_code: subdivisionQuery.data ?? [],
+    city: cityQuery.data ?? [],
   };
 
   const geoLevelTabLabels = {
@@ -94,7 +102,7 @@ export default function GeographySection() {
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
-  const geoLevelTabs = GEO_LEVELS.map((level) => ({
+  const geoLevelTabs = enabledLevels.map((level) => ({
     key: level,
     label: geoLevelTabLabels[level],
     data: resolvedByLevel[level].map((item) => ({
@@ -117,7 +125,7 @@ export default function GeographySection() {
   };
 
   return (
-    <QuerySection loading={countryQuery.isFetching || subdivisionQuery.isFetching || cityQuery.isFetching}>
+    <QuerySection loading={enabledQueries.some((q) => q.isFetching)}>
       <MultiProgressTable
         title={t('sections.geography')}
         defaultTab={geoLevelTabs[0]?.key ?? 'worldmap'}
@@ -128,9 +136,7 @@ export default function GeographySection() {
             key: 'worldmap',
             label: t('tabs.worldMap'),
             data: [],
-            customContent: (
-              <WorldMapContent data={worldMapData} onLoad={setWorldMapData} />
-            ),
+            customContent: <WorldMapContent data={worldMapData} onLoad={setWorldMapData} />,
           },
         ]}
         footer={
