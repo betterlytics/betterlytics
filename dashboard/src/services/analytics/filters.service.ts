@@ -14,6 +14,9 @@ export async function getDistinctValuesForFilterColumn(
   if (column === 'global_property' && propertyKey) {
     return getGlobalPropertyValues(siteQuery, propertyKey, search?.trim(), limit);
   }
+  if (column === 'global_property') {
+    return [];
+  }
   return getFilterDistinctValues(siteQuery, column, limit, search?.trim());
 }
 

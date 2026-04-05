@@ -51,11 +51,12 @@ export async function getGlobalPropertyKeys(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT arrayJoin(JSONExtractKeys(global_properties_json)) AS key
+    SELECT arrayJoin(JSONExtractKeys(global_properties_json)) AS key
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND global_properties_json != ''
+    GROUP BY key
     ${searchClause}
     ORDER BY key
     LIMIT {limit:UInt32}
