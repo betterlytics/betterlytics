@@ -13,7 +13,6 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
 import { useState } from 'react';
 
 export default function DevicesSection() {
@@ -46,9 +45,9 @@ export default function DevicesSection() {
   };
 
   return (
-    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
       <MultiProgressTable
       title={t('sections.devicesBreakdown')}
+      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       defaultTab='browsers'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
@@ -114,6 +113,5 @@ export default function DevicesSection() {
         </FilterPreservingLink>
       }
     />
-    </QuerySection>
   );
 }

@@ -15,7 +15,6 @@ import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
 import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -95,9 +94,9 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
   };
 
   return (
-    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
       <MultiProgressTable
         title={t('sections.geography')}
+        loading={!!activeQuery?.isFetching && !!activeQuery?.data}
         defaultTab={activeTab}
         onTabChange={setActiveTab}
         onItemClick={onItemClick}
@@ -125,6 +124,5 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           </FilterPreservingLink>
         }
       />
-    </QuerySection>
   );
 }

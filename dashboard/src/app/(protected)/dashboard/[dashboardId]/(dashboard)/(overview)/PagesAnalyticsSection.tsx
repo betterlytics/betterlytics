@@ -10,7 +10,6 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
 import { useState } from 'react';
 
 export default function PagesAnalyticsSection() {
@@ -48,9 +47,9 @@ export default function PagesAnalyticsSection() {
   });
 
   return (
-    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
       <MultiProgressTable
       title={t('sections.topPages')}
+      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       defaultTab='pages'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
@@ -84,6 +83,5 @@ export default function PagesAnalyticsSection() {
         </FilterPreservingLink>
       }
     />
-    </QuerySection>
   );
 }
