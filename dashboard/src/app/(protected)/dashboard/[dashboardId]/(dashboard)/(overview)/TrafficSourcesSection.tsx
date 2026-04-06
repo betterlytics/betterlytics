@@ -10,6 +10,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 import { useState } from 'react';
 
 export default function TrafficSourcesSection() {
@@ -36,11 +37,14 @@ export default function TrafficSourcesSection() {
     if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
   };
 
+  const activeQuery = { referrers: referrersQuery, channels: channelsQuery }[activeTab];
+
   const isItemInteractive = (tabKey: string) =>
     tabKey === 'referrers' || tabKey === 'channels';
 
   return (
-    <MultiProgressTable
+    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
+      <MultiProgressTable
       title={t('sections.trafficSources')}
       defaultTab='referrers'
       onTabChange={setActiveTab}
@@ -86,5 +90,6 @@ export default function TrafficSourcesSection() {
         </FilterPreservingLink>
       }
     />
+    </QuerySection>
   );
 }

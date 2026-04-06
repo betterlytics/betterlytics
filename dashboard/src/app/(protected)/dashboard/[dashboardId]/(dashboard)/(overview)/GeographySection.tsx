@@ -18,6 +18,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import dynamic from 'next/dynamic';
 import GeographyLoading from '@/components/loading/GeographyLoading';
 import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -113,12 +114,14 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
     };
   });
 
+  const activeQuery = { country_code: countryQuery, subdivision_code: subdivisionQuery, city: cityQuery }[activeTab];
+
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
   };
 
   return (
-    <>
+    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
       <MultiProgressTable
         title={t('sections.geography')}
         defaultTab={activeTab}
@@ -143,6 +146,6 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           </FilterPreservingLink>
         }
       />
-    </>
+    </QuerySection>
   );
 }

@@ -13,6 +13,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 import { useState } from 'react';
 
 export default function DevicesSection() {
@@ -36,6 +37,8 @@ export default function DevicesSection() {
     enabled: activeTab === 'devices',
   });
 
+  const activeQuery = { browsers: browsersQuery, os: osQuery, devices: devicesQuery }[activeTab];
+
   const onItemClick = (tabKey: string, item: { label: string }) => {
     if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
     if (tabKey === 'devices') return makeFilterClick('device_type')(item.label);
@@ -43,7 +46,8 @@ export default function DevicesSection() {
   };
 
   return (
-    <MultiProgressTable
+    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
+      <MultiProgressTable
       title={t('sections.devicesBreakdown')}
       defaultTab='browsers'
       onTabChange={setActiveTab}
@@ -110,5 +114,6 @@ export default function DevicesSection() {
         </FilterPreservingLink>
       }
     />
+    </QuerySection>
   );
 }

@@ -10,6 +10,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 import { useState } from 'react';
 
 export default function PagesAnalyticsSection() {
@@ -37,6 +38,8 @@ export default function PagesAnalyticsSection() {
     return makeFilterClick('url')(item.label);
   };
 
+  const activeQuery = { pages: pagesQuery, entry: entryQuery, exit: exitQuery }[activeTab];
+
   const mapPage = (page: { url: string; current: { visitors: number }; change?: { visitors: number }; compare?: { visitors: number } }) => ({
     label: page.url,
     value: page.current.visitors,
@@ -45,7 +48,8 @@ export default function PagesAnalyticsSection() {
   });
 
   return (
-    <MultiProgressTable
+    <QuerySection loading={!!activeQuery?.isFetching && !!activeQuery?.data}>
+      <MultiProgressTable
       title={t('sections.topPages')}
       defaultTab='pages'
       onTabChange={setActiveTab}
@@ -80,5 +84,6 @@ export default function PagesAnalyticsSection() {
         </FilterPreservingLink>
       }
     />
+    </QuerySection>
   );
 }

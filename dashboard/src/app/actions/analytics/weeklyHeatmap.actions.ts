@@ -8,6 +8,14 @@ import { toWeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
 
+export const fetchWeeklyHeatmapAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, metric: HeatmapMetric) => {
+    const { main } = toSiteQuery(ctx.siteId, query);
+    const result = await getWeeklyHeatmapForSite(main, metric);
+    return toWeeklyHeatmapMatrix(result.data);
+  },
+);
+
 export const fetchWeeklyHeatmapAllAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery) => {
     const { main } = toSiteQuery(ctx.siteId, query);

@@ -7,6 +7,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
 
 export default function CustomEventsSection() {
   const query = useBAQuery({
@@ -21,7 +22,8 @@ export default function CustomEventsSection() {
   };
 
   return (
-    <MultiProgressTable
+    <QuerySection loading={query.isFetching && !!query.data}>
+      <MultiProgressTable
       title={t('sections.customEvents')}
       defaultTab='events'
       onItemClick={onItemClick}
@@ -48,5 +50,6 @@ export default function CustomEventsSection() {
         </FilterPreservingLink>
       }
     />
+    </QuerySection>
   );
 }

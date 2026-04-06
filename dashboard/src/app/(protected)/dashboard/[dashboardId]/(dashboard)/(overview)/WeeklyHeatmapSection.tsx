@@ -1,11 +1,11 @@
 'use client';
 
-import { Fragment, useMemo, useState, useCallback, type CSSProperties } from 'react';
-import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
+import { Fragment, useMemo, useCallback, useState, type CSSProperties } from 'react';
+import { fetchWeeklyHeatmapAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
 import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
+import { type WeeklyHeatmapMatrix } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -15,7 +15,7 @@ import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useBAQuery } from '@/hooks/useBAQuery';
 import { QuerySection } from '@/components/QuerySection';
-import { HeatmapSkeleton } from '@/components/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -38,13 +38,13 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number, locale: 
 }
 
 export default function WeeklyHeatmapSection() {
-  const query = useBAQuery({
-    queryKey: ['weekly-heatmap'],
-    queryFn: (dashboardId, q) => fetchWeeklyHeatmapAllAction(dashboardId, q),
-  });
-
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
+
+  const query = useBAQuery({
+    queryKey: ['weekly-heatmap', selectedMetric],
+    queryFn: (dashboardId, q) => fetchWeeklyHeatmapAction(dashboardId, q, selectedMetric),
+  });
 
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
@@ -62,49 +62,50 @@ export default function WeeklyHeatmapSection() {
     setSelectedMetric(next as HeatmapMetric);
   };
 
+  const isLoading = query.isFetching && !query.data;
+
   return (
-    <QuerySection query={query} fallback={<HeatmapSkeleton />}>
-      {(allData) => {
-        const current: PresentedWeeklyHeatmap | undefined = allData?.find(([metric]) => metric === selectedMetric)?.[1];
-        const selectedMetricLabel = metricLabelByMetric[selectedMetric];
-
-        return (
-          <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
-            <CardHeader className='px-0 pb-1'>
-              <div className='flex flex-row items-center justify-between gap-2'>
-                <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
-                <div className='flex h-8 min-w-0 items-center'>
-                  <div className='w-40 sm:w-48'>
-                    <Select value={selectedMetric} onValueChange={onMetricChange}>
-                      <SelectTrigger size='sm' className='w-full cursor-pointer overflow-hidden'>
-                        <span className='block truncate'>
-                          <SelectValue placeholder='Select metric' />
-                        </span>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {metricOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
-                            {metricLabelByMetric[opt.value as HeatmapMetric]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+    <QuerySection loading={query.isFetching && !!query.data}>
+      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
+        <CardHeader className='px-0 pb-1'>
+          <div className='flex flex-row items-center justify-between gap-2'>
+            <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
+            <div className='flex h-8 min-w-0 items-center'>
+              <div className='w-40 sm:w-48'>
+                <Select value={selectedMetric} onValueChange={onMetricChange}>
+                  <SelectTrigger size='sm' className='w-full cursor-pointer overflow-hidden'>
+                    <span className='block truncate'>
+                      <SelectValue placeholder='Select metric' />
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {metricOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
+                        {metricLabelByMetric[opt.value as HeatmapMetric]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </CardHeader>
+            </div>
+          </div>
+        </CardHeader>
 
-            <CardContent className='px-0'>
-              <HeatmapGrid
-                data={current?.matrix ?? []}
-                maxValue={current?.maxValue ?? 1}
-                metricLabel={selectedMetricLabel}
-                metric={selectedMetric}
-              />
-            </CardContent>
-          </Card>
-        );
-      }}
+        <CardContent className='px-0'>
+          {isLoading ? (
+            <div className='flex h-40 items-center justify-center'>
+              <Spinner />
+            </div>
+          ) : (
+            <HeatmapGrid
+              data={query.data?.matrix ?? []}
+              maxValue={query.data?.maxValue ?? 1}
+              metricLabel={metricLabelByMetric[selectedMetric]}
+              metric={selectedMetric}
+            />
+          )}
+        </CardContent>
+      </Card>
     </QuerySection>
   );
 }
@@ -120,7 +121,6 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
   const locale = useLocale();
   const dayLabels = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    // Monday-first sequence, matching data mapping (1..7 Mon..Sun)
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 
