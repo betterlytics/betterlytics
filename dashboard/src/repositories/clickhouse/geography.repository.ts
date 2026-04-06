@@ -20,7 +20,7 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
     const query = safeSql`
       SELECT country_code, uniq(visitor_id) as visitors
       FROM ${sessionSubQuery}
-      WHERE country_code IS NOT NULL AND country_code != ''
+      WHERE country_code != ''
       GROUP BY country_code
       ORDER BY visitors DESC
       LIMIT {limit:UInt32}
