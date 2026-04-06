@@ -6,11 +6,11 @@ import SettingsCard from '@/components/SettingsCard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
-import type { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import type { UserSettingsFormData } from '@/entities/account/userSettings.entities';
 
 interface UserProfileSettingsProps {
-  formData: UserSettingsUpdate & { name?: string | null };
-  onUpdate: (updates: Partial<UserSettingsUpdate & { name?: string | null }>) => void;
+  formData: UserSettingsFormData;
+  onUpdate: (updates: Partial<UserSettingsFormData>) => void;
 }
 
 export default function UserProfileSettings({ formData, onUpdate }: UserProfileSettingsProps) {
