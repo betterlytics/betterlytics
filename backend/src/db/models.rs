@@ -13,7 +13,7 @@ pub struct EventRow {
     pub domain: String,
     pub url: String,
     pub device_type: String,
-    pub country_code: Option<String>,
+    pub country_code: String,
     pub subdivision_code: String,
     pub city: String,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
@@ -94,7 +94,7 @@ impl EventRow {
             domain: event.domain.unwrap_or_else(|| "unknown".to_string()),
             url: event.url,
             device_type: event.device_type.unwrap_or_else(|| "unknown".to_string()),
-            country_code: event.country_code,
+            country_code: event.country_code.unwrap_or_default(),
             subdivision_code: event.subdivision_code.unwrap_or_default(),
             city: event.city.unwrap_or_default(),
             timestamp,
