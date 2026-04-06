@@ -122,9 +122,7 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
   `;
 
   const result = await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-    })
+    .query(query.taggedSql, { params: query.taggedParams })
     .toPromise();
 
   return BrowserRollupRowSchema.array().parse(result);
@@ -195,9 +193,7 @@ export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<
     `;
 
   const result = await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-    })
+    .query(query.taggedSql, { params: query.taggedParams })
     .toPromise();
 
   return OperatingSystemRollupRowSchema.array().parse(result);

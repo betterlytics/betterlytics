@@ -28,7 +28,7 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
 
     const result = (await clickhouse
       .query(query.taggedSql, {
-        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+        params: { ...query.taggedParams, limit },
       })
       .toPromise()) as any[];
 
@@ -50,7 +50,7 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+      params: { ...query.taggedParams, limit },
     })
     .toPromise()) as any[];
 
@@ -85,7 +85,7 @@ export async function getVisitorsBySubdivision(
 
     const result = (await clickhouse
       .query(query.taggedSql, {
-        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+        params: { ...query.taggedParams, limit },
       })
       .toPromise()) as any[];
 
@@ -111,7 +111,7 @@ export async function getVisitorsBySubdivision(
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+      params: { ...query.taggedParams, limit },
     })
     .toPromise()) as any[];
 
@@ -147,7 +147,7 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
 
     const result = (await clickhouse
       .query(query.taggedSql, {
-        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+        params: { ...query.taggedParams, limit },
       })
       .toPromise()) as any[];
 
@@ -174,7 +174,7 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
+      params: { ...query.taggedParams, limit },
     })
     .toPromise()) as any[];
 

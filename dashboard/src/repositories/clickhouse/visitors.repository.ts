@@ -43,14 +43,7 @@ export async function getUniqueVisitors(siteQuery: BASiteQuery): Promise<DailyUn
   );
 
   const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-      },
-    })
+    .query(query.taggedSql, { params: query.taggedParams })
     .toPromise()) as any[];
   return result.map((row) => DailyUniqueVisitorsRowSchema.parse(row));
 }
