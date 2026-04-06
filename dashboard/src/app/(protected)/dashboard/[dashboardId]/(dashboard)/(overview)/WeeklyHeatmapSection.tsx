@@ -14,7 +14,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
 import { Spinner } from '@/components/ui/spinner';
 
 const metricOptions = [
@@ -65,11 +64,15 @@ export default function WeeklyHeatmapSection() {
   const isLoading = query.isFetching && !query.data;
 
   return (
-    <QuerySection loading={query.isFetching && !!query.data}>
       <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
         <CardHeader className='px-0 pb-1'>
           <div className='flex flex-row items-center justify-between gap-2'>
-            <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
+            <CardTitle className='text-base font-medium whitespace-nowrap'>
+              <span className='inline-flex items-center gap-2'>
+                {t('sections.weeklyTrends')}
+                {query.isFetching && !!query.data && <Spinner size='sm' />}
+              </span>
+            </CardTitle>
             <div className='flex h-8 min-w-0 items-center'>
               <div className='w-40 sm:w-48'>
                 <Select value={selectedMetric} onValueChange={onMetricChange}>
@@ -106,7 +109,6 @@ export default function WeeklyHeatmapSection() {
           )}
         </CardContent>
       </Card>
-    </QuerySection>
   );
 }
 
