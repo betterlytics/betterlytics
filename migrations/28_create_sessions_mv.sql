@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS analytics.sessions (
     session_end SimpleAggregateFunction(max, DateTime),
     pageview_count SimpleAggregateFunction(sum, UInt64),
 
-    entry_page AggregateFunction(argMin, String, DateTime),
-    exit_page AggregateFunction(argMax, String, DateTime),
+    entry_page SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    exit_page SimpleAggregateFunction(max, Tuple(DateTime, String)),
 
     visitor_id SimpleAggregateFunction(any, UInt64),
     domain SimpleAggregateFunction(any, LowCardinality(String)),
@@ -27,19 +27,22 @@ CREATE TABLE IF NOT EXISTS analytics.sessions (
     subdivision_code SimpleAggregateFunction(any, LowCardinality(String)),
     city SimpleAggregateFunction(any, LowCardinality(String)),
 
-    referrer_source AggregateFunction(argMin, LowCardinality(String), DateTime),
-    referrer_source_name AggregateFunction(argMin, String, DateTime),
-    referrer_search_term AggregateFunction(argMin, String, DateTime),
-    referrer_url AggregateFunction(argMin, String, DateTime),
+    referrer_source SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    referrer_source_name SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    referrer_search_term SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    referrer_url SimpleAggregateFunction(min, Tuple(DateTime, String)),
 
-    utm_source AggregateFunction(argMin, String, DateTime),
-    utm_medium AggregateFunction(argMin, LowCardinality(String), DateTime),
-    utm_campaign AggregateFunction(argMin, String, DateTime),
-    utm_term AggregateFunction(argMin, String, DateTime),
-    utm_content AggregateFunction(argMin, String, DateTime)
+    utm_source SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    utm_medium SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    utm_campaign SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    utm_term SimpleAggregateFunction(min, Tuple(DateTime, String)),
+    utm_content SimpleAggregateFunction(min, Tuple(DateTime, String)),
+
+    INDEX idx_session_end session_end TYPE minmax GRANULARITY 4
 ) ENGINE = AggregatingMergeTree()
 PARTITION BY toYYYYMM(session_created_at)
-ORDER BY (site_id, session_created_at, session_id);
+ORDER BY (site_id, session_created_at, session_id)
+SETTINGS min_rows_for_wide_part = 0, min_bytes_for_wide_part = 0;
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.sessions_mv TO analytics.sessions AS
 SELECT
@@ -49,8 +52,8 @@ SELECT
     min(timestamp) AS session_start,
     max(timestamp) AS session_end,
     countIf(event_type = 'pageview') AS pageview_count,
-    argMinState(url, timestamp) AS entry_page,
-    argMaxState(url, timestamp) AS exit_page,
+    min(tuple(timestamp, url)) AS entry_page,
+    max(tuple(timestamp, url)) AS exit_page,
     any(visitor_id) AS visitor_id,
     any(domain) AS domain,
     any(device_type) AS device_type,
@@ -61,15 +64,15 @@ SELECT
     any(country_code) AS country_code,
     any(subdivision_code) AS subdivision_code,
     any(city) AS city,
-    argMinState(referrer_source, timestamp) AS referrer_source,
-    argMinState(referrer_source_name, timestamp) AS referrer_source_name,
-    argMinState(referrer_search_term, timestamp) AS referrer_search_term,
-    argMinState(referrer_url, timestamp) AS referrer_url,
-    argMinState(utm_source, timestamp) AS utm_source,
-    argMinState(utm_medium, timestamp) AS utm_medium,
-    argMinState(utm_campaign, timestamp) AS utm_campaign,
-    argMinState(utm_term, timestamp) AS utm_term,
-    argMinState(utm_content, timestamp) AS utm_content
+    min(tuple(timestamp, referrer_source)) AS referrer_source,
+    min(tuple(timestamp, referrer_source_name)) AS referrer_source_name,
+    min(tuple(timestamp, referrer_search_term)) AS referrer_search_term,
+    min(tuple(timestamp, referrer_url)) AS referrer_url,
+    min(tuple(timestamp, utm_source)) AS utm_source,
+    min(tuple(timestamp, utm_medium)) AS utm_medium,
+    min(tuple(timestamp, utm_campaign)) AS utm_campaign,
+    min(tuple(timestamp, utm_term)) AS utm_term,
+    min(tuple(timestamp, utm_content)) AS utm_content
 FROM analytics.events
 GROUP BY site_id, session_created_at, session_id;
 
@@ -80,13 +83,13 @@ SET http_headers_progress_interval_ms = 30000;
 INSERT INTO analytics.sessions
 SELECT
     site_id,
-    session_created_at,
+    min(timestamp) AS session_created_at,
     session_id,
     min(timestamp) AS session_start,
     max(timestamp) AS session_end,
     countIf(event_type = 'pageview') AS pageview_count,
-    argMinState(url, timestamp) AS entry_page,
-    argMaxState(url, timestamp) AS exit_page,
+    min(tuple(timestamp, url)) AS entry_page,
+    max(tuple(timestamp, url)) AS exit_page,
     any(visitor_id) AS visitor_id,
     any(domain) AS domain,
     any(device_type) AS device_type,
@@ -97,14 +100,16 @@ SELECT
     any(country_code) AS country_code,
     any(subdivision_code) AS subdivision_code,
     any(city) AS city,
-    argMinState(referrer_source, timestamp) AS referrer_source,
-    argMinState(referrer_source_name, timestamp) AS referrer_source_name,
-    argMinState(referrer_search_term, timestamp) AS referrer_search_term,
-    argMinState(referrer_url, timestamp) AS referrer_url,
-    argMinState(utm_source, timestamp) AS utm_source,
-    argMinState(utm_medium, timestamp) AS utm_medium,
-    argMinState(utm_campaign, timestamp) AS utm_campaign,
-    argMinState(utm_term, timestamp) AS utm_term,
-    argMinState(utm_content, timestamp) AS utm_content
+    min(tuple(timestamp, referrer_source)) AS referrer_source,
+    min(tuple(timestamp, referrer_source_name)) AS referrer_source_name,
+    min(tuple(timestamp, referrer_search_term)) AS referrer_search_term,
+    min(tuple(timestamp, referrer_url)) AS referrer_url,
+    min(tuple(timestamp, utm_source)) AS utm_source,
+    min(tuple(timestamp, utm_medium)) AS utm_medium,
+    min(tuple(timestamp, utm_campaign)) AS utm_campaign,
+    min(tuple(timestamp, utm_term)) AS utm_term,
+    min(tuple(timestamp, utm_content)) AS utm_content
 FROM analytics.events
-GROUP BY site_id, session_created_at, session_id;
+GROUP BY site_id, session_id;
+
+OPTIMIZE TABLE analytics.sessions FINAL;
