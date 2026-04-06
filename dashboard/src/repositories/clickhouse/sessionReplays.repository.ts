@@ -82,11 +82,11 @@ export async function getSessionReplays(
       FROM analytics.sessions FINAL
       WHERE session_start <= {end_date:DateTime} AND session_end >= {start_date:DateTime}
         AND site_id = {site_id:String}
-      LIMIT {limit:UInt32} OFFSET {offset:UInt32}
     ) AS e USING (site_id, session_id)
     WHERE r.site_id = {site_id:String}
       AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
     ORDER BY r.started_at DESC
+    LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
 
   const result = await clickhouse

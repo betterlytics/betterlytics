@@ -6,15 +6,21 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
 
 export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
-  const { siteId, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['country_code', 'visitor_id'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
     const query = safeSql`
-      SELECT country_code, uniqMerge(visitors) as visitors
-      FROM analytics.overview_hourly
-      WHERE site_id = ${SQL.String({ siteId })}
-        AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
-        AND country_code != ''
+      SELECT country_code, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      WHERE country_code IS NOT NULL AND country_code != ''
       GROUP BY country_code
       ORDER BY visitors DESC
       LIMIT {limit:UInt32}
@@ -31,18 +37,12 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
     );
   }
 
-  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-    ['country_code', 'visitor_id'],
-    siteQuery.queryFilters,
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
   const query = safeSql`
-    SELECT country_code, uniq(visitor_id) as visitors
-    FROM ${sessionSubQuery}
-    WHERE country_code IS NOT NULL AND country_code != ''
+    SELECT country_code, uniqMerge(visitors) as visitors
+    FROM analytics.overview_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND country_code != ''
     GROUP BY country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
@@ -63,15 +63,21 @@ export async function getVisitorsBySubdivision(
   siteQuery: BASiteQuery,
   limit: number = 1000,
 ): Promise<GeoVisitor[]> {
-  const { siteId, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['subdivision_code', 'country_code', 'visitor_id'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
     const query = safeSql`
-      SELECT subdivision_code AS code, country_code, uniqMerge(visitors) as visitors
-      FROM analytics.geo_hourly
-      WHERE site_id = ${SQL.String({ siteId })}
-        AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
-        AND subdivision_code != ''
+      SELECT subdivision_code AS code, country_code, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      WHERE subdivision_code != ''
       GROUP BY code, country_code
       ORDER BY visitors DESC
       LIMIT {limit:UInt32}
@@ -92,18 +98,12 @@ export async function getVisitorsBySubdivision(
     );
   }
 
-  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-    ['subdivision_code', 'country_code', 'visitor_id'],
-    siteQuery.queryFilters,
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
   const query = safeSql`
-    SELECT subdivision_code AS code, country_code, uniq(visitor_id) as visitors
-    FROM ${sessionSubQuery}
-    WHERE subdivision_code != ''
+    SELECT subdivision_code AS code, country_code, uniqMerge(visitors) as visitors
+    FROM analytics.geo_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND subdivision_code != ''
     GROUP BY code, country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
@@ -125,15 +125,21 @@ export async function getVisitorsBySubdivision(
 }
 
 export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
-  const { siteId, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['city', 'subdivision_code', 'country_code', 'visitor_id'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
     const query = safeSql`
-      SELECT city AS code, subdivision_code, country_code, uniqMerge(visitors) as visitors
-      FROM analytics.geo_hourly
-      WHERE site_id = ${SQL.String({ siteId })}
-        AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
-        AND city != ''
+      SELECT city AS code, subdivision_code, country_code, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      WHERE city != ''
       GROUP BY code, subdivision_code, country_code
       ORDER BY visitors DESC
       LIMIT {limit:UInt32}
@@ -155,18 +161,12 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
     );
   }
 
-  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-    ['city', 'subdivision_code', 'country_code', 'visitor_id'],
-    siteQuery.queryFilters,
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
   const query = safeSql`
-    SELECT city AS code, subdivision_code, country_code, uniq(visitor_id) as visitors
-    FROM ${sessionSubQuery}
-    WHERE city != ''
+    SELECT city AS code, subdivision_code, country_code, uniqMerge(visitors) as visitors
+    FROM analytics.geo_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND city != ''
     GROUP BY code, subdivision_code, country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}

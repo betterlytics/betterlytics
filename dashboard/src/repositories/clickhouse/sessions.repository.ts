@@ -51,14 +51,7 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
   );
 
   const result = (await clickhouse
-    .query(queryResponse.taggedSql, {
-      params: {
-        ...queryResponse.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-      },
-    })
+    .query(queryResponse.taggedSql, { params: queryResponse.taggedParams })
     .toPromise()) as any[];
 
   return result.map((row) => DailySessionMetricsRowSchema.parse(row));
@@ -92,14 +85,7 @@ export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<Ra
   `;
 
   const result = await clickhouse
-    .query(queryResponse.taggedSql, {
-      params: {
-        ...queryResponse.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-      },
-    })
+    .query(queryResponse.taggedSql, { params: queryResponse.taggedParams })
     .toPromise();
 
   return RangeSessionMetricsSchema.parse(result[0]);
