@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import { UserSettings, UserSettingsFormData, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { toast } from 'sonner';
 import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
@@ -22,6 +22,9 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import type { Theme } from '@prisma/client';
+import { updateUserAction } from '@/app/actions/account/userSettings.action';
+import { UpdateUserSchema } from '@/entities/auth/user.entities';
+import { useSession } from 'next-auth/react';
 
 interface UserSettingsDialogProps {
   open: boolean;
@@ -33,8 +36,8 @@ interface UserSettingsTabConfig {
   label: string;
   icon: React.ElementType;
   component: React.ComponentType<{
-    formData: UserSettingsUpdate;
-    onUpdate: (updates: Partial<UserSettingsUpdate>) => void;
+    formData: UserSettingsFormData;
+    onUpdate: (updates: Partial<UserSettingsFormData>) => void;
     onCloseDialog?: () => void;
   }>;
   disabled?: boolean;
@@ -115,6 +118,7 @@ function UserSettingsDialogContent({
   saveSettings,
 }: UserSettingsDialogContentProps) {
   const { setTheme } = useTheme();
+  const { data: session } = useSession();
   const [originalTheme] = useState<Theme | undefined>(settings.theme);
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
@@ -167,30 +171,54 @@ function UserSettingsDialogContent({
 
   const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
   const [activeTab, setActiveTab] = useState(availableTabs[0].id);
-  const [formData, setFormData] = useState<UserSettingsUpdate>({ ...settings });
+  const [formData, setFormData] = useState<UserSettingsFormData>({
+    ...settings,
+    name: session?.user?.name ?? '',
+  });
   const { refreshSession } = useSessionRefresh();
-  const isFormChanged = useIsChanged(formData, settings);
+  const originalData = useMemo(
+    () => ({ ...settings, name: session?.user?.name ?? '' }),
+    [settings, session?.user?.name],
+  );
+  const isSettingsChanged = useIsChanged(formData, originalData);
 
   useEffect(() => {
     if (open) {
-      setFormData({ ...settings });
+      setFormData({ ...settings, name: session?.user?.name ?? '' });
     }
-  }, [settings, open]);
+  }, [settings, open, session?.user?.name]);
 
-  const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
+  const handleUpdate = (updates: Partial<UserSettingsFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const handleSave = async () => {
-    const result = await saveSettings(formData);
-    if (result.success) {
+    try {
+      const normalizedName = (formData.name ?? '').trim();
+      const previousName = session?.user?.name ?? '';
+      const profileChanged = normalizedName !== previousName;
+      const { name: _name, ...settingsPayload } = formData;
+
+      const settingsResult = await saveSettings(settingsPayload);
+      if (!settingsResult.success) {
+        toast.error(tDialog('toast.error'));
+        return;
+      }
+
+      if (profileChanged) {
+        const profilePayload = UpdateUserSchema.parse({
+          name: normalizedName,
+        });
+        await updateUserAction(profilePayload);
+      }
+
       await refreshSession();
       if (formData.language && formData.language !== settings?.language) {
         router.refresh();
       }
       toast.success(tDialog('toast.success'));
       onOpenChange(false);
-    } else {
+    } catch {
       toast.error(tDialog('toast.error'));
     }
   };
@@ -245,7 +273,7 @@ function UserSettingsDialogContent({
           <Button variant='outline' onClick={() => handleOpenChange(false)} className='cursor-pointer'>
             {tDialog('buttons.cancel')}
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
+          <Button onClick={handleSave} disabled={isSaving || !isSettingsChanged || formData.name?.trim() === ''} className='cursor-pointer'>
             {isSaving ? (
               <>
                 <Loader2 className='mr-2 h-4 w-4 animate-spin' />
