@@ -12,7 +12,6 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 function parseHeatmapRows(rows: any[]): WeeklyHeatmapRow[] {
   return rows.map((row) =>
     WeeklyHeatmapRowSchema.parse({
-      date: new Date().toISOString(),
       weekday: Number(row.weekday),
       hour: Number(row.hour),
       value: Number(row.value),
@@ -132,7 +131,6 @@ async function getPageviewHeatmap(siteQuery: BASiteQuery): Promise<WeeklyHeatmap
 
   return result.map((row) =>
     WeeklyHeatmapRowSchema.parse({
-      date: String(row.date),
       weekday: Number(row.weekday),
       hour: Number(row.hour),
       value: Number(row.value),
