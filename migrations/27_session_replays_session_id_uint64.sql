@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS analytics.session_replays_new (
     error_fingerprints Array(String) DEFAULT []
 ) ENGINE = ReplacingMergeTree(ended_at)
 PARTITION BY toYYYYMM(date)
-ORDER BY (site_id, session_id);
+ORDER BY (site_id, session_id)
+TTL date + toIntervalMonth(2);
 
 INSERT INTO analytics.session_replays_new (
     site_id, session_id, visitor_id, started_at, ended_at,
