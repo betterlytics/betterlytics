@@ -10,7 +10,7 @@ export async function hasSessionReplay(siteId: string, sessionId: string): Promi
     SELECT 1
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
-      AND session_id = {session_id:String}
+      AND toString(session_id) = {session_id:String}
     LIMIT 1
   `;
 
@@ -28,7 +28,7 @@ export async function findReplaySessionForError(
   fingerprint: string,
 ): Promise<string | null> {
   const query = safeSql`
-    SELECT session_id
+    SELECT toString(session_id) as session_id
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
       AND has(error_fingerprints, {fingerprint:String})
@@ -55,7 +55,7 @@ export async function getSessionReplays(
   const query = safeSql`
     SELECT
       r.site_id,
-      r.session_id,
+      toString(r.session_id) as session_id,
       toString(r.visitor_id) as visitor_id,
       r.started_at,
       r.ended_at,
