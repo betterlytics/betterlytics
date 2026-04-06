@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
     INDEX utm_campaign_idx utm_campaign TYPE bloom_filter GRANULARITY 3,
     INDEX custom_event_name_idx custom_event_name TYPE bloom_filter GRANULARITY 3
 ) ENGINE = MergeTree()
-PARTITION BY toYYYYMM(date)
+PARTITION BY toYYYYMM(timestamp)
 ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 SAMPLE BY visitor_id
 SETTINGS index_granularity = 8192;
