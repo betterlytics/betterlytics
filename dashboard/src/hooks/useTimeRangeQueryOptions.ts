@@ -36,8 +36,8 @@ export function useTimeRangeQueryOptions(): TimeRangeQueryOptions {
       return {
         staleTime: 0,
         gcTime: 5 * 60_000,
-        refetchOnWindowFocus: true,
-        refetchInterval: false,
+        refetchOnWindowFocus: false,
+        refetchInterval: 30_000,
       };
     }
 

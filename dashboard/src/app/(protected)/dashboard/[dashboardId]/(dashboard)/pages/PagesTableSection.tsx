@@ -1,27 +1,34 @@
 'use client';
 
-import { use } from 'react';
 import TabbedPagesTable from './TabbedPagesTable';
 import {
   fetchPageAnalyticsAction,
   fetchEntryPageAnalyticsAction,
   fetchExitPageAnalyticsAction,
 } from '@/app/actions/index.actions';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 
-type PagesTableSectionProps = {
-  pageAnalyticsPromise: ReturnType<typeof fetchPageAnalyticsAction>;
-  entryPageAnalyticsPromise: ReturnType<typeof fetchEntryPageAnalyticsAction>;
-  exitPageAnalyticsPromise: ReturnType<typeof fetchExitPageAnalyticsAction>;
-};
+export default function PagesTableSection() {
+  const pagesQuery = useBAQuery({
+    queryKey: ['page-analytics'],
+    queryFn: (dashboardId, query) => fetchPageAnalyticsAction(dashboardId, query),
+  });
+  const entryPagesQuery = useBAQuery({
+    queryKey: ['entry-page-analytics'],
+    queryFn: (dashboardId, query) => fetchEntryPageAnalyticsAction(dashboardId, query),
+  });
+  const exitPagesQuery = useBAQuery({
+    queryKey: ['exit-page-analytics'],
+    queryFn: (dashboardId, query) => fetchExitPageAnalyticsAction(dashboardId, query),
+  });
 
-export default function PagesTableSection({
-  pageAnalyticsPromise,
-  entryPageAnalyticsPromise,
-  exitPageAnalyticsPromise,
-}: PagesTableSectionProps) {
-  const pages = use(pageAnalyticsPromise);
-  const entryPages = use(entryPageAnalyticsPromise);
-  const exitPages = use(exitPageAnalyticsPromise);
+  if (pagesQuery.isPending || entryPagesQuery.isPending || exitPagesQuery.isPending) return <TableSkeleton />;
 
-  return <TabbedPagesTable allPagesData={pages} entryPagesData={entryPages} exitPagesData={exitPages} />;
+  return (
+    <QuerySection loading={pagesQuery.isFetching || entryPagesQuery.isFetching || exitPagesQuery.isFetching}>
+      <TabbedPagesTable allPagesData={pagesQuery.data!} entryPagesData={entryPagesQuery.data!} exitPagesData={exitPagesQuery.data!} />
+    </QuerySection>
+  );
 }

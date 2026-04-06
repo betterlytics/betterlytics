@@ -107,6 +107,59 @@ export const fetchDeviceBreakdownCombinedAction = withDashboardAuthContext(
   },
 );
 
+export const fetchBrowserRollupOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getBrowserRollupForSite(main),
+      compare && getBrowserRollupForSite(compare),
+    ]);
+    return toHierarchicalDataTable({
+      data,
+      compare: compareData || undefined,
+      parentKey: 'browser',
+      childKey: 'version',
+    }).slice(0, 10);
+  },
+);
+
+export const fetchOSRollupOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getOperatingSystemRollupForSite(main),
+      compare && getOperatingSystemRollupForSite(compare),
+    ]);
+    return toHierarchicalDataTable({
+      data,
+      compare: compareData || undefined,
+      parentKey: 'os',
+      childKey: 'version',
+    }).slice(0, 10);
+  },
+);
+
+export const fetchDeviceTypeOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getDeviceTypeBreakdownForSite(main),
+      compare && getDeviceTypeBreakdownForSite(compare),
+    ]);
+    return toDataTable({
+      data: toFormatted(data, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
+      compare: toFormatted(compareData, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
+      categoryKey: 'device_type',
+    }).slice(0, 10);
+  },
+);
+
 export const fetchBrowserBreakdownAction = withDashboardAuthContext(
   async (ctx: AuthContext, query: BAAnalyticsQuery): Promise<ToDataTable<'browser', BrowserStats>[]> => {
     const { main, compare } = toSiteQuery(ctx.siteId, query);

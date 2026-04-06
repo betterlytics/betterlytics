@@ -1,7 +1,10 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchDeviceBreakdownCombinedAction } from '@/app/actions/analytics/devices.actions';
-import { use } from 'react';
+import {
+  fetchBrowserRollupOverviewAction,
+  fetchOSRollupOverviewAction,
+  fetchDeviceTypeOverviewAction,
+} from '@/app/actions/analytics/devices.actions';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
@@ -9,15 +12,31 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { useState } from 'react';
 
-type DevicesSectionProps = {
-  deviceBreakdownCombinedPromise: ReturnType<typeof fetchDeviceBreakdownCombinedAction>;
-};
-
-export default function DevicesSection({ deviceBreakdownCombinedPromise }: DevicesSectionProps) {
-  const deviceBreakdownCombined = use(deviceBreakdownCombinedPromise);
+export default function DevicesSection() {
+  const [activeTab, setActiveTab] = useState('browsers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const browsersQuery = useBAQuery({
+    queryKey: ['devices-breakdown', 'browsers'],
+    queryFn: (dashboardId, q) => fetchBrowserRollupOverviewAction(dashboardId, q),
+    enabled: activeTab === 'browsers',
+  });
+  const osQuery = useBAQuery({
+    queryKey: ['devices-breakdown', 'os'],
+    queryFn: (dashboardId, q) => fetchOSRollupOverviewAction(dashboardId, q),
+    enabled: activeTab === 'os',
+  });
+  const devicesQuery = useBAQuery({
+    queryKey: ['devices-breakdown', 'devices'],
+    queryFn: (dashboardId, q) => fetchDeviceTypeOverviewAction(dashboardId, q),
+    enabled: activeTab === 'devices',
+  });
+
+  const activeQuery = { browsers: browsersQuery, os: osQuery, devices: devicesQuery }[activeTab];
 
   const onItemClick = (tabKey: string, item: { label: string }) => {
     if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
@@ -26,15 +45,18 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
   };
 
   return (
-    <MultiProgressTable
+      <MultiProgressTable
       title={t('sections.devicesBreakdown')}
+      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       defaultTab='browsers'
+      onTabChange={setActiveTab}
       onItemClick={onItemClick}
       tabs={[
         {
           key: 'browsers',
           label: t('tabs.browsers'),
-          data: deviceBreakdownCombined.browsersExpanded.map((item) => ({
+          loading: browsersQuery.isFetching && !browsersQuery.data,
+          data: (browsersQuery.data ?? []).map((item) => ({
             label: item.browser,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
@@ -52,7 +74,8 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
         {
           key: 'os',
           label: t('tabs.operatingSystems'),
-          data: deviceBreakdownCombined.operatingSystemsExpanded.map((item) => ({
+          loading: osQuery.isFetching && !osQuery.data,
+          data: (osQuery.data ?? []).map((item) => ({
             label: item.os,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
@@ -70,7 +93,8 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
         {
           key: 'devices',
           label: t('tabs.devices'),
-          data: deviceBreakdownCombined.devices.map((item) => ({
+          loading: devicesQuery.isFetching && !devicesQuery.data,
+          data: (devicesQuery.data ?? []).map((item) => ({
             label: item.device_type,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,

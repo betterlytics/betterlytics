@@ -1,15 +1,13 @@
 'use client';
-import { use, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { fetchHasCoreWebVitalsData } from '@/app/actions/index.actions';
 
-type WebVitalsBannerProps = {
-  hasDataPromise: Promise<boolean>;
-};
-
-export function WebVitalsBanner({ hasDataPromise }: WebVitalsBannerProps) {
-  const hasData = use(hasDataPromise);
+function WebVitalsBannerInner({ hasData }: { hasData: boolean }) {
   const t = useTranslations('banners.webVitalsNoData');
   const { addBanner, removeBanner } = useBannerContext();
   useEffect(() => {
@@ -38,4 +36,17 @@ export function WebVitalsBanner({ hasDataPromise }: WebVitalsBannerProps) {
   }, [hasData, t]);
 
   return null;
+}
+
+export function WebVitalsBanner() {
+  const query = useBAQuery({
+    queryKey: ['cwv-has-data'],
+    queryFn: (dashboardId) => fetchHasCoreWebVitalsData(dashboardId),
+  });
+
+  return (
+    <QuerySection query={query} fallback={null}>
+      {(hasData) => <WebVitalsBannerInner hasData={hasData} />}
+    </QuerySection>
+  );
 }

@@ -1,30 +1,22 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import type { getTopGeoVisitsAction } from '@/app/actions/analytics/geography.actions';
+import { getTopGeoVisitsAction } from '@/app/actions/analytics/geography.actions';
 import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
-import { use, useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { GEO_LEVELS, type GeoLevel, type WorldMapResponse } from '@/entities/analytics/geography.entities';
+import { type GeoLevel } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import GeographyLoading from '@/components/loading/GeographyLoading';
+import { useBAQuery } from '@/hooks/useBAQuery';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
-
-type GeoTablePromise = ReturnType<typeof getTopGeoVisitsAction>;
-
-type GeographySectionProps = {
-  topByGeoLevel: Record<GeoLevel, GeoTablePromise>;
-};
 
 const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLanguages) => string> = {
   country_code: getCountryName,
@@ -32,68 +24,54 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
   city: (value) => value,
 };
 
-function WorldMapContent({
-  dashboardId,
-  data,
-  onLoad,
-}: {
-  dashboardId: string;
-  data: WorldMapResponse | null;
-  onLoad: (data: WorldMapResponse) => void;
-}) {
-  const query = useAnalyticsQuery();
+type GeographySectionProps = {
+  enabledLevels: GeoLevel[];
+};
 
-  useEffect(() => {
-    if (data !== null) return;
-    getWorldMapDataAlpha2(dashboardId, query).then(onLoad);
-  }, [dashboardId, query, data, onLoad]);
+export default function GeographySection({ enabledLevels }: GeographySectionProps) {
+  const [activeTab, setActiveTab] = useState<string>(enabledLevels[0] ?? 'country_code');
 
-  return (
-    <div className='h-[280px] w-full'>
-      {data ? (
-        <LeafletMap {...data} showZoomControls={false} initialZoom={1} />
-      ) : (
-        <GeographyLoading />
-      )}
-    </div>
-  );
-}
+  const countryQuery = useBAQuery({
+    queryKey: ['geo-visits', 'country_code'],
+    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'country_code'),
+    enabled: enabledLevels.includes('country_code') && activeTab === 'country_code',
+  });
+  const subdivisionQuery = useBAQuery({
+    queryKey: ['geo-visits', 'subdivision_code'],
+    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'subdivision_code'),
+    enabled: enabledLevels.includes('subdivision_code') && activeTab === 'subdivision_code',
+  });
+  const cityQuery = useBAQuery({
+    queryKey: ['geo-visits', 'city'],
+    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'city'),
+    enabled: enabledLevels.includes('city') && activeTab === 'city',
+  });
+  const worldMapQuery = useBAQuery({
+    queryKey: ['geo-worldmap'],
+    queryFn: (dashboardId, q) => getWorldMapDataAlpha2(dashboardId, q),
+    enabled: activeTab === 'worldmap',
+  });
 
-export default function GeographySection({ topByGeoLevel }: GeographySectionProps) {
-  const { dashboardId } = useParams<{ dashboardId: string }>();
-  const query = useAnalyticsQuery();
-  const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
-  const countryData = use(topByGeoLevel.country_code);
-  const subdivisionData = use(topByGeoLevel.subdivision_code);
-  const cityData = use(topByGeoLevel.city);
   const t = useTranslations('dashboard');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  useEffect(() => {
-    setWorldMapData(null);
-  }, [query]);
+  const geoLevelTabLabels = {
+    country_code: t('tabs.countries'),
+    subdivision_code: t('tabs.regions'),
+    city: t('tabs.cities'),
+  } satisfies Record<GeoLevel, string>;
 
-  const resolvedByLevel = useMemo<Record<GeoLevel, Awaited<GeoTablePromise>>>(
-    () => ({
-      country_code: countryData,
-      subdivision_code: subdivisionData,
-      city: cityData,
-    }),
-    [countryData, subdivisionData, cityData],
-  );
-
-  const geoLevelTabs = useMemo(() => {
-    const geoLevelTabLabels = {
-      country_code: t('tabs.countries'),
-      subdivision_code: t('tabs.regions'),
-      city: t('tabs.cities'),
-    } satisfies Record<GeoLevel, string>;
-
-    return GEO_LEVELS.map((level) => ({
+  const geoLevelTabs = enabledLevels.map((level) => {
+    const queryForLevel = { country_code: countryQuery, subdivision_code: subdivisionQuery, city: cityQuery }[
+      level
+    ];
+    const data = queryForLevel?.data;
+    return {
       key: level,
       label: geoLevelTabLabels[level],
-      data: resolvedByLevel[level].map((item) => ({
+      loading: queryForLevel?.isFetching && !data,
+      data: (data ?? []).map((item) => ({
         label: GEO_LABEL_FORMATTERS[level](item[level], locale),
         key: item[level],
         value: item.current.visitors,
@@ -106,38 +84,45 @@ export default function GeographySection({ topByGeoLevel }: GeographySectionProp
           />
         ),
       })),
-    }));
-  }, [resolvedByLevel, t, locale]);
+    };
+  });
+
+  const activeQuery = { country_code: countryQuery, subdivision_code: subdivisionQuery, city: cityQuery, worldmap: worldMapQuery }[activeTab];
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
   };
 
   return (
-    <MultiProgressTable
-      title={t('sections.geography')}
-      defaultTab={geoLevelTabs[0]?.key ?? 'worldmap'}
-      onItemClick={onItemClick}
-      tabs={[
-        ...geoLevelTabs,
-        {
-          key: 'worldmap',
-          label: t('tabs.worldMap'),
-          data: [],
-          customContent: (
-            <WorldMapContent dashboardId={dashboardId} data={worldMapData} onLoad={setWorldMapData} />
-          ),
-        },
-      ]}
-      footer={
-        <FilterPreservingLink
-          href='geography'
-          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-        >
-          <span>{t('goTo', { section: t('sidebar.geography') })}</span>
-          <ArrowRight className='h-3.5 w-3.5' />
-        </FilterPreservingLink>
-      }
-    />
+      <MultiProgressTable
+        title={t('sections.geography')}
+        loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+        defaultTab={activeTab}
+        onTabChange={setActiveTab}
+        onItemClick={onItemClick}
+        tabs={[
+          ...geoLevelTabs,
+          {
+            key: 'worldmap',
+            label: t('tabs.worldMap'),
+            loading: worldMapQuery.isFetching && !worldMapQuery.data,
+            data: [],
+            customContent: worldMapQuery.data ? (
+              <div className='h-[280px] w-full'>
+                <LeafletMap {...worldMapQuery.data} showZoomControls={false} initialZoom={1} />
+              </div>
+            ) : undefined,
+          },
+        ]}
+        footer={
+          <FilterPreservingLink
+            href='geography'
+            className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+          >
+            <span>{t('goTo', { section: t('sidebar.geography') })}</span>
+            <ArrowRight className='h-3.5 w-3.5' />
+          </FilterPreservingLink>
+        }
+      />
   );
 }

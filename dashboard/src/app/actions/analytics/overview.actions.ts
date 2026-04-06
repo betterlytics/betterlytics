@@ -156,3 +156,36 @@ export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
     };
   },
 );
+
+export const fetchTopPagesOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getTopPagesForSite(main, limit),
+      compare && getTopPagesForSite(compare, limit),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  },
+);
+
+export const fetchTopEntryPagesOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getTopEntryPagesForSite(main, limit),
+      compare && getTopEntryPagesForSite(compare, limit),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  },
+);
+
+export const fetchTopExitPagesOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getTopExitPagesForSite(main, limit),
+      compare && getTopExitPagesForSite(compare, limit),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  },
+);

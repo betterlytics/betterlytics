@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
@@ -10,17 +10,17 @@ import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 
 type TableOutboundLinkRow = Awaited<ReturnType<typeof fetchOutboundLinksAnalyticsAction>>[number];
 
-type OutboundLinksTableSectionProps = {
-  outboundLinksAnalyticsPromise: ReturnType<typeof fetchOutboundLinksAnalyticsAction>;
-};
-
-export default function OutboundLinksTableSection({
-  outboundLinksAnalyticsPromise,
-}: OutboundLinksTableSectionProps) {
-  const outboundLinksData = use(outboundLinksAnalyticsPromise);
+export default function OutboundLinksTableSection() {
+  const query = useBAQuery({
+    queryKey: ['outbound-links-table'],
+    queryFn: (dashboardId, query) => fetchOutboundLinksAnalyticsAction(dashboardId, query),
+  });
   const t = useTranslations('components.outboundLinks.table');
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(
@@ -70,13 +70,17 @@ export default function OutboundLinksTableSection({
   );
 
   return (
-    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-      <CardHeader className='px-0 pb-0'>
-        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
-      </CardHeader>
-      <CardContent className='px-0'>
-        <DataTable data={outboundLinksData} columns={columns} />
-      </CardContent>
-    </Card>
+    <QuerySection query={query} fallback={<TableSkeleton />}>
+      {(outboundLinksData) => (
+        <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+          </CardHeader>
+          <CardContent className='px-0'>
+            <DataTable data={outboundLinksData} columns={columns} />
+          </CardContent>
+        </Card>
+      )}
+    </QuerySection>
   );
 }

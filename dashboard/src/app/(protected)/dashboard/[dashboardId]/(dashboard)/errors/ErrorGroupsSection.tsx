@@ -1,27 +1,25 @@
 'use client';
 
-import { use } from 'react';
 import { ErrorTable } from './ErrorList';
 import { ErrorsEmptyState } from './ErrorsEmptyState';
-import type { ErrorGroupsResult } from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupsAction } from '@/app/actions/analytics/errors.actions';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { QuerySection } from '@/components/QuerySection';
+import { TableSkeleton } from '@/components/skeleton';
 
-type ErrorGroupsSectionProps = {
-  groupsPromise: Promise<ErrorGroupsResult>;
-  dashboardId: string;
-};
-
-export function ErrorGroupsSection({ groupsPromise, dashboardId }: ErrorGroupsSectionProps) {
-  const { hasAnyErrors, errorGroups, initialVolumeMap } = use(groupsPromise);
-
-  if (!hasAnyErrors) {
-    return <ErrorsEmptyState />;
-  }
-
+export function ErrorGroupsSection() {
+  const dashboardId = useDashboardId();
+  const query = useBAQuery({
+    queryKey: ['error-groups'],
+    queryFn: (dashboardId, q) => fetchErrorGroupsAction(dashboardId, q),
+  });
   return (
-    <ErrorTable
-      errorGroups={errorGroups}
-      initialVolumeMap={initialVolumeMap}
-      dashboardId={dashboardId}
-    />
+    <QuerySection query={query} fallback={<TableSkeleton />}>
+      {({ hasAnyErrors, errorGroups, initialVolumeMap }) => {
+        if (!hasAnyErrors) return <ErrorsEmptyState />;
+        return <ErrorTable errorGroups={errorGroups} initialVolumeMap={initialVolumeMap} dashboardId={dashboardId} />;
+      }}
+    </QuerySection>
   );
 }

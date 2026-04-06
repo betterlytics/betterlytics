@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 interface ProgressBarData {
   label: string;
@@ -23,6 +24,7 @@ interface TabConfig<T extends ProgressBarData> {
   key: string;
   label: string;
   data: T[];
+  loading?: boolean;
   customContent?: React.ReactNode;
 }
 
@@ -30,8 +32,10 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   title: string;
   tabs: TabConfig<T>[];
   defaultTab?: string;
+  loading?: boolean;
   footer?: React.ReactNode;
   onItemClick?: (tabKey: string, item: T) => void;
+  onTabChange?: (tabKey: string) => void;
   isItemInteractive?: (tabKey: string, item: T) => boolean;
 }
 
@@ -39,8 +43,10 @@ function MultiProgressTable<T extends ProgressBarData>({
   title,
   tabs,
   defaultTab,
+  loading,
   footer,
   onItemClick,
+  onTabChange,
   isItemInteractive,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
@@ -58,9 +64,13 @@ function MultiProgressTable<T extends ProgressBarData>({
     [tabs, activeTab],
   );
 
-  const handleTabChange = useCallback((value: string) => {
-    setActiveTab(value);
-  }, []);
+  const handleTabChange = useCallback(
+    (value: string) => {
+      setActiveTab(value);
+      onTabChange?.(value);
+    },
+    [onTabChange],
+  );
 
   const toggleExpand = useCallback((key: string) => {
     setExpandedKeys((prev) => {
@@ -164,6 +174,14 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   const renderTabContent = useCallback(
     (tab: TabConfig<T>) => {
+      if (tab.loading) {
+        return (
+          <div className='flex h-40 items-center justify-center'>
+            <Spinner />
+          </div>
+        );
+      }
+
       if (tab.customContent) {
         return tab.customContent;
       }
@@ -216,7 +234,12 @@ function MultiProgressTable<T extends ProgressBarData>({
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
       <CardHeader className='px-0 pb-0'>
         <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row xl:items-center'>
-          <CardTitle className='flex-1 text-base font-medium'>{title}</CardTitle>
+          <CardTitle className='flex-1 text-base font-medium'>
+            <span className='inline-flex items-center gap-2'>
+              {title}
+              {loading && <Spinner size='sm' />}
+            </span>
+          </CardTitle>
           <Tabs value={activeTab} onValueChange={handleTabChange} className='flex h-8 items-center sm:items-end'>
             {tabsList}
           </Tabs>

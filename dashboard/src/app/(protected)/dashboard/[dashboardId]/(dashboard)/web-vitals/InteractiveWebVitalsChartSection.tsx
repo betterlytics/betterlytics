@@ -1,5 +1,5 @@
 'use client';
-import { use, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { cn } from '@/lib/utils';
 import { Gauge } from '@/components/gauge';
 import {
@@ -20,6 +20,10 @@ import {
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useLocale, useTranslations } from 'next-intl';
+import { useBAQuery } from '@/hooks/useBAQuery';
+import { QuerySection } from '@/components/QuerySection';
+import { ChartSkeleton } from '@/components/skeleton';
+import { fetchCoreWebVitalsSummaryAction, fetchCoreWebVitalChartDataAction } from '@/app/actions/index.actions';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -27,23 +31,21 @@ const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, 
   name: key.toUpperCase(),
 }));
 
-type InteractiveWebVitalsChartSectionProps = {
-  summaryPromise: Promise<CoreWebVitalsSummary>;
-  seriesPromise: Promise<CoreWebVitalsSeries>;
-};
-
-export default function InteractiveWebVitalsChartSection({
-  summaryPromise,
-  seriesPromise,
-}: InteractiveWebVitalsChartSectionProps) {
+export default function InteractiveWebVitalsChartSection() {
   const t = useTranslations('components.webVitals');
   const locale = useLocale();
-  const summary = use(summaryPromise);
+  const summaryQuery = useBAQuery({
+    queryKey: ['cwv-summary'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalsSummaryAction(dashboardId, query),
+  });
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
-  const seriesByMetric = use(seriesPromise);
+  const chartQuery = useBAQuery({
+    queryKey: ['cwv-chart'],
+    queryFn: (dashboardId, query) => fetchCoreWebVitalChartDataAction(dashboardId, query),
+  });
 
-  const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
+  const chartData = useMemo(() => (chartQuery.data ? chartQuery.data[active] || [] : []), [chartQuery.data, active]);
 
   const yReferenceAreas = useMemo(() => {
     const [good, fair] = CWV_THRESHOLDS[active];
@@ -58,27 +60,31 @@ export default function InteractiveWebVitalsChartSection({
     }));
   }, [active, t]);
 
+  if (summaryQuery.isPending || chartQuery.isPending) return <ChartSkeleton />;
+
   return (
-    <div className='space-y-6'>
-      <MultiSeriesChart
-        title={undefined}
-        data={chartData}
-        granularity={granularity}
-        formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
-        yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-        series={SERIES_DEFS}
-        yReferenceAreas={yReferenceAreas}
-        headerContent={
-          <div>
-            <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
-            <div className='mt-2 flex items-center justify-center gap-2 p-2'>
-              <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
-              <MetricInfo metric={active} />
+    <QuerySection loading={summaryQuery.isFetching || chartQuery.isFetching}>
+      <div className='space-y-6'>
+        <MultiSeriesChart
+          title={undefined}
+          data={chartData}
+          granularity={granularity}
+          formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
+          yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
+          series={SERIES_DEFS}
+          yReferenceAreas={yReferenceAreas}
+          headerContent={
+            <div>
+              <CoreWebVitalsGaugeGrid summary={summaryQuery.data!} activeMetric={active} onMetricSelect={setActive} />
+              <div className='mt-2 flex items-center justify-center gap-2 p-2'>
+                <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
+                <MetricInfo metric={active} />
+              </div>
             </div>
-          </div>
-        }
-      />
-    </div>
+          }
+        />
+      </div>
+    </QuerySection>
   );
 }
 
