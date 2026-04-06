@@ -1,6 +1,10 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchDeviceBreakdownCombinedAction } from '@/app/actions/analytics/devices.actions';
+import {
+  fetchBrowserRollupOverviewAction,
+  fetchOSRollupOverviewAction,
+  fetchDeviceTypeOverviewAction,
+} from '@/app/actions/analytics/devices.actions';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
@@ -9,16 +13,28 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
-import { TableSkeleton } from '@/components/skeleton';
+import { useState } from 'react';
 
 export default function DevicesSection() {
-  const query = useBAQuery({
-    queryKey: ['devices-breakdown'],
-    queryFn: (dashboardId, q) => fetchDeviceBreakdownCombinedAction(dashboardId, q),
-  });
+  const [activeTab, setActiveTab] = useState('browsers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+
+  const browsersQuery = useBAQuery({
+    queryKey: ['devices-breakdown', 'browsers'],
+    queryFn: (dashboardId, q) => fetchBrowserRollupOverviewAction(dashboardId, q),
+    enabled: activeTab === 'browsers',
+  });
+  const osQuery = useBAQuery({
+    queryKey: ['devices-breakdown', 'os'],
+    queryFn: (dashboardId, q) => fetchOSRollupOverviewAction(dashboardId, q),
+    enabled: activeTab === 'os',
+  });
+  const devicesQuery = useBAQuery({
+    queryKey: ['devices-breakdown', 'devices'],
+    queryFn: (dashboardId, q) => fetchDeviceTypeOverviewAction(dashboardId, q),
+    enabled: activeTab === 'devices',
+  });
 
   const onItemClick = (tabKey: string, item: { label: string }) => {
     if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
@@ -27,72 +43,72 @@ export default function DevicesSection() {
   };
 
   return (
-    <QuerySection query={query} fallback={<TableSkeleton />}>
-      {(data) => (
-        <MultiProgressTable
-          title={t('sections.devicesBreakdown')}
-          defaultTab='browsers'
-          onItemClick={onItemClick}
-          tabs={[
-            {
-              key: 'browsers',
-              label: t('tabs.browsers'),
-              data: data.browsersExpanded.map((item) => ({
-                label: item.browser,
-                value: item.current.visitors,
-                trendPercentage: item.change?.visitors,
-                comparisonValue: item.compare?.visitors,
-                icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
-                children: item.children?.map((v) => ({
-                  icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
-                  label: `${item.browser} ${v.version}`,
-                  value: v.current.visitors,
-                  comparisonValue: v.compare?.visitors,
-                  trendPercentage: v.change?.visitors,
-                })),
-              })),
-            },
-            {
-              key: 'os',
-              label: t('tabs.operatingSystems'),
-              data: data.operatingSystemsExpanded.map((item) => ({
-                label: item.os,
-                value: item.current.visitors,
-                trendPercentage: item.change?.visitors,
-                comparisonValue: item.compare?.visitors,
-                icon: <OSIcon name={item.os} className='h-4 w-4' />,
-                children: item.children?.map((v) => ({
-                  icon: <OSIcon name={item.os} className='h-4 w-4' />,
-                  label: `${item.os} ${v.version}`,
-                  value: v.current.visitors,
-                  comparisonValue: v.compare?.visitors,
-                  trendPercentage: v.change?.visitors,
-                })),
-              })),
-            },
-            {
-              key: 'devices',
-              label: t('tabs.devices'),
-              data: data.devices.map((item) => ({
-                label: item.device_type,
-                value: item.current.visitors,
-                trendPercentage: item.change?.visitors,
-                comparisonValue: item.compare?.visitors,
-                icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
-              })),
-            },
-          ]}
-          footer={
-            <FilterPreservingLink
-              href='devices'
-              className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-            >
-              <span>{t('goTo', { section: t('sidebar.devices') })}</span>
-              <ArrowRight className='h-3.5 w-3.5' />
-            </FilterPreservingLink>
-          }
-        />
-      )}
-    </QuerySection>
+    <MultiProgressTable
+      title={t('sections.devicesBreakdown')}
+      defaultTab='browsers'
+      onTabChange={setActiveTab}
+      onItemClick={onItemClick}
+      tabs={[
+        {
+          key: 'browsers',
+          label: t('tabs.browsers'),
+          loading: browsersQuery.isFetching && !browsersQuery.data,
+          data: (browsersQuery.data ?? []).map((item) => ({
+            label: item.browser,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
+            children: item.children?.map((v) => ({
+              icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
+              label: `${item.browser} ${v.version}`,
+              value: v.current.visitors,
+              comparisonValue: v.compare?.visitors,
+              trendPercentage: v.change?.visitors,
+            })),
+          })),
+        },
+        {
+          key: 'os',
+          label: t('tabs.operatingSystems'),
+          loading: osQuery.isFetching && !osQuery.data,
+          data: (osQuery.data ?? []).map((item) => ({
+            label: item.os,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            icon: <OSIcon name={item.os} className='h-4 w-4' />,
+            children: item.children?.map((v) => ({
+              icon: <OSIcon name={item.os} className='h-4 w-4' />,
+              label: `${item.os} ${v.version}`,
+              value: v.current.visitors,
+              comparisonValue: v.compare?.visitors,
+              trendPercentage: v.change?.visitors,
+            })),
+          })),
+        },
+        {
+          key: 'devices',
+          label: t('tabs.devices'),
+          loading: devicesQuery.isFetching && !devicesQuery.data,
+          data: (devicesQuery.data ?? []).map((item) => ({
+            label: item.device_type,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
+          })),
+        },
+      ]}
+      footer={
+        <FilterPreservingLink
+          href='devices'
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.devices') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
+    />
   );
 }

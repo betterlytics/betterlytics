@@ -164,3 +164,34 @@ export const fetchTrafficSourcesCombinedAction = withDashboardAuthContext(
     }
   },
 );
+
+export const fetchReferrerUrlRollupOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getReferrerUrlRollupForSite(main, limit),
+      compare && getReferrerUrlRollupForSite(compare, limit),
+    ]);
+    return toHierarchicalDataTable({
+      data,
+      compare: compareData || undefined,
+      parentKey: 'source_name',
+      childKey: 'referrer_url',
+    });
+  },
+);
+
+export const fetchTopChannelsOverviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 10) => {
+    const { main, compare } = toSiteQuery(ctx.siteId, query);
+    const [data, compareData] = await Promise.all([
+      getTopChannelsForSite(main, limit),
+      compare && getTopChannelsForSite(compare, limit),
+    ]);
+    return toDataTable({
+      data,
+      compare: compareData || undefined,
+      categoryKey: 'channel',
+    });
+  },
+);

@@ -18,8 +18,6 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import dynamic from 'next/dynamic';
 import GeographyLoading from '@/components/loading/GeographyLoading';
 import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
-import { TableSkeleton } from '@/components/skeleton';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -58,20 +56,22 @@ type GeographySectionProps = {
 export default function GeographySection({ enabledLevels }: GeographySectionProps) {
   const query = useAnalyticsQuery();
   const [worldMapData, setWorldMapData] = useState<WorldMapResponse | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(enabledLevels[0] ?? 'country_code');
+
   const countryQuery = useBAQuery({
     queryKey: ['geo-visits', 'country_code'],
     queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'country_code'),
-    enabled: enabledLevels.includes('country_code'),
+    enabled: enabledLevels.includes('country_code') && activeTab === 'country_code',
   });
   const subdivisionQuery = useBAQuery({
     queryKey: ['geo-visits', 'subdivision_code'],
     queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'subdivision_code'),
-    enabled: enabledLevels.includes('subdivision_code'),
+    enabled: enabledLevels.includes('subdivision_code') && activeTab === 'subdivision_code',
   });
   const cityQuery = useBAQuery({
     queryKey: ['geo-visits', 'city'],
     queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'city'),
-    enabled: enabledLevels.includes('city'),
+    enabled: enabledLevels.includes('city') && activeTab === 'city',
   });
 
   const t = useTranslations('dashboard');
@@ -82,53 +82,47 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
     setWorldMapData(null);
   }, [query]);
 
-  const enabledQueries = [
-    enabledLevels.includes('country_code') && countryQuery,
-    enabledLevels.includes('subdivision_code') && subdivisionQuery,
-    enabledLevels.includes('city') && cityQuery,
-  ].filter((q) => q != false);
-
-  if (enabledQueries.some((q) => q.isPending)) return <TableSkeleton />;
-
-  const resolvedByLevel = {
-    country_code: countryQuery.data ?? [],
-    subdivision_code: subdivisionQuery.data ?? [],
-    city: cityQuery.data ?? [],
-  };
-
   const geoLevelTabLabels = {
     country_code: t('tabs.countries'),
     subdivision_code: t('tabs.regions'),
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
-  const geoLevelTabs = enabledLevels.map((level) => ({
-    key: level,
-    label: geoLevelTabLabels[level],
-    data: resolvedByLevel[level].map((item) => ({
-      label: GEO_LABEL_FORMATTERS[level](item[level], locale),
-      key: item[level],
-      value: item.current.visitors,
-      trendPercentage: item.change?.visitors,
-      comparisonValue: item.compare?.visitors,
-      icon: (
-        <FlagIcon
-          countryCode={item.current.country_code as FlagIconProps['countryCode']}
-          countryName={getCountryName(item.current.country_code, locale)}
-        />
-      ),
-    })),
-  }));
+  const geoLevelTabs = enabledLevels.map((level) => {
+    const queryForLevel = { country_code: countryQuery, subdivision_code: subdivisionQuery, city: cityQuery }[
+      level
+    ];
+    const data = queryForLevel?.data;
+    return {
+      key: level,
+      label: geoLevelTabLabels[level],
+      loading: queryForLevel?.isFetching && !data,
+      data: (data ?? []).map((item) => ({
+        label: GEO_LABEL_FORMATTERS[level](item[level], locale),
+        key: item[level],
+        value: item.current.visitors,
+        trendPercentage: item.change?.visitors,
+        comparisonValue: item.compare?.visitors,
+        icon: (
+          <FlagIcon
+            countryCode={item.current.country_code as FlagIconProps['countryCode']}
+            countryName={getCountryName(item.current.country_code, locale)}
+          />
+        ),
+      })),
+    };
+  });
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
   };
 
   return (
-    <QuerySection loading={enabledQueries.some((q) => q.isFetching)}>
+    <>
       <MultiProgressTable
         title={t('sections.geography')}
-        defaultTab={geoLevelTabs[0]?.key ?? 'worldmap'}
+        defaultTab={activeTab}
+        onTabChange={setActiveTab}
         onItemClick={onItemClick}
         tabs={[
           ...geoLevelTabs,
@@ -149,6 +143,6 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           </FilterPreservingLink>
         }
       />
-    </QuerySection>
+    </>
   );
 }
