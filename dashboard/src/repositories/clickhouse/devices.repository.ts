@@ -62,23 +62,23 @@ export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<Brows
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
   if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
-    const filters = BAQuery.getFilterQuery(queryFilters);
-    const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['browser', 'visitor_id'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
     const query = safeSql`
-      SELECT browser, uniq(visitor_id) * any(_sample_factor) as visitors
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND ${SQL.AND(filters)}
+      SELECT browser, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      WHERE browser != ''
       GROUP BY browser
       ORDER BY visitors DESC
     `;
-    const result = (await clickhouse
-      .query(query.taggedSql, {
-        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-      })
-      .toPromise()) as any[];
 
+    const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
     return BrowserInfoSchema.array().parse(
       result.map((row) => ({ browser: row.browser, visitors: Number(row.visitors) })),
     );
@@ -132,24 +132,23 @@ export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promi
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
   if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
-    const filters = BAQuery.getFilterQuery(queryFilters);
-    const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['os', 'visitor_id'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
     const query = safeSql`
-      SELECT os, uniq(visitor_id) * any(_sample_factor) as visitors
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND ${SQL.AND(filters)}
+      SELECT os, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      WHERE os != ''
       GROUP BY os
       ORDER BY visitors DESC
     `;
 
-    const result = (await clickhouse
-      .query(query.taggedSql, {
-        params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
-      })
-      .toPromise()) as any[];
-
+    const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
     return OperatingSystemInfoSchema.array().parse(
       result.map((row) => ({ os: row.os, visitors: Number(row.visitors) })),
     );
