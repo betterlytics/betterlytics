@@ -1,10 +1,11 @@
 import React, { Dispatch, useMemo } from 'react';
 import { MultiSelect } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
 import { cn } from '@/lib/utils';
-import { formatString, formatFilterValue } from '@/utils/formatters';
+import { formatString } from '@/utils/formatters';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -24,12 +25,13 @@ export function FilterValueSearch<TEntity>({
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
   const locale = useLocale();
+  const strategy = getFilterStrategy(filter.column);
 
   const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,
   });
 
-  const formatLabel = (value: string) => formatString(formatFilterValue(filter.column, value, locale), formatLength);
+  const formatLabel = (value: string) => formatString(strategy.formatValue(value, locale), formatLength);
 
   const multiSelectOptions = useMemo(() => {
     const searchOptions = options.map((opt) => ({
@@ -53,7 +55,7 @@ export function FilterValueSearch<TEntity>({
       inputValue={search}
       onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
-        label: formatString(formatFilterValue(filter.column, value, locale), Math.floor(formatLength * 0.835)),
+        label: formatString(strategy.formatValue(value, locale), Math.floor(formatLength * 0.835)),
         value,
       }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}

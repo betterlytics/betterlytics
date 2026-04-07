@@ -2387,8 +2387,7 @@
         "utm_term": "Termine UTM",
         "utm_content": "Contenuto UTM",
         "custom_event_name": "Evento",
-        "event_type": "Tipo di evento",
-        "global_property": "Proprietà globale"
+        "event_type": "Tipo di evento"
       },
       "selector": {
         "triggerLabel": "Filtri",

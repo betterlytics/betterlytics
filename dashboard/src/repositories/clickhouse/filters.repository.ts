@@ -1,6 +1,7 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { type FilterColumn } from '@/entities/analytics/filter.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getFilterDistinctValues(
@@ -44,6 +45,7 @@ export async function getGlobalPropertyKeys(
   limit: number = 50,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const searchClause =
     search && search.trim()
@@ -52,7 +54,7 @@ export async function getGlobalPropertyKeys(
 
   const query = safeSql`
     SELECT arrayJoin(JSONExtractKeys(global_properties_json)) AS key
-    FROM analytics.events
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND global_properties_json != ''

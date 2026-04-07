@@ -3,11 +3,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 /**
  * Format a number using locale-aware compact notation (e.g., 1.5K, 1,5 t).
  */
-export function formatNumber(
-  num: number,
-  locale?: SupportedLanguages,
-  opts?: Intl.NumberFormatOptions,
-): string {
+export function formatNumber(num: number, locale?: SupportedLanguages, opts?: Intl.NumberFormatOptions): string {
   if (num == null) return '-';
   return new Intl.NumberFormat(locale, {
     notation: 'compact',
@@ -58,25 +54,6 @@ export function formatString(value: string, maxLength: number = 50) {
  */
 export function capitalizeFirstLetter(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-import type { FilterColumn } from '@/entities/analytics/filter.entities';
-
-type FilterValueFormatter = (value: string, locale: SupportedLanguages) => string;
-
-function formatNumericString(value: string, locale: SupportedLanguages): string {
-  const num = Number(value);
-  if (!isNaN(num) && value.trim() !== '') return formatNumber(num, locale, { maximumFractionDigits: 5 });
-  return value;
-}
-
-const FILTER_VALUE_FORMATTERS: Partial<Record<FilterColumn, FilterValueFormatter>> = {
-  global_property: formatNumericString,
-};
-
-export function formatFilterValue(column: FilterColumn, value: string, locale: SupportedLanguages): string {
-  const formatter = FILTER_VALUE_FORMATTERS[column];
-  return formatter ? formatter(value, locale) : value;
 }
 
 export type DowntimeMetadata = {

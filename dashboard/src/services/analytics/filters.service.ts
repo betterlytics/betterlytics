@@ -1,6 +1,7 @@
 'server-only';
 
-import { FilterColumn } from '@/entities/analytics/filter.entities';
+import { type FilterColumn } from '@/entities/analytics/filter.entities';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { getFilterDistinctValues, getGlobalPropertyKeys, getGlobalPropertyValues } from '@/repositories/clickhouse/filters.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -9,15 +10,14 @@ export async function getDistinctValuesForFilterColumn(
   column: FilterColumn,
   search?: string,
   limit?: number,
-  propertyKey?: string,
 ) {
-  if (column === 'global_property' && propertyKey) {
-    return getGlobalPropertyValues(siteQuery, propertyKey, search?.trim(), limit);
+  const strategy = getFilterStrategy(column);
+  switch (strategy.type) {
+    case 'json_property':
+      return getGlobalPropertyValues(siteQuery, strategy.key, search?.trim(), limit);
+    default:
+      return getFilterDistinctValues(siteQuery, column, limit, search?.trim());
   }
-  if (column === 'global_property') {
-    return [];
-  }
-  return getFilterDistinctValues(siteQuery, column, limit, search?.trim());
 }
 
 export async function getAvailableGlobalPropertyKeys(

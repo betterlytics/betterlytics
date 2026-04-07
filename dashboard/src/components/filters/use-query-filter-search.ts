@@ -59,13 +59,12 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   }, [searchMetadataResult]);
 
   const { data: fetchedOptions = [], isLoading } = useQuery({
-    queryKey: ['filter-options', filter.column, filter.propertyKey, query.startDate?.toString(), query.endDate?.toString(), debouncedSearch],
+    queryKey: ['filter-options', filter.column, query.startDate?.toString(), query.endDate?.toString(), debouncedSearch],
     queryFn: () =>
       getFilterOptionsAction(dashboardId, query, {
         column: filter.column,
         search: isDirty ? debouncedSearch || undefined : undefined,
         limit: SEARCH_LIMIT,
-        propertyKey: filter.propertyKey,
       }),
     staleTime: 5 * 60 * 1000,
     gcTime: 5 * 60 * 1000,

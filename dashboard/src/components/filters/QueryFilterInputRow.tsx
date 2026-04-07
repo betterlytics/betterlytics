@@ -1,4 +1,5 @@
-import { FilterColumn, FilterOperator, QueryFilter } from '@/entities/analytics/filter.entities';
+import { FILTER_COLUMNS, FilterColumn, FilterOperator, GP_PREFIX, QueryFilter } from '@/entities/analytics/filter.entities';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
 import {
   Select,
@@ -83,24 +84,21 @@ export function QueryFilterInputRow<TEntity>({
     staleTime: 5 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
-  const filterKeyRef = useRef<string>(filter.column + (filter.propertyKey ?? ''));
+  const filterKeyRef = useRef<string>(filter.column);
   useEffect(() => {
-    const key = filter.column + (filter.propertyKey ?? '');
-    if (key !== filterKeyRef.current) {
+    if (filter.column !== filterKeyRef.current) {
       onFilterUpdate({ ...filter, values: [] });
-      filterKeyRef.current = key;
+      filterKeyRef.current = filter.column;
     }
-  }, [filter.column, filter.propertyKey]);
+  }, [filter.column]);
 
-  const isGlobalProperty = filter.column === 'global_property';
-  const columnLabel = isGlobalProperty
-    ? filter.propertyKey || '...'
-    : t(`columns.${filter.column}` as Parameters<typeof t>[0]);
+  const strategy = getFilterStrategy(filter.column);
+  const columnLabel = strategy.type === 'standard' ? t(`columns.${strategy.key}`) : strategy.key;
 
   return (
     <div className='grid grid-cols-12 items-end gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <div className='col-span-8 flex flex-col md:col-span-4'>
-        {isGlobalProperty && (
+        {strategy.type === 'json_property' && (
           <span className='text-muted-foreground/60 mb-0.5 px-1 text-xs leading-none'>
             {t('globalProperties', { count: 1 })}
           </span>
@@ -123,7 +121,7 @@ export function QueryFilterInputRow<TEntity>({
                   ? 'max-h-72'
                   : 'max-h-[min(36rem,calc(var(--radix-dropdown-menu-content-available-height)-0.5rem))]'
               }
-              scrollToKey={filter.column}
+              scrollToKey={strategy.type === 'json_property' ? GP_PREFIX : filter.column}
             >
               <DropdownMenuLabel className='text-muted-foreground text-xs font-normal'>
                 {t('type')}
@@ -154,11 +152,11 @@ export function QueryFilterInputRow<TEntity>({
                 label={t('globalProperties', { count: 2 })}
                 icon={<TagsIcon className='size-4' />}
                 items={globalPropertyKeys.map((key) => ({ key, label: key }))}
-                activeKey={isGlobalProperty ? filter.propertyKey : undefined}
-                scrollKey='global_property'
+                activeKey={strategy.key}
+                scrollKey={GP_PREFIX}
                 isLoading={isLoadingPropertyKeys}
                 disabled={isDemo}
-                onSelect={(key) => onFilterUpdate({ ...filter, column: 'global_property', propertyKey: key })}
+                onSelect={(key) => onFilterUpdate({ ...filter, column: `gp.${key}` })}
               />
             </DropdownContentController>
           </DropdownMenuContent>
@@ -201,7 +199,8 @@ export function QueryFilterInputRow<TEntity>({
   );
 }
 
-type FilterColumnSelectOptions = { value: FilterColumn; icon: ReactNode; label: string }[];
+type StandardFilterColumn = (typeof FILTER_COLUMNS)[number];
+type FilterColumnSelectOptions = { value: StandardFilterColumn; icon: ReactNode; label: string }[];
 
 export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'url', icon: <TextCursorInputIcon />, label: 'URL' },

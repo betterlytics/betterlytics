@@ -2379,8 +2379,7 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-indhold",
         "custom_event_name": "Hændelse",
-        "event_type": "Type",
-        "global_property": "Global egenskab"
+        "event_type": "Type"
       },
       "selector": {
         "triggerLabel": "Filtre",

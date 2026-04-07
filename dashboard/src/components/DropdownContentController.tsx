@@ -38,7 +38,8 @@ export function DropdownContentController({ children, className, scrollToKey }: 
 
       if (!hasScrolledToKey && scrollToKey && el.scrollHeight > el.clientHeight) {
         hasScrolledToKey = true;
-        const target = el.querySelector<HTMLElement>(`[data-scroll-key="${scrollToKey}"]`);
+        const target = Array.from(el.querySelectorAll<HTMLElement>('[data-scroll-key]'))
+          .find((node) => node.dataset.scrollKey === scrollToKey);
         if (target) {
           setTimeout(() => {
             target.scrollIntoView({ block: 'nearest' });

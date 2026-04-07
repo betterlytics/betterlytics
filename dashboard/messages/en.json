@@ -2376,8 +2376,7 @@
         "utm_term": "UTM term",
         "utm_content": "UTM content",
         "custom_event_name": "Event",
-        "event_type": "Event type",
-        "global_property": "Global Property"
+        "event_type": "Event type"
       },
       "selector": {
         "triggerLabel": "Filters",
