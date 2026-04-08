@@ -70,8 +70,15 @@ export async function getSessionReplays(
       e.browser,
       e.os,
       e.country_code
-    FROM analytics.session_replays AS r FINAL
-    LEFT JOIN (
+    FROM (
+      SELECT *
+      FROM analytics.session_replays FINAL
+      WHERE site_id = {site_id:String}
+        AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      ORDER BY started_at DESC
+      LIMIT {limit:UInt32} OFFSET {offset:UInt32}
+    ) AS r
+    LEFT ANY JOIN (
       SELECT
         site_id,
         session_id,
@@ -80,13 +87,8 @@ export async function getSessionReplays(
         os,
         country_code
       FROM analytics.sessions FINAL
-      WHERE session_start <= {end_date:DateTime} AND session_end >= {start_date:DateTime}
-        AND site_id = {site_id:String}
+      WHERE site_id = {site_id:String}
     ) AS e USING (site_id, session_id)
-    WHERE r.site_id = {site_id:String}
-      AND r.started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-    ORDER BY r.started_at DESC
-    LIMIT {limit:UInt32} OFFSET {offset:UInt32}
   `;
 
   const result = await clickhouse
