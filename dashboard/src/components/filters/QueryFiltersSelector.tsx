@@ -8,6 +8,10 @@ import { Button } from '@/components/ui/button';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
+import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useQuery } from '@tanstack/react-query';
 import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -26,6 +30,15 @@ export default function QueryFiltersSelector() {
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
+  const dashboardId = useDashboardId();
+  const analyticsQuery = useAnalyticsQuery();
+
+  const { data: globalPropertyKeys = [], isLoading: isLoadingPropertyKeys } = useQuery({
+    queryKey: ['global-property-keys', analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
+    queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const {
@@ -92,6 +105,8 @@ export default function QueryFiltersSelector() {
                 onFilterUpdate={updateQueryFilter}
                 filter={filter}
                 requestRemoval={(_filter) => removeQueryFilter(_filter.id)}
+                globalPropertyKeys={globalPropertyKeys}
+                isLoadingPropertyKeys={isLoadingPropertyKeys}
               />
             ))}
             {queryFilters.length === 0 && (
@@ -164,6 +179,8 @@ export default function QueryFiltersSelector() {
               onFilterUpdate={updateQueryFilter}
               filter={addEmptyQueryFilter() as any}
               requestRemoval={(filter) => removeQueryFilter(filter.id)}
+              globalPropertyKeys={globalPropertyKeys}
+              isLoadingPropertyKeys={isLoadingPropertyKeys}
             />
           </div>
           <Separator />

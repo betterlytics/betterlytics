@@ -1,6 +1,5 @@
 import { FILTER_COLUMNS, FilterColumn, FilterOperator, GP_PREFIX, QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
-import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
 import {
   Select,
   SelectContent,
@@ -23,9 +22,6 @@ import { QueryFilterInputSubMenu } from './QueryFilterInputSubMenu';
 import { DropdownContentController } from '../DropdownContentController';
 import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
@@ -63,6 +59,8 @@ type QueryFilterInputRowProps<TEntity> = {
   filter: QueryFilter & TEntity;
   requestRemoval: Dispatch<QueryFilter & TEntity>;
   disableDeletion?: boolean;
+  globalPropertyKeys: string[];
+  isLoadingPropertyKeys: boolean;
 };
 
 export function QueryFilterInputRow<TEntity>({
@@ -70,20 +68,13 @@ export function QueryFilterInputRow<TEntity>({
   onFilterUpdate,
   requestRemoval,
   disableDeletion,
+  globalPropertyKeys,
+  isLoadingPropertyKeys,
 }: QueryFilterInputRowProps<TEntity>) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
-  const dashboardId = useDashboardId();
-  const analyticsQuery = useAnalyticsQuery();
-
-  const { data: globalPropertyKeys = [], isLoading: isLoadingPropertyKeys } = useQuery({
-    queryKey: ['global-property-keys', analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
-    queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-  });
   const filterKeyRef = useRef<string>(filter.column);
   useEffect(() => {
     if (filter.column !== filterKeyRef.current) {

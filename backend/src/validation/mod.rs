@@ -35,7 +35,7 @@ impl Default for ValidationConfig {
             max_error_exceptions_size: 16 * 1024,     // 16KB - client caps stack at 10KB + type/value/mechanism overhead
             max_global_properties_keys: 30,
             max_global_property_key_length: 64,
-            max_global_property_value_length: 500,
+            max_global_property_value_length: 128,
             max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
             enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
@@ -358,6 +358,11 @@ impl EventValidator {
             }
             match val {
                 serde_json::Value::String(s) => {
+                    if s.is_empty() {
+                        return Err(ValidationError::InvalidGlobalProperties(
+                            format!("Value for '{}' must not be empty", key),
+                        ));
+                    }
                     if s.len() > self.config.max_global_property_value_length {
                         return Err(ValidationError::InvalidGlobalProperties(
                             format!("Value for '{}' too long (max {} chars)", key, self.config.max_global_property_value_length),

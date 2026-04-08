@@ -109,7 +109,7 @@
         user_agent: userAgent,
         screen_resolution: screenResolution,
         timestamp: Math.floor(Date.now() / 1000),
-        global_properties: Object.assign({}, globalProperties),
+        ...(Object.keys(globalProperties).length > 0 && { global_properties: Object.assign({}, globalProperties) }),
         ...overrides,
       }),
     })
@@ -137,6 +137,8 @@
         var val = props[keys[i]];
         if (["string", "number", "boolean"].includes(typeof val)) {
           globalProperties[keys[i]] = val;
+        } else {
+          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, number, or boolean");
         }
       }
     },
