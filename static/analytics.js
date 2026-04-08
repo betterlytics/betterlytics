@@ -131,7 +131,6 @@
       if (props == null || typeof props !== "object" || Array.isArray(props)) {
         return console.error("Betterlytics: setGlobalProperties requires a flat object");
       }
-      globalProperties = {};
       var keys = Object.keys(props);
       for (var i = 0; i < keys.length; i++) {
         var val = props[keys[i]];
@@ -141,6 +140,9 @@
           console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, number, or boolean");
         }
       }
+    },
+    clearGlobalProperties: function () {
+      globalProperties = {};
     },
     getGlobalProperties: function () {
       return Object.assign({}, globalProperties);

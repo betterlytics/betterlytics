@@ -21,12 +21,21 @@ betterlytics.setGlobalProperties({
 
 All subsequent events will include these properties automatically.
 
-Calling `setGlobalProperties()` again replaces all previously set properties. You can read the current properties with `betterlytics.getGlobalProperties()`.
+Calling `setGlobalProperties()` again merges the new properties with existing ones. To clear all properties, use `clearGlobalProperties()`. You can read the current properties with `getGlobalProperties()`.
+
+```javascript
+betterlytics.setGlobalProperties({ plan: "premium" });
+betterlytics.setGlobalProperties({ app_version: "2.1.0" });
+betterlytics.getGlobalProperties(); // { plan: "premium", app_version: "2.1.0" }
+
+betterlytics.clearGlobalProperties();
+betterlytics.getGlobalProperties(); // {}
+```
 
 ## Property Guidelines
 
 - Values must be strings, numbers, or booleans
-- Maximum 30 keys, 64 characters per key, 500 characters per value
+- Maximum 30 keys, 64 characters per key, 128 characters per value
 
 ## Filtering in the Dashboard
 

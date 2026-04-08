@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { FILTER_COLUMNS, FILTER_OPERATORS } from './filter.entities';
+import { filterColumnSchema, FILTER_OPERATORS } from './filter.entities';
 
 export const SavedFilterEntrySchema = z.object({
   id: z.string(),
-  column: z.enum(FILTER_COLUMNS),
+  column: filterColumnSchema,
   operator: z.enum(FILTER_OPERATORS),
   values: z.string().min(1).array().min(1),
 });
