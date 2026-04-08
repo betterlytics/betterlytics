@@ -25,7 +25,7 @@ export function ActiveQueryFilters() {
             className='text-muted-foreground border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 px-2 py-1'
           >
             {strategy.type === 'json_property' && (
-              <span className='text-muted-foreground/60 mr-1 text-xs'>
+              <span className='text-muted-foreground/60 mr-0.5 text-xs'>
                 {t('globalProperties', { count: 1 })}
               </span>
             )}

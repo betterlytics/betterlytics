@@ -374,7 +374,17 @@ impl EventValidator {
                         ));
                     }
                 }
-                serde_json::Value::Number(_) | serde_json::Value::Bool(_) => {}
+                serde_json::Value::Number(n) => {
+                    const MAX_SAFE: f64 = (1u64 << 53) as f64 - 1.0;
+                    if let Some(f) = n.as_f64() {
+                        if !f.is_finite() || f > MAX_SAFE || f < -MAX_SAFE {
+                            return Err(ValidationError::InvalidGlobalProperties(
+                                format!("Value for '{}' is out of range", key),
+                            ));
+                        }
+                    }
+                }
+                serde_json::Value::Bool(_) => {}
                 _ => {
                     return Err(ValidationError::InvalidGlobalProperties(
                         format!("Value for '{}' must be a string, number, or boolean", key),

@@ -35,7 +35,8 @@ betterlytics.getGlobalProperties(); // {}
 ## Property Guidelines
 
 - Values must be strings, numbers, or booleans
-- Maximum 30 keys, 64 characters per key, 128 characters per value
+- Numeric values must be within [`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
+- Maximum 30 keys, 64 characters per key, 128 characters per string value
 
 ## Filtering in the Dashboard
 

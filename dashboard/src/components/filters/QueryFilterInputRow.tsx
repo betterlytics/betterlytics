@@ -124,6 +124,7 @@ export function QueryFilterInputRow<TEntity>({
                   return (
                     <DropdownMenuItem
                       key={column.value}
+                      className='cursor-pointer'
                       disabled={disabled}
                       data-scroll-key={column.value}
                       onSelect={() => onFilterUpdate({ ...filter, column: column.value })}
