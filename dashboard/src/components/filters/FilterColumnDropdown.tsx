@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { DropdownContentController } from '@/components/DropdownContentController';
 import { QueryFilterInputSubMenu } from '@/components/filters/QueryFilterInputSubMenu';
-import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/QueryFilterInputRow';
+import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import { type FilterColumn, type QueryFilter, GP_PREFIX } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';

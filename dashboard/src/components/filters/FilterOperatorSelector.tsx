@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { type FilterOperator, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { cn } from '@/lib/utils';
 
 type FilterOperatorSelectorProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -31,7 +32,7 @@ export function FilterOperatorSelector<TEntity>({
       value={filter.operator}
       onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
     >
-      <SelectTrigger className={className ?? 'w-full cursor-pointer'}>
+      <SelectTrigger className={cn('cursor-pointer', className ?? 'w-full')}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent align='start' position='popper'>

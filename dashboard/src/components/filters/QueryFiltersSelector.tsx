@@ -92,7 +92,6 @@ export default function QueryFiltersSelector() {
                 onFilterUpdate={updateQueryFilter}
                 filter={filter}
                 requestRemoval={(_filter) => removeQueryFilter(_filter.id)}
-
               />
             ))}
             {queryFilters.length === 0 && (

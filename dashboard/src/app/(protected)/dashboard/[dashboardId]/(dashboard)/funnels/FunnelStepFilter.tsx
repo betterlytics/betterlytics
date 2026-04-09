@@ -46,7 +46,7 @@ export function FunnelStepFilter({
         <FilterOperatorSelector
           filter={filter}
           onFilterUpdate={onFilterUpdate}
-          className='w-25 cursor-pointer'
+          className='w-25'
         />
         <FilterValueSearch
           filter={filter}
