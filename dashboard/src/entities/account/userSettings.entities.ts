@@ -40,6 +40,10 @@ export const UserSettingsUpdateSchema = z.object({
   marketingEmails: z.boolean().optional(),
 });
 
+export const UserSettingsFormDataSchema = UserSettingsUpdateSchema.extend({
+  name: z.string().nullable().optional(),
+});
+
 // Default user settings matching database defaults
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
   theme: Theme.system,
@@ -52,3 +56,4 @@ export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'create
 export type UserSettingsUpdate = z.infer<typeof UserSettingsUpdateSchema>;
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 export type UserSettingsCreate = z.infer<typeof UserSettingsCreateSchema>;
+export type UserSettingsFormData = z.infer<typeof UserSettingsFormDataSchema>;
