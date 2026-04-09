@@ -198,76 +198,82 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
         const filters = BAQuery.getFilterQuery(queryFilters);
         return safeSql`
             WITH
-              events_agg AS (
+              page_session AS (
                 SELECT
-                  url as path,
-                  uniqIf(session_id, event_type = 'pageview') as visitors,
-                  countIf(event_type = 'pageview') as pageviews
+                  url                                                                                  AS path,
+                  session_id,
+                  countIf(event_type = 'pageview')                                                    AS pv_count,
+                  minIf(timestamp, event_type = 'pageview')                                           AS first_ts,
+                  if(
+                    countIf(event_type = 'scroll_depth' AND scroll_depth_percentage IS NOT NULL) > 0,
+                    maxIf(scroll_depth_percentage, event_type = 'scroll_depth' AND scroll_depth_percentage IS NOT NULL),
+                    NULL
+                  )                                                                                   AS max_scroll
                 FROM analytics.events
                 WHERE site_id = {site_id:String}
-                  AND event_type = 'pageview'
+                  AND event_type IN ('pageview', 'scroll_depth')
                   AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
                   AND ${SQL.AND(filters)}
-                GROUP BY url
+                GROUP BY url, session_id
               ),
-              duration_stats AS (
+              page_agg AS (
                 SELECT
-                  prev_url as path,
-                  avg(prev_pageview_duration) as avg_time_seconds
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type IN ('pageview', 'pagehide')
-                  AND prev_url != ''
-                  AND prev_pageview_duration IS NOT NULL
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                GROUP BY prev_url
-              ),
-              scroll_stats AS (
-                SELECT
-                  url AS path,
-                  avg(max_scroll) AS avg_scroll_depth
-                FROM (
-                  SELECT url, session_id, max(scroll_depth_percentage) AS max_scroll
-                  FROM analytics.events
-                  WHERE site_id = {site_id:String}
-                    AND event_type = 'scroll_depth'
-                    AND scroll_depth_percentage IS NOT NULL
-                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  GROUP BY url, session_id
-                )
-                GROUP BY url
-              ),
-              bounce_stats AS (
-                SELECT
-                  entry_url as path,
-                  count() as entry_sessions,
-                  countIf(pv_count = 1) as bounces
+                  path,
+                  uniq(session_id)                                            AS visitors,
+                  sum(pv_count)                                               AS pageviews,
+                  avg(max_scroll)                                             AS avg_scroll_depth,
+                  countIf(is_entry)                                           AS entries,
+                  countIf(is_entry AND total_pvs = 1)                         AS bounces
                 FROM (
                   SELECT
-                    session_id,
-                    argMin(url, timestamp) as entry_url,
-                    count() as pv_count
+                    path, session_id, pv_count, max_scroll,
+                    sum(pv_count) OVER (PARTITION BY session_id)              AS total_pvs,
+                    (min(first_ts) OVER (PARTITION BY session_id)) = first_ts AS is_entry
+                  FROM page_session
+                  WHERE pv_count > 0
+                )
+                GROUP BY path
+              ),
+              duration_stats AS (
+                SELECT path, avg(duration) AS avg_time_seconds
+                FROM (
+                  SELECT prev_url AS path, toFloat64(prev_pageview_duration) AS duration
                   FROM analytics.events
                   WHERE site_id = {site_id:String}
-                    AND event_type = 'pageview'
+                    AND event_type IN ('pageview', 'pagehide')
+                    AND prev_url != ''
+                    AND prev_pageview_duration IS NOT NULL
                     AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  GROUP BY session_id
+                  UNION ALL
+                  SELECT url AS path,
+                    if(next_ts > timestamp AND dateDiff('second', timestamp, next_ts) <= 1800,
+                       toFloat64(dateDiff('second', timestamp, next_ts)), 0.0) AS duration
+                  FROM (
+                    SELECT url, timestamp,
+                      leadInFrame(timestamp) OVER (
+                        PARTITION BY session_id ORDER BY timestamp
+                        ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+                      ) AS next_ts
+                    FROM analytics.events
+                    WHERE site_id = {site_id:String}
+                      AND event_type = 'pageview'
+                      AND prev_pageview_duration IS NULL
+                      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                  ) WHERE duration > 0
                 )
-                GROUP BY entry_url
+                GROUP BY path
               )
             SELECT
-              ea.path AS path,
-              ea.visitors AS visitors,
-              ea.pageviews AS pageviews,
-              if(bs.entry_sessions > 0, round(bs.bounces / bs.entry_sessions * 100, 2), 0) as bounceRate,
-              coalesce(ds.avg_time_seconds, 0) as avgTime,
-              coalesce(ss.avg_scroll_depth, 0) as avgScrollDepth
-            FROM events_agg ea
-            LEFT ANY JOIN duration_stats ds ON ea.path = ds.path
-            LEFT ANY JOIN scroll_stats ss ON ea.path = ss.path
-            LEFT ANY JOIN bounce_stats bs ON ea.path = bs.path
-            WHERE ea.visitors > 0
-            ORDER BY ea.visitors DESC, ea.pageviews DESC
+              pa.path,
+              pa.visitors,
+              pa.pageviews,
+              if(pa.entries > 0, round(pa.bounces / pa.entries * 100, 2), 0)  AS bounceRate,
+              coalesce(ds.avg_time_seconds, 0)                                 AS avgTime,
+              coalesce(pa.avg_scroll_depth, 0)                                 AS avgScrollDepth
+            FROM page_agg pa
+            LEFT ANY JOIN duration_stats ds ON pa.path = ds.path
+            WHERE pa.visitors > 0
+            ORDER BY pa.visitors DESC, pa.pageviews DESC
             LIMIT 100
           `;
       })();
@@ -480,82 +486,83 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
         const filters = BAQuery.getFilterQuery(queryFilters);
         return safeSql`
             WITH
-              session_entry_stats AS (
+              page_session AS (
+                SELECT
+                  url                                                                                  AS path,
+                  session_id,
+                  countIf(event_type = 'pageview')                                                    AS pv_count,
+                  minIf(timestamp, event_type = 'pageview')                                           AS first_ts,
+                  if(
+                    countIf(event_type = 'scroll_depth' AND scroll_depth_percentage IS NOT NULL) > 0,
+                    maxIf(scroll_depth_percentage, event_type = 'scroll_depth' AND scroll_depth_percentage IS NOT NULL),
+                    NULL
+                  )                                                                                   AS max_scroll
+                FROM analytics.events
+                WHERE site_id = {site_id:String}
+                  AND event_type IN ('pageview', 'scroll_depth')
+                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                  AND ${SQL.AND(filters)}
+                GROUP BY url, session_id
+              ),
+              page_agg AS (
                 SELECT
                   path,
-                  visitors,
-                  bounces,
-                  sum(visitors) OVER () as total_sessions
+                  sum(pv_count)                                               AS pageviews,
+                  avg(max_scroll)                                             AS avg_scroll_depth,
+                  countIf(is_entry)                                           AS entry_sessions,
+                  countIf(is_entry AND total_pvs = 1)                         AS bounces,
+                  sum(countIf(is_entry)) OVER ()                              AS total_sessions
                 FROM (
                   SELECT
-                    entry_url as path,
-                    count() as visitors,
-                    countIf(pv_count = 1) as bounces
+                    path, session_id, pv_count, max_scroll,
+                    sum(pv_count) OVER (PARTITION BY session_id)              AS total_pvs,
+                    (min(first_ts) OVER (PARTITION BY session_id)) = first_ts AS is_entry
+                  FROM page_session
+                  WHERE pv_count > 0
+                )
+                GROUP BY path
+              ),
+              duration_stats AS (
+                SELECT path, avg(duration) AS avg_time_seconds
+                FROM (
+                  SELECT prev_url AS path, toFloat64(prev_pageview_duration) AS duration
+                  FROM analytics.events
+                  WHERE site_id = {site_id:String}
+                    AND event_type IN ('pageview', 'pagehide')
+                    AND prev_url != ''
+                    AND prev_pageview_duration IS NOT NULL
+                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                  UNION ALL
+                  SELECT url AS path,
+                    if(next_ts > timestamp AND dateDiff('second', timestamp, next_ts) <= 1800,
+                       toFloat64(dateDiff('second', timestamp, next_ts)), 0.0) AS duration
                   FROM (
-                    SELECT
-                      session_id,
-                      argMin(url, timestamp) as entry_url,
-                      count() as pv_count
+                    SELECT url, timestamp,
+                      leadInFrame(timestamp) OVER (
+                        PARTITION BY session_id ORDER BY timestamp
+                        ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+                      ) AS next_ts
                     FROM analytics.events
                     WHERE site_id = {site_id:String}
                       AND event_type = 'pageview'
+                      AND prev_pageview_duration IS NULL
                       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                    GROUP BY session_id
-                  )
-                  GROUP BY entry_url
+                  ) WHERE duration > 0
                 )
-              ),
-              events_agg AS (
-                SELECT
-                  url as path,
-                  countIf(event_type = 'pageview') as pageviews
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type = 'pageview'
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  AND ${SQL.AND(filters)}
-                GROUP BY url
-              ),
-              scroll_stats AS (
-                SELECT
-                  url AS path,
-                  avg(max_scroll) AS avg_scroll_depth
-                FROM (
-                  SELECT url, session_id, max(scroll_depth_percentage) AS max_scroll
-                  FROM analytics.events
-                  WHERE site_id = {site_id:String}
-                    AND event_type = 'scroll_depth'
-                    AND scroll_depth_percentage IS NOT NULL
-                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  GROUP BY url, session_id
-                )
-                GROUP BY url
-              ),
-              duration_stats AS (
-                SELECT
-                  prev_url as path,
-                  avg(prev_pageview_duration) as avg_time_seconds
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type IN ('pageview', 'pagehide')
-                  AND prev_url != ''
-                  AND prev_pageview_duration IS NOT NULL
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                GROUP BY prev_url
+                GROUP BY path
               )
             SELECT
-              ses.path AS path,
-              ses.visitors AS visitors,
-              coalesce(ea.pageviews, ses.visitors) as pageviews,
-              if(ses.visitors > 0, round(ses.bounces / ses.visitors * 100, 2), 0) as bounceRate,
-              coalesce(ds.avg_time_seconds, 0) as avgTime,
-              if(ses.total_sessions > 0, round(ses.visitors / ses.total_sessions * 100, 2), 0) as entryRate,
-              coalesce(ss.avg_scroll_depth, 0) as avgScrollDepth
-            FROM session_entry_stats ses
-            LEFT ANY JOIN events_agg ea ON ses.path = ea.path
-            LEFT ANY JOIN scroll_stats ss ON ses.path = ss.path
-            LEFT ANY JOIN duration_stats ds ON ses.path = ds.path
-            ORDER BY ses.visitors DESC
+              pa.path,
+              pa.entry_sessions                                                                            AS visitors,
+              coalesce(pa.pageviews, pa.entry_sessions)                                                   AS pageviews,
+              if(pa.entry_sessions > 0, round(pa.bounces / pa.entry_sessions * 100, 2), 0)               AS bounceRate,
+              coalesce(ds.avg_time_seconds, 0)                                                            AS avgTime,
+              if(pa.total_sessions > 0, round(pa.entry_sessions / pa.total_sessions * 100, 2), 0)        AS entryRate,
+              coalesce(pa.avg_scroll_depth, 0)                                                            AS avgScrollDepth
+            FROM page_agg pa
+            LEFT ANY JOIN duration_stats ds ON pa.path = ds.path
+            WHERE pa.entry_sessions > 0
+            ORDER BY pa.entry_sessions DESC
             LIMIT {limit:UInt64}
           `;
       })();
@@ -648,82 +655,83 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
         const filters = BAQuery.getFilterQuery(queryFilters);
         return safeSql`
             WITH
-              session_exit_stats AS (
+              page_session AS (
+                SELECT
+                  url                                                                                  AS path,
+                  session_id,
+                  countIf(event_type = 'pageview')                                                    AS pv_count,
+                  maxIf(timestamp, event_type = 'pageview')                                           AS last_ts,
+                  if(
+                    countIf(event_type = 'scroll_depth' AND scroll_depth_percentage IS NOT NULL) > 0,
+                    maxIf(scroll_depth_percentage, event_type = 'scroll_depth' AND scroll_depth_percentage IS NOT NULL),
+                    NULL
+                  )                                                                                   AS max_scroll
+                FROM analytics.events
+                WHERE site_id = {site_id:String}
+                  AND event_type IN ('pageview', 'scroll_depth')
+                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                  AND ${SQL.AND(filters)}
+                GROUP BY url, session_id
+              ),
+              page_agg AS (
                 SELECT
                   path,
-                  visitors,
-                  bounces,
-                  sum(visitors) OVER () as total_sessions
+                  sum(pv_count)                                             AS pageviews,
+                  avg(max_scroll)                                           AS avg_scroll_depth,
+                  countIf(is_exit)                                          AS exit_sessions,
+                  countIf(is_exit AND total_pvs = 1)                        AS bounces,
+                  sum(countIf(is_exit)) OVER ()                             AS total_sessions
                 FROM (
                   SELECT
-                    exit_url as path,
-                    count() as visitors,
-                    countIf(pv_count = 1) as bounces
+                    path, session_id, pv_count, max_scroll,
+                    sum(pv_count) OVER (PARTITION BY session_id)            AS total_pvs,
+                    (max(last_ts) OVER (PARTITION BY session_id)) = last_ts AS is_exit
+                  FROM page_session
+                  WHERE pv_count > 0
+                )
+                GROUP BY path
+              ),
+              duration_stats AS (
+                SELECT path, avg(duration) AS avg_time_seconds
+                FROM (
+                  SELECT prev_url AS path, toFloat64(prev_pageview_duration) AS duration
+                  FROM analytics.events
+                  WHERE site_id = {site_id:String}
+                    AND event_type IN ('pageview', 'pagehide')
+                    AND prev_url != ''
+                    AND prev_pageview_duration IS NOT NULL
+                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                  UNION ALL
+                  SELECT url AS path,
+                    if(next_ts > timestamp AND dateDiff('second', timestamp, next_ts) <= 1800,
+                       toFloat64(dateDiff('second', timestamp, next_ts)), 0.0) AS duration
                   FROM (
-                    SELECT
-                      session_id,
-                      argMax(url, timestamp) as exit_url,
-                      count() as pv_count
+                    SELECT url, timestamp,
+                      leadInFrame(timestamp) OVER (
+                        PARTITION BY session_id ORDER BY timestamp
+                        ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+                      ) AS next_ts
                     FROM analytics.events
                     WHERE site_id = {site_id:String}
                       AND event_type = 'pageview'
+                      AND prev_pageview_duration IS NULL
                       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                    GROUP BY session_id
-                  )
-                  GROUP BY exit_url
+                  ) WHERE duration > 0
                 )
-              ),
-              events_agg AS (
-                SELECT
-                  url as path,
-                  countIf(event_type = 'pageview') as pageviews
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type = 'pageview'
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  AND ${SQL.AND(filters)}
-                GROUP BY url
-              ),
-              scroll_stats AS (
-                SELECT
-                  url AS path,
-                  avg(max_scroll) AS avg_scroll_depth
-                FROM (
-                  SELECT url, session_id, max(scroll_depth_percentage) AS max_scroll
-                  FROM analytics.events
-                  WHERE site_id = {site_id:String}
-                    AND event_type = 'scroll_depth'
-                    AND scroll_depth_percentage IS NOT NULL
-                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  GROUP BY url, session_id
-                )
-                GROUP BY url
-              ),
-              duration_stats AS (
-                SELECT
-                  prev_url as path,
-                  avg(prev_pageview_duration) as avg_time_seconds
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type IN ('pageview', 'pagehide')
-                  AND prev_url != ''
-                  AND prev_pageview_duration IS NOT NULL
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                GROUP BY prev_url
+                GROUP BY path
               )
             SELECT
-              ses.path AS path,
-              ses.visitors AS visitors,
-              coalesce(ea.pageviews, ses.visitors) as pageviews,
-              if(ses.visitors > 0, round(ses.bounces / ses.visitors * 100, 2), 0) as bounceRate,
-              coalesce(ds.avg_time_seconds, 0) as avgTime,
-              if(ses.total_sessions > 0, round(ses.visitors / ses.total_sessions * 100, 2), 0) as exitRate,
-              coalesce(ss.avg_scroll_depth, 0) as avgScrollDepth
-            FROM session_exit_stats ses
-            LEFT ANY JOIN events_agg ea ON ses.path = ea.path
-            LEFT ANY JOIN scroll_stats ss ON ses.path = ss.path
-            LEFT ANY JOIN duration_stats ds ON ses.path = ds.path
-            ORDER BY ses.visitors DESC
+              pa.path,
+              pa.exit_sessions                                                                           AS visitors,
+              coalesce(pa.pageviews, pa.exit_sessions)                                                  AS pageviews,
+              if(pa.exit_sessions > 0, round(pa.bounces / pa.exit_sessions * 100, 2), 0)               AS bounceRate,
+              coalesce(ds.avg_time_seconds, 0)                                                          AS avgTime,
+              if(pa.total_sessions > 0, round(pa.exit_sessions / pa.total_sessions * 100, 2), 0)       AS exitRate,
+              coalesce(pa.avg_scroll_depth, 0)                                                          AS avgScrollDepth
+            FROM page_agg pa
+            LEFT ANY JOIN duration_stats ds ON pa.path = ds.path
+            WHERE pa.exit_sessions > 0
+            ORDER BY pa.exit_sessions DESC
             LIMIT {limit:UInt64}
           `;
       })();
