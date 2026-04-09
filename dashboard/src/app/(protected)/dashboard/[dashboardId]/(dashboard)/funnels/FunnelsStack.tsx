@@ -1,17 +1,13 @@
 'use client';
 
-import { fetchFunnelsAction } from '@/app/actions/index.actions';
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from './FunnelsEmptyState';
 import { FunnelActionButtons } from './FunnelActionButtons';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 
 export function FunnelsStack() {
-  const query = useBAQuery({
-    queryKey: ['funnels'],
-    queryFn: (dashboardId, q) => fetchFunnelsAction(dashboardId, q.startDate, q.endDate),
-  });
+  const query = useBAQuery((t, input, opts) => t.funnels.list.useQuery(input, opts));
   return (
     <QuerySection query={query} fallback={<FunnelsStackSkeleton />}>
       {(funnels) => {

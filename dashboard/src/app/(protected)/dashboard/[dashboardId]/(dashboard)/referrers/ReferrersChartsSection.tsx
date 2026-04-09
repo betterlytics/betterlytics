@@ -1,10 +1,6 @@
 'use client';
 
 import ReferrerTrafficTrendChart from './ReferrerTrafficTrendChart';
-import {
-  fetchReferrerSourceAggregationDataForSite,
-  fetchReferrerTrafficTrendBySourceDataForSite,
-} from '@/app/actions/index.actions';
 import BAPieChart from '@/components/BAPieChart';
 import { getReferrerColor } from '@/utils/referrerColors';
 import { capitalizeFirstLetter } from '@/utils/formatters';
@@ -12,19 +8,13 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
 export default function ReferrersChartsSection() {
-  const distributionQuery = useBAQuery({
-    queryKey: ['referrer-source-aggregation'],
-    queryFn: (dashboardId, query) => fetchReferrerSourceAggregationDataForSite(dashboardId, query),
-  });
-  const trendQuery = useBAQuery({
-    queryKey: ['referrer-traffic-trend'],
-    queryFn: (dashboardId, query) => fetchReferrerTrafficTrendBySourceDataForSite(dashboardId, query),
-  });
+  const distributionQuery = useBAQuery((t, input, opts) => t.referrers.sourceAggregation.useQuery(input, opts));
+  const trendQuery = useBAQuery((t, input, opts) => t.referrers.trafficTrend.useQuery(input, opts));
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.referrers.charts');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -38,7 +28,7 @@ export default function ReferrersChartsSection() {
     );
   }
 
-  const distributionData = distributionQuery.data!.data;
+  const distributionData = distributionQuery.data!;
   const trendResult = trendQuery.data!;
 
   return (

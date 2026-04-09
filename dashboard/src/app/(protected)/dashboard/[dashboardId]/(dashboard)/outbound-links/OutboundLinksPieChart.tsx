@@ -2,11 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import BAPieChart from '@/components/BAPieChart';
-import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createColorGetter } from '@/utils/colorUtils';
 import { formatString } from '@/utils/formatters';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
@@ -24,10 +23,7 @@ const formatUrl = (url: string): string => {
 };
 
 export default function OutboundLinksPieChart() {
-  const query = useBAQuery({
-    queryKey: ['outbound-links-distribution'],
-    queryFn: (dashboardId, query) => fetchOutboundLinksDistributionAction(dashboardId, query),
-  });
+  const query = useBAQuery((t, input, opts) => t.outboundLinks.distribution.useQuery(input, opts));
   const t = useTranslations('components.outboundLinks.pieChart');
 
   return (

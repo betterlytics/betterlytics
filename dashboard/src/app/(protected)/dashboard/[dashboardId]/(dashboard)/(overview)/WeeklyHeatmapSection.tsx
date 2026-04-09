@@ -1,7 +1,6 @@
 'use client';
 
 import { Fragment, useMemo, useCallback, useState, type CSSProperties } from 'react';
-import { fetchWeeklyHeatmapAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
 import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
@@ -13,8 +12,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useBAQuery } from '@/hooks/useBAQuery';
 import { Spinner } from '@/components/ui/spinner';
+import { useBAQuery } from '@/trpc/hooks';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -40,10 +39,9 @@ export default function WeeklyHeatmapSection() {
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
 
-  const query = useBAQuery({
-    queryKey: ['weekly-heatmap', selectedMetric],
-    queryFn: (dashboardId, q) => fetchWeeklyHeatmapAction(dashboardId, q, selectedMetric),
-  });
+  const query = useBAQuery((t, input, opts) =>
+    t.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, opts),
+  );
 
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
@@ -64,51 +62,51 @@ export default function WeeklyHeatmapSection() {
   const isLoading = query.isFetching && !query.data;
 
   return (
-      <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
-        <CardHeader className='px-0 pb-1'>
-          <div className='flex flex-row items-center justify-between gap-2'>
-            <CardTitle className='text-base font-medium whitespace-nowrap'>
-              <span className='inline-flex items-center gap-2'>
-                {t('sections.weeklyTrends')}
-                {query.isFetching && !!query.data && <Spinner size='sm' />}
-              </span>
-            </CardTitle>
-            <div className='flex h-8 min-w-0 items-center'>
-              <div className='w-40 sm:w-48'>
-                <Select value={selectedMetric} onValueChange={onMetricChange}>
-                  <SelectTrigger size='sm' className='w-full cursor-pointer overflow-hidden'>
-                    <span className='block truncate'>
-                      <SelectValue placeholder='Select metric' />
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metricOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
-                        {metricLabelByMetric[opt.value as HeatmapMetric]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-1'>
+        <div className='flex flex-row items-center justify-between gap-2'>
+          <CardTitle className='text-base font-medium whitespace-nowrap'>
+            <span className='inline-flex items-center gap-2'>
+              {t('sections.weeklyTrends')}
+              {query.isFetching && !!query.data && <Spinner size='sm' />}
+            </span>
+          </CardTitle>
+          <div className='flex h-8 min-w-0 items-center'>
+            <div className='w-40 sm:w-48'>
+              <Select value={selectedMetric} onValueChange={onMetricChange}>
+                <SelectTrigger size='sm' className='w-full cursor-pointer overflow-hidden'>
+                  <span className='block truncate'>
+                    <SelectValue placeholder='Select metric' />
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {metricOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value} className='cursor-pointer'>
+                      {metricLabelByMetric[opt.value as HeatmapMetric]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </CardHeader>
+        </div>
+      </CardHeader>
 
-        <CardContent className='px-0'>
-          {isLoading ? (
-            <div className='flex h-40 items-center justify-center'>
-              <Spinner />
-            </div>
-          ) : (
-            <HeatmapGrid
-              data={query.data?.matrix ?? []}
-              maxValue={query.data?.maxValue ?? 1}
-              metricLabel={metricLabelByMetric[selectedMetric]}
-              metric={selectedMetric}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <CardContent className='px-0'>
+        {isLoading ? (
+          <div className='flex h-40 items-center justify-center'>
+            <Spinner />
+          </div>
+        ) : (
+          <HeatmapGrid
+            data={query.data?.matrix ?? []}
+            maxValue={query.data?.maxValue ?? 1}
+            metricLabel={metricLabelByMetric[selectedMetric]}
+            metric={selectedMetric}
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

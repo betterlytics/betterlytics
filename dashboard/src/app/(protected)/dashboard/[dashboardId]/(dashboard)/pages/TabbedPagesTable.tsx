@@ -6,29 +6,47 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import TabbedTable from '@/components/TabbedTable';
-import { fetchPageAnalyticsAction } from '@/app/actions/analytics/pages.actions';
+import type { AppRouter } from '@/trpc/routers/_app';
+import type { inferRouterOutputs } from '@trpc/server';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type PageAnalyticsData = RouterOutputs['pages']['pageAnalytics'];
+
 interface TabbedPagesTableProps {
-  allPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
-  entryPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
-  exitPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
+  allPagesData: PageAnalyticsData;
+  entryPagesData: PageAnalyticsData;
+  exitPagesData: PageAnalyticsData;
+  allPagesLoading?: boolean;
+  entryPagesLoading?: boolean;
+  exitPagesLoading?: boolean;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
 const formatPath = (path: string): string => {
   return path || '/';
 };
 
-export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPagesData }: TabbedPagesTableProps) {
+export default function TabbedPagesTable({
+  allPagesData,
+  entryPagesData,
+  exitPagesData,
+  allPagesLoading,
+  entryPagesLoading,
+  exitPagesLoading,
+  activeTab,
+  onTabChange,
+}: TabbedPagesTableProps) {
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const locale = useLocale();
   const t = useTranslations('components.pages.table');
 
   const getBaseColumns = useCallback((): ColumnDef<
-    Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]
+    PageAnalyticsData[number]
   >[] => {
     return [
       {
@@ -94,7 +112,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
 
   const getTabSpecificColumns = useCallback((): Record<
     string,
-    ColumnDef<Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]>
+    ColumnDef<PageAnalyticsData[number]>
   > => {
     return {
       entryRate: {
@@ -154,6 +172,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         data: allPagesData,
         columns: allPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
+        loading: allPagesLoading,
       },
       {
         key: 'entry',
@@ -161,6 +180,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         data: entryPagesData,
         columns: entryPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
+        loading: entryPagesLoading,
       },
       {
         key: 'exit',
@@ -168,9 +188,10 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         data: exitPagesData,
         columns: exitPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
+        loading: exitPagesLoading,
       },
     ],
-    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns, t],
+    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns, allPagesLoading, entryPagesLoading, exitPagesLoading, t],
   );
 
   return (
@@ -178,6 +199,8 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
       title={t('title')}
       tabs={tableTabs}
       defaultTab='all'
+      tabValue={activeTab}
+      onTabValueChange={onTabChange}
       searchColumn='path'
       searchFieldLabel={t('path')}
     />

@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { fetchOutboundLinksAnalyticsAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCompareCell } from '@/components/TableCompareCell';
@@ -10,17 +9,17 @@ import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
+import type { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from '@/trpc/routers/_app';
 
-type TableOutboundLinkRow = Awaited<ReturnType<typeof fetchOutboundLinksAnalyticsAction>>[number];
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type TableOutboundLinkRow = RouterOutputs['outboundLinks']['analytics'][number];
 
 export default function OutboundLinksTableSection() {
-  const query = useBAQuery({
-    queryKey: ['outbound-links-table'],
-    queryFn: (dashboardId, query) => fetchOutboundLinksAnalyticsAction(dashboardId, query),
-  });
+  const query = useBAQuery((t, input, opts) => t.outboundLinks.analytics.useQuery(input, opts));
   const t = useTranslations('components.outboundLinks.table');
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(

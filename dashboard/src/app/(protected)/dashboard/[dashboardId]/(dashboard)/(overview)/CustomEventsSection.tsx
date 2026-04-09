@@ -1,18 +1,14 @@
 'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 
 export default function CustomEventsSection() {
-  const query = useBAQuery({
-    queryKey: ['custom-events'],
-    queryFn: (dashboardId, q) => fetchCustomEventsOverviewAction(dashboardId, q),
-  });
+  const query = useBAQuery((t, input, opts) => t.events.customEventsOverview.useQuery(input, opts));
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
@@ -21,7 +17,7 @@ export default function CustomEventsSection() {
   };
 
   return (
-      <MultiProgressTable
+    <MultiProgressTable
       title={t('sections.customEvents')}
       loading={query.isFetching && !!query.data}
       defaultTab='events'

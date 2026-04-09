@@ -1,37 +1,26 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import {
-  fetchTopPagesOverviewAction,
-  fetchTopEntryPagesOverviewAction,
-  fetchTopExitPagesOverviewAction,
-} from '@/app/actions/analytics/overview.actions';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/hooks/useBAQuery';
 import { useState } from 'react';
+import { useBAQuery } from '@/trpc/hooks';
 
 export default function PagesAnalyticsSection() {
   const [activeTab, setActiveTab] = useState('pages');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const pagesQuery = useBAQuery({
-    queryKey: ['pages-analytics', 'pages'],
-    queryFn: (dashboardId, q) => fetchTopPagesOverviewAction(dashboardId, q, 10),
-    enabled: activeTab === 'pages',
-  });
-  const entryQuery = useBAQuery({
-    queryKey: ['pages-analytics', 'entry'],
-    queryFn: (dashboardId, q) => fetchTopEntryPagesOverviewAction(dashboardId, q, 10),
-    enabled: activeTab === 'entry',
-  });
-  const exitQuery = useBAQuery({
-    queryKey: ['pages-analytics', 'exit'],
-    queryFn: (dashboardId, q) => fetchTopExitPagesOverviewAction(dashboardId, q, 10),
-    enabled: activeTab === 'exit',
-  });
+  const pagesQuery = useBAQuery((t, input, opts) =>
+    t.overview.topPages.useQuery(input, { ...opts, enabled: activeTab === 'pages' }),
+  );
+  const entryQuery = useBAQuery((t, input, opts) =>
+    t.overview.topEntryPages.useQuery(input, { ...opts, enabled: activeTab === 'entry' }),
+  );
+  const exitQuery = useBAQuery((t, input, opts) =>
+    t.overview.topExitPages.useQuery(input, { ...opts, enabled: activeTab === 'exit' }),
+  );
 
   const onItemClick = (_tabKey: string, item: { label: string }) => {
     return makeFilterClick('url')(item.label);
@@ -39,7 +28,12 @@ export default function PagesAnalyticsSection() {
 
   const activeQuery = { pages: pagesQuery, entry: entryQuery, exit: exitQuery }[activeTab];
 
-  const mapPage = (page: { url: string; current: { visitors: number }; change?: { visitors: number }; compare?: { visitors: number } }) => ({
+  const mapPage = (page: {
+    url: string;
+    current: { visitors: number };
+    change?: { visitors: number };
+    compare?: { visitors: number };
+  }) => ({
     label: page.url,
     value: page.current.visitors,
     trendPercentage: page.change?.visitors,
@@ -47,7 +41,7 @@ export default function PagesAnalyticsSection() {
   });
 
   return (
-      <MultiProgressTable
+    <MultiProgressTable
       title={t('sections.topPages')}
       loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       defaultTab='pages'

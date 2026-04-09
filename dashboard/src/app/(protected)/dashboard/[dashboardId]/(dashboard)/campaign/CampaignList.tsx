@@ -2,79 +2,42 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import { CampaignEmptyState } from './CampaignEmptyState';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
-import type { CampaignExpandedDetails } from '@/app/actions/analytics/campaign.actions';
-import {
-  fetchCampaignExpandedDetailsAction,
-  fetchCampaignPerformanceAction,
-} from '@/app/actions/analytics/campaign.actions';
+import type { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from '@/trpc/routers/_app';
+import { trpc } from '@/trpc/client';
+import { useBAQuery } from '@/trpc/hooks';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { useLocale, useTranslations } from 'next-intl';
 import { CompactPagination } from '@/components/CompactPagination';
 import { PaginationControls } from '@/components/PaginationControls';
 import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
-import { toast } from 'sonner';
-import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
+
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type CampaignExpandedDetails = RouterOutputs['campaign']['expandedDetails'];
 
 type CampaignListItem = CampaignListRowSummary;
 
-type CampaignListProps = {
-  dashboardId: string;
-};
-
 const DEFAULT_PAGE_SIZE = 10;
 
-export default function CampaignList({ dashboardId }: CampaignListProps) {
-  const query = useAnalyticsQuery();
+export default function CampaignList() {
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
-  const t = useTranslations('components.campaign');
-  const { staleTime, gcTime, refetchOnWindowFocus, refetchInterval } = useTimeRangeQueryOptions();
 
-  const { data: performancePage, isLoading } = useQuery<{
-    campaigns: CampaignListItem[];
-    totalCampaigns: number;
-    pageIndex: number;
-    pageSize: number;
-  }>({
-    queryKey: [
-      'campaign-list',
-      dashboardId,
-      query.startDate,
-      query.endDate,
-      query.granularity,
-      query.timezone,
-      pageIndex,
-      pageSize,
-    ],
-    queryFn: async () => {
-      try {
-        return await fetchCampaignPerformanceAction(dashboardId, query, pageIndex, pageSize);
-      } catch {
-        toast.error(t('campaignExpandedRow.error'));
-        return {
-          campaigns: [] as CampaignListItem[],
-          totalCampaigns: 0,
-          pageIndex: 0,
-          pageSize,
-        };
-      }
-    },
-    staleTime,
-    gcTime,
-    refetchOnWindowFocus,
-    refetchInterval,
-  });
+  const { data: performancePage, isLoading } = useBAQuery((t, input, opts) =>
+    t.campaign.performance.useQuery(
+      { ...input, pageIndex, pageSize },
+      opts,
+    ),
+  );
 
   const campaigns = (performancePage?.campaigns as CampaignListItem[]) ?? [];
   const totalCampaigns = performancePage?.totalCampaigns ?? 0;
@@ -120,7 +83,6 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
               <CampaignListEntry
                 key={campaign.name}
                 campaign={campaign}
-                dashboardId={dashboardId}
                 isExpanded={expandedCampaign === campaign.name}
                 onToggle={() => toggleCampaignExpanded(campaign.name)}
               />
@@ -141,12 +103,11 @@ export default function CampaignList({ dashboardId }: CampaignListProps) {
 
 type CampaignListEntryProps = {
   campaign: CampaignListItem;
-  dashboardId: string;
   isExpanded: boolean;
   onToggle: () => void;
 };
 
-function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: CampaignListEntryProps) {
+function CampaignListEntry({ campaign, isExpanded, onToggle }: CampaignListEntryProps) {
   const locale = useLocale();
   const t = useTranslations('components.campaign.campaignRow');
   const visitorsLabel = t('visitors', { count: campaign.visitors });
@@ -196,7 +157,6 @@ function CampaignListEntry({ campaign, dashboardId, isExpanded, onToggle }: Camp
       </div>
       <CampaignExpandedRow
         isExpanded={isExpanded}
-        dashboardId={dashboardId}
         campaignName={campaign.name}
         summary={{
           visitors: campaign.visitors,
@@ -260,7 +220,6 @@ function CampaignMetric({ label, value, className }: { label: string; value: str
 
 type CampaignInlineUTMSectionProps = {
   details: CampaignExpandedDetails;
-  dashboardId: string;
   campaignName: string;
   summary: {
     visitors: number;
@@ -270,7 +229,7 @@ type CampaignInlineUTMSectionProps = {
   };
 };
 
-function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary }: CampaignInlineUTMSectionProps) {
+function CampaignInlineUTMSection({ details, campaignName, summary }: CampaignInlineUTMSectionProps) {
   const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
   const locale = useLocale();
   const t = useTranslations('components.campaign.campaignExpandedRow');
@@ -286,7 +245,6 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
       <div className='mt-1 grid gap-3 lg:grid-cols-5'>
         <div className='hidden lg:col-span-3 lg:block'>
           <UTMBreakdownTabbedTable
-            dashboardId={dashboardId}
             campaignName={campaignName}
             initialSource={utmSource}
             landingPages={landingPages}
@@ -321,7 +279,6 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
               operatingSystems={operatingSystems}
             />
             <UTMBreakdownTabbedChart
-              dashboardId={dashboardId}
               campaignName={campaignName}
               initialSource={utmSource}
             />
@@ -334,7 +291,6 @@ function CampaignInlineUTMSection({ details, dashboardId, campaignName, summary 
 
 type CampaignExpandedRowProps = {
   isExpanded: boolean;
-  dashboardId: string;
   campaignName: string;
   summary: {
     visitors: number;
@@ -344,15 +300,19 @@ type CampaignExpandedRowProps = {
   };
 };
 
-function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }: CampaignExpandedRowProps) {
-  const query = useAnalyticsQuery();
-  const { data, status } = useQuery({
-    queryKey: ['campaign-expanded-details', dashboardId, campaignName, query.startDate, query.endDate],
-    queryFn: () => fetchCampaignExpandedDetailsAction(dashboardId, query, campaignName),
-    enabled: isExpanded,
-    staleTime: getExpandedDetailsStaleTime(query.startDate, query.endDate),
-    gcTime: 15 * 60 * 1000,
-  });
+function CampaignExpandedRow({ isExpanded, campaignName, summary }: CampaignExpandedRowProps) {
+  const { data, status } = useBAQuery((t, input, opts) =>
+    t.campaign.expandedDetails.useQuery(
+      { ...input, campaignName },
+      {
+        ...opts,
+        enabled: isExpanded,
+        staleTime: getExpandedDetailsStaleTime(input.query.startDate, input.query.endDate),
+        gcTime: 15 * 60 * 1000,
+        placeholderData: undefined,
+      },
+    ),
+  );
   const t = useTranslations('components.campaign.campaignExpandedRow');
   if (!isExpanded) {
     return null;
@@ -376,7 +336,6 @@ function CampaignExpandedRow({ isExpanded, dashboardId, campaignName, summary }:
       {status === 'success' && data ? (
         <CampaignInlineUTMSection
           details={data}
-          dashboardId={dashboardId}
           campaignName={campaignName}
           summary={summary}
         />

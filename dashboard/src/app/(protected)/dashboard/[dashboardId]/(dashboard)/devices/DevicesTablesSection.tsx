@@ -2,22 +2,15 @@
 
 import BrowserTable from '@/components/analytics/BrowserTable';
 import OperatingSystemTable from '@/components/analytics/OperatingSystemTable';
-import { fetchBrowserBreakdownAction, fetchOperatingSystemBreakdownAction } from '@/app/actions/index.actions';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 
 export default function DevicesTablesSection() {
-  const browserQuery = useBAQuery({
-    queryKey: ['browser-breakdown'],
-    queryFn: (dashboardId, query) => fetchBrowserBreakdownAction(dashboardId, query),
-  });
-  const osQuery = useBAQuery({
-    queryKey: ['os-breakdown'],
-    queryFn: (dashboardId, query) => fetchOperatingSystemBreakdownAction(dashboardId, query),
-  });
+  const browserQuery = useBAQuery((t, input, opts) => t.devices.browserBreakdown.useQuery(input, opts));
+  const osQuery = useBAQuery((t, input, opts) => t.devices.osBreakdown.useQuery(input, opts));
   const t = useTranslations('components.devices.tables');
 
   if (browserQuery.isPending || osQuery.isPending) return <TableSkeleton />;

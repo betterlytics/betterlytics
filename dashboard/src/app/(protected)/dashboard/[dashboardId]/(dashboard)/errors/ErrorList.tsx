@@ -22,9 +22,7 @@ import {
   CheckCircle,
   EyeOff,
   RotateCcw,
-  ChevronDown,
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -40,9 +38,7 @@ import { ErrorStatusActions } from './ErrorStatusActions';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
-import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
+import { useBAQuery } from '@/trpc/hooks';
 import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { formatElapsedTime } from '@/utils/dateFormatters';
@@ -186,8 +182,6 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
   const { resolveHref } = useDashboardNavigation();
-  const query = useAnalyticsQuery();
-  const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
   const [searchInput, setSearchInput] = useState('');
   const [globalFilter, setGlobalFilter] = useState('');
@@ -421,24 +415,16 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
     .map((g) => g.error_fingerprint)
     .join(',');
 
-  const { data: volumeMap } = useQuery({
-    queryKey: [
-      'error-group-volumes',
-      dashboardId,
-      query.startDate,
-      query.endDate,
-      query.granularity,
-      query.timezone,
-      query.queryFilters,
-      fingerprintKey,
-    ],
-    queryFn: () => fetchErrorGroupVolumesAction(dashboardId, query, visibleFingerprints),
-    initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
-    enabled: visibleFingerprints.length > 0,
-    staleTime,
-    gcTime,
-    refetchOnWindowFocus,
-  });
+  const { data: volumeMap } = useBAQuery((t, input, opts) =>
+    t.errors.errorGroupVolumes.useQuery(
+      { ...input, fingerprints: visibleFingerprints },
+      {
+        ...opts,
+        initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
+        enabled: visibleFingerprints.length > 0,
+      },
+    ),
+  );
   volumeMapRef.current = volumeMap;
 
   const filteredCount = table.getFilteredRowModel().rows.length;

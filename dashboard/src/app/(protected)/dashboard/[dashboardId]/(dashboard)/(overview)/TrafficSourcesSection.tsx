@@ -1,32 +1,24 @@
 'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import {
-  fetchReferrerUrlRollupOverviewAction,
-  fetchTopChannelsOverviewAction,
-} from '@/app/actions/analytics/referrers.actions';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/hooks/useBAQuery';
 import { useState } from 'react';
+import { useBAQuery } from '@/trpc/hooks';
 
 export default function TrafficSourcesSection() {
   const [activeTab, setActiveTab] = useState('referrers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const referrersQuery = useBAQuery({
-    queryKey: ['traffic-sources', 'referrers'],
-    queryFn: (dashboardId, q) => fetchReferrerUrlRollupOverviewAction(dashboardId, q, 10),
-    enabled: activeTab === 'referrers',
-  });
-  const channelsQuery = useBAQuery({
-    queryKey: ['traffic-sources', 'channels'],
-    queryFn: (dashboardId, q) => fetchTopChannelsOverviewAction(dashboardId, q, 10),
-    enabled: activeTab === 'channels',
-  });
+  const referrersQuery = useBAQuery((t, input, opts) =>
+    t.referrers.referrerUrlRollup.useQuery(input, { ...opts, enabled: activeTab === 'referrers' }),
+  );
+  const channelsQuery = useBAQuery((t, input, opts) =>
+    t.referrers.topChannels.useQuery(input, { ...opts, enabled: activeTab === 'channels' }),
+  );
 
   const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
     if (tabKey === 'referrers') {
@@ -38,11 +30,10 @@ export default function TrafficSourcesSection() {
 
   const activeQuery = { referrers: referrersQuery, channels: channelsQuery }[activeTab];
 
-  const isItemInteractive = (tabKey: string) =>
-    tabKey === 'referrers' || tabKey === 'channels';
+  const isItemInteractive = (tabKey: string) => tabKey === 'referrers' || tabKey === 'channels';
 
   return (
-      <MultiProgressTable
+    <MultiProgressTable
       title={t('sections.trafficSources')}
       loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       defaultTab='referrers'

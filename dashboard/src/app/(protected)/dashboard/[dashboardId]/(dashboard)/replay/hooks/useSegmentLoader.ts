@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState, useTransition } from 'react';
-import { fetchReplaySegmentsAction } from '@/app/actions/analytics/sessionReplays.actions';
+import { trpc } from '@/trpc/client';
 import type { ReplaySegmentManifestEntry, SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import type { eventWithTime } from '@rrweb/types';
 
@@ -21,6 +21,7 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
   const [isLoading, startLoadingTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const inFlightController = useRef<AbortController | null>(null);
+  const utils = trpc.useUtils();
 
   const abortLoading = useCallback(() => {
     inFlightController.current?.abort();
@@ -47,7 +48,8 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
             const controller = new AbortController();
             inFlightController.current = controller;
 
-            const manifest = await fetchReplaySegmentsAction(dashboardId, {
+            const manifest = await utils.sessionReplays.segments.fetch({
+              dashboardId,
               prefix: session.s3_prefix,
               cutoffIso: session.ended_at,
             });

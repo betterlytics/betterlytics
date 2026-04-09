@@ -1,17 +1,13 @@
 'use client';
 
-import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import LeafletMap from '@/components/map/LeafletMap';
 import { useTranslations } from 'next-intl';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import GeographyLoading from '@/components/loading/GeographyLoading';
 
 export default function GeographySection() {
-  const query = useBAQuery({
-    queryKey: ['world-map'],
-    queryFn: (dashboardId, q) => getWorldMapDataAlpha2(dashboardId, q),
-  });
+  const query = useBAQuery((t, input, opts) => t.geography.worldMap.useQuery(input, opts));
   const t = useTranslations('components.geography');
 
   return (

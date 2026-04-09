@@ -1,11 +1,10 @@
 'use client';
 
-import { getFilterOptionsAction } from '@/app/actions/analytics/filters.actions';
+import { trpc } from '@/trpc/client';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useQuery } from '@tanstack/react-query';
 import { subDays } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -58,18 +57,20 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     return searchMetadataResult === null || searchMetadataResult.shouldUseServerSearch;
   }, [searchMetadataResult]);
 
-  const { data: fetchedOptions = [], isLoading } = useQuery({
-    queryKey: ['filter-options', filter.column, query.startDate?.toString(), query.endDate?.toString(), debouncedSearch],
-    queryFn: () =>
-      getFilterOptionsAction(dashboardId, query, {
-        column: filter.column,
-        search: isDirty ? debouncedSearch || undefined : undefined,
-        limit: SEARCH_LIMIT,
-      }),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    enabled: shouldSearchServer,
-  });
+  const { data: fetchedOptions = [], isLoading } = trpc.filters.getFilterOptions.useQuery(
+    {
+      dashboardId,
+      query,
+      column: filter.column,
+      search: isDirty ? debouncedSearch || undefined : undefined,
+      limit: SEARCH_LIMIT,
+    },
+    {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+      enabled: shouldSearchServer,
+    },
+  );
 
   useEffect(() => {
     setSearchMetadataResult(null);
