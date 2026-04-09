@@ -3,17 +3,13 @@
 import { useTranslations } from 'next-intl';
 import InteractiveChart from '@/components/InteractiveChart';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
-import { fetchOutboundClicksChartAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
 export default function OutboundLinksChartSection() {
-  const query = useBAQuery({
-    queryKey: ['outbound-clicks-chart'],
-    queryFn: (dashboardId, query) => fetchOutboundClicksChartAction(dashboardId, query),
-  });
+  const query = useBAQuery((t, input, opts) => t.outboundLinks.clicksChart.useQuery(input, opts));
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.outboundLinks.chart');
 

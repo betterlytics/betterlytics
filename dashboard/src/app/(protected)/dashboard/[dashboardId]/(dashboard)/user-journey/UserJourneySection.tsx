@@ -1,19 +1,15 @@
 'use client';
 
-import { fetchUserJourneyAction } from '@/app/actions/analytics/userJourney.actions';
 import { Card, CardContent } from '@/components/ui/card';
 import UserJourneyChart from './UserJourneyChart';
 import { useTranslations } from 'next-intl';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { Spinner } from '@/components/ui/spinner';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
-  const query = useBAQuery({
-    queryKey: ['user-journey'],
-    queryFn: (dashboardId, q) => fetchUserJourneyAction(dashboardId, q),
-  });
+  const query = useBAQuery((t, input, opts) => t.userJourney.journey.useQuery(input, opts));
 
   return (
     <QuerySection

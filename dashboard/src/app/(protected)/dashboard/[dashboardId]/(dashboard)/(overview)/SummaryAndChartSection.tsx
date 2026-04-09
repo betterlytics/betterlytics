@@ -1,22 +1,18 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { useBAQuery } from '@/hooks/useBAQuery';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 import { formatDuration } from '@/utils/dateFormatters';
-import { fetchSummaryAndChartDataAction } from '@/app/actions/index.actions';
 import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { useBAQuery } from '@/trpc/hooks';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
 export default function SummaryAndChartSection() {
-  const query = useBAQuery({
-    queryKey: ['summary-chart'],
-    queryFn: (dashboardId, q) => fetchSummaryAndChartDataAction(dashboardId, q),
-  });
+  const query = useBAQuery((t, input, opts) => t.overview.summaryAndChart.useQuery(input, opts));
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
   const locale = useLocale();
   const t = useTranslations('dashboard.metrics');

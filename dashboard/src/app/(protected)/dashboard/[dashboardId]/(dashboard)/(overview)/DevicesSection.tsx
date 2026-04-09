@@ -1,10 +1,5 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import {
-  fetchBrowserRollupOverviewAction,
-  fetchOSRollupOverviewAction,
-  fetchDeviceTypeOverviewAction,
-} from '@/app/actions/analytics/devices.actions';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
@@ -12,29 +7,23 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/hooks/useBAQuery';
 import { useState } from 'react';
+import { useBAQuery } from '@/trpc/hooks';
 
 export default function DevicesSection() {
   const [activeTab, setActiveTab] = useState('browsers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
-  const browsersQuery = useBAQuery({
-    queryKey: ['devices-breakdown', 'browsers'],
-    queryFn: (dashboardId, q) => fetchBrowserRollupOverviewAction(dashboardId, q),
-    enabled: activeTab === 'browsers',
-  });
-  const osQuery = useBAQuery({
-    queryKey: ['devices-breakdown', 'os'],
-    queryFn: (dashboardId, q) => fetchOSRollupOverviewAction(dashboardId, q),
-    enabled: activeTab === 'os',
-  });
-  const devicesQuery = useBAQuery({
-    queryKey: ['devices-breakdown', 'devices'],
-    queryFn: (dashboardId, q) => fetchDeviceTypeOverviewAction(dashboardId, q),
-    enabled: activeTab === 'devices',
-  });
+  const browsersQuery = useBAQuery((t, input, opts) =>
+    t.devices.browserRollup.useQuery(input, { ...opts, enabled: activeTab === 'browsers' }),
+  );
+  const osQuery = useBAQuery((t, input, opts) =>
+    t.devices.osRollup.useQuery(input, { ...opts, enabled: activeTab === 'os' }),
+  );
+  const devicesQuery = useBAQuery((t, input, opts) =>
+    t.devices.deviceType.useQuery(input, { ...opts, enabled: activeTab === 'devices' }),
+  );
 
   const activeQuery = { browsers: browsersQuery, os: osQuery, devices: devicesQuery }[activeTab];
 
@@ -45,7 +34,7 @@ export default function DevicesSection() {
   };
 
   return (
-      <MultiProgressTable
+    <MultiProgressTable
       title={t('sections.devicesBreakdown')}
       loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       defaultTab='browsers'

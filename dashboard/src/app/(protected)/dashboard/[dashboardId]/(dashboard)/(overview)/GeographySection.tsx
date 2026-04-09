@@ -1,7 +1,5 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { getTopGeoVisitsAction } from '@/app/actions/analytics/geography.actions';
-import { getWorldMapDataAlpha2 } from '@/app/actions/analytics/geography.actions';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
 import { useState } from 'react';
@@ -14,7 +12,7 @@ import { type GeoLevel } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -31,26 +29,27 @@ type GeographySectionProps = {
 export default function GeographySection({ enabledLevels }: GeographySectionProps) {
   const [activeTab, setActiveTab] = useState<string>(enabledLevels[0] ?? 'country_code');
 
-  const countryQuery = useBAQuery({
-    queryKey: ['geo-visits', 'country_code'],
-    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'country_code'),
-    enabled: enabledLevels.includes('country_code') && activeTab === 'country_code',
-  });
-  const subdivisionQuery = useBAQuery({
-    queryKey: ['geo-visits', 'subdivision_code'],
-    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'subdivision_code'),
-    enabled: enabledLevels.includes('subdivision_code') && activeTab === 'subdivision_code',
-  });
-  const cityQuery = useBAQuery({
-    queryKey: ['geo-visits', 'city'],
-    queryFn: (dashboardId, q) => getTopGeoVisitsAction(dashboardId, q, 'city'),
-    enabled: enabledLevels.includes('city') && activeTab === 'city',
-  });
-  const worldMapQuery = useBAQuery({
-    queryKey: ['geo-worldmap'],
-    queryFn: (dashboardId, q) => getWorldMapDataAlpha2(dashboardId, q),
-    enabled: activeTab === 'worldmap',
-  });
+  const countryQuery = useBAQuery((t, input, opts) =>
+    t.geography.geoVisits.useQuery(
+      { ...input, level: 'country_code' },
+      { ...opts, enabled: enabledLevels.includes('country_code') && activeTab === 'country_code' },
+    ),
+  );
+  const subdivisionQuery = useBAQuery((t, input, opts) =>
+    t.geography.geoVisits.useQuery(
+      { ...input, level: 'subdivision_code' },
+      { ...opts, enabled: enabledLevels.includes('subdivision_code') && activeTab === 'subdivision_code' },
+    ),
+  );
+  const cityQuery = useBAQuery((t, input, opts) =>
+    t.geography.geoVisits.useQuery(
+      { ...input, level: 'city' },
+      { ...opts, enabled: enabledLevels.includes('city') && activeTab === 'city' },
+    ),
+  );
+  const worldMapQuery = useBAQuery((t, input, opts) =>
+    t.geography.worldMap.useQuery(input, { ...opts, enabled: activeTab === 'worldmap' }),
+  );
 
   const t = useTranslations('dashboard');
   const locale = useLocale();
@@ -87,42 +86,47 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
     };
   });
 
-  const activeQuery = { country_code: countryQuery, subdivision_code: subdivisionQuery, city: cityQuery, worldmap: worldMapQuery }[activeTab];
+  const activeQuery = {
+    country_code: countryQuery,
+    subdivision_code: subdivisionQuery,
+    city: cityQuery,
+    worldmap: worldMapQuery,
+  }[activeTab];
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
   };
 
   return (
-      <MultiProgressTable
-        title={t('sections.geography')}
-        loading={!!activeQuery?.isFetching && !!activeQuery?.data}
-        defaultTab={activeTab}
-        onTabChange={setActiveTab}
-        onItemClick={onItemClick}
-        tabs={[
-          ...geoLevelTabs,
-          {
-            key: 'worldmap',
-            label: t('tabs.worldMap'),
-            loading: worldMapQuery.isFetching && !worldMapQuery.data,
-            data: [],
-            customContent: worldMapQuery.data ? (
-              <div className='h-[280px] w-full'>
-                <LeafletMap {...worldMapQuery.data} showZoomControls={false} initialZoom={1} />
-              </div>
-            ) : undefined,
-          },
-        ]}
-        footer={
-          <FilterPreservingLink
-            href='geography'
-            className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
-          >
-            <span>{t('goTo', { section: t('sidebar.geography') })}</span>
-            <ArrowRight className='h-3.5 w-3.5' />
-          </FilterPreservingLink>
-        }
-      />
+    <MultiProgressTable
+      title={t('sections.geography')}
+      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      defaultTab={activeTab}
+      onTabChange={setActiveTab}
+      onItemClick={onItemClick}
+      tabs={[
+        ...geoLevelTabs,
+        {
+          key: 'worldmap',
+          label: t('tabs.worldMap'),
+          loading: worldMapQuery.isFetching && !worldMapQuery.data,
+          data: [],
+          customContent: worldMapQuery.data ? (
+            <div className='h-[280px] w-full'>
+              <LeafletMap {...worldMapQuery.data} showZoomControls={false} initialZoom={1} />
+            </div>
+          ) : undefined,
+        },
+      ]}
+      footer={
+        <FilterPreservingLink
+          href='geography'
+          className='text-muted-foreground inline-flex items-center gap-1 text-xs hover:underline'
+        >
+          <span>{t('goTo', { section: t('sidebar.geography') })}</span>
+          <ArrowRight className='h-3.5 w-3.5' />
+        </FilterPreservingLink>
+      }
+    />
   );
 }

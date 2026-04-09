@@ -1,34 +1,32 @@
 'use client';
 
+import { useState } from 'react';
 import TabbedPagesTable from './TabbedPagesTable';
-import {
-  fetchPageAnalyticsAction,
-  fetchEntryPageAnalyticsAction,
-  fetchExitPageAnalyticsAction,
-} from '@/app/actions/index.actions';
-import { useBAQuery } from '@/hooks/useBAQuery';
-import { QuerySection } from '@/components/QuerySection';
-import { TableSkeleton } from '@/components/skeleton';
+import { useBAQuery } from '@/trpc/hooks';
 
 export default function PagesTableSection() {
-  const pagesQuery = useBAQuery({
-    queryKey: ['page-analytics'],
-    queryFn: (dashboardId, query) => fetchPageAnalyticsAction(dashboardId, query),
-  });
-  const entryPagesQuery = useBAQuery({
-    queryKey: ['entry-page-analytics'],
-    queryFn: (dashboardId, query) => fetchEntryPageAnalyticsAction(dashboardId, query),
-  });
-  const exitPagesQuery = useBAQuery({
-    queryKey: ['exit-page-analytics'],
-    queryFn: (dashboardId, query) => fetchExitPageAnalyticsAction(dashboardId, query),
-  });
+  const [activeTab, setActiveTab] = useState('all');
 
-  if (pagesQuery.isPending || entryPagesQuery.isPending || exitPagesQuery.isPending) return <TableSkeleton />;
+  const pagesQuery = useBAQuery((t, input, opts) =>
+    t.pages.pageAnalytics.useQuery(input, { ...opts, enabled: activeTab === 'all' }),
+  );
+  const entryPagesQuery = useBAQuery((t, input, opts) =>
+    t.pages.entryPageAnalytics.useQuery(input, { ...opts, enabled: activeTab === 'entry' }),
+  );
+  const exitPagesQuery = useBAQuery((t, input, opts) =>
+    t.pages.exitPageAnalytics.useQuery(input, { ...opts, enabled: activeTab === 'exit' }),
+  );
 
   return (
-    <QuerySection loading={pagesQuery.isFetching || entryPagesQuery.isFetching || exitPagesQuery.isFetching}>
-      <TabbedPagesTable allPagesData={pagesQuery.data!} entryPagesData={entryPagesQuery.data!} exitPagesData={exitPagesQuery.data!} />
-    </QuerySection>
+    <TabbedPagesTable
+      allPagesData={pagesQuery.data ?? []}
+      entryPagesData={entryPagesQuery.data ?? []}
+      exitPagesData={exitPagesQuery.data ?? []}
+      allPagesLoading={pagesQuery.isLoading}
+      entryPagesLoading={entryPagesQuery.isLoading}
+      exitPagesLoading={exitPagesQuery.isLoading}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    />
   );
 }

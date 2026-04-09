@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchSessionReplaysAction } from '@/app/actions/analytics/sessionReplays.actions';
+import { useBAQuery } from '@/trpc/hooks';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { useUrlSearchParam } from '@/hooks/use-sync-url-filters';
 
 export type UseSessionManagerReturn = {
@@ -20,21 +18,24 @@ export type UseSessionManagerReturn = {
 
 const PAGE_SIZE = 20;
 
-export function useSessionManager(dashboardId: string): UseSessionManagerReturn {
+export function useSessionManager(): UseSessionManagerReturn {
   const [selectedSession, setSelectedSession] = useState<SessionReplay | null>(null);
-  const query = useAnalyticsQuery();
   const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
 
-  const sessionQuery = useInfiniteQuery({
-    queryKey: ['session-replays', dashboardId, query.startDate, query.endDate, PAGE_SIZE, query.queryFilters],
-    queryFn: ({ pageParam = 0 }) => fetchSessionReplaysAction(dashboardId, query, PAGE_SIZE, pageParam),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage: SessionReplay[], allPages: SessionReplay[][]) =>
-      lastPage.length < PAGE_SIZE ? undefined : allPages.length * PAGE_SIZE,
-  });
+  const sessionQuery = useBAQuery((t, input, opts) =>
+    t.sessionReplays.list.useInfiniteQuery(
+      { ...input, limit: PAGE_SIZE },
+      {
+        ...opts,
+        initialCursor: 0,
+        getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+          lastPage.length < PAGE_SIZE ? undefined : (lastPageParam ?? 0) + PAGE_SIZE,
+      },
+    ),
+  );
 
   const sessions = useMemo(
-    () => sessionQuery.data?.pages.flatMap((page: SessionReplay[]) => page) ?? [],
+    () => sessionQuery.data?.pages.flatMap((page) => page) ?? [],
     [sessionQuery.data],
   );
 

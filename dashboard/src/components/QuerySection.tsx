@@ -1,11 +1,17 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { UseQueryResult } from '@tanstack/react-query';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
+type QueryLike<T> = {
+  isPending: boolean;
+  isFetching: boolean;
+  data: T | undefined;
+};
+
 type RenderPropsMode<T> = {
-  query: UseQueryResult<T>;
+  query: QueryLike<T>;
   fallback: ReactNode;
   children: (data: T) => ReactNode;
   loading?: never;
@@ -42,5 +48,16 @@ export function QuerySection<T>(props: QuerySectionProps<T>) {
 }
 
 function LoadingWrapper({ loading, children, className }: { loading: boolean; children: ReactNode; className?: string }) {
-  return <div className={cn('relative', loading && 'pointer-events-none animate-pulse', className)}>{children}</div>;
+  return (
+    <div className={cn('relative', className)}>
+      {loading && (
+        <div className='absolute inset-0 z-10 flex items-center justify-center'>
+          <Spinner />
+        </div>
+      )}
+      <div className={cn(loading && 'pointer-events-none opacity-60')}>
+        {children}
+      </div>
+    </div>
+  );
 }

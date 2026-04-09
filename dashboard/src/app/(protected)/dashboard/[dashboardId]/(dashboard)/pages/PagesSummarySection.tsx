@@ -1,19 +1,15 @@
 'use client';
 
-import { fetchPagesSummaryWithChartsAction } from '@/app/actions/index.actions';
 import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
 export default function PagesSummarySection() {
-  const query = useBAQuery({
-    queryKey: ['pages-summary-charts'],
-    queryFn: (dashboardId, query) => fetchPagesSummaryWithChartsAction(dashboardId, query),
-  });
+  const query = useBAQuery((t, input, opts) => t.pages.summaryWithCharts.useQuery(input, opts));
   const locale = useLocale();
   const t = useTranslations('components.pages.summary');
 

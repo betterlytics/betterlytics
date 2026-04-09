@@ -48,6 +48,9 @@
     "@rrweb/types": "2.0.0-alpha.18",
     "@tanstack/react-query": "^5.74.4",
     "@tanstack/react-table": "^8.21.3",
+    "@trpc/client": "^11.16.0",
+    "@trpc/react-query": "^11.16.0",
+    "@trpc/server": "^11.16.0",
     "@types/escape-html": "^1.0.4",
     "@types/leaflet": "^1.9.17",
     "@vercel/otel": "^2.1.0",
@@ -96,6 +99,7 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.3",
     "stripe": "^18.2.1",
+    "superjson": "^2.2.6",
     "tailwind-merge": "^3.2.0",
     "uuid": "^11.1.0",
     "zod": "^3.25.46"

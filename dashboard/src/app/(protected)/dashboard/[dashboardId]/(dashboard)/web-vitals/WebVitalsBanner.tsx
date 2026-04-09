@@ -3,9 +3,9 @@ import { useEffect } from 'react';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
-import { fetchHasCoreWebVitalsData } from '@/app/actions/index.actions';
 
 function WebVitalsBannerInner({ hasData }: { hasData: boolean }) {
   const t = useTranslations('banners.webVitalsNoData');
@@ -39,10 +39,8 @@ function WebVitalsBannerInner({ hasData }: { hasData: boolean }) {
 }
 
 export function WebVitalsBanner() {
-  const query = useBAQuery({
-    queryKey: ['cwv-has-data'],
-    queryFn: (dashboardId) => fetchHasCoreWebVitalsData(dashboardId),
-  });
+  const dashboardId = useDashboardId();
+  const query = trpc.webVitals.hasData.useQuery({ dashboardId });
 
   return (
     <QuerySection query={query} fallback={null}>

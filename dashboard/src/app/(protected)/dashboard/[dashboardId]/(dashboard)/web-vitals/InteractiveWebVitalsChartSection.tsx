@@ -9,7 +9,6 @@ import {
 } from '@/entities/analytics/webVitals.entities';
 import MultiSeriesChart, { type MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import {
   formatCWV,
   getCoreWebVitalLabelColor,
@@ -20,10 +19,9 @@ import {
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useLocale, useTranslations } from 'next-intl';
-import { useBAQuery } from '@/hooks/useBAQuery';
+import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
-import { fetchCoreWebVitalsSummaryAction, fetchCoreWebVitalChartDataAction } from '@/app/actions/index.actions';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -33,19 +31,15 @@ const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, 
 
 export default function InteractiveWebVitalsChartSection() {
   const t = useTranslations('components.webVitals');
-  const locale = useLocale();
-  const summaryQuery = useBAQuery({
-    queryKey: ['cwv-summary'],
-    queryFn: (dashboardId, query) => fetchCoreWebVitalsSummaryAction(dashboardId, query),
-  });
+  const summaryQuery = useBAQuery((t, input, opts) => t.webVitals.summary.useQuery(input, opts));
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
-  const chartQuery = useBAQuery({
-    queryKey: ['cwv-chart'],
-    queryFn: (dashboardId, query) => fetchCoreWebVitalChartDataAction(dashboardId, query),
-  });
+  const chartQuery = useBAQuery((t, input, opts) => t.webVitals.chartData.useQuery(input, opts));
 
-  const chartData = useMemo(() => (chartQuery.data ? chartQuery.data[active] || [] : []), [chartQuery.data, active]);
+  const chartData = useMemo(
+    () => (chartQuery.data ? chartQuery.data[active] || [] : []),
+    [chartQuery.data, active],
+  );
 
   const yReferenceAreas = useMemo(() => {
     const [good, fair] = CWV_THRESHOLDS[active];
@@ -75,7 +69,11 @@ export default function InteractiveWebVitalsChartSection() {
           yReferenceAreas={yReferenceAreas}
           headerContent={
             <div>
-              <CoreWebVitalsGaugeGrid summary={summaryQuery.data!} activeMetric={active} onMetricSelect={setActive} />
+              <CoreWebVitalsGaugeGrid
+                summary={summaryQuery.data!}
+                activeMetric={active}
+                onMetricSelect={setActive}
+              />
               <div className='mt-2 flex items-center justify-center gap-2 p-2'>
                 <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
                 <MetricInfo metric={active} />
