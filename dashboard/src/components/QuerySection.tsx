@@ -31,10 +31,10 @@ type QuerySectionProps<T> = RenderPropsMode<T> | LoadingWrapperMode;
 export function QuerySection<T>(props: QuerySectionProps<T>) {
   if (props.query) {
     const { query, fallback, children, className } = props;
-    if (query.isPending) return fallback;
+    if (query.isPending || query.data === undefined) return fallback;
     return (
       <LoadingWrapper loading={query.isFetching} className={className}>
-        {children(query.data as T)}
+        {children(query.data)}
       </LoadingWrapper>
     );
   }
@@ -47,7 +47,15 @@ export function QuerySection<T>(props: QuerySectionProps<T>) {
   );
 }
 
-function LoadingWrapper({ loading, children, className }: { loading: boolean; children: ReactNode; className?: string }) {
+function LoadingWrapper({
+  loading,
+  children,
+  className,
+}: {
+  loading: boolean;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn('relative', className)}>
       {loading && (
@@ -55,9 +63,7 @@ function LoadingWrapper({ loading, children, className }: { loading: boolean; ch
           <Spinner />
         </div>
       )}
-      <div className={cn(loading && 'pointer-events-none opacity-60')}>
-        {children}
-      </div>
+      <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{children}</div>
     </div>
   );
 }
