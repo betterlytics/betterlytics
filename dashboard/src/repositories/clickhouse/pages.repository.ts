@@ -147,9 +147,10 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
             page_agg AS (
               SELECT
                 path,
-                uniqMerge(visitors_state)                                              AS visitors,
-                sum(pageviews_state)                                                   AS pageviews,
-                if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0) AS avg_time_seconds
+                uniqMerge(visitors_state)                                                        AS visitors,
+                sum(pageviews_state)                                                              AS pageviews,
+                if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0)          AS avg_time_seconds,
+                if(sum(scroll_depth_count) > 0, sum(scroll_depth_sum) / sum(scroll_depth_count), 0) AS avg_scroll_depth
               FROM analytics.page_stats
               WHERE site_id = {site_id:String}
                 AND hour BETWEEN toStartOfHour({start:DateTime}) AND toStartOfHour({end:DateTime})
@@ -164,21 +165,6 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
               WHERE site_id = {site_id:String}
                 AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
               GROUP BY entry_page.2
-            ),
-            scroll_stats AS (
-              SELECT
-                url AS path,
-                avg(max_scroll) AS avg_scroll_depth
-              FROM (
-                SELECT url, session_id, max(scroll_depth_percentage) AS max_scroll
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type = 'scroll_depth'
-                  AND scroll_depth_percentage IS NOT NULL
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                GROUP BY url, session_id
-              )
-              GROUP BY url
             )
           SELECT
             pa.path                                                                            AS path,
@@ -186,10 +172,9 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
             pa.pageviews                                                                       AS pageviews,
             if(bs.entry_sessions > 0, round(bs.bounces / bs.entry_sessions * 100, 2), 0)     AS bounceRate,
             pa.avg_time_seconds                                                                AS avgTime,
-            coalesce(ss.avg_scroll_depth, 0)                                                  AS avgScrollDepth
+            pa.avg_scroll_depth                                                                AS avgScrollDepth
           FROM page_agg pa
           LEFT ANY JOIN bounce_stats bs ON pa.path = bs.path
-          LEFT ANY JOIN scroll_stats ss ON pa.path = ss.path
           WHERE pa.visitors > 0
           ORDER BY pa.visitors DESC, pa.pageviews DESC
           LIMIT 100
@@ -235,33 +220,13 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
                 GROUP BY path
               ),
               duration_stats AS (
-                SELECT path, avg(duration) AS avg_time_seconds
-                FROM (
-                  SELECT prev_url AS path, toFloat64(prev_pageview_duration) AS duration
-                  FROM analytics.events
-                  WHERE site_id = {site_id:String}
-                    AND event_type IN ('pageview', 'pagehide')
-                    AND prev_url != ''
-                    AND prev_pageview_duration IS NOT NULL
-                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  UNION ALL
-                  SELECT url AS path,
-                    if(next_ts > timestamp AND dateDiff('second', timestamp, next_ts) <= 1800,
-                       toFloat64(dateDiff('second', timestamp, next_ts)), 0.0) AS duration
-                  FROM (
-                    SELECT url, timestamp,
-                      leadInFrame(timestamp) OVER (
-                        PARTITION BY session_id ORDER BY timestamp
-                        ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
-                      ) AS next_ts
-                    FROM analytics.events
-                    WHERE site_id = {site_id:String}
-                      AND event_type = 'pageview'
-                      AND prev_pageview_duration IS NULL
-                      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  ) WHERE duration > 0
-                )
-                GROUP BY path
+                SELECT url AS path, avg(toFloat64(duration)) AS avg_time_seconds
+                FROM analytics.events
+                WHERE site_id = {site_id:String}
+                  AND event_type = 'page_duration'
+                  AND duration > 0
+                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                GROUP BY url
               )
             SELECT
               pa.path,
@@ -446,27 +411,13 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
             page_agg AS (
               SELECT
                 path,
-                sum(pageviews_state)                                                                 AS pageviews,
-                if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0)             AS avg_time_seconds
+                sum(pageviews_state)                                                                    AS pageviews,
+                if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0)                AS avg_time_seconds,
+                if(sum(scroll_depth_count) > 0, sum(scroll_depth_sum) / sum(scroll_depth_count), 0)    AS avg_scroll_depth
               FROM analytics.page_stats
               WHERE site_id = {site_id:String}
                 AND hour BETWEEN toStartOfHour({start:DateTime}) AND toStartOfHour({end:DateTime})
               GROUP BY path
-            ),
-            scroll_stats AS (
-              SELECT
-                url AS path,
-                avg(max_scroll) AS avg_scroll_depth
-              FROM (
-                SELECT url, session_id, max(scroll_depth_percentage) AS max_scroll
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type = 'scroll_depth'
-                  AND scroll_depth_percentage IS NOT NULL
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                GROUP BY url, session_id
-              )
-              GROUP BY url
             )
           SELECT
             ses.path                                                                              AS path,
@@ -475,10 +426,9 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
             if(ses.visitors > 0, round(ses.bounces / ses.visitors * 100, 2), 0)                  AS bounceRate,
             coalesce(pa.avg_time_seconds, 0)                                                      AS avgTime,
             if(ses.total_sessions > 0, round(ses.visitors / ses.total_sessions * 100, 2), 0)     AS entryRate,
-            coalesce(ss.avg_scroll_depth, 0)                                                      AS avgScrollDepth
+            coalesce(pa.avg_scroll_depth, 0)                                                      AS avgScrollDepth
           FROM session_entry_stats ses
           LEFT ANY JOIN page_agg pa ON ses.path = pa.path
-          LEFT ANY JOIN scroll_stats ss ON ses.path = ss.path
           ORDER BY ses.visitors DESC
           LIMIT {limit:UInt64}
         `
@@ -523,33 +473,13 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
                 GROUP BY path
               ),
               duration_stats AS (
-                SELECT path, avg(duration) AS avg_time_seconds
-                FROM (
-                  SELECT prev_url AS path, toFloat64(prev_pageview_duration) AS duration
-                  FROM analytics.events
-                  WHERE site_id = {site_id:String}
-                    AND event_type IN ('pageview', 'pagehide')
-                    AND prev_url != ''
-                    AND prev_pageview_duration IS NOT NULL
-                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  UNION ALL
-                  SELECT url AS path,
-                    if(next_ts > timestamp AND dateDiff('second', timestamp, next_ts) <= 1800,
-                       toFloat64(dateDiff('second', timestamp, next_ts)), 0.0) AS duration
-                  FROM (
-                    SELECT url, timestamp,
-                      leadInFrame(timestamp) OVER (
-                        PARTITION BY session_id ORDER BY timestamp
-                        ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
-                      ) AS next_ts
-                    FROM analytics.events
-                    WHERE site_id = {site_id:String}
-                      AND event_type = 'pageview'
-                      AND prev_pageview_duration IS NULL
-                      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  ) WHERE duration > 0
-                )
-                GROUP BY path
+                SELECT url AS path, avg(toFloat64(duration)) AS avg_time_seconds
+                FROM analytics.events
+                WHERE site_id = {site_id:String}
+                  AND event_type = 'page_duration'
+                  AND duration > 0
+                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                GROUP BY url
               )
             SELECT
               pa.path,
@@ -615,27 +545,13 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
             page_agg AS (
               SELECT
                 path,
-                sum(pageviews_state)                                                                 AS pageviews,
-                if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0)             AS avg_time_seconds
+                sum(pageviews_state)                                                                    AS pageviews,
+                if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0)                AS avg_time_seconds,
+                if(sum(scroll_depth_count) > 0, sum(scroll_depth_sum) / sum(scroll_depth_count), 0)    AS avg_scroll_depth
               FROM analytics.page_stats
               WHERE site_id = {site_id:String}
                 AND hour BETWEEN toStartOfHour({start:DateTime}) AND toStartOfHour({end:DateTime})
               GROUP BY path
-            ),
-            scroll_stats AS (
-              SELECT
-                url AS path,
-                avg(max_scroll) AS avg_scroll_depth
-              FROM (
-                SELECT url, session_id, max(scroll_depth_percentage) AS max_scroll
-                FROM analytics.events
-                WHERE site_id = {site_id:String}
-                  AND event_type = 'scroll_depth'
-                  AND scroll_depth_percentage IS NOT NULL
-                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                GROUP BY url, session_id
-              )
-              GROUP BY url
             )
           SELECT
             ses.path                                                                              AS path,
@@ -644,10 +560,9 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
             if(ses.visitors > 0, round(ses.bounces / ses.visitors * 100, 2), 0)                  AS bounceRate,
             coalesce(pa.avg_time_seconds, 0)                                                      AS avgTime,
             if(ses.total_sessions > 0, round(ses.visitors / ses.total_sessions * 100, 2), 0)     AS exitRate,
-            coalesce(ss.avg_scroll_depth, 0)                                                      AS avgScrollDepth
+            coalesce(pa.avg_scroll_depth, 0)                                                      AS avgScrollDepth
           FROM session_exit_stats ses
           LEFT ANY JOIN page_agg pa ON ses.path = pa.path
-          LEFT ANY JOIN scroll_stats ss ON ses.path = ss.path
           ORDER BY ses.visitors DESC
           LIMIT {limit:UInt64}
         `
@@ -692,33 +607,13 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
                 GROUP BY path
               ),
               duration_stats AS (
-                SELECT path, avg(duration) AS avg_time_seconds
-                FROM (
-                  SELECT prev_url AS path, toFloat64(prev_pageview_duration) AS duration
-                  FROM analytics.events
-                  WHERE site_id = {site_id:String}
-                    AND event_type IN ('pageview', 'pagehide')
-                    AND prev_url != ''
-                    AND prev_pageview_duration IS NOT NULL
-                    AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  UNION ALL
-                  SELECT url AS path,
-                    if(next_ts > timestamp AND dateDiff('second', timestamp, next_ts) <= 1800,
-                       toFloat64(dateDiff('second', timestamp, next_ts)), 0.0) AS duration
-                  FROM (
-                    SELECT url, timestamp,
-                      leadInFrame(timestamp) OVER (
-                        PARTITION BY session_id ORDER BY timestamp
-                        ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
-                      ) AS next_ts
-                    FROM analytics.events
-                    WHERE site_id = {site_id:String}
-                      AND event_type = 'pageview'
-                      AND prev_pageview_duration IS NULL
-                      AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-                  ) WHERE duration > 0
-                )
-                GROUP BY path
+                SELECT url AS path, avg(toFloat64(duration)) AS avg_time_seconds
+                FROM analytics.events
+                WHERE site_id = {site_id:String}
+                  AND event_type = 'page_duration'
+                  AND duration > 0
+                  AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+                GROUP BY url
               )
             SELECT
               pa.path,
@@ -776,12 +671,11 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        avg(toFloat64(prev_pageview_duration)) as avgTime
+        avg(toFloat64(duration)) as avgTime
       FROM analytics.events
       WHERE site_id = {site_id:String}
-        AND event_type IN ('pageview', 'pagehide')
-        AND prev_url != ''
-        AND prev_pageview_duration IS NOT NULL
+        AND event_type = 'page_duration'
+        AND duration > 0
         AND ${range}
         AND ${SQL.AND(filters)}
       GROUP BY date

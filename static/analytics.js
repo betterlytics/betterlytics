@@ -43,7 +43,8 @@
   var consentReplay = script.getAttribute("data-consent-replay") === "true";
 
   var enableErrors = script.getAttribute("data-track-errors") === "true";
-  var enableReplayOnError = script.getAttribute("data-replay-on-error") === "true";
+  var enableReplayOnError =
+    script.getAttribute("data-replay-on-error") === "true";
   var enableConsoleErrors =
     script.getAttribute("data-track-console-errors") === "true";
 
@@ -76,6 +77,21 @@
   var currentPath = window.location.pathname;
 
   var globalProperties = {};
+
+  // Page duration tracking state
+  var pageStartTime = Date.now();
+
+  function flushPageDuration(urlOverride) {
+    var duration = Math.round((Date.now() - pageStartTime) / 1000);
+    if (duration <= 0) return;
+    var overrides = { page_duration_seconds: duration };
+    if (urlOverride) overrides.url = urlOverride;
+    sendEvent("page_duration", overrides);
+  }
+
+  function resetPageDuration() {
+    pageStartTime = Date.now();
+  }
 
   // Scroll depth tracking state
   var currentUrl = null;
@@ -121,7 +137,9 @@
         user_agent: userAgent,
         screen_resolution: screenResolution,
         timestamp: Math.floor(Date.now() / 1000),
-        ...(Object.keys(globalProperties).length > 0 && { global_properties: Object.assign({}, globalProperties) }),
+        ...(Object.keys(globalProperties).length > 0 && {
+          global_properties: Object.assign({}, globalProperties),
+        }),
         ...overrides,
       }),
     })
@@ -141,7 +159,9 @@
       }),
     setGlobalProperties: function (props) {
       if (props == null || typeof props !== "object" || Array.isArray(props)) {
-        return console.error("Betterlytics: setGlobalProperties requires a flat object");
+        return console.error(
+          "Betterlytics: setGlobalProperties requires a flat object",
+        );
       }
       Object.assign(globalProperties, props);
     },
@@ -319,12 +339,10 @@
     passive: true,
   });
 
-  document.addEventListener(
-    "visibilitychange",
-    () => document.visibilityState === "hidden" && flushScrollDepth(),
-  );
-  window.addEventListener("pagehide", () => flushScrollDepth());
-  window.addEventListener("pagehide", () => sendEvent("pagehide"));
+  window.addEventListener("pagehide", () => {
+    flushScrollDepth();
+    flushPageDuration();
+  });
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
@@ -352,10 +370,12 @@
     var originalPushState = history.pushState;
     history.pushState = function () {
       flushScrollDepth(); // Flush before URL changes (uses current URL)
+      flushPageDuration();
       originalPushState.apply(this, arguments); // URL changes here
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
         resetScrollDepth();
+        resetPageDuration();
         monitorContentHeight();
         sendEvent("pageview");
       }
@@ -366,7 +386,9 @@
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
         flushScrollDepth(currentUrl); // Pass old URL as override
+        flushPageDuration(currentUrl);
         resetScrollDepth();
+        resetPageDuration();
         monitorContentHeight();
         sendEvent("pageview");
       }

@@ -54,6 +54,7 @@ pub struct EventRow {
     pub global_properties_values: Vec<String>,
     pub prev_url: String,
     pub prev_pageview_duration: Option<u32>,
+    pub duration: u32,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -85,7 +86,7 @@ pub enum EventType {
     Cwv = 4,
     ScrollDepth = 5,
     ClientError = 6,
-    Pagehide = 7,
+    PageDuration = 7,
 }
 
 impl EventRow {
@@ -137,6 +138,7 @@ impl EventRow {
             global_properties_values: event.global_properties_values,
             prev_url: event.prev_url,
             prev_pageview_duration: event.prev_pageview_duration,
+            duration: event.duration,
         }
     }
 }
