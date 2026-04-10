@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SEARCH_LIMIT = 5000;
 const EXTENDED_RANGE_DAYS = 30;
+const EMPTY_OPTIONS: string[] = [];
 
 type SearchMetadataResult = {
   shouldUseServerSearch: boolean;
@@ -28,14 +29,12 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
       return baseQuery;
     }
 
-    const now = new Date();
-    const extendedStartDate = subDays(now, EXTENDED_RANGE_DAYS);
+    const extendedStartDate = subDays(baseQuery.endDate, EXTENDED_RANGE_DAYS);
 
     const effectiveStartDate =
       baseQuery.startDate && baseQuery.startDate < extendedStartDate ? baseQuery.startDate : extendedStartDate;
-    const effectiveEndDate = baseQuery.endDate && baseQuery.endDate > now ? baseQuery.endDate : now;
 
-    return { ...baseQuery, startDate: effectiveStartDate, endDate: effectiveEndDate };
+    return { ...baseQuery, startDate: effectiveStartDate };
   }, [options?.useExtendedRange, baseQuery]);
 
   const dashboardId = useDashboardId();
@@ -57,7 +56,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     return searchMetadataResult === null || searchMetadataResult.shouldUseServerSearch;
   }, [searchMetadataResult]);
 
-  const { data: fetchedOptions = [], isLoading } = trpc.filters.getFilterOptions.useQuery(
+  const { data: fetchedOptions = EMPTY_OPTIONS, isLoading } = trpc.filters.getFilterOptions.useQuery(
     {
       dashboardId,
       query,

@@ -25,6 +25,7 @@ interface TabbedTableProps<TData> {
   tabs: TabDefinition<TData>[];
   defaultTab?: string;
   className?: string;
+  loading?: boolean;
   headerActions?: ReactNode;
   searchColumn?: string;
   searchFieldLabel?: string;
@@ -39,6 +40,7 @@ function TabbedTable<TData>({
   tabs,
   defaultTab,
   className = '',
+  loading,
   headerActions,
   searchColumn,
   searchFieldLabel,
@@ -65,7 +67,10 @@ function TabbedTable<TData>({
             <div
               className={cn('grid grid-cols-1 items-start gap-1 xl:grid-cols-2', searchColumn && 'sm:col-span-2')}
             >
-              <CardTitle className='text-base font-medium'>{title}</CardTitle>
+              <CardTitle className='flex items-center gap-2 text-base font-medium'>
+                {title}
+                {loading && <Spinner size='sm' />}
+              </CardTitle>
               <div className='flex'>
                 {headerActions && <div className='justify-self-end'>{headerActions}</div>}
               </div>
