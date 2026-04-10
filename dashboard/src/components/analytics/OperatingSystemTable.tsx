@@ -3,7 +3,7 @@
 import { DataTable } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { OSIcon } from '@/components/icons';
-import { fetchOperatingSystemBreakdownAction } from '@/app/actions/analytics/devices.actions';
+import type { BARouterOutputs } from '@/trpc/client';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatPercentage } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 interface OperatingSystemTableProps {
-  data: Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>;
+  data: BARouterOutputs['devices']['osBreakdown'];
 }
 
 export default function OperatingSystemTable({ data }: OperatingSystemTableProps) {
@@ -19,7 +19,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
   const tCols = useTranslations('components.devices.tables.columns');
   const tFilters = useTranslations('components.filters');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-  const columns: ColumnDef<Awaited<ReturnType<typeof fetchOperatingSystemBreakdownAction>>[number]>[] = [
+  const columns: ColumnDef<BARouterOutputs['devices']['osBreakdown'][number]>[] = [
     {
       accessorKey: 'os',
       header: tCols('os'),

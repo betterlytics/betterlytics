@@ -1,8 +1,8 @@
 import { EventTypeRow } from '@/entities/analytics/events.entities';
 import { PropertyRow } from '@/components/events/PropertyRow';
-import { useEventProperties } from '@/hooks/use-event-properties';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
+import { useBAQuery } from '@/trpc/hooks';
 
 interface ExpandedEventContentProps {
   event: EventTypeRow;
@@ -12,7 +12,15 @@ interface ExpandedEventContentProps {
 
 export function ExpandedEventContent({ event, expandedProperties, onToggleProperty }: ExpandedEventContentProps) {
   const t = useTranslations('components.events.expandedEventContent');
-  const { data: propertiesData, isLoading: propertiesLoading } = useEventProperties(event.event_name);
+  const { data: propertiesData, isLoading: propertiesLoading } = useBAQuery((t, input, options) =>
+    t.events.eventPropertiesAnalytics.useQuery(
+      {
+        ...input,
+        eventName: event.event_name,
+      },
+      options,
+    ),
+  );
 
   return (
     <div className='bg-muted/20 border-primary/30 border-l-2'>

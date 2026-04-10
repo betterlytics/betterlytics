@@ -18,11 +18,11 @@ import { calculatePercentage } from '@/utils/mathUtils';
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { formatPercentage } from '@/utils/formatters';
 import { cn } from '@/lib/utils';
-import type { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useLocale, useTranslations } from 'next-intl';
+import { BARouterOutputs } from '@/trpc/client';
 
-type TableEventRow = Awaited<ReturnType<typeof fetchCustomEventsOverviewAction>>[number];
+type TableEventRow = BARouterOutputs['events']['customEventsOverview'][number];
 
 interface EventsTableProps {
   data: TableEventRow[];

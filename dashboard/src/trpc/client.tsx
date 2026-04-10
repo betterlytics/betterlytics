@@ -7,6 +7,10 @@ import { createTRPCReact } from '@trpc/react-query';
 import superjson from 'superjson';
 import type { AppRouter } from '@/trpc/routers/_app';
 
+import type { inferRouterOutputs } from '@trpc/server';
+
+export type BARouterOutputs = inferRouterOutputs<AppRouter>;
+
 export const trpc = createTRPCReact<AppRouter>();
 
 function getBaseUrl() {
