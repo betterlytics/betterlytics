@@ -78,25 +78,10 @@
 
   var globalProperties = {};
 
-  // Page duration tracking state
+  // Engagement tracking state (duration + scroll depth)
   var pageStartTime = Date.now();
-
-  function flushPageDuration(urlOverride) {
-    var duration = Math.round((Date.now() - pageStartTime) / 1000);
-    if (duration <= 0) return;
-    var overrides = { page_duration_seconds: duration };
-    if (urlOverride) overrides.url = urlOverride;
-    sendEvent("page_duration", overrides);
-  }
-
-  function resetPageDuration() {
-    pageStartTime = Date.now();
-  }
-
-  // Scroll depth tracking state
   var currentUrl = null;
   var maxScrollDepthPx = 0;
-  var lastSentScrollDepthPx = 0;
   var currentDocHeight = 0;
 
   function normalize(url) {
@@ -310,39 +295,38 @@
     }
   }
 
-  function flushScrollDepth(urlOverride) {
-    if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
-
-    lastSentScrollDepthPx = maxScrollDepthPx;
-
-    var percentage = Math.min(
-      100,
-      Math.round((maxScrollDepthPx / currentDocHeight) * 100),
-    );
+  function flushEngagement(urlOverride) {
+    var duration = Math.round((Date.now() - pageStartTime) / 1000);
+    if (duration <= 0 && maxScrollDepthPx <= 0) return;
 
     var overrides = {
-      scroll_depth_percentage: percentage,
-      scroll_depth_pixels: maxScrollDepthPx,
+      page_duration_seconds: duration > 0 ? duration : undefined,
     };
+
+    if (maxScrollDepthPx > 0 && currentDocHeight > 0) {
+      overrides.scroll_depth_percentage = Math.min(
+        100,
+        Math.round((maxScrollDepthPx / currentDocHeight) * 100),
+      );
+      overrides.scroll_depth_pixels = maxScrollDepthPx;
+    }
+
     if (urlOverride) overrides.url = urlOverride;
 
-    sendEvent("scroll_depth", overrides);
+    sendEvent("engagement", overrides);
   }
 
-  function resetScrollDepth() {
+  function resetEngagement() {
+    pageStartTime = Date.now();
     currentUrl = normalize(window.location.href);
     maxScrollDepthPx = 0;
-    lastSentScrollDepthPx = 0;
   }
 
   window.addEventListener("scroll", () => updateScrollDepth(), {
     passive: true,
   });
 
-  window.addEventListener("pagehide", () => {
-    flushScrollDepth();
-    flushPageDuration();
-  });
+  window.addEventListener("pagehide", () => flushEngagement());
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
@@ -366,29 +350,23 @@
 
   // Detect SPA navigation
   if (window.history.pushState) {
-    // Override pushState to send navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
-      flushScrollDepth(); // Flush before URL changes (uses current URL)
-      flushPageDuration();
+      flushEngagement(); // Flush before URL changes (uses current URL)
       originalPushState.apply(this, arguments); // URL changes here
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        resetScrollDepth();
-        resetPageDuration();
+        resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
       }
     };
 
-    // Detect popstate (back/forward navigation)
     window.addEventListener("popstate", function () {
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        flushScrollDepth(currentUrl); // Pass old URL as override
-        flushPageDuration(currentUrl);
-        resetScrollDepth();
-        resetPageDuration();
+        flushEngagement(currentUrl); // Pass old URL as override
+        resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
       }

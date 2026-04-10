@@ -240,9 +240,11 @@ impl EventProcessor {
         } else if event_name == "client_error" {
             processed.event_type = "client_error".to_string();
             self.process_client_error(processed);
-        } else if event_name == "page_duration" {
-            processed.event_type = "page_duration".to_string();
+        } else if event_name == "engagement" {
+            processed.event_type = "engagement".to_string();
             processed.duration = processed.event.raw.page_duration_seconds.unwrap_or(0);
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {
             processed.event_type = event_name;
         }

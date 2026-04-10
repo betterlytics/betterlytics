@@ -86,7 +86,7 @@ pub enum EventType {
     Cwv = 4,
     ScrollDepth = 5,
     ClientError = 6,
-    PageDuration = 7,
+    Engagement = 7,
 }
 
 impl EventRow {
