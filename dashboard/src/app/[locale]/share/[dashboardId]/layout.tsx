@@ -3,7 +3,7 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
 import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
@@ -44,7 +44,7 @@ type PublicLayoutProps = {
 
 export default async function PublicDashboardLayout({ params, children }: PublicLayoutProps) {
   const { locale, dashboardId } = await params;
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
   await assertPublicDashboardAccess(dashboardId);
 

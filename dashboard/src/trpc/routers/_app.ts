@@ -16,6 +16,9 @@ import { userJourneyRouter } from '@/trpc/routers/userJourney';
 import { visitorsRouter } from '@/trpc/routers/visitors';
 import { filtersRouter } from '@/trpc/routers/filters';
 import { savedFiltersRouter } from '@/trpc/routers/savedFilters';
+import { annotationsRouter } from '@/trpc/routers/annotations';
+import { systemRouter } from '@/trpc/routers/system';
+import { monitorsRouter } from '@/trpc/routers/monitors';
 
 export const appRouter = createRouter({
   overview: overviewRouter,
@@ -35,6 +38,9 @@ export const appRouter = createRouter({
   visitors: visitorsRouter,
   filters: filtersRouter,
   savedFilters: savedFiltersRouter,
+  annotations: annotationsRouter,
+  system: systemRouter,
+  monitors: monitorsRouter,
 });
 
 export type AppRouter = typeof appRouter;

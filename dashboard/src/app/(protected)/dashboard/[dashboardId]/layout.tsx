@@ -3,7 +3,8 @@ import { DashboardProvider } from './DashboardProvider';
 import { getCurrentDashboardAction } from '@/app/actions/index.actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Suspense } from 'react';
-import { fetchPublicEnvironmentVariablesAction, fetchSiteId } from '@/app/actions/index.actions';
+import { fetchSiteId } from '@/app/actions/index.actions';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { env } from '@/lib/env';
 import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
@@ -34,7 +35,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     redirect('/signin');
   }
 
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
   const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
   let trackingSiteId: string | null = null;
