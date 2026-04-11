@@ -9,6 +9,7 @@ import WeeklyHeatmapSection from './WeeklyHeatmapSection';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
+import { LazySection } from '@/components/LazySection';
 
 export default async function DashboardPage() {
   const enabledLevels = getEnabledGeoLevels();
@@ -23,12 +24,26 @@ export default async function DashboardPage() {
       <SummaryAndChartSection />
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-        <PagesAnalyticsSection />
-        {enabledLevels.length > 0 && <GeographySection enabledLevels={enabledLevels} />}
-        <DevicesSection />
-        <TrafficSourcesSection />
-        <CustomEventsSection />
-        <WeeklyHeatmapSection />
+        <LazySection>
+          <PagesAnalyticsSection />
+        </LazySection>
+        {enabledLevels.length > 0 && (
+          <LazySection>
+            <GeographySection enabledLevels={enabledLevels} />
+          </LazySection>
+        )}
+        <LazySection>
+          <DevicesSection />
+        </LazySection>
+        <LazySection>
+          <TrafficSourcesSection />
+        </LazySection>
+        <LazySection>
+          <CustomEventsSection />
+        </LazySection>
+        <LazySection>
+          <WeeklyHeatmapSection />
+        </LazySection>
       </div>
     </div>
   );
