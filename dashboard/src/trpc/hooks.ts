@@ -20,7 +20,7 @@ function useDashboardQueryOptions() {
   const timeRangeOptions = useTimeRangeQueryOptions();
   return {
     ...timeRangeOptions,
-    placeholderData: keepPreviousData as never,
+    placeholderData: keepPreviousData,
   };
 }
 
