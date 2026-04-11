@@ -67,19 +67,22 @@ export async function getExitPageAnalyticsForSite(siteQuery: BASiteQuery): Promi
 }
 
 export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): Promise<PagesSummaryWithCharts> {
-  const [pageAnalytics, pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] =
-    await Promise.all([
-      getPageAnalytics(siteQuery),
-      getTotalPageViewsForSite(siteQuery),
-      getDailyAverageTimeOnPageForSite(siteQuery),
-      getDailyBounceRateForSite(siteQuery),
-      getSessionMetrics(siteQuery),
-    ]);
+  const [pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] = await Promise.all([
+    getTotalPageViewsForSite(siteQuery),
+    getDailyAverageTimeOnPageForSite(siteQuery),
+    getDailyBounceRateForSite(siteQuery),
+    getSessionMetrics(siteQuery),
+  ]);
 
-  const totalPages = pageAnalytics.length;
-  const totalPageviews = pageAnalytics.reduce((sum, page) => sum + page.pageviews, 0);
-  const avgTimeOnPage = pageAnalytics.reduce((sum, page) => sum + page.avgTime, 0) / Math.max(totalPages, 1);
-  const avgBounceRate = pageAnalytics.reduce((sum, page) => sum + page.bounceRate, 0) / Math.max(totalPages, 1);
+  const totalPageviews = pageviewsChartData.reduce((sum, row) => sum + row.views, 0);
+  const activeDays = dailyAvgTimeData.filter((row) => row.avgTime > 0).length;
+  const avgTimeOnPage =
+    activeDays > 0 ? dailyAvgTimeData.reduce((sum, row) => sum + row.avgTime, 0) / activeDays : 0;
+  const activeBounceRateDays = dailyBounceRateData.filter((row) => row.bounceRate > 0).length;
+  const avgBounceRate =
+    activeBounceRateDays > 0
+      ? dailyBounceRateData.reduce((sum, row) => sum + row.bounceRate, 0) / activeBounceRateDays
+      : 0;
 
   const totalSessions = sessionMetricsData.reduce((sum, row) => sum + row.sessions, 0);
   const avgPagesPerSession =
