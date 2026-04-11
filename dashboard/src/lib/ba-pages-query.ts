@@ -123,6 +123,10 @@ function getPageStatsCte(siteQuery: BASiteQuery) {
   `;
 }
 
+function getPagePathFilters(queryFilters: QueryFilter[]) {
+  return buildColumnFilter(queryFilters, 'path', 'url_path_filter');
+}
+
 function getEntryPathFilters(queryFilters: QueryFilter[]) {
   return buildColumnFilter(queryFilters, 'entry_page.2', 'url_entry_filter');
 }
@@ -135,6 +139,7 @@ export const BAPageQuery = {
   canUseMv,
   getPageSessionCte,
   getPageStatsCte,
+  getPagePathFilters,
   getEntryPathFilters,
   getExitPathFilters,
 };
