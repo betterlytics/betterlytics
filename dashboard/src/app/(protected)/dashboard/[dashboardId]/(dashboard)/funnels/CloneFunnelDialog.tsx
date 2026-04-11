@@ -41,6 +41,9 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
     setFunnelSteps,
     updateFunnelStep,
     removeFunnelStep,
+    addFilterToStep,
+    updateFilterInStep,
+    removeFilterFromStep,
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
@@ -50,7 +53,11 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
     dashboardId,
     initialName: `${funnel.name} (copy)`,
     initialIsStrict: funnel.isStrict,
-    initialSteps: funnel.steps.map(({ step }) => ({ ...step, id: generateTempId() })),
+    initialSteps: funnel.steps.map(({ step }) => ({
+      ...step,
+      id: generateTempId(),
+      filters: step.filters.map((f) => ({ ...f, id: generateTempId() })),
+    })),
   });
 
   const isCreateValid = useMemo(
@@ -85,7 +92,11 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
       reset({
         name: `${funnel.name} (copy)`,
         isStrict: funnel.isStrict,
-        steps: funnel.steps.map(({ step }) => ({ ...step, id: generateTempId() })),
+        steps: funnel.steps.map(({ step }) => ({
+          ...step,
+          id: generateTempId(),
+          filters: step.filters.map((f) => ({ ...f, id: generateTempId() })),
+        })),
       });
       return;
     }
@@ -112,6 +123,9 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
           setFunnelSteps={setFunnelSteps}
           updateFunnelStep={updateFunnelStep}
           removeFunnelStep={removeFunnelStep}
+          addFilterToStep={addFilterToStep}
+          updateFilterInStep={updateFilterInStep}
+          removeFilterFromStep={removeFilterFromStep}
           searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}

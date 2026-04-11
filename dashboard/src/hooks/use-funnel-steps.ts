@@ -1,6 +1,15 @@
 import { type FunnelStep } from '@/entities/analytics/funnels.entities';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { useCallback, useLayoutEffect, useState } from 'react';
+
+function createEmptyStep(): FunnelStep {
+  return {
+    id: generateTempId(),
+    name: '',
+    filters: [{ id: generateTempId(), column: 'url', operator: '=', values: [] }],
+  };
+}
 
 export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>(initialSteps || []);
@@ -14,7 +23,7 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   }, []);
 
   const addEmptyFunnelStep = useCallback(() => {
-    addFunnelStep({ column: 'url', operator: '=', values: [], name: '' });
+    addFunnelStep(createEmptyStep());
   }, [addFunnelStep]);
 
   useLayoutEffect(() => {
@@ -36,6 +45,34 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
     );
   }, []);
 
+  const addFilterToStep = useCallback((stepId: string, filter: QueryFilter) => {
+    setFunnelSteps((steps) =>
+      steps.map((step) =>
+        step.id === stepId ? { ...step, filters: [...step.filters, filter] } : step,
+      ),
+    );
+  }, []);
+
+  const updateFilterInStep = useCallback((stepId: string, filter: QueryFilter) => {
+    setFunnelSteps((steps) =>
+      steps.map((step) =>
+        step.id === stepId
+          ? { ...step, filters: step.filters.map((f) => (f.id === filter.id ? filter : f)) }
+          : step,
+      ),
+    );
+  }, []);
+
+  const removeFilterFromStep = useCallback((stepId: string, filterId: string) => {
+    setFunnelSteps((steps) =>
+      steps.map((step) =>
+        step.id === stepId
+          ? { ...step, filters: step.filters.filter((f) => f.id !== filterId) }
+          : step,
+      ),
+    );
+  }, []);
+
   return {
     funnelSteps,
     addFunnelStep,
@@ -43,5 +80,8 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
     removeFunnelStep,
     updateFunnelStep,
     setFunnelSteps,
+    addFilterToStep,
+    updateFilterInStep,
+    removeFilterFromStep,
   };
 }

@@ -229,14 +229,26 @@ model FunnelStep {
   id String @id @default(cuid())
 
   name String
-  column String
-  operator String
-  values String[]
 
-  funnel Funnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  filters FunnelStepFilter[]
+
+  funnel   Funnel @relation(fields: [funnelId], references: [id], onDelete: Cascade)
   funnelId String
 
   @@index([funnelId])
+}
+
+model FunnelStepFilter {
+  id String @id @default(cuid())
+
+  column   String
+  operator String
+  values   String[]
+
+  funnelStep   FunnelStep @relation(fields: [funnelStepId], references: [id], onDelete: Cascade)
+  funnelStepId String
+
+  @@index([funnelStepId])
 }
 
 model SavedFilter {

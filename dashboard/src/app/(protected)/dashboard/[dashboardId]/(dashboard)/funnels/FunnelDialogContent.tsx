@@ -21,6 +21,9 @@ type FunnelDialogContentProps = {
   setFunnelSteps: ReturnType<typeof useFunnelDialog>['setFunnelSteps'];
   updateFunnelStep: ReturnType<typeof useFunnelDialog>['updateFunnelStep'];
   removeFunnelStep: ReturnType<typeof useFunnelDialog>['removeFunnelStep'];
+  addFilterToStep: ReturnType<typeof useFunnelDialog>['addFilterToStep'];
+  updateFilterInStep: ReturnType<typeof useFunnelDialog>['updateFilterInStep'];
+  removeFilterFromStep: ReturnType<typeof useFunnelDialog>['removeFilterFromStep'];
   searchableFunnelSteps: ReturnType<typeof useFunnelDialog>['searchableFunnelSteps'];
   funnelPreview: ReturnType<typeof useFunnelDialog>['funnelPreview'];
   emptySteps: ReturnType<typeof useFunnelDialog>['emptySteps'];
@@ -45,6 +48,9 @@ export function FunnelDialogContent({
   setFunnelSteps,
   updateFunnelStep,
   removeFunnelStep,
+  addFilterToStep,
+  updateFilterInStep,
+  removeFilterFromStep,
   searchableFunnelSteps,
   funnelPreview,
   emptySteps,
@@ -119,16 +125,22 @@ export function FunnelDialogContent({
               <Reorder.Item
                 key={step.id}
                 value={step}
+                layout='position'
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                className='dark:border-border border-foreground/30 bg-card relative flex cursor-move items-center rounded-md border pl-4'
+                className='dark:border-border border-foreground/30 bg-card relative flex cursor-move items-start rounded-md border pl-4'
               >
-                <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
+                <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 top-3.5 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
                   <p className='text-muted-foreground text-sm font-medium'>{index + 1}</p>
                 </div>
                 <FunnelStepFilter
-                  onFilterUpdate={updateFunnelStep}
-                  filter={step}
+                  step={step}
+                  onStepNameUpdate={(stepId, name) =>
+                    updateFunnelStep({ ...step, name })
+                  }
+                  onFilterAdd={addFilterToStep}
+                  onFilterUpdate={updateFilterInStep}
+                  onFilterRemove={removeFilterFromStep}
                   requestRemoval={() => removeFunnelStep(step.id)}
                   showEmptyError={hasAttemptedSubmit}
                 />

@@ -7,12 +7,18 @@ import {
 } from '@/entities/analytics/funnels.entities';
 import prisma from '@/lib/postgres';
 
+const FUNNEL_STEPS_INCLUDE = {
+  funnelSteps: {
+    include: {
+      filters: true,
+    },
+  },
+} as const;
+
 export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Funnel[]> {
   const funnels = await prisma.funnel.findMany({
     where: { dashboardId: dashboardCUID, deletedAt: null },
-    include: {
-      funnelSteps: true,
-    },
+    include: FUNNEL_STEPS_INCLUDE,
     orderBy: {
       createdAt: 'desc',
     },
@@ -24,9 +30,7 @@ export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Fu
 export async function getFunnelById(id: string): Promise<Funnel | null> {
   const funnel = await prisma.funnel.findUnique({
     where: { id, deletedAt: null },
-    include: {
-      funnelSteps: true,
-    },
+    include: FUNNEL_STEPS_INCLUDE,
   });
   if (funnel === null) {
     return null;
@@ -41,7 +45,12 @@ export async function createFunnel(funnelData: CreateFunnel) {
     data: {
       ...funnelDataWithoutSteps,
       funnelSteps: {
-        create: funnelSteps,
+        create: funnelSteps.map((step) => ({
+          name: step.name,
+          filters: {
+            create: step.filters,
+          },
+        })),
       },
     },
   });
@@ -60,10 +69,16 @@ export async function updateFunnel(funnel: UpdateFunnel): Promise<void> {
   await prisma.funnel.update({
     where: { id: funnel.id },
     data: {
-      ...funnel,
+      name: funnel.name,
+      isStrict: funnel.isStrict,
       funnelSteps: {
         deleteMany: {},
-        create: funnel.funnelSteps,
+        create: funnel.funnelSteps.map((step) => ({
+          name: step.name,
+          filters: {
+            create: step.filters,
+          },
+        })),
       },
     },
   });

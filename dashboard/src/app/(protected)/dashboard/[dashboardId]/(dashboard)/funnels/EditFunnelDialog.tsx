@@ -49,6 +49,9 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
     setFunnelSteps,
     updateFunnelStep,
     removeFunnelStep,
+    addFilterToStep,
+    updateFilterInStep,
+    removeFilterFromStep,
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
@@ -142,6 +145,9 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
           setFunnelSteps={setFunnelSteps}
           updateFunnelStep={updateFunnelStep}
           removeFunnelStep={removeFunnelStep}
+          addFilterToStep={addFilterToStep}
+          updateFilterInStep={updateFilterInStep}
+          removeFilterFromStep={removeFilterFromStep}
           searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}

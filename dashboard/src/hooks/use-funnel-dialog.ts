@@ -24,18 +24,28 @@ export function useFunnelDialog({
   initialIsStrict = false,
   initialSteps,
 }: UseFunnelDialogOptions) {
-  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep, setFunnelSteps } =
-    useFunnelSteps(initialSteps);
+  const {
+    funnelSteps,
+    addEmptyFunnelStep,
+    updateFunnelStep,
+    removeFunnelStep,
+    setFunnelSteps,
+    addFilterToStep,
+    updateFilterInStep,
+    removeFilterFromStep,
+  } = useFunnelSteps(initialSteps);
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: initialName,
     isStrict: initialIsStrict,
   });
   const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
 
+  const isStepSearchable = (step: FunnelStep) =>
+    step.filters.length > 0 &&
+    step.filters.every((f) => Boolean(f.column) && Boolean(f.operator) && f.values.length > 0);
+
   const searchableFunnelSteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
-    );
+    const findFilterableIndex = debouncedFunnelSteps.findIndex((step) => !isStepSearchable(step));
 
     const steps =
       findFilterableIndex === -1 ? debouncedFunnelSteps : debouncedFunnelSteps.slice(0, findFilterableIndex);
@@ -71,9 +81,7 @@ export function useFunnelDialog({
   }, [funnelPreviewData, debouncedFunnelSteps]);
 
   const emptySteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
-    );
+    const findFilterableIndex = debouncedFunnelSteps.findIndex((step) => !isStepSearchable(step));
 
     const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
 
@@ -117,5 +125,8 @@ export function useFunnelDialog({
     isPreviewLoading,
     reset,
     setFunnelSteps,
+    addFilterToStep,
+    updateFilterInStep,
+    removeFilterFromStep,
   };
 }

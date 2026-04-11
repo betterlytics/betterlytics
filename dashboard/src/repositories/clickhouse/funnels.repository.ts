@@ -12,7 +12,9 @@ export async function getFunnelDetails(
   startDate?: DateTimeString,
   endDate?: DateTimeString,
 ): Promise<number[]> {
-  const filters = BAQuery.getFilterQuery(funnelSteps);
+  const filters = funnelSteps.map((step, index) =>
+    BAQuery.getCompoundStepCondition(step.filters, index),
+  );
 
   const levelsArray = new Array(filters.length).fill(0).map((_, i) => i + 1);
 

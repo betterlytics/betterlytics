@@ -1,4 +1,5 @@
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type FunnelStep } from '@/entities/analytics/funnels.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import type { SupportedLanguages } from '@/constants/i18n';
 import type { useTranslations } from 'next-intl';
@@ -17,4 +18,9 @@ export function formatQueryFilter(filter: QueryFilter, t: FilterTranslation, loc
     : filter.values.join(', ');
 
   return `${label} ${operator} ${value}`;
+}
+
+export function formatFunnelStep(step: FunnelStep, t: FilterTranslation, locale?: SupportedLanguages) {
+  if (step.filters.length === 0) return step.name;
+  return step.filters.map((filter) => formatQueryFilter(filter, t, locale)).join(' AND ');
 }

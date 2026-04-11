@@ -45,12 +45,15 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     reset,
     isPreviewLoading,
     setFunnelSteps,
+    addFilterToStep,
+    updateFilterInStep,
+    removeFilterFromStep,
   } = useFunnelDialog({
     dashboardId,
     initialName: '',
     initialSteps: [
-      { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-      { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
+      { id: generateTempId(), name: '', filters: [{ id: generateTempId(), column: 'url', operator: '=', values: [] }] },
+      { id: generateTempId(), name: '', filters: [{ id: generateTempId(), column: 'url', operator: '=', values: [] }] },
     ],
   });
 
@@ -79,8 +82,8 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           name: '',
           isStrict: false,
           steps: [
-            { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-            { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
+            { id: generateTempId(), name: '', filters: [{ id: generateTempId(), column: 'url', operator: '=', values: [] }] },
+            { id: generateTempId(), name: '', filters: [{ id: generateTempId(), column: 'url', operator: '=', values: [] }] },
           ],
         });
       })
@@ -118,6 +121,9 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           setFunnelSteps={setFunnelSteps}
           updateFunnelStep={updateFunnelStep}
           removeFunnelStep={removeFunnelStep}
+          addFilterToStep={addFilterToStep}
+          updateFilterInStep={updateFilterInStep}
+          removeFilterFromStep={removeFilterFromStep}
           searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}

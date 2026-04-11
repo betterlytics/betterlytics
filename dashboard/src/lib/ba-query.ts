@@ -47,6 +47,29 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
   return filters.map((filter, index) => buildFilterQuery(filter, index));
 }
 
+function getCompoundStepCondition(filters: QueryFilter[], stepIndex: number) {
+  const nonEmptyFilters = filters.filter(
+    (filter) =>
+      Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
+  );
+
+  const parsed = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
+
+  if (parsed.length === 0) {
+    return safeSql`1=1`;
+  }
+
+  const conditions = parsed.map((filter, filterIdx) =>
+    buildFilterQuery(filter, stepIndex * 100 + filterIdx),
+  );
+
+  if (conditions.length === 1) {
+    return conditions[0];
+  }
+
+  return safeSql`(${SQL.AND(conditions)})`;
+}
+
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
   const strategy = getFilterStrategy(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
@@ -167,6 +190,7 @@ async function getSampling(siteId: string, startDate: DateTimeString, endDate: D
 
 export const BAQuery = {
   getFilterQuery,
+  getCompoundStepCondition,
   getTimestampRange,
   getSampling,
 };
