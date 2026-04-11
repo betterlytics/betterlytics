@@ -3,12 +3,14 @@
 import ReferrerTable from './ReferrerTable';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 
 export default function ReferrersTableSection() {
-  const query = useBAQuery((t, input, opts) => t.referrers.table.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.referrers.table.useQuery(input, options);
   const t = useTranslations('components.referrers.table');
 
   return (

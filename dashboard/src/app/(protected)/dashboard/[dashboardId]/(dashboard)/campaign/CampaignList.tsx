@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner';
 import type { inferRouterOutputs } from '@trpc/server';
 import type { AppRouter } from '@/trpc/routers/_app';
 import { trpc } from '@/trpc/client';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
 import CampaignSparkline from './CampaignSparkline';
 import CampaignAudienceProfile from './CampaignAudienceProfile';
 import { useLocale, useTranslations } from 'next-intl';
@@ -31,12 +31,11 @@ export default function CampaignList() {
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const { input, options } = useBAQueryParams();
 
-  const { data: performancePage, isLoading } = useBAQuery((t, input, opts) =>
-    t.campaign.performance.useQuery(
-      { ...input, pageIndex, pageSize },
-      opts,
-    ),
+  const { data: performancePage, isLoading } = trpc.campaign.performance.useQuery(
+    { ...input, pageIndex, pageSize },
+    options,
   );
 
   const campaigns = (performancePage?.campaigns as CampaignListItem[]) ?? [];
@@ -278,10 +277,7 @@ function CampaignInlineUTMSection({ details, campaignName, summary }: CampaignIn
               browsers={browsers}
               operatingSystems={operatingSystems}
             />
-            <UTMBreakdownTabbedChart
-              campaignName={campaignName}
-              initialSource={utmSource}
-            />
+            <UTMBreakdownTabbedChart campaignName={campaignName} initialSource={utmSource} />
           </div>
         </div>
       </div>
@@ -301,17 +297,16 @@ type CampaignExpandedRowProps = {
 };
 
 function CampaignExpandedRow({ isExpanded, campaignName, summary }: CampaignExpandedRowProps) {
-  const { data, status } = useBAQuery((t, input, opts) =>
-    t.campaign.expandedDetails.useQuery(
-      { ...input, campaignName },
-      {
-        ...opts,
-        enabled: isExpanded,
-        staleTime: getExpandedDetailsStaleTime(input.query.startDate, input.query.endDate),
-        gcTime: 15 * 60 * 1000,
-        placeholderData: undefined,
-      },
-    ),
+  const { input, options } = useBAQueryParams();
+  const { data, status } = trpc.campaign.expandedDetails.useQuery(
+    { ...input, campaignName },
+    {
+      ...options,
+      enabled: isExpanded,
+      staleTime: getExpandedDetailsStaleTime(input.query.startDate, input.query.endDate),
+      gcTime: 15 * 60 * 1000,
+      placeholderData: undefined,
+    },
   );
   const t = useTranslations('components.campaign.campaignExpandedRow');
   if (!isExpanded) {
@@ -334,11 +329,7 @@ function CampaignExpandedRow({ isExpanded, campaignName, summary }: CampaignExpa
       ) : null}
 
       {status === 'success' && data ? (
-        <CampaignInlineUTMSection
-          details={data}
-          campaignName={campaignName}
-          summary={summary}
-        />
+        <CampaignInlineUTMSection details={data} campaignName={campaignName} summary={summary} />
       ) : null}
     </div>
   );

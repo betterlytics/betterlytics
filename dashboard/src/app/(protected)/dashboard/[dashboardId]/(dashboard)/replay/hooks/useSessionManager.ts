@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { useUrlSearchParam } from '@/hooks/use-sync-url-filters';
 
@@ -21,23 +22,19 @@ const PAGE_SIZE = 20;
 export function useSessionManager(): UseSessionManagerReturn {
   const [selectedSession, setSelectedSession] = useState<SessionReplay | null>(null);
   const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
+  const { input, options } = useBAQueryParams();
 
-  const sessionQuery = useBAQuery((t, input, opts) =>
-    t.sessionReplays.list.useInfiniteQuery(
-      { ...input, limit: PAGE_SIZE },
-      {
-        ...opts,
-        initialCursor: 0,
-        getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-          lastPage.length < PAGE_SIZE ? undefined : (lastPageParam ?? 0) + PAGE_SIZE,
-      },
-    ),
+  const sessionQuery = trpc.sessionReplays.list.useInfiniteQuery(
+    { ...input, limit: PAGE_SIZE },
+    {
+      ...options,
+      initialCursor: 0,
+      getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+        lastPage.length < PAGE_SIZE ? undefined : (lastPageParam ?? 0) + PAGE_SIZE,
+    },
   );
 
-  const sessions = useMemo(
-    () => sessionQuery.data?.pages.flatMap((page) => page) ?? [],
-    [sessionQuery.data],
-  );
+  const sessions = useMemo(() => sessionQuery.data?.pages.flatMap((page) => page) ?? [], [sessionQuery.data]);
 
   useEffect(() => {
     if (sessions.length === 0) {

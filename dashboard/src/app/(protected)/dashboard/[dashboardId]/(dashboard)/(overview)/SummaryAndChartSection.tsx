@@ -7,12 +7,14 @@ import { SummaryCardData } from '@/components/dashboard/SummaryCardsSection';
 import OverviewChartSection from './OverviewChartSection';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
 export default function SummaryAndChartSection() {
-  const query = useBAQuery((t, input, opts) => t.overview.summaryAndChart.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.overview.summaryAndChart.useQuery(input, options);
   const [activeMetric, setActiveMetric] = useState<ActiveMetric>('visitors');
   const locale = useLocale();
   const t = useTranslations('dashboard.metrics');

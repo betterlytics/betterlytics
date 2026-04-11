@@ -3,7 +3,8 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 import { formatNumber } from '@/utils/formatters';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -46,7 +47,12 @@ const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
   </div>
 );
 
-const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: EventLogTranslation, locale: SupportedLanguages): string => {
+const createShowingText = (
+  allEvents: EventLogEntry[],
+  totalCount: number,
+  t: EventLogTranslation,
+  locale: SupportedLanguages,
+): string => {
   if (totalCount === 0) {
     return t('noEvents');
   }
@@ -67,29 +73,26 @@ const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: Ev
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const t = useTranslations('components.events.log');
   const locale = useLocale();
+  const { input, options } = useBAQueryParams();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useBAQuery((t, input, opts) =>
-      t.events.recentEvents.useInfiniteQuery(
-        { ...input, limit: pageSize },
-        {
-          ...opts,
-          initialCursor: 0,
-          getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-            if (lastPage.length < pageSize) return undefined;
-            return (lastPageParam ?? 0) + pageSize;
-          },
-          refetchInterval: EVENTS_REFRESH_INTERVAL_MS,
+    trpc.events.recentEvents.useInfiniteQuery(
+      { ...input, limit: pageSize },
+      {
+        ...options,
+        initialCursor: 0,
+        getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+          if (lastPage.length < pageSize) return undefined;
+          return (lastPageParam ?? 0) + pageSize;
         },
-      ),
+        refetchInterval: EVENTS_REFRESH_INTERVAL_MS,
+      },
     );
 
-  const { data: totalCount = 0 } = useBAQuery((t, input, opts) =>
-    t.events.totalEventCount.useQuery(input, {
-      ...opts,
-      refetchInterval: COUNT_REFRESH_INTERVAL_MS,
-    }),
-  );
+  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(input, {
+    ...options,
+    refetchInterval: COUNT_REFRESH_INTERVAL_MS,
+  });
 
   const allEvents: EventLogEntry[] = useMemo(
     () => data?.pages.flatMap((page: EventLogEntry[]) => page) ?? [],
@@ -119,7 +122,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     }
   }, [isFetchingNextPage]);
 
-  const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t, locale), [allEvents, totalCount, t, locale]);
+  const currentCountText = useMemo(
+    () => createShowingText(allEvents, totalCount, t, locale),
+    [allEvents, totalCount, t, locale],
+  );
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>

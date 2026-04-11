@@ -5,22 +5,18 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useState } from 'react';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 export default function PagesAnalyticsSection() {
   const [activeTab, setActiveTab] = useState('pages');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { input, options } = useBAQueryParams();
 
-  const pagesQuery = useBAQuery((t, input, opts) =>
-    t.overview.topPages.useQuery(input, { ...opts, enabled: activeTab === 'pages' }),
-  );
-  const entryQuery = useBAQuery((t, input, opts) =>
-    t.overview.topEntryPages.useQuery(input, { ...opts, enabled: activeTab === 'entry' }),
-  );
-  const exitQuery = useBAQuery((t, input, opts) =>
-    t.overview.topExitPages.useQuery(input, { ...opts, enabled: activeTab === 'exit' }),
-  );
+  const pagesQuery = trpc.overview.topPages.useQuery(input, { ...options, enabled: activeTab === 'pages' });
+  const entryQuery = trpc.overview.topEntryPages.useQuery(input, { ...options, enabled: activeTab === 'entry' });
+  const exitQuery = trpc.overview.topExitPages.useQuery(input, { ...options, enabled: activeTab === 'exit' });
 
   const onItemClick = (_tabKey: string, item: { label: string }) => {
     return makeFilterClick('url')(item.label);

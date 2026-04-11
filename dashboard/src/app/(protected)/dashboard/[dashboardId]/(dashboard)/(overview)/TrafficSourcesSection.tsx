@@ -6,19 +6,23 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useState } from 'react';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 export default function TrafficSourcesSection() {
   const [activeTab, setActiveTab] = useState('referrers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { input, options } = useBAQueryParams();
 
-  const referrersQuery = useBAQuery((t, input, opts) =>
-    t.referrers.referrerUrlRollup.useQuery(input, { ...opts, enabled: activeTab === 'referrers' }),
-  );
-  const channelsQuery = useBAQuery((t, input, opts) =>
-    t.referrers.topChannels.useQuery(input, { ...opts, enabled: activeTab === 'channels' }),
-  );
+  const referrersQuery = trpc.referrers.referrerUrlRollup.useQuery(input, {
+    ...options,
+    enabled: activeTab === 'referrers',
+  });
+  const channelsQuery = trpc.referrers.topChannels.useQuery(input, {
+    ...options,
+    enabled: activeTab === 'channels',
+  });
 
   const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
     if (tabKey === 'referrers') {

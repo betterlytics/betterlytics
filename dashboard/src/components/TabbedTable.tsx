@@ -4,12 +4,12 @@ import { ColumnDef, Table } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ReactNode, useRef } from 'react';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { TableSkeleton } from './skeleton';
 
 interface TabDefinition<TData> {
   key: string;
@@ -112,12 +112,7 @@ function TabbedTable<TData>({
             <TabsContent key={tab.key} value={tab.key}>
               {tab.loading ? (
                 <div className='space-y-4 py-2'>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className='flex justify-between'>
-                      <Skeleton className='h-4 w-2/3' />
-                      <Skeleton className='h-4 w-1/4' />
-                    </div>
-                  ))}
+                  <TableSkeleton tableOnly />
                 </div>
               ) : (
                 <div className='overflow-x-auto'>

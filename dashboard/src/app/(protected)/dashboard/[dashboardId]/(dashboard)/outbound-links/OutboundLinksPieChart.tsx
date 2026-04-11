@@ -5,7 +5,8 @@ import BAPieChart from '@/components/BAPieChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createColorGetter } from '@/utils/colorUtils';
 import { formatString } from '@/utils/formatters';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
@@ -23,7 +24,8 @@ const formatUrl = (url: string): string => {
 };
 
 export default function OutboundLinksPieChart() {
-  const query = useBAQuery((t, input, opts) => t.outboundLinks.distribution.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.outboundLinks.distribution.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.pieChart');
 
   return (

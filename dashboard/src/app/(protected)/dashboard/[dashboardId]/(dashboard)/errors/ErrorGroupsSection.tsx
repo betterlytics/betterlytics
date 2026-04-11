@@ -2,14 +2,16 @@
 
 import { ErrorTable } from './ErrorList';
 import { ErrorsEmptyState } from './ErrorsEmptyState';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 
 export function ErrorGroupsSection() {
   const dashboardId = useDashboardId();
-  const query = useBAQuery((t, input, opts) => t.errors.errorGroups.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.errors.errorGroups.useQuery(input, options);
   return (
     <QuerySection query={query} fallback={<TableSkeleton />}>
       {({ hasAnyErrors, errorGroups, initialVolumeMap }) => {
