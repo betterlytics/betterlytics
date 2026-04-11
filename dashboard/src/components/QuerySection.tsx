@@ -4,11 +4,19 @@ import { createContext, useContext, type ReactNode } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
-type QueryLike<T> = {
+export type QueryLike<T> = {
   isPending: boolean;
   isFetching: boolean;
   data: T | undefined;
 };
+
+export function mergeQueries<T1, T2>(q1: QueryLike<T1>, q2: QueryLike<T2>): QueryLike<[T1, T2]> {
+  return {
+    isPending: q1.isPending || q2.isPending,
+    isFetching: q1.isFetching || q2.isFetching,
+    data: q1.data !== undefined && q2.data !== undefined ? [q1.data, q2.data] : undefined,
+  };
+}
 
 const QuerySectionContext = createContext<{ loading: boolean } | null>(null);
 
