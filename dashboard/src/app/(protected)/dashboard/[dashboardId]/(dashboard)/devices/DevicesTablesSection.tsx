@@ -4,13 +4,15 @@ import BrowserTable from '@/components/analytics/BrowserTable';
 import OperatingSystemTable from '@/components/analytics/OperatingSystemTable';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 
 export default function DevicesTablesSection() {
-  const browserQuery = useBAQuery((t, input, opts) => t.devices.browserBreakdown.useQuery(input, opts));
-  const osQuery = useBAQuery((t, input, opts) => t.devices.osBreakdown.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const browserQuery = trpc.devices.browserBreakdown.useQuery(input, options);
+  const osQuery = trpc.devices.osBreakdown.useQuery(input, options);
   const t = useTranslations('components.devices.tables');
 
   if (browserQuery.isPending || osQuery.isPending) return <TableSkeleton />;

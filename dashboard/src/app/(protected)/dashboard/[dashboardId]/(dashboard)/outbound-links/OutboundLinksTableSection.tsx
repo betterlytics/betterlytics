@@ -9,7 +9,8 @@ import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 import type { inferRouterOutputs } from '@trpc/server';
@@ -19,7 +20,8 @@ type RouterOutputs = inferRouterOutputs<AppRouter>;
 type TableOutboundLinkRow = RouterOutputs['outboundLinks']['analytics'][number];
 
 export default function OutboundLinksTableSection() {
-  const query = useBAQuery((t, input, opts) => t.outboundLinks.analytics.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.outboundLinks.analytics.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.table');
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(

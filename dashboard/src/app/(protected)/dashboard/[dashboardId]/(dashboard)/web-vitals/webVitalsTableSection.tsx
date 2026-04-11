@@ -8,7 +8,8 @@ import { formatNumber, formatString } from '@/utils/formatters';
 import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
@@ -33,21 +34,27 @@ export default function WebVitalsTableSection() {
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
   const [activeTab, setActiveTab] = useState<string>('pages');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
+  const { input, options } = useBAQueryParams();
 
-  const urlQuery = useBAQuery((t, input, opts) =>
-    t.webVitals.byDimension.useQuery({ ...input, dimension: 'url' }, { ...opts, enabled: activeTab === 'pages' }),
+  const urlQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'url' },
+    { ...options, enabled: activeTab === 'pages' },
   );
-  const devicesQuery = useBAQuery((t, input, opts) =>
-    t.webVitals.byDimension.useQuery({ ...input, dimension: 'device_type' }, { ...opts, enabled: activeTab === 'devices' }),
+  const devicesQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'device_type' },
+    { ...options, enabled: activeTab === 'devices' },
   );
-  const countriesQuery = useBAQuery((t, input, opts) =>
-    t.webVitals.byDimension.useQuery({ ...input, dimension: 'country_code' }, { ...opts, enabled: activeTab === 'countries' }),
+  const countriesQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'country_code' },
+    { ...options, enabled: activeTab === 'countries' },
   );
-  const browsersQuery = useBAQuery((t, input, opts) =>
-    t.webVitals.byDimension.useQuery({ ...input, dimension: 'browser' }, { ...opts, enabled: activeTab === 'browsers' }),
+  const browsersQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'browser' },
+    { ...options, enabled: activeTab === 'browsers' },
   );
-  const osQuery = useBAQuery((t, input, opts) =>
-    t.webVitals.byDimension.useQuery({ ...input, dimension: 'os' }, { ...opts, enabled: activeTab === 'os' }),
+  const osQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'os' },
+    { ...options, enabled: activeTab === 'os' },
   );
 
   const makeColumns = useCallback(
@@ -271,16 +278,57 @@ export default function WebVitalsTableSection() {
 
   const defaultSorting = useMemo(() => [{ id: 'LCP', desc: true }], []);
 
-  const queries = { pages: urlQuery, devices: devicesQuery, countries: countriesQuery, browsers: browsersQuery, os: osQuery };
+  const queries = {
+    pages: urlQuery,
+    devices: devicesQuery,
+    countries: countriesQuery,
+    browsers: browsersQuery,
+    os: osQuery,
+  };
   const activeQuery = queries[activeTab as keyof typeof queries];
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
-      { key: 'pages', label: t('tabs.pages'), data: urlQuery.data ?? [], columns: pageColumns, defaultSorting, loading: urlQuery.isFetching && !urlQuery.data },
-      { key: 'devices', label: t('tabs.devices'), data: devicesQuery.data ?? [], columns: deviceColumns, defaultSorting, loading: devicesQuery.isFetching && !devicesQuery.data },
-      { key: 'countries', label: t('tabs.countries'), data: countriesQuery.data ?? [], columns: countryColumns, defaultSorting, loading: countriesQuery.isFetching && !countriesQuery.data },
-      { key: 'browsers', label: t('tabs.browsers'), data: browsersQuery.data ?? [], columns: browserColumns, defaultSorting, loading: browsersQuery.isFetching && !browsersQuery.data },
-      { key: 'os', label: t('tabs.operatingSystems'), data: osQuery.data ?? [], columns: osColumns, defaultSorting, loading: osQuery.isFetching && !osQuery.data },
+      {
+        key: 'pages',
+        label: t('tabs.pages'),
+        data: urlQuery.data ?? [],
+        columns: pageColumns,
+        defaultSorting,
+        loading: urlQuery.isFetching && !urlQuery.data,
+      },
+      {
+        key: 'devices',
+        label: t('tabs.devices'),
+        data: devicesQuery.data ?? [],
+        columns: deviceColumns,
+        defaultSorting,
+        loading: devicesQuery.isFetching && !devicesQuery.data,
+      },
+      {
+        key: 'countries',
+        label: t('tabs.countries'),
+        data: countriesQuery.data ?? [],
+        columns: countryColumns,
+        defaultSorting,
+        loading: countriesQuery.isFetching && !countriesQuery.data,
+      },
+      {
+        key: 'browsers',
+        label: t('tabs.browsers'),
+        data: browsersQuery.data ?? [],
+        columns: browserColumns,
+        defaultSorting,
+        loading: browsersQuery.isFetching && !browsersQuery.data,
+      },
+      {
+        key: 'os',
+        label: t('tabs.operatingSystems'),
+        data: osQuery.data ?? [],
+        columns: osColumns,
+        defaultSorting,
+        loading: osQuery.isFetching && !osQuery.data,
+      },
     ],
     [
       urlQuery.data,

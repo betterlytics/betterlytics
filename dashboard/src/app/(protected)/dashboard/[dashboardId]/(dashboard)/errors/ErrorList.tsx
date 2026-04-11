@@ -38,7 +38,8 @@ import { ErrorStatusActions } from './ErrorStatusActions';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { formatElapsedTime } from '@/utils/dateFormatters';
@@ -186,6 +187,8 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
   const [searchInput, setSearchInput] = useState('');
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
+
+  const { input, options } = useBAQueryParams();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -415,15 +418,13 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
     .map((g) => g.error_fingerprint)
     .join(',');
 
-  const { data: volumeMap } = useBAQuery((t, input, opts) =>
-    t.errors.errorGroupVolumes.useQuery(
-      { ...input, fingerprints: visibleFingerprints },
-      {
-        ...opts,
-        initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
-        enabled: visibleFingerprints.length > 0,
-      },
-    ),
+  const { data: volumeMap } = trpc.errors.errorGroupVolumes.useQuery(
+    { ...input, fingerprints: visibleFingerprints },
+    {
+      ...options,
+      initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
+      enabled: visibleFingerprints.length > 0,
+    },
   );
   volumeMapRef.current = volumeMap;
 

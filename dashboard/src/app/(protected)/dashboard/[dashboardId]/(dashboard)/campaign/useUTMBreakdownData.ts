@@ -1,6 +1,7 @@
 'use client';
 
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import type { UTMDimension } from '@/entities/analytics/campaign.entities';
 
 type UseUTMBreakdownDataOptions = {
@@ -10,10 +11,6 @@ type UseUTMBreakdownDataOptions = {
 };
 
 export function useUTMBreakdownData({ campaignName, dimension, enabled }: UseUTMBreakdownDataOptions) {
-  return useBAQuery((t, input, opts) =>
-    t.campaign.utmBreakdown.useQuery(
-      { ...input, campaignName, dimension },
-      { ...opts, enabled },
-    ),
-  );
+  const { input, options } = useBAQueryParams();
+  return trpc.campaign.utmBreakdown.useQuery({ ...input, campaignName, dimension }, { ...options, enabled });
 }

@@ -8,13 +8,15 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
 export default function ReferrersChartsSection() {
-  const distributionQuery = useBAQuery((t, input, opts) => t.referrers.sourceAggregation.useQuery(input, opts));
-  const trendQuery = useBAQuery((t, input, opts) => t.referrers.trafficTrend.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const distributionQuery = trpc.referrers.sourceAggregation.useQuery(input, options);
+  const trendQuery = trpc.referrers.trafficTrend.useQuery(input, options);
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.referrers.charts');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });

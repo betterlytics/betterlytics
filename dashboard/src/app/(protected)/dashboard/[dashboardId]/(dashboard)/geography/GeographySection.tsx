@@ -2,12 +2,14 @@
 
 import LeafletMap from '@/components/map/LeafletMap';
 import { useTranslations } from 'next-intl';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import GeographyLoading from '@/components/loading/GeographyLoading';
 
 export default function GeographySection() {
-  const query = useBAQuery((t, input, opts) => t.geography.worldMap.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.geography.worldMap.useQuery(input, options);
   const t = useTranslations('components.geography');
 
   return (

@@ -9,29 +9,27 @@ import { useQuery } from '@tanstack/react-query';
 import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
-import DashboardLoading from '@/components/loading/DashboardLoading';
+import { type DashboardSettings } from '@/entities/dashboard/dashboardSettings.entities';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
+  initialSettings: DashboardSettings;
 };
 
-export function DashboardProvider({ children }: DashboardProviderProps) {
+export function DashboardProvider({ children, initialSettings }: DashboardProviderProps) {
   const dashboardId = useDashboardId();
 
-  const { data: initialSettings } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ['dashboard-settings', dashboardId],
     queryFn: () => getDashboardSettingsAction(dashboardId),
+    initialData: initialSettings,
   });
-
-  if (!initialSettings) {
-    return <DashboardLoading />;
-  }
 
   return (
     <CapabilitiesProvider dashboardId={dashboardId}>
-      <SettingsProvider initialSettings={initialSettings} dashboardId={dashboardId}>
+      <SettingsProvider initialSettings={settings} dashboardId={dashboardId}>
         <TimeRangeContextProvider>
           <QueryFiltersContextProvider>
             <UserJourneyFilterProvider>
@@ -51,7 +49,6 @@ function SyncURLFilters() {
   useSyncURLFilters();
   return undefined;
 }
-
 
 function PrefetchSavedFilters() {
   useSavedFilters();

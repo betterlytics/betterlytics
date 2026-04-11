@@ -2,7 +2,8 @@ import { EventTypeRow } from '@/entities/analytics/events.entities';
 import { PropertyRow } from '@/components/events/PropertyRow';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 interface ExpandedEventContentProps {
   event: EventTypeRow;
@@ -12,14 +13,13 @@ interface ExpandedEventContentProps {
 
 export function ExpandedEventContent({ event, expandedProperties, onToggleProperty }: ExpandedEventContentProps) {
   const t = useTranslations('components.events.expandedEventContent');
-  const { data: propertiesData, isLoading: propertiesLoading } = useBAQuery((t, input, options) =>
-    t.events.eventPropertiesAnalytics.useQuery(
-      {
-        ...input,
-        eventName: event.event_name,
-      },
-      options,
-    ),
+  const { input, options } = useBAQueryParams();
+  const { data: propertiesData, isLoading: propertiesLoading } = trpc.events.eventPropertiesAnalytics.useQuery(
+    {
+      ...input,
+      eventName: event.event_name,
+    },
+    options,
   );
 
   return (

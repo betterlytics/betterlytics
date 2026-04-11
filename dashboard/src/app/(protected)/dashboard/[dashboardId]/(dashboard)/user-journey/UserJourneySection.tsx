@@ -3,13 +3,15 @@
 import { Card, CardContent } from '@/components/ui/card';
 import UserJourneyChart from './UserJourneyChart';
 import { useTranslations } from 'next-intl';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
-  const query = useBAQuery((t, input, opts) => t.userJourney.journey.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.userJourney.journey.useQuery(input, options);
 
   return (
     <QuerySection

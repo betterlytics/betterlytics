@@ -14,7 +14,8 @@ import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { Spinner } from '@/components/ui/spinner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -39,10 +40,9 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number, locale: 
 export default function WeeklyHeatmapSection() {
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
+  const { input, options } = useBAQueryParams();
 
-  const query = useBAQuery((t, input, opts) =>
-    t.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, opts),
-  );
+  const query = trpc.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, options);
 
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
