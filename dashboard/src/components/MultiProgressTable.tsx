@@ -9,7 +9,7 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { Skeleton } from '@/components/ui/skeleton';
+import { TableSkeleton } from './skeleton';
 
 interface ProgressBarData {
   label: string;
@@ -178,12 +178,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       if (tab.loading) {
         return (
           <div className='space-y-4 py-2'>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className='flex justify-between'>
-                <Skeleton className='h-4 w-2/3' />
-                <Skeleton className='h-4 w-1/4' />
-              </div>
-            ))}
+            <TableSkeleton tableOnly />
           </div>
         );
       }
