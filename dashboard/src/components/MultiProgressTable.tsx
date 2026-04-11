@@ -9,6 +9,7 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProgressBarData {
   label: string;
@@ -176,8 +177,13 @@ function MultiProgressTable<T extends ProgressBarData>({
     (tab: TabConfig<T>) => {
       if (tab.loading) {
         return (
-          <div className='flex h-40 items-center justify-center'>
-            <Spinner />
+          <div className='space-y-4 py-2'>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className='flex justify-between'>
+                <Skeleton className='h-4 w-2/3' />
+                <Skeleton className='h-4 w-1/4' />
+              </div>
+            ))}
           </div>
         );
       }
@@ -210,7 +216,7 @@ function MultiProgressTable<T extends ProgressBarData>({
           <TabsTrigger
             key={tab.key}
             value={tab.key}
-            className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent dark:data-[state=active]:bg-transparent dark:data-[state=active]:border-transparent data-[state=active]:shadow-none'
+            className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-transparent'
           >
             {tab.label}
           </TabsTrigger>
@@ -245,7 +251,7 @@ function MultiProgressTable<T extends ProgressBarData>({
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent className='flex-1 px-0'>
+      <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           {tabsContent}
         </Tabs>

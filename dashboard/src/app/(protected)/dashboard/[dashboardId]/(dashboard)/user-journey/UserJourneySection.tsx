@@ -5,7 +5,7 @@ import UserJourneyChart from './UserJourneyChart';
 import { useTranslations } from 'next-intl';
 import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
-import { Spinner } from '@/components/ui/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
@@ -15,13 +15,16 @@ export default function UserJourneySection() {
     <QuerySection
       query={query}
       fallback={
-        <div className='relative min-h-[400px]'>
-          <div className='bg-background/70 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm'>
-            <div className='flex flex-col items-center'>
-              <Spinner size='lg' className='mb-2' />
-              <p className='text-muted-foreground'>Loading journey data...</p>
+        <div className='space-y-6 p-4'>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className='flex items-center gap-3'>
+              <Skeleton className='h-10 w-28 rounded' />
+              <Skeleton className='h-1 w-12' />
+              <Skeleton className='h-10 w-28 rounded' />
+              <Skeleton className='h-1 w-12' />
+              <Skeleton className='h-10 w-28 rounded' />
             </div>
-          </div>
+          ))}
         </div>
       }
     >
