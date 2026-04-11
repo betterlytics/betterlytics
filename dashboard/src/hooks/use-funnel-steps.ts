@@ -73,6 +73,14 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
     );
   }, []);
 
+  const replaceFiltersInStep = useCallback((stepId: string, filters: QueryFilter[]) => {
+    setFunnelSteps((steps) =>
+      steps.map((step) =>
+        step.id === stepId ? { ...step, filters } : step,
+      ),
+    );
+  }, []);
+
   return {
     funnelSteps,
     addFunnelStep,
@@ -83,5 +91,6 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
     addFilterToStep,
     updateFilterInStep,
     removeFilterFromStep,
+    replaceFiltersInStep,
   };
 }

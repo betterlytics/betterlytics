@@ -24,6 +24,7 @@ type FunnelDialogContentProps = {
   addFilterToStep: ReturnType<typeof useFunnelDialog>['addFilterToStep'];
   updateFilterInStep: ReturnType<typeof useFunnelDialog>['updateFilterInStep'];
   removeFilterFromStep: ReturnType<typeof useFunnelDialog>['removeFilterFromStep'];
+  replaceFiltersInStep: ReturnType<typeof useFunnelDialog>['replaceFiltersInStep'];
   searchableFunnelSteps: ReturnType<typeof useFunnelDialog>['searchableFunnelSteps'];
   funnelPreview: ReturnType<typeof useFunnelDialog>['funnelPreview'];
   emptySteps: ReturnType<typeof useFunnelDialog>['emptySteps'];
@@ -51,6 +52,7 @@ export function FunnelDialogContent({
   addFilterToStep,
   updateFilterInStep,
   removeFilterFromStep,
+  replaceFiltersInStep,
   searchableFunnelSteps,
   funnelPreview,
   emptySteps,
@@ -141,6 +143,7 @@ export function FunnelDialogContent({
                   onFilterAdd={addFilterToStep}
                   onFilterUpdate={updateFilterInStep}
                   onFilterRemove={removeFilterFromStep}
+                  onFiltersReplace={replaceFiltersInStep}
                   requestRemoval={() => removeFunnelStep(step.id)}
                   showEmptyError={hasAttemptedSubmit}
                 />

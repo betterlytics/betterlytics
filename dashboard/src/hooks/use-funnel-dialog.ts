@@ -33,6 +33,7 @@ export function useFunnelDialog({
     addFilterToStep,
     updateFilterInStep,
     removeFilterFromStep,
+    replaceFiltersInStep,
   } = useFunnelSteps(initialSteps);
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: initialName,
@@ -128,5 +129,6 @@ export function useFunnelDialog({
     addFilterToStep,
     updateFilterInStep,
     removeFilterFromStep,
+    replaceFiltersInStep,
   };
 }

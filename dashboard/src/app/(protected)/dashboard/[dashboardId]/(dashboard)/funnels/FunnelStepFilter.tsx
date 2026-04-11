@@ -14,6 +14,7 @@ type FunnelStepFilterProps = {
   onFilterAdd: (stepId: string, filter: QueryFilter) => void;
   onFilterUpdate: (stepId: string, filter: QueryFilter) => void;
   onFilterRemove: (stepId: string, filterId: string) => void;
+  onFiltersReplace: (stepId: string, filters: QueryFilter[]) => void;
   requestRemoval: () => void;
   disableDeletion?: boolean;
   showEmptyError?: boolean;
@@ -25,6 +26,7 @@ export function FunnelStepFilter({
   onFilterAdd,
   onFilterUpdate,
   onFilterRemove,
+  onFiltersReplace,
   requestRemoval,
   disableDeletion,
   showEmptyError,
@@ -49,6 +51,11 @@ export function FunnelStepFilter({
     [step.id, onFilterRemove],
   );
 
+  const handleFiltersReplace = useCallback(
+    (filters: QueryFilter[]) => onFiltersReplace(step.id, filters),
+    [step.id, onFiltersReplace],
+  );
+
   return (
     <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
@@ -64,6 +71,7 @@ export function FunnelStepFilter({
           onFilterAdd={handleFilterAdd}
           onFilterUpdate={handleFilterUpdate}
           onFilterRemove={handleFilterRemove}
+          onFiltersReplace={handleFiltersReplace}
           showError={showFilterEmptyError}
         />
       </div>

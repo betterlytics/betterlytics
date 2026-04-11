@@ -48,6 +48,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     addFilterToStep,
     updateFilterInStep,
     removeFilterFromStep,
+    replaceFiltersInStep,
   } = useFunnelDialog({
     dashboardId,
     initialName: '',
@@ -124,6 +125,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           addFilterToStep={addFilterToStep}
           updateFilterInStep={updateFilterInStep}
           removeFilterFromStep={removeFilterFromStep}
+          replaceFiltersInStep={replaceFiltersInStep}
           searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}

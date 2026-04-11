@@ -4,13 +4,13 @@ import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { type ReactNode, useCallback, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { FilterIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { BAMultiSelect } from '@/components/ui/ba-multi-select';
 import { formatQueryFilter } from '@/utils/queryFilterFormatters';
 import { generateTempId } from '@/utils/temporaryId';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
+import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 type PopoverState =
   | { type: 'closed' }
@@ -23,6 +23,7 @@ type FilterBadgeMultiSelectProps = {
   onFilterAdd: (filter: QueryFilter) => void;
   onFilterUpdate: (filter: QueryFilter) => void;
   onFilterRemove: (filterId: string) => void;
+  onFiltersReplace: (filters: QueryFilter[]) => void;
   className?: string;
   showError?: boolean;
 };
@@ -36,11 +37,20 @@ export function FilterBadgeMultiSelect({
   onFilterAdd,
   onFilterUpdate,
   onFilterRemove,
+  onFiltersReplace,
   className,
   showError,
 }: FilterBadgeMultiSelectProps) {
   const t = useTranslations('components.filters');
   const locale = useLocale();
+
+  const handleFullApply = useCallback(
+    (applied: QueryFilter[]) => {
+      onFiltersReplace(applied);
+      setPopoverState({ type: 'closed' });
+    },
+    [onFiltersReplace],
+  );
 
   const [popoverState, setPopoverState] = useState<PopoverState>({ type: 'closed' });
   const [newFilter, setNewFilter] = useState<QueryFilter>(() => createEmptyFilter());
@@ -142,24 +152,11 @@ export function FilterBadgeMultiSelect({
         )}
 
         {popoverState.type === 'full' && (
-          <div className='space-y-2'>
-            {filters.map((filter) => (
-              <QueryFilterInputRow
-                key={filter.id}
-                filter={filter}
-                onFilterUpdate={onFilterUpdate}
-                requestRemoval={() => onFilterRemove(filter.id)}
-              />
-            ))}
-            <Button
-              variant='ghost'
-              size='sm'
-              className='cursor-pointer'
-              onClick={() => onFilterAdd(createEmptyFilter())}
-            >
-              {t('selector.addFilter')}
-            </Button>
-          </div>
+          <QueryFiltersSelectorContent
+            initialFilters={filters}
+            onApply={handleFullApply}
+            onCancel={closePopover}
+          />
         )}
       </PopoverContent>
     </Popover>

@@ -44,6 +44,7 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
     addFilterToStep,
     updateFilterInStep,
     removeFilterFromStep,
+    replaceFiltersInStep,
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
@@ -126,6 +127,7 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
           addFilterToStep={addFilterToStep}
           updateFilterInStep={updateFilterInStep}
           removeFilterFromStep={removeFilterFromStep}
+          replaceFiltersInStep={replaceFiltersInStep}
           searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}
