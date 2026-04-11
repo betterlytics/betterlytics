@@ -34,7 +34,7 @@ export default function QueryFiltersSelector() {
   const analyticsQuery = useAnalyticsQuery();
 
   const { data: globalPropertyKeys = [], isLoading: isLoadingPropertyKeys } = useQuery({
-    queryKey: ['global-property-keys', analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
+    queryKey: ['global-property-keys', dashboardId, analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
     queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
     staleTime: 5 * 60 * 1000,
     gcTime: 5 * 60 * 1000,
