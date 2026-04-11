@@ -17,11 +17,12 @@ import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
+import { BAHourlyQuery } from '@/lib/ba-hourly-query';
 
 export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<DeviceType[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BAHourlyQuery.canUseOverviewHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['visitor_id', 'device_type'],
       queryFilters,
@@ -43,11 +44,13 @@ export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<De
     );
   }
 
+  const filters = BAHourlyQuery.getOverviewHourlyFilters(queryFilters);
   const query = safeSql`
     SELECT device_type, uniqMerge(visitors) as visitors
     FROM analytics.overview_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND ${SQL.AND(filters)}
     GROUP BY device_type
     ORDER BY visitors DESC
   `;
@@ -61,7 +64,7 @@ export async function getDeviceTypeBreakdown(siteQuery: BASiteQuery): Promise<De
 export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<BrowserInfo[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BAHourlyQuery.canUseOverviewHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['browser', 'visitor_id'],
       queryFilters,
@@ -84,12 +87,14 @@ export async function getBrowserBreakdown(siteQuery: BASiteQuery): Promise<Brows
     );
   }
 
+  const filters = BAHourlyQuery.getOverviewHourlyFilters(queryFilters);
   const query = safeSql`
     SELECT browser, uniqMerge(visitors) as visitors
     FROM analytics.overview_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
       AND browser != ''
+      AND ${SQL.AND(filters)}
     GROUP BY browser
     ORDER BY visitors DESC
   `;
@@ -131,7 +136,7 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
 export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promise<OperatingSystemInfo[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BAHourlyQuery.canUseOverviewHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['os', 'visitor_id'],
       queryFilters,
@@ -154,12 +159,14 @@ export async function getOperatingSystemBreakdown(siteQuery: BASiteQuery): Promi
     );
   }
 
+  const filters = BAHourlyQuery.getOverviewHourlyFilters(queryFilters);
   const query = safeSql`
     SELECT os, uniqMerge(visitors) as visitors
     FROM analytics.overview_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
       AND os != ''
+      AND ${SQL.AND(filters)}
     GROUP BY os
     ORDER BY visitors DESC
   `;

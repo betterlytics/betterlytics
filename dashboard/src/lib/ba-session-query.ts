@@ -5,18 +5,6 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-
-const HOURLY_MV_COMPATIBLE_GRANULARITIES: Set<GranularityRangeValues> = new Set([
-  'hour',
-  'day',
-  'week',
-  'month',
-]);
-
-function canUseHourlyMV(siteQuery: BASiteQuery): boolean {
-  return siteQuery.queryFilters.length === 0 && HOURLY_MV_COMPATIBLE_GRANULARITIES.has(siteQuery.granularity);
-}
 
 // Filters
 const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
@@ -276,7 +264,6 @@ function getSessionStartRange(
 }
 
 export const BASessionQuery = {
-  canUseHourlyMV,
   getSessionStartRange,
   getSessionTableSubQuery,
 };

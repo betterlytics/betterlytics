@@ -4,11 +4,12 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
+import { BAHourlyQuery } from '@/lib/ba-hourly-query';
 
 export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BAHourlyQuery.canUseGeoHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['country_code', 'visitor_id'],
       queryFilters,
@@ -37,12 +38,14 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
     );
   }
 
+  const filters = BAHourlyQuery.getGeoHourlyFilters(queryFilters);
   const query = safeSql`
     SELECT country_code, uniqMerge(visitors) as visitors
-    FROM analytics.overview_hourly
+    FROM analytics.geo_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
       AND country_code != ''
+      AND ${SQL.AND(filters)}
     GROUP BY country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
@@ -65,7 +68,7 @@ export async function getVisitorsBySubdivision(
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BAHourlyQuery.canUseGeoHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['subdivision_code', 'country_code', 'visitor_id'],
       queryFilters,
@@ -98,12 +101,14 @@ export async function getVisitorsBySubdivision(
     );
   }
 
+  const filters = BAHourlyQuery.getGeoHourlyFilters(queryFilters);
   const query = safeSql`
     SELECT subdivision_code AS code, country_code, uniqMerge(visitors) as visitors
     FROM analytics.geo_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
       AND subdivision_code != ''
+      AND ${SQL.AND(filters)}
     GROUP BY code, country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
@@ -127,7 +132,7 @@ export async function getVisitorsBySubdivision(
 export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 
-  if (!BASessionQuery.canUseHourlyMV(siteQuery)) {
+  if (!BAHourlyQuery.canUseGeoHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['city', 'subdivision_code', 'country_code', 'visitor_id'],
       queryFilters,
@@ -161,12 +166,14 @@ export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 
     );
   }
 
+  const filters = BAHourlyQuery.getGeoHourlyFilters(queryFilters);
   const query = safeSql`
     SELECT city AS code, subdivision_code, country_code, uniqMerge(visitors) as visitors
     FROM analytics.geo_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
       AND city != ''
+      AND ${SQL.AND(filters)}
     GROUP BY code, subdivision_code, country_code
     ORDER BY visitors DESC
     LIMIT {limit:UInt32}
