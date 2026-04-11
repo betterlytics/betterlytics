@@ -4,62 +4,13 @@ import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { safeSql, SQL } from './safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BAQuery } from './ba-query';
+import { canUseHourlyMVBoundaries } from './ba-hourly-query';
 
 const MV_COMPATIBLE_COLUMNS = new Set<QueryFilter['column']>(['url']);
 
-const HOUR_MS = 3_600_000;
-
-// Returns true when the page_stats MV can produce exact results.
-//
-// Two boundary conditions must hold:
-//
-// Start boundary: start must be hour-aligned. If it isn't, the first bucket
-// (toStartOfHour(start)) would include events before start.
-//
-// End boundary: the last bucket must not contain events after `end` that exist
-// in the database. Three safe patterns:
-//
-//   a) end >= now — the last bucket covers [lastHour, lastHour+1h), which
-//      extends past `end`. But events after `end` don't exist yet (they're in
-//      the future), so the bucket only contains data up to now = end.
-//
-//   b) (end + 1s) % 1h === 0 — end is 1 second before a full-hour boundary.
-//      This is the standard convention from ba-timerange.ts: getResolvedRanges
-//      always subtracts 1s from range ends, so "yesterday" becomes 23:59:59,
-//      "last 7 days" ends at 23:59:59, etc. The last bucket (23:00) contains
-//      only events with timestamps ≤ 23:59:59, which is exactly our range.
-//
-//   c) end % 1h === 0 — exact hour boundary (defensive; ba-timerange never
-//      produces this, but custom callers might). toStartOfHour(end - 1s) = the
-//      previous complete hour bucket, whose events are all strictly < end.
-//
-// The MV SQL uses toStartOfHour(subtractSeconds(end, 1)) as the upper bound,
-// which resolves all three cases without extra parameters.
 function canUseMv(siteQuery: BASiteQuery): boolean {
   if (!siteQuery.queryFilters.every((f) => MV_COMPATIBLE_COLUMNS.has(f.column))) return false;
-
-  const startMs = new Date(siteQuery.startDateTime).getTime();
-  const endMs = new Date(siteQuery.endDateTime).getTime();
-  const nowMs = Date.now();
-
-  // Start must be on an exact hour boundary
-  if (startMs % HOUR_MS !== 0) return false;
-
-  const endIsCurrentOrFuture = endMs >= nowMs;
-  // True when end falls on a clean hour boundary (either XX:00:00 or XX:59:59, the
-  // ba-timerange -1s convention). Both forms mean no partial bucket spills past end.
-  const endIsHourBoundary = endMs % HOUR_MS === 0 || (endMs + 1000) % HOUR_MS === 0;
-
-  if (!endIsCurrentOrFuture && !endIsHourBoundary) return false;
-
-  // Compute the last MV bucket safely includable.
-  // For exact hour (e.g. today 00:00): skip that bucket, it includes post-end events.
-  // For 23:59:59 or real-time: toStartOfHour(end) is the correct last bucket.
-  const isExactHour = endMs % HOUR_MS === 0;
-  const effectiveEndHourMs =
-    isExactHour && !endIsCurrentOrFuture ? endMs - HOUR_MS : Math.floor(endMs / HOUR_MS) * HOUR_MS;
-
-  return effectiveEndHourMs >= startMs;
+  return canUseHourlyMVBoundaries(siteQuery);
 }
 
 function buildColumnFilter(queryFilters: QueryFilter[], targetColumn: string, paramPrefix: string) {

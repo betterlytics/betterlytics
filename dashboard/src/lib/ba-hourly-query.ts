@@ -5,7 +5,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { safeSql, SQL } from './safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-const HOUR_MS = 3_600_000;
+export const HOUR_MS = 3_600_000;
 
 const HOURLY_MV_COMPATIBLE_GRANULARITIES: Set<GranularityRangeValues> = new Set(['hour', 'day', 'week', 'month']);
 
@@ -27,11 +27,10 @@ const GEO_HOURLY_COMPATIBLE_COLUMNS = new Set<QueryFilter['column']>(['country_c
 //   a) end >= now (future sessions don't exist yet, so no overcount possible.)
 //   b) (end + 1s) % 1h === 0 (the ba-timerange -1s convention (e.g. 23:59:59).)
 //      toStartOfHour(23:59:59) = 23:00, whose sessions all fall within our range.
-function canUseHourlyMVBoundaries(siteQuery: BASiteQuery): boolean {
-  if (!HOURLY_MV_COMPATIBLE_GRANULARITIES.has(siteQuery.granularity)) return false;
-
-  const startMs = siteQuery.startDate.getTime();
-  const endMs = siteQuery.endDate.getTime();
+//   c) end % 1h === 0 (exact hour boundary.)
+export function isHourAlignedRange(startDateTime: string, endDateTime: string): boolean {
+  const startMs = new Date(startDateTime).getTime();
+  const endMs = new Date(endDateTime).getTime();
   const nowMs = Date.now();
 
   if (startMs % HOUR_MS !== 0) return false;
@@ -40,6 +39,11 @@ function canUseHourlyMVBoundaries(siteQuery: BASiteQuery): boolean {
   const endIsHourBoundary = (endMs + 1000) % HOUR_MS === 0;
 
   return endIsCurrentOrFuture || endIsHourBoundary;
+}
+
+export function canUseHourlyMVBoundaries(siteQuery: BASiteQuery): boolean {
+  if (!HOURLY_MV_COMPATIBLE_GRANULARITIES.has(siteQuery.granularity)) return false;
+  return isHourAlignedRange(siteQuery.startDateTime, siteQuery.endDateTime);
 }
 
 export function canUseOverviewHourlyMV(siteQuery: BASiteQuery): boolean {
