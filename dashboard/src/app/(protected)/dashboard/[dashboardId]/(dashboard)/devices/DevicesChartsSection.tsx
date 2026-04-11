@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
-import { QuerySection, mergeQueries } from '@/components/QuerySection';
+import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
 export default function DevicesChartsSection() {
@@ -22,30 +22,34 @@ export default function DevicesChartsSection() {
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   return (
-    <QuerySection query={mergeQueries(trendQuery, breakdownQuery)} fallback={<ChartSkeleton />} distributed>
-      {([trend, breakdown]) => (
-        <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
-          <QuerySection.Item className='xl:col-span-5'>
-            <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-              <CardHeader className='px-0 pb-0'>
-                <CardTitle className='text-base font-medium'>{t('deviceUsageTrend')}</CardTitle>
-              </CardHeader>
-              <CardContent className='px-0'>
+    <div className='grid grid-cols-1 gap-3 xl:grid-cols-8'>
+      <QuerySection.Item className='xl:col-span-5'>
+        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('deviceUsageTrend')}</CardTitle>
+          </CardHeader>
+          <CardContent className='px-0'>
+            <QuerySection query={trendQuery} fallback={<ChartSkeleton chartOnly />}>
+              {(trend) => (
                 <DeviceUsageTrendChart
                   chartData={trend.data}
                   categories={trend.categories}
                   comparisonMap={trend.comparisonMap}
                   granularity={granularity}
                 />
-              </CardContent>
-            </Card>
-          </QuerySection.Item>
-          <QuerySection.Item className='xl:col-span-3'>
-            <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-              <CardHeader className='px-0 pb-0'>
-                <CardTitle className='text-base font-medium'>{t('deviceTypes')}</CardTitle>
-              </CardHeader>
-              <CardContent className='flex flex-1 flex-col px-0'>
+              )}
+            </QuerySection>
+          </CardContent>
+        </Card>
+      </QuerySection.Item>
+      <QuerySection.Item className='xl:col-span-3'>
+        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('deviceTypes')}</CardTitle>
+          </CardHeader>
+          <CardContent className='flex flex-1 flex-col px-0'>
+            <QuerySection query={breakdownQuery} fallback={<ChartSkeleton chartOnly />}>
+              {(breakdown) => (
                 <BAPieChart
                   data={breakdown}
                   getColor={getDeviceColor}
@@ -53,11 +57,11 @@ export default function DevicesChartsSection() {
                   getIcon={(name: string) => <DeviceIcon type={name} className='h-4 w-4' />}
                   onSliceClick={makeFilterClick('device_type')}
                 />
-              </CardContent>
-            </Card>
-          </QuerySection.Item>
-        </div>
-      )}
-    </QuerySection>
+              )}
+            </QuerySection>
+          </CardContent>
+        </Card>
+      </QuerySection.Item>
+    </div>
   );
 }
