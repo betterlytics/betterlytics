@@ -2,7 +2,6 @@
 
 import { CreateSavedFilterSchema } from '@/entities/analytics/savedFilters.entities';
 import {
-  getSavedFiltersForDashboard,
   createSavedFilterForDashboard,
   deleteSavedFilterFromDashboard,
   restoreSavedFilterFromDashboard,
@@ -17,10 +16,6 @@ type SavedFilterEntryInput = {
   operator: FilterOperator;
   values: string[];
 };
-
-export const fetchSavedFiltersAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return getSavedFiltersForDashboard(ctx.dashboardId);
-});
 
 export const createSavedFilterAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, name: string, entries: SavedFilterEntryInput[]) => {
@@ -44,7 +39,3 @@ export const restoreSavedFilterAction = withDashboardMutationAuthContext(
     return restoreSavedFilterFromDashboard(ctx.dashboardId, filterId);
   },
 );
-
-export const isSavedFiltersLimitReachedAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return isSavedFiltersLimitReached(ctx.dashboardId);
-});

@@ -1,9 +1,9 @@
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { MinimalFooter } from '@/components/footer/MinimalFooter';
 
 export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
   return (
     <div className='bg-background min-h-svh w-full overflow-x-hidden'>

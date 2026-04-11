@@ -23,6 +23,7 @@ interface TabbedPagesTableProps {
   allPagesLoading?: boolean;
   entryPagesLoading?: boolean;
   exitPagesLoading?: boolean;
+  loading?: boolean;
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
@@ -38,6 +39,7 @@ export default function TabbedPagesTable({
   allPagesLoading,
   entryPagesLoading,
   exitPagesLoading,
+  loading,
   activeTab,
   onTabChange,
 }: TabbedPagesTableProps) {
@@ -197,6 +199,7 @@ export default function TabbedPagesTable({
   return (
     <TabbedTable
       title={t('title')}
+      loading={loading}
       tabs={tableTabs}
       defaultTab='all'
       tabValue={activeTab}

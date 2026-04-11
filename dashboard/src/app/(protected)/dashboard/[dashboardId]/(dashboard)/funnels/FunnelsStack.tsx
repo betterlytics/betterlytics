@@ -9,19 +9,21 @@ import { QuerySection } from '@/components/QuerySection';
 export function FunnelsStack() {
   const query = useBAQuery((t, input, opts) => t.funnels.list.useQuery(input, opts));
   return (
-    <QuerySection query={query} fallback={<FunnelsStackSkeleton />}>
+    <QuerySection query={query} fallback={<FunnelsStackSkeleton />} distributed>
       {(funnels) => {
         if (!funnels.length) return <FunnelsEmptyState />;
         return (
           <div className='space-y-10'>
             {funnels.map((funnel, i) => (
-              <div key={funnel.id + i} className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
-                <div className='flex w-full items-center justify-between'>
-                  <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
-                  <FunnelActionButtons funnel={funnel} />
+              <QuerySection.Item key={funnel.id + i}>
+                <div className='bg-card w-full gap-10 space-y-4 rounded-xl border p-2'>
+                  <div className='flex w-full items-center justify-between'>
+                    <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
+                    <FunnelActionButtons funnel={funnel} />
+                  </div>
+                  <FunnelBarplot funnel={funnel} />
                 </div>
-                <FunnelBarplot funnel={funnel} />
-              </div>
+              </QuerySection.Item>
             ))}
           </div>
         );

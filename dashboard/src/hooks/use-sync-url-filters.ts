@@ -21,7 +21,6 @@ const URL_SEARCH_PARAMS = [
 ] as const;
 
 export function useSyncURLFilters() {
-  const router = useBARouter();
   const searchParams = useSearchParams();
   const applyingFromUrlRef = useRef<boolean>(false);
 
@@ -149,7 +148,10 @@ export function useSyncURLFilters() {
 
       if (nextParams.toString() === currentParamsString) return;
 
-      const updateRouteTimeout = setTimeout(() => router.push(`?${nextParams.toString()}`, { scroll: false }), 10);
+      const updateRouteTimeout = setTimeout(
+        () => window.history.pushState(null, '', `?${nextParams.toString()}`),
+        10,
+      );
       return () => clearTimeout(updateRouteTimeout);
     } catch (error) {
       console.error('Failed to add filters:', error);
@@ -167,7 +169,6 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
-    router,
   ]);
 }
 

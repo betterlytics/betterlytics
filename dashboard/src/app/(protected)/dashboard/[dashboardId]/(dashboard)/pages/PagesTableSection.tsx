@@ -17,14 +17,18 @@ export default function PagesTableSection() {
     t.pages.exitPageAnalytics.useQuery(input, { ...opts, enabled: activeTab === 'exit' }),
   );
 
+  const queries = { all: pagesQuery, entry: entryPagesQuery, exit: exitPagesQuery };
+  const activeQuery = queries[activeTab as keyof typeof queries];
+
   return (
     <TabbedPagesTable
       allPagesData={pagesQuery.data ?? []}
       entryPagesData={entryPagesQuery.data ?? []}
       exitPagesData={exitPagesQuery.data ?? []}
-      allPagesLoading={pagesQuery.isLoading}
-      entryPagesLoading={entryPagesQuery.isLoading}
-      exitPagesLoading={exitPagesQuery.isLoading}
+      allPagesLoading={pagesQuery.isFetching && !pagesQuery.data}
+      entryPagesLoading={entryPagesQuery.isFetching && !entryPagesQuery.data}
+      exitPagesLoading={exitPagesQuery.isFetching && !exitPagesQuery.data}
+      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     />

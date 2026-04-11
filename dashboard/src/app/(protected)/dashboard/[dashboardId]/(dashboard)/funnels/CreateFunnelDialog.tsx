@@ -15,6 +15,7 @@ import { ComponentProps, useCallback, useMemo, useState } from 'react';
 import { postFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { toast } from 'sonner';
+import { trpc } from '@/trpc/client';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
 import { generateTempId } from '@/utils/temporaryId';
@@ -31,6 +32,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const dashboardId = useDashboardId();
+  const utils = trpc.useUtils();
   const {
     metadata,
     setName,
@@ -75,6 +77,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
         setHasAttemptedSubmit(false);
         setIsOpen(false);
         toast.success(t('create.successMessage'));
+        utils.funnels.list.invalidate({ dashboardId });
         reset({
           name: '',
           isStrict: false,
@@ -87,7 +90,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t]);
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t, utils]);
 
   return (
     <Dialog

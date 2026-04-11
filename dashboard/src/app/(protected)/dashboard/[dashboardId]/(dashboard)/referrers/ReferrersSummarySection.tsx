@@ -14,7 +14,7 @@ export default function ReferrersSummarySection() {
   const t = useTranslations('components.referrers.summary');
 
   return (
-    <QuerySection query={query} fallback={<SummaryCardsSkeleton count={4} />}>
+    <QuerySection query={query} fallback={<SummaryCardsSkeleton count={4} />} distributed>
       {(summaryData) => {
         const referralPercentage =
           summaryData.totalSessions > 0 ? (summaryData.referralSessions / summaryData.totalSessions) * 100 : 0;

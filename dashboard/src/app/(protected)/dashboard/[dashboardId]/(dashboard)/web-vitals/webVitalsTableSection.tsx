@@ -271,13 +271,16 @@ export default function WebVitalsTableSection() {
 
   const defaultSorting = useMemo(() => [{ id: 'LCP', desc: true }], []);
 
+  const queries = { pages: urlQuery, devices: devicesQuery, countries: countriesQuery, browsers: browsersQuery, os: osQuery };
+  const activeQuery = queries[activeTab as keyof typeof queries];
+
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
-      { key: 'pages', label: t('tabs.pages'), data: urlQuery.data ?? [], columns: pageColumns, defaultSorting, loading: urlQuery.isLoading },
-      { key: 'devices', label: t('tabs.devices'), data: devicesQuery.data ?? [], columns: deviceColumns, defaultSorting, loading: devicesQuery.isLoading },
-      { key: 'countries', label: t('tabs.countries'), data: countriesQuery.data ?? [], columns: countryColumns, defaultSorting, loading: countriesQuery.isLoading },
-      { key: 'browsers', label: t('tabs.browsers'), data: browsersQuery.data ?? [], columns: browserColumns, defaultSorting, loading: browsersQuery.isLoading },
-      { key: 'os', label: t('tabs.operatingSystems'), data: osQuery.data ?? [], columns: osColumns, defaultSorting, loading: osQuery.isLoading },
+      { key: 'pages', label: t('tabs.pages'), data: urlQuery.data ?? [], columns: pageColumns, defaultSorting, loading: urlQuery.isFetching && !urlQuery.data },
+      { key: 'devices', label: t('tabs.devices'), data: devicesQuery.data ?? [], columns: deviceColumns, defaultSorting, loading: devicesQuery.isFetching && !devicesQuery.data },
+      { key: 'countries', label: t('tabs.countries'), data: countriesQuery.data ?? [], columns: countryColumns, defaultSorting, loading: countriesQuery.isFetching && !countriesQuery.data },
+      { key: 'browsers', label: t('tabs.browsers'), data: browsersQuery.data ?? [], columns: browserColumns, defaultSorting, loading: browsersQuery.isFetching && !browsersQuery.data },
+      { key: 'os', label: t('tabs.operatingSystems'), data: osQuery.data ?? [], columns: osColumns, defaultSorting, loading: osQuery.isFetching && !osQuery.data },
     ],
     [
       urlQuery.data,
@@ -285,11 +288,11 @@ export default function WebVitalsTableSection() {
       countriesQuery.data,
       browsersQuery.data,
       osQuery.data,
-      urlQuery.isLoading,
-      devicesQuery.isLoading,
-      countriesQuery.isLoading,
-      browsersQuery.isLoading,
-      osQuery.isLoading,
+      urlQuery.isFetching,
+      devicesQuery.isFetching,
+      countriesQuery.isFetching,
+      browsersQuery.isFetching,
+      osQuery.isFetching,
       pageColumns,
       deviceColumns,
       countryColumns,
@@ -366,6 +369,7 @@ export default function WebVitalsTableSection() {
   return (
     <TabbedTable
       title={t('title')}
+      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
       tabs={tabs}
       defaultTab='pages'
       tabValue={activeTab}

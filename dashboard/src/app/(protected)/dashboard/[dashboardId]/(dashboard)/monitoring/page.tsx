@@ -1,5 +1,6 @@
-import { fetchMonitorChecksAction } from '@/app/actions/analytics/monitoring.actions';
+import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
 import { getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
+import { requireAuth, getCachedAuthorizedContext } from '@/auth/auth-actions';
 import { getUserTimezone } from '@/lib/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
@@ -15,9 +16,13 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
   }
 
   const { dashboardId } = await params;
+  const session = await requireAuth();
+  const authCtx = await getCachedAuthorizedContext(session.user.id, dashboardId);
+  if (!authCtx) notFound();
+
   const timezone = await getUserTimezone();
   const [monitors, dashboard] = await Promise.all([
-    fetchMonitorChecksAction(dashboardId, timezone),
+    getMonitorChecksWithStatus(authCtx.dashboardId, authCtx.siteId, timezone),
     getCurrentDashboardAction(dashboardId),
   ]);
 
