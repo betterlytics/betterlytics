@@ -16,7 +16,15 @@ export default function PagesSummarySection() {
   const t = useTranslations('components.pages.summary');
 
   return (
-    <QuerySection query={query} fallback={<SummaryCardsSkeleton />} distributed>
+    <QuerySection
+      query={query}
+      fallback={
+        <SummaryCardsSkeleton
+          titles={[t('pagesPerSession'), t('totalPageviews'), t('avgTimeOnPage'), t('avgBounceRate')]}
+        />
+      }
+      distributed
+    >
       {(summaryWithCharts) => {
         const cards: SummaryCardData[] = [
           {

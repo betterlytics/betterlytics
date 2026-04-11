@@ -11,7 +11,7 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { QuerySection, mergeQueries } from '@/components/QuerySection';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
-import { ChartSkeleton } from '@/components/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ReferrersChartsSection() {
   const { input, options } = useBAQueryParams();
@@ -22,50 +22,45 @@ export default function ReferrersChartsSection() {
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   return (
-    <QuerySection
-      query={mergeQueries(distributionQuery, trendQuery)}
-      fallback={
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-          <ChartSkeleton />
-          <ChartSkeleton />
-        </div>
-      }
-      distributed
-    >
-      {([distributionData, trendResult]) => (
-        <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
-          <QuerySection.Item className='xl:col-span-5'>
-            <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-              <CardHeader className='px-0 pb-0'>
-                <CardTitle className='text-base font-medium'>{t('trafficTrends')}</CardTitle>
-              </CardHeader>
-              <CardContent className='px-0'>
+    <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
+      <QuerySection.Item className='xl:col-span-5'>
+        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('trafficTrends')}</CardTitle>
+          </CardHeader>
+          <CardContent className='px-0'>
+            <QuerySection query={trendQuery} fallback={<Skeleton className='mt-10 h-[300px] w-full' />}>
+              {(trendResult) => (
                 <ReferrerTrafficTrendChart
                   chartData={trendResult.data}
                   categories={trendResult.categories}
                   comparisonMap={trendResult.comparisonMap}
                   granularity={granularity}
                 />
-              </CardContent>
-            </Card>
-          </QuerySection.Item>
-          <QuerySection.Item className='xl:col-span-3'>
-            <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-              <CardHeader className='px-0 pb-0'>
-                <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
-              </CardHeader>
-              <CardContent className='flex flex-1 flex-col px-0'>
+              )}
+            </QuerySection>
+          </CardContent>
+        </Card>
+      </QuerySection.Item>
+      <QuerySection.Item className='xl:col-span-3'>
+        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+          <CardHeader className='px-0 pb-0'>
+            <CardTitle className='text-base font-medium'>{t('distribution')}</CardTitle>
+          </CardHeader>
+          <CardContent className='flex flex-1 flex-col px-0'>
+            <QuerySection query={distributionQuery} fallback={<Skeleton className='h-[300px] flex-1' />}>
+              {(distributionData) => (
                 <BAPieChart
                   data={distributionData}
                   getColor={getReferrerColor}
                   getLabel={capitalizeFirstLetter}
                   onSliceClick={makeFilterClick('referrer_source')}
                 />
-              </CardContent>
-            </Card>
-          </QuerySection.Item>
-        </div>
-      )}
-    </QuerySection>
+              )}
+            </QuerySection>
+          </CardContent>
+        </Card>
+      </QuerySection.Item>
+    </div>
   );
 }

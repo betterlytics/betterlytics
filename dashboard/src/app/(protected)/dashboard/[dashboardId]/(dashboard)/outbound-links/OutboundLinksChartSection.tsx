@@ -16,7 +16,10 @@ export default function OutboundLinksChartSection() {
   const t = useTranslations('components.outboundLinks.chart');
 
   return (
-    <QuerySection query={query} fallback={<ChartSkeleton />}>
+    <QuerySection
+      query={query}
+      fallback={<ChartSkeleton title={<h3 className='text-base font-medium'>{t('title')}</h3>} />}
+    >
       {(chartData) => {
         if (!chartData.data || chartData.data.length === 0) {
           return <DataEmptyComponent />;
