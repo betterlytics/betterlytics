@@ -1,7 +1,6 @@
 'server-only';
 
 import {
-  getPageViews,
   getTopPages,
   getPageMetrics,
   getTotalPageViews,
@@ -14,7 +13,7 @@ import {
   getDailyBounceRate,
 } from '@/repositories/clickhouse/index.repository';
 import { getSessionMetrics } from '@/repositories/clickhouse/sessions.repository';
-import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
+import { TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import {
   PageAnalytics,
   TopPageRow,
@@ -29,10 +28,6 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getTotalPageViewsForSite(siteQuery: BASiteQuery): Promise<TotalPageViewsRow[]> {
   return getTotalPageViews(siteQuery);
-}
-
-export async function getPageViewsForSite(siteQuery: BASiteQuery): Promise<DailyPageViewRow[]> {
-  return getPageViews(siteQuery);
 }
 
 export async function getTopPagesForSite(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {

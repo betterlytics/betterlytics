@@ -1,10 +1,5 @@
 import { clickhouse } from '@/lib/clickhouse';
-import {
-  DailyPageViewRowSchema,
-  DailyPageViewRow,
-  TotalPageViewsRow,
-  TotalPageViewRowSchema,
-} from '@/entities/analytics/pageviews.entities';
+import { TotalPageViewsRow, TotalPageViewRowSchema } from '@/entities/analytics/pageviews.entities';
 import {
   PageAnalytics,
   PageAnalyticsSchema,
@@ -62,44 +57,6 @@ export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPa
     })
     .toPromise()) as unknown[];
   return result.map((row) => TotalPageViewRowSchema.parse(row));
-}
-
-export async function getPageViews(siteQuery: BASiteQuery): Promise<DailyPageViewRow[]> {
-  const { siteId, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
-    granularity,
-    timezone,
-    startDateTime,
-    endDateTime,
-  );
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
-
-  const query = timeWrapper(
-    safeSql`
-      SELECT
-        ${granularityFunc('timestamp')} as date,
-        url,
-        count() * any(_sample_factor) as views
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND event_type = 'pageview'
-        AND ${range}
-      GROUP BY date, url
-      ORDER BY date ASC ${fill}, views DESC
-      LIMIT 10080
-    `,
-  );
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise()) as unknown[];
-  return result.map((row) => DailyPageViewRowSchema.parse(row));
 }
 
 export async function getTopPages(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
