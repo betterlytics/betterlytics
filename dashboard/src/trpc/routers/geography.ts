@@ -6,18 +6,21 @@ import { getEnabledGeoLevels } from '@/lib/geoLevels';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
+const GEO_VISITS_LIMIT = 10;
+
 export const geographyRouter = createRouter({
   geoVisits: analyticsProcedure
-    .input(z.object({
-      level: GeoLevelSchema,
-      limit: z.number().optional().default(10),
-    }))
+    .input(
+      z.object({
+        level: GeoLevelSchema,
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const enabledLevels = getEnabledGeoLevels();
       if (!enabledLevels.includes(input.level)) return [];
 
       const { main, compare } = ctx;
-      const geoVisitors = await fetchVisitorsByGeoLevel(main, input.level, input.limit);
+      const geoVisitors = await fetchVisitorsByGeoLevel(main, input.level, GEO_VISITS_LIMIT);
 
       const compoundKey: GeoLevel[] =
         input.level === 'country_code'
