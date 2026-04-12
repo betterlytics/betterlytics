@@ -8,6 +8,11 @@ function handler(req: Request) {
     req,
     router: appRouter,
     createContext: createTRPCContext,
+    onError: ({ error, path }) => {
+      if (error.code === 'INTERNAL_SERVER_ERROR') {
+        console.error(`[tRPC] Unhandled error on procedure "${path ?? 'unknown'}":`, error.cause ?? error);
+      }
+    },
   });
 }
 
