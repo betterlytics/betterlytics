@@ -2,6 +2,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ErrorGroupsSection } from './ErrorGroupsSection';
 import { getTranslations } from 'next-intl/server';
+import { ThrowErrorsTest } from './ThrowErrorsTest';
 
 export default async function ErrorsPage() {
   const t = await getTranslations('errors.page');
@@ -11,6 +12,8 @@ export default async function ErrorsPage() {
       <DashboardHeader title={t('title')}>
         <DashboardFilters showComparison={false} />
       </DashboardHeader>
+
+      <ThrowErrorsTest />
 
       <ErrorGroupsSection />
     </div>
