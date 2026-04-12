@@ -4,17 +4,22 @@ import { useTranslations } from 'next-intl';
 import InteractiveChart from '@/components/InteractiveChart';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
 
 export default function OutboundLinksChartSection() {
-  const query = useBAQuery((t, input, opts) => t.outboundLinks.clicksChart.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.outboundLinks.clicksChart.useQuery(input, options);
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.outboundLinks.chart');
 
   return (
-    <QuerySection query={query} fallback={<ChartSkeleton />}>
+    <QuerySection
+      query={query}
+      fallback={<ChartSkeleton title={<h3 className='text-base font-medium'>{t('title')}</h3>} />}
+    >
       {(chartData) => {
         if (!chartData.data || chartData.data.length === 0) {
           return <DataEmptyComponent />;

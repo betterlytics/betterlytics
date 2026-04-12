@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ReactNode } from 'react';
 import { useInView } from '@/hooks/useInView';
+import { Card } from './ui/card';
 
 type LazySectionProps = {
   children: ReactNode;
@@ -17,5 +18,5 @@ export function LazySection({ children }: LazySectionProps) {
     }
   }, [inView, hasBeenVisible]);
 
-  return <div ref={ref}>{hasBeenVisible ? children : <div className='min-h-[280px]' />}</div>;
+  return <div ref={ref}>{hasBeenVisible ? children : <Card className='border-border min-h-[280px]' />}</div>;
 }

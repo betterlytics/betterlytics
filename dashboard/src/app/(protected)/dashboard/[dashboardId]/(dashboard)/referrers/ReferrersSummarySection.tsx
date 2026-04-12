@@ -4,17 +4,32 @@ import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/Sum
 import { formatDuration } from '@/utils/dateFormatters';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { SummaryCardsSkeleton } from '@/components/skeleton';
 
 export default function ReferrersSummarySection() {
-  const query = useBAQuery((t, input, opts) => t.referrers.summary.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.referrers.summary.useQuery(input, options);
   const locale = useLocale();
   const t = useTranslations('components.referrers.summary');
 
   return (
-    <QuerySection query={query} fallback={<SummaryCardsSkeleton count={4} />} distributed>
+    <QuerySection
+      query={query}
+      fallback={
+        <SummaryCardsSkeleton
+          titles={[
+            t('referralSessions'),
+            t('referralTrafficPct'),
+            t('topReferrerSource'),
+            t('avgSessionDuration'),
+          ]}
+        />
+      }
+      loadContext
+    >
       {(summaryData) => {
         const referralPercentage =
           summaryData.totalSessions > 0 ? (summaryData.referralSessions / summaryData.totalSessions) * 100 : 0;

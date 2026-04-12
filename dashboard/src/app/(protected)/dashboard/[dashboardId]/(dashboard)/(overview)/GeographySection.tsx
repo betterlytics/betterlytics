@@ -12,7 +12,8 @@ import { type GeoLevel } from '@/entities/analytics/geography.entities';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -28,28 +29,21 @@ type GeographySectionProps = {
 
 export default function GeographySection({ enabledLevels }: GeographySectionProps) {
   const [activeTab, setActiveTab] = useState<string>(enabledLevels[0] ?? 'country_code');
+  const { input, options } = useBAQueryParams();
 
-  const countryQuery = useBAQuery((t, input, opts) =>
-    t.geography.geoVisits.useQuery(
-      { ...input, level: 'country_code' },
-      { ...opts, enabled: enabledLevels.includes('country_code') && activeTab === 'country_code' },
-    ),
+  const countryQuery = trpc.geography.geoVisits.useQuery(
+    { ...input, level: 'country_code' },
+    { ...options, enabled: enabledLevels.includes('country_code') && activeTab === 'country_code' },
   );
-  const subdivisionQuery = useBAQuery((t, input, opts) =>
-    t.geography.geoVisits.useQuery(
-      { ...input, level: 'subdivision_code' },
-      { ...opts, enabled: enabledLevels.includes('subdivision_code') && activeTab === 'subdivision_code' },
-    ),
+  const subdivisionQuery = trpc.geography.geoVisits.useQuery(
+    { ...input, level: 'subdivision_code' },
+    { ...options, enabled: enabledLevels.includes('subdivision_code') && activeTab === 'subdivision_code' },
   );
-  const cityQuery = useBAQuery((t, input, opts) =>
-    t.geography.geoVisits.useQuery(
-      { ...input, level: 'city' },
-      { ...opts, enabled: enabledLevels.includes('city') && activeTab === 'city' },
-    ),
+  const cityQuery = trpc.geography.geoVisits.useQuery(
+    { ...input, level: 'city' },
+    { ...options, enabled: enabledLevels.includes('city') && activeTab === 'city' },
   );
-  const worldMapQuery = useBAQuery((t, input, opts) =>
-    t.geography.worldMap.useQuery(input, { ...opts, enabled: activeTab === 'worldmap' }),
-  );
+  const worldMapQuery = trpc.geography.worldMap.useQuery(input, { ...options, enabled: activeTab === 'worldmap' });
 
   const t = useTranslations('dashboard');
   const locale = useLocale();

@@ -19,9 +19,11 @@ import {
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useLocale, useTranslations } from 'next-intl';
-import { useBAQuery } from '@/trpc/hooks';
 import { QuerySection } from '@/components/QuerySection';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { ChartSkeleton } from '@/components/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -31,15 +33,11 @@ const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, 
 
 export default function InteractiveWebVitalsChartSection() {
   const t = useTranslations('components.webVitals');
-  const summaryQuery = useBAQuery((t, input, opts) => t.webVitals.summary.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const summaryQuery = trpc.webVitals.summary.useQuery(input, options);
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
-  const chartQuery = useBAQuery((t, input, opts) => t.webVitals.chartData.useQuery(input, opts));
-
-  const chartData = useMemo(
-    () => (chartQuery.data ? chartQuery.data[active] || [] : []),
-    [chartQuery.data, active],
-  );
+  const chartQuery = trpc.webVitals.chartData.useQuery(input, options);
 
   const yReferenceAreas = useMemo(() => {
     const [good, fair] = CWV_THRESHOLDS[active];
@@ -54,34 +52,34 @@ export default function InteractiveWebVitalsChartSection() {
     }));
   }, [active, t]);
 
-  if (summaryQuery.isPending || chartQuery.isPending) return <ChartSkeleton />;
-
   return (
-    <QuerySection loading={summaryQuery.isFetching || chartQuery.isFetching}>
-      <div className='space-y-6'>
-        <MultiSeriesChart
-          title={undefined}
-          data={chartData}
-          granularity={granularity}
-          formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
-          yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-          series={SERIES_DEFS}
-          yReferenceAreas={yReferenceAreas}
-          headerContent={
-            <div>
-              <CoreWebVitalsGaugeGrid
-                summary={summaryQuery.data!}
-                activeMetric={active}
-                onMetricSelect={setActive}
-              />
-              <div className='mt-2 flex items-center justify-center gap-2 p-2'>
-                <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
-                <MetricInfo metric={active} />
+    <QuerySection query={chartQuery} fallback={<ChartSkeleton />}>
+      {(chartDataByMetric) => (
+        <div className='space-y-6'>
+          <MultiSeriesChart
+            title={undefined}
+            data={chartDataByMetric[active] || []}
+            granularity={granularity}
+            formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
+            yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
+            series={SERIES_DEFS}
+            yReferenceAreas={yReferenceAreas}
+            headerContent={
+              <div>
+                <QuerySection query={summaryQuery} fallback={<Skeleton />} loadContext>
+                  {(summary) => (
+                    <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
+                  )}
+                </QuerySection>
+                <div className='mt-2 flex items-center justify-center gap-2 p-2'>
+                  <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
+                  <MetricInfo metric={active} />
+                </div>
               </div>
-            </div>
-          }
-        />
-      </div>
+            }
+          />
+        </div>
+      )}
     </QuerySection>
   );
 }

@@ -9,17 +9,20 @@ import ExternalLink from '@/components/ExternalLink';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 import type { inferRouterOutputs } from '@trpc/server';
 import type { AppRouter } from '@/trpc/routers/_app';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type TableOutboundLinkRow = RouterOutputs['outboundLinks']['analytics'][number];
 
 export default function OutboundLinksTableSection() {
-  const query = useBAQuery((t, input, opts) => t.outboundLinks.analytics.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.outboundLinks.analytics.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.table');
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(
@@ -69,17 +72,15 @@ export default function OutboundLinksTableSection() {
   );
 
   return (
-    <QuerySection query={query} fallback={<TableSkeleton />}>
-      {(outboundLinksData) => (
-        <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-          <CardHeader className='px-0 pb-0'>
-            <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
-          </CardHeader>
-          <CardContent className='px-0'>
-            <DataTable data={outboundLinksData} columns={columns} />
-          </CardContent>
-        </Card>
-      )}
-    </QuerySection>
+    <Card className='border-border flex min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className='px-0'>
+        <QuerySection query={query} fallback={<TableSkeleton className='h-80' />}>
+          {(outboundLinksData) => <DataTable data={outboundLinksData} columns={columns} />}
+        </QuerySection>
+      </CardContent>
+    </Card>
   );
 }

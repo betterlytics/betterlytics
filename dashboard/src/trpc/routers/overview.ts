@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
 import { getUniqueVisitorsForSite } from '@/services/analytics/visitors.service';
 import {
@@ -16,6 +15,8 @@ import { isStartBucketIncomplete, isEndBucketIncomplete } from '@/lib/ba-timeran
 type RawVisitors = Awaited<ReturnType<typeof getUniqueVisitorsForSite>>;
 type RawPageviews = Awaited<ReturnType<typeof getTotalPageViewsForSite>>;
 type RawSessionRange = Awaited<ReturnType<typeof getSessionRangeMetrics>>;
+
+const TOP_PAGES_LIMIT = 10;
 
 function toAggregates(visitors: RawVisitors, pageviews: RawPageviews, range: RawSessionRange) {
   return {
@@ -112,37 +113,30 @@ export const overviewRouter = createRouter({
     };
   }),
 
-  topPages: analyticsProcedure
-    .input(z.object({ limit: z.number().optional().default(10) }))
-    .query(async ({ ctx, input }) => {
-      const { main, compare } = ctx;
-      const [data, compareData] = await Promise.all([
-        getTopPagesForSite(main, input.limit),
-        compare && getTopPagesForSite(compare, input.limit),
-      ]);
-      return toDataTable({ data, compare: compareData, categoryKey: 'url' });
-    }),
+  topPages: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopPagesForSite(main, TOP_PAGES_LIMIT),
+      compare && getTopPagesForSite(compare, TOP_PAGES_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  }),
 
-  topEntryPages: analyticsProcedure
-    .input(z.object({ limit: z.number().optional().default(10) }))
-    .query(async ({ ctx, input }) => {
-      const { main, compare } = ctx;
-      const [data, compareData] = await Promise.all([
-        getTopEntryPagesForSite(main, input.limit),
-        compare && getTopEntryPagesForSite(compare, input.limit),
-      ]);
-      return toDataTable({ data, compare: compareData, categoryKey: 'url' });
-    }),
+  topEntryPages: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopEntryPagesForSite(main, TOP_PAGES_LIMIT),
+      compare && getTopEntryPagesForSite(compare, TOP_PAGES_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  }),
 
-  topExitPages: analyticsProcedure
-    .input(z.object({ limit: z.number().optional().default(10) }))
-    .query(async ({ ctx, input }) => {
-      const { main, compare } = ctx;
-      const [data, compareData] = await Promise.all([
-        getTopExitPagesForSite(main, input.limit),
-        compare && getTopExitPagesForSite(compare, input.limit),
-      ]);
-      return toDataTable({ data, compare: compareData, categoryKey: 'url' });
-    }),
-
+  topExitPages: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopExitPagesForSite(main, TOP_PAGES_LIMIT),
+      compare && getTopExitPagesForSite(compare, TOP_PAGES_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  }),
 });

@@ -1,26 +1,14 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { updateMonitorCheckAction, deleteMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
+import { trpc } from '@/trpc/client';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
-type InvalidateOpts = { dashboardId: string; monitorId: string };
-
-function invalidateMonitorQueries(
-  queryClient: ReturnType<typeof useQueryClient>,
-  { dashboardId, monitorId }: InvalidateOpts,
-) {
-  queryClient.invalidateQueries({ queryKey: ['monitor', dashboardId, monitorId], exact: false });
-  queryClient.invalidateQueries({ queryKey: ['monitor-metrics', dashboardId, monitorId], exact: false });
-  queryClient.invalidateQueries({ queryKey: ['monitor-checks', dashboardId, monitorId], exact: false });
-  queryClient.invalidateQueries({ queryKey: ['monitor-uptime', dashboardId, monitorId], exact: false });
-  queryClient.invalidateQueries({ queryKey: ['monitors', dashboardId], exact: false });
-}
-
 export function useMonitorMutations(dashboardId: string, monitorId: string) {
-  const queryClient = useQueryClient();
+  const utils = trpc.useUtils();
   const router = useRouter();
   const t = useTranslations('monitoringDetailPage.toast');
   const tActions = useTranslations('monitoringPage.actions');
@@ -32,8 +20,8 @@ export function useMonitorMutations(dashboardId: string, monitorId: string) {
         isEnabled,
       }),
     onSuccess: (updated) => {
-      queryClient.setQueryData(['monitor', dashboardId, monitorId], updated);
-      invalidateMonitorQueries(queryClient, { dashboardId, monitorId });
+      utils.monitors.get.setData({ dashboardId, monitorId }, updated);
+      utils.monitors.invalidate();
       toast.success(updated.isEnabled ? t('status.resumed') : t('status.paused'));
     },
     onError: () => {
@@ -48,8 +36,8 @@ export function useMonitorMutations(dashboardId: string, monitorId: string) {
         name,
       }),
     onSuccess: (updated) => {
-      queryClient.setQueryData(['monitor', dashboardId, monitorId], updated);
-      invalidateMonitorQueries(queryClient, { dashboardId, monitorId });
+      utils.monitors.get.setData({ dashboardId, monitorId }, updated);
+      utils.monitors.invalidate();
       toast.success(tActions('renameSuccess'));
     },
     onError: () => {
@@ -60,7 +48,7 @@ export function useMonitorMutations(dashboardId: string, monitorId: string) {
   const deleteMutation = useMutation({
     mutationFn: async () => await deleteMonitorCheckAction(dashboardId, monitorId),
     onSuccess: () => {
-      invalidateMonitorQueries(queryClient, { dashboardId, monitorId });
+      utils.monitors.invalidate();
       router.push(`/dashboard/${dashboardId}/monitoring`);
       router.refresh();
     },

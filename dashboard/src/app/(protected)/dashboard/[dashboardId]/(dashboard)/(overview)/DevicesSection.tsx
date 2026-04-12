@@ -8,22 +8,21 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useState } from 'react';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 export default function DevicesSection() {
   const [activeTab, setActiveTab] = useState('browsers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { input, options } = useBAQueryParams();
 
-  const browsersQuery = useBAQuery((t, input, opts) =>
-    t.devices.browserRollup.useQuery(input, { ...opts, enabled: activeTab === 'browsers' }),
-  );
-  const osQuery = useBAQuery((t, input, opts) =>
-    t.devices.osRollup.useQuery(input, { ...opts, enabled: activeTab === 'os' }),
-  );
-  const devicesQuery = useBAQuery((t, input, opts) =>
-    t.devices.deviceType.useQuery(input, { ...opts, enabled: activeTab === 'devices' }),
-  );
+  const browsersQuery = trpc.devices.browserRollup.useQuery(input, {
+    ...options,
+    enabled: activeTab === 'browsers',
+  });
+  const osQuery = trpc.devices.osRollup.useQuery(input, { ...options, enabled: activeTab === 'os' });
+  const devicesQuery = trpc.devices.deviceType.useQuery(input, { ...options, enabled: activeTab === 'devices' });
 
   const activeQuery = { browsers: browsersQuery, os: osQuery, devices: devicesQuery }[activeTab];
 

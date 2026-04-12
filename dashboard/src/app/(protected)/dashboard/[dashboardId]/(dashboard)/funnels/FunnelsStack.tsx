@@ -3,13 +3,15 @@
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
 import { FunnelsEmptyState } from './FunnelsEmptyState';
 import { FunnelActionButtons } from './FunnelActionButtons';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 
 export function FunnelsStack() {
-  const query = useBAQuery((t, input, opts) => t.funnels.list.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.funnels.list.useQuery(input, options);
   return (
-    <QuerySection query={query} fallback={<FunnelsStackSkeleton />} distributed>
+    <QuerySection query={query} fallback={<FunnelsStackSkeleton />}>
       {(funnels) => {
         if (!funnels.length) return <FunnelsEmptyState />;
         return (

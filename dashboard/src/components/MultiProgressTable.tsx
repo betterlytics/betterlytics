@@ -9,6 +9,8 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { TableSkeleton } from './skeleton';
+import { cn } from '@/lib/utils';
 
 interface ProgressBarData {
   label: string;
@@ -176,8 +178,8 @@ function MultiProgressTable<T extends ProgressBarData>({
     (tab: TabConfig<T>) => {
       if (tab.loading) {
         return (
-          <div className='flex h-40 items-center justify-center'>
-            <Spinner />
+          <div className='space-y-4 py-2'>
+            <TableSkeleton tableOnly />
           </div>
         );
       }
@@ -210,7 +212,7 @@ function MultiProgressTable<T extends ProgressBarData>({
           <TabsTrigger
             key={tab.key}
             value={tab.key}
-            className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent dark:data-[state=active]:bg-transparent dark:data-[state=active]:border-transparent data-[state=active]:shadow-none'
+            className='hover:bg-accent/50 hover:text-foreground text-muted-foreground data-[state=active]:text-foreground relative z-10 cursor-pointer rounded-sm border border-transparent bg-transparent px-3 py-1 text-xs font-medium data-[state=active]:bg-transparent data-[state=active]:shadow-none dark:data-[state=active]:border-transparent dark:data-[state=active]:bg-transparent'
           >
             {tab.label}
           </TabsTrigger>
@@ -235,19 +237,23 @@ function MultiProgressTable<T extends ProgressBarData>({
       <CardHeader className='px-0 pb-0'>
         <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row xl:items-center'>
           <CardTitle className='flex-1 text-base font-medium'>
-            <span className='inline-flex items-center gap-2'>
-              {title}
-              {loading && <Spinner size='sm' />}
-            </span>
+            <span className='inline-flex items-center gap-2'>{title}</span>
           </CardTitle>
           <Tabs value={activeTab} onValueChange={handleTabChange} className='flex h-8 items-center sm:items-end'>
             {tabsList}
           </Tabs>
         </div>
       </CardHeader>
-      <CardContent className='flex-1 px-0'>
+      <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          {tabsContent}
+          <div className='relative'>
+            {loading && (
+              <div className='absolute inset-0 z-10 flex items-center justify-center'>
+                <Spinner />
+              </div>
+            )}
+            <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
+          </div>
         </Tabs>
       </CardContent>
       {footer ? (

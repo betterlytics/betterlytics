@@ -13,7 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { Spinner } from '@/components/ui/spinner';
-import { useBAQuery } from '@/trpc/hooks';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -38,10 +40,9 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number, locale: 
 export default function WeeklyHeatmapSection() {
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
+  const { input, options } = useBAQueryParams();
 
-  const query = useBAQuery((t, input, opts) =>
-    t.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, opts),
-  );
+  const query = trpc.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, options);
 
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
@@ -66,10 +67,7 @@ export default function WeeklyHeatmapSection() {
       <CardHeader className='px-0 pb-1'>
         <div className='flex flex-row items-center justify-between gap-2'>
           <CardTitle className='text-base font-medium whitespace-nowrap'>
-            <span className='inline-flex items-center gap-2'>
-              {t('sections.weeklyTrends')}
-              {query.isFetching && !!query.data && <Spinner size='sm' />}
-            </span>
+            <span className='inline-flex items-center gap-2'>{t('sections.weeklyTrends')}</span>
           </CardTitle>
           <div className='flex h-8 min-w-0 items-center'>
             <div className='w-40 sm:w-48'>
@@ -92,18 +90,40 @@ export default function WeeklyHeatmapSection() {
         </div>
       </CardHeader>
 
-      <CardContent className='px-0'>
+      <CardContent className='flex flex-1 flex-col px-0'>
         {isLoading ? (
-          <div className='flex h-40 items-center justify-center'>
-            <Spinner />
+          <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-0.5 gap-y-1 pb-3'>
+            <div></div>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <Skeleton key={`day-${i}`} className='mx-auto mb-1 h-3 w-10 rounded' />
+            ))}
+            {Array.from({ length: 24 }).map((_, hourIndex) => (
+              <Fragment key={`row-${hourIndex}`}>
+                <div className='flex h-2.5 items-center justify-end pr-2'>
+                  {hourIndex % 3 === 1 ? <Skeleton className='h-2 w-6 rounded' /> : null}
+                </div>
+                {Array.from({ length: 7 }).map((_, dayIndex) => (
+                  <Skeleton key={`cell-${hourIndex}-${dayIndex}`} className='h-2.5 w-full rounded-sm' />
+                ))}
+              </Fragment>
+            ))}
           </div>
         ) : (
-          <HeatmapGrid
-            data={query.data?.matrix ?? []}
-            maxValue={query.data?.maxValue ?? 1}
-            metricLabel={metricLabelByMetric[selectedMetric]}
-            metric={selectedMetric}
-          />
+          <div className='relative'>
+            {query.isFetching && !!query.data && (
+              <div className='absolute inset-0 z-10 flex items-center justify-center'>
+                <Spinner />
+              </div>
+            )}
+            <div className={cn('h-full', query.isFetching && !!query.data && 'pointer-events-none opacity-60')}>
+              <HeatmapGrid
+                data={query.data?.matrix ?? []}
+                maxValue={query.data?.maxValue ?? 1}
+                metricLabel={metricLabelByMetric[selectedMetric]}
+                metric={selectedMetric}
+              />
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

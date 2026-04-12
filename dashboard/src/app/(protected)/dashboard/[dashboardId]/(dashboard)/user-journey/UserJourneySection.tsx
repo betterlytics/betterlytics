@@ -3,25 +3,23 @@
 import { Card, CardContent } from '@/components/ui/card';
 import UserJourneyChart from './UserJourneyChart';
 import { useTranslations } from 'next-intl';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
-  const query = useBAQuery((t, input, opts) => t.userJourney.journey.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.userJourney.journey.useQuery(input, options);
 
   return (
     <QuerySection
       query={query}
       fallback={
-        <div className='relative min-h-[400px]'>
-          <div className='bg-background/70 absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-sm'>
-            <div className='flex flex-col items-center'>
-              <Spinner size='lg' className='mb-2' />
-              <p className='text-muted-foreground'>Loading journey data...</p>
-            </div>
-          </div>
+        <div className='flex h-[60svh] items-center justify-center overflow-hidden'>
+          <Spinner size='xl' />
         </div>
       }
     >

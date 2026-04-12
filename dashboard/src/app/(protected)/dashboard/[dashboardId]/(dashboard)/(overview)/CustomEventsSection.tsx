@@ -5,10 +5,12 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 export default function CustomEventsSection() {
-  const query = useBAQuery((t, input, opts) => t.events.customEventsOverview.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.events.customEventsOverview.useQuery(input, options);
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 

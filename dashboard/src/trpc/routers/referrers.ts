@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
 import {
   getReferrerSourceAggregationDataForSite,
@@ -14,33 +13,32 @@ import { toDataTable } from '@/presenters/toDataTable';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
 
-export const referrersRouter = createRouter({
-  referrerUrlRollup: analyticsProcedure
-    .input(z.object({ limit: z.number().optional().default(10) }))
-    .query(async ({ ctx, input }) => {
-      const { main, compare } = ctx;
-      const [data, compareData] = await Promise.all([
-        getReferrerUrlRollupForSite(main, input.limit),
-        compare && getReferrerUrlRollupForSite(compare, input.limit),
-      ]);
-      return toHierarchicalDataTable({
-        data,
-        compare: compareData || undefined,
-        parentKey: 'source_name',
-        childKey: 'referrer_url',
-      });
-    }),
+const TOP_REFERRERS_LIMIT = 10;
+const REFERRER_TABLE_LIMIT = 100;
 
-  topChannels: analyticsProcedure
-    .input(z.object({ limit: z.number().optional().default(10) }))
-    .query(async ({ ctx, input }) => {
-      const { main, compare } = ctx;
-      const [data, compareData] = await Promise.all([
-        getTopChannelsForSite(main, input.limit),
-        compare && getTopChannelsForSite(compare, input.limit),
-      ]);
-      return toDataTable({ data, compare: compareData || undefined, categoryKey: 'channel' });
-    }),
+export const referrersRouter = createRouter({
+  referrerUrlRollup: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getReferrerUrlRollupForSite(main, TOP_REFERRERS_LIMIT),
+      compare && getReferrerUrlRollupForSite(compare, TOP_REFERRERS_LIMIT),
+    ]);
+    return toHierarchicalDataTable({
+      data,
+      compare: compareData || undefined,
+      parentKey: 'source_name',
+      childKey: 'referrer_url',
+    });
+  }),
+
+  topChannels: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopChannelsForSite(main, TOP_REFERRERS_LIMIT),
+      compare && getTopChannelsForSite(compare, TOP_REFERRERS_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData || undefined, categoryKey: 'channel' });
+  }),
 
   sourceAggregation: analyticsProcedure.query(async ({ ctx }) => {
     const { main, compare } = ctx;
@@ -76,20 +74,33 @@ export const referrersRouter = createRouter({
     const dateRange = { start: main.startDate, end: main.endDate };
     return {
       ...raw,
-      referralSessionsChartData: toSparklineSeries({ data: raw.referralSessionsChartData, granularity: main.granularity, dataKey: 'referralSessions', dateRange }),
-      referralPercentageChartData: toSparklineSeries({ data: raw.referralPercentageChartData, granularity: main.granularity, dataKey: 'referralPercentage', dateRange }),
-      avgSessionDurationChartData: toSparklineSeries({ data: raw.avgSessionDurationChartData, granularity: main.granularity, dataKey: 'avgSessionDuration', dateRange }),
+      referralSessionsChartData: toSparklineSeries({
+        data: raw.referralSessionsChartData,
+        granularity: main.granularity,
+        dataKey: 'referralSessions',
+        dateRange,
+      }),
+      referralPercentageChartData: toSparklineSeries({
+        data: raw.referralPercentageChartData,
+        granularity: main.granularity,
+        dataKey: 'referralPercentage',
+        dateRange,
+      }),
+      avgSessionDurationChartData: toSparklineSeries({
+        data: raw.avgSessionDurationChartData,
+        granularity: main.granularity,
+        dataKey: 'avgSessionDuration',
+        dateRange,
+      }),
     };
   }),
 
-  table: analyticsProcedure
-    .input(z.object({ limit: z.number().optional().default(100) }))
-    .query(async ({ ctx, input }) => {
-      const { main, compare } = ctx;
-      const [data, compareData] = await Promise.all([
-        getReferrerTableDataForSite(main, input.limit),
-        compare && getReferrerTableDataForSite(compare, input.limit),
-      ]);
-      return toDataTable({ data, compare: compareData, categoryKey: 'source_url' });
-    }),
+  table: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getReferrerTableDataForSite(main, REFERRER_TABLE_LIMIT),
+      compare && getReferrerTableDataForSite(compare, REFERRER_TABLE_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'source_url' });
+  }),
 });

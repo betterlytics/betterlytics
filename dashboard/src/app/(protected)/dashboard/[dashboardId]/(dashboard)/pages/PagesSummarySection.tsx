@@ -4,17 +4,27 @@ import SummaryCardsSection, { SummaryCardData } from '@/components/dashboard/Sum
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useBAQuery } from '@/trpc/hooks';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
-import { ChartSkeleton } from '@/components/skeleton';
+import { SummaryCardsSkeleton } from '@/components/skeleton';
 
 export default function PagesSummarySection() {
-  const query = useBAQuery((t, input, opts) => t.pages.summaryWithCharts.useQuery(input, opts));
+  const { input, options } = useBAQueryParams();
+  const query = trpc.pages.summaryWithCharts.useQuery(input, options);
   const locale = useLocale();
   const t = useTranslations('components.pages.summary');
 
   return (
-    <QuerySection query={query} fallback={<ChartSkeleton />} distributed>
+    <QuerySection
+      query={query}
+      fallback={
+        <SummaryCardsSkeleton
+          titles={[t('pagesPerSession'), t('totalPageviews'), t('avgTimeOnPage'), t('avgBounceRate')]}
+        />
+      }
+      loadContext
+    >
       {(summaryWithCharts) => {
         const cards: SummaryCardData[] = [
           {
