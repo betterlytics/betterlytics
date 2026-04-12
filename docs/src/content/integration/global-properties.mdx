@@ -32,11 +32,39 @@ betterlytics.clearGlobalProperties();
 betterlytics.getGlobalProperties(); // {}
 ```
 
-## Property Guidelines
+## Accepted Values
 
-- Values must be strings, numbers, or booleans
-- Numeric values must be within [`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)
-- Maximum 30 keys, 64 characters per key, 128 characters per string value
+Values must be **strings**, **numbers**, or **booleans**.
+
+```javascript
+betterlytics.setGlobalProperties({
+  plan: "premium",       // string ✓
+  seats: 5,              // number ✓
+  active: true,          // boolean ✓
+});
+```
+
+The following values are rejected by the client with a console warning:
+
+```javascript
+betterlytics.setGlobalProperties({
+  data: { nested: true },  // objects ✗
+  tags: ["a", "b"],        // arrays ✗
+  missing: null,           // null ✗
+  broken: undefined,       // undefined ✗
+  bad: Infinity,           // non-finite numbers ✗
+  worse: NaN,              // non-finite numbers ✗
+});
+```
+
+## Limits
+
+| Limit | Value |
+|-------|-------|
+| Maximum keys per event | 30 |
+| Maximum key length | 64 characters |
+| Maximum string value length | 128 characters |
+| Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) |
 
 ## Filtering in the Dashboard
 
