@@ -19,7 +19,11 @@ export default function ReferrersTableSection() {
         <CardTitle className='text-base font-medium'>{t('details')}</CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
-        <QuerySection query={query} fallback={<TableSkeleton tableOnly className='mt-8 h-80' />}>
+        <QuerySection
+          query={query}
+          fallback={<TableSkeleton tableOnly className='mt-8 h-80' />}
+          className='overflow-x-auto'
+        >
           {(tableResult) => <ReferrerTable data={tableResult} />}
         </QuerySection>
       </CardContent>

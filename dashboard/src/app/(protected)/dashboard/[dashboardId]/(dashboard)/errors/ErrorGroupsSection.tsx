@@ -13,7 +13,7 @@ export function ErrorGroupsSection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.errors.errorGroups.useQuery(input, options);
   return (
-    <QuerySection query={query} fallback={<TableSkeleton />}>
+    <QuerySection query={query} fallback={<TableSkeleton />} className='overflow-x-auto'>
       {({ hasAnyErrors, errorGroups, initialVolumeMap }) => {
         if (!hasAnyErrors) return <ErrorsEmptyState />;
         return (

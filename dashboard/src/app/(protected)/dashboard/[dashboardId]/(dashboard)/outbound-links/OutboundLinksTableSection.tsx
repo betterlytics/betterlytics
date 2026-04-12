@@ -15,7 +15,6 @@ import { QuerySection } from '@/components/QuerySection';
 import { TableSkeleton } from '@/components/skeleton';
 import type { inferRouterOutputs } from '@trpc/server';
 import type { AppRouter } from '@/trpc/routers/_app';
-import { Skeleton } from '@/components/ui/skeleton';
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type TableOutboundLinkRow = RouterOutputs['outboundLinks']['analytics'][number];
@@ -77,7 +76,7 @@ export default function OutboundLinksTableSection() {
         <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent className='px-0'>
-        <QuerySection query={query} fallback={<TableSkeleton className='h-80' />}>
+        <QuerySection query={query} fallback={<TableSkeleton className='h-80' />} className='overflow-x-auto'>
           {(outboundLinksData) => <DataTable data={outboundLinksData} columns={columns} />}
         </QuerySection>
       </CardContent>

@@ -10,7 +10,7 @@ export default function EventsTableSection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.events.customEventsOverview.useQuery(input, options);
   return (
-    <QuerySection query={query} fallback={<TableSkeleton />}>
+    <QuerySection query={query} fallback={<TableSkeleton />} className='overflow-x-auto'>
       {(events) => <EventsTable data={events} />}
     </QuerySection>
   );

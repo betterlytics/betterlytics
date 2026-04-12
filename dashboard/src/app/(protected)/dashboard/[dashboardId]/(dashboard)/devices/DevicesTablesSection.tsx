@@ -23,7 +23,7 @@ export default function DevicesTablesSection() {
             <CardTitle className='text-base font-medium'>{t('topOperatingSystems')}</CardTitle>
           </CardHeader>
           <CardContent className='px-0'>
-            <QuerySection query={osQuery} fallback={<TableSkeleton tableOnly />}>
+            <QuerySection query={osQuery} fallback={<TableSkeleton tableOnly />} className='block overflow-x-auto'>
               {(osData) => <OperatingSystemTable data={osData} />}
             </QuerySection>
           </CardContent>
@@ -35,7 +35,11 @@ export default function DevicesTablesSection() {
             <CardTitle className='text-base font-medium'>{t('topBrowsers')}</CardTitle>
           </CardHeader>
           <CardContent className='px-0'>
-            <QuerySection query={browserQuery} fallback={<TableSkeleton tableOnly />}>
+            <QuerySection
+              query={browserQuery}
+              fallback={<TableSkeleton tableOnly />}
+              className='block overflow-x-auto'
+            >
               {(browserData) => <BrowserTable data={browserData} />}
             </QuerySection>
           </CardContent>
