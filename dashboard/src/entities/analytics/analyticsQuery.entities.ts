@@ -5,8 +5,8 @@ import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
 
 const UserJourneySchema = z.object({
-  numberOfSteps: z.number(),
-  numberOfJourneys: z.number(),
+  numberOfSteps: z.number().int().min(1).max(5),
+  numberOfJourneys: z.number().int().min(1).max(100),
 });
 
 export const BAAnalyticsQuerySchema = z.object({
