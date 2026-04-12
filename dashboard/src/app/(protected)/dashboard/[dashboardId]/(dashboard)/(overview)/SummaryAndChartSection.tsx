@@ -9,8 +9,18 @@ import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import InlineMetricsHeaderSkeleton from '@/components/skeleton/InlineMetricsHeaderSkeleton';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
+
+const METRIC_KEYS = [
+  'uniqueVisitors',
+  'totalPageviews',
+  'sessions',
+  'pagesPerSession',
+  'avgVisitDuration',
+  'bounceRate',
+] as const;
 
 export default function SummaryAndChartSection() {
   const { input, options } = useBAQueryParams();
@@ -24,7 +34,12 @@ export default function SummaryAndChartSection() {
   }, []);
 
   return (
-    <QuerySection query={query} fallback={<ChartSkeleton />}>
+    <QuerySection
+      query={query}
+      fallback={
+        <ChartSkeleton title={<InlineMetricsHeaderSkeleton titles={METRIC_KEYS.map((key) => t(key))} />} />
+      }
+    >
       {(summaryData) => {
         const cards: SummaryCardData[] = [
           {

@@ -10,14 +10,6 @@ export type QueryLike<T> = {
   data: T | undefined;
 };
 
-export function mergeQueries<T1, T2>(q1: QueryLike<T1>, q2: QueryLike<T2>): QueryLike<[T1, T2]> {
-  return {
-    isPending: q1.isPending || q2.isPending,
-    isFetching: q1.isFetching || q2.isFetching,
-    data: q1.data !== undefined && q2.data !== undefined ? [q1.data, q2.data] : undefined,
-  };
-}
-
 const QuerySectionContext = createContext<{ loading: boolean } | null>(null);
 
 type RenderPropsMode<T> = {
@@ -25,7 +17,6 @@ type RenderPropsMode<T> = {
   fallback: ReactNode;
   children: (data: T) => ReactNode;
   loading?: never;
-  distributed?: boolean;
   className?: string;
 };
 
@@ -42,21 +33,22 @@ type QuerySectionProps<T> = RenderPropsMode<T> | LoadingWrapperMode;
 
 export function QuerySection<T>(props: QuerySectionProps<T>) {
   if (props.query) {
-    const { query, fallback, children, className, distributed } = props;
-    if (query.isPending || query.data === undefined) return fallback;
+    const { query, fallback, children, className } = props;
+    const hasData = !query.isPending && query.data !== undefined;
 
-    if (distributed) {
-      return (
-        <QuerySectionContext.Provider value={{ loading: query.isFetching }}>
-          {children(query.data)}
-        </QuerySectionContext.Provider>
-      );
-    }
+    const content = hasData ? (
+      <LoadingWrapper loading={query.isFetching} className={className}>
+        {children(query.data!)}
+      </LoadingWrapper>
+    ) : null;
 
     return (
-      <LoadingWrapper loading={query.isFetching} className={className}>
-        {children(query.data)}
-      </LoadingWrapper>
+      <div className={cn('grid [&>*]:[grid-area:1/1]', className)}>
+        {content}
+        <div className={cn('transition-opacity duration-200', hasData && 'pointer-events-none opacity-0')}>
+          {fallback}
+        </div>
+      </div>
     );
   }
 

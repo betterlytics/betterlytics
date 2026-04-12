@@ -19,10 +19,11 @@ import {
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useLocale, useTranslations } from 'next-intl';
-import { QuerySection, mergeQueries } from '@/components/QuerySection';
+import { QuerySection } from '@/components/QuerySection';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { ChartSkeleton } from '@/components/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -52,8 +53,8 @@ export default function InteractiveWebVitalsChartSection() {
   }, [active, t]);
 
   return (
-    <QuerySection query={mergeQueries(summaryQuery, chartQuery)} fallback={<ChartSkeleton />}>
-      {([summary, chartDataByMetric]) => (
+    <QuerySection query={chartQuery} fallback={<ChartSkeleton />}>
+      {(chartDataByMetric) => (
         <div className='space-y-6'>
           <MultiSeriesChart
             title={undefined}
@@ -65,7 +66,11 @@ export default function InteractiveWebVitalsChartSection() {
             yReferenceAreas={yReferenceAreas}
             headerContent={
               <div>
-                <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
+                <QuerySection query={summaryQuery} fallback={<Skeleton />}>
+                  {(summary) => (
+                    <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
+                  )}
+                </QuerySection>
                 <div className='mt-2 flex items-center justify-center gap-2 p-2'>
                   <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
                   <MetricInfo metric={active} />

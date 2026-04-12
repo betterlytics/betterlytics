@@ -8,7 +8,7 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { QuerySection, mergeQueries } from '@/components/QuerySection';
+import { QuerySection } from '@/components/QuerySection';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { Skeleton } from '@/components/ui/skeleton';
