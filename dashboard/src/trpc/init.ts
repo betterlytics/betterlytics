@@ -5,7 +5,12 @@ import { env } from '@/lib/env';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
 import { BAAnalyticsQuerySchema } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { getCachedSession, getCachedAuthorizedContext, resolveDemoDashboardContext } from '@/auth/api-auth';
+import {
+  getCachedSession,
+  getCachedAuthorizedContext,
+  resolveDemoDashboardContext,
+  executeWithDemoCache,
+} from '@/auth/api-auth';
 
 export async function createTRPCContext() {
   const session = await getCachedSession();
@@ -55,6 +60,10 @@ export const dashboardProcedure = t.procedure
   .use(async ({ ctx, input, next }) => {
     const authContext = await resolveDashboardAuth(ctx.session, input.dashboardId);
     return next({ ctx: { ...ctx, authContext } });
+  })
+  .use(async ({ ctx, input, next, path, getRawInput }) => {
+    const rawInput = await getRawInput();
+    return executeWithDemoCache(ctx.authContext, (_context, _args) => next({ ctx }), [{ input, path, rawInput }]);
   });
 
 export const analyticsProcedure = dashboardProcedure
