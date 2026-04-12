@@ -36,7 +36,22 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
 
   return (
     <SidebarProvider>
-      <BASidebar dashboardId={dashboardId} isDemo={false} />
+      <Suspense
+        fallback={
+          <div className='bg-sidebar hidden w-[--sidebar-width] shrink-0 border-r md:block'>
+            <div className='flex h-14 items-center px-4'>
+              <div className='bg-muted h-6 w-full animate-pulse rounded' />
+            </div>
+            <div className='space-y-2 px-4 pt-4'>
+              {Array.from({ length: 8 }, (_, i) => (
+                <div key={i} className='bg-muted h-8 w-full animate-pulse rounded' />
+              ))}
+            </div>
+          </div>
+        }
+      >
+        <BASidebar dashboardId={dashboardId} isDemo={false} />
+      </Suspense>
       <BAMobileSidebarTrigger />
       <BannerProvider>
         <div className='flex w-full justify-center'>
