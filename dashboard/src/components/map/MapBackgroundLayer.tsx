@@ -32,15 +32,29 @@ export default function MapBackgroundLayer({ Polygon }: MapBackgroundLayerProps)
     setMapSelection({ hovered: undefined });
   }, [setMapSelection]);
 
+  const dismissIfOutside = useCallback(
+    (e: MouseEvent) => {
+      const rect = map.getContainer().getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        clearHovered();
+      }
+    },
+    [map, clearHovered],
+  );
+
   useEffect(() => {
+    const mapContainer = map.getContainer();
+
     map.on('mouseout', clearHovered);
-    map.getContainer().addEventListener('blur', clearHovered);
+    mapContainer.addEventListener('blur', clearHovered);
+    window.addEventListener('mousemove', dismissIfOutside);
 
     return () => {
       map.off('mouseout', clearHovered);
-      map.getContainer().removeEventListener('blur', clearHovered);
+      mapContainer.removeEventListener('blur', clearHovered);
+      window.removeEventListener('mousemove', dismissIfOutside);
     };
-  }, [map, clearHovered]);
+  }, [map, clearHovered, dismissIfOutside]);
 
   return (
     <Polygon
