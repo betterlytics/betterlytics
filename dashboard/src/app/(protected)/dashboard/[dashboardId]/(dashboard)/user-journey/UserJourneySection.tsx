@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 
 export default function UserJourneySection() {
