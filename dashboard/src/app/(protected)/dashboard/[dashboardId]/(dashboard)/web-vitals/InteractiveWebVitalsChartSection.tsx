@@ -66,7 +66,7 @@ export default function InteractiveWebVitalsChartSection() {
             yReferenceAreas={yReferenceAreas}
             headerContent={
               <div>
-                <QuerySection query={summaryQuery} fallback={<Skeleton />}>
+                <QuerySection query={summaryQuery} fallback={<Skeleton />} loadContext>
                   {(summary) => (
                     <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
                   )}

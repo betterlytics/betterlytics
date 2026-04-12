@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, type ReactNode } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
@@ -12,56 +12,33 @@ export type QueryLike<T> = {
 
 const QuerySectionContext = createContext<{ loading: boolean } | null>(null);
 
-type RenderPropsMode<T> = {
+type QuerySectionProps<T> = {
   query: QueryLike<T>;
   fallback: ReactNode;
   children: (data: T) => ReactNode;
-  loading?: never;
+  loadContext?: boolean;
   className?: string;
 };
-
-type LoadingWrapperMode = {
-  loading: boolean;
-  children: ReactNode;
-  query?: never;
-  fallback?: never;
-  distributed?: boolean;
-  className?: string;
-};
-
-type QuerySectionProps<T> = RenderPropsMode<T> | LoadingWrapperMode;
 
 export function QuerySection<T>(props: QuerySectionProps<T>) {
-  if (props.query) {
-    const { query, fallback, children, className } = props;
-    const hasData = !query.isPending && query.data !== undefined;
+  const { query, fallback, loadContext, children, className } = props;
+  const hasData = !query.isPending && query.data !== undefined;
 
-    const content = hasData ? (
-      <LoadingWrapper loading={query.isFetching} className={className}>
-        {children(query.data!)}
-      </LoadingWrapper>
-    ) : null;
-
-    return (
-      <div className={cn('grid [&>*]:[grid-area:1/1]', className)}>
-        {content}
-        <div className={cn('transition-opacity duration-200', hasData && 'pointer-events-none opacity-0')}>
-          {fallback}
-        </div>
-      </div>
-    );
-  }
-
-  const { loading, children, className, distributed } = props as LoadingWrapperMode;
-
-  if (distributed) {
-    return <QuerySectionContext.Provider value={{ loading }}>{children}</QuerySectionContext.Provider>;
-  }
+  const content = hasData ? (
+    <LoadingWrapper loading={!loadContext && query.isFetching} className={className}>
+      {children(query.data!)}
+    </LoadingWrapper>
+  ) : null;
 
   return (
-    <LoadingWrapper loading={loading} className={className}>
-      {children}
-    </LoadingWrapper>
+    <div className={cn('grid [&>*]:[grid-area:1/1]', className)}>
+      <QuerySectionContext.Provider value={{ loading: Boolean(loadContext && query.isFetching) }}>
+        {content}
+      </QuerySectionContext.Provider>
+      <div className={cn('transition-opacity duration-200', hasData && 'pointer-events-none opacity-0')}>
+        {fallback}
+      </div>
+    </div>
   );
 }
 

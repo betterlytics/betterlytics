@@ -67,10 +67,7 @@ export default function WeeklyHeatmapSection() {
       <CardHeader className='px-0 pb-1'>
         <div className='flex flex-row items-center justify-between gap-2'>
           <CardTitle className='text-base font-medium whitespace-nowrap'>
-            <span className='inline-flex items-center gap-2'>
-              {t('sections.weeklyTrends')}
-              {query.isFetching && !!query.data && <Spinner size='sm' />}
-            </span>
+            <span className='inline-flex items-center gap-2'>{t('sections.weeklyTrends')}</span>
           </CardTitle>
           <div className='flex h-8 min-w-0 items-center'>
             <div className='w-40 sm:w-48'>

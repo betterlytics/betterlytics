@@ -23,7 +23,7 @@ export default function PagesSummarySection() {
           titles={[t('pagesPerSession'), t('totalPageviews'), t('avgTimeOnPage'), t('avgBounceRate')]}
         />
       }
-      distributed
+      loadContext
     >
       {(summaryWithCharts) => {
         const cards: SummaryCardData[] = [

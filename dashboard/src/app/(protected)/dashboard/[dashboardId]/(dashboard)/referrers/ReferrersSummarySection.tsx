@@ -28,7 +28,7 @@ export default function ReferrersSummarySection() {
           ]}
         />
       }
-      distributed
+      loadContext
     >
       {(summaryData) => {
         const referralPercentage =
