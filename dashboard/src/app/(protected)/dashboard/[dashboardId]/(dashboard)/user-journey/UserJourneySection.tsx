@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
@@ -17,16 +17,8 @@ export default function UserJourneySection() {
     <QuerySection
       query={query}
       fallback={
-        <div className='space-y-6 p-4'>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className='flex items-center gap-3'>
-              <Skeleton className='h-10 w-28 rounded' />
-              <Skeleton className='h-1 w-12' />
-              <Skeleton className='h-10 w-28 rounded' />
-              <Skeleton className='h-1 w-12' />
-              <Skeleton className='h-10 w-28 rounded' />
-            </div>
-          ))}
+        <div className='flex h-[60svh] items-center justify-center overflow-hidden'>
+          <Spinner size='xl' />
         </div>
       }
     >

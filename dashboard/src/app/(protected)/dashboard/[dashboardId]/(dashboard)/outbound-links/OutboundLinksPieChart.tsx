@@ -9,6 +9,7 @@ import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import { ChartSkeleton } from '@/components/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const getOutboundLinkColor = createColorGetter({
   colorMap: {
@@ -29,17 +30,17 @@ export default function OutboundLinksPieChart() {
   const t = useTranslations('components.outboundLinks.pieChart');
 
   return (
-    <QuerySection query={query} fallback={<ChartSkeleton />}>
-      {(distributionData) => (
-        <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
-          <CardHeader className='px-0 pb-0'>
-            <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
-          </CardHeader>
-          <CardContent className='flex flex-1 items-center justify-center px-0'>
+    <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
+      <CardHeader className='px-0 pb-0'>
+        <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
+      </CardHeader>
+      <CardContent className='flex flex-1 items-center justify-center px-0'>
+        <QuerySection query={query} fallback={<Skeleton className='h-[200px] flex-1' />}>
+          {(distributionData) => (
             <BAPieChart data={distributionData} getColor={getOutboundLinkColor} getLabel={formatUrl} />
-          </CardContent>
-        </Card>
-      )}
-    </QuerySection>
+          )}
+        </QuerySection>
+      </CardContent>
+    </Card>
   );
 }

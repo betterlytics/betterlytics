@@ -11,7 +11,7 @@ export function FunnelsStack() {
   const { input, options } = useBAQueryParams();
   const query = trpc.funnels.list.useQuery(input, options);
   return (
-    <QuerySection query={query} fallback={<FunnelsStackSkeleton />} distributed>
+    <QuerySection query={query} fallback={<FunnelsStackSkeleton />}>
       {(funnels) => {
         if (!funnels.length) return <FunnelsEmptyState />;
         return (

@@ -10,6 +10,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { TableSkeleton } from './skeleton';
+import { cn } from '@/lib/utils';
 
 interface ProgressBarData {
   label: string;
@@ -236,10 +237,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       <CardHeader className='px-0 pb-0'>
         <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row xl:items-center'>
           <CardTitle className='flex-1 text-base font-medium'>
-            <span className='inline-flex items-center gap-2'>
-              {title}
-              {loading && <Spinner size='sm' />}
-            </span>
+            <span className='inline-flex items-center gap-2'>{title}</span>
           </CardTitle>
           <Tabs value={activeTab} onValueChange={handleTabChange} className='flex h-8 items-center sm:items-end'>
             {tabsList}
@@ -248,7 +246,14 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          {tabsContent}
+          <div className='relative'>
+            {loading && (
+              <div className='absolute inset-0 z-10 flex items-center justify-center'>
+                <Spinner />
+              </div>
+            )}
+            <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
+          </div>
         </Tabs>
       </CardContent>
       {footer ? (
