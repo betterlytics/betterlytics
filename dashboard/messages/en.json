@@ -2383,6 +2383,7 @@
         "title": "Filters",
         "emptyNoneSelected": "No filters selected - apply to save",
         "addFilter": "Add filter",
+        "addFilterAnd": "Add filter (AND)",
         "cancel": "Cancel",
         "apply": "Apply",
         "selectValue": "Select a value",

@@ -2386,6 +2386,7 @@
         "title": "Filtre",
         "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
         "addFilter": "Tilføj filter",
+        "addFilterAnd": "Tilføj filter (OG)",
         "cancel": "Annuller",
         "apply": "Anvend",
         "selectValue": "Vælg en værdi",

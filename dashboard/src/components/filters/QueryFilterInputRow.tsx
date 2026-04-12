@@ -40,7 +40,7 @@ export function QueryFilterInputRow<TEntity>({
   disableDeletion,
 }: QueryFilterInputRowProps<TEntity>) {
   return (
-    <div className='grid grid-cols-12 items-end gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+    <div className='grid grid-cols-12 items-start gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
       <FilterColumnDropdown
         filter={filter}
         onFilterUpdate={onFilterUpdate}

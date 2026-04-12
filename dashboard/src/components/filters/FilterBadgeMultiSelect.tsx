@@ -121,13 +121,14 @@ export function FilterBadgeMultiSelect({
             onEmptyAreaClick={handleEmptyAreaClick}
             onBackspace={handleBackspace}
             placeholder={t('selector.addFilter')}
+            trailingPlaceholder={t('selector.addFilterAnd')}
             iconSlot={iconSlot}
             className={cn(showError && 'border-destructive', className)}
           />
         </div>
       </PopoverAnchor>
       <PopoverContent
-        className='w-auto min-w-[500px] p-2'
+        className='w-[var(--radix-popper-anchor-width)] p-2'
         side='bottom'
         align='start'
         onOpenAutoFocus={(e) => e.preventDefault()}

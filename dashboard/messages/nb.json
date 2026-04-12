@@ -2394,6 +2394,7 @@
         "title": "Filtre",
         "emptyNoneSelected": "Ingen filtre valgt – klikk Bruk for å lagre",
         "addFilter": "Legg til filter",
+        "addFilterAnd": "Legg til filter (OG)",
         "cancel": "Avbryt",
         "apply": "Bruk",
         "selectValue": "Velg en verdi",

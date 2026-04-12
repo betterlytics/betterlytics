@@ -13,6 +13,7 @@ type BAMultiSelectProps<T> = {
   onEmptyAreaClick?: () => void;
   onBackspace?: () => void;
   placeholder?: string;
+  trailingPlaceholder?: string;
   className?: string;
   badgeClassName?: string;
   iconSlot?: ReactNode;
@@ -28,6 +29,7 @@ export function BAMultiSelect<T>({
   onEmptyAreaClick,
   onBackspace,
   placeholder,
+  trailingPlaceholder,
   className,
   badgeClassName,
   iconSlot,
@@ -64,7 +66,7 @@ export function BAMultiSelect<T>({
       onClick={handleContainerClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'border-input focus-within:border-ring focus-within:ring-ring/50 relative flex min-h-[36px] cursor-pointer items-center rounded-md border text-sm transition-[color,box-shadow] outline-none focus-within:ring-[3px]',
+        'border-input dark:bg-input/30 dark:hover:bg-input/50 focus-within:border-ring focus-within:ring-ring/50 relative flex min-h-[36px] cursor-pointer items-center rounded-md border bg-transparent text-sm shadow-xs transition-[color,box-shadow] outline-none focus-within:ring-[3px]',
         disabled && 'pointer-events-none cursor-not-allowed opacity-50',
         items.length > 0 ? 'p-1' : 'px-3 py-1.5',
         iconSlot && 'pr-9',
@@ -80,7 +82,7 @@ export function BAMultiSelect<T>({
             key={getItemId(item)}
             data-badge
             className={cn(
-              'animate-fadeIn bg-background text-secondary-foreground hover:bg-muted/50 relative inline-flex h-[26px] cursor-default items-center rounded-md border pl-2 text-xs font-medium transition-all',
+              'animate-fadeIn bg-popover text-secondary-foreground hover:bg-background relative inline-flex h-[26px] cursor-default items-center rounded-md border pl-2 text-xs font-medium transition-all',
               onBadgeRemove ? 'pr-7' : 'pr-2',
               badgeClassName,
             )}
@@ -114,6 +116,9 @@ export function BAMultiSelect<T>({
             )}
           </div>
         ))}
+        {items.length > 0 && trailingPlaceholder && (
+          <span className='text-muted-foreground/50 mx-1 flex items-center select-none text-xs'>{trailingPlaceholder}</span>
+        )}
       </div>
       {iconSlot && (
         <div className='absolute right-0 top-0 flex size-9 items-center justify-center'>

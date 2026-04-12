@@ -2394,6 +2394,7 @@
         "title": "Filtri",
         "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
         "addFilter": "Aggiungi filtro",
+        "addFilterAnd": "Aggiungi filtro (E)",
         "cancel": "Annulla",
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
