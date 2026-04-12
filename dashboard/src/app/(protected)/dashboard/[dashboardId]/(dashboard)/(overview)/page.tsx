@@ -24,14 +24,8 @@ export default async function DashboardPage() {
       <SummaryAndChartSection />
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
-        <LazySection>
-          <PagesAnalyticsSection />
-        </LazySection>
-        {enabledLevels.length > 0 && (
-          <LazySection>
-            <GeographySection enabledLevels={enabledLevels} />
-          </LazySection>
-        )}
+        <PagesAnalyticsSection />
+        {enabledLevels.length > 0 && <GeographySection enabledLevels={enabledLevels} />}
         <LazySection>
           <DevicesSection />
         </LazySection>
