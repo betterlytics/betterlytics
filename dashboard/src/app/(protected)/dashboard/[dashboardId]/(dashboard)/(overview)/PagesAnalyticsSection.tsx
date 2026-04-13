@@ -43,6 +43,7 @@ export default function PagesAnalyticsSection() {
       defaultTab='pages'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
+      contentClassName='h-[22rem]'
       tabs={[
         {
           key: 'pages',

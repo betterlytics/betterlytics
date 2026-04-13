@@ -14,6 +14,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { Spinner } from '@/components/ui/spinner';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -98,18 +99,23 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
       defaultTab={activeTab}
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
+      contentClassName='h-[22rem]'
       tabs={[
         ...geoLevelTabs,
         {
           key: 'worldmap',
           label: t('tabs.worldMap'),
-          loading: worldMapQuery.isFetching && !worldMapQuery.data,
+          loading: false,
           data: [],
-          customContent: worldMapQuery.data ? (
-            <div className='h-[280px] w-full'>
-              <LeafletMap {...worldMapQuery.data} showZoomControls={false} initialZoom={1} />
+          customContent: (
+            <div className='h-[22rem] w-full'>
+              <LeafletMap
+                {...(worldMapQuery.data ?? { maxVisitors: 0, visitorData: [], compareData: [] })}
+                showZoomControls={false}
+                initialZoom={1}
+              />
             </div>
-          ) : undefined,
+          ),
         },
       ]}
       footer={

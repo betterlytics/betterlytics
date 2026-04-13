@@ -28,6 +28,7 @@ interface TabConfig<T extends ProgressBarData> {
   data: T[];
   loading?: boolean;
   customContent?: React.ReactNode;
+  customLoader?: React.ReactNode;
 }
 
 interface MultiProgressTableProps<T extends ProgressBarData> {
@@ -39,6 +40,7 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   onItemClick?: (tabKey: string, item: T) => void;
   onTabChange?: (tabKey: string) => void;
   isItemInteractive?: (tabKey: string, item: T) => boolean;
+  contentClassName?: string;
 }
 
 function MultiProgressTable<T extends ProgressBarData>({
@@ -50,6 +52,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   onItemClick,
   onTabChange,
   isItemInteractive,
+  contentClassName,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
@@ -178,9 +181,11 @@ function MultiProgressTable<T extends ProgressBarData>({
     (tab: TabConfig<T>) => {
       if (tab.loading) {
         return (
-          <div className='space-y-4 py-2'>
-            <TableSkeleton tableOnly />
-          </div>
+          tab.customLoader ?? (
+            <div className='space-y-4 py-2'>
+              <TableSkeleton tableOnly />
+            </div>
+          )
         );
       }
 
@@ -246,7 +251,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className='relative'>
+          <div className={cn('relative', contentClassName)}>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
