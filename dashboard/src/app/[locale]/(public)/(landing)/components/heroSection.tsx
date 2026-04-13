@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { env } from '@/lib/env';
 import { DemoDashboardPreview } from './demoDashboardSection';
-import { EventRaysOverlay } from '@/components/landing/event-rays';
+import { HeroScrollBlock } from '@/components/landing/hero-scroll-block';
 
 export async function HeroSection() {
   const t = await getTranslations('public.landing.hero');
@@ -13,12 +13,12 @@ export async function HeroSection() {
 
   return (
     <>
-      <section className='relative flex min-h-svh flex-col items-center justify-center overflow-visible pb-[30vh]'>
-        <div className='pointer-events-none absolute inset-0 -bottom-[55vh] -z-10 overflow-hidden'>
-          <HeroGlobe />
-        </div>
-        <EventRaysOverlay />
-        <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
+      <HeroScrollBlock>
+        <section className='relative flex min-h-svh flex-col items-center justify-center overflow-visible pb-[30vh]'>
+          <div className='pointer-events-none absolute inset-0 -bottom-[55vh] -z-10 overflow-hidden'>
+            <HeroGlobe />
+          </div>
+          <div className='relative container mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='text-center'>
             <h1 className='mb-8 text-4xl font-bold tracking-[-0.02em] sm:text-6xl lg:text-7xl'>
               {t.rich('title', {
@@ -78,8 +78,9 @@ export async function HeroSection() {
               )}
             </div>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+      </HeroScrollBlock>
       {demoDashboardPath ? (
         <section className='relative overflow-visible pt-[8vh] pb-24 sm:pb-32'>
           <div className='container mx-auto px-4 sm:px-6 lg:px-8'>

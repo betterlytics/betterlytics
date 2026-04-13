@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useRef } from 'react';
-import { useScroll, useMotionValueEvent } from 'motion/react';
+import { useMotionValueEvent, type MotionValue } from 'motion/react';
 import { useHeroBackground } from './background-context';
 
 // Mirror globe-background.tsx coordinate system
@@ -12,7 +12,6 @@ const MERIDIAN_RX = [400, 328.7, 235.36, 123.1, 0];
 const LATITUDE_YS = [80, 160, 240, 320, 400];
 const RAY_EXTEND_Y = 700;
 const ARC_SAMPLES = 32;
-const SCROLL_RANGE = 1200;
 const TAIL_LENGTH = 240;
 
 // --- Grid helpers (same logic as globe-background.tsx) ---
@@ -123,16 +122,20 @@ const FILLED_LATITUDES = LATITUDE_YS.map((y) => {
 
 // --- Component ---
 
-export function EventRaysOverlay() {
+interface EventRaysOverlayProps {
+  readonly progress: MotionValue<number>;
+}
+
+export function EventRaysOverlay({ progress }: EventRaysOverlayProps) {
   const { heroMode } = useHeroBackground();
-  const { scrollY } = useScroll();
   const uid = useId().replace(/:/g, '');
   const clipRectRef = useRef<SVGRectElement>(null);
   const coreGradRef = useRef<SVGLinearGradientElement>(null);
   const glowGradRef = useRef<SVGLinearGradientElement>(null);
 
-  useMotionValueEvent(scrollY, 'change', (v) => {
-    const t = Math.max(0, Math.min(1, v / SCROLL_RANGE));
+  useMotionValueEvent(progress, 'change', (v) => {
+    // Complete ray animation over first 80% of scroll progress
+    const t = Math.max(0, Math.min(1, v / 0.8));
     const headY = t * RAY_EXTEND_Y;
     const tailY = headY - TAIL_LENGTH;
 
