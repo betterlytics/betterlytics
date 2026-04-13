@@ -24,6 +24,7 @@ export default function CustomEventsSection() {
       loading={query.isFetching && !!query.data}
       defaultTab='events'
       onItemClick={onItemClick}
+      contentClassName='h-[22rem]'
       tabs={[
         {
           key: 'events',

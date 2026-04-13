@@ -39,6 +39,7 @@ export default function DevicesSection() {
       defaultTab='browsers'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
+      contentClassName='h-[22rem]'
       tabs={[
         {
           key: 'browsers',
