@@ -30,6 +30,8 @@ export default async function LandingPage() {
     orientation: 'left' | 'right' | 'center';
     content: ReactNode;
     showGradient?: boolean;
+    /** Skip rendering while off-screen to reduce scroll-time paint cost. */
+    deferOffscreen?: boolean;
   }> = [
     {
       id: 'hero',
@@ -47,34 +49,40 @@ export default async function LandingPage() {
       id: 'principles',
       orientation: 'left',
       content: <PrinciplesSection />,
+      deferOffscreen: true,
     },
     {
       id: 'feature-showcase',
       orientation: 'right',
       content: <FeatureShowcase />,
+      deferOffscreen: true,
     },
     {
       id: 'integration',
       orientation: 'left',
       showGradient: false,
       content: <IntegrationSection />,
+      deferOffscreen: true,
     },
     {
       id: 'pricing',
       orientation: 'center',
       content: <PricingSection />,
+      deferOffscreen: true,
     },
     {
       id: 'cta-ready',
       orientation: 'center',
       showGradient: false,
       content: <CtaStrip />,
+      deferOffscreen: true,
     },
     {
       id: 'open-source',
       orientation: 'left',
       showGradient: false,
       content: <OpenSourceCallout />,
+      deferOffscreen: true,
     },
   ];
 
@@ -84,10 +92,19 @@ export default async function LandingPage() {
       <div className='bg-background text-foreground relative overflow-x-clip'>
         <div className='flex flex-col'>
           {landingSections.map((section) => {
-            const { id, orientation, content, showGradient = true } = section;
+            const { id, orientation, content, showGradient = true, deferOffscreen = false } = section;
 
             return (
-              <section key={id} id={id} className='relative isolate overflow-visible'>
+              <section
+                key={id}
+                id={id}
+                className='relative isolate overflow-visible'
+                style={
+                  deferOffscreen
+                    ? { contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }
+                    : undefined
+                }
+              >
                 {showGradient ? <div className={gradientClassName(orientation)} aria-hidden /> : null}
                 {content}
               </section>

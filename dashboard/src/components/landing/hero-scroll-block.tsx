@@ -13,7 +13,7 @@ export function HeroScrollBlock({ children }: { children: ReactNode }) {
 
   return (
     <div ref={containerRef} className='relative h-[300vh]'>
-      <div className='sticky top-0 relative overflow-visible'>
+      <div className='sticky top-0 overflow-visible'>
         <EventRaysOverlay progress={scrollYProgress} />
         {children}
       </div>

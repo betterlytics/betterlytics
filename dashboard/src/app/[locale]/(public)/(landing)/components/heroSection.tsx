@@ -6,6 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import { env } from '@/lib/env';
 import { DemoDashboardPreview } from './demoDashboardSection';
 import { HeroScrollBlock } from '@/components/landing/hero-scroll-block';
+import { DashboardParallax } from '@/components/landing/dashboard-parallax';
 
 export async function HeroSection() {
   const t = await getTranslations('public.landing.hero');
@@ -83,14 +84,16 @@ export async function HeroSection() {
       </HeroScrollBlock>
       {demoDashboardPath ? (
         <section className='relative overflow-visible pt-[8vh] pb-24 sm:pb-32'>
-          <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
-            <div className='max-w-8xl mx-auto w-full'>
-              <p className='text-muted-foreground mb-6 hidden text-center text-xs font-semibold tracking-[0.3em] uppercase sm:block'>
-                {t('eyebrow')}
-              </p>
-              <DemoDashboardPreview />
+          <DashboardParallax>
+            <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
+              <div className='max-w-8xl mx-auto w-full'>
+                <p className='text-muted-foreground mb-6 hidden text-center text-xs font-semibold tracking-[0.3em] uppercase sm:block'>
+                  {t('eyebrow')}
+                </p>
+                <DemoDashboardPreview />
+              </div>
             </div>
-          </div>
+          </DashboardParallax>
         </section>
       ) : null}
     </>
