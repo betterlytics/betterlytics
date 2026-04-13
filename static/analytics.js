@@ -135,13 +135,13 @@
       for (var i = 0; i < keys.length; i++) {
         var val = props[keys[i]];
         if (val == null) {
-          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, number, or boolean");
+          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, boolean or finite number");
         } else if (typeof val === "number" && !isFinite(val)) {
           console.warn("Betterlytics: skipping global property '" + keys[i] + "' — number must be finite");
         } else if (["string", "number", "boolean"].includes(typeof val)) {
           globalProperties[keys[i]] = val;
         } else {
-          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, number, or boolean");
+          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, boolean, or finite number");
         }
       }
     },
