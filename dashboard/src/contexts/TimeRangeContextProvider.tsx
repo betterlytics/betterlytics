@@ -2,8 +2,8 @@ import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 import { getResolvedRanges, type TimeRangeResult } from '@/lib/ba-timerange';
+import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export type TimeRangeContextProps = {
   startDate: Date;
@@ -33,23 +33,24 @@ const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRa
 
 type TimeRangeContextProviderProps = {
   children: React.ReactNode;
+  initialFilters: BAAnalyticsQuery;
 };
 
-export function TimeRangeContextProvider({ children }: TimeRangeContextProviderProps) {
-  const defaultFilters = useMemo(() => BAFilterSearchParams.getDefaultFilters(), []);
+export function TimeRangeContextProvider({ children, initialFilters }: TimeRangeContextProviderProps) {
+  const [startDate, setStartDate] = React.useState<Date>(initialFilters.startDate);
+  const [endDate, setEndDate] = React.useState<Date>(initialFilters.endDate);
 
-  const [startDate, setStartDate] = React.useState<Date>(defaultFilters.startDate);
-  const [endDate, setEndDate] = React.useState<Date>(defaultFilters.endDate);
-
-  const [granularity, setGranularity] = React.useState<GranularityRangeValues>(defaultFilters.granularity);
-  const [interval, setInterval] = React.useState<TimeRangeValue>(defaultFilters.interval);
-  const [offset, setOffset] = React.useState<number>(0);
-  const [compareMode, setCompareMode] = React.useState<CompareMode>(defaultFilters.compare);
+  const [granularity, setGranularity] = React.useState<GranularityRangeValues>(initialFilters.granularity);
+  const [interval, setInterval] = React.useState<TimeRangeValue>(initialFilters.interval);
+  const [offset, setOffset] = React.useState<number>(initialFilters.offset ?? 0);
+  const [compareMode, setCompareMode] = React.useState<CompareMode>(initialFilters.compare);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
-    defaultFilters.compareStartDate,
+    initialFilters.compareStartDate,
   );
-  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(defaultFilters.compareEndDate);
-  const [compareAlignWeekdays, setCompareAlignWeekdays] = React.useState<boolean>(false);
+  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(initialFilters.compareEndDate);
+  const [compareAlignWeekdays, setCompareAlignWeekdays] = React.useState<boolean>(
+    initialFilters.compareAlignWeekdays ?? false,
+  );
 
   const timeZone = React.useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
 
@@ -82,8 +83,8 @@ export function TimeRangeContextProvider({ children }: TimeRangeContextProviderP
   );
 
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
-    setStartDate(newStartDate);
-    setEndDate(newEndDate);
+    setStartDate((date) => (date.getTime() === newStartDate.getTime() ? date : newStartDate));
+    setEndDate((date) => (date.getTime() === newEndDate.getTime() ? date : newEndDate));
   }, []);
 
   const handleSetCompareDateRange = useCallback((csDate?: Date, ceDate?: Date) => {

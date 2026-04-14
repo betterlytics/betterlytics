@@ -7,8 +7,9 @@ import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
+import type { ReadonlyURLSearchParams } from 'next/navigation';
 
-const ENCODE_ORDER: Array<keyof FilterQueryParams> = [
+const URL_SEARCH_PARAMS: Array<keyof FilterQueryParams> = [
   'startDate',
   'endDate',
   'interval',
@@ -116,7 +117,7 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
 }
 
 function encode(params: FilterQueryParams) {
-  return ENCODE_ORDER.filter((key) => filterVariable(key, params[key])).map((key) => [
+  return URL_SEARCH_PARAMS.filter((key) => filterVariable(key, params[key])).map((key) => [
     key,
     encodeValue(key, params[key]),
   ]);
@@ -240,8 +241,20 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
   };
 }
 
+function parseFromSearchParams(searchParams: ReadonlyURLSearchParams): BAAnalyticsQuery {
+  const params: Partial<Record<string, string>> = {};
+  for (const key of URL_SEARCH_PARAMS) {
+    const value = searchParams.get(key);
+    if (value !== null) {
+      params[key] = value;
+    }
+  }
+  return decode(params, Intl.DateTimeFormat().resolvedOptions().timeZone);
+}
+
 export const BAFilterSearchParams = {
   getDefaultFilters,
   encode,
   decode,
+  parseFromSearchParams,
 };

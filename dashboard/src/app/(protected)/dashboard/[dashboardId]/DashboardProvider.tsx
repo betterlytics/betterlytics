@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { TimeRangeContextProvider } from '@/contexts/TimeRangeContextProvider';
 import { QueryFiltersContextProvider } from '@/contexts/QueryFiltersContextProvider';
 import { SettingsProvider } from '@/contexts/SettingsProvider';
@@ -12,6 +13,7 @@ import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSet
 import { type DashboardSettings } from '@/entities/dashboard/dashboardSettings.entities';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
+import { BAFilterSearchParams } from '@/utils/filterSearchParams';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -20,6 +22,8 @@ type DashboardProviderProps = {
 
 export function DashboardProvider({ children, initialSettings }: DashboardProviderProps) {
   const dashboardId = useDashboardId();
+  const searchParams = useSearchParams();
+  const initialFilters = useMemo(() => BAFilterSearchParams.parseFromSearchParams(searchParams), []);
 
   const { data: settings } = useQuery({
     queryKey: ['dashboard-settings', dashboardId],
@@ -30,9 +34,12 @@ export function DashboardProvider({ children, initialSettings }: DashboardProvid
   return (
     <CapabilitiesProvider dashboardId={dashboardId}>
       <SettingsProvider initialSettings={settings} dashboardId={dashboardId}>
-        <TimeRangeContextProvider>
-          <QueryFiltersContextProvider>
-            <UserJourneyFilterProvider>
+        <TimeRangeContextProvider initialFilters={initialFilters}>
+          <QueryFiltersContextProvider initialQueryFilters={initialFilters.queryFilters}>
+            <UserJourneyFilterProvider
+              initialNumberOfSteps={initialFilters.userJourney.numberOfSteps}
+              initialNumberOfJourneys={initialFilters.userJourney.numberOfJourneys}
+            >
               <SyncURLFilters />
 
               <PrefetchSavedFilters />
