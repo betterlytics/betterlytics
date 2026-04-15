@@ -150,6 +150,7 @@ export default function WebVitalsTableSection() {
         {
           accessorKey: 'key',
           header: label,
+          minSize: 200,
           cell: ({ row }) => {
             const key = row.original.key;
             const labelText = formatString(key);

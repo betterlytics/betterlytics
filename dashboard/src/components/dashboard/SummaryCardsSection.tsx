@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
 import SummaryCard from '@/components/SummaryCard';
-import { QuerySection } from '@/components/QuerySection';
 
 export interface SummaryCardData {
   title: ReactNode;
-  value: ReactNode;
+  value?: ReactNode;
   icon?: ReactNode;
   footer?: ReactNode;
   rawChartData?: any[];
@@ -13,6 +12,7 @@ export interface SummaryCardData {
   chartColor?: string;
   isActive?: boolean;
   onClick?: () => void;
+  loading?: boolean;
 }
 
 type SummaryCardsSectionProps = {
@@ -24,20 +24,20 @@ export default function SummaryCardsSection({ cards, className }: SummaryCardsSe
   return (
     <div className={`grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 xl:grid-cols-4 ${className}`}>
       {cards.map((card, index) => (
-        <QuerySection.Item key={index}>
-          <SummaryCard
-            title={card.title}
-            value={card.value}
-            icon={card.icon}
-            footer={card.footer}
-            comparePercentage={card.comparePercentage}
-            rawChartData={card.rawChartData}
-            valueField={card.valueField}
-            chartColor={card.chartColor}
-            isActive={card.isActive}
-            onClick={card.onClick}
-          />
-        </QuerySection.Item>
+        <SummaryCard
+          key={index}
+          title={card.title}
+          value={card.value}
+          icon={card.icon}
+          footer={card.footer}
+          comparePercentage={card.comparePercentage}
+          rawChartData={card.rawChartData}
+          valueField={card.valueField}
+          chartColor={card.chartColor}
+          isActive={card.isActive}
+          onClick={card.onClick}
+          loading={card.loading}
+        />
       ))}
     </div>
   );

@@ -99,7 +99,6 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
       defaultTab={activeTab}
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
-      contentClassName='h-[22rem]'
       tabs={[
         ...geoLevelTabs,
         {

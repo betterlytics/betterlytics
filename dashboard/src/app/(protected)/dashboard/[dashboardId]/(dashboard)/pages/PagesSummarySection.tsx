@@ -6,63 +6,53 @@ import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
-import { QuerySection } from '@/components/QuerySection';
-import { SummaryCardsSkeleton } from '@/components/skeleton';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function PagesSummarySection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.pages.summaryWithCharts.useQuery(input, options);
   const locale = useLocale();
   const t = useTranslations('components.pages.summary');
+  const { data, loading } = useQueryState(query);
 
-  return (
-    <QuerySection
-      query={query}
-      fallback={
-        <SummaryCardsSkeleton
-          titles={[t('pagesPerSession'), t('totalPageviews'), t('avgTimeOnPage'), t('avgBounceRate')]}
-        />
-      }
-      loadContext
-    >
-      {(summaryWithCharts) => {
-        const cards: SummaryCardData[] = [
-          {
-            title: t('pagesPerSession'),
-            value: formatNumber(summaryWithCharts.pagesPerSession, locale),
-            rawChartData: summaryWithCharts.pagesPerSessionChartData,
-            comparePercentage: summaryWithCharts.compareValues.pagesPerSession,
-            valueField: 'value',
-            chartColor: 'var(--chart-1)',
-          },
-          {
-            title: t('totalPageviews'),
-            value: formatNumber(summaryWithCharts.totalPageviews, locale),
-            rawChartData: summaryWithCharts.pageviewsChartData,
-            comparePercentage: summaryWithCharts.compareValues.totalPageviews,
-            valueField: 'views',
-            chartColor: 'var(--chart-1)',
-          },
-          {
-            title: t('avgTimeOnPage'),
-            value: formatDuration(summaryWithCharts.avgTimeOnPage, locale),
-            rawChartData: summaryWithCharts.avgTimeChartData,
-            comparePercentage: summaryWithCharts.compareValues.avgTimeOnPage,
-            valueField: 'value',
-            chartColor: 'var(--chart-1)',
-          },
-          {
-            title: t('avgBounceRate'),
-            value: formatPercentage(summaryWithCharts.avgBounceRate, locale),
-            rawChartData: summaryWithCharts.bounceRateChartData,
-            comparePercentage: summaryWithCharts.compareValues.avgBounceRate,
-            valueField: 'value',
-            chartColor: 'var(--chart-1)',
-          },
-        ];
+  const cards: SummaryCardData[] = [
+    {
+      title: t('pagesPerSession'),
+      loading,
+      value: data ? formatNumber(data.pagesPerSession, locale) : undefined,
+      rawChartData: data?.pagesPerSessionChartData,
+      comparePercentage: data?.compareValues.pagesPerSession,
+      valueField: 'value',
+      chartColor: 'var(--chart-1)',
+    },
+    {
+      title: t('totalPageviews'),
+      loading,
+      value: data ? formatNumber(data.totalPageviews, locale) : undefined,
+      rawChartData: data?.pageviewsChartData,
+      comparePercentage: data?.compareValues.totalPageviews,
+      valueField: 'views',
+      chartColor: 'var(--chart-1)',
+    },
+    {
+      title: t('avgTimeOnPage'),
+      loading,
+      value: data ? formatDuration(data.avgTimeOnPage, locale) : undefined,
+      rawChartData: data?.avgTimeChartData,
+      comparePercentage: data?.compareValues.avgTimeOnPage,
+      valueField: 'value',
+      chartColor: 'var(--chart-1)',
+    },
+    {
+      title: t('avgBounceRate'),
+      loading,
+      value: data ? formatPercentage(data.avgBounceRate, locale) : undefined,
+      rawChartData: data?.bounceRateChartData,
+      comparePercentage: data?.compareValues.avgBounceRate,
+      valueField: 'value',
+      chartColor: 'var(--chart-1)',
+    },
+  ];
 
-        return <SummaryCardsSection cards={cards} />;
-      }}
-    </QuerySection>
-  );
+  return <SummaryCardsSection cards={cards} />;
 }

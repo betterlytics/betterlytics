@@ -43,7 +43,6 @@ export default function TrafficSourcesSection() {
       defaultTab='referrers'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
-      contentClassName='h-[22rem]'
       isItemInteractive={(tabKey) => isItemInteractive(tabKey)}
       tabs={[
         {

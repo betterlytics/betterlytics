@@ -10,9 +10,7 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { ExpandedEventContent } from './ExpandedEventContent';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { formatRelativeTimeFromNow } from '@/utils/dateFormatters';
@@ -21,11 +19,15 @@ import { cn } from '@/lib/utils';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useLocale, useTranslations } from 'next-intl';
 import { BARouterOutputs } from '@/trpc/client';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type TableEventRow = BARouterOutputs['events']['customEventsOverview'][number];
 
-interface EventsTableProps {
+const SKELETON_ROWS = 8;
+
+export interface EventsTableProps {
   data: TableEventRow[];
+  loading?: boolean;
 }
 
 interface ExpandedRowState {
@@ -40,7 +42,7 @@ interface EventRowWithExpansion extends TableEventRow {
   totalEvents: number;
 }
 
-export function EventsTable({ data }: EventsTableProps) {
+export function EventsTable({ data, loading }: EventsTableProps) {
   const locale = useLocale();
   const t = useTranslations('components.events.table');
 
@@ -140,7 +142,6 @@ export function EventsTable({ data }: EventsTableProps) {
         header: t('lastSeen'),
         cell: ({ row }) => {
           const timeAgo = formatRelativeTimeFromNow(row.original.current.last_seen);
-
           return (
             <div className='flex items-center text-right text-sm'>
               <span className='text-muted-foreground'>{timeAgo}</span>
@@ -181,122 +182,128 @@ export function EventsTable({ data }: EventsTableProps) {
   const table = useReactTable({
     data: tableData,
     columns,
-    state: {
-      sorting,
-    },
+    state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
+  if (loading) {
+    const skeletonHeaders = [t('eventName'), t('count'), t('uniqueUsers'), t('avgPerUser'), t('lastSeen'), t('percentage')];
+    return (
+      <div className='dark:border-secondary overflow-hidden rounded-lg border border-gray-200 dark:border-2'>
+        <Table>
+          <TableHeader>
+            <TableRow className='border-muted-foreground bg-accent hover:bg-accent border-b'>
+              {skeletonHeaders.map((header) => (
+                <TableHead key={header} className='text-foreground bg-muted/50 px-4 py-3 text-sm font-medium'>
+                  {header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-secondary divide-y'>
+            {Array.from({ length: SKELETON_ROWS }, (_, i) => (
+              <TableRow key={i}>
+                <TableCell className='px-4 py-3'><Skeleton className='h-4 w-3/5' /></TableCell>
+                <TableCell className='px-4 py-3'><Skeleton className='h-4 w-16' /></TableCell>
+                <TableCell className='px-4 py-3'><Skeleton className='h-4 w-16' /></TableCell>
+                <TableCell className='px-4 py-3'><Skeleton className='h-4 w-16' /></TableCell>
+                <TableCell className='px-4 py-3'><Skeleton className='h-4 w-20' /></TableCell>
+                <TableCell className='px-4 py-3'><Skeleton className='h-4 w-12' /></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
   if (data.length === 0) {
     return (
-      <Card className='border-border/50'>
-        <CardContent className='p-12'>
-          <div className='text-center'>
-            <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
-              <Activity className='text-primary h-8 w-8' />
-            </div>
-            <h3 className='text-foreground mb-3 text-lg font-semibold'>{t('noEvents')}</h3>
-            <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>{t('noEventsDesc')}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className='p-12 text-center'>
+        <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
+          <Activity className='text-primary h-8 w-8' />
+        </div>
+        <h3 className='text-foreground mb-3 text-lg font-semibold'>{t('noEvents')}</h3>
+        <p className='text-muted-foreground mx-auto max-w-sm leading-relaxed'>{t('noEventsDesc')}</p>
+      </div>
     );
   }
 
   return (
-    <Card className='border-border/50 overflow-hidden px-3 sm:px-6'>
-      <CardHeader className='px-0'>
-        <CardTitle className='flex items-center gap-3'>
-          <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
-            <Activity className='text-primary h-4 w-4' />
-          </div>
-          <div className='flex items-center gap-3'>
-            <span>{t('eventDetails')}</span>
-            <Badge variant='secondary' className='text-xs font-normal'>
-              {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
-            </Badge>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className='px-0'>
-        <div className='dark:border-secondary overflow-hidden rounded-lg border border-gray-200 dark:border-2'>
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className='border-muted-foreground bg-accent hover:bg-accent border-b'
+    <div className='dark:border-secondary overflow-hidden rounded-lg border border-gray-200 dark:border-2'>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow
+              key={headerGroup.id}
+              className='border-muted-foreground bg-accent hover:bg-accent border-b'
+            >
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  key={header.id}
+                  className={cn(
+                    'text-foreground bg-muted/50 px-4 py-3 text-left text-sm font-medium',
+                    header.column.getCanSort()
+                      ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
+                      : '',
+                  )}
+                  onClick={header.column.getToggleSortingHandler()}
                 >
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className={cn(
-                        'text-foreground bg-muted/50 px-4 py-3 text-left text-sm font-medium',
-                        header.column.getCanSort()
-                          ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
-                          : '',
-                      )}
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      <div className='flex items-center'>
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getCanSort() && (
-                          <div className='ml-2 flex h-4 w-4 items-center justify-center'>
-                            {header.column.getIsSorted() === 'desc' ? (
-                              <ArrowDown className='size-4' />
-                            ) : header.column.getIsSorted() === 'asc' ? (
-                              <ArrowUp className='size-4' />
-                            ) : (
-                              <div className='size-4' />
-                            )}
-                          </div>
+                  <div className='flex items-center'>
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.column.getCanSort() && (
+                      <div className='ml-2 flex h-4 w-4 items-center justify-center'>
+                        {header.column.getIsSorted() === 'desc' ? (
+                          <ArrowDown className='size-4' />
+                        ) : header.column.getIsSorted() === 'asc' ? (
+                          <ArrowUp className='size-4' />
+                        ) : (
+                          <div className='size-4' />
                         )}
                       </div>
-                    </TableHead>
+                    )}
+                  </div>
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody className='divide-secondary divide-y'>
+          {table.getRowModel().rows.map((row) => {
+            const event = row.original;
+            const isExpanded = event.isExpanded;
+
+            return (
+              <React.Fragment key={row.id}>
+                <TableRow
+                  className='hover:bg-accent/30 dark:hover:bg-accent/60 hover:ring-border/60 cursor-pointer transition-colors hover:ring-1'
+                  onClick={() => toggleRow(event.event_name)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className='text-foreground px-4 py-3 text-sm'>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody className='divide-secondary divide-y'>
-              {table.getRowModel().rows.map((row) => {
-                const event = row.original;
-                const isExpanded = event.isExpanded;
 
-                return (
-                  <React.Fragment key={row.id}>
-                    <TableRow
-                      className={cn(
-                        'hover:bg-accent/30 dark:hover:bg-accent/60 hover:ring-border/60 cursor-pointer transition-colors hover:ring-1',
-                      )}
-                      onClick={() => toggleRow(event.event_name)}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className='text-foreground px-4 py-3 text-sm'>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-
-                    {isExpanded && (
-                      <TableRow className='hover:bg-transparent'>
-                        <TableCell colSpan={columns.length}>
-                          <ExpandedEventContent
-                            event={event.current}
-                            expandedProperties={expandedRows[event.event_name]?.expandedProperties || new Set()}
-                            onToggleProperty={(propertyName) => toggleProperty(event.event_name, propertyName)}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+                {isExpanded && (
+                  <TableRow className='hover:bg-transparent'>
+                    <TableCell colSpan={columns.length}>
+                      <ExpandedEventContent
+                        event={event.current}
+                        expandedProperties={expandedRows[event.event_name]?.expandedProperties || new Set()}
+                        onToggleProperty={(propertyName) => toggleProperty(event.event_name, propertyName)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

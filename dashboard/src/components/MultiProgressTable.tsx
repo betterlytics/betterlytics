@@ -40,7 +40,6 @@ interface MultiProgressTableProps<T extends ProgressBarData> {
   onItemClick?: (tabKey: string, item: T) => void;
   onTabChange?: (tabKey: string) => void;
   isItemInteractive?: (tabKey: string, item: T) => boolean;
-  contentClassName?: string;
 }
 
 function MultiProgressTable<T extends ProgressBarData>({
@@ -52,7 +51,6 @@ function MultiProgressTable<T extends ProgressBarData>({
   onItemClick,
   onTabChange,
   isItemInteractive,
-  contentClassName,
 }: MultiProgressTableProps<T>) {
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
@@ -245,7 +243,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className={cn('relative', contentClassName)}>
+          <div className='relative h-[22rem]'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
