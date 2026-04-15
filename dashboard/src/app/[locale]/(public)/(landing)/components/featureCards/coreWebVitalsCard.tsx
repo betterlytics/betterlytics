@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocale, useTranslations } from 'next-intl';
 import { Gauge } from '@/components/gauge';
@@ -13,7 +13,10 @@ import {
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
-import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import NumberFlow from '@number-flow/react';
+import { useInView } from 'motion/react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsScrollingMotionRef } from '@/hooks/use-is-scrolling-motion-ref';
 
 type MetricGaugeProps = {
   metric: { key: CoreWebVitalName; value: number };
@@ -46,7 +49,7 @@ const MetricGauge = memo(function MetricGauge({ metric, locale }: MetricGaugePro
             ['--number-flow-char-height' as string]: '1em',
           }}
         >
-          <NumberFlow value={value} format={format} locales={locale} willChange />
+          <NumberFlow value={value} format={format} locales={locale} willChange isolate />
           {suffix && (
             <span key={suffix} className='animate-in fade-in duration-700'>
               {suffix}
@@ -71,45 +74,57 @@ function StaggeredMetricGauge({
   intervalMs,
   startIndex,
   locale,
+  inView,
+  isScrollingRef,
 }: {
   metricKey: CoreWebVitalName;
   intervalMs: number;
   startIndex: number;
   locale: SupportedLanguages;
+  inView: boolean;
+  isScrollingRef: React.RefObject<boolean>;
 }) {
   const values = MOCK_CORE_WEB_VITAL_VALUES[metricKey];
   const [currentIndex, setCurrentIndex] = useState(startIndex % values.length);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
+    if (!inView || isMobile) return;
+
     const timer = setInterval(() => {
+      if (isScrollingRef.current) return;
       setCurrentIndex((prev) => (prev + 1) % values.length);
     }, intervalMs);
     return () => clearInterval(timer);
-  }, [intervalMs, values.length]);
+  }, [inView, isMobile, intervalMs, values.length]);
 
   return <MetricGauge metric={{ key: metricKey, value: values[currentIndex] }} locale={locale} />;
 }
 
 function AnimatedGaugeGrid() {
   const locale = useLocale();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+  const isScrollingRef = useIsScrollingMotionRef();
 
   return (
-    <NumberFlowGroup>
-      <div
-        className='flex w-full flex-wrap-reverse justify-evenly gap-x-4 gap-y-6'
-        style={{ ['--number-flow-duration' as string]: '700ms' }}
-      >
-        {GAUGE_CONFIGS.map((config) => (
-          <StaggeredMetricGauge
-            key={config.key}
-            metricKey={config.key}
-            intervalMs={config.intervalMs}
-            startIndex={config.startIndex}
-            locale={locale}
-          />
-        ))}
-      </div>
-    </NumberFlowGroup>
+    <div
+      ref={ref}
+      className='flex w-full flex-wrap-reverse justify-evenly gap-x-4 gap-y-6'
+      style={{ ['--number-flow-duration' as string]: '700ms' }}
+    >
+      {GAUGE_CONFIGS.map((config) => (
+        <StaggeredMetricGauge
+          key={config.key}
+          metricKey={config.key}
+          intervalMs={config.intervalMs}
+          startIndex={config.startIndex}
+          locale={locale}
+          inView={inView}
+          isScrollingRef={isScrollingRef}
+        />
+      ))}
+    </div>
   );
 }
 

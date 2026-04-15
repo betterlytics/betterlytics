@@ -1,0 +1,42 @@
+/**
+ * Scroll-linked shimmer text fill styles
+ */
+
+@layer utilities {
+  /* Static shimmer text fallback */
+  .sst-static {
+    color: var(--color-blue-600);
+  }
+
+  :is(.dark .sst-static) {
+    color: var(--color-blue-400);
+  }
+
+  /* Animated scroll-driven shimmer text */
+  .sst-animated {
+    --sst-bg-pos-x: 100%;
+    --sst-muted: var(--foreground);
+    --shimmer-highlight: rgba(255, 255, 255, 0.7);
+    color: var(--color-blue-600);
+    background-image: linear-gradient(
+      to right,
+      currentColor 0%,
+      currentColor 38%,
+      var(--shimmer-highlight) 46%,
+      var(--shimmer-highlight) 54%,
+      var(--sst-muted) 62%,
+      var(--sst-muted) 100%
+    );
+    background-size: 300% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-position-x: var(--sst-bg-pos-x);
+  }
+
+  :is(.dark .sst-animated) {
+    --sst-muted: var(--foreground);
+    --shimmer-highlight: rgba(180, 210, 255, 0.8);
+    color: var(--color-blue-400);
+  }
+}
