@@ -7,6 +7,7 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function PagesAnalyticsSection() {
   const [activeTab, setActiveTab] = useState('pages');
@@ -18,11 +19,14 @@ export default function PagesAnalyticsSection() {
   const entryQuery = trpc.overview.topEntryPages.useQuery(input, { ...options, enabled: activeTab === 'entry' });
   const exitQuery = trpc.overview.topExitPages.useQuery(input, { ...options, enabled: activeTab === 'exit' });
 
+  const pagesState = useQueryState(pagesQuery, activeTab === 'pages');
+  const entryState = useQueryState(entryQuery, activeTab === 'entry');
+  const exitState = useQueryState(exitQuery, activeTab === 'exit');
+  const activeState = { pages: pagesState, entry: entryState, exit: exitState }[activeTab as 'pages' | 'entry' | 'exit'];
+
   const onItemClick = (_tabKey: string, item: { label: string }) => {
     return makeFilterClick('url')(item.label);
   };
-
-  const activeQuery = { pages: pagesQuery, entry: entryQuery, exit: exitQuery }[activeTab];
 
   const mapPage = (page: {
     url: string;
@@ -39,7 +43,7 @@ export default function PagesAnalyticsSection() {
   return (
     <MultiProgressTable
       title={t('sections.topPages')}
-      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      loading={activeState.refetching}
       defaultTab='pages'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
@@ -47,19 +51,19 @@ export default function PagesAnalyticsSection() {
         {
           key: 'pages',
           label: t('tabs.pages'),
-          loading: pagesQuery.isFetching && !pagesQuery.data,
+          loading: pagesState.loading,
           data: (pagesQuery.data ?? []).map(mapPage),
         },
         {
           key: 'entry',
           label: t('tabs.entryPages'),
-          loading: entryQuery.isFetching && !entryQuery.data,
+          loading: entryState.loading,
           data: (entryQuery.data ?? []).map(mapPage),
         },
         {
           key: 'exit',
           label: t('tabs.exitPages'),
-          loading: exitQuery.isFetching && !exitQuery.data,
+          loading: exitState.loading,
           data: (exitQuery.data ?? []).map(mapPage),
         },
       ]}

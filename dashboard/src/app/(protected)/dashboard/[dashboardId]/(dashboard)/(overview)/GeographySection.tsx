@@ -14,7 +14,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
-import { Spinner } from '@/components/ui/spinner';
+import { useQueryState } from '@/hooks/use-query-state';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -56,15 +56,22 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
     city: t('tabs.cities'),
   } satisfies Record<GeoLevel, string>;
 
+  const countryState = useQueryState(countryQuery, activeTab === 'country_code');
+  const subdivisionState = useQueryState(subdivisionQuery, activeTab === 'subdivision_code');
+  const cityState = useQueryState(cityQuery, activeTab === 'city');
+
   const geoLevelTabs = enabledLevels.map((level) => {
     const queryForLevel = { country_code: countryQuery, subdivision_code: subdivisionQuery, city: cityQuery }[
+      level
+    ];
+    const stateForLevel = { country_code: countryState, subdivision_code: subdivisionState, city: cityState }[
       level
     ];
     const data = queryForLevel?.data;
     return {
       key: level,
       label: geoLevelTabLabels[level],
-      loading: queryForLevel?.isFetching && !data,
+      loading: stateForLevel.loading,
       data: (data ?? []).map((item) => ({
         label: GEO_LABEL_FORMATTERS[level](item[level], locale),
         key: item[level],
@@ -81,12 +88,13 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
     };
   });
 
-  const activeQuery = {
-    country_code: countryQuery,
-    subdivision_code: subdivisionQuery,
-    city: cityQuery,
-    worldmap: worldMapQuery,
-  }[activeTab];
+  const worldMapState = useQueryState(worldMapQuery, activeTab === 'worldmap');
+  const activeState = {
+    country_code: countryState,
+    subdivision_code: subdivisionState,
+    city: cityState,
+    worldmap: worldMapState,
+  }[activeTab as 'country_code' | 'subdivision_code' | 'city' | 'worldmap'];
 
   const onItemClick = (tabKey: string, item: { key?: string }) => {
     if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
@@ -95,7 +103,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
   return (
     <MultiProgressTable
       title={t('sections.geography')}
-      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      loading={activeState.refetching}
       defaultTab={activeTab}
       onTabChange={setActiveTab}
       onItemClick={onItemClick}

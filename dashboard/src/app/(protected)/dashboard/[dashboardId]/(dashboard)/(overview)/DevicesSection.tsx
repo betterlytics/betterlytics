@@ -10,6 +10,7 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function DevicesSection() {
   const [activeTab, setActiveTab] = useState('browsers');
@@ -24,7 +25,10 @@ export default function DevicesSection() {
   const osQuery = trpc.devices.osRollup.useQuery(input, { ...options, enabled: activeTab === 'os' });
   const devicesQuery = trpc.devices.deviceType.useQuery(input, { ...options, enabled: activeTab === 'devices' });
 
-  const activeQuery = { browsers: browsersQuery, os: osQuery, devices: devicesQuery }[activeTab];
+  const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
+  const osState = useQueryState(osQuery, activeTab === 'os');
+  const devicesState = useQueryState(devicesQuery, activeTab === 'devices');
+  const activeState = { browsers: browsersState, os: osState, devices: devicesState }[activeTab as 'browsers' | 'os' | 'devices'];
 
   const onItemClick = (tabKey: string, item: { label: string }) => {
     if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
@@ -35,7 +39,7 @@ export default function DevicesSection() {
   return (
     <MultiProgressTable
       title={t('sections.devicesBreakdown')}
-      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      loading={activeState.refetching}
       defaultTab='browsers'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
@@ -43,7 +47,7 @@ export default function DevicesSection() {
         {
           key: 'browsers',
           label: t('tabs.browsers'),
-          loading: browsersQuery.isFetching && !browsersQuery.data,
+          loading: browsersState.loading,
           data: (browsersQuery.data ?? []).map((item) => ({
             label: item.browser,
             value: item.current.visitors,
@@ -62,7 +66,7 @@ export default function DevicesSection() {
         {
           key: 'os',
           label: t('tabs.operatingSystems'),
-          loading: osQuery.isFetching && !osQuery.data,
+          loading: osState.loading,
           data: (osQuery.data ?? []).map((item) => ({
             label: item.os,
             value: item.current.visitors,
@@ -81,7 +85,7 @@ export default function DevicesSection() {
         {
           key: 'devices',
           label: t('tabs.devices'),
-          loading: devicesQuery.isFetching && !devicesQuery.data,
+          loading: devicesState.loading,
           data: (devicesQuery.data ?? []).map((item) => ({
             label: item.device_type,
             value: item.current.visitors,
