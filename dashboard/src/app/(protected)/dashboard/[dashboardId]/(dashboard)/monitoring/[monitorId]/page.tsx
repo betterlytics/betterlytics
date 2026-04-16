@@ -45,6 +45,7 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
 
   const uptime = toMonitorUptimePresentation(uptimeRows, 180);
   const hostname = safeHostname(monitor.url);
+  const serverNow = Date.now();
 
   return (
     <MonitorDetailClient
@@ -52,6 +53,7 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
       monitorId={monitorId}
       hostname={hostname}
       timezone={timezone}
+      serverNow={serverNow}
       initialData={{
         monitor,
         metrics,
