@@ -34,7 +34,7 @@ export function useTimeRangeQueryOptions(): TimeRangeQueryOptions {
 
     if (isRealtime) {
       return {
-        staleTime: 10_000,
+        staleTime: Infinity,
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,
         refetchInterval: false,
