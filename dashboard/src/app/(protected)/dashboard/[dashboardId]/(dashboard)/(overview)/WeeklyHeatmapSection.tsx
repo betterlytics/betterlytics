@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -43,6 +44,7 @@ export default function WeeklyHeatmapSection() {
   const { input, options } = useBAQueryParams();
 
   const query = trpc.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, options);
+  const queryState = useQueryState(query);
 
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
@@ -59,8 +61,6 @@ export default function WeeklyHeatmapSection() {
   const onMetricChange = (next: string) => {
     setSelectedMetric(next as HeatmapMetric);
   };
-
-  const isLoading = query.isFetching && !query.data;
 
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
@@ -91,7 +91,7 @@ export default function WeeklyHeatmapSection() {
       </CardHeader>
 
       <CardContent className='flex flex-1 flex-col px-0'>
-        {isLoading ? (
+        {queryState.loading ? (
           <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-0.5 gap-y-1 pb-3'>
             <div></div>
             {Array.from({ length: 7 }).map((_, i) => (
@@ -110,12 +110,12 @@ export default function WeeklyHeatmapSection() {
           </div>
         ) : (
           <div className='relative'>
-            {query.isFetching && !!query.data && (
+            {queryState.refetching && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
               </div>
             )}
-            <div className={cn('h-full', query.isFetching && !!query.data && 'pointer-events-none opacity-60')}>
+            <div className={cn('h-full', queryState.refetching && 'pointer-events-none opacity-60')}>
               <HeatmapGrid
                 data={query.data?.matrix ?? []}
                 maxValue={query.data?.maxValue ?? 1}
