@@ -35,7 +35,7 @@ export function useSyncURLFilters() {
     compareEndDate,
     setCompareDateRange,
     interval,
-    setInterval,
+    setRangeInterval,
     offset,
     setOffset,
     compareMode,
@@ -65,7 +65,7 @@ export function useSyncURLFilters() {
         setGranularity(filters.granularity);
       }
       if (filters.interval) {
-        setInterval(filters.interval);
+        setRangeInterval(filters.interval);
       }
       if (filters.offset !== undefined) {
         setOffset(filters.offset);

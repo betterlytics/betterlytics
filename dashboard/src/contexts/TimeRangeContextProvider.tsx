@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef } from 'react';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
@@ -12,7 +12,7 @@ export type TimeRangeContextProps = {
   granularity: GranularityRangeValues;
   setGranularity: Dispatch<SetStateAction<GranularityRangeValues>>;
   interval: TimeRangeValue;
-  setInterval: Dispatch<SetStateAction<TimeRangeValue>>;
+  setRangeInterval: Dispatch<SetStateAction<TimeRangeValue>>;
   offset: number;
   setOffset: Dispatch<SetStateAction<number>>;
   compareMode: CompareMode;
@@ -41,7 +41,7 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
   const [endDate, setEndDate] = React.useState<Date>(initialFilters.endDate);
 
   const [granularity, setGranularity] = React.useState<GranularityRangeValues>(initialFilters.granularity);
-  const [interval, setInterval] = React.useState<TimeRangeValue>(initialFilters.interval);
+  const [interval, setRangeInterval] = React.useState<TimeRangeValue>(initialFilters.interval);
   const [offset, setOffset] = React.useState<number>(initialFilters.offset ?? 0);
   const [compareMode, setCompareMode] = React.useState<CompareMode>(initialFilters.compare);
   const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
@@ -82,6 +82,37 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
     ],
   );
 
+  const resolvedMainEndMsRef = useRef(resolvedRanges.main.end.getTime());
+  useEffect(() => {
+    resolvedMainEndMsRef.current = resolvedRanges.main.end.getTime();
+  }, [resolvedRanges]);
+
+  // Advance dates when a boundary is crossed (e.g. hour rolls over on 24h mode).
+  useEffect(() => {
+    if (interval === 'custom' || interval === 'realtime') return;
+
+    const id = setInterval(() => {
+      const now = new Date();
+      const fresh = getResolvedRanges(
+        interval,
+        compareMode,
+        timeZone,
+        now,
+        now,
+        granularity,
+        undefined,
+        undefined,
+        offset,
+        compareAlignWeekdays,
+      );
+      if (fresh.main.end.getTime() !== resolvedMainEndMsRef.current) {
+        setPeriod(fresh.main.start, fresh.main.end);
+      }
+    }, 30_000);
+
+    return () => clearInterval(id);
+  }, [interval, compareMode, timeZone, granularity, offset, compareAlignWeekdays]);
+
   const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
     setStartDate((date) => (date.getTime() === newStartDate.getTime() ? date : newStartDate));
     setEndDate((date) => (date.getTime() === newEndDate.getTime() ? date : newEndDate));
@@ -102,7 +133,7 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
         granularity,
         setGranularity,
         interval,
-        setInterval,
+        setRangeInterval,
         offset,
         setOffset,
         compareMode,
