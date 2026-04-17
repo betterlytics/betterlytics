@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
+import superjson from 'superjson';
 import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.service';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entities';
@@ -80,7 +81,12 @@ export async function executeWithDemoCache<Args extends Array<unknown>, Ret>(
     const fnId = getFnSignature(fn as AnyFn);
     const argsKey = getArgsSignature(args);
     const cacheKey = buildDemoCacheKey(context, fnId, argsKey);
-    return await unstable_cache(async () => fn(context, ...args), [cacheKey], { revalidate: 300 })();
+    const serialized = await unstable_cache(
+      async () => superjson.stringify(await fn(context, ...args)),
+      [cacheKey],
+      { revalidate: 300 },
+    )();
+    return superjson.parse(serialized) as Ret;
   }
   return await fn(context, ...args);
 }
