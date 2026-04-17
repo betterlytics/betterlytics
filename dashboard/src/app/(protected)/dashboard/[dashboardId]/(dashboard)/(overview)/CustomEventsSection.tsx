@@ -7,10 +7,12 @@ import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function CustomEventsSection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.events.customEventsOverview.useQuery(input, options);
+  const eventState = useQueryState(query);
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
@@ -21,14 +23,14 @@ export default function CustomEventsSection() {
   return (
     <MultiProgressTable
       title={t('sections.customEvents')}
-      loading={query.isFetching && !!query.data}
+      loading={eventState.loading}
       defaultTab='events'
       onItemClick={onItemClick}
       tabs={[
         {
           key: 'events',
           label: t('tabs.events'),
-          loading: query.isFetching && !query.data,
+          loading: eventState.loading,
           data: (query.data ?? []).map((event) => ({
             label: event.event_name,
             value: event.current.count,

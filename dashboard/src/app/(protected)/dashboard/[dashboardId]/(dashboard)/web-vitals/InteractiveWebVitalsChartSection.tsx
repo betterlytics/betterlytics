@@ -116,7 +116,7 @@ function CoreWebVitalsGaugeSkeleton() {
             strokeWidth={7.5}
             arcGap={2.5}
             totalAngle={240}
-            className='text-muted-foreground/20'
+            className='text-muted-foreground/20 animate-pulse'
           >
             <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
               <span className='text-muted-foreground/75 -mb-1 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
