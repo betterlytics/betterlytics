@@ -23,7 +23,7 @@ export default function CustomEventsSection() {
   return (
     <MultiProgressTable
       title={t('sections.customEvents')}
-      loading={query.isFetching && !!query.data}
+      loading={eventState.loading}
       defaultTab='events'
       onItemClick={onItemClick}
       tabs={[
