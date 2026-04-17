@@ -1,12 +1,14 @@
 'use client';
 
-import { createContext, useCallback, useContext, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export type QueryLike<T> = {
   isPending: boolean;
   isFetching: boolean;
+  isPlaceholderData?: boolean;
   data: T | undefined;
 };
 
@@ -23,16 +25,17 @@ type QuerySectionProps<T> = {
 export function QuerySection<T>(props: QuerySectionProps<T>) {
   const { query, fallback, loadContext, children, className } = props;
   const hasData = !query.isPending && query.data !== undefined;
+  const { refetching } = useQueryState(query);
 
   const content = hasData ? (
-    <LoadingWrapper loading={!loadContext && query.isFetching} className={className}>
+    <LoadingWrapper loading={!loadContext && refetching} className={className}>
       {children(query.data!)}
     </LoadingWrapper>
   ) : null;
 
   return (
     <div className={cn('grid [&>*]:[grid-area:1/1]', className)}>
-      <QuerySectionContext.Provider value={{ loading: Boolean(loadContext && query.isFetching) }}>
+      <QuerySectionContext.Provider value={{ loading: Boolean(loadContext && refetching) }}>
         {content}
       </QuerySectionContext.Provider>
       <div className={cn('transition-opacity duration-200', hasData && 'pointer-events-none opacity-0')}>

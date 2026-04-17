@@ -5,11 +5,13 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { trpc } from '@/trpc/client';
-import { QuerySection } from '@/components/QuerySection';
 
-function WebVitalsBannerInner({ hasData }: { hasData: boolean }) {
+export function WebVitalsBanner() {
+  const dashboardId = useDashboardId();
+  const { data: hasData } = trpc.webVitals.hasData.useQuery({ dashboardId });
   const t = useTranslations('banners.webVitalsNoData');
   const { addBanner, removeBanner } = useBannerContext();
+
   useEffect(() => {
     if (hasData === false) {
       addBanner({
@@ -30,21 +32,10 @@ function WebVitalsBannerInner({ hasData }: { hasData: boolean }) {
         ),
         dismissible: true,
       });
-    } else {
+    } else if (hasData !== undefined) {
       removeBanner('no-web-vitals-data');
     }
   }, [hasData, t]);
 
   return null;
-}
-
-export function WebVitalsBanner() {
-  const dashboardId = useDashboardId();
-  const query = trpc.webVitals.hasData.useQuery({ dashboardId });
-
-  return (
-    <QuerySection query={query} fallback={null}>
-      {(hasData) => <WebVitalsBannerInner hasData={hasData} />}
-    </QuerySection>
-  );
 }
