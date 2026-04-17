@@ -30,14 +30,14 @@ export function useTimeRangeQueryOptions(): TimeRangeQueryOptions {
   const { startDate, endDate, interval } = useTimeRangeContext();
 
   return useMemo(() => {
-    const isRealtime = interval === 'realtime' || interval === '1h';
+    const isRealtime = interval === 'realtime';
 
     if (isRealtime) {
       return {
         staleTime: 10_000,
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,
-        refetchInterval: 30_000,
+        refetchInterval: false,
       };
     }
 

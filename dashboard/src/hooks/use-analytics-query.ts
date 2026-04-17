@@ -2,53 +2,51 @@
 
 import { useMemo } from 'react';
 import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { useUrlFilters } from './use-url-filters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 
 export function useAnalyticsQuery(): BAAnalyticsQuery {
   const {
-    startDate,
-    endDate,
-    granularity,
-    timezone,
-    compareStartDate,
-    compareEndDate,
+    resolvedMainRange,
+    resolvedCompareRange,
+    resolvedGranularity,
     interval,
     offset,
-    compare,
+    compareMode,
     compareAlignWeekdays,
-    queryFilters,
-    userJourney: { numberOfSteps, numberOfJourneys },
-  } = useUrlFilters();
+    timeZone,
+  } = useTimeRangeContext();
+  const { queryFilters } = useQueryFiltersContext();
+  const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
 
   return useMemo(
     () => ({
-      startDate,
-      endDate,
-      compareStartDate,
-      compareEndDate,
-      granularity,
-      queryFilters,
-      timezone,
-      userJourney: { numberOfSteps, numberOfJourneys },
+      startDate: resolvedMainRange.start,
+      endDate: resolvedMainRange.end,
+      compareStartDate: resolvedCompareRange?.start,
+      compareEndDate: resolvedCompareRange?.end,
+      granularity: resolvedGranularity,
       interval,
       offset,
-      compare,
+      compare: compareMode,
       compareAlignWeekdays,
+      timezone: timeZone,
+      queryFilters,
+      userJourney: { numberOfSteps, numberOfJourneys },
     }),
     [
-      startDate,
-      endDate,
-      compareStartDate,
-      compareEndDate,
-      granularity,
-      queryFilters,
-      timezone,
-      numberOfSteps,
-      numberOfJourneys,
+      resolvedMainRange,
+      resolvedCompareRange,
+      resolvedGranularity,
       interval,
       offset,
-      compare,
+      compareMode,
       compareAlignWeekdays,
+      timeZone,
+      queryFilters,
+      numberOfSteps,
+      numberOfJourneys,
     ],
   );
 }
