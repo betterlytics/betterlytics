@@ -9,7 +9,6 @@ import { ReactNode, useRef } from 'react';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import { TableSkeleton } from './skeleton';
 
 interface TabDefinition<TData> {
   key: string;
@@ -114,20 +113,15 @@ function TabbedTable<TData>({
             <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>
               {tabs.map((tab) => (
                 <TabsContent key={tab.key} value={tab.key}>
-                  {tab.loading ? (
-                    <div className='space-y-4 py-2'>
-                      <TableSkeleton tableOnly />
-                    </div>
-                  ) : (
-                    <div className='overflow-x-auto'>
-                      <DataTable
-                        columns={tab.columns}
-                        data={tab.data}
-                        defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
-                        tableRef={tableRef}
-                      />
-                    </div>
-                  )}
+                  <div className='overflow-x-auto'>
+                    <DataTable
+                      columns={tab.columns}
+                      data={tab.data}
+                      defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
+                      tableRef={tableRef}
+                      loading={tab.loading}
+                    />
+                  </div>
                 </TabsContent>
               ))}
             </div>

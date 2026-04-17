@@ -12,9 +12,10 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 
 interface OperatingSystemTableProps {
   data: BARouterOutputs['devices']['osBreakdown'];
+  loading?: boolean;
 }
 
-export default function OperatingSystemTable({ data }: OperatingSystemTableProps) {
+export default function OperatingSystemTable({ data, loading }: OperatingSystemTableProps) {
   const locale = useLocale();
   const tCols = useTranslations('components.devices.tables.columns');
   const tFilters = useTranslations('components.filters');
@@ -23,6 +24,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
     {
       accessorKey: 'os',
       header: tCols('os'),
+      minSize: 150,
       cell: ({ row }) => (
         <Button
           variant='ghost'
@@ -75,6 +77,7 @@ export default function OperatingSystemTable({ data }: OperatingSystemTableProps
       <DataTable
         columns={columns}
         data={data}
+        loading={loading}
         defaultSorting={[{ id: 'visitors', desc: true }]}
         className='w-full'
       />

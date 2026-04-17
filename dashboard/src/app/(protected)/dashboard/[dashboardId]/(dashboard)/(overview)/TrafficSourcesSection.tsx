@@ -8,6 +8,7 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function TrafficSourcesSection() {
   const [activeTab, setActiveTab] = useState('referrers');
@@ -24,6 +25,12 @@ export default function TrafficSourcesSection() {
     enabled: activeTab === 'channels',
   });
 
+  const referrersState = useQueryState(referrersQuery, activeTab === 'referrers');
+  const channelsState = useQueryState(channelsQuery, activeTab === 'channels');
+  const activeState = { referrers: referrersState, channels: channelsState }[
+    activeTab as 'referrers' | 'channels'
+  ];
+
   const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
     if (tabKey === 'referrers') {
       if (item.children) return;
@@ -32,14 +39,12 @@ export default function TrafficSourcesSection() {
     if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
   };
 
-  const activeQuery = { referrers: referrersQuery, channels: channelsQuery }[activeTab];
-
   const isItemInteractive = (tabKey: string) => tabKey === 'referrers' || tabKey === 'channels';
 
   return (
     <MultiProgressTable
       title={t('sections.trafficSources')}
-      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      loading={activeState.refetching}
       defaultTab='referrers'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
@@ -48,7 +53,7 @@ export default function TrafficSourcesSection() {
         {
           key: 'referrers',
           label: t('tabs.referrers'),
-          loading: referrersQuery.isFetching && !referrersQuery.data,
+          loading: referrersState.loading,
           data: (referrersQuery.data ?? []).map((item) => ({
             label: item.source_name,
             value: item.current.visitors,
@@ -65,7 +70,7 @@ export default function TrafficSourcesSection() {
         {
           key: 'channels',
           label: t('tabs.channels'),
-          loading: channelsQuery.isFetching && !channelsQuery.data,
+          loading: channelsState.loading,
           data: (channelsQuery.data ?? []).map((item) => ({
             label: item.channel,
             value: item.current.visits,

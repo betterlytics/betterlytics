@@ -9,7 +9,7 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { TableSkeleton } from './skeleton';
+import MultiProgressTableRowSkeleton from '@/components/skeleton/MultiProgressTableSkeleton';
 import { cn } from '@/lib/utils';
 
 interface ProgressBarData {
@@ -28,6 +28,7 @@ interface TabConfig<T extends ProgressBarData> {
   data: T[];
   loading?: boolean;
   customContent?: React.ReactNode;
+  customLoader?: React.ReactNode;
 }
 
 interface MultiProgressTableProps<T extends ProgressBarData> {
@@ -177,11 +178,7 @@ function MultiProgressTable<T extends ProgressBarData>({
   const renderTabContent = useCallback(
     (tab: TabConfig<T>) => {
       if (tab.loading) {
-        return (
-          <div className='space-y-4 py-2'>
-            <TableSkeleton tableOnly />
-          </div>
-        );
+        return tab.customLoader ?? <MultiProgressTableRowSkeleton />;
       }
 
       if (tab.customContent) {
@@ -246,7 +243,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className='relative'>
+          <div className='relative h-[22rem]'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />

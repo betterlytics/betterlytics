@@ -6,9 +6,10 @@ import { Card } from './ui/card';
 
 type LazySectionProps = {
   children: ReactNode;
+  fallback: ReactNode;
 };
 
-export function LazySection({ children }: LazySectionProps) {
+export function LazySection({ children, fallback }: LazySectionProps) {
   const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: '100px', threshold: 0 });
   const [hasBeenVisible, setHasBeenVisible] = useState(false);
 
@@ -18,5 +19,5 @@ export function LazySection({ children }: LazySectionProps) {
     }
   }, [inView, hasBeenVisible]);
 
-  return <div ref={ref}>{hasBeenVisible ? children : <Card className='border-border min-h-[280px]' />}</div>;
+  return <div ref={ref}>{hasBeenVisible ? children : fallback}</div>;
 }

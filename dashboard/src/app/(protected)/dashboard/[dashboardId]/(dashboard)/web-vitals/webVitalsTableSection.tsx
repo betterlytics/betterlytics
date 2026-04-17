@@ -10,6 +10,7 @@ import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
@@ -150,6 +151,7 @@ export default function WebVitalsTableSection() {
         {
           accessorKey: 'key',
           header: label,
+          minSize: 200,
           cell: ({ row }) => {
             const key = row.original.key;
             const labelText = formatString(key);
@@ -278,14 +280,15 @@ export default function WebVitalsTableSection() {
 
   const defaultSorting = useMemo(() => [{ id: 'LCP', desc: true }], []);
 
-  const queries = {
-    pages: urlQuery,
-    devices: devicesQuery,
-    countries: countriesQuery,
-    browsers: browsersQuery,
-    os: osQuery,
-  };
-  const activeQuery = queries[activeTab as keyof typeof queries];
+  const urlState = useQueryState(urlQuery, activeTab === 'pages');
+  const devicesState = useQueryState(devicesQuery, activeTab === 'devices');
+  const countriesState = useQueryState(countriesQuery, activeTab === 'countries');
+  const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
+  const osState = useQueryState(osQuery, activeTab === 'os');
+
+  const activeState = { pages: urlState, devices: devicesState, countries: countriesState, browsers: browsersState, os: osState }[
+    activeTab as 'pages' | 'devices' | 'countries' | 'browsers' | 'os'
+  ];
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
@@ -295,7 +298,7 @@ export default function WebVitalsTableSection() {
         data: urlQuery.data ?? [],
         columns: pageColumns,
         defaultSorting,
-        loading: urlQuery.isFetching && !urlQuery.data,
+        loading: urlState.loading,
       },
       {
         key: 'devices',
@@ -303,7 +306,7 @@ export default function WebVitalsTableSection() {
         data: devicesQuery.data ?? [],
         columns: deviceColumns,
         defaultSorting,
-        loading: devicesQuery.isFetching && !devicesQuery.data,
+        loading: devicesState.loading,
       },
       {
         key: 'countries',
@@ -311,7 +314,7 @@ export default function WebVitalsTableSection() {
         data: countriesQuery.data ?? [],
         columns: countryColumns,
         defaultSorting,
-        loading: countriesQuery.isFetching && !countriesQuery.data,
+        loading: countriesState.loading,
       },
       {
         key: 'browsers',
@@ -319,7 +322,7 @@ export default function WebVitalsTableSection() {
         data: browsersQuery.data ?? [],
         columns: browserColumns,
         defaultSorting,
-        loading: browsersQuery.isFetching && !browsersQuery.data,
+        loading: browsersState.loading,
       },
       {
         key: 'os',
@@ -327,7 +330,7 @@ export default function WebVitalsTableSection() {
         data: osQuery.data ?? [],
         columns: osColumns,
         defaultSorting,
-        loading: osQuery.isFetching && !osQuery.data,
+        loading: osState.loading,
       },
     ],
     [
@@ -336,11 +339,11 @@ export default function WebVitalsTableSection() {
       countriesQuery.data,
       browsersQuery.data,
       osQuery.data,
-      urlQuery.isFetching,
-      devicesQuery.isFetching,
-      countriesQuery.isFetching,
-      browsersQuery.isFetching,
-      osQuery.isFetching,
+      urlState.loading,
+      devicesState.loading,
+      countriesState.loading,
+      browsersState.loading,
+      osState.loading,
       pageColumns,
       deviceColumns,
       countryColumns,
@@ -417,7 +420,7 @@ export default function WebVitalsTableSection() {
   return (
     <TabbedTable
       title={t('title')}
-      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      loading={activeState.refetching}
       tabs={tabs}
       defaultTab='pages'
       tabValue={activeTab}

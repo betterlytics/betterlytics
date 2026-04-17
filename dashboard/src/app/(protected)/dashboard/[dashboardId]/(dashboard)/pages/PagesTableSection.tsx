@@ -4,6 +4,7 @@ import { useState } from 'react';
 import TabbedPagesTable from './TabbedPagesTable';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function PagesTableSection() {
   const [activeTab, setActiveTab] = useState('all');
@@ -19,18 +20,20 @@ export default function PagesTableSection() {
     enabled: activeTab === 'exit',
   });
 
-  const queries = { all: pagesQuery, entry: entryPagesQuery, exit: exitPagesQuery };
-  const activeQuery = queries[activeTab as keyof typeof queries];
+  const pagesState = useQueryState(pagesQuery, activeTab === 'all');
+  const entryPagesState = useQueryState(entryPagesQuery, activeTab === 'entry');
+  const exitPagesState = useQueryState(exitPagesQuery, activeTab === 'exit');
+  const activeState = { all: pagesState, entry: entryPagesState, exit: exitPagesState }[activeTab as 'all' | 'entry' | 'exit'];
 
   return (
     <TabbedPagesTable
       allPagesData={pagesQuery.data ?? []}
       entryPagesData={entryPagesQuery.data ?? []}
       exitPagesData={exitPagesQuery.data ?? []}
-      allPagesLoading={pagesQuery.isFetching && !pagesQuery.data}
-      entryPagesLoading={entryPagesQuery.isFetching && !entryPagesQuery.data}
-      exitPagesLoading={exitPagesQuery.isFetching && !exitPagesQuery.data}
-      loading={!!activeQuery?.isFetching && !!activeQuery?.data}
+      allPagesLoading={pagesState.loading}
+      entryPagesLoading={entryPagesState.loading}
+      exitPagesLoading={exitPagesState.loading}
+      loading={activeState.refetching}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     />

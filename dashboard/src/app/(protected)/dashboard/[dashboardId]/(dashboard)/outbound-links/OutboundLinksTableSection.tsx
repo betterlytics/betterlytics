@@ -11,11 +11,11 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
-import { QuerySection } from '@/components/QuerySection';
-import { TableSkeleton } from '@/components/skeleton';
+import { useQueryState } from '@/hooks/use-query-state';
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 import type { inferRouterOutputs } from '@trpc/server';
 import type { AppRouter } from '@/trpc/routers/_app';
-import { Skeleton } from '@/components/ui/skeleton';
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type TableOutboundLinkRow = RouterOutputs['outboundLinks']['analytics'][number];
@@ -24,12 +24,14 @@ export default function OutboundLinksTableSection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.outboundLinks.analytics.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.table');
+  const { data, loading, refetching } = useQueryState(query);
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(
     () => [
       {
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
+        minSize: 200,
         cell: ({ row }) => (
           <div className='flex items-center gap-2'>
             <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
@@ -76,10 +78,17 @@ export default function OutboundLinksTableSection() {
       <CardHeader className='px-0 pb-0'>
         <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='px-0'>
-        <QuerySection query={query} fallback={<TableSkeleton className='h-80' />}>
-          {(outboundLinksData) => <DataTable data={outboundLinksData} columns={columns} />}
-        </QuerySection>
+      <CardContent className='overflow-x-auto px-0'>
+        <div className='relative'>
+          {refetching && (
+            <div className='absolute inset-0 z-10 flex items-center justify-center'>
+              <Spinner />
+            </div>
+          )}
+          <div className={cn(refetching && 'pointer-events-none opacity-60')}>
+            <DataTable data={data ?? []} columns={columns} loading={loading} />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

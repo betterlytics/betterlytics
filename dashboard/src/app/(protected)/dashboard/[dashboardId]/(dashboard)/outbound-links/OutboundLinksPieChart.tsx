@@ -7,9 +7,9 @@ import { createColorGetter } from '@/utils/colorUtils';
 import { formatString } from '@/utils/formatters';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
-import { QuerySection } from '@/components/QuerySection';
-import { ChartSkeleton } from '@/components/skeleton';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useQueryState } from '@/hooks/use-query-state';
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 
 const getOutboundLinkColor = createColorGetter({
   colorMap: {
@@ -28,18 +28,27 @@ export default function OutboundLinksPieChart() {
   const { input, options } = useBAQueryParams();
   const query = trpc.outboundLinks.distribution.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.pieChart');
+  const { data, loading, refetching } = useQueryState(query);
 
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
       <CardHeader className='px-0 pb-0'>
         <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='flex flex-1 items-center justify-center px-0'>
-        <QuerySection query={query} fallback={<Skeleton className='h-[200px] flex-1' />}>
-          {(distributionData) => (
-            <BAPieChart data={distributionData} getColor={getOutboundLinkColor} getLabel={formatUrl} />
-          )}
-        </QuerySection>
+      <CardContent className='relative flex flex-1 flex-col px-0'>
+        {refetching && (
+          <div className='absolute inset-0 z-10 flex items-center justify-center'>
+            <Spinner />
+          </div>
+        )}
+        <div className={cn(refetching && 'pointer-events-none opacity-60', 'flex flex-1 flex-col')}>
+          <BAPieChart
+            data={data ?? []}
+            loading={loading}
+            getColor={getOutboundLinkColor}
+            getLabel={formatUrl}
+          />
+        </div>
       </CardContent>
     </Card>
   );

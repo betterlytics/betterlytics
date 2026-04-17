@@ -40,6 +40,7 @@ import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { formatElapsedTime } from '@/utils/dateFormatters';
@@ -172,13 +173,37 @@ function ErrorToolbar({
   );
 }
 
+const SKELETON_ROWS = 8;
+
+function ErrorTableSkeletonRow() {
+  return (
+    <TableRow>
+      <TableCell className='w-10 py-3 pl-4 sm:pl-6'><Skeleton className='h-4 w-4' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <div className='space-y-1.5'>
+          <Skeleton className='h-4 w-32' />
+          <Skeleton className='h-3.5 w-48' />
+        </div>
+      </TableCell>
+      <TableCell className='hidden px-3 py-3 xl:table-cell sm:px-6'><Skeleton className='h-8 w-20' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='mx-auto h-4 w-10' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='mx-auto h-4 w-10' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-4 w-20' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-4 w-20' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-5 w-20 rounded-full' /></TableCell>
+      <TableCell className='w-10 pr-2 sm:pr-4' />
+    </TableRow>
+  );
+}
+
 type ErrorTableProps = {
   errorGroups: ErrorGroupRow[];
   initialVolumeMap: Record<string, TimeSeriesPoint[]>;
   dashboardId: string;
+  loading?: boolean;
 };
 
-export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: ErrorTableProps) {
+export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading }: ErrorTableProps) {
   const t = useTranslations('errors');
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
@@ -494,7 +519,9 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
             ))}
           </TableHeader>
           <TableBody className='divide-secondary divide-y'>
-            {filteredCount === 0 ? (
+            {loading ? (
+              Array.from({ length: SKELETON_ROWS }, (_, i) => <ErrorTableSkeletonRow key={i} />)
+            ) : filteredCount === 0 ? (
               <TableRow className='hover:bg-transparent'>
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>

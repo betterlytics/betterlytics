@@ -54,6 +54,7 @@ export default function TabbedPagesTable({
       {
         accessorKey: 'path',
         header: t('path'),
+        minSize: 200,
         cell: ({ row }) => {
           const path = formatPath(row.original.path);
           return (

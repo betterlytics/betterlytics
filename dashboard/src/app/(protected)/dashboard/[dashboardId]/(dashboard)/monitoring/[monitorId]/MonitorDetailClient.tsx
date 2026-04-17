@@ -27,6 +27,7 @@ type MonitorDetailClientProps = {
   monitorId: string;
   hostname: string;
   timezone: string;
+  serverNow: number;
   initialData: {
     monitor: MonitorCheck;
     metrics?: MonitorMetrics;
@@ -47,6 +48,7 @@ export function MonitorDetailClient({
   monitorId,
   hostname,
   timezone,
+  serverNow,
   initialData,
 }: MonitorDetailClientProps) {
   const tDetail = useTranslations('monitoringDetailPage');
@@ -212,6 +214,7 @@ export function MonitorDetailClient({
         operationalState={operationalState}
         onEnableSslClick={handleEnableSslClick}
         onCountdownExpired={handleCountdownExpired}
+        serverNow={serverNow}
       />
 
       <ResponseTimeCard metrics={metricsQuery.data} />
