@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import { type Annotation, type ChartAnnotation, type ChartId } from '@/entities/dashboard/annotation.entities';
 import {
-  getAnnotationsAction,
   createAnnotationAction,
   updateAnnotationAction,
   deleteAnnotationAction,
 } from '@/app/actions/index.actions';
+import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 
 interface UseChartAnnotationsOptions {
@@ -45,28 +45,19 @@ export function useChartAnnotations({
   enabled = true,
 }: UseChartAnnotationsOptions): UseChartAnnotationsReturn {
   const dashboardId = useDashboardId();
+  const annotationsQuery = trpc.annotations.list.useQuery(
+    { dashboardId, chartId },
+    { enabled: !!dashboardId && enabled },
+  );
+
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isCreating, startCreateTransition] = useTransition();
 
-  const fetchAnnotations = useCallback(async () => {
-    if (!dashboardId || !enabled) return;
-
-    try {
-      setIsLoading(true);
-      const result = await getAnnotationsAction(dashboardId, chartId);
-      setAnnotations(result);
-    } catch {
-    } finally {
-      setIsLoading(false);
-    }
-  }, [dashboardId, chartId, enabled]);
-
   useEffect(() => {
-    if (enabled) {
-      fetchAnnotations();
+    if (annotationsQuery.data) {
+      setAnnotations(annotationsQuery.data);
     }
-  }, [fetchAnnotations, enabled]);
+  }, [annotationsQuery.data]);
 
   const createAnnotation = useCallback(
     async (chartAnnotation: Omit<ChartAnnotation, 'id'>) => {
@@ -171,11 +162,13 @@ export function useChartAnnotations({
 
   return {
     annotations: chartAnnotations,
-    isLoading,
+    isLoading: annotationsQuery.isLoading,
     isCreating,
     createAnnotation,
     updateAnnotation,
     deleteAnnotation,
-    refresh: fetchAnnotations,
+    refresh: async () => {
+      await annotationsQuery.refetch();
+    },
   };
 }

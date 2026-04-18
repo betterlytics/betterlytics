@@ -13,9 +13,12 @@ import {
   type ColumnFiltersState,
 } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import DataEmptyComponent from './DataEmptyComponent';
+
+const SKELETON_ROWS = 10;
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -24,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   className?: string;
   onRowClick?: (row: Row<TData>) => void;
   tableRef?: RefObject<ReturnType<typeof useReactTable<TData>> | null>;
+  loading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -33,6 +37,7 @@ export function DataTable<TData, TValue>({
   className,
   onRowClick,
   tableRef,
+  loading = false,
 }: DataTableProps<TData, TValue>) {
   const t = useTranslations('dashboard.emptyStates');
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
@@ -71,6 +76,7 @@ export function DataTable<TData, TValue>({
                       ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
                       : ''
                   }`}
+                  style={header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined}
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <div className='flex items-center'>
@@ -91,7 +97,17 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody className='divide-secondary divide-y'>
-          {table.getRowModel().rows?.length ? (
+          {loading ? (
+            Array.from({ length: SKELETON_ROWS }, (_, rowIndex) => (
+              <TableRow key={rowIndex} className='hover:bg-accent dark:hover:bg-primary/10'>
+                {columns.map((_, colIndex) => (
+                  <TableCell key={colIndex} className='px-3 py-3 sm:px-6'>
+                    <Skeleton className={colIndex === 0 ? 'h-4 w-3/5' : 'h-4 w-16'} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}

@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
@@ -8,7 +8,9 @@ import { formatNumber, formatString } from '@/utils/formatters';
 import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import type { fetchCoreWebVitalsByDimensionAction } from '@/app/actions/analytics/webVitals.actions';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { Badge } from '@/components/ui/badge';
 import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
@@ -19,35 +21,42 @@ import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
-type Row = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
-type DimRow = Awaited<ReturnType<typeof fetchCoreWebVitalsByDimensionAction>>[number];
-type Props = {
-  perPagePromise: Promise<Row[]>;
-  perDevicePromise: Promise<DimRow[]>;
-  perCountryPromise: Promise<DimRow[]>;
-  perBrowserPromise: Promise<DimRow[]>;
-  perOsPromise: Promise<DimRow[]>;
-};
+import type { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from '@/trpc/routers/_app';
 
-export default function WebVitalsTableSection({
-  perPagePromise,
-  perDevicePromise,
-  perCountryPromise,
-  perBrowserPromise,
-  perOsPromise,
-}: Props) {
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type Row = RouterOutputs['webVitals']['byDimension'][number];
+
+export default function WebVitalsTableSection() {
   const t = useTranslations('components.webVitals.table');
   const tFilters = useTranslations('components.filters');
   const locale = useLocale();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
-  const data = use(perPagePromise);
-  const devices = use(perDevicePromise);
-  const countries = use(perCountryPromise);
-  const browsers = use(perBrowserPromise);
-  const operatingSystems = use(perOsPromise);
-
   const [activePercentile, setActivePercentile] = useState<PercentileKey>('p75');
+  const [activeTab, setActiveTab] = useState<string>('pages');
   const percentileIndex: Record<PercentileKey, number> = { p50: 0, p75: 1, p90: 2, p99: 3 };
+  const { input, options } = useBAQueryParams();
+
+  const urlQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'url' },
+    { ...options, enabled: activeTab === 'pages' },
+  );
+  const devicesQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'device_type' },
+    { ...options, enabled: activeTab === 'devices' },
+  );
+  const countriesQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'country_code' },
+    { ...options, enabled: activeTab === 'countries' },
+  );
+  const browsersQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'browser' },
+    { ...options, enabled: activeTab === 'browsers' },
+  );
+  const osQuery = trpc.webVitals.byDimension.useQuery(
+    { ...input, dimension: 'os' },
+    { ...options, enabled: activeTab === 'os' },
+  );
 
   const makeColumns = useCallback(
     (
@@ -96,7 +105,9 @@ export default function WebVitalsTableSection({
         const Cell = ({ row }: { row: { original: Row } }) => {
           const value = getValue(row.original, metric);
           return (
-            <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>{formatCWV(metric, value, locale)}</span>
+            <span style={{ color: getCoreWebVitalLabelColor(metric, value) }}>
+              {formatCWV(metric, value, locale)}
+            </span>
           );
         };
         Cell.displayName = `CoreWebVitalValueCell_${metric}`;
@@ -140,6 +151,7 @@ export default function WebVitalsTableSection({
         {
           accessorKey: 'key',
           header: label,
+          minSize: 200,
           cell: ({ row }) => {
             const key = row.original.key;
             const labelText = formatString(key);
@@ -203,7 +215,14 @@ export default function WebVitalsTableSection({
             const { label, className } = scoreVisual(v);
             return (
               <Badge className={className}>
-                {label}: <span className='tabular-nums'>{formatNumber(v, locale, { notation: 'standard', minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
+                {label}:{' '}
+                <span className='tabular-nums'>
+                  {formatNumber(v, locale, {
+                    notation: 'standard',
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1,
+                  })}
+                </span>
               </Badge>
             );
           },
@@ -214,7 +233,17 @@ export default function WebVitalsTableSection({
           header: () => headerWithOpportunityInfo(),
           cell: ({ row }) => {
             const v = getOpportunity(row.original);
-            return <span className='tabular-nums'>{v == null ? '—' : formatNumber(v, locale, { notation: 'standard', minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>;
+            return (
+              <span className='tabular-nums'>
+                {v == null
+                  ? '—'
+                  : formatNumber(v, locale, {
+                      notation: 'standard',
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+              </span>
+            );
           },
           accessorFn: (r) => getOpportunity(r) ?? 0,
         },
@@ -251,44 +280,70 @@ export default function WebVitalsTableSection({
 
   const defaultSorting = useMemo(() => [{ id: 'LCP', desc: true }], []);
 
+  const urlState = useQueryState(urlQuery, activeTab === 'pages');
+  const devicesState = useQueryState(devicesQuery, activeTab === 'devices');
+  const countriesState = useQueryState(countriesQuery, activeTab === 'countries');
+  const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
+  const osState = useQueryState(osQuery, activeTab === 'os');
+
+  const activeState = { pages: urlState, devices: devicesState, countries: countriesState, browsers: browsersState, os: osState }[
+    activeTab as 'pages' | 'devices' | 'countries' | 'browsers' | 'os'
+  ];
+
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
-      { key: 'pages', label: t('tabs.pages'), data, columns: pageColumns, defaultSorting },
+      {
+        key: 'pages',
+        label: t('tabs.pages'),
+        data: urlQuery.data ?? [],
+        columns: pageColumns,
+        defaultSorting,
+        loading: urlState.loading,
+      },
       {
         key: 'devices',
         label: t('tabs.devices'),
-        data: devices,
+        data: devicesQuery.data ?? [],
         columns: deviceColumns,
         defaultSorting,
+        loading: devicesState.loading,
       },
       {
         key: 'countries',
         label: t('tabs.countries'),
-        data: countries,
+        data: countriesQuery.data ?? [],
         columns: countryColumns,
         defaultSorting,
+        loading: countriesState.loading,
       },
       {
         key: 'browsers',
         label: t('tabs.browsers'),
-        data: browsers,
+        data: browsersQuery.data ?? [],
         columns: browserColumns,
         defaultSorting,
+        loading: browsersState.loading,
       },
       {
         key: 'os',
         label: t('tabs.operatingSystems'),
-        data: operatingSystems,
+        data: osQuery.data ?? [],
         columns: osColumns,
         defaultSorting,
+        loading: osState.loading,
       },
     ],
     [
-      data,
-      devices,
-      countries,
-      browsers,
-      operatingSystems,
+      urlQuery.data,
+      devicesQuery.data,
+      countriesQuery.data,
+      browsersQuery.data,
+      osQuery.data,
+      urlState.loading,
+      devicesState.loading,
+      countriesState.loading,
+      browsersState.loading,
+      osState.loading,
       pageColumns,
       deviceColumns,
       countryColumns,
@@ -341,8 +396,6 @@ export default function WebVitalsTableSection({
     [percentileButtons],
   );
 
-  const [activeTab, setActiveTab] = useState<string>('pages');
-
   const mobileTabsRowLeft = useMemo(
     () => (
       <div className='flex w-full items-center gap-2'>
@@ -367,6 +420,7 @@ export default function WebVitalsTableSection({
   return (
     <TabbedTable
       title={t('title')}
+      loading={activeState.refetching}
       tabs={tabs}
       defaultTab='pages'
       tabValue={activeTab}

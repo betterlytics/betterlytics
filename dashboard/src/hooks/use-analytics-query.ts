@@ -1,56 +1,52 @@
 'use client';
 
 import { useMemo } from 'react';
+import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
-import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export function useAnalyticsQuery(): BAAnalyticsQuery {
   const {
-    startDate,
-    endDate,
-    granularity,
-    timeZone,
-    compareStartDate,
-    compareEndDate,
+    resolvedMainRange,
+    resolvedCompareRange,
+    resolvedGranularity,
     interval,
     offset,
     compareMode,
     compareAlignWeekdays,
+    timeZone,
   } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
 
   return useMemo(
     () => ({
-      startDate,
-      endDate,
-      compareStartDate,
-      compareEndDate,
-      granularity,
-      queryFilters,
-      timezone: timeZone,
-      userJourney: { numberOfSteps, numberOfJourneys },
+      startDate: resolvedMainRange.start,
+      endDate: resolvedMainRange.end,
+      compareStartDate: resolvedCompareRange?.start,
+      compareEndDate: resolvedCompareRange?.end,
+      granularity: resolvedGranularity,
       interval,
       offset,
       compare: compareMode,
       compareAlignWeekdays,
+      timezone: timeZone,
+      queryFilters,
+      userJourney: { numberOfSteps, numberOfJourneys },
     }),
     [
-      startDate,
-      endDate,
-      compareStartDate,
-      compareEndDate,
-      granularity,
-      queryFilters,
-      timeZone,
-      numberOfSteps,
-      numberOfJourneys,
+      resolvedMainRange,
+      resolvedCompareRange,
+      resolvedGranularity,
       interval,
       offset,
       compareMode,
       compareAlignWeekdays,
+      timeZone,
+      queryFilters,
+      numberOfSteps,
+      numberOfJourneys,
     ],
   );
 }
