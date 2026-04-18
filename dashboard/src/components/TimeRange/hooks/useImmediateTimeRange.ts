@@ -50,7 +50,7 @@ export function useImmediateTimeRange() {
 
       ctx.setPeriod(resolved.main.start, resolved.main.end);
       ctx.setOffset(0);
-      ctx.setInterval(preset);
+      ctx.setRangeInterval(preset);
       ctx.setGranularity(resolved.granularity);
 
       if (ctx.compareMode === 'custom') {
@@ -81,7 +81,7 @@ export function useImmediateTimeRange() {
       );
       ctx.setPeriod(resolved.main.start, resolved.main.end);
       ctx.setOffset(0);
-      ctx.setInterval('custom');
+      ctx.setRangeInterval('custom');
       ctx.setGranularity(resolved.granularity);
 
       if (ctx.compareMode === 'custom') {
