@@ -19,7 +19,8 @@ pub struct ProcessedEvent {
     /// Base original event data sent from client through analytics.js script
     pub event: AnalyticsEvent,
     /// Sessionization - new sessions are created if the user has not generated any events in over 30 minutes
-    pub session_id: String,
+    pub session_id: u64,
+    pub session_created_at: chrono::DateTime<chrono::Utc>,
     /// Contains the domain of the URL (e.g. "example.com" or "subdomain.example.com")
     pub domain: Option<String>,
     /// Contains only the path of the URL (e.g. "/path/to/page" or "/")
@@ -97,7 +98,8 @@ impl EventProcessor {
         let mut processed = ProcessedEvent {
             event: event.clone(),
             event_type: String::new(),
-            session_id: String::new(),
+            session_id: 0,
+            session_created_at: chrono::Utc::now(),
             country_code: None,
             subdivision_code: None,
             city: None,
@@ -172,7 +174,10 @@ impl EventProcessor {
         );
 
         match session_id_result {
-            Ok(id) => processed.session_id = id,
+            Ok((id, created_at)) => {
+                processed.session_id = id;
+                processed.session_created_at = created_at;
+            }
             Err(e) => {
                 error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
                 return Ok(());

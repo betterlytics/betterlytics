@@ -9,11 +9,11 @@ use crate::processing::ProcessedEvent;
 pub struct EventRow {
     pub site_id: String,
     pub visitor_id: u64,
-    pub session_id: String,
+    pub session_id: u64,
     pub domain: String,
     pub url: String,
     pub device_type: String,
-    pub country_code: Option<String>,
+    pub country_code: String,
     pub subdivision_code: String,
     pub city: String,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
@@ -48,12 +48,14 @@ pub struct EventRow {
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub session_created_at: DateTime<Utc>,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
 pub struct SessionReplayRow {
     pub site_id: String,
-    pub session_id: String,
+    pub session_id: u64,
     pub visitor_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub started_at: DateTime<Utc>,
@@ -92,7 +94,7 @@ impl EventRow {
             domain: event.domain.unwrap_or_else(|| "unknown".to_string()),
             url: event.url,
             device_type: event.device_type.unwrap_or_else(|| "unknown".to_string()),
-            country_code: event.country_code,
+            country_code: event.country_code.unwrap_or_default(),
             subdivision_code: event.subdivision_code.unwrap_or_default(),
             city: event.city.unwrap_or_default(),
             timestamp,
@@ -125,6 +127,7 @@ impl EventRow {
             error_type: event.error_type,
             error_message: event.error_message,
             error_fingerprint: event.error_fingerprint,
+            session_created_at: event.session_created_at,
         }
     }
 }
