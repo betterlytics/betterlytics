@@ -282,6 +282,7 @@ export async function getTopEntryPages(siteQuery: BASiteQuery, limit = 5): Promi
       entry_page as url,
       count() as visitors
     FROM ${sessionSubQuery}
+    WHERE entry_page != ''
     GROUP BY entry_page
     ORDER BY visitors DESC
     LIMIT {limit:UInt64}
@@ -322,6 +323,7 @@ export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promis
       exit_page as url,
       count() as visitors
     FROM ${sessionSubQuery}
+    WHERE exit_page != ''
     GROUP BY exit_page
     ORDER BY visitors DESC
     LIMIT {limit:UInt64}
