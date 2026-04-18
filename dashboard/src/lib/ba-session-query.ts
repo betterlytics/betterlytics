@@ -1,10 +1,11 @@
 'server only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { FILTER_COLUMNS, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 
 // Filters
 const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
@@ -22,6 +23,11 @@ const SESSION_TUPLE_COLUMNS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SEL
   'utm_content',
 ];
 
+function isGlobalFilter(column: QueryFilter['column']) {
+  const strategy = getFilterStrategy(column);
+  return strategy.type === 'json_property';
+}
+
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
   '=': {
@@ -36,6 +42,7 @@ const INTERNAL_FILTER_OPERATORS = {
 
 const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
+  rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
   values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
@@ -133,17 +140,19 @@ function getSessionFilterQuery(
     return [safeSql`1=1`];
   }
 
-  const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
+  const hasEventsFilters = filters.some(
+    (filter) => MAIN_TABLE_FILTERS.includes(filter.column) || isGlobalFilter(filter.column),
+  );
 
   const sessionFilters = filters
-    .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.column))
+    .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.column) && !isGlobalFilter(filter.column))
     .map((filter) => buildSessionFilterQuery(filter));
 
   const WHERE = sessionFilters.length > 0 ? sessionFilters : [safeSql`1=1`];
 
   if (hasEventsFilters) {
     const eventsQueries = filters
-      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column))
+      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column) || isGlobalFilter(filter.column))
       .map((filter) => buildFilterQuery(filter));
     const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
     return [...WHERE, eventsQuery];
@@ -162,13 +171,26 @@ function hashFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
-  const column = SQL.Unsafe(filter.column);
   const filterHash = hashFilterQuery(filter);
+  const strategy = getFilterStrategy(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
-  const quantifier = filter.operator.quantifier;
-  const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+  switch (strategy.type) {
+    case 'json_property': {
+      const key = SQL.String({ [`gp_key_${filterHash}`]: strategy.key });
+      const extract = safeSql`JSONExtractString(global_properties_json, ${key})`;
+      const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
+      if (isWildcard) {
+        const op = filter.rawOperator === '=' ? safeSql`!=` : safeSql`=`;
+        return safeSql`${extract} ${op} ''`;
+      }
+      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
+    }
+    default: {
+      const column = SQL.Unsafe(z.enum(FILTER_COLUMNS).parse(filter.column));
+      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+    }
+  }
 }
 
 function buildSessionFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {

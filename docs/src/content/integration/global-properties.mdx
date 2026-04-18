@@ -1,0 +1,71 @@
+---
+title: "Global Properties"
+description: "Attach persistent key-value metadata to all analytics events. Filter your dashboard by plan, environment, app version, and more."
+---
+
+# Global Properties
+
+Attach key-value metadata to every analytics event sent from a page. Unlike [custom event properties](/integration/custom-events), which are per-event, global properties persist across all events for the lifetime of the page.
+
+## Setting Global Properties
+
+Call `setGlobalProperties()` once your app has the data available:
+
+```javascript
+betterlytics.setGlobalProperties({
+  plan: "premium",
+  app_version: "2.1.0",
+  environment: "production",
+});
+```
+
+All subsequent events will include these properties automatically.
+
+Calling `setGlobalProperties()` again merges the new properties with existing ones. To clear all properties, use `clearGlobalProperties()`. You can read the current properties with `getGlobalProperties()`.
+
+```javascript
+betterlytics.setGlobalProperties({ plan: "premium" });
+betterlytics.setGlobalProperties({ app_version: "2.1.0" });
+betterlytics.getGlobalProperties(); // { plan: "premium", app_version: "2.1.0" }
+
+betterlytics.clearGlobalProperties();
+betterlytics.getGlobalProperties(); // {}
+```
+
+## Accepted Values
+
+Values must be **strings**, **numbers**, or **booleans**.
+
+```javascript
+betterlytics.setGlobalProperties({
+  plan: "premium",       // string ✓
+  seats: 5,              // number ✓
+  active: true,          // boolean ✓
+});
+```
+
+The following values are rejected by the client with a console warning:
+
+```javascript
+betterlytics.setGlobalProperties({
+  data: { nested: true },  // objects ✗
+  tags: ["a", "b"],        // arrays ✗
+  missing: null,           // null ✗
+  broken: undefined,       // undefined ✗
+  bad: Infinity,           // non-finite numbers ✗
+  worse: NaN,              // non-finite numbers ✗
+});
+```
+
+## Limits
+
+| Limit | Value |
+|-------|-------|
+| Maximum keys per event | 30 |
+| Maximum key length | 64 characters |
+| Maximum string value length | 128 characters |
+| Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) |
+
+## Filtering in the Dashboard
+
+Once events with global properties are collected, they appear in the filter dropdown under **Global Properties**. Select a property key to filter all dashboard views by its values.

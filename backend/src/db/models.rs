@@ -50,6 +50,7 @@ pub struct EventRow {
     pub error_fingerprint: String,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub session_created_at: DateTime<Utc>,
+    pub global_properties_json: String,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -128,6 +129,7 @@ impl EventRow {
             error_message: event.error_message,
             error_fingerprint: event.error_fingerprint,
             session_created_at: event.session_created_at,
+            global_properties_json: event.global_properties_json,
         }
     }
 }

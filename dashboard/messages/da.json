@@ -2356,6 +2356,9 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "globalProperties": "{count, plural, one {Global egenskab} other {Globale egenskaber}}",
+      "selectProperty": "Vælg egenskab",
+      "noProperties": "Ingen egenskaber fundet",
       "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
