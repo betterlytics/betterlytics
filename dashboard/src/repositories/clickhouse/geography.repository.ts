@@ -252,7 +252,7 @@ export async function getCompareVisitorsBySubdivision(
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND (coalesce(subdivision_code, ''), coalesce(country_code, '')) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_countries:Array(String)})))
+      AND (subdivision_code, country_code) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_countries:Array(String)})))
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
     ORDER BY visitors DESC
@@ -297,7 +297,7 @@ export async function getCompareVisitorsByCity(
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND (coalesce(city, ''), coalesce(subdivision_code, ''), coalesce(country_code, '')) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_subdivisions:Array(String)}, {keys_countries:Array(String)})))
+      AND (city, subdivision_code, country_code) IN (SELECT arrayJoin(arrayZip({keys_values:Array(String)}, {keys_subdivisions:Array(String)}, {keys_countries:Array(String)})))
       AND ${SQL.AND(filters)}
     GROUP BY code, subdivision_code, country_code
     ORDER BY visitors DESC
