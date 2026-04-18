@@ -3,7 +3,7 @@ import SummaryCard from '@/components/SummaryCard';
 
 export interface SummaryCardData {
   title: ReactNode;
-  value: ReactNode;
+  value?: ReactNode;
   icon?: ReactNode;
   footer?: ReactNode;
   rawChartData?: any[];
@@ -12,6 +12,7 @@ export interface SummaryCardData {
   chartColor?: string;
   isActive?: boolean;
   onClick?: () => void;
+  loading?: boolean;
 }
 
 type SummaryCardsSectionProps = {
@@ -35,6 +36,7 @@ export default function SummaryCardsSection({ cards, className }: SummaryCardsSe
           chartColor={card.chartColor}
           isActive={card.isActive}
           onClick={card.onClick}
+          loading={card.loading}
         />
       ))}
     </div>

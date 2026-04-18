@@ -1,19 +1,18 @@
 'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchCustomEventsOverviewAction } from '@/app/actions/analytics/events.actions';
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
-type CustomEventsSectionProps = {
-  customEventsPromise: ReturnType<typeof fetchCustomEventsOverviewAction>;
-};
-
-export default function CustomEventsSection({ customEventsPromise }: CustomEventsSectionProps) {
-  const customEvents = use(customEventsPromise);
+export default function CustomEventsSection() {
+  const { input, options } = useBAQueryParams();
+  const query = trpc.events.customEventsOverview.useQuery(input, options);
+  const eventState = useQueryState(query);
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
@@ -24,13 +23,15 @@ export default function CustomEventsSection({ customEventsPromise }: CustomEvent
   return (
     <MultiProgressTable
       title={t('sections.customEvents')}
+      loading={eventState.loading}
       defaultTab='events'
       onItemClick={onItemClick}
       tabs={[
         {
           key: 'events',
           label: t('tabs.events'),
-          data: customEvents.map((event) => ({
+          loading: eventState.loading,
+          data: (query.data ?? []).map((event) => ({
             label: event.event_name,
             value: event.current.count,
             trendPercentage: event.change?.count,

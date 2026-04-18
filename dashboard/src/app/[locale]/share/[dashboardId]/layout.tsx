@@ -3,8 +3,9 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/index.actions';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
+import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import TimezoneCookieInitializer from '@/app/(protected)/TimezoneCookieInitializer';
@@ -44,15 +45,16 @@ type PublicLayoutProps = {
 
 export default async function PublicDashboardLayout({ params, children }: PublicLayoutProps) {
   const { locale, dashboardId } = await params;
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
   await assertPublicDashboardAccess(dashboardId);
+  const initialSettings = await getDashboardSettingsAction(dashboardId);
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <TimezoneCookieInitializer />
       <DashboardAuthProvider isDemo={true} role='viewer'>
-        <DashboardProvider>
+        <DashboardProvider initialSettings={initialSettings}>
           <DashboardLayoutShell
             dashboardId={dashboardId}
             isDemo={true}

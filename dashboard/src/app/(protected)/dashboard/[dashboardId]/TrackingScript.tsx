@@ -28,6 +28,7 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.setAttribute('data-consent-replay', 'true');
     script.setAttribute('data-disable-replay-on-urls', '/dashboard/*/replay');
     script.setAttribute('data-track-errors', 'true');
+    script.setAttribute('data-track-console-errors', 'true');
     document.head.appendChild(script);
 
     return () => {

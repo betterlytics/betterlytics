@@ -8,10 +8,6 @@ import { Button } from '@/components/ui/button';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
-import { getGlobalPropertyKeysAction } from '@/app/actions/analytics/filters.actions';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useQuery } from '@tanstack/react-query';
 import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,6 +19,9 @@ import { SavedFiltersSection } from './SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { PermissionGate } from '../tooltip/PermissionGate';
 import { baEvent } from '@/lib/ba-event';
+import { trpc } from '@/trpc/client';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -30,15 +29,10 @@ export default function QueryFiltersSelector() {
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
-  const dashboardId = useDashboardId();
-  const analyticsQuery = useAnalyticsQuery();
+  const { input, options } = useBAQueryParams();
 
-  const { data: globalPropertyKeys = [], isLoading: isLoadingPropertyKeys } = useQuery({
-    queryKey: ['global-property-keys', dashboardId, analyticsQuery.startDate?.toString(), analyticsQuery.endDate?.toString()],
-    queryFn: () => getGlobalPropertyKeysAction(dashboardId, analyticsQuery, { limit: 50 }),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-  });
+  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, options);
+  const { data: globalPropertyKeys = [], loading: isLoadingPropertyKeys } = useQueryState(gpQuery);
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const {

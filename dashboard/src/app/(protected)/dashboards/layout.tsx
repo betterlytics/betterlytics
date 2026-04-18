@@ -1,5 +1,5 @@
 import BATopbar from '@/components/topbar/BATopbar';
-import { fetchPublicEnvironmentVariablesAction } from '@/app/actions/system/environment.action';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { type ReactNode } from 'react';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 
@@ -8,7 +8,7 @@ type DashboardsLayoutProps = {
 };
 
 export default async function DashboardsLayout({ children }: DashboardsLayoutProps) {
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>

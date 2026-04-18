@@ -3,7 +3,8 @@ import { DashboardProvider } from './DashboardProvider';
 import { getCurrentDashboardAction } from '@/app/actions/index.actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Suspense } from 'react';
-import { fetchPublicEnvironmentVariablesAction, fetchSiteId } from '@/app/actions/index.actions';
+import { fetchSiteId } from '@/app/actions/index.actions';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { env } from '@/lib/env';
 import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
@@ -14,6 +15,7 @@ import { DashboardNavigationProvider } from '@/contexts/DashboardNavigationConte
 import ScrollReset from '@/components/ScrollReset';
 import { TrackingScript } from './TrackingScript';
 import { IntegrationManager } from './IntegrationManager';
+import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 
 type DashboardLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -34,7 +36,8 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     redirect('/signin');
   }
 
-  const publicEnvironmentVariables = await fetchPublicEnvironmentVariablesAction();
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
+  const initialSettings = await getDashboardSettingsAction(dashboardId);
 
   const shouldEnableTracking = isFeatureEnabled('enableDashboardTracking');
   let trackingSiteId: string | null = null;
@@ -50,7 +53,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <DashboardAuthProvider isDemo={false} role={authCtx.role}>
-        <DashboardProvider>
+        <DashboardProvider initialSettings={initialSettings}>
           <DashboardNavigationProvider basePath='/dashboard' dashboardId={dashboardId} isDemo={false}>
             <InvitationJoinedToast />
             <section>
