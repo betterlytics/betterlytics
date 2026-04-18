@@ -3,11 +3,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 /**
  * Format a number using locale-aware compact notation (e.g., 1.5K, 1,5 t).
  */
-export function formatNumber(
-  num: number,
-  locale?: SupportedLanguages,
-  opts?: Intl.NumberFormatOptions,
-): string {
+export function formatNumber(num: number, locale?: SupportedLanguages, opts?: Intl.NumberFormatOptions): string {
   if (num == null) return '-';
   return new Intl.NumberFormat(locale, {
     notation: 'compact',

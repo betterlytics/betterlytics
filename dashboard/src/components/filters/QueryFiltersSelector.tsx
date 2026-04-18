@@ -19,6 +19,9 @@ import { SavedFiltersSection } from './SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { PermissionGate } from '../tooltip/PermissionGate';
 import { baEvent } from '@/lib/ba-event';
+import { trpc } from '@/trpc/client';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { useQueryState } from '@/hooks/use-query-state';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -26,6 +29,10 @@ export default function QueryFiltersSelector() {
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
+  const { input, options } = useBAQueryParams();
+
+  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, options);
+  const { data: globalPropertyKeys = [], loading: isLoadingPropertyKeys } = useQueryState(gpQuery);
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const {
@@ -92,6 +99,8 @@ export default function QueryFiltersSelector() {
                 onFilterUpdate={updateQueryFilter}
                 filter={filter}
                 requestRemoval={(_filter) => removeQueryFilter(_filter.id)}
+                globalPropertyKeys={globalPropertyKeys}
+                isLoadingPropertyKeys={isLoadingPropertyKeys}
               />
             ))}
             {queryFilters.length === 0 && (
@@ -164,6 +173,8 @@ export default function QueryFiltersSelector() {
               onFilterUpdate={updateQueryFilter}
               filter={addEmptyQueryFilter() as any}
               requestRemoval={(filter) => removeQueryFilter(filter.id)}
+              globalPropertyKeys={globalPropertyKeys}
+              isLoadingPropertyKeys={isLoadingPropertyKeys}
             />
           </div>
           <Separator />

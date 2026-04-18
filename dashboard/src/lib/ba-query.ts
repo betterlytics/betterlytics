@@ -1,6 +1,7 @@
 'server only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { FilterColumnSchema, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
@@ -23,6 +24,7 @@ const INTERNAL_FILTER_OPERATORS = {
 
 const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
+  rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
   values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
@@ -46,12 +48,25 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
-  const column = SQL.Unsafe(filter.column);
+  const strategy = getFilterStrategy(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
-  const quantifier = filter.operator.quantifier;
-  const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+  switch (strategy.type) {
+    case 'json_property': {
+      const key = SQL.String({ [`gp_key_${filterIndex}`]: strategy.key });
+      const extract = safeSql`JSONExtractString(global_properties_json, ${key})`;
+      const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
+      if (isWildcard) {
+        const op = filter.rawOperator === '=' ? safeSql`!=` : safeSql`=`;
+        return safeSql`${extract} ${op} ''`;
+      }
+      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
+    }
+    default: {
+      const column = SQL.Unsafe(FilterColumnSchema.parse(filter.column));
+      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+    }
+  }
 }
 
 // Utility for granularity
