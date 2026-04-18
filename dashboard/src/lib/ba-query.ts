@@ -1,6 +1,6 @@
 'server only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { FILTER_COLUMNS, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
@@ -57,13 +57,13 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
       const extract = safeSql`JSONExtractString(global_properties_json, ${key})`;
       const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
       if (isWildcard) {
-        const op = SQL.Unsafe(filter.rawOperator === '=' ? '!=' : '=');
+        const op = filter.rawOperator === '=' ? safeSql`!=` : safeSql`=`;
         return safeSql`${extract} ${op} ''`;
       }
       return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
     }
     default: {
-      const column = SQL.Unsafe(filter.column);
+      const column = SQL.Unsafe(z.enum(FILTER_COLUMNS).parse(filter.column));
       return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
     }
   }
