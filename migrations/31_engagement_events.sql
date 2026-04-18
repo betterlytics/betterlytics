@@ -138,7 +138,9 @@ GROUP BY site_id, date;
 
 -- Step 5: Recreate page_stats with single MV
 -- engagement covers both duration and scroll depth under the same url key.
--- Legacy scroll_depth events (pre-migration) are still included for scroll aggregation.
+-- Scroll aggregation uses engagement events only: Step 3 already embedded the max scroll
+-- from legacy scroll_depth events into each synthetic engagement event, so reading
+-- scroll_depth events here too would double-count historical data.
 DROP VIEW IF EXISTS analytics.page_stats_events_mv;
 DROP VIEW IF EXISTS analytics.page_stats_duration_mv;
 DROP TABLE IF EXISTS analytics.page_stats;
@@ -166,16 +168,16 @@ SELECT
     url                                                                                      AS path,
     uniqStateIf(session_id, event_type = 'pageview')                                        AS visitors_state,
     countIf(event_type = 'pageview')                                                         AS pageviews_state,
-    -- scroll depth: engagement events (new) + legacy scroll_depth events (pre-migration)
+    -- scroll depth: engagement only. The backfill (Step 3) already set scroll_depth_percentage
+    -- on every synthetic engagement event from the legacy scroll_depth max per (session, url),
+    -- so counting scroll_depth events here too would double-count historical data.
     sumIf(toFloat64(assumeNotNull(scroll_depth_percentage)),
-        scroll_depth_percentage IS NOT NULL
-        AND event_type IN ('engagement', 'scroll_depth'))                                    AS scroll_depth_sum,
-    countIf(scroll_depth_percentage IS NOT NULL
-        AND event_type IN ('engagement', 'scroll_depth'))                                    AS scroll_depth_count,
+        scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')                   AS scroll_depth_sum,
+    countIf(scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')               AS scroll_depth_count,
     toUInt64(sumIf(duration, event_type = 'engagement' AND duration > 0))                   AS duration_sum,
     toUInt64(countIf(event_type = 'engagement' AND duration > 0))                           AS duration_count
 FROM analytics.events
-WHERE event_type IN ('pageview', 'scroll_depth', 'engagement')
+WHERE event_type IN ('pageview', 'engagement')
 GROUP BY site_id, hour, path;
 
 -- Backfill page_stats from all events (engagement rows inserted above are already in the table)
@@ -187,14 +189,12 @@ SELECT
     uniqStateIf(session_id, event_type = 'pageview')                                        AS visitors_state,
     countIf(event_type = 'pageview')                                                         AS pageviews_state,
     sumIf(toFloat64(assumeNotNull(scroll_depth_percentage)),
-        scroll_depth_percentage IS NOT NULL
-        AND event_type IN ('engagement', 'scroll_depth'))                                    AS scroll_depth_sum,
-    countIf(scroll_depth_percentage IS NOT NULL
-        AND event_type IN ('engagement', 'scroll_depth'))                                    AS scroll_depth_count,
+        scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')                   AS scroll_depth_sum,
+    countIf(scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')               AS scroll_depth_count,
     toUInt64(sumIf(duration, event_type = 'engagement' AND duration > 0))                   AS duration_sum,
     toUInt64(countIf(event_type = 'engagement' AND duration > 0))                           AS duration_count
 FROM analytics.events
-WHERE event_type IN ('pageview', 'scroll_depth', 'engagement')
+WHERE event_type IN ('pageview', 'engagement')
 GROUP BY site_id, hour, path;
 
 SET max_execution_time = 0;

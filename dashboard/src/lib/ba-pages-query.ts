@@ -39,7 +39,10 @@ function getPageSessionCte(siteQuery: BASiteQuery) {
         countIf(event_type = 'pageview')                                                    AS pv_count,
         minIf(timestamp, event_type = 'pageview')                                           AS first_ts,
         maxIf(timestamp, event_type = 'pageview')                                           AS last_ts,
-        avgIf(toFloat64(duration), event_type = 'engagement' AND duration > 0)              AS avg_duration,
+        -- avgIf returns NaN (not NULL) when no rows match; guard with countIf so NULL propagates correctly
+        if(countIf(event_type = 'engagement' AND duration > 0) > 0,
+           avgIf(toFloat64(duration), event_type = 'engagement' AND duration > 0),
+           NULL)                                                                             AS avg_duration,
         if(
           countIf(scroll_depth_percentage IS NOT NULL AND event_type IN ('engagement', 'scroll_depth')) > 0,
           maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL AND event_type IN ('engagement', 'scroll_depth')),
@@ -67,7 +70,7 @@ function getPageStatsCte(siteQuery: BASiteQuery) {
         if(sum(scroll_depth_count) > 0, sum(scroll_depth_sum) / sum(scroll_depth_count), 0)  AS avg_scroll_depth
       FROM analytics.page_stats
       WHERE site_id = {site_id:String}
-        AND hour BETWEEN {start:DateTime} AND toStartOfHour(subtractSeconds({end:DateTime}, 1))
+        AND hour BETWEEN {start:DateTime} AND {end:DateTime}
         AND ${SQL.AND(pathFilters)}
       GROUP BY path
     )
