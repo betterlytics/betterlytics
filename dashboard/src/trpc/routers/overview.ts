@@ -1,26 +1,22 @@
-'use server';
-
-import { PageAnalyticsCombinedSchema } from '@/entities/analytics/pages.entities';
+import { createRouter, analyticsProcedure } from '@/trpc/init';
+import { getUniqueVisitorsForSite } from '@/services/analytics/visitors.service';
 import {
-  getTopPagesForSite,
   getTotalPageViewsForSite,
+  getTopPagesForSite,
   getTopEntryPagesForSite,
   getTopExitPagesForSite,
 } from '@/services/analytics/pages.service';
-import { getUniqueVisitorsForSite } from '@/services/analytics/visitors.service';
-import { withDashboardAuthContext } from '@/auth/auth-actions';
-import { AuthContext } from '@/entities/auth/authContext.entities';
 import { getSessionMetrics, getSessionRangeMetrics } from '@/repositories/clickhouse/index.repository';
 import { toAreaChart, toSparklineSeries } from '@/presenters/toAreaChart';
 import { toDataTable } from '@/presenters/toDataTable';
 import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageCompare';
 import { isStartBucketIncomplete, isEndBucketIncomplete } from '@/lib/ba-timerange';
-import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { toSiteQuery } from '@/lib/toSiteQuery';
 
 type RawVisitors = Awaited<ReturnType<typeof getUniqueVisitorsForSite>>;
 type RawPageviews = Awaited<ReturnType<typeof getTotalPageViewsForSite>>;
 type RawSessionRange = Awaited<ReturnType<typeof getSessionRangeMetrics>>;
+
+const TOP_PAGES_LIMIT = 10;
 
 function toAggregates(visitors: RawVisitors, pageviews: RawPageviews, range: RawSessionRange) {
   return {
@@ -33,9 +29,9 @@ function toAggregates(visitors: RawVisitors, pageviews: RawPageviews, range: Raw
   };
 }
 
-export const fetchSummaryAndChartDataAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery) => {
-    const { main, compare } = toSiteQuery(ctx.siteId, query);
+export const overviewRouter = createRouter({
+  summaryAndChart: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
 
     const [
       visitorsData,
@@ -115,44 +111,32 @@ export const fetchSummaryAndChartDataAction = withDashboardAuthContext(
         pagesPerSession: toAreaChart({ ...sessionAreaChartBase, dataKey: 'pages_per_session' }),
       },
     };
-  },
-);
+  }),
 
-export const fetchPageAnalyticsCombinedAction = withDashboardAuthContext(
-  async (ctx: AuthContext, query: BAAnalyticsQuery, limit: number = 5) => {
-    const { main, compare } = toSiteQuery(ctx.siteId, query);
+  topPages: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopPagesForSite(main, TOP_PAGES_LIMIT),
+      compare && getTopPagesForSite(compare, TOP_PAGES_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  }),
 
-    const [topPages, topPagesCompare, topEntryPages, topEntryPagesCompare, topExitPages, topExitPagesCompare] =
-      await Promise.all([
-        getTopPagesForSite(main, limit),
-        compare && getTopPagesForSite(compare, limit),
-        getTopEntryPagesForSite(main, limit),
-        compare && getTopEntryPagesForSite(compare, limit),
-        getTopExitPagesForSite(main, limit),
-        compare && getTopExitPagesForSite(compare, limit),
-      ]);
+  topEntryPages: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopEntryPagesForSite(main, TOP_PAGES_LIMIT),
+      compare && getTopEntryPagesForSite(compare, TOP_PAGES_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  }),
 
-    const data = PageAnalyticsCombinedSchema.parse({ topPages, topEntryPages, topExitPages });
-    const compareData =
-      compare &&
-      PageAnalyticsCombinedSchema.parse({
-        topPages: topPagesCompare,
-        topEntryPages: topEntryPagesCompare,
-        topExitPages: topExitPagesCompare,
-      });
-
-    return {
-      topPages: toDataTable({ data: data.topPages, compare: compareData?.topPages, categoryKey: 'url' }),
-      topEntryPages: toDataTable({
-        data: data.topEntryPages,
-        compare: compareData?.topEntryPages,
-        categoryKey: 'url',
-      }),
-      topExitPages: toDataTable({
-        data: data.topExitPages,
-        compare: compareData?.topExitPages,
-        categoryKey: 'url',
-      }),
-    };
-  },
-);
+  topExitPages: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getTopExitPagesForSite(main, TOP_PAGES_LIMIT),
+      compare && getTopExitPagesForSite(compare, TOP_PAGES_LIMIT),
+    ]);
+    return toDataTable({ data, compare: compareData, categoryKey: 'url' });
+  }),
+});

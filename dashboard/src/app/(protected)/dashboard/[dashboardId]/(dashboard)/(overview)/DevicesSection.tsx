@@ -1,7 +1,5 @@
 'use client';
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchDeviceBreakdownCombinedAction } from '@/app/actions/analytics/devices.actions';
-import { use } from 'react';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OSIcon } from '@/components/icons/OSIcon';
@@ -9,15 +7,28 @@ import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useState } from 'react';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
-type DevicesSectionProps = {
-  deviceBreakdownCombinedPromise: ReturnType<typeof fetchDeviceBreakdownCombinedAction>;
-};
-
-export default function DevicesSection({ deviceBreakdownCombinedPromise }: DevicesSectionProps) {
-  const deviceBreakdownCombined = use(deviceBreakdownCombinedPromise);
+export default function DevicesSection() {
+  const [activeTab, setActiveTab] = useState('browsers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { input, options } = useBAQueryParams();
+
+  const browsersQuery = trpc.devices.browserRollup.useQuery(input, {
+    ...options,
+    enabled: activeTab === 'browsers',
+  });
+  const osQuery = trpc.devices.osRollup.useQuery(input, { ...options, enabled: activeTab === 'os' });
+  const devicesQuery = trpc.devices.deviceType.useQuery(input, { ...options, enabled: activeTab === 'devices' });
+
+  const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
+  const osState = useQueryState(osQuery, activeTab === 'os');
+  const devicesState = useQueryState(devicesQuery, activeTab === 'devices');
+  const activeState = { browsers: browsersState, os: osState, devices: devicesState }[activeTab as 'browsers' | 'os' | 'devices'];
 
   const onItemClick = (tabKey: string, item: { label: string }) => {
     if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
@@ -28,13 +39,16 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
   return (
     <MultiProgressTable
       title={t('sections.devicesBreakdown')}
+      loading={activeState.refetching}
       defaultTab='browsers'
+      onTabChange={setActiveTab}
       onItemClick={onItemClick}
       tabs={[
         {
           key: 'browsers',
           label: t('tabs.browsers'),
-          data: deviceBreakdownCombined.browsersExpanded.map((item) => ({
+          loading: browsersState.loading,
+          data: (browsersQuery.data ?? []).map((item) => ({
             label: item.browser,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
@@ -52,7 +66,8 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
         {
           key: 'os',
           label: t('tabs.operatingSystems'),
-          data: deviceBreakdownCombined.operatingSystemsExpanded.map((item) => ({
+          loading: osState.loading,
+          data: (osQuery.data ?? []).map((item) => ({
             label: item.os,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
@@ -70,7 +85,8 @@ export default function DevicesSection({ deviceBreakdownCombinedPromise }: Devic
         {
           key: 'devices',
           label: t('tabs.devices'),
-          data: deviceBreakdownCombined.devices.map((item) => ({
+          loading: devicesState.loading,
+          data: (devicesQuery.data ?? []).map((item) => ({
             label: item.device_type,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,

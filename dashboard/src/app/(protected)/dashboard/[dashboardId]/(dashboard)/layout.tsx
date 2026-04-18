@@ -13,6 +13,7 @@ import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { getUserBillingData } from '@/actions/billing.action';
 import { requireAuth } from '@/auth/auth-actions';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { RealtimeQuerySync } from '@/components/dashboard/RealtimeQuerySync';
 
 type DashboardSidebarLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -53,6 +54,7 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
             <IntegrationBanner />
           </Suspense>
           {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
+          <RealtimeQuerySync />
           {children}
         </div>
       </BannerProvider>

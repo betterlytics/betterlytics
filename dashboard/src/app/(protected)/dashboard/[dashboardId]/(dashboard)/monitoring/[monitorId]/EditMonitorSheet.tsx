@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { trpc } from '@/trpc/client';
 import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -46,7 +46,7 @@ export function EditMonitorSheet({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const queryClient = useQueryClient();
+  const utils = trpc.useUtils();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('monitoringEditDialog');
   const { data: session } = useSession();
@@ -83,13 +83,13 @@ export function EditMonitorSheet({
         toast.success(t('success'));
         form.markClean();
         setOpen(false);
-        await queryClient.invalidateQueries({ queryKey: ['monitor', dashboardId, monitor.id] });
+        utils.monitors.get.invalidate({ dashboardId, monitorId: monitor.id });
       } catch (error) {
         console.error(error);
         toast.error(t('error'));
       }
     });
-  }, [dashboardId, monitor.id, form, t, queryClient]);
+  }, [dashboardId, monitor.id, form, t, utils]);
 
   const handleDelete = useCallback(() => {
     deleteMutation.mutate(undefined, {

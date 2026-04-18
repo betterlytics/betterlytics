@@ -22,9 +22,7 @@ import {
   CheckCircle,
   EyeOff,
   RotateCcw,
-  ChevronDown,
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -40,9 +38,9 @@ import { ErrorStatusActions } from './ErrorStatusActions';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { PaginationControls } from '@/components/PaginationControls';
 import { ErrorSparklineChart } from './ErrorSparklineChart';
-import { fetchErrorGroupVolumesAction } from '@/app/actions/analytics/errors.actions';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-import { useTimeRangeQueryOptions } from '@/hooks/useTimeRangeQueryOptions';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useErrorGroupActions, type StatusFilter } from './use-error-group-actions';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { formatElapsedTime } from '@/utils/dateFormatters';
@@ -175,23 +173,47 @@ function ErrorToolbar({
   );
 }
 
+const SKELETON_ROWS = 8;
+
+function ErrorTableSkeletonRow() {
+  return (
+    <TableRow>
+      <TableCell className='w-10 py-3 pl-4 sm:pl-6'><Skeleton className='h-4 w-4' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <div className='space-y-1.5'>
+          <Skeleton className='h-4 w-32' />
+          <Skeleton className='h-3.5 w-48' />
+        </div>
+      </TableCell>
+      <TableCell className='hidden px-3 py-3 xl:table-cell sm:px-6'><Skeleton className='h-8 w-20' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='mx-auto h-4 w-10' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='mx-auto h-4 w-10' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-4 w-20' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-4 w-20' /></TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-5 w-20 rounded-full' /></TableCell>
+      <TableCell className='w-10 pr-2 sm:pr-4' />
+    </TableRow>
+  );
+}
+
 type ErrorTableProps = {
   errorGroups: ErrorGroupRow[];
   initialVolumeMap: Record<string, TimeSeriesPoint[]>;
   dashboardId: string;
+  loading?: boolean;
 };
 
-export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: ErrorTableProps) {
+export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading }: ErrorTableProps) {
   const t = useTranslations('errors');
   const router = useRouter();
   const [isRefreshing, startRefreshTransition] = useTransition();
   const { resolveHref } = useDashboardNavigation();
-  const query = useAnalyticsQuery();
-  const { staleTime, gcTime, refetchOnWindowFocus } = useTimeRangeQueryOptions();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'count', desc: true }]);
   const [searchInput, setSearchInput] = useState('');
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
+
+  const { input, options } = useBAQueryParams();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -421,24 +443,14 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
     .map((g) => g.error_fingerprint)
     .join(',');
 
-  const { data: volumeMap } = useQuery({
-    queryKey: [
-      'error-group-volumes',
-      dashboardId,
-      query.startDate,
-      query.endDate,
-      query.granularity,
-      query.timezone,
-      query.queryFilters,
-      fingerprintKey,
-    ],
-    queryFn: () => fetchErrorGroupVolumesAction(dashboardId, query, visibleFingerprints),
-    initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
-    enabled: visibleFingerprints.length > 0,
-    staleTime,
-    gcTime,
-    refetchOnWindowFocus,
-  });
+  const { data: volumeMap } = trpc.errors.errorGroupVolumes.useQuery(
+    { ...input, fingerprints: visibleFingerprints },
+    {
+      ...options,
+      initialData: fingerprintKey === initialFingerprintKey ? initialVolumeMap : undefined,
+      enabled: visibleFingerprints.length > 0,
+    },
+  );
   volumeMapRef.current = volumeMap;
 
   const filteredCount = table.getFilteredRowModel().rows.length;
@@ -507,7 +519,9 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId }: Error
             ))}
           </TableHeader>
           <TableBody className='divide-secondary divide-y'>
-            {filteredCount === 0 ? (
+            {loading ? (
+              Array.from({ length: SKELETON_ROWS }, (_, i) => <ErrorTableSkeletonRow key={i} />)
+            ) : filteredCount === 0 ? (
               <TableRow className='hover:bg-transparent'>
                 <TableCell colSpan={table.getVisibleLeafColumns().length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>
