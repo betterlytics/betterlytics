@@ -65,8 +65,19 @@ function buildHourlyMvFilters(
 
   return applicable.map((filter, i) => {
     const col = SQL.Unsafe(filter.column);
-    const values = SQL.StringArray({ [`hourly_mv_filter_${i}`]: filter.values });
-    return filter.operator === '=' ? safeSql`${col} IN ${values}` : safeSql`${col} NOT IN ${values}`;
+    const hasWildcard = filter.values.some((v) => v.includes('*'));
+
+    if (!hasWildcard) {
+      const values = SQL.StringArray({ [`hourly_mv_filter_${i}`]: filter.values });
+      return filter.operator === '=' ? safeSql`${col} IN ${values}` : safeSql`${col} NOT IN ${values}`;
+    }
+
+    const patterns = SQL.StringArray({
+      [`hourly_mv_filter_${i}`]: filter.values.map((v) => v.replaceAll('*', '%')),
+    });
+    return filter.operator === '='
+      ? safeSql`arrayExists(pattern -> ${col} ILIKE pattern, ${patterns})`
+      : safeSql`arrayAll(pattern -> ${col} NOT ILIKE pattern, ${patterns})`;
   });
 }
 
