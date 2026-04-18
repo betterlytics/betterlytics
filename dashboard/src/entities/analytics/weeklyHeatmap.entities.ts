@@ -12,8 +12,6 @@ export const HeatmapMetricSchema = z.enum([
 export type HeatmapMetric = z.infer<typeof HeatmapMetricSchema>;
 
 export const WeeklyHeatmapRowSchema = z.object({
-  // ISO date truncated to hour for the bucket start (mainly for traceability)
-  date: z.string(),
   // 1-7 where 1 = Monday, 7 = Sunday (ClickHouse toDayOfWeek ISO mapping)
   weekday: z.number().int().min(1).max(7),
   // 0-23 hour of day

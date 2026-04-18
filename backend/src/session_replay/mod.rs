@@ -38,7 +38,7 @@ static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
         .build()
 });
 
-fn cache_key(site_id: &str, session_id: &str) -> String {
+fn cache_key(site_id: &str, session_id: u64) -> String {
     format!("{}:{}", site_id, session_id)
 }
 
@@ -60,7 +60,7 @@ pub struct PresignPutRequest {
 pub struct PresignPutResponse {
     pub url: String,
     pub key: String,
-    pub session_id: String,
+    pub session_id: u64,
     pub visitor_id: u64,
     pub sse: bool,
 }
@@ -97,7 +97,7 @@ pub async fn presign_put_segment(
         root_domain.as_deref(),
     );
 
-    let session_id = session::get_or_create_session_id(&req.site_id, fingerprint)
+    let (session_id, _session_start) = session::get_or_create_session_id(&req.site_id, fingerprint)
         .map_err(|e| {
             error!("Failed to get session ID: {}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
@@ -108,7 +108,7 @@ pub async fn presign_put_segment(
     }
 
     let epoch_ms = req.ended_at_ms.unwrap_or_else(|| chrono::Utc::now().timestamp_millis());
-    let key = s3.build_replay_object_key(&req.site_id, &session_id, epoch_ms);
+    let key = s3.build_replay_object_key(&req.site_id, session_id, epoch_ms);
     let url = s3.presign_replay_put(
         &key,
         CONTENT_TYPE,
@@ -129,7 +129,7 @@ pub async fn presign_put_segment(
 #[derive(serde::Deserialize)]
 pub struct FinalizeRequest {
     pub site_id: String,
-    pub session_id: String,
+    pub session_id: u64,
     pub visitor_id: u64,
     pub started_at: i64,
     pub ended_at: i64,
@@ -144,7 +144,7 @@ pub async fn finalize_session_replay(
     State((db, _, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
-    let key = cache_key(&req.site_id, &req.session_id);
+    let key = cache_key(&req.site_id, req.session_id);
     let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
     let normalized_start_url = req

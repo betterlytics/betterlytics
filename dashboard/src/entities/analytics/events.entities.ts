@@ -40,7 +40,7 @@ export const EventLogEntrySchema = z.object({
   visitor_id: z.string(),
   url: z.string(),
   custom_event_json: z.string(),
-  country_code: z.string().nullable(),
+  country_code: z.string(),
   device_type: z.string(),
   browser: z.string(),
 });
