@@ -44,7 +44,7 @@ betterlytics.setGlobalProperties({
 });
 ```
 
-The following values are rejected by the client with a console warning:
+The following values are silently dropped on the server:
 
 ```javascript
 betterlytics.setGlobalProperties({
@@ -59,12 +59,14 @@ betterlytics.setGlobalProperties({
 
 ## Limits
 
-| Limit | Value |
-|-------|-------|
-| Maximum keys per event | 30 |
-| Maximum key length | 64 characters |
-| Maximum string value length | 128 characters |
-| Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) |
+| Limit | Value | Behavior when exceeded |
+|-------|-------|------------------------|
+| Maximum keys per event | 30 | extra keys dropped |
+| Maximum key length | 64 characters | key dropped |
+| Maximum string value length | 128 characters | value truncated |
+| Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) | value dropped |
+
+Values outside these bounds are sanitized server-side without rejecting the event — the rest of the properties still go through. The event itself is never dropped because of a bad global property.
 
 ## Filtering in the Dashboard
 
