@@ -73,7 +73,7 @@ INSERT INTO analytics.events_new (
 )
 SELECT
     site_id, visitor_id,
-    reinterpretAsUInt64(reverse(unhex(substring(session_id, 1, 16)))) as session_id,
+    cityHash64(session_id) as session_id,
     domain, url, device_type,
     coalesce(country_code, '') as country_code, subdivision_code, city, timestamp, date,
     browser, browser_version, os, os_version,
@@ -91,7 +91,6 @@ RENAME TABLE
     analytics.events TO analytics.events_old_2,
     analytics.events_new TO analytics.events;
 
-DROP TABLE IF EXISTS analytics.events_old_2;
 
 CREATE MATERIALIZED VIEW analytics.usage_by_site_daily
 ENGINE = SummingMergeTree()
