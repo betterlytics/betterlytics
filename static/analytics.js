@@ -56,6 +56,18 @@
     replaySamplePct = 0;
   }
 
+  var initialGlobalProperties = null;
+  var initialGlobalPropertiesRaw = script.getAttribute(
+    "data-global-properties",
+  );
+  if (initialGlobalPropertiesRaw) {
+    try {
+      initialGlobalProperties = JSON.parse(initialGlobalPropertiesRaw);
+    } catch (e) {
+      console.warn("Betterlytics: data-global-properties is not valid JSON", e);
+    }
+  }
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -162,6 +174,10 @@
       }
     },
   };
+
+  if (initialGlobalProperties !== null) {
+    window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
