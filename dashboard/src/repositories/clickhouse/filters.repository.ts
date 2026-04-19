@@ -53,11 +53,11 @@ export async function getGlobalPropertyKeys(
       : safeSql``;
 
   const query = safeSql`
-    SELECT arrayJoin(JSONExtractKeys(global_properties_json)) AS key
+    SELECT arrayJoin(global_properties_keys) AS key
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND global_properties_json != ''
+      AND notEmpty(global_properties_keys)
     GROUP BY key
     ${searchClause}
     ORDER BY key
@@ -87,11 +87,11 @@ export async function getGlobalPropertyValues(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT JSONExtractString(global_properties_json, ${SQL.String({ prop_key: propertyKey })}) AS value
+    SELECT DISTINCT global_properties_values[indexOf(global_properties_keys, ${SQL.String({ prop_key: propertyKey })})] AS value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND global_properties_json != ''
+      AND has(global_properties_keys, ${SQL.String({ prop_key_filter: propertyKey })})
       AND value != ''
       ${searchClause}
     LIMIT {limit:UInt32}

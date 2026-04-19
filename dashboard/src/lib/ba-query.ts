@@ -54,12 +54,12 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
   switch (strategy.type) {
     case 'json_property': {
       const key = SQL.String({ [`gp_key_${filterIndex}`]: strategy.key });
-      const extract = safeSql`JSONExtractString(global_properties_json, ${key})`;
       const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
       if (isWildcard) {
-        const op = filter.rawOperator === '=' ? safeSql`!=` : safeSql`=`;
-        return safeSql`${extract} ${op} ''`;
+        const hasKey = safeSql`has(global_properties_keys, ${key})`;
+        return filter.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
       }
+      const extract = safeSql`global_properties_values[indexOf(global_properties_keys, ${key})]`;
       return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
     }
     default: {
