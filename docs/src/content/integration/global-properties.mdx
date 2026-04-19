@@ -71,6 +71,20 @@ betterlytics.setGlobalProperties({
 });
 ```
 
+## What to track
+
+Global properties are designed for **categorical, non-personal attributes** that describe the context of a visit. Not the identity of a person.
+
+**Good candidates:**
+- Subscription plan or tier (`plan: "pro"`)
+- User role (`role: "admin"`)
+- App or release version (`app_version: "2.1.0"`)
+- Feature flag state (`new_checkout: true`)
+- Environment (`environment: "production"`)
+- Experiment cohort (`experiment: "variant-b"`)
+
+**Avoid storing personally identifiable information (PII)** such as user IDs, email addresses, or names. Property values are stored in your analytics data, appear in dashboard filter suggestions, and are visible to anyone with dashboard access.
+
 ## Limits
 
 | Limit | Value | Behavior when exceeded |
@@ -80,8 +94,10 @@ betterlytics.setGlobalProperties({
 | Maximum string value length | 128 characters | value truncated |
 | Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) | value dropped |
 
-Values outside these bounds are sanitized server-side without rejecting the event — the rest of the properties still go through. The event itself is never dropped because of a bad global property.
+Values outside these bounds are sanitized server-side without rejecting the event. The rest of the properties still go through, and the event itself is never dropped because of a bad global property.
 
 ## Filtering in the Dashboard
 
 Once events with global properties are collected, they appear in the filter dropdown under **Global Properties**. Select a property key to filter all dashboard views by its values.
+
+Global property filters work at the session level. A session is included if the property matched at any point during that visit, and all of its metrics count in full. See [Global property filters](/dashboard/filtering#global-property-filters) for a full explanation of what this means for your metrics.
