@@ -2,23 +2,34 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.9',
-    releasedAt: '2026-03-29',
-    title: 'Client-Side Error Tracking',
+    version: 'v1.4.0',
+    releasedAt: '2026-04-19',
+    title: 'Global Properties & Performance Improvements',
     summary:
-      'Betterlytics now tracks client-side errors. See every error with stack traces and breadcrumbs, track trends over time, and optionally replay the session that triggered each error.',
+      'Segment your analytics by any dimension you care about with the new Global Properties feature, and enjoy significantly faster dashboard load times thanks to broad performance improvements.',
   },
   sections: [
     {
-      id: 'v139-new-features',
+      id: 'v140-new-features',
       title: 'New Features',
       blocks: [
         {
           type: 'list',
           items: [
-            'Client-side error tracking is here. Errors and console.error calls can now be captured and grouped by fingerprint, so you can see which errors affect the most users and how often they occur.',
-            'Every error comes with a stack trace and a breadcrumb trail showing what the user did leading up to it. Enable session replay on error to also capture a full replay of the session.',
-            'Errors are fully accessible through the MCP server, so your AI assistants can query error data and help you understand and debug what causes each error.',
+            'Global Properties let you attach shared context to every event sent from your site, such as logged-in status, plan tier, or user role. This makes it easy to segment any report by these properties, for example comparing logged-in users to anonymous visitors.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v140-performance',
+      title: 'Performance',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dashboards now load significantly faster, with the biggest improvements on high-traffic sites and longer time ranges.',
+            'Charts and tables now load as you scroll to them, so the data at the top of the page appears sooner instead of waiting for the entire page to finish.',
           ],
         },
       ],
@@ -27,6 +38,42 @@ export const latestChangelogModalEn: ChangelogEntryData = {
 };
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Global Properties & Performance Improvements',
+      summary:
+        'Segment your analytics by any dimension you care about with the new Global Properties feature, and enjoy significantly faster dashboard load times thanks to broad performance improvements.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Global Properties let you attach shared context to every event sent from your site, such as logged-in status, plan tier, or user role. This makes it easy to segment any report by these properties, for example comparing logged-in users to anonymous visitors.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Performance',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboards now load significantly faster, with the biggest improvements on high-traffic sites and longer time ranges.',
+              'Charts and tables now load as you scroll to them, so the data at the top of the page appears sooner instead of waiting for the entire page to finish.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.9',
