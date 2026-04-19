@@ -65,7 +65,8 @@ pub struct ProcessedEvent {
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
-    pub global_properties_json: String,
+    pub global_properties_keys: Vec<String>,
+    pub global_properties_values: Vec<String>,
 }
 
 /// Event processor that handles real-time processing
@@ -131,7 +132,8 @@ impl EventProcessor {
             error_type: String::new(),
             error_message: String::new(),
             error_fingerprint: String::new(),
-            global_properties_json: String::new(),
+            global_properties_keys: Vec::new(),
+            global_properties_values: Vec::new(),
         };
 
         // Handle event types
@@ -233,7 +235,9 @@ impl EventProcessor {
         }
 
         if let Some(ref gp) = processed.event.raw.global_properties {
-            processed.global_properties_json = gp.to_string();
+            let (keys, values) = decompose_global_properties(gp);
+            processed.global_properties_keys = keys;
+            processed.global_properties_values = values;
         }
 
         Ok(())
@@ -288,5 +292,24 @@ impl EventProcessor {
         let device_type = detect_device_type_from_resolution_with_fallback(&processed.event.raw.screen_resolution);
         processed.device_type = Some(device_type);
         Ok(())
-    } 
+    }
+}
+
+fn decompose_global_properties(value: &serde_json::Value) -> (Vec<String>, Vec<String>) {
+    let Some(obj) = value.as_object() else {
+        return (Vec::new(), Vec::new());
+    };
+    let mut keys = Vec::with_capacity(obj.len());
+    let mut values = Vec::with_capacity(obj.len());
+    for (key, val) in obj {
+        let value_str = match val {
+            serde_json::Value::String(s) => s.clone(),
+            serde_json::Value::Number(n) => n.to_string(),
+            serde_json::Value::Bool(b) => b.to_string(),
+            _ => continue,
+        };
+        keys.push(key.clone());
+        values.push(value_str);
+    }
+    (keys, values)
 }

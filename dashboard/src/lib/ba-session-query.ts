@@ -140,19 +140,22 @@ function getSessionFilterQuery(
     return [safeSql`1=1`];
   }
 
-  const hasEventsFilters = filters.some(
-    (filter) => MAIN_TABLE_FILTERS.includes(filter.column) || isGlobalFilter(filter.column),
-  );
+  const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
+
+  const gpFilters = filters
+    .filter((filter) => isGlobalFilter(filter.column))
+    .map((filter) => buildGlobalPropertyFilterQuery(filter));
 
   const sessionFilters = filters
     .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.column) && !isGlobalFilter(filter.column))
     .map((filter) => buildSessionFilterQuery(filter));
 
-  const WHERE = sessionFilters.length > 0 ? sessionFilters : [safeSql`1=1`];
+  const baseWhere = [...gpFilters, ...sessionFilters];
+  const WHERE = baseWhere.length > 0 ? baseWhere : [safeSql`1=1`];
 
   if (hasEventsFilters) {
     const eventsQueries = filters
-      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column) || isGlobalFilter(filter.column))
+      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column))
       .map((filter) => buildFilterQuery(filter));
     const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
     return [...WHERE, eventsQuery];
@@ -172,25 +175,35 @@ function hashFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
   const filterHash = hashFilterQuery(filter);
-  const strategy = getFilterStrategy(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
+  const column = SQL.Unsafe(z.enum(FILTER_COLUMNS).parse(filter.column));
+  return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+}
 
-  switch (strategy.type) {
-    case 'json_property': {
-      const key = SQL.String({ [`gp_key_${filterHash}`]: strategy.key });
-      const extract = safeSql`JSONExtractString(global_properties_json, ${key})`;
-      const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
-      if (isWildcard) {
-        const op = filter.rawOperator === '=' ? safeSql`!=` : safeSql`=`;
-        return safeSql`${extract} ${op} ''`;
-      }
-      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
-    }
-    default: {
-      const column = SQL.Unsafe(z.enum(FILTER_COLUMNS).parse(filter.column));
-      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
-    }
+// Global-property filter against the unioned all_props on analytics.sessions.
+// A session matches when at least one of its events carried a matching (key, value) pair.
+// `*` wildcard (passed in as `%` after transform) against any value is treated as
+// "key exists in this session".
+function buildGlobalPropertyFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
+  const strategy = getFilterStrategy(filter.column);
+  if (strategy.type !== 'json_property') {
+    throw new Error(`Expected json_property strategy for column ${filter.column}`);
   }
+
+  const filterHash = hashFilterQuery(filter);
+  const key = SQL.String({ [`gp_key_${filterHash}`]: strategy.key });
+  const isEquals = filter.rawOperator === '=';
+
+  const isMatchAnyValue = filter.values.length === 1 && filter.values[0] === '%';
+  if (isMatchAnyValue) {
+    return isEquals
+      ? safeSql`arrayExists(t -> t.1 = ${key}, all_props)`
+      : safeSql`NOT arrayExists(t -> t.1 = ${key}, all_props)`;
+  }
+
+  const values = SQL.StringArray({ [`gp_vals_${filterHash}`]: filter.values });
+  const anyValueMatches = safeSql`arrayExists(t -> t.1 = ${key} AND arrayExists(v -> t.2 ILIKE v, ${values}), all_props)`;
+  return isEquals ? anyValueMatches : safeSql`NOT ${anyValueMatches}`;
 }
 
 function buildSessionFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
