@@ -26,7 +26,7 @@ export const GP_PREFIX = 'gp.';
 
 export const FILTER_OPERATORS = ['=', '!='] as const;
 
-const GP_KEY_PATTERN = /^[\w.\-:]{1,64}$/;
+const GP_KEY_PATTERN = /^[^\p{C}]{1,64}$/u;
 
 export const FilterColumnSchema = z.union([
   z.enum(FILTER_COLUMNS),
