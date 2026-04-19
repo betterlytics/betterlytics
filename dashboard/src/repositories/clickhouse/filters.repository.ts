@@ -1,23 +1,24 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { type FilterColumn } from '@/entities/analytics/filter.entities';
+import { type TableFilterColumn } from '@/entities/analytics/filter.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { filterColumnSql } from '@/lib/filter-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getFilterDistinctValues(
   siteQuery: BASiteQuery,
-  column: FilterColumn,
+  column: TableFilterColumn,
   limit: number = 50,
   search?: string,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
-  const selectExpr =
-    column === 'event_type' ? safeSql`toString(${SQL.Unsafe(column)})` : safeSql`${SQL.Unsafe(column)}`;
+  const columnSql = filterColumnSql(column);
+  const selectExpr = column === 'event_type' ? safeSql`toString(${columnSql})` : columnSql;
 
   const searchClause =
     search && search.trim()
-      ? safeSql`AND ${SQL.Unsafe(column)} ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
+      ? safeSql`AND ${columnSql} ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
       : safeSql``;
 
   const query = safeSql`
