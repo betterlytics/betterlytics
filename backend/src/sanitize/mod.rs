@@ -59,6 +59,10 @@ fn sanitize_global_properties(value: Value, cfg: &SanitizeConfig) -> (Option<Val
             was_sanitized = true;
             continue;
         }
+        if key.is_empty() {
+            was_sanitized = true;
+            continue;
+        }
         if contains_control_characters(&key) {
             was_sanitized = true;
             continue;
@@ -253,6 +257,20 @@ mod tests {
         let (out, was) = sanitize_global_properties(input, &cfg());
         assert!(was);
         assert!(out.is_none());
+    }
+
+    #[test]
+    fn empty_key_dropped() {
+        let mut m = serde_json::Map::new();
+        m.insert("".to_string(), json!("v"));
+        m.insert("ok".to_string(), json!("v"));
+        let (out, was) = sanitize_global_properties(Value::Object(m), &cfg());
+        assert!(was);
+        let out_obj = out.unwrap();
+        let out_obj = out_obj.as_object().unwrap();
+        assert_eq!(out_obj.len(), 1);
+        assert!(out_obj.contains_key("ok"));
+        assert!(!out_obj.contains_key(""));
     }
 
     #[test]
