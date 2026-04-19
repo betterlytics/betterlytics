@@ -17,9 +17,6 @@ pub struct ValidationConfig {
     pub max_site_id_length: usize,
     pub max_user_agent_length: usize,
     pub max_error_exceptions_size: usize,
-    pub max_global_properties_keys: usize,
-    pub max_global_property_key_length: usize,
-    pub max_global_property_value_length: usize,
     pub max_timestamp_drift_seconds: i64,
     pub enforce_timestamp_validation: bool,
 }
@@ -33,9 +30,6 @@ impl Default for ValidationConfig {
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
             max_error_exceptions_size: 16 * 1024,     // 16KB - client caps stack at 10KB + type/value/mechanism overhead
-            max_global_properties_keys: 30,
-            max_global_property_key_length: 64,
-            max_global_property_value_length: 128,
             max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
             enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
@@ -68,8 +62,6 @@ pub enum ValidationError {
     DomainNotAllowed(String),
     #[error("Invalid scroll depth: {0}")]
     InvalidScrollDepth(String),
-    #[error("Invalid global properties: {0}")]
-    InvalidGlobalProperties(String),
 }
 
 #[derive(Debug, Clone)]
@@ -93,12 +85,11 @@ impl EventValidator {
         ip_address: String,
     ) -> Result<ValidatedTrackingEvent, ValidationError> {
         let result = self.validate_event_internal(&raw_event, &ip_address);
-        
-        // Log sanitized rejection details if validation fails
+
         if let Err(ref error) = result {
             self.log_sanitized_rejection(error, &raw_event, &ip_address);
         }
-        
+
         result
     }
 
@@ -130,10 +121,6 @@ impl EventValidator {
         // only present for custom events
         if !raw_event.properties.is_empty() {
             self.validate_properties_json(&raw_event.properties)?;
-        }
-
-        if let Some(ref gp) = raw_event.global_properties {
-            self.validate_global_properties(gp)?;
         }
 
         Ok(ValidatedTrackingEvent {
@@ -334,68 +321,6 @@ impl EventValidator {
         }
     }
 
-    fn validate_global_properties(&self, value: &serde_json::Value) -> Result<(), ValidationError> {
-        let obj = value.as_object().ok_or_else(|| {
-            ValidationError::InvalidGlobalProperties("Must be a JSON object".to_string())
-        })?;
-
-        if obj.len() > self.config.max_global_properties_keys {
-            return Err(ValidationError::InvalidGlobalProperties(
-                format!("Too many keys (max {})", self.config.max_global_properties_keys),
-            ));
-        }
-
-        for (key, val) in obj {
-            if key.len() > self.config.max_global_property_key_length {
-                return Err(ValidationError::InvalidGlobalProperties(
-                    format!("Key '{}' too long (max {} chars)", key, self.config.max_global_property_key_length),
-                ));
-            }
-            if contains_control_characters(key) {
-                return Err(ValidationError::InvalidGlobalProperties(
-                    format!("Key '{}' contains control characters", key),
-                ));
-            }
-            match val {
-                serde_json::Value::String(s) => {
-                    if s.is_empty() {
-                        return Err(ValidationError::InvalidGlobalProperties(
-                            format!("Value for '{}' must not be empty", key),
-                        ));
-                    }
-                    if s.len() > self.config.max_global_property_value_length {
-                        return Err(ValidationError::InvalidGlobalProperties(
-                            format!("Value for '{}' too long (max {} chars)", key, self.config.max_global_property_value_length),
-                        ));
-                    }
-                    if contains_dangerous_control_characters(s) {
-                        return Err(ValidationError::InvalidGlobalProperties(
-                            format!("Value for '{}' contains control characters", key),
-                        ));
-                    }
-                }
-                serde_json::Value::Number(n) => {
-                    const MAX_SAFE: f64 = (1u64 << 53) as f64 - 1.0;
-                    if let Some(f) = n.as_f64() {
-                        if !f.is_finite() || f > MAX_SAFE || f < -MAX_SAFE {
-                            return Err(ValidationError::InvalidGlobalProperties(
-                                format!("Value for '{}' is out of range", key),
-                            ));
-                        }
-                    }
-                }
-                serde_json::Value::Bool(_) => {}
-                _ => {
-                    return Err(ValidationError::InvalidGlobalProperties(
-                        format!("Value for '{}' must be a string, number, or boolean", key),
-                    ));
-                }
-            }
-        }
-
-        Ok(())
-    }
-
     /// Log sanitized rejection details for debugging
     fn log_sanitized_rejection(
         &self,
@@ -433,7 +358,6 @@ impl EventValidator {
             ValidationError::BlacklistedIp(_) => "blacklisted_ip",
             ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
             ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
-            ValidationError::InvalidGlobalProperties(_) => "invalid_global_properties",
         }
     }
 
