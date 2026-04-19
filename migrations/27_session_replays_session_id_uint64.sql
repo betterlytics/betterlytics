@@ -23,7 +23,7 @@ INSERT INTO analytics.session_replays_new (
 )
 SELECT
     site_id,
-    reinterpretAsUInt64(reverse(unhex(substring(session_id, 1, 16)))) as session_id,
+    cityHash64(session_id) as session_id,
     visitor_id, started_at, ended_at,
     duration, date, size_bytes, event_count, s3_prefix, start_url,
     error_fingerprints
@@ -33,4 +33,3 @@ RENAME TABLE
     analytics.session_replays TO analytics.session_replays_old_2,
     analytics.session_replays_new TO analytics.session_replays;
 
-DROP TABLE IF EXISTS analytics.session_replays_old_2;
