@@ -87,6 +87,24 @@ Every dashboard page includes the same filtering interface in the top-right corn
 - **UTM term** - UTM term parameter values
 - **UTM content** - UTM content parameter values
 
+### Global Property Filters
+- **Global Properties** - Custom metadata your site attaches to events, such as plan, user role, or app version
+
+See [Global Properties](/integration/global-properties) for how to instrument them.
+
+#### How global property filters work
+
+Global property filters select **entire sessions**. A session is included if the property had the filtered value at any point during that session, regardless of when it was set.
+
+**Example:** A visitor spends 10 minutes on your site while logged out, then logs in and browses for 1 more minute. Filtering for `logged_in = true` includes this session in full, so the session duration counts as 11 minutes, not 1.
+
+This is intentional. Session-based metrics (unique visitors, session duration, bounce rate) describe the session as a whole. Slicing a session in half would produce misleading averages.
+
+**Practical implications:**
+- A session where a user upgrades mid-visit will appear under **both** `plan = free` and `plan = pro`.
+- Session duration and bounce rate always reflect the complete session, not just the portion where the property matched.
+- Use global property filters to isolate a **cohort of sessions**, then interpret all metrics in that context.
+
 ### Custom Event Filters
 - **Event** - Specific custom event names you've set up
 

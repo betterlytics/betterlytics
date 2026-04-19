@@ -7,6 +7,20 @@ description: "Attach persistent key-value metadata to all analytics events. Filt
 
 Attach key-value metadata to every analytics event sent from a page. Unlike [custom event properties](/integration/custom-events), which are per-event, global properties persist across all events for the lifetime of the page.
 
+## Setting Initial Properties
+
+If you have properties available at page load, set them directly on the script tag via `data-global-properties`. These are applied before the initial pageview, so the first event already carries them:
+
+```html
+<script
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-site-id"
+  data-global-properties='{"plan":"premium","app_version":"2.1.0"}'
+></script>
+```
+
+The attribute value must be a valid JSON object. Invalid JSON is logged to the console and ignored.
+
 ## Setting Global Properties
 
 Call `setGlobalProperties()` once your app has the data available:
@@ -44,7 +58,7 @@ betterlytics.setGlobalProperties({
 });
 ```
 
-The following values are rejected by the client with a console warning:
+Global properties with the following values are ignored and not included in events:
 
 ```javascript
 betterlytics.setGlobalProperties({
@@ -57,15 +71,33 @@ betterlytics.setGlobalProperties({
 });
 ```
 
+## What to track
+
+Global properties are designed for **categorical, non-personal attributes** that describe the context of a visit. Not the identity of a person.
+
+**Good candidates:**
+- Subscription plan or tier (`plan: "pro"`)
+- User role (`role: "admin"`)
+- App or release version (`app_version: "2.1.0"`)
+- Feature flag state (`new_checkout: true`)
+- Environment (`environment: "production"`)
+- Experiment cohort (`experiment: "variant-b"`)
+
+**Avoid storing personally identifiable information (PII)** such as user IDs, email addresses, or names. Property values are stored in your analytics data, appear in dashboard filter suggestions, and are visible to anyone with dashboard access.
+
 ## Limits
 
-| Limit | Value |
-|-------|-------|
-| Maximum keys per event | 30 |
-| Maximum key length | 64 characters |
-| Maximum string value length | 128 characters |
-| Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) |
+| Limit | Value | Behavior when exceeded |
+|-------|-------|------------------------|
+| Maximum keys per event | 30 | extra keys dropped |
+| Maximum key length | 64 characters | key dropped |
+| Maximum string value length | 128 characters | value truncated |
+| Numeric range | ±2^53 − 1 ([`Number.MAX_SAFE_INTEGER`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)) | value dropped |
+
+Values outside these bounds are sanitized server-side without rejecting the event. The rest of the properties still go through, and the event itself is never dropped because of a bad global property.
 
 ## Filtering in the Dashboard
 
 Once events with global properties are collected, they appear in the filter dropdown under **Global Properties**. Select a property key to filter all dashboard views by its values.
+
+Global property filters work at the session level. A session is included if the property matched at any point during that visit, and all of its metrics count in full. See [Global property filters](/dashboard/filtering#global-property-filters) for a full explanation of what this means for your metrics.

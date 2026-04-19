@@ -56,6 +56,18 @@
     replaySamplePct = 0;
   }
 
+  var initialGlobalProperties = null;
+  var initialGlobalPropertiesRaw = script.getAttribute(
+    "data-global-properties",
+  );
+  if (initialGlobalPropertiesRaw) {
+    try {
+      initialGlobalProperties = JSON.parse(initialGlobalPropertiesRaw);
+    } catch (e) {
+      console.warn("Betterlytics: data-global-properties is not valid JSON", e);
+    }
+  }
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -131,19 +143,7 @@
       if (props == null || typeof props !== "object" || Array.isArray(props)) {
         return console.error("Betterlytics: setGlobalProperties requires a flat object");
       }
-      var keys = Object.keys(props);
-      for (var i = 0; i < keys.length; i++) {
-        var val = props[keys[i]];
-        if (val == null) {
-          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, number, or boolean");
-        } else if (typeof val === "number" && !isFinite(val)) {
-          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — number must be finite");
-        } else if (["string", "number", "boolean"].includes(typeof val)) {
-          globalProperties[keys[i]] = val;
-        } else {
-          console.warn("Betterlytics: skipping global property '" + keys[i] + "' — value must be a string, number, or boolean");
-        }
-      }
+      Object.assign(globalProperties, props);
     },
     clearGlobalProperties: function () {
       globalProperties = {};
@@ -174,6 +174,10 @@
       }
     },
   };
+
+  if (initialGlobalProperties !== null) {
+    window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
