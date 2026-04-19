@@ -29,13 +29,6 @@ export function TrackingScript({ siteId }: TrackingScriptProps) {
     script.setAttribute('data-disable-replay-on-urls', '/dashboard/*/replay');
     script.setAttribute('data-track-errors', 'true');
     script.setAttribute('data-track-console-errors', 'true');
-    script.onload = () => {
-      const betterlytics = (window as unknown as { betterlytics?: { setGlobalProperties?: (p: Record<string, unknown>) => void } }).betterlytics;
-      betterlytics?.setGlobalProperties?.({
-        logged_in: true,
-        environment: process.env.NODE_ENV ?? 'unknown',
-      });
-    };
     document.head.appendChild(script);
 
     return () => {
