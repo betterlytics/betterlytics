@@ -54,19 +54,20 @@ export type FilterOperator = (typeof FILTER_OPERATORS)[number];
  * Discriminated form of a filter column, produced by parseFilterColumn.
  * SQL-building code should operate on this — never on raw FilterColumn strings.
  */
-export type ParsedFilterColumn =
-  | { kind: 'standard'; col: TableFilterColumn }
-  | { kind: 'gp'; key: string };
+export type ParsedFilterColumn = { kind: 'standard'; col: TableFilterColumn } | { kind: 'gp'; key: string };
 
 /**
  * Narrow a validated FilterColumn into a discriminated union suitable for SQL.
  * Assumes input has already passed FilterColumnSchema (e.g. via tRPC / QueryFilterSchema).
  */
 export function parseFilterColumn(col: FilterColumn): ParsedFilterColumn {
-  if (col.startsWith(GP_PREFIX)) {
+  if (isGlobalPropertyColumn(col)) {
     return { kind: 'gp', key: col.slice(GP_PREFIX.length) };
   }
-  // TS can't eliminate `gp.${string}` from the type after the prefix check,
-  // but we know by exclusion the column is a TableFilterColumn here.
-  return { kind: 'standard', col: col as TableFilterColumn };
+
+  return { kind: 'standard', col };
+}
+
+function isGlobalPropertyColumn(col: FilterColumn): col is `gp.${string}` {
+  return col.startsWith(GP_PREFIX);
 }
