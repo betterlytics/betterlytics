@@ -60,6 +60,7 @@ export default function CustomEventsSection() {
                 children: prop.children.map((v) => ({
                   key: filterKey,
                   label: v.value,
+                  titleLabel: `${prop.property_key}:${v.value}`,
                   value: v.current.count,
                   trendPercentage: v.change?.count,
                   comparisonValue: v.compare?.count,

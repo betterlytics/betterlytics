@@ -18,6 +18,7 @@ export interface ProgressBarData {
   label: string;
   value: number;
   key?: string;
+  titleLabel?: string;
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
@@ -102,8 +103,9 @@ function MultiProgressTable<T extends ProgressBarData>({
       return (
         <div className='space-y-2'>
           {data.map((item, index) => {
-            const { key, label, value, children = [], trendPercentage, comparisonValue, icon } = item;
+            const { key, label, value, children = [], trendPercentage, comparisonValue, icon, titleLabel } = item;
             const itemKey = key ?? label;
+            const reactKey = `${itemKey}::${label}::${index}`;
             const isExpandable = children.length > 0;
             const isExpanded = expandedKeys.has(itemKey);
 
@@ -113,12 +115,12 @@ function MultiProgressTable<T extends ProgressBarData>({
 
             return (
               <div
-                key={itemKey}
+                key={reactKey}
                 style={{ paddingLeft: level ? level * 8 : undefined }}
                 className={`group relative ${interactive ? 'cursor-pointer' : ''}`}
                 role={interactive ? 'button' : undefined}
                 tabIndex={interactive ? 0 : undefined}
-                title={interactive && typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
+                title={interactive ? tFilters('filterBy', { label: titleLabel ?? label }) : undefined}
                 onClick={interactive ? () => onItemClick?.(tabKey, item) : undefined}
                 onKeyDown={
                   interactive
