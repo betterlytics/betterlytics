@@ -34,6 +34,18 @@ export const latestChangelogModalDa: ChangelogEntryData = {
         },
       ],
     },
+    {
+      id: 'v140-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Sessionsrelaterede målinger er nu mere præcise, især for langvarige sessioner. Antal sessioner, bounce rate og tid på siden afspejler nu i højere grad, hvad de besøgende faktisk foretog sig på dit website.',
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -68,6 +80,18 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
             items: [
               'Dashboards indlæses nu markant hurtigere, med de største forbedringer på sider med høj trafik og længere tidsintervaller.',
               'Grafer og tabeller indlæses nu, som du scroller hen til dem, så dataene øverst på siden vises hurtigere i stedet for at vente på, at hele siden bliver færdig.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sessionsrelaterede målinger er nu mere præcise, især for langvarige sessioner. Antal sessioner, bounce rate og tid på siden afspejler nu i højere grad, hvad de besøgende faktisk foretog sig på dit website.',
             ],
           },
         ],

@@ -34,6 +34,18 @@ export const latestChangelogModalEn: ChangelogEntryData = {
         },
       ],
     },
+    {
+      id: 'v140-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session metrics are now more accurate, especially for long-lasting sessions. Session count, bounce rate, and time on site now better reflect what visitors actually did on your site.',
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -68,6 +80,18 @@ export const changelogEntriesEn: readonly ChangelogEntryData[] = [
             items: [
               'Dashboards now load significantly faster, with the biggest improvements on high-traffic sites and longer time ranges.',
               'Charts and tables now load as you scroll to them, so the data at the top of the page appears sooner instead of waiting for the entire page to finish.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Session metrics are now more accurate, especially for long-lasting sessions. Session count, bounce rate, and time on site now better reflect what visitors actually did on your site.',
             ],
           },
         ],
