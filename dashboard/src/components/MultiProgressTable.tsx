@@ -4,6 +4,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
+import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+import { ScrollBar } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -12,7 +14,7 @@ import { Spinner } from '@/components/ui/spinner';
 import MultiProgressTableRowSkeleton from '@/components/skeleton/MultiProgressTableSkeleton';
 import { cn } from '@/lib/utils';
 
-interface ProgressBarData {
+export interface ProgressBarData {
   label: string;
   value: number;
   key?: string;
@@ -162,9 +164,15 @@ function MultiProgressTable<T extends ProgressBarData>({
                 />
 
                 {isExpandable && isExpanded && (
-                  <div className='mt-2 ml-4 border-l'>
-                    {renderProgressList(children as T[], tabKey, level + 1)}
-                  </div>
+                  <ScrollAreaPrimitive.Root
+                    className='mt-2 ml-4 max-h-46 border-l'
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ScrollAreaPrimitive.Viewport className='max-h-46'>
+                      {renderProgressList(children as T[], tabKey, level + 1)}
+                    </ScrollAreaPrimitive.Viewport>
+                    <ScrollBar />
+                  </ScrollAreaPrimitive.Root>
                 )}
               </div>
             );

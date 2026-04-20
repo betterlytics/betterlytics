@@ -1628,7 +1628,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enheter",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Egendefinerte hendelser",
+      "customEvents": "Hendelser",
       "weeklyTrends": "Ukentlige trender"
     },
     "goTo": "Gå til {section}",
@@ -1646,7 +1646,8 @@
       "referrers": "Henvisere",
       "sources": "Kilder",
       "channels": "Kanaler",
-      "events": "Hendelser"
+      "events": "Egendefinerte hendelser",
+      "topProperties": "Topp globale egenskaper"
     },
     "emptyStates": {
       "adjustTimeRange": "Juster tidsrom eller filtre",

@@ -6,7 +6,9 @@ import {
   getRecentEventsForSite,
   getTotalEventCountForSite,
 } from '@/services/analytics/events.service';
+import { getGlobalPropertiesOverview } from '@/services/analytics/globalProperties.service';
 import { toDataTable } from '@/presenters/toDataTable';
+import { toGlobalPropertiesDataTable } from '@/presenters/toGlobalPropertiesDataTable';
 
 const CUSTOM_EVENTS_OVERVIEW_LIMIT = 10;
 const RECENT_EVENTS_DEFAULT_PAGE_SIZE = 25;
@@ -20,6 +22,15 @@ export const eventsRouter = createRouter({
       compare && getCustomEventsOverviewForSite(compare, CUSTOM_EVENTS_OVERVIEW_LIMIT),
     ]);
     return toDataTable({ data, compare: compareData, categoryKey: 'event_name' });
+  }),
+
+  globalPropertiesOverview: analyticsProcedure.query(async ({ ctx }) => {
+    const { main, compare } = ctx;
+    const [data, compareData] = await Promise.all([
+      getGlobalPropertiesOverview(main),
+      compare ? getGlobalPropertiesOverview(compare) : null,
+    ]);
+    return toGlobalPropertiesDataTable({ data, compare: compareData });
   }),
 
   eventPropertiesAnalytics: analyticsProcedure
