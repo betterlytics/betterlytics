@@ -1205,7 +1205,7 @@
         },
         "globalProperties": {
           "title": "Globale egenskaper",
-          "description": "Sett vedvarende egenskaper én gang og legg dem automatisk til alle hendelser — som brukerplan, rolle eller appversjon."
+          "description": "Sett vedvarende egenskaper én gang og legg dem automatisk til alle hendelser, som brukerplan, rolle eller appversjon."
         },
         "sessionReplay": {
           "title": "Sesjonsavspilling",

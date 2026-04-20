@@ -1205,7 +1205,7 @@
         },
         "globalProperties": {
           "title": "Proprietà Globali",
-          "description": "Imposta proprietà persistenti una volta sola e allegale automaticamente a tutti gli eventi — come il piano utente, il ruolo o la versione dell'app."
+          "description": "Imposta proprietà persistenti una volta sola e allegale automaticamente a tutti gli eventi, come il piano utente, il ruolo o la versione dell'app."
         },
         "sessionReplay": {
           "title": "Session Replay",
