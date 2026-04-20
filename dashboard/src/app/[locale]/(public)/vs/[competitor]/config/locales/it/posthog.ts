@@ -75,6 +75,7 @@ export const posthog: ComparisonLocaleContent = {
         features: [
           { name: 'Dashboard in tempo reale', betterlytics: true, competitor: true },
           { name: 'Eventi personalizzati', betterlytics: true, competitor: true },
+          { name: 'Proprietà globali', betterlytics: true, competitor: true },
           { name: 'Analisi dei funnel', betterlytics: true, competitor: true },
           { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: true },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },

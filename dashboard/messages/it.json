@@ -1203,6 +1203,10 @@
           "title": "Tracciamento Link",
           "description": "Monitora i click sui link interni e in uscita per comprendere l'engagement utente."
         },
+        "globalProperties": {
+          "title": "Proprietà Globali",
+          "description": "Imposta proprietà persistenti una volta sola e allegale automaticamente a tutti gli eventi, come il piano utente, il ruolo o la versione dell'app."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Riproduci le sessioni utente per vedere esattamente come i visitatori interagiscono con il tuo sito e scoprire problemi di usabilità."
