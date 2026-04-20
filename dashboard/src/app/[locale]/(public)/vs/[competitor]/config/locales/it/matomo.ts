@@ -71,6 +71,7 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Dashboard in tempo reale', betterlytics: true, competitor: true },
           { name: 'Eventi personalizzati', betterlytics: true, competitor: true },
+          { name: 'Proprietà globali', betterlytics: true, competitor: 'Tramite variabili personalizzate' },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },
           { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: 'Limited' },
           { name: 'Analisi dei funnel', betterlytics: true, competitor: 'Con add-on' },

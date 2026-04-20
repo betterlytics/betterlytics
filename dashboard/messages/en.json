@@ -1192,6 +1192,10 @@
           "title": "Link Tracking",
           "description": "Monitor clicks on internal and outbound links to understand user engagement."
         },
+        "globalProperties": {
+          "title": "Global Properties",
+          "description": "Set persistent properties once and automatically attach them to all events — like user plan, role, or app version."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Replay user sessions to see exactly how visitors interact with your site and uncover usability issues."

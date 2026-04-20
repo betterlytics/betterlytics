@@ -1203,6 +1203,10 @@
           "title": "Lenkesporing",
           "description": "Overvåk klikk på interne og utgående lenker for å forstå brukerengasjement."
         },
+        "globalProperties": {
+          "title": "Globale egenskaper",
+          "description": "Sett vedvarende egenskaper én gang og legg dem automatisk til alle hendelser — som brukerplan, rolle eller appversjon."
+        },
         "sessionReplay": {
           "title": "Sesjonsavspilling",
           "description": "Spill av brukersesjoner for å se nøyaktig hvordan besøkende bruker nettstedet ditt og avdekke brukervennlighetsproblemer."

@@ -69,6 +69,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
         features: [
           { name: 'Sanntidsdashbord', betterlytics: true, competitor: true },
           { name: 'Tilpassede hendelser', betterlytics: true, competitor: true },
+          { name: 'Globale egenskaper', betterlytics: true, competitor: 'Via brukeregenskaper' },
           { name: 'Traktanalyse', betterlytics: true, competitor: true },
           { name: 'Sporing av brukerreiser', betterlytics: true, competitor: true },
           { name: 'Kampanjesporing (UTM)', betterlytics: true, competitor: true },
