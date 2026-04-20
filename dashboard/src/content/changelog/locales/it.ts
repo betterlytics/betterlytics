@@ -34,6 +34,18 @@ export const latestChangelogModalIt: ChangelogEntryData = {
         },
       ],
     },
+    {
+      id: 'v140-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le metriche delle sessioni sono ora più accurate, in particolare per le sessioni di lunga durata. Conteggio delle sessioni, bounce rate e tempo sul sito rispecchiano ora più fedelmente il comportamento reale dei visitatori.',
+          ],
+        },
+      ],
+    },
   ],
 };
 
@@ -68,6 +80,18 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             items: [
               'Le dashboard ora si caricano in modo significativamente più rapido, con i miglioramenti più evidenti sui siti ad alto traffico e sugli intervalli di tempo più lunghi.',
               'Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell\'intera pagina.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le metriche delle sessioni sono ora più accurate, in particolare per le sessioni di lunga durata. Conteggio delle sessioni, bounce rate e tempo sul sito rispecchiano ora più fedelmente il comportamento reale dei visitatori.',
             ],
           },
         ],
