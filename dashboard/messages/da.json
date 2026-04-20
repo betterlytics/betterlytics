@@ -1195,6 +1195,10 @@
           "title": "Linksporing",
           "description": "Overvåg klik på interne og udgående links for at forstå brugerengagement."
         },
+        "globalProperties": {
+          "title": "Globale egenskaber",
+          "description": "Sæt vedvarende egenskaber én gang og vedhæft dem automatisk til alle events, f.eks. brugerplan, rolle eller app-version."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Afspil brugersessioner for at se præcis hvordan besøgende interagerer med dit site og find usability-problemer."

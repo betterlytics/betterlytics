@@ -69,6 +69,7 @@ export const umami: ComparisonLocaleContent = {
         features: [
           { name: 'Dashboard in tempo reale', betterlytics: true, competitor: true },
           { name: 'Eventi personalizzati', betterlytics: true, competitor: true },
+          { name: 'Proprietà globali', betterlytics: true, competitor: false },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },
           { name: 'Tracciamento link in uscita', betterlytics: true, competitor: true },
           { name: 'Analisi funnel', betterlytics: true, competitor: true },

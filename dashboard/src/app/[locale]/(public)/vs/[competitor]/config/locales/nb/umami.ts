@@ -68,6 +68,7 @@ export const umami: ComparisonLocaleContent = {
         features: [
           { name: 'Sanntidsdashbord', betterlytics: true, competitor: true },
           { name: 'Tilpassede hendelser', betterlytics: true, competitor: true },
+          { name: 'Globale egenskaper', betterlytics: true, competitor: false },
           { name: 'Kampanjesporing (UTM)', betterlytics: true, competitor: true },
           { name: 'Sporing av utgående lenker', betterlytics: true, competitor: true },
           { name: 'Traktanalyse', betterlytics: true, competitor: true },
