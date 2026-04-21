@@ -44,7 +44,7 @@ export const UpdateUserSchema = z.object({
 
 export const RegisterUserSchema = z.object({
   name: z.string().nullable().optional(),
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email('Please enter a valid email address').max(254, 'Email address is too long'),
   password: PasswordSchema,
   acceptedTerms: z.literal(true, {
     errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
