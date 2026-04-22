@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
@@ -28,11 +29,19 @@ type CreateMonitorDialogProps = {
   monitorCount: number;
   maxMonitors: number;
   atLimit: boolean;
+  loading?: boolean;
 };
 
 type Section = 'timing' | 'alerts' | 'advanced' | null;
 
-export function CreateMonitorDialog({
+export function CreateMonitorDialog(props: CreateMonitorDialogProps) {
+  if (props.loading || props.atLimit === undefined) {
+    return <Skeleton className='h-9 w-full rounded-md sm:w-[160px]' />;
+  }
+  return <CreateMonitorDialogInner {...props} />;
+}
+
+function CreateMonitorDialogInner({
   dashboardId,
   domain,
   existingUrls,
@@ -105,7 +114,7 @@ export function CreateMonitorDialog({
   const sslMonitoringEnabled = isHttps && form.state.checkSslErrors;
 
   if (atLimit) {
-    return <UpgradeButton>{t('upgradeToCreate')}</UpgradeButton>;
+    return <UpgradeButton className='w-full sm:w-fit'>{t('upgradeToCreate')}</UpgradeButton>;
   }
 
   return (

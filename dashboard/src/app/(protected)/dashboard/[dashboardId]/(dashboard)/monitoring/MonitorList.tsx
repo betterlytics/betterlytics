@@ -3,6 +3,7 @@
 import { Activity, AlertTriangle, Link2, RefreshCcw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useLocale, useTranslations } from 'next-intl';
@@ -25,13 +26,24 @@ import { MonitorActionMenu } from './components/MonitorActionMenu';
 
 type MonitorListProps = {
   monitors: MonitorWithStatus[];
+  loading?: boolean;
 };
 
-export function MonitorList({ monitors }: MonitorListProps) {
+export function MonitorList({ monitors, loading }: MonitorListProps) {
   const locale = useLocale();
   const t = useTranslations('monitoringPage');
   const tMonitoringLabels = useTranslations('monitoring.labels');
   const tSsl = useTranslations('monitoring.ssl');
+
+  if (loading) {
+    return (
+      <div className='space-y-3'>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <MonitorCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
 
   if (!monitors.length) {
     return (
@@ -258,4 +270,40 @@ function getStatusDurationText({ currentStateSince, isUp, t, locale }: StatusDur
   if (!currentStateSince) return '';
   const prefix = isUp ? t('list.upPrefix') : t('list.downPrefix');
   return `${prefix} ${formatElapsedTime(new Date(currentStateSince), locale)}`;
+}
+
+function MonitorCardSkeleton() {
+  return (
+    <Card className='border-border/70 bg-card/80 relative overflow-hidden py-1 sm:py-3'>
+      {/* Mobile layout */}
+      <div className='flex items-center gap-3 px-4 py-2 md:hidden'>
+        <Skeleton className='h-2.5 w-2.5 rounded-full' />
+        <div className='flex min-w-0 flex-1 flex-col gap-1.5'>
+          <Skeleton className='h-4 w-40' />
+          <Skeleton className='h-3 w-24' />
+        </div>
+        <Skeleton className='h-6 w-6 rounded-md' />
+      </div>
+
+      {/* Desktop layout */}
+      <div className='hidden w-full items-center justify-between gap-4 px-5 py-1.5 md:flex'>
+        <div className='flex min-w-0 flex-1 items-start gap-2'>
+          <div className='space-y-2'>
+            <div className='flex items-center gap-2'>
+              <Skeleton className='h-5 w-16 rounded-full' />
+              <Skeleton className='h-4 w-40' />
+            </div>
+            <Skeleton className='h-3 w-64' />
+          </div>
+        </div>
+        <div className='flex shrink-0 items-center gap-3 xl:grid xl:grid-cols-[70px_240px_300px_48px_50px] xl:gap-4'>
+          <Skeleton className='h-4 w-16' />
+          <Skeleton className='h-6 w-24 rounded-full' />
+          <Skeleton className='hidden h-4 w-[300px] xl:block' />
+          <Skeleton className='hidden h-4 w-12 xl:block' />
+          <Skeleton className='h-6 w-6 rounded-md' />
+        </div>
+      </div>
+    </Card>
+  );
 }

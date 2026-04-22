@@ -1,17 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { notFound } from 'next/navigation';
 import { PauseCircle, Pencil, PlayCircle } from 'lucide-react';
 import { trpc } from '@/trpc/client';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { useQueryState } from '@/hooks/use-query-state';
 import { Button } from '@/components/ui/button';
-import {
-  type MonitorCheck,
-  type MonitorIncidentSegment,
-  type MonitorMetrics,
-  type MonitorResult,
-  type MonitorTlsResult,
-} from '@/entities/analytics/monitoring.entities';
-import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { EditMonitorSheet } from './EditMonitorSheet';
 import { IncidentsCard, RecentChecksCard, ResponseTimeCard, Uptime180DayCard } from './MonitoringSections';
@@ -21,21 +17,10 @@ import { useTranslations } from 'next-intl';
 import { MonitorActionMenu } from '../components';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { NotificationHistoryDialog } from '@/components/dialogs/NotificationHistoryDialog';
+import { safeHostname } from '../utils';
 
 type MonitorDetailClientProps = {
-  dashboardId: string;
   monitorId: string;
-  hostname: string;
-  timezone: string;
-  serverNow: number;
-  initialData: {
-    monitor: MonitorCheck;
-    metrics?: MonitorMetrics;
-    incidents: MonitorIncidentSegment[];
-    recentChecks: MonitorResult[];
-    tls: MonitorTlsResult | null;
-    uptime: PresentedMonitorUptime;
-  };
 };
 
 const NON_CRITICAL_POLLING_INTERVAL_MS = 10 * 60_000;
@@ -43,72 +28,73 @@ const NON_CRITICAL_POLLING_INTERVAL_MS = 10 * 60_000;
 const MIN_POLLING_INTERVAL_MS = 30_000;
 const POLLING_BUFFER_MS = 5_000;
 
-export function MonitorDetailClient({
-  dashboardId,
-  monitorId,
-  hostname,
-  timezone,
-  serverNow,
-  initialData,
-}: MonitorDetailClientProps) {
+export function MonitorDetailClient({ monitorId }: MonitorDetailClientProps) {
   const tDetail = useTranslations('monitoringDetailPage');
   const tActions = useTranslations('monitoring.actions');
+  const {
+    input: {
+      dashboardId,
+      query: { timezone },
+    },
+  } = useBAQueryParams();
+
   const monitorQuery = trpc.monitors.get.useQuery(
     { dashboardId, monitorId },
     {
-      initialData: initialData.monitor,
       refetchInterval: ({ state }) => {
-        const monitor = state.data ?? initialData.monitor;
+        const monitor = state.data;
+        if (!monitor) return false;
         return monitor.isEnabled ? Math.max(MIN_POLLING_INTERVAL_MS, monitor.intervalSeconds * 1000) : false;
       },
     },
   );
 
-  const monitorData = monitorQuery.data ?? initialData.monitor;
-  const pollingEnabled = monitorData.isEnabled;
+  const { data: monitorData, loading: monitorLoading } = useQueryState(monitorQuery);
+
+  const pollingEnabled = monitorData?.isEnabled ?? false;
+  const subQueriesEnabled = !monitorLoading && monitorData != null;
 
   const dynamicPollingInterval = Math.max(
     MIN_POLLING_INTERVAL_MS,
-    monitorData.intervalSeconds * 1000 + POLLING_BUFFER_MS,
+    (monitorData?.intervalSeconds ?? MIN_POLLING_INTERVAL_MS / 1000) * 1000 + POLLING_BUFFER_MS,
   );
 
   const DEFAULT_QUERY_PARAMS = {
-    refetchInterval: dynamicPollingInterval,
+    refetchInterval: pollingEnabled ? dynamicPollingInterval : (false as const),
     staleTime: dynamicPollingInterval / 2,
-    enabled: pollingEnabled,
+    enabled: subQueriesEnabled,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   };
 
   const metricsQuery = trpc.monitors.metrics.useQuery(
     { dashboardId, monitorId, timezone },
-    {
-      initialData: initialData.metrics,
-      ...DEFAULT_QUERY_PARAMS,
-    },
+    DEFAULT_QUERY_PARAMS,
   );
+  const { loading: metricsLoading } = useQueryState(metricsQuery, subQueriesEnabled);
 
-  const incidentsQuery = trpc.monitors.incidents.useQuery(
-    { dashboardId, monitorId },
-    {
-      initialData: initialData.incidents,
-      ...DEFAULT_QUERY_PARAMS,
-    },
-  );
+  const loading = monitorLoading || metricsLoading;
+
+  const incidentsQuery = trpc.monitors.incidents.useQuery({ dashboardId, monitorId }, DEFAULT_QUERY_PARAMS);
 
   const [checksErrorsOnly, setChecksErrorsOnly] = useState(false);
   const checksQuery = trpc.monitors.recentResults.useQuery(
     { dashboardId, monitorId, errorsOnly: checksErrorsOnly },
-    {
-      placeholderData: initialData.recentChecks,
-      ...DEFAULT_QUERY_PARAMS,
-    },
+    DEFAULT_QUERY_PARAMS,
   );
 
   const tlsQuery = trpc.monitors.latestTls.useQuery(
     { dashboardId, monitorId },
     {
-      initialData: initialData.tls,
+      ...DEFAULT_QUERY_PARAMS,
+      refetchInterval: NON_CRITICAL_POLLING_INTERVAL_MS,
+      staleTime: NON_CRITICAL_POLLING_INTERVAL_MS / 2,
+    },
+  );
+
+  const uptimeQuery = trpc.monitors.uptime.useQuery(
+    { dashboardId, monitorId, timezone, days: 180 },
+    {
       ...DEFAULT_QUERY_PARAMS,
       refetchInterval: NON_CRITICAL_POLLING_INTERVAL_MS,
       staleTime: NON_CRITICAL_POLLING_INTERVAL_MS / 2,
@@ -116,6 +102,8 @@ export function MonitorDetailClient({
   );
 
   const operationalState = metricsQuery.data?.operationalState ?? 'preparing';
+
+  const hostname = useMemo(() => (monitorData ? safeHostname(monitorData.url) : ''), [monitorData]);
 
   const [editSheetOpen, setEditSheetOpen] = useState(false);
   const { statusMutation, renameMutation } = useMonitorMutations(dashboardId, monitorId);
@@ -134,98 +122,119 @@ export function MonitorDetailClient({
     checksQuery.refetch();
   }, [metricsQuery, incidentsQuery, checksQuery]);
 
+  if (!monitorLoading && !monitorData) {
+    notFound();
+  }
+
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <MonitorHeader
-        monitorName={monitorData.name || hostname}
-        url={monitorData.url}
+        loading={loading}
+        monitorName={monitorData?.name || hostname}
+        url={monitorData?.url ?? ''}
         operationalState={operationalState}
         onRename={handleRename}
         isRenaming={renameMutation.isPending}
         actionSlot={
-          <>
-            {/* Mobile */}
-            <div className='sm:hidden'>
-              <MonitorActionMenu monitor={monitorData} dashboardId={dashboardId} vertical />
-            </div>
+          loading ? (
+            <>
+              {/* Mobile */}
+              <div className='sm:hidden'>
+                <Skeleton className='h-8 w-8 rounded-md' />
+              </div>
+              {/* Desktop */}
+              <div className='hidden items-center gap-2 sm:flex'>
+                <Skeleton className='h-8 w-24 rounded-md' />
+                <Skeleton className='h-8 w-24 rounded-md' />
+                <Skeleton className='h-8 w-20 rounded-md' />
+              </div>
+            </>
+          ) : monitorData ? (
+            <>
+              {/* Mobile */}
+              <div className='sm:hidden'>
+                <MonitorActionMenu monitor={monitorData} dashboardId={dashboardId} vertical />
+              </div>
 
-            {/* Desktop */}
-            <div className='hidden items-center gap-2 sm:flex'>
-              <PermissionGate>
-                {(disabled) => (
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    type='button'
-                    disabled={disabled || statusMutation.isPending}
-                    onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
-                    className='inline-flex cursor-pointer items-center gap-1.5'
-                  >
-                    {statusMutation.isPending ? (
-                      monitorData.isEnabled ? (
-                        tActions('pausing')
-                      ) : (
-                        tActions('resuming')
-                      )
-                    ) : (
-                      <span className='inline-flex items-center gap-1.5'>
-                        {monitorData.isEnabled ? (
-                          <PauseCircle className='h-4 w-4' aria-hidden />
+              {/* Desktop */}
+              <div className='hidden items-center gap-2 sm:flex'>
+                <PermissionGate>
+                  {(disabled) => (
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      type='button'
+                      disabled={disabled || statusMutation.isPending}
+                      onClick={() => statusMutation.mutate({ monitorId, isEnabled: !monitorData.isEnabled })}
+                      className='inline-flex cursor-pointer items-center gap-1.5'
+                    >
+                      {statusMutation.isPending ? (
+                        monitorData.isEnabled ? (
+                          tActions('pausing')
                         ) : (
-                          <PlayCircle className='h-4 w-4' aria-hidden />
-                        )}
-                        <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
-                      </span>
-                    )}
-                  </Button>
-                )}
-              </PermissionGate>
-              <NotificationHistoryDialog monitorId={monitorId} />
-              <PermissionGate>
-                {(disabled) => (
-                  <EditMonitorSheet
-                    dashboardId={dashboardId}
-                    monitor={monitorData}
-                    open={editSheetOpen}
-                    onOpenChange={setEditSheetOpen}
-                    trigger={
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        className='inline-flex cursor-pointer items-center gap-1.5'
-                        disabled={disabled}
-                      >
-                        <Pencil className='h-4 w-4' aria-hidden />
-                        <span>{tDetail('actions.edit')}</span>
-                      </Button>
-                    }
-                  />
-                )}
-              </PermissionGate>
-            </div>
-          </>
+                          tActions('resuming')
+                        )
+                      ) : (
+                        <span className='inline-flex items-center gap-1.5'>
+                          {monitorData.isEnabled ? (
+                            <PauseCircle className='h-4 w-4' aria-hidden />
+                          ) : (
+                            <PlayCircle className='h-4 w-4' aria-hidden />
+                          )}
+                          <span>{monitorData.isEnabled ? tActions('pause') : tActions('resume')}</span>
+                        </span>
+                      )}
+                    </Button>
+                  )}
+                </PermissionGate>
+                <NotificationHistoryDialog monitorId={monitorId} />
+                <PermissionGate>
+                  {(disabled) => (
+                    <EditMonitorSheet
+                      dashboardId={dashboardId}
+                      monitor={monitorData}
+                      open={editSheetOpen}
+                      onOpenChange={setEditSheetOpen}
+                      trigger={
+                        <Button
+                          size='sm'
+                          variant='outline'
+                          className='inline-flex cursor-pointer items-center gap-1.5'
+                          disabled={disabled}
+                        >
+                          <Pencil className='h-4 w-4' aria-hidden />
+                          <span>{tDetail('actions.edit')}</span>
+                        </Button>
+                      }
+                    />
+                  )}
+                </PermissionGate>
+              </div>
+            </>
+          ) : undefined
         }
       />
 
       <MonitorSummarySection
-        monitor={monitorData}
+        loading={loading}
+        monitor={monitorData ?? undefined}
         metrics={metricsQuery.data}
         tls={tlsQuery.data}
         operationalState={operationalState}
         onEnableSslClick={handleEnableSslClick}
         onCountdownExpired={handleCountdownExpired}
-        serverNow={serverNow}
       />
 
-      <ResponseTimeCard metrics={metricsQuery.data} />
+      <ResponseTimeCard loading={loading} metrics={metricsQuery.data} />
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3'>
-        <IncidentsCard incidents={incidentsQuery.data ?? []} />
+        <IncidentsCard loading={loading} incidents={incidentsQuery.data ?? []} />
 
-        <Uptime180DayCard uptime={initialData.uptime} />
+        <Uptime180DayCard loading={loading} uptime={uptimeQuery.data} />
       </div>
 
       <RecentChecksCard
+        loading={loading}
         checks={checksQuery.data ?? []}
         errorsOnly={checksErrorsOnly}
         setErrorsOnly={setChecksErrorsOnly}

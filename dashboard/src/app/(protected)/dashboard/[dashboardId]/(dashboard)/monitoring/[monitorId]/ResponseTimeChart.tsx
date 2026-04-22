@@ -26,9 +26,10 @@ const RESPONSE_TIME_GRANULARITY: GranularityRangeValues = 'hour';
 type ResponseTimeChartProps = {
   data?: MonitorMetrics['latencySeries'];
   incidentSegments?: MonitorMetrics['incidentSegments24h'];
+  loading?: boolean;
 };
 
-export function ResponseTimeChart({ data, incidentSegments }: ResponseTimeChartProps) {
+export function ResponseTimeChart({ data, incidentSegments, loading }: ResponseTimeChartProps) {
   const t = useTranslations('monitoringDetailPage.responseTime');
   const chartData = useMemo(
     () =>
@@ -52,7 +53,7 @@ export function ResponseTimeChart({ data, incidentSegments }: ResponseTimeChartP
       })) as ReferenceAreaConfig[] | undefined;
   }, [incidentSegments]);
 
-  if (!chartData.length && !referenceAreas?.length) {
+  if (!loading && !chartData.length && !referenceAreas?.length) {
     return (
       <Card className='border-border/70 bg-card/80 p-5 shadow-lg shadow-black/10'>
         <div className='flex items-center justify-between'>
@@ -85,6 +86,7 @@ export function ResponseTimeChart({ data, incidentSegments }: ResponseTimeChartP
       className='border-border/70 bg-card/80 shadow-lg shadow-black/10'
       showSinglePoints
       referenceAreas={referenceAreas}
+      loading={loading}
     />
   );
 }

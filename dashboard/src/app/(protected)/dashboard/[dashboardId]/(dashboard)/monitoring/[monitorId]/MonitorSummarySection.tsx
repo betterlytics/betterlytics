@@ -2,6 +2,8 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { computeDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
 import { formatCompactFromMilliseconds, formatLocalDateTime, formatElapsedTime } from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
@@ -25,7 +27,7 @@ import { isExpiredReason } from '../styles/ssl';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 type MonitorSummarySectionProps = {
-  monitor: Pick<
+  monitor?: Pick<
     MonitorCheck,
     'isEnabled' | 'intervalSeconds' | 'timeoutMs' | 'createdAt' | 'updatedAt' | 'checkSslErrors' | 'url'
   >;
@@ -45,7 +47,7 @@ type MonitorSummarySectionProps = {
   operationalState: MonitorOperationalState;
   onEnableSslClick?: () => void;
   onCountdownExpired?: () => void;
-  serverNow: number;
+  loading?: boolean;
 };
 
 export function MonitorSummarySection({
@@ -55,8 +57,18 @@ export function MonitorSummarySection({
   operationalState,
   onEnableSslClick,
   onCountdownExpired,
-  serverNow,
+  loading,
 }: MonitorSummarySectionProps) {
+  if (loading || !monitor) {
+    return (
+      <div className='grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-2 xl:grid-cols-4'>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SummarySkeletonCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
   const latencyAvg = metrics?.latency?.avgMs ?? null;
 
   return (
@@ -69,7 +81,6 @@ export function MonitorSummarySection({
         operationalState={operationalState}
         onCountdownExpired={onCountdownExpired}
         currentStateSince={metrics?.currentStateSince ?? undefined}
-        serverNow={serverNow}
       />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
@@ -96,7 +107,6 @@ function NextCheckCard({
   operationalState,
   onCountdownExpired,
   currentStateSince,
-  serverNow,
 }: {
   intervalSeconds: number;
   lastCheckAt?: string;
@@ -105,7 +115,6 @@ function NextCheckCard({
   operationalState: MonitorOperationalState;
   onCountdownExpired?: () => void;
   currentStateSince?: string;
-  serverNow: number;
 }) {
   const locale = useLocale();
   const t = useTranslations('monitoringDetailPage.summary.nextCheck');
@@ -113,7 +122,7 @@ function NextCheckCard({
   const tList = useTranslations('monitoringPage.list');
 
   const lastCheckAt = lastCheckAtRaw ? new Date(lastCheckAtRaw).getTime() : null;
-  const [now, setNow] = useState(serverNow);
+  const [now, setNow] = useState(() => Date.now());
 
   const isPaused = operationalState === 'paused';
   const isPreparing = operationalState === 'preparing';
@@ -125,10 +134,9 @@ function NextCheckCard({
 
   useEffect(() => {
     if (!lastCheckAt || isPaused) return;
-    const clientStart = Date.now();
-    const id = window.setInterval(() => setNow(serverNow + (Date.now() - clientStart)), 1000);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
-  }, [isPaused, lastCheckAt, serverNow]);
+  }, [isPaused, lastCheckAt]);
 
   const { label: countdownLabel, isAwaiting } = useMemo(() => {
     if (isPaused) return { label: t('paused'), isAwaiting: false };
@@ -405,5 +413,20 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
         </div>
       )}
     </SummaryCard>
+  );
+}
+
+function SummarySkeletonCard() {
+  return (
+    <Card className='border-border/70 bg-card/80 flex h-full min-h-[120px] flex-col gap-2 p-2.5 shadow-lg shadow-black/10 sm:min-h-[140px] sm:p-4'>
+      <div className='flex items-center justify-between gap-2'>
+        <Skeleton className='h-4 w-24' />
+        <Skeleton className='h-5 w-16 rounded-md' />
+      </div>
+      <div className='flex flex-1 items-center'>
+        <Skeleton className='h-7 w-32 sm:h-8' />
+      </div>
+      <Skeleton className='mt-1 h-3 w-36' />
+    </Card>
   );
 }

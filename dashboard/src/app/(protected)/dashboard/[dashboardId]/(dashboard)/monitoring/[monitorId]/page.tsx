@@ -1,21 +1,9 @@
-import {
-  getMonitorCheck,
-  fetchMonitorMetrics,
-  fetchMonitorIncidentSegments,
-  fetchRecentMonitorResults,
-  fetchLatestMonitorTlsResult,
-  fetchMonitorDailyUptime,
-} from '@/services/analytics/monitoring.service';
-import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
-import { requireAuth, getCachedAuthorizedContext } from '@/auth/auth-actions';
-import { MonitorDetailClient } from './MonitorDetailClient';
 import { notFound } from 'next/navigation';
-import { safeHostname } from '../utils';
-import { getUserTimezone } from '@/lib/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { MonitorDetailClient } from './MonitorDetailClient';
 
 type MonitorDetailParams = {
-  params: Promise<{ dashboardId: string; monitorId: string }>;
+  params: Promise<{ monitorId: string }>;
 };
 
 export default async function MonitorDetailPage({ params }: MonitorDetailParams) {
@@ -23,45 +11,7 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
     notFound();
   }
 
-  const { dashboardId, monitorId } = await params;
-  const session = await requireAuth();
-  const authCtx = await getCachedAuthorizedContext(session.user.id, dashboardId);
-  if (!authCtx) notFound();
+  const { monitorId } = await params;
 
-  const timezone = await getUserTimezone();
-
-  const [monitor, metrics, recentChecks, incidents, tls, uptimeRows] = await Promise.all([
-    getMonitorCheck(authCtx.dashboardId, monitorId),
-    fetchMonitorMetrics(authCtx.dashboardId, monitorId, authCtx.siteId, timezone),
-    fetchRecentMonitorResults(monitorId, authCtx.siteId, 10, false),
-    fetchMonitorIncidentSegments(monitorId, authCtx.siteId),
-    fetchLatestMonitorTlsResult(monitorId, authCtx.siteId),
-    fetchMonitorDailyUptime(monitorId, authCtx.dashboardId, authCtx.siteId, timezone, 180),
-  ]);
-
-  if (!monitor) {
-    notFound();
-  }
-
-  const uptime = toMonitorUptimePresentation(uptimeRows, 180);
-  const hostname = safeHostname(monitor.url);
-  const serverNow = Date.now();
-
-  return (
-    <MonitorDetailClient
-      dashboardId={dashboardId}
-      monitorId={monitorId}
-      hostname={hostname}
-      timezone={timezone}
-      serverNow={serverNow}
-      initialData={{
-        monitor,
-        metrics,
-        recentChecks,
-        incidents,
-        tls,
-        uptime,
-      }}
-    />
-  );
+  return <MonitorDetailClient monitorId={monitorId} />;
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { type Dispatch, type SetStateAction, useEffect, useRef } from 'react';
-import { CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   type MonitorIncidentSegment,
@@ -24,21 +24,57 @@ import { MonitoringTooltip } from './MonitoringTooltip';
 import { formatPercentage, formatTimeFromNow } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
+import { CardContent } from '@/components/ui/card';
 import { CardHeader, SectionCard, StatusDot, TimePeriodBadge } from '../components';
 
-export function ResponseTimeCard({ metrics }: { metrics?: MonitorMetrics }) {
+export function ResponseTimeCard({ metrics, loading }: { metrics?: MonitorMetrics; loading?: boolean }) {
   return (
-    <ResponseTimeChart data={metrics?.latencySeries ?? []} incidentSegments={metrics?.incidentSegments24h ?? []} />
+    <ResponseTimeChart
+      data={metrics?.latencySeries ?? []}
+      incidentSegments={metrics?.incidentSegments24h ?? []}
+      loading={loading}
+    />
   );
 }
 
-export function IncidentsCard({ incidents }: { incidents: MonitorIncidentSegment[] }) {
+export function IncidentsCard({ incidents, loading }: { incidents: MonitorIncidentSegment[]; loading?: boolean }) {
   const t = useTranslations('monitoringDetailPage');
   return (
     <SectionCard className='flex flex-col gap-4 xl:col-span-2'>
       <CardHeader title={t('incidents.title')} badge={<TimePeriodBadge>{t('incidents.badge')}</TimePeriodBadge>} />
       <CardContent className='px-0'>
-        {incidents.length === 0 ? (
+        {loading ? (
+          <div className='border-border/70 overflow-x-auto rounded-md border'>
+            <Table className='overflow-x-auto'>
+              <TableHeader className='bg-muted/10'>
+                <TableRow className='text-muted-foreground text-xs font-semibold tracking-wide'>
+                  <TableHead className='w-[140px]'>{t('incidents.headers.status')}</TableHead>
+                  <TableHead>{t('incidents.headers.root')}</TableHead>
+                  <TableHead>{t('incidents.headers.started')}</TableHead>
+                  <TableHead className='text-right'>{t('incidents.headers.duration')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <TableRow key={i} className='text-sm'>
+                    <TableCell>
+                      <Skeleton className='h-4 w-16' />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className='h-4 w-40' />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className='h-4 w-24' />
+                    </TableCell>
+                    <TableCell className='text-right'>
+                      <Skeleton className='ml-auto h-4 w-16' />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : incidents.length === 0 ? (
           <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
             <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
             <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
@@ -74,10 +110,12 @@ export function RecentChecksCard({
   checks,
   errorsOnly,
   setErrorsOnly,
+  loading,
 }: {
   checks: MonitorResult[];
   errorsOnly: boolean;
   setErrorsOnly: Dispatch<SetStateAction<boolean>>;
+  loading?: boolean;
 }) {
   const t = useTranslations('monitoringDetailPage');
   return (
@@ -103,7 +141,42 @@ export function RecentChecksCard({
         badge={<TimePeriodBadge>{t('recent.badge')}</TimePeriodBadge>}
       />
 
-      {checks.length === 0 ? (
+      {loading ? (
+        <div className='border-border/70 overflow-hidden rounded-md border'>
+          <Table>
+            <TableHeader className='bg-muted/10'>
+              <TableRow className='text-muted-foreground text-xs font-semibold tracking-wide'>
+                <TableHead className='w-[160px]'>{t('recent.headers.status')}</TableHead>
+                <TableHead className='w-[300px]'>{t('recent.headers.ran')}</TableHead>
+                <TableHead className='w-[120px]'>{t('recent.headers.latency')}</TableHead>
+                <TableHead className='w-[120px]'>{t('recent.headers.statusCode')}</TableHead>
+                <TableHead className='hidden w-[200px] sm:table-cell'>{t('recent.headers.reason')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i} className='text-sm'>
+                  <TableCell>
+                    <Skeleton className='h-4 w-20' />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className='h-4 w-32' />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className='h-4 w-14' />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className='h-4 w-10' />
+                  </TableCell>
+                  <TableCell className='hidden sm:table-cell'>
+                    <Skeleton className='h-4 w-28' />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : checks.length === 0 ? (
         <div className='border-border/60 bg-background/30 text-muted-foreground flex items-center justify-center rounded-md border p-3 text-xs'>
           {t('recent.empty')}
         </div>
@@ -131,7 +204,15 @@ export function RecentChecksCard({
   );
 }
 
-export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: PresentedMonitorUptime }) {
+export function Uptime180DayCard({
+  uptime,
+  title,
+  loading,
+}: {
+  title?: string;
+  uptime?: PresentedMonitorUptime;
+  loading?: boolean;
+}) {
   const t = useTranslations('monitoringDetailPage');
   const tLabels = useTranslations('monitoring.labels');
   const tDowntime = useTranslations('monitoringDetailPage.downtime');
@@ -160,11 +241,43 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   const getLabel = (upRatio: number | null) => {
     if (upRatio !== null) {
       return t('uptime.grid.uptimeLabel', {
-        value: formatPercentage(upRatio * 100, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }),
+        value: formatPercentage(upRatio * 100, locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+          trimHundred: true,
+        }),
       });
     }
     return tLabels('noData');
   };
+
+  if (loading) {
+    return (
+      <SectionCard>
+        <CardHeader
+          title={resolvedTitle}
+          badge={<TimePeriodBadge>{t('uptime.badge', { days: totalDays })}</TimePeriodBadge>}
+        />
+        <div className='space-y-4'>
+          <Skeleton className='h-[116px] w-full' />
+          <div className='grid grid-cols-1 gap-2 text-xs sm:text-sm 2xl:grid-cols-2'>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className='border-border/60 flex items-center justify-between rounded-md border px-3 py-2'
+              >
+                <Skeleton className='h-4 w-20' />
+                <div className='flex flex-col items-end gap-1'>
+                  <Skeleton className='h-4 w-14' />
+                  <Skeleton className='h-3 w-10' />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </SectionCard>
+    );
+  }
 
   return (
     <SectionCard>
@@ -208,7 +321,12 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 </span>
                 <div className='text-right'>
                   <div className={presentUptimeTone(stat.percent).theme.text}>
-                    {stat.percent != null ? formatPercentage(stat.percent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '— %'}
+                    {stat.percent != null
+                      ? formatPercentage(stat.percent, locale, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      : '— %'}
                   </div>
                   <div className='text-muted-foreground text-xs'>{downtimeLabel}</div>
                 </div>
@@ -267,7 +385,9 @@ function CheckRow({ check }: { check: MonitorResult }) {
         {formatTimeFromNow(timestamp, locale)}
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>
-        <span className='text-foreground font-semibold'>{formatCompactFromMilliseconds(check.latencyMs, locale)}</span>
+        <span className='text-foreground font-semibold'>
+          {formatCompactFromMilliseconds(check.latencyMs, locale)}
+        </span>
       </TableCell>
       <TableCell className='text-muted-foreground text-xs sm:text-sm'>{check.statusCode ?? '—'}</TableCell>
       <TableCell className='text-muted-foreground hidden text-xs sm:table-cell sm:text-sm'>

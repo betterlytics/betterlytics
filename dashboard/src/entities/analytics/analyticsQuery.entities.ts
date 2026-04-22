@@ -9,6 +9,8 @@ const UserJourneySchema = z.object({
   numberOfJourneys: z.number().int().min(1).max(100),
 });
 
+export const BATimeZone = z.string().transform((tz) => (tz === 'Etc/Unknown' ? 'Etc/UTC' : tz));
+
 export const BAAnalyticsQuerySchema = z.object({
   startDate: z.date(),
   endDate: z.date(),
@@ -16,7 +18,7 @@ export const BAAnalyticsQuerySchema = z.object({
   compareEndDate: z.date().optional(),
   granularity: z.enum(GRANULARITY_RANGE_VALUES),
   queryFilters: z.array(QueryFilterSchema),
-  timezone: z.string(),
+  timezone: BATimeZone,
   userJourney: UserJourneySchema,
   interval: z.enum(TIME_RANGE_VALUES),
   offset: z.number().optional(),

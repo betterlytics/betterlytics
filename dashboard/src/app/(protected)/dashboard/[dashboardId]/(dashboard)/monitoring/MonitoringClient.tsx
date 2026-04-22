@@ -14,6 +14,9 @@ import { MonitoringEmptyState } from './MonitoringEmptyState';
 import { presentSslStatus } from './styles';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -76,17 +79,32 @@ const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
   paused: 4,
 };
 
-type MonitoringClientProps = {
-  dashboardId: string;
-  monitors: MonitorWithStatus[];
-  domain: string;
+const LIST_QUERY_OPTIONS = {
+  refetchInterval: 30_000,
+  staleTime: 15_000,
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
 };
 
-export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringClientProps) {
+export function MonitoringClient() {
   const t = useTranslations('monitoringPage');
-  const { caps } = useCapabilities();
+  const { caps, isLoading: capLoading } = useCapabilities();
+  const {
+    input: {
+      dashboardId,
+      query: { timezone },
+    },
+  } = useBAQueryParams();
 
-  const monitorCount = monitors.length;
+  const monitorsQuery = trpc.monitors.list.useQuery({ dashboardId, timezone }, LIST_QUERY_OPTIONS);
+  const domainQuery = trpc.dashboard.domain.useQuery({ dashboardId });
+
+  const { data: monitors, loading: monitorsLoading } = useQueryState(monitorsQuery);
+  const { data: domainData, loading: domainLoading } = useQueryState(domainQuery);
+
+  const loading = monitorsLoading || domainLoading;
+  const domain = domainData?.domain ?? '';
+  const monitorCount = monitors?.length ?? 0;
   const maxMonitors = caps.monitoring.maxMonitors;
   const atMonitorLimit = monitorCount >= maxMonitors;
 
@@ -114,9 +132,9 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('downFirst');
 
-  const filteredMonitors = useMemo(
+  const filteredMonitors = useMemo<MonitorWithStatus[]>(
     () =>
-      monitors.filter((monitor) => {
+      (monitors ?? []).filter((monitor) => {
         // SSL filter uses different logic based on TLS status
         if (statusFilter === 'ssl') {
           const sslStatus = presentSslStatus({
@@ -185,7 +203,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
     [filtersCopy, sortKey],
   );
 
-  if (monitors.length === 0) {
+  if (!loading && monitors && monitors.length === 0) {
     return <MonitoringEmptyState dashboardId={dashboardId} domain={domain} />;
   }
 
@@ -194,7 +212,11 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
       <DashboardHeader title={t('title')}>
         <div className='flex flex-col-reverse gap-2 sm:flex-row sm:items-center'>
           <div className='flex w-full items-center gap-2 sm:w-auto'>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+              disabled={loading}
+            >
               <SelectTrigger className='flex-1 cursor-pointer sm:max-w-[120px]'>
                 <FilterSelectValue label={statusLabel} />
               </SelectTrigger>
@@ -223,7 +245,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
               </SelectContent>
             </Select>
 
-            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)} disabled={loading}>
               <SelectTrigger className='flex-1 cursor-pointer sm:max-w-[140px]'>
                 <FilterSelectValue label={sortLabel} Icon={ArrowUpDown} />
               </SelectTrigger>
@@ -257,18 +279,19 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
               <CreateMonitorDialog
                 dashboardId={dashboardId}
                 domain={domain}
-                existingUrls={monitors.map((m) => m.url)}
+                existingUrls={(monitors ?? []).map((m) => m.url)}
                 disabled={disabled}
                 monitorCount={monitorCount}
                 maxMonitors={maxMonitors}
                 atLimit={atMonitorLimit}
+                loading={loading || capLoading}
               />
             )}
           </PermissionGate>
         </div>
       </DashboardHeader>
 
-      <MonitorList monitors={sortedMonitors} />
+      <MonitorList loading={loading} monitors={sortedMonitors} />
     </div>
   );
 }
