@@ -92,47 +92,45 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className='grid grid-rows-[minmax(0,40vh)]'>
-                <ScrollArea
-                  className='h-full'
-                  onWheel={(e) => e.stopPropagation()}
-                  onTouchMove={(e) => e.stopPropagation()}
-                >
-                  <div className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
-              {savedFilters.map((savedFilter) => (
-                <div
-                  key={savedFilter.id}
-                  className='hover:bg-accent flex items-center rounded-md transition-colors'
-                >
-                  <button
-                    type='button'
-                    className='focus-visible:ring-ring/50 flex-1 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none focus-visible:ring-[2px]'
-                    onClick={() => handleLoad(savedFilter)}
-                  >
-                    {savedFilter.name}
-                  </button>
-                  <PermissionGate>
-                    {(disabled) => (
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4 mr-3'
-                        onClick={(e) => handleDelete(savedFilter.id, e)}
-                        disabled={disabled || deletingFilterId === savedFilter.id}
+              <ScrollArea
+                className='max-h-[40vh]'
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+              >
+                <div className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
+                  {savedFilters.map((savedFilter) => (
+                    <div
+                      key={savedFilter.id}
+                      className='hover:bg-accent flex items-center rounded-md transition-colors last:mb-0.5'
+                    >
+                      <button
+                        type='button'
+                        className='focus-visible:ring-ring/50 flex-1 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none focus-visible:ring-[2px]'
+                        onClick={() => handleLoad(savedFilter)}
                       >
-                        {deletingFilterId === savedFilter.id ? (
-                          <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
-                        ) : (
-                          <Trash2Icon className='h-3.5 w-3.5' />
+                        {savedFilter.name}
+                      </button>
+                      <PermissionGate>
+                        {(disabled) => (
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4 mr-3'
+                            onClick={(e) => handleDelete(savedFilter.id, e)}
+                            disabled={disabled || deletingFilterId === savedFilter.id}
+                          >
+                            {deletingFilterId === savedFilter.id ? (
+                              <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
+                            ) : (
+                              <Trash2Icon className='h-3.5 w-3.5' />
+                            )}
+                          </Button>
                         )}
-                      </Button>
-                    )}
-                  </PermissionGate>
+                      </PermissionGate>
+                    </div>
+                  ))}
                 </div>
-              ))}
-                  </div>
-                </ScrollArea>
-              </div>
+              </ScrollArea>
             </CollapsibleContent>
           </Collapsible>
         </div>
