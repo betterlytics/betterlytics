@@ -60,7 +60,7 @@ export function FilterValueSearch<TEntity>({
       }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}
       placeholder={filter.values.length === 0 ? t('selectValue') : undefined}
-      className={cn('dark:bg-input/25 dark:hover:bg-input/50', className)}
+      className='dark:bg-input/25 dark:hover:bg-input/50'
       commandProps={{
         className: cn('dark:bg-input/10 dark:hover:bg-input/50', className),
         shouldFilter: false, // Parent handles filtering via hook

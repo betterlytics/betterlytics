@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useSavedFilters, useDeleteSavedFilter, useRestoreSavedFilter } from '@/hooks/use-saved-filters';
@@ -90,20 +91,32 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                 <ChevronDownIcon className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]:rotate-180' />
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
+            <CollapsibleContent>
+              <div className='grid grid-rows-[minmax(0,40vh)]'>
+                <ScrollArea
+                  className='h-full'
+                  onWheel={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                >
+                  <div className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
               {savedFilters.map((savedFilter) => (
                 <div
                   key={savedFilter.id}
-                  className={`hover:bg-accent flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 transition-colors`}
-                  onClick={() => handleLoad(savedFilter)}
+                  className='hover:bg-accent flex items-center rounded-md transition-colors'
                 >
-                  <span className='truncate text-sm'>{savedFilter.name}</span>
+                  <button
+                    type='button'
+                    className='focus-visible:ring-ring/50 flex-1 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none focus-visible:ring-[2px]'
+                    onClick={() => handleLoad(savedFilter)}
+                  >
+                    {savedFilter.name}
+                  </button>
                   <PermissionGate>
                     {(disabled) => (
                       <Button
                         variant='ghost'
                         size='icon'
-                        className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
+                        className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4 mr-3'
                         onClick={(e) => handleDelete(savedFilter.id, e)}
                         disabled={disabled || deletingFilterId === savedFilter.id}
                       >
@@ -117,6 +130,9 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                   </PermissionGate>
                 </div>
               ))}
+                  </div>
+                </ScrollArea>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         </div>
