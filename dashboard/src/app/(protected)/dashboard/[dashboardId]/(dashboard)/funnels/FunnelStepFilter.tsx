@@ -16,7 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { FilterValueSearch } from '@/components/filters/FilterValueSearch';
 import { Input } from '@/components/ui/input';
-import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/QueryFilterInputRow';
+import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 
 type FunnelStepFilterProps = {
   onFilterUpdate: Dispatch<QueryFilter & { name: string }>;

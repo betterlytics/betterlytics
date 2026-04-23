@@ -32,7 +32,8 @@ export default function QueryFiltersSelector() {
   const { input, options } = useBAQueryParams();
 
   const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, options);
-  const { data: globalPropertyKeys = [], loading: isLoadingPropertyKeys } = useQueryState(gpQuery);
+  const { data, loading } = useQueryState(gpQuery);
+  const globalPropertyKeys = loading ? undefined : (data ?? []);
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const {
@@ -100,7 +101,6 @@ export default function QueryFiltersSelector() {
                 filter={filter}
                 requestRemoval={(_filter) => removeQueryFilter(_filter.id)}
                 globalPropertyKeys={globalPropertyKeys}
-                isLoadingPropertyKeys={isLoadingPropertyKeys}
               />
             ))}
             {queryFilters.length === 0 && (
@@ -174,7 +174,6 @@ export default function QueryFiltersSelector() {
               filter={addEmptyQueryFilter() as any}
               requestRemoval={(filter) => removeQueryFilter(filter.id)}
               globalPropertyKeys={globalPropertyKeys}
-              isLoadingPropertyKeys={isLoadingPropertyKeys}
             />
           </div>
           <Separator />
