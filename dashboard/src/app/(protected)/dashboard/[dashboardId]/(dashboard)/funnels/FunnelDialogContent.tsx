@@ -11,6 +11,9 @@ import { FunnelStepFilter } from './FunnelStepFilter';
 import { Reorder } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { trpc } from '@/trpc/client';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { useQueryState } from '@/hooks/use-query-state';
 
 type FunnelDialogContentProps = {
   metadata: ReturnType<typeof useFunnelDialog>['metadata'];
@@ -54,6 +57,11 @@ export function FunnelDialogContent({
 }: FunnelDialogContentProps) {
   const isNameEmpty = metadata.name.trim() === '';
   const showNameError = hasAttemptedSubmit && isNameEmpty;
+
+  const { input, options } = useBAQueryParams();
+  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, options);
+  const { data, loading } = useQueryState(gpQuery);
+  const globalPropertyKeys = loading ? undefined : (data ?? []);
 
   // Local state for smooth drag reordering without triggering refetches
   const [localSteps, setLocalSteps] = useState(funnelSteps);
@@ -131,6 +139,7 @@ export function FunnelDialogContent({
                   filter={step}
                   requestRemoval={() => removeFunnelStep(step.id)}
                   showEmptyError={hasAttemptedSubmit}
+                  globalPropertyKeys={globalPropertyKeys}
                 />
               </Reorder.Item>
             ))}
