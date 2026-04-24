@@ -1,48 +1,69 @@
-import { QueryFilter } from '@/entities/analytics/filter.entities';
-import { Dispatch } from 'react';
+import { type FunnelStep } from '@/entities/analytics/funnels.entities';
+import { type Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
+import { FilterBadgeMultiSelect } from '@/components/filters/FilterBadgeMultiSelect';
 
 type FunnelStepFilterProps = {
-  onFilterUpdate: Dispatch<QueryFilter & { name: string }>;
-  filter: QueryFilter & { name: string };
-  requestRemoval: () => void;
+  step: FunnelStep;
+  onStepChange: Dispatch<FunnelStep>;
+  onStepRemove: Dispatch<string>;
   disableDeletion?: boolean;
   showEmptyError?: boolean;
   globalPropertyKeys?: string[];
 };
 
 export function FunnelStepFilter({
-  filter,
-  onFilterUpdate,
-  requestRemoval,
+  step,
+  onStepChange,
+  onStepRemove,
   disableDeletion,
   showEmptyError,
   globalPropertyKeys,
 }: FunnelStepFilterProps) {
   const t = useTranslations('components.filters');
 
-  const showNameEmptyError = showEmptyError && filter.name.trim() === '';
+  const showNameEmptyError = showEmptyError && step.name.trim() === '';
+  const showFilterEmptyError = showEmptyError && step.filters.length === 0;
 
   return (
     <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
-        className={cn('w-52 min-w-36', showNameEmptyError && 'border-destructive')}
-        value={filter.name}
-        onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
+        className={cn('w-44 min-w-36', showNameEmptyError && 'border-destructive')}
+        value={step.name}
+        onChange={(e) => onStepChange({ ...step, name: e.target.value })}
         placeholder={t('namePlaceholder')}
       />
-      <div className='grow'>
-        <QueryFilterInputRow<{ name: string }>
-          filter={filter}
-          onFilterUpdate={onFilterUpdate}
-          requestRemoval={() => requestRemoval()}
-          disableDeletion={disableDeletion}
-          globalPropertyKeys={globalPropertyKeys}
-        />
-      </div>
+
+      <FilterBadgeMultiSelect
+        className='flex-1'
+        filters={step.filters}
+        onFilterAdd={(filter) => onStepChange({ ...step, filters: [...step.filters, filter] })}
+        onFilterUpdate={(filter) =>
+          onStepChange({
+            ...step,
+            filters: step.filters.map((f) => (f.id === filter.id ? filter : f)),
+          })
+        }
+        onFilterRemove={(filterId) =>
+          onStepChange({ ...step, filters: step.filters.filter((f) => f.id !== filterId) })
+        }
+        onFiltersReplace={(filters) => onStepChange({ ...step, filters })}
+        globalPropertyKeys={globalPropertyKeys}
+        showError={showFilterEmptyError}
+      />
+
+      <Button
+        variant='ghost'
+        className='cursor-pointer'
+        onClick={() => onStepRemove(step.id)}
+        disabled={disableDeletion}
+      >
+        <Trash2 />
+      </Button>
     </div>
   );
 }

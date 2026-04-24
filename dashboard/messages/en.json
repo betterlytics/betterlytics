@@ -2387,6 +2387,7 @@
         "title": "Filters",
         "emptyNoneSelected": "No filters selected - apply to save",
         "addFilter": "Add filter",
+        "addFilterPlaceholder": "Add one or more filters",
         "cancel": "Cancel",
         "apply": "Apply",
         "selectValue": "Select a value",

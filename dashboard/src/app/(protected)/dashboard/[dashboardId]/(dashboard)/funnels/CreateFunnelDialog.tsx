@@ -51,8 +51,8 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     dashboardId,
     initialName: '',
     initialSteps: [
-      { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-      { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
+      { id: generateTempId(), name: '', filters: [] },
+      { id: generateTempId(), name: '', filters: [] },
     ],
   });
 
@@ -82,8 +82,8 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           name: '',
           isStrict: false,
           steps: [
-            { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-            { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
+            { id: generateTempId(), name: '', filters: [] },
+            { id: generateTempId(), name: '', filters: [] },
           ],
         });
       })

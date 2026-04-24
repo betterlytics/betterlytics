@@ -4,6 +4,7 @@ import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { trpc } from '@/trpc/client';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
+import type { PresentedFunnel } from '@/presenters/toFunnel';
 
 export type FunnelMetadata = {
   name: string;
@@ -23,8 +24,13 @@ export function useFunnelDialog({
   initialIsStrict = false,
   initialSteps,
 }: UseFunnelDialogOptions) {
-  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep, setFunnelSteps } =
-    useFunnelSteps(initialSteps);
+  const {
+    funnelSteps,
+    addEmptyFunnelStep,
+    updateFunnelStep,
+    removeFunnelStep,
+    setFunnelSteps,
+  } = useFunnelSteps(initialSteps);
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: initialName,
     isStrict: initialIsStrict,
@@ -32,10 +38,12 @@ export function useFunnelDialog({
   const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
   const analyticsQuery = useAnalyticsQuery();
 
+  const isStepSearchable = (step: FunnelStep) =>
+    step.filters.length > 0 &&
+    step.filters.every((f) => Boolean(f.column) && Boolean(f.operator) && f.values.length > 0);
+
   const searchableFunnelSteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
-    );
+    const findFilterableIndex = debouncedFunnelSteps.findIndex((step) => !isStepSearchable(step));
 
     const steps =
       findFilterableIndex === -1 ? debouncedFunnelSteps : debouncedFunnelSteps.slice(0, findFilterableIndex);
@@ -53,9 +61,10 @@ export function useFunnelDialog({
 
   const funnelPreview = useMemo(() => {
     if (!funnelPreviewData) return null;
+    const data = funnelPreviewData as PresentedFunnel;
     return {
-      ...funnelPreviewData,
-      steps: funnelPreviewData.steps.map((step) => ({
+      ...data,
+      steps: data.steps.map((step) => ({
         ...step,
         step: {
           ...step.step,
@@ -66,9 +75,7 @@ export function useFunnelDialog({
   }, [funnelPreviewData, debouncedFunnelSteps]);
 
   const emptySteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
-    );
+    const findFilterableIndex = debouncedFunnelSteps.findIndex((step) => !isStepSearchable(step));
 
     const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
 

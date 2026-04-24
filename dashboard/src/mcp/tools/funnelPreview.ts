@@ -4,11 +4,15 @@ import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.en
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { getFunnelPreviewData } from '@/services/analytics/funnels.service';
 
-const McpFunnelStepSchema = z.object({
-  name: z.string().min(1, 'Step name is required'),
+const McpFunnelFilterSchema = z.object({
   column: z.enum(FILTER_COLUMNS),
   operator: z.enum(FILTER_OPERATORS),
   values: z.array(z.string()).min(1),
+});
+
+const McpFunnelStepSchema = z.object({
+  name: z.string().min(1, 'Step name is required'),
+  filters: z.array(McpFunnelFilterSchema).min(1).describe('Filters for this step (AND logic between filters)'),
 });
 
 export const McpFunnelPreviewInputBaseSchema = McpDateRangeSchema.extend({
@@ -32,8 +36,12 @@ export async function executeFunnelPreview(rawInput: unknown, siteId: string) {
   const { start, end } = resolveTimeRange(input);
 
   const funnelSteps = input.steps.map((step, i) => ({
-    ...step,
     id: `mcp_funnel_step_${i}`,
+    name: step.name,
+    filters: step.filters.map((filter, j) => ({
+      ...filter,
+      id: `mcp_funnel_step_${i}_filter_${j}`,
+    })),
   }));
 
   return getFunnelPreviewData(siteId, start, end, funnelSteps, input.isStrict);

@@ -2,6 +2,14 @@ import { type FunnelStep } from '@/entities/analytics/funnels.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { useCallback, useLayoutEffect, useState } from 'react';
 
+function createEmptyStep(): FunnelStep {
+  return {
+    id: generateTempId(),
+    name: '',
+    filters: [],
+  };
+}
+
 export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   const [funnelSteps, setFunnelSteps] = useState<FunnelStep[]>(initialSteps || []);
 
@@ -14,7 +22,7 @@ export function useFunnelSteps(initialSteps?: FunnelStep[]) {
   }, []);
 
   const addEmptyFunnelStep = useCallback(() => {
-    addFunnelStep({ column: 'url', operator: '=', values: [], name: '' });
+    addFunnelStep(createEmptyStep());
   }, [addFunnelStep]);
 
   useLayoutEffect(() => {
