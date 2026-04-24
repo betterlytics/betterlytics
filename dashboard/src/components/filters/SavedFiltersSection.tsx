@@ -92,11 +92,12 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <ScrollArea
-                className='max-h-[40vh]'
-                onWheel={(e) => e.stopPropagation()}
-                onTouchMove={(e) => e.stopPropagation()}
-              >
+              <div className='grid grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'>
+                <ScrollArea
+                  className='h-full min-h-0'
+                  onWheel={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
+                >
                 <div className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
                   {savedFilters.map((savedFilter) => (
                     <div
@@ -131,6 +132,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                   ))}
                 </div>
               </ScrollArea>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         </div>

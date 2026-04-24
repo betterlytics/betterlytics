@@ -89,17 +89,15 @@ export function QueryFiltersSelectorContent({
 
   const { data: isSavedFiltersLimitReached } = useSavedFiltersLimitReached();
 
-  const filterRowMinHeightPx = Math.min(Math.max(queryFilters.length, 1) * 48 - 4, 208);
-
   return (
     <>
       {queryFilters.length > 0 || isFiltersModified ? (
         <div
           className={cn(
-            'grid grid-rows-[minmax(var(--filter-row-min),1fr)_auto_auto_auto] gap-2 overflow-hidden',
+            'grid grid-rows-[minmax(3rem,1fr)_auto_auto_auto] gap-2 overflow-hidden',
             'p-1 max-h-[calc(var(--radix-popover-content-available-height,85vh)_-_1.5rem)]'
           )}
-          style={{ '--filter-row-min': `${filterRowMinHeightPx}px` } as React.CSSProperties}
+          style={{ '--query-filters-popover-min-h': '11rem' } as React.CSSProperties}
         >
           <ScrollArea
             className='h-full min-h-0'
@@ -184,10 +182,13 @@ export function QueryFiltersSelectorContent({
           />
         </div>
       ) : (
-        <div className={cn(
-          'flex flex-col gap-2 overflow-hidden',
-          'max-h-[calc(var(--radix-popover-content-available-height,85vh)_-_1.5rem)]'
-        )}>
+        <div
+          className={cn(
+            'flex flex-col gap-2 overflow-hidden',
+            'max-h-[calc(var(--radix-popover-content-available-height,85vh)_-_1.5rem)]'
+          )}
+          style={{ '--query-filters-popover-min-h': '11rem' } as React.CSSProperties}
+        >
           <div className='space-y-1'>
             <QueryFilterInputRow
               key={draftFilter.id}
