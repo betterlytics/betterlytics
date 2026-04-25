@@ -83,7 +83,6 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
   }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, t, utils]);
 
   const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
     if (open) {
       setHasAttemptedSubmit(false);
       reset({
@@ -92,6 +91,7 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
         steps: funnel.steps.map(({ step }) => ({ ...step, id: generateTempId() })),
       });
     }
+    setIsOpen(open);
   };
 
   return (
@@ -101,7 +101,10 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
           <Copy className='h-4 w-4' />
         </Button>
       </DialogTrigger>
-      <DialogContent className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'>
+      <DialogContent
+        aria-describedby={undefined}
+        className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'
+      >
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
         </DialogHeader>

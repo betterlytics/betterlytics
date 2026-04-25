@@ -1,5 +1,6 @@
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
+import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -8,13 +9,13 @@ import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 type FunnelStepFilterProps = {
   onFilterUpdate: (filter: QueryFilter & { name: string }) => void;
   filter: QueryFilter & { name: string };
-  requestRemoval: () => void;
+  requestRemoval: (id: QueryFilter['id']) => void;
   disableDeletion?: boolean;
   showEmptyError?: boolean;
   globalPropertyKeys?: string[];
 };
 
-export function FunnelStepFilter({
+function FunnelStepFilterComponent({
   filter,
   onFilterUpdate,
   requestRemoval,
@@ -31,26 +32,30 @@ export function FunnelStepFilter({
     <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
         className={cn(
-          'w-52 min-w-36',
-          isNestedFilter(filter) ? 'mt-[calc(--spacing(1)+var(--spacing-filter-subtitle))]' : 'mt-1',
+          'w-40 truncate shrink-0',
+          isNestedFilter(filter) && 'mt-filter-subtitle',
           showNameEmptyError && 'border-destructive',
         )}
         value={filter.name}
         onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
         placeholder={t('namePlaceholder')}
       />
-      <div className='grow'>
-        <QueryFilterInputRow<{ name: string }>
-          filter={filter}
-          onFilterUpdate={onFilterUpdate}
-          requestRemoval={() => requestRemoval()}
-          disableDeletion={disableDeletion}
-          globalPropertyKeys={globalPropertyKeys}
-          useExtendedRange
-          formatLength={45}
-          valueError={showValueEmptyError}
-        />
-      </div>
+      <QueryFilterInputRow<{ name: string }>
+        className={cn(
+          'grow gap-2 md:grid-cols-24',
+          'md:[grid-template-areas:"col_col_col_col_col_col_col_op_op_op_op_val_val_val_val_val_val_val_val_val_val_val_val_delete"]'
+        )}
+        filter={filter}
+        onFilterUpdate={onFilterUpdate}
+        requestRemoval={requestRemoval}
+        disableDeletion={disableDeletion}
+        globalPropertyKeys={globalPropertyKeys}
+        useExtendedRange
+        formatLength={45}
+        valueError={showValueEmptyError}
+      />
     </div>
   );
 }
+
+export const FunnelStepFilter = memo(FunnelStepFilterComponent) as typeof FunnelStepFilterComponent;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -74,15 +74,19 @@ export function FunnelDialogContent({
     }
   }, [funnelSteps]);
 
-  const handleDragStart = () => {
+  const handleDragStart = useCallback(() => {
     isDraggingRef.current = true;
-  };
+  }, []);
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     isDraggingRef.current = false;
-    // Only commit the reorder to parent state on drop
-    setFunnelSteps(localSteps);
-  };
+    setLocalSteps((current) => {
+      setFunnelSteps(current);
+      return current;
+    });
+  }, [setFunnelSteps]);
+
+  const disableStepDeletion = localSteps.length <= 2;
 
   return (
     <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
@@ -137,7 +141,8 @@ export function FunnelDialogContent({
                 <FunnelStepFilter
                   onFilterUpdate={updateFunnelStep}
                   filter={step}
-                  requestRemoval={() => removeFunnelStep(step.id)}
+                  requestRemoval={removeFunnelStep}
+                  disableDeletion={disableStepDeletion}
                   showEmptyError={hasAttemptedSubmit}
                   globalPropertyKeys={globalPropertyKeys}
                 />
