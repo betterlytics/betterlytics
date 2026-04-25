@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { fetchMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
 import { MonitorDetailClient } from './MonitorDetailClient';
 
 type MonitorDetailParams = {
-  params: Promise<{ monitorId: string }>;
+  params: Promise<{ dashboardId: string; monitorId: string }>;
 };
 
 export default async function MonitorDetailPage({ params }: MonitorDetailParams) {
@@ -11,7 +12,12 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
     notFound();
   }
 
-  const { monitorId } = await params;
+  const { dashboardId, monitorId } = await params;
+  const initialMonitor = await fetchMonitorCheckAction(dashboardId, monitorId);
 
-  return <MonitorDetailClient monitorId={monitorId} />;
+  if (!initialMonitor) {
+    notFound();
+  }
+
+  return <MonitorDetailClient monitorId={monitorId} initialMonitor={initialMonitor} />;
 }

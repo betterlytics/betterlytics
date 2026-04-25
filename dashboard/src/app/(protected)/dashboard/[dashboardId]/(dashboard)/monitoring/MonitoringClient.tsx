@@ -80,10 +80,8 @@ const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
 };
 
 const LIST_QUERY_OPTIONS = {
-  refetchInterval: 30_000,
-  staleTime: 15_000,
-  refetchOnWindowFocus: true,
-  refetchOnReconnect: true,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
 };
 
 export function MonitoringClient() {

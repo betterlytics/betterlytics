@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -11,8 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { trpc } from '@/trpc/client';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { isUrlOnDomain } from '@/utils/domainValidation';
@@ -34,14 +33,7 @@ type CreateMonitorDialogProps = {
 
 type Section = 'timing' | 'alerts' | 'advanced' | null;
 
-export function CreateMonitorDialog(props: CreateMonitorDialogProps) {
-  if (props.loading || props.atLimit === undefined) {
-    return <Skeleton className='h-9 w-full rounded-md sm:w-[160px]' />;
-  }
-  return <CreateMonitorDialogInner {...props} />;
-}
-
-function CreateMonitorDialogInner({
+export function CreateMonitorDialog({
   dashboardId,
   domain,
   existingUrls,
@@ -49,14 +41,15 @@ function CreateMonitorDialogInner({
   monitorCount,
   maxMonitors,
   atLimit,
+  loading,
 }: CreateMonitorDialogProps) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState(`https://${domain}`);
   const [expandedSection, setExpandedSection] = useState<Section>('timing');
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
   const t = useTranslations('monitoringPage.form');
   const { data: session } = useSession();
+  const utils = trpc.useUtils();
 
   const form = useMonitorForm({ mode: 'create' });
 
@@ -78,7 +71,7 @@ function CreateMonitorDialogInner({
         });
         resetForm();
         setOpen(false);
-        router.refresh();
+        utils.monitors.invalidate();
       } catch (error) {
         console.error(error);
         toast.error(t('error'));
@@ -113,7 +106,7 @@ function CreateMonitorDialogInner({
   const isHttps = url.trim().startsWith('https://');
   const sslMonitoringEnabled = isHttps && form.state.checkSslErrors;
 
-  if (atLimit) {
+  if (!loading && atLimit) {
     return <UpgradeButton className='w-full sm:w-fit'>{t('upgradeToCreate')}</UpgradeButton>;
   }
 
@@ -122,9 +115,11 @@ function CreateMonitorDialogInner({
       <DialogTrigger asChild>
         <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled}>
           {t('create')}
-          <span className='ml-1.5 text-xs opacity-70'>
-            ({monitorCount}/{maxMonitors})
-          </span>
+          {!loading && (
+            <span className='ml-1.5 text-xs opacity-70'>
+              ({monitorCount}/{maxMonitors})
+            </span>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>

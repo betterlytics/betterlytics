@@ -39,42 +39,12 @@ export function ResponseTimeCard({ metrics, loading }: { metrics?: MonitorMetric
 
 export function IncidentsCard({ incidents, loading }: { incidents: MonitorIncidentSegment[]; loading?: boolean }) {
   const t = useTranslations('monitoringDetailPage');
+  const showEmpty = !loading && incidents.length === 0;
   return (
     <SectionCard className='flex flex-col gap-4 xl:col-span-2'>
       <CardHeader title={t('incidents.title')} badge={<TimePeriodBadge>{t('incidents.badge')}</TimePeriodBadge>} />
       <CardContent className='px-0'>
-        {loading ? (
-          <div className='border-border/70 overflow-x-auto rounded-md border'>
-            <Table className='overflow-x-auto'>
-              <TableHeader className='bg-muted/10'>
-                <TableRow className='text-muted-foreground text-xs font-semibold tracking-wide'>
-                  <TableHead className='w-[140px]'>{t('incidents.headers.status')}</TableHead>
-                  <TableHead>{t('incidents.headers.root')}</TableHead>
-                  <TableHead>{t('incidents.headers.started')}</TableHead>
-                  <TableHead className='text-right'>{t('incidents.headers.duration')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <TableRow key={i} className='text-sm'>
-                    <TableCell>
-                      <Skeleton className='h-4 w-16' />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className='h-4 w-40' />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className='h-4 w-24' />
-                    </TableCell>
-                    <TableCell className='text-right'>
-                      <Skeleton className='ml-auto h-4 w-16' />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : incidents.length === 0 ? (
+        {showEmpty ? (
           <div className='border-border/60 bg-background/30 flex flex-1 flex-col items-center justify-center rounded-md border p-6 text-center'>
             <p className='text-foreground text-lg font-semibold'>{t('incidents.emptyTitle')}</p>
             <p className='text-muted-foreground mt-1 text-sm'>{t('incidents.emptyDescription')}</p>
@@ -91,12 +61,29 @@ export function IncidentsCard({ incidents, loading }: { incidents: MonitorIncide
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {incidents.map((segment) => (
-                  <IncidentRow
-                    key={`${segment.start}-${segment.state}-${segment.reason ?? ''}`}
-                    segment={segment}
-                  />
-                ))}
+                {loading
+                  ? Array.from({ length: 3 }).map((_, i) => (
+                      <TableRow key={i} className='text-sm'>
+                        <TableCell>
+                          <Skeleton className='h-4 w-16' />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className='h-4 w-40' />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className='h-4 w-24' />
+                        </TableCell>
+                        <TableCell className='text-right'>
+                          <Skeleton className='ml-auto h-4 w-16' />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : incidents.map((segment) => (
+                      <IncidentRow
+                        key={`${segment.start}-${segment.state}-${segment.reason ?? ''}`}
+                        segment={segment}
+                      />
+                    ))}
               </TableBody>
             </Table>
           </div>
@@ -141,42 +128,7 @@ export function RecentChecksCard({
         badge={<TimePeriodBadge>{t('recent.badge')}</TimePeriodBadge>}
       />
 
-      {loading ? (
-        <div className='border-border/70 overflow-hidden rounded-md border'>
-          <Table>
-            <TableHeader className='bg-muted/10'>
-              <TableRow className='text-muted-foreground text-xs font-semibold tracking-wide'>
-                <TableHead className='w-[160px]'>{t('recent.headers.status')}</TableHead>
-                <TableHead className='w-[300px]'>{t('recent.headers.ran')}</TableHead>
-                <TableHead className='w-[120px]'>{t('recent.headers.latency')}</TableHead>
-                <TableHead className='w-[120px]'>{t('recent.headers.statusCode')}</TableHead>
-                <TableHead className='hidden w-[200px] sm:table-cell'>{t('recent.headers.reason')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i} className='text-sm'>
-                  <TableCell>
-                    <Skeleton className='h-4 w-20' />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className='h-4 w-32' />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className='h-4 w-14' />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className='h-4 w-10' />
-                  </TableCell>
-                  <TableCell className='hidden sm:table-cell'>
-                    <Skeleton className='h-4 w-28' />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      ) : checks.length === 0 ? (
+      {!loading && checks.length === 0 ? (
         <div className='border-border/60 bg-background/30 text-muted-foreground flex items-center justify-center rounded-md border p-3 text-xs'>
           {t('recent.empty')}
         </div>
@@ -193,9 +145,27 @@ export function RecentChecksCard({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {checks.map((check) => (
-                <CheckRow key={`${check.ts}-${check.status}`} check={check} />
-              ))}
+              {loading
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i} className='text-sm'>
+                      <TableCell>
+                        <Skeleton className='h-4 w-20' />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className='h-4 w-32' />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className='h-4 w-14' />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className='h-4 w-10' />
+                      </TableCell>
+                      <TableCell className='hidden sm:table-cell'>
+                        <Skeleton className='h-4 w-28' />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : checks.map((check) => <CheckRow key={`${check.ts}-${check.status}`} check={check} />)}
             </TableBody>
           </Table>
         </div>
