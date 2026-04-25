@@ -12,8 +12,6 @@ import {
   getExitPageAnalytics as getExitPageAnalyticsRepo,
   getDailyAverageTimeOnPage,
   getDailyBounceRate,
-  getAvgTimeOnPageScalar,
-  getAvgBounceRateScalar,
 } from '@/repositories/clickhouse/index.repository';
 import { getSessionMetrics } from '@/repositories/clickhouse/sessions.repository';
 import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
@@ -69,23 +67,19 @@ export async function getExitPageAnalyticsForSite(siteQuery: BASiteQuery): Promi
 }
 
 export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): Promise<PagesSummaryWithCharts> {
-  const [
-    pageviewsChartData,
-    dailyAvgTimeData,
-    dailyBounceRateData,
-    sessionMetricsData,
-    avgTimeOnPageScalar,
-    avgBounceRateScalar,
-  ] = await Promise.all([
-    getTotalPageViewsForSite(siteQuery),
-    getDailyAverageTimeOnPageForSite(siteQuery),
-    getDailyBounceRateForSite(siteQuery),
-    getSessionMetrics(siteQuery),
-    getAvgTimeOnPageScalar(siteQuery),
-    getAvgBounceRateScalar(siteQuery),
-  ]);
+  const [pageAnalytics, pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] =
+    await Promise.all([
+      getPageAnalytics(siteQuery),
+      getTotalPageViewsForSite(siteQuery),
+      getDailyAverageTimeOnPageForSite(siteQuery),
+      getDailyBounceRateForSite(siteQuery),
+      getSessionMetrics(siteQuery),
+    ]);
 
-  const totalPageviews = pageviewsChartData.reduce((sum, row) => sum + Number(row.views), 0);
+  const totalPages = pageAnalytics.length;
+  const totalPageviews = pageAnalytics.reduce((sum, page) => sum + page.pageviews, 0);
+  const avgTimeOnPage = pageAnalytics.reduce((sum, page) => sum + page.avgTime, 0) / Math.max(totalPages, 1);
+  const avgBounceRate = pageAnalytics.reduce((sum, page) => sum + page.bounceRate, 0) / Math.max(totalPages, 1);
 
   const totalSessions = sessionMetricsData.reduce((sum, row) => sum + row.sessions, 0);
   const avgPagesPerSession =
@@ -110,8 +104,8 @@ export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): 
 
   return PagesSummaryWithChartsSchema.parse({
     totalPageviews,
-    avgTimeOnPage: Math.round(avgTimeOnPageScalar),
-    avgBounceRate: Math.round(avgBounceRateScalar),
+    avgTimeOnPage: Math.round(avgTimeOnPage),
+    avgBounceRate: Math.round(avgBounceRate),
     pagesPerSession: Number(avgPagesPerSession.toFixed(1)),
     pagesPerSessionChartData,
     avgTimeChartData,

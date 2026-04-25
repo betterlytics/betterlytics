@@ -77,16 +77,11 @@
 
   var globalProperties = {};
 
-  // Engagement tracking state (per pageview-instance)
-  var MAX_DURATION_SEC = 1800;
+  // Scroll depth tracking state
   var currentUrl = null;
   var maxScrollDepthPx = 0;
+  var lastSentScrollDepthPx = 0;
   var currentDocHeight = 0;
-  var activeMs = 0;
-  var segmentStart = performance.now();
-  var isVisible = document.visibilityState === "visible";
-  var pageviewUrl = null;
-  var hasFlushed = false;
 
   function normalize(url) {
     var urlObj = new URL(url);
@@ -295,73 +290,43 @@
     }
   }
 
-  function flushEngagement(urlOverride) {
-    if (hasFlushed) return;
-    hasFlushed = true;
+  function flushScrollDepth(urlOverride) {
+    if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
 
-    if (isVisible) {
-      activeMs += performance.now() - segmentStart;
-    }
+    lastSentScrollDepthPx = maxScrollDepthPx;
 
-    var durationSec = Math.min(
-      MAX_DURATION_SEC,
-      Math.round(activeMs / 1000),
+    var percentage = Math.min(
+      100,
+      Math.round((maxScrollDepthPx / currentDocHeight) * 100),
     );
-    var scrollPct =
-      currentDocHeight > 0
-        ? Math.min(
-            100,
-            Math.round((maxScrollDepthPx / currentDocHeight) * 100),
-          )
-        : 0;
 
-    if (durationSec <= 0 && scrollPct <= 0) return;
-
-    var overrides = {};
-    if (durationSec > 0) overrides.page_duration_seconds = durationSec;
-    if (scrollPct > 0) {
-      overrides.scroll_depth_percentage = scrollPct;
-      overrides.scroll_depth_pixels = maxScrollDepthPx;
-    }
+    var overrides = {
+      scroll_depth_percentage: percentage,
+      scroll_depth_pixels: maxScrollDepthPx,
+    };
     if (urlOverride) overrides.url = urlOverride;
 
-    sendEvent("engagement", overrides);
+    sendEvent("scroll_depth", overrides);
   }
 
-  function resetEngagement() {
+  function resetScrollDepth() {
     currentUrl = normalize(window.location.href);
     maxScrollDepthPx = 0;
-    activeMs = 0;
-    segmentStart = performance.now();
-    isVisible = document.visibilityState === "visible";
-    pageviewUrl = currentUrl;
-    hasFlushed = false;
+    lastSentScrollDepthPx = 0;
   }
 
   window.addEventListener("scroll", () => updateScrollDepth(), {
     passive: true,
   });
 
-  // Accumulate active time only while the tab is visible.
-  // Note: do NOT flush on visibilitychange → hidden; wait for pushState/popstate/pagehide.
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") {
-      if (isVisible) {
-        activeMs += performance.now() - segmentStart;
-      }
-      isVisible = false;
-    } else {
-      segmentStart = performance.now();
-      isVisible = true;
-    }
-  });
-  window.addEventListener("pagehide", () => flushEngagement());
+  document.addEventListener(
+    "visibilitychange",
+    () => document.visibilityState === "hidden" && flushScrollDepth(),
+  );
+  window.addEventListener("pagehide", () => flushScrollDepth());
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
-  pageviewUrl = currentUrl;
-  segmentStart = performance.now();
-  isVisible = document.visibilityState === "visible";
   updateScrollDepth();
 
   function monitorContentHeight() {
@@ -385,12 +350,11 @@
     // Override pushState to send navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
-      var oldPageviewUrl = pageviewUrl;
-      flushEngagement(oldPageviewUrl); // Flush before URL changes (uses old URL)
+      flushScrollDepth(); // Flush before URL changes (uses current URL)
       originalPushState.apply(this, arguments); // URL changes here
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        resetEngagement();
+        resetScrollDepth();
         monitorContentHeight();
         sendEvent("pageview");
       }
@@ -400,8 +364,8 @@
     window.addEventListener("popstate", function () {
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        flushEngagement(pageviewUrl); // Pass old URL as override
-        resetEngagement();
+        flushScrollDepth(currentUrl); // Pass old URL as override
+        resetScrollDepth();
         monitorContentHeight();
         sendEvent("pageview");
       }

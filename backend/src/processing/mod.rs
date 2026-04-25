@@ -60,10 +60,6 @@ pub struct ProcessedEvent {
     pub cwv_ttfb: Option<f32>,
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
-    /// Active time-on-page in seconds (engagement events). 0 means "no usable
-    /// duration" — also the canonical value for legacy `scroll_depth` events
-    /// translated to `engagement` at ingest.
-    pub duration_seconds: u32,
     /// JS error tracking
     pub error_exceptions: String,
     pub error_type: String,
@@ -132,7 +128,6 @@ impl EventProcessor {
             cwv_ttfb: None,
             scroll_depth_percentage: None,
             scroll_depth_pixels: None,
-            duration_seconds: 0,
             error_exceptions: String::new(),
             error_type: String::new(),
             error_message: String::new(),
@@ -207,15 +202,36 @@ impl EventProcessor {
     /// Extract domain and path from a URL string.
     /// Handle different event types
     async fn handle_event_types(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        // Dispatch all branches that don't need `&self`. Client-error needs the
-        // method-bound `process_client_error` so it stays here.
-        if !dispatch_event_type(processed) {
-            if processed.event.raw.event_name == "client_error" {
-                processed.event_type = "client_error".to_string();
-                self.process_client_error(processed);
-            } else {
-                processed.event_type = processed.event.raw.event_name.clone();
+        let event_name = processed.event.raw.event_name.clone();
+        if processed.event.raw.is_custom_event {
+            processed.event_type = "custom".to_string();
+            processed.custom_event_name = event_name;
+            processed.custom_event_json = processed.event.raw.properties.clone();
+        } else if event_name == "outbound_link" {
+            processed.event_type = "outbound_link".to_string();
+            // Process and clean outbound link URL
+            if let Some(ref outbound_url_str) = processed.event.raw.outbound_link_url {
+                if let Some(ref outbound_url) = Url::parse(&outbound_url_str).ok() {
+                    let outbound_info = process_outbound_link(outbound_url);
+                    processed.outbound_link_url = outbound_info.url;
+                }
             }
+        } else if event_name.eq_ignore_ascii_case("cwv") {
+            processed.event_type = "cwv".to_string();
+            processed.cwv_cls = processed.event.raw.cwv_cls;
+            processed.cwv_lcp = processed.event.raw.cwv_lcp;
+            processed.cwv_inp = processed.event.raw.cwv_inp;
+            processed.cwv_fcp = processed.event.raw.cwv_fcp;
+            processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
+        } else if event_name == "scroll_depth" {
+            processed.event_type = "scroll_depth".to_string();
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
+        } else if event_name == "client_error" {
+            processed.event_type = "client_error".to_string();
+            self.process_client_error(processed);
+        } else {
+            processed.event_type = event_name;
         }
 
         if let Some(ref gp) = processed.event.raw.global_properties {
@@ -279,56 +295,6 @@ impl EventProcessor {
     }
 }
 
-/// Stateless event-type dispatch used by `EventProcessor::handle_event_types`.
-/// Returns `true` if a branch matched and the event was fully classified, or
-/// `false` if the caller should run the fallback (client_error / unknown
-/// event-name branches that need `&self` or default behavior).
-fn dispatch_event_type(processed: &mut ProcessedEvent) -> bool {
-    let event_name = processed.event.raw.event_name.clone();
-    if processed.event.raw.is_custom_event {
-        processed.event_type = "custom".to_string();
-        processed.custom_event_name = event_name;
-        processed.custom_event_json = processed.event.raw.properties.clone();
-    } else if event_name == "outbound_link" {
-        processed.event_type = "outbound_link".to_string();
-        // Process and clean outbound link URL
-        if let Some(ref outbound_url_str) = processed.event.raw.outbound_link_url {
-            if let Some(ref outbound_url) = Url::parse(outbound_url_str).ok() {
-                let outbound_info = process_outbound_link(outbound_url);
-                processed.outbound_link_url = outbound_info.url;
-            }
-        }
-    } else if event_name.eq_ignore_ascii_case("cwv") {
-        processed.event_type = "cwv".to_string();
-        processed.cwv_cls = processed.event.raw.cwv_cls;
-        processed.cwv_lcp = processed.event.raw.cwv_lcp;
-        processed.cwv_inp = processed.event.raw.cwv_inp;
-        processed.cwv_fcp = processed.event.raw.cwv_fcp;
-        processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
-    } else if event_name == "engagement" {
-        processed.event_type = "engagement".to_string();
-        processed.duration_seconds = processed.event.raw.page_duration_seconds.unwrap_or(0);
-        processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
-        processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
-    } else if event_name == "scroll_depth" {
-        // Legacy event from old cached trackers during cutover. Translate to an
-        // engagement event at ingest so the events table is semantically uniform
-        // and queries (fast and slow path) only need to read 'engagement' rows.
-        // duration_seconds = 0 is the canonical sentinel for "no usable duration",
-        // and the `duration_seconds > 0` query gate excludes these from time-on-page
-        // averages while still letting their scroll values contribute.
-        processed.event_type = "engagement".to_string();
-        processed.duration_seconds = 0;
-        processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
-        processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
-    } else {
-        // Caller handles client_error and the default (event_name passthrough)
-        // branches.
-        return false;
-    }
-    true
-}
-
 fn decompose_global_properties(value: &serde_json::Value) -> (Vec<String>, Vec<String>) {
     let Some(obj) = value.as_object() else {
         return (Vec::new(), Vec::new());
@@ -346,174 +312,4 @@ fn decompose_global_properties(value: &serde_json::Value) -> (Vec<String>, Vec<S
         values.push(value_str);
     }
     (keys, values)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::analytics::{AnalyticsEvent, RawTrackingEvent};
-    use crate::db::{EventRow, EventType};
-
-    /// Build a `RawTrackingEvent` with the given `event_name` and the listed
-    /// fields populated. All other fields get sane defaults.
-    fn raw_event(
-        event_name: &str,
-        page_duration_seconds: Option<u32>,
-        scroll_depth_percentage: Option<f32>,
-        scroll_depth_pixels: Option<f32>,
-    ) -> RawTrackingEvent {
-        RawTrackingEvent {
-            site_id: "site-test".to_string(),
-            event_name: event_name.to_string(),
-            is_custom_event: false,
-            properties: String::new(),
-            url: "https://example.com/page".to_string(),
-            referrer: None,
-            user_agent: "Mozilla/5.0".to_string(),
-            screen_resolution: "1920x1080".to_string(),
-            timestamp: 1_700_000_000,
-            outbound_link_url: None,
-            cwv_cls: None,
-            cwv_lcp: None,
-            cwv_inp: None,
-            cwv_fcp: None,
-            cwv_ttfb: None,
-            scroll_depth_percentage,
-            scroll_depth_pixels,
-            page_duration_seconds,
-            error_exceptions: None,
-            global_properties: None,
-        }
-    }
-
-    /// Build a default `ProcessedEvent` shell wrapping the given raw event.
-    /// Mirrors the initialization done at the top of `process_event` so the
-    /// dispatch under test sees a realistic starting state.
-    fn processed_shell(raw: RawTrackingEvent) -> ProcessedEvent {
-        let timestamp = chrono::DateTime::from_timestamp(raw.timestamp as i64, 0)
-            .unwrap_or_else(chrono::Utc::now);
-        let site_id = raw.site_id.clone();
-        let user_agent = raw.user_agent.clone();
-        let event = AnalyticsEvent::new(raw, "127.0.0.1".to_string());
-        ProcessedEvent {
-            event,
-            event_type: String::new(),
-            session_id: 0,
-            session_created_at: chrono::Utc::now(),
-            country_code: None,
-            subdivision_code: None,
-            city: None,
-            browser: None,
-            browser_version: None,
-            os: None,
-            os_version: None,
-            device_type: None,
-            site_id,
-            visitor_fingerprint: 0,
-            timestamp,
-            domain: Some("example.com".to_string()),
-            url: "/page".to_string(),
-            referrer_info: ReferrerInfo::default(),
-            user_agent,
-            campaign_info: CampaignInfo::default(),
-            custom_event_name: String::new(),
-            custom_event_json: String::new(),
-            outbound_link_url: String::new(),
-            cwv_cls: None,
-            cwv_lcp: None,
-            cwv_inp: None,
-            cwv_fcp: None,
-            cwv_ttfb: None,
-            scroll_depth_percentage: None,
-            scroll_depth_pixels: None,
-            duration_seconds: 0,
-            error_exceptions: String::new(),
-            error_type: String::new(),
-            error_message: String::new(),
-            error_fingerprint: String::new(),
-            global_properties_keys: Vec::new(),
-            global_properties_values: Vec::new(),
-        }
-    }
-
-    #[test]
-    fn engagement_event_populates_duration_and_scroll() {
-        let raw = raw_event("engagement", Some(60), Some(50.0), Some(800.0));
-        let mut processed = processed_shell(raw);
-
-        let matched = dispatch_event_type(&mut processed);
-
-        assert!(matched, "engagement should match a dispatch branch");
-        assert_eq!(processed.event_type, "engagement");
-        assert_eq!(processed.duration_seconds, 60);
-        assert_eq!(processed.scroll_depth_percentage, Some(50.0));
-        assert_eq!(processed.scroll_depth_pixels, Some(800.0));
-
-        let row = EventRow::from_processed(processed);
-        assert!(matches!(row.event_type, EventType::Engagement));
-        assert_eq!(row.duration_seconds, 60);
-        assert_eq!(row.scroll_depth_percentage, Some(50.0));
-    }
-
-    #[test]
-    fn engagement_event_missing_page_duration_defaults_to_zero() {
-        let raw = raw_event("engagement", None, Some(25.0), None);
-        let mut processed = processed_shell(raw);
-
-        let matched = dispatch_event_type(&mut processed);
-
-        assert!(matched);
-        assert_eq!(processed.event_type, "engagement");
-        assert_eq!(processed.duration_seconds, 0);
-        assert_eq!(processed.scroll_depth_percentage, Some(25.0));
-    }
-
-    #[test]
-    fn legacy_scroll_depth_translated_to_engagement_with_zero_duration() {
-        let raw = raw_event("scroll_depth", None, Some(75.0), Some(1200.0));
-        let mut processed = processed_shell(raw);
-
-        let matched = dispatch_event_type(&mut processed);
-
-        assert!(matched, "scroll_depth should match a dispatch branch");
-        // The legacy event-name is rewritten to engagement at ingest so the
-        // events table only ever holds `engagement` rows for scroll/duration
-        // data going forward (see refined design §6.1.2 / §10 Q17).
-        assert_eq!(processed.event_type, "engagement");
-        assert_eq!(processed.duration_seconds, 0);
-        assert_eq!(processed.scroll_depth_percentage, Some(75.0));
-        assert_eq!(processed.scroll_depth_pixels, Some(1200.0));
-
-        let row = EventRow::from_processed(processed);
-        assert!(matches!(row.event_type, EventType::Engagement));
-        assert_eq!(row.duration_seconds, 0);
-        assert_eq!(row.scroll_depth_percentage, Some(75.0));
-        assert_eq!(row.scroll_depth_pixels, Some(1200.0));
-    }
-
-    #[test]
-    fn pageview_event_leaves_duration_zero_and_does_not_match_dispatch() {
-        // Sanity: pageview falls through dispatch (caller passes through
-        // `event_name`), and duration_seconds stays at its default 0. This
-        // pins the "no surprise" contract for non-engagement events.
-        let raw = raw_event("pageview", None, None, None);
-        let mut processed = processed_shell(raw);
-
-        let matched = dispatch_event_type(&mut processed);
-
-        assert!(!matched, "pageview is the default-passthrough branch");
-        assert_eq!(processed.duration_seconds, 0);
-    }
-
-    #[test]
-    fn event_type_enum_still_parses_legacy_scroll_depth_string() {
-        // Old cached trackers still send the string `"scroll_depth"` on the
-        // wire; the enum parser must continue to accept it even though new
-        // ingest writes Engagement rows. Q14 / §6.1.2 of the refined design.
-        let parsed: EventType = "scroll_depth".parse().expect("scroll_depth must still parse");
-        assert!(matches!(parsed, EventType::ScrollDepth));
-
-        let parsed: EventType = "engagement".parse().expect("engagement must parse");
-        assert!(matches!(parsed, EventType::Engagement));
-    }
 }
