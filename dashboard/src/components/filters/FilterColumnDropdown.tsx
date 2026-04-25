@@ -1,6 +1,5 @@
 'use client';
 
-import { Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDownIcon, TagsIcon } from 'lucide-react';
 import {
@@ -20,7 +19,7 @@ import {
 } from '@/components/ba-dropdown-menu';
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import { type FilterColumn, type QueryFilter } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { getFilterStrategy, isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { cn } from '@/lib/utils';
 
@@ -28,7 +27,7 @@ const DEMO_ALLOWED_COLUMNS = new Set<FilterColumn>(['url', 'device_type']);
 
 type FilterColumnDropdownProps<TEntity> = {
   filter: QueryFilter & TEntity;
-  onFilterUpdate: Dispatch<QueryFilter & TEntity>;
+  onFilterUpdate: (filter: QueryFilter & TEntity) => void;
   globalPropertyKeys?: string[];
   className?: string;
 };
@@ -45,12 +44,12 @@ export function FilterColumnDropdown<TEntity>({
 
   const strategy = getFilterStrategy(filter.column);
   const columnLabel = strategy.type === 'standard' ? t(`columns.${strategy.key}`) : strategy.key;
-  const isGlobalProperty = strategy.type === 'json_property';
+  const isNested = isNestedFilter(filter);
 
   return (
     <div className={cn('flex flex-col', className)}>
-      {isGlobalProperty && (
-        <span className='text-muted-foreground/60 mb-0.5 px-1 text-xs leading-none'>
+      {isNested && (
+        <span className='text-muted-foreground/60 h-filter-subtitle px-1 text-xs leading-none'>
           {t('globalProperties', { count: 1 })}
         </span>
       )}
@@ -58,7 +57,7 @@ export function FilterColumnDropdown<TEntity>({
         <BADropdownMenuTrigger asChild>
           <button
             className={cn(
-              'border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*="text-"])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs outline-none focus-visible:ring-[3px]',
+              'border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*="text-"])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs outline-none focus-visible:ring',
             )}
           >
             <span className='flex items-center gap-2 truncate'>{columnLabel}</span>
@@ -102,7 +101,7 @@ export function FilterColumnDropdown<TEntity>({
           <BADropdownMenuSeparator />
           <BADropdownMenuSub>
             <BADropdownMenuSubTrigger
-              active={isGlobalProperty}
+              active={isNested}
               disabled={isDemo}
               className='[&_svg:not([class*="text-"])]:text-muted-foreground gap-2'
             >

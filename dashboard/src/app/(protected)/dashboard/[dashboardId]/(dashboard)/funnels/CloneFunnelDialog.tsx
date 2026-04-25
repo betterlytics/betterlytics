@@ -89,6 +89,7 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (open) {
+      setHasAttemptedSubmit(false);
       reset({
         name: `${funnel.name} (copy)`,
         isStrict: funnel.isStrict,
@@ -98,9 +99,7 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
           filters: step.filters.map((f) => ({ ...f, id: generateTempId() })),
         })),
       });
-      return;
     }
-    setHasAttemptedSubmit(false);
   };
 
   return (

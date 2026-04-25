@@ -111,11 +111,9 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (!open) {
-        setHasAttemptedSubmit(false);
-      }
       setIsOpen(open);
       if (open) {
+        setHasAttemptedSubmit(false);
         reset({
           name: funnel.name,
           isStrict: funnel.isStrict,

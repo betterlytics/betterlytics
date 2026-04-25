@@ -1,6 +1,5 @@
 'use client';
 
-import { Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Select,
@@ -15,7 +14,7 @@ import { type FilterOperator, type QueryFilter } from '@/entities/analytics/filt
 
 type FilterOperatorSelectorProps<TEntity> = {
   filter: QueryFilter & TEntity;
-  onFilterUpdate: Dispatch<QueryFilter & TEntity>;
+  onFilterUpdate: (filter: QueryFilter & TEntity) => void;
   className?: string;
 };
 
