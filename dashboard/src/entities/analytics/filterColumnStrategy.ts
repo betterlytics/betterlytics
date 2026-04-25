@@ -1,4 +1,4 @@
-import { FILTER_COLUMNS, GP_PREFIX, type FilterColumn } from './filter.entities';
+import { FILTER_COLUMNS, GP_PREFIX, type FilterColumn, type QueryFilter } from './filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { formatNumber } from '@/utils/formatters';
 
@@ -34,4 +34,8 @@ export function getFilterStrategy(column: FilterColumn): FilterColumnStrategy {
     key: column as (typeof FILTER_COLUMNS)[number],
     formatValue: (value) => value,
   };
+}
+
+export function isNestedFilter(filter: QueryFilter): boolean {
+  return getFilterStrategy(filter.column).type === 'json_property';
 }

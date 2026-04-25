@@ -85,14 +85,13 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (open) {
+      setHasAttemptedSubmit(false);
       reset({
         name: `${funnel.name} (copy)`,
         isStrict: funnel.isStrict,
         steps: funnel.steps.map(({ step }) => ({ ...step, id: generateTempId() })),
       });
-      return;
     }
-    setHasAttemptedSubmit(false);
   };
 
   return (

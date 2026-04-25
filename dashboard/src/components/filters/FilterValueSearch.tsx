@@ -1,4 +1,4 @@
-import React, { Dispatch, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { MultiSelect } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
@@ -9,10 +9,11 @@ import { formatString } from '@/utils/formatters';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
-  onFilterUpdate: Dispatch<QueryFilter & TEntity>;
+  onFilterUpdate: (filter: QueryFilter & TEntity) => void;
   className?: string;
   useExtendedRange?: boolean;
   formatLength?: number;
+  valueError?: boolean;
 };
 
 export function FilterValueSearch<TEntity>({
@@ -21,6 +22,7 @@ export function FilterValueSearch<TEntity>({
   className,
   useExtendedRange,
   formatLength = 25,
+  valueError,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
@@ -60,7 +62,7 @@ export function FilterValueSearch<TEntity>({
       }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}
       placeholder={filter.values.length === 0 ? t('selectValue') : undefined}
-      className='dark:bg-input/25 dark:hover:bg-input/50'
+      className={cn('dark:bg-input/25 dark:hover:bg-input/50', valueError && 'border-destructive')}
       commandProps={{
         className: cn('dark:bg-input/10 dark:hover:bg-input/50', className),
         shouldFilter: false, // Parent handles filtering via hook

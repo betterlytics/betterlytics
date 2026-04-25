@@ -1,6 +1,6 @@
 'use client';
 
-import { type Dispatch, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from './QueryFilterInputRow';
@@ -20,9 +20,9 @@ import { cn } from '@/lib/utils';
 
 type QueryFiltersSelectorContentProps = {
   initialFilters: QueryFilter[];
-  onApply: Dispatch<QueryFilter[]>;
+  onApply: (filters: QueryFilter[]) => void;
   onCancel: () => void;
-  onLoadSavedFilter?: Dispatch<QueryFilter[]>;
+  onLoadSavedFilter?: (filters: QueryFilter[]) => void;
   globalPropertyKeys?: string[];
 };
 
@@ -53,7 +53,8 @@ export function QueryFiltersSelectorContent({
 
   useEffect(() => {
     setLocalQueryFilters(initialFilters);
-  }, [initialFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(initialFilters)]);
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));
@@ -161,7 +162,7 @@ export function QueryFiltersSelectorContent({
               <Button
                 className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
                 onClick={cancelFilters}
-                variant={'ghost'}
+                variant='ghost'
               >
                 {t('selector.cancel')}
               </Button>
@@ -195,6 +196,7 @@ export function QueryFiltersSelectorContent({
               onFilterUpdate={addQueryFilter}
               filter={draftFilter}
               requestRemoval={() => {}}
+              disableDeletion
               globalPropertyKeys={globalPropertyKeys}
             />
           </div>
