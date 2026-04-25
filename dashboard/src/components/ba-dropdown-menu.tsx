@@ -81,7 +81,7 @@ export function BADropdownMenuItem({
   return (
     <DropdownMenuItem
       data-active={active || undefined}
-      className={cn('group/ba-active', className)}
+      className={cn('group/ba-active [&_svg]:text-muted-foreground', className)}
       {...props}
     />
   );

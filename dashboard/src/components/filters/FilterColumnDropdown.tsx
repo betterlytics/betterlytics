@@ -45,6 +45,10 @@ export function FilterColumnDropdown<TEntity>({
   const strategy = getFilterStrategy(filter.column);
   const columnLabel = strategy.type === 'standard' ? t(`columns.${strategy.key}`) : strategy.key;
   const isNested = isNestedFilter(filter);
+  const triggerIcon =
+    strategy.type === 'json_property'
+      ? <TagsIcon className='size-4' />
+      : FILTER_COLUMN_SELECT_OPTIONS.find((opt) => opt.value === strategy.key)?.icon;
 
   return (
     <div className={cn('flex flex-col', className)}>
@@ -57,10 +61,20 @@ export function FilterColumnDropdown<TEntity>({
         <BADropdownMenuTrigger asChild>
           <button
             className={cn(
-              'border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*="text-"])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs outline-none focus-visible:ring',
+              'flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 shadow-xs',
+              'cursor-pointer text-sm whitespace-nowrap outline-none',
+              'dark:bg-input/30 dark:hover:bg-input/50',
+              'data-[placeholder]:text-muted-foreground',
+              '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4',
+              'focus-visible:border-ring focus-visible:ring focus-visible:ring-ring/50',
             )}
           >
-            <span className='flex items-center gap-2 truncate'>{columnLabel}</span>
+            <span className='flex items-center gap-2 [&_svg]:shrink-0'>
+              {triggerIcon}
+              <span className='truncate'>
+                {columnLabel}
+              </span>
+            </span>
             <ChevronDownIcon className='size-4 opacity-50' />
           </button>
         </BADropdownMenuTrigger>

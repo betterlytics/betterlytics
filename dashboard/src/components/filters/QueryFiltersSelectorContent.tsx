@@ -111,7 +111,7 @@ export function QueryFiltersSelectorContent({
                   key={filter.id}
                   onFilterUpdate={updateQueryFilter}
                   filter={filter}
-                  requestRemoval={(_filter) => removeQueryFilter(_filter.id)}
+                  requestRemoval={removeQueryFilter}
                   globalPropertyKeys={globalPropertyKeys}
                 />
               ))}
@@ -190,16 +190,14 @@ export function QueryFiltersSelectorContent({
           )}
           style={{ '--query-filters-popover-min-h': '11rem' } as React.CSSProperties}
         >
-          <div className='space-y-1'>
-            <QueryFilterInputRow
-              key={draftFilter.id}
-              onFilterUpdate={addQueryFilter}
-              filter={draftFilter}
-              requestRemoval={() => {}}
-              disableDeletion
-              globalPropertyKeys={globalPropertyKeys}
-            />
-          </div>
+          <QueryFilterInputRow
+            key={draftFilter.id}
+            onFilterUpdate={addQueryFilter}
+            filter={draftFilter}
+            requestRemoval={() => {}}
+            disableDeletion
+            globalPropertyKeys={globalPropertyKeys}
+          />
           <Separator />
           <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
             <PermissionGate allowViewer when={queryFilters.length >= 1}>

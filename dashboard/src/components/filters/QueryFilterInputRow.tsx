@@ -10,12 +10,13 @@ import { FilterOperatorSelector } from './FilterOperatorSelector';
 type QueryFilterInputRowProps<TEntity> = {
   onFilterUpdate: (filter: QueryFilter & TEntity) => void;
   filter: QueryFilter & TEntity;
-  requestRemoval: (filter: QueryFilter & TEntity) => void;
+  requestRemoval: (id: QueryFilter['id']) => void;
   disableDeletion?: boolean;
   globalPropertyKeys?: string[];
   useExtendedRange?: boolean;
   formatLength?: number;
   valueError?: boolean;
+  className?: string;
 };
 
 export function QueryFilterInputRow<TEntity>({
@@ -27,35 +28,43 @@ export function QueryFilterInputRow<TEntity>({
   useExtendedRange,
   formatLength,
   valueError,
+  className,
 }: QueryFilterInputRowProps<TEntity>) {
   const isNested = isNestedFilter(filter);
 
   return (
-    <div className='grid grid-cols-12 items-start gap-1 rounded border p-1 md:grid-rows-1 md:border-0'>
+    <div
+      className={cn(
+        'grid grid-cols-12 items-start gap-1 rounded border md:grid-rows-1 md:border-0',
+        '[grid-template-areas:"col_col_col_col_col_col_col_col_op_op_op_op"_"val_val_val_val_val_val_val_val_val_val_delete_delete"]',
+        'md:[grid-template-areas:"col_col_col_col_op_op_val_val_val_val_val_delete"]',
+        className,
+      )}
+    >
       <FilterColumnDropdown
         filter={filter}
         onFilterUpdate={onFilterUpdate}
         globalPropertyKeys={globalPropertyKeys}
-        className='col-span-8 md:col-span-4'
+        className='[grid-area:col]'
       />
       <FilterOperatorSelector
         filter={filter}
         onFilterUpdate={onFilterUpdate}
-        className={cn('col-span-4 w-full cursor-pointer md:col-span-2', isNested && 'mt-filter-subtitle')}
+        className={cn('[grid-area:op] w-full cursor-pointer', isNested && 'mt-filter-subtitle')}
       />
       <FilterValueSearch
         filter={filter}
         onFilterUpdate={onFilterUpdate}
         key={filter.column}
-        className={cn('col-span-10 md:col-span-5', isNested && 'mt-filter-subtitle')}
+        className={cn('[grid-area:val]', isNested && 'mt-filter-subtitle')}
         useExtendedRange={useExtendedRange}
         formatLength={formatLength}
         valueError={valueError}
       />
       <Button
         variant='ghost'
-        className={cn('col-span-2 cursor-pointer md:col-span-1', isNested && 'mt-filter-subtitle')}
-        onClick={() => requestRemoval(filter)}
+        className={cn('[grid-area:delete] cursor-pointer', isNested && 'mt-filter-subtitle')}
+        onClick={() => requestRemoval(filter.id)}
         disabled={disableDeletion}
       >
         <Trash2 />
