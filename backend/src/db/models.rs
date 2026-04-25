@@ -52,6 +52,7 @@ pub struct EventRow {
     pub session_created_at: DateTime<Utc>,
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
+    pub duration_seconds: u32,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -81,8 +82,13 @@ pub enum EventType {
     Custom = 2,
     OutboundLink = 3,
     Cwv = 4,
+    // ScrollDepth stays so the wire-payload parser still accepts incoming
+    // `"scroll_depth"` strings from old cached trackers. Ingest translates them
+    // to Engagement rows in `processing::handle_event_types`, so no new
+    // ScrollDepth rows are written to the events table going forward.
     ScrollDepth = 5,
     ClientError = 6,
+    Engagement = 7,
 }
 
 impl EventRow {
@@ -132,6 +138,7 @@ impl EventRow {
             session_created_at: event.session_created_at,
             global_properties_keys: event.global_properties_keys,
             global_properties_values: event.global_properties_values,
+            duration_seconds: event.duration_seconds,
         }
     }
 }
