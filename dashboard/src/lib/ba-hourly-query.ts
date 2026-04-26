@@ -5,7 +5,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { safeSql, SQL } from './safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-const HOUR_MS = 3_600_000;
+export const HOUR_MS = 3_600_000;
 
 const HOURLY_MV_COMPATIBLE_GRANULARITIES: Set<GranularityRangeValues> = new Set(['hour', 'day', 'week', 'month']);
 
@@ -18,20 +18,32 @@ const OVERVIEW_HOURLY_COMPATIBLE_COLUMNS = new Set<QueryFilter['column']>([
 
 const GEO_HOURLY_COMPATIBLE_COLUMNS = new Set<QueryFilter['column']>(['country_code', 'subdivision_code', 'city']);
 
-// Returns true when the time-range boundaries allow an hourly MV to produce exact results.
-//
-// Start boundary: start must be hour-aligned. If it isn't, the first MV bucket
-// (toStartOfHour(session_created_at)) would include sessions created before start.
-//
-// End boundary: the last bucket must not contain sessions after `end`. Either:
-//   a) end >= now (future sessions don't exist yet, so no overcount possible.)
-//   b) (end + 1s) % 1h === 0 (the ba-timerange -1s convention (e.g. 23:59:59).)
-//      toStartOfHour(23:59:59) = 23:00, whose sessions all fall within our range.
-function canUseHourlyMVBoundaries(siteQuery: BASiteQuery): boolean {
-  if (!HOURLY_MV_COMPATIBLE_GRANULARITIES.has(siteQuery.granularity)) return false;
+/**
+ * Accepts the `BASiteQuery` `startDateTime` / `endDateTime` strings
+ * (`toDateTimeString` output: UTC ISO string with `T` replaced by space, no timezone
+ * designator). Treats them as UTC to match how the rest of the dashboard interprets
+ * these fields (the source `Date` was serialised via `toISOString().slice(...)`).
+ */
+function dateTimeStringToUtcMs(dateTime: string): number {
+  // Append explicit UTC marker so engines that default to local-time parsing
+  // (Node, V8) still interpret the value as UTC.
+  return new Date(`${dateTime.replace(' ', 'T')}Z`).getTime();
+}
 
-  const startMs = siteQuery.startDate.getTime();
-  const endMs = siteQuery.endDate.getTime();
+/**
+ * Returns true when the [start, end] range can be served exactly by an hourly MV.
+ *
+ * Start boundary: start must be hour-aligned. If it isn't, the first MV bucket
+ * (toStartOfHour(session_created_at)) would include rows created before start.
+ *
+ * End boundary: the last bucket must not contain rows after `end`. Either:
+ *   a) end >= now (future rows don't exist yet, so no overcount possible.)
+ *   b) (end + 1s) % 1h === 0 (the ba-timerange -1s convention (e.g. 23:59:59).)
+ *      toStartOfHour(23:59:59) = 23:00, whose rows all fall within our range.
+ */
+export function isHourAlignedRange(startDateTime: string, endDateTime: string): boolean {
+  const startMs = dateTimeStringToUtcMs(startDateTime);
+  const endMs = dateTimeStringToUtcMs(endDateTime);
   const nowMs = Date.now();
 
   if (startMs % HOUR_MS !== 0) return false;
@@ -40,6 +52,16 @@ function canUseHourlyMVBoundaries(siteQuery: BASiteQuery): boolean {
   const endIsHourBoundary = (endMs + 1000) % HOUR_MS === 0;
 
   return endIsCurrentOrFuture || endIsHourBoundary;
+}
+
+/**
+ * Generic gating: granularity is hour/day/week/month AND the range is hour-aligned.
+ * Used by every hourly-MV consumer (overview, geo, page_stats) before applying
+ * its own column-compatibility check.
+ */
+export function canUseHourlyMVBoundaries(siteQuery: BASiteQuery): boolean {
+  if (!HOURLY_MV_COMPATIBLE_GRANULARITIES.has(siteQuery.granularity)) return false;
+  return isHourAlignedRange(siteQuery.startDateTime, siteQuery.endDateTime);
 }
 
 export function canUseOverviewHourlyMV(siteQuery: BASiteQuery): boolean {
@@ -90,6 +112,7 @@ export function getGeoHourlyFilters(queryFilters: QueryFilter[]) {
 }
 
 export const BAHourlyQuery = {
+  canUseHourlyMVBoundaries,
   canUseOverviewHourlyMV,
   canUseGeoHourlyMV,
   getOverviewHourlyFilters,

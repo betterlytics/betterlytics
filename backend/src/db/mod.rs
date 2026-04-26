@@ -11,7 +11,7 @@ use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
 mod models;
-pub use models::{EventRow, SessionReplayRow};
+pub use models::{EventRow, EventType, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
