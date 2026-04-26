@@ -4,7 +4,7 @@ import { JOB_REGISTRY } from '@/worker/jobs/registry';
 import { workerEnv } from '@/worker/workerEnv';
 
 async function main() {
-  const boss = new PgBoss(workerEnv.DATABASE_URL);
+  const boss = new PgBoss(workerEnv.POSTGRES_URL);
 
   boss.on('error', (err) => console.error({ event: 'pg-boss:error', err }));
   boss.on('warning', (warning) => console.warn({ event: 'pg-boss:warning', warning }));
