@@ -1,13 +1,13 @@
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
-import { memo } from 'react';
+import { Dispatch, memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 
 type FunnelStepFilterProps = {
-  onFilterUpdate: (filter: QueryFilter & { name: string }) => void;
+  onFilterUpdate: Dispatch<QueryFilter & { name: string }>;
   filter: QueryFilter & { name: string };
   requestRemoval: (id: QueryFilter['id']) => void;
   disableDeletion?: boolean;

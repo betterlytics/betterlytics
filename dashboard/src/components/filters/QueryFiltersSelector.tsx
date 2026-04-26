@@ -14,7 +14,7 @@ import { baEvent } from '@/lib/ba-event';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useQueryState } from '@/hooks/use-query-state';
-import { QueryFiltersSelectorContent } from './QueryFiltersSelectorContent';
+import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 export default function QueryFiltersSelector() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
@@ -67,7 +67,7 @@ export default function QueryFiltersSelector() {
           {activeFilterCount > 0 && ` (${activeFilterCount})`}
         </span>
       </div>
-      <ChevronDownIcon className={`ml-2 h-4 w-4 shrink-0 opacity-50`} />
+      <ChevronDownIcon className={'ml-2 h-4 w-4 shrink-0 opacity-50'} />
     </Button>
   );
 
@@ -82,15 +82,13 @@ export default function QueryFiltersSelector() {
           <DialogHeader>
             <DialogTitle>{t('selector.title')}</DialogTitle>
           </DialogHeader>
-          <div className='space-y-1'>
-            <QueryFiltersSelectorContent
-              initialFilters={contextQueryFilters}
-              onApply={applyFilters}
-              onCancel={cancelFilters}
-              onLoadSavedFilter={handleLoadSavedFilter}
-              globalPropertyKeys={globalPropertyKeys}
-            />
-          </div>
+          <QueryFiltersSelectorContent
+            initialFilters={contextQueryFilters}
+            onApply={applyFilters}
+            onCancel={cancelFilters}
+            onLoadSavedFilter={handleLoadSavedFilter}
+            globalPropertyKeys={globalPropertyKeys}
+          />
         </DialogContent>
       </Dialog>
     );

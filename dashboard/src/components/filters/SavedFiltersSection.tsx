@@ -72,10 +72,9 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   return (
     <PermissionGate allowViewer>
       {(disabled) => (
-        <div className={cn(isMobile ? 'pt-1' : 'pt-2')}>
-          <Separator />
+        <div>
           <Collapsible
-            className={cn('group', isMobile ? 'pt-1' : 'pt-2')}
+            className={cn('group')}
             disabled={disabled}
             open={isOpen}
             onOpenChange={onOpenChange}
@@ -92,21 +91,21 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className='grid grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'>
+              <div className='grid grid-cols-1 grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'>
                 <ScrollArea
-                  className='h-full min-h-0'
+                  className='h-full min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block'
                   onWheel={(e) => e.stopPropagation()}
                   onTouchMove={(e) => e.stopPropagation()}
                 >
-                  <div className='border-border/50 ml-2 space-y-1 border-l pt-1 pr-3 pl-2'>
+                  <div className='border-border/50 ml-2 mr-1 space-y-1 border-l pt-1 pl-2'>
                     {savedFilters.map((savedFilter) => (
                       <div
                         key={savedFilter.id}
-                        className='hover:bg-accent flex items-center rounded-md transition-colors last:mb-1'
+                        className='hover:bg-accent has-focus-visible:ring-ring/50 has-focus-visible:ring flex items-center rounded-md transition-colors last:mb-1 pr-2'
                       >
                         <button
                           type='button'
-                          className='focus-visible:ring-ring/50 flex-1 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none focus-visible:ring'
+                          className='flex-1 min-w-0 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none'
                           onClick={() => handleLoad(savedFilter)}
                         >
                           {savedFilter.name}

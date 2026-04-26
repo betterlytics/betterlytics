@@ -1,9 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { ChevronDownIcon, TagsIcon } from 'lucide-react';
 import {
   BADropdownMenu,
+  BADropdownMenuActiveIndicator,
   BADropdownMenuContent,
   BADropdownMenuEmpty,
   BADropdownMenuGroup,
@@ -15,19 +14,21 @@ import {
   BADropdownMenuSubContent,
   BADropdownMenuSubTrigger,
   BADropdownMenuTrigger,
-  BADropdownMenuActiveIndicator,
 } from '@/components/ba-dropdown-menu';
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type FilterColumn, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy, isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { cn } from '@/lib/utils';
+import { ChevronDownIcon, TagsIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Dispatch } from 'react';
 
 const DEMO_ALLOWED_COLUMNS = new Set<FilterColumn>(['url', 'device_type']);
 
 type FilterColumnDropdownProps<TEntity> = {
   filter: QueryFilter & TEntity;
-  onFilterUpdate: (filter: QueryFilter & TEntity) => void;
+  onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   globalPropertyKeys?: string[];
   className?: string;
 };
@@ -47,7 +48,7 @@ export function FilterColumnDropdown<TEntity>({
   const isNested = isNestedFilter(filter);
   const triggerIcon =
     strategy.type === 'json_property'
-      ? <TagsIcon className='size-4' />
+      ? <TagsIcon />
       : FILTER_COLUMN_SELECT_OPTIONS.find((opt) => opt.value === strategy.key)?.icon;
 
   return (
@@ -75,13 +76,11 @@ export function FilterColumnDropdown<TEntity>({
                 {columnLabel}
               </span>
             </span>
-            <ChevronDownIcon className='size-4 opacity-50' />
+            <ChevronDownIcon className='opacity-50' />
           </button>
         </BADropdownMenuTrigger>
         <BADropdownMenuContent
-          collisionPadding={16}
           align='start'
-          className='min-w-56'
           scrollClassName='max-h-72 sm:max-h-[min(36rem,calc(var(--radix-dropdown-menu-content-available-height)-0.5rem))]'
         >
           <BADropdownMenuLabel className='text-muted-foreground text-xs font-normal'>
@@ -94,7 +93,6 @@ export function FilterColumnDropdown<TEntity>({
               return (
                 <BADropdownMenuItem
                   key={column.value}
-                  className='cursor-pointer'
                   disabled={disabled}
                   active={active}
                   onSelect={() => {
@@ -114,12 +112,8 @@ export function FilterColumnDropdown<TEntity>({
           </BADropdownMenuGroup>
           <BADropdownMenuSeparator />
           <BADropdownMenuSub>
-            <BADropdownMenuSubTrigger
-              active={isNested}
-              disabled={isDemo}
-              className='[&_svg:not([class*="text-"])]:text-muted-foreground gap-2'
-            >
-              <TagsIcon className='size-4' />
+            <BADropdownMenuSubTrigger active={isNested} disabled={isDemo}>
+              <TagsIcon />
               {t('globalProperties', { count: 2 })}
               {isDemo && (
                 <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>

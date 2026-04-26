@@ -80,6 +80,8 @@ export function FunnelDialogContent({
 
   const handleDragEnd = useCallback(() => {
     isDraggingRef.current = false;
+    
+    // read the latest localSteps without putting it in the dep array
     setLocalSteps((current) => {
       setFunnelSteps(current);
       return current;
