@@ -8,7 +8,6 @@ async function main() {
 
   boss.on('error', (err) => console.error({ event: 'pg-boss:error', err }));
   boss.on('warning', (warning) => console.warn({ event: 'pg-boss:warning', warning }));
-  boss.on('wip', (data) => console.info({ event: 'pg-boss:wip', data }));
 
   let isShuttingDown = false;
   const healthServer = createServer((req, res) => {
