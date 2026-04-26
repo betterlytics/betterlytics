@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { Dispatch, useMemo } from 'react';
 import { MultiSelect } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
@@ -9,7 +9,7 @@ import { formatString } from '@/utils/formatters';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
-  onFilterUpdate: (filter: QueryFilter & TEntity) => void;
+  onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   className?: string;
   useExtendedRange?: boolean;
   formatLength?: number;

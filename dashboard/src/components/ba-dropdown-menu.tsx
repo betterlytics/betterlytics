@@ -50,7 +50,7 @@ export type BADropdownMenuActiveIndicatorProps = ComponentProps<'span'> & {
 };
 
 export function BADropdownMenuActiveIndicator({
-  icon = <CheckIcon className="size-4" />,
+  icon = <CheckIcon />,
   className,
   ...props
 }: BADropdownMenuActiveIndicatorProps) {
@@ -81,7 +81,7 @@ export function BADropdownMenuItem({
   return (
     <DropdownMenuItem
       data-active={active || undefined}
-      className={cn('group/ba-active [&_svg]:text-muted-foreground', className)}
+      className={cn('group/ba-active cursor-pointer [&_svg]:text-muted-foreground', className)}
       {...props}
     />
   );
@@ -95,11 +95,13 @@ export function BADropdownMenuContent({
   children,
   className,
   scrollClassName,
+  collisionPadding = 16,
   ...props
 }: BADropdownMenuContentProps) {
   return (
     <DropdownMenuContent
-      className={cn('overflow-clip!', className)}
+      collisionPadding={collisionPadding}
+      className={cn('min-w-56 overflow-clip!', className)}
       {...props}
     >
       <BAScrollContainer
@@ -209,7 +211,7 @@ export function BADropdownMenuSubTrigger({
   return (
     <DropdownMenuSubTrigger
       data-active={active || undefined}
-      className={cn('group/ba-active', className)}
+      className={cn('group/ba-active gap-2 [&_svg]:text-muted-foreground', className)}
       onPointerEnter={(e) => {
         cancelClose();
         onPointerEnter?.(e);

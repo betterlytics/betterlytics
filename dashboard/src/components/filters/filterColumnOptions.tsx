@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { FILTER_COLUMNS } from '@/entities/analytics/filter.entities';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
@@ -19,7 +19,7 @@ import {
   TextCursorInputIcon,
   TextSearchIcon,
 } from 'lucide-react';
-import { FILTER_COLUMNS } from '@/entities/analytics/filter.entities';
+import { type ReactNode } from 'react';
 
 type StandardFilterColumn = (typeof FILTER_COLUMNS)[number];
 type FilterColumnSelectOptions = { value: StandardFilterColumn; icon: ReactNode; label: string }[];
@@ -43,4 +43,4 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'utm_campaign', icon: <FileTextIcon />, label: 'UTM campaign' },
   { value: 'utm_term', icon: <TextSearchIcon />, label: 'UTM term' },
   { value: 'utm_content', icon: <SquareMousePointerIcon />, label: 'UTM content' },
-];
+] as const satisfies FilterColumnSelectOptions;
