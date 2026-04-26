@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS analytics.page_stats
     scroll_depth_sum    SimpleAggregateFunction(sum, Float64),
     scroll_depth_count  SimpleAggregateFunction(sum, UInt64),
     duration_sum        SimpleAggregateFunction(sum, UInt64),
-    duration_count      SimpleAggregateFunction(sum, UInt64)
+    duration_count      AggregateFunction(uniq, UInt64)
 ) ENGINE = AggregatingMergeTree()
 PARTITION BY toYYYYMM(hour)
 ORDER BY (site_id, hour, path);
@@ -175,7 +175,7 @@ SELECT
         scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')                   AS scroll_depth_sum,
     countIf(scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')               AS scroll_depth_count,
     toUInt64(sumIf(duration, event_type = 'engagement' AND duration > 0))                   AS duration_sum,
-    toUInt64(countIf(event_type = 'engagement' AND duration > 0))                           AS duration_count
+    uniqStateIf(session_id, event_type = 'engagement' AND duration > 0)                     AS duration_count
 FROM analytics.events
 WHERE event_type IN ('pageview', 'engagement')
 GROUP BY site_id, hour, path;
@@ -192,7 +192,7 @@ SELECT
         scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')                   AS scroll_depth_sum,
     countIf(scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')               AS scroll_depth_count,
     toUInt64(sumIf(duration, event_type = 'engagement' AND duration > 0))                   AS duration_sum,
-    toUInt64(countIf(event_type = 'engagement' AND duration > 0))                           AS duration_count
+    uniqStateIf(session_id, event_type = 'engagement' AND duration > 0)                     AS duration_count
 FROM analytics.events
 WHERE event_type IN ('pageview', 'engagement')
 GROUP BY site_id, hour, path;

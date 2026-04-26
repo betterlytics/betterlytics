@@ -66,7 +66,7 @@ function getPageStatsCte(siteQuery: BASiteQuery) {
         path,
         uniqMerge(visitors_state)                                                            AS visitors,
         sum(pageviews_state)                                                                  AS pageviews,
-        if(sum(duration_count) > 0, sum(duration_sum) / sum(duration_count), 0)              AS avg_time_seconds,
+        if(uniqMerge(duration_count) > 0, sum(duration_sum) / uniqMerge(duration_count), 0)   AS avg_time_seconds,
         if(sum(scroll_depth_count) > 0, sum(scroll_depth_sum) / sum(scroll_depth_count), 0)  AS avg_scroll_depth
       FROM analytics.page_stats
       WHERE site_id = {site_id:String}
