@@ -14,6 +14,7 @@ import { baEvent } from '@/lib/ba-event';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useQueryState } from '@/hooks/use-query-state';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 export default function QueryFiltersSelector() {
@@ -21,10 +22,11 @@ export default function QueryFiltersSelector() {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const { input, options } = useBAQueryParams();
+  const { isDemo } = useDashboardAuth();
 
-  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, options);
-  const { data, loading } = useQueryState(gpQuery);
-  const globalPropertyKeys = loading ? undefined : (data ?? []);
+  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, { ...options, enabled: !isDemo });
+  const { data, loading } = useQueryState(gpQuery, !isDemo);
+  const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
 

@@ -111,37 +111,42 @@ export function FilterColumnDropdown<TEntity>({
             })}
           </BADropdownMenuGroup>
           <BADropdownMenuSeparator />
-          <BADropdownMenuSub>
-            <BADropdownMenuSubTrigger active={isNested} disabled={isDemo}>
+          {isDemo ? (
+            <BADropdownMenuItem disabled>
               <TagsIcon />
               {t('globalProperties', { count: 2 })}
-              {isDemo && (
-                <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
-              )}
-            </BADropdownMenuSubTrigger>
-            <BADropdownMenuSubContent scrollClassName='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))]'>
-              {globalPropertyKeys === undefined ? (
-                Array.from({ length: 3 }).map((_, i) => <BADropdownMenuSkeletonItem key={i} />)
-              ) : globalPropertyKeys.length > 0 ? (
-                globalPropertyKeys.map((key) => (
-                  <BADropdownMenuItem
-                    key={key}
-                    active={key === strategy.key}
-                    onSelect={() => {
-                      const next = `gp.${key}` as typeof filter.column;
-                      if (filter.column === next) return;
-                      onFilterUpdate({ ...filter, column: next, values: [] });
-                    }}
-                  >
-                    <span className='truncate'>{key}</span>
-                    <BADropdownMenuActiveIndicator />
-                  </BADropdownMenuItem>
-                ))
-              ) : (
-                <BADropdownMenuEmpty>{t('noProperties')}</BADropdownMenuEmpty>
-              )}
-            </BADropdownMenuSubContent>
-          </BADropdownMenuSub>
+              <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
+            </BADropdownMenuItem>
+          ) : (
+            <BADropdownMenuSub>
+              <BADropdownMenuSubTrigger active={isNested}>
+                <TagsIcon />
+                {t('globalProperties', { count: 2 })}
+              </BADropdownMenuSubTrigger>
+              <BADropdownMenuSubContent scrollClassName='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))]'>
+                {globalPropertyKeys === undefined ? (
+                  Array.from({ length: 3 }).map((_, i) => <BADropdownMenuSkeletonItem key={i} />)
+                ) : globalPropertyKeys.length > 0 ? (
+                  globalPropertyKeys.map((key) => (
+                    <BADropdownMenuItem
+                      key={key}
+                      active={key === strategy.key}
+                      onSelect={() => {
+                        const next = `gp.${key}` as typeof filter.column;
+                        if (filter.column === next) return;
+                        onFilterUpdate({ ...filter, column: next, values: [] });
+                      }}
+                    >
+                      <span className='truncate'>{key}</span>
+                      <BADropdownMenuActiveIndicator />
+                    </BADropdownMenuItem>
+                  ))
+                ) : (
+                  <BADropdownMenuEmpty>{t('noProperties')}</BADropdownMenuEmpty>
+                )}
+              </BADropdownMenuSubContent>
+            </BADropdownMenuSub>
+          )}
         </BADropdownMenuContent>
       </BADropdownMenu>
     </div>

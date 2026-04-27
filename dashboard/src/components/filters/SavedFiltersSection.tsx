@@ -4,7 +4,6 @@ import { useCallback, useState, Dispatch } from 'react';
 import { ChevronDownIcon, Trash2Icon, Loader2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
@@ -24,7 +23,6 @@ type SavedFiltersSectionProps = {
 
 export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: SavedFiltersSectionProps) {
   const t = useTranslations('components.filters');
-  const isMobile = useIsMobile();
   const [deletingFilterId, setDeletingFilterId] = useState<string | null>(null);
 
   const { data: savedFilters = [], isLoading } = useSavedFilters();

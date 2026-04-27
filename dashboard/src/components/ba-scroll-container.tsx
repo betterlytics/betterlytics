@@ -29,15 +29,17 @@ const INDICATOR_HEIGHT = 18;
 
 export type BAScrollContainerProps = ComponentProps<'div'> & {
   /**
-   * CSS selector for an element to scroll into view on first layout
-   * when the container is overflowing. Runs once per mount.
+   * Scrolls a matching element into view on first layout when the container
+   * is overflowing. Runs once per mount.
    */
-  scrollToSelector?: string;
-  /**
-   * When `scrollToSelector` matches, also call
-   * `focus({ preventScroll: true })` on the element after scrolling.
-   */
-  focusOnScroll?: boolean;
+  scrollTo?: {
+    /** CSS selector for the element to find inside the container. */
+    selector: string;
+    /** Call `focus({ preventScroll: true })` on the element after scrolling. */
+    focus?: boolean;
+    /** Forwarded to `Element.scrollIntoView`. */
+    options?: ScrollIntoViewOptions;
+  };
 };
 
 export function BAScrollContainer({
@@ -45,8 +47,7 @@ export function BAScrollContainer({
   className,
   style,
   ref: externalRef,
-  scrollToSelector,
-  focusOnScroll,
+  scrollTo,
   ...props
 }: BAScrollContainerProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -77,13 +78,13 @@ export function BAScrollContainer({
       setCanScrollUp(canScrollUp);
       setCanScrollDown(canScrollDown);
 
-      if (!hasScrolledToTarget && scrollToSelector && el.scrollHeight > el.clientHeight) {
+      if (!hasScrolledToTarget && scrollTo && el.scrollHeight > el.clientHeight) {
         hasScrolledToTarget = true;
-        const target = el.querySelector<HTMLElement>(scrollToSelector);
+        const target = el.querySelector<HTMLElement>(scrollTo.selector);
         if (target) {
           setTimeout(() => {
-            target.scrollIntoView({ block: 'nearest' });
-            if (focusOnScroll) target.focus({ preventScroll: true });
+            target.scrollIntoView(scrollTo.options);
+            if (scrollTo.focus) target.focus({ preventScroll: true });
           });
         }
       }
@@ -99,7 +100,7 @@ export function BAScrollContainer({
       observer.disconnect();
       clearTimer();
     };
-  }, [clearTimer, scrollToSelector, focusOnScroll]);
+  }, [clearTimer, scrollTo]);
 
   function startAutoScroll(direction: 'up' | 'down') {
     if (rafId.current !== null) return;
@@ -117,6 +118,7 @@ export function BAScrollContainer({
   return (
     <div
       ref={composedRef}
+      data-slot="ba-scroll-container"
       className={cn('overflow-x-hidden overflow-y-auto overscroll-contain', className)}
       style={{ ...style, scrollbarWidth: 'none', scrollPaddingBlock: INDICATOR_HEIGHT }}
       onWheel={(e) => e.stopPropagation()}
@@ -126,6 +128,7 @@ export function BAScrollContainer({
       {canScrollUp && (
         <div
           aria-hidden
+          data-slot="ba-scroll-container-indicator-up"
           className="bg-popover sticky top-0 z-10 flex cursor-default items-center justify-center pb-0.5"
           onPointerDown={() => startAutoScroll('up')}
           onPointerMove={() => startAutoScroll('up')}
@@ -138,6 +141,7 @@ export function BAScrollContainer({
       {canScrollDown && (
         <div
           aria-hidden
+          data-slot="ba-scroll-container-indicator-down"
           className="bg-popover sticky -bottom-0.25 z-10 flex cursor-default items-center justify-center pt-0.5"
           onPointerDown={() => startAutoScroll('down')}
           onPointerMove={() => startAutoScroll('down')}

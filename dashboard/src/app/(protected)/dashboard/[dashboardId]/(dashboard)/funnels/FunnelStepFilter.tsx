@@ -33,7 +33,7 @@ function FunnelStepFilterComponent({
       <Input
         className={cn(
           'w-40 truncate shrink-0',
-          isNestedFilter(filter) && 'mt-filter-subtitle',
+          isNestedFilter(filter) ? 'mt-[calc(--spacing(1)+var(--spacing-filter-subtitle))]' : 'mt-1',
           showNameEmptyError && 'border-destructive',
         )}
         value={filter.name}
