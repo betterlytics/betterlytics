@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckIcon } from 'lucide-react';
+import { BAScrollContainer } from '@/components/ba-scroll-container';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -19,8 +19,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BAScrollContainer } from '@/components/ba-scroll-container';
 import { cn } from '@/lib/utils';
+import { CheckIcon } from 'lucide-react';
 import {
   createContext,
   useCallback,
@@ -34,6 +34,8 @@ import {
   type ReactNode,
 } from 'react';
 
+// shadcn DropdownMenu primitives re-exported with the BA prefix for consistency.
+// Use these directly when no BA-specific behavior is needed.
 export const BADropdownMenu = DropdownMenu;
 export const BADropdownMenuTrigger = DropdownMenuTrigger;
 export const BADropdownMenuPortal = DropdownMenuPortal;
@@ -44,6 +46,31 @@ export const BADropdownMenuCheckboxItem = DropdownMenuCheckboxItem;
 export const BADropdownMenuRadioGroup = DropdownMenuRadioGroup;
 export const BADropdownMenuRadioItem = DropdownMenuRadioItem;
 export const BADropdownMenuShortcut = DropdownMenuShortcut;
+
+type BASubContextValue = {
+  open: boolean;
+  setOpen: Dispatch<boolean>;
+  scheduleClose: () => void;
+  cancelClose: () => void;
+};
+
+const BASubContext = createContext<BASubContextValue | null>(null);
+
+function useBASubContext(): BASubContextValue {
+  const ctx = useContext(BASubContext);
+  if (!ctx) {
+    throw new Error(
+      'BADropdownMenuSubTrigger / BADropdownMenuSubContent must be rendered inside a BADropdownMenuSub.',
+    );
+  }
+  return ctx;
+}
+
+const ACTIVE_SCROLL_TARGET = {
+  selector: '[data-active="true"]',
+  focus: true,
+  options: { block: 'nearest' },
+} as const;
 
 export type BADropdownMenuActiveIndicatorProps = ComponentProps<'span'> & {
   icon?: ReactNode;
@@ -105,8 +132,7 @@ export function BADropdownMenuContent({
       {...props}
     >
       <BAScrollContainer
-        scrollToSelector='[data-active="true"]'
-        focusOnScroll
+        scrollTo={ACTIVE_SCROLL_TARGET}
         className={cn(
           'max-h-(--radix-dropdown-menu-content-available-height)',
           scrollClassName,
@@ -116,25 +142,6 @@ export function BADropdownMenuContent({
       </BAScrollContainer>
     </DropdownMenuContent>
   );
-}
-
-type BASubContextValue = {
-  open: boolean;
-  setOpen: Dispatch<boolean>;
-  scheduleClose: () => void;
-  cancelClose: () => void;
-};
-
-const BASubContext = createContext<BASubContextValue | null>(null);
-
-function useBASubContext(): BASubContextValue {
-  const ctx = useContext(BASubContext);
-  if (!ctx) {
-    throw new Error(
-      'BADropdownMenuSubTrigger / BADropdownMenuSubContent must be rendered inside a BADropdownMenuSub.',
-    );
-  }
-  return ctx;
 }
 
 const DEFAULT_HOVER_CLOSE_DELAY_MS = 300;
@@ -211,7 +218,12 @@ export function BADropdownMenuSubTrigger({
   return (
     <DropdownMenuSubTrigger
       data-active={active || undefined}
-      className={cn('group/ba-active gap-2 [&_svg]:text-muted-foreground', className)}
+      className={cn(
+        'group/ba-active',
+        '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4',
+        'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        className,
+      )}
       onPointerEnter={(e) => {
         cancelClose();
         onPointerEnter?.(e);
@@ -258,8 +270,7 @@ export function BADropdownMenuSubContent({
       {...props}
     >
       <BAScrollContainer
-        scrollToSelector='[data-active="true"]'
-        focusOnScroll
+        scrollTo={ACTIVE_SCROLL_TARGET}
         className={cn(
           'max-h-(--radix-dropdown-menu-content-available-height)',
           scrollClassName,
@@ -278,7 +289,7 @@ export function BADropdownMenuSkeletonItem({
   ...props
 }: BADropdownMenuSkeletonItemProps) {
   return (
-    <div className="min-w-32 px-1 py-0.5">
+    <div data-slot="ba-dropdown-menu-skeleton-item" className="min-w-32 px-1 py-0.5">
       <Skeleton className={cn('h-7 w-full rounded-sm', className)} {...props} />
     </div>
   );
@@ -293,6 +304,7 @@ export function BADropdownMenuEmpty({
 }: BADropdownMenuEmptyProps) {
   return (
     <DropdownMenuItem
+      data-slot="ba-dropdown-menu-empty"
       disabled={disabled}
       className={cn('text-muted-foreground', className)}
       {...props}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
@@ -40,21 +40,14 @@ export function QueryFiltersSelectorContent({
   const {
     queryFilters,
     setQueryFilters: setLocalQueryFilters,
-    addQueryFilter,
     addEmptyQueryFilter,
     removeQueryFilter,
     updateQueryFilter,
-  } = useQueryFilters(initialFilters);
-
-  const draftFilter = useMemo<QueryFilter>(
-    () => ({ id: generateTempId(), column: 'url', operator: '=', values: [] }),
-    [],
+  } = useQueryFilters(
+    initialFilters.length > 0
+      ? initialFilters
+      : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }],
   );
-
-  useEffect(() => {
-    setLocalQueryFilters(initialFilters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(initialFilters)]);
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));
@@ -72,6 +65,17 @@ export function QueryFiltersSelectorContent({
     [onApply, onLoadSavedFilter],
   );
 
+  const requestFilterRemoval = useCallback(
+    (id: QueryFilter['id']) => {
+      if (queryFilters.length <= 1) {
+        updateQueryFilter({ id, column: 'url', operator: '=', values: [] });
+      } else {
+        removeQueryFilter(id);
+      }
+    },
+    [queryFilters.length, updateQueryFilter, removeQueryFilter],
+  );
+
   const isFiltersModified = useMemo(() => {
     const filteredQueryFilters = filterEmptyQueryFilters(queryFilters);
     const filteredInitialFilters = filterEmptyQueryFilters(initialFilters);
@@ -85,8 +89,7 @@ export function QueryFiltersSelectorContent({
   }, [initialFilters, queryFilters]);
 
   const hasValidFilters = filterEmptyQueryFilters(queryFilters).length > 0;
-  const isPristineEmpty = queryFilters.length === 0 && !isFiltersModified;
-  const canApply = queryFilters.length === 0 || isFiltersModified;
+  const canApply = isFiltersModified;
 
   const { data: isSavedFiltersLimitReached } = useSavedFiltersLimitReached();
 
@@ -98,7 +101,6 @@ export function QueryFiltersSelectorContent({
             className='h-8 w-full cursor-pointer md:w-28'
             onClick={() => {
               if (isDisabled) return;
-              if (isPristineEmpty) addQueryFilter(draftFilter);
               addEmptyQueryFilter();
             }}
             variant='outline'
@@ -164,29 +166,15 @@ export function QueryFiltersSelectorContent({
           onTouchMove={(e) => e.stopPropagation()}
         >
           <div className='space-y-2 py-1'>
-            {queryFilters.length > 0 ? (
-              queryFilters.map((filter) => (
-                <QueryFilterInputRow
-                  key={filter.id}
-                  onFilterUpdate={updateQueryFilter}
-                  filter={filter}
-                  requestRemoval={removeQueryFilter}
-                  globalPropertyKeys={globalPropertyKeys}
-                />
-              ))
-            ) : isFiltersModified ? (
-              <div className='text-muted-foreground flex h-9 items-center justify-center gap-2 text-sm'>
-                {t('selector.emptyNoneSelected')}
-              </div>
-            ) : (
+            {queryFilters.map((filter) => (
               <QueryFilterInputRow
-                key={draftFilter.id}
-                onFilterUpdate={addQueryFilter}
-                filter={draftFilter}
-                disableDeletion
+                key={filter.id}
+                onFilterUpdate={updateQueryFilter}
+                filter={filter}
+                requestRemoval={requestFilterRemoval}
                 globalPropertyKeys={globalPropertyKeys}
               />
-            )}
+            ))}
           </div>
         </ScrollArea>
         <Separator />
