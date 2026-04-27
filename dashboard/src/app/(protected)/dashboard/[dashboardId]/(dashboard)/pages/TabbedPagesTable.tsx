@@ -47,7 +47,9 @@ export default function TabbedPagesTable({
   const locale = useLocale();
   const t = useTranslations('components.pages.table');
 
-  const getBaseColumns = useCallback((): ColumnDef<PageAnalyticsData[number]>[] => {
+  const getBaseColumns = useCallback((): ColumnDef<
+    PageAnalyticsData[number]
+  >[] => {
     return [
       {
         accessorKey: 'path',
@@ -111,7 +113,10 @@ export default function TabbedPagesTable({
     ];
   }, [makeFilterClick, locale, t]);
 
-  const getTabSpecificColumns = useCallback((): Record<string, ColumnDef<PageAnalyticsData[number]>> => {
+  const getTabSpecificColumns = useCallback((): Record<
+    string,
+    ColumnDef<PageAnalyticsData[number]>
+  > => {
     return {
       entryRate: {
         accessorKey: 'entryRate',
@@ -189,18 +194,7 @@ export default function TabbedPagesTable({
         loading: exitPagesLoading,
       },
     ],
-    [
-      allPagesData,
-      entryPagesData,
-      exitPagesData,
-      allPagesColumns,
-      entryPagesColumns,
-      exitPagesColumns,
-      allPagesLoading,
-      entryPagesLoading,
-      exitPagesLoading,
-      t,
-    ],
+    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns, allPagesLoading, entryPagesLoading, exitPagesLoading, t],
   );
 
   return (

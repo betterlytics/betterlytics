@@ -3,13 +3,12 @@
 -- Previously scroll_depth was a separate event. Now the client sends one `engagement` event
 -- per page visit containing both duration and scroll depth. This:
 --   - Eliminates a separate network request per page leave
---   - Allows a single MV to aggregate both metrics under the same url key
 --   - Removes the need for leadInFrame window functions at query time
 --
 -- Backfill strategy for production:
 --   - Synthetic engagement events are inserted from existing pageview timestamps (leadInFrame
---     for duration) and existing scroll_depth events (for scroll percentage).
---     After backfill both the MV path and the non-MV fallback read only engagement events.
+--     for duration) and existing scroll_depth events (for scroll percentage). Synthetic events
+--     are written at `pageview.timestamp + 1 second` so they sort after their source pageview.
 --   - Billing MV is rebuilt with a whitelist instead of blacklist.
 
 -- Step 1: Add engagement = 7 to event_type enum (scroll_depth = 5 kept for legacy data)
@@ -24,14 +23,15 @@ ALTER TABLE analytics.events
         'engagement' = 7
     );
 
--- Step 2: Add duration column
+-- Step 2: Add duration_seconds column
 ALTER TABLE analytics.events
-    ADD COLUMN IF NOT EXISTS duration UInt32 DEFAULT 0;
+    ADD COLUMN IF NOT EXISTS duration_seconds UInt32 DEFAULT 0;
 
 -- Step 3: Insert synthetic engagement events for all historical pageviews.
 -- Duration computed via leadInFrame (gap to next pageview in session, capped at 1800s).
 -- Scroll depth joined from the last scroll_depth event for the same (site_id, session_id, url).
--- After this insert both MV and non-MV paths read engagement events.
+-- Synthetic rows are written at `pageview.timestamp + 1 second` so they sort after their
+-- source pageview on equal timestamps.
 INSERT INTO analytics.events (
     site_id, visitor_id, session_id, domain, url,
     device_type, country_code, subdivision_code, city,
@@ -45,12 +45,13 @@ INSERT INTO analytics.events (
     scroll_depth_percentage, scroll_depth_pixels,
     error_exceptions, error_type, error_message, error_fingerprint,
     session_created_at,
-    duration
+    duration_seconds
 )
 SELECT
     pv.site_id, pv.visitor_id, pv.session_id, pv.domain, pv.url,
     pv.device_type, pv.country_code, pv.subdivision_code, pv.city,
-    pv.timestamp, pv.date,
+    pv.timestamp + INTERVAL 1 SECOND                         AS timestamp,
+    toDate(pv.timestamp + INTERVAL 1 SECOND)                 AS date,
     pv.browser, pv.browser_version, pv.os, pv.os_version,
     pv.referrer_source, pv.referrer_source_name, pv.referrer_search_term, pv.referrer_url,
     pv.utm_source, pv.utm_medium, pv.utm_campaign, pv.utm_term, pv.utm_content,
@@ -63,7 +64,7 @@ SELECT
     sd.scroll_depth_pixels,
     '' AS error_exceptions, '' AS error_type, '' AS error_message, '' AS error_fingerprint,
     pv.session_created_at,
-    pv.computed_duration AS duration
+    pv.computed_duration                                     AS duration_seconds
 FROM (
     -- Pageviews with leadInFrame duration
     SELECT
@@ -135,70 +136,3 @@ SELECT
 FROM analytics.events
 WHERE event_type IN ('pageview', 'custom', 'outbound_link', 'cwv', 'client_error')
 GROUP BY site_id, date;
-
--- Step 5: Recreate page_stats with single MV
--- engagement covers both duration and scroll depth under the same url key.
--- Scroll aggregation uses engagement events only: Step 3 already embedded the max scroll
--- from legacy scroll_depth events into each synthetic engagement event, so reading
--- scroll_depth events here too would double-count historical data.
-DROP VIEW IF EXISTS analytics.page_stats_events_mv;
-DROP VIEW IF EXISTS analytics.page_stats_duration_mv;
-DROP TABLE IF EXISTS analytics.page_stats;
-
-CREATE TABLE IF NOT EXISTS analytics.page_stats
-(
-    site_id             LowCardinality(String),
-    hour                DateTime,
-    path                String,
-    visitors_state      AggregateFunction(uniq, UInt64),
-    pageviews_state     SimpleAggregateFunction(sum, UInt64),
-    scroll_depth_sum    SimpleAggregateFunction(sum, Float64),
-    scroll_depth_count  SimpleAggregateFunction(sum, UInt64),
-    duration_sum        SimpleAggregateFunction(sum, UInt64),
-    duration_count      AggregateFunction(uniq, UInt64)
-) ENGINE = AggregatingMergeTree()
-PARTITION BY toYYYYMM(hour)
-ORDER BY (site_id, hour, path);
-
-CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.page_stats_mv
-TO analytics.page_stats AS
-SELECT
-    site_id,
-    toStartOfHour(timestamp)                                                                 AS hour,
-    url                                                                                      AS path,
-    uniqStateIf(session_id, event_type = 'pageview')                                        AS visitors_state,
-    countIf(event_type = 'pageview')                                                         AS pageviews_state,
-    -- scroll depth: engagement only. The backfill (Step 3) already set scroll_depth_percentage
-    -- on every synthetic engagement event from the legacy scroll_depth max per (session, url),
-    -- so counting scroll_depth events here too would double-count historical data.
-    sumIf(toFloat64(assumeNotNull(scroll_depth_percentage)),
-        scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')                   AS scroll_depth_sum,
-    countIf(scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')               AS scroll_depth_count,
-    toUInt64(sumIf(duration, event_type = 'engagement' AND duration > 0))                   AS duration_sum,
-    uniqStateIf(session_id, event_type = 'engagement' AND duration > 0)                     AS duration_count
-FROM analytics.events
-WHERE event_type IN ('pageview', 'engagement')
-GROUP BY site_id, hour, path;
-
--- Backfill page_stats from all events (engagement rows inserted above are already in the table)
-INSERT INTO analytics.page_stats (site_id, hour, path, visitors_state, pageviews_state, scroll_depth_sum, scroll_depth_count, duration_sum, duration_count)
-SELECT
-    site_id,
-    toStartOfHour(timestamp)                                                                 AS hour,
-    url                                                                                      AS path,
-    uniqStateIf(session_id, event_type = 'pageview')                                        AS visitors_state,
-    countIf(event_type = 'pageview')                                                         AS pageviews_state,
-    sumIf(toFloat64(assumeNotNull(scroll_depth_percentage)),
-        scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')                   AS scroll_depth_sum,
-    countIf(scroll_depth_percentage IS NOT NULL AND event_type = 'engagement')               AS scroll_depth_count,
-    toUInt64(sumIf(duration, event_type = 'engagement' AND duration > 0))                   AS duration_sum,
-    uniqStateIf(session_id, event_type = 'engagement' AND duration > 0)                     AS duration_count
-FROM analytics.events
-WHERE event_type IN ('pageview', 'engagement')
-GROUP BY site_id, hour, path;
-
-SET max_execution_time = 0;
-SET send_progress_in_http_headers = 1;
-SET http_headers_progress_interval_ms = 30000;
-
-OPTIMIZE TABLE analytics.page_stats FINAL;
