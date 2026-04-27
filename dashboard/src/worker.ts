@@ -1,6 +1,13 @@
 import { createServer } from 'node:http';
 import { PgBoss } from 'pg-boss';
 import { JOB_REGISTRY } from '@/worker/jobs/registry';
+import {
+  jobDurationSeconds,
+  jobLastRunTimestamp,
+  jobRunsTotal,
+  jobsInFlight,
+  register,
+} from '@/worker/metrics';
 import { workerEnv } from '@/worker/workerEnv';
 
 async function main() {
@@ -10,7 +17,7 @@ async function main() {
   boss.on('warning', (warning) => console.warn({ event: 'pg-boss:warning', warning }));
 
   let isShuttingDown = false;
-  const healthServer = createServer((req, res) => {
+  const healthServer = createServer(async (req, res) => {
     if (req.url === '/healthz') {
       if (isShuttingDown) {
         res.writeHead(503, { 'content-type': 'application/json' });
@@ -19,6 +26,16 @@ async function main() {
       }
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ status: 'ok' }));
+      return;
+    }
+    if (req.url === '/metrics') {
+      if (!workerEnv.ENABLE_MONITORING) {
+        res.writeHead(404);
+        res.end();
+        return;
+      }
+      res.writeHead(200, { 'content-type': register.contentType });
+      res.end(await register.metrics());
       return;
     }
     res.writeHead(404);
@@ -43,12 +60,22 @@ async function main() {
 
       await boss.work(job.name, async ([j]) => {
         const startedAt = Date.now();
+        const endTimer = jobDurationSeconds.startTimer({ job: job.name });
+        jobsInFlight.inc({ job: job.name });
         try {
           await job.handler(j.data);
+          jobRunsTotal.inc({ job: job.name, status: 'success' });
+          endTimer({ status: 'success' });
+          jobLastRunTimestamp.set({ job: job.name, status: 'success' }, Date.now() / 1000);
           console.info({ job: job.name, jobId: j.id, success: true, durationMs: Date.now() - startedAt });
         } catch (err) {
+          jobRunsTotal.inc({ job: job.name, status: 'failure' });
+          endTimer({ status: 'failure' });
+          jobLastRunTimestamp.set({ job: job.name, status: 'failure' }, Date.now() / 1000);
           console.error({ job: job.name, jobId: j.id, success: false, err, durationMs: Date.now() - startedAt });
           throw err;
+        } finally {
+          jobsInFlight.dec({ job: job.name });
         }
       });
 
