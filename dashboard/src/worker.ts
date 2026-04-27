@@ -60,22 +60,22 @@ async function main() {
 
       await boss.work(job.name, async ([j]) => {
         const startedAt = Date.now();
-        const endTimer = jobDurationSeconds.startTimer({ job: job.name });
-        jobsInFlight.inc({ job: job.name });
+        const endTimer = jobDurationSeconds.startTimer({ job_name: job.name });
+        jobsInFlight.inc({ job_name: job.name });
         try {
           await job.handler(j.data);
-          jobRunsTotal.inc({ job: job.name, status: 'success' });
+          jobRunsTotal.inc({ job_name: job.name, status: 'success' });
           endTimer({ status: 'success' });
-          jobLastRunTimestamp.set({ job: job.name, status: 'success' }, Date.now() / 1000);
+          jobLastRunTimestamp.set({ job_name: job.name, status: 'success' }, Date.now() / 1000);
           console.info({ job: job.name, jobId: j.id, success: true, durationMs: Date.now() - startedAt });
         } catch (err) {
-          jobRunsTotal.inc({ job: job.name, status: 'failure' });
+          jobRunsTotal.inc({ job_name: job.name, status: 'failure' });
           endTimer({ status: 'failure' });
-          jobLastRunTimestamp.set({ job: job.name, status: 'failure' }, Date.now() / 1000);
+          jobLastRunTimestamp.set({ job_name: job.name, status: 'failure' }, Date.now() / 1000);
           console.error({ job: job.name, jobId: j.id, success: false, err, durationMs: Date.now() - startedAt });
           throw err;
         } finally {
-          jobsInFlight.dec({ job: job.name });
+          jobsInFlight.dec({ job_name: job.name });
         }
       });
 
