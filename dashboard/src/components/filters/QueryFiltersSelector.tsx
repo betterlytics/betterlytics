@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { ComponentProps, useCallback, useState } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -17,7 +17,9 @@ import { useQueryState } from '@/hooks/use-query-state';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
-export default function QueryFiltersSelector() {
+type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
+
+export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
@@ -97,7 +99,7 @@ export default function QueryFiltersSelector() {
   }
 
   return (
-    <Popover modal open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+    <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-3 shadow-2xl'
