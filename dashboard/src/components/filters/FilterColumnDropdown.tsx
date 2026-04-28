@@ -132,7 +132,7 @@ export function FilterColumnDropdown<TEntity>({
                       key={key}
                       active={key === strategy.key}
                       onSelect={() => {
-                        const next = `gp.${key}` as typeof filter.column;
+                        const next = `gp.${key}`;
                         if (filter.column === next) return;
                         onFilterUpdate({ ...filter, column: next, values: [] });
                       }}

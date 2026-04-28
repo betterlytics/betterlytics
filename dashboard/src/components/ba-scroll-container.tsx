@@ -4,6 +4,7 @@ import { ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ComponentProps,
@@ -35,6 +36,8 @@ export type BAScrollContainerProps = ComponentProps<'div'> & {
   scrollTo?: {
     /** CSS selector for the element to find inside the container. */
     selector: string;
+    /** Selector to focus when `selector` finds nothing. */
+    fallbackSelector?: string;
     /** Call `focus({ preventScroll: true })` on the element after scrolling. */
     focus?: boolean;
     /** Forwarded to `Element.scrollIntoView`. */
@@ -63,10 +66,27 @@ export function BAScrollContainer({
     }
   }, []);
 
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !scrollTo) return;
+
+    const target = el.querySelector<HTMLElement>(scrollTo.selector);
+    if (target && el.scrollHeight > el.clientHeight) {
+      target.scrollIntoView(scrollTo.options);
+    }
+    if (scrollTo.focus) {
+      const focusTarget =
+        target ??
+        (scrollTo.fallbackSelector
+          ? el.querySelector<HTMLElement>(scrollTo.fallbackSelector)
+          : null);
+      focusTarget?.focus({ preventScroll: true });
+    }
+  }, [scrollTo]);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    let hasScrolledToTarget = false;
 
     function update() {
       if (!el) return;
@@ -77,17 +97,6 @@ export function BAScrollContainer({
       });
       setCanScrollUp(canScrollUp);
       setCanScrollDown(canScrollDown);
-
-      if (!hasScrolledToTarget && scrollTo && el.scrollHeight > el.clientHeight) {
-        hasScrolledToTarget = true;
-        const target = el.querySelector<HTMLElement>(scrollTo.selector);
-        if (target) {
-          setTimeout(() => {
-            target.scrollIntoView(scrollTo.options);
-            if (scrollTo.focus) target.focus({ preventScroll: true });
-          });
-        }
-      }
     }
 
     update();
@@ -100,7 +109,7 @@ export function BAScrollContainer({
       observer.disconnect();
       clearTimer();
     };
-  }, [clearTimer, scrollTo]);
+  }, [clearTimer]);
 
   function startAutoScroll(direction: 'up' | 'down') {
     if (rafId.current !== null) return;

@@ -51,7 +51,7 @@ function FunnelStepFilterComponent({
         disableDeletion={disableDeletion}
         globalPropertyKeys={globalPropertyKeys}
         useExtendedRange
-        formatLength={45}
+        formatLength={40}
         valueError={showValueEmptyError}
       />
     </div>
