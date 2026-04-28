@@ -28,9 +28,13 @@ ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS duration_seconds UInt32 DEFAULT 0;
 
 -- Step 3: Insert synthetic engagement events for all historical pageviews.
--- Duration computed via leadInFrame (gap to next pageview in session, capped at 1800s).
--- Scroll depth joined from the last scroll_depth event for the same (site_id, session_id, url).
--- Synthetic rows are written at `pageview.timestamp + 1 second` so they sort after their
+-- Duration: leadInFrame gap to the next pageview in the session, capped at 1800s.
+-- Scroll: per-pageview-instance attribution. A legacy scroll_depth event at time t
+-- belongs to the pv-instance where t in [pv.timestamp, pv.next_ts), matching forward
+-- ingestion (one engagement per pv-instance carrying the scroll reached during that
+-- visit). The previous shape collapsed scroll to one max per (session, url) and
+-- replicated it across every visit, which inflated avg-scroll on revisited URLs.
+-- Synthetic rows are written at `pv.timestamp + 1 second` so they sort after their
 -- source pageview on equal timestamps.
 INSERT INTO analytics.events (
     site_id, visitor_id, session_id, domain, url,
@@ -47,6 +51,52 @@ INSERT INTO analytics.events (
     session_created_at,
     duration_seconds
 )
+WITH
+    pv_with_window AS (
+        SELECT
+            site_id, visitor_id, session_id, domain, url,
+            device_type, country_code, subdivision_code, city,
+            timestamp, date,
+            browser, browser_version, os, os_version,
+            referrer_source, referrer_source_name, referrer_search_term, referrer_url,
+            utm_source, utm_medium, utm_campaign, utm_term, utm_content,
+            session_created_at,
+            leadInFrame(timestamp) OVER (
+                PARTITION BY site_id, session_id
+                ORDER BY timestamp
+                ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+            ) AS next_ts,
+            if(
+                next_ts > timestamp
+                    AND dateDiff('second', timestamp, next_ts) <= 1800,
+                toUInt32(dateDiff('second', timestamp, next_ts)),
+                0
+            ) AS computed_duration
+        FROM analytics.events
+        WHERE event_type = 'pageview'
+    ),
+    scroll_per_pv AS (
+        SELECT
+            pv.site_id                      AS site_id,
+            pv.session_id                   AS session_id,
+            pv.url                          AS url,
+            pv.timestamp                    AS pv_timestamp,
+            max(sd.scroll_depth_percentage) AS scroll_depth_percentage,
+            max(sd.scroll_depth_pixels)     AS scroll_depth_pixels
+        FROM pv_with_window pv
+        INNER JOIN (
+            SELECT site_id, session_id, url, timestamp,
+                   scroll_depth_percentage, scroll_depth_pixels
+            FROM analytics.events
+            WHERE event_type = 'scroll_depth'
+        ) sd
+            ON  pv.site_id    = sd.site_id
+            AND pv.session_id = sd.session_id
+            AND pv.url        = sd.url
+        WHERE sd.timestamp >= pv.timestamp
+          AND (pv.next_ts <= pv.timestamp OR sd.timestamp < pv.next_ts)
+        GROUP BY pv.site_id, pv.session_id, pv.url, pv.timestamp
+    )
 SELECT
     pv.site_id, pv.visitor_id, pv.session_id, pv.domain, pv.url,
     pv.device_type, pv.country_code, pv.subdivision_code, pv.city,
@@ -60,58 +110,18 @@ SELECT
     ''                  AS custom_event_json,
     ''                  AS outbound_link_url,
     NULL AS cwv_cls, NULL AS cwv_lcp, NULL AS cwv_inp, NULL AS cwv_fcp, NULL AS cwv_ttfb,
-    sd.scroll_depth_percentage,
-    sd.scroll_depth_pixels,
+    sp.scroll_depth_percentage,
+    sp.scroll_depth_pixels,
     '' AS error_exceptions, '' AS error_type, '' AS error_message, '' AS error_fingerprint,
     pv.session_created_at,
     pv.computed_duration                                     AS duration_seconds
-FROM (
-    -- Pageviews with leadInFrame duration
-    SELECT
-        site_id, visitor_id, session_id, domain, url,
-        device_type, country_code, subdivision_code, city,
-        timestamp, date,
-        browser, browser_version, os, os_version,
-        referrer_source, referrer_source_name, referrer_search_term, referrer_url,
-        utm_source, utm_medium, utm_campaign, utm_term, utm_content,
-        session_created_at,
-        if(
-            next_ts > timestamp
-                AND dateDiff('second', timestamp, next_ts) <= 1800,
-            toUInt32(dateDiff('second', timestamp, next_ts)),
-            0
-        ) AS computed_duration
-    FROM (
-        SELECT
-            site_id, visitor_id, session_id, domain, url,
-            device_type, country_code, subdivision_code, city,
-            timestamp, date,
-            browser, browser_version, os, os_version,
-            referrer_source, referrer_source_name, referrer_search_term, referrer_url,
-            utm_source, utm_medium, utm_campaign, utm_term, utm_content,
-            session_created_at,
-            leadInFrame(timestamp) OVER (
-                PARTITION BY site_id, session_id
-                ORDER BY timestamp
-                ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
-            ) AS next_ts
-        FROM analytics.events
-        WHERE event_type = 'pageview'
-    )
-) pv
-LEFT JOIN (
-    -- Max scroll depth per (site_id, session_id, url) from legacy scroll_depth events
-    SELECT
-        site_id,
-        session_id,
-        url,
-        maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) AS scroll_depth_percentage,
-        maxIf(scroll_depth_pixels,     scroll_depth_pixels IS NOT NULL)     AS scroll_depth_pixels
-    FROM analytics.events
-    WHERE event_type = 'scroll_depth'
-    GROUP BY site_id, session_id, url
-) sd ON pv.site_id = sd.site_id AND pv.session_id = sd.session_id AND pv.url = sd.url
-WHERE pv.computed_duration > 0 OR sd.scroll_depth_percentage IS NOT NULL;
+FROM pv_with_window pv
+LEFT JOIN scroll_per_pv sp
+    ON  pv.site_id    = sp.site_id
+    AND pv.session_id = sp.session_id
+    AND pv.url        = sp.url
+    AND pv.timestamp  = sp.pv_timestamp
+WHERE pv.computed_duration > 0 OR sp.scroll_depth_percentage IS NOT NULL;
 
 -- Step 4: Rebuild billing MV with whitelist
 DROP VIEW IF EXISTS analytics.usage_by_site_daily;
