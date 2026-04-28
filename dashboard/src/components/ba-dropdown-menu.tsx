@@ -2,9 +2,10 @@
 
 import { BAScrollContainer } from '@/components/ba-scroll-container';
 import {
+  DropdownMenuContent as _DropdownMenuContent,
+  DropdownMenuSubContent as _DropdownMenuSubContent,
   DropdownMenu,
   DropdownMenuCheckboxItem,
-  DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -14,13 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
-  DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { CheckIcon } from 'lucide-react';
+import * as React from 'react';
 import {
   createContext,
   useCallback,
@@ -34,8 +35,16 @@ import {
   type ReactNode,
 } from 'react';
 
+// Radix forwards `onOpenAutoFocus` to the underlying Menu primitive at runtime, but it's not included in the type definitions for the Content components.
+type RadixAutoFocusExtras = { onOpenAutoFocus?: (event: Event) => void };
+const DropdownMenuContent = _DropdownMenuContent as React.ComponentType<
+  React.ComponentProps<typeof _DropdownMenuContent> & RadixAutoFocusExtras
+>;
+const DropdownMenuSubContent = _DropdownMenuSubContent as React.ComponentType<
+  React.ComponentProps<typeof _DropdownMenuSubContent> & RadixAutoFocusExtras
+>;
+
 // shadcn DropdownMenu primitives re-exported with the BA prefix for consistency.
-// Use these directly when no BA-specific behavior is needed.
 export const BADropdownMenu = DropdownMenu;
 export const BADropdownMenuTrigger = DropdownMenuTrigger;
 export const BADropdownMenuPortal = DropdownMenuPortal;
@@ -68,6 +77,7 @@ function useBASubContext(): BASubContextValue {
 
 const ACTIVE_SCROLL_TARGET = {
   selector: '[data-active="true"]',
+  fallbackSelector: '[role="menuitem"]:not([data-disabled])',
   focus: true,
   options: { block: 'nearest' },
 } as const;
@@ -123,12 +133,17 @@ export function BADropdownMenuContent({
   className,
   scrollClassName,
   collisionPadding = 16,
+  onOpenAutoFocus,
   ...props
-}: BADropdownMenuContentProps) {
+}: BADropdownMenuContentProps & RadixAutoFocusExtras) {
   return (
     <DropdownMenuContent
       collisionPadding={collisionPadding}
       className={cn('min-w-56 overflow-clip!', className)}
+      onOpenAutoFocus={(e) => {
+        e.preventDefault();
+        onOpenAutoFocus?.(e);
+      }}
       {...props}
     >
       <BAScrollContainer
@@ -220,7 +235,7 @@ export function BADropdownMenuSubTrigger({
       data-active={active || undefined}
       className={cn(
         'group/ba-active',
-        '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4',
+        '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4 gap-2',
         'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className,
       )}
@@ -248,8 +263,9 @@ export function BADropdownMenuSubContent({
   collisionPadding = 16,
   onPointerEnter,
   onPointerLeave,
+  onOpenAutoFocus,
   ...props
-}: BADropdownMenuSubContentProps) {
+}: BADropdownMenuSubContentProps & RadixAutoFocusExtras) {
   const { scheduleClose, cancelClose } = useBASubContext();
 
   return (
@@ -266,6 +282,10 @@ export function BADropdownMenuSubContent({
       onPointerLeave={(e) => {
         scheduleClose();
         onPointerLeave?.(e);
+      }}
+      onOpenAutoFocus={(e) => {
+        e.preventDefault();
+        onOpenAutoFocus?.(e);
       }}
       {...props}
     >

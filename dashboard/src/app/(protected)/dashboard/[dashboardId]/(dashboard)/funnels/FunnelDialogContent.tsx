@@ -122,7 +122,7 @@ export function FunnelDialogContent({
               </Button>
             </div>
           </div>
-          <Reorder.Group axis='y' values={localSteps} onReorder={setLocalSteps} className='space-y-2'>
+          <Reorder.Group axis='y' values={localSteps} onReorder={setLocalSteps} className='flex flex-col gap-2'>
             {localSteps.map((step, index) => (
               <Reorder.Item
                 key={step.id}
