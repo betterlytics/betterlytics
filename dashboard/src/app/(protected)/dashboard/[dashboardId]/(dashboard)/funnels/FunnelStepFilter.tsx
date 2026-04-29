@@ -1,5 +1,4 @@
 import { QueryFilter } from '@/entities/analytics/filter.entities';
-import { isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
 import { Dispatch, memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -31,11 +30,7 @@ function FunnelStepFilterComponent({
   return (
     <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
-        className={cn(
-          'w-40 truncate shrink-0',
-          isNestedFilter(filter) ? 'mt-[calc(--spacing(1)+var(--spacing-filter-subtitle))]' : 'mt-1',
-          showNameEmptyError && 'border-destructive',
-        )}
+        className={cn('w-40 truncate shrink-0 mt-1', showNameEmptyError && 'border-destructive')}
         value={filter.name}
         onChange={(e) => onFilterUpdate({ ...filter, name: e.target.value })}
         placeholder={t('namePlaceholder')}
