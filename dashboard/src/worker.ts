@@ -1,13 +1,7 @@
 import { createServer } from 'node:http';
 import { PgBoss } from 'pg-boss';
 import { JOB_REGISTRY } from '@/worker/jobs/registry';
-import {
-  jobDurationSeconds,
-  jobLastRunTimestamp,
-  jobRunsTotal,
-  jobsInFlight,
-  register,
-} from '@/worker/metrics';
+import { jobDurationSeconds, jobLastRunTimestamp, jobRunsTotal, jobsInFlight, register } from '@/worker/metrics';
 import { workerEnv } from '@/worker/workerEnv';
 
 async function main() {
@@ -86,7 +80,7 @@ async function main() {
       const tags = [job.schedule ? job.schedule : 'triggered', job.runOnStart ? 'run-on-start' : null].filter(
         Boolean,
       );
-      console.info(`  ✓ ${job.name} (${tags.join(', ')})`);
+      console.info(`✓ ${job.name} (${tags.join(', ')})`);
     }
 
     await new Promise<void>((resolve) => {
