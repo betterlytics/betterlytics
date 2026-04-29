@@ -1,4 +1,4 @@
-'server only';
+'server-only';
 import { env } from '@/lib/env';
 
 export const PUBLIC_ENVIRONMENT_VARIABLES_KEYS = Object.keys(env).filter((key) =>

@@ -1,3 +1,5 @@
+'server-only';
+
 import prisma from '@/lib/postgres';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -154,6 +156,31 @@ export async function markOnboardingCompleted(userId: string): Promise<void> {
   } catch (error) {
     console.error(`Error marking onboarding completed for user ${userId}:`, error);
     throw new Error(`Failed to mark onboarding completed for user ${userId}.`);
+  }
+}
+
+export async function anonymizeUser(userId: string): Promise<void> {
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          email: `deleted_${userId}@deleted.invalid`,
+          name: null,
+          image: null,
+          passwordHash: null,
+          totpEnabled: false,
+          totpSecret: null,
+          emailVerified: null,
+          deletedAt: new Date(),
+        },
+      }),
+      prisma.account.deleteMany({ where: { userId } }),
+      prisma.session.deleteMany({ where: { userId } }),
+    ]);
+  } catch (error) {
+    console.error(`Error anonymizing user ${userId}:`, error);
+    throw new Error(`Failed to anonymize user ${userId}.`);
   }
 }
 

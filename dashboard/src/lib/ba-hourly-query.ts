@@ -1,4 +1,4 @@
-'server only';
+'server-only';
 
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';

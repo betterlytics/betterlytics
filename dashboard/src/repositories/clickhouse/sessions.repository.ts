@@ -1,4 +1,4 @@
-'server only';
+'server-only';
 
 import { clickhouse } from '@/lib/clickhouse';
 import {

@@ -1,4 +1,4 @@
-'server only';
+'server-only';
 
 import {
   parseFilterColumn,
