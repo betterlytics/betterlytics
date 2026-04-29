@@ -41,22 +41,11 @@ export function QueryFiltersSelectorContent({
   const t = useTranslations('components.filters');
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
-  const {
-    queryFilters,
-    setQueryFilters,
-    addEmptyQueryFilter,
-    removeQueryFilter,
-    updateQueryFilter,
-  } = filters;
+  const { queryFilters, addEmptyQueryFilter, removeQueryFilter, updateQueryFilter } = filters;
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));
   }, [queryFilters, onApply]);
-
-  const cancelFilters = useCallback(() => {
-    setQueryFilters(initialFilters);
-    onCancel();
-  }, [initialFilters, setQueryFilters, onCancel]);
 
   const handleLoadSavedFilter = useCallback(
     (filters: QueryFilter[]) => {
@@ -132,7 +121,7 @@ export function QueryFiltersSelectorContent({
         </PermissionGate>
         <Button
           className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
-          onClick={cancelFilters}
+          onClick={onCancel}
           variant='ghost'
         >
           {t('selector.cancel')}

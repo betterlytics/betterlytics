@@ -1,6 +1,6 @@
 'use client';
 
-import { ComponentProps, useCallback, useEffect, useState } from 'react';
+import { ComponentProps, useCallback, useEffect, useRef, useState, type AnimationEvent } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -54,9 +54,22 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     [setQueryFilters],
   );
 
+  const pendingCancelReset = useRef(false);
+
   const cancelFilters = useCallback(() => {
+    pendingCancelReset.current = true;
     setIsPopoverOpen(false);
   }, []);
+
+  const handleContentAnimationEnd = useCallback(
+    (e: AnimationEvent<HTMLDivElement>) => {
+      if (!pendingCancelReset.current) return;
+      if (e.currentTarget.dataset.state !== 'closed') return;
+      pendingCancelReset.current = false;
+      filters.setQueryFilters(initOrDefault(contextQueryFilters));
+    },
+    [filters, contextQueryFilters],
+  );
 
   const handleLoadSavedFilter = useCallback(
     (filters: QueryFilter[]) => {
@@ -95,6 +108,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
         <DialogContent
           aria-describedby={undefined}
           className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto px-2 py-3'
+          onAnimationEnd={handleContentAnimationEnd}
         >
           <DialogHeader>
             <DialogTitle>{t('selector.title')}</DialogTitle>
@@ -120,7 +134,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
-        collisionPadding={0}
+        onAnimationEnd={handleContentAnimationEnd}
       >
         <QueryFiltersSelectorContent
           initialFilters={contextQueryFilters}
