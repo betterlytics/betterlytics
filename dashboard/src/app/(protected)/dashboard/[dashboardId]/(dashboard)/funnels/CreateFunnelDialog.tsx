@@ -95,16 +95,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
       });
   }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t, utils]);
 
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (open) {
-        setHasAttemptedSubmit(false);
-        reset({ name: '', isStrict: false, steps: createDefaultSteps() });
-      }
-      setIsOpen(open);
-    },
-    [reset],
-  );
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setHasAttemptedSubmit(false);
+    }
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
