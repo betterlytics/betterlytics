@@ -102,9 +102,9 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
-        className='w-[620px] max-w-[calc(100svw-48px)] border p-3 shadow-2xl'
+        className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
-        collisionPadding={16}
+        collisionPadding={0}
       >
         <QueryFiltersSelectorContent
           initialFilters={contextQueryFilters}

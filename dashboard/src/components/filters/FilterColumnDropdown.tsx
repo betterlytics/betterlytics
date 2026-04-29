@@ -18,7 +18,7 @@ import {
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type FilterColumn, type QueryFilter } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy, isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -45,7 +45,6 @@ export function FilterColumnDropdown<TEntity>({
 
   const strategy = getFilterStrategy(filter.column);
   const columnLabel = strategy.type === 'standard' ? t(`columns.${strategy.key}`) : strategy.key;
-  const isNested = isNestedFilter(filter);
   const triggerIcon =
     strategy.type === 'json_property'
       ? <TagsIcon />
@@ -53,11 +52,6 @@ export function FilterColumnDropdown<TEntity>({
 
   return (
     <div className={cn('flex flex-col', className)}>
-      {isNested && (
-        <span className='text-muted-foreground/60 h-filter-subtitle px-1 text-xs leading-none'>
-          {t('globalProperties', { count: 1 })}
-        </span>
-      )}
       <BADropdownMenu modal>
         <BADropdownMenuTrigger asChild>
           <button
@@ -119,7 +113,7 @@ export function FilterColumnDropdown<TEntity>({
             </BADropdownMenuItem>
           ) : (
             <BADropdownMenuSub>
-              <BADropdownMenuSubTrigger active={isNested}>
+              <BADropdownMenuSubTrigger active={strategy.type === 'json_property'}>
                 <TagsIcon />
                 {t('globalProperties', { count: 2 })}
               </BADropdownMenuSubTrigger>

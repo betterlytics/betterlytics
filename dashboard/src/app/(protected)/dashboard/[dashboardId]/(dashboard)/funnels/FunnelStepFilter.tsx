@@ -32,7 +32,7 @@ function FunnelStepFilterComponent({
   return (
     <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
-        className={cn('w-40 truncate shrink-0', showNameEmptyError && 'border-destructive')}
+        className={cn('w-40 truncate shrink-0 mt-1', showNameEmptyError && 'border-destructive')}
         value={step.name}
         onChange={(e) => onStepChange({ ...step, name: e.target.value })}
         placeholder={t('namePlaceholder')}

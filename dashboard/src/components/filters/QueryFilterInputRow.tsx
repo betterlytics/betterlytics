@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { isNestedFilter } from '@/entities/analytics/filterColumnStrategy';
 import { cn } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
 import { Dispatch } from 'react';
@@ -31,8 +30,6 @@ export function QueryFilterInputRow<TEntity>({
   valueError,
   className,
 }: QueryFilterInputRowProps<TEntity>) {
-  const isNested = isNestedFilter(filter);
-
   return (
     <div
       className={cn(
@@ -51,20 +48,20 @@ export function QueryFilterInputRow<TEntity>({
       <FilterOperatorSelector
         filter={filter}
         onFilterUpdate={onFilterUpdate}
-        className={cn('[grid-area:op]', isNested && 'mt-filter-subtitle')}
+        className='[grid-area:op]'
       />
       <FilterValueSearch
         filter={filter}
         onFilterUpdate={onFilterUpdate}
         key={filter.column}
-        className={cn('[grid-area:val]', isNested && 'mt-filter-subtitle')}
+        className='[grid-area:val]'
         useExtendedRange={useExtendedRange}
         formatLength={formatLength}
         valueError={valueError}
       />
       <Button
         variant='ghost'
-        className={cn('[grid-area:delete] cursor-pointer', isNested && 'mt-filter-subtitle')}
+        className='[grid-area:delete] cursor-pointer'
         onClick={() => requestRemoval?.(filter.id)}
         disabled={disableDeletion}
       >

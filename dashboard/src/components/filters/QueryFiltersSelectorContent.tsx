@@ -165,7 +165,7 @@ export function QueryFiltersSelectorContent({
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
         >
-          <div className='space-y-2 py-1'>
+          <div className='space-y-1'>
             {queryFilters.map((filter) => (
               <QueryFilterInputRow
                 key={filter.id}
