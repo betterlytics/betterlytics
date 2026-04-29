@@ -7,11 +7,9 @@
 --
 -- Backfill strategy for production:
 --   - Synthetic engagement events are inserted from existing pageview timestamps (leadInFrame
---     for duration) and existing scroll_depth events (for scroll percentage). Synthetic events
---     are written at `pageview.timestamp + 1 second` so they sort after their source pageview.
---   - Billing MV is rebuilt with a whitelist instead of blacklist.
+--     for duration) and existing scroll_depth events (for scroll percentage).
 
--- Step 1: Add engagement = 7 to event_type enum (scroll_depth = 5 kept for legacy data)
+-- Add engagement = 7 to event_type enum (scroll_depth = 5 kept for legacy data)
 ALTER TABLE analytics.events
     MODIFY COLUMN event_type Enum8(
         'pageview' = 1,
@@ -23,17 +21,19 @@ ALTER TABLE analytics.events
         'engagement' = 7
     );
 
--- Step 2: Add duration_seconds column
 ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS duration_seconds UInt32 DEFAULT 0;
 
--- Step 3: Insert synthetic engagement events for all historical pageviews.
+SET max_execution_time = 0;
+SET send_progress_in_http_headers = 1;
+SET http_headers_progress_interval_ms = 30000;
+
+-- Insert synthetic engagement events for all historical pageviews.
 -- Duration: leadInFrame gap to the next pageview in the session, capped at 1800s.
 -- Scroll: per-pageview-instance attribution. A legacy scroll_depth event at time t
 -- belongs to the pv-instance where t in [pv.timestamp, pv.next_ts), matching forward
 -- ingestion (one engagement per pv-instance carrying the scroll reached during that
--- visit). The previous shape collapsed scroll to one max per (session, url) and
--- replicated it across every visit, which inflated avg-scroll on revisited URLs.
+-- visit).
 -- Synthetic rows are written at `pv.timestamp + 1 second` so they sort after their
 -- source pageview on equal timestamps.
 INSERT INTO analytics.events (
@@ -86,15 +86,15 @@ WITH
         FROM pv_with_window pv
         INNER JOIN (
             SELECT site_id, session_id, url, timestamp,
-                   scroll_depth_percentage, scroll_depth_pixels
+                scroll_depth_percentage, scroll_depth_pixels
             FROM analytics.events
             WHERE event_type = 'scroll_depth'
         ) sd
             ON  pv.site_id    = sd.site_id
             AND pv.session_id = sd.session_id
             AND pv.url        = sd.url
-        WHERE sd.timestamp >= pv.timestamp
-          AND (pv.next_ts <= pv.timestamp OR sd.timestamp < pv.next_ts)
+        WHERE sd.timestamp >= pv.timestamp 
+            AND (pv.next_ts <= pv.timestamp OR sd.timestamp < pv.next_ts)
         GROUP BY pv.site_id, pv.session_id, pv.url, pv.timestamp
     )
 SELECT
@@ -123,7 +123,7 @@ LEFT JOIN scroll_per_pv sp
     AND pv.timestamp  = sp.pv_timestamp
 WHERE pv.computed_duration > 0 OR sp.scroll_depth_percentage IS NOT NULL;
 
--- Step 4: Rebuild billing MV with whitelist
+-- Rebuild billing MV with whitelist
 DROP VIEW IF EXISTS analytics.usage_by_site_daily;
 
 CREATE MATERIALIZED VIEW analytics.usage_by_site_daily
@@ -137,7 +137,6 @@ FROM analytics.events
 WHERE event_type IN ('pageview', 'custom', 'outbound_link', 'cwv', 'client_error')
 GROUP BY site_id, date;
 
--- Backfill billing
 INSERT INTO analytics.usage_by_site_daily
 SELECT
     site_id,
