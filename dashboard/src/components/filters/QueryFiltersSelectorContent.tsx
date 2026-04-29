@@ -153,7 +153,7 @@ export function QueryFiltersSelectorContent({
     <>
       <div
         className={cn(
-          'grid grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto_auto] gap-2 overflow-hidden p-1',
+          'grid grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden p-1',
           'max-h-[calc(85vh_-_4rem)]',
           'md:max-h-[calc(var(--radix-popover-content-available-height,85vh)_-_1.5rem)]',
           '[&_[data-slot=scroll-area-scrollbar]]:!w-2',
@@ -179,7 +179,6 @@ export function QueryFiltersSelectorContent({
         </ScrollArea>
         <Separator />
         {ActionsRow}
-        <Separator />
         <SavedFiltersSection
           onLoadFilter={handleLoadSavedFilter}
           isOpen={isSavedFiltersOpen}
