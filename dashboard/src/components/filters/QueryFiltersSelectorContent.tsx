@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { Dispatch, useCallback, useMemo, useState } from 'react';
 import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
@@ -10,7 +10,6 @@ import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilte
 import { useTranslations } from 'next-intl';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { generateTempId } from '@/utils/temporaryId';
 import { SaveQueryFilterDialog } from '@/components/filters/SaveQueryFilterDialog';
 import { SavedFiltersSection } from '@/components/filters/SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
@@ -20,6 +19,9 @@ import { cn } from '@/lib/utils';
 
 type QueryFiltersSelectorContentProps = {
   initialFilters: QueryFilter[];
+  filters: ReturnType<typeof useQueryFilters>;
+  isSavedFiltersOpen: boolean;
+  setIsSavedFiltersOpen: Dispatch<boolean>;
   onApply: (filters: QueryFilter[]) => void;
   onCancel: () => void;
   onLoadSavedFilter?: (filters: QueryFilter[]) => void;
@@ -28,6 +30,9 @@ type QueryFiltersSelectorContentProps = {
 
 export function QueryFiltersSelectorContent({
   initialFilters,
+  filters,
+  isSavedFiltersOpen,
+  setIsSavedFiltersOpen,
   onApply,
   onCancel,
   onLoadSavedFilter,
@@ -35,28 +40,23 @@ export function QueryFiltersSelectorContent({
 }: QueryFiltersSelectorContentProps) {
   const t = useTranslations('components.filters');
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
-  const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
 
   const {
     queryFilters,
-    setQueryFilters: setLocalQueryFilters,
+    setQueryFilters,
     addEmptyQueryFilter,
     removeQueryFilter,
     updateQueryFilter,
-  } = useQueryFilters(
-    initialFilters.length > 0
-      ? initialFilters
-      : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }],
-  );
+  } = filters;
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));
   }, [queryFilters, onApply]);
 
   const cancelFilters = useCallback(() => {
-    setLocalQueryFilters(initialFilters);
+    setQueryFilters(initialFilters);
     onCancel();
-  }, [initialFilters, setLocalQueryFilters, onCancel]);
+  }, [initialFilters, setQueryFilters, onCancel]);
 
   const handleLoadSavedFilter = useCallback(
     (filters: QueryFilter[]) => {

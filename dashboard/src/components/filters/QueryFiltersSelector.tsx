@@ -1,15 +1,17 @@
 'use client';
 
-import { ComponentProps, useCallback, useState } from 'react';
+import { ComponentProps, useCallback, useEffect, useState } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useQueryFilters } from '@/hooks/use-query-filters';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { generateTempId } from '@/utils/temporaryId';
 import { baEvent } from '@/lib/ba-event';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
@@ -17,10 +19,16 @@ import { useQueryState } from '@/hooks/use-query-state';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
+const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
+  filters.length > 0
+    ? filters
+    : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
+
 type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
 
 export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const { input, options } = useBAQueryParams();
@@ -31,6 +39,11 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
+  const filters = useQueryFilters(initOrDefault(contextQueryFilters));
+
+  useEffect(() => {
+    filters.setQueryFilters(initOrDefault(contextQueryFilters));
+  }, [contextQueryFilters]);
 
   const applyFilters = useCallback(
     (filters: QueryFilter[]) => {
@@ -88,6 +101,9 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
           </DialogHeader>
           <QueryFiltersSelectorContent
             initialFilters={contextQueryFilters}
+            filters={filters}
+            isSavedFiltersOpen={isSavedFiltersOpen}
+            setIsSavedFiltersOpen={setIsSavedFiltersOpen}
             onApply={applyFilters}
             onCancel={cancelFilters}
             onLoadSavedFilter={handleLoadSavedFilter}
@@ -108,6 +124,9 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
       >
         <QueryFiltersSelectorContent
           initialFilters={contextQueryFilters}
+          filters={filters}
+          isSavedFiltersOpen={isSavedFiltersOpen}
+          setIsSavedFiltersOpen={setIsSavedFiltersOpen}
           onApply={applyFilters}
           onCancel={cancelFilters}
           onLoadSavedFilter={handleLoadSavedFilter}
