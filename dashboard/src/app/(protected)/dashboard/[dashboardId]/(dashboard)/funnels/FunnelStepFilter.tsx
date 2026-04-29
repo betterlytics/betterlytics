@@ -1,5 +1,5 @@
 import { type FunnelStep } from '@/entities/analytics/funnels.entities';
-import { type Dispatch } from 'react';
+import { memo, type Dispatch } from 'react';
 import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ type FunnelStepFilterProps = {
   globalPropertyKeys?: string[];
 };
 
-export function FunnelStepFilter({
+function FunnelStepFilterComponent({
   step,
   onStepChange,
   onStepRemove,
@@ -32,7 +32,7 @@ export function FunnelStepFilter({
   return (
     <div className='flex h-fit min-h-14 w-full items-start gap-2 p-2'>
       <Input
-        className={cn('w-44 min-w-36', showNameEmptyError && 'border-destructive')}
+        className={cn('w-40 truncate shrink-0', showNameEmptyError && 'border-destructive')}
         value={step.name}
         onChange={(e) => onStepChange({ ...step, name: e.target.value })}
         placeholder={t('namePlaceholder')}
@@ -54,6 +54,8 @@ export function FunnelStepFilter({
         onFiltersReplace={(filters) => onStepChange({ ...step, filters })}
         globalPropertyKeys={globalPropertyKeys}
         showError={showFilterEmptyError}
+        useExtendedRange
+        formatLength={40}
       />
 
       <Button
@@ -67,3 +69,5 @@ export function FunnelStepFilter({
     </div>
   );
 }
+
+export const FunnelStepFilter = memo(FunnelStepFilterComponent) as typeof FunnelStepFilterComponent;

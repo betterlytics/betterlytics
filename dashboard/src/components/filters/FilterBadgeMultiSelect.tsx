@@ -29,6 +29,8 @@ type FilterBadgeMultiSelectProps = {
   globalPropertyKeys?: string[];
   className?: string;
   showError?: boolean;
+  useExtendedRange?: boolean;
+  formatLength?: number;
 };
 
 function createEmptyFilter(): QueryFilter {
@@ -53,6 +55,8 @@ export function FilterBadgeMultiSelect({
   globalPropertyKeys,
   className,
   showError,
+  useExtendedRange,
+  formatLength,
 }: FilterBadgeMultiSelectProps) {
   const t = useTranslations('components.filters');
   const locale = useLocale();
@@ -181,6 +185,8 @@ export function FilterBadgeMultiSelect({
                 closePopover();
               }}
               globalPropertyKeys={globalPropertyKeys}
+              useExtendedRange={useExtendedRange}
+              formatLength={formatLength}
             />
             <div className='flex w-full justify-end gap-2'>
               <Button
@@ -209,6 +215,8 @@ export function FilterBadgeMultiSelect({
               onFilterUpdate={setNewFilter}
               requestRemoval={closePopover}
               globalPropertyKeys={globalPropertyKeys}
+              useExtendedRange={useExtendedRange}
+              formatLength={formatLength}
             />
             <div className='flex w-full justify-end gap-2'>
               <Button
