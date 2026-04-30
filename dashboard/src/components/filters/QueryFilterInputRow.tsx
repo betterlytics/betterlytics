@@ -33,9 +33,9 @@ export function QueryFilterInputRow<TEntity>({
   return (
     <div
       className={cn(
-        'grid grid-cols-12 items-start gap-1 rounded border md:grid-rows-1 md:border-0 p-1',
-        '[grid-template-areas:"col_col_col_col_col_col_col_col_op_op_op_op"_"val_val_val_val_val_val_val_val_val_val_delete_delete"]',
-        'md:[grid-template-areas:"col_col_col_col_op_op_val_val_val_val_val_delete"]',
+        'grid items-start gap-1 rounded border md:border-0 p-1',
+        'grid-cols-[8fr_2fr_2fr] [grid-template-areas:"col_op_op"_"val_val_delete"]',
+        'md:grid-cols-[4fr_2fr_5fr_1fr] md:[grid-template-areas:"col_op_val_delete"] md:grid-rows-1',
         className,
       )}
     >
