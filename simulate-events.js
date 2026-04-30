@@ -11,6 +11,7 @@ const DEFAULT_ARGS = {
   SIMULATED_DAYS: 7,
   BATCH_SIZE: 500,
   CUSTOM_EVENT_FREQUENCY: 0.2,
+  OUTBOUND_LINK_FREQUENCY: 0.05,
   CAMPAIGN_FREQUENCY: 0.3,
   NUM_CAMPAIGNS: 6,
 }
@@ -33,6 +34,7 @@ if (!args[0] || args[0].startsWith("--")) {
     | '--days'         | Number of days to spread events across (0 = today only)    | ${formatNumber(DEFAULT_ARGS.SIMULATED_DAYS)} |
     | '--batch-size'   | Number of events sent per batch (concurrent POSTs)         | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
     | '--event-freq'   | Fraction (0–1) of events that are custom (non-pageview)    | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
+    | '--outbound-freq'| Fraction (0–1) of events that are outbound link clicks     | ${formatNumber(DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY)} |
     | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
     | '--campaigns'    | Number of unique campaigns to generate                     | ${formatNumber(DEFAULT_ARGS.NUM_CAMPAIGNS)} |
     ------------------------------------------------------------------------------------------------
@@ -44,6 +46,7 @@ if (!args[0] || args[0].startsWith("--")) {
       --days=${DEFAULT_ARGS.SIMULATED_DAYS} \\
       --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
+      --outbound-freq=${DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY} \\
       --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
       --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS}
   `);
@@ -65,6 +68,7 @@ const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
 const SIMULATED_DAYS = getFlag("days", DEFAULT_ARGS.SIMULATED_DAYS);
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
+const OUTBOUND_LINK_FREQUENCY = getFlag("outbound-freq", DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
 const NUM_CAMPAIGNS = getFlag("campaigns", DEFAULT_ARGS.NUM_CAMPAIGNS);
 
@@ -77,6 +81,14 @@ const CUSTOM_EVENTS = [
     event_name: "product-clicked",
     properties: JSON.stringify({ product_id: "abc123" }),
   },
+];
+
+const OUTBOUND_LINK_URLS = [
+  "https://github.com",
+  "https://twitter.com",
+  "https://linkedin.com",
+  "https://youtube.com",
+  "https://partner.com",
 ];
 const SCREEN_SIZES = ["1920x1080", "900x400", "500x300"];
 
@@ -239,10 +251,20 @@ function getExtraPayload(payload) {
   const hasCampaign = Math.random() < CAMPAIGN_FREQUENCY;
   const baseUrl = `${PUBLIC_BASE_URL}/dashboard`;
 
+  // Mutually exclusive event-class roll: outbound_link, custom event, or pageview
+  const r = Math.random();
+  const isOutboundLink = r < OUTBOUND_LINK_FREQUENCY;
+  const isCustomEvent = !isOutboundLink && r < OUTBOUND_LINK_FREQUENCY + CUSTOM_EVENT_FREQUENCY;
+
   return {
     ...payload,
     url: hasCampaign ? generateCampaignUrl(baseUrl) : baseUrl,
-    ...(Math.random() < CUSTOM_EVENT_FREQUENCY
+    ...(isOutboundLink
+      ? {
+          event_name: "outbound_link",
+          outbound_link_url: getRandomElement(OUTBOUND_LINK_URLS),
+        }
+      : isCustomEvent
       ? {
           ...CUSTOM_EVENTS[Math.floor(Math.random() * CUSTOM_EVENTS.length)],
           is_custom_event: true,
