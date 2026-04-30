@@ -125,7 +125,7 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
         SELECT
           url                                                                            AS path,
           avgIf(toFloat64(duration_seconds), duration_seconds > 0)                       AS avg_time,
-          avgIf(toFloat64(scroll_depth_percentage), scroll_depth_percentage IS NOT NULL) AS avg_scroll
+          arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'engagement'
@@ -326,7 +326,7 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
         SELECT
           url                                                                            AS path,
           avgIf(toFloat64(duration_seconds), duration_seconds > 0)                       AS avg_time,
-          avgIf(toFloat64(scroll_depth_percentage), scroll_depth_percentage IS NOT NULL) AS avg_scroll
+          arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'engagement'
@@ -409,7 +409,7 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
         SELECT
           url                                                                            AS path,
           avgIf(toFloat64(duration_seconds), duration_seconds > 0)                       AS avg_time,
-          avgIf(toFloat64(scroll_depth_percentage), scroll_depth_percentage IS NOT NULL) AS avg_scroll
+          arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'engagement'
