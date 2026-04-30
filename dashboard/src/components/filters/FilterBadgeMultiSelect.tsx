@@ -1,7 +1,7 @@
 'use client';
 
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { type Dispatch, type ReactNode, useCallback, useRef, useState } from 'react';
+import { type Dispatch, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslations, useLocale } from 'next-intl';
 import { FilterIcon } from 'lucide-react';
@@ -10,6 +10,7 @@ import { BAMultiSelect } from '@/components/ba-multi-select';
 import { Button } from '@/components/ui/button';
 import { formatQueryFilter } from '@/utils/queryFilterFormatters';
 import { generateTempId } from '@/utils/temporaryId';
+import { useQueryFilters } from '@/hooks/use-query-filters';
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
@@ -36,6 +37,9 @@ type FilterBadgeMultiSelectProps = {
 function createEmptyFilter(): QueryFilter {
   return { id: generateTempId(), column: 'url', operator: '=', values: [] };
 }
+
+const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
+  filters.length > 0 ? filters : [createEmptyFilter()];
 
 function isValidFilter(f: QueryFilter): boolean {
   return (
@@ -64,8 +68,29 @@ export function FilterBadgeMultiSelect({
   const [popoverState, setPopoverState] = useState<PopoverState>({ type: 'closed' });
   const [newFilter, setNewFilter] = useState<QueryFilter>(() => createEmptyFilter());
   const [editDraft, setEditDraft] = useState<QueryFilter | null>(null);
+  const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const multiSelectRef = useRef<HTMLDivElement>(null);
   const lastOpenStateRef = useRef<PopoverState>({ type: 'closed' });
+
+  const fullEditFilters = useQueryFilters(initOrDefault(filters));
+  useEffect(() => {
+    fullEditFilters.setQueryFilters(initOrDefault(filters));
+  }, [filters]);
+
+  const pendingFullCancelReset = useRef(false);
+  const cancelFullEdit = useCallback(() => {
+    pendingFullCancelReset.current = true;
+    flushSync(() => setPopoverState({ type: 'closed' }));
+  }, []);
+  const handlePopoverAnimationEnd = useCallback(
+    (e: React.AnimationEvent<HTMLDivElement>) => {
+      if (!pendingFullCancelReset.current) return;
+      if (e.currentTarget.dataset.state !== 'closed') return;
+      pendingFullCancelReset.current = false;
+      fullEditFilters.setQueryFilters(initOrDefault(filters));
+    },
+    [fullEditFilters, filters],
+  );
 
   if (popoverState.type !== 'closed') {
     lastOpenStateRef.current = popoverState;
@@ -174,6 +199,7 @@ export function FilterBadgeMultiSelect({
         side='bottom'
         align='start'
         onCloseAutoFocus={(e) => e.preventDefault()}
+        onAnimationEnd={handlePopoverAnimationEnd}
       >
         {displayState.type === 'edit' && editingFilter && editDraft && (
           <div className='flex flex-col gap-2'>
@@ -241,8 +267,11 @@ export function FilterBadgeMultiSelect({
         {displayState.type === 'full' && (
           <QueryFiltersSelectorContent
             initialFilters={filters}
+            filters={fullEditFilters}
+            isSavedFiltersOpen={isSavedFiltersOpen}
+            setIsSavedFiltersOpen={setIsSavedFiltersOpen}
             onApply={handleFullApply}
-            onCancel={closePopover}
+            onCancel={cancelFullEdit}
             globalPropertyKeys={globalPropertyKeys}
           />
         )}
