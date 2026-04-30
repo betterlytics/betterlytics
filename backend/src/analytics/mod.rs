@@ -43,7 +43,7 @@ pub struct RawTrackingEvent {
     /// Global properties - user-defined metadata attached to all events
     #[serde(default)]
     pub global_properties: Option<serde_json::Value>,
-    /// Duration in seconds for engagement events
+    /// Duration for engagement events
     pub page_duration_seconds: Option<u32>,
 }
 

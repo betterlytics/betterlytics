@@ -67,7 +67,7 @@ pub struct ProcessedEvent {
     pub error_fingerprint: String,
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
-    /// Duration in seconds for engagement events
+    /// Duration for engagement events
     pub duration_seconds: u32,
 }
 
