@@ -36,10 +36,7 @@ function FunnelStepFilterComponent({
         placeholder={t('namePlaceholder')}
       />
       <QueryFilterInputRow<{ name: string }>
-        className={cn(
-          'grow gap-2 md:grid-cols-24',
-          'md:[grid-template-areas:"col_col_col_col_col_col_col_op_op_op_op_val_val_val_val_val_val_val_val_val_val_val_val_delete"]'
-        )}
+        className='grow gap-2 md:grid-cols-[7fr_4fr_12fr_1fr]'
         filter={filter}
         onFilterUpdate={onFilterUpdate}
         requestRemoval={requestRemoval}
