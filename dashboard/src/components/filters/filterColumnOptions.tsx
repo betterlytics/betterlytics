@@ -1,6 +1,7 @@
 import { FILTER_COLUMNS } from '@/entities/analytics/filter.entities';
 import {
   ArrowRightToLineIcon,
+  ArrowUpRightIcon,
   BatteryIcon,
   Building2Icon,
   CableIcon,
@@ -34,6 +35,7 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'browser', icon: <CompassIcon />, label: 'Browser' },
   { value: 'os', icon: <MonitorSmartphoneIcon />, label: 'Operating system' },
   { value: 'custom_event_name', icon: <SunsetIcon />, label: 'Event' },
+  { value: 'outbound_link_url', icon: <ArrowUpRightIcon />, label: 'Outbound link' },
   { value: 'referrer_source', icon: <StepBackIcon />, label: 'Referrer source' },
   { value: 'referrer_source_name', icon: <BatteryIcon />, label: 'Referrer name' },
   { value: 'referrer_search_term', icon: <ShellIcon />, label: 'Referrer term' },

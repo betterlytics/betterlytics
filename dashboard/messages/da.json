@@ -2383,7 +2383,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-indhold",
         "custom_event_name": "Hændelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "outbound_link_url": "Udgående link"
       },
       "selector": {
         "triggerLabel": "Filtre",

@@ -68,6 +68,9 @@ Each funnel step can be filtered by any of these criteria:
 **Global Properties**
 - **Custom JSON properties** - Filter by any property you've attached via global properties (see [Global Properties documentation](https://betterlytics.io/docs/integration/global-properties))
 
+**Outbound Links**
+- **Outbound link** - The destination URL of an outbound link click (see [Outbound Links documentation](https://betterlytics.io/docs/dashboard/outbound-links))
+
 ### Filter Operators
 
 - **is** - Exact match
@@ -103,6 +106,10 @@ You can use the asterisk (`*`) character as a wildcard in filter values to match
 1. URL is `/blog/*` (matches any blog post)
 2. Event is `*subscribe*` (matches newsletter_subscribe, email_subscribe, etc.)
 3. URL is `/thank-you*` (matches various thank you pages)
+
+**Affiliate Click-Through Funnel:**
+1. URL is `/reviews/*` (matches any review page)
+2. Outbound link is `*partner.com*` (matches outbound clicks to a partner domain)
 
 ## Funnel Modes
 

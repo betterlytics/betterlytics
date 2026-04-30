@@ -13,7 +13,12 @@ import { DateTimeString } from '@/types/dates';
 import { filterColumnSql } from './filter-sql';
 
 // Filters
-const MAIN_TABLE_FILTERS: TableFilterColumn[] = ['url', 'event_type', 'custom_event_name'];
+const MAIN_TABLE_FILTERS: TableFilterColumn[] = [
+  'url',
+  'event_type',
+  'custom_event_name',
+  'outbound_link_url',
+];
 const SESSION_TUPLE_COLUMNS: (TableFilterColumn | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
   'entry_page',
   'exit_page',

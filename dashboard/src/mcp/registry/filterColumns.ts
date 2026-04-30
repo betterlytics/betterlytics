@@ -20,6 +20,7 @@ const STANDARD_COLUMN_DESCRIPTIONS: Record<(typeof FILTER_COLUMNS)[number], stri
   utm_content: 'UTM content parameter',
   event_type: 'Event type (pageview, custom, outbound_link)',
   custom_event_name: 'Name of custom event',
+  outbound_link_url: 'URL clicked when leaving the site via an outbound link',
 };
 
 export function getFilterColumnDescription(column: FilterColumn): string {
