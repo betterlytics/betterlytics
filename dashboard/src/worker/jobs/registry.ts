@@ -1,4 +1,5 @@
 import type { Job } from '@/worker/jobs/types';
 import { heartbeatJob } from '@/worker/jobs/test/heartbeat.job';
+import { emailReportsJob } from '@/worker/jobs/reports/email-reports.job';
 
-export const JOB_REGISTRY: Job[] = [heartbeatJob];
+export const JOB_REGISTRY: Job[] = [heartbeatJob, emailReportsJob];
