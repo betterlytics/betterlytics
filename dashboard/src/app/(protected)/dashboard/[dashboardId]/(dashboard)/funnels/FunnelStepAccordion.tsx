@@ -10,6 +10,7 @@ import {
   useDndMonitor,
   type DragEndEvent,
 } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
 import { Accordion } from '@/components/ui/accordion';
@@ -112,6 +113,7 @@ export function FunnelStepAccordion({
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis]}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
@@ -120,6 +122,7 @@ export function FunnelStepAccordion({
         {(isDragging) => (
           <BAScrollContainer
             className={cn(
+              'p-3',
               className,
               isDragging &&
                 '[&_[data-slot=ba-scroll-container-indicator-down]]:pointer-events-none [&_[data-slot=ba-scroll-container-indicator-up]]:pointer-events-none',

@@ -69,7 +69,7 @@ export function FunnelDialogContent({
 
   return (
     <div className='flex min-h-0 flex-1 flex-col gap-4 px-4 pb-4'>
-      <div className='flex flex-wrap items-end gap-4'>
+      <div className='flex flex-wrap items-end gap-4 pl-3'>
         <div className='max-w-md min-w-40'>
           <Label htmlFor='name' className='text-foreground mb-1 block'>
             {labels.name} <span className='text-destructive'>*</span>
