@@ -70,7 +70,7 @@ export default async function DashboardPage() {
         <LazySection
           fallback={
             <MultiProgressTableCardSkeleton
-              title={t('sections.customEvents')}
+              title={t('sections.events')}
               tabs={[t('tabs.events')]}
               footer={
                 <FilterPreservingLink

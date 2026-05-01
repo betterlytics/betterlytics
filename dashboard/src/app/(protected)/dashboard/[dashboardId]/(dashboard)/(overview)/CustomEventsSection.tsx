@@ -43,38 +43,34 @@ export default function CustomEventsSection() {
         comparisonValue: event.compare?.count,
       })),
     },
-    ...(properties.length > 0
-      ? [
-          {
-            key: 'properties',
-            label: t('tabs.topProperties'),
-            loading: propertiesState.loading,
-            data: properties.map((prop) => {
-              const filterKey = `gp.${prop.property_key}`;
-              return {
-                key: filterKey,
-                label: prop.property_key,
-                value: prop.current.count,
-                trendPercentage: prop.change?.count,
-                comparisonValue: prop.compare?.count,
-                children: prop.children.map((v) => ({
-                  key: filterKey,
-                  label: v.value,
-                  titleLabel: `${prop.property_key}:${v.value}`,
-                  value: v.current.count,
-                  trendPercentage: v.change?.count,
-                  comparisonValue: v.compare?.count,
-                })),
-              };
-            }),
-          },
-        ]
-      : []),
+    {
+      key: 'properties',
+      label: t('tabs.topProperties'),
+      loading: propertiesState.loading,
+      data: properties.map((prop) => {
+        const filterKey = `gp.${prop.property_key}`;
+        return {
+          key: filterKey,
+          label: prop.property_key,
+          value: prop.current.visitors,
+          trendPercentage: prop.change?.percentage,
+          comparisonValue: prop.compare?.visitors,
+          children: prop.children.map((v) => ({
+            key: filterKey,
+            label: v.value,
+            titleLabel: `${prop.property_key}:${v.value}`,
+            value: v.current.visitors,
+            trendPercentage: v.change?.percentage,
+            comparisonValue: v.compare?.visitors,
+          })),
+        };
+      }),
+    },
   ];
 
   return (
     <MultiProgressTable
-      title={t('sections.customEvents')}
+      title={t('sections.events')}
       loading={loading}
       defaultTab='events'
       onItemClick={onItemClick}

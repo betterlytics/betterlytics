@@ -1628,7 +1628,7 @@
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi",
+      "events": "Eventi",
       "weeklyTrends": "Andamenti settimanali"
     },
     "goTo": "Vai a {section}",
@@ -1647,7 +1647,7 @@
       "sources": "Fonti",
       "channels": "Canali",
       "events": "Eventi personalizzati",
-      "topProperties": "Proprietà globali principali"
+      "topProperties": "Proprietà globali"
     },
     "emptyStates": {
       "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",

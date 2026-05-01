@@ -6,19 +6,16 @@ import {
 } from '@/repositories/clickhouse/globalProperties.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-const DEFAULT_KEY_LIMIT = 10;
-const DEFAULT_VALUE_LIMIT = 20;
-
 export type GlobalPropertyAggregate = {
   property_key: string;
-  count: number;
-  values: { value: string; count: number }[];
+  visitors: number;
+  values: { value: string; visitors: number }[];
 };
 
 export async function getGlobalPropertiesOverview(
   siteQuery: BASiteQuery,
-  keyLimit: number = DEFAULT_KEY_LIMIT,
-  valueLimit: number = DEFAULT_VALUE_LIMIT,
+  keyLimit: number,
+  valueLimit: number,
 ): Promise<GlobalPropertyAggregate[]> {
   const topKeys = await getTopGlobalPropertyKeys(siteQuery, keyLimit);
   if (topKeys.length === 0) {
@@ -31,16 +28,16 @@ export async function getGlobalPropertiesOverview(
     valueLimit,
   );
 
-  const valuesByKey = new Map<string, { value: string; count: number }[]>();
+  const valuesByKey = new Map<string, { value: string; visitors: number }[]>();
   for (const row of valueRows) {
     const list = valuesByKey.get(row.property_key) ?? [];
-    list.push({ value: row.value, count: row.count });
+    list.push({ value: row.value, visitors: row.visitors });
     valuesByKey.set(row.property_key, list);
   }
 
-  return topKeys.map(({ property_key, count }) => ({
+  return topKeys.map(({ property_key, visitors }) => ({
     property_key,
-    count,
+    visitors,
     values: valuesByKey.get(property_key) ?? [],
   }));
 }

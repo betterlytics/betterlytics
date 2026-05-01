@@ -1620,7 +1620,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Hændelser",
+      "events": "Hændelser",
       "weeklyTrends": "Ugentlige trends"
     },
     "goTo": "Gå til {section}",
@@ -1639,7 +1639,7 @@
       "sources": "Kilder",
       "channels": "Kanaler",
       "events": "Brugerdefinerede hændelser",
-      "topProperties": "Top globale egenskaber"
+      "topProperties": "Globale egenskaber"
     },
     "emptyStates": {
       "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",

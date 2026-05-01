@@ -5,13 +5,13 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export type GlobalPropertyKeyCountRow = {
   property_key: string;
-  count: number;
+  visitors: number;
 };
 
 export type GlobalPropertyKeyValueRow = {
   property_key: string;
   value: string;
-  count: number;
+  visitors: number;
 };
 
 export async function getTopGlobalPropertyKeys(
@@ -20,20 +20,19 @@ export async function getTopGlobalPropertyKeys(
 ): Promise<GlobalPropertyKeyCountRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       property_key,
-      count() * any(_sample_factor) AS count
-    FROM analytics.events ${sample}
+      uniq(visitor_id) AS visitors
+    FROM analytics.events
     ARRAY JOIN global_properties_keys AS property_key
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND length(global_properties_keys) > 0
       AND ${SQL.AND(filters)}
     GROUP BY property_key
-    ORDER BY count DESC
+    ORDER BY visitors DESC
     LIMIT {key_limit:UInt32}
   `;
 
@@ -51,7 +50,7 @@ export async function getTopGlobalPropertyKeys(
 
   return rows.map((row) => ({
     property_key: row.property_key,
-    count: Math.round(Number(row.count)),
+    visitors: Number(row.visitors),
   }));
 }
 
@@ -66,14 +65,13 @@ export async function getTopGlobalPropertyValuesForKeys(
 
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       property_key,
       value,
-      count() * any(_sample_factor) AS count
-    FROM analytics.events ${sample}
+      uniq(visitor_id) AS visitors
+    FROM analytics.events
     ARRAY JOIN
       global_properties_keys AS property_key,
       global_properties_values AS value
@@ -84,7 +82,7 @@ export async function getTopGlobalPropertyValuesForKeys(
       AND value != ''
       AND ${SQL.AND(filters)}
     GROUP BY property_key, value
-    ORDER BY count DESC
+    ORDER BY visitors DESC
     LIMIT {value_limit:UInt32} BY property_key
   `;
 
@@ -104,6 +102,6 @@ export async function getTopGlobalPropertyValuesForKeys(
   return rows.map((row) => ({
     property_key: row.property_key,
     value: row.value,
-    count: Math.round(Number(row.count)),
+    visitors: Number(row.visitors),
   }));
 }

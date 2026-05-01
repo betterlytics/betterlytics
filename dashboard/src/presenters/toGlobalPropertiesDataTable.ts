@@ -2,16 +2,16 @@ import type { GlobalPropertyAggregate } from '@/services/analytics/globalPropert
 
 type MatchedPropertyValue = {
   value: string;
-  current: { count: number };
-  compare?: { count: number };
-  change?: { count: number };
+  current: { visitors: number };
+  compare?: { visitors: number };
+  change?: { percentage: number };
 };
 
 export type GlobalPropertyDataTableRow = {
   property_key: string;
-  current: { count: number };
-  compare?: { count: number };
-  change?: { count: number };
+  current: { visitors: number };
+  compare?: { visitors: number };
+  change?: { percentage: number };
   children: MatchedPropertyValue[];
 };
 
@@ -45,17 +45,17 @@ export function toGlobalPropertiesDataTable({
       const cv = compareValueMap?.get(v.value);
       return {
         value: v.value,
-        current: { count: v.count },
-        compare: cv ? { count: cv.count } : undefined,
-        change: computeChange ? { count: percentChange(v.count, cv?.count ?? 0) } : undefined,
+        current: { visitors: v.visitors },
+        compare: cv ? { visitors: cv.visitors } : undefined,
+        change: computeChange ? { percentage: percentChange(v.visitors, cv?.visitors ?? 0) } : undefined,
       };
     });
 
     return {
       property_key: prop.property_key,
-      current: { count: prop.count },
-      compare: compareProp ? { count: compareProp.count } : undefined,
-      change: computeChange ? { count: percentChange(prop.count, compareProp?.count ?? 0) } : undefined,
+      current: { visitors: prop.visitors },
+      compare: compareProp ? { visitors: compareProp.visitors } : undefined,
+      change: computeChange ? { percentage: percentChange(prop.visitors, compareProp?.visitors ?? 0) } : undefined,
       children,
     };
   });
