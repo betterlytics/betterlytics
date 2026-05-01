@@ -102,6 +102,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     }
   }, []);
 
+  const handleCancel = useCallback(() => {
+    setIsOpen(false);
+    setHasAttemptedSubmit(false);
+    reset({ name: '', isStrict: false, steps: createDefaultSteps() });
+  }, [reset]);
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -140,7 +146,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={handleCancel}>
             {t('create.cancel')}
           </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
