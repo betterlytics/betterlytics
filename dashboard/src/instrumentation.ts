@@ -10,7 +10,7 @@ async function registerBackgroundJobs() {
       console.info('Background jobs disabled, skipping');
       return;
     }
-    const { startBackgroundJobs } = await import('@/lib/jobs/scheduler');
+    const { startBackgroundJobs } = await import('@/scheduler/scheduler');
     startBackgroundJobs();
   }
 }
