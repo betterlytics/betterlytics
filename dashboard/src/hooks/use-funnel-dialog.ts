@@ -25,13 +25,8 @@ export function useFunnelDialog({
   initialIsStrict = false,
   initialSteps,
 }: UseFunnelDialogOptions) {
-  const {
-    funnelSteps,
-    addEmptyFunnelStep,
-    updateFunnelStep,
-    removeFunnelStep,
-    setFunnelSteps,
-  } = useFunnelSteps(initialSteps);
+  const { funnelSteps, addEmptyFunnelStep, updateFunnelStep, removeFunnelStep, setFunnelSteps } =
+    useFunnelSteps(initialSteps);
   const [metadata, setMetadata] = useState<FunnelMetadata>({
     name: initialName,
     isStrict: initialIsStrict,
@@ -59,8 +54,11 @@ export function useFunnelDialog({
     { dashboardId, query: analyticsQuery, funnelSteps: searchableFunnelSteps, isStrict: metadata.isStrict },
     { enabled: searchableFunnelSteps.length >= 2 },
   );
-  const { data: funnelPreviewData, loading: previewLoading, refetching: previewRefetching } =
-    useQueryState(previewQuery, searchableFunnelSteps.length >= 2);
+  const {
+    data: funnelPreviewData,
+    loading: previewLoading,
+    refetching: previewRefetching,
+  } = useQueryState(previewQuery, searchableFunnelSteps.length >= 2);
 
   const funnelPreview = useMemo(() => {
     if (!funnelPreviewData) return null;

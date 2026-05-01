@@ -13,8 +13,8 @@ function FunnelStepSkeleton({
   isLast: boolean;
 }) {
   return (
-    <div className={cn('flex w-50 shrink-0 flex-col', !isLast && 'border-r border-border/50')}>
-      <div className='space-y-1.5 border-b border-border/50 px-3 pt-2.5 pb-1.5'>
+    <div className={cn('flex w-50 shrink-0 flex-col', !isLast && 'border-border/50 border-r')}>
+      <div className='border-border/50 space-y-1.5 border-b px-3 pt-2.5 pb-1.5'>
         <Skeleton className='h-2.5 w-10' />
         <Skeleton className='h-4 w-28' />
       </div>
@@ -39,7 +39,7 @@ function FunnelStepSkeleton({
           <Skeleton className='h-5 w-14' />
           <Skeleton className='h-3 w-10' />
         </div>
-        <div className='flex w-25 flex-col items-center justify-center gap-1 rounded-sm bg-muted/40 p-2'>
+        <div className='bg-muted/40 flex w-25 flex-col items-center justify-center gap-1 rounded-sm p-2'>
           <Skeleton className='h-3 w-12' />
           <Skeleton className='h-5 w-14' />
         </div>

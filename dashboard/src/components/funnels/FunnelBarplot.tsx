@@ -57,9 +57,7 @@ export default function FunnelBarplot({
         >
           <path d='M3 5h18l-7 9v6l-4-2v-4z' />
         </svg>
-        <p className='text-muted-foreground text-sm'>
-          {emptyMessage ?? tPreview('defineAtLeastTwoSteps')}
-        </p>
+        <p className='text-muted-foreground text-sm'>{emptyMessage ?? tPreview('defineAtLeastTwoSteps')}</p>
       </div>
     );
   }
@@ -200,7 +198,9 @@ function FunnelStep({
             <div className='flex h-20 w-20 flex-col items-center justify-center gap-0.5 p-2 sm:h-full sm:w-25'>
               <p className='text-muted-foreground text-xs'>{tPlot('visitors')}</p>
               <p className='text-md font-semibold'>{formatNumber(step.visitors, locale)}</p>
-              <p className='text-muted-foreground/80 text-xs'>{formatPercentage(100 * step.visitorsRatio, locale)}</p>
+              <p className='text-muted-foreground/80 text-xs'>
+                {formatPercentage(100 * step.visitorsRatio, locale)}
+              </p>
             </div>
             {index < funnel.steps.length - 1 || hasEmptySteps ? (
               <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
@@ -214,7 +214,9 @@ function FunnelStep({
                   ) : (
                     <>
                       <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
-                      <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio, locale)}</p>
+                      <p className='text-trend-down text-xs'>
+                        {formatPercentage(100 * step.dropoffRatio, locale)}
+                      </p>
                     </>
                   )}
                 </div>

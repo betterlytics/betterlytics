@@ -81,7 +81,7 @@ function FunnelStepAccordionItemComponent({
       <AccordionItem
         value={step.id}
         className={cn(
-          'rounded-md border bg-card transition-colors',
+          'bg-card rounded-md border transition-colors',
           'data-[state=open]:border-primary/40',
           showFilterEmptyError && 'border-destructive/40',
         )}
@@ -89,15 +89,15 @@ function FunnelStepAccordionItemComponent({
         <div className='relative'>
           <div
             className={cn(
-              'absolute right-[calc(100%+0.375rem)] top-1/2 flex -translate-y-1/2 gap-1 opacity-0 transition-opacity duration-150',
-              'group-hover/step:opacity-100 group-focus-within/step:opacity-100',
+              'absolute top-1/2 right-[calc(100%+0.375rem)] flex -translate-y-1/2 gap-1 opacity-0 transition-opacity duration-150',
+              'group-focus-within/step:opacity-100 group-hover/step:opacity-100',
             )}
           >
             <Button
               type='button'
               variant='outline'
               size='icon'
-              className='size-7 text-muted-foreground hover:border-destructive/40 hover:text-destructive'
+              className='text-muted-foreground hover:border-destructive/40 hover:text-destructive size-7'
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
@@ -122,8 +122,8 @@ function FunnelStepAccordionItemComponent({
                   'focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none',
                 )}
               />
-              <div className='pointer-events-none relative grid w-full grid-cols-[1.5rem_10rem_1fr_auto_auto] select-none items-center gap-2.5 px-3 py-2.5'>
-                <span className='inline-flex size-5 items-center justify-center rounded-full border bg-muted/30 text-xs text-muted-foreground'>
+              <div className='pointer-events-none relative grid w-full grid-cols-[1.5rem_10rem_1fr_auto_auto] items-center gap-2.5 px-3 py-2.5 select-none'>
+                <span className='bg-muted/30 text-muted-foreground inline-flex size-5 items-center justify-center rounded-full border text-xs'>
                   {index + 1}
                 </span>
 
@@ -134,10 +134,7 @@ function FunnelStepAccordionItemComponent({
                   onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => e.stopPropagation()}
                   placeholder={tFilters('namePlaceholder')}
-                  className={cn(
-                    'pointer-events-auto h-8 w-40 cursor-text',
-                    showNameError && 'border-destructive',
-                  )}
+                  className={cn('pointer-events-auto h-8 w-40 cursor-text', showNameError && 'border-destructive')}
                 />
 
                 <span aria-hidden className='h-full' />
@@ -152,13 +149,13 @@ function FunnelStepAccordionItemComponent({
                   {filterCountText}
                 </Badge>
 
-                <ChevronDown className='size-4 text-muted-foreground transition-transform duration-150 peer-data-[state=open]/trigger:rotate-180' />
+                <ChevronDown className='text-muted-foreground size-4 transition-transform duration-150 peer-data-[state=open]/trigger:rotate-180' />
               </div>
             </div>
           </AccordionPrimitive.Header>
         </div>
 
-        <AccordionContent className='border-t bg-muted/10 px-3 py-3'>
+        <AccordionContent className='bg-muted/10 border-t px-3 py-3'>
           <QueryFiltersSelectorContent
             initialFilters={step.filters}
             filters={localQueryFilters}

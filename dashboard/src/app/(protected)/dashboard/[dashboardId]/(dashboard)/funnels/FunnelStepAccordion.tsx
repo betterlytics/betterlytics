@@ -122,7 +122,7 @@ export function FunnelStepAccordion({
             className={cn(
               className,
               isDragging &&
-                '[&_[data-slot=ba-scroll-container-indicator-up]]:pointer-events-none [&_[data-slot=ba-scroll-container-indicator-down]]:pointer-events-none',
+                '[&_[data-slot=ba-scroll-container-indicator-down]]:pointer-events-none [&_[data-slot=ba-scroll-container-indicator-up]]:pointer-events-none',
             )}
           >
             <SortableContext items={localSteps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
