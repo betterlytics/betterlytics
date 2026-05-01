@@ -9,71 +9,129 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatFunnelStep } from '@/utils/queryFilterFormatters';
 import { useLocale, useTranslations } from 'next-intl';
+import { Spinner } from '@/components/ui/spinner';
+import { FunnelChartSkeleton } from '@/components/skeleton/FunnelChartSkeleton';
 
 type EmptyStep = {
   name: string;
 };
 
-type FunnelChartProps = {
-  funnel: PresentedFunnel;
+export type FunnelBarplotStatus = 'empty' | 'loading' | 'data';
+
+type FunnelBarplotProps = {
+  funnel: PresentedFunnel | null;
   emptySteps?: EmptyStep[];
+  status?: FunnelBarplotStatus;
+  refetching?: boolean;
+  emptyMessage?: string;
+  className?: string;
 };
 
-export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) {
+export default function FunnelBarplot({
+  funnel,
+  emptySteps,
+  status = 'data',
+  refetching = false,
+  emptyMessage,
+  className,
+}: FunnelBarplotProps) {
   const locale = useLocale();
   const tPlot = useTranslations('components.funnels.plot');
+  const tPreview = useTranslations('components.funnels.preview');
+
+  if (status === 'empty') {
+    return (
+      <div
+        className={cn(
+          'bg-card flex min-h-[16rem] w-full flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center',
+          className,
+        )}
+      >
+        <svg
+          className='text-muted-foreground/60 mb-3 size-12'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          strokeWidth='1.4'
+          aria-hidden
+        >
+          <path d='M3 5h18l-7 9v6l-4-2v-4z' />
+        </svg>
+        <p className='text-muted-foreground text-sm'>
+          {emptyMessage ?? tPreview('defineAtLeastTwoSteps')}
+        </p>
+      </div>
+    );
+  }
+
+  if (status === 'loading' || !funnel) {
+    return <FunnelChartSkeleton className={className} />;
+  }
+
   const hasEmptySteps = Boolean(emptySteps?.length);
   return (
-    <div className='bg-card w-full overflow-x-auto rounded-xl border shadow-sm'>
-      <div className='group/steps relative flex w-fit flex-col sm:flex-row'>
-        {funnel.steps.map((step, i) => (
-          <FunnelStep key={i} step={step} index={i} funnel={funnel} hasEmptySteps={hasEmptySteps} />
-        ))}
-        {emptySteps?.map((step, i) => (
-          <div
-            key={i}
-            className='group-hover/steps:[&:not(:hover)]:bg-background/30 bg-muted/30 flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'
-          >
+    <div className={cn('relative', className)}>
+      {refetching && (
+        <div className='pointer-events-none absolute inset-0 z-10 flex items-center justify-center'>
+          <Spinner />
+        </div>
+      )}
+      <div
+        className={cn(
+          'bg-card w-full overflow-x-auto rounded-xl border shadow-sm transition-opacity',
+          refetching && 'pointer-events-none opacity-60',
+        )}
+      >
+        <div className='group/steps relative flex w-fit flex-col sm:flex-row'>
+          {funnel.steps.map((step, i) => (
+            <FunnelStep key={i} step={step} index={i} funnel={funnel} hasEmptySteps={hasEmptySteps} />
+          ))}
+          {emptySteps?.map((step, i) => (
             <div
-              className={cn(
-                'border-border/40 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
-                i === emptySteps.length - 1 && 'border-b-0 sm:border-r-0',
-              )}
+              key={i}
+              className='group-hover/steps:[&:not(:hover)]:bg-background/30 bg-muted/30 flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'
             >
-              <div>
-                <p className='text-muted-foreground/60 text-[11px] font-medium tracking-wide uppercase'>
-                  {tPlot('stepLabel', { index: i + funnel.steps.length + 1 })}
-                </p>
-              </div>
-              <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
-            </div>
-            <div
-              className={cn(
-                'hidden h-40 w-full pt-2 sm:flex',
-                i === funnel.steps.length - 1 &&
-                  'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
-              )}
-            >
-              <HorizontalProgress key={i} percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
-              {i < emptySteps.length - 1 && <HorizontalConnector previousPercentage={1} currentPercentage={1} />}
-            </div>
-            <div className='flex h-40 w-40 flex-col sm:hidden'>
-              <VerticalProgress key={i} percentage={1} />
-              {i < funnel.steps.length - 1 && <VerticalConnector previousPercentage={1} currentPercentage={1} />}
-            </div>
-            <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
-              <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'></div>
-              {i < emptySteps.length - 1 ? (
-                <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center rounded-sm p-2 sm:h-full sm:w-25'></div>
-              ) : (
-                <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
-                  <p className='text-muted-foreground/75 text-xs'>{tPlot('conversion')}</p>
-                  <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0, locale)}</p>
+              <div
+                className={cn(
+                  'border-border/40 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
+                  i === emptySteps.length - 1 && 'border-b-0 sm:border-r-0',
+                )}
+              >
+                <div>
+                  <p className='text-muted-foreground/60 text-[11px] font-medium tracking-wide uppercase'>
+                    {tPlot('stepLabel', { index: i + funnel.steps.length + 1 })}
+                  </p>
                 </div>
-              )}
+                <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
+              </div>
+              <div
+                className={cn(
+                  'hidden h-40 w-full pt-2 sm:flex',
+                  i === funnel.steps.length - 1 &&
+                    'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
+                )}
+              >
+                <HorizontalProgress key={i} percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
+                {i < emptySteps.length - 1 && <HorizontalConnector previousPercentage={1} currentPercentage={1} />}
+              </div>
+              <div className='flex h-40 w-40 flex-col sm:hidden'>
+                <VerticalProgress key={i} percentage={1} />
+                {i < funnel.steps.length - 1 && <VerticalConnector previousPercentage={1} currentPercentage={1} />}
+              </div>
+              <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
+                <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'></div>
+                {i < emptySteps.length - 1 ? (
+                  <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center rounded-sm p-2 sm:h-full sm:w-25'></div>
+                ) : (
+                  <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
+                    <p className='text-muted-foreground/75 text-xs'>{tPlot('conversion')}</p>
+                    <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0, locale)}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
