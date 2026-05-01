@@ -121,6 +121,7 @@ export function QueryFiltersSelectorContent({
         </PermissionGate>
         <Button
           className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
+          disabled={!canApply}
           onClick={onCancel}
           variant='ghost'
         >
