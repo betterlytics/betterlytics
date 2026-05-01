@@ -4,3 +4,4 @@ export { default as HeatmapSkeleton } from './HeatmapSkeleton';
 export { default as MultiProgressTableRowSkeleton, MultiProgressTableCardSkeleton } from './MultiProgressTableSkeleton';
 export { WeeklyHeatmapCardSkeleton } from './WeeklyHeatmapCardSkeleton';
 export { FunnelCardSkeleton, FunnelsStackSkeleton } from './FunnelSkeleton';
+export { FunnelChartSkeleton } from './FunnelChartSkeleton';
