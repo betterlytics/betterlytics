@@ -149,8 +149,8 @@ export function FilterBadgeMultiSelect({
   );
 
   const renderBadge = useCallback(
-    (filter: QueryFilter): ReactNode => formatQueryFilter(filter, t, locale),
-    [t, locale],
+    (filter: QueryFilter): ReactNode => formatQueryFilter(filter, t, locale, formatLength),
+    [t, locale, formatLength],
   );
 
   const iconSlot = (
