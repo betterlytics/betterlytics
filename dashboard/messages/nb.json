@@ -2441,7 +2441,15 @@
         "create": "Opprett",
         "createDisabledHint": "Angi et traktnavn og definer minst to trinn. <br></br> Hvert trinn må ha både et navn og en valgt verdi.",
         "successMessage": "Trakt opprettet!",
-        "errorMessage": "Traktopprettelse mislyktes!"
+        "errorMessage": "Traktopprettelse mislyktes!",
+        "filterCount": {
+          "none": "Ingen filtre",
+          "one": "1 filter",
+          "many": "{count} filtre"
+        },
+        "aria": {
+          "deleteStep": "Slett trinn {index}"
+        }
       },
       "edit": {
         "title": "Rediger trakt",

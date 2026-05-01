@@ -2441,7 +2441,15 @@
         "create": "Crea",
         "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
-        "errorMessage": "Creazione funnel fallita!"
+        "errorMessage": "Creazione funnel fallita!",
+        "filterCount": {
+          "none": "Nessun filtro",
+          "one": "1 filtro",
+          "many": "{count} filtri"
+        },
+        "aria": {
+          "deleteStep": "Elimina passaggio {index}"
+        }
       },
       "edit": {
         "title": "Modifica funnel",

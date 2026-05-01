@@ -2430,7 +2430,15 @@
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
-        "errorMessage": "Funnel creation failed!"
+        "errorMessage": "Funnel creation failed!",
+        "filterCount": {
+          "none": "No filters",
+          "one": "1 filter",
+          "many": "{count} filters"
+        },
+        "aria": {
+          "deleteStep": "Delete step {index}"
+        }
       },
       "edit": {
         "title": "Edit funnel",
