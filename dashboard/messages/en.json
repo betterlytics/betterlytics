@@ -2437,7 +2437,8 @@
           "many": "{count} filters"
         },
         "aria": {
-          "deleteStep": "Delete step {index}"
+          "deleteStep": "Delete step {index}",
+          "toggleStep": "Toggle step {index}"
         }
       },
       "edit": {

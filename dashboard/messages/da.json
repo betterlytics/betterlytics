@@ -2440,7 +2440,8 @@
           "many": "{count} filtre"
         },
         "aria": {
-          "deleteStep": "Slet trin {index}"
+          "deleteStep": "Slet trin {index}",
+          "toggleStep": "Vis/skjul trin {index}"
         }
       },
       "edit": {

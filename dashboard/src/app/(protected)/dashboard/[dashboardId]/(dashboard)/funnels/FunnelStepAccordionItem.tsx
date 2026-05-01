@@ -110,13 +110,19 @@ function FunnelStepAccordionItemComponent({
           </div>
 
           <AccordionPrimitive.Header className='flex'>
-            <AccordionPrimitive.Trigger
-              className={cn(
-                'flex flex-1 cursor-grab active:cursor-grabbing',
-                '[&[data-state=open]>div>svg.chevron]:rotate-180',
-              )}
-            >
-              <div className='grid w-full grid-cols-[1.5rem_10rem_1fr_auto_auto] select-none items-center gap-2.5 px-3 py-2.5'>
+            <div className='relative flex flex-1'>
+              {/* Transparent trigger overlay — captures clicks for accordion toggling without
+                  illegally nesting <input> inside <button>. Clicks fall through the visual row
+                  (pointer-events-none) to this overlay, except where elements re-enable
+                  pointer-events (e.g. the name input). */}
+              <AccordionPrimitive.Trigger
+                aria-label={t('aria.toggleStep', { index: index + 1 })}
+                className={cn(
+                  'peer/trigger absolute inset-0 cursor-grab rounded-md active:cursor-grabbing',
+                  'focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none',
+                )}
+              />
+              <div className='pointer-events-none relative grid w-full grid-cols-[1.5rem_10rem_1fr_auto_auto] select-none items-center gap-2.5 px-3 py-2.5'>
                 <span className='inline-flex size-5 items-center justify-center rounded-full border bg-muted/30 text-xs text-muted-foreground'>
                   {index + 1}
                 </span>
@@ -128,7 +134,10 @@ function FunnelStepAccordionItemComponent({
                   onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => e.stopPropagation()}
                   placeholder={tFilters('namePlaceholder')}
-                  className={cn('h-8 w-40 cursor-text', showNameError && 'border-destructive')}
+                  className={cn(
+                    'pointer-events-auto h-8 w-40 cursor-text',
+                    showNameError && 'border-destructive',
+                  )}
                 />
 
                 <span aria-hidden className='h-full' />
@@ -143,9 +152,9 @@ function FunnelStepAccordionItemComponent({
                   {filterCountText}
                 </Badge>
 
-                <ChevronDown className='chevron size-4 text-muted-foreground transition-transform duration-150' />
+                <ChevronDown className='size-4 text-muted-foreground transition-transform duration-150 peer-data-[state=open]/trigger:rotate-180' />
               </div>
-            </AccordionPrimitive.Trigger>
+            </div>
           </AccordionPrimitive.Header>
         </div>
 

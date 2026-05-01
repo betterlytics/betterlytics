@@ -2448,7 +2448,8 @@
           "many": "{count} filtri"
         },
         "aria": {
-          "deleteStep": "Elimina passaggio {index}"
+          "deleteStep": "Elimina passaggio {index}",
+          "toggleStep": "Mostra/nascondi passaggio {index}"
         }
       },
       "edit": {
