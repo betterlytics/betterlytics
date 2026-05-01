@@ -79,7 +79,7 @@
   var globalProperties = {};
 
   // Engagement tracking state (duration + scroll depth)
-  var pageStartTime = Date.now();
+  var pageStartTime = performance.now();
   var currentUrl = null;
   var maxScrollDepthPx = 0;
   var currentDocHeight = 0;
@@ -296,7 +296,7 @@
   }
 
   function flushEngagement(urlOverride) {
-    var duration = Math.round((Date.now() - pageStartTime) / 1000);
+    var duration = Math.round((performance.now() - pageStartTime) / 1000);
     if (duration <= 0 && maxScrollDepthPx <= 0) return;
 
     var overrides = {
@@ -317,7 +317,7 @@
   }
 
   function resetEngagement() {
-    pageStartTime = Date.now();
+    pageStartTime = performance.now();
     currentUrl = normalize(window.location.href);
     maxScrollDepthPx = 0;
   }
