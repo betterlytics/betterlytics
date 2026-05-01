@@ -17,10 +17,15 @@ export type EmailReportCapabilities = {
   emailReportsEnabled: boolean;
 };
 
+export type DataRetentionCapabilities = {
+  maxDataRetentionDays: number;
+};
+
 export type PlanCapabilities = {
   dashboards: DashboardCapabilities;
   monitoring: MonitoringCapabilities;
   emailReports: EmailReportCapabilities;
+  dataRetention: DataRetentionCapabilities;
 };
 
 export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
@@ -35,6 +40,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       keywordValidation: false,
     },
     emailReports: { emailReportsEnabled: false },
+    dataRetention: { maxDataRetentionDays: 365 },
   },
   professional: {
     dashboards: { maxDashboards: 50 },
@@ -47,6 +53,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       keywordValidation: true,
     },
     emailReports: { emailReportsEnabled: true },
+    dataRetention: { maxDataRetentionDays: 1095 },
   },
   enterprise: {
     dashboards: { maxDashboards: 9999 },
@@ -59,6 +66,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
       keywordValidation: true,
     },
     emailReports: { emailReportsEnabled: true },
+    dataRetention: { maxDataRetentionDays: 1825 },
   },
 };
 
@@ -72,4 +80,8 @@ export function getDashboardLimitForTier(tier: TierName): number {
 
 export function isEmailReportsEnabled(tier: TierName): boolean {
   return PLAN_CAPABILITIES[tier].emailReports.emailReportsEnabled;
+}
+
+export function getMaxRetentionDaysForTier(tier: TierName): number {
+  return PLAN_CAPABILITIES[tier].dataRetention.maxDataRetentionDays;
 }

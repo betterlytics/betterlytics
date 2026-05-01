@@ -3,6 +3,7 @@ export const EMAIL_TEMPLATES = [
   'usage-alert',
   'first-payment-welcome',
   'weekly-report',
+  'data-retention-clamp',
 ] as const;
 
 export type EmailTemplateType = (typeof EMAIL_TEMPLATES)[number];

@@ -11,6 +11,7 @@ import { getResetPasswordEmailPreview } from '@/services/email/template/reset-pa
 import { getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
 import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/first-payment-welcome-mail';
 import { getReportEmailPreview } from '@/services/email/template/weekly-report-mail';
+import { getDataRetentionClampEmailPreview } from '@/services/email/template/data-retention-clamp-mail';
 
 export async function sendTestEmail(email: string, template: EmailTemplateType) {
   try {
@@ -108,6 +109,8 @@ export async function getEmailPreview(template: EmailTemplateType): Promise<stri
         return getFirstPaymentWelcomeEmailPreview();
       case 'weekly-report':
         return getReportEmailPreview();
+      case 'data-retention-clamp':
+        return getDataRetentionClampEmailPreview();
       default:
         return '<p>Template not found.</p>';
     }

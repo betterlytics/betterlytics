@@ -282,6 +282,10 @@ model DashboardSettings {
   // Data Settings
   dataRetentionDays Int @default(365) // Number of days to retain data
 
+  // Grace window after a plan-downgrade clamp
+  retentionGraceUntil     DateTime?
+  retentionGraceFloorDays Int?
+
   // Report Settings
   weeklyReports Boolean @default(false)
   weeklyReportDay Int @default(1) // ISO: 1=Monday, 2=Tuesday, ... 7=Sunday

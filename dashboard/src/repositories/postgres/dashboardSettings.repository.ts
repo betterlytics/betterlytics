@@ -7,6 +7,8 @@ import {
   DashboardSettingsCreateSchema,
   DashboardWithReportSettings,
   DashboardWithReportSettingsSchema,
+  RetentionPurgeTarget,
+  RetentionClampResult,
 } from '@/entities/dashboard/dashboardSettings.entities';
 
 export async function findSettingsByDashboardId(dashboardId: string): Promise<DashboardSettings | null> {
@@ -131,5 +133,133 @@ export async function updateMonthlyReportSentAt(settingsId: string): Promise<voi
   } catch (error) {
     console.error('Error updating monthly report sent timestamp:', error);
     throw new Error('Failed to update monthly report sent timestamp');
+  }
+}
+
+export async function findRetentionPurgeTargets(): Promise<RetentionPurgeTarget[]> {
+  try {
+    const rows = await prisma.dashboard.findMany({
+      where: {
+        deletedAt: null,
+        settings: { isNot: null },
+      },
+      select: {
+        siteId: true,
+        createdAt: true,
+        settings: {
+          select: {
+            dataRetentionDays: true,
+            retentionGraceUntil: true,
+            retentionGraceFloorDays: true,
+          },
+        },
+      },
+    });
+
+    const now = Date.now();
+    const targets: RetentionPurgeTarget[] = [];
+    for (const row of rows) {
+      const s = row.settings;
+      if (!s || s.dataRetentionDays <= 0) continue;
+
+      const graceActive =
+        s.retentionGraceUntil != null &&
+        s.retentionGraceUntil.getTime() > now &&
+        s.retentionGraceFloorDays != null &&
+        s.retentionGraceFloorDays > s.dataRetentionDays;
+
+      const effectiveRetentionDays = graceActive ? s.retentionGraceFloorDays! : s.dataRetentionDays;
+      const retentionCutoff = now - effectiveRetentionDays * 24 * 60 * 60 * 1000;
+
+      if (row.createdAt.getTime() > retentionCutoff) continue;
+
+      targets.push({
+        siteId: row.siteId,
+        effectiveRetentionDays,
+        graceActive,
+      });
+    }
+    return targets;
+  } catch (error) {
+    console.error('Error loading retention purge targets:', error);
+    throw new Error('Failed to load retention purge targets');
+  }
+}
+
+export async function clampOwnerRetentionAboveCeiling(
+  userId: string,
+  newMaxDays: number,
+  graceUntil: Date,
+): Promise<RetentionClampResult> {
+  try {
+    const affected = await prisma.dashboardSettings.findMany({
+      where: {
+        dataRetentionDays: { gt: newMaxDays },
+        dashboard: {
+          deletedAt: null,
+          userAccess: { some: { userId, role: 'owner' } },
+        },
+      },
+      select: { id: true, dataRetentionDays: true },
+    });
+
+    if (affected.length === 0) {
+      return { affectedCount: 0, previousMaxRetention: 0 };
+    }
+
+    await prisma.$transaction(
+      affected.map((s) =>
+        prisma.dashboardSettings.update({
+          where: { id: s.id },
+          data: {
+            dataRetentionDays: newMaxDays,
+            retentionGraceFloorDays: s.dataRetentionDays,
+            retentionGraceUntil: graceUntil,
+          },
+        }),
+      ),
+    );
+
+    return {
+      affectedCount: affected.length,
+      previousMaxRetention: Math.max(...affected.map((s) => s.dataRetentionDays)),
+    };
+  } catch (error) {
+    console.error(`Error clamping owner retention for user ${userId}:`, error);
+    throw new Error(`Failed to clamp owner retention for user ${userId}`);
+  }
+}
+
+export async function liftRetentionGraceClamp(userId: string, newMaxDays: number): Promise<void> {
+  try {
+    const restorable = await prisma.dashboardSettings.findMany({
+      where: {
+        retentionGraceUntil: { gt: new Date() },
+        retentionGraceFloorDays: { not: null },
+        dashboard: {
+          deletedAt: null,
+          userAccess: { some: { userId, role: 'owner' } },
+        },
+      },
+      select: { id: true, retentionGraceFloorDays: true },
+    });
+
+    if (restorable.length === 0) return;
+
+    await prisma.$transaction(
+      restorable.map((s) =>
+        prisma.dashboardSettings.update({
+          where: { id: s.id },
+          data: {
+            dataRetentionDays: Math.min(s.retentionGraceFloorDays!, newMaxDays),
+            retentionGraceFloorDays: null,
+            retentionGraceUntil: null,
+          },
+        }),
+      ),
+    );
+  } catch (error) {
+    console.error(`Error lifting retention grace clamp for user ${userId}:`, error);
+    throw new Error(`Failed to lift retention grace clamp for user ${userId}`);
   }
 }

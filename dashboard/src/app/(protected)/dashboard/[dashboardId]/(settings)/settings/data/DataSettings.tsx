@@ -10,7 +10,7 @@ import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { toast } from 'sonner';
-import { ConfirmDialog } from '@/components/dialogs';
+import { DestructiveActionDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 export default function DataSettings() {
@@ -23,9 +23,30 @@ export default function DataSettings() {
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  const persistRetention = (newValue: number) => {
+    const previousValue = dataRetentionDays;
+    setDataRetentionDays(newValue);
+
+    startTransition(async () => {
+      try {
+        await updateDashboardSettingsAction(dashboardId, { dataRetentionDays: newValue });
+        await refreshSettings();
+        toast.success(t('toastSuccess'));
+      } catch {
+        setDataRetentionDays(previousValue);
+        toast.error(t('toastError'));
+      }
+    });
+  };
+
   const handleRetentionSelect = (value: string) => {
     const newValue = parseInt(value);
     if (newValue === dataRetentionDays) return;
+
+    if (newValue >= dataRetentionDays) {
+      persistRetention(newValue);
+      return;
+    }
 
     setPendingRetentionValue(newValue);
     setIsConfirmOpen(true);
@@ -33,23 +54,10 @@ export default function DataSettings() {
 
   const handleConfirmChange = () => {
     if (pendingRetentionValue === null) return;
-
-    const previousValue = dataRetentionDays;
-    setDataRetentionDays(pendingRetentionValue);
+    const newValue = pendingRetentionValue;
     setIsConfirmOpen(false);
-
-    startTransition(async () => {
-      try {
-        await updateDashboardSettingsAction(dashboardId, { dataRetentionDays: pendingRetentionValue });
-        await refreshSettings();
-        toast.success(t('toastSuccess'));
-      } catch {
-        setDataRetentionDays(previousValue);
-        toast.error(t('toastError'));
-      } finally {
-        setPendingRetentionValue(null);
-      }
-    });
+    setPendingRetentionValue(null);
+    persistRetention(newValue);
   };
 
   const handleCancelChange = () => {
@@ -96,12 +104,14 @@ export default function DataSettings() {
         </div>
       </SettingsSection>
 
-      <ConfirmDialog
+      <DestructiveActionDialog
         open={isConfirmOpen}
         onOpenChange={handleCancelChange}
         title={t('data.retentionConfirm.title')}
         description={t('data.retentionConfirm.description', { period: getPendingPresetLabel() })}
         onConfirm={handleConfirmChange}
+        countdownSeconds={5}
+        showIcon
       />
     </div>
   );

@@ -1,13 +1,24 @@
 import Stripe from 'stripe';
 import type { Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
-import { getTierConfigFromLookupKey } from '@/lib/billing/plans';
-import { addMonths } from 'date-fns';
+import { getTierConfigFromLookupKey, type TierName } from '@/lib/billing/plans';
+import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { addDays, addMonths } from 'date-fns';
+import { env } from '@/lib/env';
+import { sendDataRetentionClampEmail } from '@/services/email/mail.service';
+import { getDisplayName } from '@/utils/userUtils';
+import {
+  clampOwnerRetentionAboveCeiling,
+  liftRetentionGraceClamp,
+} from '@/repositories/postgres/dashboardSettings.repository';
+import { findUserById } from '@/repositories/postgres/user.repository';
 import {
   findSubscriptionByPaymentId,
   setSubscriptionStatus,
   upsertUserSubscription,
 } from '@/services/billing/subscription.service';
+
+const RETENTION_GRACE_DAYS = 30;
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {
@@ -126,9 +137,41 @@ export async function handleSubscriptionUpdated(subscription: Stripe.Subscriptio
       paymentSubscriptionId: subscription.id,
       paymentPriceId: subscriptionItem.price.id,
     });
+
+    await syncRetentionToTier(localSubscription.userId, tierConfig.tier);
   } catch (error) {
     console.error('Error handling subscription updated:', error);
     throw error;
+  }
+}
+
+async function syncRetentionToTier(userId: string, newTier: TierName): Promise<void> {
+  const newMaxDays = getMaxRetentionDaysForTier(newTier);
+  const graceUntil = addDays(new Date(), RETENTION_GRACE_DAYS);
+
+  await liftRetentionGraceClamp(userId, newMaxDays);
+
+  const result = await clampOwnerRetentionAboveCeiling(userId, newMaxDays, graceUntil);
+  if (result.affectedCount === 0) return;
+
+  try {
+    const user = await findUserById(userId);
+    if (!user?.email) {
+      console.warn({ event: 'retention-clamp:email-skipped', reason: 'no-email', userId });
+      return;
+    }
+
+    await sendDataRetentionClampEmail({
+      to: user.email,
+      userName: getDisplayName(user.name, user.email),
+      newPlanName: newTier.charAt(0).toUpperCase() + newTier.slice(1),
+      previousRetentionDays: result.previousMaxRetention,
+      newRetentionDays: newMaxDays,
+      graceUntil,
+      upgradeUrl: `${env.PUBLIC_BASE_URL}/billing`,
+    });
+  } catch (err) {
+    console.error({ event: 'retention-clamp:email-failed', userId, err });
   }
 }
 

@@ -8,6 +8,7 @@ import {
   createUsageAlertEmailTemplate,
   createFirstPaymentWelcomeEmailTemplate,
   createEmailVerificationTemplate,
+  createDataRetentionClampEmailTemplate,
   getEmailHeader,
   getEmailFooter,
   getTextEmailFooter,
@@ -16,6 +17,7 @@ import { ResetPasswordEmailData } from '@/services/email/template/reset-password
 import { UsageAlertEmailData } from '@/services/email/template/usage-alert-mail';
 import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-payment-welcome-mail';
 import { EmailVerificationData } from '@/services/email/template/email-verification-mail';
+import { DataRetentionClampEmailData } from '@/services/email/template/data-retention-clamp-mail';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import {
   createDashboardInvitationEmailTemplate,
@@ -158,4 +160,8 @@ export async function sendDashboardInvitationEmail(data: DashboardInvitationEmai
 
 export async function sendReportEmail(data: EmailReportData): Promise<void> {
   await sendEmail(createReportEmailTemplate(data), data);
+}
+
+export async function sendDataRetentionClampEmail(data: DataRetentionClampEmailData): Promise<void> {
+  await sendEmail(createDataRetentionClampEmailTemplate(data), data);
 }

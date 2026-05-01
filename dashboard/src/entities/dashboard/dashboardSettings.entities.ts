@@ -18,6 +18,8 @@ export const DashboardSettingsSchema = z
 
     // Data Settings
     dataRetentionDays: z.number().int().positive(),
+    retentionGraceUntil: z.date().nullable(),
+    retentionGraceFloorDays: z.number().int().positive().nullable(),
 
     // Report Settings
     weeklyReports: z.boolean(),
@@ -91,6 +93,8 @@ export const DEFAULT_DASHBOARD_SETTINGS: Omit<
   showGridLines: true,
   defaultDateRange: '7d',
   dataRetentionDays: 365,
+  retentionGraceUntil: null,
+  retentionGraceFloorDays: null,
   weeklyReports: false,
   weeklyReportDay: 1,
   weeklyReportRecipients: [],
@@ -104,3 +108,14 @@ export type DashboardSettingsUpdate = z.infer<typeof DashboardSettingsUpdateSche
 export type DashboardSettings = z.infer<typeof DashboardSettingsSchema>;
 export type DashboardSettingsCreate = z.infer<typeof DashboardSettingsCreateSchema>;
 export type DashboardWithReportSettings = z.infer<typeof DashboardWithReportSettingsSchema>;
+
+export type RetentionPurgeTarget = {
+  siteId: string;
+  effectiveRetentionDays: number;
+  graceActive: boolean;
+};
+
+export type RetentionClampResult = {
+  affectedCount: number;
+  previousMaxRetention: number;
+};
