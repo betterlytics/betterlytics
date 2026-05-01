@@ -74,7 +74,7 @@ function FunnelStepAccordionItemComponent({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
-      className={cn('group/step relative ml-8', isDragging && 'z-10 opacity-80')}
+      className={cn('group/step relative', isDragging && 'z-10 opacity-80')}
       {...attributes}
       {...listeners}
     >
@@ -86,74 +86,65 @@ function FunnelStepAccordionItemComponent({
           showFilterEmptyError && 'border-destructive/40',
         )}
       >
-        <div className='relative'>
-          <div
-            className={cn(
-              'absolute top-1/2 right-[calc(100%+0.375rem)] flex -translate-y-1/2 gap-1 opacity-0 transition-opacity duration-150',
-              'group-focus-within/step:opacity-100 group-hover/step:opacity-100',
-            )}
-          >
-            <Button
-              type='button'
-              variant='outline'
-              size='icon'
-              className='text-muted-foreground hover:border-destructive/40 hover:text-destructive size-7'
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation();
-                onRequestRemoval(step.id);
-              }}
-              aria-label={t('aria.deleteStep', { index: index + 1 })}
-            >
-              <Trash2 className='size-4' />
-            </Button>
-          </div>
+        <AccordionPrimitive.Header className='flex'>
+          <div className='relative flex flex-1'>
+            {/* Transparent trigger overlay — captures clicks for accordion toggling without
+                illegally nesting <input> inside <button>. Clicks fall through the visual row
+                (pointer-events-none) to this overlay, except where elements re-enable
+                pointer-events (e.g. the name input and the delete button). */}
+            <AccordionPrimitive.Trigger
+              aria-label={t('aria.toggleStep', { index: index + 1 })}
+              className={cn(
+                'peer/trigger absolute inset-0 cursor-grab rounded-md active:cursor-grabbing',
+                'focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none',
+              )}
+            />
+            <div className='pointer-events-none relative grid w-full grid-cols-[auto_1.5rem_10rem_1fr_auto_auto] items-center gap-2.5 px-3 py-2.5 select-none'>
+              <ChevronDown className='text-muted-foreground size-4 transition-transform duration-150 peer-data-[state=open]/trigger:rotate-180' />
 
-          <AccordionPrimitive.Header className='flex'>
-            <div className='relative flex flex-1'>
-              {/* Transparent trigger overlay — captures clicks for accordion toggling without
-                  illegally nesting <input> inside <button>. Clicks fall through the visual row
-                  (pointer-events-none) to this overlay, except where elements re-enable
-                  pointer-events (e.g. the name input). */}
-              <AccordionPrimitive.Trigger
-                aria-label={t('aria.toggleStep', { index: index + 1 })}
-                className={cn(
-                  'peer/trigger absolute inset-0 cursor-grab rounded-md active:cursor-grabbing',
-                  'focus-visible:ring-primary/40 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none',
-                )}
+              <span className='bg-muted/30 text-muted-foreground inline-flex size-5 items-center justify-center rounded-full border text-xs'>
+                {index + 1}
+              </span>
+
+              <Input
+                value={step.name}
+                onChange={(e) => onUpdate({ ...step, name: e.target.value })}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                placeholder={tFilters('namePlaceholder')}
+                className={cn('pointer-events-auto h-8 w-40 cursor-text', showNameError && 'border-destructive')}
               />
-              <div className='pointer-events-none relative grid w-full grid-cols-[1.5rem_10rem_1fr_auto_auto] items-center gap-2.5 px-3 py-2.5 select-none'>
-                <span className='bg-muted/30 text-muted-foreground inline-flex size-5 items-center justify-center rounded-full border text-xs'>
-                  {index + 1}
-                </span>
 
-                <Input
-                  value={step.name}
-                  onChange={(e) => onUpdate({ ...step, name: e.target.value })}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  placeholder={tFilters('namePlaceholder')}
-                  className={cn('pointer-events-auto h-8 w-40 cursor-text', showNameError && 'border-destructive')}
-                />
+              <span aria-hidden className='h-full' />
 
-                <span aria-hidden className='h-full' />
+              <Badge
+                variant='secondary'
+                className={cn(
+                  'h-5 px-2 text-xs font-medium',
+                  showFilterEmptyError && 'border-destructive/50 bg-destructive/10 text-destructive',
+                )}
+              >
+                {filterCountText}
+              </Badge>
 
-                <Badge
-                  variant='secondary'
-                  className={cn(
-                    'h-5 px-2 text-xs font-medium',
-                    showFilterEmptyError && 'border-destructive/50 bg-destructive/10 text-destructive',
-                  )}
-                >
-                  {filterCountText}
-                </Badge>
-
-                <ChevronDown className='text-muted-foreground size-4 transition-transform duration-150 peer-data-[state=open]/trigger:rotate-180' />
-              </div>
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon'
+                className='text-muted-foreground hover:text-destructive pointer-events-auto size-7'
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRequestRemoval(step.id);
+                }}
+                aria-label={t('aria.deleteStep', { index: index + 1 })}
+              >
+                <Trash2 className='size-4' />
+              </Button>
             </div>
-          </AccordionPrimitive.Header>
-        </div>
+          </div>
+        </AccordionPrimitive.Header>
 
         <AccordionContent className='bg-muted/10 border-t px-3 py-3'>
           <QueryFiltersSelectorContent
