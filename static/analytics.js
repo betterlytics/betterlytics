@@ -314,6 +314,11 @@
     if (urlOverride) overrides.url = urlOverride;
 
     sendEvent("engagement", overrides);
+
+    // Reset after sending so this function become idempotent: a second consecutive call will compute
+    // duration=0 and scroll=0 and hit the early-return guard above.
+    pageStartTime = performance.now();
+    maxScrollDepthPx = 0;
   }
 
   function resetEngagement() {
@@ -324,6 +329,14 @@
 
   window.addEventListener("scroll", () => updateScrollDepth(), {
     passive: true,
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
+      flushEngagement();
+    } else {
+      pageStartTime = performance.now();
+    }
   });
 
   window.addEventListener("pagehide", () => flushEngagement());
