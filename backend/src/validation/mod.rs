@@ -110,8 +110,8 @@ impl EventValidator {
             self.validate_cwv_fields(raw_event)?;
         }
 
-        if raw_event.event_name == "scroll_depth" {
-            self.validate_scroll_depth_fields(raw_event)?;
+        if raw_event.event_name == "scroll_depth" || raw_event.event_name == "engagement" {
+            self.validate_engagement_fields(raw_event)?;
         }
 
         if raw_event.event_name == "client_error" {
@@ -287,11 +287,18 @@ impl EventValidator {
         Ok(())
     }
 
-    fn validate_scroll_depth_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+    // Used for both legacy `scroll_depth` events and the new `engagement` events which
+    // supersede them. `scroll_depth` events don't carry a duration; `engagement` events do.
+    fn validate_engagement_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         fn valid_f32(v: f32) -> bool { v.is_finite() }
 
-        if raw_event.scroll_depth_percentage.is_none() || raw_event.scroll_depth_pixels.is_none() {
-            return Err(ValidationError::InvalidScrollDepth("missing values".to_string()));
+        let is_engagement = raw_event.event_name == "engagement";
+
+        if !is_engagement {
+            // Legacy scroll_depth events must always include both fields
+            if raw_event.scroll_depth_percentage.is_none() || raw_event.scroll_depth_pixels.is_none() {
+                return Err(ValidationError::InvalidScrollDepth("missing values".to_string()));
+            }
         }
 
         if let Some(v) = raw_event.scroll_depth_percentage {
@@ -302,6 +309,14 @@ impl EventValidator {
         if let Some(v) = raw_event.scroll_depth_pixels {
             if !valid_f32(v) || v < 0.0 || v > 500000.0 {
                 return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_pixels value".to_string()));
+            }
+        }
+        if is_engagement {
+            if let Some(d) = raw_event.page_duration_seconds {
+                // Cap at 24h — anything beyond that is almost certainly a stale tab or a bug
+                if d > 86400 {
+                    return Err(ValidationError::InvalidScrollDepth("page_duration_seconds exceeds maximum".to_string()));
+                }
             }
         }
         Ok(())
