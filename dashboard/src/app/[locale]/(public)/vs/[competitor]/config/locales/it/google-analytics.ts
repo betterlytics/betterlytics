@@ -72,6 +72,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
         features: [
           { name: 'Dashboard in tempo reale', betterlytics: true, competitor: true },
           { name: 'Eventi personalizzati', betterlytics: true, competitor: true },
+          { name: 'Proprietà globali', betterlytics: true, competitor: 'Tramite proprietà utente' },
           { name: 'Analisi dei funnel', betterlytics: true, competitor: true },
           { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: true },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },

@@ -243,7 +243,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className='relative h-[22rem]'>
+          <div className='relative h-[22rem] overflow-y-auto'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />

@@ -1,10 +1,10 @@
 'server only';
 
-import { FilterColumnSchema, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { parseFilterColumn, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
+import { filterColumnSql } from './filter-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
 import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
@@ -48,12 +48,12 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
-  const strategy = getFilterStrategy(filter.column);
+  const parsed = parseFilterColumn(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
 
-  switch (strategy.type) {
-    case 'json_property': {
-      const key = SQL.String({ [`gp_key_${filterIndex}`]: strategy.key });
+  switch (parsed.kind) {
+    case 'gp': {
+      const key = SQL.String({ [`gp_key_${filterIndex}`]: parsed.key });
       const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
       if (isWildcard) {
         const hasKey = safeSql`has(global_properties_keys, ${key})`;
@@ -63,7 +63,7 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
       return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
     }
     default: {
-      const column = SQL.Unsafe(FilterColumnSchema.parse(filter.column));
+      const column = filterColumnSql(parsed.col);
       return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
     }
   }

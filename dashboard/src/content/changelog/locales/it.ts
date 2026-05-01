@@ -2,23 +2,46 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.9',
-    releasedAt: '2026-03-29',
-    title: 'Error Tracking Client-Side',
+    version: 'v1.4.0',
+    releasedAt: '2026-04-19',
+    title: 'Proprietà globali e miglioramenti delle prestazioni',
     summary:
-      'Betterlytics ora traccia gli errori client-side. Visualizza ogni errore con stack trace e breadcrumb, monitora i trend nel tempo e, se vuoi, riproduci la sessione che ha generato ciascun errore.',
+      'Segmenta le tue analisi secondo qualsiasi dimensione ti interessi grazie alla nuova funzionalità Proprietà globali, e goditi tempi di caricamento della dashboard significativamente più rapidi grazie a miglioramenti generali delle prestazioni.',
   },
   sections: [
     {
-      id: 'v139-new-features',
+      id: 'v140-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'L\'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.',
-            'Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l\'utente prima dell\'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.',
-            'Gli errori sono completamente accessibili tramite il server MCP, così i tuoi assistenti AI possono interrogare i dati sugli errori e aiutarti a capire e risolvere la causa di ciascun errore.',
+            'Le Proprietà globali ti permettono di associare un contesto condiviso a ogni evento inviato dal tuo sito, come stato di accesso, livello di abbonamento o ruolo utente. Questo rende semplice segmentare qualsiasi report in base a queste proprietà, ad esempio confrontando utenti autenticati con visitatori anonimi.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v140-performance',
+      title: 'Prestazioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le dashboard ora si caricano in modo significativamente più rapido, con i miglioramenti più evidenti sui siti ad alto traffico e sugli intervalli di tempo più lunghi.',
+            'Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell\'intera pagina.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v140-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le metriche delle sessioni sono ora più accurate, in particolare per le sessioni di lunga durata. Conteggio delle sessioni, bounce rate e tempo sul sito rispecchiano ora più fedelmente il comportamento reale dei visitatori.',
           ],
         },
       ],
@@ -27,6 +50,54 @@ export const latestChangelogModalIt: ChangelogEntryData = {
 };
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Proprietà globali e miglioramenti delle prestazioni',
+      summary:
+        'Segmenta le tue analisi secondo qualsiasi dimensione ti interessi grazie alla nuova funzionalità Proprietà globali, e goditi tempi di caricamento della dashboard significativamente più rapidi grazie a miglioramenti generali delle prestazioni.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le Proprietà globali ti permettono di associare un contesto condiviso a ogni evento inviato dal tuo sito, come stato di accesso, livello di abbonamento o ruolo utente. Questo rende semplice segmentare qualsiasi report in base a queste proprietà, ad esempio confrontando utenti autenticati con visitatori anonimi.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Prestazioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le dashboard ora si caricano in modo significativamente più rapido, con i miglioramenti più evidenti sui siti ad alto traffico e sugli intervalli di tempo più lunghi.',
+              'Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell\'intera pagina.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le metriche delle sessioni sono ora più accurate, in particolare per le sessioni di lunga durata. Conteggio delle sessioni, bounce rate e tempo sul sito rispecchiano ora più fedelmente il comportamento reale dei visitatori.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.9',

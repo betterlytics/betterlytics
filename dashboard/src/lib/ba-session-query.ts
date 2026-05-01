@@ -1,15 +1,20 @@
 'server only';
 
-import { FILTER_COLUMNS, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import {
+  parseFilterColumn,
+  QueryFilter,
+  QueryFilterSchema,
+  type TableFilterColumn,
+} from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { filterColumnSql } from './filter-sql';
 
 // Filters
-const MAIN_TABLE_FILTERS: QueryFilter['column'][] = ['url', 'event_type', 'custom_event_name'];
-const SESSION_TUPLE_COLUMNS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
+const MAIN_TABLE_FILTERS: TableFilterColumn[] = ['url', 'event_type', 'custom_event_name'];
+const SESSION_TUPLE_COLUMNS: (TableFilterColumn | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
   'entry_page',
   'exit_page',
   'referrer_source',
@@ -22,11 +27,6 @@ const SESSION_TUPLE_COLUMNS: (QueryFilter['column'] | (typeof SESSIONS_TABLE_SEL
   'utm_term',
   'utm_content',
 ];
-
-function isGlobalFilter(column: QueryFilter['column']) {
-  const strategy = getFilterStrategy(column);
-  return strategy.type === 'json_property';
-}
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -120,6 +120,10 @@ function getSessionTableSubQuery(
   `;
 }
 
+type TransformedFilter = z.infer<typeof TransformQueryFilterSchema>;
+type StandardFilter = TransformedFilter & { col: TableFilterColumn };
+type GpFilter = TransformedFilter & { gpKey: string };
+
 /**
  * Build query filters using `safeSql`
  */
@@ -134,28 +138,40 @@ function getSessionFilterQuery(
       Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
   );
 
-  const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
+  const transformed = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
 
-  if (filters.length === 0) {
+  if (transformed.length === 0) {
     return [safeSql`1=1`];
   }
 
-  const hasEventsFilters = filters.some((filter) => MAIN_TABLE_FILTERS.includes(filter.column));
+  const stdFilters: StandardFilter[] = [];
+  const gpFilters: GpFilter[] = [];
+  for (const filter of transformed) {
+    const parsed = parseFilterColumn(filter.column);
+    switch (parsed.kind) {
+      case 'standard':
+        stdFilters.push({ ...filter, col: parsed.col });
+        break;
+      case 'gp':
+        gpFilters.push({ ...filter, gpKey: parsed.key });
+        break;
+    }
+  }
 
-  const gpFilters = filters
-    .filter((filter) => isGlobalFilter(filter.column))
-    .map((filter) => buildGlobalPropertyFilterQuery(filter));
+  const hasEventsFilters = stdFilters.some((f) => MAIN_TABLE_FILTERS.includes(f.col));
 
-  const sessionFilters = filters
-    .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.column) && !isGlobalFilter(filter.column))
+  const gpWhere = gpFilters.map((filter) => buildGlobalPropertyFilterQuery(filter));
+
+  const sessionWhere = stdFilters
+    .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.col))
     .map((filter) => buildSessionFilterQuery(filter));
 
-  const baseWhere = [...gpFilters, ...sessionFilters];
+  const baseWhere = [...gpWhere, ...sessionWhere];
   const WHERE = baseWhere.length > 0 ? baseWhere : [safeSql`1=1`];
 
   if (hasEventsFilters) {
-    const eventsQueries = filters
-      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.column))
+    const eventsQueries = stdFilters
+      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.col))
       .map((filter) => buildFilterQuery(filter));
     const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
     return [...WHERE, eventsQuery];
@@ -173,10 +189,10 @@ function hashFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
   return Math.abs(h).toString(16);
 }
 
-function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
+function buildFilterQuery(filter: StandardFilter) {
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
-  const column = SQL.Unsafe(z.enum(FILTER_COLUMNS).parse(filter.column));
+  const column = filterColumnSql(filter.col);
   return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
 }
 
@@ -184,14 +200,9 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
 // A session matches when at least one of its events carried a matching (key, value) pair.
 // `*` wildcard (passed in as `%` after transform) against any value is treated as
 // "key exists in this session".
-function buildGlobalPropertyFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
-  const strategy = getFilterStrategy(filter.column);
-  if (strategy.type !== 'json_property') {
-    throw new Error(`Expected json_property strategy for column ${filter.column}`);
-  }
-
+function buildGlobalPropertyFilterQuery(filter: GpFilter) {
   const filterHash = hashFilterQuery(filter);
-  const key = SQL.String({ [`gp_key_${filterHash}`]: strategy.key });
+  const key = SQL.String({ [`gp_key_${filterHash}`]: filter.gpKey });
   const isEquals = filter.rawOperator === '=';
 
   const isMatchAnyValue = filter.values.length === 1 && filter.values[0] === '%';
@@ -206,9 +217,10 @@ function buildGlobalPropertyFilterQuery(filter: z.infer<typeof TransformQueryFil
   return isEquals ? anyValueMatches : safeSql`NOT ${anyValueMatches}`;
 }
 
-function buildSessionFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
-  const isTupleColumn = SESSION_TUPLE_COLUMNS.includes(filter.column);
-  const column = SQL.Unsafe(isTupleColumn ? `${filter.column}.2` : filter.column);
+function buildSessionFilterQuery(filter: StandardFilter) {
+  const isTupleColumn = SESSION_TUPLE_COLUMNS.includes(filter.col);
+  const baseColumn = filterColumnSql(filter.col);
+  const column = isTupleColumn ? safeSql`${baseColumn}.2` : baseColumn;
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
   const quantifier = filter.operator.quantifier;

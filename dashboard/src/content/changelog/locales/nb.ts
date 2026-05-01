@@ -2,23 +2,46 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
 export const latestChangelogModalNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.9',
-    releasedAt: '2026-03-29',
-    title: 'Client-Side Error Tracking',
+    version: 'v1.4.0',
+    releasedAt: '2026-04-19',
+    title: 'Globale egenskaper og ytelsesforbedringer',
     summary:
-      'Betterlytics sporer nå feil på klientsiden. Se hver feil med stack traces og breadcrumbs, følg trender over tid, og spill eventuelt av sesjonen som utløste feilen.',
+      'Segmenter analysen din etter hvilken som helst dimensjon du bryr deg om med den nye Globale egenskaper-funksjonen, og opplev betydelig raskere lastetider i dashbordet takket være omfattende ytelsesforbedringer.',
   },
   sections: [
     {
-      id: 'v139-new-features',
+      id: 'v140-new-features',
       title: 'Nye funksjoner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Client-side error tracking er her. Feil og console.error-kall kan nå fanges opp og grupperes etter fingerprint, slik at du kan se hvilke feil som rammer flest brukere og hvor ofte de oppstår.',
-            'Hver feil inkluderer en stack trace og et breadcrumb-spor som viser hva brukeren gjorde før feilen oppsto. Aktiver session replay on error for også å fange opp en fullstendig avspilling av sesjonen.',
-            'Feilene er fullt tilgjengelige via MCP-serveren, slik at AI-assistentene dine kan hente feildata og hjelpe deg med å forstå og feilsøke hva som forårsaker hver feil.',
+            'Globale egenskaper lar deg feste felles kontekst til hver eneste hendelse som sendes fra nettstedet ditt, for eksempel innloggingsstatus, abonnementsnivå eller brukerrolle. Det gjør det enkelt å segmentere enhver rapport etter disse egenskapene, for eksempel ved å sammenligne innloggede brukere med anonyme besøkende.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v140-performance',
+      title: 'Ytelse',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dashbord lastes nå betydelig raskere, med de største forbedringene på nettsteder med høy trafikk og lengre tidsintervaller.',
+            'Grafer og tabeller lastes nå etter hvert som du scroller til dem, slik at dataene øverst på siden vises raskere i stedet for å vente på at hele siden blir ferdig.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v140-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Sesjonsrelaterte måltall er nå mer nøyaktige, særlig for langvarige sesjoner. Antall sesjoner, bounce rate og tid på side gjenspeiler nå i større grad hva de besøkende faktisk gjorde på nettstedet ditt.',
           ],
         },
       ],
@@ -27,6 +50,54 @@ export const latestChangelogModalNb: ChangelogEntryData = {
 };
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Globale egenskaper og ytelsesforbedringer',
+      summary:
+        'Segmenter analysen din etter hvilken som helst dimensjon du bryr deg om med den nye Globale egenskaper-funksjonen, og opplev betydelig raskere lastetider i dashbordet takket være omfattende ytelsesforbedringer.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'Nye funksjoner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Globale egenskaper lar deg feste felles kontekst til hver eneste hendelse som sendes fra nettstedet ditt, for eksempel innloggingsstatus, abonnementsnivå eller brukerrolle. Det gjør det enkelt å segmentere enhver rapport etter disse egenskapene, for eksempel ved å sammenligne innloggede brukere med anonyme besøkende.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Ytelse',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashbord lastes nå betydelig raskere, med de største forbedringene på nettsteder med høy trafikk og lengre tidsintervaller.',
+              'Grafer og tabeller lastes nå etter hvert som du scroller til dem, slik at dataene øverst på siden vises raskere i stedet for å vente på at hele siden blir ferdig.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sesjonsrelaterte måltall er nå mer nøyaktige, særlig for langvarige sesjoner. Antall sesjoner, bounce rate og tid på side gjenspeiler nå i større grad hva de besøkende faktisk gjorde på nettstedet ditt.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.9',
