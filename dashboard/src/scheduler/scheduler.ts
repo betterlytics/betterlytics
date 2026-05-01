@@ -1,7 +1,7 @@
 'server-only';
 
 import cron from 'node-cron';
-import { runDailyReportCheck } from '@/lib/jobs/reports/email-reports.job';
+import { runDailyReportCheck } from '@/scheduler/reports/email-reports.job';
 
 let isInitialized = false;
 
