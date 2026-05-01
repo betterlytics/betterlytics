@@ -51,10 +51,10 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
     setFunnelSteps,
     updateFunnelStep,
     removeFunnelStep,
-    searchableFunnelSteps,
     funnelPreview,
     emptySteps,
-    isPreviewLoading,
+    previewStatus,
+    previewRefetching,
     reset,
   } = useFunnelDialog({
     dashboardId,
@@ -147,17 +147,16 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
           setFunnelSteps={setFunnelSteps}
           updateFunnelStep={updateFunnelStep}
           removeFunnelStep={removeFunnelStep}
-          searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}
-          isPreviewLoading={isPreviewLoading}
+          previewStatus={previewStatus}
+          previewRefetching={previewRefetching}
           hasAttemptedSubmit={hasAttemptedSubmit}
+          initialOpenIds={[]}
           labels={{
             name: t('edit.name'),
             strictMode: t('edit.strictMode'),
             addStep: t('edit.addStep'),
-            livePreview: t('edit.livePreview'),
-            defineAtLeastTwoSteps: t('preview.defineAtLeastTwoSteps'),
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>

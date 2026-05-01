@@ -54,11 +54,11 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     addEmptyFunnelStep,
     updateFunnelStep,
     removeFunnelStep,
-    searchableFunnelSteps,
     funnelPreview,
     emptySteps,
     reset,
-    isPreviewLoading,
+    previewStatus,
+    previewRefetching,
     setFunnelSteps,
   } = useFunnelDialog({
     dashboardId,
@@ -126,18 +126,17 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           setFunnelSteps={setFunnelSteps}
           updateFunnelStep={updateFunnelStep}
           removeFunnelStep={removeFunnelStep}
-          searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}
-          isPreviewLoading={isPreviewLoading}
+          previewStatus={previewStatus}
+          previewRefetching={previewRefetching}
           hasAttemptedSubmit={hasAttemptedSubmit}
+          initialOpenIds={[funnelSteps[0]?.id].filter((id): id is string => Boolean(id))}
           labels={{
             name: t('create.name'),
             namePlaceholder: t('create.namePlaceholder'),
             strictMode: t('create.strictMode'),
             addStep: t('create.addStep'),
-            livePreview: t('create.livePreview'),
-            defineAtLeastTwoSteps: t('preview.defineAtLeastTwoSteps'),
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>

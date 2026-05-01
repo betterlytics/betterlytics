@@ -43,10 +43,10 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
     setFunnelSteps,
     updateFunnelStep,
     removeFunnelStep,
-    searchableFunnelSteps,
     funnelPreview,
     emptySteps,
-    isPreviewLoading,
+    previewStatus,
+    previewRefetching,
     reset,
   } = useFunnelDialog({
     dashboardId,
@@ -125,18 +125,17 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
           setFunnelSteps={setFunnelSteps}
           updateFunnelStep={updateFunnelStep}
           removeFunnelStep={removeFunnelStep}
-          searchableFunnelSteps={searchableFunnelSteps}
           funnelPreview={funnelPreview}
           emptySteps={emptySteps}
-          isPreviewLoading={isPreviewLoading}
+          previewStatus={previewStatus}
+          previewRefetching={previewRefetching}
           hasAttemptedSubmit={hasAttemptedSubmit}
+          initialOpenIds={[]}
           labels={{
             name: t('name'),
             namePlaceholder: t('namePlaceholder'),
             strictMode: t('strictMode'),
             addStep: t('addStep'),
-            livePreview: t('livePreview'),
-            defineAtLeastTwoSteps: t('defineAtLeastTwoSteps'),
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>

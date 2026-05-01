@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useFunnelSteps } from '@/hooks/use-funnel-steps';
 import { trpc } from '@/trpc/client';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useQueryState } from '@/hooks/use-query-state';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
 import type { PresentedFunnel } from '@/presenters/toFunnel';
 
@@ -54,10 +55,12 @@ export function useFunnelDialog({
     }));
   }, [debouncedFunnelSteps]);
 
-  const { data: funnelPreviewData, isLoading: isPreviewLoading } = trpc.funnels.preview.useQuery(
+  const previewQuery = trpc.funnels.preview.useQuery(
     { dashboardId, query: analyticsQuery, funnelSteps: searchableFunnelSteps, isStrict: metadata.isStrict },
     { enabled: searchableFunnelSteps.length >= 2 },
   );
+  const { data: funnelPreviewData, loading: previewLoading, refetching: previewRefetching } =
+    useQueryState(previewQuery, searchableFunnelSteps.length >= 2);
 
   const funnelPreview = useMemo(() => {
     if (!funnelPreviewData) return null;
@@ -84,6 +87,12 @@ export function useFunnelDialog({
       name: debouncedFunnelSteps.find((s) => s.id === step.id)?.name || ' - ',
     }));
   }, [debouncedFunnelSteps]);
+
+  const previewStatus: 'empty' | 'loading' | 'data' = useMemo(() => {
+    if (searchableFunnelSteps.length < 2) return 'empty';
+    if (previewLoading || !funnelPreview) return 'loading';
+    return 'data';
+  }, [searchableFunnelSteps.length, previewLoading, funnelPreview]);
 
   const setName = useCallback((name: string) => {
     setMetadata((prev) => ({ ...prev, name }));
@@ -116,7 +125,8 @@ export function useFunnelDialog({
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
-    isPreviewLoading,
+    previewStatus,
+    previewRefetching,
     reset,
     setFunnelSteps,
   };
