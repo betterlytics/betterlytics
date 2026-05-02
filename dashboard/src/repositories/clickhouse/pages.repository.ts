@@ -124,7 +124,7 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
       page_eng AS (
         SELECT
           url                                                                            AS path,
-          avgIf(toFloat64(duration_seconds), duration_seconds > 0)                       AS avg_time,
+          avgIf(toFloat64(page_duration_seconds), page_duration_seconds > 0)                       AS avg_time,
           arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
         FROM analytics.events
         WHERE site_id = {site_id:String}
@@ -325,7 +325,7 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
       page_eng AS (
         SELECT
           url                                                                            AS path,
-          avgIf(toFloat64(duration_seconds), duration_seconds > 0)                       AS avg_time,
+          avgIf(toFloat64(page_duration_seconds), page_duration_seconds > 0)                       AS avg_time,
           arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
         FROM analytics.events
         WHERE site_id = {site_id:String}
@@ -408,7 +408,7 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
       page_eng AS (
         SELECT
           url                                                                            AS path,
-          avgIf(toFloat64(duration_seconds), duration_seconds > 0)                       AS avg_time,
+          avgIf(toFloat64(page_duration_seconds), page_duration_seconds > 0)                       AS avg_time,
           arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
         FROM analytics.events
         WHERE site_id = {site_id:String}
@@ -472,12 +472,12 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        avg(toFloat64(duration_seconds)) as avgTime,
+        avg(toFloat64(page_duration_seconds)) as avgTime,
         count() as engagementCount
       FROM analytics.events
       WHERE site_id = {site_id:String}
         AND event_type = 'engagement'
-        AND duration_seconds > 0
+        AND page_duration_seconds > 0
         AND ${range}
         AND ${SQL.AND(filters)}
       GROUP BY date

@@ -68,7 +68,7 @@ pub struct ProcessedEvent {
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
     /// Duration for engagement events
-    pub engagement_duration_seconds: u32,
+    pub page_duration_seconds: u32,
 }
 
 /// Event processor that handles real-time processing
@@ -136,7 +136,7 @@ impl EventProcessor {
             error_fingerprint: String::new(),
             global_properties_keys: Vec::new(),
             global_properties_values: Vec::new(),
-            engagement_duration_seconds: 0,
+            page_duration_seconds: 0,
         };
 
         // Handle event types
@@ -228,12 +228,12 @@ impl EventProcessor {
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
         } else if event_name == "scroll_depth" {
             // Legacy event from old cached trackers. Translate to engagement at ingest
-            // so queries only need to read 'engagement' rows. duration_seconds = 0
+            // so queries only need to read 'engagement' rows. page_duration_seconds = 0
             // is the canonical sentinel for "no usable duration"; the
-            // `duration_seconds > 0` query gate excludes these from time-on-page
+            // `page_duration_seconds > 0` query gate excludes these from time-on-page
             // averages while still letting their scroll values contribute.
             processed.event_type = "engagement".to_string();
-            processed.engagement_duration_seconds = 0;
+            processed.page_duration_seconds = 0;
             processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else if event_name == "client_error" {
@@ -241,7 +241,7 @@ impl EventProcessor {
             self.process_client_error(processed);
         } else if event_name == "engagement" {
             processed.event_type = "engagement".to_string();
-            processed.engagement_duration_seconds = processed.event.raw.page_duration_seconds.unwrap_or(0);
+            processed.page_duration_seconds = processed.event.raw.page_duration_seconds.unwrap_or(0);
             processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {

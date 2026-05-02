@@ -22,7 +22,7 @@ ALTER TABLE analytics.events
     );
 
 ALTER TABLE analytics.events
-    ADD COLUMN IF NOT EXISTS duration_seconds UInt32 DEFAULT 0;
+    ADD COLUMN IF NOT EXISTS page_duration_seconds UInt32 DEFAULT 0;
 
 SET max_execution_time = 0;
 SET send_progress_in_http_headers = 1;
@@ -49,7 +49,7 @@ INSERT INTO analytics.events (
     scroll_depth_percentage, scroll_depth_pixels,
     error_exceptions, error_type, error_message, error_fingerprint,
     session_created_at,
-    duration_seconds
+    page_duration_seconds
 )
 WITH
     pv_with_window AS (
@@ -114,7 +114,7 @@ SELECT
     sp.scroll_depth_pixels,
     '' AS error_exceptions, '' AS error_type, '' AS error_message, '' AS error_fingerprint,
     pv.session_created_at,
-    pv.computed_duration                                     AS duration_seconds
+    pv.computed_duration                                     AS page_duration_seconds
 FROM pv_with_window pv
 LEFT JOIN scroll_per_pv sp
     ON  pv.site_id    = sp.site_id
