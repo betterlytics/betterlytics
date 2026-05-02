@@ -34,8 +34,11 @@ export default function CustomEventsSection() {
     if (tabKey === 'events') {
       return applyFilter('custom_event_name', item.label);
     }
-    if (tabKey === 'properties' && item.key && isFilterColumn(item.key)) {
-      return applyFilter(item.key, item.children?.length ? '*' : item.label);
+    if (tabKey === 'properties' && item.key) {
+      const [filterColumn] = item.key.split('::');
+      if (isFilterColumn(filterColumn)) {
+        return applyFilter(filterColumn, item.children?.length ? '*' : item.label);
+      }
     }
   };
 
@@ -71,7 +74,7 @@ export default function CustomEventsSection() {
               trendPercentage: prop.change?.percentage,
               comparisonValue: prop.compare?.visitors,
               children: prop.children.map((v) => ({
-                key: filterKey,
+                key: `${filterKey}::${v.value}`,
                 label: v.value,
                 value: v.current.visitors,
                 trendPercentage: v.change?.percentage,

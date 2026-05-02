@@ -30,10 +30,11 @@ export default function DevicesSection() {
   const devicesState = useQueryState(devicesQuery, activeTab === 'devices');
   const activeState = { browsers: browsersState, os: osState, devices: devicesState }[activeTab as 'browsers' | 'os' | 'devices'];
 
-  const onItemClick = (tabKey: string, item: { label: string }) => {
-    if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
-    if (tabKey === 'devices') return makeFilterClick('device_type')(item.label);
-    if (tabKey === 'os') return makeFilterClick('os')(item.label);
+  const onItemClick = (tabKey: string, item: { label: string; key?: string }) => {
+    const filterValue = item.key?.split('::')[0] ?? item.label;
+    if (tabKey === 'browsers') return makeFilterClick('browser')(filterValue);
+    if (tabKey === 'devices') return makeFilterClick('device_type')(filterValue);
+    if (tabKey === 'os') return makeFilterClick('os')(filterValue);
   };
 
   return (
@@ -55,6 +56,7 @@ export default function DevicesSection() {
             comparisonValue: item.compare?.visitors,
             icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
             children: item.children?.map((v) => ({
+              key: `${item.browser}::${v.version}`,
               icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
               label: `${item.browser} ${v.version}`,
               value: v.current.visitors,
@@ -74,6 +76,7 @@ export default function DevicesSection() {
             comparisonValue: item.compare?.visitors,
             icon: <OSIcon name={item.os} className='h-4 w-4' />,
             children: item.children?.map((v) => ({
+              key: `${item.os}::${v.version}`,
               icon: <OSIcon name={item.os} className='h-4 w-4' />,
               label: `${item.os} ${v.version}`,
               value: v.current.visitors,
