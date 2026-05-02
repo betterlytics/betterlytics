@@ -2,21 +2,22 @@
 
 import { EmailTemplateType } from '@/constants/emailTemplateConst';
 import {
-  sendResetPasswordEmail,
-  sendUsageAlertEmail,
-  sendFirstPaymentWelcomeEmail,
+  sendDirectEmailTemplate,
   sendReportEmail,
 } from '@/services/email/mail.service';
-import { getResetPasswordEmailPreview } from '@/services/email/template/reset-password-mail';
-import { getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
-import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/first-payment-welcome-mail';
+import { createResetPasswordEmailTemplate, getResetPasswordEmailPreview } from '@/services/email/template/reset-password-mail';
+import { createUsageAlertEmailTemplate, getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
+import {
+  createFirstPaymentWelcomeEmailTemplate,
+  getFirstPaymentWelcomeEmailPreview,
+} from '@/services/email/template/first-payment-welcome-mail';
 import { getReportEmailPreview } from '@/services/email/template/weekly-report-mail';
 
 export async function sendTestEmail(email: string, template: EmailTemplateType) {
   try {
     switch (template) {
       case 'reset-password':
-        await sendResetPasswordEmail({
+        await sendDirectEmailTemplate(createResetPasswordEmailTemplate, {
           to: email,
           userName: 'Test User',
           resetUrl: 'https://betterlytics.io/reset-password?token=test-token-123',
@@ -24,7 +25,7 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
         });
         break;
       case 'usage-alert':
-        await sendUsageAlertEmail({
+        await sendDirectEmailTemplate(createUsageAlertEmailTemplate, {
           to: email,
           userName: 'Test User',
           currentUsage: 9500,
@@ -35,7 +36,7 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
         });
         break;
       case 'first-payment-welcome':
-        await sendFirstPaymentWelcomeEmail({
+        await sendDirectEmailTemplate(createFirstPaymentWelcomeEmailTemplate, {
           to: email,
           userName: 'Test User',
           planName: 'Pro',

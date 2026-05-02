@@ -1,7 +1,8 @@
 import { createServer } from 'node:http';
+import { getBoss } from '@/lib/pgboss';
+import { workerEnv } from '@/lib/env/worker.env';
 import { register } from '@/worker/metrics';
-import { createBoss, registerJobs } from '@/worker/runtime';
-import { workerEnv } from '@/worker/workerEnv';
+import { registerWorkersOnce } from '@/worker/runtime';
 
 async function main() {
   if (!workerEnv.BACKGROUND_JOBS_ENABLED) {
@@ -9,7 +10,7 @@ async function main() {
     return;
   }
 
-  const boss = createBoss();
+  const boss = await getBoss();
 
   let isShuttingDown = false;
   const healthServer = createServer(async (req, res) => {
@@ -38,8 +39,7 @@ async function main() {
   });
 
   try {
-    await boss.start();
-    await registerJobs(boss);
+    await registerWorkersOnce(boss);
 
     await new Promise<void>((resolve) => {
       healthServer.listen(workerEnv.WORKER_HEALTH_PORT, () => {

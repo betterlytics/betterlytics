@@ -1,8 +1,8 @@
 'server-only';
 
 import { getBoss } from '@/lib/pgboss';
-import { registerJobs } from '@/worker/runtime';
-import { workerEnv } from '@/worker/workerEnv';
+import { workerEnv } from '@/lib/env/worker.env';
+import { registerWorkersOnce } from '@/worker/runtime';
 
 export async function startEmbeddedWorker(): Promise<void> {
   if (!workerEnv.BACKGROUND_JOBS_ENABLED) {
@@ -11,5 +11,5 @@ export async function startEmbeddedWorker(): Promise<void> {
   }
 
   const boss = await getBoss();
-  await registerJobs(boss);
+  await registerWorkersOnce(boss);
 }

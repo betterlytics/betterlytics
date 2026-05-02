@@ -1,5 +1,5 @@
 import { createClickHouseAdapter, type ClickHouseAdapterClient } from '@/lib/clickhouseAdapter';
-import { workerEnv } from '@/worker/workerEnv';
+import { workerEnv } from '@/lib/env/worker.env';
 
 let _writeClient: ClickHouseAdapterClient | null = null;
 

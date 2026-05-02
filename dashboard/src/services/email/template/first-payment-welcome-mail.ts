@@ -6,7 +6,8 @@ import {
   emailStyles,
   createPrimaryLink,
 } from './email-components';
-import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
+import type { EmailData } from '@/services/email/types';
+import { wrapEmailContent, wrapTextEmailContent } from '@/services/email/content';
 import escapeHtml from 'escape-html';
 
 export interface FirstPaymentWelcomeEmailData extends EmailData {

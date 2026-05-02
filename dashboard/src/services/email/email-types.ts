@@ -1,9 +1,9 @@
-import type { EmailTemplate } from '@/services/email/mail.service';
 import { createResetPasswordEmailTemplate } from '@/services/email/template/reset-password-mail';
 import { createEmailVerificationTemplate } from '@/services/email/template/email-verification-mail';
 import { createUsageAlertEmailTemplate } from '@/services/email/template/usage-alert-mail';
 import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/template/first-payment-welcome-mail';
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
+import type { EmailTemplate } from '@/services/email/types';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
 
@@ -49,3 +49,8 @@ export type SendEmailPayload = {
     data: DataFor<T>;
   };
 }[EmailType];
+
+export function renderEmail(payload: SendEmailPayload): EmailTemplate {
+  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate;
+  return template(payload.data);
+}

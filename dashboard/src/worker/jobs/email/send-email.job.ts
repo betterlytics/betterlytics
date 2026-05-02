@@ -1,20 +1,23 @@
 'server-only';
 
+import { workerEnv } from '@/lib/env/worker.env';
 import type { Job } from '@/worker/jobs/types';
+import { sendEmailJobDefinition } from '@/worker/jobs/definitions';
 import { hasBeenSent, recordSent } from '@/repositories/postgres/sentEmail.repository';
-import { dispatch } from '@/worker/services/email-dispatch';
-import { emailSendsTotal, emailSendDuration } from '@/worker/metrics';
-import { workerEnv } from '@/worker/workerEnv';
-import { EMAIL_TYPES, SEND_EMAIL_JOB_NAME, type SendEmailPayload } from '@/services/email/email-types';
-import { EmailTemplate } from '@/services/email/mail.service';
-
-export function renderEmail(payload: SendEmailPayload): EmailTemplate {
-  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate;
-  return template(payload.data);
-}
+import { dispatchEmail } from '@/services/email/transport';
+import { emailSendsTotal } from '@/worker/metrics';
+import { EMAIL_TYPES, renderEmail, type SendEmailPayload } from '@/services/email/email-types';
 
 async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
-  if (!workerEnv.ENABLE_EMAILS) return;
+  const { saasOnly } = EMAIL_TYPES[payload.type];
+
+  if (!workerEnv.ENABLE_EMAILS) {
+    return;
+  }
+
+  if (saasOnly && !workerEnv.IS_CLOUD) {
+    return;
+  }
 
   if (process.env.NODE_ENV === 'development' && !payload.data.to.includes('@betterlytics.io')) {
     console.warn('Refusing to send to non-@betterlytics.io recipient in dev:', payload.data.to);
@@ -26,25 +29,26 @@ async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
     return;
   }
 
-  const endTimer = emailSendDuration.startTimer({ type: payload.type });
   try {
     const template = renderEmail(payload);
-    const providerMessageId = await dispatch(template, payload.data);
+    const providerMessageId = await dispatchEmail(template, payload.data, {
+      mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
+      smtpHost: workerEnv.SMTP_HOST,
+      smtpPort: workerEnv.SMTP_PORT,
+      smtpUser: workerEnv.SMTP_USER,
+      smtpPassword: workerEnv.SMTP_PASSWORD,
+      smtpFrom: workerEnv.SMTP_FROM,
+    });
     await recordSent(payload.recipientKey, payload.campaignKey, providerMessageId);
     emailSendsTotal.inc({ type: payload.type, status: 'success' });
   } catch (err) {
     emailSendsTotal.inc({ type: payload.type, status: 'failure' });
     throw err;
-  } finally {
-    endTimer();
   }
 }
 
 export const sendEmailJob: Job<SendEmailPayload> = {
-  name: SEND_EMAIL_JOB_NAME,
+  ...sendEmailJobDefinition,
   runOnStart: false,
-  retryLimit: 3,
-  retryBackoff: true,
-  expireInSeconds: 300,
   handler: handleSendEmail,
 };
