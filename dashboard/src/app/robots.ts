@@ -23,6 +23,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/dashboard/*', '/dashboards/*', '/billing/*', '/api/*'],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: [`${baseUrl}/sitemap.xml`, `${baseUrl}/blog/sitemap.xml`],
   };
 }
