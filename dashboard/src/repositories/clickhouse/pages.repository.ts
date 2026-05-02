@@ -304,64 +304,40 @@ export async function getTopExitPages(siteQuery: BASiteQuery, limit = 5): Promis
 
 export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100): Promise<PageAnalytics[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_start', 'session_end', 'pageview_count', 'entry_page'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
 
   const query = safeSql`
     WITH
-      session_summary AS (
-        SELECT
-          session_id,
-          argMin(url, timestamp) AS entry_page,
-          count()                AS pv_count
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'pageview'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
-        GROUP BY session_id
-      ),
+      filtered_sessions AS ${sessionSubQuery},
       total_sessions AS (
-        SELECT count() AS n FROM session_summary
+        SELECT count() AS n FROM filtered_sessions
       ),
       entry_agg AS (
         SELECT
           entry_page              AS path,
           count()                 AS visitors,
-          countIf(pv_count = 1)   AS bounce_sessions,
-          sum(pv_count)           AS pageviews
-        FROM session_summary
+          countIf(pageview_count = 1) AS bounce_sessions,
+          sum(pageview_count)     AS pageviews,
+          avg(dateDiff('second', session_start, session_end)) AS avg_session_time
+        FROM filtered_sessions
+        WHERE entry_page != ''
         GROUP BY entry_page
-      ),
-      page_eng AS (
-        SELECT
-          url                                                AS path,
-          avgIf(visit_duration, visit_duration > 0)          AS avg_time,
-          avgIf(toFloat64(max_scroll), max_scroll IS NOT NULL) AS avg_scroll
-        FROM (
-          SELECT
-            url,
-            session_id,
-            sumIf(page_duration_seconds, page_duration_seconds > 0) AS visit_duration,
-            maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) AS max_scroll
-          FROM analytics.events
-          WHERE site_id = {site_id:String}
-            AND event_type = 'engagement'
-            AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-            AND ${SQL.AND(filters)}
-          GROUP BY url, session_id
-        )
-        GROUP BY url
       )
     SELECT
       ea.path                                                                  AS path,
       ea.visitors                                                              AS visitors,
       ea.pageviews                                                             AS pageviews,
       if(ea.visitors > 0, round(ea.bounce_sessions / ea.visitors * 100, 2), 0) AS bounceRate,
-      coalesce(eng.avg_time, 0)                                                AS avgTime,
+      ea.avg_session_time                                                      AS avgTime,
       if(ts.n > 0, round(ea.visitors / ts.n * 100, 2), 0)                      AS entryRate,
-      coalesce(eng.avg_scroll, 0)                                              AS avgScrollDepth
+      NULL                                                                     AS avgScrollDepth
     FROM entry_agg ea
-    LEFT JOIN page_eng eng USING (path)
     CROSS JOIN total_sessions ts
     ORDER BY ea.visitors DESC
     LIMIT {limit:UInt64}
@@ -395,64 +371,39 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
 
 export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100): Promise<PageAnalytics[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_start', 'session_end', 'pageview_count', 'exit_page'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
 
   const query = safeSql`
     WITH
-      session_summary AS (
-        SELECT
-          session_id,
-          argMax(url, timestamp) AS exit_page,
-          count()                AS pv_count
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'pageview'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
-        GROUP BY session_id
-      ),
+      filtered_sessions AS ${sessionSubQuery},
       total_sessions AS (
-        SELECT count() AS n FROM session_summary
+        SELECT count() AS n FROM filtered_sessions
       ),
       exit_agg AS (
         SELECT
           exit_page               AS path,
           count()                 AS visitors,
-          countIf(pv_count = 1)   AS bounce_sessions,
-          sum(pv_count)           AS pageviews
-        FROM session_summary
+          sum(pageview_count)     AS pageviews,
+          avg(dateDiff('second', session_start, session_end)) AS avg_session_time
+        FROM filtered_sessions
+        WHERE exit_page != ''
         GROUP BY exit_page
-      ),
-      page_eng AS (
-        SELECT
-          url                                                AS path,
-          avgIf(visit_duration, visit_duration > 0)          AS avg_time,
-          avgIf(toFloat64(max_scroll), max_scroll IS NOT NULL) AS avg_scroll
-        FROM (
-          SELECT
-            url,
-            session_id,
-            sumIf(page_duration_seconds, page_duration_seconds > 0) AS visit_duration,
-            maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) AS max_scroll
-          FROM analytics.events
-          WHERE site_id = {site_id:String}
-            AND event_type = 'engagement'
-            AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-            AND ${SQL.AND(filters)}
-          GROUP BY url, session_id
-        )
-        GROUP BY url
       )
     SELECT
       ea.path                                                                  AS path,
       ea.visitors                                                              AS visitors,
       ea.pageviews                                                             AS pageviews,
-      if(ea.visitors > 0, round(ea.bounce_sessions / ea.visitors * 100, 2), 0) AS bounceRate,
-      coalesce(eng.avg_time, 0)                                                AS avgTime,
+      0                                                                        AS bounceRate,
+      ea.avg_session_time                                                      AS avgTime,
       if(ts.n > 0, round(ea.visitors / ts.n * 100, 2), 0)                      AS exitRate,
-      coalesce(eng.avg_scroll, 0)                                              AS avgScrollDepth
+      NULL                                                                     AS avgScrollDepth
     FROM exit_agg ea
-    LEFT JOIN page_eng eng USING (path)
     CROSS JOIN total_sessions ts
     ORDER BY ea.visitors DESC
     LIMIT {limit:UInt64}
@@ -534,9 +485,7 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
   return result.map((row) => DailyAverageTimeRowSchema.parse(row));
 }
 
-export async function getAverageTimeOnPage(
-  siteQuery: BASiteQuery,
-): Promise<AverageTimeOnPageRow> {
+export async function getAverageTimeOnPage(siteQuery: BASiteQuery): Promise<AverageTimeOnPageRow> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
