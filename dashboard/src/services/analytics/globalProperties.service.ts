@@ -35,9 +35,8 @@ export async function getGlobalPropertiesOverview(
     valuesByKey.set(row.property_key, list);
   }
 
-  return topKeys.map(({ property_key, visitors }) => ({
-    property_key,
-    visitors,
-    values: valuesByKey.get(property_key) ?? [],
+  return topKeys.map((topKey) => ({
+    ...topKey,
+    values: valuesByKey.get(topKey.property_key) ?? [],
   }));
 }

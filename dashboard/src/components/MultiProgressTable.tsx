@@ -4,8 +4,6 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
-import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
-import { ScrollBar } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -14,11 +12,10 @@ import { Spinner } from '@/components/ui/spinner';
 import MultiProgressTableRowSkeleton from '@/components/skeleton/MultiProgressTableSkeleton';
 import { cn } from '@/lib/utils';
 
-export interface ProgressBarData {
+interface ProgressBarData {
   label: string;
   value: number;
   key?: string;
-  titleLabel?: string;
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
@@ -103,9 +100,8 @@ function MultiProgressTable<T extends ProgressBarData>({
       return (
         <div className='space-y-2'>
           {data.map((item, index) => {
-            const { key, label, value, children = [], trendPercentage, comparisonValue, icon, titleLabel } = item;
+            const { key, label, value, children = [], trendPercentage, comparisonValue, icon } = item;
             const itemKey = key ?? label;
-            const reactKey = `${itemKey}::${label}::${index}`;
             const isExpandable = children.length > 0;
             const isExpanded = expandedKeys.has(itemKey);
 
@@ -115,12 +111,12 @@ function MultiProgressTable<T extends ProgressBarData>({
 
             return (
               <div
-                key={reactKey}
+                key={itemKey}
                 style={{ paddingLeft: level ? level * 8 : undefined }}
                 className={`group relative ${interactive ? 'cursor-pointer' : ''}`}
                 role={interactive ? 'button' : undefined}
                 tabIndex={interactive ? 0 : undefined}
-                title={interactive ? tFilters('filterBy', { label: titleLabel ?? label }) : undefined}
+                title={interactive && typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
                 onClick={interactive ? () => onItemClick?.(tabKey, item) : undefined}
                 onKeyDown={
                   interactive
@@ -166,15 +162,9 @@ function MultiProgressTable<T extends ProgressBarData>({
                 />
 
                 {isExpandable && isExpanded && (
-                  <ScrollAreaPrimitive.Root
-                    className='mt-2 ml-4 max-h-46 border-l'
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <ScrollAreaPrimitive.Viewport className='max-h-46'>
-                      {renderProgressList(children as T[], tabKey, level + 1)}
-                    </ScrollAreaPrimitive.Viewport>
-                    <ScrollBar />
-                  </ScrollAreaPrimitive.Root>
+                  <div className='mt-2 ml-4 border-l'>
+                    {renderProgressList(children as T[], tabKey, level + 1)}
+                  </div>
                 )}
               </div>
             );

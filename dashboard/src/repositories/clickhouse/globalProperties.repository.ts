@@ -2,17 +2,12 @@ import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-
-export type GlobalPropertyKeyCountRow = {
-  property_key: string;
-  visitors: number;
-};
-
-export type GlobalPropertyKeyValueRow = {
-  property_key: string;
-  value: string;
-  visitors: number;
-};
+import {
+  GlobalPropertyKeyCountRow,
+  GlobalPropertyKeyCountRowSchema,
+  GlobalPropertyKeyValueRow,
+  GlobalPropertyKeyValueRowSchema,
+} from '@/entities/analytics/globalProperties.entities';
 
 export async function getTopGlobalPropertyKeys(
   siteQuery: BASiteQuery,
@@ -36,7 +31,7 @@ export async function getTopGlobalPropertyKeys(
     LIMIT {key_limit:UInt32}
   `;
 
-  const rows = (await clickhouse
+  const result = await clickhouse
     .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
@@ -46,12 +41,9 @@ export async function getTopGlobalPropertyKeys(
         key_limit: keyLimit,
       },
     })
-    .toPromise()) as GlobalPropertyKeyCountRow[];
+    .toPromise();
 
-  return rows.map((row) => ({
-    property_key: row.property_key,
-    visitors: Number(row.visitors),
-  }));
+  return GlobalPropertyKeyCountRowSchema.array().parse(result);
 }
 
 export async function getTopGlobalPropertyValuesForKeys(
@@ -86,7 +78,7 @@ export async function getTopGlobalPropertyValuesForKeys(
     LIMIT {value_limit:UInt32} BY property_key
   `;
 
-  const rows = (await clickhouse
+  const result = await clickhouse
     .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
@@ -97,11 +89,7 @@ export async function getTopGlobalPropertyValuesForKeys(
         value_limit: valueLimit,
       },
     })
-    .toPromise()) as GlobalPropertyKeyValueRow[];
+    .toPromise();
 
-  return rows.map((row) => ({
-    property_key: row.property_key,
-    value: row.value,
-    visitors: Number(row.visitors),
-  }));
+  return GlobalPropertyKeyValueRowSchema.array().parse(result);
 }
