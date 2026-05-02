@@ -150,7 +150,6 @@ export function createFirstPaymentWelcomeEmailTemplate(data: FirstPaymentWelcome
     subject: `Welcome to the ${escapeHtml(data.planName)} plan! Your premium features are now active`,
     html: wrapEmailContent(generateFirstPaymentWelcomeEmailContent(data)),
     text: wrapTextEmailContent(generateFirstPaymentWelcomeEmailText(data)),
-    cloudOnly: true,
   };
 }
 

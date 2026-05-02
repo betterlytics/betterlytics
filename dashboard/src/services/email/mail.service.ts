@@ -27,7 +27,6 @@ export interface EmailTemplate {
   subject: string;
   html: string;
   text?: string;
-  cloudOnly?: boolean;
 }
 
 export interface EmailData {
@@ -110,11 +109,6 @@ async function sendViaSmtp(template: EmailTemplate, emailData: EmailData): Promi
 async function sendEmail(template: EmailTemplate, emailData: EmailData): Promise<void> {
   try {
     if (!isFeatureEnabled('enableEmails')) {
-      return;
-    }
-
-    if (template.cloudOnly && !env.IS_CLOUD) {
-      console.warn('Attempted to send a cloud-only email on a self-hosted instance, skipping');
       return;
     }
 

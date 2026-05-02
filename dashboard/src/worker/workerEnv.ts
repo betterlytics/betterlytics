@@ -16,6 +16,22 @@ const schema = z.object({
     .optional()
     .default('true')
     .transform((v) => v === 'true'),
+  ENABLE_EMAILS: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((v) => v === 'true'),
+  IS_CLOUD: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('false')
+    .transform((v) => v === 'true'),
+  MAILER_SEND_API_TOKEN: z.string().optional().default(''),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
 });
 
 export const workerEnv = schema.parse(process.env);
