@@ -62,6 +62,8 @@ pub enum ValidationError {
     DomainNotAllowed(String),
     #[error("Invalid scroll depth: {0}")]
     InvalidScrollDepth(String),
+    #[error("Invalid page duration: {0}")]
+    InvalidPageDuration(String),
 }
 
 #[derive(Debug, Clone)]
@@ -315,7 +317,7 @@ impl EventValidator {
             if let Some(d) = raw_event.page_duration_seconds {
                 // Cap at 24h — anything beyond that is almost certainly a stale tab or a bug
                 if d > 86400 {
-                    return Err(ValidationError::InvalidScrollDepth("page_duration_seconds exceeds maximum".to_string()));
+                    return Err(ValidationError::InvalidPageDuration("page_duration_seconds exceeds maximum".to_string()));
                 }
             }
         }
@@ -373,6 +375,7 @@ impl EventValidator {
             ValidationError::BlacklistedIp(_) => "blacklisted_ip",
             ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
             ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
+            ValidationError::InvalidPageDuration(_) => "invalid_page_duration",
         }
     }
 
