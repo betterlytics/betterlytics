@@ -123,14 +123,22 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
       ),
       page_eng AS (
         SELECT
-          url                                                                            AS path,
-          avgIf(toFloat64(page_duration_seconds), page_duration_seconds > 0)                       AS avg_time,
-          arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'engagement'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
+          url                                                AS path,
+          avgIf(visit_duration, visit_duration > 0)          AS avg_time,
+          avgIf(toFloat64(max_scroll), max_scroll IS NOT NULL) AS avg_scroll
+        FROM (
+          SELECT
+            url,
+            session_id,
+            sumIf(page_duration_seconds, page_duration_seconds > 0) AS visit_duration,
+            maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) AS max_scroll
+          FROM analytics.events
+          WHERE site_id = {site_id:String}
+            AND event_type = 'engagement'
+            AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+            AND ${SQL.AND(filters)}
+          GROUP BY url, session_id
+        )
         GROUP BY url
       )
     SELECT
@@ -324,14 +332,22 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
       ),
       page_eng AS (
         SELECT
-          url                                                                            AS path,
-          avgIf(toFloat64(page_duration_seconds), page_duration_seconds > 0)                       AS avg_time,
-          arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'engagement'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
+          url                                                AS path,
+          avgIf(visit_duration, visit_duration > 0)          AS avg_time,
+          avgIf(toFloat64(max_scroll), max_scroll IS NOT NULL) AS avg_scroll
+        FROM (
+          SELECT
+            url,
+            session_id,
+            sumIf(page_duration_seconds, page_duration_seconds > 0) AS visit_duration,
+            maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) AS max_scroll
+          FROM analytics.events
+          WHERE site_id = {site_id:String}
+            AND event_type = 'engagement'
+            AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+            AND ${SQL.AND(filters)}
+          GROUP BY url, session_id
+        )
         GROUP BY url
       )
     SELECT
@@ -407,14 +423,22 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
       ),
       page_eng AS (
         SELECT
-          url                                                                            AS path,
-          avgIf(toFloat64(page_duration_seconds), page_duration_seconds > 0)                       AS avg_time,
-          arrayAvg(maxMapIf([session_id], [toFloat64(scroll_depth_percentage)], scroll_depth_percentage IS NOT NULL).2) AS avg_scroll
-        FROM analytics.events
-        WHERE site_id = {site_id:String}
-          AND event_type = 'engagement'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-          AND ${SQL.AND(filters)}
+          url                                                AS path,
+          avgIf(visit_duration, visit_duration > 0)          AS avg_time,
+          avgIf(toFloat64(max_scroll), max_scroll IS NOT NULL) AS avg_scroll
+        FROM (
+          SELECT
+            url,
+            session_id,
+            sumIf(page_duration_seconds, page_duration_seconds > 0) AS visit_duration,
+            maxIf(scroll_depth_percentage, scroll_depth_percentage IS NOT NULL) AS max_scroll
+          FROM analytics.events
+          WHERE site_id = {site_id:String}
+            AND event_type = 'engagement'
+            AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+            AND ${SQL.AND(filters)}
+          GROUP BY url, session_id
+        )
         GROUP BY url
       )
     SELECT
@@ -471,15 +495,23 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
   const query = timeWrapper(
     safeSql`
       SELECT
-        ${granularityFunc('timestamp')} as date,
-        avg(toFloat64(page_duration_seconds)) as avgTime,
-        count() as engagementCount
-      FROM analytics.events
-      WHERE site_id = {site_id:String}
-        AND event_type = 'engagement'
-        AND page_duration_seconds > 0
-        AND ${range}
-        AND ${SQL.AND(filters)}
+        date,
+        avg(visit_duration) as avgTime,
+        count() as visitCount
+      FROM (
+        SELECT
+          ${granularityFunc('timestamp')} as date,
+          session_id,
+          url,
+          sum(page_duration_seconds) as visit_duration
+        FROM analytics.events
+        WHERE site_id = {site_id:String}
+          AND event_type = 'engagement'
+          AND page_duration_seconds > 0
+          AND ${range}
+          AND ${SQL.AND(filters)}
+        GROUP BY date, session_id, url
+      )
       GROUP BY date
       ORDER BY date ASC ${fill}
       LIMIT 10080

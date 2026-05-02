@@ -48,7 +48,7 @@ export const DailyAverageTimeRowSchema = z.object({
     if (val === null || val === undefined) return 0;
     return Number(val);
   }, z.number()),
-  engagementCount: z.preprocess((val) => {
+  visitCount: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
   }, z.number()),

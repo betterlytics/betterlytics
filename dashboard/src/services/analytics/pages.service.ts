@@ -71,11 +71,10 @@ export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): 
 
   const totalPageviews = pageviewsChartData.reduce((sum, row) => sum + row.views, 0);
 
-  const totalEngagementCount = dailyAvgTimeData.reduce((sum, row) => sum + row.engagementCount, 0);
+  const totalVisitCount = dailyAvgTimeData.reduce((sum, row) => sum + row.visitCount, 0);
   const avgTimeOnPage =
-    totalEngagementCount > 0
-      ? dailyAvgTimeData.reduce((sum, row) => sum + row.avgTime * row.engagementCount, 0) /
-        totalEngagementCount
+    totalVisitCount > 0
+      ? dailyAvgTimeData.reduce((sum, row) => sum + row.avgTime * row.visitCount, 0) / totalVisitCount
       : 0;
 
   const totalBounceRateSessions = dailyBounceRateData.reduce((sum, row) => sum + row.sessions, 0);
