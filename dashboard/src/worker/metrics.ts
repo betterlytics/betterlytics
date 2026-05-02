@@ -30,4 +30,17 @@ export const jobsInFlight = new Gauge({
   labelNames: ['job_name'] as const,
 });
 
+export const emailSendsTotal = new Counter({
+  name: 'email_sends_total',
+  help: 'Email send attempts by template type and outcome',
+  labelNames: ['type', 'status'] as const,
+});
+
+export const emailSendDuration = new Histogram({
+  name: 'email_send_duration_seconds',
+  help: 'Time spent dispatching an email to the provider (excludes duplicate-check skips)',
+  labelNames: ['type'] as const,
+  buckets: [0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+});
+
 export { register };
