@@ -54,6 +54,17 @@ export const DailyAverageTimeRowSchema = z.object({
   }, z.number()),
 });
 
+export const AverageTimeOnPageRowSchema = z.object({
+  avgTime: z.preprocess((val) => {
+    if (val === null || val === undefined) return 0;
+    return Number(val);
+  }, z.number()),
+  visitCount: z.preprocess((val) => {
+    if (val === null || val === undefined) return 0;
+    return Number(val);
+  }, z.number()),
+});
+
 export const DailyBounceRateRowSchema = z.object({
   date: z.string(),
   bounceRate: z.preprocess((val) => {
@@ -105,6 +116,7 @@ export type PageAnalyticsCombined = z.infer<typeof PageAnalyticsCombinedSchema>;
 
 export type DailyAverageTimeRow = z.infer<typeof DailyAverageTimeRowSchema>;
 export type DailyBounceRateRow = z.infer<typeof DailyBounceRateRowSchema>;
+export type AverageTimeOnPageRow = z.infer<typeof AverageTimeOnPageRowSchema>;
 
 export type PageviewsChartDataPoint = z.infer<typeof PageviewsChartDataPointSchema>;
 export type PagesSummaryWithCharts = z.infer<typeof PagesSummaryWithChartsSchema>;

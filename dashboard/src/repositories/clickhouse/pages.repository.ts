@@ -13,6 +13,8 @@ import {
   DailyAverageTimeRowSchema,
   DailyBounceRateRow,
   DailyBounceRateRowSchema,
+  AverageTimeOnPageRow,
+  AverageTimeOnPageRowSchema,
 } from '@/entities/analytics/pages.entities';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
@@ -530,6 +532,45 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
     .toPromise()) as unknown[];
 
   return result.map((row) => DailyAverageTimeRowSchema.parse(row));
+}
+
+export async function getAverageTimeOnPage(
+  siteQuery: BASiteQuery,
+): Promise<AverageTimeOnPageRow> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  const query = safeSql`
+    SELECT
+      coalesce(avg(visit_duration), 0) AS avgTime,
+      count() AS visitCount
+    FROM (
+      SELECT
+        session_id,
+        url,
+        sum(page_duration_seconds) AS visit_duration
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND event_type = 'engagement'
+        AND page_duration_seconds > 0
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND ${SQL.AND(filters)}
+      GROUP BY session_id, url
+    )
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+      },
+    })
+    .toPromise()) as unknown[];
+
+  return AverageTimeOnPageRowSchema.parse(result[0] ?? {});
 }
 
 export async function getDailyBounceRate(siteQuery: BASiteQuery): Promise<DailyBounceRateRow[]> {
