@@ -6,9 +6,10 @@ import {
   emailStyles,
   createPrimaryLink,
 } from './email-components';
-import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
+import type { EmailData } from '@/services/email/types';
+import { wrapEmailContent, wrapTextEmailContent } from '@/services/email/content';
 import escapeHtml from 'escape-html';
-import { env } from '@/lib/env';
 
 export interface EmailVerificationData extends EmailData {
   userName: string;
@@ -57,7 +58,7 @@ export function generateEmailVerificationContent(data: EmailVerificationData): s
         },
         {
           text: 'Pricing Plans',
-          url: `${env.PUBLIC_BASE_URL}/billing`,
+          url: `${sharedEmailEnv.publicBaseUrl}/billing`,
           description: 'Explore features and upgrade options',
         },
       ])}
@@ -107,9 +108,9 @@ This verification link will expire in 24 hours for your security. If you didn't 
 What's Next?
 
 Check out these helpful guides to get started:
-• Installation Guide: https://betterlytics.io/docs/installation - Add tracking to your website in minutes
-• Dashboard Overview: https://betterlytics.io/docs/dashboard - Make the most of your analytics data
-• Pricing Plans: ${env.PUBLIC_BASE_URL}/billing - Explore features and upgrade options
+- Installation Guide: https://betterlytics.io/docs/installation - Add tracking to your website in minutes
+- Dashboard Overview: https://betterlytics.io/docs/dashboard - Make the most of your analytics data
+- Pricing Plans: ${sharedEmailEnv.publicBaseUrl}/billing - Explore features and upgrade options
 
 
 If you have any questions or need assistance, don't hesitate to reach out to our support team at support@betterlytics.io.
