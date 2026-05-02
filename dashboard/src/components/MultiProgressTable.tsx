@@ -4,6 +4,8 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
+import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+import { ScrollBar } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -243,14 +245,17 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className='relative h-[22rem] overflow-y-auto'>
+          <ScrollAreaPrimitive.Root className='relative h-[22rem]'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
               </div>
             )}
-            <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
-          </div>
+            <ScrollAreaPrimitive.Viewport className='h-full w-full'>
+              <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
+            </ScrollAreaPrimitive.Viewport>
+            <ScrollBar className='translate-x-1' />
+          </ScrollAreaPrimitive.Root>
         </Tabs>
       </CardContent>
       {footer ? (
