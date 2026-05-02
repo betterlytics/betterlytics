@@ -137,7 +137,8 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
           FROM analytics.events
           WHERE site_id = {site_id:String}
             AND event_type = 'engagement'
-            AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+            AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
+            AND timestamp >= {start:DateTime}
             AND ${SQL.AND(filters)}
           GROUP BY url, session_id
         )
@@ -437,7 +438,7 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
 
 export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise<DailyAverageTimeRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+  const { range, fill, timeWrapper, granularityFunc } = BASessionQuery.getSessionStartRange(
     granularity,
     timezone,
     startDateTime,
@@ -453,7 +454,7 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
         count() as visitCount
       FROM (
         SELECT
-          ${granularityFunc('timestamp')} as date,
+          ${granularityFunc('session_created_at')} as date,
           session_id,
           url,
           sum(page_duration_seconds) as visit_duration
@@ -462,6 +463,7 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
           AND event_type = 'engagement'
           AND page_duration_seconds > 0
           AND ${range}
+          AND timestamp >= {startDate:DateTime}
           AND ${SQL.AND(filters)}
         GROUP BY date, session_id, url
       )
@@ -501,7 +503,8 @@ export async function getAverageTimeOnPage(siteQuery: BASiteQuery): Promise<Aver
       WHERE site_id = {site_id:String}
         AND event_type = 'engagement'
         AND page_duration_seconds > 0
-        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
+        AND timestamp >= {start:DateTime}
         AND ${SQL.AND(filters)}
       GROUP BY session_id, url
     )
