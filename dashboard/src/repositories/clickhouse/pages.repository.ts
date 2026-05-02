@@ -542,8 +542,7 @@ export async function getAverageTimeOnPage(
 
   const query = safeSql`
     SELECT
-      coalesce(avg(visit_duration), 0) AS avgTime,
-      count() AS visitCount
+      coalesce(avg(visit_duration), 0) AS avgTime
     FROM (
       SELECT
         session_id,

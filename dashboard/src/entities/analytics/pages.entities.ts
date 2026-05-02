@@ -59,10 +59,6 @@ export const AverageTimeOnPageRowSchema = z.object({
     if (val === null || val === undefined) return 0;
     return Number(val);
   }, z.number()),
-  visitCount: z.preprocess((val) => {
-    if (val === null || val === undefined) return 0;
-    return Number(val);
-  }, z.number()),
 });
 
 export const DailyBounceRateRowSchema = z.object({
