@@ -48,11 +48,19 @@ export const DailyAverageTimeRowSchema = z.object({
     if (val === null || val === undefined) return 0;
     return Number(val);
   }, z.number()),
+  engagementCount: z.preprocess((val) => {
+    if (val === null || val === undefined) return 0;
+    return Number(val);
+  }, z.number()),
 });
 
 export const DailyBounceRateRowSchema = z.object({
   date: z.string(),
   bounceRate: z.preprocess((val) => {
+    if (val === null || val === undefined) return 0;
+    return Number(val);
+  }, z.number()),
+  sessions: z.preprocess((val) => {
     if (val === null || val === undefined) return 0;
     return Number(val);
   }, z.number()),

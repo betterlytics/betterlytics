@@ -472,7 +472,8 @@ export async function getDailyAverageTimeOnPage(siteQuery: BASiteQuery): Promise
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        avg(toFloat64(duration_seconds)) as avgTime
+        avg(toFloat64(duration_seconds)) as avgTime,
+        count() as engagementCount
       FROM analytics.events
       WHERE site_id = {site_id:String}
         AND event_type = 'engagement'
@@ -533,7 +534,8 @@ export async function getDailyBounceRate(siteQuery: BASiteQuery): Promise<DailyB
         )
       SELECT
         session_date as date,
-        if(count() > 0, round(countIf(page_count = 1) / count() * 100, 2), 0) as bounceRate
+        if(count() > 0, round(countIf(page_count = 1) / count() * 100, 2), 0) as bounceRate,
+        count() as sessions
       FROM daily_sessions
       GROUP BY session_date
       ORDER BY date ASC ${fill}

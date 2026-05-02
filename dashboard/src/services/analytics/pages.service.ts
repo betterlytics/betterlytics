@@ -70,13 +70,19 @@ export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): 
   ]);
 
   const totalPageviews = pageviewsChartData.reduce((sum, row) => sum + row.views, 0);
-  const activeDays = dailyAvgTimeData.filter((row) => row.avgTime > 0).length;
+
+  const totalEngagementCount = dailyAvgTimeData.reduce((sum, row) => sum + row.engagementCount, 0);
   const avgTimeOnPage =
-    activeDays > 0 ? dailyAvgTimeData.reduce((sum, row) => sum + row.avgTime, 0) / activeDays : 0;
-  const activeBounceRateDays = dailyBounceRateData.filter((row) => row.bounceRate > 0).length;
+    totalEngagementCount > 0
+      ? dailyAvgTimeData.reduce((sum, row) => sum + row.avgTime * row.engagementCount, 0) /
+        totalEngagementCount
+      : 0;
+
+  const totalBounceRateSessions = dailyBounceRateData.reduce((sum, row) => sum + row.sessions, 0);
   const avgBounceRate =
-    activeBounceRateDays > 0
-      ? dailyBounceRateData.reduce((sum, row) => sum + row.bounceRate, 0) / activeBounceRateDays
+    totalBounceRateSessions > 0
+      ? dailyBounceRateData.reduce((sum, row) => sum + row.bounceRate * row.sessions, 0) /
+        totalBounceRateSessions
       : 0;
 
   const totalSessions = sessionMetricsData.reduce((sum, row) => sum + row.sessions, 0);
