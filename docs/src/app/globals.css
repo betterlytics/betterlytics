@@ -156,3 +156,128 @@
     top: var(--nextra-navbar-height) !important;
   }
 }
+
+/* Blog post typography — applied to the MDX body wrapped in .blog-prose */
+.blog-prose {
+  color: var(--foreground);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.blog-prose > * + * {
+  margin-top: 1.25em;
+}
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4 {
+  color: var(--foreground);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 5rem;
+}
+.blog-prose h1 {
+  font-size: 2.25rem;
+  margin-top: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.blog-prose h2 {
+  font-size: 1.75rem;
+  margin-top: 2.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+.blog-prose h3 {
+  font-size: 1.375rem;
+  margin-top: 2rem;
+  margin-bottom: 0.4rem;
+}
+.blog-prose h4 {
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+}
+.blog-prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+.blog-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.blog-prose a:hover {
+  text-decoration: none;
+}
+.blog-prose strong {
+  color: var(--foreground);
+  font-weight: 700;
+}
+.blog-prose code:not(pre code) {
+  background: var(--muted);
+  color: var(--foreground);
+  padding: 0.125em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+.blog-prose pre {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+}
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.5rem;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+.blog-prose ul {
+  list-style: disc;
+}
+.blog-prose ol {
+  list-style: decimal;
+}
+.blog-prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.blog-prose li > p {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+}
+.blog-prose blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+  margin: 1.5em 0;
+}
+.blog-prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+.blog-prose img {
+  border-radius: 0.5rem;
+  margin: 1.5rem auto;
+  max-width: 100%;
+  height: auto;
+}
+.blog-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.9375rem;
+}
+.blog-prose th,
+.blog-prose td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+.blog-prose th {
+  background: var(--muted);
+  font-weight: 600;
+}
