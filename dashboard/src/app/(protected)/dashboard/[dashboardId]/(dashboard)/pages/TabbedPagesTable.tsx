@@ -70,7 +70,7 @@ export default function TabbedPagesTable({
               <Button
                 variant='ghost'
                 onClick={() => makeFilterClick('url')(path)}
-                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors'
+                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors select-text'
                 title={t('filterByPath', { path })}
               >
                 {formatString(path)}
