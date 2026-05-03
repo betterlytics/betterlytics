@@ -50,7 +50,7 @@ async function recordAuditResult(
 export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
   action: string,
   targetType: string,
-  audit: (...args: TArgs) => SuperAdminAuditInfo,
+  audit: (...args: TArgs) => Promise<SuperAdminAuditInfo>,
   fn: (ctx: SuperAdminCtx, ...args: TArgs) => Promise<TReturn>,
 ): (...args: TArgs) => Promise<ServerActionResponse<TReturn>> {
   return async (...args: TArgs): Promise<ServerActionResponse<TReturn>> => {
@@ -62,10 +62,11 @@ export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
       assertSuperAdmin(session);
 
       ctx = { actorUserId: session.user.id };
-      auditInfo = audit(...args);
+      const resolvedAudit = await audit(...args);
+      auditInfo = resolvedAudit;
 
       const result = await fn(ctx, ...args);
-      await recordAuditResult(ctx.actorUserId, action, targetType, auditInfo, 'success');
+      await recordAuditResult(ctx.actorUserId, action, targetType, resolvedAudit, 'success');
 
       return { success: true, data: result };
     } catch (error) {

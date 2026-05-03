@@ -12,7 +12,7 @@ export const getUsersAction = withSuperAdminQuery(async (_ctx: SuperAdminCtx, se
 export const deleteUserAction = withSuperAdminAction(
   'delete_user',
   'user',
-  (userId: string) => ({ targetId: userId, payload: { deletedUserId: userId } }),
+  async (userId: string) => ({ targetId: userId, payload: { deletedUserId: userId } }),
   async (ctx: SuperAdminCtx, userId: string) => {
     if (userId === ctx.actorUserId) {
       throw new UserException('Super admins cannot delete themselves');
