@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { appendTimeRangeSearchParams } from '@/utils/timeRangeSearchParams';
+import { appendDashboardSwitchSearchParams } from '@/utils/dashboardSwitchSearchParams';
 
 type DashboardNavigationContextValue = {
   basePath: string;
@@ -47,7 +47,7 @@ export function DashboardNavigationProvider({
       createDashboardHref({ basePathSegments, dashboardId: targetDashboardId, href });
 
     const getSwappedDashboardHref = (nextDashboardId: string) =>
-      appendTimeRangeSearchParams(
+      appendDashboardSwitchSearchParams(
         pathname.replace(`/dashboard/${dashboardId}`, `/dashboard/${nextDashboardId}`),
         searchParams,
       );

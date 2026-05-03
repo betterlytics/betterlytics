@@ -27,6 +27,11 @@ export const URL_SEARCH_PARAMS = [
   'userJourney',
 ] as const satisfies readonly (keyof FilterQueryParams)[];
 
+export const DASHBOARD_SWITCH_SEARCH_PARAMS = [
+  ...TIME_RANGE_SEARCH_PARAMS,
+  'userJourney',
+] as const satisfies readonly (keyof FilterQueryParams)[];
+
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
 

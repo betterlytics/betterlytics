@@ -1,10 +1,10 @@
-import { TIME_RANGE_SEARCH_PARAMS } from '@/utils/filterSearchParams';
+import { DASHBOARD_SWITCH_SEARCH_PARAMS } from '@/utils/filterSearchParams';
 
 type SearchParamsLike = {
   get: (name: string) => string | null;
 };
 
-export function appendTimeRangeSearchParams(
+export function appendDashboardSwitchSearchParams(
   href: string,
   currentSearchParams: SearchParamsLike | null | undefined,
 ): string {
@@ -14,7 +14,7 @@ export function appendTimeRangeSearchParams(
 
   const url = new URL(href, 'http://placeholder');
 
-  TIME_RANGE_SEARCH_PARAMS.forEach((key) => {
+  DASHBOARD_SWITCH_SEARCH_PARAMS.forEach((key) => {
     const value = currentSearchParams.get(key);
     if (value !== null) {
       url.searchParams.set(key, value);
