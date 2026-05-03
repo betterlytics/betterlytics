@@ -177,6 +177,11 @@ export async function anonymizeUser(userId: string): Promise<void> {
       }),
       prisma.account.deleteMany({ where: { userId } }),
       prisma.session.deleteMany({ where: { userId } }),
+      prisma.passwordResetToken.deleteMany({ where: { userId } }),
+      prisma.mcpToken.updateMany({
+        where: { createdBy: userId, deletedAt: null },
+        data: { deletedAt: new Date() },
+      }),
     ]);
   } catch (error) {
     console.error(`Error anonymizing user ${userId}:`, error);
