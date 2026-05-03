@@ -1,8 +1,9 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
+import { appendDashboardSwitchSearchParams } from '@/utils/dashboardSwitchSearchParams';
 
 type DashboardNavigationContextValue = {
   basePath: string;
@@ -33,6 +34,7 @@ export function DashboardNavigationProvider({
   children,
 }: DashboardNavigationProviderProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const value = useMemo<DashboardNavigationContextValue>(() => {
     const normalizedBasePath = normalizeBasePath(basePath);
@@ -45,7 +47,10 @@ export function DashboardNavigationProvider({
       createDashboardHref({ basePathSegments, dashboardId: targetDashboardId, href });
 
     const getSwappedDashboardHref = (nextDashboardId: string) =>
-      pathname.replace(`/dashboard/${dashboardId}`, `/dashboard/${nextDashboardId}`);
+      appendDashboardSwitchSearchParams(
+        pathname.replace(`/dashboard/${dashboardId}`, `/dashboard/${nextDashboardId}`),
+        searchParams,
+      );
 
     return {
       basePath: basePathWithLeadingSlash,
@@ -57,7 +62,7 @@ export function DashboardNavigationProvider({
       resolveHref,
       buildHrefForDashboard,
     };
-  }, [basePath, dashboardId, isDemo, pathname]);
+  }, [basePath, dashboardId, isDemo, pathname, searchParams]);
 
   return <DashboardNavigationContext.Provider value={value}>{children}</DashboardNavigationContext.Provider>;
 }
