@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard/*', '/dashboards/*', '/billing/*', '/api/*'],
+        disallow: ['/dashboard/*', '/dashboards/*', '/billing/*', '/api/*', '/admin', '/admin/*'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
