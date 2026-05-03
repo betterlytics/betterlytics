@@ -47,76 +47,93 @@ export default function TabbedPagesTable({
   const locale = useLocale();
   const t = useTranslations('components.pages.table');
 
-  const getBaseColumns = useCallback((): ColumnDef<
-    PageAnalyticsData[number]
-  >[] => {
-    return [
-      {
-        accessorKey: 'path',
-        header: t('path'),
-        minSize: 200,
-        cell: ({ row }) => {
-          const path = formatPath(row.original.path);
-          return (
-            <Button
-              variant='ghost'
-              onClick={() => makeFilterClick('url')(path)}
-              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors select-text'
-              title={t('filterByPath', { path })}
-            >
-              {formatString(path)}
-            </Button>
-          );
+  const getBaseColumns = useCallback(
+    ({
+      pageviewsLabel,
+      avgTimeLabel,
+      showBounceRate,
+      showScrollDepth,
+    }: {
+      pageviewsLabel: string;
+      avgTimeLabel: string;
+      showBounceRate: boolean;
+      showScrollDepth: boolean;
+    }): ColumnDef<PageAnalyticsData[number]>[] => {
+      const columns: ColumnDef<PageAnalyticsData[number]>[] = [
+        {
+          accessorKey: 'path',
+          header: t('path'),
+          minSize: 200,
+          cell: ({ row }) => {
+            const path = formatPath(row.original.path);
+            return (
+              <Button
+                variant='ghost'
+                onClick={() => makeFilterClick('url')(path)}
+                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors select-text'
+                title={t('filterByPath', { path })}
+              >
+                {formatString(path)}
+              </Button>
+            );
+          },
         },
-      },
-      {
-        accessorKey: 'visitors',
-        header: t('visitors'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
-        accessorFn: (row) => row.current.visitors,
-      },
-      {
-        accessorKey: 'pageviews',
-        header: t('pageviews'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={formatNumber} />,
-        accessorFn: (row) => row.current.pageviews,
-      },
-      {
-        accessorKey: 'bounceRate',
-        header: t('bounceRate'),
-        cell: ({ row }) => (
-          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} allowNullish />
-        ),
-        accessorFn: (row) => row.current.bounceRate,
-      },
-      {
+        {
+          accessorKey: 'visitors',
+          header: t('visitors'),
+          cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
+          accessorFn: (row) => row.current.visitors,
+        },
+        {
+          accessorKey: 'pageviews',
+          header: pageviewsLabel,
+          cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={formatNumber} />,
+          accessorFn: (row) => row.current.pageviews,
+        },
+      ];
+
+      if (showBounceRate) {
+        columns.push({
+          accessorKey: 'bounceRate',
+          header: t('bounceRate'),
+          cell: ({ row }) => (
+            <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} allowNullish />
+          ),
+          accessorFn: (row) => row.current.bounceRate,
+        });
+      }
+
+      columns.push({
         accessorKey: 'avgTime',
-        header: t('avgTime'),
+        header: avgTimeLabel,
         cell: ({ row }) => (
           <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} allowNullish />
         ),
         accessorFn: (row) => row.current.avgTime,
-      },
-      {
-        accessorKey: 'avgScrollDepth',
-        header: t('avgScrollDepth'),
-        cell: ({ row }) => (
-          <TableCompareCell
-            row={row.original}
-            dataKey='avgScrollDepth'
-            formatter={formatPercentage}
-            allowNullish
-          />
-        ),
-        accessorFn: (row) => row.current.avgScrollDepth,
-      },
-    ];
-  }, [makeFilterClick, locale, t]);
+      });
 
-  const getTabSpecificColumns = useCallback((): Record<
-    string,
-    ColumnDef<PageAnalyticsData[number]>
-  > => {
+      if (showScrollDepth) {
+        columns.push({
+          accessorKey: 'avgScrollDepth',
+          header: t('avgScrollDepth'),
+          cell: ({ row }) => (
+            <TableCompareCell
+              row={row.original}
+              dataKey='avgScrollDepth'
+              formatter={formatPercentage}
+              allowNullish
+            />
+          ),
+          accessorFn: (row) => row.current.avgScrollDepth,
+        });
+      }
+
+      return columns;
+    },
+    [makeFilterClick, t],
+  );
+
+  const getTabSpecificColumns = useCallback((): Record<string, ColumnDef<PageAnalyticsData[number]>> => {
     return {
       entryRate: {
         accessorKey: 'entryRate',
@@ -153,16 +170,35 @@ export default function TabbedPagesTable({
     };
   }, [t, locale]);
 
-  const allPagesColumns = useMemo(() => getBaseColumns(), [getBaseColumns]);
+  const allPagesColumns = useMemo(
+    () =>
+      getBaseColumns({
+        pageviewsLabel: t('pageviews'),
+        avgTimeLabel: t('avgTime'),
+        showBounceRate: true,
+        showScrollDepth: true,
+      }),
+    [getBaseColumns, t],
+  );
 
   const entryPagesColumns = useMemo(() => {
-    const base = getBaseColumns();
+    const base = getBaseColumns({
+      pageviewsLabel: t('sessionPageviews'),
+      avgTimeLabel: t('avgSessionTime'),
+      showBounceRate: true,
+      showScrollDepth: false,
+    });
     const specific = getTabSpecificColumns();
     return [...base, specific.entryRate];
   }, [getBaseColumns, getTabSpecificColumns, t]);
 
   const exitPagesColumns = useMemo(() => {
-    const base = getBaseColumns();
+    const base = getBaseColumns({
+      pageviewsLabel: t('sessionPageviews'),
+      avgTimeLabel: t('avgSessionTime'),
+      showBounceRate: false,
+      showScrollDepth: false,
+    });
     const specific = getTabSpecificColumns();
     return [...base, specific.exitRate];
   }, [getBaseColumns, getTabSpecificColumns, t]);
@@ -194,7 +230,18 @@ export default function TabbedPagesTable({
         loading: exitPagesLoading,
       },
     ],
-    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns, allPagesLoading, entryPagesLoading, exitPagesLoading, t],
+    [
+      allPagesData,
+      entryPagesData,
+      exitPagesData,
+      allPagesColumns,
+      entryPagesColumns,
+      exitPagesColumns,
+      allPagesLoading,
+      entryPagesLoading,
+      exitPagesLoading,
+      t,
+    ],
   );
 
   return (
