@@ -30,14 +30,18 @@ export default function CustomEventsSection() {
   const propertiesState = useQueryState(propertiesQuery, activeTab === 'properties');
   const activeState = { events: eventsState, properties: propertiesState }[activeTab as 'events' | 'properties'];
 
-  const onItemClick = (tabKey: string, item: { label: string; key?: string; children?: unknown[] }) => {
+  const onItemClick = (
+    tabKey: string,
+    item: { label: string; key?: string; children?: unknown[]; filterValue?: string; filterColumn?: string },
+  ) => {
     if (tabKey === 'events') {
       return applyFilter('custom_event_name', item.label);
     }
-    if (tabKey === 'properties' && item.key) {
-      const [filterColumn] = item.key.split('::');
+    console.log(item);
+    if (tabKey === 'properties' && item.filterColumn) {
+      const filterColumn = item.filterColumn;
       if (isFilterColumn(filterColumn)) {
-        return applyFilter(filterColumn, item.children?.length ? '*' : item.label);
+        return applyFilter(filterColumn, item.filterValue ?? '*');
       }
     }
   };
@@ -73,8 +77,10 @@ export default function CustomEventsSection() {
               value: prop.current.visitors,
               trendPercentage: prop.change?.percentage,
               comparisonValue: prop.compare?.visitors,
+              filterColumn: filterKey,
               children: prop.children.map((v) => ({
-                key: `${filterKey}::${v.value}`,
+                filterValue: v.value,
+                filterColumn: filterKey,
                 label: v.value,
                 value: v.current.visitors,
                 trendPercentage: v.change?.percentage,
