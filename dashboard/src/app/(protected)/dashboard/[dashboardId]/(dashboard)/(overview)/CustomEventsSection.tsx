@@ -37,7 +37,7 @@ export default function CustomEventsSection() {
     if (tabKey === 'events') {
       return applyFilter('custom_event_name', item.label);
     }
-    console.log(item);
+
     if (tabKey === 'properties' && item.filterColumn) {
       const filterColumn = item.filterColumn;
       if (isFilterColumn(filterColumn)) {
