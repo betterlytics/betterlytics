@@ -1,4 +1,4 @@
-'server only';
+import 'server-only';
 
 import { User } from 'next-auth';
 import { redirect } from 'next/navigation';

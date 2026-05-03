@@ -61,8 +61,8 @@ export async function deleteUser(userId: string): Promise<void> {
       await InvitationRepository.cancelPendingInvitationsForDashboards(deletedDashboardIds);
     }
 
-    await UserRepository.deleteUser(userId);
-    console.log(`Successfully deleted user ${userId} and all associated data`);
+    await UserRepository.anonymizeUser(userId);
+    console.log(`Successfully anonymized user ${userId} and deleted all associated data`);
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error);
     throw new Error('Failed to delete user account and associated data');

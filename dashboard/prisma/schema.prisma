@@ -58,6 +58,17 @@ enum ErrorGroupStatusValue {
   ignored
 }
 
+enum BugReportStatus {
+  open
+  resolved
+  ignored
+}
+
+enum SuperAdminAuditStatus {
+  success
+  failed
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -118,6 +129,8 @@ model User {
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
+
+  deletedAt DateTime?
 }
 
 model VerificationToken {
@@ -409,12 +422,14 @@ model BugReport {
   dashboardId String?
 
   message String
+  status BugReportStatus @default(open)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([dashboardId])
   @@index([userId])
+  @@index([status])
 }
 
 model Annotation {
@@ -510,4 +525,18 @@ model DashboardIntegration {
 
   @@unique([dashboardId, type])
   @@index([dashboardId])
+}
+
+model SuperAdminAuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String
+  action       String
+  targetType   String
+  targetId     String?
+  payload      Json     @default("{}")
+  status       SuperAdminAuditStatus @default(success)
+  createdAt    DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([createdAt])
 }
