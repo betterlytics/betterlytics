@@ -11,8 +11,6 @@ import {
   TopExitPageRowSchema,
   DailyAverageTimeRow,
   DailyAverageTimeRowSchema,
-  DailyBounceRateRow,
-  DailyBounceRateRowSchema,
   AverageTimeOnPageRow,
   AverageTimeOnPageRowSchema,
 } from '@/entities/analytics/pages.entities';
@@ -105,7 +103,8 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
         FROM analytics.events
         WHERE site_id = {site_id:String}
           AND event_type = 'pageview'
-          AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+          AND session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
+          AND timestamp >= {start:DateTime}
           AND ${SQL.AND(filters)}
         GROUP BY session_id
       ),
@@ -119,7 +118,8 @@ export async function getPageMetrics(siteQuery: BASiteQuery): Promise<PageAnalyt
         ANY LEFT JOIN session_pv sp USING (session_id)
         WHERE ev.site_id = {site_id:String}
           AND ev.event_type = 'pageview'
-          AND ev.timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+          AND ev.session_created_at BETWEEN {start:DateTime} AND {end:DateTime}
+          AND ev.timestamp >= {start:DateTime}
           AND ${SQL.AND(filters)}
         GROUP BY ev.url
       ),
@@ -185,7 +185,7 @@ export async function getPageTrafficTimeSeries(
   siteQuery: BASiteQuery,
   path: string,
 ): Promise<TotalPageViewsRow[]> {
-  const { siteId, granularity, timezone, startDateTime, endDateTime } = siteQuery;
+  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
 
   const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
     granularity,
@@ -193,6 +193,7 @@ export async function getPageTrafficTimeSeries(
     startDateTime,
     endDateTime,
   );
+  const filters = BAQuery.getFilterQuery(queryFilters);
   const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = timeWrapper(
@@ -205,6 +206,7 @@ export async function getPageTrafficTimeSeries(
         AND url = {path:String}
         AND event_type = 'pageview'
         AND ${range}
+        AND ${SQL.AND(filters)}
       GROUP BY date
       ORDER BY date ASC ${fill}
       LIMIT 10080
@@ -522,61 +524,4 @@ export async function getAverageTimeOnPage(siteQuery: BASiteQuery): Promise<Aver
     .toPromise()) as unknown[];
 
   return AverageTimeOnPageRowSchema.parse(result[0] ?? {});
-}
-
-export async function getDailyBounceRate(siteQuery: BASiteQuery): Promise<DailyBounceRateRow[]> {
-  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
-    granularity,
-    timezone,
-    startDateTime,
-    endDateTime,
-  );
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = timeWrapper(
-    safeSql`
-      WITH
-        session_events AS (
-          SELECT
-            session_id,
-            timestamp,
-            ${granularityFunc('timestamp')} as event_date
-          FROM analytics.events
-          WHERE site_id = {site_id:String}
-            AND event_type = 'pageview'
-            AND ${range}
-            AND ${SQL.AND(filters)}
-        ),
-        daily_sessions AS (
-          SELECT
-            session_id,
-            min(event_date) as session_date,
-            count() as page_count
-          FROM session_events
-          GROUP BY session_id
-        )
-      SELECT
-        session_date as date,
-        if(count() > 0, round(countIf(page_count = 1) / count() * 100, 2), 0) as bounceRate,
-        count() as sessions
-      FROM daily_sessions
-      GROUP BY session_date
-      ORDER BY date ASC ${fill}
-      LIMIT 10080
-    `,
-  );
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise()) as unknown[];
-
-  return result.map((row) => DailyBounceRateRowSchema.parse(row));
 }
