@@ -52,6 +52,7 @@ pub struct EventRow {
     pub session_created_at: DateTime<Utc>,
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
+    pub page_duration_seconds: u32,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -83,6 +84,7 @@ pub enum EventType {
     Cwv = 4,
     ScrollDepth = 5,
     ClientError = 6,
+    Engagement = 7,
 }
 
 impl EventRow {
@@ -132,6 +134,7 @@ impl EventRow {
             session_created_at: event.session_created_at,
             global_properties_keys: event.global_properties_keys,
             global_properties_values: event.global_properties_values,
+            page_duration_seconds: event.page_duration_seconds,
         }
     }
 }

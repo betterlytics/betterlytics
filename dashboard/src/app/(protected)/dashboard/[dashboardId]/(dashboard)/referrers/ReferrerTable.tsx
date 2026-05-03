@@ -86,7 +86,7 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
             <Button
               variant='ghost'
               onClick={handleClick}
-              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium select-text'
               title={typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
             >
               <span className='flex items-center gap-2'>

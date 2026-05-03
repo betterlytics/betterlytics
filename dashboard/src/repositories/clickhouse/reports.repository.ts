@@ -6,7 +6,6 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getTotalPageviewsCount(siteQuery: BASiteQuery): Promise<number> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT count() AS pageviews
@@ -14,17 +13,12 @@ export async function getTotalPageviewsCount(siteQuery: BASiteQuery): Promise<nu
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+      AND ${SQL.AND(BAQuery.getFilterQuery(queryFilters))}
   `;
 
   const result = await clickhouse
     .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-      },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime },
     })
     .toPromise();
 
@@ -37,17 +31,14 @@ export async function getTopPagesWithPageviews(
   limit: number = 10,
 ): Promise<TopPageWithPageviews[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
-    SELECT
-      url,
-      count() AS pageviews
+    SELECT url, count() AS pageviews
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND ${SQL.AND(filters)}
+      AND ${SQL.AND(BAQuery.getFilterQuery(queryFilters))}
     GROUP BY url
     ORDER BY pageviews DESC
     LIMIT {limit:UInt32}
@@ -55,13 +46,7 @@ export async function getTopPagesWithPageviews(
 
   const result = await clickhouse
     .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-        limit,
-      },
+      params: { ...query.taggedParams, site_id: siteId, start: startDateTime, end: endDateTime, limit },
     })
     .toPromise();
 

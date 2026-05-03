@@ -223,7 +223,7 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-          {renderTabContent(tab)}
+          <div className='h-[22rem] overflow-y-auto'>{renderTabContent(tab)}</div>
         </TabsContent>
       )),
     [tabs, renderTabContent],
@@ -243,13 +243,13 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className='relative h-[22rem] overflow-y-auto'>
+          <div className='relative'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
               </div>
             )}
-            <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
+            <div className={cn(loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
           </div>
         </Tabs>
       </CardContent>
