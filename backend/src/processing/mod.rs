@@ -175,6 +175,7 @@ impl EventProcessor {
         let session_id_result = session::get_or_create_session_id(
             &site_id,
             processed.visitor_fingerprint,
+            timestamp,
         );
 
         match session_id_result {

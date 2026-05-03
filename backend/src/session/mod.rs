@@ -20,6 +20,7 @@ fn generate_session_id() -> u64 {
 pub fn get_or_create_session_id(
     site_id: &str,
     visitor_fingerprint: u64,
+    event_timestamp: DateTime<Utc>,
 ) -> Result<(u64, DateTime<Utc>)> {
     let cache_key = format!("{}-{}", site_id, visitor_fingerprint);
 
@@ -28,7 +29,7 @@ pub fn get_or_create_session_id(
     }
 
     let new_session_id = generate_session_id();
-    let created_at = Utc::now();
+    let created_at = event_timestamp;
 
     SESSION_CACHE.insert(cache_key, (new_session_id, created_at));
 
