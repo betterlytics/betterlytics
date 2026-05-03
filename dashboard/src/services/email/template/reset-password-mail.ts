@@ -6,8 +6,9 @@ import {
   emailStyles,
   createPrimaryLink,
 } from './email-components';
-import { env } from '@/lib/env';
-import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
+import type { EmailData } from '@/services/email/types';
+import { wrapEmailContent, wrapTextEmailContent } from '@/services/email/content';
 import escapeHtml from 'escape-html';
 
 export interface ResetPasswordEmailData extends EmailData {
@@ -51,10 +52,14 @@ export function generateResetPasswordEmailContent(data: ResetPasswordEmailData):
           ${escapeHtml(data.resetUrl)}
         </a>
       
-      ${env.IS_CLOUD ? `<p>If you continue to have problems, contact our support team:</p>
+      ${
+        sharedEmailEnv.isCloud
+          ? `<p>If you continue to have problems, contact our support team:</p>
       <p>
         ${createPrimaryLink('support@betterlytics.io', 'mailto:support@betterlytics.io')}
-      </p>` : ''}
+      </p>`
+          : ''
+      }
     </div>
 
     <p>If you need a new reset link after it expires, you can request another one from the login page.</p>
@@ -82,7 +87,7 @@ This password reset link will expire in ${data.expirationTime} for security reas
 If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.
 
 Having Trouble?
-${env.IS_CLOUD ? 'If you continue to have problems, contact our support team at support@betterlytics.io\n\n' : ''}For your security, this link will expire automatically after ${data.expirationTime}. If you need a new reset link after it expires, you can request another one from the login page.
+${sharedEmailEnv.isCloud ? 'If you continue to have problems, contact our support team at support@betterlytics.io\n\n' : ''}For your security, this link will expire automatically after ${data.expirationTime}. If you need a new reset link after it expires, you can request another one from the login page.
 
 ${createTextEmailSignature()}`.trim();
 

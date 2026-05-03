@@ -1,12 +1,9 @@
 import type { Job } from '@/worker/jobs/types';
+import { heartbeatJobDefinition } from '@/worker/jobs/definitions';
 
 export const heartbeatJob: Job = {
-  name: 'heartbeat',
-  schedule: '* * * * *',
+  ...heartbeatJobDefinition,
   runOnStart: true,
-  retryLimit: 0,
-  retryBackoff: false,
-  expireInSeconds: 30,
   handler: async () => {
     console.info({ job: 'heartbeat', ts: new Date().toISOString() });
   },

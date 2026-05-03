@@ -46,17 +46,19 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
 
     await createPasswordResetToken(user.id, resetToken, expiryDate);
 
-    try {
-      const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
-      await sendResetPasswordEmail({
+    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+    await sendResetPasswordEmail({
+      data: {
         to: user.email,
         userName: getDisplayName(user.name, user.email),
         resetUrl,
         expirationTime: `${TOKEN_EXPIRY_HOURS} hour${TOKEN_EXPIRY_HOURS > 1 ? 's' : ''}`,
-      });
-    } catch (emailError) {
-      console.error('Failed to send password reset email:', emailError);
-    }
+      },
+      queue: {
+        recipientKey: user.id,
+        campaignKey: `reset-password:${resetToken}`,
+      },
+    });
 
     return true;
   } catch (error) {

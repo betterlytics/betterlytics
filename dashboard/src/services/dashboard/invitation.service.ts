@@ -13,6 +13,7 @@ import {
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { sendDashboardInvitationEmail } from '@/services/email/mail.service';
+import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
@@ -69,12 +70,18 @@ export async function inviteUserToDashboard(
 
   try {
     await sendDashboardInvitationEmail({
-      to: email,
-      inviterName: fullInvitation.invitedBy.name || 'Someone',
-      dashboardName: fullInvitation.dashboard?.domain || dashboardId,
-      role: role,
-      inviteToken: invitation.token,
-      userExists: !!existingUser,
+      data: {
+        to: email,
+        inviterName: fullInvitation.invitedBy.name || 'Someone',
+        dashboardName: fullInvitation.dashboard?.domain || dashboardId,
+        role: role,
+        inviteToken: invitation.token,
+        userExists: !!existingUser,
+      },
+      queue: {
+        recipientKey: existingUser?.id ?? createEmailRecipientKey(email),
+        campaignKey: `dashboard-invitation:${invitation.id}`,
+      },
     });
   } catch (emailError) {
     console.error('Failed to send invitation email:', emailError);

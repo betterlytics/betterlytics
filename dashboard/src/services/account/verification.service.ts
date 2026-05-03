@@ -60,10 +60,16 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
     const verificationUrl = `${VERIFICATION_URL_BASE}/verify-email?token=${token}`;
 
     await sendEmailVerificationEmail({
-      to: email,
-      userName: getDisplayName(user.name, user.email),
-      verificationToken: token,
-      verificationUrl,
+      data: {
+        to: email,
+        userName: getDisplayName(user.name, user.email),
+        verificationToken: token,
+        verificationUrl,
+      },
+      queue: {
+        recipientKey: user.id,
+        campaignKey: `email-verification:${token}`,
+      },
     });
   } catch (error) {
     console.error('Error sending verification email:', error);

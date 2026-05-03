@@ -511,3 +511,14 @@ model DashboardIntegration {
   @@unique([dashboardId, type])
   @@index([dashboardId])
 }
+
+model SentEmail {
+  id                String   @id @default(cuid())
+  recipientKey      String
+  campaignKey       String
+  providerMessageId String?
+  sentAt            DateTime @default(now())
+
+  @@unique([recipientKey, campaignKey])
+  @@index([recipientKey])
+}

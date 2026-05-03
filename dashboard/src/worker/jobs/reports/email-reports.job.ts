@@ -1,5 +1,7 @@
 'server-only';
 
+import type { Job } from '@/worker/jobs/types';
+import { emailReportsJobDefinition } from '@/worker/jobs/definitions';
 import { findDashboardsWithReportsEnabled } from '@/repositories/postgres/dashboardSettings.repository';
 import { canDashboardReceiveReports } from '@/lib/billing/capabilityAccess';
 import { sendWeeklyReport, sendMonthlyReport } from '@/services/reports/reports.service';
@@ -11,7 +13,7 @@ function getIsoDay(date: Date): number {
   return jsDay === 0 ? 7 : jsDay;
 }
 
-export async function runDailyReportCheck(): Promise<void> {
+async function runDailyReportCheck(): Promise<void> {
   const today = new Date();
   const dayOfWeek = getIsoDay(today);
   const dayOfMonth = today.getDate();
@@ -65,3 +67,11 @@ export async function runDailyReportCheck(): Promise<void> {
 
   console.info('Daily report check completed');
 }
+
+export const emailReportsJob: Job = {
+  ...emailReportsJobDefinition,
+  runOnStart: false,
+  handler: async () => {
+    await runDailyReportCheck();
+  },
+};

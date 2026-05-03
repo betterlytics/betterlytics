@@ -6,7 +6,8 @@ import {
   emailStyles,
   createPrimaryLink,
 } from './email-components';
-import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
+import type { EmailData } from '@/services/email/types';
+import { wrapEmailContent, wrapTextEmailContent } from '@/services/email/content';
 import escapeHtml from 'escape-html';
 
 export interface FirstPaymentWelcomeEmailData extends EmailData {
@@ -150,7 +151,6 @@ export function createFirstPaymentWelcomeEmailTemplate(data: FirstPaymentWelcome
     subject: `Welcome to the ${escapeHtml(data.planName)} plan! Your premium features are now active`,
     html: wrapEmailContent(generateFirstPaymentWelcomeEmailContent(data)),
     text: wrapTextEmailContent(generateFirstPaymentWelcomeEmailText(data)),
-    cloudOnly: true,
   };
 }
 

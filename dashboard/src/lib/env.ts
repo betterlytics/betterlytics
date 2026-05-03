@@ -1,13 +1,8 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
+import { sharedEmailEnvSchema, zStringBoolean } from '@/lib/env/shared.env';
 
-export const zStringBoolean = z
-  .enum(['true', 'false'])
-  .optional()
-  .default('false')
-  .transform((val) => val === 'true');
-
-const envSchema = z.object({
+const appEnvSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
   CLICKHOUSE_DASHBOARD_USER: z.string().min(1),
   CLICKHOUSE_DASHBOARD_PASSWORD: z.string().min(1),
@@ -19,9 +14,7 @@ const envSchema = z.object({
   NEXTAUTH_SECRET: z.string().min(1),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
-  PUBLIC_BASE_URL: z.string().optional().default('https://betterlytics.io'),
   PUBLIC_IS_CLOUD: zStringBoolean,
-  IS_CLOUD: zStringBoolean,
   ENABLE_BILLING: zStringBoolean,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),
@@ -68,8 +61,10 @@ const envSchema = z.object({
   INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
   SAMPLING_TRAFFIC_THRESHOLD: z.coerce.number().optional().default(100_000),
   SAMPLING_FACTOR: z.coerce.number().min(0).max(1).optional().default(0.25),
-  HIGH_TRAFFIC_CONCURRENCY_LIMIT: z.coerce.number().optional().default(20)
+  HIGH_TRAFFIC_CONCURRENCY_LIMIT: z.coerce.number().optional().default(20),
 });
+
+const envSchema = sharedEmailEnvSchema.merge(appEnvSchema);
 
 export const env = envSchema.parse(process.env);
 

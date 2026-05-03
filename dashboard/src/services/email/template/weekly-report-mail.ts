@@ -1,5 +1,5 @@
 import { getEmailHeader, emailStyles, emailColors, reportStyles, createDataTable } from './email-components';
-import { EmailData } from '@/services/email/mail.service';
+import type { EmailData } from '@/services/email/types';
 import { ReportData } from '@/services/reports/report-data.service';
 import { formatDuration } from '@/utils/dateFormatters';
 import { format } from 'date-fns';
