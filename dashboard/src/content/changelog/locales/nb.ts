@@ -1,47 +1,61 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-export const latestChangelogModalNb: ChangelogEntryData = {
+const v141ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.0',
-    releasedAt: '2026-04-19',
-    title: 'Globale egenskaper og ytelsesforbedringer',
+    version: 'v1.4.1',
+    releasedAt: '2026-05-03',
+    title: 'Raskere sider, aktiv tid og innsikt i hendelsesegenskaper',
     summary:
-      'Segmenter analysen din etter hvilken som helst dimensjon du bryr deg om med den nye Globale egenskaper-funksjonen, og opplev betydelig raskere lastetider i dashbordet takket være omfattende ytelsesforbedringer.',
+      'Denne utgivelsen gjør Sider-rapporten raskere, forbedrer nøyaktigheten for tid på side med måling av aktiv tid, legger til innsikt om Globale egenskaper i Hendelser-tabellen på Oversikt-siden og retter noen irriterende detaljer i dashbordet.',
   },
   sections: [
     {
-      id: 'v140-new-features',
+      id: 'v141-new-features',
       title: 'Nye funksjoner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Globale egenskaper lar deg feste felles kontekst til hver eneste hendelse som sendes fra nettstedet ditt, for eksempel innloggingsstatus, abonnementsnivå eller brukerrolle. Det gjør det enkelt å segmentere enhver rapport etter disse egenskapene, for eksempel ved å sammenligne innloggede brukere med anonyme besøkende.',
+            'Hendelser-tabellen på Oversikt-siden har nå en Globale egenskaper-fane, slik at det blir enklere å se hvilke egenskaper og verdier som forekommer blant unike besøkende.',
           ],
         },
       ],
     },
     {
-      id: 'v140-performance',
+      id: 'v141-performance',
       title: 'Ytelse',
       blocks: [
         {
           type: 'list',
           items: [
-            'Dashbord lastes nå betydelig raskere, med de største forbedringene på nettsteder med høy trafikk og lengre tidsintervaller.',
-            'Grafer og tabeller lastes nå etter hvert som du scroller til dem, slik at dataene øverst på siden vises raskere i stedet for å vente på at hele siden blir ferdig.',
+            'Sider-rapporten er kraftig optimalisert og bør nå lastes betydelig raskere, spesielt for større datasett.',
           ],
         },
       ],
     },
     {
-      id: 'v140-improvements',
+      id: 'v141-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sesjonsrelaterte måltall er nå mer nøyaktige, særlig for langvarige sesjoner. Antall sesjoner, bounce rate og tid på side gjenspeiler nå i større grad hva de besøkende faktisk gjorde på nettstedet ditt.',
+            'Tid på side er nå basert på aktiv tid i stedet for vanlig klokketid, slik at varighetsmålinger bedre gjenspeiler hvor lenge besøkende faktisk engasjerte seg med en side.',
+            'Inngangssider- og Utgangssider-rapportene fokuserer nå på målingene som passer best for disse visningene. Scroll-dybde er fjernet fra begge fanene, og fluktfrekvens er også fjernet fra Utgangssider.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der tooltips på verdenskartet kunne bli værende etter at markøren forlot kartet.',
+            'Forbedret tidssonedeteksjon, slik at sider lastes mer pålitelig for besøkende i berørte miljøer.',
+            'Rettet et Firefox-problem som gjorde enkelte tabellkolonner vanskelige å markere og kopiere.',
           ],
         },
       ],
@@ -49,7 +63,10 @@ export const latestChangelogModalNb: ChangelogEntryData = {
   ],
 };
 
+export const latestChangelogModalNb = v141ChangelogEntryNb;
+
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v141ChangelogEntryNb,
   {
     metadata: {
       version: 'v1.4.0',
