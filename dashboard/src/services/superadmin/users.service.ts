@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import { listUsers } from '@/repositories/postgres/superadmin/users.repository';
 import { ADMIN_PAGE_SIZE } from '@/constants/superadmin';

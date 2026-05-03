@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import type { Session } from 'next-auth';
 import { env } from '@/lib/env';

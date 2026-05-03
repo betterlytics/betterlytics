@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import { logSuperAdminAction, listAuditLogEntries } from '@/repositories/postgres/superadmin/auditLog.repository';
 import { ADMIN_PAGE_SIZE } from '@/constants/superadmin';

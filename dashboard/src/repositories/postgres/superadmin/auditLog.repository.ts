@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { AuditLogEntrySchema, type AuditLogEntry } from '@/entities/superadmin/auditLog.entities';

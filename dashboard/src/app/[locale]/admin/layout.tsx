@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCachedSession } from '@/auth/api-auth';
 import { assertSuperAdmin } from '@/auth/superAdmin-auth';
@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     assertSuperAdmin(session);
   } catch (error) {
     if (error instanceof ForbiddenError) {
-      redirect('/signin');
+      notFound();
     }
     throw error;
   }

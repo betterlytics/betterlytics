@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import type { BugReportStatus } from '@prisma/client';
 import { listBugReports, setBugReportStatus } from '@/repositories/postgres/superadmin/bugReports.repository';

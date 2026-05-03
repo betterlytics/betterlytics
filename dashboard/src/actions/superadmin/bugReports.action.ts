@@ -13,8 +13,8 @@ export const getBugReportsAction = withSuperAdminQuery(
 export const setBugReportStatusAction = withSuperAdminAction(
   'update_bug_report_status',
   'bug_report',
+  (reportId: string, status: BugReportStatus) => ({ targetId: reportId, payload: { status } }),
   async (_ctx: SuperAdminCtx, reportId: string, status: BugReportStatus) => {
     await updateBugReportStatus(reportId, status);
-    return { result: undefined, targetId: reportId, payload: { status } };
   },
 );

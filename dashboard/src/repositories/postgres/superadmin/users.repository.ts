@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { UserSchema, type User } from '@/entities/auth/user.entities';

@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { AdminBugReportSchema, type AdminBugReport } from '@/entities/superadmin/bugReport.entities';

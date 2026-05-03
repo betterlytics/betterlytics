@@ -1,25 +1,38 @@
-'server-only';
+import 'server-only';
 
 import { getCachedSession } from '@/auth/api-auth';
 import { assertSuperAdmin } from '@/auth/superAdmin-auth';
 import { recordSuperAdminAction } from '@/services/superadmin/auditLog.service';
 import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
+import { ForbiddenError, UserException } from '@/lib/exceptions';
 import { unstable_rethrow } from 'next/navigation';
 
 export type SuperAdminCtx = {
   actorUserId: string;
 };
 
-export type SuperAdminAuditResult<TReturn> = {
-  result: TReturn;
+export type SuperAdminAuditInfo = {
   targetId: string | null;
   payload: Record<string, unknown>;
 };
 
+function toErrorResponse(error: unknown, label: string): ServerActionResponse<never> {
+  console.error(`Super admin ${label} error:`, error);
+  const isSafe = error instanceof UserException || error instanceof ForbiddenError;
+  return {
+    success: false,
+    error: {
+      message: isSafe ? error.message : 'An error occurred',
+      name: isSafe ? error.name : 'UnknownError',
+    },
+  };
+}
+
 export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
   action: string,
   targetType: string,
-  fn: (ctx: SuperAdminCtx, ...args: TArgs) => Promise<SuperAdminAuditResult<TReturn>>,
+  audit: (...args: TArgs) => SuperAdminAuditInfo,
+  fn: (ctx: SuperAdminCtx, ...args: TArgs) => Promise<TReturn>,
 ): (...args: TArgs) => Promise<ServerActionResponse<TReturn>> {
   return async (...args: TArgs): Promise<ServerActionResponse<TReturn>> => {
     try {
@@ -27,23 +40,15 @@ export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
       assertSuperAdmin(session);
 
       const ctx: SuperAdminCtx = { actorUserId: session.user.id };
-      const { result, targetId, payload } = await fn(ctx, ...args);
+      const { targetId, payload } = audit(...args);
 
-      recordSuperAdminAction(ctx.actorUserId, action, targetType, targetId, payload).catch((err) => {
-        console.error(`Failed to record audit log for action [${action}]:`, err);
-      });
+      await recordSuperAdminAction(ctx.actorUserId, action, targetType, targetId, payload);
 
+      const result = await fn(ctx, ...args);
       return { success: true, data: result };
     } catch (error) {
       unstable_rethrow(error);
-      console.error(`Super admin action error [${action}]:`, error);
-      return {
-        success: false,
-        error: {
-          message: error instanceof Error ? error.message : 'An unexpected error occurred',
-          name: error instanceof Error ? error.name : 'UnknownError',
-        },
-      };
+      return toErrorResponse(error, `action [${action}]`);
     }
   };
 }
@@ -62,14 +67,7 @@ export function withSuperAdminQuery<TArgs extends unknown[], TReturn>(
       return { success: true, data: result };
     } catch (error) {
       unstable_rethrow(error);
-      console.error('Super admin query error:', error);
-      return {
-        success: false,
-        error: {
-          message: error instanceof Error ? error.message : 'An unexpected error occurred',
-          name: error instanceof Error ? error.name : 'UnknownError',
-        },
-      };
+      return toErrorResponse(error, 'query');
     }
   };
 }
