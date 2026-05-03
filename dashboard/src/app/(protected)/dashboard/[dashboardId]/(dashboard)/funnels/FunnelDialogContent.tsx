@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,10 @@ import { FunnelStepFilter } from './FunnelStepFilter';
 import { Reorder } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { trpc } from '@/trpc/client';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { useQueryState } from '@/hooks/use-query-state';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 type FunnelDialogContentProps = {
   metadata: ReturnType<typeof useFunnelDialog>['metadata'];
@@ -55,9 +59,20 @@ export function FunnelDialogContent({
   const isNameEmpty = metadata.name.trim() === '';
   const showNameError = hasAttemptedSubmit && isNameEmpty;
 
+  const { input, options } = useBAQueryParams();
+  const { isDemo } = useDashboardAuth();
+  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, { ...options, enabled: !isDemo });
+  const { data, loading } = useQueryState(gpQuery, !isDemo);
+  const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
+
   // Local state for smooth drag reordering without triggering refetches
   const [localSteps, setLocalSteps] = useState(funnelSteps);
+  const localStepsRef = useRef(localSteps);
   const isDraggingRef = useRef(false);
+
+  useEffect(() => {
+    localStepsRef.current = localSteps;
+  }, [localSteps]);
 
   // Sync local state when funnelSteps changes externally (e.g., add/remove step)
   useEffect(() => {
@@ -66,15 +81,25 @@ export function FunnelDialogContent({
     }
   }, [funnelSteps]);
 
-  const handleDragStart = () => {
+  const handleDragStart = useCallback(() => {
     isDraggingRef.current = true;
-  };
+  }, []);
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     isDraggingRef.current = false;
-    // Only commit the reorder to parent state on drop
-    setFunnelSteps(localSteps);
-  };
+    setFunnelSteps(localStepsRef.current);
+  }, [setFunnelSteps]);
+
+  const requestStepRemoval = useCallback(
+    (id: string) => {
+      if (funnelSteps.length <= 2) {
+        updateFunnelStep({ id, column: 'url', operator: '=', values: [], name: '' });
+      } else {
+        removeFunnelStep(id);
+      }
+    },
+    [funnelSteps.length, updateFunnelStep, removeFunnelStep],
+  );
 
   return (
     <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
@@ -114,7 +139,7 @@ export function FunnelDialogContent({
               </Button>
             </div>
           </div>
-          <Reorder.Group axis='y' values={localSteps} onReorder={setLocalSteps} className='space-y-2'>
+          <Reorder.Group axis='y' values={localSteps} onReorder={setLocalSteps} className='flex flex-col gap-2'>
             {localSteps.map((step, index) => (
               <Reorder.Item
                 key={step.id}
@@ -129,8 +154,9 @@ export function FunnelDialogContent({
                 <FunnelStepFilter
                   onFilterUpdate={updateFunnelStep}
                   filter={step}
-                  requestRemoval={() => removeFunnelStep(step.id)}
+                  requestRemoval={requestStepRemoval}
                   showEmptyError={hasAttemptedSubmit}
+                  globalPropertyKeys={globalPropertyKeys}
                 />
               </Reorder.Item>
             ))}

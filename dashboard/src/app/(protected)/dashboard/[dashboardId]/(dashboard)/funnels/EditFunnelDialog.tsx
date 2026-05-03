@@ -111,17 +111,15 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (!open) {
-        setHasAttemptedSubmit(false);
-      }
-      setIsOpen(open);
       if (open) {
+        setHasAttemptedSubmit(false);
         reset({
           name: funnel.name,
           isStrict: funnel.isStrict,
           steps: funnel.steps.map((s) => s.step),
         });
       }
+      setIsOpen(open);
     },
     [funnel, reset],
   );
@@ -133,7 +131,10 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
           <Pencil className='h-4 w-4' />
         </Button>
       </DialogTrigger>
-      <DialogContent className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'>
+      <DialogContent
+        aria-describedby={undefined}
+        className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'
+      >
         <DialogHeader>
           <DialogTitle>{t('edit.title')}</DialogTitle>
         </DialogHeader>
