@@ -21,6 +21,9 @@ const INSERTER_PERIOD_SECS: u64 = 10;
 const INSERTER_MAX_ROWS: u64 = 100_000;
 const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
 
+const WORKER_RESPAWN_INITIAL_BACKOFF_SECS: u64 = 1;
+const WORKER_RESPAWN_MAX_BACKOFF_SECS: u64 = 60;
+
 pub struct Database {
     clickhouse: Arc<ClickHouseClient>,
     event_tx: mpsc::Sender<ProcessedEvent>,
@@ -33,7 +36,7 @@ impl Database {
     pub async fn new(clickhouse: Arc<ClickHouseClient>, config: Arc<Config>) -> Result<Self> {
         let (event_tx, event_rx) = Self::create_channels();
         let worker_senders = Self::spawn_inserter_workers(clickhouse.inner().clone());
-        Self::spawn_dispatcher(event_rx, worker_senders);
+        Self::spawn_dispatcher(event_rx, worker_senders, clickhouse.inner().clone());
 
         Ok(Self { clickhouse, event_tx, config })
     }
@@ -42,40 +45,144 @@ impl Database {
         mpsc::channel(EVENT_CHANNEL_CAPACITY)
     }
 
+    fn spawn_single_worker(
+        worker_id: usize,
+        client: clickhouse::Client,
+    ) -> mpsc::Sender<ProcessedEvent> {
+        let (worker_tx, worker_rx) = mpsc::channel(WORKER_CHANNEL_CAPACITY);
+        tokio::spawn(async move {
+            if let Err(e) = run_inserter_worker(worker_id, client, worker_rx).await {
+                tracing::error!(worker_id, error = %e, "Inserter worker exited with error");
+            } else {
+                tracing::info!(worker_id, "Inserter worker exited cleanly");
+            }
+        });
+        worker_tx
+    }
+
     fn spawn_inserter_workers(client: clickhouse::Client) -> Vec<mpsc::Sender<ProcessedEvent>> {
         let mut worker_senders = Vec::with_capacity(NUM_INSERT_WORKERS);
-
         for i in 0..NUM_INSERT_WORKERS {
-            let (worker_tx, worker_rx) = mpsc::channel(WORKER_CHANNEL_CAPACITY);
-            worker_senders.push(worker_tx);
-            let client_clone = client.clone();
-            tokio::spawn(async move {
-                if let Err(e) = run_inserter_worker(i, client_clone, worker_rx).await {
-                    eprintln!("Worker {}: Error - {}", i, e);
-                }
-            });
+            worker_senders.push(Self::spawn_single_worker(i, client.clone()));
         }
         worker_senders
     }
 
     fn spawn_dispatcher(
         mut event_rx: mpsc::Receiver<ProcessedEvent>,
-        worker_senders: Vec<mpsc::Sender<ProcessedEvent>>,
+        mut worker_senders: Vec<mpsc::Sender<ProcessedEvent>>,
+        client: clickhouse::Client,
     ) {
+        #[allow(clippy::modulo_one)]
         tokio::spawn(async move {
             let mut worker_index = 0;
+            let n = worker_senders.len();
+            let mut worker_backoff_secs: Vec<u64> =
+                vec![WORKER_RESPAWN_INITIAL_BACKOFF_SECS; n];
+            let mut worker_next_retry_at: Vec<Option<tokio::time::Instant>> = vec![None; n];
+
             while let Some(event) = event_rx.recv().await {
-                if let Err(e) = worker_senders[worker_index].send(event).await {
-                    eprintln!(
-                        "Dispatcher failed to send event to worker {}: {}",
-                        worker_index, e
-                    );
-                    // TODO: Add logic to handle potentially dead worker (e.g., skip, retry with backoff, remove worker from rotation).
+                if let Some(next_retry) = worker_next_retry_at[worker_index] {
+                    if tokio::time::Instant::now() < next_retry {
+                        tracing::warn!(
+                            worker_id = worker_index,
+                            "Dropping event: ClickHouse insert worker in cooldown after recent failure"
+                        );
+                        worker_index = (worker_index + 1) % NUM_INSERT_WORKERS;
+                        continue;
+                    } else {
+                        worker_next_retry_at[worker_index] = None;
+                    }
                 }
+
+                let mut event_to_send = Some(event);
+
+                for attempt in 0..2u8 {
+                    let Some(ev) = event_to_send.take() else {
+                        break;
+                    };
+
+                    if worker_senders[worker_index].is_closed() {
+                        Self::respawn_worker(
+                            worker_index,
+                            &mut worker_senders,
+                            &mut worker_backoff_secs,
+                            &mut worker_next_retry_at,
+                            &client,
+                            "channel detected closed before send",
+                        );
+                    }
+
+                    match worker_senders[worker_index].send(ev).await {
+                        Ok(()) => {
+                            worker_backoff_secs[worker_index] =
+                                WORKER_RESPAWN_INITIAL_BACKOFF_SECS;
+                            worker_next_retry_at[worker_index] = None;
+                            break;
+                        }
+                        Err(send_err) => {
+                            tracing::error!(
+                                worker_id = worker_index,
+                                attempt,
+                                "Dispatcher failed to send event to worker: channel closed; respawning worker"
+                            );
+                            event_to_send = Some(send_err.0);
+                            Self::respawn_worker(
+                                worker_index,
+                                &mut worker_senders,
+                                &mut worker_backoff_secs,
+                                &mut worker_next_retry_at,
+                                &client,
+                                "send returned channel closed",
+                            );
+                        }
+                    }
+                }
+
+                if let Some(_dropped) = event_to_send {
+                    tracing::warn!(
+                        worker_id = worker_index,
+                        "Dispatcher dropping event after failed respawn-and-resend; ClickHouse insert worker unavailable"
+                    );
+                }
+
                 worker_index = (worker_index + 1) % NUM_INSERT_WORKERS;
             }
-            println!("Dispatcher: Event channel closed. Shutting down.");
+            tracing::info!("Dispatcher: Event channel closed. Shutting down.");
         });
+    }
+
+    fn respawn_worker(
+        worker_index: usize,
+        worker_senders: &mut [mpsc::Sender<ProcessedEvent>],
+        worker_backoff_secs: &mut [u64],
+        worker_next_retry_at: &mut [Option<tokio::time::Instant>],
+        client: &clickhouse::Client,
+        reason: &str,
+    ) {
+        let backoff_secs = worker_backoff_secs[worker_index];
+        tracing::warn!(
+            worker_id = worker_index,
+            backoff_secs,
+            reason,
+            "Respawning ClickHouse insert worker; cooldown will gate further sends"
+        );
+
+        worker_senders[worker_index] =
+            Self::spawn_single_worker(worker_index, client.clone());
+
+        worker_next_retry_at[worker_index] =
+            Some(tokio::time::Instant::now() + Duration::from_secs(backoff_secs));
+
+        worker_backoff_secs[worker_index] = backoff_secs
+            .saturating_mul(2)
+            .min(WORKER_RESPAWN_MAX_BACKOFF_SECS);
+
+        tracing::info!(
+            worker_id = worker_index,
+            next_backoff_secs = worker_backoff_secs[worker_index],
+            "ClickHouse insert worker respawned"
+        );
     }
 
     pub async fn validate_schema(&self) -> Result<()> {
@@ -211,15 +318,27 @@ async fn run_inserter_worker(
                 match timeout(time_left, rx.recv()).await {
                     Ok(Some(received_event)) => received_event,
                     Ok(None) => {
-                        println!(
-                            "Worker {}: Channel closed during timeout wait. Committing final batch.",
-                            worker_id
+                        tracing::info!(
+                            worker_id,
+                            "Channel closed during timeout wait. Committing final batch."
                         );
-                        inserter.commit().await?;
+                        if let Err(e) = inserter.commit().await {
+                            tracing::error!(
+                                worker_id,
+                                error = %e,
+                                "Final commit failed during shutdown"
+                            );
+                        }
                         break;
                     }
                     Err(_) => {
-                        inserter.commit().await?;
+                        if let Err(e) = inserter.commit().await {
+                            tracing::error!(
+                                worker_id,
+                                error = %e,
+                                "Periodic commit failed; continuing without exiting worker"
+                            );
+                        }
                         continue;
                     }
                 }
