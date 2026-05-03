@@ -28,12 +28,15 @@ export default function DevicesSection() {
   const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
   const osState = useQueryState(osQuery, activeTab === 'os');
   const devicesState = useQueryState(devicesQuery, activeTab === 'devices');
-  const activeState = { browsers: browsersState, os: osState, devices: devicesState }[activeTab as 'browsers' | 'os' | 'devices'];
+  const activeState = { browsers: browsersState, os: osState, devices: devicesState }[
+    activeTab as 'browsers' | 'os' | 'devices'
+  ];
 
-  const onItemClick = (tabKey: string, item: { label: string }) => {
-    if (tabKey === 'browsers') return makeFilterClick('browser')(item.label);
-    if (tabKey === 'devices') return makeFilterClick('device_type')(item.label);
-    if (tabKey === 'os') return makeFilterClick('os')(item.label);
+  const onItemClick = (tabKey: string, item: { label: string; key?: string; filterValue?: string }) => {
+    const filterValue = item.filterValue ?? item.label;
+    if (tabKey === 'browsers') return makeFilterClick('browser')(filterValue);
+    if (tabKey === 'devices') return makeFilterClick('device_type')(filterValue);
+    if (tabKey === 'os') return makeFilterClick('os')(filterValue);
   };
 
   return (
@@ -53,8 +56,10 @@ export default function DevicesSection() {
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
             comparisonValue: item.compare?.visitors,
+            filterValue: item.browser,
             icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
             children: item.children?.map((v) => ({
+              filterValue: item.browser,
               icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
               label: `${item.browser} ${v.version}`,
               value: v.current.visitors,
@@ -72,8 +77,10 @@ export default function DevicesSection() {
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
             comparisonValue: item.compare?.visitors,
+            filterValue: item.os,
             icon: <OSIcon name={item.os} className='h-4 w-4' />,
             children: item.children?.map((v) => ({
+              filterValue: item.os,
               icon: <OSIcon name={item.os} className='h-4 w-4' />,
               label: `${item.os} ${v.version}`,
               value: v.current.visitors,
