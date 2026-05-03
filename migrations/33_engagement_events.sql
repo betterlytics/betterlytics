@@ -49,6 +49,8 @@ INSERT INTO analytics.events (
     scroll_depth_percentage, scroll_depth_pixels,
     error_exceptions, error_type, error_message, error_fingerprint,
     session_created_at,
+    global_properties_keys,
+    global_properties_values,
     page_duration_seconds
 )
 WITH
@@ -61,6 +63,8 @@ WITH
             referrer_source, referrer_source_name, referrer_search_term, referrer_url,
             utm_source, utm_medium, utm_campaign, utm_term, utm_content,
             session_created_at,
+            global_properties_keys,
+            global_properties_values,
             leadInFrame(timestamp) OVER (
                 PARTITION BY site_id, session_id
                 ORDER BY timestamp
@@ -114,6 +118,8 @@ SELECT
     sp.scroll_depth_pixels,
     '' AS error_exceptions, '' AS error_type, '' AS error_message, '' AS error_fingerprint,
     pv.session_created_at,
+    pv.global_properties_keys,
+    pv.global_properties_values,
     pv.computed_duration                                     AS page_duration_seconds
 FROM pv_with_window pv
 LEFT JOIN scroll_per_pv sp

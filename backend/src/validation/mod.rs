@@ -315,7 +315,6 @@ impl EventValidator {
         }
         if is_engagement {
             if let Some(d) = raw_event.page_duration_seconds {
-                // Cap at 24h — anything beyond that is almost certainly a stale tab or a bug
                 if d > 86400 {
                     return Err(ValidationError::InvalidPageDuration("page_duration_seconds exceeds maximum".to_string()));
                 }
