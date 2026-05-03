@@ -2,6 +2,7 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
 import { Icon } from '@iconify/react';
+import { cn } from '@/lib/utils';
 import { resolveBrowser } from '@/constants/browserIcons';
 
 interface BrowserIconProps {
@@ -18,12 +19,14 @@ export const BrowserIcon = React.memo<BrowserIconProps>(({ name, className = 'h-
 
   if (def?.icon && !iconFailed) {
     return (
-      <Icon
-        icon={def.icon}
-        className={className}
-        aria-label={def.label}
-        onError={() => setIconFailed(true) as unknown as void}
-      />
+      <span className={cn('inline-flex shrink-0 items-center justify-center align-[-0.125em]', className)}>
+        <Icon
+          icon={def.icon}
+          className='h-full w-full'
+          aria-label={def.label}
+          onError={() => setIconFailed(true) as unknown as void}
+        />
+      </span>
     );
   }
 
