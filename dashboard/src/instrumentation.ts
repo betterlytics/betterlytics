@@ -4,7 +4,7 @@ export async function register() {
 }
 
 async function registerBackgroundJobs() {
-  if (process.env.NEXT_RUNTIME == 'nodejs') {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { env } = await import('@/lib/env');
     if (!env.BACKGROUND_JOBS_ENABLED) {
       console.info('Background jobs disabled, skipping');
