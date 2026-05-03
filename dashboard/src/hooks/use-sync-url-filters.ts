@@ -1,24 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { BAFilterSearchParams, URL_SEARCH_PARAMS } from '@/utils/filterSearchParams';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
-
-const URL_SEARCH_PARAMS = [
-  'queryFilters',
-  'granularity',
-  'startDate',
-  'endDate',
-  'compareStartDate',
-  'compareEndDate',
-  'interval',
-  'offset',
-  'compare',
-  'compareAlignWeekdays',
-  'userJourney',
-] as const;
 
 export function useSyncURLFilters() {
   const searchParams = useSearchParams();

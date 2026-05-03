@@ -1,15 +1,15 @@
 import {
-  FilterQueryParams,
+  type FilterQueryParams,
   FilterQueryParamsSchema,
-  FilterQuerySearchParams,
+  type FilterQuerySearchParams,
 } from '@/entities/analytics/filterQueryParams.entities';
-import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 
-const URL_SEARCH_PARAMS: Array<keyof FilterQueryParams> = [
+export const TIME_RANGE_SEARCH_PARAMS = [
   'startDate',
   'endDate',
   'interval',
@@ -19,9 +19,13 @@ const URL_SEARCH_PARAMS: Array<keyof FilterQueryParams> = [
   'compareStartDate',
   'compareEndDate',
   'compareAlignWeekdays',
+] as const satisfies readonly (keyof FilterQueryParams)[];
+
+export const URL_SEARCH_PARAMS = [
+  ...TIME_RANGE_SEARCH_PARAMS,
   'queryFilters',
   'userJourney',
-];
+] as const satisfies readonly (keyof FilterQueryParams)[];
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
