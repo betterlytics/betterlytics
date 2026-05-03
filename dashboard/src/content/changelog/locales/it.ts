@@ -41,6 +41,7 @@ const v141ChangelogEntryIt: ChangelogEntryData = {
           type: 'list',
           items: [
             'Il tempo sulla pagina ora si basa sul tempo attivo invece che sul tempo cronologico, così le metriche di durata riflettono meglio quanto a lungo i visitatori hanno davvero interagito con una pagina.',
+            'L\'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all\'altra.',
             'I report Pagine di ingresso e Pagine di uscita ora si concentrano sulle metriche più adatte a quelle viste. La profondità di scorrimento è stata rimossa da entrambe le schede, e la frequenza di rimbalzo è stata rimossa anche da Pagine di uscita.',
           ],
         },

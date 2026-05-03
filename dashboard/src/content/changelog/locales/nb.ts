@@ -41,6 +41,7 @@ const v141ChangelogEntryNb: ChangelogEntryData = {
           type: 'list',
           items: [
             'Tid på side er nå basert på aktiv tid i stedet for vanlig klokketid, slik at varighetsmålinger bedre gjenspeiler hvor lenge besøkende faktisk engasjerte seg med en side.',
+            'Det valgte tidsrommet bevares nå når du bytter mellom dashboard.',
             'Inngangssider- og Utgangssider-rapportene fokuserer nå på målingene som passer best for disse visningene. Scroll-dybde er fjernet fra begge fanene, og fluktfrekvens er også fjernet fra Utgangssider.',
           ],
         },

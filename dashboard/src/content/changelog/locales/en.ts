@@ -41,6 +41,7 @@ const v141ChangelogEntryEn: ChangelogEntryData = {
           type: 'list',
           items: [
             'Time on page is now based on active time instead of wall-clock time, so duration metrics better reflect how long visitors actually engaged with a page.',
+            'Your selected time range is now preserved when switching between dashboards.',
             'Entry and exit page reports now focus on the metrics that fit those views. Scroll depth has been removed from both tabs, and bounce rate has also been removed from exit pages.',
           ],
         },
