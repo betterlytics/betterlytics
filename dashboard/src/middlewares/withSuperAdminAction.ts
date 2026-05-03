@@ -16,6 +16,8 @@ export type SuperAdminAuditInfo = {
   payload: Record<string, unknown>;
 };
 
+type SuperAdminAuditStatus = 'success' | 'failed';
+
 function toErrorResponse(error: unknown, label: string): ServerActionResponse<never> {
   console.error(`Super admin ${label} error:`, error);
   const isSafe = error instanceof UserException || error instanceof ForbiddenError;
@@ -28,6 +30,23 @@ function toErrorResponse(error: unknown, label: string): ServerActionResponse<ne
   };
 }
 
+async function recordAuditResult(
+  actorUserId: string,
+  action: string,
+  targetType: string,
+  auditInfo: SuperAdminAuditInfo,
+  status: SuperAdminAuditStatus,
+): Promise<void> {
+  await recordSuperAdminAction(
+    actorUserId,
+    action,
+    targetType,
+    auditInfo.targetId,
+    auditInfo.payload,
+    status,
+  );
+}
+
 export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
   action: string,
   targetType: string,
@@ -35,19 +54,31 @@ export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
   fn: (ctx: SuperAdminCtx, ...args: TArgs) => Promise<TReturn>,
 ): (...args: TArgs) => Promise<ServerActionResponse<TReturn>> {
   return async (...args: TArgs): Promise<ServerActionResponse<TReturn>> => {
+    let ctx: SuperAdminCtx | null = null;
+    let auditInfo: SuperAdminAuditInfo | null = null;
+
     try {
       const session = await getCachedSession();
       assertSuperAdmin(session);
 
-      const ctx: SuperAdminCtx = { actorUserId: session.user.id };
-      const { targetId, payload } = audit(...args);
-
-      await recordSuperAdminAction(ctx.actorUserId, action, targetType, targetId, payload);
+      ctx = { actorUserId: session.user.id };
+      auditInfo = audit(...args);
 
       const result = await fn(ctx, ...args);
+      await recordAuditResult(ctx.actorUserId, action, targetType, auditInfo, 'success');
+
       return { success: true, data: result };
     } catch (error) {
       unstable_rethrow(error);
+
+      if (ctx && auditInfo) {
+        try {
+          await recordAuditResult(ctx.actorUserId, action, targetType, auditInfo, 'failed');
+        } catch (auditError) {
+          console.error(`Failed to record super admin audit failure for [${action}]:`, auditError);
+        }
+      }
+
       return toErrorResponse(error, `action [${action}]`);
     }
   };

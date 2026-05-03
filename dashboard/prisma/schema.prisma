@@ -64,6 +64,11 @@ enum BugReportStatus {
   ignored
 }
 
+enum SuperAdminAuditStatus {
+  success
+  failed
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -529,6 +534,7 @@ model SuperAdminAuditLog {
   targetType   String
   targetId     String?
   payload      Json     @default("{}")
+  status       SuperAdminAuditStatus @default(success)
   createdAt    DateTime @default(now())
 
   @@index([actorUserId])

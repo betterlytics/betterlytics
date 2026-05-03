@@ -22,6 +22,10 @@ function actionVariant(action: string): 'default' | 'destructive' | 'secondary' 
   return 'secondary';
 }
 
+function statusVariant(status: string): 'default' | 'destructive' {
+  return status === 'failed' ? 'destructive' : 'default';
+}
+
 export default async function AdminAuditLogPage({ searchParams }: PageProps) {
   const { page: pageStr } = await searchParams;
   const page = parsePage(pageStr);
@@ -43,6 +47,7 @@ export default async function AdminAuditLogPage({ searchParams }: PageProps) {
             <TableRow>
               <TableHead>Actor</TableHead>
               <TableHead>Action</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Target</TableHead>
               <TableHead>Payload</TableHead>
               <TableHead>Timestamp</TableHead>
@@ -51,7 +56,7 @@ export default async function AdminAuditLogPage({ searchParams }: PageProps) {
           <TableBody>
             {entries.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className='text-center py-10 text-muted-foreground'>
+                <TableCell colSpan={6} className='text-center py-10 text-muted-foreground'>
                   No audit log entries
                 </TableCell>
               </TableRow>
@@ -61,6 +66,9 @@ export default async function AdminAuditLogPage({ searchParams }: PageProps) {
                   <TableCell className='font-mono text-xs text-muted-foreground'>{entry.actorUserId}</TableCell>
                   <TableCell>
                     <Badge variant={actionVariant(entry.action)}>{entry.action}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariant(entry.status)}>{entry.status}</Badge>
                   </TableCell>
                   <TableCell className='text-sm'>
                     <span className='text-muted-foreground'>{entry.targetType}</span>

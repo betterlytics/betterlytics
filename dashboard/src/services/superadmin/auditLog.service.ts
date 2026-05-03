@@ -2,6 +2,7 @@ import 'server-only';
 
 import { logSuperAdminAction, listAuditLogEntries } from '@/repositories/postgres/superadmin/auditLog.repository';
 import { ADMIN_PAGE_SIZE } from '@/constants/superadmin';
+import type { SuperAdminAuditStatus } from '@prisma/client';
 
 export async function getAuditLog(page = 1) {
   const { entries, total } = await listAuditLogEntries(page);
@@ -20,6 +21,7 @@ export async function recordSuperAdminAction(
   targetType: string,
   targetId: string | null,
   payload: Record<string, unknown> = {},
+  status: SuperAdminAuditStatus = 'success',
 ): Promise<void> {
-  await logSuperAdminAction(actorUserId, action, targetType, targetId, payload);
+  await logSuperAdminAction(actorUserId, action, targetType, targetId, payload, status);
 }
