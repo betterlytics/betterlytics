@@ -151,9 +151,23 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         }
     };
     
-    // Get the parser and lookup the referrer URL
+    // Get the parser and lookup the referrer URL.
+    // The refparser crate only accepts http/https schemes and matches domains verbatim,
+    // so we normalize the URL before lookup:
+    // - android-app://com.linkedin.android -> http://com.linkedin.android/
+    // - https://www.linkedin.com/feed/     -> http://linkedin.com/feed/
     let parser = get_parser();
-    let referrer_info = parser.lookup(&referrer_url);
+    let lookup_url: Option<Url> = match referrer_url.scheme() {
+        "android-app" => referrer_url
+            .host_str()
+            .and_then(|h| Url::parse(&format!("http://{}/", h)).ok()),
+        _ => {
+            let host = referrer_url.host_str().unwrap_or("");
+            let normalized_host = host.strip_prefix("www.").unwrap_or(host);
+            Url::parse(&format!("http://{}{}", normalized_host, referrer_url.path())).ok()
+        }
+    };
+    let referrer_info = lookup_url.as_ref().and_then(|u| parser.lookup(u));
 
     // Determine the source based on refparser result
     let source_type = if let Some(ref_info) = &referrer_info {
@@ -197,9 +211,13 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         None
     };
     
-    // Always use the base domain as the source name for consistent grouping
-    let referrer_name = referrer_url.host_str()
-        .and_then(|h| extract_root_domain(h));
+    // For android-app:// referrers the host is a package name (e.g. com.linkedin.android)
+    // which isn't a real domain, so we use it verbatim instead of running it through PSL.
+    let referrer_name = if referrer_url.scheme() == "android-app" {
+        referrer_url.host_str().map(|h| h.to_string())
+    } else {
+        referrer_url.host_str().and_then(|h| extract_root_domain(h))
+    };
 
     // Determine if this is a search medium and get search parameters
     let (is_search_engine, search_params) = if let Some(ref_info) = &referrer_info {
