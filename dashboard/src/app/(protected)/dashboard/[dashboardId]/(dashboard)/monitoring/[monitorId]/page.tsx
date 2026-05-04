@@ -1,13 +1,11 @@
 import {
-  getMonitorCheck,
-  fetchMonitorMetrics,
-  fetchMonitorIncidentSegments,
-  fetchRecentMonitorResults,
-  fetchLatestMonitorTlsResult,
-  fetchMonitorDailyUptime,
-} from '@/services/analytics/monitoring.service';
-import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
-import { requireAuth, getCachedAuthorizedContext } from '@/auth/auth-actions';
+  fetchLatestMonitorTlsResultAction,
+  fetchMonitorCheckAction,
+  fetchMonitorIncidentsAction,
+  fetchMonitorMetricsAction,
+  fetchMonitorUptimeAction,
+  fetchRecentMonitorResultsAction,
+} from '@/app/actions/analytics/monitoring.actions';
 import { MonitorDetailClient } from './MonitorDetailClient';
 import { notFound } from 'next/navigation';
 import { safeHostname } from '../utils';
@@ -24,26 +22,21 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
   }
 
   const { dashboardId, monitorId } = await params;
-  const session = await requireAuth();
-  const authCtx = await getCachedAuthorizedContext(session.user.id, dashboardId);
-  if (!authCtx) notFound();
-
   const timezone = await getUserTimezone();
 
-  const [monitor, metrics, recentChecks, incidents, tls, uptimeRows] = await Promise.all([
-    getMonitorCheck(authCtx.dashboardId, monitorId),
-    fetchMonitorMetrics(authCtx.dashboardId, monitorId, authCtx.siteId, timezone),
-    fetchRecentMonitorResults(monitorId, authCtx.siteId, 10, false),
-    fetchMonitorIncidentSegments(monitorId, authCtx.siteId),
-    fetchLatestMonitorTlsResult(monitorId, authCtx.siteId),
-    fetchMonitorDailyUptime(monitorId, authCtx.dashboardId, authCtx.siteId, timezone, 180),
+  const [monitor, metrics, recentChecks, incidents, tls, uptime] = await Promise.all([
+    fetchMonitorCheckAction(dashboardId, monitorId),
+    fetchMonitorMetricsAction(dashboardId, monitorId, timezone),
+    fetchRecentMonitorResultsAction(dashboardId, monitorId, false),
+    fetchMonitorIncidentsAction(dashboardId, monitorId),
+    fetchLatestMonitorTlsResultAction(dashboardId, monitorId),
+    fetchMonitorUptimeAction(dashboardId, monitorId, timezone, 180),
   ]);
 
   if (!monitor) {
     notFound();
   }
 
-  const uptime = toMonitorUptimePresentation(uptimeRows, 180);
   const hostname = safeHostname(monitor.url);
   const serverNow = Date.now();
 
