@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build && pnpm run build:worker",
-    "build:worker": "esbuild src/worker.ts --bundle --platform=node --target=node20 --external:@prisma/client --external:@prisma/engines --tsconfig=tsconfig.json --outfile=.next/standalone/worker.js",
+    "build:worker": "esbuild src/worker.ts --bundle --platform=node --target=node20 --external:@prisma/client --external:@prisma/engines --external:bcrypt --tsconfig=tsconfig.json --outfile=.next/standalone/worker.js",
     "start": "next start",
     "worker": "tsx --env-file=../.env src/worker.ts",
     "lint": "next lint",
@@ -82,7 +82,7 @@
     "motion": "^12.23.12",
     "next": "15.4.11",
     "next-auth": "^4.24.13",
-    "next-intl": "^4.3.4",
+    "next-intl": "4.3.4",
     "next-themes": "^0.4.6",
     "nextjs-toploader": "^3.8.16",
     "nodemailer": "^8.0.1",
