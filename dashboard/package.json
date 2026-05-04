@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build && pnpm run build:worker",
-    "build:worker": "esbuild src/worker.ts --bundle --platform=node --target=node20 --external:@prisma/client --external:@prisma/engines --tsconfig=tsconfig.json --outfile=.next/standalone/worker.js",
+    "build:worker": "esbuild src/worker.ts --bundle --platform=node --target=node20 --external:@prisma/client --external:@prisma/engines --external:bcrypt --tsconfig=tsconfig.json --outfile=.next/standalone/worker.js",
     "start": "next start",
     "worker": "tsx --env-file=../.env src/worker.ts",
     "lint": "next lint",
