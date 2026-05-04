@@ -21,7 +21,8 @@ RUN pnpm install -g prisma@6.9.0
 COPY package*.json .
 RUN pnpm fetch --prod
 
-RUN pnpm list next-intl
+RUN pnpm why next-intl
+RUN node -p "require('next-intl/package.json').version"
 
 COPY .env.build /.env
 COPY ./prisma ./prisma
