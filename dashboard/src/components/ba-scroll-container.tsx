@@ -71,9 +71,7 @@ export function BAScrollContainer({
     if (!el || !scrollTo) return;
 
     const target = el.querySelector<HTMLElement>(scrollTo.selector);
-    if (target && el.scrollHeight > el.clientHeight) {
-      target.scrollIntoView(scrollTo.options);
-    }
+
     if (scrollTo.focus) {
       const focusTarget =
         target ??
@@ -82,6 +80,16 @@ export function BAScrollContainer({
           : null);
       focusTarget?.focus({ preventScroll: true });
     }
+
+    if (!target) return;
+
+    // Defer a frame so Radix applies its available-height clamp first.
+    const id = requestAnimationFrame(() => {
+      if (el.scrollHeight > el.clientHeight) {
+        target.scrollIntoView(scrollTo.options);
+      }
+    });
+    return () => cancelAnimationFrame(id);
   }, [scrollTo]);
 
   useEffect(() => {
