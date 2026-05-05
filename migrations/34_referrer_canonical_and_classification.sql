@@ -67,7 +67,7 @@ CREATE DICTIONARY IF NOT EXISTS analytics.referrer_source_categories_dict (
 PRIMARY KEY key
 SOURCE(CLICKHOUSE(NAME referrer_dict_source TABLE 'referrer_source_categories_current' DB 'analytics'))
 LAYOUT(HASHED())
-LIFETIME(MIN 0 MAX 300);
+LIFETIME(MIN 3600 MAX 7200)
 
 ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS referrer_source_effective String ALIAS
