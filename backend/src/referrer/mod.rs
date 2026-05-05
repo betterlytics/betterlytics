@@ -5,6 +5,10 @@ use std::path::Path;
 use tracing::info;
 use crate::url_utils::{normalize_url, extract_root_domain};
 
+mod source_categories;
+
+pub use source_categories::build_referrer_source_categories;
+
 /// Referrer source categories
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReferrerSource {

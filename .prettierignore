@@ -2,3 +2,4 @@ node_modules
 .next
 docs/src/content/*
 static/replay.js
+/backend/assets/*

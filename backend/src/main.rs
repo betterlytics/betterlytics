@@ -107,7 +107,11 @@ async fn main() {
     db.validate_schema().await.expect("Invalid database schema");
 
     if let Err(e) = db
-        .sync_referrer_categories(&config.referrer_db_path, &config.custom_referers_path)
+        .sync_referrer_categories(
+            &config.referrer_db_path,
+            &config.ga4_source_categories_path,
+            &config.custom_referrers_path,
+        )
         .await
     {
         warn!(
