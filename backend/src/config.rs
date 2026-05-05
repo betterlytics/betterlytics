@@ -2,7 +2,6 @@ use std::env;
 use std::path::PathBuf;
 use std::time::Duration;
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GeolocationMode {
     Disabled,
@@ -36,6 +35,7 @@ pub struct Config {
     pub geoip_update_interval: Duration,
     // Referrer and User Agent parsing configuration
     pub referrer_db_path: PathBuf,
+    pub custom_referers_path: PathBuf,
     pub ua_regexes_path: PathBuf,
     pub data_retention_days: i32,
     // Monitoring configuration
@@ -125,6 +125,9 @@ impl Config {
             referrer_db_path: env::var("REFERRER_DB_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/snowplow_referers/referers-latest.json")),
+            custom_referers_path: env::var("CUSTOM_REFERERS_PATH")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("assets/custom_referers.json")),
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),

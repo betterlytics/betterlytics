@@ -32,10 +32,14 @@ async function main() {
   });
 
   try {
+    await client.exec({ query: `GRANT dictGet ON analytics.* TO backend_role` });
+    await client.exec({ query: `GRANT dictGet ON analytics.* TO dashboard_role` });
+
     await client.exec({ query: `CREATE USER IF NOT EXISTS ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'` });
     await client.exec({ query: `ALTER USER ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'` });
     await client.exec({ query: `CREATE ROLE IF NOT EXISTS worker_role` });
     await client.exec({ query: `GRANT SELECT ON analytics.* TO worker_role` });
+    await client.exec({ query: `GRANT dictGet ON analytics.* TO worker_role` });
     await client.exec({ query: `GRANT DELETE ON analytics.* TO worker_role` });
     await client.exec({ query: `GRANT worker_role TO ${workerUser}` });
 

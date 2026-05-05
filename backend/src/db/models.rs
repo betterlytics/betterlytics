@@ -28,6 +28,7 @@ pub struct EventRow {
     pub referrer_source_name: String,
     pub referrer_search_term: String,
     pub referrer_url: String,
+    pub referrer_source_canonical: String,
     pub utm_source: String,
     pub utm_medium: String,
     pub utm_campaign: String,
@@ -111,6 +112,7 @@ impl EventRow {
             referrer_source_name: event.referrer_info.source_name.unwrap_or_default(),
             referrer_search_term: event.referrer_info.search_term.unwrap_or_default(),
             referrer_url: event.referrer_info.url.unwrap_or_default(),
+            referrer_source_canonical: event.referrer_info.source_canonical.unwrap_or_default(),
             utm_source: event.campaign_info.utm_source.unwrap_or_default(),
             utm_medium: event.campaign_info.utm_medium.unwrap_or_default(),
             utm_campaign: event.campaign_info.utm_campaign.unwrap_or_default(),
@@ -137,4 +139,11 @@ impl EventRow {
             page_duration_seconds: event.page_duration_seconds,
         }
     }
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct ReferrerSourceCategoryRow {
+    pub generation: u64,
+    pub key: String,
+    pub medium: String,
 }

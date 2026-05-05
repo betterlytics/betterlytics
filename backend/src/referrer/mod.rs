@@ -55,6 +55,8 @@ pub struct ReferrerInfo {
     pub url: Option<String>,
     /// Source category (direct, search, social, etc.)
     pub source_type: ReferrerSource,
+    /// Canonical source name from the referrer database (e.g. "Google", "LinkedIn")
+    pub source_canonical: Option<String>,
     /// Source name (e.g., "Google", "Facebook", etc.)
     pub source_name: Option<String>,
     /// Search term (if available from search engines)
@@ -133,6 +135,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
             return ReferrerInfo {
                 url: None,
                 source_type: ReferrerSource::Direct,
+                source_canonical: None,
                 source_name: None,
                 search_term: None,
             }
@@ -145,6 +148,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
             return ReferrerInfo {
                 url: Some(referrer_str.to_string()),
                 source_type: ReferrerSource::Other,
+                source_canonical: None,
                 source_name: None,
                 search_term: None,
             };
@@ -168,6 +172,10 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         }
     };
     let referrer_info = lookup_url.as_ref().and_then(|u| parser.lookup(u));
+    let source_canonical = referrer_info
+        .as_ref()
+        .map(|ref_info| ref_info.source.clone())
+        .filter(|source| !source.is_empty());
 
     // Determine the source based on refparser result
     let source_type = if let Some(ref_info) = &referrer_info {
@@ -232,6 +240,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     ReferrerInfo {
         url: Some(sanitized_referrer),
         source_type,
+        source_canonical,
         source_name: referrer_name,
         search_term,
     }

@@ -1,7 +1,10 @@
 use anyhow::Result;
 use clickhouse::error::Error as ClickHouseError;
+use serde::Deserialize;
+use std::collections::HashMap;
+use std::path::Path;
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use tokio::sync::mpsc::{self, error::TryRecvError, Receiver};
 use tokio::time::timeout;
@@ -11,7 +14,7 @@ use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
 mod models;
-pub use models::{EventRow, SessionReplayRow};
+pub use models::{EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
@@ -169,6 +172,60 @@ impl Database {
         Ok(())
     }
 
+    pub async fn sync_referrer_categories(
+        &self,
+        snowplow_path: &Path,
+        custom_path: &Path,
+    ) -> Result<()> {
+        let table_exists: u8 = self.clickhouse.inner()
+            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories'")
+            .fetch_one()
+            .await?;
+
+        let dictionary_exists: u8 = self.clickhouse.inner()
+            .query("SELECT count() FROM system.dictionaries WHERE database = 'analytics' AND name = 'referrer_source_categories_dict'")
+            .fetch_one()
+            .await?;
+
+        if table_exists == 0 || dictionary_exists == 0 {
+            tracing::warn!(
+                "Referrer source category dictionary tables are missing; skipping sync. Run migrations first."
+            );
+            return Ok(());
+        }
+
+        let mut categories = HashMap::new();
+        merge_referrer_categories(&mut categories, snowplow_path, true)?;
+        merge_referrer_categories(&mut categories, custom_path, false)?;
+
+        let generation = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+
+        let mut inserter = self
+            .clickhouse
+            .inner()
+            .inserter("analytics.referrer_source_categories")?
+            .with_max_rows(100_000);
+
+        for (key, medium) in categories {
+            let row = ReferrerSourceCategoryRow {
+                generation,
+                key,
+                medium,
+            };
+            inserter.write(&row)?;
+        }
+
+        inserter.end().await?;
+        self.clickhouse
+            .inner()
+            .query("SYSTEM RELOAD DICTIONARY analytics.referrer_source_categories_dict")
+            .execute()
+            .await?;
+
+        tracing::info!("Referrer source category dictionary synced");
+        Ok(())
+    }
+
     pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
         let mut inserter = self.clickhouse.inner().inserter("analytics.session_replays")?;
         inserter.write(&row)?;
@@ -268,4 +325,79 @@ async fn run_inserter_worker(
         worker_id, stats
     );
     Ok(())
+}
+
+#[derive(Debug, Deserialize)]
+struct ReferrerJsonEntry {
+    #[serde(default)]
+    domains: Vec<String>,
+}
+
+type ReferrerJson = HashMap<String, HashMap<String, ReferrerJsonEntry>>;
+
+fn merge_referrer_categories(
+    categories: &mut HashMap<String, String>,
+    path: &Path,
+    required: bool,
+) -> Result<()> {
+    if !path.exists() {
+        if required {
+            anyhow::bail!("Referrer database file does not exist: {:?}", path);
+        }
+        tracing::warn!("Custom referrer file does not exist: {:?}; skipping", path);
+        return Ok(());
+    }
+
+    let contents = std::fs::read_to_string(path)?;
+    let parsed: ReferrerJson = serde_json::from_str(&contents)?;
+
+    for (medium, sources) in parsed {
+        let medium = normalize_referrer_medium(&medium);
+        for (source_name, entry) in sources {
+            insert_referrer_category_key(categories, source_name, &medium);
+
+            for domain in entry.domains {
+                let normalized = normalize_referrer_key(&domain);
+                if normalized.is_empty() {
+                    continue;
+                }
+
+                insert_referrer_category_key(categories, normalized, &medium);
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn insert_referrer_category_key(
+    categories: &mut HashMap<String, String>,
+    key: String,
+    medium: &str,
+) {
+    if key.is_empty() {
+        return;
+    }
+
+    categories.insert(key, medium.to_string());
+}
+
+fn normalize_referrer_key(key: &str) -> String {
+    let lowercase = key.to_lowercase();
+    let without_scheme = lowercase
+        .trim()
+        .trim_start_matches("http://")
+        .trim_start_matches("https://")
+        .trim_end_matches('/');
+    without_scheme
+        .strip_prefix("www.")
+        .unwrap_or(without_scheme)
+        .to_string()
+}
+
+fn normalize_referrer_medium(medium: &str) -> String {
+    match medium {
+        "search" | "social" | "email" | "internal" => medium.to_string(),
+        _ => "other".to_string(),
+    }
 }

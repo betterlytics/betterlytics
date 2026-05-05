@@ -105,6 +105,17 @@ async fn main() {
         .await
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
+
+    if let Err(e) = db
+        .sync_referrer_categories(&config.referrer_db_path, &config.custom_referers_path)
+        .await
+    {
+        warn!(
+            "Referrer category sync failed: {}. Using existing dictionary data.",
+            e
+        );
+    }
+
     let db = Arc::new(db);
 
     let metrics_collector = if config.enable_monitoring {
