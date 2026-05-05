@@ -3,7 +3,7 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 const v141ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.1',
-    releasedAt: '2026-05-03',
+    releasedAt: '2026-05-05',
     title: 'Faster Pages, Active Time & Event Property Insights',
     summary:
       'This release makes the Pages report faster, improves time-on-page accuracy with active time measurement, adds Global Properties insights to the Events table on the Overview page, and fixes a few dashboard annoyances.',

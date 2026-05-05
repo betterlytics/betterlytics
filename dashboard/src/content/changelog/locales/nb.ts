@@ -3,7 +3,7 @@ import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 const v141ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.1',
-    releasedAt: '2026-05-03',
+    releasedAt: '2026-05-05',
     title: 'Raskere sider, aktiv tid og innsikt i hendelsesegenskaper',
     summary:
       'Denne utgivelsen gjør Sider-rapporten raskere, forbedrer nøyaktigheten for tid på side med måling av aktiv tid, legger til innsikt om Globale egenskaper i Hendelser-tabellen på Oversikt-siden og retter noen irriterende detaljer i dashbordet.',
