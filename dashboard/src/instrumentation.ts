@@ -10,8 +10,9 @@ async function registerBackgroundJobs() {
       console.info('Background jobs disabled, skipping');
       return;
     }
-    const { startBackgroundJobs } = await import('@/scheduler/scheduler');
-    startBackgroundJobs();
+    if (env.IS_CLOUD) return;
+    const { startEmbeddedWorker } = await import('@/worker/embedded');
+    await startEmbeddedWorker();
   }
 }
 

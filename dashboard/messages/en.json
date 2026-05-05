@@ -1617,7 +1617,7 @@
       "geography": "Geography",
       "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
-      "customEvents": "Custom Events",
+      "events": "Events",
       "weeklyTrends": "Weekly Trends"
     },
     "goTo": "Go to {section}",
@@ -1635,7 +1635,8 @@
       "referrers": "Referrers",
       "sources": "Sources",
       "channels": "Channels",
-      "events": "Events"
+      "events": "Custom Events",
+      "topProperties": "Global Properties"
     },
     "emptyStates": {
       "adjustTimeRange": "Adjust time range or filters",
@@ -2491,8 +2492,10 @@
         "filterByPath": "Filter by {path}",
         "visitors": "Visitors",
         "pageviews": "Pageviews",
+        "sessionPageviews": "Session Pageviews",
         "bounceRate": "Bounce Rate",
         "avgTime": "Avg. Time",
+        "avgSessionTime": "Avg. Session Time",
         "entryRate": "Entry Rate",
         "exitRate": "Exit Rate",
         "avgScrollDepth": "Scroll depth",

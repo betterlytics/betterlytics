@@ -164,7 +164,7 @@ function MultiProgressTable<T extends ProgressBarData>({
                 />
 
                 {isExpandable && isExpanded && (
-                  <div className='mt-2 ml-4 border-l'>
+                  <div className='mt-2 ml-4 border-l' onClick={(e) => e.stopPropagation()}>
                     {renderProgressList(children as T[], tabKey, level + 1)}
                   </div>
                 )}
@@ -225,7 +225,12 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-          {renderTabContent(tab)}
+          <ScrollAreaPrimitive.Root className='relative h-[22rem]'>
+            <ScrollAreaPrimitive.Viewport className='h-full w-full'>
+              {renderTabContent(tab)}
+            </ScrollAreaPrimitive.Viewport>
+          <ScrollBar className='translate-x-2 mix-blend-screen [&_[data-slot=scroll-area-thumb]]:border [&_[data-slot=scroll-area-thumb]]:border-gray-500' />
+          </ScrollAreaPrimitive.Root>
         </TabsContent>
       )),
     [tabs, renderTabContent],
@@ -245,17 +250,14 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <ScrollAreaPrimitive.Root className='relative h-[22rem]'>
+          <div className='relative'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
               </div>
             )}
-            <ScrollAreaPrimitive.Viewport className='h-full w-full'>
-              <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
-            </ScrollAreaPrimitive.Viewport>
-            <ScrollBar className='translate-x-1' />
-          </ScrollAreaPrimitive.Root>
+            <div className={cn(loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
+          </div>
         </Tabs>
       </CardContent>
       {footer ? (

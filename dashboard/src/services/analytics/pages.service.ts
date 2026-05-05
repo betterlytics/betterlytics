@@ -1,7 +1,6 @@
 'server-only';
 
 import {
-  getPageViews,
   getTopPages,
   getPageMetrics,
   getTotalPageViews,
@@ -11,28 +10,31 @@ import {
   getEntryPageAnalytics as getEntryPageAnalyticsRepo,
   getExitPageAnalytics as getExitPageAnalyticsRepo,
   getDailyAverageTimeOnPage,
-  getDailyBounceRate,
+  getAverageTimeOnPage,
 } from '@/repositories/clickhouse/index.repository';
 import { getSessionMetrics } from '@/repositories/clickhouse/sessions.repository';
-import { DailyPageViewRow, TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
+import { TotalPageViewsRow } from '@/entities/analytics/pageviews.entities';
 import {
   PageAnalytics,
   TopPageRow,
   TopEntryPageRow,
   TopExitPageRow,
   DailyAverageTimeRow,
-  DailyBounceRateRow,
+  AverageTimeOnPageRow,
   PagesSummaryWithCharts,
   PagesSummaryWithChartsSchema,
 } from '@/entities/analytics/pages.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { isSubDayGranularity } from '@/utils/granularityRanges';
+
+function weightedAverage<T>(rows: T[], value: (row: T) => number, weight: (row: T) => number): number {
+  const totalWeight = rows.reduce((sum, row) => sum + weight(row), 0);
+  if (totalWeight === 0) return 0;
+  return rows.reduce((sum, row) => sum + value(row) * weight(row), 0) / totalWeight;
+}
 
 export async function getTotalPageViewsForSite(siteQuery: BASiteQuery): Promise<TotalPageViewsRow[]> {
   return getTotalPageViews(siteQuery);
-}
-
-export async function getPageViewsForSite(siteQuery: BASiteQuery): Promise<DailyPageViewRow[]> {
-  return getPageViews(siteQuery);
 }
 
 export async function getTopPagesForSite(siteQuery: BASiteQuery, limit = 5): Promise<TopPageRow[]> {
@@ -67,25 +69,34 @@ export async function getExitPageAnalyticsForSite(siteQuery: BASiteQuery): Promi
 }
 
 export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): Promise<PagesSummaryWithCharts> {
-  const [pageAnalytics, pageviewsChartData, dailyAvgTimeData, dailyBounceRateData, sessionMetricsData] =
-    await Promise.all([
-      getPageAnalytics(siteQuery),
-      getTotalPageViewsForSite(siteQuery),
-      getDailyAverageTimeOnPageForSite(siteQuery),
-      getDailyBounceRateForSite(siteQuery),
-      getSessionMetrics(siteQuery),
-    ]);
+  const [pageviewsChartData, dailyAvgTimeData, sessionMetricsData, avgTimeOnPageData] = await Promise.all([
+    getTotalPageViewsForSite(siteQuery),
+    getDailyAverageTimeOnPageForSite(siteQuery),
+    getSessionMetrics(siteQuery),
+    isSubDayGranularity(siteQuery.granularity) ? getAverageTimeOnPageForSite(siteQuery) : null,
+  ]);
 
-  const totalPages = pageAnalytics.length;
-  const totalPageviews = pageAnalytics.reduce((sum, page) => sum + page.pageviews, 0);
-  const avgTimeOnPage = pageAnalytics.reduce((sum, page) => sum + page.avgTime, 0) / Math.max(totalPages, 1);
-  const avgBounceRate = pageAnalytics.reduce((sum, page) => sum + page.bounceRate, 0) / Math.max(totalPages, 1);
+  const totalPageviews = pageviewsChartData.reduce((sum, row) => sum + row.views, 0);
 
-  const totalSessions = sessionMetricsData.reduce((sum, row) => sum + row.sessions, 0);
-  const avgPagesPerSession =
-    totalSessions > 0
-      ? sessionMetricsData.reduce((sum, row) => sum + row.sessions * row.pages_per_session, 0) / totalSessions
-      : 0;
+  const avgTimeOnPage =
+    avgTimeOnPageData?.avgTime ??
+    weightedAverage(
+      dailyAvgTimeData,
+      (r) => r.avgTime,
+      (r) => r.visitCount,
+    );
+
+  const avgBounceRate = weightedAverage(
+    sessionMetricsData,
+    (r) => r.bounce_rate,
+    (r) => r.sessions,
+  );
+
+  const avgPagesPerSession = weightedAverage(
+    sessionMetricsData,
+    (r) => r.pages_per_session,
+    (r) => r.sessions,
+  );
 
   const pagesPerSessionChartData = sessionMetricsData.map((row) => ({
     date: row.date,
@@ -97,9 +108,9 @@ export async function getPagesSummaryWithChartsForSite(siteQuery: BASiteQuery): 
     value: Math.round(row.avgTime),
   }));
 
-  const bounceRateChartData = dailyBounceRateData.map((row) => ({
+  const bounceRateChartData = sessionMetricsData.map((row) => ({
     date: row.date,
-    value: Math.round(row.bounceRate),
+    value: Math.round(row.bounce_rate),
   }));
 
   return PagesSummaryWithChartsSchema.parse({
@@ -118,6 +129,6 @@ export async function getDailyAverageTimeOnPageForSite(siteQuery: BASiteQuery): 
   return getDailyAverageTimeOnPage(siteQuery);
 }
 
-export async function getDailyBounceRateForSite(siteQuery: BASiteQuery): Promise<DailyBounceRateRow[]> {
-  return getDailyBounceRate(siteQuery);
+export async function getAverageTimeOnPageForSite(siteQuery: BASiteQuery): Promise<AverageTimeOnPageRow> {
+  return getAverageTimeOnPage(siteQuery);
 }

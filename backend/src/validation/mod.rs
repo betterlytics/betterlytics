@@ -62,6 +62,8 @@ pub enum ValidationError {
     DomainNotAllowed(String),
     #[error("Invalid scroll depth: {0}")]
     InvalidScrollDepth(String),
+    #[error("Invalid page duration: {0}")]
+    InvalidPageDuration(String),
 }
 
 #[derive(Debug, Clone)]
@@ -110,8 +112,8 @@ impl EventValidator {
             self.validate_cwv_fields(raw_event)?;
         }
 
-        if raw_event.event_name == "scroll_depth" {
-            self.validate_scroll_depth_fields(raw_event)?;
+        if raw_event.event_name == "scroll_depth" || raw_event.event_name == "engagement" {
+            self.validate_engagement_fields(raw_event)?;
         }
 
         if raw_event.event_name == "client_error" {
@@ -287,11 +289,18 @@ impl EventValidator {
         Ok(())
     }
 
-    fn validate_scroll_depth_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
+    // Used for both legacy `scroll_depth` events and the new `engagement` events which
+    // supersede them. `scroll_depth` events don't carry a duration; `engagement` events do.
+    fn validate_engagement_fields(&self, raw_event: &RawTrackingEvent) -> Result<(), ValidationError> {
         fn valid_f32(v: f32) -> bool { v.is_finite() }
 
-        if raw_event.scroll_depth_percentage.is_none() || raw_event.scroll_depth_pixels.is_none() {
-            return Err(ValidationError::InvalidScrollDepth("missing values".to_string()));
+        let is_engagement = raw_event.event_name == "engagement";
+
+        if !is_engagement {
+            // Legacy scroll_depth events must always include both fields
+            if raw_event.scroll_depth_percentage.is_none() || raw_event.scroll_depth_pixels.is_none() {
+                return Err(ValidationError::InvalidScrollDepth("missing values".to_string()));
+            }
         }
 
         if let Some(v) = raw_event.scroll_depth_percentage {
@@ -302,6 +311,13 @@ impl EventValidator {
         if let Some(v) = raw_event.scroll_depth_pixels {
             if !valid_f32(v) || v < 0.0 || v > 500000.0 {
                 return Err(ValidationError::InvalidScrollDepth("invalid scroll_depth_pixels value".to_string()));
+            }
+        }
+        if is_engagement {
+            if let Some(d) = raw_event.page_duration_seconds {
+                if d > 86400 {
+                    return Err(ValidationError::InvalidPageDuration("page_duration_seconds exceeds maximum".to_string()));
+                }
             }
         }
         Ok(())
@@ -358,6 +374,7 @@ impl EventValidator {
             ValidationError::BlacklistedIp(_) => "blacklisted_ip",
             ValidationError::DomainNotAllowed(_) => "domain_not_allowed",
             ValidationError::InvalidScrollDepth(_) => "invalid_scroll_depth",
+            ValidationError::InvalidPageDuration(_) => "invalid_page_duration",
         }
     }
 
