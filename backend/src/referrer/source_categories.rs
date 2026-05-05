@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -48,11 +48,14 @@ fn merge_referrer_categories(
 
     let contents = std::fs::read_to_string(path)?;
     let parsed: ReferrerJson = serde_json::from_str(&contents)?;
+    let ambiguous_source_names = ambiguous_source_names(&parsed);
 
     for (medium, sources) in parsed {
         let medium = normalize_referrer_medium(&medium);
         for (source_name, entry) in sources {
-            insert_referrer_category_key(categories, source_name, &medium);
+            if !ambiguous_source_names.contains(&source_name) {
+                insert_referrer_category_key(categories, source_name, &medium);
+            }
 
             for domain in entry.domains {
                 let normalized = normalize_referrer_key(&domain);
@@ -66,6 +69,26 @@ fn merge_referrer_categories(
     }
 
     Ok(())
+}
+
+fn ambiguous_source_names(parsed: &ReferrerJson) -> HashSet<String> {
+    let mut source_mediums: HashMap<&str, String> = HashMap::new();
+    let mut ambiguous = HashSet::new();
+
+    for (medium, sources) in parsed {
+        let medium = normalize_referrer_medium(medium);
+        for source_name in sources.keys() {
+            if let Some(existing_medium) = source_mediums.get(source_name.as_str()) {
+                if existing_medium != &medium {
+                    ambiguous.insert(source_name.clone());
+                }
+            } else {
+                source_mediums.insert(source_name.as_str(), medium.clone());
+            }
+        }
+    }
+
+    ambiguous
 }
 
 fn insert_referrer_category_key(
@@ -234,6 +257,39 @@ mod tests {
         assert_eq!(categories.get("awe.sm").map(String::as_str), Some("social"));
         assert_eq!(categories.get("discord.com").map(String::as_str), Some("social"));
         assert_eq!(categories.get("mail.google.com").map(String::as_str), Some("search"));
+    }
+
+    #[test]
+    fn ambiguous_source_names_are_not_inserted_as_canonical_keys() {
+        let path = std::env::temp_dir().join(format!(
+            "betterlytics-ambiguous-referrers-{}.json",
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+
+        fs::write(
+            &path,
+            r#"{
+                "unknown": {
+                    "Google": { "domains": ["support.google.com"] }
+                },
+                "search": {
+                    "Google": { "domains": ["google.com"] }
+                },
+                "email": {
+                    "Gmail": { "domains": ["mail.google.com"] }
+                }
+            }"#,
+        ).unwrap();
+
+        let mut categories = HashMap::new();
+        merge_referrer_categories(&mut categories, &path, true).unwrap();
+
+        fs::remove_file(&path).unwrap();
+
+        assert_eq!(categories.get("Google"), None);
+        assert_eq!(categories.get("google.com").map(String::as_str), Some("search"));
+        assert_eq!(categories.get("support.google.com").map(String::as_str), Some("other"));
+        assert_eq!(categories.get("Gmail").map(String::as_str), Some("email"));
     }
 
     #[test]

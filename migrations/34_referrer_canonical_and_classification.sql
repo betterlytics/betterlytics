@@ -71,32 +71,18 @@ LIFETIME(MIN 0 MAX 300);
 
 ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS referrer_source_effective String ALIAS
-        dictGetOrDefault(
-            'analytics.referrer_source_categories_dict',
-            'medium',
-            ifNull(
-                coalesce(
-                    nullIf(referrer_source_canonical, ''),
-                    nullIf(domainWithoutWWW(concat('http://', referrer_url)), ''),
-                    nullIf(referrer_source_name, '')
-                ),
-                ''
-            ),
+        coalesce(
+            nullIf(dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', referrer_source_canonical, ''), ''),
+            nullIf(dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', domainWithoutWWW(concat('http://', referrer_url)), ''), ''),
+            nullIf(dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', referrer_source_name, ''), ''),
             referrer_source
         );
 
 ALTER TABLE analytics.sessions
     ADD COLUMN IF NOT EXISTS referrer_source_effective String ALIAS
-        dictGetOrDefault(
-            'analytics.referrer_source_categories_dict',
-            'medium',
-            ifNull(
-                coalesce(
-                    nullIf(tupleElement(referrer_source_canonical, 2), ''),
-                    nullIf(domainWithoutWWW(concat('http://', tupleElement(referrer_url, 2))), ''),
-                    nullIf(tupleElement(referrer_source_name, 2), '')
-                ),
-                ''
-            ),
+        coalesce(
+            nullIf(dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', tupleElement(referrer_source_canonical, 2), ''), ''),
+            nullIf(dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', domainWithoutWWW(concat('http://', tupleElement(referrer_url, 2))), ''), ''),
+            nullIf(dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', tupleElement(referrer_source_name, 2), ''), ''),
             tupleElement(referrer_source, 2)
         );

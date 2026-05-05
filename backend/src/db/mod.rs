@@ -183,7 +183,7 @@ impl Database {
             .await?;
 
         let dictionary_exists: u8 = self.clickhouse.inner()
-            .query("SELECT count() FROM system.dictionaries WHERE database = 'analytics' AND name = 'referrer_source_categories_dict'")
+            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories_dict' AND engine = 'Dictionary'")
             .fetch_one()
             .await?;
 
