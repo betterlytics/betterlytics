@@ -159,7 +159,7 @@ export default function WebVitalsTableSection() {
               <Button
                 variant='ghost'
                 onClick={filterColumn ? () => makeFilterClick(filterColumn)(key) : undefined}
-                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium select-text'
                 title={tFilters('filterBy', { label: labelText })}
               >
                 <span className='flex max-w-[480px] items-center gap-2 truncate'>

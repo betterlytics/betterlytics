@@ -7,7 +7,13 @@ use rand::Rng;
 
 const SESSION_EXPIRY: Duration = Duration::from_secs(30 * 60);
 
-static SESSION_CACHE: Lazy<Cache<String, (u64, DateTime<Utc>)>> = Lazy::new(|| {
+#[derive(Clone)]
+struct SessionEntry {
+    session_id: u64,
+    created_at: DateTime<Utc>,
+}
+
+static SESSION_CACHE: Lazy<Cache<String, SessionEntry>> = Lazy::new(|| {
     Cache::builder()
         .time_to_idle(SESSION_EXPIRY)
         .build()
@@ -20,17 +26,21 @@ fn generate_session_id() -> u64 {
 pub fn get_or_create_session_id(
     site_id: &str,
     visitor_fingerprint: u64,
+    event_timestamp: DateTime<Utc>,
 ) -> Result<(u64, DateTime<Utc>)> {
     let cache_key = format!("{}-{}", site_id, visitor_fingerprint);
 
     if let Some(entry) = SESSION_CACHE.get(&cache_key) {
-        return Ok(entry);
+        return Ok((entry.session_id, entry.created_at));
     }
 
     let new_session_id = generate_session_id();
-    let created_at = Utc::now();
+    let created_at = event_timestamp;
 
-    SESSION_CACHE.insert(cache_key, (new_session_id, created_at));
+    SESSION_CACHE.insert(cache_key, SessionEntry {
+        session_id: new_session_id,
+        created_at,
+    });
 
     Ok((new_session_id, created_at))
 }

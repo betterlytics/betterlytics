@@ -97,7 +97,7 @@ pub async fn presign_put_segment(
         root_domain.as_deref(),
     );
 
-    let (session_id, _session_start) = session::get_or_create_session_id(&req.site_id, fingerprint)
+    let (session_id, _session_start) = session::get_or_create_session_id(&req.site_id, fingerprint, Utc::now())
         .map_err(|e| {
             error!("Failed to get session ID: {}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
