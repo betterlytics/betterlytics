@@ -27,8 +27,11 @@ export function generateSEO(
     currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
   const fullUrl = `${BASE_URL}${localizedPath}`;
 
+  // hreflang keys use BCP-47 language-region tags (en-GB, da-DK, ...) derived from
+  // ogLocale so Google can target specific markets; URL paths still use bare locale codes.
   const languages: Record<string, string> = routing.locales.reduce((acc: Record<string, string>, locale) => {
-    acc[locale] = locale === defaultLocale ? path : path === '/' ? `/${locale}` : `/${locale}${path}`;
+    const hreflang = LANGUAGE_METADATA[locale as SupportedLanguages]?.ogLocale.replace('_', '-') ?? locale;
+    acc[hreflang] = locale === defaultLocale ? path : path === '/' ? `/${locale}` : `/${locale}${path}`;
     return acc;
   }, {});
 
