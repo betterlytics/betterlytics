@@ -1,6 +1,6 @@
-import { type FilterColumn } from '@/entities/analytics/filter.entities';
+import { FILTER_COLUMNS, type FilterColumn, GP_PREFIX } from '@/entities/analytics/filter.entities';
 
-const FILTER_COLUMN_DESCRIPTIONS: Record<FilterColumn, string> = {
+const STANDARD_COLUMN_DESCRIPTIONS: Record<(typeof FILTER_COLUMNS)[number], string> = {
   url: 'Page URL path',
   domain: 'Site domain',
   device_type: 'Device type (desktop, mobile, tablet)',
@@ -23,5 +23,8 @@ const FILTER_COLUMN_DESCRIPTIONS: Record<FilterColumn, string> = {
 };
 
 export function getFilterColumnDescription(column: FilterColumn): string {
-  return FILTER_COLUMN_DESCRIPTIONS[column];
+  if (column.startsWith(GP_PREFIX)) {
+    return `Global property: ${column.slice(GP_PREFIX.length)}`;
+  }
+  return STANDARD_COLUMN_DESCRIPTIONS[column as (typeof FILTER_COLUMNS)[number]] ?? column;
 }

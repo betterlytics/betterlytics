@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { PasswordSchema } from './user.entities';
 
 export const ForgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.string().email('Please enter a valid email address').max(254, 'Email address is too long'),
 });
 
 export const ResetPasswordSchema = z

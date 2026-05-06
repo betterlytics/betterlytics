@@ -1,14 +1,15 @@
 import {
-  FilterQueryParams,
+  type FilterQueryParams,
   FilterQueryParamsSchema,
-  FilterQuerySearchParams,
+  type FilterQuerySearchParams,
 } from '@/entities/analytics/filterQueryParams.entities';
-import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
+import type { ReadonlyURLSearchParams } from 'next/navigation';
 
-const ENCODE_ORDER: Array<keyof FilterQueryParams> = [
+export const TIME_RANGE_SEARCH_PARAMS = [
   'startDate',
   'endDate',
   'interval',
@@ -18,9 +19,18 @@ const ENCODE_ORDER: Array<keyof FilterQueryParams> = [
   'compareStartDate',
   'compareEndDate',
   'compareAlignWeekdays',
+] as const satisfies readonly (keyof FilterQueryParams)[];
+
+export const URL_SEARCH_PARAMS = [
+  ...TIME_RANGE_SEARCH_PARAMS,
   'queryFilters',
   'userJourney',
-];
+] as const satisfies readonly (keyof FilterQueryParams)[];
+
+export const DASHBOARD_SWITCH_SEARCH_PARAMS = [
+  ...TIME_RANGE_SEARCH_PARAMS,
+  'userJourney',
+] as const satisfies readonly (keyof FilterQueryParams)[];
 
 function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
@@ -116,7 +126,7 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
 }
 
 function encode(params: FilterQueryParams) {
-  return ENCODE_ORDER.filter((key) => filterVariable(key, params[key])).map((key) => [
+  return URL_SEARCH_PARAMS.filter((key) => filterVariable(key, params[key])).map((key) => [
     key,
     encodeValue(key, params[key]),
   ]);
@@ -240,8 +250,20 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
   };
 }
 
+function parseFromSearchParams(searchParams: ReadonlyURLSearchParams): BAAnalyticsQuery {
+  const params: Partial<Record<string, string>> = {};
+  for (const key of URL_SEARCH_PARAMS) {
+    const value = searchParams.get(key);
+    if (value !== null) {
+      params[key] = value;
+    }
+  }
+  return decode(params, Intl.DateTimeFormat().resolvedOptions().timeZone);
+}
+
 export const BAFilterSearchParams = {
   getDefaultFilters,
   encode,
   decode,
+  parseFromSearchParams,
 };

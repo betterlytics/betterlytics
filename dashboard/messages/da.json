@@ -1195,6 +1195,10 @@
           "title": "Linksporing",
           "description": "Overvåg klik på interne og udgående links for at forstå brugerengagement."
         },
+        "globalProperties": {
+          "title": "Globale egenskaber",
+          "description": "Sæt vedvarende egenskaber én gang og vedhæft dem automatisk til alle events, f.eks. brugerplan, rolle eller app-version."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Afspil brugersessioner for at se præcis hvordan besøgende interagerer med dit site og find usability-problemer."
@@ -1616,7 +1620,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Brugerdefinerede hændelser",
+      "events": "Hændelser",
       "weeklyTrends": "Ugentlige trends"
     },
     "goTo": "Gå til {section}",
@@ -1634,7 +1638,8 @@
       "referrers": "Henvisninger",
       "sources": "Kilder",
       "channels": "Kanaler",
-      "events": "Hændelser"
+      "events": "Brugerdefinerede hændelser",
+      "topProperties": "Globale egenskaber"
     },
     "emptyStates": {
       "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",
@@ -2356,6 +2361,9 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "globalProperties": "{count, plural, one {Global egenskab} other {Globale egenskaber}}",
+      "selectProperty": "Vælg egenskab",
+      "noProperties": "Ingen egenskaber fundet",
       "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
@@ -2487,8 +2495,10 @@
         "filterByPath": "Filtrer efter {path}",
         "visitors": "Besøgende",
         "pageviews": "Sidevisninger",
+        "sessionPageviews": "Sidevisninger i sessioner",
         "bounceRate": "Afvisningsprocent",
         "avgTime": "Gns. tid",
+        "avgSessionTime": "Gns. sessionstid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
         "avgScrollDepth": "Scroll-dybde",

@@ -19,7 +19,8 @@ pub struct ProcessedEvent {
     /// Base original event data sent from client through analytics.js script
     pub event: AnalyticsEvent,
     /// Sessionization - new sessions are created if the user has not generated any events in over 30 minutes
-    pub session_id: String,
+    pub session_id: u64,
+    pub session_created_at: chrono::DateTime<chrono::Utc>,
     /// Contains the domain of the URL (e.g. "example.com" or "subdomain.example.com")
     pub domain: Option<String>,
     /// Contains only the path of the URL (e.g. "/path/to/page" or "/")
@@ -64,6 +65,10 @@ pub struct ProcessedEvent {
     pub error_type: String,
     pub error_message: String,
     pub error_fingerprint: String,
+    pub global_properties_keys: Vec<String>,
+    pub global_properties_values: Vec<String>,
+    /// Duration for engagement events
+    pub page_duration_seconds: u32,
 }
 
 /// Event processor that handles real-time processing
@@ -97,7 +102,8 @@ impl EventProcessor {
         let mut processed = ProcessedEvent {
             event: event.clone(),
             event_type: String::new(),
-            session_id: String::new(),
+            session_id: 0,
+            session_created_at: chrono::Utc::now(),
             country_code: None,
             subdivision_code: None,
             city: None,
@@ -128,6 +134,9 @@ impl EventProcessor {
             error_type: String::new(),
             error_message: String::new(),
             error_fingerprint: String::new(),
+            global_properties_keys: Vec::new(),
+            global_properties_values: Vec::new(),
+            page_duration_seconds: 0,
         };
 
         // Handle event types
@@ -169,10 +178,14 @@ impl EventProcessor {
         let session_id_result = session::get_or_create_session_id(
             &site_id,
             processed.visitor_fingerprint,
+            timestamp,
         );
 
         match session_id_result {
-            Ok(id) => processed.session_id = id,
+            Ok((id, created_at)) => {
+                processed.session_id = id;
+                processed.session_created_at = created_at;
+            }
             Err(e) => {
                 error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
                 return Ok(());
@@ -215,16 +228,33 @@ impl EventProcessor {
             processed.cwv_fcp = processed.event.raw.cwv_fcp;
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
         } else if event_name == "scroll_depth" {
-            processed.event_type = "scroll_depth".to_string();
+            // Legacy event from old cached trackers. Translate to engagement at ingest
+            // so queries only need to read 'engagement' rows. page_duration_seconds = 0
+            // is the canonical sentinel for "no usable duration"; the
+            // `page_duration_seconds > 0` query gate excludes these from time-on-page
+            // averages while still letting their scroll values contribute.
+            processed.event_type = "engagement".to_string();
+            processed.page_duration_seconds = 0;
             processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else if event_name == "client_error" {
             processed.event_type = "client_error".to_string();
             self.process_client_error(processed);
+        } else if event_name == "engagement" {
+            processed.event_type = "engagement".to_string();
+            processed.page_duration_seconds = processed.event.raw.page_duration_seconds.unwrap_or(0);
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {
             processed.event_type = event_name;
         }
-        
+
+        if let Some(ref gp) = processed.event.raw.global_properties {
+            let (keys, values) = decompose_global_properties(gp);
+            processed.global_properties_keys = keys;
+            processed.global_properties_values = values;
+        }
+
         Ok(())
     }
 
@@ -277,5 +307,24 @@ impl EventProcessor {
         let device_type = detect_device_type_from_resolution_with_fallback(&processed.event.raw.screen_resolution);
         processed.device_type = Some(device_type);
         Ok(())
-    } 
+    }
+}
+
+fn decompose_global_properties(value: &serde_json::Value) -> (Vec<String>, Vec<String>) {
+    let Some(obj) = value.as_object() else {
+        return (Vec::new(), Vec::new());
+    };
+    let mut keys = Vec::with_capacity(obj.len());
+    let mut values = Vec::with_capacity(obj.len());
+    for (key, val) in obj {
+        let value_str = match val {
+            serde_json::Value::String(s) => s.clone(),
+            serde_json::Value::Number(n) => n.to_string(),
+            serde_json::Value::Bool(b) => b.to_string(),
+            _ => continue,
+        };
+        keys.push(key.clone());
+        values.push(value_str);
+    }
+    (keys, values)
 }

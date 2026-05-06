@@ -41,9 +41,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-
-  const seoConfig = await buildSEOConfig(SEO_CONFIGS.root);
+  const [locale, seoConfig] = await Promise.all([getLocale(), buildSEOConfig(SEO_CONFIGS.root)]);
 
   return (
     <html lang={locale} suppressHydrationWarning>

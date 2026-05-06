@@ -1,27 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { BAFilterSearchParams, URL_SEARCH_PARAMS } from '@/utils/filterSearchParams';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 
-const URL_SEARCH_PARAMS = [
-  'queryFilters',
-  'granularity',
-  'startDate',
-  'endDate',
-  'compareStartDate',
-  'compareEndDate',
-  'interval',
-  'offset',
-  'compare',
-  'compareAlignWeekdays',
-  'userJourney',
-] as const;
-
 export function useSyncURLFilters() {
-  const router = useBARouter();
   const searchParams = useSearchParams();
   const applyingFromUrlRef = useRef<boolean>(false);
 
@@ -36,7 +21,7 @@ export function useSyncURLFilters() {
     compareEndDate,
     setCompareDateRange,
     interval,
-    setInterval,
+    setRangeInterval,
     offset,
     setOffset,
     compareMode,
@@ -66,7 +51,7 @@ export function useSyncURLFilters() {
         setGranularity(filters.granularity);
       }
       if (filters.interval) {
-        setInterval(filters.interval);
+        setRangeInterval(filters.interval);
       }
       if (filters.offset !== undefined) {
         setOffset(filters.offset);
@@ -149,7 +134,10 @@ export function useSyncURLFilters() {
 
       if (nextParams.toString() === currentParamsString) return;
 
-      const updateRouteTimeout = setTimeout(() => router.push(`?${nextParams.toString()}`, { scroll: false }), 10);
+      const updateRouteTimeout = setTimeout(
+        () => window.history.pushState(null, '', `?${nextParams.toString()}`),
+        10,
+      );
       return () => clearTimeout(updateRouteTimeout);
     } catch (error) {
       console.error('Failed to add filters:', error);
@@ -167,7 +155,6 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
-    router,
   ]);
 }
 

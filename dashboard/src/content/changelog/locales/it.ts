@@ -1,24 +1,62 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-export const latestChangelogModalIt: ChangelogEntryData = {
+const v141ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.9',
-    releasedAt: '2026-03-29',
-    title: 'Error Tracking Client-Side',
+    version: 'v1.4.1',
+    releasedAt: '2026-05-05',
+    title: 'Pagine più rapide, tempo attivo e insight sulle proprietà degli eventi',
     summary:
-      'Betterlytics ora traccia gli errori client-side. Visualizza ogni errore con stack trace e breadcrumb, monitora i trend nel tempo e, se vuoi, riproduci la sessione che ha generato ciascun errore.',
+      'Questa release rende più veloce il report Pagine, migliora la precisione del tempo sulla pagina grazie alla misurazione del tempo attivo, aggiunge insight sulle Proprietà globali alla tabella Eventi nella pagina Panoramica e corregge alcuni fastidi della dashboard.',
   },
   sections: [
     {
-      id: 'v139-new-features',
+      id: 'v141-new-features',
       title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'L\'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.',
-            'Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l\'utente prima dell\'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.',
-            'Gli errori sono completamente accessibili tramite il server MCP, così i tuoi assistenti AI possono interrogare i dati sugli errori e aiutarti a capire e risolvere la causa di ciascun errore.',
+            'La tabella Eventi nella pagina Panoramica ora include una scheda Proprietà globali, così è più facile vedere quali proprietà e valori compaiono tra i visitatori unici.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-performance',
+      title: 'Prestazioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il report Pagine è stato ottimizzato in modo significativo e ora dovrebbe caricarsi molto più rapidamente, soprattutto con dataset più grandi.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il tempo sulla pagina ora si basa sul tempo attivo invece che sul tempo cronologico, così le metriche di durata riflettono meglio quanto a lungo i visitatori hanno davvero interagito con una pagina.',
+            'L\'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all\'altra.',
+            'I report Pagine di ingresso e Pagine di uscita ora si concentrano sulle metriche più adatte a quelle viste. La profondità di scorrimento è stata rimossa da entrambe le schede, e la frequenza di rimbalzo è stata rimossa anche da Pagine di uscita.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui i tooltip della mappa mondiale potevano restare visibili dopo che il cursore aveva lasciato la mappa.',
+            'Migliorato il rilevamento del fuso orario, così le pagine si caricano in modo più affidabile negli ambienti interessati.',
+            'Risolto un problema in Firefox che rendeva difficile selezionare e copiare alcune colonne delle tabelle.',
           ],
         },
       ],
@@ -26,7 +64,58 @@ export const latestChangelogModalIt: ChangelogEntryData = {
   ],
 };
 
+export const latestChangelogModalIt = v141ChangelogEntryIt;
+
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v141ChangelogEntryIt,
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Proprietà globali e miglioramenti delle prestazioni',
+      summary:
+        'Segmenta le tue analisi secondo qualsiasi dimensione ti interessi grazie alla nuova funzionalità Proprietà globali, e goditi tempi di caricamento della dashboard significativamente più rapidi grazie a miglioramenti generali delle prestazioni.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le Proprietà globali ti permettono di associare un contesto condiviso a ogni evento inviato dal tuo sito, come stato di accesso, livello di abbonamento o ruolo utente. Questo rende semplice segmentare qualsiasi report in base a queste proprietà, ad esempio confrontando utenti autenticati con visitatori anonimi.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Prestazioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le dashboard ora si caricano in modo significativamente più rapido, con i miglioramenti più evidenti sui siti ad alto traffico e sugli intervalli di tempo più lunghi.',
+              'Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell\'intera pagina.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Le metriche delle sessioni sono ora più accurate, in particolare per le sessioni di lunga durata. Conteggio delle sessioni, bounce rate e tempo sul sito rispecchiano ora più fedelmente il comportamento reale dei visitatori.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.9',

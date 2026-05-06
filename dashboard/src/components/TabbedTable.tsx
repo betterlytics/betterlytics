@@ -3,6 +3,7 @@
 import { ColumnDef, Table } from '@tanstack/react-table';
 import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ReactNode, useRef } from 'react';
 import { Input } from './ui/input';
@@ -16,6 +17,7 @@ interface TabDefinition<TData> {
   columns: ColumnDef<TData>[];
   defaultSorting?: { id: string; desc: boolean }[];
   emptyMessage?: string;
+  loading?: boolean;
 }
 
 interface TabbedTableProps<TData> {
@@ -23,6 +25,7 @@ interface TabbedTableProps<TData> {
   tabs: TabDefinition<TData>[];
   defaultTab?: string;
   className?: string;
+  loading?: boolean;
   headerActions?: ReactNode;
   searchColumn?: string;
   searchFieldLabel?: string;
@@ -37,6 +40,7 @@ function TabbedTable<TData>({
   tabs,
   defaultTab,
   className = '',
+  loading,
   headerActions,
   searchColumn,
   searchFieldLabel,
@@ -63,7 +67,7 @@ function TabbedTable<TData>({
             <div
               className={cn('grid grid-cols-1 items-start gap-1 xl:grid-cols-2', searchColumn && 'sm:col-span-2')}
             >
-              <CardTitle className='text-base font-medium'>{title}</CardTitle>
+              <CardTitle className='flex items-center gap-2 text-base font-medium'>{title}</CardTitle>
               <div className='flex'>
                 {headerActions && <div className='justify-self-end'>{headerActions}</div>}
               </div>
@@ -100,18 +104,28 @@ function TabbedTable<TData>({
           </div>
         </CardHeader>
         <CardContent className='px-0'>
-          {tabs.map((tab) => (
-            <TabsContent key={tab.key} value={tab.key}>
-              <div className='overflow-x-auto'>
-                <DataTable
-                  columns={tab.columns}
-                  data={tab.data}
-                  defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
-                  tableRef={tableRef}
-                />
+          <div className='relative'>
+            {loading && (
+              <div className='absolute inset-0 z-10 flex items-center justify-center'>
+                <Spinner />
               </div>
-            </TabsContent>
-          ))}
+            )}
+            <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>
+              {tabs.map((tab) => (
+                <TabsContent key={tab.key} value={tab.key}>
+                  <div className='overflow-x-auto'>
+                    <DataTable
+                      columns={tab.columns}
+                      data={tab.data}
+                      defaultSorting={tab.defaultSorting || [{ id: 'visitors', desc: true }]}
+                      tableRef={tableRef}
+                      loading={tab.loading}
+                    />
+                  </div>
+                </TabsContent>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Tabs>
     </Card>

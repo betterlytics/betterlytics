@@ -1,24 +1,62 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-export const latestChangelogModalDa: ChangelogEntryData = {
+const v141ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.9',
-    releasedAt: '2026-03-29',
-    title: 'Client-Side Error Tracking',
+    version: 'v1.4.1',
+    releasedAt: '2026-05-05',
+    title: 'Hurtigere sider, aktiv tid og indsigt i hændelsesegenskaber',
     summary:
-      'Betterlytics sporer nu fejl på klientsiden. Se hver fejl med stack traces og breadcrumbs, følg trends over tid, og afspil eventuelt den session, der udløste fejlen.',
+      'Denne release gør Sider-rapporten hurtigere, forbedrer nøjagtigheden af tid på siden med måling af aktiv tid, tilføjer indsigter om Globale egenskaber til Hændelser-tabellen på Oversigt-siden og retter et par irriterende detaljer i dashboardet.',
   },
   sections: [
     {
-      id: 'v139-new-features',
+      id: 'v141-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Client-side error tracking er her. Fejl og console.error-kald kan nu fanges og grupperes efter fingerprint, så du kan se hvilke fejl der rammer flest brugere, og hvor ofte de opstår.',
-            'Hver fejl inkluderer et stack trace og et breadcrumb-spor, der viser hvad brugeren foretog sig op til fejlen. Aktivér session replay on error for også at optage en fuld genafspilning af sessionen.',
-            'Fejl er fuldt tilgængelige via MCP-serveren, så dine AI-assistenter kan forespørge fejldata og hjælpe dig med at forstå og debugge, hvad der forårsager hver fejl.',
+            'Hændelser-tabellen på Oversigt-siden har nu en Globale egenskaber-fane, så det er nemmere at se, hvilke egenskaber og værdier der optræder på tværs af unikke besøgende.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-performance',
+      title: 'Ydeevne',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Sider-rapporten er blevet optimeret markant og bør nu indlæses betydeligt hurtigere, især ved større datasæt.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tid på siden er nu baseret på aktiv tid i stedet for almindelig klokketid, så varighedsmålinger bedre afspejler, hvor længe besøgende faktisk var engagerede på en side.',
+            'Din valgte tidsperiode bevares nu, når du skifter mellem dashboards.',
+            'Indgangssider- og Udgangssider-rapporterne fokuserer nu på de målinger, der passer til visningerne. Scroll-dybde er fjernet fra begge faner, og afvisningsprocent er også fjernet fra Udgangssider.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v141-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet en fejl, hvor tooltips på verdenskortet kunne forblive synlige, efter markøren havde forladt kortet.',
+            'Forbedret registrering af tidszone, så sider indlæses mere stabilt for besøgende i berørte miljøer.',
+            'Rettet et Firefox-problem, der gjorde visse tabelkolonner svære at markere og kopiere.',
           ],
         },
       ],
@@ -26,7 +64,58 @@ export const latestChangelogModalDa: ChangelogEntryData = {
   ],
 };
 
+export const latestChangelogModalDa = v141ChangelogEntryDa;
+
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v141ChangelogEntryDa,
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Globale egenskaber og ydeevneforbedringer',
+      summary:
+        'Segmentér dine analyser efter enhver dimension, du har brug for, med den nye Globale egenskaber-funktion, og oplev markant hurtigere indlæsningstider i dashboardet takket være omfattende ydeevneforbedringer.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Globale egenskaber lader dig tilføje fælles kontekst til hver eneste event, der sendes fra dit website, såsom logget ind-status, abonnementsniveau eller brugerrolle. Det gør det nemt at segmentere enhver rapport efter disse egenskaber, for eksempel ved at sammenligne loggede ind-brugere med anonyme besøgende.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Ydeevne',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboards indlæses nu markant hurtigere, med de største forbedringer på sider med høj trafik og længere tidsintervaller.',
+              'Grafer og tabeller indlæses nu, som du scroller hen til dem, så dataene øverst på siden vises hurtigere i stedet for at vente på, at hele siden bliver færdig.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sessionsrelaterede målinger er nu mere præcise, især for langvarige sessioner. Antal sessioner, bounce rate og tid på siden afspejler nu i højere grad, hvad de besøgende faktisk foretog sig på dit website.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.9',

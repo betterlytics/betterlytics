@@ -1,7 +1,8 @@
 import React, { Dispatch, useMemo } from 'react';
 import { MultiSelect } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { useTranslations } from 'next-intl';
+import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
 import { cn } from '@/lib/utils';
 import { formatString } from '@/utils/formatters';
@@ -23,26 +24,30 @@ export function FilterValueSearch<TEntity>({
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
+  const locale = useLocale();
+  const strategy = getFilterStrategy(filter.column);
 
   const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,
   });
 
+  const formatLabel = (value: string) => formatString(strategy.formatValue(value, locale), formatLength);
+
   const multiSelectOptions = useMemo(() => {
     const searchOptions = options.map((opt) => ({
-      label: formatString(opt, formatLength),
+      label: formatLabel(opt),
       value: opt,
     }));
 
     const selectedNotInResults = filter.values
       .filter((v) => !options.includes(v))
       .map((v) => ({
-        label: formatString(v, formatLength),
+        label: formatLabel(v),
         value: v,
       }));
 
     return [...selectedNotInResults, ...searchOptions];
-  }, [options, filter.values, formatLength]);
+  }, [options, filter.values, formatLength, filter.column, locale]);
 
   return (
     <MultiSelect
@@ -50,7 +55,7 @@ export function FilterValueSearch<TEntity>({
       inputValue={search}
       onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
-        label: formatString(value, Math.floor(formatLength * 0.835)),
+        label: formatString(strategy.formatValue(value, locale), Math.floor(formatLength * 0.835)),
         value,
       }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}

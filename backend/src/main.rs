@@ -28,6 +28,7 @@ mod outbound_link;
 mod postgres;
 mod processing;
 mod referrer;
+mod sanitize;
 mod session;
 mod ip_parser;
 mod session_replay;
@@ -263,15 +264,16 @@ async fn track_event(
     )>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
-    Json(raw_event): Json<RawTrackingEvent>,
+    Json(mut raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
 
     let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
+    sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
+
     let validation_start = std::time::Instant::now();
 
-    // Validate and sanitize event
     let validated_event = match validator
         .validate_event(raw_event, ip_address.clone())
         .await

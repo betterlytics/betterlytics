@@ -7,6 +7,7 @@ import { DestructiveActionDialog } from '@/components/dialogs';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { deleteFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { trpc } from '@/trpc/client';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -18,6 +19,7 @@ type DeleteFunnelDialogProps = {
 export function DeleteFunnelDialog({ funnel, disabled }: DeleteFunnelDialogProps) {
   const t = useTranslations('components.funnels.delete');
   const dashboardId = useDashboardId();
+  const utils = trpc.useUtils();
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
@@ -27,6 +29,7 @@ export function DeleteFunnelDialog({ funnel, disabled }: DeleteFunnelDialogProps
       .then(() => {
         setIsOpen(false);
         toast.success(t('successMessage'));
+        utils.funnels.list.invalidate({ dashboardId });
       })
       .catch(() => {
         toast.error(t('errorMessage'));
@@ -34,7 +37,7 @@ export function DeleteFunnelDialog({ funnel, disabled }: DeleteFunnelDialogProps
       .finally(() => {
         setIsPending(false);
       });
-  }, [dashboardId, funnel.id, t]);
+  }, [dashboardId, funnel.id, t, utils]);
 
   return (
     <>

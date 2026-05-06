@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import InteractiveChart from '@/components/InteractiveChart';
 import { formatDuration } from '@/utils/dateFormatters';
-import { type fetchSummaryAndChartDataAction } from '@/app/actions/index.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -11,6 +10,7 @@ import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
 import { useChartAnnotations } from '@/hooks/useChartAnnotations';
+import { BARouterOutputs } from '@/trpc/client';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
 
@@ -21,7 +21,7 @@ interface MetricConfig {
   formatValue?: (value: number, locale?: SupportedLanguages) => string;
 }
 
-type SummaryAndChartData = Awaited<ReturnType<typeof fetchSummaryAndChartDataAction>>;
+type SummaryAndChartData = BARouterOutputs['overview']['summaryAndChart'];
 
 export default function OverviewChartSection({
   activeMetric,

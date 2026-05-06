@@ -1,17 +1,17 @@
 'use client';
-import { use, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { trpc } from '@/trpc/client';
 
-type WebVitalsBannerProps = {
-  hasDataPromise: Promise<boolean>;
-};
-
-export function WebVitalsBanner({ hasDataPromise }: WebVitalsBannerProps) {
-  const hasData = use(hasDataPromise);
+export function WebVitalsBanner() {
+  const dashboardId = useDashboardId();
+  const { data: hasData } = trpc.webVitals.hasData.useQuery({ dashboardId });
   const t = useTranslations('banners.webVitalsNoData');
   const { addBanner, removeBanner } = useBannerContext();
+
   useEffect(() => {
     if (hasData === false) {
       addBanner({
@@ -32,7 +32,7 @@ export function WebVitalsBanner({ hasDataPromise }: WebVitalsBannerProps) {
         ),
         dismissible: true,
       });
-    } else {
+    } else if (hasData !== undefined) {
       removeBanner('no-web-vitals-data');
     }
   }, [hasData, t]);

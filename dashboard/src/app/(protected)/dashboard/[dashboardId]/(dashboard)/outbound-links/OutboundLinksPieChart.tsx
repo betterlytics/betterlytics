@@ -1,16 +1,15 @@
 'use client';
 
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import BAPieChart from '@/components/BAPieChart';
-import { fetchOutboundLinksDistributionAction } from '@/app/actions/analytics/outboundLinks.actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createColorGetter } from '@/utils/colorUtils';
 import { formatString } from '@/utils/formatters';
-
-type OutboundLinksPieChartProps = {
-  distributionPromise: ReturnType<typeof fetchOutboundLinksDistributionAction>;
-};
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 
 const getOutboundLinkColor = createColorGetter({
   colorMap: {
@@ -25,17 +24,31 @@ const formatUrl = (url: string): string => {
   return url === 'Others' ? url : formatString(url.toLowerCase(), 30);
 };
 
-export default function OutboundLinksPieChart({ distributionPromise }: OutboundLinksPieChartProps) {
-  const distributionData = use(distributionPromise);
+export default function OutboundLinksPieChart() {
+  const { input, options } = useBAQueryParams();
+  const query = trpc.outboundLinks.distribution.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.pieChart');
+  const { data, loading, refetching } = useQueryState(query);
 
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:px-6 sm:pt-4 sm:pb-4'>
       <CardHeader className='px-0 pb-0'>
         <CardTitle className='text-base font-medium'>{t('title')}</CardTitle>
       </CardHeader>
-      <CardContent className='flex flex-1 items-center justify-center px-0'>
-        <BAPieChart data={distributionData} getColor={getOutboundLinkColor} getLabel={formatUrl} />
+      <CardContent className='relative flex flex-1 flex-col px-0'>
+        {refetching && (
+          <div className='absolute inset-0 z-10 flex items-center justify-center'>
+            <Spinner />
+          </div>
+        )}
+        <div className={cn(refetching && 'pointer-events-none opacity-60', 'flex flex-1 flex-col')}>
+          <BAPieChart
+            data={data ?? []}
+            loading={loading}
+            getColor={getOutboundLinkColor}
+            getLabel={formatUrl}
+          />
+        </div>
       </CardContent>
     </Card>
   );

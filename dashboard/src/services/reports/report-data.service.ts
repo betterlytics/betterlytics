@@ -1,7 +1,8 @@
 'server-only';
 
 import { subDays, startOfDay, endOfDay, subMonths, startOfMonth, endOfMonth } from 'date-fns';
-import { getTotalUniqueVisitors, getSessionRangeMetrics } from '@/repositories/clickhouse/visitors.repository';
+import { getTotalUniqueVisitors } from '@/repositories/clickhouse/visitors.repository';
+import { getSessionRangeMetrics } from '@/repositories/clickhouse/sessions.repository';
 import { getTopChannels } from '@/repositories/clickhouse/referrers.repository';
 import { getTotalPageviewsCount, getTopPagesWithPageviews } from '@/repositories/clickhouse/reports.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';

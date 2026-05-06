@@ -16,8 +16,8 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const MAX_TOP_VALUES = 10;
 
-export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery) {
-  return getCustomEventsOverview(siteQuery);
+export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery, limit: number) {
+  return getCustomEventsOverview(siteQuery, limit);
 }
 
 export async function getRecentEventsForSite(siteQuery: BASiteQuery, limit?: number, offset?: number) {

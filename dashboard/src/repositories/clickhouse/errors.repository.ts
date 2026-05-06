@@ -289,7 +289,7 @@ export async function getSessionTrailEvents(siteId: string, sessionId: string): 
       error_fingerprint
     FROM analytics.events
     WHERE site_id = {site_id:String}
-      AND session_id = {session_id:String}
+      AND toString(session_id) = {session_id:String}
       AND event_type IN ('pageview', 'custom', 'outbound_link', 'client_error')
     ORDER BY timestamp ASC
   `;
@@ -321,7 +321,7 @@ export async function getErrorOccurrence(
       os,
       device_type,
       country_code,
-      session_id,
+      toString(session_id) as session_id,
       error_type,
       error_message,
       error_exceptions

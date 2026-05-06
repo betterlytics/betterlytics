@@ -44,9 +44,10 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 
 interface ReferrerTableProps {
   data?: ToDataTable<'source_url', ReferrerTableRow>[];
+  loading?: boolean;
 }
 
-export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
+export default function ReferrerTable({ data = [], loading = false }: ReferrerTableProps) {
   const [activeTab, setActiveTab] = useState<ReferrerTabKey>(ReferrerTab.All);
   const locale = useLocale();
   const t = useTranslations('components.referrers.table');
@@ -64,6 +65,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
     {
       accessorKey: 'source',
       header: t('columns.source'),
+      minSize: 200,
       cell: ({ row }) => {
         const data = row.original.current;
         const label = data.source_url
@@ -84,7 +86,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
             <Button
               variant='ghost'
               onClick={handleClick}
-              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium'
+              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium select-text'
               title={typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
             >
               <span className='flex items-center gap-2'>
@@ -166,6 +168,7 @@ export default function ReferrerTable({ data = [] }: ReferrerTableProps) {
         data={filteredData}
         defaultSorting={[{ id: 'visits', desc: true }]}
         className='rounded-md'
+        loading={loading}
       />
     </div>
   );

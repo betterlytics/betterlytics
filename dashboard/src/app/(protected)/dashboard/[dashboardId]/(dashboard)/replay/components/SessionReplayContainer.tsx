@@ -13,7 +13,7 @@ type SessionReplayContainerProps = {
 };
 
 export function SessionReplayContainer({ dashboardId }: SessionReplayContainerProps) {
-  const sessionManager = useSessionManager(dashboardId);
+  const sessionManager = useSessionManager();
   const segmentLoader = useSegmentLoader(dashboardId);
   const playerState = usePlayerState(dashboardId);
 

@@ -1,10 +1,9 @@
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCallback, useMemo, useState } from 'react';
 import { useFunnelSteps } from '@/hooks/use-funnel-steps';
-import { useQuery } from '@tanstack/react-query';
-import { fetchFunnelPreviewAction } from '@/app/actions/index.actions';
+import { trpc } from '@/trpc/client';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 export type FunnelMetadata = {
   name: string;
@@ -31,6 +30,7 @@ export function useFunnelDialog({
     isStrict: initialIsStrict,
   });
   const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
+  const analyticsQuery = useAnalyticsQuery();
 
   const searchableFunnelSteps = useMemo(() => {
     const findFilterableIndex = debouncedFunnelSteps.findIndex(
@@ -46,15 +46,10 @@ export function useFunnelDialog({
     }));
   }, [debouncedFunnelSteps]);
 
-  const { startDate, endDate } = useTimeRangeContext();
-
-  const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, startDate, endDate, searchableFunnelSteps, metadata.isStrict],
-    queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, startDate, endDate, searchableFunnelSteps, metadata.isStrict);
-    },
-    enabled: searchableFunnelSteps.length >= 2,
-  });
+  const { data: funnelPreviewData, isLoading: isPreviewLoading } = trpc.funnels.preview.useQuery(
+    { dashboardId, query: analyticsQuery, funnelSteps: searchableFunnelSteps, isStrict: metadata.isStrict },
+    { enabled: searchableFunnelSteps.length >= 2 },
+  );
 
   const funnelPreview = useMemo(() => {
     if (!funnelPreviewData) return null;

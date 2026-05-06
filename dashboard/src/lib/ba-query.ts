@@ -1,9 +1,10 @@
 'server only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { parseFilterColumn, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
+import { filterColumnSql } from './filter-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
 import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
@@ -23,6 +24,7 @@ const INTERNAL_FILTER_OPERATORS = {
 
 const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
+  rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
   values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
@@ -46,12 +48,25 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
-  const column = SQL.Unsafe(filter.column);
+  const parsed = parseFilterColumn(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
-  const quantifier = filter.operator.quantifier;
-  const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+  switch (parsed.kind) {
+    case 'gp': {
+      const key = SQL.String({ [`gp_key_${filterIndex}`]: parsed.key });
+      const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
+      if (isWildcard) {
+        const hasKey = safeSql`has(global_properties_keys, ${key})`;
+        return filter.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
+      }
+      const extract = safeSql`global_properties_values[indexOf(global_properties_keys, ${key})]`;
+      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
+    }
+    default: {
+      const column = filterColumnSql(parsed.col);
+      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+    }
+  }
 }
 
 // Utility for granularity

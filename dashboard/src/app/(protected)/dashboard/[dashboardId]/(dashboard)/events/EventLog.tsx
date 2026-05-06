@@ -1,12 +1,10 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef } from 'react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
-import { fetchRecentEventsAction, fetchTotalEventCountAction } from '@/app/actions/analytics/events.actions';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
 
 import { formatNumber } from '@/utils/formatters';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -49,7 +47,12 @@ const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
   </div>
 );
 
-const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: EventLogTranslation, locale: SupportedLanguages): string => {
+const createShowingText = (
+  allEvents: EventLogEntry[],
+  totalCount: number,
+  t: EventLogTranslation,
+  locale: SupportedLanguages,
+): string => {
   if (totalCount === 0) {
     return t('noEvents');
   }
@@ -68,25 +71,26 @@ const createShowingText = (allEvents: EventLogEntry[], totalCount: number, t: Ev
 };
 
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
-  const query = useAnalyticsQuery();
-  const dashboardId = useDashboardId();
   const t = useTranslations('components.events.log');
   const locale = useLocale();
+  const { input, options } = useBAQueryParams();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['recentEvents', dashboardId, query, pageSize],
-    queryFn: ({ pageParam = 0 }) => fetchRecentEventsAction(dashboardId, query, pageSize, pageParam),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage: EventLogEntry[], allPages: EventLogEntry[][]) => {
-      if (lastPage.length < pageSize) return undefined;
-      return allPages.length * pageSize;
-    },
-    refetchInterval: EVENTS_REFRESH_INTERVAL_MS,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    trpc.events.recentEvents.useInfiniteQuery(
+      { ...input, limit: pageSize },
+      {
+        ...options,
+        initialCursor: 0,
+        getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+          if (lastPage.length < pageSize) return undefined;
+          return (lastPageParam ?? 0) + pageSize;
+        },
+        refetchInterval: EVENTS_REFRESH_INTERVAL_MS,
+      },
+    );
 
-  const { data: totalCount = 0 } = useQuery({
-    queryKey: ['totalEventCount', dashboardId, query],
-    queryFn: () => fetchTotalEventCountAction(dashboardId, query),
+  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(input, {
+    ...options,
     refetchInterval: COUNT_REFRESH_INTERVAL_MS,
   });
 
@@ -118,7 +122,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     }
   }, [isFetchingNextPage]);
 
-  const currentCountText = useMemo(() => createShowingText(allEvents, totalCount, t, locale), [allEvents, totalCount, t, locale]);
+  const currentCountText = useMemo(
+    () => createShowingText(allEvents, totalCount, t, locale),
+    [allEvents, totalCount, t, locale],
+  );
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>

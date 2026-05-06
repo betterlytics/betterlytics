@@ -2,7 +2,7 @@ import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse, GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import type { Feature, Geometry } from 'geojson';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { GeoJSON } from 'react-leaflet';
 import MapTooltipContent from './tooltip/MapTooltipContent';
@@ -38,6 +38,13 @@ export default function MapCountryGeoJSON({
   const locale = useLocale();
   const t = useTranslations('components');
   const timeRangeCtx = useTimeRangeContext();
+
+  const dataVersion = useRef(0);
+  const prevData = useRef({ visitorData, compareData });
+  if (prevData.current.visitorData !== visitorData || prevData.current.compareData !== compareData) {
+    dataVersion.current++;
+    prevData.current = { visitorData, compareData };
+  }
 
   useEffect(() => {
     setMapSelection(null);
@@ -127,13 +134,12 @@ export default function MapCountryGeoJSON({
       t,
       timeRangeCtx,
       setMapSelection,
-      locale,
     ],
   );
 
   return (
     <GeoJSON
-      key={`${visitorData.length}-${timeRangeCtx.compareMode}-${compareData.length}-${locale}`}
+      key={`${dataVersion.current}-${timeRangeCtx.compareMode}-${locale}`}
       data={geoData}
       onEachFeature={onEachFeature}
       {...DEFAULT_OPTS}

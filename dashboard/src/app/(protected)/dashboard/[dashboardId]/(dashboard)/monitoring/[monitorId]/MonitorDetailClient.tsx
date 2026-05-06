@@ -1,15 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { PauseCircle, Pencil, PlayCircle } from 'lucide-react';
-import {
-  fetchLatestMonitorTlsResultAction,
-  fetchMonitorCheckAction,
-  fetchMonitorIncidentsAction,
-  fetchMonitorMetricsAction,
-  fetchRecentMonitorResultsAction,
-} from '@/app/actions/analytics/monitoring.actions';
+import { trpc } from '@/trpc/client';
 import { Button } from '@/components/ui/button';
 import {
   type MonitorCheck,
@@ -34,6 +27,7 @@ type MonitorDetailClientProps = {
   monitorId: string;
   hostname: string;
   timezone: string;
+  serverNow: number;
   initialData: {
     monitor: MonitorCheck;
     metrics?: MonitorMetrics;
@@ -54,19 +48,21 @@ export function MonitorDetailClient({
   monitorId,
   hostname,
   timezone,
+  serverNow,
   initialData,
 }: MonitorDetailClientProps) {
   const tDetail = useTranslations('monitoringDetailPage');
   const tActions = useTranslations('monitoring.actions');
-  const monitorQuery = useQuery({
-    queryKey: ['monitor', dashboardId, monitorId],
-    queryFn: () => fetchMonitorCheckAction(dashboardId, monitorId),
-    initialData: initialData.monitor,
-    refetchInterval: ({ state }) => {
-      const monitor = state.data ?? initialData.monitor;
-      return monitor.isEnabled ? Math.max(MIN_POLLING_INTERVAL_MS, monitor.intervalSeconds * 1000) : false;
+  const monitorQuery = trpc.monitors.get.useQuery(
+    { dashboardId, monitorId },
+    {
+      initialData: initialData.monitor,
+      refetchInterval: ({ state }) => {
+        const monitor = state.data ?? initialData.monitor;
+        return monitor.isEnabled ? Math.max(MIN_POLLING_INTERVAL_MS, monitor.intervalSeconds * 1000) : false;
+      },
     },
-  });
+  );
 
   const monitorData = monitorQuery.data ?? initialData.monitor;
   const pollingEnabled = monitorData.isEnabled;
@@ -84,36 +80,40 @@ export function MonitorDetailClient({
     refetchOnReconnect: true,
   };
 
-  const metricsQuery = useQuery({
-    queryKey: ['monitor-metrics', dashboardId, monitorId],
-    queryFn: () => fetchMonitorMetricsAction(dashboardId, monitorId, timezone),
-    initialData: initialData.metrics,
-    ...DEFAULT_QUERY_PARAMS,
-  });
+  const metricsQuery = trpc.monitors.metrics.useQuery(
+    { dashboardId, monitorId, timezone },
+    {
+      initialData: initialData.metrics,
+      ...DEFAULT_QUERY_PARAMS,
+    },
+  );
 
-  const incidentsQuery = useQuery({
-    queryKey: ['monitor-incidents', dashboardId, monitorId],
-    queryFn: () => fetchMonitorIncidentsAction(dashboardId, monitorId),
-    initialData: initialData.incidents,
-    ...DEFAULT_QUERY_PARAMS,
-  });
+  const incidentsQuery = trpc.monitors.incidents.useQuery(
+    { dashboardId, monitorId },
+    {
+      initialData: initialData.incidents,
+      ...DEFAULT_QUERY_PARAMS,
+    },
+  );
 
   const [checksErrorsOnly, setChecksErrorsOnly] = useState(false);
-  const checksQuery = useQuery({
-    queryKey: ['monitor-checks', dashboardId, monitorId, checksErrorsOnly],
-    queryFn: async () => (await fetchRecentMonitorResultsAction(dashboardId, monitorId, checksErrorsOnly)) ?? [],
-    placeholderData: initialData.recentChecks,
-    ...DEFAULT_QUERY_PARAMS,
-  });
+  const checksQuery = trpc.monitors.recentResults.useQuery(
+    { dashboardId, monitorId, errorsOnly: checksErrorsOnly },
+    {
+      placeholderData: initialData.recentChecks,
+      ...DEFAULT_QUERY_PARAMS,
+    },
+  );
 
-  const tlsQuery = useQuery({
-    queryKey: ['monitor-tls', dashboardId, monitorId],
-    queryFn: () => fetchLatestMonitorTlsResultAction(dashboardId, monitorId),
-    initialData: initialData.tls,
-    ...DEFAULT_QUERY_PARAMS,
-    refetchInterval: NON_CRITICAL_POLLING_INTERVAL_MS,
-    staleTime: NON_CRITICAL_POLLING_INTERVAL_MS / 2,
-  });
+  const tlsQuery = trpc.monitors.latestTls.useQuery(
+    { dashboardId, monitorId },
+    {
+      initialData: initialData.tls,
+      ...DEFAULT_QUERY_PARAMS,
+      refetchInterval: NON_CRITICAL_POLLING_INTERVAL_MS,
+      staleTime: NON_CRITICAL_POLLING_INTERVAL_MS / 2,
+    },
+  );
 
   const operationalState = metricsQuery.data?.operationalState ?? 'preparing';
 
@@ -214,6 +214,7 @@ export function MonitorDetailClient({
         operationalState={operationalState}
         onEnableSslClick={handleEnableSslClick}
         onCountdownExpired={handleCountdownExpired}
+        serverNow={serverNow}
       />
 
       <ResponseTimeCard metrics={metricsQuery.data} />

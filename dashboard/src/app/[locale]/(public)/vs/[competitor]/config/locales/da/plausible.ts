@@ -67,6 +67,7 @@ export const plausible: ComparisonLocaleContent = {
         features: [
           { name: 'Real-time dashboard', betterlytics: true, competitor: true },
           { name: 'Custom events', betterlytics: true, competitor: true },
+          { name: 'Global properties', betterlytics: true, competitor: true },
           { name: 'Funnel-analyse', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
           { name: 'Tracking af udgående links', betterlytics: true, competitor: true },

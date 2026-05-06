@@ -1,24 +1,22 @@
 'use client';
 
-import { Fragment, useMemo, useState, type CSSProperties, useCallback, useEffect } from 'react';
-import { fetchWeeklyHeatmapAllAction } from '@/app/actions/analytics/weeklyHeatmap.actions';
+import { Fragment, useMemo, useCallback, useState, type CSSProperties } from 'react';
 import type { HeatmapMetric } from '@/entities/analytics/weeklyHeatmap.entities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { type WeeklyHeatmapMatrix, type PresentedWeeklyHeatmap } from '@/presenters/toWeeklyHeatmapMatrix';
+import { type WeeklyHeatmapMatrix } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatDuration } from '@/utils/dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { useLocale, useTranslations } from 'next-intl';
-import { HeatmapSkeleton } from '@/components/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useColorScale } from '@/hooks/use-color-scale';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
-
-type WeeklyHeatmapSectionProps = {
-  dashboardId: string;
-};
+import { Spinner } from '@/components/ui/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
 const metricOptions = [
   { value: 'pageviews', labelKey: 'pageviews' },
@@ -40,20 +38,13 @@ function formatHeatmapMetricValue(metric: HeatmapMetric, value: number, locale: 
   }
 }
 
-export default function WeeklyHeatmapSection({ dashboardId }: WeeklyHeatmapSectionProps) {
-  const query = useAnalyticsQuery();
-  const [allData, setAllData] = useState<Awaited<ReturnType<typeof fetchWeeklyHeatmapAllAction>>>();
-  useEffect(() => {
-    fetchWeeklyHeatmapAllAction(dashboardId, query).then((res) => setAllData(res));
-  }, [dashboardId, query]);
-
+export default function WeeklyHeatmapSection() {
   const [selectedMetric, setSelectedMetric] = useState<HeatmapMetric>('unique_visitors');
   const t = useTranslations('dashboard');
+  const { input, options } = useBAQueryParams();
 
-  const current: PresentedWeeklyHeatmap | undefined = useMemo(() => {
-    const pair = allData?.find(([metric]) => metric === selectedMetric);
-    return pair ? pair[1] : undefined;
-  }, [allData, selectedMetric]);
+  const query = trpc.weeklyHeatmap.heatmap.useQuery({ ...input, metric: selectedMetric }, options);
+  const queryState = useQueryState(query);
 
   const metricLabelByMetric: Record<HeatmapMetric, string> = useMemo(
     () => ({
@@ -67,21 +58,17 @@ export default function WeeklyHeatmapSection({ dashboardId }: WeeklyHeatmapSecti
     [t],
   );
 
-  const selectedMetricLabel = metricLabelByMetric[selectedMetric];
-
   const onMetricChange = (next: string) => {
     setSelectedMetric(next as HeatmapMetric);
   };
-
-  if (!allData) {
-    return <HeatmapSkeleton />;
-  }
 
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
       <CardHeader className='px-0 pb-1'>
         <div className='flex flex-row items-center justify-between gap-2'>
-          <CardTitle className='text-base font-medium whitespace-nowrap'>{t('sections.weeklyTrends')}</CardTitle>
+          <CardTitle className='text-base font-medium whitespace-nowrap'>
+            <span className='inline-flex items-center gap-2'>{t('sections.weeklyTrends')}</span>
+          </CardTitle>
           <div className='flex h-8 min-w-0 items-center'>
             <div className='w-40 sm:w-48'>
               <Select value={selectedMetric} onValueChange={onMetricChange}>
@@ -103,13 +90,41 @@ export default function WeeklyHeatmapSection({ dashboardId }: WeeklyHeatmapSecti
         </div>
       </CardHeader>
 
-      <CardContent className='px-0'>
-        <HeatmapGrid
-          data={current?.matrix ?? []}
-          maxValue={current?.maxValue ?? 1}
-          metricLabel={selectedMetricLabel}
-          metric={selectedMetric}
-        />
+      <CardContent className='flex flex-1 flex-col px-0'>
+        {queryState.loading ? (
+          <div className='grid grid-cols-[40px_repeat(7,1fr)] gap-x-0.5 gap-y-1 pb-3'>
+            <div></div>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <Skeleton key={`day-${i}`} className='mx-auto mb-1 h-3 w-10 rounded' />
+            ))}
+            {Array.from({ length: 24 }).map((_, hourIndex) => (
+              <Fragment key={`row-${hourIndex}`}>
+                <div className='flex h-2.5 items-center justify-end pr-2'>
+                  {hourIndex % 3 === 1 ? <Skeleton className='h-2 w-6 rounded' /> : null}
+                </div>
+                {Array.from({ length: 7 }).map((_, dayIndex) => (
+                  <Skeleton key={`cell-${hourIndex}-${dayIndex}`} className='h-2.5 w-full rounded-sm' />
+                ))}
+              </Fragment>
+            ))}
+          </div>
+        ) : (
+          <div className='relative'>
+            {queryState.refetching && (
+              <div className='absolute inset-0 z-10 flex items-center justify-center'>
+                <Spinner />
+              </div>
+            )}
+            <div className={cn('h-full', queryState.refetching && 'pointer-events-none opacity-60')}>
+              <HeatmapGrid
+                data={query.data?.matrix ?? []}
+                maxValue={query.data?.maxValue ?? 1}
+                metricLabel={metricLabelByMetric[selectedMetric]}
+                metric={selectedMetric}
+              />
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -126,7 +141,6 @@ function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) 
   const locale = useLocale();
   const dayLabels = useMemo(() => {
     const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    // Monday-first sequence, matching data mapping (1..7 Mon..Sun)
     return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
   }, [locale]);
 

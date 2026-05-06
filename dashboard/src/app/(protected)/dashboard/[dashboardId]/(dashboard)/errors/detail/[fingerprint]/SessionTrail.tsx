@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTheme } from 'next-themes';
-import { fetchSessionTrailAction, checkSessionReplayAction } from '@/app/actions/analytics/errors.actions';
+import { trpc } from '@/trpc/client';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
@@ -43,6 +43,7 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
   const { resolveHref } = useDashboardNavigation();
   const { isDemo } = useDashboardAuth();
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
+  const utils = trpc.useUtils();
 
   const currentRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -53,8 +54,8 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
   useEffect(() => {
     startTransition(async () => {
       const [data, replay] = await Promise.all([
-        fetchSessionTrailAction(dashboardId, sessionId),
-        checkSessionReplayAction(dashboardId, sessionId),
+        utils.errors.sessionTrail.fetch({ dashboardId, sessionId }),
+        utils.errors.checkSessionReplay.fetch({ dashboardId, sessionId }),
       ]);
       setGroups(data);
       setHasReplay(replay);

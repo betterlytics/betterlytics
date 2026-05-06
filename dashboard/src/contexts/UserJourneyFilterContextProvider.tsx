@@ -19,11 +19,13 @@ export function useUserJourneyFilter() {
 
 type Props = {
   children: React.ReactNode;
+  initialNumberOfSteps?: number;
+  initialNumberOfJourneys?: number;
 };
 
-export function UserJourneyFilterProvider({ children }: Props) {
-  const [numberOfSteps, setNumberOfSteps] = useState<number>(3);
-  const [numberOfJourneys, setNumberOfJourneys] = useState<number>(10);
+export function UserJourneyFilterProvider({ children, initialNumberOfSteps, initialNumberOfJourneys }: Props) {
+  const [numberOfSteps, setNumberOfSteps] = useState<number>(initialNumberOfSteps ?? 3);
+  const [numberOfJourneys, setNumberOfJourneys] = useState<number>(initialNumberOfJourneys ?? 10);
 
   return (
     <UserJourneyFilterContext.Provider value={{ numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys }}>

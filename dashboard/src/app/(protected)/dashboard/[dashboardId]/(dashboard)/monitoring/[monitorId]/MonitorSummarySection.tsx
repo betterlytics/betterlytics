@@ -45,6 +45,7 @@ type MonitorSummarySectionProps = {
   operationalState: MonitorOperationalState;
   onEnableSslClick?: () => void;
   onCountdownExpired?: () => void;
+  serverNow: number;
 };
 
 export function MonitorSummarySection({
@@ -54,6 +55,7 @@ export function MonitorSummarySection({
   operationalState,
   onEnableSslClick,
   onCountdownExpired,
+  serverNow,
 }: MonitorSummarySectionProps) {
   const latencyAvg = metrics?.latency?.avgMs ?? null;
 
@@ -67,6 +69,7 @@ export function MonitorSummarySection({
         operationalState={operationalState}
         onCountdownExpired={onCountdownExpired}
         currentStateSince={metrics?.currentStateSince ?? undefined}
+        serverNow={serverNow}
       />
       <Last24hCard
         uptimePercent={metrics?.uptime24hPercent}
@@ -93,6 +96,7 @@ function NextCheckCard({
   operationalState,
   onCountdownExpired,
   currentStateSince,
+  serverNow,
 }: {
   intervalSeconds: number;
   lastCheckAt?: string;
@@ -101,6 +105,7 @@ function NextCheckCard({
   operationalState: MonitorOperationalState;
   onCountdownExpired?: () => void;
   currentStateSince?: string;
+  serverNow: number;
 }) {
   const locale = useLocale();
   const t = useTranslations('monitoringDetailPage.summary.nextCheck');
@@ -108,7 +113,7 @@ function NextCheckCard({
   const tList = useTranslations('monitoringPage.list');
 
   const lastCheckAt = lastCheckAtRaw ? new Date(lastCheckAtRaw).getTime() : null;
-  const [now, setNow] = useState(Date.now);
+  const [now, setNow] = useState(serverNow);
 
   const isPaused = operationalState === 'paused';
   const isPreparing = operationalState === 'preparing';
@@ -120,10 +125,10 @@ function NextCheckCard({
 
   useEffect(() => {
     if (!lastCheckAt || isPaused) return;
-    setNow(Date.now());
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    const clientStart = Date.now();
+    const id = window.setInterval(() => setNow(serverNow + (Date.now() - clientStart)), 1000);
     return () => window.clearInterval(id);
-  }, [isPaused, lastCheckAt]);
+  }, [isPaused, lastCheckAt, serverNow]);
 
   const { label: countdownLabel, isAwaiting } = useMemo(() => {
     if (isPaused) return { label: t('paused'), isAwaiting: false };

@@ -1,6 +1,7 @@
 import { env } from '@/lib/env';
 import { getLocale } from 'next-intl/server';
 import Image from 'next/image';
+import { DemoDashboardIframe } from './DemoDashboardIframe';
 
 export async function DemoDashboardPreview() {
   if (!env.DEMO_DASHBOARD_ID) {
@@ -53,15 +54,7 @@ export async function DemoDashboardPreview() {
         />
         <div className='border-border/40 bg-background/95 relative overflow-hidden rounded-[1.5rem] border shadow-inner shadow-blue-500/5'>
           <div className='relative aspect-[16/9] w-full'>
-            <iframe
-              allowFullScreen
-              src={demoDashboardPath}
-              title='Betterlytics live demo'
-              loading='lazy'
-              sandbox='allow-scripts allow-same-origin'
-              referrerPolicy='no-referrer'
-              className='absolute inset-0 h-full w-full border-0'
-            />
+            <DemoDashboardIframe src={demoDashboardPath} />
           </div>
         </div>
       </div>

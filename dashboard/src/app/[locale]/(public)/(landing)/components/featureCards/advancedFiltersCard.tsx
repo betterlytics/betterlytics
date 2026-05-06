@@ -12,6 +12,7 @@ import {
   LinkIcon,
   Monitor,
   Globe,
+  Braces,
 } from 'lucide-react';
 
 export default async function AdvancedFiltersCard() {
@@ -28,6 +29,7 @@ export default async function AdvancedFiltersCard() {
     { name: 'UTM Source', icon: <Tag className='h-4 w-4' /> },
     { name: 'UTM Medium', icon: <Megaphone className='h-4 w-4' /> },
     { name: 'UTM Campaign', icon: <Target className='h-4 w-4' /> },
+    { name: 'Custom Properties', icon: <Braces className='h-4 w-4' /> },
   ];
 
   return (

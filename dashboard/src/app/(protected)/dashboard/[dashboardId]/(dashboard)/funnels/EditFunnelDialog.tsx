@@ -14,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 import { updateFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { trpc } from '@/trpc/client';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { UpdateFunnelSchema, type FunnelStep } from '@/entities/analytics/funnels.entities';
@@ -40,6 +41,7 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const dashboardId = useDashboardId();
+  const utils = trpc.useUtils();
   const {
     metadata,
     setName,
@@ -99,11 +101,13 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
         setIsOpen(false);
         setHasAttemptedSubmit(false);
         toast.success(t('edit.successMessage'));
+        utils.funnels.list.invalidate({ dashboardId });
+        utils.funnels.details.invalidate({ dashboardId, funnelId: funnel.id });
       })
       .catch(() => {
         toast.error(t('edit.errorMessage'));
       });
-  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t, reset]);
+  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t, reset, utils]);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {

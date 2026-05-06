@@ -41,6 +41,7 @@ import {
   Cloud,
   Blocks,
   Send,
+  Tag,
 } from 'lucide-react';
 
 import { MCPIcon } from '@/components/icons';
@@ -61,6 +62,7 @@ const CATEGORIES = [
       { id: 'customEvents', icon: MousePointerClick },
       { id: 'utmTracking', icon: Target },
       { id: 'linkTracking', icon: Link2 },
+      { id: 'globalProperties', icon: Tag },
     ],
   },
   {

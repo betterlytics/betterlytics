@@ -47,7 +47,7 @@ Below the main chart, you'll find a collection of five summary tables that provi
   ![Dashboard Overview Summary Tables](/images/dashboard/dashboard-overview-summary-tables.png)
 </div>
 
-Each of the five summary tables (Top Pages, Geography, Devices Breakdown, Traffic Sources, and Custom Events) features its own set of tabs. 
+Each of the five summary tables (Top Pages, Geography, Devices Breakdown, Traffic Sources, and Events) features its own set of tabs.
 These tabs allow you to drill down into different aspects of the data within that category. 
 For example, under **Top Pages**, you can switch between Pages, Entry Pages, and Exit Pages. 
 Use the tabs at the top of each table to explore the specific insights available.
@@ -71,8 +71,9 @@ Use the tabs at the top of each table to explore the specific insights available
 - **Sources**: Categorized traffic sources (Google, Facebook, direct, etc.)
 - **Channels**: Traffic channels (Organic Search, Social Media, Direct, etc.)
 
-#### Custom Events
-- **Events**: Your custom tracked events (button clicks, form submissions, etc.)
+#### Events
+- **Custom Events**: Your custom tracked events (button clicks, form submissions, etc.), ranked by number of occurrences
+- **Global Properties**: Key-value metadata attached to all events (e.g. plan, role, app version), ranked by unique visitors. See [Global Properties](/integration/global-properties) for setup instructions.
 
 <Callout type="tip">
 **Visual Design**: Each table uses progress bars to show relative values at a glance, making it easy to spot your top-performing pages, countries, or traffic sources without looking at exact numbers. Hover over the progress bars to see the exact numbers and percentage of total occurrences.
@@ -112,6 +113,12 @@ While your overview page provides a comprehensive snapshot, each data category h
   />
 
   <DashboardSectionCard
+    title="Campaigns"
+    href="/dashboard/campaigns"
+    description="UTM campaign tracking and marketing attribution across all traffic sources."
+  />
+
+  <DashboardSectionCard
     title="User Journey"
     href="/dashboard/user-journey"
     description="Sankey diagrams showing how visitors navigate through your site."
@@ -127,6 +134,12 @@ While your overview page provides a comprehensive snapshot, each data category h
     title="Events"
     href="/dashboard/events"
     description="Custom event tracking with real-time event log and property analysis."
+  />
+
+  <DashboardSectionCard
+    title="Error Tracking"
+    href="/dashboard/errors"
+    description="Client-side JavaScript error capture with stack traces and session replay links."
   />
 
   <DashboardSectionCard
@@ -157,6 +170,24 @@ While your overview page provides a comprehensive snapshot, each data category h
     title="Uptime Monitoring"
     href="/dashboard/monitoring"
     description="Website uptime and SSL certificate monitoring with alerts."
+  />
+
+  <DashboardSectionCard
+    title="Email Reports"
+    href="/dashboard/email-reports"
+    description="Scheduled weekly or monthly analytics summaries delivered to your inbox."
+  />
+
+  <DashboardSectionCard
+    title="Notifications"
+    href="/dashboard/integrations"
+    description="Slack, Discord, Teams, and webhook alerts for monitoring and uptime events."
+  />
+
+  <DashboardSectionCard
+    title="MCP Server"
+    href="/dashboard/mcp"
+    description="Query your analytics via AI assistants using the built-in MCP integration."
   />
 
   <DashboardSectionCard

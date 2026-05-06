@@ -25,7 +25,7 @@ export function useNavigateWithFilters() {
   const navigate = useCallback(
     (href: string, options?: { replace?: boolean }) => {
       const resolvedHref = resolveHref(href);
-      const url = new URL(resolvedHref, window.location.origin);
+      const url = new URL(resolvedHref, 'http://placeholder');
 
       // Preserve current search params if the new URL doesn't have any
       if (!url.search && searchParams?.toString()) {
@@ -49,7 +49,7 @@ export function useNavigateWithFilters() {
   const getHrefWithFilters = useCallback(
     (href: string): string => {
       const resolvedHref = resolveHref(href);
-      const url = new URL(resolvedHref, window.location.origin);
+      const url = new URL(resolvedHref, 'http://placeholder');
 
       // Preserve current search params if the new URL doesn't have any
       if (!url.search && searchParams?.toString()) {

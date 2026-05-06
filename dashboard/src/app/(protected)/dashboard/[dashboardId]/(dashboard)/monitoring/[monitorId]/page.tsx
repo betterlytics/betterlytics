@@ -1,10 +1,10 @@
 import {
-  fetchMonitorCheckAction,
-  fetchMonitorMetricsAction,
-  fetchMonitorIncidentsAction,
-  fetchRecentMonitorResultsAction,
   fetchLatestMonitorTlsResultAction,
+  fetchMonitorCheckAction,
+  fetchMonitorIncidentsAction,
+  fetchMonitorMetricsAction,
   fetchMonitorUptimeAction,
+  fetchRecentMonitorResultsAction,
 } from '@/app/actions/analytics/monitoring.actions';
 import { MonitorDetailClient } from './MonitorDetailClient';
 import { notFound } from 'next/navigation';
@@ -24,20 +24,13 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
   const { dashboardId, monitorId } = await params;
   const timezone = await getUserTimezone();
 
-  const monitorPromise = fetchMonitorCheckAction(dashboardId, monitorId);
-  const metricsPromise = fetchMonitorMetricsAction(dashboardId, monitorId, timezone);
-  const recentChecksPromise = fetchRecentMonitorResultsAction(dashboardId, monitorId, false);
-  const incidentsPromise = fetchMonitorIncidentsAction(dashboardId, monitorId);
-  const tlsPromise = fetchLatestMonitorTlsResultAction(dashboardId, monitorId);
-  const uptimePromise = fetchMonitorUptimeAction(dashboardId, monitorId, timezone, 180);
-
   const [monitor, metrics, recentChecks, incidents, tls, uptime] = await Promise.all([
-    monitorPromise,
-    metricsPromise,
-    recentChecksPromise,
-    incidentsPromise,
-    tlsPromise,
-    uptimePromise,
+    fetchMonitorCheckAction(dashboardId, monitorId),
+    fetchMonitorMetricsAction(dashboardId, monitorId, timezone),
+    fetchRecentMonitorResultsAction(dashboardId, monitorId, false),
+    fetchMonitorIncidentsAction(dashboardId, monitorId),
+    fetchLatestMonitorTlsResultAction(dashboardId, monitorId),
+    fetchMonitorUptimeAction(dashboardId, monitorId, timezone, 180),
   ]);
 
   if (!monitor) {
@@ -45,6 +38,7 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
   }
 
   const hostname = safeHostname(monitor.url);
+  const serverNow = Date.now();
 
   return (
     <MonitorDetailClient
@@ -52,6 +46,7 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
       monitorId={monitorId}
       hostname={hostname}
       timezone={timezone}
+      serverNow={serverNow}
       initialData={{
         monitor,
         metrics,

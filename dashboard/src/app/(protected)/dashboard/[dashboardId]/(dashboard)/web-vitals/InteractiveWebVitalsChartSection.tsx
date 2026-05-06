@@ -1,5 +1,5 @@
 'use client';
-import { use, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
+import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { cn } from '@/lib/utils';
 import { Gauge } from '@/components/gauge';
 import {
@@ -9,7 +9,6 @@ import {
 } from '@/entities/analytics/webVitals.entities';
 import MultiSeriesChart, { type MultiSeriesConfig } from '@/components/MultiSeriesChart';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { CoreWebVitalsSeries } from '@/presenters/toMultiLine';
 import {
   formatCWV,
   getCoreWebVitalLabelColor,
@@ -20,6 +19,11 @@ import {
 import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import { useLocale, useTranslations } from 'next-intl';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, i) => ({
   dataKey: `value.${i}`,
@@ -27,23 +31,20 @@ const SERIES_DEFS: ReadonlyArray<MultiSeriesConfig> = PERCENTILE_KEYS.map((key, 
   name: key.toUpperCase(),
 }));
 
-type InteractiveWebVitalsChartSectionProps = {
-  summaryPromise: Promise<CoreWebVitalsSummary>;
-  seriesPromise: Promise<CoreWebVitalsSeries>;
-};
-
-export default function InteractiveWebVitalsChartSection({
-  summaryPromise,
-  seriesPromise,
-}: InteractiveWebVitalsChartSectionProps) {
+export default function InteractiveWebVitalsChartSection() {
   const t = useTranslations('components.webVitals');
-  const locale = useLocale();
-  const summary = use(summaryPromise);
+  const { input, options } = useBAQueryParams();
+  const summaryQuery = trpc.webVitals.summary.useQuery(input, options);
+  const chartQuery = trpc.webVitals.chartData.useQuery(input, options);
   const { granularity } = useTimeRangeContext();
   const [active, setActive] = useState<CoreWebVitalName>('CLS');
-  const seriesByMetric = use(seriesPromise);
 
-  const chartData = useMemo(() => seriesByMetric[active] || [], [seriesByMetric, active]);
+  const { data: chartData, loading: chartLoading, refetching: chartRefetching } = useQueryState(chartQuery);
+  const {
+    data: summaryData,
+    loading: summaryLoading,
+    refetching: summaryRefetching,
+  } = useQueryState(summaryQuery);
 
   const yReferenceAreas = useMemo(() => {
     const [good, fair] = CWV_THRESHOLDS[active];
@@ -58,26 +59,74 @@ export default function InteractiveWebVitalsChartSection({
     }));
   }, [active, t]);
 
+  const gaugeContent = (
+    <div>
+      {summaryLoading ? (
+        <CoreWebVitalsGaugeSkeleton />
+      ) : summaryData ? (
+        <CoreWebVitalsGaugeGrid summary={summaryData} activeMetric={active} onMetricSelect={setActive} />
+      ) : null}
+      <div className='mt-2 flex items-center justify-center gap-2 p-2'>
+        <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
+        <MetricInfo metric={active} />
+      </div>
+    </div>
+  );
+
+  const isRefetching = chartRefetching || summaryRefetching;
+
   return (
-    <div className='space-y-6'>
-      <MultiSeriesChart
-        title={undefined}
-        data={chartData}
-        granularity={granularity}
-        formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
-        yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
-        series={SERIES_DEFS}
-        yReferenceAreas={yReferenceAreas}
-        headerContent={
-          <div>
-            <CoreWebVitalsGaugeGrid summary={summary} activeMetric={active} onMetricSelect={setActive} />
-            <div className='mt-2 flex items-center justify-center gap-2 p-2'>
-              <span className='text-muted-foreground text-sm font-medium'>{t(`metrics.${active}`)}</span>
-              <MetricInfo metric={active} />
+    <div className='relative space-y-6'>
+      {isRefetching && (
+        <div className='absolute inset-0 z-10 flex items-center justify-center'>
+          <Spinner />
+        </div>
+      )}
+      <div className={cn(isRefetching && 'pointer-events-none opacity-60')}>
+        <MultiSeriesChart
+          title={undefined}
+          loading={chartLoading}
+          data={chartData?.[active] || []}
+          granularity={granularity}
+          formatValue={(v, locale) => formatCWV(active, Number(v), locale)}
+          yDomain={active === 'CLS' ? [0, (dataMax: number) => Math.max(1, Number(dataMax || 0))] : undefined}
+          series={SERIES_DEFS}
+          yReferenceAreas={yReferenceAreas}
+          headerContent={gaugeContent}
+        />
+      </div>
+    </div>
+  );
+}
+
+const SKELETON_GAUGE_SEGMENTS = [{ percent: 100, color: 'currentColor' }];
+
+function CoreWebVitalsGaugeSkeleton() {
+  return (
+    <div className='grid grid-cols-[repeat(auto-fit,minmax(9.25rem,1fr))] gap-2'>
+      {CORE_WEB_VITAL_NAMES.map((metric) => (
+        <div
+          key={metric}
+          className='relative flex flex-col items-center overflow-hidden rounded-md border border-transparent p-2'
+        >
+          <Gauge
+            segments={SKELETON_GAUGE_SEGMENTS}
+            progress={40}
+            size={140}
+            strokeWidth={7.5}
+            arcGap={2.5}
+            totalAngle={240}
+            className='text-muted-foreground/20 animate-pulse'
+          >
+            <div className='pointer-events-none absolute right-0 bottom-[20%] left-0 flex flex-col items-center'>
+              <span className='text-muted-foreground/75 -mb-1 font-sans text-[10px] font-black tracking-[0.25em] uppercase'>
+                {metric}
+              </span>
+              <Skeleton className='mt-1 h-[1.125rem] w-14' />
             </div>
-          </div>
-        }
-      />
+          </Gauge>
+        </div>
+      ))}
     </div>
   );
 }

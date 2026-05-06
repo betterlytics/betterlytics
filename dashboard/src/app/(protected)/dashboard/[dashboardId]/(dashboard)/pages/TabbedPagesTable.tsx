@@ -6,96 +6,134 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import TabbedTable from '@/components/TabbedTable';
-import { fetchPageAnalyticsAction } from '@/app/actions/analytics/pages.actions';
+import type { AppRouter } from '@/trpc/routers/_app';
+import type { inferRouterOutputs } from '@trpc/server';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type PageAnalyticsData = RouterOutputs['pages']['pageAnalytics'];
+
 interface TabbedPagesTableProps {
-  allPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
-  entryPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
-  exitPagesData: Awaited<ReturnType<typeof fetchPageAnalyticsAction>>;
+  allPagesData: PageAnalyticsData;
+  entryPagesData: PageAnalyticsData;
+  exitPagesData: PageAnalyticsData;
+  allPagesLoading?: boolean;
+  entryPagesLoading?: boolean;
+  exitPagesLoading?: boolean;
+  loading?: boolean;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
 const formatPath = (path: string): string => {
   return path || '/';
 };
 
-export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPagesData }: TabbedPagesTableProps) {
+export default function TabbedPagesTable({
+  allPagesData,
+  entryPagesData,
+  exitPagesData,
+  allPagesLoading,
+  entryPagesLoading,
+  exitPagesLoading,
+  loading,
+  activeTab,
+  onTabChange,
+}: TabbedPagesTableProps) {
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const locale = useLocale();
   const t = useTranslations('components.pages.table');
 
-  const getBaseColumns = useCallback((): ColumnDef<
-    Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]
-  >[] => {
-    return [
-      {
-        accessorKey: 'path',
-        header: t('path'),
-        cell: ({ row }) => {
-          const path = formatPath(row.original.path);
-          return (
-            <Button
-              variant='ghost'
-              onClick={() => makeFilterClick('url')(path)}
-              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors'
-              title={t('filterByPath', { path })}
-            >
-              {formatString(path)}
-            </Button>
-          );
+  const getBaseColumns = useCallback(
+    ({
+      pageviewsLabel,
+      avgTimeLabel,
+      showBounceRate,
+      showScrollDepth,
+    }: {
+      pageviewsLabel: string;
+      avgTimeLabel: string;
+      showBounceRate: boolean;
+      showScrollDepth: boolean;
+    }): ColumnDef<PageAnalyticsData[number]>[] => {
+      const columns: ColumnDef<PageAnalyticsData[number]>[] = [
+        {
+          accessorKey: 'path',
+          header: t('path'),
+          minSize: 200,
+          cell: ({ row }) => {
+            const path = formatPath(row.original.path);
+            return (
+              <Button
+                variant='ghost'
+                onClick={() => makeFilterClick('url')(path)}
+                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors select-text'
+                title={t('filterByPath', { path })}
+              >
+                {formatString(path)}
+              </Button>
+            );
+          },
         },
-      },
-      {
-        accessorKey: 'visitors',
-        header: t('visitors'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
-        accessorFn: (row) => row.current.visitors,
-      },
-      {
-        accessorKey: 'pageviews',
-        header: t('pageviews'),
-        cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={formatNumber} />,
-        accessorFn: (row) => row.current.pageviews,
-      },
-      {
-        accessorKey: 'bounceRate',
-        header: t('bounceRate'),
-        cell: ({ row }) => (
-          <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} allowNullish />
-        ),
-        accessorFn: (row) => row.current.bounceRate,
-      },
-      {
+        {
+          accessorKey: 'visitors',
+          header: t('visitors'),
+          cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
+          accessorFn: (row) => row.current.visitors,
+        },
+        {
+          accessorKey: 'pageviews',
+          header: pageviewsLabel,
+          cell: ({ row }) => <TableCompareCell row={row.original} dataKey='pageviews' formatter={formatNumber} />,
+          accessorFn: (row) => row.current.pageviews,
+        },
+      ];
+
+      if (showBounceRate) {
+        columns.push({
+          accessorKey: 'bounceRate',
+          header: t('bounceRate'),
+          cell: ({ row }) => (
+            <TableCompareCell row={row.original} dataKey='bounceRate' formatter={formatPercentage} allowNullish />
+          ),
+          accessorFn: (row) => row.current.bounceRate,
+        });
+      }
+
+      columns.push({
         accessorKey: 'avgTime',
-        header: t('avgTime'),
+        header: avgTimeLabel,
         cell: ({ row }) => (
           <TableCompareCell row={row.original} dataKey='avgTime' formatter={formatDuration} allowNullish />
         ),
         accessorFn: (row) => row.current.avgTime,
-      },
-      {
-        accessorKey: 'avgScrollDepth',
-        header: t('avgScrollDepth'),
-        cell: ({ row }) => (
-          <TableCompareCell
-            row={row.original}
-            dataKey='avgScrollDepth'
-            formatter={formatPercentage}
-            allowNullish
-          />
-        ),
-        accessorFn: (row) => row.current.avgScrollDepth,
-      },
-    ];
-  }, [makeFilterClick, locale, t]);
+      });
 
-  const getTabSpecificColumns = useCallback((): Record<
-    string,
-    ColumnDef<Awaited<ReturnType<typeof fetchPageAnalyticsAction>>[number]>
-  > => {
+      if (showScrollDepth) {
+        columns.push({
+          accessorKey: 'avgScrollDepth',
+          header: t('avgScrollDepth'),
+          cell: ({ row }) => (
+            <TableCompareCell
+              row={row.original}
+              dataKey='avgScrollDepth'
+              formatter={formatPercentage}
+              allowNullish
+            />
+          ),
+          accessorFn: (row) => row.current.avgScrollDepth,
+        });
+      }
+
+      return columns;
+    },
+    [makeFilterClick, t],
+  );
+
+  const getTabSpecificColumns = useCallback((): Record<string, ColumnDef<PageAnalyticsData[number]>> => {
     return {
       entryRate: {
         accessorKey: 'entryRate',
@@ -132,16 +170,35 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
     };
   }, [t, locale]);
 
-  const allPagesColumns = useMemo(() => getBaseColumns(), [getBaseColumns]);
+  const allPagesColumns = useMemo(
+    () =>
+      getBaseColumns({
+        pageviewsLabel: t('pageviews'),
+        avgTimeLabel: t('avgTime'),
+        showBounceRate: true,
+        showScrollDepth: true,
+      }),
+    [getBaseColumns, t],
+  );
 
   const entryPagesColumns = useMemo(() => {
-    const base = getBaseColumns();
+    const base = getBaseColumns({
+      pageviewsLabel: t('sessionPageviews'),
+      avgTimeLabel: t('avgSessionTime'),
+      showBounceRate: true,
+      showScrollDepth: false,
+    });
     const specific = getTabSpecificColumns();
     return [...base, specific.entryRate];
   }, [getBaseColumns, getTabSpecificColumns, t]);
 
   const exitPagesColumns = useMemo(() => {
-    const base = getBaseColumns();
+    const base = getBaseColumns({
+      pageviewsLabel: t('sessionPageviews'),
+      avgTimeLabel: t('avgSessionTime'),
+      showBounceRate: false,
+      showScrollDepth: false,
+    });
     const specific = getTabSpecificColumns();
     return [...base, specific.exitRate];
   }, [getBaseColumns, getTabSpecificColumns, t]);
@@ -154,6 +211,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         data: allPagesData,
         columns: allPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
+        loading: allPagesLoading,
       },
       {
         key: 'entry',
@@ -161,6 +219,7 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         data: entryPagesData,
         columns: entryPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
+        loading: entryPagesLoading,
       },
       {
         key: 'exit',
@@ -168,16 +227,31 @@ export default function TabbedPagesTable({ allPagesData, entryPagesData, exitPag
         data: exitPagesData,
         columns: exitPagesColumns,
         defaultSorting: [{ id: 'pageviews', desc: true }],
+        loading: exitPagesLoading,
       },
     ],
-    [allPagesData, entryPagesData, exitPagesData, allPagesColumns, entryPagesColumns, exitPagesColumns, t],
+    [
+      allPagesData,
+      entryPagesData,
+      exitPagesData,
+      allPagesColumns,
+      entryPagesColumns,
+      exitPagesColumns,
+      allPagesLoading,
+      entryPagesLoading,
+      exitPagesLoading,
+      t,
+    ],
   );
 
   return (
     <TabbedTable
       title={t('title')}
+      loading={loading}
       tabs={tableTabs}
       defaultTab='all'
+      tabValue={activeTab}
+      onTabValueChange={onTabChange}
       searchColumn='path'
       searchFieldLabel={t('path')}
     />

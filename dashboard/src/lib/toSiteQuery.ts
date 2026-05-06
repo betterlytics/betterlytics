@@ -1,10 +1,7 @@
 import { BAAnalyticsQuerySchema, type BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
-export function toSiteQuery(
-  siteId: string,
-  query: unknown,
-): { main: BASiteQuery; compare: BASiteQuery | null } {
+export function toSiteQuery(siteId: string, query: unknown): { main: BASiteQuery; compare: BASiteQuery | null } {
   const parsed = BAAnalyticsQuerySchema.parse(query);
   const main: BASiteQuery = {
     siteId,
@@ -13,7 +10,10 @@ export function toSiteQuery(
     startDateTime: toDateTimeString(parsed.startDate),
     endDateTime: toDateTimeString(parsed.endDate),
     granularity: parsed.granularity,
-    queryFilters: parsed.queryFilters,
+    queryFilters: parsed.queryFilters.filter(
+      (filter) =>
+        Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
+    ),
     timezone: parsed.timezone,
     userJourney: parsed.userJourney,
   };

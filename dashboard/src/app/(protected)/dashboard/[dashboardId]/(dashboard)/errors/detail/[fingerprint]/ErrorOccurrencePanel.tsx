@@ -11,7 +11,7 @@ import { DeviceIcon } from '@/components/icons/DeviceIcon';
 import { OccurrenceNavigator } from './OccurrenceNavigator';
 import { StacktraceView } from './StacktraceView';
 import { SessionTrail } from './SessionTrail';
-import { fetchErrorOccurrenceAction } from '@/app/actions/analytics/errors.actions';
+import { trpc } from '@/trpc/client';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
 import { getDeviceLabel } from '@/constants/deviceTypes';
 import { useTranslations } from 'next-intl';
@@ -31,6 +31,7 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
   const [offset, setOffset] = useState(initialOffset);
   const [occurrence, setOccurrence] = useState<ErrorOccurrence | null>(null);
   const [isPending, startTransition] = useTransition();
+  const utils = trpc.useUtils();
 
   const updateUrl = useCallback(
     (newOffset: number) => {
@@ -47,7 +48,7 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
 
   useEffect(() => {
     startTransition(async () => {
-      const data = await fetchErrorOccurrenceAction(dashboardId, fingerprint, initialOffset);
+      const data = await utils.errors.errorOccurrence.fetch({ dashboardId, fingerprint, offset: initialOffset });
       setOccurrence(data);
     });
   }, [dashboardId, fingerprint, initialOffset]);
@@ -56,7 +57,7 @@ export function ErrorOccurrencePanel({ dashboardId, fingerprint, totalCount }: E
     setOffset(newOffset);
     updateUrl(newOffset);
     startTransition(async () => {
-      const data = await fetchErrorOccurrenceAction(dashboardId, fingerprint, newOffset);
+      const data = await utils.errors.errorOccurrence.fetch({ dashboardId, fingerprint, offset: newOffset });
       setOccurrence(data);
     });
   }

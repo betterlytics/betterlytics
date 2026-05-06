@@ -11,7 +11,7 @@ import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<EventTypeRow[]> {
+export async function getCustomEventsOverview(siteQuery: BASiteQuery, limit: number): Promise<EventTypeRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
   const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
@@ -31,7 +31,7 @@ export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<E
       AND ${SQL.AND(filters)}
     GROUP BY event_name
     ORDER BY count DESC
-    LIMIT 100
+    LIMIT {limit:UInt32}
   `;
   const result = (await clickhouse
     .query(query.taggedSql, {
@@ -40,6 +40,7 @@ export async function getCustomEventsOverview(siteQuery: BASiteQuery): Promise<E
         site_id: siteId,
         start_date: startDateTime,
         end_date: endDateTime,
+        limit,
       },
     })
     .toPromise()) as any[];

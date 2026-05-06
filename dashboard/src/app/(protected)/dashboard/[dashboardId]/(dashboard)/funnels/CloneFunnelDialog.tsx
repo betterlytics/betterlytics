@@ -18,6 +18,7 @@ import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { postFunnelAction } from '@/app/actions/index.actions';
+import { trpc } from '@/trpc/client';
 import { generateTempId } from '@/utils/temporaryId';
 import { FunnelDialogContent } from './FunnelDialogContent';
 
@@ -29,6 +30,7 @@ type CloneFunnelDialogProps = {
 export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) {
   const t = useTranslations('components.funnels.clone');
   const dashboardId = useDashboardId();
+  const utils = trpc.useUtils();
   const [isOpen, setIsOpen] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
@@ -73,11 +75,12 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
         setIsOpen(false);
         setHasAttemptedSubmit(false);
         toast.success(t('successMessage'));
+        utils.funnels.list.invalidate({ dashboardId });
       })
       .catch(() => {
         toast.error(t('errorMessage'));
       });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, t]);
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, t, utils]);
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);

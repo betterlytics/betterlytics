@@ -1,21 +1,35 @@
 'use client';
 
 import MultiProgressTable from '@/components/MultiProgressTable';
-import { fetchTrafficSourcesCombinedAction } from '@/app/actions/analytics/referrers.actions';
-import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useState } from 'react';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { trpc } from '@/trpc/client';
+import { useQueryState } from '@/hooks/use-query-state';
 
-type TrafficSourcesSectionProps = {
-  trafficSourcesCombinedPromise: ReturnType<typeof fetchTrafficSourcesCombinedAction>;
-};
-
-export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }: TrafficSourcesSectionProps) {
-  const trafficSourcesCombined = use(trafficSourcesCombinedPromise);
+export default function TrafficSourcesSection() {
+  const [activeTab, setActiveTab] = useState('referrers');
   const t = useTranslations('dashboard');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { input, options } = useBAQueryParams();
+
+  const referrersQuery = trpc.referrers.referrerUrlRollup.useQuery(input, {
+    ...options,
+    enabled: activeTab === 'referrers',
+  });
+  const channelsQuery = trpc.referrers.topChannels.useQuery(input, {
+    ...options,
+    enabled: activeTab === 'channels',
+  });
+
+  const referrersState = useQueryState(referrersQuery, activeTab === 'referrers');
+  const channelsState = useQueryState(channelsQuery, activeTab === 'channels');
+  const activeState = { referrers: referrersState, channels: channelsState }[
+    activeTab as 'referrers' | 'channels'
+  ];
 
   const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
     if (tabKey === 'referrers') {
@@ -25,20 +39,22 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
     if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
   };
 
-  const isItemInteractive = (tabKey: string) =>
-    tabKey === 'referrers' || tabKey === 'channels';
+  const isItemInteractive = (tabKey: string) => tabKey === 'referrers' || tabKey === 'channels';
 
   return (
     <MultiProgressTable
       title={t('sections.trafficSources')}
+      loading={activeState.refetching}
       defaultTab='referrers'
+      onTabChange={setActiveTab}
       onItemClick={onItemClick}
       isItemInteractive={(tabKey) => isItemInteractive(tabKey)}
       tabs={[
         {
           key: 'referrers',
           label: t('tabs.referrers'),
-          data: trafficSourcesCombined.topReferrerUrls.map((item) => ({
+          loading: referrersState.loading,
+          data: (referrersQuery.data ?? []).map((item) => ({
             label: item.source_name,
             value: item.current.visitors,
             trendPercentage: item.change?.visitors,
@@ -54,7 +70,8 @@ export default function TrafficSourcesSection({ trafficSourcesCombinedPromise }:
         {
           key: 'channels',
           label: t('tabs.channels'),
-          data: trafficSourcesCombined.topChannels.map((item) => ({
+          loading: channelsState.loading,
+          data: (channelsQuery.data ?? []).map((item) => ({
             label: item.channel,
             value: item.current.visits,
             trendPercentage: item.change?.visits,

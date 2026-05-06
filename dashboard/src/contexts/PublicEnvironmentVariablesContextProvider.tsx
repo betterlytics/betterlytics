@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
-import type { fetchPublicEnvironmentVariablesAction } from '@/app/actions/system/environment.action';
+import type { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 
 type PublicEnvironmentVariablesContextProps = {
-  publicEnvironmentVariables: Awaited<ReturnType<typeof fetchPublicEnvironmentVariablesAction>>;
+  publicEnvironmentVariables: ReturnType<typeof getPublicEnvironmentVariables>;
 };
 
 const PublicEnvironmentVariablesContext = React.createContext<PublicEnvironmentVariablesContextProps>(
@@ -12,7 +12,7 @@ const PublicEnvironmentVariablesContext = React.createContext<PublicEnvironmentV
 
 type PublicEnvironmentVariablesProviderProps = {
   children: React.ReactNode;
-  publicEnvironmentVariables: Awaited<ReturnType<typeof fetchPublicEnvironmentVariablesAction>>;
+  publicEnvironmentVariables: ReturnType<typeof getPublicEnvironmentVariables>;
 };
 
 export function PublicEnvironmentVariablesProvider({
