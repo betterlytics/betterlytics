@@ -162,7 +162,7 @@ function MultiProgressTable<T extends ProgressBarData>({
                 />
 
                 {isExpandable && isExpanded && (
-                  <div className='mt-2 ml-4 border-l'>
+                  <div className='mt-2 ml-4 border-l' onClick={(e) => e.stopPropagation()}>
                     {renderProgressList(children as T[], tabKey, level + 1)}
                   </div>
                 )}

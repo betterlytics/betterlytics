@@ -92,16 +92,27 @@ const CAMPAIGN_DATA = {
   utm_content: ["banner_a", "banner_b", "sidebar", "footer", "hero", ""],
 };
 
+const APP_VERSIONS = [
+  "v1.0.0", "v1.0.1", "v1.1.0", "v1.2.0", "v1.2.1", "v1.3.0",
+  "v2.0.0", "v2.0.1", "v2.1.0", "v2.1.1", "v2.2.0", "v2.3.0", "v2.3.1",
+  "v3.0.0-alpha", "v3.0.0-beta", "v3.0.0-rc1", "v3.0.0", "v3.0.1", "v3.1.0",
+];
+
+const REGIONS = [
+  "us-east", "us-west", "eu-west", "eu-central", "ap-south", "ap-northeast",
+  "sa-east", "af-south", "me-south", "ca-central", "ap-southeast",
+];
+
 const GLOBAL_PROPERTIES_POOL = [
-  { plan: "free", region: "us-east", theme: "light", locale: "en", role: "viewer" },
-  { plan: "premium", region: "eu-west", theme: "dark", locale: "de", role: "editor", org_id: "org-acme" },
-  { plan: "enterprise", region: "ap-south", theme: "system", locale: "ja", role: "admin", org_id: "org-globex", app_version: "2.1.0" },
-  { plan: "premium", environment: "production", browser_lang: "en-US", signup_source: "google", referral_code: "REF123", team_size: "10" },
-  { plan: "free", environment: "staging", app_version: "3.0.0-beta", feature_flags: "beta_ui", onboarding_step: "3", user_tier: "trial" },
-  { plan: "enterprise", department: "engineering", cost_center: "CC-100", project: "atlas", sprint: "24", priority: "high" },
-  { plan: "premium", country: "US", currency: "USD", timezone: "America/New_York", device_class: "desktop", connection_type: "wifi", price: 19.99 },
-  { plan: "free", app_version: "v2.3.1", score: 4.5, active: true, seats: 1 },
-  { plan: "enterprise", app_version: "v1.0.0", score: 87.125, active: false, seats: 250 },
+  { plan: "free", region: "us-east", theme: "light", locale: "en", role: "viewer", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "premium", region: "eu-west", theme: "dark", locale: "de", role: "editor", org_id: "org-acme", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "enterprise", region: "ap-south", theme: "system", locale: "ja", role: "admin", org_id: "org-globex", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "premium", environment: "production", browser_lang: "en-US", signup_source: "google", referral_code: "REF123", team_size: "10", region: REGIONS[Math.floor(Math.random() * REGIONS.length)] },
+  { plan: "free", environment: "staging", app_version: "v3.0.0-beta", feature_flags: "beta_ui", onboarding_step: "3", user_tier: "trial", region: REGIONS[Math.floor(Math.random() * REGIONS.length)] },
+  { plan: "enterprise", department: "engineering", cost_center: "CC-100", project: "atlas", sprint: "24", priority: "high", region: REGIONS[Math.floor(Math.random() * REGIONS.length)] },
+  { plan: "premium", country: "US", currency: "USD", timezone: "America/New_York", device_class: "desktop", connection_type: "wifi", price: 19.99, app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "free", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)], score: 4.5, active: true, seats: 1 },
+  { plan: "enterprise", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)], score: 87.125, active: false, seats: 250 },
   {},
   {},
 ];
