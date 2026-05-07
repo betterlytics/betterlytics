@@ -47,7 +47,11 @@ async function sendViaMailerSend(
   return typeof messageId === 'string' ? messageId : null;
 }
 
-async function sendViaSmtp(template: EmailTemplate, data: EmailData, config: EmailTransportConfig): Promise<string | null> {
+async function sendViaSmtp(
+  template: EmailTemplate,
+  data: EmailData,
+  config: EmailTransportConfig,
+): Promise<string | null> {
   if (!config.smtpFrom && !data.from) {
     console.warn('SMTP_FROM is not set. Emails may be rejected by the SMTP server.');
   }
@@ -57,9 +61,7 @@ async function sendViaSmtp(template: EmailTemplate, data: EmailData, config: Ema
     port: config.smtpPort ?? 587,
     secure: (config.smtpPort ?? 587) === 465,
     auth:
-      config.smtpUser && config.smtpPassword
-        ? { user: config.smtpUser, pass: config.smtpPassword }
-        : undefined,
+      config.smtpUser && config.smtpPassword ? { user: config.smtpUser, pass: config.smtpPassword } : undefined,
   });
 
   const sender = getSenderInfo(config, data);
@@ -87,6 +89,5 @@ export async function dispatchEmail(
     return sendViaSmtp(template, data, config);
   }
 
-  console.warn('No email provider configured (set MAILER_SEND_API_TOKEN or SMTP_HOST); dropping email');
-  return null;
+  throw new Error('No email provider configured (set MAILER_SEND_API_TOKEN or SMTP_HOST)');
 }

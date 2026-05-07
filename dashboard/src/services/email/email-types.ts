@@ -3,6 +3,7 @@ import { createEmailVerificationTemplate } from '@/services/email/template/email
 import { createUsageAlertEmailTemplate } from '@/services/email/template/usage-alert-mail';
 import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/template/first-payment-welcome-mail';
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
+import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
 import type { EmailTemplate } from '@/services/email/types';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
@@ -18,7 +19,7 @@ export const EMAIL_TYPES = {
   },
   'email-verification': {
     template: createEmailVerificationTemplate,
-    saasOnly: false,
+    saasOnly: true,
     retry: URGENT_RETRY,
   },
   'dashboard-invitation': {
@@ -36,9 +37,15 @@ export const EMAIL_TYPES = {
     saasOnly: true,
     retry: DEFAULT_RETRY,
   },
+  'report': {
+    template: createReportEmailTemplate,
+    saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
 } as const;
 
 export type EmailType = keyof typeof EMAIL_TYPES;
+export const EMAIL_TYPE_NAMES = Object.keys(EMAIL_TYPES) as EmailType[];
 type DataFor<T extends EmailType> = Parameters<(typeof EMAIL_TYPES)[T]['template']>[0];
 
 export type SendEmailPayload = {

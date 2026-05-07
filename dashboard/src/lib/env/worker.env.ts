@@ -22,6 +22,14 @@ const workerOnlyEnvSchema = z.object({
   SMTP_FROM: z.string().optional(),
 });
 
-const workerEnvSchema = sharedEmailEnvSchema.merge(workerOnlyEnvSchema);
+const workerEnvSchema = sharedEmailEnvSchema.merge(workerOnlyEnvSchema).superRefine((env, ctx) => {
+  if (env.ENABLE_EMAILS && !env.MAILER_SEND_API_TOKEN && !env.SMTP_HOST) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'ENABLE_EMAILS=true requires MAILER_SEND_API_TOKEN or SMTP_HOST to be set',
+      path: ['ENABLE_EMAILS'],
+    });
+  }
+});
 
 export const workerEnv = workerEnvSchema.parse(process.env);

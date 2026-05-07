@@ -1,31 +1,45 @@
 'use server';
 
-import { EmailTemplateType } from '@/constants/emailTemplateConst';
-import {
-  sendDirectEmailTemplate,
-  sendReportEmail,
-} from '@/services/email/mail.service';
-import { createResetPasswordEmailTemplate, getResetPasswordEmailPreview } from '@/services/email/template/reset-password-mail';
-import { createUsageAlertEmailTemplate, getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
-import {
-  createFirstPaymentWelcomeEmailTemplate,
-  getFirstPaymentWelcomeEmailPreview,
-} from '@/services/email/template/first-payment-welcome-mail';
+import type { EmailType } from '@/services/email/email-types';
+import { sendDirectEmailTemplate } from '@/services/email/mail.service';
+import { getResetPasswordEmailPreview } from '@/services/email/template/reset-password-mail';
+import { getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
+import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/first-payment-welcome-mail';
+import { getEmailVerificationPreview } from '@/services/email/template/email-verification-mail';
+import { getInvitationEmailPreview } from '@/services/email/template/invitation-mail';
 import { getReportEmailPreview } from '@/services/email/template/weekly-report-mail';
 
-export async function sendTestEmail(email: string, template: EmailTemplateType) {
+export async function sendTestEmail(email: string, template: EmailType) {
   try {
     switch (template) {
       case 'reset-password':
-        await sendDirectEmailTemplate(createResetPasswordEmailTemplate, {
+        await sendDirectEmailTemplate('reset-password', {
           to: email,
           userName: 'Test User',
           resetUrl: 'https://betterlytics.io/reset-password?token=test-token-123',
           expirationTime: '30 minutes',
         });
         break;
+      case 'email-verification':
+        await sendDirectEmailTemplate('email-verification', {
+          to: email,
+          userName: 'Test User',
+          verificationToken: 'test-token-123',
+          verificationUrl: 'https://betterlytics.io/verify-email?token=test-token-123',
+        });
+        break;
+      case 'dashboard-invitation':
+        await sendDirectEmailTemplate('dashboard-invitation', {
+          to: email,
+          inviterName: 'Test User',
+          dashboardName: 'example.com',
+          role: 'editor',
+          inviteToken: 'test-token-123',
+          userExists: false,
+        });
+        break;
       case 'usage-alert':
-        await sendDirectEmailTemplate(createUsageAlertEmailTemplate, {
+        await sendDirectEmailTemplate('usage-alert', {
           to: email,
           userName: 'Test User',
           currentUsage: 9500,
@@ -36,7 +50,7 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
         });
         break;
       case 'first-payment-welcome':
-        await sendDirectEmailTemplate(createFirstPaymentWelcomeEmailTemplate, {
+        await sendDirectEmailTemplate('first-payment-welcome', {
           to: email,
           userName: 'Test User',
           planName: 'Pro',
@@ -46,12 +60,12 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
           newFeatures: [{ title: 'Test-Feature', description: 'Test-Feature' }],
         });
         break;
-      case 'weekly-report':
+      case 'report': {
         const now = new Date();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-        await sendReportEmail({
+        await sendDirectEmailTemplate('report', {
           to: email,
           toName: 'Test User',
           dashboardUrl: 'https://betterlytics.io/dashboard/example',
@@ -89,8 +103,11 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
           },
         });
         break;
-      default:
-        throw new Error('Invalid template');
+      }
+      default: {
+        const _exhaustive: never = template;
+        throw new Error(`Invalid template: ${_exhaustive}`);
+      }
     }
   } catch (error) {
     console.error('Error sending test email:', error);
@@ -98,19 +115,25 @@ export async function sendTestEmail(email: string, template: EmailTemplateType) 
   }
 }
 
-export async function getEmailPreview(template: EmailTemplateType): Promise<string> {
+export async function getEmailPreview(template: EmailType): Promise<string> {
   try {
     switch (template) {
       case 'reset-password':
         return getResetPasswordEmailPreview();
+      case 'email-verification':
+        return getEmailVerificationPreview();
+      case 'dashboard-invitation':
+        return getInvitationEmailPreview();
       case 'usage-alert':
         return getUsageAlertEmailPreview();
       case 'first-payment-welcome':
         return getFirstPaymentWelcomeEmailPreview();
-      case 'weekly-report':
+      case 'report':
         return getReportEmailPreview();
-      default:
-        return '<p>Template not found.</p>';
+      default: {
+        const _exhaustive: never = template;
+        return `<p>Template not found: ${_exhaustive}</p>`;
+      }
     }
   } catch (error) {
     console.error('Error generating email preview:', error);

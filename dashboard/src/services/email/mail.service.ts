@@ -7,12 +7,11 @@ import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-pa
 import { EmailVerificationData } from '@/services/email/template/email-verification-mail';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { DashboardInvitationEmailData } from '@/services/email/template/invitation-mail';
-import { createReportEmailTemplate, EmailReportData } from '@/services/email/template/weekly-report-mail';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
+import type { EmailTemplate } from '@/services/email/types';
 import { dispatchEmail, type EmailTransportConfig } from '@/services/email/transport';
 import { enqueueEmail } from '@/services/email/email-queue.service';
-import type { EmailType, SendEmailPayload } from '@/services/email/email-types';
- 
+import { EMAIL_TYPES, type EmailType, type SendEmailPayload } from '@/services/email/email-types';
+
 export type QueueEmailOptions = {
   recipientKey: string;
   campaignKey: string;
@@ -32,12 +31,19 @@ const transportConfig: EmailTransportConfig = {
   smtpFrom: env.SMTP_FROM,
 };
 
-export async function sendDirectEmailTemplate<T extends EmailData>(
-  renderTemplate: (data: T) => EmailTemplate,
-  data: T,
-): Promise<void> {
+type DataFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>['data'];
+type PayloadFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>;
+
+export async function sendDirectEmailTemplate<T extends EmailType>(type: T, data: DataFor<T>): Promise<void> {
   try {
     if (!isFeatureEnabled('enableEmails')) {
+      return;
+    }
+
+    const config = EMAIL_TYPES[type];
+
+    if (config.saasOnly && !env.IS_CLOUD) {
+      console.warn(`Attempted to send saas-only email "${type}" on a self-hosted instance, skipping`);
       return;
     }
 
@@ -46,15 +52,13 @@ export async function sendDirectEmailTemplate<T extends EmailData>(
       return;
     }
 
-    await dispatchEmail(renderTemplate(data), data, transportConfig);
+    const render = config.template as (input: DataFor<T>) => EmailTemplate;
+    await dispatchEmail(render(data), data, transportConfig);
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email');
   }
 }
-
-type DataFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>['data'];
-type PayloadFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>;
 
 function createQueuedPayload<T extends EmailType>(type: T, data: DataFor<T>, queue: QueueEmailOptions): PayloadFor<T> {
   return {
@@ -92,8 +96,4 @@ export async function sendDashboardInvitationEmail(
   input: QueuedEmailInput<DashboardInvitationEmailData>,
 ): Promise<void> {
   await enqueueEmailByType(input, 'dashboard-invitation');
-}
-
-export async function sendReportEmail(data: EmailReportData): Promise<void> {
-  await sendDirectEmailTemplate(createReportEmailTemplate, data);
 }

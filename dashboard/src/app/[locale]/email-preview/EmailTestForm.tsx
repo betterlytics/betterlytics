@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { sendTestEmail } from '@/app/actions/system/email.action';
-import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateConst';
+import { EMAIL_TYPE_NAMES, type EmailType } from '@/services/email/email-types';
 
 export function EmailTestForm() {
   const [email, setEmail] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState<string>(EMAIL_TEMPLATES[0]);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailType>(EMAIL_TYPE_NAMES[0]);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -24,10 +24,10 @@ export function EmailTestForm() {
     setMessage(null);
     startTransition(async () => {
       try {
-        await sendTestEmail(email, selectedTemplate as EmailTemplateType);
+        await sendTestEmail(email, selectedTemplate);
         setMessage({
           type: 'success',
-          text: `Test ${EMAIL_TEMPLATES.find((t) => t === selectedTemplate) || 'email'} sent successfully!`,
+          text: `Test ${selectedTemplate} sent successfully!`,
         });
         setEmail('');
       } catch (error) {
@@ -48,12 +48,12 @@ export function EmailTestForm() {
       <CardContent className='space-y-4'>
         <div className='space-y-2'>
           <Label htmlFor='template'>Email Template</Label>
-          <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+          <Select value={selectedTemplate} onValueChange={(v) => setSelectedTemplate(v as EmailType)}>
             <SelectTrigger>
               <SelectValue placeholder='Select email template' />
             </SelectTrigger>
             <SelectContent>
-              {EMAIL_TEMPLATES.map((template) => (
+              {EMAIL_TYPE_NAMES.map((template) => (
                 <SelectItem key={template} value={template}>
                   {template}
                 </SelectItem>
@@ -75,9 +75,7 @@ export function EmailTestForm() {
         </div>
 
         <Button onClick={handleSendTestEmail} className='w-full' disabled={isPending}>
-          {isPending
-            ? 'Sending...'
-            : `Send Test ${EMAIL_TEMPLATES.find((t) => t === selectedTemplate) || 'Email'}`}
+          {isPending ? 'Sending...' : `Send Test ${selectedTemplate}`}
         </Button>
 
         {message && (
