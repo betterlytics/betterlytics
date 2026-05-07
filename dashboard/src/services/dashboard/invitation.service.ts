@@ -9,6 +9,7 @@ import {
   findInvitationByEmail,
   updateInvitationStatus,
   findPendingInvitationsByEmail,
+  deleteInvitation,
 } from '@/repositories/postgres/invitation.repository';
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
@@ -83,8 +84,11 @@ export async function inviteUserToDashboard(
         campaignKey: `dashboard-invitation:${invitation.id}`,
       },
     });
-  } catch (emailError) {
-    console.error('Failed to send invitation email:', emailError);
+  } catch (enqueueError) {
+    await deleteInvitation(invitation.id).catch((cleanupError) => {
+      console.error('Failed to roll back invitation after enqueue failure:', cleanupError);
+    });
+    throw enqueueError;
   }
 
   return fullInvitation;
