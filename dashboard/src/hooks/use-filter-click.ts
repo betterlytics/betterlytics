@@ -6,6 +6,7 @@ import { MAX_FILTER_ROWS, type FilterColumn, type FilterOperator } from '@/entit
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -17,6 +18,7 @@ type Options = {
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
   const { isDemo } = useDashboardAuth();
+  const isFilterColumnAllowed = useIsFilterColumnAllowed();
   const t = useTranslations('components.demoMode');
   const tFilters = useTranslations('components.filters');
 
@@ -30,8 +32,8 @@ export function useFilterClick(defaults?: Options) {
 
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {
-      if (isDemo && column !== 'url' && column !== 'device_type') {
-        toast.info(t('interactionDisabled'));
+      if (!isFilterColumnAllowed(column)) {
+        if (isDemo) toast.info(t('interactionDisabled'));
         return;
       }
 
@@ -82,6 +84,7 @@ export function useFilterClick(defaults?: Options) {
       defaultOperator,
       defaultBehavior,
       isDemo,
+      isFilterColumnAllowed,
       t,
       notifyCapReached,
     ],

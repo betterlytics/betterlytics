@@ -18,14 +18,13 @@ import {
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { type FilterColumn, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Dispatch } from 'react';
-
-const DEMO_ALLOWED_COLUMNS = new Set<FilterColumn>(['url', 'device_type']);
 
 type FilterColumnDropdownProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -43,6 +42,7 @@ export function FilterColumnDropdown<TEntity>({
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
+  const isFilterColumnAllowed = useIsFilterColumnAllowed();
 
   const strategy = getFilterStrategy(filter.column);
 
@@ -73,7 +73,7 @@ export function FilterColumnDropdown<TEntity>({
           </BADropdownMenuLabel>
           <BADropdownMenuGroup>
             {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-              const disabled = isDemo && !DEMO_ALLOWED_COLUMNS.has(column.value);
+              const disabled = !isFilterColumnAllowed(column.value);
               const active = filter.column === column.value;
               return (
                 <BADropdownMenuItem

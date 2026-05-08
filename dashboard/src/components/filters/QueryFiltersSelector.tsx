@@ -1,6 +1,6 @@
 'use client';
 
-import { ComponentProps, useCallback, useEffect, useRef, useState, type AnimationEvent } from 'react';
+import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState, type AnimationEvent } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -17,6 +17,7 @@ import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useQueryState } from '@/hooks/use-query-state';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
@@ -40,6 +41,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const filters = useQueryFilters(initOrDefault(contextQueryFilters));
+  const isFilterColumnAllowed = useIsFilterColumnAllowed();
 
   useEffect(() => {
     filters.setQueryFilters(initOrDefault(contextQueryFilters));
@@ -80,7 +82,10 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     [setQueryFilters],
   );
 
-  const activeFilterCount = filterEmptyQueryFilters(contextQueryFilters).length;
+  const activeFilterCount = useMemo(
+    () => filterEmptyQueryFilters(contextQueryFilters).filter((f) => isFilterColumnAllowed(f.column)).length,
+    [contextQueryFilters, isFilterColumnAllowed],
+  );
 
   const trigger = (
     <Button
