@@ -1,4 +1,4 @@
-import { FILTER_COLUMNS } from '@/entities/analytics/filter.entities';
+import { FILTER_COLUMNS, type TableFilterColumn } from '@/entities/analytics/filter.entities';
 import {
   ArrowRightToLineIcon,
   BatteryIcon,
@@ -46,3 +46,26 @@ export const FILTER_COLUMN_SELECT_OPTIONS: FilterColumnSelectOptions = [
   { value: 'utm_term', icon: <TextSearchIcon />, label: 'UTM term' },
   { value: 'utm_content', icon: <SquareMousePointerIcon />, label: 'UTM content' },
 ] as const satisfies FilterColumnSelectOptions;
+
+export const DEFAULT_FILTER_COLUMN_VISIBILITY = {
+  url: true,
+  domain: true,
+  device_type: true,
+  country_code: true,
+  subdivision_code: true,
+  city: true,
+  browser: true,
+  os: true,
+  referrer_source: true,
+  referrer_source_name: true,
+  referrer_search_term: true,
+  referrer_url: true,
+  utm_source: true,
+  utm_medium: true,
+  utm_campaign: true,
+  utm_term: true,
+  utm_content: true,
+  event_type: true,
+  custom_event_name: true,
+  outbound_link_url: true,
+} as const satisfies Record<TableFilterColumn, boolean>;

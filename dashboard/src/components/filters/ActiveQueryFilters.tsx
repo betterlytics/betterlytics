@@ -1,5 +1,7 @@
 'use client';
+import { useMemo } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
@@ -9,14 +11,20 @@ import { FilterDescription } from '@/components/filters/FilterDescription';
 
 export function ActiveQueryFilters() {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
+  const isFilterColumnAllowed = useIsFilterColumnAllowed();
   const t = useTranslations('components.filters');
 
-  if (queryFilters.length === 0) {
+  const visibleFilters = useMemo(
+    () => queryFilters.filter((filter) => isFilterColumnAllowed(filter.column)),
+    [queryFilters, isFilterColumnAllowed],
+  );
+
+  if (visibleFilters.length === 0) {
     return null;
   }
   return (
     <div className='flex flex-wrap gap-1 sm:justify-end'>
-      {queryFilters.map((filter) => (
+      {visibleFilters.map((filter) => (
         <Badge
           key={filter.id}
           variant='outline'
