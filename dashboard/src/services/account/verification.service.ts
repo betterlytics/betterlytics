@@ -9,7 +9,7 @@ import {
   deleteExpiredVerificationTokens,
 } from '@/repositories/postgres/verification.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
-import { enqueueEmail } from '@/services/email/email-queue.service';
+import { enqueueEmail } from '@/services/email/email.service';
 import { env } from '@/lib/env';
 import {
   SendVerificationEmailData,

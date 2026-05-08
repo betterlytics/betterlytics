@@ -13,7 +13,7 @@ import {
 } from '@/repositories/postgres/invitation.repository';
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
-import { enqueueEmail } from '@/services/email/email-queue.service';
+import { enqueueEmail } from '@/services/email/email.service';
 import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';

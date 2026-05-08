@@ -8,7 +8,7 @@ import {
   deletePasswordResetToken,
   deleteUserPasswordResetTokens,
 } from '@/repositories/postgres/passwordReset.repository';
-import { enqueueEmail } from '@/services/email/email-queue.service';
+import { enqueueEmail } from '@/services/email/email.service';
 import { invalidateAllUserSessions } from '@/services/session.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { getDisplayName } from '@/utils/userUtils';

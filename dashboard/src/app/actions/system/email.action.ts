@@ -1,7 +1,10 @@
 'use server';
 
-import type { EmailType } from '@/services/email/email-types';
-import { sendDirectEmailTemplate } from '@/services/email/mail.service';
+import { notFound } from 'next/navigation';
+import { requireAuth } from '@/auth/auth-actions';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { enqueueEmail } from '@/services/email/email.service';
+import type { EmailType, SendEmailPayload } from '@/services/email/email-types';
 import { getResetPasswordEmailPreview } from '@/services/email/template/reset-password-mail';
 import { getUsageAlertEmailPreview } from '@/services/email/template/usage-alert-mail';
 import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/first-payment-welcome-mail';
@@ -9,37 +12,62 @@ import { getEmailVerificationPreview } from '@/services/email/template/email-ver
 import { getInvitationEmailPreview } from '@/services/email/template/invitation-mail';
 import { getReportEmailPreview } from '@/services/email/template/weekly-report-mail';
 
+async function requireEmailPreviewAccess(): Promise<string> {
+  if (!isFeatureEnabled('enableEmailPreview')) {
+    notFound();
+  }
+  const session = await requireAuth();
+  return session.user.id;
+}
+
+type DataFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>['data'];
+
+function buildTestPayload<T extends EmailType>(
+  type: T,
+  data: DataFor<T>,
+  userId: string,
+): Extract<SendEmailPayload, { type: T }> {
+  return {
+    type,
+    recipientKey: `test:${userId}`,
+    campaignKey: `test:${type}:${Date.now()}`,
+    data,
+  } as Extract<SendEmailPayload, { type: T }>;
+}
+
 export async function sendTestEmail(email: string, template: EmailType) {
+  const userId = await requireEmailPreviewAccess();
+
   try {
     switch (template) {
       case 'reset-password':
-        await sendDirectEmailTemplate('reset-password', {
+        await enqueueEmail(buildTestPayload('reset-password', {
           to: email,
           userName: 'Test User',
           resetUrl: 'https://betterlytics.io/reset-password?token=test-token-123',
           expirationTime: '30 minutes',
-        });
+        }, userId));
         break;
       case 'email-verification':
-        await sendDirectEmailTemplate('email-verification', {
+        await enqueueEmail(buildTestPayload('email-verification', {
           to: email,
           userName: 'Test User',
           verificationToken: 'test-token-123',
           verificationUrl: 'https://betterlytics.io/verify-email?token=test-token-123',
-        });
+        }, userId));
         break;
       case 'dashboard-invitation':
-        await sendDirectEmailTemplate('dashboard-invitation', {
+        await enqueueEmail(buildTestPayload('dashboard-invitation', {
           to: email,
           inviterName: 'Test User',
           dashboardName: 'example.com',
           role: 'editor',
           inviteToken: 'test-token-123',
           userExists: false,
-        });
+        }, userId));
         break;
       case 'usage-alert':
-        await sendDirectEmailTemplate('usage-alert', {
+        await enqueueEmail(buildTestPayload('usage-alert', {
           to: email,
           userName: 'Test User',
           currentUsage: 9500,
@@ -47,10 +75,10 @@ export async function sendTestEmail(email: string, template: EmailType) {
           usagePercentage: 95,
           planName: 'Starter',
           upgradeUrl: 'https://betterlytics.io/billing',
-        });
+        }, userId));
         break;
       case 'first-payment-welcome':
-        await sendDirectEmailTemplate('first-payment-welcome', {
+        await enqueueEmail(buildTestPayload('first-payment-welcome', {
           to: email,
           userName: 'Test User',
           planName: 'Pro',
@@ -58,14 +86,14 @@ export async function sendTestEmail(email: string, template: EmailType) {
           dashboardUrl: 'https://betterlytics.io/dashboards',
           billingAmount: '$19/month',
           newFeatures: [{ title: 'Test-Feature', description: 'Test-Feature' }],
-        });
+        }, userId));
         break;
       case 'report': {
         const now = new Date();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-        await sendDirectEmailTemplate('report', {
+        await enqueueEmail(buildTestPayload('report', {
           to: email,
           toName: 'Test User',
           dashboardUrl: 'https://betterlytics.io/dashboard/example',
@@ -101,7 +129,7 @@ export async function sendTestEmail(email: string, template: EmailType) {
               { source: 'GitHub', visits: 98 },
             ],
           },
-        });
+        }, userId));
         break;
       }
       default: {
@@ -116,6 +144,8 @@ export async function sendTestEmail(email: string, template: EmailType) {
 }
 
 export async function getEmailPreview(template: EmailType): Promise<string> {
+  await requireEmailPreviewAccess();
+
   try {
     switch (template) {
       case 'reset-password':

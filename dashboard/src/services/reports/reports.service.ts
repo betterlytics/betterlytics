@@ -8,7 +8,7 @@ import {
   updateMonthlyReportSentAt,
 } from '@/repositories/postgres/dashboardSettings.repository';
 import { createReportHistoryEntry } from '@/repositories/postgres/emailReportHistory.repository';
-import { enqueueEmail } from '@/services/email/email-queue.service';
+import { enqueueEmail } from '@/services/email/email.service';
 import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { getWeeklyReportData, getMonthlyReportData, ReportData } from './report-data.service';
 import { env } from '@/lib/env';
