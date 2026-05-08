@@ -20,8 +20,12 @@ async function syncJobQueues(boss: PgBoss): Promise<void> {
       expireInSeconds: job.expireInSeconds,
     };
 
-    if ('deadLetter' in job && typeof job.deadLetter === 'string') {
+    if (job.deadLetter) {
       queueOptions.deadLetter = job.deadLetter;
+    }
+
+    if (job.policy) {
+      queueOptions.policy = job.policy;
     }
 
     await boss.createQueue(job.name, queueOptions);
