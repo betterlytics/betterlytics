@@ -2,12 +2,12 @@
 
 ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS referrer_source_canonical LowCardinality(String) DEFAULT ''
-    AFTER referrer_url;
+    AFTER referrer_source;
 
 ALTER TABLE analytics.sessions
     ADD COLUMN IF NOT EXISTS referrer_source_canonical
         SimpleAggregateFunction(min, Tuple(DateTime, String))
-    AFTER referrer_url;
+    AFTER referrer_source;
 
 DROP VIEW IF EXISTS analytics.sessions_mv;
 
@@ -33,10 +33,10 @@ SELECT
     any(subdivision_code) AS subdivision_code,
     any(city) AS city,
     min(tuple(timestamp, referrer_source)) AS referrer_source,
+    min(tuple(timestamp, referrer_source_canonical)) AS referrer_source_canonical,
     min(tuple(timestamp, referrer_source_name)) AS referrer_source_name,
     min(tuple(timestamp, referrer_search_term)) AS referrer_search_term,
     min(tuple(timestamp, referrer_url)) AS referrer_url,
-    min(tuple(timestamp, referrer_source_canonical)) AS referrer_source_canonical,
     min(tuple(timestamp, utm_source)) AS utm_source,
     min(tuple(timestamp, utm_medium)) AS utm_medium,
     min(tuple(timestamp, utm_campaign)) AS utm_campaign,
@@ -50,8 +50,7 @@ CREATE TABLE IF NOT EXISTS analytics.referrer_source_categories (
     key String,
     medium LowCardinality(String)
 ) ENGINE = ReplacingMergeTree(generation)
-ORDER BY key
-SETTINGS min_rows_for_wide_part = 0, min_bytes_for_wide_part = 0;
+ORDER BY key;
 
 CREATE VIEW IF NOT EXISTS analytics.referrer_source_categories_current AS
 SELECT
@@ -67,7 +66,7 @@ CREATE DICTIONARY IF NOT EXISTS analytics.referrer_source_categories_dict (
 PRIMARY KEY key
 SOURCE(CLICKHOUSE(NAME referrer_dict_source TABLE 'referrer_source_categories_current' DB 'analytics'))
 LAYOUT(HASHED())
-LIFETIME(MIN 3600 MAX 7200)
+LIFETIME(MIN 3600 MAX 7200);
 
 ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS referrer_source_effective String ALIAS

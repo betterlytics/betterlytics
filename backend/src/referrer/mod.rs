@@ -165,15 +165,14 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     // - android-app://com.linkedin.android -> http://com.linkedin.android/
     // - https://www.linkedin.com/feed/     -> http://linkedin.com/feed/
     let parser = get_parser();
-    let lookup_url: Option<Url> = match referrer_url.scheme() {
-        "android-app" => referrer_url
+    let lookup_url: Option<Url> = if matches!(referrer_url.scheme(), "http" | "https") {
+        let host = referrer_url.host_str().unwrap_or("");
+        let normalized_host = host.strip_prefix("www.").unwrap_or(host);
+        Url::parse(&format!("http://{}{}", normalized_host, referrer_url.path())).ok()
+    } else {
+        referrer_url
             .host_str()
-            .and_then(|h| Url::parse(&format!("http://{}/", h)).ok()),
-        _ => {
-            let host = referrer_url.host_str().unwrap_or("");
-            let normalized_host = host.strip_prefix("www.").unwrap_or(host);
-            Url::parse(&format!("http://{}{}", normalized_host, referrer_url.path())).ok()
-        }
+            .and_then(|h| Url::parse(&format!("http://{}/", h)).ok())
     };
     let referrer_info = lookup_url.as_ref().and_then(|u| parser.lookup(u));
     let source_canonical = referrer_info
@@ -223,12 +222,10 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         None
     };
     
-    // For android-app:// referrers the host is a package name (e.g. com.linkedin.android)
-    // which isn't a real domain, so we use it verbatim instead of running it through PSL.
-    let referrer_name = if referrer_url.scheme() == "android-app" {
-        referrer_url.host_str().map(|h| h.to_string())
-    } else {
+    let referrer_name = if matches!(referrer_url.scheme(), "http" | "https") {
         referrer_url.host_str().and_then(|h| extract_root_domain(h))
+    } else {
+        referrer_url.host_str().map(|h| h.to_string())
     };
 
     // Determine if this is a search medium and get search parameters

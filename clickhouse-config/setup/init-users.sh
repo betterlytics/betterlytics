@@ -8,8 +8,8 @@ clickhouse-client --query="CREATE USER IF NOT EXISTS ${CLICKHOUSE_BACKEND_USER} 
 clickhouse-client --query="CREATE USER IF NOT EXISTS ${CLICKHOUSE_DASHBOARD_USER} IDENTIFIED BY '${CLICKHOUSE_DASHBOARD_PASSWORD}';"
 
 # Create roles
-clickhouse-client --query="CREATE ROLE dashboard_role;"
-clickhouse-client --query="CREATE ROLE backend_role;"
+clickhouse-client --query="CREATE ROLE IF NOT EXISTS dashboard_role;"
+clickhouse-client --query="CREATE ROLE IF NOT EXISTS backend_role;"
 
 # Grant privileges to roles
 clickhouse-client --query="GRANT SELECT ON analytics.*, INSERT ON analytics.*, ALTER ON analytics.*, CREATE VIEW ON analytics.*, dictGet ON analytics.*, SELECT ON system.databases, SELECT ON system.tables, SELECT ON system.dictionaries TO backend_role;"

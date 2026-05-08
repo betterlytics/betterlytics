@@ -25,10 +25,10 @@ pub struct EventRow {
     pub os: String,
     pub os_version: String,
     pub referrer_source: String,
+    pub referrer_source_canonical: String,
     pub referrer_source_name: String,
     pub referrer_search_term: String,
     pub referrer_url: String,
-    pub referrer_source_canonical: String,
     pub utm_source: String,
     pub utm_medium: String,
     pub utm_campaign: String,
@@ -88,6 +88,13 @@ pub enum EventType {
     Engagement = 7,
 }
 
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct ReferrerSourceCategoryRow {
+    pub generation: u64,
+    pub key: String,
+    pub medium: String,
+}
+
 impl EventRow {
     pub fn from_processed(event: ProcessedEvent) -> Self {
         let timestamp = event.timestamp;
@@ -109,10 +116,10 @@ impl EventRow {
             os: event.os.unwrap_or_else(|| "unknown".to_string()),
             os_version: event.os_version.unwrap_or_default(),
             referrer_source: event.referrer_info.source_type.as_str().to_string(),
+            referrer_source_canonical: event.referrer_info.source_canonical.unwrap_or_default(),
             referrer_source_name: event.referrer_info.source_name.unwrap_or_default(),
             referrer_search_term: event.referrer_info.search_term.unwrap_or_default(),
             referrer_url: event.referrer_info.url.unwrap_or_default(),
-            referrer_source_canonical: event.referrer_info.source_canonical.unwrap_or_default(),
             utm_source: event.campaign_info.utm_source.unwrap_or_default(),
             utm_medium: event.campaign_info.utm_medium.unwrap_or_default(),
             utm_campaign: event.campaign_info.utm_campaign.unwrap_or_default(),
@@ -139,11 +146,4 @@ impl EventRow {
             page_duration_seconds: event.page_duration_seconds,
         }
     }
-}
-
-#[derive(clickhouse::Row, Serialize, Debug)]
-pub struct ReferrerSourceCategoryRow {
-    pub generation: u64,
-    pub key: String,
-    pub medium: String,
 }

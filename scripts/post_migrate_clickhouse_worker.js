@@ -13,16 +13,9 @@ async function main() {
 
   if (!url || !adminUser || !adminPassword) {
     console.error(
-      "Post-migration (clickhouse_worker): CLICKHOUSE_URL, CLICKHOUSE_USER, and CLICKHOUSE_PASSWORD must be set."
+      "Post-migration (clickhouse_worker): CLICKHOUSE_URL, CLICKHOUSE_USER, and CLICKHOUSE_PASSWORD must be set.",
     );
     process.exit(1);
-  }
-
-  if (!workerUser || !workerPassword) {
-    console.log(
-      "Post-migration (clickhouse_worker): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation."
-    );
-    return;
   }
 
   const client = createClient({
@@ -32,11 +25,32 @@ async function main() {
   });
 
   try {
-    await client.exec({ query: `GRANT dictGet ON analytics.* TO backend_role` });
-    await client.exec({ query: `GRANT dictGet ON analytics.* TO dashboard_role` });
+    await client.exec({
+      query: `GRANT dictGet ON analytics.* TO backend_role`,
+    });
+    await client.exec({
+      query: `GRANT SELECT ON system.dictionaries TO backend_role`,
+    });
+    await client.exec({
+      query: `GRANT SYSTEM RELOAD DICTIONARY ON *.* TO backend_role`,
+    });
+    await client.exec({
+      query: `GRANT dictGet ON analytics.* TO dashboard_role`,
+    });
 
-    await client.exec({ query: `CREATE USER IF NOT EXISTS ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'` });
-    await client.exec({ query: `ALTER USER ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'` });
+    if (!workerUser || !workerPassword) {
+      console.log(
+        "Post-migration (clickhouse_worker): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",
+      );
+      return;
+    }
+
+    await client.exec({
+      query: `CREATE USER IF NOT EXISTS ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'`,
+    });
+    await client.exec({
+      query: `ALTER USER ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'`,
+    });
     await client.exec({ query: `CREATE ROLE IF NOT EXISTS worker_role` });
     await client.exec({ query: `GRANT SELECT ON analytics.* TO worker_role` });
     await client.exec({ query: `GRANT dictGet ON analytics.* TO worker_role` });
@@ -44,12 +58,12 @@ async function main() {
     await client.exec({ query: `GRANT worker_role TO ${workerUser}` });
 
     console.log(
-      "Post-migration (clickhouse_worker): user and privileges ensured successfully."
+      "Post-migration (clickhouse_worker): user and privileges ensured successfully.",
     );
   } catch (error) {
     console.error(
       "Post-migration (clickhouse_worker): Failed:",
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
     process.exit(1);
   } finally {

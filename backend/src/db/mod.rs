@@ -195,6 +195,7 @@ impl Database {
         }
 
         let categories = build_referrer_source_categories(snowplow_path, ga4_path, custom_path)?;
+        let category_count = categories.len();
 
         let generation = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
@@ -220,7 +221,11 @@ impl Database {
             .execute()
             .await?;
 
-        tracing::info!("Referrer source category dictionary synced");
+        tracing::info!(
+            "Referrer source category dictionary synced ({} categories, generation {})",
+            category_count,
+            generation
+        );
         Ok(())
     }
 

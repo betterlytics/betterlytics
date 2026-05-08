@@ -4,8 +4,8 @@ import { SQL, safeSql } from './safe-sql';
 
 const TABLE_COLUMN_SCHEMA = z.enum(FILTER_COLUMNS);
 
-const FILTER_COLUMN_SQL_OVERRIDES: Partial<Record<TableFilterColumn, string>> = {
-  referrer_source: 'referrer_source_effective',
+const FILTER_COLUMN_SQL_OVERRIDES: Partial<Record<TableFilterColumn, ReturnType<typeof safeSql>>> = {
+  referrer_source: safeSql`referrer_source_effective`,
 };
 
 /**
@@ -20,7 +20,7 @@ const FILTER_COLUMN_SQL_OVERRIDES: Partial<Record<TableFilterColumn, string>> = 
  */
 export function filterColumnSql(col: TableFilterColumn) {
   const parsed = TABLE_COLUMN_SCHEMA.parse(col);
-  return SQL.Unsafe(FILTER_COLUMN_SQL_OVERRIDES[parsed] ?? parsed);
+  return FILTER_COLUMN_SQL_OVERRIDES[parsed] ?? SQL.Unsafe(parsed);
 }
 
 export function filterColumnSqlForSession(col: TableFilterColumn, tupleColumns: readonly string[]) {

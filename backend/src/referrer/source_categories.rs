@@ -54,7 +54,7 @@ fn merge_referrer_categories(
         let medium = normalize_referrer_medium(&medium);
         for (source_name, entry) in sources {
             if !ambiguous_source_names.contains(&source_name) {
-                insert_referrer_category_key(categories, source_name, &medium);
+                insert_referrer_category_key(categories, source_name, &medium, InsertMode::Overwrite);
             }
 
             for domain in entry.domains {
@@ -63,7 +63,7 @@ fn merge_referrer_categories(
                     continue;
                 }
 
-                insert_referrer_category_key(categories, normalized, &medium);
+                insert_referrer_category_key(categories, normalized, &medium, InsertMode::Overwrite);
             }
         }
     }
@@ -91,28 +91,29 @@ fn ambiguous_source_names(parsed: &ReferrerJson) -> HashSet<String> {
     ambiguous
 }
 
+enum InsertMode {
+    Overwrite,
+    KeepExisting,
+}
+
 fn insert_referrer_category_key(
     categories: &mut HashMap<String, String>,
     key: String,
     medium: &str,
+    mode: InsertMode,
 ) {
     if key.is_empty() {
         return;
     }
 
-    categories.insert(key, medium.to_string());
-}
-
-fn insert_referrer_category_key_if_absent(
-    categories: &mut HashMap<String, String>,
-    key: String,
-    medium: &str,
-) {
-    if key.is_empty() {
-        return;
+    match mode {
+        InsertMode::Overwrite => {
+            categories.insert(key, medium.to_string());
+        }
+        InsertMode::KeepExisting => {
+            categories.entry(key).or_insert_with(|| medium.to_string());
+        }
     }
-
-    categories.entry(key).or_insert_with(|| medium.to_string());
 }
 
 fn merge_ga4_source_categories(
@@ -139,7 +140,7 @@ fn merge_ga4_source_categories(
 
         let medium = normalize_ga4_source_category(category.trim());
         let key = normalize_referrer_key(source);
-        insert_referrer_category_key_if_absent(categories, key, &medium);
+        insert_referrer_category_key(categories, key, &medium, InsertMode::KeepExisting);
     }
 
     Ok(())
@@ -193,7 +194,7 @@ mod tests {
         ).unwrap();
 
         let mut categories = HashMap::new();
-        insert_referrer_category_key(&mut categories, "mail.google.com".to_string(), "email");
+        insert_referrer_category_key(&mut categories, "mail.google.com".to_string(), "email", InsertMode::Overwrite);
 
         merge_ga4_source_categories(&mut categories, &path).unwrap();
 
