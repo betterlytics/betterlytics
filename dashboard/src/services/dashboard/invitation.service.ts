@@ -13,7 +13,7 @@ import {
 } from '@/repositories/postgres/invitation.repository';
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
-import { sendDashboardInvitationEmail } from '@/services/email/mail.service';
+import { enqueueEmail } from '@/services/email/email-queue.service';
 import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';
@@ -70,7 +70,10 @@ export async function inviteUserToDashboard(
   }
 
   try {
-    await sendDashboardInvitationEmail({
+    await enqueueEmail({
+      type: 'dashboard-invitation',
+      recipientKey: createEmailRecipientKey(email),
+      campaignKey: `dashboard-invitation:${invitation.id}`,
       data: {
         to: email,
         inviterName: fullInvitation.invitedBy.name || 'Someone',
@@ -78,10 +81,6 @@ export async function inviteUserToDashboard(
         role: role,
         inviteToken: invitation.token,
         userExists: !!existingUser,
-      },
-      queue: {
-        recipientKey: existingUser?.id ?? createEmailRecipientKey(email),
-        campaignKey: `dashboard-invitation:${invitation.id}`,
       },
     });
   } catch (enqueueError) {

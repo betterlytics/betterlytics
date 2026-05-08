@@ -1,26 +1,10 @@
 'server-only';
 
 import { env } from '@/lib/env';
-import { ResetPasswordEmailData } from '@/services/email/template/reset-password-mail';
-import { UsageAlertEmailData } from '@/services/email/template/usage-alert-mail';
-import { FirstPaymentWelcomeEmailData } from '@/services/email/template/first-payment-welcome-mail';
-import { EmailVerificationData } from '@/services/email/template/email-verification-mail';
-import { isFeatureEnabled } from '@/lib/feature-flags';
-import { DashboardInvitationEmailData } from '@/services/email/template/invitation-mail';
 import type { EmailTemplate } from '@/services/email/types';
 import { dispatchEmail, type EmailTransportConfig } from '@/services/email/transport';
-import { enqueueEmail } from '@/services/email/email-queue.service';
 import { EMAIL_TYPES, type EmailType, type SendEmailPayload } from '@/services/email/email-types';
-
-export type QueueEmailOptions = {
-  recipientKey: string;
-  campaignKey: string;
-};
-
-export type QueuedEmailInput<T> = {
-  data: T;
-  queue: QueueEmailOptions;
-};
+import { emailSkipReason } from '@/services/email/email-guards';
 
 const transportConfig: EmailTransportConfig = {
   mailerSendApiToken: env.MAILER_SEND_API_TOKEN,
@@ -32,68 +16,23 @@ const transportConfig: EmailTransportConfig = {
 };
 
 type DataFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>['data'];
-type PayloadFor<T extends EmailType> = Extract<SendEmailPayload, { type: T }>;
 
 export async function sendDirectEmailTemplate<T extends EmailType>(type: T, data: DataFor<T>): Promise<void> {
+  const skip = emailSkipReason(type, data, {
+    enableEmails: env.ENABLE_EMAILS,
+    isCloud: env.IS_CLOUD,
+    isDevelopment: process.env.NODE_ENV === 'development',
+  });
+  if (skip) {
+    console.warn(`[email] direct send skipped: ${skip}`);
+    return;
+  }
+
   try {
-    if (!isFeatureEnabled('enableEmails')) {
-      return;
-    }
-
-    const config = EMAIL_TYPES[type];
-
-    if (config.saasOnly && !env.IS_CLOUD) {
-      console.warn(`Attempted to send saas-only email "${type}" on a self-hosted instance, skipping`);
-      return;
-    }
-
-    if (process.env.NODE_ENV === 'development' && !data.to.includes('@betterlytics.io')) {
-      console.warn('WARN: You are only allowed to send emails to @betterlytics.io from dev environment');
-      return;
-    }
-
-    const render = config.template as (input: DataFor<T>) => EmailTemplate;
+    const render = EMAIL_TYPES[type].template as (input: DataFor<T>) => EmailTemplate;
     await dispatchEmail(render(data), data, transportConfig);
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Failed to send email');
   }
-}
-
-function createQueuedPayload<T extends EmailType>(type: T, data: DataFor<T>, queue: QueueEmailOptions): PayloadFor<T> {
-  return {
-    type,
-    recipientKey: queue.recipientKey,
-    campaignKey: queue.campaignKey,
-    data,
-  } as PayloadFor<T>;
-}
-
-async function enqueueEmailByType<T extends EmailType>(input: QueuedEmailInput<DataFor<T>>, type: T): Promise<void> {
-  const { data, queue } = input;
-  await enqueueEmail(createQueuedPayload(type, data, queue));
-}
-
-export async function sendResetPasswordEmail(input: QueuedEmailInput<ResetPasswordEmailData>): Promise<void> {
-  await enqueueEmailByType(input, 'reset-password');
-}
-
-export async function sendFirstPaymentWelcomeEmail(
-  input: QueuedEmailInput<FirstPaymentWelcomeEmailData>,
-): Promise<void> {
-  await enqueueEmailByType(input, 'first-payment-welcome');
-}
-
-export async function sendUsageAlertEmail(input: QueuedEmailInput<UsageAlertEmailData>): Promise<void> {
-  await enqueueEmailByType(input, 'usage-alert');
-}
-
-export async function sendEmailVerificationEmail(input: QueuedEmailInput<EmailVerificationData>): Promise<void> {
-  await enqueueEmailByType(input, 'email-verification');
-}
-
-export async function sendDashboardInvitationEmail(
-  input: QueuedEmailInput<DashboardInvitationEmailData>,
-): Promise<void> {
-  await enqueueEmailByType(input, 'dashboard-invitation');
 }

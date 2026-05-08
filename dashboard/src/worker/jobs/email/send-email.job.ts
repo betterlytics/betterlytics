@@ -6,21 +6,17 @@ import { sendEmailJobDefinition } from '@/worker/jobs/definitions';
 import { hasBeenSent, recordSent } from '@/repositories/postgres/sentEmail.repository';
 import { dispatchEmail } from '@/services/email/transport';
 import { emailSendsTotal } from '@/worker/metrics';
-import { EMAIL_TYPES, renderEmail, type SendEmailPayload } from '@/services/email/email-types';
+import { renderEmail, type SendEmailPayload } from '@/services/email/email-types';
+import { emailSkipReason } from '@/services/email/email-guards';
 
 async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
-  const { saasOnly } = EMAIL_TYPES[payload.type];
-
-  if (!workerEnv.ENABLE_EMAILS) {
-    return;
-  }
-
-  if (saasOnly && !workerEnv.IS_CLOUD) {
-    return;
-  }
-
-  if (process.env.NODE_ENV === 'development' && !payload.data.to.includes('@betterlytics.io')) {
-    console.warn('Refusing to send to non-@betterlytics.io recipient in dev:', payload.data.to);
+  const skip = emailSkipReason(payload.type, payload.data, {
+    enableEmails: workerEnv.ENABLE_EMAILS,
+    isCloud: workerEnv.IS_CLOUD,
+    isDevelopment: process.env.NODE_ENV === 'development',
+  });
+  if (skip) {
+    console.warn(`[email-worker] skipping send: ${skip}`);
     return;
   }
 

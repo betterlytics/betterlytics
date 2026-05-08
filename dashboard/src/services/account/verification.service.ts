@@ -9,7 +9,7 @@ import {
   deleteExpiredVerificationTokens,
 } from '@/repositories/postgres/verification.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
-import { sendEmailVerificationEmail } from '@/services/email/mail.service';
+import { enqueueEmail } from '@/services/email/email-queue.service';
 import { env } from '@/lib/env';
 import {
   SendVerificationEmailData,
@@ -59,16 +59,15 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
 
     const verificationUrl = `${VERIFICATION_URL_BASE}/verify-email?token=${token}`;
 
-    await sendEmailVerificationEmail({
+    await enqueueEmail({
+      type: 'email-verification',
+      recipientKey: user.id,
+      campaignKey: `email-verification:${token}`,
       data: {
         to: email,
         userName: getDisplayName(user.name, user.email),
         verificationToken: token,
         verificationUrl,
-      },
-      queue: {
-        recipientKey: user.id,
-        campaignKey: `email-verification:${token}`,
       },
     });
   } catch (error) {

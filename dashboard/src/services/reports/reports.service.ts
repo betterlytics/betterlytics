@@ -50,7 +50,7 @@ async function enqueueReports(
       await enqueueEmail({
         type: 'report',
         recipientKey: recipientHash,
-        campaignKey: `${reportType}-report:${dashboardId}:${periodKey}:${recipientHash}`,
+        campaignKey: `${reportType}-report:${dashboardId}:${periodKey}`,
         data: { to: recipient, reportData, dashboardUrl },
       });
       await logReportHistory(dashboardId, reportType, recipient, reportData, 'sent');
