@@ -938,7 +938,7 @@
 
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
-        "description": "Simple, powerful analytics that respect privacy.<br></br>Cookieless, GDPR-ready, and no cookie banners required.",
+        "description": "Simple, powerful analytics that respect privacy. <br></br>Cookieless, GDPR-ready, and no cookie banners required.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
         "ctaDemo": "View live demo",
@@ -1129,7 +1129,7 @@
         ]
       },
       "hero": {
-        "title": "Every Feature You Need for<br></br><highlight>Better Analytics</highlight>",
+        "title": "Every Feature You Need for <br></br><highlight>Better Analytics</highlight>",
         "description": "Explore everything Betterlytics offers, from real-time dashboards to conversion funnels. All the analytics you need, without cookies, consent banners, or compromising on privacy.",
         "ctaPrimary": "Get Started Free",
         "ctaDemo": "View Live Demo"

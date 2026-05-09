@@ -1,5 +1,5 @@
 import { getEmailHeader, emailStyles, emailColors, reportStyles, createDataTable } from './email-components';
-import { EmailData } from '@/services/email/mail.service';
+import type { EmailData } from '@/services/email/types';
 import { ReportData } from '@/services/reports/report-data.service';
 import { formatDuration } from '@/utils/dateFormatters';
 import { format } from 'date-fns';
@@ -8,6 +8,20 @@ import escapeHtml from 'escape-html';
 export interface EmailReportData extends EmailData {
   reportData: ReportData;
   dashboardUrl: string;
+}
+
+// Date fields round-trip as ISO strings through pg-boss' JSONB payload column.
+// Re-hydrate them before any date-fns call (which crashes on string input).
+function reviveReportDates(data: EmailReportData): EmailReportData {
+  const { period, comparisonPeriod } = data.reportData;
+  return {
+    ...data,
+    reportData: {
+      ...data.reportData,
+      period: { start: new Date(period.start), end: new Date(period.end) },
+      comparisonPeriod: { start: new Date(comparisonPeriod.start), end: new Date(comparisonPeriod.end) },
+    },
+  };
 }
 
 function formatChange(change: number | null): string {
@@ -204,13 +218,14 @@ ${createReportTextSignature()}`.trim();
 }
 
 export function createReportEmailTemplate(data: EmailReportData) {
-  const periodLabel = data.reportData.periodType === 'weekly' ? 'Weekly' : 'Monthly';
-  const dateRange = `${format(data.reportData.period.start, 'MMM d')} – ${format(data.reportData.period.end, 'MMM d, yyyy')}`;
+  const safeData = reviveReportDates(data);
+  const periodLabel = safeData.reportData.periodType === 'weekly' ? 'Weekly' : 'Monthly';
+  const dateRange = `${format(safeData.reportData.period.start, 'MMM d')} – ${format(safeData.reportData.period.end, 'MMM d, yyyy')}`;
 
   return {
-    subject: `${periodLabel} Report: ${data.reportData.domain} (${dateRange})`,
-    html: wrapReportEmailContent(generateReportEmailContent(data)),
-    text: generateReportEmailText(data),
+    subject: `${periodLabel} Report: ${safeData.reportData.domain} (${dateRange})`,
+    html: wrapReportEmailContent(generateReportEmailContent(safeData)),
+    text: generateReportEmailText(safeData),
   };
 }
 

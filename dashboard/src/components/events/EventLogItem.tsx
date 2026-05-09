@@ -88,7 +88,7 @@ export const EventLogItem = React.memo(function EventLogItem({
         <div className='min-w-0 flex-1 space-y-3'>
           <div className='flex items-center justify-between gap-3'>
             <div className='flex items-center gap-2'>
-              <h3 className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</h3>
+              <span className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</span>
               <div className='bg-muted-foreground/40 h-1 w-1 rounded-full' />
               <Badge variant='secondary' className='border-border border text-xs font-medium shadow-xs'>
                 {formatRelativeTimeFromNow(event.timestamp)}
