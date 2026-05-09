@@ -13,7 +13,9 @@
     "WhatsApp Additional": { "domains": ["api.whatsapp.com"] },
     "Slack Additional": { "domains": ["slack.com"] },
     "Linktree": { "domains": ["linktr.ee"] },
-    "Reddit Android": { "domains": ["com.reddit.frontpage"] }
+    "Reddit Android": { "domains": ["com.reddit.frontpage"] },
+    "X": { "domains": ["x.com"] },
+    "DEV": { "domains": ["dev.to"] }
   },
   "email": {
     "Microsoft Teams": { "domains": ["teams.microsoft.com", "statics.teams.cdn.office.net"] }
