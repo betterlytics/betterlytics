@@ -146,7 +146,7 @@ export function BAScrollContainer({
         <div
           aria-hidden
           data-slot="ba-scroll-container-indicator-up"
-          className="bg-popover sticky top-0 z-10 flex cursor-default items-center justify-center pb-0.5"
+          className="bg-popover sticky -top-0.25 z-10 flex cursor-default items-center justify-center pb-0.5"
           onPointerDown={() => startAutoScroll('up')}
           onPointerMove={() => startAutoScroll('up')}
           onPointerLeave={clearTimer}
