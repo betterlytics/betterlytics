@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
-        "description": "Enkel, kraftfuld analyse, der respekterer privatliv.<br></br>Cookieløs, GDPR-klar og ingen cookiebannere.",
+        "description": "Enkel, kraftfuld analyse, der respekterer privatliv. <br></br>Cookieløs, GDPR-klar og ingen cookiebannere.",
         "ctaPrimary": "Kom i Gang Gratis",
         "ctaGithub": "Se på GitHub",
         "ctaDemo": "Prøv live demo",
@@ -1132,7 +1132,7 @@
         ]
       },
       "hero": {
-        "title": "Alle funktioner du har brug for til<br></br><highlight>bedre analyse</highlight>",
+        "title": "Alle funktioner du har brug for til <br></br><highlight>bedre analyse</highlight>",
         "description": "Udforsk alt hvad Betterlytics tilbyder, fra realtids-dashboards til konverteringsfunnels. Al den analyse du har brug for, uden cookies, samtykkebannere eller kompromiser på privatliv.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaDemo": "Se live demo"

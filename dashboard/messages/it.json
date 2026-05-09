@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Una <highlight>Migliore Alternativa</highlight> a Google Analytics",
-        "description": "Analytics semplici e potenti che rispettano la privacy.<br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
+        "description": "Analytics semplici e potenti che rispettano la privacy. <br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
         "ctaPrimary": "Inizia Gratis",
         "ctaGithub": "Vedi su GitHub",
         "ctaDemo": "Prova live demo",
@@ -1140,7 +1140,7 @@
         ]
       },
       "hero": {
-        "title": "Tutte le funzionalità di cui hai bisogno per<br></br><highlight>analytics migliori</highlight>",
+        "title": "Tutte le funzionalità di cui hai bisogno per <br></br><highlight>analytics migliori</highlight>",
         "description": "Esplora tutto ciò che Betterlytics offre, dalle dashboard in tempo reale ai funnel di conversione. Tutte le analytics di cui hai bisogno, senza cookie, banner di consenso o compromessi sulla privacy.",
         "ctaPrimary": "Inizia Gratis",
         "ctaDemo": "Vedi Demo Live"
