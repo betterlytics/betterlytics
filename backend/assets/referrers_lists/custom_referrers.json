@@ -1,0 +1,23 @@
+{
+  "search": {
+    "Perplexity": { "domains": ["perplexity.ai"], "parameters": ["q"] },
+    "ChatGPT": { "domains": ["chatgpt.com", "chat.openai.com"] },
+    "Kagi": { "domains": ["kagi.com"], "parameters": ["q"] },
+    "Yandex Search Domains": { "domains": ["ya.ru", "yandex.eu", "yandex.tm"] }
+  },
+  "social": {
+    "Discord": { "domains": ["discord.com", "discord.gg", "discordapp.com", "ptb.discord.com", "canary.discord.com"] },
+    "Bluesky": { "domains": ["bsky.app"] },
+    "Mastodon": { "domains": ["mastodon.social", "fosstodon.org", "hachyderm.io"] },
+    "Telegram Additional": { "domains": ["telegram.org", "webk.telegram.org"] },
+    "WhatsApp Additional": { "domains": ["api.whatsapp.com"] },
+    "Slack Additional": { "domains": ["slack.com"] },
+    "Linktree": { "domains": ["linktr.ee"] },
+    "Reddit Android": { "domains": ["com.reddit.frontpage"] },
+    "X": { "domains": ["x.com"] },
+    "DEV": { "domains": ["dev.to"] }
+  },
+  "email": {
+    "Microsoft Teams": { "domains": ["teams.microsoft.com", "statics.teams.cdn.office.net"] }
+  }
+}

@@ -1,8 +1,12 @@
 import { z } from 'zod';
 import { FILTER_COLUMNS, type TableFilterColumn } from '@/entities/analytics/filter.entities';
-import { SQL } from './safe-sql';
+import { SQL, safeSql } from './safe-sql';
 
 const TABLE_COLUMN_SCHEMA = z.enum(FILTER_COLUMNS);
+
+const FILTER_COLUMN_SQL_OVERRIDES: Partial<Record<TableFilterColumn, ReturnType<typeof safeSql>>> = {
+  referrer_source: safeSql`referrer_source_effective`,
+};
 
 /**
  * Inject a known-safe column identifier into raw SQL.
@@ -15,5 +19,14 @@ const TABLE_COLUMN_SCHEMA = z.enum(FILTER_COLUMNS);
  * `SQL.Unsafe(column)` usage for filter columns is a code-review red flag.
  */
 export function filterColumnSql(col: TableFilterColumn) {
-  return SQL.Unsafe(TABLE_COLUMN_SCHEMA.parse(col));
+  const parsed = TABLE_COLUMN_SCHEMA.parse(col);
+  return FILTER_COLUMN_SQL_OVERRIDES[parsed] ?? SQL.Unsafe(parsed);
+}
+
+export function filterColumnSqlForSession(col: TableFilterColumn, tupleColumns: readonly string[]) {
+  const parsed = TABLE_COLUMN_SCHEMA.parse(col);
+  const sql = filterColumnSql(parsed);
+  const isTuple = !FILTER_COLUMN_SQL_OVERRIDES[parsed] && tupleColumns.includes(parsed);
+
+  return isTuple ? safeSql`${sql}.2` : sql;
 }
