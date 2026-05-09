@@ -25,7 +25,7 @@ export const DIMENSIONS = [
   { key: 'browser', column: 'browser', description: 'Browser name (e.g. Chrome, Firefox, Safari)' },
   { key: 'os', column: 'os', description: 'Operating system (e.g. Windows, macOS, iOS)' },
   { key: 'custom_event_name', column: 'custom_event_name', description: 'Custom event name' },
-  { key: 'referrer_source', column: 'referrer_source', description: 'Traffic source type (e.g. search, social, direct)' },
+  { key: 'referrer_source', column: 'referrer_source_effective', description: 'Traffic source type (e.g. search, social, direct)' },
   { key: 'referrer_source_name', column: 'referrer_source_name', description: 'Traffic source name (e.g. Google, Twitter, Reddit)' },
 ] satisfies DimensionDefinition[];
 
