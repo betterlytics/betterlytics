@@ -4,12 +4,11 @@ import { ChangelogEntryCard } from '@/components/changelog/ChangelogEntryCard';
 import { StructuredData } from '@/components/StructuredData';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getLocale, getTranslations } from 'next-intl/server';
-import type { SupportedLanguages } from '@/constants/i18n';
 import { CtaStrip } from '@/components/public/ctaStrip';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+export async function generateMetadata({ params }: PageProps<'/[locale]/changelog'>) {
   const { locale } = await params;
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.changelog), { locale });
 }

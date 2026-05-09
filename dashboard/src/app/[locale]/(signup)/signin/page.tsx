@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import type { SupportedLanguages } from '@/constants/i18n';
 import LoginForm from '@/components/auth/LoginForm';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
@@ -22,9 +21,7 @@ interface SignInPageProps {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: SupportedLanguages }>;
-}): Promise<Metadata> {
+}: PageProps<'/[locale]/signin'>): Promise<Metadata> {
   const { locale } = await params;
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.signin);
   return generateSEO(seoConfig, {

@@ -6,10 +6,9 @@ import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import type { SupportedLanguages } from '@/constants/i18n';
 import type { ReactNode } from 'react';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+export async function generateMetadata({ params }: PageProps<'/[locale]/contact'>) {
   const { locale } = await params;
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.contact), { locale });
 }

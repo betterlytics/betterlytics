@@ -5,7 +5,6 @@ import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import OnboardingPage from './OnboardingPage';
 import { OnboardingProvider } from './OnboardingProvider';
-import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
 
@@ -70,9 +69,7 @@ export default async function Onboarding() {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: SupportedLanguages }>;
-}): Promise<Metadata> {
+}: PageProps<'/[locale]/onboarding'>): Promise<Metadata> {
   const { locale } = await params;
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.onboarding);
   return generateSEO(seoConfig, {

@@ -6,15 +6,12 @@ import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/Das
 import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
-import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import TimezoneCookieInitializer from '@/app/(protected)/TimezoneCookieInitializer';
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: SupportedLanguages; dashboardId: string }>;
-}): Promise<Metadata> {
+}: PageProps<'/[locale]/share/[dashboardId]'>): Promise<Metadata> {
   const { locale, dashboardId } = await params;
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.publicDemo);
   const config = {
@@ -38,12 +35,10 @@ export async function generateMetadata({
   });
 }
 
-type PublicLayoutProps = {
-  params: Promise<{ locale: SupportedLanguages; dashboardId: string }>;
-  children: React.ReactNode;
-};
-
-export default async function PublicDashboardLayout({ params, children }: PublicLayoutProps) {
+export default async function PublicDashboardLayout({
+  params,
+  children,
+}: LayoutProps<'/[locale]/share/[dashboardId]'>) {
   const { locale, dashboardId } = await params;
   const publicEnvironmentVariables = getPublicEnvironmentVariables();
 

@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import type { SupportedLanguages } from '@/constants/i18n';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
@@ -12,9 +11,7 @@ import { getAuthSession } from '@/auth/auth-actions';
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: SupportedLanguages }>;
-}): Promise<Metadata> {
+}: PageProps<'/[locale]/reset-password'>): Promise<Metadata> {
   const { locale } = await params;
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.resetPassword);
   return generateSEO(seoConfig, {
