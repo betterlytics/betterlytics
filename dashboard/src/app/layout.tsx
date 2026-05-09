@@ -44,7 +44,7 @@ export default async function RootLayout({
   const [locale, seoConfig] = await Promise.all([getLocale(), buildSEOConfig(SEO_CONFIGS.root)]);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <meta name='theme-color' content='#fff' />
         {env.ENABLE_APP_TRACKING && (
