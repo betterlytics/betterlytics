@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, useCallback, useMemo, useState } from 'react';
+import { Dispatch, useCallback, useMemo, useRef, useState } from 'react';
 import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
@@ -42,6 +42,18 @@ export function QueryFiltersSelectorContent({
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   const { queryFilters, addEmptyQueryFilter, removeQueryFilter, updateQueryFilter } = filters;
+
+  const filtersListRef = useRef<HTMLDivElement>(null);
+
+  const handleAddFilter = useCallback(() => {
+    addEmptyQueryFilter();
+    requestAnimationFrame(() => {
+      const rows = filtersListRef.current?.children;
+      const newRow = rows?.[rows.length - 1];
+      const trigger = newRow?.querySelector<HTMLButtonElement>('[data-slot="dropdown-menu-trigger"]');
+      trigger?.focus({ focusVisible: true } as FocusOptions);
+    });
+  }, [addEmptyQueryFilter]);
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));
@@ -90,7 +102,7 @@ export function QueryFiltersSelectorContent({
             className='h-8 w-full cursor-pointer md:w-28'
             onClick={() => {
               if (isDisabled) return;
-              addEmptyQueryFilter();
+              handleAddFilter();
             }}
             variant='outline'
             disabled={isDisabled}
@@ -155,7 +167,7 @@ export function QueryFiltersSelectorContent({
           onWheel={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
         >
-          <div className='space-y-1'>
+          <div ref={filtersListRef} className='space-y-1'>
             {queryFilters.map((filter) => (
               <QueryFilterInputRow
                 key={filter.id}
