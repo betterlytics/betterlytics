@@ -6,8 +6,9 @@ use tracing::info;
 use crate::url_utils::{normalize_url, extract_root_domain};
 
 mod source_categories;
+mod sync;
 
-pub use source_categories::build_referrer_source_categories;
+pub use sync::sync_referrer_categories;
 
 /// Referrer source categories
 #[derive(Debug, Clone, PartialEq, Eq)]

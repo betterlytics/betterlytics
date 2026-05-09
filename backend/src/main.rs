@@ -106,13 +106,13 @@ async fn main() {
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
 
-    if let Err(e) = db
-        .sync_referrer_categories(
-            &config.referrer_db_path,
-            &config.ga4_source_categories_path,
-            &config.custom_referrers_path,
-        )
-        .await
+    if let Err(e) = referrer::sync_referrer_categories(
+        &db,
+        &config.referrer_db_path,
+        &config.ga4_source_categories_path,
+        &config.custom_referrers_path,
+    )
+    .await
     {
         warn!(
             "Referrer category sync failed: {}. Using existing dictionary data.",

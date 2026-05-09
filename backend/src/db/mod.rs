@@ -1,8 +1,7 @@
 use anyhow::Result;
 use clickhouse::error::Error as ClickHouseError;
-use std::path::Path;
 use std::sync::Arc;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
 use tokio::sync::mpsc::{self, error::TryRecvError, Receiver};
 use tokio::time::timeout;
@@ -10,7 +9,6 @@ use tokio::time::timeout;
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
 use crate::processing::ProcessedEvent;
-use crate::referrer::build_referrer_source_categories;
 
 mod models;
 pub use models::{EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
@@ -171,12 +169,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn sync_referrer_categories(
-        &self,
-        snowplow_path: &Path,
-        ga4_path: &Path,
-        custom_path: &Path,
-    ) -> Result<()> {
+    pub async fn referrer_dictionary_ready(&self) -> Result<bool> {
         let table_exists: u8 = self.clickhouse.inner()
             .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories'")
             .fetch_one()
@@ -187,30 +180,20 @@ impl Database {
             .fetch_one()
             .await?;
 
-        if table_exists == 0 || dictionary_exists == 0 {
-            tracing::warn!(
-                "Referrer source category dictionary tables are missing; skipping sync. Run migrations first."
-            );
-            return Ok(());
-        }
+        Ok(table_exists != 0 && dictionary_exists != 0)
+    }
 
-        let categories = build_referrer_source_categories(snowplow_path, ga4_path, custom_path)?;
-        let category_count = categories.len();
-
-        let generation = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
-
+    pub async fn write_referrer_categories(
+        &self,
+        rows: Vec<ReferrerSourceCategoryRow>,
+    ) -> Result<()> {
         let mut inserter = self
             .clickhouse
             .inner()
             .inserter("analytics.referrer_source_categories")?
             .with_max_rows(100_000);
 
-        for category in categories {
-            let row = ReferrerSourceCategoryRow {
-                generation,
-                key: category.key,
-                medium: category.medium,
-            };
+        for row in rows {
             inserter.write(&row)?;
         }
 
@@ -221,11 +204,6 @@ impl Database {
             .execute()
             .await?;
 
-        tracing::info!(
-            "Referrer source category dictionary synced ({} categories, generation {})",
-            category_count,
-            generation
-        );
         Ok(())
     }
 
