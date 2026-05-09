@@ -1,40 +1,37 @@
 'server-only';
 
+import { format } from 'date-fns';
 import { DashboardWithReportSettings } from '@/entities/dashboard/dashboardSettings.entities';
-import { EmailReportType } from '@/entities/reports/emailReportHistory.entities';
 import {
   updateWeeklyReportSentAt,
   updateMonthlyReportSentAt,
 } from '@/repositories/postgres/dashboardSettings.repository';
-import { createReportHistoryEntry } from '@/repositories/postgres/emailReportHistory.repository';
-import { sendReportEmail } from '@/services/email/mail.service';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { getWeeklyReportData, getMonthlyReportData, ReportData } from './report-data.service';
 import { env } from '@/lib/env';
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+type ReportType = 'weekly' | 'monthly';
 
-async function logReportHistory(
-  dashboardId: string,
-  reportType: EmailReportType,
-  recipient: string,
+async function enqueueReports(
+  reportType: ReportType,
+  recipients: string[],
   reportData: ReportData,
-  status: 'sent' | 'failed',
-  errorMessage?: string,
+  dashboardId: string,
+  dashboardUrl: string,
+  periodKey: string,
 ): Promise<void> {
-  try {
-    await createReportHistoryEntry({
-      dashboardId,
-      reportType,
-      recipient,
-      status,
-      periodStart: reportData.period.start,
-      periodEnd: reportData.period.end,
-      errorMessage: errorMessage ?? null,
-    });
-  } catch (error) {
-    console.error(`Failed to log report history entry:`, error);
+  for (const recipient of recipients) {
+    try {
+      await enqueueEmail({
+        type: 'report',
+        recipientKey: createEmailRecipientKey(recipient),
+        campaignKey: `${reportType}-report:${dashboardId}:${periodKey}`,
+        data: { to: recipient, reportData, dashboardUrl },
+      });
+    } catch (error) {
+      console.error(`Failed to enqueue ${reportType} report to ${recipient}:`, error);
+    }
   }
 }
 
@@ -43,22 +40,16 @@ export async function sendWeeklyReport(settings: DashboardWithReportSettings): P
 
   const reportData = await getWeeklyReportData(dashboard.id, dashboard.siteId, dashboard.domain);
   const dashboardUrl = `${env.PUBLIC_BASE_URL}/dashboard/${dashboard.id}`;
+  const periodKey = format(reportData.period.start, 'yyyy-MM-dd');
 
-  for (const recipient of settings.weeklyReportRecipients) {
-    try {
-      await sendReportEmail({
-        to: recipient,
-        reportData,
-        dashboardUrl,
-      });
-      await logReportHistory(dashboard.id, 'weekly', recipient, reportData, 'sent');
-      await sleep(500);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`Failed to send weekly report to ${recipient}:`, error);
-      await logReportHistory(dashboard.id, 'weekly', recipient, reportData, 'failed', errorMessage);
-    }
-  }
+  await enqueueReports(
+    'weekly',
+    settings.weeklyReportRecipients,
+    reportData,
+    dashboard.id,
+    dashboardUrl,
+    periodKey,
+  );
 
   await updateWeeklyReportSentAt(settings.id);
 }
@@ -68,22 +59,16 @@ export async function sendMonthlyReport(settings: DashboardWithReportSettings): 
 
   const reportData = await getMonthlyReportData(dashboard.id, dashboard.siteId, dashboard.domain);
   const dashboardUrl = `${env.PUBLIC_BASE_URL}/dashboard/${dashboard.id}`;
+  const periodKey = format(reportData.period.start, 'yyyy-MM-dd');
 
-  for (const recipient of settings.monthlyReportRecipients) {
-    try {
-      await sendReportEmail({
-        to: recipient,
-        reportData,
-        dashboardUrl,
-      });
-      await logReportHistory(dashboard.id, 'monthly', recipient, reportData, 'sent');
-      await sleep(500);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`Failed to send monthly report to ${recipient}:`, error);
-      await logReportHistory(dashboard.id, 'monthly', recipient, reportData, 'failed', errorMessage);
-    }
-  }
+  await enqueueReports(
+    'monthly',
+    settings.monthlyReportRecipients,
+    reportData,
+    dashboard.id,
+    dashboardUrl,
+    periodKey,
+  );
 
   await updateMonthlyReportSentAt(settings.id);
 }

@@ -7,7 +7,8 @@ import {
   createPrimaryLink,
   emailIcons,
 } from './email-components';
-import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
+import type { EmailData } from '@/services/email/types';
+import { wrapEmailContent, wrapTextEmailContent } from '@/services/email/content';
 import escapeHtml from 'escape-html';
 
 export interface UsageAlertEmailData extends EmailData {
@@ -195,7 +196,6 @@ export function createUsageAlertEmailTemplate(data: UsageAlertEmailData) {
     subject: getSubjectLine(data.usagePercentage, data.planName),
     html: wrapEmailContent(generateUsageAlertEmailContent(data)),
     text: wrapTextEmailContent(generateUsageAlertEmailText(data)),
-    cloudOnly: true,
   };
 }
 
