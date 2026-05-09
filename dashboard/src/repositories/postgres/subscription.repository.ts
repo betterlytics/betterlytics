@@ -2,11 +2,95 @@ import prisma from '@/lib/postgres';
 import {
   Subscription,
   SubscriptionSchema,
+  SubscriptionForUsageScan,
+  SubscriptionForUsageScanSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
   buildStarterSubscription,
 } from '@/entities/billing/billing.entities';
 import { addMonths, startOfDay } from 'date-fns';
+
+type FreeTierExpiryFields = {
+  paymentSubscriptionId: string | null;
+  currentPeriodEnd: Date;
+};
+
+function isFreeTierAndExpired(sub: FreeTierExpiryFields): boolean {
+  return !sub.paymentSubscriptionId && sub.currentPeriodEnd < new Date();
+}
+
+async function rollForwardFreeTierPeriod(
+  userId: string,
+  previousEnd: Date,
+): Promise<{ currentPeriodStart: Date; currentPeriodEnd: Date }> {
+  let start = startOfDay(previousEnd);
+  let end = addMonths(start, 1);
+  const now = new Date();
+  while (end < now) {
+    start = end;
+    end = addMonths(start, 1);
+  }
+  return prisma.subscription.update({
+    where: { userId },
+    data: { currentPeriodStart: start, currentPeriodEnd: end },
+    select: { currentPeriodStart: true, currentPeriodEnd: true },
+  });
+}
+
+export async function findSubscriptionsForUsageScan(): Promise<SubscriptionForUsageScan[]> {
+  const subs = await prisma.subscription.findMany({
+    where: {
+      status: { in: ['active', 'past_due'] },
+      user: { email: { not: null } },
+    },
+    select: {
+      userId: true,
+      tier: true,
+      eventLimit: true,
+      currentPeriodStart: true,
+      currentPeriodEnd: true,
+      paymentSubscriptionId: true,
+      user: {
+        select: {
+          email: true,
+          name: true,
+          dashboardAccess: {
+            where: { role: 'owner' },
+            select: { dashboard: { select: { siteId: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  return subs
+    .filter((s) => s.user.email !== null && s.user.dashboardAccess.length > 0)
+    .map((s) =>
+      SubscriptionForUsageScanSchema.parse({
+        userId: s.userId,
+        userEmail: s.user.email,
+        userName: s.user.name,
+        tier: s.tier,
+        eventLimit: s.eventLimit,
+        currentPeriodStart: s.currentPeriodStart,
+        currentPeriodEnd: s.currentPeriodEnd,
+        paymentSubscriptionId: s.paymentSubscriptionId,
+        siteIds: s.user.dashboardAccess.map((ud) => ud.dashboard.siteId),
+      }),
+    );
+}
+
+export async function rollForwardStaleFreeTierPeriods(
+  subs: SubscriptionForUsageScan[],
+): Promise<SubscriptionForUsageScan[]> {
+  return Promise.all(
+    subs.map(async (s) => {
+      if (!isFreeTierAndExpired(s)) return s;
+      const rolled = await rollForwardFreeTierPeriod(s.userId, s.currentPeriodEnd);
+      return { ...s, ...rolled };
+    }),
+  );
+}
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
@@ -21,25 +105,9 @@ export async function getUserSubscription(userId: string): Promise<Subscription 
       update: {},
     });
 
-    const isFreeTier = !subscription.paymentSubscriptionId;
-    const isPeriodExpired = subscription.currentPeriodEnd < new Date();
-
-    if (isFreeTier && isPeriodExpired) {
-      let newStart = startOfDay(subscription.currentPeriodEnd);
-      let newEnd = addMonths(newStart, 1);
-      const now = new Date();
-      while (newEnd < now) {
-        newStart = newEnd;
-        newEnd = addMonths(newStart, 1);
-      }
-      const updated = await prisma.subscription.update({
-        where: { userId },
-        data: {
-          currentPeriodStart: newStart,
-          currentPeriodEnd: newEnd,
-        },
-      });
-      return SubscriptionSchema.parse(updated);
+    if (isFreeTierAndExpired(subscription)) {
+      const rolled = await rollForwardFreeTierPeriod(subscription.userId, subscription.currentPeriodEnd);
+      return SubscriptionSchema.parse({ ...subscription, ...rolled });
     }
 
     return SubscriptionSchema.parse(subscription);

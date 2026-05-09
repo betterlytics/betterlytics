@@ -74,6 +74,8 @@ export async function sendTestEmail(email: string, template: EmailType) {
           usageLimit: 10000,
           usagePercentage: 95,
           planName: 'Starter',
+          currentPeriodStart: new Date('2026-04-01T00:00:00.000Z'),
+          currentPeriodEnd: new Date('2026-04-30T00:00:00.000Z'),
           upgradeUrl: 'https://betterlytics.io/billing',
         }, userId));
         break;

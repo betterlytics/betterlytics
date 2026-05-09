@@ -107,6 +107,30 @@ export const EventCountResultSchema = z.object({
   total: z.number(),
 });
 
+export const DailySiteUsageSchema = z
+  .object({
+    site_id: z.string(),
+    date: z.string(),
+    total: z.coerce.number(),
+  })
+  .transform((row) => ({
+    siteId: row.site_id,
+    date: row.date,
+    total: row.total,
+  }));
+
+export const SubscriptionForUsageScanSchema = z.object({
+  userId: z.string(),
+  userEmail: z.string(),
+  userName: z.string().nullable(),
+  tier: TierSchema,
+  eventLimit: z.number(),
+  currentPeriodStart: z.date(),
+  currentPeriodEnd: z.date(),
+  paymentSubscriptionId: z.string().nullable(),
+  siteIds: z.array(z.string()),
+});
+
 export const UserBillingDataSchema = z.object({
   subscription: z.object({
     tier: TierSchema,
@@ -128,5 +152,7 @@ export type Subscription = z.infer<typeof SubscriptionSchema>;
 export type UpsertSubscriptionData = z.infer<typeof UpsertSubscriptionSchema>;
 export type UsageData = z.infer<typeof UsageDataSchema>;
 export type EventCountResult = z.infer<typeof EventCountResultSchema>;
+export type DailySiteUsage = z.infer<typeof DailySiteUsageSchema>;
+export type SubscriptionForUsageScan = z.infer<typeof SubscriptionForUsageScanSchema>;
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
 export type UserBillingData = z.infer<typeof UserBillingDataSchema>;
