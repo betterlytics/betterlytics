@@ -165,7 +165,8 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     // - android-app://com.linkedin.android -> http://com.linkedin.android/
     // - https://www.linkedin.com/feed/     -> http://linkedin.com/feed/
     let parser = get_parser();
-    let lookup_url: Option<Url> = if matches!(referrer_url.scheme(), "http" | "https") {
+    let is_http_scheme = matches!(referrer_url.scheme(), "http" | "https");
+    let lookup_url: Option<Url> = if is_http_scheme {
         let host = referrer_url.host_str().unwrap_or("");
         let normalized_host = host.strip_prefix("www.").unwrap_or(host);
         Url::parse(&format!("http://{}{}", normalized_host, referrer_url.path())).ok()
@@ -222,7 +223,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         None
     };
     
-    let referrer_name = if matches!(referrer_url.scheme(), "http" | "https") {
+    let referrer_name = if is_http_scheme {
         referrer_url.host_str().and_then(|h| extract_root_domain(h))
     } else {
         referrer_url.host_str().map(|h| h.to_string())
