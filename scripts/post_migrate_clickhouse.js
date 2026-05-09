@@ -13,7 +13,7 @@ async function main() {
 
   if (!url || !adminUser || !adminPassword) {
     console.error(
-      "Post-migration (clickhouse_worker): CLICKHOUSE_URL, CLICKHOUSE_USER, and CLICKHOUSE_PASSWORD must be set.",
+      "Post-migration (clickhouse): CLICKHOUSE_URL, CLICKHOUSE_USER, and CLICKHOUSE_PASSWORD must be set.",
     );
     process.exit(1);
   }
@@ -40,7 +40,7 @@ async function main() {
 
     if (!workerUser || !workerPassword) {
       console.log(
-        "Post-migration (clickhouse_worker): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",
+        "Post-migration (clickhouse): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",
       );
       return;
     }
@@ -58,11 +58,11 @@ async function main() {
     await client.exec({ query: `GRANT worker_role TO ${workerUser}` });
 
     console.log(
-      "Post-migration (clickhouse_worker): user and privileges ensured successfully.",
+      "Post-migration (clickhouse): user and privileges ensured successfully.",
     );
   } catch (error) {
     console.error(
-      "Post-migration (clickhouse_worker): Failed:",
+      "Post-migration (clickhouse): Failed:",
       error instanceof Error ? error.message : String(error),
     );
     process.exit(1);
