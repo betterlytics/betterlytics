@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import LeafletMapMarketingClient from './LeafletMapMarketingClient';
+import LeafletMapNoSSR from './LeafletMapNoSSR';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS, MOCK_COMPARE_GEOVISITORS } from '@/constants/geographyData';
 import type { GeoVisitor } from '@/entities/analytics/geography.entities';
@@ -33,7 +33,7 @@ export default async function WorldMapCard() {
 
       <CardContent>
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
-          <LeafletMapMarketingClient
+          <LeafletMapNoSSR
             visitorData={MOCK_WORLD_GEOVISITORS}
             compareData={MOCK_COMPARE_GEOVISITORS}
             maxVisitors={MOCK_WORLD_GEOVISITORS[0]?.visitors}
