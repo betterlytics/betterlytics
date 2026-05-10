@@ -9,7 +9,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <TRPCProvider>
       <SessionProvider>
-        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+          scriptProps={{ type: 'application/json' }}
+        >
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </SessionProvider>

@@ -12,7 +12,7 @@ import {
   Gauge,
   Video,
   Activity,
-  AlertTriangle,
+  TriangleAlert,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -111,7 +111,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
   const observabilityItems: SidebarItem[] = [
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={ICON_SIZE} /> },
-    { name: t('errorTracking'), key: 'errors', href: '/errors', icon: <AlertTriangle size={ICON_SIZE} /> },
+    { name: t('errorTracking'), key: 'errors', href: '/errors', icon: <TriangleAlert size={ICON_SIZE} /> },
     {
       name: t('monitoring'),
       key: 'monitoring',
@@ -182,7 +182,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                         <span>{item.name}</span>
                       </div>
-
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
