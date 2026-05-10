@@ -17,7 +17,7 @@ FROM "SiteConfig" sc
 INNER JOIN "Dashboard" d ON d."id" = sc."dashboardId"
 "#;
 
-const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY sc."updatedAt" ASC"#;
+const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY d."createdAt" ASC"#;
 
 #[derive(Clone, Debug)]
 pub struct SiteConfigRecord {
