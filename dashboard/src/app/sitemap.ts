@@ -97,6 +97,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const alt of SUPPORTED_LANGUAGES) {
       languages[alt] = `${baseUrl}${localizedPath(page.path, alt)}`;
     }
+    languages['x-default'] = `${baseUrl}${page.path}`;
 
     entries.push({
       url: `${baseUrl}${page.path}`,
