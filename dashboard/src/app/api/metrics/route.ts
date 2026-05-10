@@ -17,6 +17,14 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  const metricsApiKey = process.env.METRICS_API_KEY;
+  if (metricsApiKey) {
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.slice(7) !== metricsApiKey) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+  }
+
   const contentType = register.contentType;
   const metrics = await register.metrics();
 
