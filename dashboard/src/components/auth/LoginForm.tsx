@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, getProviders } from 'next-auth/react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { getProviders } from 'next-auth/react';
 import ExternalLink from '@/components/ExternalLink';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { useTranslations } from 'next-intl';
@@ -27,9 +26,14 @@ import { Label } from '@/components/ui/label';
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
   forgotPasswordEnabled?: boolean;
+  providers: Awaited<ReturnType<typeof getProviders>>;
 };
 
-export default function LoginForm({ registrationDisabledMessage, forgotPasswordEnabled }: LoginFormProps) {
+export default function LoginForm({
+  registrationDisabledMessage,
+  forgotPasswordEnabled,
+  providers,
+}: LoginFormProps) {
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
@@ -39,16 +43,11 @@ export default function LoginForm({ registrationDisabledMessage, forgotPasswordE
   const [totp, setTotp] = useState('');
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [providers, setProviders] = useState<Record<string, any> | null>(null);
 
   const [isPending, startTransition] = useTransition();
 
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
-
-  useEffect(() => {
-    getProviders().then(setProviders);
-  }, []);
 
   useEffect(() => {
     if (!registrationDisabledMessage) return;
