@@ -2416,7 +2416,8 @@
         "toastUndo": "Annulla",
         "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto"
       },
-      "filterBy": "Filtra per {label}"
+      "filterBy": "Filtra per {label}",
+      "removeFilter": "Rimuovi filtro query"
     },
     "funnels": {
       "skeleton": {

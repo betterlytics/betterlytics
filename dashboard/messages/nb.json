@@ -2416,7 +2416,8 @@
         "toastUndo": "Angre",
         "savedFiltersLimitReached": "Maksimalt antall lagrede filtre nådd"
       },
-      "filterBy": "Filtrer etter {label}"
+      "filterBy": "Filtrer etter {label}",
+      "removeFilter": "Fjern spørringsfilter"
     },
     "funnels": {
       "skeleton": {

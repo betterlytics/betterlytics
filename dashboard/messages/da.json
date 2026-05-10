@@ -2408,7 +2408,8 @@
         "toastUndo": "Fortryd",
         "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
       },
-      "filterBy": "Filtrer efter {label}"
+      "filterBy": "Filtrer efter {label}",
+      "removeFilter": "Fjern forespørgselsfilter"
     },
     "funnels": {
       "skeleton": {
