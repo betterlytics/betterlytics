@@ -6,10 +6,7 @@ import {
   updateSubscriptionPeriod,
 } from '@/repositories/postgres/subscription.repository';
 import { getDailyEventCountsForSites } from '@/repositories/clickhouse/usage.repository';
-import {
-  type DailySiteUsage,
-  type SubscriptionWithOwnedSites,
-} from '@/entities/billing/billing.entities';
+import { type DailySiteUsage, type SubscriptionWithOwnedSites } from '@/entities/billing/billing.entities';
 import { toDateString } from '@/utils/dateFormatters';
 
 export type UsageThresholdKind = 'exceeded' | 'approaching';
@@ -49,7 +46,11 @@ async function rollForwardIfStale(sub: SubscriptionWithOwnedSites): Promise<Subs
 export async function getScannableSubscriptions(): Promise<SubscriptionWithOwnedSites[]> {
   const raw = await findActiveSubscriptionsWithOwnedSites();
   const withSites = raw.filter((s) => s.siteIds.length > 0);
-  return Promise.all(withSites.map(rollForwardIfStale));
+  const result: SubscriptionWithOwnedSites[] = [];
+  for (const sub of withSites) {
+    result.push(await rollForwardIfStale(sub));
+  }
+  return result;
 }
 
 export function indexUsageBySite(rows: DailySiteUsage[]): Map<string, DailySiteUsage[]> {
