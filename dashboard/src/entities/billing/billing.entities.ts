@@ -119,7 +119,7 @@ export const DailySiteUsageSchema = z
     total: row.total,
   }));
 
-export const SubscriptionForUsageScanSchema = z.object({
+export const SubscriptionWithOwnedSitesSchema = z.object({
   userId: z.string(),
   userEmail: z.string(),
   userName: z.string().nullable(),
@@ -153,6 +153,6 @@ export type UpsertSubscriptionData = z.infer<typeof UpsertSubscriptionSchema>;
 export type UsageData = z.infer<typeof UsageDataSchema>;
 export type EventCountResult = z.infer<typeof EventCountResultSchema>;
 export type DailySiteUsage = z.infer<typeof DailySiteUsageSchema>;
-export type SubscriptionForUsageScan = z.infer<typeof SubscriptionForUsageScanSchema>;
+export type SubscriptionWithOwnedSites = z.infer<typeof SubscriptionWithOwnedSitesSchema>;
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
 export type UserBillingData = z.infer<typeof UserBillingDataSchema>;

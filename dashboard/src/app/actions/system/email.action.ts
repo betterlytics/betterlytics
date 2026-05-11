@@ -11,6 +11,8 @@ import { getFirstPaymentWelcomeEmailPreview } from '@/services/email/template/fi
 import { getEmailVerificationPreview } from '@/services/email/template/email-verification-mail';
 import { getInvitationEmailPreview } from '@/services/email/template/invitation-mail';
 import { getReportEmailPreview } from '@/services/email/template/weekly-report-mail';
+import { startOfMonth } from 'date-fns/startOfMonth';
+import { endOfMonth } from 'date-fns/endOfMonth';
 
 async function requireEmailPreviewAccess(): Promise<string> {
   if (!isFeatureEnabled('enableEmailPreview')) {
@@ -74,8 +76,8 @@ export async function sendTestEmail(email: string, template: EmailType) {
           usageLimit: 10000,
           usagePercentage: 95,
           planName: 'Starter',
-          currentPeriodStart: new Date('2026-04-01T00:00:00.000Z'),
-          currentPeriodEnd: new Date('2026-04-30T00:00:00.000Z'),
+          currentPeriodStart: startOfMonth(new Date()),
+          currentPeriodEnd: endOfMonth(new Date()),
           upgradeUrl: 'https://betterlytics.io/billing',
         }, userId));
         break;

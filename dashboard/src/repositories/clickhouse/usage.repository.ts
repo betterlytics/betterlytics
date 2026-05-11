@@ -70,7 +70,7 @@ export async function getDailyEventCountsForSites(
       })
       .toPromise();
 
-    return (result as unknown[]).map((row) => DailySiteUsageSchema.parse(row));
+    return DailySiteUsageSchema.array().parse(result);
   } catch (error) {
     console.error('Failed to get daily event counts for sites:', error);
     throw error;
