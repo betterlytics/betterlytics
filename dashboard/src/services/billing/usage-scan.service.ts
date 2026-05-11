@@ -12,6 +12,7 @@ import { toDateString } from '@/utils/dateFormatters';
 export type UsageThresholdKind = 'exceeded' | 'approaching';
 
 export function classifyUsageThreshold(pct: number): UsageThresholdKind | null {
+  if (!Number.isFinite(pct)) return null;
   if (pct >= 100) return 'exceeded';
   if (pct >= 80) return 'approaching';
   return null;
