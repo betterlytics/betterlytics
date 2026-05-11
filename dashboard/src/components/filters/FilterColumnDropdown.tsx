@@ -16,6 +16,7 @@ import {
   BADropdownMenuTrigger,
 } from '@/components/ba-dropdown-menu';
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
+import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type FilterColumn, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
@@ -44,11 +45,6 @@ export function FilterColumnDropdown<TEntity>({
   const { isDemo } = useDashboardAuth();
 
   const strategy = getFilterStrategy(filter.column);
-  const columnLabel = strategy.type === 'standard' ? t(`columns.${strategy.key}`) : strategy.key;
-  const triggerIcon =
-    strategy.type === 'json_property'
-      ? <TagsIcon />
-      : FILTER_COLUMN_SELECT_OPTIONS.find((opt) => opt.value === strategy.key)?.icon;
 
   return (
     <div className={cn('flex flex-col', className)}>
@@ -64,12 +60,7 @@ export function FilterColumnDropdown<TEntity>({
               'focus-visible:border-ring focus-visible:ring focus-visible:ring-ring/50',
             )}
           >
-            <span className='flex items-center gap-2 [&_svg]:shrink-0'>
-              {triggerIcon}
-              <span className='truncate'>
-                {columnLabel}
-              </span>
-            </span>
+            <FilterColumnLabel column={filter.column} className='min-w-0 gap-2' />
             <ChevronDownIcon className='opacity-50' />
           </button>
         </BADropdownMenuTrigger>
