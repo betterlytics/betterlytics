@@ -9,10 +9,12 @@ import {
   findInvitationByEmail,
   updateInvitationStatus,
   findPendingInvitationsByEmail,
+  deleteInvitation,
 } from '@/repositories/postgres/invitation.repository';
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
-import { sendDashboardInvitationEmail } from '@/services/email/mail.service';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
@@ -68,16 +70,24 @@ export async function inviteUserToDashboard(
   }
 
   try {
-    await sendDashboardInvitationEmail({
-      to: email,
-      inviterName: fullInvitation.invitedBy.name || 'Someone',
-      dashboardName: fullInvitation.dashboard?.domain || dashboardId,
-      role: role,
-      inviteToken: invitation.token,
-      userExists: !!existingUser,
+    await enqueueEmail({
+      type: 'dashboard-invitation',
+      recipientKey: createEmailRecipientKey(email),
+      campaignKey: `dashboard-invitation:${invitation.id}`,
+      data: {
+        to: email,
+        inviterName: fullInvitation.invitedBy.name || 'Someone',
+        dashboardName: fullInvitation.dashboard?.domain || dashboardId,
+        role: role,
+        inviteToken: invitation.token,
+        userExists: !!existingUser,
+      },
     });
-  } catch (emailError) {
-    console.error('Failed to send invitation email:', emailError);
+  } catch (enqueueError) {
+    await deleteInvitation(invitation.id).catch((cleanupError) => {
+      console.error('Failed to roll back invitation after enqueue failure:', cleanupError);
+    });
+    throw enqueueError;
   }
 
   return fullInvitation;

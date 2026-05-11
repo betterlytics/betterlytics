@@ -11,7 +11,7 @@ use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
 mod models;
-pub use models::{EventRow, SessionReplayRow};
+pub use models::{EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
@@ -166,6 +166,44 @@ impl Database {
         println!("Checking database connection");
         self.clickhouse.inner().query("SELECT 1").execute().await?;
         println!("Database connection check successful");
+        Ok(())
+    }
+
+    pub async fn referrer_dictionary_ready(&self) -> Result<bool> {
+        let table_exists: u8 = self.clickhouse.inner()
+            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories'")
+            .fetch_one()
+            .await?;
+
+        let dictionary_exists: u8 = self.clickhouse.inner()
+            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories_dict' AND engine = 'Dictionary'")
+            .fetch_one()
+            .await?;
+
+        Ok(table_exists != 0 && dictionary_exists != 0)
+    }
+
+    pub async fn write_referrer_categories(
+        &self,
+        rows: Vec<ReferrerSourceCategoryRow>,
+    ) -> Result<()> {
+        let mut inserter = self
+            .clickhouse
+            .inner()
+            .inserter("analytics.referrer_source_categories")?
+            .with_max_rows(100_000);
+
+        for row in rows {
+            inserter.write(&row)?;
+        }
+
+        inserter.end().await?;
+        self.clickhouse
+            .inner()
+            .query("SYSTEM RELOAD DICTIONARY analytics.referrer_source_categories_dict")
+            .execute()
+            .await?;
+
         Ok(())
     }
 
