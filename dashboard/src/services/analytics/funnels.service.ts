@@ -44,12 +44,13 @@ export async function getFunnelsByDashboardId(
 }
 
 export async function getFunnelDetailsById(
+  dashboardId: string,
   siteId: string,
   funnelId: string,
   startDate: Date,
   endDate: Date,
 ): Promise<FunnelDetails | null> {
-  const funnel = await PostgresFunnelRepository.getFunnelById(funnelId);
+  const funnel = await PostgresFunnelRepository.getFunnelById(dashboardId, funnelId);
 
   if (funnel === null) {
     return null;
@@ -106,7 +107,7 @@ export async function deleteFunnelFromDashboard(dashboardId: string, funnelId: s
   return PostgresFunnelRepository.deleteFunnelById(dashboardId, funnelId);
 }
 
-export async function updateFunnelForDashboard(funnel: UpdateFunnel): Promise<void> {
+export async function updateFunnelForDashboard(dashboardId: string, funnel: UpdateFunnel): Promise<void> {
   const validatedFunnel = UpdateFunnelSchema.parse(funnel);
-  return PostgresFunnelRepository.updateFunnel(validatedFunnel);
+  return PostgresFunnelRepository.updateFunnel(dashboardId, validatedFunnel);
 }

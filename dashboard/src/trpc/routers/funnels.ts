@@ -16,7 +16,13 @@ export const funnelsRouter = createRouter({
     .input(z.object({ funnelId: z.string() }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      const funnel = await getFunnelDetailsById(ctx.authContext.siteId, input.funnelId, main.startDate, main.endDate);
+      const funnel = await getFunnelDetailsById(
+        ctx.authContext.dashboardId,
+        ctx.authContext.siteId,
+        input.funnelId,
+        main.startDate,
+        main.endDate,
+      );
       if (!funnel) throw new TRPCError({ code: 'NOT_FOUND' });
       return toFunnel(funnel);
     }),

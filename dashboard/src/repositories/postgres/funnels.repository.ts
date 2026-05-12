@@ -21,9 +21,9 @@ export async function getFunnelsByDashboardId(dashboardCUID: string): Promise<Fu
   return funnels.map((funnel) => FunnelSchema.parse(funnel));
 }
 
-export async function getFunnelById(id: string): Promise<Funnel | null> {
-  const funnel = await prisma.funnel.findUnique({
-    where: { id, deletedAt: null },
+export async function getFunnelById(dashboardId: string, id: string): Promise<Funnel | null> {
+  const funnel = await prisma.funnel.findFirst({
+    where: { id, dashboardId, deletedAt: null },
     include: {
       funnelSteps: true,
     },
@@ -56,9 +56,9 @@ export async function deleteFunnelById(dashboardId: string, funnelId: string): P
   });
 }
 
-export async function updateFunnel(funnel: UpdateFunnel): Promise<void> {
+export async function updateFunnel(dashboardId: string, funnel: UpdateFunnel): Promise<void> {
   await prisma.funnel.update({
-    where: { id: funnel.id },
+    where: { id: funnel.id, dashboardId },
     data: {
       ...funnel,
       funnelSteps: {
