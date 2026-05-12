@@ -43,7 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </Link>
             ))}
           </nav>
-          <div className='text-muted-foreground ml-auto text-xs'>{session!.user.email}</div>
+          <div className='text-muted-foreground ml-auto text-xs'>{session.user.email}</div>
         </div>
       </header>
       <main className='flex-1 p-6'>{children}</main>
