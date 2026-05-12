@@ -13,6 +13,7 @@ import { getInvitationEmailPreview } from '@/services/email/template/invitation-
 import { getReportEmailPreview } from '@/services/email/template/weekly-report-mail';
 import { startOfMonth } from 'date-fns/startOfMonth';
 import { endOfMonth } from 'date-fns/endOfMonth';
+import { getDataRetentionClampEmailPreview } from '@/services/email/template/data-retention-clamp-mail';
 
 async function requireEmailPreviewAccess(): Promise<string> {
   if (!isFeatureEnabled('enableEmailPreview')) {
@@ -43,99 +44,152 @@ export async function sendTestEmail(email: string, template: EmailType) {
   try {
     switch (template) {
       case 'reset-password':
-        await enqueueEmail(buildTestPayload('reset-password', {
-          to: email,
-          userName: 'Test User',
-          resetUrl: 'https://betterlytics.io/reset-password?token=test-token-123',
-          expirationTime: '30 minutes',
-        }, userId));
+        await enqueueEmail(
+          buildTestPayload(
+            'reset-password',
+            {
+              to: email,
+              userName: 'Test User',
+              resetUrl: 'https://betterlytics.io/reset-password?token=test-token-123',
+              expirationTime: '30 minutes',
+            },
+            userId,
+          ),
+        );
         break;
       case 'email-verification':
-        await enqueueEmail(buildTestPayload('email-verification', {
-          to: email,
-          userName: 'Test User',
-          verificationToken: 'test-token-123',
-          verificationUrl: 'https://betterlytics.io/verify-email?token=test-token-123',
-        }, userId));
+        await enqueueEmail(
+          buildTestPayload(
+            'email-verification',
+            {
+              to: email,
+              userName: 'Test User',
+              verificationToken: 'test-token-123',
+              verificationUrl: 'https://betterlytics.io/verify-email?token=test-token-123',
+            },
+            userId,
+          ),
+        );
         break;
       case 'dashboard-invitation':
-        await enqueueEmail(buildTestPayload('dashboard-invitation', {
-          to: email,
-          inviterName: 'Test User',
-          dashboardName: 'example.com',
-          role: 'editor',
-          inviteToken: 'test-token-123',
-          userExists: false,
-        }, userId));
+        await enqueueEmail(
+          buildTestPayload(
+            'dashboard-invitation',
+            {
+              to: email,
+              inviterName: 'Test User',
+              dashboardName: 'example.com',
+              role: 'editor',
+              inviteToken: 'test-token-123',
+              userExists: false,
+            },
+            userId,
+          ),
+        );
         break;
       case 'usage-alert':
-        await enqueueEmail(buildTestPayload('usage-alert', {
-          to: email,
-          userName: 'Test User',
-          currentUsage: 9500,
-          usageLimit: 10000,
-          usagePercentage: 95,
-          planName: 'Starter',
-          currentPeriodStart: startOfMonth(new Date()),
-          currentPeriodEnd: endOfMonth(new Date()),
-          upgradeUrl: 'https://betterlytics.io/billing',
-        }, userId));
+        await enqueueEmail(
+          buildTestPayload(
+            'usage-alert',
+            {
+              to: email,
+              userName: 'Test User',
+              currentUsage: 9500,
+              usageLimit: 10000,
+              usagePercentage: 95,
+              planName: 'Starter',
+              currentPeriodStart: startOfMonth(new Date()),
+              currentPeriodEnd: endOfMonth(new Date()),
+              upgradeUrl: 'https://betterlytics.io/billing',
+            },
+            userId,
+          ),
+        );
         break;
       case 'first-payment-welcome':
-        await enqueueEmail(buildTestPayload('first-payment-welcome', {
-          to: email,
-          userName: 'Test User',
-          planName: 'Pro',
-          monthlyEventLimit: '100K',
-          dashboardUrl: 'https://betterlytics.io/dashboards',
-          billingAmount: '$19/month',
-          newFeatures: [{ title: 'Test-Feature', description: 'Test-Feature' }],
-        }, userId));
+        await enqueueEmail(
+          buildTestPayload(
+            'first-payment-welcome',
+            {
+              to: email,
+              userName: 'Test User',
+              planName: 'Pro',
+              monthlyEventLimit: '100K',
+              dashboardUrl: 'https://betterlytics.io/dashboards',
+              billingAmount: '$19/month',
+              newFeatures: [{ title: 'Test-Feature', description: 'Test-Feature' }],
+            },
+            userId,
+          ),
+        );
         break;
       case 'report': {
         const now = new Date();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-        await enqueueEmail(buildTestPayload('report', {
-          to: email,
-          toName: 'Test User',
-          dashboardUrl: 'https://betterlytics.io/dashboard/example',
-          reportData: {
-            dashboardId: 'example',
-            siteId: 'example',
-            domain: 'example.com',
-            periodType: 'weekly',
-            period: { start: weekAgo, end: now },
-            comparisonPeriod: { start: twoWeeksAgo, end: weekAgo },
-            metrics: {
-              visitors: 1234,
-              visitorChange: 12,
-              pageViews: 5678,
-              pageViewChange: -5,
-              sessions: 987,
-              sessionChange: 8,
-              bounceRate: 42,
-              avgVisitDuration: 185,
+        await enqueueEmail(
+          buildTestPayload(
+            'report',
+            {
+              to: email,
+              toName: 'Test User',
+              dashboardUrl: 'https://betterlytics.io/dashboard/example',
+              reportData: {
+                dashboardId: 'example',
+                siteId: 'example',
+                domain: 'example.com',
+                periodType: 'weekly',
+                period: { start: weekAgo, end: now },
+                comparisonPeriod: { start: twoWeeksAgo, end: weekAgo },
+                metrics: {
+                  visitors: 1234,
+                  visitorChange: 12,
+                  pageViews: 5678,
+                  pageViewChange: -5,
+                  sessions: 987,
+                  sessionChange: 8,
+                  bounceRate: 42,
+                  avgVisitDuration: 185,
+                },
+                topPages: [
+                  { path: '/', pageviews: 1500 },
+                  { path: '/about', pageviews: 890 },
+                  { path: '/products', pageviews: 654 },
+                  { path: '/blog/getting-started', pageviews: 432 },
+                  { path: '/contact', pageviews: 321 },
+                ],
+                topSources: [
+                  { source: 'Google', visits: 456 },
+                  { source: 'Twitter', visits: 234 },
+                  { source: 'Direct', visits: 189 },
+                  { source: 'LinkedIn', visits: 145 },
+                  { source: 'GitHub', visits: 98 },
+                ],
+              },
             },
-            topPages: [
-              { path: '/', pageviews: 1500 },
-              { path: '/about', pageviews: 890 },
-              { path: '/products', pageviews: 654 },
-              { path: '/blog/getting-started', pageviews: 432 },
-              { path: '/contact', pageviews: 321 },
-            ],
-            topSources: [
-              { source: 'Google', visits: 456 },
-              { source: 'Twitter', visits: 234 },
-              { source: 'Direct', visits: 189 },
-              { source: 'LinkedIn', visits: 145 },
-              { source: 'GitHub', visits: 98 },
-            ],
-          },
-        }, userId));
+            userId,
+          ),
+        );
         break;
       }
+      case 'data-retention-clamp':
+        await enqueueEmail(
+          buildTestPayload(
+            'data-retention-clamp',
+            {
+              to: email,
+              userName: 'Test User',
+              newPlanName: 'Growth',
+              previousRetentionDays: 1095,
+              newRetentionDays: 365,
+              graceUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              upgradeUrl: 'https://betterlytics.io/billing',
+            },
+            userId,
+          ),
+        );
+        break;
       default: {
         const _exhaustive: never = template;
         throw new Error(`Invalid template: ${_exhaustive}`);
@@ -164,6 +218,8 @@ export async function getEmailPreview(template: EmailType): Promise<string> {
         return getFirstPaymentWelcomeEmailPreview();
       case 'report':
         return getReportEmailPreview();
+      case 'data-retention-clamp':
+        return getDataRetentionClampEmailPreview();
       default: {
         const _exhaustive: never = template;
         return `<p>Template not found: ${_exhaustive}</p>`;

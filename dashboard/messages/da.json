@@ -2911,16 +2911,15 @@
         "retentionLabel": "Periode for dataopbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
-          "d30": "30 dage",
-          "m3": "3 måneder",
           "m6": "6 måneder",
           "y1": "1 år",
           "y2": "2 år",
-          "y3": "3 år"
+          "y3": "3 år",
+          "y5": "5 år"
         },
         "retentionConfirm": {
           "title": "Ændre opbevaringsperiode?",
-          "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
+          "description": "Hvis du ændrer opbevaringen til {period}, kan hændelser ældre end {period} blive slettet permanent ved næste planlagte oprydning."
         },
         "siteRules": {
           "title": "Webstedsregler",
