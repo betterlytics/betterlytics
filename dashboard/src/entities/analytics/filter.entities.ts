@@ -20,6 +20,7 @@ export const FILTER_COLUMNS = [
   'utm_content',
   'event_type',
   'custom_event_name',
+  'outbound_link_url',
 ] as const;
 
 export const GP_PREFIX = 'gp.';

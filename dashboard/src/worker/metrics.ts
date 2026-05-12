@@ -1,5 +1,5 @@
 import { Counter, Gauge, Histogram, collectDefaultMetrics, register } from 'prom-client';
-import { workerEnv } from '@/worker/workerEnv';
+import { workerEnv } from '@/lib/env/worker.env';
 
 if (workerEnv.ENABLE_MONITORING) {
   collectDefaultMetrics({ register });
@@ -28,6 +28,12 @@ export const jobsInFlight = new Gauge({
   name: 'worker_jobs_in_flight',
   help: 'Number of job executions currently in progress',
   labelNames: ['job_name'] as const,
+});
+
+export const emailSendsTotal = new Counter({
+  name: 'email_sends_total',
+  help: 'Email send attempts by template type and outcome',
+  labelNames: ['type', 'status'] as const,
 });
 
 export { register };

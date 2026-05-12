@@ -23,17 +23,16 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
     options: { year: 'numeric', month: 'short', day: 'numeric' },
   });
 
-  const handleCardClick = () => {
-    router.push(`/dashboard/${dashboard.id}`);
-  };
-
   const hasMultipleMembers = dashboard.memberCount > 1;
 
   return (
-    <Card
-      className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'
-      onClick={handleCardClick}
-    >
+    <Card className='group hover:border-primary/30 border-border/50 relative z-0 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'>
+      <Link
+        href={`/dashboard/${dashboard.id}`}
+        className='absolute inset-0 z-0'
+        aria-label={`Go to dashboard ${dashboard.domain}`}
+      />
+
       <div className='block h-full'>
         <CardHeader className='pb-4'>
           <div className='flex items-start justify-between'>
@@ -85,7 +84,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
             <div className='flex w-8 justify-center'>
               <Link
                 href={`/dashboard/${dashboard.id}/settings`}
-                className='hover:bg-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
+                className='hover:bg-muted relative z-10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
                 title='Dashboard Settings'
                 onClick={(e) => e.stopPropagation()}
               >
