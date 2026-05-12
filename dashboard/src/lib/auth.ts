@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter, AdapterUser } from 'next-auth/adapters';
+import type { ClientSafeProvider } from 'next-auth/react';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { Provider } from 'next-auth/providers/index';
 import GithubProvider from 'next-auth/providers/github';
@@ -162,6 +163,25 @@ export const authOptions: NextAuthOptions = {
 
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
+}
+
+export function getAuthProviders(): Record<string, ClientSafeProvider> {
+  const baseUrl = env.NEXTAUTH_URL;
+  return Object.fromEntries(
+    authOptions.providers.map((p) => {
+      const provider = p as { id: string; name: string; type: ClientSafeProvider['type'] };
+      return [
+        provider.id,
+        {
+          id: provider.id,
+          name: provider.name,
+          type: provider.type,
+          signinUrl: `${baseUrl}/api/auth/signin/${provider.id}`,
+          callbackUrl: `${baseUrl}/api/auth/callback/${provider.id}`,
+        },
+      ];
+    }),
+  );
 }
 
 function buildSocialProviders(): Provider[] {
