@@ -7,7 +7,7 @@ import { ChevronDown } from 'lucide-react';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatQueryFilter } from '@/utils/queryFilterFormatters';
+import { FilterDescription } from '@/components/filters/FilterDescription';
 import { useLocale, useTranslations } from 'next-intl';
 
 type EmptyStep = {
@@ -91,7 +91,6 @@ function FunnelStep({
   hasEmptySteps: boolean;
 }) {
   const locale = useLocale();
-  const tFilters = useTranslations('components.filters');
   const tPlot = useTranslations('components.funnels.plot');
   return (
     <Tooltip key={index} delayDuration={0}>
@@ -171,11 +170,10 @@ function FunnelStep({
         </div>
       </TooltipTrigger>
       <TooltipContent sideOffset={8} className='bg-popover border shadow-xl'>
-        <div className='space-y-0 text-center'>
-          <p className='text-popover-foreground rounded-md p-2 font-medium'>
-            {formatQueryFilter(step.step, tFilters)}
-          </p>
-        </div>
+        <FilterDescription
+          filter={step.step}
+          className='text-popover-foreground rounded-md p-2 font-medium'
+        />
       </TooltipContent>
     </Tooltip>
   );

@@ -2381,7 +2381,8 @@
         "utm_term": "UTM term",
         "utm_content": "UTM content",
         "custom_event_name": "Event",
-        "event_type": "Event type"
+        "event_type": "Event type",
+        "outbound_link_url": "Outbound link"
       },
       "selector": {
         "triggerLabel": "Filters",
