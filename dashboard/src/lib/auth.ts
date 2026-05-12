@@ -168,8 +168,7 @@ function isUserException(error: unknown): error is UserException {
 export function getAuthProviders(): Record<string, ClientSafeProvider> {
   const baseUrl = env.NEXTAUTH_URL;
   return Object.fromEntries(
-    authOptions.providers.map((p) => {
-      const provider = p as { id: string; name: string; type: ClientSafeProvider['type'] };
+    authOptions.providers.map((provider) => {
       return [
         provider.id,
         {
