@@ -6,7 +6,7 @@ import type { TimelineMarker } from './ReplayTimeline';
 import { keyForMarker } from './utils/marker-keys';
 import { markerFillColorForLabel } from './utils/colors';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';

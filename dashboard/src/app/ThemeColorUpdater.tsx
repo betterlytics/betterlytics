@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 
 export default function ThemeColorUpdater() {
   const { theme, systemTheme } = useTheme();

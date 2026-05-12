@@ -2,7 +2,7 @@
 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { Monitor, Moon, Sun, LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Theme } from '@prisma/client';
@@ -23,7 +23,7 @@ export default function UserThemeSelector({ value, onUpdate }: UserThemeSelector
   const t = useTranslations('components.userSettings.preferences.appearance');
 
   const handleChange = (newTheme: string) => {
-    setTheme(newTheme);
+    setTheme(newTheme as 'light' | 'dark' | 'system');
     onUpdate(newTheme as Theme);
   };
 

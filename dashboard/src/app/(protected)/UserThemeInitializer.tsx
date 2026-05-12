@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { Theme } from '@prisma/client';
 
 interface UserThemeInitializerProps {
@@ -13,7 +13,7 @@ export default function UserThemeInitializer({ theme: userTheme }: UserThemeInit
 
   useEffect(() => {
     if (userTheme) {
-      setTheme(userTheme);
+      setTheme(userTheme as 'light' | 'dark' | 'system');
     }
   }, []);
 

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Monitor } from 'lucide-react';
 import { Icon } from '@iconify/react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { osIconNamesThemed, osLabels, type OSType } from '@/constants/operatingSystemIcons';
 
 interface OSIconProps {

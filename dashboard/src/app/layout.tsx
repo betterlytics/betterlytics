@@ -3,12 +3,12 @@ import Script from 'next/script';
 import './globals.css';
 import { env } from '@/lib/env';
 import Providers from '@/app/Providers';
+import { ThemeProvider } from '@/app/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
-import ThemeColorUpdater from '@/app/ThemeColorUpdater';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import type { Metadata } from 'next';
 
@@ -44,7 +44,7 @@ export default async function RootLayout({
   const [locale, seoConfig] = await Promise.all([getLocale(), buildSEOConfig(SEO_CONFIGS.root)]);
 
   return (
-    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang={locale} suppressHydrationWarning data-scroll-behavior='smooth'>
       <head>
         <meta name='theme-color' content='#fff' />
         {env.ENABLE_APP_TRACKING && (
@@ -63,11 +63,14 @@ export default async function RootLayout({
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <ThemeColorUpdater />
         <NextIntlClientProvider>
-          <Providers>{children}</Providers>
+          <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+            <Providers>
+              {children}
+              <Toaster />
+            </Providers>
+          </ThemeProvider>
         </NextIntlClientProvider>
-        <Toaster />
       </body>
     </html>
   );
