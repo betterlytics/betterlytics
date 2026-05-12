@@ -2406,7 +2406,7 @@
         "savedFiltersLimitReached": "Maximum saved filters reached"
       },
       "filterBy": "Filter by {label}",
-      "removeFilter": "Remove query filter"
+      "removeFilter": "Remove filter"
     },
     "funnels": {
       "skeleton": {

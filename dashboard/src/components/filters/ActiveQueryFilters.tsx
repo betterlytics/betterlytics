@@ -27,12 +27,11 @@ export function ActiveQueryFilters() {
             <TooltipTrigger asChild>
               <Button
                 variant='ghost'
-                size='icon'
                 aria-label={t('removeFilter')}
-                className='text-muted-foreground/80 size-3.5 cursor-pointer hover:text-foreground focus-visible:text-foreground focus-visible:ring self-end -ml-0.5'
+                className='text-muted-foreground/80 size-6 cursor-pointer hover:text-foreground focus-visible:text-foreground -mx-0.5'
                 onClick={() => removeQueryFilter(filter.id)}
               >
-                <XIcon className='size-full' />
+                <XIcon className='size-3.5' />
               </Button>
             </TooltipTrigger>
             <TooltipContent>{t('removeFilter')}</TooltipContent>

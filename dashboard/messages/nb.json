@@ -2417,7 +2417,7 @@
         "savedFiltersLimitReached": "Maksimalt antall lagrede filtre nådd"
       },
       "filterBy": "Filtrer etter {label}",
-      "removeFilter": "Fjern spørringsfilter"
+      "removeFilter": "Fjern filter"
     },
     "funnels": {
       "skeleton": {

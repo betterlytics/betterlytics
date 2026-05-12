@@ -2409,7 +2409,7 @@
         "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
       },
       "filterBy": "Filtrer efter {label}",
-      "removeFilter": "Fjern forespørgselsfilter"
+      "removeFilter": "Fjern filter"
     },
     "funnels": {
       "skeleton": {

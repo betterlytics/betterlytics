@@ -2417,7 +2417,7 @@
         "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto"
       },
       "filterBy": "Filtra per {label}",
-      "removeFilter": "Rimuovi filtro query"
+      "removeFilter": "Rimuovi filtro"
     },
     "funnels": {
       "skeleton": {
