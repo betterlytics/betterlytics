@@ -1,6 +1,7 @@
 'server-only';
 
 import type { Job } from '@/worker/jobs/types';
+import { emailReportsJobDefinition } from '@/worker/jobs/definitions';
 import { findDashboardsWithReportsEnabled } from '@/repositories/postgres/dashboardSettings.repository';
 import { canDashboardReceiveReports } from '@/lib/billing/capabilityAccess';
 import { sendWeeklyReport, sendMonthlyReport } from '@/services/reports/reports.service';
@@ -68,12 +69,8 @@ async function runDailyReportCheck(): Promise<void> {
 }
 
 export const emailReportsJob: Job = {
-  name: 'email-reports',
-  schedule: '0 8 * * *',
+  ...emailReportsJobDefinition,
   runOnStart: false,
-  retryLimit: 3,
-  retryBackoff: true,
-  expireInSeconds: 3600,
   handler: async () => {
     await runDailyReportCheck();
   },

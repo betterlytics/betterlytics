@@ -139,9 +139,9 @@ export async function FeatureCategories() {
           {CATEGORIES.map((category, index) => (
             <div key={category.id} className={index === 0 ? 'space-y-8' : 'mt-16 space-y-8 sm:mt-20'}>
               <div className='flex flex-col items-center gap-4 text-center'>
-                <span className='border-border/60 bg-card/50 inline-flex items-center rounded-full border px-5 py-2 text-sm font-semibold tracking-wide backdrop-blur-sm'>
+                <h2 className='border-border/60 bg-card/50 inline-flex items-center rounded-full border px-5 py-2 text-sm font-semibold tracking-wide backdrop-blur-sm'>
                   {t(`categories.${category.id}`)}
-                </span>
+                </h2>
               </div>
 
               <div className='grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3'>

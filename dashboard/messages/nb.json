@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
-        "description": "Enkel og kraftig analyse som respekterer personvern.<br></br>Informasjonskapselfri, GDPR-klar og uten behov for samtykkebannere.",
+        "description": "Enkel og kraftig analyse som respekterer personvern. <br></br>Informasjonskapselfri, GDPR-klar og uten behov for samtykkebannere.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaGithub": "Se på GitHub",
         "ctaDemo": "Se live demo",
@@ -1140,7 +1140,7 @@
         ]
       },
       "hero": {
-        "title": "Alle funksjonene du trenger for<br></br><highlight>bedre analyse</highlight>",
+        "title": "Alle funksjonene du trenger for <br></br><highlight>bedre analyse</highlight>",
         "description": "Utforsk alt Betterlytics tilbyr, fra sanntidsdashboard til konverteringstrakter. All analyse du trenger, uten informasjonskapsler, samtykkebannere eller kompromisser på personvern.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaDemo": "Se live demo"
@@ -2392,7 +2392,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-innhold",
         "custom_event_name": "Hendelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "outbound_link_url": "Utgående lenke"
       },
       "selector": {
         "triggerLabel": "Filtre",

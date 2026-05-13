@@ -4,8 +4,9 @@ import { useCallback, useState, Dispatch } from 'react';
 import { ChevronDownIcon, Trash2Icon, Loader2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useSavedFilters, useDeleteSavedFilter, useRestoreSavedFilter } from '@/hooks/use-saved-filters';
@@ -23,7 +24,6 @@ type SavedFiltersSectionProps = {
 
 export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: SavedFiltersSectionProps) {
   const t = useTranslations('components.filters');
-  const isMobile = useIsMobile();
   const [deletingFilterId, setDeletingFilterId] = useState<string | null>(null);
 
   const { data: savedFilters = [], isLoading } = useSavedFilters();
@@ -71,10 +71,10 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   return (
     <PermissionGate allowViewer>
       {(disabled) => (
-        <div className={cn(isMobile ? 'pt-1' : 'pt-2')}>
+        <div className='flex flex-col gap-2'>
           <Separator />
           <Collapsible
-            className={cn('group', isMobile ? 'pt-1' : 'pt-2')}
+            className={cn('group')}
             disabled={disabled}
             open={isOpen}
             onOpenChange={onOpenChange}
@@ -90,33 +90,48 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                 <ChevronDownIcon className='text-muted-foreground h-4 w-4 transition-transform group-data-[state=open]:rotate-180' />
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className='border-border/50 ml-2 space-y-1 border-l pt-1 pl-2'>
-              {savedFilters.map((savedFilter) => (
-                <div
-                  key={savedFilter.id}
-                  className={`hover:bg-accent flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 transition-colors`}
-                  onClick={() => handleLoad(savedFilter)}
+            <CollapsibleContent>
+              <div className='grid grid-cols-1 grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'>
+                <ScrollArea
+                  className='h-full min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block'
+                  onWheel={(e) => e.stopPropagation()}
+                  onTouchMove={(e) => e.stopPropagation()}
                 >
-                  <span className='truncate text-sm'>{savedFilter.name}</span>
-                  <PermissionGate>
-                    {(disabled) => (
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer px-4'
-                        onClick={(e) => handleDelete(savedFilter.id, e)}
-                        disabled={disabled || deletingFilterId === savedFilter.id}
+                  <div className='border-border/50 ml-2 mr-1 space-y-1 border-l pt-1 pl-2'>
+                    {savedFilters.map((savedFilter) => (
+                      <div
+                        key={savedFilter.id}
+                        className='hover:bg-accent has-focus-visible:ring-ring/50 has-focus-visible:ring flex items-center rounded-md transition-colors last:mb-1 pr-2'
                       >
-                        {deletingFilterId === savedFilter.id ? (
-                          <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
-                        ) : (
-                          <Trash2Icon className='h-3.5 w-3.5' />
-                        )}
-                      </Button>
-                    )}
-                  </PermissionGate>
-                </div>
-              ))}
+                        <button
+                          type='button'
+                          className='flex-1 min-w-0 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none'
+                          onClick={() => handleLoad(savedFilter)}
+                        >
+                          {savedFilter.name}
+                        </button>
+                        <PermissionGate>
+                          {(disabled) => (
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer'
+                              onClick={(e) => handleDelete(savedFilter.id, e)}
+                              disabled={disabled || deletingFilterId === savedFilter.id}
+                            >
+                              {deletingFilterId === savedFilter.id ? (
+                                <Loader2Icon className='h-3.5 w-3.5 animate-spin' />
+                              ) : (
+                                <Trash2Icon className='h-3.5 w-3.5' />
+                              )}
+                            </Button>
+                          )}
+                        </PermissionGate>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         </div>

@@ -5,20 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { getEmailPreview } from '@/app/actions/system/email.action';
-import { EMAIL_TEMPLATES, EmailTemplateType } from '@/constants/emailTemplateConst';
+import { EMAIL_TYPE_NAMES, type EmailType } from '@/services/email/email-types';
 import { Copy, Check } from 'lucide-react';
 
 interface EmailPreviewCardProps {
-  initialTemplate?: EmailTemplateType;
+  initialTemplate?: EmailType;
 }
 
 export function EmailPreviewCard({ initialTemplate = 'reset-password' }: EmailPreviewCardProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailType>(initialTemplate);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
 
-  const loadPreview = (template: EmailTemplateType) => {
+  const loadPreview = (template: EmailType) => {
     startTransition(async () => {
       try {
         const html = await getEmailPreview(template);
@@ -31,10 +31,10 @@ export function EmailPreviewCard({ initialTemplate = 'reset-password' }: EmailPr
   };
 
   useEffect(() => {
-    loadPreview(selectedTemplate as EmailTemplateType);
+    loadPreview(selectedTemplate);
   }, [selectedTemplate]);
 
-  const handleTemplateChange = (template: EmailTemplateType) => {
+  const handleTemplateChange = (template: EmailType) => {
     setSelectedTemplate(template);
   };
 
@@ -54,12 +54,12 @@ export function EmailPreviewCard({ initialTemplate = 'reset-password' }: EmailPr
               {copied ? <Check className='mr-1 h-4 w-4' /> : <Copy className='mr-1 h-4 w-4' />}
               {copied ? 'Copied!' : 'Copy HTML'}
             </Button>
-            <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+            <Select value={selectedTemplate} onValueChange={(v) => handleTemplateChange(v as EmailType)}>
               <SelectTrigger className='w-48'>
                 <SelectValue placeholder='Select template' />
               </SelectTrigger>
               <SelectContent>
-                {EMAIL_TEMPLATES.map((template) => (
+                {EMAIL_TYPE_NAMES.map((template) => (
                   <SelectItem key={template} value={template}>
                     {template}
                   </SelectItem>

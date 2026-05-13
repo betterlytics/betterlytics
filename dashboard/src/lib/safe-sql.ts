@@ -151,7 +151,7 @@ type SQLVariable<T> = {
   [param: string]: T;
 };
 
-type SQLTaggedExpression = {
+export type SQLTaggedExpression = {
   taggedSql: string;
   taggedParams: Record<string, unknown>;
 };

@@ -47,6 +47,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --topbar-height: calc(var(--spacing) * 14);
+  --default-ring-width: 3px;
 }
 
 :root {

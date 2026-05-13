@@ -1,4 +1,4 @@
-import { env } from '@/lib/env';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 
 export function getEmailHeader(): string {
   return `
@@ -214,7 +214,7 @@ export function createInfoBox(content: string, type: 'info' | 'success' | 'warni
 }
 
 export function createEmailSignature(): string {
-  if (!env.IS_CLOUD) return '';
+  if (!sharedEmailEnv.isCloud) return '';
 
   return `
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
@@ -232,7 +232,7 @@ export function createEmailSignature(): string {
 }
 
 export function createTextEmailSignature(): string {
-  if (!env.IS_CLOUD) return '';
+  if (!sharedEmailEnv.isCloud) return '';
 
   return `
 Best regards,
