@@ -66,7 +66,12 @@ export function withSuperAdminAction<TArgs extends unknown[], TReturn>(
       auditInfo = resolvedAudit;
 
       const result = await fn(ctx, ...args);
-      await recordAuditResult(ctx.actorUserId, action, targetType, resolvedAudit, 'success');
+
+      try {
+        await recordAuditResult(ctx.actorUserId, action, targetType, resolvedAudit, 'success');
+      } catch (auditError) {
+        console.error(`Failed to record super admin audit success for [${action}]:`, auditError);
+      }
 
       return { success: true, data: result };
     } catch (error) {
