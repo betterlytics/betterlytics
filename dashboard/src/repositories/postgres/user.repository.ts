@@ -1,3 +1,5 @@
+import 'server-only';
+
 import prisma from '@/lib/postgres';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -102,17 +104,6 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   }
 }
 
-export async function deleteUser(userId: string): Promise<void> {
-  try {
-    await prisma.user.delete({
-      where: { id: userId },
-    });
-  } catch (error) {
-    console.error(`Error deleting user ${userId}:`, error);
-    throw new Error(`Failed to delete user ${userId}.`);
-  }
-}
-
 export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
   try {
     const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -154,6 +145,36 @@ export async function markOnboardingCompleted(userId: string): Promise<void> {
   } catch (error) {
     console.error(`Error marking onboarding completed for user ${userId}:`, error);
     throw new Error(`Failed to mark onboarding completed for user ${userId}.`);
+  }
+}
+
+export async function anonymizeUser(userId: string): Promise<void> {
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          email: `deleted_${userId}@deleted.invalid`,
+          name: null,
+          image: null,
+          passwordHash: null,
+          totpEnabled: false,
+          totpSecret: null,
+          emailVerified: null,
+          deletedAt: new Date(),
+        },
+      }),
+      prisma.account.deleteMany({ where: { userId } }),
+      prisma.session.deleteMany({ where: { userId } }),
+      prisma.passwordResetToken.deleteMany({ where: { userId } }),
+      prisma.mcpToken.updateMany({
+        where: { createdBy: userId, deletedAt: null },
+        data: { deletedAt: new Date() },
+      }),
+    ]);
+  } catch (error) {
+    console.error(`Error anonymizing user ${userId}:`, error);
+    throw new Error(`Failed to anonymize user ${userId}.`);
   }
 }
 
