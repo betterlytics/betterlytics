@@ -10,7 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
-import { getAuthProviders } from '@/lib/auth';
+import { getEnabledOAuthProviders } from '@/lib/auth';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -54,7 +54,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
   const registrationDisabledMessage = registration === 'disabled' ? tOnboarding('registrationDisabled') : null;
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.signin);
-  const providers = getAuthProviders();
+  const providers = getEnabledOAuthProviders();
 
   if (session) {
     redirect('/dashboards');

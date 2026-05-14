@@ -6,7 +6,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
-import { getAuthProviders } from '@/lib/auth';
+import { getEnabledOAuthProviders } from '@/lib/auth';
 import SignupForm from './SignupForm';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
@@ -68,7 +68,7 @@ export default async function SignupPage() {
     );
   }
 
-  const providers = getAuthProviders();
+  const providers = getEnabledOAuthProviders();
 
   return (
     <>

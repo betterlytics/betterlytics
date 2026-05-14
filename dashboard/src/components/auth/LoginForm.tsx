@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { signIn, getProviders } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
+import type { getEnabledOAuthProviders } from '@/lib/auth';
 import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
@@ -26,7 +27,7 @@ import { Label } from '@/components/ui/label';
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
   forgotPasswordEnabled?: boolean;
-  providers: Awaited<ReturnType<typeof getProviders>>;
+  providers: ReturnType<typeof getEnabledOAuthProviders>;
 };
 
 export default function LoginForm({

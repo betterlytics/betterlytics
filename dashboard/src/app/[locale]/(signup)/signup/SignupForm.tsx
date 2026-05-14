@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
-import { signIn, getProviders } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
+import type { getEnabledOAuthProviders } from '@/lib/auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { CheckCircleIcon } from 'lucide-react';
@@ -38,7 +39,7 @@ const itemVariants = {
 };
 
 type SignupFormProps = {
-  providers: Awaited<ReturnType<typeof getProviders>>;
+  providers: ReturnType<typeof getEnabledOAuthProviders>;
 };
 
 export default function SignupForm({ providers }: SignupFormProps) {

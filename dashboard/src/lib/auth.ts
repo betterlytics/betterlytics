@@ -1,6 +1,5 @@
 import type { NextAuthOptions } from 'next-auth';
 import type { Adapter, AdapterUser } from 'next-auth/adapters';
-import type { ClientSafeProvider } from 'next-auth/react';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { Provider } from 'next-auth/providers/index';
 import GithubProvider from 'next-auth/providers/github';
@@ -165,22 +164,11 @@ function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
 }
 
-export function getAuthProviders(): Record<string, ClientSafeProvider> {
-  const baseUrl = env.NEXTAUTH_URL;
-  return Object.fromEntries(
-    authOptions.providers.map((provider) => {
-      return [
-        provider.id,
-        {
-          id: provider.id,
-          name: provider.name,
-          type: provider.type,
-          signinUrl: `${baseUrl}/api/auth/signin/${provider.id}`,
-          callbackUrl: `${baseUrl}/api/auth/callback/${provider.id}`,
-        },
-      ];
-    }),
-  );
+export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
+  return {
+    google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    github: Boolean(env.GITHUB_ID && env.GITHUB_SECRET),
+  };
 }
 
 function buildSocialProviders(): Provider[] {
