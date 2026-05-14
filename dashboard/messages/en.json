@@ -2405,7 +2405,8 @@
         "toastUndo": "Undo",
         "savedFiltersLimitReached": "Maximum saved filters reached"
       },
-      "filterBy": "Filter by {label}"
+      "filterBy": "Filter by {label}",
+      "removeFilter": "Remove filter"
     },
     "funnels": {
       "skeleton": {
