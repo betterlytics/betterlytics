@@ -23,7 +23,7 @@ export default function UserThemeSelector({ value, onUpdate }: UserThemeSelector
   const t = useTranslations('components.userSettings.preferences.appearance');
 
   const handleChange = (newTheme: string) => {
-    setTheme(newTheme as 'light' | 'dark' | 'system');
+    setTheme(newTheme as Theme);
     onUpdate(newTheme as Theme);
   };
 

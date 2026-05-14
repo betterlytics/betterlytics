@@ -225,7 +225,7 @@ function UserSettingsDialogContent({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen && originalTheme) {
-      setTheme(originalTheme as 'light' | 'dark' | 'system');
+      setTheme(originalTheme);
     }
     onOpenChange(isOpen);
   };

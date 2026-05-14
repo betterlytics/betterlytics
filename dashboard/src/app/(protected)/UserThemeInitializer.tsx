@@ -13,7 +13,7 @@ export default function UserThemeInitializer({ theme: userTheme }: UserThemeInit
 
   useEffect(() => {
     if (userTheme) {
-      setTheme(userTheme as 'light' | 'dark' | 'system');
+      setTheme(userTheme);
     }
   }, []);
 
