@@ -57,7 +57,7 @@ export type SendEmailPayload = {
   };
 }[EmailType];
 
-export function renderEmail(payload: SendEmailPayload): EmailTemplate {
-  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate;
+export async function renderEmail(payload: SendEmailPayload): Promise<EmailTemplate> {
+  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate | Promise<EmailTemplate>;
   return template(payload.data);
 }

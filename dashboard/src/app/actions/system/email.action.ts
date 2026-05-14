@@ -153,17 +153,17 @@ export async function getEmailPreview(template: EmailType): Promise<string> {
   try {
     switch (template) {
       case 'reset-password':
-        return getResetPasswordEmailPreview();
+        return await getResetPasswordEmailPreview();
       case 'email-verification':
-        return getEmailVerificationPreview();
+        return await getEmailVerificationPreview();
       case 'dashboard-invitation':
-        return getInvitationEmailPreview();
+        return await getInvitationEmailPreview();
       case 'usage-alert':
-        return getUsageAlertEmailPreview();
+        return await getUsageAlertEmailPreview();
       case 'first-payment-welcome':
-        return getFirstPaymentWelcomeEmailPreview();
+        return await getFirstPaymentWelcomeEmailPreview();
       case 'report':
-        return getReportEmailPreview();
+        return await getReportEmailPreview();
       default: {
         const _exhaustive: never = template;
         return `<p>Template not found: ${_exhaustive}</p>`;
