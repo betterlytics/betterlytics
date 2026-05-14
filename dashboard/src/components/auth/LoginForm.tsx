@@ -187,7 +187,7 @@ export default function LoginForm({
         </Button>
       </div>
 
-      {providers?.google || providers?.github ? (
+      {providers.google || providers.github ? (
         <div className='relative my-6 flex items-center'>
           <div className='border-border flex-grow border-t'></div>
           <span className='text-muted-foreground mx-4 flex-shrink text-sm'>{t('orDivider')}</span>
@@ -196,7 +196,7 @@ export default function LoginForm({
       ) : null}
 
       <div className='space-y-3'>
-        {providers?.google && (
+        {providers.google && (
           <button
             type='button'
             tabIndex={1}
@@ -211,7 +211,7 @@ export default function LoginForm({
           </button>
         )}
 
-        {providers?.github && (
+        {providers.github && (
           <button
             type='button'
             tabIndex={1}

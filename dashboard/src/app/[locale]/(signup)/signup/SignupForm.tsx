@@ -221,12 +221,12 @@ export default function SignupForm({ providers }: SignupFormProps) {
                 <span className='block sm:inline'>{error}</span>
               </div>
             )}
-            {(providers?.google || providers?.github) && (
+            {(providers.google || providers.github) && (
               <p className='text-muted-foreground mt-2 text-center text-sm'>{t('form.signUpWith')}</p>
             )}
             <div className='flex gap-3'>
               {/* Google Registration Button */}
-              {providers?.google && (
+              {providers.google && (
                 <button
                   type='button'
                   onClick={() => handleOAuthRegistration('google')}
@@ -242,7 +242,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
               )}
 
               {/* GitHub Registration Button */}
-              {providers?.github && (
+              {providers.github && (
                 <button
                   type='button'
                   onClick={() => handleOAuthRegistration('github')}
@@ -258,7 +258,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
               )}
             </div>
 
-            {(providers?.google || providers?.github) && (
+            {(providers.google || providers.github) && (
               <div className='relative my-4 flex items-center'>
                 <div className='border-border flex-grow border-t'></div>
                 <span className='text-muted-foreground mx-4 flex-shrink text-sm'>{t('form.orDivider')}</span>
