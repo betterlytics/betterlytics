@@ -2,7 +2,7 @@
 
 import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import {
   ANNOTATION_BADGE_WIDTH,
   ANNOTATION_PILL_TEXT,

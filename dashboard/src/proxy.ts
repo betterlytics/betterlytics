@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 const intlMiddleware = createMiddleware(routing);
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (request.method === 'POST' && request.url.includes('[locale]')) {
     console.error('[next-intl loop detected]', request.url);
     return new Response('Bad request', { status: 400 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { Theme } from '@prisma/client';
 
 interface UserThemeInitializerProps {

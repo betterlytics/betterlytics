@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import type { SupportedLanguages } from '@/constants/i18n';
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
@@ -13,9 +12,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: SupportedLanguages }>;
-}): Promise<Metadata> {
+}: PageProps<'/[locale]/forgot-password'>): Promise<Metadata> {
   const { locale } = await params;
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.forgotPassword);
   return generateSEO(seoConfig, {

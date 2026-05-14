@@ -4,11 +4,10 @@ import { StructuredData } from '@/components/StructuredData';
 import { CtaStrip } from '@/components/public/ctaStrip';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
-import type { SupportedLanguages } from '@/constants/i18n';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+export async function generateMetadata({ params }: PageProps<'/[locale]/about'>) {
   const { locale } = await params;
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.about), { locale });
 }

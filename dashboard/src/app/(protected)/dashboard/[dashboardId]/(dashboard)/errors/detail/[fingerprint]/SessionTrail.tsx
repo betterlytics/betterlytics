@@ -6,7 +6,7 @@ import { ExternalLink, Play, MousePointerClick, AlertTriangle, Eye } from 'lucid
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { trpc } from '@/trpc/client';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';

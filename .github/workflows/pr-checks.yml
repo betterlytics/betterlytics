@@ -58,6 +58,9 @@ jobs:
       - name: Generate Prisma client
         run: pnpm --filter dashboard generate
 
+      - name: Generate Next.js route types
+        run: cd dashboard && npx next typegen
+
       - name: TypeScript check
         run: cd dashboard && npx tsc --noEmit
 

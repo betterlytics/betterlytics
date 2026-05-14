@@ -2,7 +2,7 @@
 
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

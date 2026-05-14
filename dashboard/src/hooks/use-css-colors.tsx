@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { useDebounce } from './useDebounce';
 
 export type CSSVariableName = `--${string}`;

@@ -22,13 +22,19 @@ interface FilterPreservingLinkProps extends Omit<LinkProps, 'href'> {
  */
 export const FilterPreservingLink = forwardRef<HTMLAnchorElement, FilterPreservingLinkProps>(
   ({ href, children, className, onClick, highlightOnPage, ...linkProps }, ref) => {
-    const { getHrefWithFilters } = useNavigateWithFilters();
-    const navigation = useOptionalDashboardNavigation();
+    let getHrefWithFilters: (h: string) => string;
+    let navigation: ReturnType<typeof useOptionalDashboardNavigation>;
+    let pathname: string;
+    try {
+      getHrefWithFilters = useNavigateWithFilters().getHrefWithFilters;
+      navigation = useOptionalDashboardNavigation();
+      pathname = usePathname();
+    } catch (e) {
+      throw e;
+    }
+
     const resolvedHref = useMemo(() => (navigation ? navigation.resolveHref(href) : href), [navigation, href]);
-
     const hrefWithFilters = getHrefWithFilters(resolvedHref);
-
-    const pathname = usePathname();
     const isOnPage = highlightOnPage && stripQueryAndHash(resolvedHref) === stripQueryAndHash(pathname);
 
     return (

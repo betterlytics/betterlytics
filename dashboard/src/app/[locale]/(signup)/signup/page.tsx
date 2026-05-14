@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import type { SupportedLanguages } from '@/constants/i18n';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
@@ -13,9 +12,7 @@ import { Link } from '@/i18n/navigation';
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: SupportedLanguages }>;
-}): Promise<Metadata> {
+}: PageProps<'/[locale]/signup'>): Promise<Metadata> {
   const { locale } = await params;
 
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.signup);

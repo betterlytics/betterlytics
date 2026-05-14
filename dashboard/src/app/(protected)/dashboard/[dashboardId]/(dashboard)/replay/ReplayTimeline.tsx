@@ -18,7 +18,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { markerFillColorForLabel } from './utils/colors';
 import { keyForMarker, type MarkerKey } from './utils/marker-keys';
 export type TimelineMarkerDescriptor = {
@@ -144,7 +144,6 @@ export function buildTimelineMarkers(
     .filter((marker): marker is TimelineMarkerDescriptor => Boolean(marker));
 }
 
-
 function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.ReactNode {
   const ICON_BASE_CLASS = 'h-5 w-5';
 
@@ -203,11 +202,7 @@ function labelForKey(key: MarkerKey | string, t: any) {
   }
 }
 
-function buildGroups(
-  markers: TimelineMarker[],
-  theme: 'light' | 'dark',
-  t: any,
-): TimelineGroup[] {
+function buildGroups(markers: TimelineMarker[], theme: 'light' | 'dark', t: any): TimelineGroup[] {
   if (markers.length === 0) return [];
   const sorted = [...markers].sort((a, b) => a.timestamp - b.timestamp);
   const groups: TimelineGroup[] = [];

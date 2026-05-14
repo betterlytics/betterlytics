@@ -20,7 +20,7 @@ import useIsChanged from '@/hooks/use-is-changed';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import type { Theme } from '@prisma/client';
 import { updateUserAction } from '@/app/actions/account/userSettings.action';
 import { UpdateUserSchema } from '@/entities/auth/user.entities';

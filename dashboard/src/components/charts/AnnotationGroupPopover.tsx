@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button';
 import { resolveAnnotationColor, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PermissionGate } from '../tooltip/PermissionGate';
 

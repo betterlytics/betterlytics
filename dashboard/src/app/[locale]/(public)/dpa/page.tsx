@@ -2,11 +2,10 @@ import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 import { Link } from '@/i18n/navigation';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+export async function generateMetadata({ params }: PageProps<'/[locale]/dpa'>) {
   const { locale } = await params;
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.dpa), { locale });
 }

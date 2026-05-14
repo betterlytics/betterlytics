@@ -11,7 +11,7 @@ import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import GeographyLoading from '@/components/loading/GeographyLoading';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { useDebounce } from '@/hooks/useDebounce';
 
 type LeafletMapProps = WorldMapResponse & {

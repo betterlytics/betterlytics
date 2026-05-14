@@ -12,7 +12,7 @@ import {
   Gauge,
   Video,
   Activity,
-  AlertTriangle,
+  TriangleAlert,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -22,10 +22,10 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
+import { sidebarMenuButtonVariants } from '@/components/ui/sidebar-variants';
 import { CollapsibleSidebarGroup } from './CollapsibleSidebarGroup';
 import { CollapseSidebarButton } from './CollapseSidebarButton';
 import SettingsButton from '../SettingsButton';
@@ -42,6 +42,7 @@ import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
+import { cn } from '@/lib/utils';
 
 const ICON_SIZE = 16;
 
@@ -111,7 +112,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
   const observabilityItems: SidebarItem[] = [
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={ICON_SIZE} /> },
-    { name: t('errorTracking'), key: 'errors', href: '/errors', icon: <AlertTriangle size={ICON_SIZE} /> },
+    { name: t('errorTracking'), key: 'errors', href: '/errors', icon: <TriangleAlert size={ICON_SIZE} /> },
     {
       name: t('monitoring'),
       key: 'monitoring',
@@ -153,12 +154,16 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
               .filter((item) => !item.hidden)
               .map((item) => (
                 <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton asChild>
-                    <FilterPreservingLink href={item.href} highlightOnPage>
-                      <span className='dark:text-muted-foreground/90'>{item.icon}</span>
-                      <span>{item.name}</span>
-                    </FilterPreservingLink>
-                  </SidebarMenuButton>
+                  <FilterPreservingLink
+                    href={item.href}
+                    highlightOnPage
+                    className={sidebarMenuButtonVariants()}
+                    data-slot='sidebar-menu-button'
+                    data-sidebar='menu-button'
+                  >
+                    <span className='dark:text-muted-foreground/90'>{item.icon}</span>
+                    <span>{item.name}</span>
+                  </FilterPreservingLink>
                 </SidebarMenuItem>
               ))}
           </SidebarMenu>
@@ -172,19 +177,18 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
               .filter((item) => !item.hidden)
               .map((item) => (
                 <SidebarMenuItem key={item.key} className={item.hideOnMobile ? 'hidden md:list-item' : undefined}>
-                  <SidebarMenuButton asChild>
-                    <FilterPreservingLink
-                      href={item.href}
-                      highlightOnPage
-                      className='flex items-center justify-between'
-                    >
-                      <div className='flex items-center gap-2'>
-                        <span className='dark:text-muted-foreground/90'>{item.icon}</span>
-                        <span>{item.name}</span>
-                      </div>
-
-                    </FilterPreservingLink>
-                  </SidebarMenuButton>
+                  <FilterPreservingLink
+                    href={item.href}
+                    highlightOnPage
+                    className={cn(sidebarMenuButtonVariants(), 'flex items-center justify-between')}
+                    data-slot='sidebar-menu-button'
+                    data-sidebar='menu-button'
+                  >
+                    <div className='flex items-center gap-2'>
+                      <span className='dark:text-muted-foreground/90'>{item.icon}</span>
+                      <span>{item.name}</span>
+                    </div>
+                  </FilterPreservingLink>
                 </SidebarMenuItem>
               ))}
           </SidebarMenu>
@@ -198,20 +202,20 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
               .filter((item) => !item.hidden)
               .map((item) => (
                 <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton asChild>
-                    <FilterPreservingLink
-                      href={item.href}
-                      highlightOnPage
-                      className='flex items-center justify-between'
-                    >
-                      <div className='flex items-center gap-2'>
-                        <span className='dark:text-muted-foreground/90'>{item.icon}</span>
-                        <span>{item.name}</span>
-                      </div>
+                  <FilterPreservingLink
+                    href={item.href}
+                    highlightOnPage
+                    className={cn(sidebarMenuButtonVariants(), 'flex items-center justify-between')}
+                    data-slot='sidebar-menu-button'
+                    data-sidebar='menu-button'
+                  >
+                    <div className='flex items-center gap-2'>
+                      <span className='dark:text-muted-foreground/90'>{item.icon}</span>
+                      <span>{item.name}</span>
+                    </div>
 
-                      {item.key === 'errors' && <Badge variant='outline'>Beta</Badge>}
-                    </FilterPreservingLink>
-                  </SidebarMenuButton>
+                    {item.key === 'errors' && <Badge variant='outline'>Beta</Badge>}
+                  </FilterPreservingLink>
                 </SidebarMenuItem>
               ))}
           </SidebarMenu>

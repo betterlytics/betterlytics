@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { useLocale } from 'next-intl';
 import { Wrench } from 'lucide-react';
 import { toast } from 'sonner';
@@ -28,7 +28,9 @@ const THEMES = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
   { value: 'system', label: 'System' },
-];
+] as const;
+
+type ThemeValue = (typeof THEMES)[number]['value'];
 
 export function DevWidget({ initialTier }: DevWidgetProps) {
   const { theme, setTheme } = useTheme();
@@ -58,7 +60,7 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
   }
 
   function handleThemeChange(value: string) {
-    setTheme(value);
+    setTheme(value as ThemeValue);
     startTransition(async () => {
       await updateUserSettingsAction({ theme: value as Theme });
     });

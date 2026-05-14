@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@wrksz/themes/client';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
