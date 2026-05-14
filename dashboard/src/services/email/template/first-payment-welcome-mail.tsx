@@ -1,7 +1,16 @@
 import { Column, Row, Section, Text } from '@react-email/components';
-import { render } from '@react-email/render';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
-import { ContentSection, EmailButton, EmailLayout, H1, H2, InfoBox, P, PrimaryLink } from './_components';
+import type { EmailData } from '@/services/email/types';
+import {
+  ContentSection,
+  EmailButton,
+  EmailLayout,
+  H1,
+  H2,
+  InfoBox,
+  P,
+  PrimaryLink,
+  renderEmailTemplate,
+} from './_components';
 
 export interface FirstPaymentWelcomeEmailData extends EmailData {
   userName: string;
@@ -118,20 +127,10 @@ FirstPaymentWelcomeEmail.PreviewProps = {
 
 export default FirstPaymentWelcomeEmail;
 
-export async function createFirstPaymentWelcomeEmailTemplate(
-  data: FirstPaymentWelcomeEmailData,
-): Promise<EmailTemplate> {
-  const el = <FirstPaymentWelcomeEmail {...data} />;
-  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
-  return {
-    subject: `Welcome to the ${data.planName} plan! Your premium features are now active`,
-    html,
-    text,
-  };
-}
+export const createFirstPaymentWelcomeEmailTemplate = (data: FirstPaymentWelcomeEmailData) =>
+  renderEmailTemplate(
+    FirstPaymentWelcomeEmail,
+    data,
+    `Welcome to the ${data.planName} plan! Your premium features are now active`,
+  );
 
-export async function getFirstPaymentWelcomeEmailPreview(
-  data?: Partial<FirstPaymentWelcomeEmailData>,
-): Promise<string> {
-  return render(<FirstPaymentWelcomeEmail {...{ ...FirstPaymentWelcomeEmail.PreviewProps, ...data }} />);
-}

@@ -1,8 +1,7 @@
 import { Section, Text } from '@react-email/components';
-import { render } from '@react-email/render';
 import { format } from 'date-fns';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
-import { EmailButton, EmailLayout, H1, H2, P } from './_components';
+import type { EmailData } from '@/services/email/types';
+import { EmailButton, EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
 
 type SerializableDate = Date | string;
 
@@ -169,16 +168,6 @@ UsageAlertEmail.PreviewProps = {
 
 export default UsageAlertEmail;
 
-export async function createUsageAlertEmailTemplate(data: UsageAlertEmailData): Promise<EmailTemplate> {
-  const el = <UsageAlertEmail {...data} />;
-  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
-  return {
-    subject: getSubjectLine(data.usagePercentage, data.planName),
-    html,
-    text,
-  };
-}
+export const createUsageAlertEmailTemplate = (data: UsageAlertEmailData) =>
+  renderEmailTemplate(UsageAlertEmail, data, getSubjectLine(data.usagePercentage, data.planName));
 
-export async function getUsageAlertEmailPreview(data?: Partial<UsageAlertEmailData>): Promise<string> {
-  return render(<UsageAlertEmail {...{ ...UsageAlertEmail.PreviewProps, ...data }} />);
-}

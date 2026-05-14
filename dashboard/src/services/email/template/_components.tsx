@@ -15,8 +15,20 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
+import { render } from '@react-email/render';
+import { createElement, type ComponentType, type ReactNode } from 'react';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import type { ReactNode } from 'react';
+import type { EmailTemplate } from '@/services/email/types';
+
+export async function renderEmailTemplate<P extends object>(
+  Component: ComponentType<P>,
+  props: P,
+  subject: string,
+): Promise<EmailTemplate> {
+  const el = createElement(Component, props);
+  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
+  return { subject, html, text };
+}
 
 type LayoutProps = {
   preview: string;

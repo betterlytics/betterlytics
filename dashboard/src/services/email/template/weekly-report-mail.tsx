@@ -1,11 +1,10 @@
 import { Hr, Link, Section, Text } from '@react-email/components';
-import { render } from '@react-email/render';
 import { format } from 'date-fns';
 import type { ReactNode } from 'react';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
+import type { EmailData } from '@/services/email/types';
 import { ReportData } from '@/services/reports/report-data.service';
 import { formatDuration } from '@/utils/dateFormatters';
-import { EmailLayout, H1, H2, P } from './_components';
+import { EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
 
 export interface EmailReportData extends EmailData {
   reportData: ReportData;
@@ -256,22 +255,10 @@ WeeklyReportEmail.PreviewProps = {
 
 export default WeeklyReportEmail;
 
-export async function createReportEmailTemplate(data: EmailReportData): Promise<EmailTemplate> {
-  const safeData = reviveReportDates(data);
-  const periodLabel = safeData.reportData.periodType === 'weekly' ? 'Weekly' : 'Monthly';
-  const dateRange = `${format(safeData.reportData.period.start, 'MMM d')} – ${format(
-    safeData.reportData.period.end,
-    'MMM d, yyyy',
-  )}`;
-  const el = <WeeklyReportEmail {...safeData} />;
-  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
-  return {
-    subject: `${periodLabel} Report: ${safeData.reportData.domain} (${dateRange})`,
-    html,
-    text,
-  };
-}
+export const createReportEmailTemplate = (data: EmailReportData) => {
+  const safe = reviveReportDates(data);
+  const period = safe.reportData.periodType === 'weekly' ? 'Weekly' : 'Monthly';
+  const range = `${format(safe.reportData.period.start, 'MMM d')} – ${format(safe.reportData.period.end, 'MMM d, yyyy')}`;
+  return renderEmailTemplate(WeeklyReportEmail, safe, `${period} Report: ${safe.reportData.domain} (${range})`);
+};
 
-export async function getReportEmailPreview(data?: Partial<EmailReportData>): Promise<string> {
-  return render(<WeeklyReportEmail {...{ ...WeeklyReportEmail.PreviewProps, ...data }} />);
-}

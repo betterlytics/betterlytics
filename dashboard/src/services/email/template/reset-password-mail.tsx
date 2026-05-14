@@ -1,7 +1,6 @@
 import { Link } from '@react-email/components';
-import { render } from '@react-email/render';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
+import type { EmailData } from '@/services/email/types';
 import {
   ContentSection,
   EmailButton,
@@ -11,6 +10,7 @@ import {
   InfoBox,
   P,
   PrimaryLink,
+  renderEmailTemplate,
 } from './_components';
 
 export interface ResetPasswordEmailData extends EmailData {
@@ -73,12 +73,6 @@ ResetPasswordEmail.PreviewProps = {
 
 export default ResetPasswordEmail;
 
-export async function createResetPasswordEmailTemplate(data: ResetPasswordEmailData): Promise<EmailTemplate> {
-  const el = <ResetPasswordEmail {...data} />;
-  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
-  return { subject: 'Reset Your Betterlytics Password', html, text };
-}
+export const createResetPasswordEmailTemplate = (data: ResetPasswordEmailData) =>
+  renderEmailTemplate(ResetPasswordEmail, data, 'Reset Your Betterlytics Password');
 
-export async function getResetPasswordEmailPreview(data?: Partial<ResetPasswordEmailData>): Promise<string> {
-  return render(<ResetPasswordEmail {...{ ...ResetPasswordEmail.PreviewProps, ...data }} />);
-}

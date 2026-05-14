@@ -1,8 +1,7 @@
-import { render } from '@react-email/render';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
+import type { EmailData } from '@/services/email/types';
 import { DashboardRole } from '@prisma/client';
-import { EmailButton, EmailLayout, H1, P } from './_components';
+import { EmailButton, EmailLayout, H1, P, renderEmailTemplate } from './_components';
 
 export interface DashboardInvitationEmailData extends EmailData {
   inviterName: string;
@@ -66,20 +65,10 @@ DashboardInvitationEmail.PreviewProps = {
 
 export default DashboardInvitationEmail;
 
-export async function createDashboardInvitationEmailTemplate(
-  data: DashboardInvitationEmailData,
-): Promise<EmailTemplate> {
-  const el = <DashboardInvitationEmail {...data} />;
-  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
-  return {
-    subject: `${data.inviterName} invited you to collaborate on Betterlytics`,
-    html,
-    text,
-  };
-}
+export const createDashboardInvitationEmailTemplate = (data: DashboardInvitationEmailData) =>
+  renderEmailTemplate(
+    DashboardInvitationEmail,
+    data,
+    `${data.inviterName} invited you to collaborate on Betterlytics`,
+  );
 
-export async function getInvitationEmailPreview(
-  data?: Partial<DashboardInvitationEmailData>,
-): Promise<string> {
-  return render(<DashboardInvitationEmail {...{ ...DashboardInvitationEmail.PreviewProps, ...data }} />);
-}

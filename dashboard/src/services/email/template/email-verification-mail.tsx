@@ -1,8 +1,7 @@
 import { Link, Section, Text } from '@react-email/components';
-import { render } from '@react-email/render';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import type { EmailData, EmailTemplate } from '@/services/email/types';
-import { EmailButton, EmailLayout, H1, InfoBox, P, PrimaryLink } from './_components';
+import type { EmailData } from '@/services/email/types';
+import { EmailButton, EmailLayout, H1, InfoBox, P, PrimaryLink, renderEmailTemplate } from './_components';
 
 export interface EmailVerificationData extends EmailData {
   userName: string;
@@ -95,12 +94,6 @@ EmailVerificationEmail.PreviewProps = {
 
 export default EmailVerificationEmail;
 
-export async function createEmailVerificationTemplate(data: EmailVerificationData): Promise<EmailTemplate> {
-  const el = <EmailVerificationEmail {...data} />;
-  const [html, text] = await Promise.all([render(el), render(el, { plainText: true })]);
-  return { subject: 'Verify your email address for Betterlytics', html, text };
-}
+export const createEmailVerificationTemplate = (data: EmailVerificationData) =>
+  renderEmailTemplate(EmailVerificationEmail, data, 'Verify your email address for Betterlytics');
 
-export async function getEmailVerificationPreview(data?: Partial<EmailVerificationData>): Promise<string> {
-  return render(<EmailVerificationEmail {...{ ...EmailVerificationEmail.PreviewProps, ...data }} />);
-}
