@@ -3,7 +3,6 @@ import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
 
 const eslintConfig = [
   ...nextCoreWebVitals,
-  // Project-specific plugin
   {
     plugins: {
       'no-relative-import-paths': noRelativeImportPaths,
@@ -12,7 +11,6 @@ const eslintConfig = [
       'no-relative-import-paths/no-relative-import-paths': ['warn', { allowSameFolder: true, rootDir: 'src' }],
     },
   },
-  // Severity overrides (plugins already in scope from nextCoreWebVitals)
   {
     rules: {
       'react/no-unescaped-entities': 'warn',
@@ -26,10 +24,6 @@ const eslintConfig = [
       '@typescript-eslint/no-unused-vars': 'warn',
     },
   },
-  // React 19 / React-Compiler-aware hook rules introduced in
-  // eslint-plugin-react-hooks 7.x (shipped with eslint-config-next 16).
-  // Downgraded to warnings for the Next 16 upgrade PR; revisit alongside
-  // the optional React Compiler enablement (plan §8 Phase 4).
   {
     rules: {
       'react-hooks/static-components': 'warn',
