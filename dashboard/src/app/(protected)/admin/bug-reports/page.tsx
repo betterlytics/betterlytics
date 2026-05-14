@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { getBugReportsAction } from '@/actions/superadmin/bugReports.action';
 import { AdminPagination } from '../_components/AdminPagination';
 import { BugReportStatusButtons } from './_components/BugReportStatusButtons';
@@ -26,10 +27,10 @@ const STATUS_FILTERS: { label: string; value: BugReportStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
 ];
 
-function statusBadgeProps(status: BugReportStatus): { variant: 'secondary' | 'outline'; className?: string } {
-  if (status === 'resolved') return { variant: 'outline', className: 'border-green-600 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400 dark:border-green-800' };
-  if (status === 'ignored') return { variant: 'secondary' };
-  return { variant: 'outline' };
+function statusBadgeVariant(status: BugReportStatus): 'default' | 'secondary' | 'outline' {
+  if (status === 'resolved') return 'default';
+  if (status === 'ignored') return 'secondary';
+  return 'outline';
 }
 
 function truncate(text: string, length = 80) {
@@ -37,7 +38,7 @@ function truncate(text: string, length = 80) {
 }
 
 function parseStatusFilter(raw: string | undefined): BugReportStatus | 'all' {
-  if (raw === 'resolved' || raw === 'ignored' || raw === 'open' || raw === 'all') return raw;
+  if (raw === 'open' || raw === 'resolved' || raw === 'ignored' || raw === 'all') return raw;
   return 'open';
 }
 
@@ -64,7 +65,7 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
           const href = value === 'open' ? '?' : `?status=${value}`;
           const isActive = activeFilter === value;
           return (
-            <a
+            <Link
               key={value}
               href={href}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
@@ -74,7 +75,7 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
               }`}
             >
               {label}
-            </a>
+            </Link>
           );
         })}
       </div>
@@ -107,7 +108,7 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
                     {report.dashboardId ?? '—'}
                   </TableCell>
                   <TableCell>
-                    <Badge {...statusBadgeProps(report.status)}>{report.status}</Badge>
+                    <Badge variant={statusBadgeVariant(report.status)}>{report.status}</Badge>
                   </TableCell>
                   <TableCell className='text-muted-foreground'>{formatDate(report.createdAt)}</TableCell>
                   <TableCell>

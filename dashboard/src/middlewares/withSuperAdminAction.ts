@@ -13,7 +13,7 @@ export type SuperAdminCtx = {
 
 export type SuperAdminAuditInfo = {
   targetId: string | null;
-  payload: Record<string, unknown>;
+  payload?: Record<string, unknown>;
 };
 
 type SuperAdminAuditStatus = 'success' | 'failed';
@@ -42,7 +42,7 @@ async function recordAuditResult(
     action,
     targetType,
     auditInfo.targetId,
-    auditInfo.payload,
+    auditInfo.payload ?? {},
     status,
   );
 }

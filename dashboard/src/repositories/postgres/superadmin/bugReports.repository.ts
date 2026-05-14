@@ -27,7 +27,7 @@ export async function listBugReports(
       AdminBugReportSchema.parse({
         id: r.id,
         userId: r.userId,
-        userEmail: r.user.email ?? 'unknown',
+        userEmail: r.user.email!,
         dashboardId: r.dashboardId,
         message: r.message,
         status: r.status,
