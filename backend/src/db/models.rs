@@ -25,6 +25,7 @@ pub struct EventRow {
     pub os: String,
     pub os_version: String,
     pub referrer_source: String,
+    pub referrer_source_canonical: String,
     pub referrer_source_name: String,
     pub referrer_search_term: String,
     pub referrer_url: String,
@@ -52,6 +53,7 @@ pub struct EventRow {
     pub session_created_at: DateTime<Utc>,
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
+    pub page_duration_seconds: u32,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -83,6 +85,14 @@ pub enum EventType {
     Cwv = 4,
     ScrollDepth = 5,
     ClientError = 6,
+    Engagement = 7,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct ReferrerSourceCategoryRow {
+    pub generation: u64,
+    pub key: String,
+    pub medium: String,
 }
 
 impl EventRow {
@@ -106,6 +116,7 @@ impl EventRow {
             os: event.os.unwrap_or_else(|| "unknown".to_string()),
             os_version: event.os_version.unwrap_or_default(),
             referrer_source: event.referrer_info.source_type.as_str().to_string(),
+            referrer_source_canonical: event.referrer_info.source_canonical.unwrap_or_default(),
             referrer_source_name: event.referrer_info.source_name.unwrap_or_default(),
             referrer_search_term: event.referrer_info.search_term.unwrap_or_default(),
             referrer_url: event.referrer_info.url.unwrap_or_default(),
@@ -132,6 +143,7 @@ impl EventRow {
             session_created_at: event.session_created_at,
             global_properties_keys: event.global_properties_keys,
             global_properties_values: event.global_properties_values,
+            page_duration_seconds: event.page_duration_seconds,
         }
     }
 }

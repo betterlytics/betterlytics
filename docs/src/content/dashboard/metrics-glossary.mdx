@@ -47,17 +47,12 @@ This guide explains how all metrics in your Betterlytics dashboard are calculate
 ```
 
 ### Average Time on Page
-**Definition:** The average amount of time visitors spend viewing a specific page.
+**Definition:** The average amount of active time visitors spend viewing a specific page.
 
 **How it's calculated:**
-- Measures time between loading one page and navigating to the next
-- Only counted when visitors navigate to another page
-- Exit pages (last page in session) don't have measurable time and are not included in the average time on page calculation to avoid skewing the results.
-
-**Limitations:**
-- Doesn't measure actual reading time
-- Single-page visits show 0 average time and are not included in the average time on page calculation.
-- Based on navigation behavior, not engagement depth
+- Only counts time while the page is in focus - switching to another tab or app pauses the timer
+- Includes exit pages and single-page sessions
+- Rounded to the nearest second
 
 ## Page Analytics
 
@@ -220,7 +215,7 @@ Higher values indicate bigger potential impact if you improve that row’s perfo
 **Important Notes:**
 
 - **Unique visitors reset daily:** The same person visiting on different days counts as different visitors
-- **Time measurements have limitations:** Exit pages and single-page sessions don't show time spent
+- **Time measurements reflect active viewing:** Only time spent with the tab in focus is counted; backgrounded or idle time is excluded
 - **Perfect accuracy isn't possible:** Some automated traffic may pass through filters, and privacy tools can affect tracking
 - **Privacy-first approach:** No personally identifiable information is collected or stored
 </Callout>

@@ -1,4 +1,4 @@
-import { env } from '@/lib/env';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 
 export function getEmailHeader(): string {
   return `
@@ -30,8 +30,6 @@ export function getEmailHeader(): string {
           margin-bottom: 30px;
         }
         .email-logo-header {
-          display: flex;
-          align-items: center;
           margin-bottom: 30px;
           padding-bottom: 20px;
           border-bottom: 1px solid #e5e7eb;
@@ -142,8 +140,6 @@ export function getEmailHeader(): string {
         @media only screen and (max-width: 600px) {
           body { padding: 20px 15px; }
           .email-content-box { padding: 30px 25px; }
-          .email-logo-header { flex-direction: column; align-items: flex-start; }
-          .logo { margin-right: 0; margin-bottom: 8px; }
           .content-section { padding: 15px; margin: 15px 0; }
           h1 { font-size: 24px; }
           h2 { font-size: 20px; }
@@ -154,15 +150,23 @@ export function getEmailHeader(): string {
       <div class="email-wrapper">
         <div class="email-content-box">
           <div class="email-logo-header">
-            <img 
-              src="https://betterlytics.io/betterlytics-logo-dark-simple-96x96-q75.png"
-              alt="Betterlytics"
-              width="48"
-              height="48"
-              style="display: block; border: 0; width: 48px; height: 48px; margin-right: 12px;"
-              border="0"
-            />
-            <div class="company-name">Betterlytics</div>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+              <tr>
+                <td style="width: 48px; vertical-align: middle; padding: 0 12px 0 0;">
+                  <img
+                    src="https://betterlytics.io/betterlytics-logo-dark-simple-96x96-q75.png"
+                    alt="Betterlytics"
+                    width="48"
+                    height="48"
+                    style="display: block; border: 0; width: 48px; height: 48px;"
+                    border="0"
+                  />
+                </td>
+                <td style="vertical-align: middle; padding: 0;">
+                  <div class="company-name">Betterlytics</div>
+                </td>
+              </tr>
+            </table>
           </div>
   `;
 }
@@ -214,7 +218,7 @@ export function createInfoBox(content: string, type: 'info' | 'success' | 'warni
 }
 
 export function createEmailSignature(): string {
-  if (!env.IS_CLOUD) return '';
+  if (!sharedEmailEnv.isCloud) return '';
 
   return `
     <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
@@ -223,16 +227,16 @@ export function createEmailSignature(): string {
         <strong style="color: #374151;">The Betterlytics Team</strong>
       </p>
       <div style="margin: 20px 0 0 0;">
-        <a href="https://betterlytics.io" style="color: #2563eb; text-decoration: none; font-weight: 500; margin: 0 15px 0 0;">Website</a>
-        <a href="mailto:support@betterlytics.io" style="color: #2563eb; text-decoration: none; font-weight: 500; margin: 0 15px;">Support</a>
-        <a href="https://betterlytics.io/docs" style="color: #2563eb; text-decoration: none; font-weight: 500; margin: 0 0 0 15px;">Documentation</a>
+        <a href="https://betterlytics.io" style="color: #2563eb; text-decoration: none; font-weight: 500; display: inline-block; margin: 0 16px 8px 0; white-space: nowrap;">Website</a>
+        <a href="mailto:support@betterlytics.io" style="color: #2563eb; text-decoration: none; font-weight: 500; display: inline-block; margin: 0 16px 8px 0; white-space: nowrap;">Support</a>
+        <a href="https://betterlytics.io/docs" style="color: #2563eb; text-decoration: none; font-weight: 500; display: inline-block; margin: 0 0 8px 0; white-space: nowrap;">Documentation</a>
       </div>
     </div>
   `;
 }
 
 export function createTextEmailSignature(): string {
-  if (!env.IS_CLOUD) return '';
+  if (!sharedEmailEnv.isCloud) return '';
 
   return `
 Best regards,

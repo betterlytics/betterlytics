@@ -29,13 +29,13 @@ export async function getReferrerDistribution(siteQuery: BASiteQuery): Promise<R
 
   const query = safeSql`
     SELECT
-      referrer_source,
+      referrer_source_effective as referrer_source,
       uniq(session_id) * any(_sample_factor) as visitorCount
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp >= {start:DateTime}
       AND timestamp <= {end:DateTime}
-      AND referrer_source != 'internal'
+      AND referrer_source_effective != 'internal'
       AND ${SQL.AND(filters)}
     GROUP BY referrer_source
     ORDER BY visitorCount DESC
@@ -74,12 +74,12 @@ export async function getReferrerTrafficTrendBySource(
     safeSql`
       SELECT
         ${granularityFunc('timestamp')} as date,
-        referrer_source,
+        referrer_source_effective as referrer_source,
         uniq(session_id) * any(_sample_factor) as count
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND ${range}
-        AND referrer_source != 'internal'
+        AND referrer_source_effective != 'internal'
         AND ${SQL.AND(filters)}
       GROUP BY date, referrer_source
       ORDER BY date ASC ${fill}, count DESC
@@ -113,7 +113,7 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
     WITH session_data AS (
       SELECT
         session_id,
-        referrer_source as source_type,
+        referrer_source_effective as source_type,
         referrer_source_name as source_name,
         referrer_url as source_url,
         count() as page_count,
@@ -125,7 +125,7 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND referrer_source != 'internal'
+        AND referrer_source_effective != 'internal'
         AND ${SQL.AND(filters)}
       GROUP BY session_id, source_type, source_name, source_url
     )
@@ -182,8 +182,8 @@ export async function getReferrerUrlRollup(
       WHERE site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
         AND referrer_url != ''
-        AND referrer_source != 'direct'
-        AND referrer_source != 'internal'
+        AND referrer_source_effective != 'direct'
+        AND referrer_source_effective != 'internal'
         AND ${SQL.AND(filters)}
     ),
     top_parents AS (
@@ -231,12 +231,12 @@ export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10)
 
   const query = safeSql`
     SELECT
-      referrer_source as channel,
+      referrer_source_effective as channel,
       uniq(session_id) * any(_sample_factor) as visits
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND referrer_source != 'internal'
+      AND referrer_source_effective != 'internal'
       AND ${SQL.AND(filters)}
     GROUP BY channel
     ORDER BY visits DESC
@@ -279,8 +279,8 @@ export async function getDailyReferralSessions(siteQuery: BASiteQuery): Promise<
       FROM analytics.events ${sample}
       WHERE site_id = {site_id:String}
         AND ${range}
-        AND referrer_source != 'direct'
-        AND referrer_source != 'internal'
+        AND referrer_source_effective != 'direct'
+        AND referrer_source_effective != 'internal'
         AND ${SQL.AND(filters)}
       GROUP BY date
       ORDER BY date ASC ${fill}
@@ -323,7 +323,7 @@ export async function getDailyReferralTrafficPercentage(
         SELECT
           ${granularityFunc('timestamp')} as date,
           uniq(session_id) * any(_sample_factor) as totalSessions,
-          uniqIf(session_id, referrer_source != 'direct' AND referrer_source != 'internal') * any(_sample_factor) as referralSessions
+          uniqIf(session_id, referrer_source_effective != 'direct' AND referrer_source_effective != 'internal') * any(_sample_factor) as referralSessions
         FROM analytics.events ${sample}
         WHERE site_id = {site_id:String}
           AND ${range}
@@ -381,8 +381,8 @@ export async function getDailyReferralSessionDuration(
         FROM analytics.events ${sample}
         WHERE site_id = {site_id:String}
           AND ${range}
-          AND referrer_source != 'direct'
-          AND referrer_source != 'internal'
+          AND referrer_source_effective != 'direct'
+          AND referrer_source_effective != 'internal'
           AND ${SQL.AND(filters)}
         GROUP BY date, session_id
       )
@@ -419,12 +419,12 @@ export async function getTopReferrerSource(siteQuery: BASiteQuery): Promise<stri
   const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
 
   const query = safeSql`
-    SELECT referrer_source
+    SELECT referrer_source_effective as referrer_source
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND referrer_source != 'direct'
-      AND referrer_source != 'internal'
+      AND referrer_source_effective != 'direct'
+      AND referrer_source_effective != 'internal'
       AND ${SQL.AND(filters)}
     GROUP BY referrer_source
     ORDER BY uniq(session_id) DESC

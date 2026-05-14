@@ -20,6 +20,7 @@ export const FILTER_COLUMNS = [
   'utm_content',
   'event_type',
   'custom_event_name',
+  'outbound_link_url',
 ] as const;
 
 export const GP_PREFIX = 'gp.';
@@ -70,4 +71,8 @@ export function parseFilterColumn(col: FilterColumn): ParsedFilterColumn {
 
 function isGlobalPropertyColumn(col: FilterColumn): col is `gp.${string}` {
   return col.startsWith(GP_PREFIX);
+}
+
+export function isFilterColumn(value: string): value is FilterColumn {
+  return FilterColumnSchema.safeParse(value).success;
 }

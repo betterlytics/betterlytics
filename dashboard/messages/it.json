@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Una <highlight>Migliore Alternativa</highlight> a Google Analytics",
-        "description": "Analytics semplici e potenti che rispettano la privacy.<br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
+        "description": "Analytics semplici e potenti che rispettano la privacy. <br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
         "ctaPrimary": "Inizia Gratis",
         "ctaGithub": "Vedi su GitHub",
         "ctaDemo": "Prova live demo",
@@ -1140,7 +1140,7 @@
         ]
       },
       "hero": {
-        "title": "Tutte le funzionalità di cui hai bisogno per<br></br><highlight>analytics migliori</highlight>",
+        "title": "Tutte le funzionalità di cui hai bisogno per <br></br><highlight>analytics migliori</highlight>",
         "description": "Esplora tutto ciò che Betterlytics offre, dalle dashboard in tempo reale ai funnel di conversione. Tutte le analytics di cui hai bisogno, senza cookie, banner di consenso o compromessi sulla privacy.",
         "ctaPrimary": "Inizia Gratis",
         "ctaDemo": "Vedi Demo Live"
@@ -1628,7 +1628,7 @@
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi personalizzati",
+      "events": "Eventi",
       "weeklyTrends": "Andamenti settimanali"
     },
     "goTo": "Vai a {section}",
@@ -1646,7 +1646,8 @@
       "referrers": "Siti di riferimento",
       "sources": "Fonti",
       "channels": "Canali",
-      "events": "Eventi"
+      "events": "Eventi personalizzati",
+      "topProperties": "Proprietà globali"
     },
     "emptyStates": {
       "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",
@@ -2391,7 +2392,8 @@
         "utm_term": "Termine UTM",
         "utm_content": "Contenuto UTM",
         "custom_event_name": "Evento",
-        "event_type": "Tipo di evento"
+        "event_type": "Tipo di evento",
+        "outbound_link_url": "Link in uscita"
       },
       "selector": {
         "triggerLabel": "Filtri",
@@ -2502,8 +2504,10 @@
         "filterByPath": "Filtra per {path}",
         "visitors": "Visitatori",
         "pageviews": "Visualizzazioni",
+        "sessionPageviews": "Visualizzazioni sessione",
         "bounceRate": "Frequenza di rimbalzo",
         "avgTime": "Tempo medio",
+        "avgSessionTime": "Tempo medio sessione",
         "entryRate": "Tasso di ingresso",
         "exitRate": "Tasso di uscita",
         "avgScrollDepth": "Profondità di scorrimento",

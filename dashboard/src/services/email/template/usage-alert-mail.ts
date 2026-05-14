@@ -1,14 +1,15 @@
 import {
   createEmailButton,
-  createInfoBox,
   createEmailSignature,
   createTextEmailSignature,
   emailStyles,
-  createPrimaryLink,
-  emailIcons,
 } from './email-components';
-import { EmailData, wrapEmailContent, wrapTextEmailContent } from '@/services/email/mail.service';
+import type { EmailData } from '@/services/email/types';
+import { wrapEmailContent, wrapTextEmailContent } from '@/services/email/content';
+import { format } from 'date-fns';
 import escapeHtml from 'escape-html';
+
+type SerializableDate = Date | string;
 
 export interface UsageAlertEmailData extends EmailData {
   userName: string;
@@ -16,178 +17,213 @@ export interface UsageAlertEmailData extends EmailData {
   usageLimit: number;
   usagePercentage: number;
   planName: string;
+  currentPeriodStart: SerializableDate;
+  currentPeriodEnd: SerializableDate;
   upgradeUrl: string;
 }
 
-function getAlertLevel(percentage: number): 'warning' | 'error' {
-  if (percentage >= 90) return 'error';
+type AlertSeverity = 'warning' | 'critical' | 'exceeded';
+
+function getSeverity(percentage: number): AlertSeverity {
+  if (percentage >= 100) return 'exceeded';
+  if (percentage >= 90) return 'critical';
   return 'warning';
 }
 
-function getAlertMessage(percentage: number, currentUsage: number, usageLimit: number): string {
-  if (percentage >= 100) {
-    return `
-      <h3 style="${emailStyles.errorHeading}">
-        ${emailIcons.warning} Usage Limit Exceeded
-      </h3>
-      <p style="margin: 10px 0 0 0; ${emailStyles.mutedText}">
-        You have exceeded your usage limit of <strong>${usageLimit.toLocaleString()}</strong> events. 
-        Your account is currently at <strong>${currentUsage.toLocaleString()}</strong> events (${percentage}%).
-      </p>
-      <p style="margin: 10px 0 0 0; color: #dc2626; font-weight: 600;">
-        As outlined in our Terms of Service, excess data above plan limits may be lost. Please upgrade to protect your analytics data.
-      </p>
-    `;
-  } else if (percentage >= 90) {
-    return `
-      <h3 style="${emailStyles.warningHeading}">
-        ${emailIcons.alert} Critical Usage Alert
-      </h3>
-      <p style="margin: 10px 0 0 0; ${emailStyles.mutedText}">
-        You have used <strong>${currentUsage.toLocaleString()}</strong> of your <strong>${usageLimit.toLocaleString()}</strong> events (${percentage}%).
-      </p>
-      <p style="margin: 10px 0 0 0; color: #f59e0b; font-weight: 600;">
-        You're approaching your limit. Per our Terms of Service, excess data may be lost if limits are exceeded.
-      </p>
-    `;
-  } else {
-    return `
-      <h3 style="${emailStyles.warningHeading}">
-        ${emailIcons.stats} Usage Alert
-      </h3>
-      <p style="margin: 10px 0 0 0; ${emailStyles.mutedText}">
-        You have used <strong>${currentUsage.toLocaleString()}</strong> of your <strong>${usageLimit.toLocaleString()}</strong> events (${percentage}%).
-      </p>
-      <p style="margin: 10px 0 0 0; ${emailStyles.mutedText}">
-        You're approaching your usage limit. To ensure data continuity, consider upgrading before reaching your limit.
-      </p>
-    `;
-  }
+function normalizePlainText(value: string): string {
+  return value.replace(/[\r\n]+/g, ' ').trim();
 }
 
 function getSubjectLine(percentage: number, planName: string): string {
+  const safePlanName = normalizePlainText(planName);
   if (percentage >= 100) {
-    return `${emailIcons.warning} Data Protection Alert: Usage limit exceeded on your ${escapeHtml(planName)} plan`;
-  } else if (percentage >= 90) {
-    return `${emailIcons.alert} Data Protection Warning: ${percentage}% usage reached on your ${escapeHtml(planName)} plan`;
-  } else {
-    return `${emailIcons.stats} Usage Notification: ${percentage}% of your ${escapeHtml(planName)} plan used`;
+    return `Usage alert: ${safePlanName} plan event limit exceeded`;
   }
+  return `Usage alert: ${percentage}% of your ${safePlanName} plan event limit used`;
 }
 
-function createUsageSummaryBox(data: UsageAlertEmailData): string {
+function getPreheader(percentage: number): string {
+  if (percentage >= 100) {
+    return 'Your account has exceeded the event limit included in your plan. Review your billing options.';
+  }
+  if (percentage >= 90) {
+    return `Your account is close to the monthly event limit included in your plan.`;
+  }
+  return `Your account has crossed 80% of the monthly event limit included in your plan.`;
+}
+
+function createPreheader(text: string): string {
+  return `
+    <div style="display:none; font-size:1px; color:#f8fafc; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
+      ${escapeHtml(text)}${'&nbsp;'.repeat(120)}
+    </div>
+  `;
+}
+
+function formatBillingDate(value: SerializableDate): string {
+  return format(new Date(value), 'MMM d, yyyy');
+}
+
+function getBillingPeriodLabel(data: UsageAlertEmailData): string {
+  return `${formatBillingDate(data.currentPeriodStart)} to ${formatBillingDate(data.currentPeriodEnd)}`;
+}
+
+function getStatusCopy(severity: AlertSeverity): {
+  heading: string;
+  guidance: string;
+  quotaWarning: string;
+  ctaLabel: string;
+} {
+  if (severity === 'exceeded') {
+    return {
+      heading: 'Usage alert',
+      guidance: 'Your account has exceeded the event limit included in your plan.',
+      quotaWarning:
+        'Please be aware that events above 100% of your plan limit may not be retained. Review your billing options to keep future data within plan.',
+      ctaLabel: 'Review billing options',
+    };
+  }
+
+  if (severity === 'critical') {
+    return {
+      heading: 'Usage alert',
+      guidance: 'Your account is close to the event limit included in your plan.',
+      quotaWarning:
+        'Please be aware that events above 100% of your plan limit may not be retained, so we recommend reviewing your billing options before usage reaches 100%.',
+      ctaLabel: 'Review billing options',
+    };
+  }
+
+  return {
+    heading: 'Usage alert',
+    guidance: 'Your account has crossed 80% of the event limit included in your plan.',
+    quotaWarning:
+      'No action is required yet, but please be aware that events above 100% of your plan limit may not be retained.',
+    ctaLabel: 'Review billing options',
+  };
+}
+
+function getIntroCopy(data: UsageAlertEmailData, severity: AlertSeverity, periodLabel: string): string {
+  if (severity === 'exceeded') {
+    return `Your account has exceeded the event limit included in your <strong>${escapeHtml(
+      data.planName,
+    )}</strong> plan for <strong>${escapeHtml(periodLabel)}</strong>.`;
+  }
+
+  return `You've used <strong>${data.usagePercentage}%</strong> of the event limit included in your <strong>${escapeHtml(
+    data.planName,
+  )}</strong> plan for <strong>${escapeHtml(periodLabel)}</strong>.`;
+}
+
+function createUsageSummaryBox(data: UsageAlertEmailData, periodLabel: string): string {
   const remaining = Math.max(0, data.usageLimit - data.currentUsage);
+  const remainingColor = remaining > 0 ? '#059669' : '#dc2626';
+  const barColor = data.usagePercentage >= 100 ? '#dc2626' : data.usagePercentage >= 90 ? '#f59e0b' : '#10b981';
+  const barWidth = Math.min(100, data.usagePercentage);
+
+  const row = (label: string, value: string, valueStyle = `${emailStyles.primaryText} font-weight: 600;`) => `
+    <tr>
+      <td style="padding: 4px 0; ${emailStyles.secondaryText}">${label}</td>
+      <td style="padding: 4px 0; text-align: right; ${valueStyle}">${value}</td>
+    </tr>
+  `;
 
   return `
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="${emailStyles.secondaryText}">Current Usage:</span>
-        <span style="font-weight: 600; ${emailStyles.primaryText}">${data.currentUsage.toLocaleString()} events</span>
+    <div class="content-section" style="margin: 24px 0;">
+      <h2 style="margin: 0 0 12px 0;">Current usage</h2>
+      <p style="margin: 0 0 18px 0; ${emailStyles.secondaryText}">
+        ${escapeHtml(periodLabel)}
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
+        <tbody>
+          ${row('Plan', `${escapeHtml(data.planName)} plan`)}
+          ${row('Current usage', `${data.currentUsage.toLocaleString()} events`)}
+          ${row('Plan limit', `${data.usageLimit.toLocaleString()} events`)}
+          ${row('Remaining', `${remaining.toLocaleString()} events`, `font-weight: 600; color: ${remainingColor};`)}
+        </tbody>
+      </table>
+      <div style="background-color: #e5e7eb; height: 8px; border-radius: 4px; margin-top: 16px; overflow: hidden;">
+        <div style="background-color: ${barColor}; height: 8px; width: ${barWidth}%;">&nbsp;</div>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-        <span style="${emailStyles.secondaryText}">Plan Limit:</span>
-        <span style="font-weight: 600; ${emailStyles.primaryText}">${data.usageLimit.toLocaleString()} events</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-        <span style="${emailStyles.secondaryText}">Remaining:</span>
-        <span style="font-weight: 600; color: ${remaining > 0 ? '#059669' : '#dc2626'};">${remaining.toLocaleString()} events</span>
-      </div>
-      <div style="background-color: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden;">
-        <div style="background-color: ${data.usagePercentage >= 90 ? '#dc2626' : data.usagePercentage >= 75 ? '#f59e0b' : '#10b981'}; height: 100%; width: ${Math.min(100, data.usagePercentage)}%; transition: width 0.3s ease;"></div>
-      </div>
-      <div style="text-align: center; margin-top: 8px; font-size: 14px; ${emailStyles.secondaryText}">
+      <p style="margin: 8px 0 0 0; text-align: right; font-size: 14px; ${emailStyles.secondaryText}">
         ${data.usagePercentage}% used
-      </div>
+      </p>
     </div>
   `;
 }
 
 export function generateUsageAlertEmailContent(data: UsageAlertEmailData): string {
-  const alertLevel = getAlertLevel(data.usagePercentage);
-  const alertMessage = getAlertMessage(data.usagePercentage, data.currentUsage, data.usageLimit);
+  const severity = getSeverity(data.usagePercentage);
+  const statusCopy = getStatusCopy(severity);
+  const periodLabel = getBillingPeriodLabel(data);
+  const preheader = createPreheader(getPreheader(data.usagePercentage));
 
-  const content = `
-    <h1>Usage Alert for Your Betterlytics Account</h1>
-    
-    <p>Hi <strong>${escapeHtml(data.userName)}</strong>,</p>
-    
-    <p>We're writing to inform you about your current usage on the <strong>${escapeHtml(data.planName)}</strong> plan.</p>
+  return `
+    ${preheader}
+    <h1>${statusCopy.heading}</h1>
 
-    ${createInfoBox(alertMessage, alertLevel)}
+    <p style="margin: 0 0 16px 0;">Hi <strong>${escapeHtml(data.userName)}</strong>,</p>
 
-    ${
-      data.usagePercentage < 100
-        ? `
-            <div class="content-section">
-              <h2>Current Usage Summary</h2>
-              ${createUsageSummaryBox(data)}
-            </div>
-          `
-        : ''
-    }
+    <p style="margin: 0 0 24px 0;">
+      ${getIntroCopy(data, severity, periodLabel)}
+    </p>
 
-    <div class="content-section">
-      <h2>Protect Your Analytics Data</h2>
-      <p style="${emailStyles.mutedText} line-height: 1.6;">
-        To ensure your analytics data remains accessible and prevent any potential data loss, 
-        please upgrade to a plan that accommodates your current usage levels.
-      </p>
-      
-      <div class="center" style="margin: 20px 0;">
-        ${createEmailButton('Upgrade Your Plan', data.upgradeUrl, 'primary')}
-      </div>
-      
-      <p style="margin-top: 15px; text-align: center;">
-        ${createPrimaryLink('View billing options →', data.upgradeUrl)}
-      </p>
+    ${createUsageSummaryBox(data, periodLabel)}
+
+    <p style="margin: 24px 0 12px 0; ${emailStyles.mutedText}">
+      ${statusCopy.guidance}
+    </p>
+    <p style="margin: 0 0 24px 0; ${emailStyles.mutedText}">
+      ${statusCopy.quotaWarning}
+    </p>
+
+    <div class="center" style="margin: 24px 0 8px 0;">
+      ${createEmailButton(statusCopy.ctaLabel, data.upgradeUrl)}
     </div>
 
-    <p>If you have any questions about your usage or need help choosing the right plan, our support team is here to help at ${createPrimaryLink('support@betterlytics.io', 'mailto:support@betterlytics.io')}.</p>
-
-    <p>Thank you for using Betterlytics!</p>
+    <p style="font-size: 14px; ${emailStyles.secondaryText}">
+      Questions about your usage? Reply to this email or contact support@betterlytics.io.
+    </p>
 
     ${createEmailSignature()}
   `;
-
-  return content;
 }
 
 export function generateUsageAlertEmailText(data: UsageAlertEmailData): string {
+  const severity = getSeverity(data.usagePercentage);
+  const statusCopy = getStatusCopy(severity);
   const remaining = Math.max(0, data.usageLimit - data.currentUsage);
+  const periodLabel = getBillingPeriodLabel(data);
 
-  const content = `
-Usage Alert for Your Betterlytics Account
+  const headline =
+    severity === 'exceeded'
+      ? `You've exceeded your ${data.planName} plan event limit.`
+      : severity === 'critical'
+        ? `You're at ${data.usagePercentage}% of your ${data.planName} plan event limit.`
+        : `You've used ${data.usagePercentage}% of your ${data.planName} plan event limit.`;
+
+  return `
+${statusCopy.heading}
 
 Hi ${data.userName},
 
-We're writing to inform you about your current usage on the ${data.planName} plan.
+${headline}
+Billing period: ${periodLabel}
 
-USAGE SUMMARY:
-Current Usage: ${data.currentUsage.toLocaleString()} events
-Plan Limit: ${data.usageLimit.toLocaleString()} events
-Remaining: ${remaining.toLocaleString()} events
-Usage: ${data.usagePercentage}%
+USAGE SUMMARY
+Plan:          ${data.planName}
+Current usage: ${data.currentUsage.toLocaleString()} events
+Plan limit:    ${data.usageLimit.toLocaleString()} events
+Remaining:     ${remaining.toLocaleString()} events
+Used:          ${data.usagePercentage}%
 
-${
-  data.usagePercentage >= 100
-    ? `${emailIcons.warning} URGENT: You have exceeded your usage limit. Per our Terms of Service, excess data may be lost if limits are exceeded. Please upgrade immediately to prevent data loss.`
-    : data.usagePercentage >= 90
-      ? `${emailIcons.alert} CRITICAL: You are very close to your usage limit. Per our Terms of Service, excess data may be lost if limits are exceeded. Consider upgrading to avoid data loss.`
-      : `${emailIcons.stats} You are approaching your usage limit. To ensure data continuity, consider upgrading before reaching your limit.`
-}
+${statusCopy.guidance}
+${statusCopy.quotaWarning}
+${data.upgradeUrl}
 
-PROTECT YOUR ANALYTICS DATA:
-To ensure your analytics data remains accessible and prevent any potential data loss, please upgrade to a plan that accommodates your current usage levels.
-
-UPGRADE YOUR PLAN: ${data.upgradeUrl}
-
-If you have any questions about your usage or need help choosing the right plan, contact us at support@betterlytics.io.
-
-Thank you for using Betterlytics!
+Questions? Reply to this email or reach us at support@betterlytics.io.
 
 ${createTextEmailSignature()}`.trim();
-
-  return content;
 }
 
 export function createUsageAlertEmailTemplate(data: UsageAlertEmailData) {
@@ -195,7 +231,6 @@ export function createUsageAlertEmailTemplate(data: UsageAlertEmailData) {
     subject: getSubjectLine(data.usagePercentage, data.planName),
     html: wrapEmailContent(generateUsageAlertEmailContent(data)),
     text: wrapTextEmailContent(generateUsageAlertEmailText(data)),
-    cloudOnly: true,
   };
 }
 
@@ -203,10 +238,12 @@ export function getUsageAlertEmailPreview(data?: Partial<UsageAlertEmailData>): 
   const sampleData: UsageAlertEmailData = {
     to: 'user@example.com',
     userName: data?.userName || 'John Doe',
-    currentUsage: data?.currentUsage || 7500,
+    currentUsage: data?.currentUsage || 9500,
     usageLimit: data?.usageLimit || 10000,
-    usagePercentage: data?.usagePercentage || 75,
-    planName: data?.planName || 'Starter',
+    usagePercentage: data?.usagePercentage || 85,
+    planName: data?.planName || 'Growth',
+    currentPeriodStart: data?.currentPeriodStart || new Date('2026-04-01T00:00:00.000Z'),
+    currentPeriodEnd: data?.currentPeriodEnd || new Date('2026-04-30T00:00:00.000Z'),
     upgradeUrl: data?.upgradeUrl || 'https://betterlytics.io/billing',
     ...data,
   };

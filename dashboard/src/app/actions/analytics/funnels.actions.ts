@@ -38,7 +38,7 @@ export const deleteFunnelAction = withDashboardMutationAuthContext(
 export const updateFunnelAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, data: UpdateFunnel): Promise<void> => {
     const validatedData = UpdateFunnelSchema.parse(data);
-    await updateFunnelForDashboard(validatedData);
+    await updateFunnelForDashboard(ctx.dashboardId, validatedData);
     revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
   },
 );
