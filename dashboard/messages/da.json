@@ -1654,6 +1654,8 @@
     "emptyTitle": "Ingen dashboards endnu",
     "emptyDescription": "Opret dit første dashboard for at begynde at indsamle analysedata for din hjemmeside.",
     "memberCountTooltip": "{count, plural, one {{count} medlem} other {{count} medlemmer}}",
+    "goToDashboardTooltip": "Gå til {domain}",
+    "settingsTooltip": "Dashboard-indstillinger",
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
