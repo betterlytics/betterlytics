@@ -123,6 +123,7 @@ export function WeeklyReportEmail(rawData: EmailReportData) {
   return (
     <EmailLayout
       preview={`${periodLabel} report for ${reportData.domain} — ${dateRange}`}
+      campaign="weekly_report"
       signature={<ReportSignature />}
       footer={null}
     >

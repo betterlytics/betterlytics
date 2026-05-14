@@ -10,7 +10,10 @@ import {
   P,
   PrimaryLink,
   renderEmailTemplate,
+  withEmailUtm,
 } from './_components';
+
+const CAMPAIGN = 'first_payment_welcome';
 
 export interface FirstPaymentWelcomeEmailData extends EmailData {
   userName: string;
@@ -30,7 +33,7 @@ export function FirstPaymentWelcomeEmail({
   newFeatures,
 }: FirstPaymentWelcomeEmailData) {
   return (
-    <EmailLayout preview={`Welcome to the ${planName} plan — your premium features are active`}>
+    <EmailLayout preview={`Welcome to the ${planName} plan — your premium features are active`} campaign={CAMPAIGN}>
       <H1>Welcome to the {planName} plan!</H1>
 
       <P>
@@ -48,7 +51,7 @@ export function FirstPaymentWelcomeEmail({
         <UpgradeRow label="Billing" value={billingAmount} />
       </InfoBox>
 
-      <EmailButton href={dashboardUrl}>Access Your Dashboard</EmailButton>
+      <EmailButton href={withEmailUtm(dashboardUrl, CAMPAIGN, 'primary_cta')}>Access Your Dashboard</EmailButton>
 
       <ContentSection>
         <H2 className="mt-0">What's New for You</H2>
@@ -74,7 +77,7 @@ export function FirstPaymentWelcomeEmail({
           directly:
         </P>
         <P className="my-2">
-          <PrimaryLink href="https://betterlytics.io/docs">Documentation</PrimaryLink>
+          <PrimaryLink href={withEmailUtm('https://betterlytics.io/docs', CAMPAIGN, 'help_docs')}>Documentation</PrimaryLink>
         </P>
         <P className="my-2">
           <PrimaryLink href="mailto:support@betterlytics.io">Support</PrimaryLink>

@@ -1,7 +1,9 @@
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import { DashboardRole } from '@prisma/client';
-import { EmailButton, EmailLayout, H1, P, renderEmailTemplate } from './_components';
+import { EmailButton, EmailLayout, H1, P, renderEmailTemplate, withEmailUtm } from './_components';
+
+const CAMPAIGN = 'dashboard_invitation';
 
 export interface DashboardInvitationEmailData extends EmailData {
   inviterName: string;
@@ -33,7 +35,7 @@ export function DashboardInvitationEmail({
     : "You'll need to create a Betterlytics account to accept this invitation.";
 
   return (
-    <EmailLayout preview={`${inviterName} invited you to collaborate on ${dashboardName}`}>
+    <EmailLayout preview={`${inviterName} invited you to collaborate on ${dashboardName}`} campaign={CAMPAIGN}>
       <H1>You've been invited to a dashboard!</H1>
 
       <P>
@@ -45,7 +47,7 @@ export function DashboardInvitationEmail({
         You've been invited as a <strong>{roleDisplay}</strong>.
       </P>
 
-      <EmailButton href={acceptUrl}>{buttonText}</EmailButton>
+      <EmailButton href={withEmailUtm(acceptUrl, CAMPAIGN, 'primary_cta')}>{buttonText}</EmailButton>
 
       <P className="text-sm text-slate-500">This invitation will expire in 7 days.</P>
 

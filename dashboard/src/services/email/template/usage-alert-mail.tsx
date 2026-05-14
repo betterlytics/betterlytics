@@ -1,7 +1,9 @@
 import { Section, Text } from '@react-email/components';
 import { format } from 'date-fns';
 import type { EmailData } from '@/services/email/types';
-import { EmailButton, EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
+import { EmailButton, EmailLayout, H1, H2, P, renderEmailTemplate, withEmailUtm } from './_components';
+
+const CAMPAIGN = 'usage_alert';
 
 type SerializableDate = Date | string;
 
@@ -83,7 +85,7 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
         : 'Your account has crossed 80% of the monthly event limit included in your plan.';
 
   return (
-    <EmailLayout preview={preview}>
+    <EmailLayout preview={preview} campaign={CAMPAIGN}>
       <H1>Usage alert</H1>
 
       <P className="m-0 mb-4">
@@ -128,7 +130,7 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
       <P className="text-slate-600">{statusCopy.guidance}</P>
       <P className="text-slate-600">{statusCopy.quotaWarning}</P>
 
-      <EmailButton href={data.upgradeUrl}>{statusCopy.ctaLabel}</EmailButton>
+      <EmailButton href={withEmailUtm(data.upgradeUrl, CAMPAIGN, 'primary_cta')}>{statusCopy.ctaLabel}</EmailButton>
 
       <P className="text-sm text-slate-500">
         Questions about your usage? Reply to this email or contact support@betterlytics.io.

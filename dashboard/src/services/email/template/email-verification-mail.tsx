@@ -1,7 +1,9 @@
 import { Link, Section, Text } from '@react-email/components';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
-import { EmailButton, EmailLayout, H1, InfoBox, P, PrimaryLink, renderEmailTemplate } from './_components';
+import { EmailButton, EmailLayout, H1, InfoBox, P, PrimaryLink, renderEmailTemplate, withEmailUtm } from './_components';
+
+const CAMPAIGN = 'email_verification';
 
 export interface EmailVerificationData extends EmailData {
   userName: string;
@@ -35,7 +37,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
   const resources = getResources();
 
   return (
-    <EmailLayout preview="Verify your Betterlytics email address">
+    <EmailLayout preview="Verify your Betterlytics email address" campaign={CAMPAIGN}>
       <H1>Verify Your Email Address</H1>
 
       <P>
@@ -47,7 +49,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
         button below.
       </P>
 
-      <EmailButton href={verificationUrl}>Verify Email Address</EmailButton>
+      <EmailButton href={withEmailUtm(verificationUrl, CAMPAIGN, 'primary_cta')}>Verify Email Address</EmailButton>
 
       <InfoBox variant="info" title="Security Notice">
         <P className="m-0 text-sm">
@@ -62,7 +64,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
         <ul className="my-5 list-disc pl-5">
           {resources.map((r) => (
             <li key={r.url} className="my-2 text-slate-600">
-              <PrimaryLink href={r.url}>{r.text}</PrimaryLink>
+              <PrimaryLink href={withEmailUtm(r.url, CAMPAIGN)}>{r.text}</PrimaryLink>
               <span className="text-slate-600"> - {r.description}</span>
             </li>
           ))}
@@ -71,7 +73,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
 
       <P>If the button above doesn't work, you can copy and paste this link into your browser:</P>
       <Link
-        href={verificationUrl}
+        href={withEmailUtm(verificationUrl, CAMPAIGN, 'fallback_link')}
         className="block break-all rounded bg-slate-100 p-2.5 font-mono text-sm text-slate-600 no-underline"
       >
         {verificationUrl}

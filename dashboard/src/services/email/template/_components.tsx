@@ -30,16 +30,35 @@ export async function renderEmailTemplate<P extends object>(
   return { subject, html, text };
 }
 
+/**
+ * Append UTM parameters to an outbound email link so clicks are attributable
+ * to the email in our analytics. mailto: links and unparseable URLs pass through.
+ */
+export function withEmailUtm(url: string, campaign: string, content?: string): string {
+  if (url.startsWith('mailto:')) return url;
+  try {
+    const u = new URL(url);
+    u.searchParams.set('utm_source', 'betterlytics');
+    u.searchParams.set('utm_medium', 'email');
+    u.searchParams.set('utm_campaign', campaign);
+    if (content) u.searchParams.set('utm_content', content);
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 type LayoutProps = {
   preview: string;
+  campaign: string;
   children: ReactNode;
   signature?: ReactNode | null;
   footer?: ReactNode | null;
 };
 
-export function EmailLayout({ preview, children, signature, footer }: LayoutProps) {
-  const resolvedSignature = signature === undefined ? <EmailSignature /> : signature;
-  const resolvedFooter = footer === undefined ? <EmailFooter /> : footer;
+export function EmailLayout({ preview, campaign, children, signature, footer }: LayoutProps) {
+  const resolvedSignature = signature === undefined ? <EmailSignature campaign={campaign} /> : signature;
+  const resolvedFooter = footer === undefined ? <EmailFooter campaign={campaign} /> : footer;
 
   return (
     <Tailwind>
@@ -82,12 +101,15 @@ export function EmailHeader() {
   );
 }
 
-export function EmailFooter() {
+export function EmailFooter({ campaign }: { campaign: string }) {
   return (
     <Section className="mt-8 p-5 text-center">
       <Text className="m-0 text-xs leading-relaxed text-slate-400">
         Powered by{' '}
-        <Link href="https://betterlytics.io" className="text-slate-400 underline">
+        <Link
+          href={withEmailUtm('https://betterlytics.io', campaign, 'footer_powered_by')}
+          className="text-slate-400 underline"
+        >
           Betterlytics
         </Link>
         <br />
@@ -97,7 +119,7 @@ export function EmailFooter() {
   );
 }
 
-export function EmailSignature() {
+export function EmailSignature({ campaign }: { campaign: string }) {
   if (!sharedEmailEnv.isCloud) return null;
   return (
     <Section className="mt-10 pt-8">
@@ -108,13 +130,19 @@ export function EmailSignature() {
         <strong className="text-slate-700">The Betterlytics Team</strong>
       </Text>
       <Section>
-        <Link href="https://betterlytics.io" className="mr-4 font-medium text-blue-600 no-underline">
+        <Link
+          href={withEmailUtm('https://betterlytics.io', campaign, 'signature_website')}
+          className="mr-4 font-medium text-blue-600 no-underline"
+        >
           Website
         </Link>
         <Link href="mailto:support@betterlytics.io" className="mr-4 font-medium text-blue-600 no-underline">
           Support
         </Link>
-        <Link href="https://betterlytics.io/docs" className="font-medium text-blue-600 no-underline">
+        <Link
+          href={withEmailUtm('https://betterlytics.io/docs', campaign, 'signature_docs')}
+          className="font-medium text-blue-600 no-underline"
+        >
           Documentation
         </Link>
       </Section>

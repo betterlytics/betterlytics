@@ -11,7 +11,10 @@ import {
   P,
   PrimaryLink,
   renderEmailTemplate,
+  withEmailUtm,
 } from './_components';
+
+const CAMPAIGN = 'reset_password';
 
 export interface ResetPasswordEmailData extends EmailData {
   userName: string;
@@ -21,7 +24,7 @@ export interface ResetPasswordEmailData extends EmailData {
 
 export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: ResetPasswordEmailData) {
   return (
-    <EmailLayout preview="Reset your Betterlytics password">
+    <EmailLayout preview="Reset your Betterlytics password" campaign={CAMPAIGN}>
       <H1>Reset Your Password</H1>
 
       <P>
@@ -33,7 +36,7 @@ export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: Reset
         the button below to reset your password.
       </P>
 
-      <EmailButton href={resetUrl}>Reset Password</EmailButton>
+      <EmailButton href={withEmailUtm(resetUrl, CAMPAIGN, 'primary_cta')}>Reset Password</EmailButton>
 
       <InfoBox variant="warning" title="Security Notice">
         <P className="m-0 text-sm">
@@ -48,7 +51,10 @@ export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: Reset
       <ContentSection>
         <H2 className="mt-0">Having Trouble?</H2>
         <P>If the button above doesn't work, you can copy and paste this link into your browser:</P>
-        <Link href={resetUrl} className="font-mono text-sm break-all text-blue-600 no-underline">
+        <Link
+          href={withEmailUtm(resetUrl, CAMPAIGN, 'fallback_link')}
+          className="font-mono text-sm break-all text-blue-600 no-underline"
+        >
           {resetUrl}
         </Link>
         {sharedEmailEnv.isCloud && (
