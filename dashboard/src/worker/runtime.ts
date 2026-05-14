@@ -3,13 +3,20 @@ import type { Job } from '@/worker/jobs/types';
 import { syncJobQueuesOnce } from '@/worker/queue';
 import { JOB_REGISTRY } from '@/worker/jobs/registry';
 import { jobDurationSeconds, jobLastRunTimestamp, jobRunsTotal, jobsInFlight } from '@/worker/metrics';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 
 type RuntimeGlobal = { _workerRegistration?: Promise<void> };
 type RuntimeJob = Job<unknown>;
 const globalForWorkerRuntime = globalThis as unknown as RuntimeGlobal;
 
+function isJobEnabled<T extends { saasOnly?: boolean }>(job: T): boolean {
+  if (job.saasOnly && !sharedEmailEnv.isCloud) return false;
+  return true;
+}
+
 async function syncJobSchedules(boss: PgBoss): Promise<void> {
   for (const job of JOB_REGISTRY) {
+    if (!isJobEnabled(job)) continue;
     if (job.schedule) {
       await boss.schedule(job.name, job.schedule, null);
     }
@@ -17,9 +24,13 @@ async function syncJobSchedules(boss: PgBoss): Promise<void> {
 }
 
 async function registerWorkers(boss: PgBoss): Promise<void> {
-  console.info(`Registering ${JOB_REGISTRY.length} jobs.`);
+  const enabledJobs = JOB_REGISTRY.filter(isJobEnabled);
+  const skippedCount = JOB_REGISTRY.length - enabledJobs.length;
+  console.info(
+    `Registering ${enabledJobs.length} jobs${skippedCount > 0 ? ` (${skippedCount} skipped: saasOnly outside cloud)` : ''}.`,
+  );
 
-  for (const job of JOB_REGISTRY) {
+  for (const job of enabledJobs) {
     const runtimeJob = job as RuntimeJob;
 
     await boss.work(runtimeJob.name, async ([j]) => {
