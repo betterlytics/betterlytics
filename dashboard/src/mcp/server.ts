@@ -11,11 +11,32 @@ import {
   executeGetError,
   McpGetErrorInputBaseSchema,
 } from '@/mcp/tools/errors';
+import { mcpToolCallsTotal, mcpToolDurationSeconds } from '@/mcp/metrics';
 
 export type McpContext = {
   siteId: string;
   dashboardId: string;
 };
+
+type ToolResult = {
+  content: { type: 'text'; text: string }[];
+  isError?: boolean;
+};
+
+async function runTool(toolName: string, fn: () => Promise<unknown> | unknown): Promise<ToolResult> {
+  const endTimer = mcpToolDurationSeconds.startTimer({ tool: toolName });
+  try {
+    const result = await fn();
+    endTimer({ status: 'ok' });
+    mcpToolCallsTotal.inc({ tool: toolName, status: 'ok' });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  } catch (error) {
+    endTimer({ status: 'error' });
+    mcpToolCallsTotal.inc({ tool: toolName, status: 'error' });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
+  }
+}
 
 export function createMcpServer(context: McpContext): McpServer {
   const server = new McpServer({
@@ -29,15 +50,7 @@ export function createMcpServer(context: McpContext): McpServer {
       description:
         'Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query.',
     },
-    async () => {
-      try {
-        const schema = getSchemaDescription();
-        return { content: [{ type: 'text', text: JSON.stringify(schema, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    () => runTool('describe', () => getSchemaDescription()),
   );
 
   server.registerTool(
@@ -47,15 +60,7 @@ export function createMcpServer(context: McpContext): McpServer {
         'Query analytics data with flexible metrics and dimensions. Use describe first to see available options.',
       inputSchema: McpQueryInputBaseSchema.shape,
     },
-    async (params) => {
-      try {
-        const result = await executeQuery(params, context.siteId);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    (params) => runTool('query', () => executeQuery(params, context.siteId)),
   );
 
   server.registerTool(
@@ -65,15 +70,7 @@ export function createMcpServer(context: McpContext): McpServer {
         'Analyze user navigation paths through the site. Returns Sankey diagram data showing page-to-page transitions with traffic volumes. Use describe first to see available filter options.',
       inputSchema: McpUserJourneysInputBaseSchema.shape,
     },
-    async (params) => {
-      try {
-        const result = await executeUserJourneys(params, context.siteId);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    (params) => runTool('user_journeys', () => executeUserJourneys(params, context.siteId)),
   );
 
   server.registerTool(
@@ -83,15 +80,7 @@ export function createMcpServer(context: McpContext): McpServer {
         'Run an ad-hoc funnel analysis. Define ordered steps (each a filter condition like url = "/pricing") to see how many visitors progress through each step. Use describe first to see available filter columns.',
       inputSchema: McpFunnelPreviewInputBaseSchema.shape,
     },
-    async (params) => {
-      try {
-        const result = await executeFunnelPreview(params, context.siteId);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    (params) => runTool('funnel_preview', () => executeFunnelPreview(params, context.siteId)),
   );
 
   server.registerTool(
@@ -101,15 +90,7 @@ export function createMcpServer(context: McpContext): McpServer {
         'List all saved funnels for this site and return their step-by-step conversion data for the given time range.',
       inputSchema: McpListFunnelsInputBaseSchema.shape,
     },
-    async (params) => {
-      try {
-        const result = await executeListFunnels(params, context.siteId, context.dashboardId);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    (params) => runTool('list_funnels', () => executeListFunnels(params, context.siteId, context.dashboardId)),
   );
 
   server.registerTool(
@@ -119,15 +100,7 @@ export function createMcpServer(context: McpContext): McpServer {
         'List client-side JavaScript errors grouped by type. Returns error groups with occurrence counts, affected sessions, status, and first/last seen timestamps. Use this to identify the most impactful errors on the site.',
       inputSchema: McpListErrorsInputBaseSchema.shape,
     },
-    async (params) => {
-      try {
-        const result = await executeListErrors(params, context.siteId, context.dashboardId);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    (params) => runTool('list_errors', () => executeListErrors(params, context.siteId, context.dashboardId)),
   );
 
   server.registerTool(
@@ -137,15 +110,7 @@ export function createMcpServer(context: McpContext): McpServer {
         'Get detailed information about a specific error, including the full stack trace, browser/OS/device context, and the session trail of events leading up to the error. Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
       inputSchema: McpGetErrorInputBaseSchema.shape,
     },
-    async (params) => {
-      try {
-        const result = await executeGetError(params, context.siteId);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return { content: [{ type: 'text', text: `Error: ${message}` }], isError: true };
-      }
-    },
+    (params) => runTool('get_error', () => executeGetError(params, context.siteId)),
   );
 
   return server;
