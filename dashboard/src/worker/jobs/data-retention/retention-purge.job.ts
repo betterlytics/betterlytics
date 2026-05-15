@@ -77,8 +77,8 @@ function groupByRetentionDays(targets: RetentionPurgeTarget[]): Map<number, stri
 
 async function runRetentionPurge(): Promise<void> {
   const now = new Date();
-  const oldestPotentiallyExpiredCreatedAt = new Date(now.getTime() - MIN_DATA_RETENTION_DAYS * DAY_MS);
-  const candidates = await findRetentionPurgeCandidates(oldestPotentiallyExpiredCreatedAt);
+  const createdBefore = new Date(now.getTime() - MIN_DATA_RETENTION_DAYS * DAY_MS);
+  const candidates = await findRetentionPurgeCandidates(createdBefore);
   const targets = candidates.flatMap((candidate) => {
     const target = resolveRetentionPurgeTarget(candidate, now);
     return target ? [target] : [];
