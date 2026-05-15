@@ -2,11 +2,66 @@ import prisma from '@/lib/postgres';
 import {
   Subscription,
   SubscriptionSchema,
+  SubscriptionWithOwnedSites,
+  SubscriptionWithOwnedSitesSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
   buildStarterSubscription,
 } from '@/entities/billing/billing.entities';
 import { addMonths, startOfDay } from 'date-fns';
+
+export async function findActiveSubscriptionsWithOwnedSites(): Promise<SubscriptionWithOwnedSites[]> {
+  const subs = await prisma.subscription.findMany({
+    where: {
+      status: { in: ['active', 'past_due'] },
+      user: { email: { not: null } },
+    },
+    select: {
+      userId: true,
+      tier: true,
+      eventLimit: true,
+      currentPeriodStart: true,
+      currentPeriodEnd: true,
+      paymentSubscriptionId: true,
+      user: {
+        select: {
+          email: true,
+          name: true,
+          dashboardAccess: {
+            where: { role: 'owner' },
+            select: { dashboard: { select: { siteId: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  return subs.map((s) =>
+    SubscriptionWithOwnedSitesSchema.parse({
+      userId: s.userId,
+      userEmail: s.user.email,
+      userName: s.user.name,
+      tier: s.tier,
+      eventLimit: s.eventLimit,
+      currentPeriodStart: s.currentPeriodStart,
+      currentPeriodEnd: s.currentPeriodEnd,
+      paymentSubscriptionId: s.paymentSubscriptionId,
+      siteIds: s.user.dashboardAccess.map((ud) => ud.dashboard.siteId),
+    }),
+  );
+}
+
+export async function updateSubscriptionPeriod(
+  userId: string,
+  currentPeriodStart: Date,
+  currentPeriodEnd: Date,
+): Promise<{ currentPeriodStart: Date; currentPeriodEnd: Date }> {
+  return prisma.subscription.update({
+    where: { userId },
+    data: { currentPeriodStart, currentPeriodEnd },
+    select: { currentPeriodStart: true, currentPeriodEnd: true },
+  });
+}
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
