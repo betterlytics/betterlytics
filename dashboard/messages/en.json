@@ -1651,6 +1651,8 @@
     "emptyTitle": "No dashboards yet",
     "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
     "memberCountTooltip": "{count, plural, one {{count} member} other {{count} members}}",
+    "goToDashboardTooltip": "Go to {domain}",
+    "settingsTooltip": "Dashboard settings",
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
@@ -2406,7 +2408,8 @@
         "savedFiltersLimitReached": "Maximum saved filters reached",
         "maxFiltersReached": "Maximum filters reached"
       },
-      "filterBy": "Filter by {label}"
+      "filterBy": "Filter by {label}",
+      "removeFilter": "Remove filter"
     },
     "funnels": {
       "skeleton": {

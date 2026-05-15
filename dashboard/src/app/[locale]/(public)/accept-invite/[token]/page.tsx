@@ -9,6 +9,22 @@ import { AlertCircle, Clock, LucideIcon } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import Logo from '@/components/logo';
 
+export async function generateMetadata() {
+  return {
+    robots: {
+      index: false,
+      follow: false,
+      googleBot: {
+        index: false,
+        follow: false,
+        'max-image-preview': 'none',
+        'max-snippet': 0,
+        'max-video-preview': 0,
+      },
+    },
+  };
+}
+
 interface InviteStatusCardProps {
   icon: LucideIcon;
   iconVariant: 'destructive' | 'warning';

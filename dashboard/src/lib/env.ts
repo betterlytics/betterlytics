@@ -62,6 +62,11 @@ const appEnvSchema = z.object({
   SAMPLING_TRAFFIC_THRESHOLD: z.coerce.number().optional().default(100_000),
   SAMPLING_FACTOR: z.coerce.number().min(0).max(1).optional().default(0.25),
   HIGH_TRAFFIC_CONCURRENCY_LIMIT: z.coerce.number().optional().default(20),
+  SUPER_ADMIN_USER_IDS: z
+    .string()
+    .optional()
+    .default('')
+    .transform((val) => new Set(val.split(',').map((id) => id.trim()).filter(Boolean))),
 });
 
 const envSchema = sharedEmailEnvSchema.merge(appEnvSchema);
