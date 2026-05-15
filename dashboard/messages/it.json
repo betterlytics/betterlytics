@@ -2919,6 +2919,7 @@
         "retentionLabel": "Periodo di conservazione dati",
         "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
         "presets": {
+          "d1": "1 giorno",
           "m6": "6 mesi",
           "y1": "1 anno",
           "y2": "2 anni",

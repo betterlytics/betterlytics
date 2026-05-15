@@ -86,4 +86,4 @@ export function getMaxRetentionDaysForTier(tier: TierName): number {
   return PLAN_CAPABILITIES[tier].dataRetention.maxDataRetentionDays;
 }
 
-export const MIN_DATA_RETENTION_DAYS = 180;
+export const MIN_DATA_RETENTION_DAYS = 1;

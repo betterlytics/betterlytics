@@ -2911,6 +2911,7 @@
         "retentionLabel": "Periode for dataopbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
+          "d1": "1 dag",
           "m6": "6 måneder",
           "y1": "1 år",
           "y2": "2 år",

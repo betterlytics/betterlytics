@@ -2905,6 +2905,7 @@
         "retentionLabel": "Data Retention Period",
         "retentionHelp": "How long to keep analytics data before automatic deletion",
         "presets": {
+          "d1": "1 day",
           "m6": "6 months",
           "y1": "1 year",
           "y2": "2 years",
