@@ -3163,6 +3163,12 @@
       "action": "Scopri di più"
     }
   },
+  "githubStar": {
+    "title": "Ti piace Betterlytics?",
+    "description": "Siamo open source. Una stella su GitHub aiuta gli altri a scoprirci.",
+    "action": "Metti una stella su GitHub",
+    "dismiss": "Chiudi"
+  },
   "members": {
     "table": {
       "title": "Membri",

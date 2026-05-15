@@ -3163,6 +3163,12 @@
       "action": "Lær mer"
     }
   },
+  "githubStar": {
+    "title": "Liker du Betterlytics?",
+    "description": "Vi er åpen kildekode. En GitHub-stjerne hjelper andre å oppdage oss.",
+    "action": "Gi stjerne på GitHub",
+    "dismiss": "Lukk"
+  },
   "members": {
     "table": {
       "title": "Medlemmer",
