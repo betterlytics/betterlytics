@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { MAX_FILTER_ROWS, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
@@ -17,7 +17,7 @@ export const BAAnalyticsQuerySchema = z.object({
   compareStartDate: z.date().optional(),
   compareEndDate: z.date().optional(),
   granularity: z.enum(GRANULARITY_RANGE_VALUES),
-  queryFilters: z.array(QueryFilterSchema),
+  queryFilters: z.array(QueryFilterSchema).max(MAX_FILTER_ROWS),
   timezone: BATimeZone,
   userJourney: UserJourneySchema,
   interval: z.enum(TIME_RANGE_VALUES),

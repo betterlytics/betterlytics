@@ -3,7 +3,7 @@ import z from 'zod';
 import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
-import { QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { MAX_FILTER_ROWS, QueryFilterSchema } from '@/entities/analytics/filter.entities';
 
 export const FilterQueryParamsSchema = z.object({
   queryFilters: z.preprocess((val) => {
@@ -17,7 +17,7 @@ export const FilterQueryParamsSchema = z.object({
       });
     }
     return val;
-  }, z.array(QueryFilterSchema)),
+  }, z.array(QueryFilterSchema).max(MAX_FILTER_ROWS)),
   granularity: z.enum(GRANULARITY_RANGE_VALUES),
   startDate: z.date(),
   endDate: z.date(),

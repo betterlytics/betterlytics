@@ -2406,7 +2406,8 @@
         "toastFilterDeletedSuccess": "Filter slettet",
         "toastFilterDeletedError": "Kunne ikke slette filter",
         "toastUndo": "Fortryd",
-        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
+        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået",
+        "maxFiltersReached": "Maksimalt antal filtre nået"
       },
       "filterBy": "Filtrer efter {label}"
     },

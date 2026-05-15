@@ -2414,7 +2414,8 @@
         "toastFilterDeletedSuccess": "Filtro eliminato",
         "toastFilterDeletedError": "Impossibile eliminare il filtro",
         "toastUndo": "Annulla",
-        "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto"
+        "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto",
+        "maxFiltersReached": "Numero massimo di filtri raggiunto"
       },
       "filterBy": "Filtra per {label}"
     },

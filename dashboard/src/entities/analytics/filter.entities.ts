@@ -27,6 +27,8 @@ export const GP_PREFIX = 'gp.';
 
 export const FILTER_OPERATORS = ['=', '!='] as const;
 
+export const MAX_FILTER_ROWS = 10;
+
 const GP_KEY_PATTERN = /^[^\p{C}]{1,64}$/u;
 
 export const FilterColumnSchema = z.union([
