@@ -4,6 +4,7 @@ import { createUsageAlertEmailTemplate } from '@/services/email/template/usage-a
 import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/template/first-payment-welcome-mail';
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
+import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
 import type { EmailTemplate } from '@/services/email/types';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
@@ -37,9 +38,14 @@ export const EMAIL_TYPES = {
     saasOnly: true,
     retry: DEFAULT_RETRY,
   },
-  'report': {
+  report: {
     template: createReportEmailTemplate,
     saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
+  'data-retention-clamp': {
+    template: createDataRetentionClampEmailTemplate,
+    saasOnly: true,
     retry: DEFAULT_RETRY,
   },
 } as const;
