@@ -1,9 +1,11 @@
 import { Hr, Link, Section, Text } from '@react-email/components';
 import { format } from 'date-fns';
 import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 import type { EmailData } from '@/services/email/types';
 import { ReportData } from '@/services/reports/report-data.service';
 import { formatDuration } from '@/utils/dateFormatters';
+import { formatString } from '@/utils/formatters';
 import { EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
 
 export interface EmailReportData extends EmailData {
@@ -21,10 +23,6 @@ function reviveReportDates(data: EmailReportData): EmailReportData {
       comparisonPeriod: { start: new Date(comparisonPeriod.start), end: new Date(comparisonPeriod.end) },
     },
   };
-}
-
-function truncate(s: string, max = 40): string {
-  return s.length > max ? s.slice(0, max - 1) + '…' : s;
 }
 
 function getTrend(change: number | null): { icon: string; color: string; text: string } {
@@ -56,7 +54,7 @@ function MetricCard({ label, value, change }: { label: string; value: string; ch
       <Section className='rounded-lg bg-slate-50 p-3 text-center'>
         <Text className='m-0 text-xs text-slate-500'>{label}</Text>
         <Text className='m-0 text-2xl font-bold text-slate-800'>{value}</Text>
-        <Text className={`m-0 text-xs font-medium ${trend.color}`}>{trend.text}</Text>
+        <Text className={cn('m-0 text-xs font-medium', trend.color)}>{trend.text}</Text>
       </Section>
     </td>
   );
@@ -81,9 +79,10 @@ function ReportTable({
           {columns.map((col, i) => (
             <th
               key={i}
-              className={`border-b-2 border-slate-200 py-2 text-xs font-semibold text-slate-500 ${
-                col.align === 'right' ? 'text-right' : 'text-left'
-              }`}
+              className={cn(
+                'border-b-2 border-slate-200 py-2 text-xs font-semibold text-slate-500',
+                col.align === 'right' ? 'text-right' : 'text-left',
+              )}
             >
               {col.header}
             </th>
@@ -99,7 +98,7 @@ function ReportTable({
                 j === 0 ? 'text-slate-500' : j === 1 ? 'text-slate-800 font-medium' : 'text-slate-600';
               const wrap = j === 1 ? 'break-words' : '';
               return (
-                <td key={j} className={`border-b border-slate-200 py-2 ${colorClass} ${align} ${wrap}`.trim()}>
+                <td key={j} className={cn('border-b border-slate-200 py-2', colorClass, align, wrap)}>
                   {cell}
                 </td>
               );
@@ -123,7 +122,7 @@ export function WeeklyReportEmail(rawData: EmailReportData) {
   return (
     <EmailLayout
       preview={`${periodLabel} report for ${reportData.domain} — ${dateRange}`}
-      campaign="weekly_report"
+      campaign='weekly_report'
       signature={<ReportSignature />}
       footer={null}
     >
@@ -189,7 +188,7 @@ export function WeeklyReportEmail(rawData: EmailReportData) {
             { header: 'Views', align: 'right' },
           ]}
           rows={reportData.topPages.map((page, i) => ({
-            cells: [`${i + 1}.`, truncate(page.path), page.pageviews.toLocaleString()],
+            cells: [`${i + 1}.`, formatString(page.path), page.pageviews.toLocaleString()],
           }))}
           emptyMessage='No page data available for this period.'
         />
@@ -204,7 +203,7 @@ export function WeeklyReportEmail(rawData: EmailReportData) {
             { header: 'Visits', align: 'right' },
           ]}
           rows={reportData.topSources.map((source, i) => ({
-            cells: [`${i + 1}.`, truncate(source.source || 'Direct'), source.visits.toLocaleString()],
+            cells: [`${i + 1}.`, formatString(source.source || 'Direct'), source.visits.toLocaleString()],
           }))}
           emptyMessage='No traffic source data available for this period.'
         />
@@ -262,4 +261,3 @@ export const createReportEmailTemplate = (data: EmailReportData) => {
   const range = `${format(safe.reportData.period.start, 'MMM d')} – ${format(safe.reportData.period.end, 'MMM d, yyyy')}`;
   return renderEmailTemplate(WeeklyReportEmail, safe, `${period} Report: ${safe.reportData.domain} (${range})`);
 };
-

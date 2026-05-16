@@ -24,7 +24,7 @@ export interface ResetPasswordEmailData extends EmailData {
 
 export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: ResetPasswordEmailData) {
   return (
-    <EmailLayout preview="Reset your Betterlytics password" campaign={CAMPAIGN}>
+    <EmailLayout preview='Reset your Betterlytics password' campaign={CAMPAIGN}>
       <H1>Reset Your Password</H1>
 
       <P>
@@ -38,29 +38,29 @@ export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: Reset
 
       <EmailButton href={withEmailUtm(resetUrl, CAMPAIGN, 'primary_cta')}>Reset Password</EmailButton>
 
-      <InfoBox variant="warning" title="Security Notice">
-        <P className="m-0 text-sm">
+      <InfoBox variant='warning' title='Security Notice'>
+        <P className='m-0 text-sm'>
           This password reset link will expire in <strong>{expirationTime}</strong> for security reasons.
         </P>
-        <P className="m-0 mt-2 text-sm">
+        <P className='m-0 mt-2 text-sm'>
           If you didn't request this password reset, you can safely ignore this email. Your password will remain
           unchanged.
         </P>
       </InfoBox>
 
       <ContentSection>
-        <H2 className="mt-0">Having Trouble?</H2>
+        <H2 className='mt-0'>Having Trouble?</H2>
         <P>If the button above doesn't work, you can copy and paste this link into your browser:</P>
         <Link
           href={withEmailUtm(resetUrl, CAMPAIGN, 'fallback_link')}
-          className="font-mono text-sm break-all text-blue-600 no-underline"
+          className='font-mono text-sm break-all text-blue-600 no-underline'
         >
           {resetUrl}
         </Link>
         {sharedEmailEnv.isCloud && (
           <>
             <P>If you continue to have problems, contact our support team:</P>
-            <PrimaryLink href="mailto:support@betterlytics.io">support@betterlytics.io</PrimaryLink>
+            <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>
           </>
         )}
       </ContentSection>
@@ -81,4 +81,3 @@ export default ResetPasswordEmail;
 
 export const createResetPasswordEmailTemplate = (data: ResetPasswordEmailData) =>
   renderEmailTemplate(ResetPasswordEmail, data, 'Reset Your Betterlytics Password');
-

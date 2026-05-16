@@ -18,6 +18,7 @@ import {
 import { render } from '@react-email/render';
 import { createElement, type ComponentType, type ReactNode } from 'react';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
+import { cn } from '@/lib/utils';
 import type { EmailTemplate } from '@/services/email/types';
 
 export async function renderEmailTemplate<P extends object>(
@@ -35,6 +36,7 @@ export async function renderEmailTemplate<P extends object>(
  * to the email in our analytics. mailto: links and unparseable URLs pass through.
  */
 export function withEmailUtm(url: string, campaign: string, content?: string): string {
+  if (!sharedEmailEnv.isCloud) return url;
   if (url.startsWith('mailto:')) return url;
   try {
     const u = new URL(url);
@@ -62,12 +64,12 @@ export function EmailLayout({ preview, campaign, children, signature, footer }: 
 
   return (
     <Tailwind>
-      <Html lang="en">
+      <Html lang='en'>
         <Head />
         <Preview>{preview}</Preview>
-        <Body className="m-0 bg-slate-50 px-5 py-10 font-sans text-slate-800">
-          <Container className="mx-auto max-w-[600px]">
-            <Section className="mb-8 rounded-xl border border-slate-200 bg-white p-6 sm:p-10">
+        <Body className='m-0 bg-slate-50 px-5 py-10 font-sans text-slate-800'>
+          <Container className='mx-auto max-w-[600px]'>
+            <Section className='mb-8 rounded-xl border border-slate-200 bg-white p-6 sm:p-10'>
               <EmailHeader />
               {children}
               {resolvedSignature}
@@ -82,19 +84,19 @@ export function EmailLayout({ preview, campaign, children, signature, footer }: 
 
 export function EmailHeader() {
   return (
-    <Section className="mb-8 border-b border-slate-200 pb-5">
+    <Section className='mb-8 border-b border-slate-200 pb-5'>
       <Row>
-        <Column className="w-12 pr-3 align-middle">
+        <Column className='w-12 pr-3 align-middle'>
           <Img
-            src="https://betterlytics.io/betterlytics-logo-dark-simple-96x96-q75.png"
-            alt="Betterlytics"
+            src='https://betterlytics.io/betterlytics-logo-dark-simple-96x96-q75.png'
+            alt='Betterlytics'
             width={48}
             height={48}
-            className="block"
+            className='block'
           />
         </Column>
-        <Column className="align-middle">
-          <Text className="m-0 text-xl font-semibold text-slate-800">Betterlytics</Text>
+        <Column className='align-middle'>
+          <Text className='m-0 text-xl font-semibold text-slate-800'>Betterlytics</Text>
         </Column>
       </Row>
     </Section>
@@ -103,12 +105,12 @@ export function EmailHeader() {
 
 export function EmailFooter({ campaign }: { campaign: string }) {
   return (
-    <Section className="mt-8 p-5 text-center">
-      <Text className="m-0 text-xs leading-relaxed text-slate-400">
+    <Section className='mt-8 p-5 text-center'>
+      <Text className='m-0 text-xs leading-relaxed text-slate-400'>
         Powered by{' '}
         <Link
           href={withEmailUtm('https://betterlytics.io', campaign, 'footer_powered_by')}
-          className="text-slate-400 underline"
+          className='text-slate-400 underline'
         >
           Betterlytics
         </Link>
@@ -122,26 +124,26 @@ export function EmailFooter({ campaign }: { campaign: string }) {
 export function EmailSignature({ campaign }: { campaign: string }) {
   if (!sharedEmailEnv.isCloud) return null;
   return (
-    <Section className="mt-10 pt-8">
-      <Hr className="mb-5 border-slate-200" />
-      <Text className="m-0 mb-5 text-base font-medium text-slate-500">
+    <Section className='mt-10 pt-8'>
+      <Hr className='mb-5 border-slate-200' />
+      <Text className='m-0 mb-5 text-base font-medium text-slate-500'>
         Best regards,
         <br />
-        <strong className="text-slate-700">The Betterlytics Team</strong>
+        <strong className='text-slate-700'>The Betterlytics Team</strong>
       </Text>
       <Section>
         <Link
           href={withEmailUtm('https://betterlytics.io', campaign, 'signature_website')}
-          className="mr-4 font-medium text-blue-600 no-underline"
+          className='mr-4 font-medium text-blue-600 no-underline'
         >
           Website
         </Link>
-        <Link href="mailto:support@betterlytics.io" className="mr-4 font-medium text-blue-600 no-underline">
+        <Link href='mailto:support@betterlytics.io' className='mr-4 font-medium text-blue-600 no-underline'>
           Support
         </Link>
         <Link
           href={withEmailUtm('https://betterlytics.io/docs', campaign, 'signature_docs')}
-          className="font-medium text-blue-600 no-underline"
+          className='font-medium text-blue-600 no-underline'
         >
           Documentation
         </Link>
@@ -169,10 +171,10 @@ export function EmailButton({
   children: ReactNode;
 }) {
   return (
-    <Section className="my-8 text-center">
+    <Section className='my-8 text-center'>
       <Button
         href={href}
-        className={`${buttonVariantClass[variant]} rounded-lg px-7 py-3.5 text-base font-semibold no-underline`}
+        className={cn(buttonVariantClass[variant], 'rounded-lg px-7 py-3.5 text-base font-semibold no-underline')}
       >
         {children}
       </Button>
@@ -206,12 +208,9 @@ export function InfoBox({
   children: ReactNode;
 }) {
   return (
-    <Section className={`${infoBoxClass[variant]} my-6 rounded-r-lg border-l-4 p-5`}>
+    <Section className={cn(infoBoxClass[variant], 'my-6 rounded-r-lg border-l-4 p-5')}>
       {title && (
-        <Heading
-          as="h3"
-          className={`${infoBoxHeadingClass[variant]} m-0 mb-2.5 text-lg font-semibold`}
-        >
+        <Heading as='h3' className={cn(infoBoxHeadingClass[variant], 'm-0 mb-2.5 text-lg font-semibold')}>
           {title}
         </Heading>
       )}
@@ -220,9 +219,9 @@ export function InfoBox({
   );
 }
 
-export function ContentSection({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function ContentSection({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <Section className={`my-5 rounded-lg border border-slate-200 bg-slate-50 p-6 ${className}`.trim()}>
+    <Section className={cn('my-5 rounded-lg border border-slate-200 bg-slate-50 p-6', className)}>
       {children}
     </Section>
   );
@@ -230,35 +229,35 @@ export function ContentSection({ children, className = '' }: { children: ReactNo
 
 export function H1({ children }: { children: ReactNode }) {
   return (
-    <Heading as="h1" className="m-0 mb-5 text-3xl font-bold leading-tight text-slate-800">
+    <Heading as='h1' className='m-0 mb-5 text-3xl leading-tight font-bold text-slate-800'>
       {children}
     </Heading>
   );
 }
 
-export function H2({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function H2({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <Heading as="h2" className={`mt-8 mb-4 text-[22px] font-semibold text-slate-700 ${className}`.trim()}>
+    <Heading as='h2' className={cn('mt-8 mb-4 text-[22px] font-semibold text-slate-700', className)}>
       {children}
     </Heading>
   );
 }
 
-export function P({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <Text className={`my-4 text-base leading-relaxed text-slate-600 ${className}`.trim()}>{children}</Text>;
+export function P({ children, className }: { children: ReactNode; className?: string }) {
+  return <Text className={cn('my-4 text-base leading-relaxed text-slate-600', className)}>{children}</Text>;
 }
 
 export function PrimaryLink({
   href,
   children,
-  className = '',
+  className,
 }: {
   href: string;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <Link href={href} className={`font-medium text-blue-600 no-underline ${className}`.trim()}>
+    <Link href={href} className={cn('font-medium text-blue-600 no-underline', className)}>
       {children}
     </Link>
   );

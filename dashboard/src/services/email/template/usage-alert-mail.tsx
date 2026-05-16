@@ -1,6 +1,8 @@
 import { Section, Text } from '@react-email/components';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import type { EmailData } from '@/services/email/types';
+import { formatPercentage } from '@/utils/formatters';
 import { EmailButton, EmailLayout, H1, H2, P, renderEmailTemplate, withEmailUtm } from './_components';
 
 const CAMPAIGN = 'usage_alert';
@@ -32,7 +34,7 @@ function formatBillingDate(value: SerializableDate): string {
 
 function getSubjectLine(percentage: number, planName: string): string {
   if (percentage >= 100) return `Usage alert: ${planName} plan event limit exceeded`;
-  return `Usage alert: ${percentage}% of your ${planName} plan event limit used`;
+  return `Usage alert: ${formatPercentage(percentage)} of your ${planName} plan event limit used`;
 }
 
 type StatusCopy = { guidance: string; quotaWarning: string; ctaLabel: string };
@@ -65,17 +67,13 @@ function getStatusCopy(severity: AlertSeverity): StatusCopy {
 export function UsageAlertEmail(data: UsageAlertEmailData) {
   const severity = getSeverity(data.usagePercentage);
   const statusCopy = getStatusCopy(severity);
-  const periodLabel = `${formatBillingDate(data.currentPeriodStart)} to ${formatBillingDate(
-    data.currentPeriodEnd,
-  )}`;
+  const periodStart = formatBillingDate(data.currentPeriodStart);
+  const periodEnd = formatBillingDate(data.currentPeriodEnd);
+  const periodLabel = `${periodStart} to ${periodEnd}`;
   const remaining = Math.max(0, data.usageLimit - data.currentUsage);
   const remainingColorClass = remaining > 0 ? 'text-green-600' : 'text-red-600';
   const barColorClass =
-    data.usagePercentage >= 100
-      ? 'bg-red-600'
-      : data.usagePercentage >= 90
-        ? 'bg-amber-500'
-        : 'bg-emerald-500';
+    data.usagePercentage >= 100 ? 'bg-red-600' : data.usagePercentage >= 90 ? 'bg-amber-500' : 'bg-emerald-500';
   const barWidth = Math.min(100, data.usagePercentage);
   const preview =
     severity === 'exceeded'
@@ -88,11 +86,11 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
     <EmailLayout preview={preview} campaign={CAMPAIGN}>
       <H1>Usage alert</H1>
 
-      <P className="m-0 mb-4">
+      <P className='m-0 mb-4'>
         Hi <strong>{data.userName}</strong>,
       </P>
 
-      <P className="m-0 mb-6">
+      <P className='m-0 mb-6'>
         {severity === 'exceeded' ? (
           <>
             Your account has exceeded the event limit included in your <strong>{data.planName}</strong> plan for{' '}
@@ -100,39 +98,43 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
           </>
         ) : (
           <>
-            You've used <strong>{data.usagePercentage}%</strong> of the event limit included in your{' '}
-            <strong>{data.planName}</strong> plan for <strong>{periodLabel}</strong>.
+            You've used <strong>{formatPercentage(data.usagePercentage)}</strong> of the event limit included in
+            your <strong>{data.planName}</strong> plan for <strong>{periodLabel}</strong>.
           </>
         )}
       </P>
 
-      <Section className="my-6 rounded-lg border border-slate-200 bg-slate-50 p-6">
-        <H2 className="mt-0 mb-3">Current usage</H2>
-        <P className="m-0 mb-4 text-slate-500">{periodLabel}</P>
-        <table cellPadding={0} cellSpacing={0} border={0} className="w-full border-collapse">
+      <Section className='my-6 rounded-lg border border-slate-200 bg-slate-50 p-6'>
+        <H2 className='mt-0 mb-3'>Current usage</H2>
+        <P className='m-0 mb-4 text-slate-500'>{periodLabel}</P>
+        <table cellPadding={0} cellSpacing={0} border={0} className='w-full border-collapse'>
           <tbody>
-            <UsageRow label="Plan" value={`${data.planName} plan`} />
-            <UsageRow label="Current usage" value={`${data.currentUsage.toLocaleString()} events`} />
-            <UsageRow label="Plan limit" value={`${data.usageLimit.toLocaleString()} events`} />
+            <UsageRow label='Plan' value={`${data.planName} plan`} />
+            <UsageRow label='Current usage' value={`${data.currentUsage.toLocaleString()} events`} />
+            <UsageRow label='Plan limit' value={`${data.usageLimit.toLocaleString()} events`} />
             <UsageRow
-              label="Remaining"
+              label='Remaining'
               value={`${remaining.toLocaleString()} events`}
               valueClass={`font-semibold ${remainingColorClass}`}
             />
           </tbody>
         </table>
-        <div className="mt-4 h-2 overflow-hidden rounded bg-slate-200">
-          <div className={`${barColorClass} h-2 rounded`} style={{ width: `${barWidth}%` }} />
+        <div className='mt-4 h-2 overflow-hidden rounded bg-slate-200'>
+          <div className={cn(barColorClass, 'h-2 rounded')} style={{ width: `${barWidth}%` }} />
         </div>
-        <Text className="m-0 mt-2 text-right text-sm text-slate-500">{data.usagePercentage}% used</Text>
+        <Text className='m-0 mt-2 text-right text-sm text-slate-500'>
+          {formatPercentage(data.usagePercentage)} used
+        </Text>
       </Section>
 
-      <P className="text-slate-600">{statusCopy.guidance}</P>
-      <P className="text-slate-600">{statusCopy.quotaWarning}</P>
+      <P className='text-slate-600'>{statusCopy.guidance}</P>
+      <P className='text-slate-600'>{statusCopy.quotaWarning}</P>
 
-      <EmailButton href={withEmailUtm(data.upgradeUrl, CAMPAIGN, 'primary_cta')}>{statusCopy.ctaLabel}</EmailButton>
+      <EmailButton href={withEmailUtm(data.upgradeUrl, CAMPAIGN, 'primary_cta')}>
+        {statusCopy.ctaLabel}
+      </EmailButton>
 
-      <P className="text-sm text-slate-500">
+      <P className='text-sm text-slate-500'>
         Questions about your usage? Reply to this email or contact support@betterlytics.io.
       </P>
     </EmailLayout>
@@ -150,8 +152,8 @@ function UsageRow({
 }) {
   return (
     <tr>
-      <td className="py-1 text-slate-500">{label}</td>
-      <td className={`py-1 text-right ${valueClass}`}>{value}</td>
+      <td className='py-1 text-slate-500'>{label}</td>
+      <td className={cn('py-1 text-right', valueClass)}>{value}</td>
     </tr>
   );
 }
@@ -172,4 +174,3 @@ export default UsageAlertEmail;
 
 export const createUsageAlertEmailTemplate = (data: UsageAlertEmailData) =>
   renderEmailTemplate(UsageAlertEmail, data, getSubjectLine(data.usagePercentage, data.planName));
-

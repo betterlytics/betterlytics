@@ -1,4 +1,5 @@
 import { Column, Row, Section, Text } from '@react-email/components';
+import { cn } from '@/lib/utils';
 import type { EmailData } from '@/services/email/types';
 import {
   ContentSection,
@@ -33,7 +34,10 @@ export function FirstPaymentWelcomeEmail({
   newFeatures,
 }: FirstPaymentWelcomeEmailData) {
   return (
-    <EmailLayout preview={`Welcome to the ${planName} plan — your premium features are active`} campaign={CAMPAIGN}>
+    <EmailLayout
+      preview={`Welcome to the ${planName} plan — your premium features are active`}
+      campaign={CAMPAIGN}
+    >
       <H1>Welcome to the {planName} plan!</H1>
 
       <P>
@@ -45,42 +49,44 @@ export function FirstPaymentWelcomeEmail({
         premium features are now active on your account.
       </P>
 
-      <InfoBox variant="success" title="Your Account is Now Upgraded">
-        <UpgradeRow label="Plan" value={planName} border />
-        <UpgradeRow label="Monthly Events" value={monthlyEventLimit} border />
-        <UpgradeRow label="Billing" value={billingAmount} />
+      <InfoBox variant='success' title='Your Account is Now Upgraded'>
+        <UpgradeRow label='Plan' value={planName} border />
+        <UpgradeRow label='Monthly Events' value={monthlyEventLimit} border />
+        <UpgradeRow label='Billing' value={billingAmount} />
       </InfoBox>
 
       <EmailButton href={withEmailUtm(dashboardUrl, CAMPAIGN, 'primary_cta')}>Access Your Dashboard</EmailButton>
 
       <ContentSection>
-        <H2 className="mt-0">What's New for You</H2>
+        <H2 className='mt-0'>What's New for You</H2>
         {newFeatures.map((feature, index) => (
-          <Row key={feature.title} className="my-4">
-            <Column className="w-8 pr-3 align-top">
-              <Section className="h-6 w-6 rounded-full bg-blue-600 text-center text-xs font-bold text-white leading-6">
+          <Row key={feature.title} className='my-4'>
+            <Column className='w-8 pr-3 align-top'>
+              <Section className='h-6 w-6 rounded-full bg-blue-600 text-center text-xs leading-6 font-bold text-white'>
                 {index + 1}
               </Section>
             </Column>
-            <Column className="align-top">
-              <Text className="m-0 text-base font-semibold text-slate-800">{feature.title}</Text>
-              <Text className="m-0 text-sm text-slate-500">{feature.description}</Text>
+            <Column className='align-top'>
+              <Text className='m-0 text-base font-semibold text-slate-800'>{feature.title}</Text>
+              <Text className='m-0 text-sm text-slate-500'>{feature.description}</Text>
             </Column>
           </Row>
         ))}
       </ContentSection>
 
       <ContentSection>
-        <H2 className="mt-0">Need Help?</H2>
-        <P className="text-slate-600">
+        <H2 className='mt-0'>Need Help?</H2>
+        <P className='text-slate-600'>
           Our team is here to help you make the most of your analytics. Check out our documentation or reach out
           directly:
         </P>
-        <P className="my-2">
-          <PrimaryLink href={withEmailUtm('https://betterlytics.io/docs', CAMPAIGN, 'help_docs')}>Documentation</PrimaryLink>
+        <P className='my-2'>
+          <PrimaryLink href={withEmailUtm('https://betterlytics.io/docs', CAMPAIGN, 'help_docs')}>
+            Documentation
+          </PrimaryLink>
         </P>
-        <P className="my-2">
-          <PrimaryLink href="mailto:support@betterlytics.io">Support</PrimaryLink>
+        <P className='my-2'>
+          <PrimaryLink href='mailto:support@betterlytics.io'>Support</PrimaryLink>
         </P>
       </ContentSection>
 
@@ -95,11 +101,11 @@ export function FirstPaymentWelcomeEmail({
 
 function UpgradeRow({ label, value, border }: { label: string; value: string; border?: boolean }) {
   return (
-    <Row className={`py-2 ${border ? 'border-b border-slate-200' : ''}`.trim()}>
-      <Column className="text-slate-600">
+    <Row className={cn('py-2', border && 'border-b border-slate-200')}>
+      <Column className='text-slate-600'>
         <strong>{label}:</strong>
       </Column>
-      <Column className="text-right text-slate-600">{value}</Column>
+      <Column className='text-right text-slate-600'>{value}</Column>
     </Row>
   );
 }
@@ -136,4 +142,3 @@ export const createFirstPaymentWelcomeEmailTemplate = (data: FirstPaymentWelcome
     data,
     `Welcome to the ${data.planName} plan! Your premium features are now active`,
   );
-

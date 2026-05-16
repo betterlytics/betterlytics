@@ -27,7 +27,7 @@ export function DashboardInvitationEmail({
   inviteToken,
   userExists,
 }: DashboardInvitationEmailData) {
-  const acceptUrl = `${sharedEmailEnv.publicBaseUrl}/en/accept-invite/${inviteToken}`;
+  const acceptUrl = `${sharedEmailEnv.publicBaseUrl}/accept-invite/${inviteToken}`;
   const roleDisplay = ROLE_DISPLAY[role];
   const buttonText = userExists ? 'Accept invitation' : 'Create account to accept';
   const accountNote = userExists
@@ -49,7 +49,7 @@ export function DashboardInvitationEmail({
 
       <EmailButton href={withEmailUtm(acceptUrl, CAMPAIGN, 'primary_cta')}>{buttonText}</EmailButton>
 
-      <P className="text-sm text-slate-500">This invitation will expire in 7 days.</P>
+      <P className='text-sm text-slate-500'>This invitation will expire in 7 days.</P>
 
       <P>{accountNote}</P>
     </EmailLayout>
@@ -73,4 +73,3 @@ export const createDashboardInvitationEmailTemplate = (data: DashboardInvitation
     data,
     `${data.inviterName} invited you to collaborate on Betterlytics`,
   );
-
