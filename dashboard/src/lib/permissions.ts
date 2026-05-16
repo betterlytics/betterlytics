@@ -7,7 +7,6 @@ export const ROLE_PERMISSIONS = {
   canChangeMemberRole: ['owner', 'admin'],
   canRemoveMembers: ['owner', 'admin'],
   canDeleteDashboard: ['owner'],
-  canSubmitBugReports: ['owner', 'admin', 'editor', 'viewer'],
   canManageSettings: ['owner', 'admin'],
 } satisfies Record<string, readonly DashboardRole[]>;
 

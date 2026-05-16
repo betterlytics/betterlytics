@@ -33,7 +33,7 @@ export const usageThresholdScanJobDefinition = {
 
 export const retentionPurgeJobDefinition = {
   name: 'retention-purge',
-  schedule: '0 * * * *',
+  schedule: '0 2 * * 6',
   retryLimit: 2,
   retryBackoff: true,
   expireInSeconds: 600,

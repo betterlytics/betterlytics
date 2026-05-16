@@ -15,7 +15,7 @@ export default function BetterlyticsLogoLoading({ title, description, className 
     <div className={cn('bg-background flex h-full w-full items-center justify-center', className)}>
       <div className='flex flex-col items-center'>
         <AnimatedDashboardLogo size={80} className='mb-6' />
-        <h2 className='text-foreground mb-2 text-lg font-semibold'>{title}</h2>
+        <p className='text-foreground mb-2 text-lg font-semibold'>{title}</p>
         <p className='text-muted-foreground text-sm'>{description}</p>
       </div>
     </div>

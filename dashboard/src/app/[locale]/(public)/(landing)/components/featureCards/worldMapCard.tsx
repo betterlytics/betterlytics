@@ -1,12 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import LeafletMap from '@/components/map/LeafletMap';
+import LeafletMapNoSSR from './LeafletMapNoSSR';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS, MOCK_COMPARE_GEOVISITORS } from '@/constants/geographyData';
 import type { GeoVisitor } from '@/entities/analytics/geography.entities';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
 import { getCountryName } from '@/utils/countryCodes';
-import { Suspense } from 'react';
 
 const CountryCol = ({ geoVisitor, locale }: { geoVisitor: GeoVisitor; locale: SupportedLanguages }) => (
   <div className='flex py-2 text-xs' key={geoVisitor.country_code}>
@@ -34,16 +33,14 @@ export default async function WorldMapCard() {
 
       <CardContent>
         <div className='border-border/30 h-64 w-full overflow-hidden rounded-lg border'>
-          <Suspense>
-            <LeafletMap
-              visitorData={MOCK_WORLD_GEOVISITORS}
-              compareData={MOCK_COMPARE_GEOVISITORS}
-              maxVisitors={MOCK_WORLD_GEOVISITORS[0]?.visitors}
-              showZoomControls={false}
-              showLegend={false}
-              initialZoom={1}
-            />
-          </Suspense>
+          <LeafletMapNoSSR
+            visitorData={MOCK_WORLD_GEOVISITORS}
+            compareData={MOCK_COMPARE_GEOVISITORS}
+            maxVisitors={MOCK_WORLD_GEOVISITORS[0]?.visitors}
+            showZoomControls={false}
+            showLegend={false}
+            initialZoom={1}
+          />
         </div>
 
         <div className='pt-2'>

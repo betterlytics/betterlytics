@@ -49,6 +49,7 @@ async function main() {
     await client.command({
       query: `ALTER USER ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'`,
     });
+<<<<<<< HEAD
     await client.command({ query: `CREATE ROLE IF NOT EXISTS worker_role` });
     await client.command({ query: `GRANT SELECT ON analytics.* TO worker_role` });
     await client.command({ query: `GRANT dictGet ON analytics.* TO worker_role` });
@@ -60,6 +61,19 @@ async function main() {
       query: `GRANT ALTER DELETE ON analytics.* TO worker_role`,
     });
     await client.command({ query: `GRANT worker_role TO ${workerUser}` });
+=======
+    await client.exec({ query: `CREATE ROLE IF NOT EXISTS worker_role` });
+    await client.exec({ query: `GRANT SELECT ON analytics.* TO worker_role` });
+    await client.exec({ query: `GRANT dictGet ON analytics.* TO worker_role` });
+    await client.exec({ query: `GRANT DELETE ON analytics.* TO worker_role` });
+    await client.exec({
+      query: `GRANT ALTER UPDATE ON analytics.* TO worker_role`,
+    });
+    await client.exec({
+      query: `GRANT ALTER DELETE ON analytics.* TO worker_role`,
+    });
+    await client.exec({ query: `GRANT worker_role TO ${workerUser}` });
+>>>>>>> origin
 
     console.log(
       "Post-migration (clickhouse): user and privileges ensured successfully.",

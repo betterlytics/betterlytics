@@ -51,7 +51,6 @@ export const EMAIL_TYPES = {
 } as const;
 
 export type EmailType = keyof typeof EMAIL_TYPES;
-export const EMAIL_TYPE_NAMES = Object.keys(EMAIL_TYPES) as EmailType[];
 type DataFor<T extends EmailType> = Parameters<(typeof EMAIL_TYPES)[T]['template']>[0];
 
 export type SendEmailPayload = {
@@ -63,7 +62,7 @@ export type SendEmailPayload = {
   };
 }[EmailType];
 
-export function renderEmail(payload: SendEmailPayload): EmailTemplate {
-  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate;
+export async function renderEmail(payload: SendEmailPayload): Promise<EmailTemplate> {
+  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate | Promise<EmailTemplate>;
   return template(payload.data);
 }

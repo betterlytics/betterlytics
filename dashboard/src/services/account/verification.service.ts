@@ -66,7 +66,6 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
       data: {
         to: email,
         userName: getDisplayName(user.name, user.email),
-        verificationToken: token,
         verificationUrl,
       },
     });

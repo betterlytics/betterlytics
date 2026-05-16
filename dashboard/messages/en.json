@@ -1651,6 +1651,8 @@
     "emptyTitle": "No dashboards yet",
     "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
     "memberCountTooltip": "{count, plural, one {{count} member} other {{count} members}}",
+    "goToDashboardTooltip": "Go to {domain}",
+    "settingsTooltip": "Dashboard settings",
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
@@ -2405,7 +2407,8 @@
         "toastUndo": "Undo",
         "savedFiltersLimitReached": "Maximum saved filters reached"
       },
-      "filterBy": "Filter by {label}"
+      "filterBy": "Filter by {label}",
+      "removeFilter": "Remove filter"
     },
     "funnels": {
       "skeleton": {
@@ -2905,7 +2908,6 @@
         "retentionLabel": "Data Retention Period",
         "retentionHelp": "How long to keep analytics data before automatic deletion",
         "presets": {
-          "d1": "1 day",
           "m6": "6 months",
           "y1": "1 year",
           "y2": "2 years",

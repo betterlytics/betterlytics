@@ -3,6 +3,7 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import { validateToken } from '@/mcp/auth/token';
 import { createMcpServer, type McpContext } from '@/mcp/server';
 import { checkRateLimit } from '@/mcp/rate-limit';
+import { mcpRateLimitHitsTotal } from '@/mcp/metrics';
 
 export const runtime = 'nodejs';
 
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
 
   const { allowed, retryAfterMs } = checkRateLimit(context.siteId);
   if (!allowed) {
+    mcpRateLimitHitsTotal.inc();
     return Response.json(
       { jsonrpc: '2.0', error: { code: -32005, message: 'Rate limit exceeded' }, id: null },
       { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } },
