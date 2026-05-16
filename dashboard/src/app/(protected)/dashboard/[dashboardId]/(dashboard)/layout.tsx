@@ -15,7 +15,7 @@ import { requireAuth } from '@/auth/auth-actions';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { RealtimeQuerySync } from '@/components/dashboard/RealtimeQuerySync';
 import GithubStarCard from '@/components/githubStar/GithubStarCard';
-import { isEligibleForGithubStarPrompt } from '@/services/account/githubStarPrompt.service';
+import { getGithubStarPromptEligibility } from '@/actions/githubStarPrompt.action';
 
 type DashboardSidebarLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -37,7 +37,7 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
     isClientFeatureEnabled('isCloud') &&
     (!session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION);
 
-  const githubStarEligibilityPromise = isEligibleForGithubStarPrompt(session.user);
+  const githubStarEligibilityPromise = getGithubStarPromptEligibility();
 
   return (
     <SidebarProvider>

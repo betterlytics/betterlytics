@@ -9,35 +9,39 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { baEvent } from '@/lib/ba-event';
 import {
+  getGithubStarPromptEligibility,
   markGithubStarPromptDismissed,
   markGithubStarPromptStarred,
 } from '@/actions/githubStarPrompt.action';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const REPO_URL = 'https://github.com/betterlytics/betterlytics';
 
 interface GithubStarCardProps {
-  eligibilityPromise: Promise<boolean>;
+  eligibilityPromise: ReturnType<typeof getGithubStarPromptEligibility>;
 }
 
 const SHOW_DELAY_MS = 15_000;
 const EXIT_ANIMATION_MS = 500;
 
 export default function GithubStarCard({ eligibilityPromise }: GithubStarCardProps) {
-  const eligible = use(eligibilityPromise);
+  const eligibilityResponse = use(eligibilityPromise);
+  const eligible = eligibilityResponse.success && eligibilityResponse.data;
+  const isMobile = useIsMobile();
   const t = useTranslations('githubStar');
   const [hidden, setHidden] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!eligible) return;
+    if (!eligible || isMobile) return;
     const timer = setTimeout(() => {
       setVisible(true);
       baEvent('github-star-shown');
     }, SHOW_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [eligible]);
+  }, [eligible, isMobile]);
 
-  if (!eligible || hidden) return null;
+  if (!eligible || hidden || isMobile) return null;
 
   const animateOutThenHide = () => {
     setVisible(false);
@@ -63,8 +67,8 @@ export default function GithubStarCard({ eligibilityPromise }: GithubStarCardPro
   return (
     <Card
       aria-labelledby='github-star-card-title'
-      aria-hidden={!visible}
-      className={`fixed right-4 bottom-4 z-50 hidden w-[calc(100vw-2rem)] max-w-xs gap-0 overflow-hidden border-0 p-0 shadow-2xl transition-all duration-500 ease-out motion-reduce:transition-none sm:flex ${
+      inert={!visible}
+      className={`fixed right-4 bottom-4 z-50 hidden w-[calc(100vw-2rem)] max-w-xs gap-0 overflow-hidden border-0 p-0 shadow-2xl transition-all duration-500 ease-out motion-reduce:transition-none md:flex ${
         visible ? 'translate-x-0 opacity-100' : 'pointer-events-none translate-x-8 opacity-0'
       }`}
     >
