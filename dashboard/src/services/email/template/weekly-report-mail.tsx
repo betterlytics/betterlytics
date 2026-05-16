@@ -10,7 +10,6 @@ import { EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
 
 export interface EmailReportData extends EmailData {
   reportData: ReportData;
-  dashboardUrl: string;
 }
 
 function reviveReportDates(data: EmailReportData): EmailReportData {
@@ -218,7 +217,6 @@ const _twoWeeksAgo = new Date(_now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
 WeeklyReportEmail.PreviewProps = {
   to: 'user@example.com',
-  dashboardUrl: 'https://betterlytics.io/dashboard/example',
   reportData: {
     dashboardId: 'example',
     siteId: 'example',

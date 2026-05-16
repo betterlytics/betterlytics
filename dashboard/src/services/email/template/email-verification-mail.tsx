@@ -16,7 +16,6 @@ const CAMPAIGN = 'email_verification';
 
 export interface EmailVerificationData extends EmailData {
   userName: string;
-  verificationToken: string;
   verificationUrl: string;
 }
 
@@ -99,7 +98,6 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
 EmailVerificationEmail.PreviewProps = {
   to: 'user@example.com',
   userName: 'John Doe',
-  verificationToken: 'sample-token-123',
   verificationUrl: 'https://betterlytics.io/verify-email?token=sample-token-123',
 } satisfies EmailVerificationData;
 
