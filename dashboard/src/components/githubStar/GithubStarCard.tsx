@@ -62,7 +62,6 @@ export default function GithubStarCard({ eligibilityPromise }: GithubStarCardPro
 
   return (
     <Card
-      role='dialog'
       aria-labelledby='github-star-card-title'
       aria-hidden={!visible}
       className={`fixed right-4 bottom-4 z-50 hidden w-[calc(100vw-2rem)] max-w-xs gap-0 overflow-hidden border-0 p-0 shadow-2xl transition-all duration-500 ease-out motion-reduce:transition-none sm:flex ${
