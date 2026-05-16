@@ -58,6 +58,17 @@ enum ErrorGroupStatusValue {
   ignored
 }
 
+enum BugReportStatus {
+  open
+  resolved
+  ignored
+}
+
+enum SuperAdminAuditStatus {
+  success
+  failed
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -118,6 +129,8 @@ model User {
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
+
+  deletedAt DateTime?
 }
 
 model VerificationToken {
@@ -282,6 +295,10 @@ model DashboardSettings {
   // Data Settings
   dataRetentionDays Int @default(365) // Number of days to retain data
 
+  // Grace window after a plan-downgrade clamp
+  retentionGraceUntil     DateTime?
+  retentionGraceRestoreDays Int?
+
   // Report Settings
   weeklyReports Boolean @default(false)
   weeklyReportDay Int @default(1) // ISO: 1=Monday, 2=Tuesday, ... 7=Sunday
@@ -409,12 +426,14 @@ model BugReport {
   dashboardId String?
 
   message String
+  status BugReportStatus @default(open)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([dashboardId])
   @@index([userId])
+  @@index([status])
 }
 
 model Annotation {
@@ -521,4 +540,18 @@ model SentEmail {
 
   @@unique([recipientKey, campaignKey])
   @@index([recipientKey])
+}
+
+model SuperAdminAuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String
+  action       String
+  targetType   String
+  targetId     String?
+  payload      Json     @default("{}")
+  status       SuperAdminAuditStatus @default(success)
+  createdAt    DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([createdAt])
 }

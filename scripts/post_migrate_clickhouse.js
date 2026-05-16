@@ -55,6 +55,12 @@ async function main() {
     await client.exec({ query: `GRANT SELECT ON analytics.* TO worker_role` });
     await client.exec({ query: `GRANT dictGet ON analytics.* TO worker_role` });
     await client.exec({ query: `GRANT DELETE ON analytics.* TO worker_role` });
+    await client.exec({
+      query: `GRANT ALTER UPDATE ON analytics.* TO worker_role`,
+    });
+    await client.exec({
+      query: `GRANT ALTER DELETE ON analytics.* TO worker_role`,
+    });
     await client.exec({ query: `GRANT worker_role TO ${workerUser}` });
 
     console.log(

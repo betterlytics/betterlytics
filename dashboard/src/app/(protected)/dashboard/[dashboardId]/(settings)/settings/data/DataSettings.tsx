@@ -10,22 +10,54 @@ import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { toast } from 'sonner';
-import { ConfirmDialog } from '@/components/dialogs';
+import { DestructiveActionDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { ProBadge } from '@/components/billing/ProBadge';
+import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+
+const SELF_SERVE_MAX_RETENTION_DAYS = getMaxRetentionDaysForTier('professional');
 
 export default function DataSettings() {
   const dashboardId = useDashboardId();
   const { settings, refreshSettings } = useSettings();
+  const { caps } = useCapabilities();
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [isPending, startTransition] = useTransition();
+  const maxRetentionDays = caps.dataRetention.maxDataRetentionDays;
+  const visibleRetentionPresets = DATA_RETENTION_PRESETS.filter(
+    (preset) => preset.value <= maxRetentionDays || preset.value <= SELF_SERVE_MAX_RETENTION_DAYS,
+  );
 
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  const persistRetention = (newValue: number) => {
+    const previousValue = dataRetentionDays;
+    setDataRetentionDays(newValue);
+
+    startTransition(async () => {
+      try {
+        await updateDashboardSettingsAction(dashboardId, { dataRetentionDays: newValue });
+        await refreshSettings();
+        toast.success(t('toastSuccess'));
+      } catch {
+        setDataRetentionDays(previousValue);
+        toast.error(t('toastError'));
+      }
+    });
+  };
+
   const handleRetentionSelect = (value: string) => {
     const newValue = parseInt(value);
     if (newValue === dataRetentionDays) return;
+    if (newValue > maxRetentionDays) return;
+
+    if (newValue >= dataRetentionDays) {
+      persistRetention(newValue);
+      return;
+    }
 
     setPendingRetentionValue(newValue);
     setIsConfirmOpen(true);
@@ -33,23 +65,10 @@ export default function DataSettings() {
 
   const handleConfirmChange = () => {
     if (pendingRetentionValue === null) return;
-
-    const previousValue = dataRetentionDays;
-    setDataRetentionDays(pendingRetentionValue);
+    const newValue = pendingRetentionValue;
     setIsConfirmOpen(false);
-
-    startTransition(async () => {
-      try {
-        await updateDashboardSettingsAction(dashboardId, { dataRetentionDays: pendingRetentionValue });
-        await refreshSettings();
-        toast.success(t('toastSuccess'));
-      } catch {
-        setDataRetentionDays(previousValue);
-        toast.error(t('toastError'));
-      } finally {
-        setPendingRetentionValue(null);
-      }
-    });
+    setPendingRetentionValue(null);
+    persistRetention(newValue);
   };
 
   const handleCancelChange = () => {
@@ -84,11 +103,22 @@ export default function DataSettings() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {DATA_RETENTION_PRESETS.map((preset) => (
-                    <SelectItem key={preset.value} value={preset.value.toString()} className='cursor-pointer'>
-                      {t(`data.presets.${preset.i18nKey}`)}
-                    </SelectItem>
-                  ))}
+                  {visibleRetentionPresets.map((preset) => {
+                    const abovePlan = preset.value > maxRetentionDays;
+                    return (
+                      <SelectItem
+                        key={preset.value}
+                        value={preset.value.toString()}
+                        disabled={abovePlan}
+                        className='cursor-pointer'
+                      >
+                        <span className='flex w-full items-center justify-between gap-2'>
+                          <span>{t(`data.presets.${preset.i18nKey}`)}</span>
+                          {abovePlan && <ProBadge showIcon={false} />}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             )}
@@ -96,12 +126,14 @@ export default function DataSettings() {
         </div>
       </SettingsSection>
 
-      <ConfirmDialog
+      <DestructiveActionDialog
         open={isConfirmOpen}
         onOpenChange={handleCancelChange}
         title={t('data.retentionConfirm.title')}
         description={t('data.retentionConfirm.description', { period: getPendingPresetLabel() })}
         onConfirm={handleConfirmChange}
+        countdownSeconds={5}
+        showIcon
       />
     </div>
   );
