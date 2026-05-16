@@ -2908,16 +2908,15 @@
         "retentionLabel": "Data Retention Period",
         "retentionHelp": "How long to keep analytics data before automatic deletion",
         "presets": {
-          "d30": "30 days",
-          "m3": "3 months",
           "m6": "6 months",
           "y1": "1 year",
           "y2": "2 years",
-          "y3": "3 years"
+          "y3": "3 years",
+          "y5": "5 years"
         },
         "retentionConfirm": {
           "title": "Change retention period?",
-          "description": "Are you sure you want to change the data retention period to {period}?"
+          "description": "Changing retention to {period} means events older than {period} may be permanently deleted during the next scheduled cleanup."
         },
         "siteRules": {
           "title": "Site Rules",

@@ -166,6 +166,13 @@ function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
 }
 
+export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
+  return {
+    google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    github: Boolean(env.GITHUB_ID && env.GITHUB_SECRET),
+  };
+}
+
 function buildSocialProviders(): Provider[] {
   const providers: Provider[] = [];
 

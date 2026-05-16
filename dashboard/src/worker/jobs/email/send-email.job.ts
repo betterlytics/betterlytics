@@ -27,7 +27,7 @@ async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
   }
 
   try {
-    const template = renderEmail(payload);
+    const template = await renderEmail(payload);
     const providerMessageId = await dispatchEmail(template, payload.data, {
       mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
       smtpHost: workerEnv.SMTP_HOST,
