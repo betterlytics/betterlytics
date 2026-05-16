@@ -31,10 +31,21 @@ export const usageThresholdScanJobDefinition = {
   saasOnly: true,
 } as const satisfies JobDefinition;
 
+export const retentionPurgeJobDefinition = {
+  name: 'retention-purge',
+  schedule: '0 2 * * 6',
+  retryLimit: 2,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+} as const satisfies JobDefinition;
+
 export const JOB_DEFINITIONS = [
   emailReportsJobDefinition,
   sendEmailJobDefinition,
   usageThresholdScanJobDefinition,
+  retentionPurgeJobDefinition,
 ] as const;
 
 export type JobName = (typeof JOB_DEFINITIONS)[number]['name'];

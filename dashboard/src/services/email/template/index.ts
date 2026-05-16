@@ -24,6 +24,11 @@ export {
   generateReportEmailText,
 } from './weekly-report-mail';
 export {
+  createDataRetentionClampEmailTemplate,
+  generateDataRetentionClampEmailContent,
+  generateDataRetentionClampEmailText,
+} from './data-retention-clamp-mail';
+export {
   getEmailHeader,
   getEmailFooter,
   getTextEmailFooter,
