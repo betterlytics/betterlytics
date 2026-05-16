@@ -1,5 +1,6 @@
 import 'next-auth';
 import 'next-auth/jwt';
+import type { GithubStarPromptState } from '@prisma/client';
 import type { UserSettings } from '@/entities/account/userSettings.entities';
 import type { AdapterUser } from 'next-auth/adapters';
 
@@ -18,6 +19,8 @@ declare module 'next-auth' {
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
     changelogVersionSeen?: string | null;
+    createdAt?: Date;
+    githubStarPromptState?: GithubStarPromptState;
   }
 
   interface Session {
@@ -40,6 +43,8 @@ declare module 'next-auth/jwt' {
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
     changelogVersionSeen?: string | null;
+    createdAt?: Date;
+    githubStarPromptState?: GithubStarPromptState;
   }
 }
 

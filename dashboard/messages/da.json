@@ -3154,6 +3154,12 @@
       "action": "Læs mere"
     }
   },
+  "githubStar": {
+    "title": "Kan du lide Betterlytics?",
+    "description": "En stjerne på GitHub hjælper flere udviklere med at opdage projektet.",
+    "action": "Giv en stjerne på GitHub",
+    "dismiss": "Luk"
+  },
   "members": {
     "table": {
       "title": "Medlemmer",

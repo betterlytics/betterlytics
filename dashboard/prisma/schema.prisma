@@ -69,6 +69,12 @@ enum SuperAdminAuditStatus {
   failed
 }
 
+enum GithubStarPromptState {
+  pending
+  dismissed
+  starred
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -120,6 +126,8 @@ model User {
   changelogVersionSeen String? @default("v0")
 
   onboardingCompletedAt DateTime?
+
+  githubStarPromptState GithubStarPromptState @default(pending)
 
   dashboardAccess UserDashboard[]
   settings UserSettings?

@@ -149,6 +149,8 @@ export const authOptions: NextAuthOptions = {
       session.user.termsAcceptedAt = user.termsAcceptedAt;
       session.user.termsAcceptedVersion = user.termsAcceptedVersion;
       session.user.changelogVersionSeen = user.changelogVersionSeen;
+      session.user.createdAt = user.createdAt;
+      session.user.githubStarPromptState = user.githubStarPromptState;
       session.user.settings = settings;
 
       if (session.user.settings?.language) {
