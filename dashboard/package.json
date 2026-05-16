@@ -12,7 +12,8 @@
     "unit-tests": "vitest run",
     "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js && node scripts/post_migrate_monitoring_ro.js",
     "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma",
-    "mcp": "tsx src/mcp/index.ts"
+    "mcp": "tsx src/mcp/index.ts",
+    "email": "email dev --dir src/services/email/template"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"
@@ -48,13 +49,14 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.8",
     "@rrweb/types": "2.0.0-alpha.18",
     "@tanstack/react-query": "^5.74.4",
     "@tanstack/react-table": "^8.21.3",
     "@trpc/client": "^11.16.0",
     "@trpc/react-query": "^11.16.0",
     "@trpc/server": "^11.16.0",
-    "@types/escape-html": "^1.0.4",
     "@types/leaflet": "^1.9.17",
     "@vercel/otel": "^2.1.0",
     "bcrypt": "^6.0.0",
@@ -70,7 +72,6 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.5.0",
-    "escape-html": "^1.0.3",
     "geojson": "^0.5.0",
     "i18n-iso-countries": "^7.14.0",
     "ipaddr.js": "^2.2.0",
@@ -94,6 +95,7 @@
     "react": "^19.0.4",
     "react-day-picker": "9.9.0",
     "react-dom": "^19.0.4",
+    "react-email": "^6.1.4",
     "react-leaflet": "^5.0.0",
     "react-qr-code": "^2.0.18",
     "react-window": "^2.1.2",
@@ -109,6 +111,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@react-email/ui": "6.1.4",
     "@tailwindcss/postcss": "^4",
     "@tanstack/eslint-plugin-query": "^5.73.3",
     "@types/bcrypt": "^5.0.2",

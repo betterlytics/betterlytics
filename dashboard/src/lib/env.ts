@@ -26,7 +26,6 @@ const appEnvSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  ENABLE_MAIL_PREVIEW_PAGE: zStringBoolean,
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
   TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
   ENABLE_MONITORING: zStringBoolean,
