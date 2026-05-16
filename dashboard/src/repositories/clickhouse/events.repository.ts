@@ -133,19 +133,23 @@ export async function getRecentEvents(
   return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
 }
 
-export async function anySiteHasEvents(siteIds: string[]): Promise<boolean> {
+export async function anySiteHasEventsWithinDays(
+  siteIds: string[],
+  withinDays: number,
+): Promise<boolean> {
   if (siteIds.length === 0) return false;
 
   const query = safeSql`
     SELECT 1
     FROM analytics.events
     WHERE site_id IN ({site_ids:Array(String)})
+      AND timestamp > now() - INTERVAL {within_days:UInt32} DAY
     LIMIT 1
   `;
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_ids: siteIds },
+      params: { ...query.taggedParams, site_ids: siteIds, within_days: withinDays },
     })
     .toPromise()) as Array<unknown>;
 

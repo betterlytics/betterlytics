@@ -40,19 +40,6 @@ async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | nu
   }
 }
 
-export async function userHasGithubAccount(userId: string): Promise<boolean> {
-  try {
-    const account = await prisma.account.findFirst({
-      where: { userId, provider: 'github' },
-      select: { id: true },
-    });
-    return account !== null;
-  } catch (error) {
-    console.error('Error checking github account for user:', error);
-    return false;
-  }
-}
-
 export async function setGithubStarPromptState(
   userId: string,
   state: GithubStarPromptState,
