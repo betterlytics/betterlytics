@@ -262,3 +262,17 @@ export function PrimaryLink({
     </Link>
   );
 }
+
+export function Greeting({ userName, className }: { userName?: string | null; className?: string }) {
+  return (
+    <P className={className}>
+      {userName ? (
+        <>
+          Hi <strong>{userName}</strong>,
+        </>
+      ) : (
+        <>Hi,</>
+      )}
+    </P>
+  );
+}

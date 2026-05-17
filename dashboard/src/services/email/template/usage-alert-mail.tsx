@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { EmailData } from '@/services/email/types';
 import { formatPercentage } from '@/utils/formatters';
-import { EmailButton, EmailLayout, H1, H2, P, renderEmailTemplate, withEmailUtm } from './_components';
+import { EmailButton, EmailLayout, Greeting, H1, H2, P, renderEmailTemplate, withEmailUtm } from './_components';
 
 const CAMPAIGN = 'usage_alert';
 
@@ -86,15 +86,7 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
     <EmailLayout preview={preview} campaign={CAMPAIGN}>
       <H1>Usage alert</H1>
 
-      <P className='m-0 mb-4'>
-        {data.userName ? (
-          <>
-            Hi <strong>{data.userName}</strong>,
-          </>
-        ) : (
-          <>Hi,</>
-        )}
-      </P>
+      <Greeting userName={data.userName} className='m-0 mb-4' />
 
       <P className='m-0 mb-6'>
         {severity === 'exceeded' ? (

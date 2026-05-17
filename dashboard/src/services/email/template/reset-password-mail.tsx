@@ -10,6 +10,7 @@ import {
   InfoBox,
   P,
   PrimaryLink,
+  Greeting,
   renderEmailTemplate,
   withEmailUtm,
 } from './_components';
@@ -27,15 +28,7 @@ export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: Reset
     <EmailLayout preview='Reset your Betterlytics password' campaign={CAMPAIGN}>
       <H1>Reset Your Password</H1>
 
-      <P>
-        {userName ? (
-          <>
-            Hi <strong>{userName}</strong>,
-          </>
-        ) : (
-          <>Hi,</>
-        )}
-      </P>
+      <Greeting userName={userName} />
 
       <P>
         We received a request to reset your password for your Betterlytics account. If you made this request, click

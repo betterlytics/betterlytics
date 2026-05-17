@@ -4,6 +4,7 @@ import type { EmailData } from '@/services/email/types';
 import {
   EmailButton,
   EmailLayout,
+  Greeting,
   H1,
   InfoBox,
   P,
@@ -48,15 +49,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
     <EmailLayout preview='Verify your Betterlytics email address' campaign={CAMPAIGN}>
       <H1>Verify Your Email Address</H1>
 
-      <P>
-        {userName ? (
-          <>
-            Hi <strong>{userName}</strong>,
-          </>
-        ) : (
-          <>Hi,</>
-        )}
-      </P>
+      <Greeting userName={userName} />
 
       <P>
         Welcome to Betterlytics! To complete your registration, please verify your email address by clicking the
