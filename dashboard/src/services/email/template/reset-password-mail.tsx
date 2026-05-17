@@ -17,7 +17,7 @@ import {
 const CAMPAIGN = 'reset_password';
 
 export interface ResetPasswordEmailData extends EmailData {
-  userName: string;
+  userName?: string | null;
   resetUrl: string;
   expirationTime: string;
 }
@@ -28,7 +28,13 @@ export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: Reset
       <H1>Reset Your Password</H1>
 
       <P>
-        Hi <strong>{userName}</strong>,
+        {userName ? (
+          <>
+            Hi <strong>{userName}</strong>,
+          </>
+        ) : (
+          <>Hi,</>
+        )}
       </P>
 
       <P>

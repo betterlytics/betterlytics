@@ -6,7 +6,6 @@ import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
 import { addDays, addMonths } from 'date-fns';
 import { env } from '@/lib/env';
 import { enqueueEmail } from '@/services/email/email.service';
-import { getDisplayName } from '@/utils/userUtils';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { applyTierChangeToRetention } from '@/services/dashboard/dashboardSettings.service';
 import { findUserById } from '@/repositories/postgres/user.repository';
@@ -168,7 +167,7 @@ async function syncRetentionToTier(userId: string, newTier: TierName, eventId: s
     campaignKey: `data-retention-clamp:${eventId}`,
     data: {
       to: user.email,
-      userName: getDisplayName(user.name, user.email),
+      userName: user.name,
       newPlanName: capitalizeFirstLetter(newTier),
       previousRetentionDays: result.previousMaxRetention,
       newRetentionDays: newMaxDays,

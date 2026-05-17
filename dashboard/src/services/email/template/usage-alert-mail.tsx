@@ -10,7 +10,7 @@ const CAMPAIGN = 'usage_alert';
 type SerializableDate = Date | string;
 
 export interface UsageAlertEmailData extends EmailData {
-  userName: string;
+  userName?: string | null;
   currentUsage: number;
   usageLimit: number;
   usagePercentage: number;
@@ -87,7 +87,13 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
       <H1>Usage alert</H1>
 
       <P className='m-0 mb-4'>
-        Hi <strong>{data.userName}</strong>,
+        {data.userName ? (
+          <>
+            Hi <strong>{data.userName}</strong>,
+          </>
+        ) : (
+          <>Hi,</>
+        )}
       </P>
 
       <P className='m-0 mb-6'>

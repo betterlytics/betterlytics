@@ -19,7 +19,7 @@ const CAMPAIGN = 'data_retention_clamp';
 type SerializableDate = Date | string;
 
 export interface DataRetentionClampEmailData extends EmailData {
-  userName: string;
+  userName?: string | null;
   newPlanName: string;
   previousRetentionDays: number;
   newRetentionDays: number;
@@ -48,7 +48,13 @@ export function DataRetentionClampEmail(data: DataRetentionClampEmailData) {
       <H1>Your data retention has changed</H1>
 
       <P>
-        Hi <strong>{data.userName}</strong>,
+        {data.userName ? (
+          <>
+            Hi <strong>{data.userName}</strong>,
+          </>
+        ) : (
+          <>Hi,</>
+        )}
       </P>
 
       <P>We're letting you know about a change to your data retention as a result of your recent plan change.</P>

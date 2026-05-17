@@ -21,7 +21,6 @@ import {
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { addMinutes, isBefore, subMinutes } from 'date-fns';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { getDisplayName } from '@/utils/userUtils';
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 const VERIFICATION_URL_BASE = env.PUBLIC_BASE_URL;
@@ -65,7 +64,7 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
       campaignKey: `email-verification:${token}`,
       data: {
         to: email,
-        userName: getDisplayName(user.name, user.email),
+        userName: user.name,
         verificationUrl,
       },
     });

@@ -11,7 +11,6 @@ import {
 import { enqueueEmail } from '@/services/email/email.service';
 import { invalidateAllUserSessions } from '@/services/session.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
-import { getDisplayName } from '@/utils/userUtils';
 
 const TOKEN_EXPIRY_HOURS = 1;
 
@@ -53,7 +52,7 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
       campaignKey: `reset-password:${resetToken}`,
       data: {
         to: user.email,
-        userName: getDisplayName(user.name, user.email),
+        userName: user.name,
         resetUrl,
         expirationTime: `${TOKEN_EXPIRY_HOURS} hour${TOKEN_EXPIRY_HOURS > 1 ? 's' : ''}`,
       },

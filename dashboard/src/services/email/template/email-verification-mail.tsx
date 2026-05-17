@@ -15,7 +15,7 @@ import {
 const CAMPAIGN = 'email_verification';
 
 export interface EmailVerificationData extends EmailData {
-  userName: string;
+  userName?: string | null;
   verificationUrl: string;
 }
 
@@ -49,7 +49,13 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
       <H1>Verify Your Email Address</H1>
 
       <P>
-        Hi <strong>{userName}</strong>,
+        {userName ? (
+          <>
+            Hi <strong>{userName}</strong>,
+          </>
+        ) : (
+          <>Hi,</>
+        )}
       </P>
 
       <P>
