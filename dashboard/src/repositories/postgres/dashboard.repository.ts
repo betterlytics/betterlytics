@@ -100,7 +100,9 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        dashboard: {
+          createdAt: 'asc',
+        },
       },
     });
 
