@@ -10,6 +10,7 @@ import {
   InfoBox,
   P,
   PrimaryLink,
+  Greeting,
   renderEmailTemplate,
   withEmailUtm,
 } from './_components';
@@ -17,7 +18,7 @@ import {
 const CAMPAIGN = 'reset_password';
 
 export interface ResetPasswordEmailData extends EmailData {
-  userName: string;
+  userName?: string | null;
   resetUrl: string;
   expirationTime: string;
 }
@@ -27,9 +28,7 @@ export function ResetPasswordEmail({ userName, resetUrl, expirationTime }: Reset
     <EmailLayout preview='Reset your Betterlytics password' campaign={CAMPAIGN}>
       <H1>Reset Your Password</H1>
 
-      <P>
-        Hi <strong>{userName}</strong>,
-      </P>
+      <Greeting userName={userName} />
 
       <P>
         We received a request to reset your password for your Betterlytics account. If you made this request, click

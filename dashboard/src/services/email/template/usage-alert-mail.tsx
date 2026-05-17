@@ -3,14 +3,14 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { EmailData } from '@/services/email/types';
 import { formatPercentage } from '@/utils/formatters';
-import { EmailButton, EmailLayout, H1, H2, P, renderEmailTemplate, withEmailUtm } from './_components';
+import { EmailButton, EmailLayout, Greeting, H1, H2, P, renderEmailTemplate, withEmailUtm } from './_components';
 
 const CAMPAIGN = 'usage_alert';
 
 type SerializableDate = Date | string;
 
 export interface UsageAlertEmailData extends EmailData {
-  userName: string;
+  userName?: string | null;
   currentUsage: number;
   usageLimit: number;
   usagePercentage: number;
@@ -86,9 +86,7 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
     <EmailLayout preview={preview} campaign={CAMPAIGN}>
       <H1>Usage alert</H1>
 
-      <P className='m-0 mb-4'>
-        Hi <strong>{data.userName}</strong>,
-      </P>
+      <Greeting userName={data.userName} className='m-0 mb-4' />
 
       <P className='m-0 mb-6'>
         {severity === 'exceeded' ? (
