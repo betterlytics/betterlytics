@@ -41,7 +41,8 @@ SELECT
     min(tuple(timestamp, utm_medium)) AS utm_medium,
     min(tuple(timestamp, utm_campaign)) AS utm_campaign,
     min(tuple(timestamp, utm_term)) AS utm_term,
-    min(tuple(timestamp, utm_content)) AS utm_content
+    min(tuple(timestamp, utm_content)) AS utm_content,
+    groupUniqArrayArray(arrayZip(global_properties_keys, global_properties_values)) AS all_props
 FROM analytics.events
 GROUP BY site_id, session_created_at, session_id;
 
