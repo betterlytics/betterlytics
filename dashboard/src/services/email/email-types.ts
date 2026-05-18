@@ -5,6 +5,9 @@ import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/templat
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
 import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
+import { createPasswordChangedEmailTemplate } from '@/services/email/template/password-changed-mail';
+import { createTwoFactorEnabledEmailTemplate } from '@/services/email/template/two-factor-enabled-mail';
+import { createTwoFactorDisabledEmailTemplate } from '@/services/email/template/two-factor-disabled-mail';
 import type { EmailTemplate } from '@/services/email/types';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
@@ -47,6 +50,21 @@ export const EMAIL_TYPES = {
     template: createDataRetentionClampEmailTemplate,
     saasOnly: true,
     retry: DEFAULT_RETRY,
+  },
+  'password-changed': {
+    template: createPasswordChangedEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-enabled': {
+    template: createTwoFactorEnabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-disabled': {
+    template: createTwoFactorDisabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
   },
 } as const;
 
