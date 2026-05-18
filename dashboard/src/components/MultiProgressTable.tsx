@@ -224,11 +224,7 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-           <ScrollArea className={cn(
-            'h-[22rem]',
-            '[&_[data-slot=scroll-area-scrollbar]]:translate-x-2 [&_[data-slot=scroll-area-scrollbar]]:mix-blend-screen',
-            '[&_[data-slot=scroll-area-thumb]]:border [&_[data-slot=scroll-area-thumb]]:border-gray-500'
-            )}>
+           <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
             {renderTabContent(tab)}
           </ScrollArea>
         </TabsContent>
