@@ -4,8 +4,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
-import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
-import { ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -225,12 +224,13 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-          <ScrollAreaPrimitive.Root className='relative h-[22rem]'>
-            <ScrollAreaPrimitive.Viewport className='h-full w-full'>
-              {renderTabContent(tab)}
-            </ScrollAreaPrimitive.Viewport>
-          <ScrollBar className='translate-x-2 mix-blend-screen [&_[data-slot=scroll-area-thumb]]:border [&_[data-slot=scroll-area-thumb]]:border-gray-500' />
-          </ScrollAreaPrimitive.Root>
+           <ScrollArea className={cn(
+            'h-[22rem]',
+            '[&_[data-slot=scroll-area-scrollbar]]:translate-x-2 [&_[data-slot=scroll-area-scrollbar]]:mix-blend-screen',
+            '[&_[data-slot=scroll-area-thumb]]:border [&_[data-slot=scroll-area-thumb]]:border-gray-500'
+            )}>
+            {renderTabContent(tab)}
+          </ScrollArea>
         </TabsContent>
       )),
     [tabs, renderTabContent],
