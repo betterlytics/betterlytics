@@ -9,7 +9,7 @@ import { findUsersWithoutDashboardsInWindow } from '@/repositories/postgres/user
 import { findEmailsWithActivePendingInvitations } from '@/repositories/postgres/invitation.repository';
 import { findSentRecipientKeys } from '@/repositories/postgres/sentEmail.repository';
 import { enqueueEmail } from '@/services/email/email.service';
-import { createDashboardRecipientKey } from '@/services/email/recipient-key.service';
+import { createDashboardRecipientKey, createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { getWorkerClickHouseClient } from '@/worker/workerClickhouse';
 
@@ -42,7 +42,7 @@ async function fetchSitesWithEvents(siteIds: string[], notBefore: Date): Promise
       FROM analytics.events
       WHERE site_id IN {siteIds:Array(String)}
         AND timestamp >= toDateTime({notBefore:UInt32})
-      GROUP BY site_id`,
+      LIMIT 1 BY site_id`,
     { params: { siteIds, notBefore: Math.floor(notBefore.getTime() / 1000) } },
   );
   const rows = (await cursor.toPromise()) as Array<{ siteId: string }>;
@@ -71,13 +71,13 @@ async function processCreateSiteNudges(now: Date): Promise<number> {
   if (candidates.length === 0) return 0;
 
   const alreadySent = await findSentRecipientKeys(
-    candidates.map((c) => c.userId),
+    candidates.map((c) => createUserRecipientKey(c.userId)),
     CAMPAIGN_CREATE_SITE_NUDGE,
   );
   let enqueued = 0;
 
   for (const candidate of candidates) {
-    if (alreadySent.has(candidate.userId)) continue;
+    if (alreadySent.has(createUserRecipientKey(candidate.userId))) continue;
     try {
       await enqueueCreateSiteNudge(candidate);
       enqueued++;
@@ -145,7 +145,7 @@ async function processDashboardLifecycleEmails(now: Date): Promise<{ firstVisito
 async function enqueueCreateSiteNudge(candidate: UserWithoutDashboardCandidate): Promise<void> {
   await enqueueEmail({
     type: 'create-site-nudge',
-    recipientKey: candidate.userId,
+    recipientKey: createUserRecipientKey(candidate.userId),
     campaignKey: CAMPAIGN_CREATE_SITE_NUDGE,
     data: {
       to: candidate.email,

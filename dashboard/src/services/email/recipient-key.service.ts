@@ -12,3 +12,7 @@ export function createEmailRecipientKey(email: string): string {
 export function createDashboardRecipientKey(dashboardId: string): string {
   return `dashboard:${dashboardId}`;
 }
+
+export function createUserRecipientKey(userId: string): string {
+  return `user:${userId}`;
+}

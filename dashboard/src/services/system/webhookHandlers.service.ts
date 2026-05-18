@@ -6,6 +6,7 @@ import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
 import { addDays, addMonths } from 'date-fns';
 import { env } from '@/lib/env';
 import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { applyTierChangeToRetention } from '@/services/dashboard/dashboardSettings.service';
 import { findUserById } from '@/repositories/postgres/user.repository';
@@ -163,7 +164,7 @@ async function syncRetentionToTier(userId: string, newTier: TierName, eventId: s
 
   await enqueueEmail({
     type: 'data-retention-clamp',
-    recipientKey: userId,
+    recipientKey: createUserRecipientKey(userId),
     campaignKey: `data-retention-clamp:${eventId}`,
     data: {
       to: user.email,
