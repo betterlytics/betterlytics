@@ -15,7 +15,7 @@ export const BrowserIcon = React.memo<BrowserIconProps>(({ name, className = 'h-
 
   const def = resolveBrowser(name);
 
-  if (!def) return <Globe className={className} />;
+  if (!def) return <Globe className={cn('shrink-0', className)} />;
 
   if (def?.icon && !iconFailed) {
     return (
@@ -31,10 +31,16 @@ export const BrowserIcon = React.memo<BrowserIconProps>(({ name, className = 'h-
   }
 
   if (def?.localFile) {
-    return <img src={`/browser-icons/${def.localFile}`} alt={def.label} className={className} />;
+    return (
+      <img
+        src={`/browser-icons/${def.localFile}`}
+        alt={def.label}
+        className={cn('shrink-0', className)}
+      />
+    );
   }
 
-  return <Globe className={className} />;
+  return <Globe className={cn('shrink-0', className)} />;
 });
 
 BrowserIcon.displayName = 'BrowserIcon';

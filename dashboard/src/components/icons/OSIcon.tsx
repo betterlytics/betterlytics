@@ -25,7 +25,7 @@ export const OSIcon = React.memo<OSIconProps>(({ name, className = 'h-3.5 w-3.5'
   }, [name, resolvedTheme]);
 
   if (!iconName) {
-    return <Monitor className={className} />;
+    return <Monitor className={cn('shrink-0', className)} />;
   }
 
   return (
