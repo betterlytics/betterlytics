@@ -14,7 +14,8 @@ import {
 import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
-import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
+import { createEmailRecipientKey, createUserRecipientKey } from '@/services/email/recipient-key.service';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
@@ -128,13 +129,41 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
 
   if (existingAccess) {
     await updateInvitationStatus(invitation.id, 'accepted');
+    await sendInvitationAcceptedNotification(invitation, userEmail);
     return invitation.dashboardId;
   }
 
   await addDashboardMember(invitation.dashboardId, userId, invitation.role);
   await updateInvitationStatus(invitation.id, 'accepted');
+  await sendInvitationAcceptedNotification(invitation, userEmail);
 
   return invitation.dashboardId;
+}
+
+async function sendInvitationAcceptedNotification(
+  invitation: InvitationWithInviter,
+  accepterEmail: string,
+): Promise<void> {
+  if (!invitation.invitedBy.email || !invitation.dashboard?.domain) return;
+  try {
+    await enqueueEmail({
+      type: 'invitation-accepted',
+      recipientKey: createUserRecipientKey(invitation.invitedBy.id),
+      campaignKey: `invitation-accepted:${invitation.id}`,
+      data: {
+        to: invitation.invitedBy.email,
+        inviterName: invitation.invitedBy.name,
+        accepterEmail,
+        dashboardDomain: invitation.dashboard.domain,
+        dashboardUrl: `${sharedEmailEnv.publicBaseUrl}/dashboard/${invitation.dashboardId}/settings/members`,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to enqueue invitation-accepted notification:', {
+      invitationId: invitation.id,
+      err,
+    });
+  }
 }
 
 export async function declineInvitation(invitationId: string, userEmail: string): Promise<void> {
@@ -181,6 +210,7 @@ export async function acceptPendingInvitations(userId: string, email: string): P
     }
 
     await updateInvitationStatus(invitation.id, 'accepted');
+    await sendInvitationAcceptedNotification(invitation, email);
   }
 
   return accepted;

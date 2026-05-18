@@ -8,3 +8,7 @@ export function createEmailRecipientKey(email: string): string {
 
   return `email:${hash}`;
 }
+
+export function createUserRecipientKey(userId: string): string {
+  return `user:${userId}`;
+}

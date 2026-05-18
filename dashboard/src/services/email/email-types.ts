@@ -6,6 +6,8 @@ import { createDashboardInvitationEmailTemplate } from '@/services/email/templat
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
 import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
 import type { EmailTemplate } from '@/services/email/types';
+import { createInvitationAcceptedEmailTemplate } from './template/invitation-accepted-mail';
+import { createMemberRemovedEmailTemplate } from './template/member-removed-mail';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
 
@@ -46,6 +48,16 @@ export const EMAIL_TYPES = {
   'data-retention-clamp': {
     template: createDataRetentionClampEmailTemplate,
     saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'invitation-accepted': {
+    template: createInvitationAcceptedEmailTemplate,
+    saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
+  'member-removed': {
+    template: createMemberRemovedEmailTemplate,
+    saasOnly: false,
     retry: DEFAULT_RETRY,
   },
 } as const;
