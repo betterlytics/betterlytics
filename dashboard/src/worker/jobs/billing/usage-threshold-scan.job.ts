@@ -37,7 +37,7 @@ async function runUsageThresholdScan(): Promise<void> {
         campaignKey: `usage-alert:${kind}:${sub.currentPeriodStart.toISOString()}`,
         data: {
           to: sub.userEmail,
-          userName: sub.userName ?? sub.userEmail,
+          userName: sub.userName,
           currentUsage: usage,
           usageLimit: sub.eventLimit,
           usagePercentage: pct,

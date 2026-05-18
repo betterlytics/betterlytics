@@ -1,7 +1,7 @@
 import 'server-only';
 
 import prisma from '@/lib/postgres';
-import { Prisma } from '@prisma/client';
+import { GithubStarPromptState, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import {
   User,
@@ -37,6 +37,21 @@ async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | nu
   } catch (error) {
     console.error(`Error finding user by ${where}:`, error);
     throw new Error(`Failed to find user by ${where}.`);
+  }
+}
+
+export async function setGithubStarPromptState(
+  userId: string,
+  state: GithubStarPromptState,
+): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { githubStarPromptState: state },
+    });
+  } catch (error) {
+    console.error('Error updating github star prompt state:', error);
+    throw new Error('Failed to update github star prompt state');
   }
 }
 

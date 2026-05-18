@@ -5,6 +5,7 @@
     "backend": "pnpm --filter backend dev",
     "dashboard": "pnpm --filter dashboard dev",
     "docs": "pnpm --filter docs dev",
+    "emails": "pnpm --filter dashboard email",
     "build": "pnpm --filter dashboard build",
     "start": "pnpm --filter dashboard start",
     "compose": "docker compose up -d --build --wait && pnpm run migrate && pnpm run generate",

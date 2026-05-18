@@ -3148,6 +3148,12 @@
       "action": "Learn more"
     }
   },
+  "githubStar": {
+    "title": "Enjoying Betterlytics?",
+    "description": "A star on GitHub helps more developers discover the project.",
+    "action": "Star on GitHub",
+    "dismiss": "Dismiss"
+  },
   "members": {
     "table": {
       "title": "Members",

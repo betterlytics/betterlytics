@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
+require("dotenv").config();
 
 const { createClient } = require("@clickhouse/client");
 
@@ -25,16 +23,16 @@ async function main() {
   });
 
   try {
-    await client.exec({
+    await client.command({
       query: `GRANT dictGet ON analytics.* TO backend_role`,
     });
-    await client.exec({
+    await client.command({
       query: `GRANT SELECT ON system.dictionaries TO backend_role`,
     });
-    await client.exec({
+    await client.command({
       query: `GRANT SYSTEM RELOAD DICTIONARY ON *.* TO backend_role`,
     });
-    await client.exec({
+    await client.command({
       query: `GRANT dictGet ON analytics.* TO dashboard_role`,
     });
 
@@ -45,23 +43,29 @@ async function main() {
       return;
     }
 
-    await client.exec({
+    await client.command({
       query: `CREATE USER IF NOT EXISTS ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'`,
     });
-    await client.exec({
+    await client.command({
       query: `ALTER USER ${workerUser} IDENTIFIED BY '${workerPassword.replace(/'/g, "\\'")}'`,
     });
-    await client.exec({ query: `CREATE ROLE IF NOT EXISTS worker_role` });
-    await client.exec({ query: `GRANT SELECT ON analytics.* TO worker_role` });
-    await client.exec({ query: `GRANT dictGet ON analytics.* TO worker_role` });
-    await client.exec({ query: `GRANT DELETE ON analytics.* TO worker_role` });
-    await client.exec({
+    await client.command({ query: `CREATE ROLE IF NOT EXISTS worker_role` });
+    await client.command({
+      query: `GRANT SELECT ON analytics.* TO worker_role`,
+    });
+    await client.command({
+      query: `GRANT dictGet ON analytics.* TO worker_role`,
+    });
+    await client.command({
+      query: `GRANT DELETE ON analytics.* TO worker_role`,
+    });
+    await client.command({
       query: `GRANT ALTER UPDATE ON analytics.* TO worker_role`,
     });
-    await client.exec({
+    await client.command({
       query: `GRANT ALTER DELETE ON analytics.* TO worker_role`,
     });
-    await client.exec({ query: `GRANT worker_role TO ${workerUser}` });
+    await client.command({ query: `GRANT worker_role TO ${workerUser}` });
 
     console.log(
       "Post-migration (clickhouse): user and privileges ensured successfully.",
