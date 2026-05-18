@@ -3,8 +3,11 @@
 import {
   getTopGlobalPropertyKeys,
   getTopGlobalPropertyValuesForKeys,
+  getTopGlobalPropertyKeysForEvent,
+  getTopGlobalPropertyValuesForEventKeys,
 } from '@/repositories/clickhouse/globalProperties.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { GlobalPropertyForEventAggregate } from '@/presenters/toEventPropertyAnalyticsFromGlobalEvent';
 
 export type GlobalPropertyAggregate = {
   property_key: string;
@@ -37,6 +40,39 @@ export async function getGlobalPropertiesOverview(
 
   return topKeys.map((topKey) => ({
     ...topKey,
+    values: valuesByKey.get(topKey.property_key) ?? [],
+  }));
+}
+
+export async function getGlobalPropertiesForEvent(
+  siteQuery: BASiteQuery,
+  eventName: string,
+  keyLimit: number,
+  valueLimit: number,
+): Promise<GlobalPropertyForEventAggregate[]> {
+  const topKeys = await getTopGlobalPropertyKeysForEvent(siteQuery, eventName, keyLimit);
+  if (topKeys.length === 0) {
+    return [];
+  }
+
+  const valueRows = await getTopGlobalPropertyValuesForEventKeys(
+    siteQuery,
+    eventName,
+    topKeys.map((k) => k.property_key),
+    valueLimit,
+  );
+
+  const valuesByKey = new Map<string, { value: string; event_count: number }[]>();
+  for (const row of valueRows) {
+    const list = valuesByKey.get(row.property_key) ?? [];
+    list.push({ value: row.value, event_count: row.event_count });
+    valuesByKey.set(row.property_key, list);
+  }
+
+  return topKeys.map((topKey) => ({
+    property_key: topKey.property_key,
+    event_count: topKey.event_count,
+    unique_value_count: topKey.unique_value_count,
     values: valuesByKey.get(topKey.property_key) ?? [],
   }));
 }

@@ -2415,8 +2415,16 @@
       },
       "expandedEventContent": {
         "loading": "Loading properties...",
-        "noProperties": "No Properties",
-        "noPropertiesDesc": "This event has no custom properties."
+        "noPropertiesTitle": "No Properties",
+        "noPropertiesDesc": "This event has no custom properties.",
+        "eventProperties": "Event properties",
+        "globalProperties": "Global properties",
+        "eventPropertiesInline": "event properties",
+        "globalPropertiesInline": "global properties",
+        "noProperties": "No {propertyName} on these events.",
+        "noEventOrGlobalProperties": "No event or global properties recorded for these events.",
+        "valueCount": "{count, plural, one {{count} value} other {{count} values}}",
+        "moreValues": "{count, plural, one {+{count} more} other {+{count} more}}"
       }
     },
     "tabbedTable": {

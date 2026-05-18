@@ -1,4 +1,7 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { EventPropertyAnalytics } from '@/entities/analytics/events.entities';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { cn } from '@/lib/utils';
@@ -10,10 +13,12 @@ interface PropertyRowProps {
 }
 
 export function PropertyRow({ property, isExpanded, onToggle }: PropertyRowProps) {
+  const t = useTranslations('components.events.expandedEventContent');
   const hasValues = property.topValues.length > 0;
+  const hiddenValueCount = property.uniqueValueCount - property.topValues.length;
 
   return (
-    <div className='relative space-y-3'>
+    <div className='relative space-y-2.5'>
       <div
         className={cn(
           'hover:ring-border/60 flex cursor-pointer items-center gap-3 rounded px-3 py-2 transition-colors hover:ring-1',
@@ -36,28 +41,28 @@ export function PropertyRow({ property, isExpanded, onToggle }: PropertyRowProps
           )}
         </div>
 
-        <div className='flex min-w-0 flex-1 items-center justify-between'>
+        <div className='flex min-w-0 flex-1 items-center justify-start gap-3'>
           <span className='text-foreground text-sm font-medium'>{property.propertyName}</span>
+          {property.uniqueValueCount > 0 && (
+            <Badge variant='outline'>{t('valueCount', { count: property.uniqueValueCount })}</Badge>
+          )}
         </div>
       </div>
 
       {isExpanded && hasValues && (
-        <>
-          {/* Connecting border */}
-          <div className='bg-border/80 absolute top-10 bottom-0 left-[1.15rem] w-px' />
-
-          <div className='ml-7 space-y-2'>
-            {property.topValues.map((value, index) => (
-              <PropertyValueBar key={index} value={value} />
-            ))}
-
-            {property.uniqueValueCount > property.topValues.length && (
-              <div className='text-muted-foreground flex items-center gap-2 px-3 py-1.5 text-xs'>
-                <span>+{property.uniqueValueCount - property.topValues.length} more</span>
+          <ScrollArea className='relative [&_[data-slot=scroll-area-viewport]]:max-h-48 [&_[data-slot=scroll-area-scrollbar]]:translate-x-1'>
+            <div className='bg-border/80 absolute top-0 bottom-0 left-[1.15rem] z-10 w-px' />
+            <div className='ml-7 space-y-2 pr-2'>
+              {property.topValues.map((value, index) => (
+                <PropertyValueBar key={index} value={value} />
+              ))}
+            </div>
+            {hiddenValueCount > 0 && (
+              <div className='text-muted-foreground ml-7 flex items-center gap-2 py-3 px-1.5 text-xs'>
+                <span>{t('moreValues', { count: hiddenValueCount })}</span>
               </div>
             )}
-          </div>
-        </>
+          </ScrollArea>
       )}
     </div>
   );

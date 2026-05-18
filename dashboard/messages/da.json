@@ -2418,8 +2418,16 @@
       },
       "expandedEventContent": {
         "loading": "Indlæser egenskaber...",
-        "noProperties": "Ingen egenskaber",
-        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber."
+        "noPropertiesTitle": "Ingen egenskaber",
+        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber.",
+        "eventProperties": "Hændelsesegenskaber",
+        "globalProperties": "Globale egenskaber",
+        "eventPropertiesInline": "hændelsesegenskaber",
+        "globalPropertiesInline": "globale egenskaber",
+        "noProperties": "Ingen {propertyName} på disse hændelser.",
+        "noEventOrGlobalProperties": "Ingen hændelses- eller globale egenskaber registreret for disse hændelser.",
+        "valueCount": "{count, plural, one {{count} værdi} other {{count} værdier}}",
+        "moreValues": "{count, plural, one {+{count} mere} other {+{count} mere}}"
       }
     },
     "tabbedTable": {
