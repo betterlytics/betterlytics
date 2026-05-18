@@ -32,7 +32,7 @@ export function FunnelsStack() {
               <h2 className='text-foreground px-1 text-xl font-semibold sm:px-2'>{funnel.name}</h2>
               <FunnelActionButtons funnel={funnel} />
             </div>
-            <FunnelBarplot funnel={funnel} />
+            <FunnelBarplot funnel={funnel} status='data' />
           </div>
         ))}
       </div>

@@ -2391,6 +2391,7 @@
         "title": "Filters",
         "emptyNoneSelected": "No filters selected - apply to save",
         "addFilter": "Add filter",
+        "addFilterPlaceholder": "Add one or more filters",
         "cancel": "Cancel",
         "apply": "Apply",
         "selectValue": "Select a value",
@@ -2434,7 +2435,13 @@
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
-        "errorMessage": "Funnel creation failed!"
+        "errorMessage": "Funnel creation failed!",
+        "filterCount": "{count, plural, =0 {No filters} =1 {1 filter} other {# filters}}",
+        "tooltip": {
+          "deleteStep": "Delete step {index}",
+          "reorderStep": "Reorder step {index}",
+          "toggleStep": "Toggle step {index}"
+        }
       },
       "edit": {
         "title": "Edit funnel",

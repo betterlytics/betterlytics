@@ -2,14 +2,6 @@
 
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
 import { ComponentProps, useCallback, useMemo, useState } from 'react';
 import { postFunnelAction } from '@/app/actions/index.actions';
@@ -18,8 +10,10 @@ import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
+import { createEmptyQueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { FunnelDialogContent } from './FunnelDialogContent';
+import { FunnelDialogLayout } from './FunnelDialogLayout';
 
 type CreateFunnelDialogProps = {
   triggerText?: string;
@@ -28,8 +22,8 @@ type CreateFunnelDialogProps = {
 };
 
 const createDefaultSteps = () => [
-  { id: generateTempId(), column: 'url' as const, operator: '=' as const, values: [], name: '' },
-  { id: generateTempId(), column: 'url' as const, operator: '=' as const, values: [], name: '' },
+  { id: generateTempId(), name: '', filters: [createEmptyQueryFilter()] },
+  { id: generateTempId(), name: '', filters: [createEmptyQueryFilter()] },
 ];
 
 export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: CreateFunnelDialogProps) {
@@ -38,25 +32,12 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const dashboardId = useDashboardId();
   const utils = trpc.useUtils();
-  const {
-    metadata,
-    setName,
-    setIsStrict,
-    funnelSteps,
-    addEmptyFunnelStep,
-    updateFunnelStep,
-    removeFunnelStep,
-    searchableFunnelSteps,
-    funnelPreview,
-    emptySteps,
-    reset,
-    isPreviewLoading,
-    setFunnelSteps,
-  } = useFunnelDialog({
+  const dialog = useFunnelDialog({
     dashboardId,
     initialName: '',
     initialSteps: createDefaultSteps(),
   });
+  const { metadata, funnelSteps, reset } = dialog;
 
   const isCreateValid = useMemo(
     () =>
@@ -94,53 +75,45 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     }
   }, []);
 
+  const handleCancel = useCallback(() => {
+    setIsOpen(false);
+    setHasAttemptedSubmit(false);
+    reset({ name: '', isStrict: false, steps: createDefaultSteps() });
+  }, [reset]);
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
+    <FunnelDialogLayout
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      title={t('create.createFunnel')}
+      trigger={
         <Button variant={triggerVariant || 'ghost'} className='cursor-pointer' disabled={disabled}>
           <PlusIcon className='h-4 w-4' />
           {triggerText}
         </Button>
-      </DialogTrigger>
-      <DialogContent
-        aria-describedby={undefined}
-        className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'
-      >
-        <DialogHeader>
-          <DialogTitle>{t('create.createFunnel')}</DialogTitle>
-        </DialogHeader>
-        <FunnelDialogContent
-          metadata={metadata}
-          setName={setName}
-          setIsStrict={setIsStrict}
-          funnelSteps={funnelSteps}
-          addEmptyFunnelStep={addEmptyFunnelStep}
-          setFunnelSteps={setFunnelSteps}
-          updateFunnelStep={updateFunnelStep}
-          removeFunnelStep={removeFunnelStep}
-          searchableFunnelSteps={searchableFunnelSteps}
-          funnelPreview={funnelPreview}
-          emptySteps={emptySteps}
-          isPreviewLoading={isPreviewLoading}
-          hasAttemptedSubmit={hasAttemptedSubmit}
-          labels={{
-            name: t('create.name'),
-            namePlaceholder: t('create.namePlaceholder'),
-            strictMode: t('create.strictMode'),
-            addStep: t('create.addStep'),
-            livePreview: t('create.livePreview'),
-            defineAtLeastTwoSteps: t('preview.defineAtLeastTwoSteps'),
-          }}
-        />
-        <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+      }
+      footer={
+        <>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={handleCancel}>
             {t('create.cancel')}
           </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>
             {t('create.create')}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </>
+      }
+    >
+      <FunnelDialogContent
+        dialog={dialog}
+        hasAttemptedSubmit={hasAttemptedSubmit}
+        initialOpenId={funnelSteps[0]?.id}
+        labels={{
+          name: t('create.name'),
+          namePlaceholder: t('create.namePlaceholder'),
+          strictMode: t('create.strictMode'),
+          addStep: t('create.addStep'),
+        }}
+      />
+    </FunnelDialogLayout>
   );
 }

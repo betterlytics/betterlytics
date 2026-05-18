@@ -2402,6 +2402,7 @@
         "title": "Filtre",
         "emptyNoneSelected": "Ingen filtre valgt – klikk Bruk for å lagre",
         "addFilter": "Legg til filter",
+        "addFilterPlaceholder": "Legg til ett eller flere filtre",
         "cancel": "Avbryt",
         "apply": "Bruk",
         "selectValue": "Velg en verdi",
@@ -2445,7 +2446,13 @@
         "create": "Opprett",
         "createDisabledHint": "Angi et traktnavn og definer minst to trinn. <br></br> Hvert trinn må ha både et navn og en valgt verdi.",
         "successMessage": "Trakt opprettet!",
-        "errorMessage": "Traktopprettelse mislyktes!"
+        "errorMessage": "Traktopprettelse mislyktes!",
+        "filterCount": "{count, plural, =0 {Ingen filtre} =1 {1 filter} other {# filtre}}",
+        "tooltip": {
+          "deleteStep": "Slett trinn {index}",
+          "reorderStep": "Omorganiser trinn {index}",
+          "toggleStep": "Vis/skjul trinn {index}"
+        }
       },
       "edit": {
         "title": "Rediger trakt",

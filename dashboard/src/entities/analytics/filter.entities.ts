@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { generateTempId } from '@/utils/temporaryId';
+
 export const FILTER_COLUMNS = [
   'url',
   'domain',
@@ -47,6 +49,11 @@ export const QueryFilterSchema = z.object({
 });
 
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
+
+export function createEmptyQueryFilter(): QueryFilter {
+  return { id: generateTempId(), column: 'url', operator: '=', values: [] };
+}
+
 export type FilterColumn = TableFilterColumn | `gp.${string}`;
 export type TableFilterColumn = (typeof FILTER_COLUMNS)[number];
 export type FilterOperator = (typeof FILTER_OPERATORS)[number];

@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { QueryFilterSchema } from './filter.entities';
 
-export const FunnelStepSchema = QueryFilterSchema.extend({
+export const FunnelStepSchema = z.object({
+  id: z.string(),
   name: z.string(),
+  filters: z.array(QueryFilterSchema),
 });
 
 export const FunnelSchema = z.object({
@@ -29,9 +31,10 @@ export const CreateFunnelSchema = z.object({
   isStrict: z.boolean(),
   funnelSteps: z
     .array(
-      FunnelStepSchema.extend({
+      z.object({
         name: z.string().min(1, 'Name is required'),
-      }).omit({ id: true }),
+        filters: z.array(QueryFilterSchema.omit({ id: true })).min(1),
+      }),
     )
     .min(2),
 });

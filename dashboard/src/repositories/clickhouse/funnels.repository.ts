@@ -4,6 +4,34 @@ import { SQL, safeSql } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { DateTimeString } from '@/types/dates';
 import { FunnelStep } from '@/entities/analytics/funnels.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
+
+const isUsableFilter = (f: QueryFilter) =>
+  Boolean(f.column) && Boolean(f.operator) && f.values.every(Boolean);
+
+/**
+ * Build one compound SQL condition per funnel step (filters AND'd together).
+ * Flattens all filters across all steps into a single getFilterQuery call so its
+ * internal counter mints globally-unique parameter placeholders, then re-buckets
+ * the resulting SQL fragments back per step.
+ */
+function buildStepConditions(funnelSteps: FunnelStep[]) {
+  const buckets = funnelSteps.map((step) => step.filters.filter(isUsableFilter));
+  const flat = buckets.flatMap((bucket, stepIdx) =>
+    bucket.map((filter) => ({ stepIdx, filter })),
+  );
+
+  const sqls = flat.length === 0 ? [] : BAQuery.getFilterQuery(flat.map((x) => x.filter));
+
+  const grouped: ReturnType<typeof safeSql>[][] = funnelSteps.map(() => []);
+  flat.forEach((f, i) => grouped[f.stepIdx].push(sqls[i]));
+
+  return grouped.map((parts) => {
+    if (parts.length === 0) return safeSql`1=1`;
+    if (parts.length === 1) return parts[0];
+    return safeSql`(${SQL.AND(parts)})`;
+  });
+}
 
 export async function getFunnelDetails(
   siteId: string,
@@ -12,7 +40,7 @@ export async function getFunnelDetails(
   startDate?: DateTimeString,
   endDate?: DateTimeString,
 ): Promise<number[]> {
-  const filters = BAQuery.getFilterQuery(funnelSteps);
+  const filters = buildStepConditions(funnelSteps);
 
   const levelsArray = new Array(filters.length).fill(0).map((_, i) => i + 1);
 

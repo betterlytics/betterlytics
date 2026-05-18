@@ -10,9 +10,7 @@ export default async function FunnelsPage() {
     <div className='container space-y-3 p-2 pt-4 pb-10 sm:p-6'>
       <DashboardHeader title={t('funnels')}>
         <div className='flex flex-col-reverse justify-end gap-x-4 gap-y-3 sm:flex-row'>
-          <div className='hidden xl:block'>
-            <CreateFunnelButton />
-          </div>
+          <CreateFunnelButton />
           <DashboardFilters showComparison={false} showQueryFilters={false} />
         </div>
       </DashboardHeader>
