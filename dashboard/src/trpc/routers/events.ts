@@ -42,7 +42,12 @@ export const eventsRouter = createRouter({
     .input(z.object({ eventName: z.string() }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return getEventPropertiesAnalyticsForSite(main, input.eventName);
+      return getEventPropertiesAnalyticsForSite(
+        main,
+        input.eventName,
+        GLOBAL_PROPERTIES_KEY_LIMIT,
+        GLOBAL_PROPERTIES_VALUE_LIMIT,
+      );
     }),
 
   recentEvents: analyticsProcedure

@@ -2359,8 +2359,16 @@
       },
       "expandedEventContent": {
         "loading": "Laster inn egenskaper...",
-        "noProperties": "Ingen egenskaper",
-        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper."
+        "noPropertiesTitle": "Ingen egenskaper",
+        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper.",
+        "eventProperties": "Hendelsesegenskaper",
+        "globalProperties": "Globale egenskaper",
+        "eventPropertiesInline": "hendelsesegenskaper",
+        "globalPropertiesInline": "globale egenskaper",
+        "noProperties": "Ingen {propertyName} for disse hendelsene.",
+        "noEventOrGlobalProperties": "Ingen hendelses- eller globale egenskaper registrert for disse hendelsene.",
+        "valueCount": "{count, plural, one {{count} verdi} other {{count} verdier}}",
+        "moreValues": "{count, plural, one {+{count} til} other {+{count} til}}"
       }
     },
     "tabbedTable": {
