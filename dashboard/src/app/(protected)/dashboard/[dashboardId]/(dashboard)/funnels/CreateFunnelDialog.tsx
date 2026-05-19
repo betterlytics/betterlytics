@@ -3,7 +3,7 @@
 import { PlusIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
-import { ComponentProps, useCallback, useMemo, useState } from 'react';
+import { ComponentProps, useCallback, useMemo, useRef, useState, type AnimationEvent } from 'react';
 import { postFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { toast } from 'sonner';
@@ -50,6 +50,8 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
   );
 
+  const pendingResetRef = useRef(false);
+
   const handleCreateFunnel = useCallback(() => {
     setHasAttemptedSubmit(true);
     if (!isCreateValid) {
@@ -57,16 +59,16 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     }
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
+        pendingResetRef.current = true;
         setHasAttemptedSubmit(false);
         setIsOpen(false);
         toast.success(t('create.successMessage'));
         utils.funnels.list.invalidate({ dashboardId });
-        reset({ name: '', isStrict: false, steps: createDefaultSteps() });
       })
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t, utils]);
+  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, t, utils]);
 
   const handleOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
@@ -76,15 +78,26 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
   }, []);
 
   const handleCancel = useCallback(() => {
+    pendingResetRef.current = true;
     setIsOpen(false);
     setHasAttemptedSubmit(false);
-    reset({ name: '', isStrict: false, steps: createDefaultSteps() });
-  }, [reset]);
+  }, []);
+
+  const handleAnimationEnd = useCallback(
+    (e: AnimationEvent<HTMLDivElement>) => {
+      if (!pendingResetRef.current) return;
+      if (e.currentTarget.dataset.state !== 'closed') return;
+      pendingResetRef.current = false;
+      reset({ name: '', isStrict: false, steps: createDefaultSteps() });
+    },
+    [reset],
+  );
 
   return (
     <FunnelDialogLayout
       open={isOpen}
       onOpenChange={handleOpenChange}
+      onAnimationEnd={handleAnimationEnd}
       title={t('create.createFunnel')}
       trigger={
         <Button variant={triggerVariant || 'ghost'} className='cursor-pointer' disabled={disabled}>

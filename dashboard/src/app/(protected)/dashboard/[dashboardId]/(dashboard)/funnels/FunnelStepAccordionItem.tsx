@@ -220,6 +220,7 @@ function FunnelStepAccordionItemComponent({
             className={cn(
               'hidden sm:flex',
               'bg-card dark:bg-secondary/50 text-primary',
+              isDragging && 'dark:bg-secondary',
               'h-[2.25rem] w-6 items-center justify-center rounded-md border my-2',
               'cursor-grab active:cursor-grabbing',
               'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
@@ -238,6 +239,7 @@ function FunnelStepAccordionItemComponent({
         className={cn(
           'group/item',
           'bg-card dark:bg-secondary/50',
+          isDragging && 'dark:bg-secondary',
           'relative flex-1 rounded-md border transition-colors',
           'data-[state=open]:border-primary/40',
         )}
