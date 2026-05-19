@@ -131,6 +131,14 @@ export const SubscriptionWithOwnedSitesSchema = z.object({
   siteIds: z.array(z.string()),
 });
 
+export const SubscriptionEndingSoonCandidateSchema = z.object({
+  userId: z.string(),
+  userEmail: z.string(),
+  userName: z.string().nullable(),
+  tier: TierSchema,
+  currentPeriodEnd: z.date(),
+});
+
 export const UserBillingDataSchema = z.object({
   subscription: z.object({
     tier: TierSchema,
@@ -154,5 +162,6 @@ export type UsageData = z.infer<typeof UsageDataSchema>;
 export type EventCountResult = z.infer<typeof EventCountResultSchema>;
 export type DailySiteUsage = z.infer<typeof DailySiteUsageSchema>;
 export type SubscriptionWithOwnedSites = z.infer<typeof SubscriptionWithOwnedSitesSchema>;
+export type SubscriptionEndingSoonCandidate = z.infer<typeof SubscriptionEndingSoonCandidateSchema>;
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
 export type UserBillingData = z.infer<typeof UserBillingDataSchema>;
