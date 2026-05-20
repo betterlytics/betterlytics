@@ -127,13 +127,10 @@ export async function acceptInvitation(token: string, userId: string, userEmail:
 
   const existingAccess = await findUserDashboardOrNull({ userId, dashboardId: invitation.dashboardId });
 
-  if (existingAccess) {
-    await updateInvitationStatus(invitation.id, 'accepted');
-    await sendInvitationAcceptedNotification(invitation, userEmail);
-    return invitation.dashboardId;
+  if (!existingAccess) {
+    await addDashboardMember(invitation.dashboardId, userId, invitation.role);
   }
 
-  await addDashboardMember(invitation.dashboardId, userId, invitation.role);
   await updateInvitationStatus(invitation.id, 'accepted');
   await sendInvitationAcceptedNotification(invitation, userEmail);
 
@@ -156,6 +153,7 @@ async function sendInvitationAcceptedNotification(
         accepterEmail,
         dashboardDomain: invitation.dashboard.domain,
         dashboardUrl: `${sharedEmailEnv.publicBaseUrl}/dashboard/${invitation.dashboardId}/settings/members`,
+        role: invitation.role,
       },
     });
   } catch (err) {
