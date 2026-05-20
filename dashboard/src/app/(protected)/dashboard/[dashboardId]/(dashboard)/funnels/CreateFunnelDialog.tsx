@@ -14,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { ComponentProps, useCallback, useMemo, useState } from 'react';
 import { postFunnelAction } from '@/app/actions/index.actions';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
@@ -69,6 +70,11 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
   );
 
+  const { markPending, onAnimationEnd } = useOverlayReset(() => {
+    setHasAttemptedSubmit(false);
+    reset({ name: '', isStrict: false, steps: createDefaultSteps() });
+  });
+
   const handleCreateFunnel = useCallback(() => {
     setHasAttemptedSubmit(true);
     if (!isCreateValid) {
@@ -76,26 +82,23 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
     }
     postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
       .then(() => {
-        setHasAttemptedSubmit(false);
+        markPending();
         setIsOpen(false);
         toast.success(t('create.successMessage'));
         utils.funnels.list.invalidate({ dashboardId });
-        reset({ name: '', isStrict: false, steps: createDefaultSteps() });
       })
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t, utils]);
+  }, [dashboardId, funnelSteps, isCreateValid, markPending, metadata.isStrict, metadata.name, t, utils]);
 
-  const handleOpenChange = useCallback((open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      setHasAttemptedSubmit(false);
-    }
-  }, []);
+  const handleCancel = useCallback(() => {
+    markPending();
+    setIsOpen(false);
+  }, [markPending]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant={triggerVariant || 'ghost'} className='cursor-pointer' disabled={disabled}>
           <PlusIcon className='h-4 w-4' />
@@ -105,6 +108,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
       <DialogContent
         aria-describedby={undefined}
         className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'
+        onAnimationEnd={onAnimationEnd}
       >
         <DialogHeader>
           <DialogTitle>{t('create.createFunnel')}</DialogTitle>
@@ -133,7 +137,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
           }}
         />
         <DialogFooter className='flex items-end justify-end gap-2'>
-          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={handleCancel}>
             {t('create.cancel')}
           </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCreateFunnel}>

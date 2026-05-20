@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { submitBugReportAction } from '@/app/actions/system/bugReports.action';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -29,6 +30,8 @@ export function BugReportDialog({ open, onOpenChange }: BugReportDialogProps) {
   const [message, setMessage] = useState('');
   const [isPending, startTransition] = useTransition();
 
+  const { markPending, onAnimationEnd } = useOverlayReset(() => setMessage(''));
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = message.trim();
@@ -41,7 +44,7 @@ export function BugReportDialog({ open, onOpenChange }: BugReportDialogProps) {
       try {
         await submitBugReportAction(dashboardId, { message: trimmed });
         toast.success(t('toast.success'));
-        setMessage('');
+        markPending();
         onOpenChange(false);
       } catch (error) {
         console.error(error);
@@ -52,7 +55,7 @@ export function BugReportDialog({ open, onOpenChange }: BugReportDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent onAnimationEnd={onAnimationEnd}>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
