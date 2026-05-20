@@ -217,16 +217,16 @@ export async function findUsersWithoutDashboardsInWindow(
         deletedAt: null,
         email: { not: null },
         createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
-        dashboardAccess: { none: { dashboard: { deletedAt: null } } },
+        dashboardAccess: { none: {} },
       },
       select: { id: true, email: true, name: true },
       orderBy: { createdAt: 'asc' },
       take: limit,
     });
 
-    return users.flatMap((u) =>
-      u.email ? [UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name })] : [],
-    );
+    return users
+      .filter((u) => u.email)
+      .map((u) => UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }));
   } catch (error) {
     console.error('Error finding users without dashboards in window:', error);
     throw new Error('Failed to find users without dashboards in window');
