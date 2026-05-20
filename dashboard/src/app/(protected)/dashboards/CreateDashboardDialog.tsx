@@ -67,9 +67,6 @@ export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: Create
 
       toast.success(t('toast.createdInitializing'));
       setOpen(false);
-      setDomain('');
-      setValidationError('');
-
       router.push(`/dashboard/${newDashboard.data.id}?showIntegration=true`);
     });
   };
@@ -77,7 +74,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: Create
   const handleOpenChange = (newOpen: boolean) => {
     if (!isPending) {
       setOpen(newOpen);
-      if (!newOpen) {
+      if (newOpen) {
         setDomain('');
         setValidationError('');
       }
