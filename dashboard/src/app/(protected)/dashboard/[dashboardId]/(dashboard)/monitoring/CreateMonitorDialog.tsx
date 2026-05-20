@@ -200,7 +200,10 @@ export function CreateMonitorDialog({
               type='button'
               variant='outline'
               className='cursor-pointer'
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                resetForm();
+                setOpen(false);
+              }}
               disabled={isPending}
             >
               {t('actions.cancel')}
