@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Check, Clipboard, KeySquare, Loader2, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -208,10 +209,23 @@ function DisableTotp() {
 export default function UserSecurityTotpSettings() {
   const { data: session } = useSession();
   const t = useTranslations('components.userSettings.security.totp');
+  const hasPassword = Boolean(session?.user?.hasPassword);
 
   return (
     <SettingsCard icon={KeySquare} title={t('title')} description={t('description')}>
-      {session?.user.totpEnabled ? <DisableTotp /> : <SetupTotp />}
+      {session?.user.totpEnabled ? (
+        <DisableTotp />
+      ) : hasPassword ? (
+        <SetupTotp />
+      ) : (
+        <DisabledTooltip disabled message={t('managedByOAuth')}>
+          {(isDisabled) => (
+            <Button disabled={isDisabled} className='w-full sm:w-auto'>
+              {t('enable')}
+            </Button>
+          )}
+        </DisabledTooltip>
+      )}
     </SettingsCard>
   );
 }
