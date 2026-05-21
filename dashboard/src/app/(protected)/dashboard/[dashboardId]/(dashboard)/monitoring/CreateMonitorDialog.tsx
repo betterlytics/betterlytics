@@ -80,6 +80,11 @@ export function CreateMonitorDialog({
     });
   };
 
+  const handleCancel = () => {
+    markPending();
+    setOpen(false);
+  };
+
   const nameAtLimit = (form.state.name?.length ?? 0) >= MONITOR_LIMITS.NAME_MAX;
   const urlAtLimit = url.length >= MONITOR_LIMITS.URL_MAX;
 
@@ -203,10 +208,7 @@ export function CreateMonitorDialog({
               type='button'
               variant='outline'
               className='cursor-pointer'
-              onClick={() => {
-                markPending();
-                setOpen(false);
-              }}
+              onClick={handleCancel}
               disabled={isPending}
             >
               {t('actions.cancel')}

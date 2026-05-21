@@ -10,6 +10,7 @@ export function useOverlayReset(reset: () => void) {
   }, []);
 
   const onAnimationEnd = useCallback((e: AnimationEvent<HTMLElement>) => {
+    if (e.target !== e.currentTarget) return;
     const state = e.currentTarget.dataset.state;
     if (state === 'open') {
       pendingRef.current = false;
