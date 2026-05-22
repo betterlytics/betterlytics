@@ -2877,6 +2877,21 @@
           "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen."
         }
       },
+      "sessions": {
+        "title": "Økter",
+        "activeCount": "Innlogget på {count, plural, =0 {ingen enheter} =1 {1 enhet} other {# enheter}}",
+        "description": "Logg ut overalt unntatt på denne enheten.",
+        "signOutOthers": "Logg ut andre enheter",
+        "dialog": {
+          "title": "Logge ut andre enheter?",
+          "description": "Alle andre økter avsluttes umiddelbart. Den nåværende enheten forblir innlogget.",
+          "cancel": "Avbryt",
+          "confirm": "Logg ut andre enheter"
+        },
+        "toast": {
+          "success": "Logget ut av {count, plural, =0 {ingen andre enheter} =1 {1 annen enhet} other {# andre enheter}}."
+        }
+      },
       "danger": {
         "sectionTitle": "Faresone",
         "details": "Slett kontoen din og alle tilknyttede data permanent.",

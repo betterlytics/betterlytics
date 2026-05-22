@@ -2877,6 +2877,21 @@
           "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova."
         }
       },
+      "sessions": {
+        "title": "Sessioni",
+        "activeCount": "Connesso su {count, plural, =0 {nessun dispositivo} =1 {1 dispositivo} other {# dispositivi}}",
+        "description": "Disconnetti da ovunque tranne che da questo dispositivo.",
+        "signOutOthers": "Disconnetti altri dispositivi",
+        "dialog": {
+          "title": "Disconnettere altri dispositivi?",
+          "description": "Tutte le altre sessioni verranno terminate immediatamente. Il dispositivo attuale rimarrà connesso.",
+          "cancel": "Annulla",
+          "confirm": "Disconnetti altri dispositivi"
+        },
+        "toast": {
+          "success": "Disconnesso da {count, plural, =0 {nessun altro dispositivo} =1 {1 altro dispositivo} other {# altri dispositivi}}."
+        }
+      },
       "danger": {
         "sectionTitle": "Zona pericolosa",
         "details": "Elimina definitivamente il tuo account e tutti i dati associati.",

@@ -2869,6 +2869,21 @@
           "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen."
         }
       },
+      "sessions": {
+        "title": "Sessioner",
+        "activeCount": "Logget ind på {count, plural, =0 {ingen enheder} =1 {1 enhed} other {# enheder}}",
+        "description": "Log ud overalt undtagen på denne enhed.",
+        "signOutOthers": "Log ud af andre enheder",
+        "dialog": {
+          "title": "Log ud af andre enheder?",
+          "description": "Alle andre sessioner afsluttes med det samme. Den nuværende enhed forbliver logget ind.",
+          "cancel": "Annullér",
+          "confirm": "Log ud af andre enheder"
+        },
+        "toast": {
+          "success": "Loggede ud af {count, plural, =0 {ingen andre enheder} =1 {1 anden enhed} other {# andre enheder}}."
+        }
+      },
       "danger": {
         "sectionTitle": "Farezone",
         "details": "Slet din konto og alle tilknyttede data permanent.",

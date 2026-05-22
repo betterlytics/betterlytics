@@ -5,7 +5,12 @@ import { UserSettings, UserSettingsUpdateSchema } from '@/entities/account/userS
 import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
 import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
-import { getCurrentSessionTokenFromCookies } from '@/services/session.service';
+import {
+  countUserSessions,
+  getCurrentSessionTokenFromCookies,
+  invalidateOtherUserSessions,
+} from '@/services/session.service';
+import { UserException } from '@/lib/exceptions';
 import { User } from 'next-auth';
 import { setLocaleCookie } from '@/constants/cookies';
 import { Theme, AvatarMode } from '@prisma/client';
@@ -60,6 +65,19 @@ export const updateUserAction = withUserAuth(async (user: User, data: UpdateUser
   const validatedData = UpdateUserSchema.parse(data);
 
   return await UserSettingsService.updateUser(user.id, validatedData);
+});
+
+export const getActiveSessionCountAction = withUserAuth(async (user: User): Promise<number> => {
+  return countUserSessions(user.id);
+});
+
+export const signOutOtherSessionsAction = withUserAuth(async (user: User): Promise<{ revoked: number }> => {
+  const currentSessionToken = await getCurrentSessionTokenFromCookies();
+  if (!currentSessionToken) {
+    throw new UserException('No active session token found');
+  }
+  const revoked = await invalidateOtherUserSessions(user.id, currentSessionToken);
+  return { revoked };
 });
 
 export const changePasswordAction = withUserAuth(
