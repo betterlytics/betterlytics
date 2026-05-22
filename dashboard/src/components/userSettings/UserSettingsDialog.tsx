@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  ArrowUpRight,
   Bug,
   BookOpen,
   CreditCard,
@@ -162,7 +163,8 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
                 onClick={() => setIsHelpOpen(false)}
               >
                 <BookOpen className='h-4 w-4' />
-                <span>Documentation</span>
+                <span className='flex-1'>Documentation</span>
+                <ArrowUpRight className='text-muted-foreground h-3.5 w-3.5' />
               </ExternalLink>
               {isBugReportsEnabled && (
                 <button
@@ -180,7 +182,8 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
                 onClick={() => setIsHelpOpen(false)}
               >
                 <Mail className='h-4 w-4' />
-                <span>Contact support</span>
+                <span className='flex-1'>Contact support</span>
+                <ArrowUpRight className='text-muted-foreground h-3.5 w-3.5' />
               </a>
             </PopoverContent>
           </Popover>
