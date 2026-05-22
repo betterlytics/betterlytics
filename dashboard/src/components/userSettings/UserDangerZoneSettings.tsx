@@ -44,6 +44,7 @@ export default function UserDangerZoneSettings() {
         <div className='flex-shrink-0'>
           <Button
             variant='destructive'
+            size='sm'
             disabled={isPending}
             onClick={() => setIsDialogOpen(true)}
             className='cursor-pointer'

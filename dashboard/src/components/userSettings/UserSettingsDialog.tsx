@@ -105,7 +105,7 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
             )}
           </div>
         </div>
-        <TabsList className='flex flex-1 flex-col items-stretch justify-start gap-1 overflow-y-auto rounded-none bg-transparent px-2 py-4'>
+        <TabsList className='flex w-full flex-1 flex-col items-stretch justify-start gap-1 overflow-y-auto rounded-none bg-transparent px-2 py-4'>
         {availableTabs.map((tab) => {
           const Icon = tab.icon;
           return (
