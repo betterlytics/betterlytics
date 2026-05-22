@@ -8,14 +8,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { CreditCard, Settings, User } from 'lucide-react';
+import {
+  Bug,
+  BookOpen,
+  CreditCard,
+  HelpCircle,
+  Mail,
+  Settings,
+  User,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import UserAccountSettings from '@/components/userSettings/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/UserBillingSettings';
 import { BAAvatar } from '@/components/avatar/BAAvatar';
+import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import ExternalLink from '@/components/ExternalLink';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -58,6 +69,14 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
   const { data: session } = useSession();
+  const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
+  const [isBugReportOpen, setIsBugReportOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  const openBugReport = () => {
+    setIsHelpOpen(false);
+    setIsBugReportOpen(true);
+  };
 
   const tabs: TabConfig[] = useMemo(
     () => [
@@ -124,7 +143,53 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
           );
         })}
         </TabsList>
+
+        <div className='px-2 pb-3'>
+          <Popover open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type='button'
+                className='text-muted-foreground hover:text-foreground flex w-full cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-xs transition-colors'
+              >
+                <HelpCircle className='h-3.5 w-3.5' />
+                <span>Need help?</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side='top' align='start' sideOffset={4} className='w-56 p-1'>
+              <ExternalLink
+                href='https://betterlytics.io/docs'
+                className='hover:bg-accent flex items-center gap-2.5 rounded-md px-3 py-2 text-sm no-underline'
+                onClick={() => setIsHelpOpen(false)}
+              >
+                <BookOpen className='h-4 w-4' />
+                <span>Documentation</span>
+              </ExternalLink>
+              {isBugReportsEnabled && (
+                <button
+                  type='button'
+                  onClick={openBugReport}
+                  className='hover:bg-accent flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm'
+                >
+                  <Bug className='h-4 w-4' />
+                  <span>Report a bug</span>
+                </button>
+              )}
+              <a
+                href='mailto:support@betterlytics.io'
+                className='hover:bg-accent flex items-center gap-2.5 rounded-md px-3 py-2 text-sm no-underline'
+                onClick={() => setIsHelpOpen(false)}
+              >
+                <Mail className='h-4 w-4' />
+                <span>Contact support</span>
+              </a>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
+
+      {isBugReportsEnabled && (
+        <BugReportDialog open={isBugReportOpen} onOpenChange={setIsBugReportOpen} />
+      )}
 
       <ScrollArea className='min-h-0 min-w-0 flex-1'>
         <div className='px-8 pt-8 pb-10'>
