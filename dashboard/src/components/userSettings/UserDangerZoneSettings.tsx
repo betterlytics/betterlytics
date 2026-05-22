@@ -3,7 +3,6 @@
 import { useTransition, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Trash2, AlertTriangle } from 'lucide-react';
-import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
 import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
@@ -11,12 +10,7 @@ import { toast } from 'sonner';
 import SettingsCard from '@/components/SettingsCard';
 import { useTranslations } from 'next-intl';
 
-interface UserDangerZoneSettingsProps {
-  formData: UserSettingsUpdate;
-  onUpdate: (updates: Partial<UserSettingsUpdate>) => void;
-}
-
-export default function UserDangerZoneSettings({ formData, onUpdate }: UserDangerZoneSettingsProps) {
+export default function UserDangerZoneSettings() {
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);

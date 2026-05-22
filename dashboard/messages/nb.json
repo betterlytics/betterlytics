@@ -2775,6 +2775,16 @@
         "security": "Sikkerhet",
         "danger": "Faresone"
       },
+      "groups": {
+        "account": "Konto",
+        "preferences": "Preferanser",
+        "billing": "Fakturering"
+      },
+      "status": {
+        "saving": "Lagrer…",
+        "saved": "Lagret",
+        "error": "Mislyktes"
+      },
       "dialog": {
         "title": "Brukerinnstillinger",
         "description": "Administrer kontoinnstillingene og preferansene dine.",

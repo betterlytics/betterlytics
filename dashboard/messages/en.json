@@ -2761,6 +2761,16 @@
         "security": "Security",
         "danger": "Danger Zone"
       },
+      "groups": {
+        "account": "Account",
+        "preferences": "Preferences",
+        "billing": "Billing"
+      },
+      "status": {
+        "saving": "Saving…",
+        "saved": "Saved",
+        "error": "Failed"
+      },
       "dialog": {
         "title": "User Settings",
         "description": "Manage your account settings and preferences.",

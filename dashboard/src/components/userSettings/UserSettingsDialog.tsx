@@ -1,293 +1,180 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
-import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettings, UserSettingsFormData, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
-import { toast } from 'sonner';
+import { useMemo, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { AlertTriangle, BarChart3, Receipt, Settings, Shield, User } from 'lucide-react';
 import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
 import UserSecuritySettings from '@/components/userSettings/UserSecuritySettings';
 import UserDangerZoneSettings from '@/components/userSettings/UserDangerZoneSettings';
 import UserUsageSettings from '@/components/userSettings/UserUsageSettings';
 import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
-import { Spinner } from '../ui/spinner';
-import { useSessionRefresh } from '@/hooks/use-session-refresh';
-import useIsChanged from '@/hooks/use-is-changed';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
-import type { Theme } from '@prisma/client';
-import { updateUserAction } from '@/app/actions/account/userSettings.action';
-import { UpdateUserSchema } from '@/entities/auth/user.entities';
-import { useSession } from 'next-auth/react';
+import { cn } from '@/lib/utils';
 
 interface UserSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface UserSettingsTabConfig {
+interface TabConfig {
   id: string;
   label: string;
   icon: React.ElementType;
-  component: React.ComponentType<{
-    formData: UserSettingsFormData;
-    onUpdate: (updates: Partial<UserSettingsFormData>) => void;
-    onCloseDialog?: () => void;
-  }>;
+  group: 'account' | 'preferences' | 'billing';
+  render: (props: { closeDialog: () => void }) => React.ReactNode;
   disabled?: boolean;
 }
 
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
-  const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
   const tDialog = useTranslations('components.userSettings.dialog');
 
-  if (isLoading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-            <Spinner />
-            <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (error) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-            <AlertTriangle className='text-destructive h-8 w-8' />
-            <div className='text-center'>
-              <p className='text-destructive font-medium'>{tDialog('loadFailed')}</p>
-              <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (!settings) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <div className='flex items-center justify-center py-8'>
-            <span>{tDialog('noSettings')}</span>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <UserSettingsDialogContent
-      open={open}
-      onOpenChange={onOpenChange}
-      settings={settings}
-      isSaving={isSaving}
-      saveSettings={saveSettings}
-    />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='h-[85vh] max-h-[760px] w-[95vw] max-w-[1100px] gap-0 overflow-hidden p-0 sm:max-w-[1100px]'>
+        <DialogHeader className='sr-only'>
+          <DialogTitle>{tDialog('title')}</DialogTitle>
+          <DialogDescription>{tDialog('description')}</DialogDescription>
+        </DialogHeader>
+
+        <UserSettingsDialogContent closeDialog={() => onOpenChange(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }
 
 interface UserSettingsDialogContentProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  settings: UserSettings;
-  isSaving: boolean;
-  saveSettings: (newSettings?: Partial<UserSettingsUpdate>) => Promise<{ success: boolean; error?: string }>;
+  closeDialog: () => void;
 }
 
-function UserSettingsDialogContent({
-  open,
-  onOpenChange,
-  settings,
-  isSaving,
-  saveSettings,
-}: UserSettingsDialogContentProps) {
-  const { setTheme } = useTheme();
-  const { data: session } = useSession();
-  const [originalTheme] = useState<Theme | undefined>(settings.theme);
+function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
-  const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
-  const tDialog = useTranslations('components.userSettings.dialog');
+  const tGroups = useTranslations('components.userSettings.groups');
 
-  const USER_SETTINGS_TABS: UserSettingsTabConfig[] = useMemo(
+  const tabs: TabConfig[] = useMemo(
     () => [
       {
         id: 'profile',
         label: tTabs('profile'),
         icon: User,
-        component: UserProfileSettings,
-      },
-      {
-        id: 'preferences',
-        label: tTabs('preferences'),
-        icon: Settings,
-        component: UserPreferencesSettings,
-      },
-      {
-        id: 'usage',
-        label: tTabs('usage'),
-        icon: BarChart3,
-        component: UserUsageSettings,
-        disabled: !isFeatureFlagEnabled('enableBilling'),
-      },
-      {
-        id: 'billing',
-        label: tTabs('billing'),
-        icon: Receipt,
-        component: UserBillingHistory,
-        disabled: !isFeatureFlagEnabled('enableBilling'),
+        group: 'account',
+        render: () => <UserProfileSettings />,
       },
       {
         id: 'security',
         label: tTabs('security'),
         icon: Shield,
-        component: UserSecuritySettings,
+        group: 'account',
+        render: () => <UserSecuritySettings />,
+      },
+      {
+        id: 'preferences',
+        label: tTabs('preferences'),
+        icon: Settings,
+        group: 'preferences',
+        render: () => <UserPreferencesSettings />,
+      },
+      {
+        id: 'usage',
+        label: tTabs('usage'),
+        icon: BarChart3,
+        group: 'billing',
+        disabled: !isFeatureFlagEnabled('enableBilling'),
+        render: ({ closeDialog }) => <UserUsageSettings onCloseDialog={closeDialog} />,
+      },
+      {
+        id: 'billing',
+        label: tTabs('billing'),
+        icon: Receipt,
+        group: 'billing',
+        disabled: !isFeatureFlagEnabled('enableBilling'),
+        render: () => <UserBillingHistory />,
       },
       {
         id: 'danger',
         label: tTabs('danger'),
         icon: AlertTriangle,
-        component: UserDangerZoneSettings,
+        group: 'account',
+        render: () => <UserDangerZoneSettings />,
       },
     ],
-    [isFeatureFlagEnabled, tTabs],
+    [tTabs, isFeatureFlagEnabled],
   );
 
-  const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
-  const [activeTab, setActiveTab] = useState(availableTabs[0].id);
-  const [formData, setFormData] = useState<UserSettingsFormData>({
-    ...settings,
-    name: session?.user?.name ?? '',
-  });
-  const { refreshSession } = useSessionRefresh();
-  const originalData = useMemo(
-    () => ({ ...settings, name: session?.user?.name ?? '' }),
-    [settings, session?.user?.name],
-  );
-  const isSettingsChanged = useIsChanged(formData, originalData);
+  const availableTabs = tabs.filter((tab) => !tab.disabled);
+  const [activeTabId, setActiveTabId] = useState<string>(availableTabs[0].id);
+  const activeTab = availableTabs.find((tab) => tab.id === activeTabId) ?? availableTabs[0];
 
-  useEffect(() => {
-    if (open) {
-      setFormData({ ...settings, name: session?.user?.name ?? '' });
+  const groupedTabs = useMemo(() => {
+    const groups: Array<{ key: TabConfig['group']; label: string; tabs: TabConfig[] }> = [
+      { key: 'account', label: tGroups('account'), tabs: [] },
+      { key: 'preferences', label: tGroups('preferences'), tabs: [] },
+      { key: 'billing', label: tGroups('billing'), tabs: [] },
+    ];
+    for (const tab of availableTabs) {
+      groups.find((g) => g.key === tab.group)?.tabs.push(tab);
     }
-  }, [settings, open, session?.user?.name]);
-
-  const handleUpdate = (updates: Partial<UserSettingsFormData>) => {
-    setFormData((prev) => ({ ...prev, ...updates }));
-  };
-
-  const handleSave = async () => {
-    try {
-      const normalizedName = (formData.name ?? '').trim();
-      const previousName = session?.user?.name ?? '';
-      const profileChanged = normalizedName !== previousName;
-      const { name: _name, ...settingsPayload } = formData;
-
-      const settingsResult = await saveSettings(settingsPayload);
-      if (!settingsResult.success) {
-        toast.error(tDialog('toast.error'));
-        return;
-      }
-
-      if (profileChanged) {
-        const profilePayload = UpdateUserSchema.parse({
-          name: normalizedName,
-        });
-        await updateUserAction(profilePayload);
-      }
-
-      await refreshSession();
-      if (formData.language && formData.language !== settings?.language) {
-        router.refresh();
-      }
-      toast.success(tDialog('toast.success'));
-      onOpenChange(false);
-    } catch {
-      toast.error(tDialog('toast.error'));
-    }
-  };
-
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && originalTheme) {
-      setTheme(originalTheme);
-    }
-    onOpenChange(isOpen);
-  };
+    return groups.filter((g) => g.tabs.length > 0);
+  }, [availableTabs, tGroups]);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto p-3 sm:p-6 md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
-        <DialogHeader>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <DialogDescription>{tDialog('description')}</DialogDescription>
-        </DialogHeader>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-          <TabsList className='bg-secondary dark:inset-shadow-background flex w-full gap-1 px-1 inset-shadow-sm'>
-            {availableTabs.map((tab) => {
+    <Tabs
+      value={activeTabId}
+      onValueChange={setActiveTabId}
+      orientation='vertical'
+      className='flex h-full min-h-0 flex-row gap-0'
+    >
+      <TabsList className='bg-muted/30 flex h-full w-56 flex-shrink-0 flex-col items-stretch justify-start gap-4 overflow-y-auto rounded-none border-r px-2 py-6'>
+        {groupedTabs.map((group) => (
+          <div key={group.key} className='flex flex-col gap-0.5'>
+            <div className='text-muted-foreground px-3 pb-1 text-xs font-medium tracking-wider uppercase'>
+              {group.label}
+            </div>
+            {group.tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground flex cursor-pointer items-center gap-2 rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
+                  className={cn(
+                    'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+                    'data-[state=active]:bg-accent data-[state=active]:text-accent-foreground',
+                    'flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-md border-0 px-3 py-1.5 text-sm font-medium transition-colors data-[state=active]:shadow-none',
+                  )}
                 >
                   <Icon className='h-4 w-4' />
-                  <span className='hidden lg:inline'>{tab.label}</span>
+                  <span>{tab.label}</span>
                 </TabsTrigger>
               );
             })}
-          </TabsList>
+          </div>
+        ))}
+      </TabsList>
 
-          {availableTabs.map((tab) => {
-            const Component = tab.component;
-            return (
-              <TabsContent key={tab.id} value={tab.id} className='mt-6 min-h-[420px]'>
-                <Component
-                  formData={formData}
-                  onUpdate={handleUpdate}
-                  onCloseDialog={() => handleOpenChange(false)}
-                />
+      <div className='flex min-w-0 flex-1 flex-col overflow-hidden'>
+        <header className='border-b px-8 py-5'>
+          <h2 className='text-xl font-semibold'>{activeTab.label}</h2>
+        </header>
+        <ScrollArea className='flex-1'>
+          <div className='px-8 py-6'>
+            {availableTabs.map((tab) => (
+              <TabsContent key={tab.id} value={tab.id} className='mt-0'>
+                {tab.render({ closeDialog })}
               </TabsContent>
-            );
-          })}
-        </Tabs>
-
-        <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={() => handleOpenChange(false)} className='cursor-pointer'>
-            {tDialog('buttons.cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={isSaving || !isSettingsChanged || formData.name?.trim() === ''} className='cursor-pointer'>
-            {isSaving ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                {tDialog('buttons.saving')}
-              </>
-            ) : (
-              <>
-                <Save className='mr-2 h-4 w-4' />
-                {tDialog('buttons.saveChanges')}
-              </>
-            )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    </Tabs>
   );
 }

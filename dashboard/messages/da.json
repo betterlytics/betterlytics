@@ -2767,6 +2767,16 @@
         "security": "Sikkerhed",
         "danger": "Farezone"
       },
+      "groups": {
+        "account": "Konto",
+        "preferences": "Præferencer",
+        "billing": "Fakturering"
+      },
+      "status": {
+        "saving": "Gemmer…",
+        "saved": "Gemt",
+        "error": "Mislykkedes"
+      },
       "dialog": {
         "title": "Brugerindstillinger",
         "description": "Administrér dine kontoinstillinger og præferencer.",

@@ -1,45 +1,71 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Monitor, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
-import { UserSettingsUpdate } from '@/entities/account/userSettings.entities';
+import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
+import { useTranslations } from 'next-intl';
+import type { AvatarMode } from '@prisma/client';
 import SettingsCard from '@/components/SettingsCard';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
-import { useTranslations } from 'next-intl';
 import UserThemeSelector from './UserThemeSelector';
+import SettingStatusIndicator from './SettingStatusIndicator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { useUserSettings } from '@/contexts/UserSettingsProvider';
+import { useUserSettingsMutation } from '@/hooks/use-user-settings-mutation';
+import {
+  updateUserAvatarAction,
+  updateUserEmailNotificationsAction,
+  updateUserLanguageAction,
+  updateUserMarketingEmailsAction,
+  updateUserThemeAction,
+} from '@/app/actions/account/userSettings.action';
 
-interface UserPreferencesSettingsProps {
-  formData: UserSettingsUpdate;
-  onUpdate: (updates: Partial<UserSettingsUpdate>) => void;
-}
-
-export default function UserPreferencesSettings({ formData, onUpdate }: UserPreferencesSettingsProps) {
+export default function UserPreferencesSettings() {
   const t = useTranslations('components.userSettings.preferences');
-
   const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
+  const settings = useUserSettings();
+  const { setTheme } = useTheme();
+  const router = useRouter();
 
-  const updateField =
-    <TSetting extends keyof UserSettingsUpdate>(key: TSetting) =>
-    (value: UserSettingsUpdate[TSetting]) => {
-      onUpdate({ [key]: value });
-    };
+  useEffect(() => {
+    setTheme(settings.theme);
+  }, [settings.theme, setTheme]);
+
+  const themeMutation = useUserSettingsMutation({ action: updateUserThemeAction });
+  const languageMutation = useUserSettingsMutation({
+    action: updateUserLanguageAction,
+    onSuccess: () => router.refresh(),
+  });
+  const avatarMutation = useUserSettingsMutation({ action: updateUserAvatarAction });
+  const emailNotificationsMutation = useUserSettingsMutation({ action: updateUserEmailNotificationsAction });
+  const marketingEmailsMutation = useUserSettingsMutation({ action: updateUserMarketingEmailsAction });
 
   return (
     <div className='space-y-6'>
       <SettingsCard icon={Monitor} title={t('appearance.title')} description={t('appearance.description')}>
-        <UserThemeSelector value={formData.theme} onUpdate={updateField('theme')} />
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>
+            <SettingStatusIndicator status={themeMutation.status} />
+          </div>
+          <UserThemeSelector value={settings.theme} onUpdate={(theme) => themeMutation.mutate({ theme })} />
+        </div>
 
         <div>
           <div className='flex items-center justify-between'>
-            <Label htmlFor='avatar'>{t('avatar.label')}</Label>
+            <div className='flex items-center gap-2'>
+              <Label htmlFor='avatar'>{t('avatar.label')}</Label>
+              <SettingStatusIndicator status={avatarMutation.status} />
+            </div>
             <Select
-              value={formData.avatar}
-              onValueChange={(v) => updateField('avatar')(v as UserSettingsUpdate['avatar'])}
+              value={settings.avatar}
+              onValueChange={(v) => avatarMutation.mutate({ avatar: v as AvatarMode })}
             >
               <SelectTrigger className='w-32 cursor-pointer'>
                 <SelectValue />
@@ -60,7 +86,7 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               </SelectContent>
             </Select>
           </div>
-          {formData.avatar === 'gravatar' && (
+          {settings.avatar === 'gravatar' && (
             <div className='text-muted-foreground pt-2 text-xs text-pretty'>
               {t('avatar.noteIntro')}{' '}
               <ExternalLink
@@ -78,11 +104,15 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
       </SettingsCard>
 
       <SettingsCard icon={Globe} title={t('localization.title')} description={t('localization.description')}>
-        <div className='space-y-4'>
-          <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
             <Label htmlFor='language'>{t('localization.language')}</Label>
-            <LanguageSelect value={formData.language as SupportedLanguages} onUpdate={updateField('language')} />
+            <SettingStatusIndicator status={languageMutation.status} />
           </div>
+          <LanguageSelect
+            value={settings.language as SupportedLanguages}
+            onUpdate={(language) => languageMutation.mutate({ language })}
+          />
         </div>
       </SettingsCard>
 
@@ -92,11 +122,12 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
             <div className='flex items-center space-x-2'>
               <Mail className='h-4 w-4' />
               <Label htmlFor='email-notifications'>{t('notifications.emailNotifications')}</Label>
+              <SettingStatusIndicator status={emailNotificationsMutation.status} />
             </div>
             <Switch
               id='email-notifications'
-              checked={formData.emailNotifications ?? true}
-              onCheckedChange={updateField('emailNotifications')}
+              checked={settings.emailNotifications}
+              onCheckedChange={(emailNotifications) => emailNotificationsMutation.mutate({ emailNotifications })}
               className='cursor-pointer'
             />
           </div>
@@ -106,11 +137,12 @@ export default function UserPreferencesSettings({ formData, onUpdate }: UserPref
               <div className='flex items-center space-x-2'>
                 <Mail className='h-4 w-4' />
                 <Label htmlFor='marketing-emails'>{t('notifications.marketingEmails')}</Label>
+                <SettingStatusIndicator status={marketingEmailsMutation.status} />
               </div>
               <Switch
                 id='marketing-emails'
-                checked={formData.marketingEmails ?? false}
-                onCheckedChange={updateField('marketingEmails')}
+                checked={settings.marketingEmails}
+                onCheckedChange={(marketingEmails) => marketingEmailsMutation.mutate({ marketingEmails })}
                 className='cursor-pointer'
               />
             </div>

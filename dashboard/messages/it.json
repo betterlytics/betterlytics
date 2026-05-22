@@ -2775,6 +2775,16 @@
         "security": "Sicurezza",
         "danger": "Zona pericolosa"
       },
+      "groups": {
+        "account": "Account",
+        "preferences": "Preferenze",
+        "billing": "Fatturazione"
+      },
+      "status": {
+        "saving": "Salvataggio…",
+        "saved": "Salvato",
+        "error": "Errore"
+      },
       "dialog": {
         "title": "Impostazioni utente",
         "description": "Gestisci le impostazioni e le preferenze del tuo account.",
