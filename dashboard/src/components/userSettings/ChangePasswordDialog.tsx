@@ -164,7 +164,7 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
           <DialogTitle>{t('changePassword')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
+          <DialogDescription>{t('passwordHelp')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
@@ -189,7 +189,6 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
             error={errors.newPassword}
             disabled={isPending}
             autoComplete='new-password'
-            helpText={t('passwordHelp')}
           />
           <PasswordField
             id='confirmPassword'
