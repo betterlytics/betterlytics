@@ -4,23 +4,21 @@ import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Monitor, Globe, Bell, Mail, User, BookUser } from 'lucide-react';
+import { User, BookUser } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
 import type { AvatarMode } from '@prisma/client';
-import SettingsCard from '@/components/SettingsCard';
+import UserSettingsSection from './UserSettingsSection';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
 import UserThemeSelector from './UserThemeSelector';
-import SettingStatusIndicator from './SettingStatusIndicator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useUserSettings } from '@/contexts/UserSettingsProvider';
 import { useUserSettingsMutation } from '@/hooks/use-user-settings-mutation';
 import {
   updateUserAvatarAction,
-  updateUserEmailNotificationsAction,
   updateUserLanguageAction,
   updateUserMarketingEmailsAction,
   updateUserThemeAction,
@@ -43,51 +41,61 @@ export default function UserPreferencesSettings() {
     onSuccess: () => router.refresh(),
   });
   const avatarMutation = useUserSettingsMutation({ action: updateUserAvatarAction });
-  const emailNotificationsMutation = useUserSettingsMutation({ action: updateUserEmailNotificationsAction });
   const marketingEmailsMutation = useUserSettingsMutation({ action: updateUserMarketingEmailsAction });
 
   return (
-    <div className='space-y-6'>
-      <SettingsCard icon={Monitor} title={t('appearance.title')} description={t('appearance.description')}>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>
-            <SettingStatusIndicator status={themeMutation.status} />
+    <div>
+      <UserSettingsSection title={t('appearance.title')}>
+        <div className='flex items-center justify-between gap-4'>
+          <div className='space-y-1'>
+            <Label htmlFor='theme' className='text-sm font-medium'>
+              {t('appearance.themeLabel')}
+            </Label>
+            <p className='text-muted-foreground text-xs'>{t('appearance.themeDescription')}</p>
           </div>
-          <UserThemeSelector value={settings.theme} onUpdate={(theme) => themeMutation.mutate({ theme })} />
+          <div className='flex-shrink-0'>
+            <UserThemeSelector
+              value={settings.theme}
+              onUpdate={(theme) => themeMutation.mutate({ theme })}
+            />
+          </div>
         </div>
 
-        <div>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-2'>
-              <Label htmlFor='avatar'>{t('avatar.label')}</Label>
-              <SettingStatusIndicator status={avatarMutation.status} />
+        <div className='space-y-2'>
+          <div className='flex items-center justify-between gap-4'>
+            <div className='space-y-1'>
+              <Label htmlFor='avatar' className='text-sm font-medium'>
+                {t('avatar.label')}
+              </Label>
+              <p className='text-muted-foreground text-xs'>{t('avatar.description')}</p>
             </div>
-            <Select
-              value={settings.avatar}
-              onValueChange={(v) => avatarMutation.mutate({ avatar: v as AvatarMode })}
-            >
-              <SelectTrigger className='w-32 cursor-pointer'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='default' className='cursor-pointer'>
-                  <div className='flex items-center space-x-2'>
-                    <User className='h-4 w-4' />
-                    <span>{t('avatar.none')}</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value='gravatar' className='cursor-pointer'>
-                  <div className='flex items-center space-x-2'>
-                    <BookUser className='h-4 w-4' />
-                    <span>{t('avatar.gravatar')}</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div className='flex-shrink-0'>
+              <Select
+                value={settings.avatar}
+                onValueChange={(v) => avatarMutation.mutate({ avatar: v as AvatarMode })}
+              >
+                <SelectTrigger className='w-32 cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='default' className='cursor-pointer'>
+                    <div className='flex items-center space-x-2'>
+                      <User className='h-4 w-4' />
+                      <span>{t('avatar.none')}</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='gravatar' className='cursor-pointer'>
+                    <div className='flex items-center space-x-2'>
+                      <BookUser className='h-4 w-4' />
+                      <span>{t('avatar.gravatar')}</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {settings.avatar === 'gravatar' && (
-            <div className='text-muted-foreground pt-2 text-xs text-pretty'>
+            <p className='text-muted-foreground text-xs text-pretty'>
               {t('avatar.noteIntro')}{' '}
               <ExternalLink
                 href='https://wordpress.com/tos/'
@@ -98,57 +106,48 @@ export default function UserPreferencesSettings() {
                 {t('avatar.terms')}
               </ExternalLink>
               .
-            </div>
+            </p>
           )}
         </div>
-      </SettingsCard>
+      </UserSettingsSection>
 
-      <SettingsCard icon={Globe} title={t('localization.title')} description={t('localization.description')}>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <Label htmlFor='language'>{t('localization.language')}</Label>
-            <SettingStatusIndicator status={languageMutation.status} />
+      <UserSettingsSection title={t('localization.title')}>
+        <div className='flex items-center justify-between gap-4'>
+          <div className='space-y-1'>
+            <Label htmlFor='language' className='text-sm font-medium'>
+              {t('localization.language')}
+            </Label>
+            <p className='text-muted-foreground text-xs'>{t('localization.languageDescription')}</p>
           </div>
-          <LanguageSelect
-            value={settings.language as SupportedLanguages}
-            onUpdate={(language) => languageMutation.mutate({ language })}
-          />
+          <div className='flex-shrink-0'>
+            <LanguageSelect
+              value={settings.language as SupportedLanguages}
+              onUpdate={(language) => languageMutation.mutate({ language })}
+            />
+          </div>
         </div>
-      </SettingsCard>
+      </UserSettingsSection>
 
-      <SettingsCard icon={Bell} title={t('notifications.title')} description={t('notifications.description')}>
-        <div className='space-y-4'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-2'>
-              <Mail className='h-4 w-4' />
-              <Label htmlFor='email-notifications'>{t('notifications.emailNotifications')}</Label>
-              <SettingStatusIndicator status={emailNotificationsMutation.status} />
+      {PUBLIC_IS_CLOUD && (
+        <UserSettingsSection title={t('notifications.title')}>
+          <div className='flex items-center justify-between gap-4'>
+            <div className='space-y-1'>
+              <Label htmlFor='marketing-emails' className='text-sm font-medium'>
+                {t('notifications.marketingEmails')}
+              </Label>
+              <p className='text-muted-foreground text-xs'>
+                {t('notifications.marketingEmailsDescription')}
+              </p>
             </div>
             <Switch
-              id='email-notifications'
-              checked={settings.emailNotifications}
-              onCheckedChange={(emailNotifications) => emailNotificationsMutation.mutate({ emailNotifications })}
+              id='marketing-emails'
+              checked={settings.marketingEmails}
+              onCheckedChange={(marketingEmails) => marketingEmailsMutation.mutate({ marketingEmails })}
               className='cursor-pointer'
             />
           </div>
-
-          {PUBLIC_IS_CLOUD && (
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center space-x-2'>
-                <Mail className='h-4 w-4' />
-                <Label htmlFor='marketing-emails'>{t('notifications.marketingEmails')}</Label>
-                <SettingStatusIndicator status={marketingEmailsMutation.status} />
-              </div>
-              <Switch
-                id='marketing-emails'
-                checked={settings.marketingEmails}
-                onCheckedChange={(marketingEmails) => marketingEmailsMutation.mutate({ marketingEmails })}
-                className='cursor-pointer'
-              />
-            </div>
-          )}
-        </div>
-      </SettingsCard>
+        </UserSettingsSection>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import SettingsSection from '../SettingsSection';
+import SettingsSection from '@/components/settings/SettingsSection';
 import { useTranslations } from 'next-intl';
 import { Switch } from '@/components/ui/switch';
 import { useState, useTransition } from 'react';

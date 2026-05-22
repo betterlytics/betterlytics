@@ -1,6 +1,5 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, LucideIcon } from 'lucide-react';
@@ -28,26 +27,23 @@ export default function UserThemeSelector({ value, onUpdate }: UserThemeSelector
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <Label htmlFor="theme">{t('themeLabel')}</Label>
-      <Select value={value} onValueChange={handleChange}>
-        <SelectTrigger className="w-32 cursor-pointer">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.values(Theme).map((theme) => {
-            const Icon = THEME_ICONS[theme];
-            return (
-              <SelectItem key={theme} value={theme} className="cursor-pointer">
-                <div className="flex items-center space-x-2">
-                  <Icon className="h-4 w-4" />
-                  <span>{t(theme)}</span>
-                </div>
-              </SelectItem>
-            );
-          })}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select value={value} onValueChange={handleChange}>
+      <SelectTrigger className='w-32 cursor-pointer'>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {Object.values(Theme).map((theme) => {
+          const Icon = THEME_ICONS[theme];
+          return (
+            <SelectItem key={theme} value={theme} className='cursor-pointer'>
+              <div className='flex items-center space-x-2'>
+                <Icon className='h-4 w-4' />
+                <span>{t(theme)}</span>
+              </div>
+            </SelectItem>
+          );
+        })}
+      </SelectContent>
+    </Select>
   );
 }

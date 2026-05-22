@@ -28,7 +28,7 @@ interface UseUserSettingsMutationReturn<TInput> {
  *  - on success: replaces the context with the server response
  *  - on error: reverts to the snapshot taken before the optimistic update + toasts
  *
- * The `status` drives <SettingStatusIndicator/>.
+ * The `status` field is exposed for optional in-flight indicators.
  */
 export function useUserSettingsMutation<TInput extends Partial<UserSettings>>({
   action,

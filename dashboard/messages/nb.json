@@ -2768,65 +2768,37 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profil",
-        "preferences": "Preferanser",
-        "usage": "Forbruk",
-        "billing": "Fakturering",
-        "security": "Sikkerhet",
-        "danger": "Faresone"
-      },
-      "groups": {
         "account": "Konto",
         "preferences": "Preferanser",
         "billing": "Fakturering"
       },
-      "status": {
-        "saving": "Lagrer…",
-        "saved": "Lagret",
-        "error": "Mislyktes"
-      },
       "dialog": {
         "title": "Brukerinnstillinger",
         "description": "Administrer kontoinnstillingene og preferansene dine.",
-        "loading": "Laster inn innstillinger...",
-        "loadFailed": "Kunne ikke laste inn innstillinger",
-        "noSettings": "Ingen innstillinger funnet",
-        "buttons": {
-          "cancel": "Avbryt",
-          "saving": "Lagrer...",
-          "saveChanges": "Lagre endringer"
-        },
         "toast": {
-          "success": "Innstillinger lagret!",
           "error": "Kunne ikke lagre innstillinger. Prøv igjen."
         }
       },
       "profile": {
         "title": "Profil",
-        "description": "Rediger personopplysningene dine",
         "nameLabel": "Navn",
         "namePlaceholder": "Skriv inn navnet ditt",
-        "optional": "Valgfritt",
         "emailLabel": "E-post",
         "verified": "Bekreftet",
-        "unverified": "Ikke verifisert",
-        "updateButton": "Oppdater profil",
-        "toast": {
-          "success": "Profil oppdatert",
-          "error": "Kunne ikke oppdatere profil. Prøv igjen."
-        }
+        "unverified": "Ikke verifisert"
       },
       "preferences": {
         "appearance": {
           "title": "Utseende",
-          "description": "Tilpass det visuelle uttrykket for dashboardet ditt",
           "themeLabel": "Tema",
+          "themeDescription": "Velg et personlig tema for dashbordet",
           "light": "Lys",
           "dark": "Mørk",
           "system": "Systemstandard"
         },
         "avatar": {
           "label": "Profilbilde",
+          "description": "Hvordan profilbildet ditt vises",
           "none": "Ingen",
           "gravatar": "Gravatar-tjeneste",
           "noteIntro": "Merk: Gravatar er en tredjepartstjeneste – aktivering kan dele e-post-hashen din med serverne deres.",
@@ -2834,37 +2806,51 @@
         },
         "localization": {
           "title": "Lokalisering",
-          "description": "Velg språk",
-          "language": "Språk"
+          "language": "Språk",
+          "languageDescription": "Velg språk for dashbordet"
         },
         "notifications": {
           "title": "Varsler",
-          "description": "Konfigurer varslingspreferansene dine",
-          "emailNotifications": "E-postvarsler",
-          "marketingEmails": "Markedsførings-e-poster"
+          "marketingEmails": "Markedsførings-e-poster",
+          "marketingEmailsDescription": "Produktoppdateringer, kunngjøringer og tips"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Trenger du flere hendelser?",
-          "upgradeHint": "Oppgrader planen din for å få flere hendelser og låse opp flere funksjoner.",
-          "viewPlans": "Se planer"
+      "billing": {
+        "loadError": "Kan ikke laste inn faktureringsdata.",
+        "currentPlan": {
+          "title": "Nåværende plan",
+          "free": "Gratis",
+          "pricePerMonth": "{price} / måned",
+          "renewsOn": "Fornyes {date}",
+          "endsOn": "Abonnementet slutter {date}",
+          "upgrade": "Oppgrader",
+          "changePlan": "Bytt plan"
         },
-        "error": "Kan ikke laste inn forbruksdata"
-      },
-      "billingPortal": {
-        "title": "Faktureringsportal",
-        "description": "Administrer faktureringsopplysningene dine og se full fakturahistorikk",
-        "access": "Tilgang til faktureringsportal",
-        "accessButton": "Åpne faktureringsportal",
-        "explainer": "Se tidligere fakturaer, oppdater betalingsmetoder og administrer faktureringen din via Stripes sikre kundeportal.",
-        "notAvailable": "Faktureringsportalen er tilgjengelig når du oppgraderer til en betalt plan.",
-        "needHelp": "Trenger du hjelp med fakturering?",
-        "contactSupport": "Kontakt support",
-        "toastError": "Kunne ikke åpne faktureringsportal, prøv igjen."
+        "usage": {
+          "title": "Forbruk",
+          "eventsLabel": "Hendelser",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Tilbakestilles om {days} dager"
+        },
+        "payment": {
+          "title": "Betaling og fakturaer",
+          "label": "Administrer i faktureringsportalen",
+          "description": "Betalingsmetode, fakturaer og faktureringsopplysninger.",
+          "openPortal": "Åpne faktureringsportal"
+        },
+        "cancellation": {
+          "title": "Avbestilling",
+          "label": "Avbestill abonnement",
+          "description": "Stopp fakturering ved slutten av nåværende periode.",
+          "cancel": "Avbestill"
+        },
+        "portal": {
+          "openError": "Kunne ikke åpne faktureringsportal, prøv igjen."
+        }
       },
       "security": {
         "title": "Passord og autentisering",
+        "passwordRowLabel": "Passord",
         "description": "Bytt kontopassord",
         "currentPassword": "Nåværende passord",
         "newPassword": "Nytt passord",
@@ -2878,7 +2864,7 @@
         },
         "totp": {
           "title": "Tofaktorautentisering",
-          "description": "Legg til et ekstra sikkerhetslag ved å kreve en ekstra godkjenning i tillegg til passordet ditt",
+          "description": "Legg til et ekstra sikkerhetslag på kontoen din.",
           "enable": "Aktiver 2FA",
           "instructions": "For å aktivere 2FA skal du skanne QR-koden med autentiseringsappen din, eller bruke <setup>oppsettsnøkkelen</setup> for manuell konfigurasjon, og deretter skrive inn verifiseringskoden nedenfor.",
           "cancel": "Avbryt",
@@ -2892,10 +2878,8 @@
         }
       },
       "danger": {
-        "title": "Slett konto",
-        "description": "Slett kontoen din og alle tilknyttede data permanent",
-        "warning": "Advarsel: Denne handlingen kan ikke angres",
-        "details": "Dette vil slette kontoen din permanent, fjerne tilgang til alle dashboards og slette alle personlige innstillinger.",
+        "sectionTitle": "Faresone",
+        "details": "Slett kontoen din og alle tilknyttede data permanent.",
         "delete": "Slett konto",
         "dialog": {
           "title": "Slett konto permanent",
