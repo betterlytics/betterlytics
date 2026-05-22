@@ -50,15 +50,12 @@ export function SubscriptionEndingSoonEmail({
   const affectedDescription = describeAffectedDashboards(affectedDashboards);
 
   return (
-    <EmailLayout
-      preview={`After ${endDate}, your account moves to the free Growth plan.`}
-      campaign={CAMPAIGN}
-    >
+    <EmailLayout preview={`After ${endDate}, your account moves to the free Growth plan.`} campaign={CAMPAIGN}>
       <H1>Your subscription ends soon</H1>
 
       <Greeting userName={userName} />
 
-      <P>Thanks for being a Betterlytics customer.</P>
+      <P>Thank you for being part of Betterlytics.</P>
 
       <P>
         Your subscription is scheduled to end on <strong>{endDate}</strong>. After that, your account will be moved

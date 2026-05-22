@@ -40,15 +40,12 @@ export function SubscriptionPaymentCancelledEmail({
   const affectedDescription = describeAffectedDashboards(affectedDashboards);
 
   return (
-    <EmailLayout
-      preview='Update your payment method to restore your subscription.'
-      campaign={CAMPAIGN}
-    >
+    <EmailLayout preview='Update your payment method to restore your subscription.' campaign={CAMPAIGN}>
       <H1>Your subscription was cancelled</H1>
 
       <Greeting userName={userName} />
 
-      <P>Thanks for being a Betterlytics customer.</P>
+      <P>Thank you for being part of Betterlytics.</P>
 
       <P>
         Your subscription was cancelled because we couldn't process payment on your card after several attempts.
