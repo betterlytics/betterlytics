@@ -85,10 +85,10 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
   return (
     <div>
       <UserSettingsSection title={t('currentPlan.title')}>
-        <div className='flex items-start justify-between gap-4'>
+        <div className='flex items-center justify-between gap-4'>
           <div className='space-y-1'>
-            <div className='text-base font-semibold capitalize'>{subscription.tier}</div>
-            <p className='text-muted-foreground text-sm'>{planSummary}</p>
+            <div className='text-sm font-medium capitalize'>{subscription.tier}</div>
+            <p className='text-muted-foreground text-xs'>{planSummary}</p>
           </div>
           <div className='flex-shrink-0'>
             <Button
