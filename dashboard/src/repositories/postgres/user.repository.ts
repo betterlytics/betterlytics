@@ -23,6 +23,14 @@ export async function findUserById(userId: string): Promise<User | null> {
   return await findUserBy({ id: userId });
 }
 
+export async function findUserOAuthProviders(userId: string): Promise<string[]> {
+  const accounts = await prisma.account.findMany({
+    where: { userId },
+    select: { provider: true },
+  });
+  return accounts.map((a) => a.provider);
+}
+
 export async function findUserByEmail(email: string): Promise<User | null> {
   return await findUserBy({ email });
 }

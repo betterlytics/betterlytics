@@ -5,6 +5,7 @@ import { UserSettings, UserSettingsUpdateSchema } from '@/entities/account/userS
 import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
 import { withUserAuth } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
+import * as UserRepository from '@/repositories/postgres/user.repository';
 import {
   countUserSessions,
   getCurrentSessionTokenFromCookies,
@@ -69,6 +70,10 @@ export const updateUserAction = withUserAuth(async (user: User, data: UpdateUser
 
 export const getActiveSessionCountAction = withUserAuth(async (user: User): Promise<number> => {
   return countUserSessions(user.id);
+});
+
+export const getUserOAuthProvidersAction = withUserAuth(async (user: User): Promise<string[]> => {
+  return UserRepository.findUserOAuthProviders(user.id);
 });
 
 export const signOutOtherSessionsAction = withUserAuth(async (user: User): Promise<{ revoked: number }> => {

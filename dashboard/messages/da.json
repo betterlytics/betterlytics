@@ -2777,7 +2777,9 @@
         "namePlaceholder": "Indtast dit navn",
         "emailLabel": "E-mail",
         "verified": "Bekræftet",
-        "unverified": "Ikke bekræftet"
+        "unverified": "Ikke bekræftet",
+        "signedInWith": "Logget ind med {provider}",
+        "memberSince": "Medlem siden {date}"
       },
       "preferences": {
         "appearance": {

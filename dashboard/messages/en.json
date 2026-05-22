@@ -2771,7 +2771,9 @@
         "namePlaceholder": "Enter your name",
         "emailLabel": "Email",
         "verified": "Verified",
-        "unverified": "Unverified"
+        "unverified": "Unverified",
+        "signedInWith": "Signed in with {provider}",
+        "memberSince": "Member since {date}"
       },
       "preferences": {
         "appearance": {

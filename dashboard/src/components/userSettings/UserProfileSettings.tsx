@@ -3,26 +3,49 @@
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useLocale, useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import UserSettingsSection from './UserSettingsSection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
 import { useSettingMutation } from '@/hooks/use-setting-mutation';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
-import { updateUserAction } from '@/app/actions/account/userSettings.action';
+import {
+  getUserOAuthProvidersAction,
+  updateUserAction,
+} from '@/app/actions/account/userSettings.action';
 import { UpdateUserSchema } from '@/entities/auth/user.entities';
+
+const PROVIDER_LABELS: Record<string, string> = {
+  google: 'Google',
+  github: 'GitHub',
+};
 
 export default function UserProfileSettings() {
   const { data: session } = useSession();
   const { refreshSession } = useSessionRefresh();
+  const locale = useLocale();
   const t = useTranslations('components.userSettings.profile');
   const tDialog = useTranslations('components.userSettings.dialog');
   const email = session?.user?.email ?? '';
   const emailVerified = session?.user?.emailVerified;
   const sessionName = session?.user?.name ?? '';
+  const createdAt = session?.user?.createdAt;
 
   const [name, setName] = useState(sessionName);
+
+  const { data: oauthProviders } = useQuery({
+    queryKey: ['userOAuthProviders'],
+    queryFn: async () => {
+      const result = await getUserOAuthProvidersAction();
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+      return result.data;
+    },
+  });
 
   const nameMutation = useSettingMutation({
     action: async (input: { name: string }) => {
@@ -43,6 +66,10 @@ export default function UserProfileSettings() {
     }
     nameMutation.mutate({ name: trimmed });
   };
+
+  const memberSince = createdAt
+    ? new Date(createdAt).toLocaleDateString(locale, { year: 'numeric', month: 'long' })
+    : null;
 
   return (
     <UserSettingsSection title={t('title')}>
@@ -67,9 +94,18 @@ export default function UserProfileSettings() {
 
       <div className='space-y-2'>
         <div className='flex items-center justify-between gap-2'>
-          <Label htmlFor='email' className='text-sm font-medium'>
-            {t('emailLabel')}
-          </Label>
+          <div className='flex items-center gap-2'>
+            <Label htmlFor='email' className='text-sm font-medium'>
+              {t('emailLabel')}
+            </Label>
+            {oauthProviders && oauthProviders.length > 0 && (
+              <Badge variant='secondary' className='font-normal'>
+                {t('signedInWith', {
+                  provider: PROVIDER_LABELS[oauthProviders[0]] ?? oauthProviders[0],
+                })}
+              </Badge>
+            )}
+          </div>
           {emailVerified ? (
             <div className='flex items-center gap-1 text-xs text-green-600'>
               <Check className='h-3 w-3' />
@@ -83,6 +119,9 @@ export default function UserProfileSettings() {
           )}
         </div>
         <Input id='email' type='email' value={email} disabled readOnly />
+        {memberSince && (
+          <p className='text-muted-foreground text-xs'>{t('memberSince', { date: memberSince })}</p>
+        )}
       </div>
     </UserSettingsSection>
   );

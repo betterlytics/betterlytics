@@ -2785,7 +2785,9 @@
         "namePlaceholder": "Inserisci il tuo nome",
         "emailLabel": "Email",
         "verified": "Verificato",
-        "unverified": "Non verificato"
+        "unverified": "Non verificato",
+        "signedInWith": "Connesso con {provider}",
+        "memberSince": "Membro da {date}"
       },
       "preferences": {
         "appearance": {

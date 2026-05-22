@@ -2785,7 +2785,9 @@
         "namePlaceholder": "Skriv inn navnet ditt",
         "emailLabel": "E-post",
         "verified": "Bekreftet",
-        "unverified": "Ikke verifisert"
+        "unverified": "Ikke verifisert",
+        "signedInWith": "Innlogget med {provider}",
+        "memberSince": "Medlem siden {date}"
       },
       "preferences": {
         "appearance": {

@@ -9,9 +9,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CreditCard, Settings, User } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import UserAccountSettings from '@/components/userSettings/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/UserBillingSettings';
+import { BAAvatar } from '@/components/avatar/BAAvatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
@@ -55,6 +57,7 @@ interface UserSettingsDialogContentProps {
 function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
+  const { data: session } = useSession();
 
   const tabs: TabConfig[] = useMemo(
     () => [
@@ -92,7 +95,17 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
       orientation='vertical'
       className='flex h-full min-h-0 flex-row gap-0'
     >
-      <TabsList className='bg-muted/30 flex h-full w-56 flex-shrink-0 flex-col items-stretch justify-start gap-1 overflow-y-auto rounded-none border-r px-2 py-6'>
+      <div className='bg-muted/30 flex h-full w-56 flex-shrink-0 flex-col border-r'>
+        <div className='border-border flex items-center gap-3 border-b px-4 py-4'>
+          <BAAvatar />
+          <div className='min-w-0 flex-1'>
+            <div className='truncate text-sm font-medium'>{session?.user?.name ?? session?.user?.email}</div>
+            {session?.user?.name && (
+              <div className='text-muted-foreground truncate text-xs'>{session.user.email}</div>
+            )}
+          </div>
+        </div>
+        <TabsList className='flex flex-1 flex-col items-stretch justify-start gap-1 overflow-y-auto rounded-none bg-transparent px-2 py-4'>
         {availableTabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -110,7 +123,8 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
             </TabsTrigger>
           );
         })}
-      </TabsList>
+        </TabsList>
+      </div>
 
       <ScrollArea className='min-h-0 min-w-0 flex-1'>
         <div className='px-8 pt-8 pb-10'>
