@@ -91,7 +91,12 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             <p className='text-muted-foreground text-sm'>{planSummary}</p>
           </div>
           <div className='flex-shrink-0'>
-            <Button variant='outline' size='sm' onClick={handleViewPlans} className='cursor-pointer'>
+            <Button
+              variant={isPaid ? 'outline' : 'default'}
+              size='sm'
+              onClick={handleViewPlans}
+              className='cursor-pointer'
+            >
               {isPaid ? t('currentPlan.changePlan') : t('currentPlan.upgrade')}
             </Button>
           </div>
