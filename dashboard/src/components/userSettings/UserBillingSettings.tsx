@@ -156,7 +156,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             </div>
             <div className='flex-shrink-0'>
               <CancelSubscriptionDialog tier={subscription.tier} isActive={isActive}>
-                <Button variant='outline' size='sm' className='cursor-pointer'>
+                <Button variant='destructive' size='sm' className='cursor-pointer'>
                   {t('cancellation.cancel')}
                 </Button>
               </CancelSubscriptionDialog>

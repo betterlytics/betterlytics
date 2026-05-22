@@ -49,7 +49,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='h-[90vh] max-h-[900px] w-[95vw] max-w-[1100px] gap-0 overflow-hidden p-0 sm:max-w-[1100px]'>
+      <DialogContent className='h-[90vh] max-h-[900px] w-[95vw] max-w-[1000px] gap-0 overflow-hidden p-0 sm:max-w-[1000px]'>
         <DialogHeader className='sr-only'>
           <DialogTitle>{tDialog('title')}</DialogTitle>
           <DialogDescription>{tDialog('description')}</DialogDescription>
