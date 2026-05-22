@@ -21,6 +21,9 @@ type FunnelStepFiltersEditorProps = {
   globalPropertyKeys?: string[];
 };
 
+const INTERACTIVE_ELEMENT_SELECTOR =
+  'input, textarea, button, select, [role="button"], [role="combobox"], [role="menuitem"], [contenteditable="true"]' as const;
+
 function FunnelStepFiltersEditorComponent({
   filters,
   onChange,
@@ -62,8 +65,14 @@ function FunnelStepFiltersEditorComponent({
     [filters, onChange],
   );
 
+  const preventDragFromInteractiveElements = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest(INTERACTIVE_ELEMENT_SELECTOR)) {
+      e.stopPropagation();
+    }
+  }, []);
+
   return (
-    <div className="py-1">
+    <div className="py-1" onMouseDown={preventDragFromInteractiveElements}>
       <div
         className='grid max-h-[45vh] grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden p-1'
       >

@@ -1,9 +1,11 @@
 'use client';
 
 import {
+  AutoScrollActivator,
   closestCenter,
   DndContext,
   KeyboardSensor,
+  MeasuringStrategy,
   MouseSensor,
   TouchSensor,
   useSensor,
@@ -11,7 +13,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
@@ -52,7 +54,8 @@ export function FunnelStepAccordion({
   listRef,
 }: FunnelStepAccordionProps) {
   const [openStepId, setOpenStepId] = useState<string | undefined>(initialOpenId);
-  
+  const [isDragging, setIsDragging] = useState(false);
+
   const draggedItemPriorOpenRef = useRef<{ id: string; wasOpen: boolean } | null>(null);
   const draggedStepsRef = useRef<FunnelStep[] | null>(null);
   const prevIdsRef = useRef<string[]>(steps.map((s) => s.id));
@@ -72,6 +75,14 @@ export function FunnelStepAccordion({
     });
     prevIdsRef.current = currentIds;
   }, [steps]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    document.body.classList.add('dnd-dragging');
+    return () => {
+      document.body.classList.remove('dnd-dragging');
+    };
+  }, [isDragging]);
 
   const handleRequestRemoval = useCallback(
     (id: string) => {
@@ -99,6 +110,7 @@ export function FunnelStepAccordion({
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
+      setIsDragging(true);
       draggedStepsRef.current = steps;
       const id = String(event.active.id);
       setOpenStepId((prev) => {
@@ -112,6 +124,7 @@ export function FunnelStepAccordion({
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
+      setIsDragging(false);
       const snapshot = draggedStepsRef.current ?? steps;
       draggedStepsRef.current = null;
       const { active, over } = event;
@@ -132,6 +145,7 @@ export function FunnelStepAccordion({
   );
 
   const handleDragCancel = useCallback(() => {
+    setIsDragging(false);
     draggedStepsRef.current = null;
     restoreDraggedOpenState();
   }, [restoreDraggedOpenState]);
@@ -140,12 +154,22 @@ export function FunnelStepAccordion({
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis]}
+      modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
+      measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
+      autoScroll={{
+        interval: 16,
+        acceleration: 12,
+        threshold: { x: 0, y: 0.1 },
+        layoutShiftCompensation: false,
+        activator: AutoScrollActivator.DraggableRect,
+        canScroll: (el) => el !== document.scrollingElement,
+      }}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
       <ScrollArea
+        type={isDragging ? 'always' : 'hover'}
         className={cn(
           'lg:-mr-3',
           'max-sm:[&_[data-slot=scroll-area-scrollbar]]:hidden',

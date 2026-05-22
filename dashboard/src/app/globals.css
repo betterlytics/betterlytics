@@ -327,3 +327,9 @@
 .recharts-wrapper svg {
   overflow: visible !important;
 }
+
+/* Force grabbing cursor everywhere during dnd-kit drag (toggled by FunnelStepAccordion) */
+body.dnd-dragging,
+body.dnd-dragging * {
+  cursor: grabbing !important;
+}

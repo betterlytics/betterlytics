@@ -136,6 +136,7 @@ function FunnelStepAccordionItemComponent({
               value={step.name}
               onChange={(e) => onUpdate({ ...step, name: e.target.value })}
               onPointerDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
               placeholder={tFilters('namePlaceholder')}
@@ -176,6 +177,7 @@ function FunnelStepAccordionItemComponent({
             variant='destructive'
             size='icon'
             onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
               onRequestRemoval(step.id);
@@ -188,6 +190,7 @@ function FunnelStepAccordionItemComponent({
               'group-hover/step:opacity-100',
               'max-sm:group-data-[state=open]/item:opacity-100',
               'focus-visible:opacity-100 focus-visible:ring-2 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:border',
+              '[body.dnd-dragging_&]:opacity-0! [body.dnd-dragging_&]:pointer-events-none',
             )}
           >
             <X className='size-3' />
@@ -207,7 +210,8 @@ function FunnelStepAccordionItemComponent({
         'group/step relative flex items-start',
         'gap-2 sm:gap-4',
         'will-change-transform',
-        isDragging && 'z-10 cursor-grabbing drop-shadow-lg [&_button]:cursor-grabbing [&_input]:cursor-grabbing',
+        'transition-[filter] duration-150',
+        isDragging && 'z-10 drop-shadow-lg',
       )}
       {...pointerListeners}
     >
@@ -229,7 +233,7 @@ function FunnelStepAccordionItemComponent({
             <GripVertical className='size-5' />
           </div>
         </TooltipTrigger>
-        <TooltipContent className={cn(isDragging && 'opacity-0')}>
+        <TooltipContent className='[body.dnd-dragging_&]:opacity-0'>
           {t('tooltip.reorderStep', { index: index + 1 })}
         </TooltipContent>
       </Tooltip>
@@ -247,7 +251,7 @@ function FunnelStepAccordionItemComponent({
         {StepHeader}
         {DeleteStepButton}
         <AccordionContent className={'bg-muted/10 relative px-3 pb-1 border-t cursor-grab active:cursor-grabbing'}>
-          <div className={'bg-primary/60 absolute left-0 w-0.5 h-full'} />
+          <div className={'bg-primary/60 absolute left-0 w-0.5 h-full rounded-bl-md'} />
           <FunnelStepFiltersEditor
             filters={step.filters}
             onChange={handleFiltersChange}
