@@ -2,6 +2,7 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
 import { Icon } from '@iconify/react';
+import { cn } from '@/lib/utils';
 import { resolveBrowser } from '@/constants/browserIcons';
 
 interface BrowserIconProps {
@@ -14,24 +15,32 @@ export const BrowserIcon = React.memo<BrowserIconProps>(({ name, className = 'h-
 
   const def = resolveBrowser(name);
 
-  if (!def) return <Globe className={className} />;
+  if (!def) return <Globe className={cn('shrink-0', className)} />;
 
   if (def?.icon && !iconFailed) {
     return (
-      <Icon
-        icon={def.icon}
-        className={className}
-        aria-label={def.label}
-        onError={() => setIconFailed(true) as unknown as void}
-      />
+      <span className={cn('inline-flex shrink-0 items-center justify-center align-[-0.125em]', className)}>
+        <Icon
+          icon={def.icon}
+          className='h-full w-full'
+          aria-label={def.label}
+          onError={() => setIconFailed(true) as unknown as void}
+        />
+      </span>
     );
   }
 
   if (def?.localFile) {
-    return <img src={`/browser-icons/${def.localFile}`} alt={def.label} className={className} />;
+    return (
+      <img
+        src={`/browser-icons/${def.localFile}`}
+        alt={def.label}
+        className={cn('shrink-0', className)}
+      />
+    );
   }
 
-  return <Globe className={className} />;
+  return <Globe className={cn('shrink-0', className)} />;
 });
 
 BrowserIcon.displayName = 'BrowserIcon';
