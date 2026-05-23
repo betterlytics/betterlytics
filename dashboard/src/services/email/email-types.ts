@@ -12,6 +12,8 @@ import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/cr
 import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
 import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
 import type { EmailTemplate } from '@/services/email/types';
+import { createInvitationAcceptedEmailTemplate } from './template/invitation-accepted-mail';
+import { createMemberRemovedEmailTemplate } from './template/member-removed-mail';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
 
@@ -52,6 +54,16 @@ export const EMAIL_TYPES = {
   'data-retention-clamp': {
     template: createDataRetentionClampEmailTemplate,
     saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'invitation-accepted': {
+    template: createInvitationAcceptedEmailTemplate,
+    saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
+  'member-removed': {
+    template: createMemberRemovedEmailTemplate,
+    saasOnly: false,
     retry: DEFAULT_RETRY,
   },
   'password-changed': {
