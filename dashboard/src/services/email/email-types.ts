@@ -64,6 +64,7 @@ export const EMAIL_TYPES = {
   'member-removed': {
     template: createMemberRemovedEmailTemplate,
     saasOnly: false,
+    retry: DEFAULT_RETRY,
   },
   'password-changed': {
     template: createPasswordChangedEmailTemplate,
