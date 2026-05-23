@@ -2777,6 +2777,12 @@
         "description": "Administrer kontoinnstillingene og preferansene dine.",
         "toast": {
           "error": "Kunne ikke lagre innstillinger. Prøv igjen."
+        },
+        "help": {
+          "trigger": "Trenger du hjelp?",
+          "documentation": "Dokumentasjon",
+          "reportBug": "Rapporter en feil",
+          "contactSupport": "Kontakt kundestøtte"
         }
       },
       "profile": {

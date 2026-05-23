@@ -2763,6 +2763,12 @@
         "description": "Manage your account settings and preferences.",
         "toast": {
           "error": "Failed to save settings. Please try again."
+        },
+        "help": {
+          "trigger": "Need help?",
+          "documentation": "Documentation",
+          "reportBug": "Report a bug",
+          "contactSupport": "Contact support"
         }
       },
       "profile": {

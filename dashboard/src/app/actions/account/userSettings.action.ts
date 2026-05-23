@@ -1,6 +1,6 @@
 'use server';
 
-import { UpdateUserData, UpdateUserSchema } from '@/entities/auth/user.entities';
+import { UpdateUserNameData, UpdateUserNameSchema } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdateSchema } from '@/entities/account/userSettings.entities';
 import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
 import { withUserAuth } from '@/auth/auth-actions';
@@ -44,13 +44,6 @@ export const updateUserAvatarAction = withUserAuth(
   },
 );
 
-export const updateUserEmailNotificationsAction = withUserAuth(
-  async (user: User, input: { emailNotifications: boolean }): Promise<UserSettings> => {
-    const payload = UserSettingsUpdateSchema.required().pick({ emailNotifications: true }).parse(input);
-    return UserSettingsService.updateUserSettings(user.id, payload);
-  },
-);
-
 export const updateUserMarketingEmailsAction = withUserAuth(
   async (user: User, input: { marketingEmails: boolean }): Promise<UserSettings> => {
     const payload = UserSettingsUpdateSchema.required().pick({ marketingEmails: true }).parse(input);
@@ -62,11 +55,13 @@ export const deleteUserAccountAction = withUserAuth(async (user: User): Promise<
   return await UserSettingsService.deleteUser(user.id);
 });
 
-export const updateUserAction = withUserAuth(async (user: User, data: UpdateUserData): Promise<void> => {
-  const validatedData = UpdateUserSchema.parse(data);
+export const updateUserNameAction = withUserAuth(
+  async (user: User, data: UpdateUserNameData): Promise<void> => {
+    const validatedData = UpdateUserNameSchema.parse(data);
 
-  return await UserSettingsService.updateUser(user.id, validatedData);
-});
+    return await UserSettingsService.updateUser(user.id, validatedData);
+  },
+);
 
 export const getActiveSessionCountAction = withUserAuth(async (user: User): Promise<number> => {
   return countUserSessions(user.id);

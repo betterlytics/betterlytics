@@ -1,3 +1,5 @@
+'use client';
+
 import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/actions/auth/totp.action';
 import SettingRow from './SettingRow';
 import {
@@ -102,8 +104,8 @@ function SetupTotp() {
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button variant='outline' size='sm' disabled={isPending || isDialogOpen} className='cursor-pointer'>
-          {isPending || isDialogOpen ? <Loader2 className='h-4 w-4 animate-spin' /> : t('enable')}
+        <Button variant='outline' size='sm' disabled={isPending} className='cursor-pointer'>
+          {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('enable')}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent

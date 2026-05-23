@@ -2769,6 +2769,12 @@
         "description": "Administrér dine kontoinstillinger og præferencer.",
         "toast": {
           "error": "Kunne ikke gemme indstillinger. Prøv igen."
+        },
+        "help": {
+          "trigger": "Brug for hjælp?",
+          "documentation": "Dokumentation",
+          "reportBug": "Rapportér en fejl",
+          "contactSupport": "Kontakt support"
         }
       },
       "profile": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Check, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -10,13 +10,12 @@ import UserSettingsSection from './UserSettingsSection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useSettingMutation } from '@/hooks/use-setting-mutation';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import {
   getUserOAuthProvidersAction,
-  updateUserAction,
+  updateUserNameAction,
 } from '@/app/actions/account/userSettings.action';
-import { UpdateUserSchema } from '@/entities/auth/user.entities';
+import { UpdateUserNameSchema } from '@/entities/auth/user.entities';
 
 const PROVIDER_LABELS: Record<string, string> = {
   google: 'Google',
@@ -35,6 +34,7 @@ export default function UserProfileSettings() {
   const createdAt = session?.user?.createdAt;
 
   const [name, setName] = useState(sessionName);
+  const [, startTransition] = useTransition();
 
   const { data: oauthProviders } = useQuery({
     queryKey: ['userOAuthProviders'],
@@ -47,24 +47,21 @@ export default function UserProfileSettings() {
     },
   });
 
-  const nameMutation = useSettingMutation({
-    action: async (input: { name: string }) => {
-      const payload = UpdateUserSchema.parse({ name: input.name });
-      return updateUserAction(payload);
-    },
-    onSuccess: () => refreshSession(),
-    onError: (message) => {
-      setName(sessionName);
-      toast.error(message || tDialog('toast.error'));
-    },
-  });
-
   const handleCommitName = () => {
     const trimmed = name.trim();
     if (trimmed === sessionName.trim() || trimmed === '') {
       return;
     }
-    nameMutation.mutate({ name: trimmed });
+    startTransition(async () => {
+      const payload = UpdateUserNameSchema.parse({ name: trimmed });
+      const result = await updateUserNameAction(payload);
+      if (result.success) {
+        refreshSession();
+      } else {
+        setName(sessionName);
+        toast.error(result.error.message || tDialog('toast.error'));
+      }
+    });
   };
 
   const memberSince = createdAt

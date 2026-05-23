@@ -2777,6 +2777,12 @@
         "description": "Gestisci le impostazioni e le preferenze del tuo account.",
         "toast": {
           "error": "Impossibile salvare le impostazioni. Riprova."
+        },
+        "help": {
+          "trigger": "Hai bisogno di aiuto?",
+          "documentation": "Documentazione",
+          "reportBug": "Segnala un bug",
+          "contactSupport": "Contatta l'assistenza"
         }
       },
       "profile": {

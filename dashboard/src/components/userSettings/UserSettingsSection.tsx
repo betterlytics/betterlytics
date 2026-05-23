@@ -5,15 +5,6 @@ interface UserSettingsSectionProps {
   children?: React.ReactNode;
 }
 
-/**
- * Flat section used inside the user settings dialog.
- *
- * Header (title + optional description + optional `headerAction`) sits above
- * a hairline divider; content flows directly beneath. Sections are
- * separated by generous bottom padding; the last section drops it for clean
- * edges. Notion/ChatGPT-style — the title block functions as the visual
- * landmark for each block.
- */
 export default function UserSettingsSection({
   title,
   description,

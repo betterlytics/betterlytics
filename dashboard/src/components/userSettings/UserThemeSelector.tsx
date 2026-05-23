@@ -1,7 +1,6 @@
 'use client';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useTheme } from 'next-themes';
 import { Monitor, Moon, Sun, LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Theme } from '@prisma/client';
@@ -18,16 +17,10 @@ interface UserThemeSelectorProps {
 }
 
 export default function UserThemeSelector({ value, onUpdate }: UserThemeSelectorProps) {
-  const { setTheme } = useTheme();
   const t = useTranslations('components.userSettings.preferences.appearance');
 
-  const handleChange = (newTheme: string) => {
-    setTheme(newTheme);
-    onUpdate(newTheme as Theme);
-  };
-
   return (
-    <Select value={value} onValueChange={handleChange}>
+    <Select value={value} onValueChange={(v) => onUpdate(v as Theme)}>
       <SelectTrigger className='w-32 cursor-pointer'>
         <SelectValue />
       </SelectTrigger>

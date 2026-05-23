@@ -24,13 +24,12 @@ export default function UserDangerZoneSettings() {
     }
 
     startTransition(async () => {
-      try {
-        await deleteUserAccountAction();
+      const result = await deleteUserAccountAction();
+      if (result.success) {
         toast.success(t('toast.success'));
         window.location.href = '/';
-      } catch (error) {
-        console.error('Failed to delete account:', error);
-        toast.error(t('toast.error'));
+      } else {
+        toast.error(result.error.message || t('toast.error'));
       }
     });
   };
