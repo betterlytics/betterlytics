@@ -2853,6 +2853,8 @@
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
+        "togglePasswordVisibility": "Toggle {field} visibility",
+        "cancel": "Cancel",
         "toast": {
           "success": "Password updated successfully"
         },
@@ -2868,7 +2870,11 @@
           "disableTitle": "Disable 2FA",
           "disableDescription": "Are you sure you want to disable two-factor authentication for your account?",
           "disabledSuccess": "Two-factor authentication disabled successfully",
-          "disableFailed": "Failed to disable two-factor authentication. Please try again."
+          "disableFailed": "Failed to disable two-factor authentication. Please try again.",
+          "setupFailed": "Failed to setup two-factor authentication. Please try again.",
+          "copyFailed": "Failed to copy",
+          "enabledSuccess": "Two-factor authentication enabled successfully",
+          "enableFailed": "Failed to enable two-factor authentication. Please try again."
         }
       },
       "sessions": {

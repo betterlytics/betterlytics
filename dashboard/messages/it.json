@@ -2867,6 +2867,8 @@
         "passwordsMatch": "Le password coincidono",
         "changePassword": "Cambia password",
         "passwordManagedByOAuth": "Password gestita da OAuth",
+        "togglePasswordVisibility": "Mostra/nascondi {field}",
+        "cancel": "Annulla",
         "toast": {
           "success": "Password aggiornata con successo"
         },
@@ -2882,7 +2884,11 @@
           "disableTitle": "Disabilita 2FA",
           "disableDescription": "Sei sicuro di voler disabilitare l'autenticazione a due fattori per il tuo account?",
           "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
-          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova."
+          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova.",
+          "setupFailed": "Impossibile configurare l'autenticazione a due fattori. Riprova.",
+          "copyFailed": "Impossibile copiare",
+          "enabledSuccess": "Autenticazione a due fattori abilitata con successo",
+          "enableFailed": "Impossibile abilitare l'autenticazione a due fattori. Riprova."
         }
       },
       "sessions": {

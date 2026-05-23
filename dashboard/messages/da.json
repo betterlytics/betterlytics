@@ -2859,6 +2859,8 @@
         "passwordsMatch": "Adgangskoderne matcher",
         "changePassword": "Skift adgangskode",
         "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
+        "togglePasswordVisibility": "Vis/skjul {field}",
+        "cancel": "Annuller",
         "toast": {
           "success": "Adgangskode opdateret"
         },
@@ -2874,7 +2876,11 @@
           "disableTitle": "Deaktivér 2FA",
           "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
           "disabledSuccess": "To-faktor-godkendelse deaktiveret",
-          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen."
+          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen.",
+          "setupFailed": "Kunne ikke konfigurere to-faktor-godkendelse. Prøv igen.",
+          "copyFailed": "Kunne ikke kopiere",
+          "enabledSuccess": "To-faktor-godkendelse aktiveret",
+          "enableFailed": "Kunne ikke aktivere to-faktor-godkendelse. Prøv igen."
         }
       },
       "sessions": {

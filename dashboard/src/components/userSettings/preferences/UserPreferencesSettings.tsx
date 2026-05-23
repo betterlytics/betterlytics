@@ -9,8 +9,8 @@ import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
 import type { AvatarMode } from '@prisma/client';
-import UserSettingsSection from './UserSettingsSection';
-import SettingRow from './SettingRow';
+import UserSettingsSection from '../shared/UserSettingsSection';
+import SettingRow from '../shared/SettingRow';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
@@ -92,7 +92,7 @@ export default function UserPreferencesSettings() {
                 <ExternalLink
                   href='https://wordpress.com/tos/'
                   className='underline'
-                  target='__blank'
+                  target='_blank'
                   rel='noopener noreferrer'
                 >
                   {t('avatar.terms')}

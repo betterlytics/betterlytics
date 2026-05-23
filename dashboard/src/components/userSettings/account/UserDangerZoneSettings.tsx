@@ -7,8 +7,8 @@ import { deleteUserAccountAction } from '@/app/actions/account/userSettings.acti
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { toast } from 'sonner';
-import UserSettingsSection from './UserSettingsSection';
-import SettingRow from './SettingRow';
+import UserSettingsSection from '../shared/UserSettingsSection';
+import SettingRow from '../shared/SettingRow';
 import { useTranslations } from 'next-intl';
 
 export default function UserDangerZoneSettings() {

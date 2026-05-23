@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/utils/pricing';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import UserSettingsSection from './UserSettingsSection';
-import SettingRow from './SettingRow';
+import UserSettingsSection from '../shared/UserSettingsSection';
+import SettingRow from '../shared/SettingRow';
 
 interface UserBillingSettingsProps {
   onCloseDialog?: () => void;
@@ -26,14 +26,10 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
   const { billingData, isLoading, error } = useBillingData();
 
   const handleOpenPortal = async () => {
-    try {
-      const portalUrl = await createStripeCustomerPortalSession();
-      if (portalUrl.success) {
-        window.open(portalUrl.data, '_blank');
-      } else {
-        throw new Error('No customer portal URL received');
-      }
-    } catch {
+    const result = await createStripeCustomerPortalSession();
+    if (result.success) {
+      window.open(result.data, '_blank', 'noopener,noreferrer');
+    } else {
       toast.error(t('portal.openError'));
     }
   };

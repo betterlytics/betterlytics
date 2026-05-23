@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { UserSettings } from '@/entities/account/userSettings.entities';
@@ -21,15 +21,6 @@ interface UseUserSettingsMutationReturn<TInput> {
   status: SettingMutationStatus;
 }
 
-/**
- * Mutation hook for a single user setting field.
- *
- * Optimistically updates the user settings context, fires the action, and:
- *  - on success: replaces the context with the server response
- *  - on error: reverts to the snapshot taken before the optimistic update + toasts
- *
- * The `status` field is exposed for optional in-flight indicators.
- */
 export function useUserSettingsMutation<TInput extends Partial<UserSettings>>({
   action,
   onSuccess,
@@ -41,6 +32,14 @@ export function useUserSettingsMutation<TInput extends Partial<UserSettings>>({
   const [status, setStatus] = useState<SettingMutationStatus>('idle');
   const savedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (savedTimeoutRef.current) {
+        clearTimeout(savedTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const mutate = useCallback(
     (input: TInput) => {
       if (savedTimeoutRef.current) {
@@ -48,19 +47,23 @@ export function useUserSettingsMutation<TInput extends Partial<UserSettings>>({
         savedTimeoutRef.current = null;
       }
 
+      const ownedKeys = Object.keys(input) as Array<keyof UserSettings>;
       const snapshot = getSettings();
-      setSettings({ ...snapshot, ...input });
+      const previousOwned = pickKeys(snapshot, ownedKeys);
+
+      setSettings((prev) => ({ ...prev, ...input }));
       setStatus('saving');
 
       startTransition(async () => {
         const result = await action(input);
         if (result.success) {
-          setSettings(result.data);
+          const serverOwned = pickKeys(result.data, ownedKeys);
+          setSettings((prev) => ({ ...prev, ...serverOwned }));
           setStatus('saved');
           onSuccess?.(result.data);
           savedTimeoutRef.current = setTimeout(() => setStatus('idle'), savedIndicatorMs);
         } else {
-          setSettings(snapshot);
+          setSettings((prev) => ({ ...prev, ...previousOwned }));
           setStatus('error');
           toast.error(result.error.message || tDialog('toast.error'));
         }
@@ -70,4 +73,12 @@ export function useUserSettingsMutation<TInput extends Partial<UserSettings>>({
   );
 
   return { mutate, status };
+}
+
+function pickKeys<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+  const result = {} as Pick<T, K>;
+  for (const key of keys) {
+    result[key] = obj[key];
+  }
+  return result;
 }

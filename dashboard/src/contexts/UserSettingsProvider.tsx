@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { UserSettings } from '@/entities/account/userSettings.entities';
 
 type SettingsUpdater = UserSettings | ((prev: UserSettings) => UserSettings);
@@ -20,14 +20,17 @@ interface UserSettingsProviderProps {
 
 export function UserSettingsProvider({ initialSettings, children }: UserSettingsProviderProps) {
   const [settings, setSettingsState] = useState<UserSettings>(initialSettings);
-  const settingsRef = useRef(settings);
+  const settingsRef = useRef(initialSettings);
+
+  useEffect(() => {
+    settingsRef.current = initialSettings;
+    setSettingsState(initialSettings);
+  }, [initialSettings]);
 
   const setSettings = useCallback((updates: SettingsUpdater) => {
-    setSettingsState((prev) => {
-      const next = typeof updates === 'function' ? updates(prev) : updates;
-      settingsRef.current = next;
-      return next;
-    });
+    const next = typeof updates === 'function' ? updates(settingsRef.current) : updates;
+    settingsRef.current = next;
+    setSettingsState(next);
   }, []);
 
   const getSettings = useCallback(() => settingsRef.current, []);

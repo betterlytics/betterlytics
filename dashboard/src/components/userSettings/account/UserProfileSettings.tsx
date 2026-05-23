@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { Check, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import UserSettingsSection from './UserSettingsSection';
+import UserSettingsSection from '../shared/UserSettingsSection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +34,16 @@ export default function UserProfileSettings() {
   const createdAt = session?.user?.createdAt;
 
   const [name, setName] = useState(sessionName);
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (initializedRef.current) return;
+    if (sessionName) {
+      setName(sessionName);
+      initializedRef.current = true;
+    }
+  }, [sessionName]);
 
   const { data: oauthProviders } = useQuery({
     queryKey: ['userOAuthProviders'],
@@ -48,8 +57,13 @@ export default function UserProfileSettings() {
   });
 
   const handleCommitName = () => {
+    if (isPending) return;
     const trimmed = name.trim();
-    if (trimmed === sessionName.trim() || trimmed === '') {
+    if (trimmed === '') {
+      setName(sessionName);
+      return;
+    }
+    if (trimmed === sessionName.trim()) {
       return;
     }
     startTransition(async () => {
@@ -86,6 +100,7 @@ export default function UserProfileSettings() {
             }
           }}
           maxLength={64}
+          disabled={isPending}
           placeholder={t('namePlaceholder')}
         />
       </div>

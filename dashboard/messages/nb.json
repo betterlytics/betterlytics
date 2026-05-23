@@ -2867,6 +2867,8 @@
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
+        "togglePasswordVisibility": "Vis/skjul {field}",
+        "cancel": "Avbryt",
         "toast": {
           "success": "Passord oppdatert"
         },
@@ -2882,7 +2884,11 @@
           "disableTitle": "Deaktiver 2FA",
           "disableDescription": "Er du sikker på at du vil deaktivere tofaktorautentisering for kontoen din?",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
-          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen."
+          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
+          "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
+          "copyFailed": "Kunne ikke kopiere",
+          "enabledSuccess": "Tofaktorautentisering aktivert",
+          "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen."
         }
       },
       "sessions": {

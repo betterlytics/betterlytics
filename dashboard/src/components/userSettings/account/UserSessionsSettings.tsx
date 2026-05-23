@@ -7,8 +7,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DestructiveActionDialog } from '@/components/dialogs';
-import UserSettingsSection from './UserSettingsSection';
-import SettingRow from './SettingRow';
+import UserSettingsSection from '../shared/UserSettingsSection';
+import SettingRow from '../shared/SettingRow';
 import {
   getActiveSessionCountAction,
   signOutOtherSessionsAction,
@@ -39,7 +39,7 @@ export default function UserSessionsSettings() {
       const result = await signOutOtherSessionsAction();
       if (result.success) {
         toast.success(t('toast.success', { count: result.data.revoked }));
-        queryClient.setQueryData(SESSIONS_QUERY_KEY, 1);
+        queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
         setIsConfirmOpen(false);
       } else {
         toast.error(result.error.message || tDialog('toast.error'));

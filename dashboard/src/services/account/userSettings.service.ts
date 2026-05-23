@@ -76,6 +76,10 @@ export async function changeUserPassword(
   currentSessionToken?: string,
 ): Promise<void> {
   try {
+    if (!currentSessionToken) {
+      throw new UserException('No active session token found');
+    }
+
     const isOldPasswordValid = await UserRepository.verifyUserPassword(userId, oldPassword);
 
     if (!isOldPasswordValid) {
@@ -83,10 +87,7 @@ export async function changeUserPassword(
     }
 
     await UserRepository.updateUserPassword(userId, newPassword);
-
-    if (currentSessionToken) {
-      await invalidateOtherUserSessions(userId, currentSessionToken);
-    }
+    await invalidateOtherUserSessions(userId, currentSessionToken);
 
     console.log(`Successfully updated password for user ${userId}`);
   } catch (error) {

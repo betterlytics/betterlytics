@@ -50,6 +50,7 @@ function PasswordField({
   autoComplete,
   helpText,
 }: PasswordFieldProps) {
+  const t = useTranslations('components.userSettings.security');
   return (
     <div className='space-y-2'>
       <Label htmlFor={id}>{label}</Label>
@@ -71,7 +72,7 @@ function PasswordField({
           onClick={onToggleVisibility}
           disabled={disabled}
           tabIndex={-1}
-          aria-label={`Toggle ${label.toLowerCase()} visibility`}
+          aria-label={t('togglePasswordVisibility', { field: label })}
         >
           {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
         </Button>
@@ -89,6 +90,7 @@ interface ChangePasswordDialogProps {
 
 export default function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialogProps) {
   const t = useTranslations('components.userSettings.security');
+  const tDialog = useTranslations('components.userSettings.dialog');
   const [isPending, startTransition] = useTransition();
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
   const [passwords, setPasswords] = useState<ChangePasswordData>(INITIAL_PASSWORD_STATE);
@@ -133,6 +135,8 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
           }
         });
         setErrors(fieldErrors);
+      } else {
+        toast.error(tDialog('toast.error'));
       }
     }
   };
@@ -217,7 +221,7 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
               disabled={isPending}
               className='cursor-pointer'
             >
-              {t('totp.cancel')}
+              {t('cancel')}
             </Button>
             <Button type='submit' disabled={isPending || !isFormFilled} className='cursor-pointer'>
               {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}

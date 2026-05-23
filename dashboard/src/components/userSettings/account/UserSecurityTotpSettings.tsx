@@ -1,7 +1,7 @@
 'use client';
 
 import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/actions/auth/totp.action';
-import SettingRow from './SettingRow';
+import SettingRow from '../shared/SettingRow';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,7 +51,7 @@ function SetupTotp() {
           setTotpUrl(url.data);
           setIsDialogOpen(open);
         } else {
-          toast.error('Failed to setup two-factor authentication. Please try again.');
+          toast.error(t('setupFailed'));
         }
       });
     }
@@ -68,7 +68,7 @@ function SetupTotp() {
       setTotpSecretCopied(true);
       setTimeout(() => setTotpSecretCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error(t('copyFailed'));
     }
   };
 
@@ -80,11 +80,11 @@ function SetupTotp() {
       if (enabled.success) {
         await setSession({ totpEnabled: true });
         setIsDialogOpen(false);
-        toast.success('Two-factor authentication enabled successfully');
+        toast.success(t('enabledSuccess'));
       } else {
         setTotp('');
         totpInputRef.current?.focus();
-        toast.error('Failed to enable two-factor authentication. Please try again.');
+        toast.error(t('enableFailed'));
       }
     });
   };
