@@ -1,23 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  ArrowUpRight,
-  Bug,
-  BookOpen,
-  CreditCard,
-  HelpCircle,
-  Mail,
-  Settings,
-  User,
-} from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowUpRight, Bug, BookOpen, CreditCard, HelpCircle, Mail, Settings, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import UserAccountSettings from '@/components/userSettings/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
@@ -191,7 +176,12 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
         </div>
       </div>
 
-      {/* Mobile horizontal tab bar — visible only on mobile */}
+      {/* Mobile-only header */}
+      <div className='border-border border-b px-5 py-4 md:hidden'>
+        <h2 className='text-lg font-semibold'>{activeTab.label}</h2>
+      </div>
+
+      {/* Mobile horizontal tab bar */}
       <TabsList className='border-border flex h-auto w-full flex-shrink-0 justify-start overflow-x-auto rounded-none border-b bg-transparent p-0 px-2 md:hidden'>
         {availableTabs.map((tab) => {
           const Icon = tab.icon;
@@ -202,8 +192,8 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
               className={cn(
                 'text-muted-foreground hover:text-foreground bg-transparent dark:bg-transparent',
                 'data-[state=active]:text-foreground data-[state=active]:bg-transparent dark:data-[state=active]:bg-transparent',
-                'border-x-0 border-t-0 border-b-2 border-transparent data-[state=active]:border-foreground dark:data-[state=active]:border-foreground',
-                'flex flex-shrink-0 flex-none cursor-pointer items-center gap-2 rounded-none px-3 py-3 text-sm font-medium shadow-none transition-colors data-[state=active]:shadow-none',
+                'data-[state=active]:border-foreground dark:data-[state=active]:border-foreground border-x-0 border-t-0 border-b-2 border-transparent',
+                'flex flex-none flex-shrink-0 cursor-pointer items-center gap-2 rounded-none px-3 py-3 text-sm font-medium shadow-none transition-colors data-[state=active]:shadow-none',
               )}
             >
               <Icon className='h-4 w-4' />
@@ -213,13 +203,11 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
         })}
       </TabsList>
 
-      {isBugReportsEnabled && (
-        <BugReportDialog open={isBugReportOpen} onOpenChange={setIsBugReportOpen} />
-      )}
+      {isBugReportsEnabled && <BugReportDialog open={isBugReportOpen} onOpenChange={setIsBugReportOpen} />}
 
       <ScrollArea className='min-h-0 min-w-0 flex-1'>
         <div className='px-5 pt-6 pb-8 md:px-8 md:pt-8 md:pb-10'>
-          <h2 className='mb-6 text-xl font-semibold md:mb-8 md:text-2xl'>{activeTab.label}</h2>
+          <h2 className='mb-8 hidden text-2xl font-semibold md:block'>{activeTab.label}</h2>
           {availableTabs.map((tab) => (
             <TabsContent key={tab.id} value={tab.id} className='mt-0'>
               {tab.render({ closeDialog })}
