@@ -119,7 +119,7 @@ function UserSettingsDialogContent({
 }: UserSettingsDialogContentProps) {
   const { setTheme } = useTheme();
   const { data: session } = useSession();
-  const [originalTheme, setOriginalTheme] = useState<Theme | undefined>(settings.theme);
+  const [themeOnOpen, setThemeOnOpen] = useState<Theme | undefined>(settings.theme);
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
@@ -185,7 +185,7 @@ function UserSettingsDialogContent({
   useEffect(() => {
     if (open) {
       setFormData({ ...settings, name: session?.user?.name ?? '' });
-      setOriginalTheme(settings.theme);
+      setThemeOnOpen(settings.theme);
     }
   }, [settings, open, session?.user?.name]);
 
@@ -225,8 +225,8 @@ function UserSettingsDialogContent({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && originalTheme) {
-      setTheme(originalTheme);
+    if (!isOpen && themeOnOpen) {
+      setTheme(themeOnOpen);
     }
     onOpenChange(isOpen);
   };
