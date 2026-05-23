@@ -1,4 +1,5 @@
 import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/actions/auth/totp.action';
+import SettingRow from './SettingRow';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -209,14 +210,10 @@ export default function UserSecurityTotpSettings() {
   const t = useTranslations('components.userSettings.security.totp');
 
   return (
-    <div className='flex items-center justify-between gap-4'>
-      <div className='space-y-1'>
-        <div className='text-sm font-medium'>{t('title')}</div>
-        <p className='text-muted-foreground text-xs'>{t('description')}</p>
-      </div>
-      <div className='flex-shrink-0'>
-        {session?.user.totpEnabled ? <DisableTotp /> : <SetupTotp />}
-      </div>
-    </div>
+    <SettingRow
+      label={t('title')}
+      description={t('description')}
+      action={session?.user.totpEnabled ? <DisableTotp /> : <SetupTotp />}
+    />
   );
 }

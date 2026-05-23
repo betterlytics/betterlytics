@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import UserSettingsSection from './UserSettingsSection';
+import SettingRow from './SettingRow';
 import UserSecurityTotpSettings from './UserSecurityTotpSettings';
 import ChangePasswordDialog from './ChangePasswordDialog';
 
@@ -16,14 +17,10 @@ export default function UserSecuritySettings() {
 
   return (
     <UserSettingsSection title={t('title')}>
-      <div className='flex items-center justify-between gap-4'>
-        <div className='space-y-1'>
-          <div className='text-sm font-medium'>{t('passwordRowLabel')}</div>
-          <p className='text-muted-foreground text-xs'>
-            {hasPassword ? t('description') : t('passwordManagedByOAuth')}
-          </p>
-        </div>
-        <div className='flex-shrink-0'>
+      <SettingRow
+        label={t('passwordRowLabel')}
+        description={hasPassword ? t('description') : t('passwordManagedByOAuth')}
+        action={
           <Button
             variant='outline'
             size='sm'
@@ -33,8 +30,8 @@ export default function UserSecuritySettings() {
           >
             {t('changePassword')}
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <UserSecurityTotpSettings />
 

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { toast } from 'sonner';
 import UserSettingsSection from './UserSettingsSection';
+import SettingRow from './SettingRow';
 import { useTranslations } from 'next-intl';
 
 export default function UserDangerZoneSettings() {
@@ -36,12 +37,10 @@ export default function UserDangerZoneSettings() {
 
   return (
     <UserSettingsSection title={t('sectionTitle')}>
-      <div className='flex items-center justify-between gap-4'>
-        <div className='space-y-1'>
-          <div className='text-sm font-medium'>{t('delete')}</div>
-          <p className='text-muted-foreground text-xs'>{t('details')}</p>
-        </div>
-        <div className='flex-shrink-0'>
+      <SettingRow
+        label={t('delete')}
+        description={t('details')}
+        action={
           <Button
             variant='destructive'
             size='sm'
@@ -52,8 +51,8 @@ export default function UserDangerZoneSettings() {
             <Trash2 className='mr-2 h-4 w-4' />
             {t('delete')}
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <DestructiveActionDialog
         open={isDialogOpen}

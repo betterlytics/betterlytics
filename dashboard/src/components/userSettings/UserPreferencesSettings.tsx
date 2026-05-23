@@ -10,6 +10,7 @@ import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
 import type { AvatarMode } from '@prisma/client';
 import UserSettingsSection from './UserSettingsSection';
+import SettingRow from './SettingRow';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
@@ -46,106 +47,90 @@ export default function UserPreferencesSettings() {
   return (
     <div>
       <UserSettingsSection title={t('appearance.title')}>
-        <div className='flex items-center justify-between gap-4'>
-          <div className='space-y-1'>
-            <Label htmlFor='theme' className='text-sm font-medium'>
-              {t('appearance.themeLabel')}
-            </Label>
-            <p className='text-muted-foreground text-xs'>{t('appearance.themeDescription')}</p>
-          </div>
-          <div className='flex-shrink-0'>
+        <SettingRow
+          label={<Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>}
+          description={t('appearance.themeDescription')}
+          action={
             <UserThemeSelector
               value={settings.theme}
               onUpdate={(theme) => themeMutation.mutate({ theme })}
             />
-          </div>
-        </div>
+          }
+        />
 
-        <div className='space-y-2'>
-          <div className='flex items-center justify-between gap-4'>
-            <div className='space-y-1'>
-              <Label htmlFor='avatar' className='text-sm font-medium'>
-                {t('avatar.label')}
-              </Label>
-              <p className='text-muted-foreground text-xs'>{t('avatar.description')}</p>
-            </div>
-            <div className='flex-shrink-0'>
-              <Select
-                value={settings.avatar}
-                onValueChange={(v) => avatarMutation.mutate({ avatar: v as AvatarMode })}
-              >
-                <SelectTrigger className='w-32 cursor-pointer'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='default' className='cursor-pointer'>
-                    <div className='flex items-center space-x-2'>
-                      <User className='h-4 w-4' />
-                      <span>{t('avatar.none')}</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value='gravatar' className='cursor-pointer'>
-                    <div className='flex items-center space-x-2'>
-                      <BookUser className='h-4 w-4' />
-                      <span>{t('avatar.gravatar')}</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          {settings.avatar === 'gravatar' && (
-            <p className='text-muted-foreground text-xs text-pretty'>
-              {t('avatar.noteIntro')}{' '}
-              <ExternalLink
-                href='https://wordpress.com/tos/'
-                className='underline'
-                target='__blank'
-                rel='noopener noreferrer'
-              >
-                {t('avatar.terms')}
-              </ExternalLink>
-              .
-            </p>
-          )}
-        </div>
+        <SettingRow
+          label={<Label htmlFor='avatar'>{t('avatar.label')}</Label>}
+          description={t('avatar.description')}
+          action={
+            <Select
+              value={settings.avatar}
+              onValueChange={(v) => avatarMutation.mutate({ avatar: v as AvatarMode })}
+            >
+              <SelectTrigger className='w-32 cursor-pointer'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='default' className='cursor-pointer'>
+                  <div className='flex items-center space-x-2'>
+                    <User className='h-4 w-4' />
+                    <span>{t('avatar.none')}</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value='gravatar' className='cursor-pointer'>
+                  <div className='flex items-center space-x-2'>
+                    <BookUser className='h-4 w-4' />
+                    <span>{t('avatar.gravatar')}</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          }
+          footer={
+            settings.avatar === 'gravatar' && (
+              <p className='text-muted-foreground text-xs text-pretty'>
+                {t('avatar.noteIntro')}{' '}
+                <ExternalLink
+                  href='https://wordpress.com/tos/'
+                  className='underline'
+                  target='__blank'
+                  rel='noopener noreferrer'
+                >
+                  {t('avatar.terms')}
+                </ExternalLink>
+                .
+              </p>
+            )
+          }
+        />
       </UserSettingsSection>
 
       <UserSettingsSection title={t('localization.title')}>
-        <div className='flex items-center justify-between gap-4'>
-          <div className='space-y-1'>
-            <Label htmlFor='language' className='text-sm font-medium'>
-              {t('localization.language')}
-            </Label>
-            <p className='text-muted-foreground text-xs'>{t('localization.languageDescription')}</p>
-          </div>
-          <div className='flex-shrink-0'>
+        <SettingRow
+          label={<Label htmlFor='language'>{t('localization.language')}</Label>}
+          description={t('localization.languageDescription')}
+          action={
             <LanguageSelect
               value={settings.language as SupportedLanguages}
               onUpdate={(language) => languageMutation.mutate({ language })}
             />
-          </div>
-        </div>
+          }
+        />
       </UserSettingsSection>
 
       {PUBLIC_IS_CLOUD && (
         <UserSettingsSection title={t('notifications.title')}>
-          <div className='flex items-center justify-between gap-4'>
-            <div className='space-y-1'>
-              <Label htmlFor='marketing-emails' className='text-sm font-medium'>
-                {t('notifications.marketingEmails')}
-              </Label>
-              <p className='text-muted-foreground text-xs'>
-                {t('notifications.marketingEmailsDescription')}
-              </p>
-            </div>
-            <Switch
-              id='marketing-emails'
-              checked={settings.marketingEmails}
-              onCheckedChange={(marketingEmails) => marketingEmailsMutation.mutate({ marketingEmails })}
-              className='cursor-pointer'
-            />
-          </div>
+          <SettingRow
+            label={<Label htmlFor='marketing-emails'>{t('notifications.marketingEmails')}</Label>}
+            description={t('notifications.marketingEmailsDescription')}
+            action={
+              <Switch
+                id='marketing-emails'
+                checked={settings.marketingEmails}
+                onCheckedChange={(marketingEmails) => marketingEmailsMutation.mutate({ marketingEmails })}
+                className='cursor-pointer'
+              />
+            }
+          />
         </UserSettingsSection>
       )}
     </div>

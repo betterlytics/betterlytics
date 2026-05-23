@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import UserSettingsSection from './UserSettingsSection';
+import SettingRow from './SettingRow';
 import {
   getActiveSessionCountAction,
   signOutOtherSessionsAction,
@@ -50,18 +51,12 @@ export default function UserSessionsSettings() {
 
   return (
     <UserSettingsSection title={t('title')}>
-      <div className='flex items-center justify-between gap-4'>
-        <div className='space-y-1'>
-          <div className='text-sm font-medium'>
-            {isLoading ? (
-              <Skeleton className='h-4 w-32' />
-            ) : (
-              t('activeCount', { count: sessionCount ?? 0 })
-            )}
-          </div>
-          <p className='text-muted-foreground text-xs'>{t('description')}</p>
-        </div>
-        <div className='flex-shrink-0'>
+      <SettingRow
+        label={
+          isLoading ? <Skeleton className='h-4 w-32' /> : t('activeCount', { count: sessionCount ?? 0 })
+        }
+        description={t('description')}
+        action={
           <Button
             variant='destructive'
             size='sm'
@@ -71,8 +66,8 @@ export default function UserSessionsSettings() {
           >
             {t('signOutOthers')}
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <DestructiveActionDialog
         open={isConfirmOpen}

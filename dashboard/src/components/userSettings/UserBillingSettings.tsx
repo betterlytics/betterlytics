@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/utils/pricing';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import UserSettingsSection from './UserSettingsSection';
+import SettingRow from './SettingRow';
 
 interface UserBillingSettingsProps {
   onCloseDialog?: () => void;
@@ -85,12 +86,10 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
   return (
     <div>
       <UserSettingsSection title={t('currentPlan.title')}>
-        <div className='flex items-center justify-between gap-4'>
-          <div className='space-y-1'>
-            <div className='text-sm font-medium capitalize'>{subscription.tier}</div>
-            <p className='text-muted-foreground text-xs'>{planSummary}</p>
-          </div>
-          <div className='flex-shrink-0'>
+        <SettingRow
+          label={<span className='capitalize'>{subscription.tier}</span>}
+          description={planSummary}
+          action={
             <Button
               variant={isPaid ? 'outline' : 'default'}
               size='sm'
@@ -99,8 +98,8 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             >
               {isPaid ? t('currentPlan.changePlan') : t('currentPlan.upgrade')}
             </Button>
-          </div>
-        </div>
+          }
+        />
       </UserSettingsSection>
 
       <UserSettingsSection title={t('usage.title')}>
@@ -132,36 +131,32 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
 
       {isPaid && (
         <UserSettingsSection title={t('payment.title')}>
-          <div className='flex items-center justify-between gap-4'>
-            <div className='space-y-1'>
-              <div className='text-sm font-medium'>{t('payment.label')}</div>
-              <p className='text-muted-foreground text-xs'>{t('payment.description')}</p>
-            </div>
-            <div className='flex-shrink-0'>
+          <SettingRow
+            label={t('payment.label')}
+            description={t('payment.description')}
+            action={
               <Button variant='outline' size='sm' onClick={handleOpenPortal} className='cursor-pointer'>
                 <ExternalLinkIcon className='mr-2 h-4 w-4' />
                 {t('payment.openPortal')}
               </Button>
-            </div>
-          </div>
+            }
+          />
         </UserSettingsSection>
       )}
 
       {isPaid && isActive && !isCanceled && (
         <UserSettingsSection title={t('cancellation.title')}>
-          <div className='flex items-center justify-between gap-4'>
-            <div className='space-y-1'>
-              <div className='text-sm font-medium'>{t('cancellation.label')}</div>
-              <p className='text-muted-foreground text-xs'>{t('cancellation.description')}</p>
-            </div>
-            <div className='flex-shrink-0'>
+          <SettingRow
+            label={t('cancellation.label')}
+            description={t('cancellation.description')}
+            action={
               <CancelSubscriptionDialog tier={subscription.tier} isActive={isActive}>
                 <Button variant='destructive' size='sm' className='cursor-pointer'>
                   {t('cancellation.cancel')}
                 </Button>
               </CancelSubscriptionDialog>
-            </div>
-          </div>
+            }
+          />
         </UserSettingsSection>
       )}
     </div>
