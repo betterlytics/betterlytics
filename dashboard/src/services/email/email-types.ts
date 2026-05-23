@@ -5,6 +5,9 @@ import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/templat
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
 import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
+import { createPasswordChangedEmailTemplate } from '@/services/email/template/password-changed-mail';
+import { createTwoFactorEnabledEmailTemplate } from '@/services/email/template/two-factor-enabled-mail';
+import { createTwoFactorDisabledEmailTemplate } from '@/services/email/template/two-factor-disabled-mail';
 import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
 import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
 import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
@@ -61,6 +64,21 @@ export const EMAIL_TYPES = {
   'member-removed': {
     template: createMemberRemovedEmailTemplate,
     saasOnly: false,
+  },
+  'password-changed': {
+    template: createPasswordChangedEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-enabled': {
+    template: createTwoFactorEnabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-disabled': {
+    template: createTwoFactorDisabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
   },
   'create-site-nudge': {
     template: createCreateSiteNudgeEmailTemplate,
