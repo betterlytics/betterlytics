@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import ExternalLink from '@/components/ExternalLink';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
@@ -52,6 +53,7 @@ interface UserSettingsDialogContentProps {
 function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
+  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -119,6 +121,7 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
           })}
         </TabsList>
 
+        {PUBLIC_IS_CLOUD && (
         <div className='px-2 pb-3'>
           <Popover open={isHelpOpen} onOpenChange={setIsHelpOpen}>
             <PopoverTrigger asChild>
@@ -162,6 +165,7 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
             </PopoverContent>
           </Popover>
         </div>
+        )}
       </div>
 
       {/* Mobile-only header */}
