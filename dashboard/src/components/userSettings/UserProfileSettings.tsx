@@ -88,6 +88,7 @@ export default function UserProfileSettings() {
               e.currentTarget.blur();
             }
           }}
+          maxLength={64}
           placeholder={t('namePlaceholder')}
         />
       </div>

@@ -38,7 +38,7 @@ export const CreateUserSchema = z.object({
 });
 
 export const UpdateUserSchema = z.object({
-  name: z.string().nullable().optional(),
+  name: z.string().max(64).nullable().optional(),
   totpEnabled: z.boolean().optional(),
   totpSecret: z.string().nullable().optional(),
 });
