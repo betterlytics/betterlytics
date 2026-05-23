@@ -199,7 +199,7 @@ async function syncRetentionToTier(userId: string, newTier: TierName, eventId: s
 
   await enqueueEmail({
     type: 'data-retention-clamp',
-    recipientKey: userId,
+    recipientKey: createUserRecipientKey(userId),
     campaignKey: `data-retention-clamp:${eventId}`,
     data: {
       to: user.email,

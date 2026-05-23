@@ -11,6 +11,8 @@ import {
   RegisterUserSchema,
   RegisterUserData,
   UpdateUserData,
+  UserWithoutDashboardCandidate,
+  UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
@@ -202,6 +204,32 @@ export async function acceptTermsForUser(userId: string, version: number): Promi
   } catch (error) {
     console.error(`Error accepting terms for user ${userId}:`, error);
     throw new Error(`Failed to accept terms for user ${userId}.`);
+  }
+}
+
+export async function findUsersWithoutDashboardsInWindow(
+  window: { signedUpAfter: Date; signedUpBefore: Date },
+  limit: number,
+): Promise<UserWithoutDashboardCandidate[]> {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        email: { not: null },
+        createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
+        dashboardAccess: { none: {} },
+      },
+      select: { id: true, email: true, name: true },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+    });
+
+    return users
+      .filter((u) => u.email)
+      .map((u) => UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }));
+  } catch (error) {
+    console.error('Error finding users without dashboards in window:', error);
+    throw new Error('Failed to find users without dashboards in window');
   }
 }
 

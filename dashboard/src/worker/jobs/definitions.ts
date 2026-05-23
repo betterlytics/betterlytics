@@ -52,12 +52,24 @@ export const subscriptionEndingScanJobDefinition = {
   saasOnly: true,
 } as const satisfies JobDefinition;
 
+export const onboardingEmailsJobDefinition = {
+  name: 'onboarding-emails',
+  schedule: '0 * * * *',
+  retryLimit: 3,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+  saasOnly: true,
+} as const satisfies JobDefinition;
+
 export const JOB_DEFINITIONS = [
   emailReportsJobDefinition,
   sendEmailJobDefinition,
   usageThresholdScanJobDefinition,
   retentionPurgeJobDefinition,
   subscriptionEndingScanJobDefinition,
+  onboardingEmailsJobDefinition,
 ] as const;
 
 export type JobName = (typeof JOB_DEFINITIONS)[number]['name'];

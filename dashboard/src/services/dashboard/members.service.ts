@@ -2,14 +2,18 @@
 
 import { DashboardRole } from '@prisma/client';
 import {
+  findDashboardById,
   findDashboardMembers,
   updateMemberRole as updateMemberRoleRepo,
   removeMember as removeMemberRepo,
   findUserDashboardOrNull,
   findMemberDashboardsCount,
 } from '@/repositories/postgres/dashboard.repository';
+import { findUserById } from '@/repositories/postgres/user.repository';
 import { DashboardMember } from '@/entities/dashboard/invitation.entities';
 import { getRoleLevel } from '@/lib/permissions';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 
 function canModifyMember(requesterRole: DashboardRole, targetRole: DashboardRole): boolean {
   const requesterLevel = getRoleLevel(requesterRole);
@@ -90,6 +94,31 @@ export async function removeMemberFromDashboard(
   }
 
   await removeMemberRepo(dashboardId, targetUserId);
+  await sendMemberRemovedNotification(dashboardId, targetUserId);
+}
+
+async function sendMemberRemovedNotification(dashboardId: string, removedUserId: string): Promise<void> {
+  try {
+    const [removedUser, dashboard] = await Promise.all([
+      findUserById(removedUserId),
+      findDashboardById(dashboardId),
+    ]);
+
+    if (!removedUser?.email || !dashboard) return;
+
+    await enqueueEmail({
+      type: 'member-removed',
+      recipientKey: createUserRecipientKey(removedUserId),
+      campaignKey: `member-removed:${dashboardId}:${new Date().toISOString()}`,
+      data: {
+        to: removedUser.email,
+        userName: removedUser.name,
+        dashboardDomain: dashboard.domain,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to enqueue member-removed notification:', { dashboardId, removedUserId, err });
+  }
 }
 
 export async function leaveDashboard(dashboardId: string, userId: string): Promise<void> {

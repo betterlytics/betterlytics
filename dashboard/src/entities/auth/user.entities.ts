@@ -68,9 +68,16 @@ export const AuthenticatedUserSchema = UserSchema.extend({
   siteId: z.string(),
 });
 
+export const UserWithoutDashboardCandidateSchema = z.object({
+  userId: z.string(),
+  email: z.string().email(),
+  name: z.string().nullable(),
+});
+
 export type User = z.infer<typeof UserSchema>;
 export type CreateUserData = z.infer<typeof CreateUserSchema>;
 export type UpdateUserData = z.infer<typeof UpdateUserSchema>;
 export type RegisterUserData = z.infer<typeof RegisterUserSchema>;
 export type LoginUserData = z.infer<typeof LoginUserSchema>;
 export type AuthenticatedUser = z.infer<typeof AuthenticatedUserSchema>;
+export type UserWithoutDashboardCandidate = z.infer<typeof UserWithoutDashboardCandidateSchema>;

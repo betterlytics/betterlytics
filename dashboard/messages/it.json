@@ -2878,7 +2878,8 @@
           "disableTitle": "Disabilita 2FA",
           "disableDescription": "Sei sicuro di voler disabilitare l'autenticazione a due fattori per il tuo account?",
           "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
-          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova."
+          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova.",
+          "managedByOAuth": "L'autenticazione a due fattori è gestita dal tuo provider di accesso"
         }
       },
       "danger": {
