@@ -12,6 +12,8 @@ import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/cr
 import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
 import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
 import type { EmailTemplate } from '@/services/email/types';
+import { createSubscriptionEndingSoonEmailTemplate } from './template/subscription-ending-soon-mail';
+import { createSubscriptionPaymentCancelledEmailTemplate } from './template/subscription-payment-cancelled-mail';
 import { createInvitationAcceptedEmailTemplate } from './template/invitation-accepted-mail';
 import { createMemberRemovedEmailTemplate } from './template/member-removed-mail';
 
@@ -53,6 +55,16 @@ export const EMAIL_TYPES = {
   },
   'data-retention-clamp': {
     template: createDataRetentionClampEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'subscription-ending-soon': {
+    template: createSubscriptionEndingSoonEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'subscription-payment-cancelled': {
+    template: createSubscriptionPaymentCancelledEmailTemplate,
     saasOnly: true,
     retry: DEFAULT_RETRY,
   },

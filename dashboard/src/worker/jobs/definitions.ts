@@ -41,6 +41,17 @@ export const retentionPurgeJobDefinition = {
   deadLetter: undefined,
 } as const satisfies JobDefinition;
 
+export const subscriptionEndingScanJobDefinition = {
+  name: 'subscription-ending-scan',
+  schedule: '0 10 * * *',
+  retryLimit: 3,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+  saasOnly: true,
+} as const satisfies JobDefinition;
+
 export const onboardingEmailsJobDefinition = {
   name: 'onboarding-emails',
   schedule: '0 * * * *',
@@ -57,6 +68,7 @@ export const JOB_DEFINITIONS = [
   sendEmailJobDefinition,
   usageThresholdScanJobDefinition,
   retentionPurgeJobDefinition,
+  subscriptionEndingScanJobDefinition,
   onboardingEmailsJobDefinition,
 ] as const;
 

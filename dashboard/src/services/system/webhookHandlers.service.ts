@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import type { Currency } from '@/entities/billing/billing.entities';
+import { STARTER_SUBSCRIPTION_STATIC, type Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
 import { getTierConfigFromLookupKey, type TierName } from '@/lib/billing/plans';
 import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
@@ -10,6 +10,7 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { applyTierChangeToRetention } from '@/services/dashboard/dashboardSettings.service';
 import { findUserById } from '@/repositories/postgres/user.repository';
+import { findOwnedDashboardDomainsWithActiveRetentionGrace } from '@/repositories/postgres/dashboardSettings.repository';
 import {
   findSubscriptionByPaymentId,
   setSubscriptionStatus,
@@ -90,6 +91,10 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
       return;
     }
 
+    const previousStatus = localSubscription.status;
+    const wasInvoluntary =
+      subscription.cancellation_details?.reason === 'payment_failed' || previousStatus === 'past_due';
+
     const now = new Date();
 
     // Downgrade to free Growth plan
@@ -108,9 +113,39 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
     });
 
     await syncRetentionToTier(localSubscription.userId, 'growth', eventId);
+
+    if (wasInvoluntary) {
+      await sendSubscriptionPaymentCancelledNotification(localSubscription.userId, eventId);
+    }
   } catch (error) {
     console.error('Error handling subscription deleted:', error);
     throw error;
+  }
+}
+
+async function sendSubscriptionPaymentCancelledNotification(userId: string, eventId: string): Promise<void> {
+  try {
+    const user = await findUserById(userId);
+    if (!user?.email) {
+      console.warn({ event: 'subscription-payment-cancelled:email-skipped', reason: 'no-email', userId });
+      return;
+    }
+    const affectedDashboards = await findOwnedDashboardDomainsWithActiveRetentionGrace(userId);
+    await enqueueEmail({
+      type: 'subscription-payment-cancelled',
+      recipientKey: createUserRecipientKey(userId),
+      campaignKey: `subscription-payment-cancelled:${eventId}`,
+      data: {
+        to: user.email,
+        userName: user.name,
+        billingUrl: `${env.PUBLIC_BASE_URL}/billing`,
+        freeEventLimit: STARTER_SUBSCRIPTION_STATIC.eventLimit,
+        freeRetentionDays: getMaxRetentionDaysForTier(STARTER_SUBSCRIPTION_STATIC.tier),
+        affectedDashboards,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to enqueue subscription-payment-cancelled notification:', { userId, err });
   }
 }
 
