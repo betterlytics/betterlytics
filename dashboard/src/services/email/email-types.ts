@@ -5,6 +5,9 @@ import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/templat
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
 import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
+import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
+import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
+import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
 import type { EmailTemplate } from '@/services/email/types';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
@@ -45,6 +48,21 @@ export const EMAIL_TYPES = {
   },
   'data-retention-clamp': {
     template: createDataRetentionClampEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'create-site-nudge': {
+    template: createCreateSiteNudgeEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'setup-help': {
+    template: createSetupHelpEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'first-visitor-detected': {
+    template: createFirstVisitorDetectedEmailTemplate,
     saasOnly: true,
     retry: DEFAULT_RETRY,
   },

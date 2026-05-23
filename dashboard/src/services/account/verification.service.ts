@@ -10,6 +10,7 @@ import {
 } from '@/repositories/postgres/verification.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { env } from '@/lib/env';
 import {
   SendVerificationEmailData,
@@ -60,7 +61,7 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
 
     await enqueueEmail({
       type: 'email-verification',
-      recipientKey: user.id,
+      recipientKey: createUserRecipientKey(user.id),
       campaignKey: `email-verification:${token}`,
       data: {
         to: email,
