@@ -192,6 +192,8 @@ model Dashboard {
   mcpTokens McpToken[]
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
+
+  @@index([createdAt])
 }
 
 model ErrorGroup {

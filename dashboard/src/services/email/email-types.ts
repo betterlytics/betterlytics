@@ -8,6 +8,9 @@ import { createDataRetentionClampEmailTemplate } from '@/services/email/template
 import { createPasswordChangedEmailTemplate } from '@/services/email/template/password-changed-mail';
 import { createTwoFactorEnabledEmailTemplate } from '@/services/email/template/two-factor-enabled-mail';
 import { createTwoFactorDisabledEmailTemplate } from '@/services/email/template/two-factor-disabled-mail';
+import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
+import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
+import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
 import type { EmailTemplate } from '@/services/email/types';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
@@ -65,6 +68,21 @@ export const EMAIL_TYPES = {
     template: createTwoFactorDisabledEmailTemplate,
     saasOnly: false,
     retry: URGENT_RETRY,
+  },
+  'create-site-nudge': {
+    template: createCreateSiteNudgeEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'setup-help': {
+    template: createSetupHelpEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'first-visitor-detected': {
+    template: createFirstVisitorDetectedEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
   },
 } as const;
 

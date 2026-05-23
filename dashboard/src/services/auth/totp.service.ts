@@ -14,6 +14,10 @@ export async function setupTotp(userId: string): Promise<string> {
       throw new Error('User not found');
     }
 
+    if (!user.passwordHash) {
+      throw new Error('Totp requires a password');
+    }
+
     if (user.totpEnabled) {
       throw new Error('Totp already enabled');
     }
@@ -44,6 +48,10 @@ export async function enableTotp(userId: string, totp: string): Promise<void> {
     const user = await UsersRepository.findUserById(userId);
     if (!user) {
       throw new Error('User not found');
+    }
+
+    if (!user.passwordHash) {
+      throw new Error('Totp requires a password');
     }
 
     if (user.totpEnabled) {

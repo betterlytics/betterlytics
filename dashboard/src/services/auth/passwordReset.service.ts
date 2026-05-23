@@ -49,7 +49,7 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
     await enqueueEmail({
       type: 'reset-password',
-      recipientKey: user.id,
+      recipientKey: createUserRecipientKey(user.id),
       campaignKey: `reset-password:${resetToken}`,
       data: {
         to: user.email,

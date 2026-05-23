@@ -18,3 +18,16 @@ export async function recordSent(
     skipDuplicates: true,
   });
 }
+
+/**
+ * Returns the set of recipientKeys that already have a sent email for the given campaign.
+ * Use to bulk pre-dedup candidate sets before enqueueing emails.
+ */
+export async function findSentRecipientKeys(recipientKeys: string[], campaignKey: string): Promise<Set<string>> {
+  if (recipientKeys.length === 0) return new Set();
+  const rows = await prisma.sentEmail.findMany({
+    where: { campaignKey, recipientKey: { in: recipientKeys } },
+    select: { recipientKey: true },
+  });
+  return new Set(rows.map((r) => r.recipientKey));
+}
