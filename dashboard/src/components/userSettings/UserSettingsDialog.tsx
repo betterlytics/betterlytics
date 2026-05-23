@@ -3,11 +3,9 @@
 import { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowUpRight, Bug, BookOpen, CreditCard, HelpCircle, Mail, Settings, User } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import UserAccountSettings from '@/components/userSettings/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/UserBillingSettings';
-import { BAAvatar } from '@/components/avatar/BAAvatar';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -54,7 +52,6 @@ interface UserSettingsDialogContentProps {
 function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
-  const { data: session } = useSession();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const [isBugReportOpen, setIsBugReportOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -102,15 +99,6 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
     >
       {/* Desktop sidebar — hidden on mobile */}
       <div className='bg-muted/30 hidden h-full w-56 flex-shrink-0 flex-col border-r md:flex'>
-        <div className='border-border flex items-center gap-3 border-b px-4 py-4'>
-          <BAAvatar />
-          <div className='min-w-0 flex-1'>
-            <div className='truncate text-sm font-medium'>{session?.user?.name ?? session?.user?.email}</div>
-            {session?.user?.name && (
-              <div className='text-muted-foreground truncate text-xs'>{session.user.email}</div>
-            )}
-          </div>
-        </div>
         <TabsList className='flex w-full flex-1 flex-col items-stretch justify-start gap-1 overflow-y-auto rounded-none bg-transparent px-2 py-4'>
           {availableTabs.map((tab) => {
             const Icon = tab.icon;

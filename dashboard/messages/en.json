@@ -2837,7 +2837,7 @@
         }
       },
       "security": {
-        "title": "Password & Authentication",
+        "title": "Account security",
         "passwordRowLabel": "Password",
         "description": "Change your account password",
         "currentPassword": "Current Password",

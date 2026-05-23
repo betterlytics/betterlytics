@@ -2843,7 +2843,7 @@
         }
       },
       "security": {
-        "title": "Adgangskode og godkendelse",
+        "title": "Kontosikkerhed",
         "passwordRowLabel": "Adgangskode",
         "description": "Skift din kontoadgangskode",
         "currentPassword": "Nuværende adgangskode",

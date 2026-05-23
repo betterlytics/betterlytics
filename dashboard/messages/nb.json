@@ -2851,7 +2851,7 @@
         }
       },
       "security": {
-        "title": "Passord og autentisering",
+        "title": "Kontosikkerhet",
         "passwordRowLabel": "Passord",
         "description": "Bytt kontopassord",
         "currentPassword": "Nåværende passord",
