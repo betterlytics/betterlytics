@@ -9,6 +9,7 @@ import {
   deleteUserPasswordResetTokens,
 } from '@/repositories/postgres/passwordReset.repository';
 import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { invalidateAllUserSessions } from '@/services/session.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 
@@ -48,7 +49,7 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
     await enqueueEmail({
       type: 'reset-password',
-      recipientKey: user.id,
+      recipientKey: createUserRecipientKey(user.id),
       campaignKey: `reset-password:${resetToken}`,
       data: {
         to: user.email,

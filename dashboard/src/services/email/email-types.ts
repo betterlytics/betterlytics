@@ -5,6 +5,9 @@ import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/templat
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
 import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
+import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
+import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
+import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
 import type { EmailTemplate } from '@/services/email/types';
 import { createInvitationAcceptedEmailTemplate } from './template/invitation-accepted-mail';
 import { createMemberRemovedEmailTemplate } from './template/member-removed-mail';
@@ -58,6 +61,20 @@ export const EMAIL_TYPES = {
   'member-removed': {
     template: createMemberRemovedEmailTemplate,
     saasOnly: false,
+  },
+  'create-site-nudge': {
+    template: createCreateSiteNudgeEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'setup-help': {
+    template: createSetupHelpEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'first-visitor-detected': {
+    template: createFirstVisitorDetectedEmailTemplate,
+    saasOnly: true,
     retry: DEFAULT_RETRY,
   },
 } as const;
