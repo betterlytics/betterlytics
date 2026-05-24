@@ -2886,7 +2886,7 @@
           "enabled": "Abilitato",
           "disable": "Disabilita",
           "disableTitle": "Disabilita 2FA",
-          "disableDescription": "Sei sicuro di voler disabilitare l'autenticazione a due fattori per il tuo account?",
+          "disableDescription": "Inserisci il codice di verifica dalla tua app di autenticazione per disabilitare l'autenticazione a due fattori.",
           "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
           "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova.",
           "setupFailed": "Impossibile configurare l'autenticazione a due fattori. Riprova.",
