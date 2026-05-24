@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ExternalLink } from 'lucide-react';
-import Link from 'next/link';
+import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
+import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
 import { STATUS_CONFIG } from './errors.constants';
 
@@ -146,10 +146,14 @@ export function ErrorsEmptyState() {
               </p>
             </div>
             <Button asChild>
-              <Link href='https://betterlytics.io/docs/dashboard/error-tracking' target='_blank'>
-                <ExternalLink className='mr-2 h-4 w-4' />
+              <ExternalLink
+                href='https://betterlytics.io/docs/dashboard/error-tracking'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <ExternalLinkIcon className='mr-2 h-4 w-4' />
                 {t('emptyState.learnMore')}
-              </Link>
+              </ExternalLink>
             </Button>
           </div>
         </div>
