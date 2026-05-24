@@ -2885,7 +2885,8 @@
           "disableTitle": "Deaktiver 2FA",
           "disableDescription": "Er du sikker på at du vil deaktivere tofaktorautentisering for kontoen din?",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
-          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen."
+          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
+          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din"
         }
       },
       "danger": {

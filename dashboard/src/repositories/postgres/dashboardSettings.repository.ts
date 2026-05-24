@@ -176,6 +176,48 @@ export async function findRetentionPurgeCandidates(createdBefore: Date): Promise
   }
 }
 
+export async function findOwnedDashboardDomainsExceedingRetention(
+  userId: string,
+  maxDays: number,
+): Promise<string[]> {
+  try {
+    const rows = await prisma.dashboardSettings.findMany({
+      where: {
+        dataRetentionDays: { gt: maxDays },
+        dashboard: {
+          deletedAt: null,
+          userAccess: { some: { userId, role: 'owner' } },
+        },
+      },
+      select: { dashboard: { select: { domain: true } } },
+    });
+    return rows.map((r) => r.dashboard.domain);
+  } catch (error) {
+    console.error(`Error loading owned dashboards exceeding retention ${maxDays} for user ${userId}:`, error);
+    throw new Error('Failed to load owned dashboards retention');
+  }
+}
+
+export async function findOwnedDashboardDomainsWithActiveRetentionGrace(userId: string): Promise<string[]> {
+  try {
+    const rows = await prisma.dashboardSettings.findMany({
+      where: {
+        retentionGraceUntil: { gt: new Date() },
+        retentionGraceRestoreDays: { not: null },
+        dashboard: {
+          deletedAt: null,
+          userAccess: { some: { userId, role: 'owner' } },
+        },
+      },
+      select: { dashboard: { select: { domain: true } } },
+    });
+    return rows.map((r) => r.dashboard.domain);
+  } catch (error) {
+    console.error(`Error loading owned dashboards with active retention grace for user ${userId}:`, error);
+    throw new Error('Failed to load owned dashboards retention grace');
+  }
+}
+
 export async function findOwnerSettingsForRetentionSync(
   userId: string,
   newMaxDays: number,

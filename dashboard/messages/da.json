@@ -2877,7 +2877,8 @@
           "disableTitle": "Deaktivér 2FA",
           "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
           "disabledSuccess": "To-faktor-godkendelse deaktiveret",
-          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen."
+          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen.",
+          "managedByOAuth": "To-faktor-godkendelse håndteres af din login-udbyder"
         }
       },
       "danger": {
