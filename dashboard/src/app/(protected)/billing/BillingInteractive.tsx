@@ -6,9 +6,10 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
-import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe.action';
+import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
 import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
+import { EmbeddedCheckoutDialog } from '@/components/billing/EmbeddedCheckoutDialog';
 import { useTranslations } from 'next-intl';
 
 interface BillingInteractiveProps {
@@ -19,6 +20,7 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState<SelectedPlan | null>(null);
   const t = useTranslations('components.billing.interactive');
 
   useEffect(() => {
@@ -51,12 +53,7 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
         return;
       }
 
-      const result = await createStripeCheckoutSession(validatedPlan);
-      if (result.success) {
-        window.location.href = result.data;
-      } else {
-        throw new Error('NO_CHECKOUT_URL');
-      }
+      setCheckoutPlan(validatedPlan);
     } catch {
       toast.error(t('planSelectionFailed'));
     }
@@ -82,6 +79,14 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
           userName={session.user.name || undefined}
         />
       )}
+
+      <EmbeddedCheckoutDialog
+        open={checkoutPlan !== null}
+        onOpenChange={(open) => {
+          if (!open) setCheckoutPlan(null);
+        }}
+        plan={checkoutPlan}
+      />
     </>
   );
 }

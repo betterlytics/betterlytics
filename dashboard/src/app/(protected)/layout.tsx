@@ -7,6 +7,8 @@ import { env } from '@/lib/env';
 import { DevWidget } from '@/components/dev/DevWidget';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
+import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAuth();
@@ -23,13 +25,17 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     throw new Error('Failed to load user settings');
   }
 
+  const publicEnvironmentVariables = getPublicEnvironmentVariables();
+
   return (
-    <UserSettingsProvider initialSettings={initialSettings}>
-      <TimezoneCookieInitializer />
-      <UserThemeInitializer theme={initialSettings.theme} />
-      {children}
-      {env.IS_DEVELOPMENT && <DevWidgetLoader userId={session.user.id} />}
-    </UserSettingsProvider>
+    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
+      <UserSettingsProvider initialSettings={initialSettings}>
+        <TimezoneCookieInitializer />
+        <UserThemeInitializer theme={initialSettings.theme} />
+        {children}
+        {env.IS_DEVELOPMENT && <DevWidgetLoader userId={session.user.id} />}
+      </UserSettingsProvider>
+    </PublicEnvironmentVariablesProvider>
   );
 }
 

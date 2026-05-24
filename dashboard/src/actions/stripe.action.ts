@@ -27,60 +27,72 @@ async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   }
 }
 
-export const createStripeCheckoutSession = withUserAuth(async (user: User, planData: SelectedPlan) => {
-  try {
-    const validatedPlan = SelectedPlanSchema.parse(planData);
+export type EmbeddedCheckoutSession = {
+  clientSecret: string;
+  sessionId: string;
+};
 
-    if (!user.emailVerified) {
-      throw new Error('Attempting to purchase with unverified email.');
-    }
+export const createStripeCheckoutSession = withUserAuth(
+  async (user: User, planData: SelectedPlan): Promise<EmbeddedCheckoutSession> => {
+    try {
+      const validatedPlan = SelectedPlanSchema.parse(planData);
 
-    if (validatedPlan.price_cents === 0 && validatedPlan.tier === 'growth') {
-      throw new Error('Free plans do not require checkout');
-    }
+      if (!user.emailVerified) {
+        throw new Error('Attempting to purchase with unverified email.');
+      }
 
-    if (validatedPlan.tier === 'enterprise') {
-      throw new Error('Custom plans require manual setup');
-    }
+      if (validatedPlan.price_cents === 0 && validatedPlan.tier === 'growth') {
+        throw new Error('Free plans do not require checkout');
+      }
 
-    if (!validatedPlan.lookup_key) {
-      throw new Error('No lookup key provided for plan');
-    }
+      if (validatedPlan.tier === 'enterprise') {
+        throw new Error('Custom plans require manual setup');
+      }
 
-    const price = await getPriceByLookupKey(validatedPlan.lookup_key);
+      if (!validatedPlan.lookup_key) {
+        throw new Error('No lookup key provided for plan');
+      }
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: price.id,
-          quantity: 1,
+      const price = await getPriceByLookupKey(validatedPlan.lookup_key);
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        ui_mode: 'embedded_page',
+        line_items: [
+          {
+            price: price.id,
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        currency: validatedPlan.currency.toLowerCase(),
+        customer_email: user.email,
+        metadata: {
+          userId: user.id,
+          lookupKey: validatedPlan.lookup_key,
+          requestedCurrency: validatedPlan.currency,
+          isInitialSubscription: 'true',
         },
-      ],
-      mode: 'subscription',
-      currency: validatedPlan.currency.toLowerCase(),
-      customer_email: user.email,
-      metadata: {
-        userId: user.id,
-        lookupKey: validatedPlan.lookup_key,
-        requestedCurrency: validatedPlan.currency,
-        isInitialSubscription: 'true',
-      },
-      success_url: `${env.PUBLIC_BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${env.PUBLIC_BASE_URL}/billing?canceled=true`,
-      allow_promotion_codes: true,
-      billing_address_collection: 'required',
-    });
+        return_url: `${env.PUBLIC_BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+        redirect_on_completion: 'if_required',
+        allow_promotion_codes: true,
+        billing_address_collection: 'required',
+        locale: 'auto',
+      });
 
-    if (!checkoutSession.url) {
-      throw new Error('Failed to create checkout session URL');
+      if (!checkoutSession.client_secret) {
+        throw new Error('Failed to create checkout session client secret');
+      }
+
+      return {
+        clientSecret: checkoutSession.client_secret,
+        sessionId: checkoutSession.id,
+      };
+    } catch (error) {
+      console.error('Failed to create Stripe checkout session:', error);
+      throw new UserException('Failed to create checkout session. Please try again.');
     }
-
-    return checkoutSession.url;
-  } catch (error) {
-    console.error('Failed to create Stripe checkout session:', error);
-    throw new UserException('Failed to create checkout session. Please try again.');
-  }
-});
+  },
+);
 
 export const createStripeCustomerPortalSessionForCancellation = withUserAuth(async (user: User) => {
   try {

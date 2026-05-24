@@ -2190,6 +2190,12 @@
         "subscriptionChangesNote": "Endringer i abonnementet ditt behandles umiddelbart via Stripes sikre faktureringsportal.",
         "freePlanNote": "Start med gratisplanen vår – ingen kredittkort kreves."
       },
+      "embeddedCheckout": {
+        "title": "Fullfør abonnementet",
+        "description": "Fullfør kjøpet trygt med Stripe.",
+        "loadError": "Vi kunne ikke laste inn betalingen. Prøv igjen.",
+        "creatingSession": "Oppretter en sikker betalingsøkt…"
+      },
       "currentPlan": {
         "title": "Nåværende plan",
         "canceledBannerTitle": "Abonnement avbrutt",

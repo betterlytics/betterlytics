@@ -2190,6 +2190,12 @@
         "subscriptionChangesNote": "Le modifiche al tuo abbonamento saranno elaborate immediatamente tramite il portale di fatturazione sicuro di Stripe.",
         "freePlanNote": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
       },
+      "embeddedCheckout": {
+        "title": "Completa il tuo abbonamento",
+        "description": "Completa il tuo acquisto in modo sicuro con Stripe.",
+        "loadError": "Non è stato possibile caricare il checkout. Riprova.",
+        "creatingSession": "Creazione di una sessione di pagamento sicura…"
+      },
       "currentPlan": {
         "title": "Piano attuale",
         "canceledBannerTitle": "Abbonamento annullato",

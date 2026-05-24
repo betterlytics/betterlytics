@@ -2179,6 +2179,12 @@
         "subscriptionChangesNote": "Changes to your subscription will be processed immediately through Stripe's secure billing portal.",
         "freePlanNote": "Start with our free plan - no credit card required."
       },
+      "embeddedCheckout": {
+        "title": "Complete your subscription",
+        "description": "Securely complete your purchase with Stripe.",
+        "loadError": "We couldn't load the checkout. Please try again.",
+        "creatingSession": "Creating a secure checkout session…"
+      },
       "currentPlan": {
         "title": "Current Plan",
         "canceledBannerTitle": "Subscription Canceled",
