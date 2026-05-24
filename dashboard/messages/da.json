@@ -2760,55 +2760,49 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profil",
+        "account": "Konto",
         "preferences": "Præferencer",
-        "usage": "Forbrug",
-        "billing": "Fakturering",
-        "security": "Sikkerhed",
-        "danger": "Farezone"
+        "billing": "Fakturering"
       },
       "dialog": {
         "title": "Brugerindstillinger",
         "description": "Administrér dine kontoinstillinger og præferencer.",
-        "loading": "Indlæser indstillinger...",
-        "loadFailed": "Kunne ikke indlæse indstillinger",
-        "noSettings": "Ingen indstillinger fundet",
-        "buttons": {
-          "cancel": "Annuller",
-          "saving": "Gemmer...",
-          "saveChanges": "Gem ændringer"
-        },
         "toast": {
-          "success": "Indstillinger gemt!",
           "error": "Kunne ikke gemme indstillinger. Prøv igen."
+        },
+        "help": {
+          "trigger": "Brug for hjælp?",
+          "documentation": "Dokumentation",
+          "reportBug": "Rapportér en fejl",
+          "contactSupport": "Kontakt support"
         }
       },
       "profile": {
         "title": "Profil",
-        "description": "Redigér dine personlige oplysninger",
         "nameLabel": "Navn",
         "namePlaceholder": "Indtast dit navn",
-        "optional": "Valgfrit",
         "emailLabel": "E-mail",
         "verified": "Bekræftet",
         "unverified": "Ikke bekræftet",
-        "updateButton": "Opdater profil",
+        "signedInWith": "Logget ind med {provider}",
+        "memberSince": "Medlem siden {date}",
+        "updateButton": "Opdater",
         "toast": {
-          "success": "Profil opdateret",
-          "error": "Kunne ikke opdatere profil. Prøv igen."
+          "nameSuccess": "Navn opdateret"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Udseende",
-          "description": "Tilpas det visuelle udtryk for dit dashboard",
           "themeLabel": "Tema",
+          "themeDescription": "Vælg et personligt tema til dashboardet",
           "light": "Lyst",
           "dark": "Mørkt",
           "system": "System"
         },
         "avatar": {
           "label": "Avatar",
+          "description": "Hvordan dit profilbillede vises",
           "none": "Ingen",
           "gravatar": "Gravatar",
           "noteIntro": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
@@ -2816,37 +2810,51 @@
         },
         "localization": {
           "title": "Lokalisering",
-          "description": "Vælg dit sprog",
-          "language": "Sprog"
+          "language": "Sprog",
+          "languageDescription": "Vælg sproget for dashboardet"
         },
         "notifications": {
           "title": "Notifikationer",
-          "description": "Konfigurer dine notifikationspræferencer",
-          "emailNotifications": "E-mail notifikationer",
-          "marketingEmails": "Marketing-e-mails"
+          "marketingEmails": "Marketing-e-mails",
+          "marketingEmailsDescription": "Produktopdateringer, meddelelser og tips"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Brug for flere events?",
-          "upgradeHint": "Opgrader din plan for at få flere events og låse op for flere funktioner.",
-          "viewPlans": "Se planer"
+      "billing": {
+        "loadError": "Kunne ikke indlæse faktureringsdata.",
+        "currentPlan": {
+          "title": "Nuværende plan",
+          "free": "Gratis",
+          "pricePerMonth": "{price} / måned",
+          "renewsOn": "Fornyes den {date}",
+          "endsOn": "Abonnement udløber den {date}",
+          "upgrade": "Opgradér",
+          "changePlan": "Skift plan"
         },
-        "error": "Kan ikke indlæse forbrugsdata"
-      },
-      "billingPortal": {
-        "title": "Faktureringsportal",
-        "description": "Administrér dine faktureringsoplysninger og se din fulde fakturahistorik",
-        "access": "Adgang til faktureringsportal",
-        "accessButton": "Åbn faktureringsportal",
-        "explainer": "Se tidligere fakturaer, opdatér betalingsmetoder og administrér din fakturering via Stripes sikre kundeportal.",
-        "notAvailable": "Faktureringsportalen er tilgængelig, når du opgraderer til en betalt plan.",
-        "needHelp": "Brug for hjælp til fakturering?",
-        "contactSupport": "Kontakt support",
-        "toastError": "Kunne ikke åbne faktureringsportal, prøv igen."
+        "usage": {
+          "title": "Forbrug",
+          "eventsLabel": "Events",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Nulstilles om {days} dage"
+        },
+        "payment": {
+          "title": "Betaling og fakturaer",
+          "label": "Administrér i faktureringsportalen",
+          "description": "Betalingsmetode, fakturaer og faktureringsoplysninger.",
+          "openPortal": "Åbn faktureringsportal"
+        },
+        "cancellation": {
+          "title": "Annullering",
+          "label": "Annullér abonnement",
+          "description": "Stop fakturering ved udgangen af den nuværende periode.",
+          "cancel": "Annullér"
+        },
+        "portal": {
+          "openError": "Kunne ikke åbne faktureringsportal, prøv igen."
+        }
       },
       "security": {
-        "title": "Adgangskode og godkendelse",
+        "title": "Kontosikkerhed",
+        "passwordRowLabel": "Adgangskode",
         "description": "Skift din kontoadgangskode",
         "currentPassword": "Nuværende adgangskode",
         "newPassword": "Ny adgangskode",
@@ -2855,12 +2863,14 @@
         "passwordsMatch": "Adgangskoderne matcher",
         "changePassword": "Skift adgangskode",
         "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
+        "togglePasswordVisibility": "Vis/skjul {field}",
+        "cancel": "Annuller",
         "toast": {
           "success": "Adgangskode opdateret"
         },
         "totp": {
           "title": "To-faktor-godkendelse",
-          "description": "Tilføj et ekstra sikkerhedslag ved at kræve en ekstra godkendelse ud over din adgangskode",
+          "description": "Føj et ekstra sikkerhedslag til din konto.",
           "enable": "Aktivér 2FA",
           "instructions": "For at aktivere 2FA skal du scanne QR-koden med din autentificeringsapp eller bruge <setup>opsætningsnøglen</setup> til manuel konfiguration og derefter indtaste verifikationskoden nedenfor.",
           "cancel": "Annuller",
@@ -2871,14 +2881,31 @@
           "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
           "disabledSuccess": "To-faktor-godkendelse deaktiveret",
           "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen.",
+          "setupFailed": "Kunne ikke konfigurere to-faktor-godkendelse. Prøv igen.",
+          "copyFailed": "Kunne ikke kopiere",
+          "enabledSuccess": "To-faktor-godkendelse aktiveret",
+          "enableFailed": "Kunne ikke aktivere to-faktor-godkendelse. Prøv igen.",
           "managedByOAuth": "To-faktor-godkendelse håndteres af din login-udbyder"
         }
       },
+      "sessions": {
+        "title": "Sessioner",
+        "activeCount": "Logget ind på {count, plural, =0 {ingen enheder} =1 {1 enhed} other {# enheder}}",
+        "description": "Log ud overalt undtagen på denne enhed.",
+        "signOutOthers": "Log ud af andre enheder",
+        "dialog": {
+          "title": "Log ud af andre enheder?",
+          "description": "Alle andre sessioner afsluttes med det samme. Den nuværende enhed forbliver logget ind.",
+          "cancel": "Annullér",
+          "confirm": "Log ud af andre enheder"
+        },
+        "toast": {
+          "success": "Loggede ud af {count, plural, =0 {ingen andre enheder} =1 {1 anden enhed} other {# andre enheder}}."
+        }
+      },
       "danger": {
-        "title": "Slet konto",
-        "description": "Slet din konto og alle tilknyttede data permanent",
-        "warning": "Advarsel: Denne handling kan ikke fortrydes",
-        "details": "Dette vil permanent slette din konto, fjerne adgang til alle dashboards og slette alle dine personlige indstillinger.",
+        "sectionTitle": "Farezone",
+        "details": "Slet din konto og alle tilknyttede data permanent.",
         "delete": "Slet konto",
         "dialog": {
           "title": "Slet konto permanent",

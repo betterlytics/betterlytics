@@ -1,18 +1,23 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useSession } from 'next-auth/react';
-import { Lock, Eye, EyeOff, Loader2, Check } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { ZodError } from 'zod';
+import { useTranslations } from 'next-intl';
 import { ChangePasswordData, ChangePasswordSchema } from '@/entities/auth/password.entities';
 import { changePasswordAction } from '@/app/actions/account/userSettings.action';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { ZodError } from 'zod';
-import SettingsCard from '@/components/SettingsCard';
-import UserSecurityTotpSettings from '@/components/userSettings/UserSecurityTotpSettings';
-import { useTranslations } from 'next-intl';
 
 const INITIAL_PASSWORD_STATE: ChangePasswordData = {
   currentPassword: '',
@@ -29,7 +34,6 @@ interface PasswordFieldProps {
   onToggleVisibility: () => void;
   error?: string;
   disabled: boolean;
-  tabIndex: number;
   autoComplete: string;
   helpText?: string;
 }
@@ -43,10 +47,10 @@ function PasswordField({
   onToggleVisibility,
   error,
   disabled,
-  tabIndex,
   autoComplete,
   helpText,
 }: PasswordFieldProps) {
+  const t = useTranslations('components.userSettings.security');
   return (
     <div className='space-y-2'>
       <Label htmlFor={id}>{label}</Label>
@@ -58,7 +62,6 @@ function PasswordField({
           onChange={(e) => onChange(e.target.value)}
           className={error ? 'border-destructive' : ''}
           disabled={disabled}
-          tabIndex={tabIndex}
           autoComplete={autoComplete}
         />
         <Button
@@ -69,7 +72,7 @@ function PasswordField({
           onClick={onToggleVisibility}
           disabled={disabled}
           tabIndex={-1}
-          aria-label={`Toggle ${label.toLowerCase()} visibility`}
+          aria-label={t('togglePasswordVisibility', { field: label })}
         >
           {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
         </Button>
@@ -80,22 +83,28 @@ function PasswordField({
   );
 }
 
-export default function UserSecuritySettings() {
+interface ChangePasswordDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialogProps) {
+  const t = useTranslations('components.userSettings.security');
+  const tDialog = useTranslations('components.userSettings.dialog');
   const [isPending, startTransition] = useTransition();
-  const { data: session } = useSession();
-  const hasPassword = Boolean(session?.user?.hasPassword);
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
+  const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
   const [passwords, setPasswords] = useState<ChangePasswordData>(INITIAL_PASSWORD_STATE);
   const [errors, setErrors] = useState<Partial<Record<keyof ChangePasswordData, string>>>({});
-  const t = useTranslations('components.userSettings.security');
 
   const resetForm = () => {
     setPasswords(INITIAL_PASSWORD_STATE);
     setErrors({});
+    setShowPasswords({ current: false, new: false, confirm: false });
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next) resetForm();
+    onOpenChange(next);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,17 +112,16 @@ export default function UserSecuritySettings() {
     setErrors({});
 
     try {
-      const validatedData = ChangePasswordSchema.parse(passwords);
-
+      const validated = ChangePasswordSchema.parse(passwords);
       startTransition(async () => {
         const result = await changePasswordAction({
-          currentPassword: validatedData.currentPassword,
-          newPassword: validatedData.newPassword,
+          currentPassword: validated.currentPassword,
+          newPassword: validated.newPassword,
         });
-
         if (result.success) {
           toast.success(t('toast.success'));
           resetForm();
+          onOpenChange(false);
         } else {
           toast.error(result.error.message);
         }
@@ -127,6 +135,8 @@ export default function UserSecuritySettings() {
           }
         });
         setErrors(fieldErrors);
+      } else {
+        toast.error(tDialog('toast.error'));
       }
     }
   };
@@ -154,46 +164,45 @@ export default function UserSecuritySettings() {
   );
 
   return (
-    <div className='space-y-6'>
-      <SettingsCard icon={Lock} title={t('title')} description={t('description')}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className='sm:max-w-md'>
+        <DialogHeader>
+          <DialogTitle>{t('changePassword')}</DialogTitle>
+          <DialogDescription>{t('passwordHelp')}</DialogDescription>
+        </DialogHeader>
+
         <form onSubmit={handleSubmit} className='space-y-4'>
           <PasswordField
             id='currentPassword'
             label={t('currentPassword')}
             value={passwords.currentPassword}
-            onChange={(value) => handlePasswordChange('currentPassword', value)}
+            onChange={(v) => handlePasswordChange('currentPassword', v)}
             showPassword={showPasswords.current}
             onToggleVisibility={() => togglePasswordVisibility('current')}
             error={errors.currentPassword}
-            disabled={isPending || !hasPassword}
-            tabIndex={1}
+            disabled={isPending}
             autoComplete='current-password'
           />
-
           <PasswordField
             id='newPassword'
             label={t('newPassword')}
             value={passwords.newPassword}
-            onChange={(value) => handlePasswordChange('newPassword', value)}
+            onChange={(v) => handlePasswordChange('newPassword', v)}
             showPassword={showPasswords.new}
             onToggleVisibility={() => togglePasswordVisibility('new')}
             error={errors.newPassword}
-            disabled={isPending || !hasPassword}
-            tabIndex={2}
+            disabled={isPending}
             autoComplete='new-password'
-            helpText={t('passwordHelp')}
           />
-
           <PasswordField
             id='confirmPassword'
             label={t('confirmNewPassword')}
             value={passwords.confirmPassword}
-            onChange={(value) => handlePasswordChange('confirmPassword', value)}
+            onChange={(v) => handlePasswordChange('confirmPassword', v)}
             showPassword={showPasswords.confirm}
             onToggleVisibility={() => togglePasswordVisibility('confirm')}
             error={errors.confirmPassword}
-            disabled={isPending || !hasPassword}
-            tabIndex={3}
+            disabled={isPending}
             autoComplete='new-password'
           />
 
@@ -204,18 +213,23 @@ export default function UserSecuritySettings() {
             </div>
           )}
 
-          <Button
-            type='submit'
-            disabled={isPending || !isFormFilled || !hasPassword}
-            className='w-full cursor-pointer sm:w-auto'
-            tabIndex={4}
-          >
-            {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            {hasPassword ? t('changePassword') : t('passwordManagedByOAuth')}
-          </Button>
+          <DialogFooter>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => handleOpenChange(false)}
+              disabled={isPending}
+              className='cursor-pointer'
+            >
+              {t('cancel')}
+            </Button>
+            <Button type='submit' disabled={isPending || !isFormFilled} className='cursor-pointer'>
+              {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+              {t('changePassword')}
+            </Button>
+          </DialogFooter>
         </form>
-      </SettingsCard>
-      <UserSecurityTotpSettings />
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

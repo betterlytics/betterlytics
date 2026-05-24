@@ -1,13 +1,7 @@
 import { z } from 'zod';
 import { UserRole } from '@prisma/client';
 import { SUPPORTED_LANGUAGES, SupportedLanguages } from '@/constants/i18n';
-
-export const PasswordSchema = z
-  .string()
-  .min(8, 'Password must be at least 8 characters long')
-  .max(100, 'Password must be no more than 100 characters long')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter');
+import { PasswordSchema } from './password.entities';
 
 export const UserSchema = z.object({
   id: z.string(),
@@ -38,9 +32,13 @@ export const CreateUserSchema = z.object({
 });
 
 export const UpdateUserSchema = z.object({
-  name: z.string().nullable().optional(),
+  name: z.string().max(64).nullable().optional(),
   totpEnabled: z.boolean().optional(),
   totpSecret: z.string().nullable().optional(),
+});
+
+export const UpdateUserNameSchema = z.object({
+  name: z.string().min(1).max(64),
 });
 
 export const RegisterUserSchema = z.object({
@@ -77,6 +75,7 @@ export const UserWithoutDashboardCandidateSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 export type CreateUserData = z.infer<typeof CreateUserSchema>;
 export type UpdateUserData = z.infer<typeof UpdateUserSchema>;
+export type UpdateUserNameData = z.infer<typeof UpdateUserNameSchema>;
 export type RegisterUserData = z.infer<typeof RegisterUserSchema>;
 export type LoginUserData = z.infer<typeof LoginUserSchema>;
 export type AuthenticatedUser = z.infer<typeof AuthenticatedUserSchema>;

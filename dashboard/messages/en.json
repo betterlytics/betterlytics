@@ -2754,55 +2754,49 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profile",
+        "account": "Account",
         "preferences": "Preferences",
-        "usage": "Usage",
-        "billing": "Billing",
-        "security": "Security",
-        "danger": "Danger Zone"
+        "billing": "Billing"
       },
       "dialog": {
         "title": "User Settings",
         "description": "Manage your account settings and preferences.",
-        "loading": "Loading settings...",
-        "loadFailed": "Failed to load settings",
-        "noSettings": "No settings found",
-        "buttons": {
-          "cancel": "Cancel",
-          "saving": "Saving...",
-          "saveChanges": "Save Changes"
-        },
         "toast": {
-          "success": "Settings saved successfully!",
           "error": "Failed to save settings. Please try again."
+        },
+        "help": {
+          "trigger": "Need help?",
+          "documentation": "Documentation",
+          "reportBug": "Report a bug",
+          "contactSupport": "Contact support"
         }
       },
       "profile": {
         "title": "Profile",
-        "description": "Change your personal information",
         "nameLabel": "Name",
         "namePlaceholder": "Enter your name",
-        "optional": "Optional",
         "emailLabel": "Email",
         "verified": "Verified",
         "unverified": "Unverified",
-        "updateButton": "Update Profile",
+        "signedInWith": "Signed in with {provider}",
+        "memberSince": "Member since {date}",
+        "updateButton": "Update",
         "toast": {
-          "success": "Profile updated successfully",
-          "error": "Failed to update profile. Please try again."
+          "nameSuccess": "Name updated"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Appearance",
-          "description": "Customize the visual appearance of your dashboard",
           "themeLabel": "Theme",
+          "themeDescription": "Choose a personal theme for the dashboard",
           "light": "Light",
           "dark": "Dark",
           "system": "System"
         },
         "avatar": {
           "label": "Avatar",
+          "description": "How your profile picture is shown",
           "none": "None",
           "gravatar": "Gravatar",
           "noteIntro": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
@@ -2810,37 +2804,51 @@
         },
         "localization": {
           "title": "Localization",
-          "description": "Set your language preferences",
-          "language": "Language"
+          "language": "Language",
+          "languageDescription": "Choose your dashboard language"
         },
         "notifications": {
           "title": "Notifications",
-          "description": "Configure your notification preferences",
-          "emailNotifications": "Email notifications",
-          "marketingEmails": "Marketing emails"
+          "marketingEmails": "Marketing emails",
+          "marketingEmailsDescription": "Product updates, announcements, and tips"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Need more events?",
-          "upgradeHint": "Upgrade your plan to get more events and unlock additional features.",
-          "viewPlans": "View Plans"
+      "billing": {
+        "loadError": "Unable to load billing data.",
+        "currentPlan": {
+          "title": "Current Plan",
+          "free": "Free",
+          "pricePerMonth": "{price} / month",
+          "renewsOn": "Renews on {date}",
+          "endsOn": "Subscription ends on {date}",
+          "upgrade": "Upgrade",
+          "changePlan": "Change plan"
         },
-        "error": "Unable to load usage data"
-      },
-      "billingPortal": {
-        "title": "Billing Portal",
-        "description": "Manage your billing details and access your full billing history",
-        "access": "Access Billing Portal",
-        "accessButton": "Open Billing Portal",
-        "explainer": "View all past invoices, update payment methods, and manage your billing through Stripe's secure customer portal.",
-        "notAvailable": "Billing portal will be available once you upgrade to a paid plan.",
-        "needHelp": "Need help with billing?",
-        "contactSupport": "Contact support",
-        "toastError": "Failed to open billing portal, please try again."
+        "usage": {
+          "title": "Usage",
+          "eventsLabel": "Events",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Resets in {days} days"
+        },
+        "payment": {
+          "title": "Payment & Invoices",
+          "label": "Manage in billing portal",
+          "description": "Payment method, invoices, and billing details.",
+          "openPortal": "Open Billing Portal"
+        },
+        "cancellation": {
+          "title": "Cancellation",
+          "label": "Cancel subscription",
+          "description": "Stop billing at the end of the current period.",
+          "cancel": "Cancel"
+        },
+        "portal": {
+          "openError": "Failed to open billing portal, please try again."
+        }
       },
       "security": {
-        "title": "Password & Authentication",
+        "title": "Account security",
+        "passwordRowLabel": "Password",
         "description": "Change your account password",
         "currentPassword": "Current Password",
         "newPassword": "New Password",
@@ -2849,12 +2857,14 @@
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
+        "togglePasswordVisibility": "Toggle {field} visibility",
+        "cancel": "Cancel",
         "toast": {
           "success": "Password updated successfully"
         },
         "totp": {
           "title": "Two-Factor Authentication",
-          "description": "Add an extra layer of security to your account by requiring a second form of verification in addition to your password",
+          "description": "Add an extra layer of security to your account.",
           "enable": "Enable 2FA",
           "instructions": "To enable 2FA, scan the QR code with your authenticator app or use the <setup>setup key</setup> to manually configure it, then enter the verification code below.",
           "cancel": "Cancel",
@@ -2865,14 +2875,31 @@
           "disableDescription": "Are you sure you want to disable two-factor authentication for your account?",
           "disabledSuccess": "Two-factor authentication disabled successfully",
           "disableFailed": "Failed to disable two-factor authentication. Please try again.",
+          "setupFailed": "Failed to setup two-factor authentication. Please try again.",
+          "copyFailed": "Failed to copy",
+          "enabledSuccess": "Two-factor authentication enabled successfully",
+          "enableFailed": "Failed to enable two-factor authentication. Please try again.",
           "managedByOAuth": "Two-factor authentication is managed by your sign-in provider"
         }
       },
+      "sessions": {
+        "title": "Sessions",
+        "activeCount": "Signed in on {count, plural, =0 {no devices} =1 {1 device} other {# devices}}",
+        "description": "Sign out from everywhere except this device.",
+        "signOutOthers": "Sign out other devices",
+        "dialog": {
+          "title": "Sign out other devices?",
+          "description": "All other sessions will be ended immediately. Your current device will stay signed in.",
+          "cancel": "Cancel",
+          "confirm": "Sign out other devices"
+        },
+        "toast": {
+          "success": "Signed out {count, plural, =0 {no other devices} =1 {1 other device} other {# other devices}}."
+        }
+      },
       "danger": {
-        "title": "Delete Account",
-        "description": "Permanently delete your account and all associated data",
-        "warning": "Warning: This action cannot be undone",
-        "details": "This will permanently delete your account, remove access to all dashboards, and delete all your personal settings.",
+        "sectionTitle": "Danger Zone",
+        "details": "Permanently delete your account and all associated data.",
         "delete": "Delete Account",
         "dialog": {
           "title": "Delete Account Permanently",

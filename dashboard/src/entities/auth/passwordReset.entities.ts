@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PasswordSchema } from './user.entities';
+import { PasswordSchema } from './password.entities';
 
 export const ForgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address').max(254, 'Email address is too long'),
