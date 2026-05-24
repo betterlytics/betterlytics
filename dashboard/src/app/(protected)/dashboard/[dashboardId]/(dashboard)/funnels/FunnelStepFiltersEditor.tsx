@@ -89,6 +89,7 @@ function FunnelStepFiltersEditorComponent({
                 onFilterUpdate={handleUpdate}
                 requestRemoval={handleRemove}
                 globalPropertyKeys={globalPropertyKeys}
+                hideClearAllButton
               />
             ))}
           </div>

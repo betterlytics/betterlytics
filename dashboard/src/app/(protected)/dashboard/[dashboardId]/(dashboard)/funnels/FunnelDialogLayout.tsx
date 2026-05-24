@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 type FunnelDialogLayoutProps = {
   open: boolean;
@@ -35,7 +36,11 @@ export function FunnelDialogLayout({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         aria-describedby={undefined}
-        className='bg-background flex flex-col w-screen h-dvh max-w-none rounded-none border-0 sm:w-[80dvw] sm:h-auto sm:max-h-[90dvh] sm:!max-w-7xl sm:rounded-lg sm:border [&>button]:cursor-pointer'
+        className={cn(
+          'bg-background rounded-none flex flex-col [&>button]:cursor-pointer p-4 sm:p-5 lg:p-6',
+          'w-screen h-dvh !max-w-none border-0',
+          'lg:w-[90dvw] lg:h-auto lg:max-h-[85dvh] lg:!max-w-[90rem] lg:rounded-lg lg:border',
+        )}
         onAnimationEnd={onAnimationEnd}
       >
         <DialogHeader>
