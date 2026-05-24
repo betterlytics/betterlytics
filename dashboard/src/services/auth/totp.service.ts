@@ -4,12 +4,18 @@ import { symmetricDecrypt, symmetricEncrypt } from '@/lib/crypto';
 import { env } from '@/lib/env';
 import * as UsersRepository from '@/repositories/postgres/user.repository';
 import * as OTPAuth from 'otpauth';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 
 export async function setupTotp(userId: string): Promise<string> {
   try {
     const user = await UsersRepository.findUserById(userId);
     if (!user) {
       throw new Error('User not found');
+    }
+
+    if (!user.passwordHash) {
+      throw new Error('Totp requires a password');
     }
 
     if (user.totpEnabled) {
@@ -44,6 +50,10 @@ export async function enableTotp(userId: string, totp: string): Promise<void> {
       throw new Error('User not found');
     }
 
+    if (!user.passwordHash) {
+      throw new Error('Totp requires a password');
+    }
+
     if (user.totpEnabled) {
       throw new Error('Totp already enabled');
     }
@@ -60,6 +70,10 @@ export async function enableTotp(userId: string, totp: string): Promise<void> {
     await UsersRepository.updateUser(userId, {
       totpEnabled: true,
     });
+
+    if (user.email) {
+      await sendTwoFactorStateChangeNotification(userId, user.email, user.name, 'enabled');
+    }
   } catch (error) {
     console.error('Error enabling up totp:', error);
     throw new Error('Failed to enable totp');
@@ -88,8 +102,33 @@ export async function disableTotp(userId: string): Promise<void> {
       totpEnabled: false,
       totpSecret: null,
     });
+
+    if (user.email) {
+      await sendTwoFactorStateChangeNotification(userId, user.email, user.name, 'disabled');
+    }
   } catch (error) {
     console.error('Error disabling up totp:', error);
     throw new Error('Failed to disable totp');
+  }
+}
+
+async function sendTwoFactorStateChangeNotification(
+  userId: string,
+  email: string,
+  name: string | null,
+  state: 'enabled' | 'disabled',
+): Promise<void> {
+  try {
+    await enqueueEmail({
+      type: state === 'enabled' ? 'two-factor-enabled' : 'two-factor-disabled',
+      recipientKey: createUserRecipientKey(userId),
+      campaignKey: `two-factor-${state}:${new Date().toISOString()}`,
+      data: {
+        to: email,
+        userName: name,
+      },
+    });
+  } catch (err) {
+    console.error(`Failed to enqueue two-factor-${state} notification:`, { userId, err });
   }
 }
