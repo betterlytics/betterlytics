@@ -39,7 +39,7 @@ export function FunnelDialogLayout({
         className={cn(
           'bg-background rounded-none flex flex-col [&>button]:cursor-pointer p-4 sm:p-5 lg:p-6',
           'w-screen h-dvh !max-w-none border-0',
-          'lg:w-[90dvw] lg:h-auto lg:max-h-[85dvh] lg:!max-w-[90rem] lg:rounded-lg lg:border',
+          'windowed:w-[90dvw] windowed:h-auto windowed:max-h-[85dvh] windowed:!max-w-[90rem] windowed:rounded-lg windowed:border',
         )}
         onAnimationEnd={onAnimationEnd}
       >

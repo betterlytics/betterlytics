@@ -104,10 +104,10 @@ export function FunnelDialogContent({
         </Button>
       </div>
 
-      <div className='grid min-h-0 flex-1 grid-cols-24 overflow-hidden lg:gap-6 lg:grid-rows-[minmax(0,550px)]'>
+      <div className='grid min-h-0 flex-1 grid-cols-24 overflow-hidden windowed:gap-6 windowed:grid-rows-[minmax(0,550px)]'>
         <FunnelStepAccordion
           listRef={stepsListRef}
-          className='col-span-24 min-h-0 min-w-0 lg:col-span-13'
+          className='col-span-24 min-h-0 min-w-0 windowed:col-span-13'
           steps={funnelSteps}
           initialOpenId={initialOpenId}
           onReorder={setFunnelSteps}
@@ -117,7 +117,7 @@ export function FunnelDialogContent({
           hasAttemptedSubmit={hasAttemptedSubmit}
         />
         <FunnelBarplot
-          className='hidden max-h-[420px] pt-3 lg:flex lg:col-span-11 [&_[data-slot=funnel-barplot-card]]:bg-secondary/50 min-h-96'
+          className='hidden max-h-[420px] pt-3 windowed:flex windowed:col-span-11 [&_[data-slot=funnel-barplot-card]]:bg-secondary/50 min-h-96'
           funnel={funnelPreview}
           emptySteps={emptySteps}
           status={previewStatus}

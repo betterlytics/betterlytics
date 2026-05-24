@@ -171,7 +171,7 @@ export function FunnelStepAccordion({
       <ScrollArea
         type={isDragging ? 'always' : 'hover'}
         className={cn(
-          'lg:-mr-3',
+          'windowed:-mr-3',
           'max-sm:[&_[data-slot=scroll-area-scrollbar]]:hidden',
           className,
         )}
@@ -183,7 +183,7 @@ export function FunnelStepAccordion({
             collapsible
             value={openStepId ?? ''}
             onValueChange={(value) => setOpenStepId(value || undefined)}
-            className='flex flex-col gap-3 py-3 px-3 sm:pl-1 lg:pr-5'
+            className='flex flex-col gap-3 py-3 px-3 sm:pl-1 windowed:pr-5'
           >
             {steps.map((step, index) => (
               <FunnelStepAccordionItem
