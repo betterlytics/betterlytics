@@ -2892,7 +2892,8 @@
           "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
           "copyFailed": "Kunne ikke kopiere",
           "enabledSuccess": "Tofaktorautentisering aktivert",
-          "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen."
+          "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen.",
+          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din"
         }
       },
       "sessions": {

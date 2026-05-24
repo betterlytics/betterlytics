@@ -2878,7 +2878,8 @@
           "setupFailed": "Failed to setup two-factor authentication. Please try again.",
           "copyFailed": "Failed to copy",
           "enabledSuccess": "Two-factor authentication enabled successfully",
-          "enableFailed": "Failed to enable two-factor authentication. Please try again."
+          "enableFailed": "Failed to enable two-factor authentication. Please try again.",
+          "managedByOAuth": "Two-factor authentication is managed by your sign-in provider"
         }
       },
       "sessions": {

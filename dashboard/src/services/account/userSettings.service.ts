@@ -7,6 +7,7 @@ import * as UserRepository from '@/repositories/postgres/user.repository';
 import { invalidateOtherUserSessions } from '@/services/session.service';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
+import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
 import { UserException } from '@/lib/exceptions';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
@@ -88,6 +89,11 @@ export async function changeUserPassword(
 
     await UserRepository.updateUserPassword(userId, newPassword);
     await invalidateOtherUserSessions(userId, currentSessionToken);
+
+    const user = await UserRepository.findUserById(userId);
+    if (user?.email) {
+      await sendPasswordChangedNotification(userId, user.email, user.name);
+    }
 
     console.log(`Successfully updated password for user ${userId}`);
   } catch (error) {

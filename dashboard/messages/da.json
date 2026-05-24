@@ -2884,7 +2884,8 @@
           "setupFailed": "Kunne ikke konfigurere to-faktor-godkendelse. Prøv igen.",
           "copyFailed": "Kunne ikke kopiere",
           "enabledSuccess": "To-faktor-godkendelse aktiveret",
-          "enableFailed": "Kunne ikke aktivere to-faktor-godkendelse. Prøv igen."
+          "enableFailed": "Kunne ikke aktivere to-faktor-godkendelse. Prøv igen.",
+          "managedByOAuth": "To-faktor-godkendelse håndteres af din login-udbyder"
         }
       },
       "sessions": {

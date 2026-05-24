@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Check, Clipboard, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -210,12 +211,21 @@ function DisableTotp() {
 export default function UserSecurityTotpSettings() {
   const { data: session } = useSession();
   const t = useTranslations('components.userSettings.security.totp');
+  const hasPassword = Boolean(session?.user?.hasPassword);
 
-  return (
-    <SettingRow
-      label={t('title')}
-      description={t('description')}
-      action={session?.user.totpEnabled ? <DisableTotp /> : <SetupTotp />}
-    />
+  const action = session?.user.totpEnabled ? (
+    <DisableTotp />
+  ) : hasPassword ? (
+    <SetupTotp />
+  ) : (
+    <DisabledTooltip disabled message={t('managedByOAuth')}>
+      {(isDisabled) => (
+        <Button variant='outline' size='sm' disabled={isDisabled} className='cursor-pointer'>
+          {t('enable')}
+        </Button>
+      )}
+    </DisabledTooltip>
   );
+
+  return <SettingRow label={t('title')} description={t('description')} action={action} />;
 }

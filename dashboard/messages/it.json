@@ -2892,7 +2892,8 @@
           "setupFailed": "Impossibile configurare l'autenticazione a due fattori. Riprova.",
           "copyFailed": "Impossibile copiare",
           "enabledSuccess": "Autenticazione a due fattori abilitata con successo",
-          "enableFailed": "Impossibile abilitare l'autenticazione a due fattori. Riprova."
+          "enableFailed": "Impossibile abilitare l'autenticazione a due fattori. Riprova.",
+          "managedByOAuth": "L'autenticazione a due fattori è gestita dal tuo provider di accesso"
         }
       },
       "sessions": {
