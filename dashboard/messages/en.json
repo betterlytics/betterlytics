@@ -2872,7 +2872,7 @@
           "enabled": "Enabled",
           "disable": "Disable",
           "disableTitle": "Disable 2FA",
-          "disableDescription": "Are you sure you want to disable two-factor authentication for your account?",
+          "disableDescription": "Enter the verification code from your authenticator app to disable two-factor authentication.",
           "disabledSuccess": "Two-factor authentication disabled successfully",
           "disableFailed": "Failed to disable two-factor authentication. Please try again.",
           "setupFailed": "Failed to setup two-factor authentication. Please try again.",
