@@ -1,50 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v142ChangelogEntryIt: ChangelogEntryData = {
+const v143ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.2',
-    releasedAt: '2026-05-17',
-    title: 'Proprietà globali nei funnel, filtro per link esterni e raggruppamento referrer più intelligente',
+    version: 'v1.4.3',
+    releasedAt: '2026-05-24',
+    title: 'Impostazioni account rinnovate e maggiore sicurezza',
     summary:
-      'Filtra i passaggi dei funnel in base alle Proprietà globali, segmenta le analisi per link esterno e ottieni un raggruppamento dei referrer più preciso. Questa release alza anche il limite minimo di conservazione dei dati e corregge un problema che impediva la riproduzione dei session replay.',
+      'Una finestra delle impostazioni utente ridisegnata, nuove opzioni per gestire le sessioni attive, controlli più rigorosi sull\'autenticazione a due fattori, oltre a una manciata di correzioni e rifiniture.',
   },
   sections: [
     {
-      id: 'v142-new-features',
-      title: 'Nuove funzionalità',
+      id: 'v143-security',
+      title: 'Sicurezza',
       blocks: [
         {
           type: 'list',
           items: [
-            'I funnel ora supportano le Proprietà globali. Puoi filtrare i passaggi dei funnel in base a qualsiasi proprietà globale che associ ai tuoi eventi, proprio come nel resto della dashboard.',
-            'Un nuovo filtro per i link esterni ti permette di filtrare e segmentare le analisi in base agli URL esterni su cui i visitatori hanno cliccato.',
+            'Ora puoi disconnetterti da tutte le altre sessioni attive direttamente dalle impostazioni del tuo account.',
+            'Per disattivare l\'autenticazione a due fattori è ora necessario un codice TOTP valido, per una protezione aggiuntiva contro modifiche non autorizzate.',
+            'L\'autenticazione a due fattori non è più disponibile per gli account che accedono tramite Google o GitHub, dato che il provider la gestisce già.',
           ],
         },
       ],
     },
     {
-      id: 'v142-improvements',
+      id: 'v143-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Il raggruppamento dei referrer è ora notevolmente più preciso, così le fonti di traffico vengono accorpate in modo più coerente in tutta la dashboard.',
-            'Il limite minimo di conservazione dei dati è stato portato da 3 a 6 mesi (il session replay resta a 2 mesi).',
-            'Piccoli miglioramenti di usabilità e accessibilità su filtri, schede della dashboard e modulo di accesso.',
+            'La finestra delle impostazioni utente è stata ridisegnata con un layout più pulito e ordinato.',
+            'Le favicon dei domini delle dashboard vengono caricate in modo più affidabile per un numero maggiore di siti.',
+            'Piccole rifiniture all\'interfaccia in tutta la dashboard.',
           ],
         },
       ],
     },
     {
-      id: 'v142-fixes',
+      id: 'v143-fixes',
       title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui i session replay non riuscivano a caricare i propri segmenti, rendendo le registrazioni non riproducibili.',
-            'Ironicamente, risolto un bug per cui inviare una segnalazione di bug al di fuori di una dashboard non funzionava a sua volta.',
+            'Risolto un problema per cui gli utenti senza un nome impostato sull\'account non riuscivano ad aggiornare le proprie impostazioni.',
+            'Risolto un problema per cui annullare un cambio di tema poteva lasciare il tema visualizzato non allineato con l\'impostazione salvata.',
           ],
         },
       ],
@@ -52,10 +53,61 @@ const v142ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v142ChangelogEntryIt;
+export const latestChangelogModalIt = v143ChangelogEntryIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
-  v142ChangelogEntryIt,
+  v143ChangelogEntryIt,
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Proprietà globali nei funnel, filtro per link esterni e raggruppamento referrer più intelligente',
+      summary:
+        'Filtra i passaggi dei funnel in base alle Proprietà globali, segmenta le analisi per link esterno e ottieni un raggruppamento dei referrer più preciso. Questa release alza anche il limite minimo di conservazione dei dati e corregge un problema che impediva la riproduzione dei session replay.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I funnel ora supportano le Proprietà globali. Puoi filtrare i passaggi dei funnel in base a qualsiasi proprietà globale che associ ai tuoi eventi, proprio come nel resto della dashboard.',
+              'Un nuovo filtro per i link esterni ti permette di filtrare e segmentare le analisi in base agli URL esterni su cui i visitatori hanno cliccato.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Il raggruppamento dei referrer è ora notevolmente più preciso, così le fonti di traffico vengono accorpate in modo più coerente in tutta la dashboard.',
+              'Il limite minimo di conservazione dei dati è stato portato da 3 a 6 mesi (il session replay resta a 2 mesi).',
+              'Piccoli miglioramenti di usabilità e accessibilità su filtri, schede della dashboard e modulo di accesso.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema per cui i session replay non riuscivano a caricare i propri segmenti, rendendo le registrazioni non riproducibili.',
+              'Ironicamente, risolto un bug per cui inviare una segnalazione di bug al di fuori di una dashboard non funzionava a sua volta.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.1',
