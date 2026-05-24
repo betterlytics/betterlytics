@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { Trash2 } from 'lucide-react';
 import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ export default function UserDangerZoneSettings() {
       const result = await deleteUserAccountAction();
       if (result.success) {
         toast.success(t('toast.success'));
-        window.location.href = '/';
+        await signOut({ callbackUrl: '/' });
       } else {
         toast.error(result.error.message || t('toast.error'));
       }
