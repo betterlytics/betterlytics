@@ -6,7 +6,6 @@ import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions'
 import { env } from '@/lib/env';
 import { DevWidget } from '@/components/dev/DevWidget';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { getUserSettingsAction } from '@/app/actions/account/userSettings.action';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -19,11 +18,10 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     }
   }
 
-  const userSettingsResult = await getUserSettingsAction();
-  if (!userSettingsResult.success) {
+  const initialSettings = session.user.settings;
+  if (!initialSettings) {
     throw new Error('Failed to load user settings');
   }
-  const initialSettings = userSettingsResult.data;
 
   return (
     <UserSettingsProvider initialSettings={initialSettings}>
