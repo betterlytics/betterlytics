@@ -2793,7 +2793,11 @@
         "verified": "Verificato",
         "unverified": "Non verificato",
         "signedInWith": "Connesso con {provider}",
-        "memberSince": "Membro da {date}"
+        "memberSince": "Membro da {date}",
+        "updateButton": "Aggiorna",
+        "toast": {
+          "nameSuccess": "Nome aggiornato"
+        }
       },
       "preferences": {
         "appearance": {

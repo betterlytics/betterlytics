@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, Loader2, X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
@@ -10,11 +10,9 @@ import UserSettingsSection from '../shared/UserSettingsSection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
-import {
-  getUserOAuthProvidersAction,
-  updateUserNameAction,
-} from '@/app/actions/account/userSettings.action';
+import { getUserOAuthProvidersAction, updateUserNameAction } from '@/app/actions/account/userSettings.action';
 import { UpdateUserNameSchema } from '@/entities/auth/user.entities';
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -56,20 +54,17 @@ export default function UserProfileSettings() {
     },
   });
 
-  const handleCommitName = () => {
-    if (isPending) return;
-    const trimmed = name.trim();
-    if (trimmed === '') {
-      setName(sessionName);
-      return;
-    }
-    if (trimmed === sessionName.trim()) {
-      return;
-    }
+  const trimmedName = name.trim();
+  const canSubmitName = trimmedName !== '' && trimmedName !== sessionName.trim() && !isPending;
+
+  const handleSubmitName = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmitName) return;
     startTransition(async () => {
-      const payload = UpdateUserNameSchema.parse({ name: trimmed });
+      const payload = UpdateUserNameSchema.parse({ name: trimmedName });
       const result = await updateUserNameAction(payload);
       if (result.success) {
+        toast.success(t('toast.nameSuccess'));
         refreshSession();
       } else {
         setName(sessionName);
@@ -84,26 +79,30 @@ export default function UserProfileSettings() {
 
   return (
     <UserSettingsSection title={t('title')}>
-      <div className='space-y-2'>
+      <form onSubmit={handleSubmitName} className='space-y-2'>
         <Label htmlFor='name' className='text-sm font-medium'>
           {t('nameLabel')}
         </Label>
-        <Input
-          id='name'
-          type='text'
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={handleCommitName}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.currentTarget.blur();
-            }
-          }}
-          maxLength={64}
-          disabled={isPending}
-          placeholder={t('namePlaceholder')}
-        />
-      </div>
+        <div className='flex items-center gap-2'>
+          <Input
+            id='name'
+            type='text'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={64}
+            disabled={isPending}
+            placeholder={t('namePlaceholder')}
+          />
+          <Button
+            type='submit'
+            variant='outline'
+            disabled={!canSubmitName}
+            className='flex-shrink-0 cursor-pointer'
+          >
+            {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('updateButton')}
+          </Button>
+        </div>
+      </form>
 
       <div className='space-y-2'>
         <div className='flex items-center justify-between gap-2'>
@@ -132,9 +131,7 @@ export default function UserProfileSettings() {
           )}
         </div>
         <Input id='email' type='email' value={email} disabled readOnly />
-        {memberSince && (
-          <p className='text-muted-foreground text-xs'>{t('memberSince', { date: memberSince })}</p>
-        )}
+        {memberSince && <p className='text-muted-foreground text-xs'>{t('memberSince', { date: memberSince })}</p>}
       </div>
     </UserSettingsSection>
   );

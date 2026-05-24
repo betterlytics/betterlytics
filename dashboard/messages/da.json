@@ -2785,7 +2785,11 @@
         "verified": "Bekræftet",
         "unverified": "Ikke bekræftet",
         "signedInWith": "Logget ind med {provider}",
-        "memberSince": "Medlem siden {date}"
+        "memberSince": "Medlem siden {date}",
+        "updateButton": "Opdater",
+        "toast": {
+          "nameSuccess": "Navn opdateret"
+        }
       },
       "preferences": {
         "appearance": {

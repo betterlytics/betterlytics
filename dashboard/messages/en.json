@@ -2779,7 +2779,11 @@
         "verified": "Verified",
         "unverified": "Unverified",
         "signedInWith": "Signed in with {provider}",
-        "memberSince": "Member since {date}"
+        "memberSince": "Member since {date}",
+        "updateButton": "Update",
+        "toast": {
+          "nameSuccess": "Name updated"
+        }
       },
       "preferences": {
         "appearance": {
