@@ -139,6 +139,19 @@ export const SubscriptionEndingSoonCandidateSchema = z.object({
   currentPeriodEnd: z.date(),
 });
 
+export const InvoiceStatusSchema = z.enum(['draft', 'open', 'paid', 'uncollectible', 'void']);
+
+export const UserInvoiceSchema = z.object({
+  id: z.string(),
+  number: z.string().nullable(),
+  created: z.date(),
+  total: z.number(),
+  currency: z.string(),
+  status: InvoiceStatusSchema.nullable(),
+  hostedInvoiceUrl: z.string().nullable(),
+  invoicePdf: z.string().nullable(),
+});
+
 export const UserBillingDataSchema = z.object({
   subscription: z.object({
     tier: TierSchema,
@@ -165,3 +178,5 @@ export type SubscriptionWithOwnedSites = z.infer<typeof SubscriptionWithOwnedSit
 export type SubscriptionEndingSoonCandidate = z.infer<typeof SubscriptionEndingSoonCandidateSchema>;
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
 export type UserBillingData = z.infer<typeof UserBillingDataSchema>;
+export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
+export type UserInvoice = z.infer<typeof UserInvoiceSchema>;

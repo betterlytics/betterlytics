@@ -2842,6 +2842,23 @@
           "description": "Betalingsmetode, fakturaer og faktureringsoplysninger.",
           "openPortal": "Åbn faktureringsportal"
         },
+        "invoices": {
+          "title": "Fakturaer",
+          "view": "Vis",
+          "columns": {
+            "date": "Dato",
+            "total": "Beløb",
+            "status": "Status",
+            "actions": "Handlinger"
+          },
+          "status": {
+            "draft": "Kladde",
+            "open": "Åben",
+            "paid": "Betalt",
+            "uncollectible": "Uinddrivelig",
+            "void": "Annulleret"
+          }
+        },
         "cancellation": {
           "title": "Annullering",
           "label": "Annullér abonnement",

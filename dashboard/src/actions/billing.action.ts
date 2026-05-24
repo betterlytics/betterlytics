@@ -2,7 +2,12 @@
 
 import { withUserAuth, withDashboardAuthContext } from '@/auth/auth-actions';
 import { getUserBillingStats, getDashboardOwnerBillingStats } from '@/services/billing/billing.service';
-import { type UserBillingData, buildSelfHostedBillingData } from '@/entities/billing/billing.entities';
+import { listUserInvoices } from '@/services/billing/invoice.service';
+import {
+  type UserBillingData,
+  type UserInvoice,
+  buildSelfHostedBillingData,
+} from '@/entities/billing/billing.entities';
 import { User } from 'next-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -13,6 +18,14 @@ export const getUserBillingData = withUserAuth(async (user: User): Promise<UserB
   }
 
   return getUserBillingStats(user.id);
+});
+
+export const getUserInvoices = withUserAuth(async (user: User): Promise<UserInvoice[]> => {
+  if (!isFeatureEnabled('enableBilling')) {
+    return [];
+  }
+
+  return listUserInvoices(user.id);
 });
 
 export const getDashboardOwnerBillingData = withDashboardAuthContext(

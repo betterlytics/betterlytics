@@ -2836,6 +2836,23 @@
           "description": "Payment method, invoices, and billing details.",
           "openPortal": "Open Billing Portal"
         },
+        "invoices": {
+          "title": "Invoices",
+          "view": "View",
+          "columns": {
+            "date": "Date",
+            "total": "Total",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "status": {
+            "draft": "Draft",
+            "open": "Open",
+            "paid": "Paid",
+            "uncollectible": "Uncollectible",
+            "void": "Void"
+          }
+        },
         "cancellation": {
           "title": "Cancellation",
           "label": "Cancel subscription",

@@ -14,6 +14,7 @@ import { formatPrice } from '@/utils/pricing';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
+import UserBillingInvoicesSettings from './UserBillingInvoicesSettings';
 
 interface UserBillingSettingsProps {
   onCloseDialog?: () => void;
@@ -139,6 +140,8 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
           />
         </UserSettingsSection>
       )}
+
+      <UserBillingInvoicesSettings />
 
       {isPaid && isActive && !isCanceled && (
         <UserSettingsSection title={t('cancellation.title')}>

@@ -2850,6 +2850,23 @@
           "description": "Metodo di pagamento, fatture e dettagli di fatturazione.",
           "openPortal": "Apri portale di fatturazione"
         },
+        "invoices": {
+          "title": "Fatture",
+          "view": "Visualizza",
+          "columns": {
+            "date": "Data",
+            "total": "Totale",
+            "status": "Stato",
+            "actions": "Azioni"
+          },
+          "status": {
+            "draft": "Bozza",
+            "open": "Aperta",
+            "paid": "Pagata",
+            "uncollectible": "Non riscuotibile",
+            "void": "Annullata"
+          }
+        },
         "cancellation": {
           "title": "Annullamento",
           "label": "Annulla abbonamento",
