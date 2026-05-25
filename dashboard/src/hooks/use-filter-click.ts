@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
+import { MAX_FILTER_ROWS, type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
@@ -18,9 +18,15 @@ export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
   const { isDemo } = useDashboardAuth();
   const t = useTranslations('components.demoMode');
+  const tFilters = useTranslations('components.filters');
 
   const defaultOperator: FilterOperator = defaults?.operator ?? '=';
   const defaultBehavior: Behavior = defaults?.behavior ?? 'replace-same-column';
+
+  const notifyCapReached = useCallback(
+    () => toast.warning(tFilters('selector.maxFiltersReachedToast', { max: MAX_FILTER_ROWS })),
+    [tFilters],
+  );
 
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {
@@ -32,6 +38,8 @@ export function useFilterClick(defaults?: Options) {
       const operator: FilterOperator = (opts?.operator ?? defaultOperator) as FilterOperator;
       const behavior: Behavior = (opts?.behavior ?? defaultBehavior) as Behavior;
 
+      const atCap = queryFilters.length >= MAX_FILTER_ROWS;
+
       if (behavior === 'toggle') {
         const existing = queryFilters.find(
           (f) => f.column === column && f.operator === operator && f.values[0] === value,
@@ -40,16 +48,30 @@ export function useFilterClick(defaults?: Options) {
           removeQueryFilter(existing.id);
           return;
         }
+        if (atCap) {
+          notifyCapReached();
+          return;
+        }
         addQueryFilter({ column, operator, values: [value] });
         return;
       }
 
       if (behavior === 'replace-same-column') {
+        // Replacing an existing column keeps the count the same, so only a brand-new column is capped.
+        const replacesExistingColumn = queryFilters.some((f) => f.column === column);
+        if (atCap && !replacesExistingColumn) {
+          notifyCapReached();
+          return;
+        }
         setQueryFilters((fs) => fs.filter((f) => f.column !== column));
         addQueryFilter({ column, operator, values: [value] });
         return;
       }
 
+      if (atCap) {
+        notifyCapReached();
+        return;
+      }
       addQueryFilter({ column, operator, values: [value] });
     },
     [
@@ -61,6 +83,7 @@ export function useFilterClick(defaults?: Options) {
       defaultBehavior,
       isDemo,
       t,
+      notifyCapReached,
     ],
   );
 

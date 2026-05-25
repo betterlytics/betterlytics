@@ -8,7 +8,7 @@ import { MAX_FILTER_ROWS, QueryFilterSchema } from '@/entities/analytics/filter.
 export const FilterQueryParamsSchema = z.object({
   queryFilters: z.preprocess((val) => {
     if (Array.isArray(val)) {
-      return val.map((filter) => {
+      return val.slice(0, MAX_FILTER_ROWS).map((filter) => {
         if (typeof filter === 'object' && filter !== null && 'value' in filter && !('values' in filter)) {
           const { value, ...rest } = filter as Record<string, unknown>;
           return { ...rest, values: [value] };
@@ -17,7 +17,7 @@ export const FilterQueryParamsSchema = z.object({
       });
     }
     return val;
-  }, z.array(QueryFilterSchema).max(MAX_FILTER_ROWS)),
+  }, z.array(QueryFilterSchema)),
   granularity: z.enum(GRANULARITY_RANGE_VALUES),
   startDate: z.date(),
   endDate: z.date(),
