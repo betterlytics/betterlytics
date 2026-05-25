@@ -1,11 +1,17 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { importPage } from "nextra/pages";
-import { getBlogPostBySlug, getBlogPosts } from "../lib/registry";
+import {
+  getAdjacentPosts,
+  getBlogPostBySlug,
+  getBlogPosts,
+} from "../lib/registry";
 import { BlogPostHeader } from "../components/BlogPostHeader";
 import { BlogPostFooter } from "../components/BlogPostFooter";
 import { BlogStructuredData } from "../components/BlogStructuredData";
 import { BlogFAQ } from "../components/BlogFAQ";
+import { BlogAnchor } from "../components/BlogAnchor";
+import { BlogToc } from "../components/BlogToc";
 import {
   blogPostCanonicalUrl,
   buildArticleJsonLd,
@@ -38,11 +44,11 @@ export async function generateMetadata(props: {
 
   const author = getAuthor(post.frontmatter.author);
   const url = blogPostCanonicalUrl(post.slug);
-  const ogImage =
-    post.frontmatter.ogImage ?? post.frontmatter.coverImage.src;
-  const absoluteOgImage = ogImage.startsWith("http")
-    ? ogImage
-    : `${SITE_URL}${ogImage}`;
+  const ogImageUrl = post.frontmatter.ogImage
+    ? post.frontmatter.ogImage.startsWith("http")
+      ? post.frontmatter.ogImage
+      : `${SITE_URL}${post.frontmatter.ogImage}`
+    : `${SITE_URL}/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
 
   return {
     title: `${post.frontmatter.title} | Betterlytics Blog`,
@@ -64,10 +70,10 @@ export async function generateMetadata(props: {
       tags: post.frontmatter.tags,
       images: [
         {
-          url: absoluteOgImage,
-          width: post.frontmatter.coverImage.width,
-          height: post.frontmatter.coverImage.height,
-          alt: post.frontmatter.coverImage.alt,
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.frontmatter.title,
         },
       ],
     },
@@ -75,7 +81,7 @@ export async function generateMetadata(props: {
       card: "summary_large_image",
       title: post.frontmatter.title,
       description: post.frontmatter.description,
-      images: [absoluteOgImage],
+      images: [ogImageUrl],
     },
   };
 }
@@ -92,9 +98,10 @@ export default async function BlogPostPage(props: {
 
   const page = await importPage(["blog", slug]);
   const { default: MDXContent } = page;
+  const { previous, next } = await getAdjacentPosts(slug);
 
   return (
-    <article className="bg-background">
+    <>
       <BlogStructuredData
         id="blog-article-jsonld"
         data={buildArticleJsonLd(post)}
@@ -105,16 +112,25 @@ export default async function BlogPostPage(props: {
           data={buildFaqJsonLd(post.frontmatter.faqs)}
         />
       )}
-      <BlogPostHeader post={post} />
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div className="blog-prose">
-          <MDXContent />
+
+      <article className="post-wrap">
+        <div className="post-grid">
+          <div className="post-main">
+            <BlogPostHeader post={post} />
+            <div className="blog-prose">
+              <MDXContent components={{ a: BlogAnchor }} />
+            </div>
+            {post.frontmatter.faqs.length > 0 && (
+              <BlogFAQ items={post.frontmatter.faqs} />
+            )}
+            <BlogPostFooter post={post} previous={previous} next={next} />
+          </div>
+
+          <div className="post-aside-right">
+            <BlogToc />
+          </div>
         </div>
-        {post.frontmatter.faqs.length > 0 && (
-          <BlogFAQ items={post.frontmatter.faqs} />
-        )}
-      </div>
-      <BlogPostFooter post={post} />
-    </article>
+      </article>
+    </>
   );
 }

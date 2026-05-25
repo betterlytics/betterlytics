@@ -1,27 +1,92 @@
 import Link from "next/link";
 import { type BlogPost } from "../lib/registry";
+import { GitHubIcon } from "../../components/SocialIcons";
 
 type Props = {
   post: BlogPost;
+  previous?: BlogPost;
+  next?: BlogPost;
 };
 
-export function BlogPostFooter({ post }: Props) {
-  const { citations } = post.frontmatter;
+function ArrowRightIcon() {
+  return (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function ArrowLeftIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+
+function NextArrowIcon() {
+  return (
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+export function BlogPostFooter({ post, previous, next }: Props) {
+  const { citations, tags } = post.frontmatter;
 
   return (
-    <footer className="mx-auto max-w-3xl px-4 pt-12 pb-16 sm:px-6 lg:px-8">
+    <div className="post-footer">
+      {tags.length > 0 && (
+        <div className="footer-tags">
+          {tags.map((t) => (
+            <Link key={t} href={`/blog?tag=${encodeURIComponent(t)}`} className="tag">
+              #{t.toLowerCase()}
+            </Link>
+          ))}
+        </div>
+      )}
+
       {citations.length > 0 && (
-        <section className="border-border border-t pt-8">
-          <h2 className="text-foreground text-xl font-semibold">Sources</h2>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm">
+        <section className="post-sources">
+          <h2>Sources</h2>
+          <ol>
             {citations.map((c) => (
-              <li key={c.url} className="text-muted-foreground">
-                <a
-                  href={c.url}
-                  className="hover:text-foreground underline-offset-2 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+              <li key={c.url}>
+                <a href={c.url} target="_blank" rel="noopener noreferrer">
                   {c.label}
                 </a>
               </li>
@@ -30,39 +95,55 @@ export function BlogPostFooter({ post }: Props) {
         </section>
       )}
 
-      <section className="bg-card border-border mt-12 overflow-hidden rounded-2xl border p-8 sm:p-10">
-        <h2 className="text-foreground text-2xl font-bold tracking-tight">
-          Try Betterlytics free
-        </h2>
-        <p className="text-muted-foreground mt-3 max-w-2xl">
-          Privacy-first, cookieless analytics with session replay, error
-          tracking, and uptime monitoring in one dashboard. EU-hosted on Hetzner.
-          Free up to 10,000 events per month.
+      <div className="cta-block">
+        <h3>Try Betterlytics</h3>
+        <p>
+          One dashboard for analytics, session replay, errors, uptime, and
+          Core Web Vitals. Cookieless by default, EU-hosted, open source under
+          AGPL-3.0.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href="/signup"
-            className="bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center rounded-md px-5 py-2.5 text-sm font-semibold transition-opacity"
+        <div className="cta-row">
+          <a
+            className="btn btn-primary"
+            href="https://betterlytics.io/signup"
           >
-            Get started — it&apos;s free
-          </Link>
-          <Link
-            href="/pricing"
-            className="border-border text-foreground hover:bg-muted inline-flex items-center rounded-md border px-5 py-2.5 text-sm font-semibold transition-colors"
+            Get started free <ArrowRightIcon />
+          </a>
+          <a
+            className="btn btn-outline"
+            href="https://github.com/betterlytics/betterlytics"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            See pricing
-          </Link>
+            <GitHubIcon className="h-3.5 w-3.5" /> Source on GitHub
+          </a>
         </div>
-      </section>
-
-      <div className="mt-10 text-sm">
-        <Link
-          href="/blog"
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          ← Back to all posts
-        </Link>
       </div>
-    </footer>
+
+      {(previous || next) && (
+        <div className="next-row">
+          {previous ? (
+            <Link className="next-card" href={previous.url}>
+              <span className="dir">
+                <ArrowLeftIcon /> Previous
+              </span>
+              <span className="ttl">{previous.frontmatter.title}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <Link className="next-card right" href={next.url}>
+              <span className="dir">
+                Next <NextArrowIcon />
+              </span>
+              <span className="ttl">{next.frontmatter.title}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+        </div>
+      )}
+    </div>
   );
 }

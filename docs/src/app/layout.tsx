@@ -1,4 +1,5 @@
 import { Head } from "nextra/components";
+import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { Metadata } from "next";
 import NextTopLoader from "nextjs-toploader";
@@ -8,6 +9,17 @@ import { docsTrackingEnabled, env } from "@/lib/env";
 export const metadata: Metadata = {
   metadataBase: new URL("https://betterlytics.io"),
 };
+
+const robotoSans = Inter({
+  variable: "--font-roboto-sans",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const robotoMono = Inter_Tight({
+  variable: "--font-roboto-mono",
+  subsets: ["latin"],
+});
 
 export default async function RootLayout({
   children,
@@ -21,6 +33,11 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <Head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -39,7 +56,7 @@ export default async function RootLayout({
           }}
         />
       </Head>
-      <body>
+      <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         {docsTrackingEnabled && (
           <Script
             async

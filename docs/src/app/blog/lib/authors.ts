@@ -9,6 +9,10 @@ export const AUTHORS: Record<string, Author> = {
     name: "The Betterlytics Team",
     role: "Engineering & Product",
   },
+  thomas: {
+    name: "Thomas Schauser",
+    role: "Co-founder & Engineer",
+  },
 };
 
 export function getAuthor(key: string): Author {

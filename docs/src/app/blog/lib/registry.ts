@@ -53,17 +53,14 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     const parsed = blogFrontmatterSchema.safeParse(fm);
     if (!parsed.success) {
       throw new Error(
-        `Invalid frontmatter in content/blog/${fileSlug}.mdx:\n${parsed.error.message}`
+        `Invalid frontmatter in content/blog/${fileSlug}.mdx:\n${parsed.error.message}`,
       );
     }
     const frontmatter = parsed.data;
     if (frontmatter.draft && !SHOW_DRAFTS) continue;
 
     const slug = frontmatter.slug || fileSlug;
-    const raw = readFileSync(
-      join(BLOG_CONTENT_DIR, `${fileSlug}.mdx`),
-      "utf8"
-    );
+    const raw = readFileSync(join(BLOG_CONTENT_DIR, `${fileSlug}.mdx`), "utf8");
 
     posts.push({
       frontmatter,
@@ -76,7 +73,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   posts.sort(
     (a, b) =>
       new Date(b.frontmatter.publishedAt).getTime() -
-      new Date(a.frontmatter.publishedAt).getTime()
+      new Date(a.frontmatter.publishedAt).getTime(),
   );
 
   cached = posts;
@@ -84,8 +81,21 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getBlogPostBySlug(
-  slug: string
+  slug: string,
 ): Promise<BlogPost | undefined> {
   const posts = await getBlogPosts();
   return posts.find((p) => p.slug === slug);
+}
+
+export async function getAdjacentPosts(
+  slug: string,
+): Promise<{ previous?: BlogPost; next?: BlogPost }> {
+  // Posts are sorted newest-first. "Previous" = older, "Next" = newer.
+  const posts = await getBlogPosts();
+  const i = posts.findIndex((p) => p.slug === slug);
+  if (i === -1) return {};
+  return {
+    next: posts[i - 1],
+    previous: posts[i + 1],
+  };
 }

@@ -14,8 +14,15 @@ export function blogIndexCanonicalUrl(): string {
 export function buildArticleJsonLd(post: BlogPost) {
   const author = getAuthor(post.frontmatter.author);
   const url = blogPostCanonicalUrl(post.slug);
-  const image = post.frontmatter.ogImage ?? post.frontmatter.coverImage.src;
-  const absoluteImage = image.startsWith("http") ? image : `${SITE_URL}${image}`;
+  // Social/structured-data image: explicit ogImage → photo cover → the dark OG
+  // route (not the light in-page texture cover).
+  const image =
+    post.frontmatter.ogImage ??
+    post.frontmatter.coverImage?.src ??
+    `/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
+  const absoluteImage = image.startsWith("http")
+    ? image
+    : `${SITE_URL}${image}`;
 
   return {
     "@context": "https://schema.org",

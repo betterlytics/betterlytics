@@ -1,7 +1,9 @@
 import { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { getBlogPosts } from "./lib/registry";
-import { BlogPostCard } from "./components/BlogPostCard";
-import { BlogIndexHero } from "./components/BlogIndexHero";
+import { getAuthor } from "./lib/authors";
+import { resolveCover } from "./lib/cover";
 import { BlogStructuredData } from "./components/BlogStructuredData";
 import { blogIndexCanonicalUrl, buildBlogIndexJsonLd } from "./lib/seo";
 
@@ -28,10 +30,38 @@ export const metadata: Metadata = {
   },
 };
 
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function initials(name: string): string {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((s) => s[0])
+      .join("")
+      .toUpperCase()
+  );
+}
+
 export default async function BlogIndexPage() {
   const posts = await getBlogPosts();
-  const featured = posts.filter((p) => p.frontmatter.featured);
-  const standard = posts.filter((p) => !p.frontmatter.featured);
+
+  // Featured = newest post flagged `featured` (posts are newest-first), else
+  // the newest post. The rest fill the grid.
+  const featured = posts.find((p) => p.frontmatter.featured) ?? posts[0];
+  const rest = featured
+    ? posts.filter((p) => p.slug !== featured.slug)
+    : posts;
+
+  const featuredCover = featured ? resolveCover(featured) : null;
+  const featuredAuthor = featured ? getAuthor(featured.frontmatter.author) : null;
 
   return (
     <>
@@ -39,27 +69,90 @@ export default async function BlogIndexPage() {
         id="blog-index-jsonld"
         data={buildBlogIndexJsonLd(posts)}
       />
-      <BlogIndexHero />
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div className="blog-index">
+        <div className="index-head">
+          <h1>Blog</h1>
+          <p>
+            News, deep dives, and changelog notes from the team building
+            Betterlytics.
+          </p>
+        </div>
+
         {posts.length === 0 ? (
-          <p className="text-muted-foreground">No posts yet. Check back soon.</p>
+          <p className="bi-empty">No posts yet. Check back soon.</p>
         ) : (
-          <div className="space-y-8">
-            {featured.length > 0 && (
-              <div className="space-y-8">
-                {featured.map((post) => (
-                  <BlogPostCard key={post.slug} post={post} featured />
-                ))}
-              </div>
+          <>
+            {featured && featuredCover && (
+              <Link href={featured.url} className="featured">
+                <div className="bi-cover ft-cover">
+                  <Image
+                    src={featuredCover.src}
+                    alt={featuredCover.alt}
+                    fill
+                    priority
+                    unoptimized={featuredCover.generated}
+                    sizes="(min-width: 768px) 55vw, 100vw"
+                  />
+                </div>
+                <div className="ft-body">
+                  <div className="ft-cat">
+                    Featured
+                    {featured.frontmatter.tags[0]
+                      ? ` · ${featured.frontmatter.tags[0]}`
+                      : ""}
+                  </div>
+                  <h2 className="ft-title">{featured.frontmatter.title}</h2>
+                  <p className="ft-excerpt">
+                    {featured.frontmatter.description}
+                  </p>
+                  <div className="ft-meta">
+                    {featuredAuthor && (
+                      <>
+                        <span className="bi-avatar">
+                          {initials(featuredAuthor.name)}
+                        </span>
+                        <span className="name">{featuredAuthor.name}</span>
+                        <span className="sep">·</span>
+                      </>
+                    )}
+                    <span>{formatDate(featured.frontmatter.publishedAt)}</span>
+                    <span className="sep">·</span>
+                    <span className="reading">
+                      {featured.readingTimeMinutes} min read
+                    </span>
+                  </div>
+                </div>
+              </Link>
             )}
-            {standard.length > 0 && (
-              <div className="grid gap-8 sm:grid-cols-1">
-                {standard.map((post) => (
-                  <BlogPostCard key={post.slug} post={post} />
-                ))}
-              </div>
-            )}
-          </div>
+
+            <div className="bi-grid">
+              {rest.map((p) => {
+                const cover = resolveCover(p);
+                const category = p.frontmatter.tags[0];
+                return (
+                  <Link key={p.slug} href={p.url} className="grid-card">
+                    <div className="bi-cover gc-cover">
+                      <Image
+                        src={cover.src}
+                        alt={cover.alt}
+                        fill
+                        unoptimized={cover.generated}
+                        sizes="(min-width: 900px) 33vw, (min-width: 600px) 50vw, 100vw"
+                      />
+                    </div>
+                    {category && <div className="gc-cat">{category}</div>}
+                    <h3 className="gc-title">{p.frontmatter.title}</h3>
+                    <p className="gc-excerpt">{p.frontmatter.description}</p>
+                    <div className="gc-meta">
+                      <span>{formatDate(p.frontmatter.publishedAt)}</span>
+                      <span className="sep">·</span>
+                      <span>{p.readingTimeMinutes} min read</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </>

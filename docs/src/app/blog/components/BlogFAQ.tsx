@@ -13,7 +13,7 @@ export function BlogFAQ({ items, heading = "Frequently asked questions" }: Props
       <h2 className="text-foreground text-2xl font-bold tracking-tight">
         {heading}
       </h2>
-      <div className="border-border mt-6 divide-y rounded-xl border">
+      <div className="border-border mt-6 divide-y overflow-hidden rounded-xl border">
         {items.map((item, i) => (
           <details
             key={i}
