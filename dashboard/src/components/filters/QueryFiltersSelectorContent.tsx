@@ -98,7 +98,7 @@ export function QueryFiltersSelectorContent({
 
   const ActionsRow = (
     <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-      <DisabledTooltip disabled={atCap} message={t('selector.maxFiltersReached')}>
+      <DisabledTooltip disabled={atCap} message={t('selector.maxFiltersReached', { max: MAX_FILTER_ROWS })}>
         {(isCapDisabled) => (
           <PermissionGate allowViewer when={queryFilters.length >= 1}>
             {(isPermDisabled) => (

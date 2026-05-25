@@ -2406,7 +2406,7 @@
         "toastFilterDeletedError": "Failed to delete filter",
         "toastUndo": "Undo",
         "savedFiltersLimitReached": "Maximum saved filters reached",
-        "maxFiltersReached": "Maximum filters reached"
+        "maxFiltersReached": "Maximum {max} filters"
       },
       "filterBy": "Filter by {label}",
       "removeFilter": "Remove filter"
