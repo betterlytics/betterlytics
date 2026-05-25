@@ -3,7 +3,6 @@ import {
   UserSettings,
   UserSettingsSchema,
   UserSettingsUpdate,
-  UserSettingsUpdateSchema,
   UserSettingsCreateSchema,
 } from '@/entities/account/userSettings.entities';
 
@@ -26,13 +25,9 @@ export async function findSettingsByUserId(userId: string): Promise<UserSettings
 
 export async function updateUserSettings(userId: string, updates: UserSettingsUpdate): Promise<UserSettings> {
   try {
-    const validatedUpdates = UserSettingsUpdateSchema.parse(updates);
-
-    const data = Object.fromEntries(Object.entries(validatedUpdates).filter(([_, value]) => value !== undefined));
-
     const updatedSettings = await prisma.userSettings.update({
       where: { userId },
-      data,
+      data: updates,
     });
 
     return UserSettingsSchema.parse(updatedSettings);

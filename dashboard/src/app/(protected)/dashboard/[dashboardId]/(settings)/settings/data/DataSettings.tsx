@@ -2,8 +2,8 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
-import SettingsSection from '../SettingsSection';
-import SettingsPageHeader from '../SettingsPageHeader';
+import SettingsSection from '@/components/settings/SettingsSection';
+import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { useSettings } from '@/contexts/SettingsProvider';

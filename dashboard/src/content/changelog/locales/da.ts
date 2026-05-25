@@ -1,50 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v142ChangelogEntryDa: ChangelogEntryData = {
+const v143ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.2',
-    releasedAt: '2026-05-17',
-    title: 'Globale egenskaber i funnels, filter for udgående links og smartere referrergruppering',
+    version: 'v1.4.3',
+    releasedAt: '2026-05-24',
+    title: 'Opdaterede kontoindstillinger og styrket sikkerhed',
     summary:
-      'Filtrér funnel-trin efter Globale egenskaber, segmentér analyser efter udgående links, og få mere præcis gruppering af referrers. Denne udgivelse hæver også den korteste tilladte periode for dataopbevaring og retter en fejl, der gjorde session replays uafspilelige.',
+      'En redesignet dialog for brugerindstillinger, nye muligheder for at administrere aktive sessioner, styrkede kontroller omkring tofaktorgodkendelse samt en håndfuld rettelser og finpudsninger.',
   },
   sections: [
     {
-      id: 'v142-new-features',
-      title: 'Nye funktioner',
+      id: 'v143-security',
+      title: 'Sikkerhed',
       blocks: [
         {
           type: 'list',
           items: [
-            'Funnels understøtter nu Globale egenskaber. Du kan nu filtrere funnel-trin efter alle de globale egenskaber, du knytter til dine events — præcis som andre steder i dashboardet.',
-            'Et nyt filter for udgående links gør det muligt at filtrere og segmentere analyser efter, hvilke eksterne URL\'er besøgende har klikket på.',
+            'Du kan nu logge ud af alle andre aktive sessioner direkte fra dine kontoindstillinger.',
+            'Deaktivering af tofaktorgodkendelse kræver nu en gyldig TOTP-kode, hvilket giver ekstra beskyttelse mod uautoriserede ændringer.',
+            'Tofaktorgodkendelse tilbydes ikke længere for konti, der logger ind via Google eller GitHub, da udbyderen allerede håndterer det.',
           ],
         },
       ],
     },
     {
-      id: 'v142-improvements',
+      id: 'v143-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Gruppering af referrers er nu markant mere præcis, så trafikkilder samles mere ensartet i hele dashboardet.',
-            'Den korteste tilladte periode for dataopbevaring er hævet fra 3 til 6 måneder (session replay er fortsat 2 måneder).',
-            'Mindre forbedringer i brugeroplevelse og tilgængelighed på tværs af filtre, dashboard-kort og login-formularen.',
+            'Dialogen for brugerindstillinger er blevet redesignet med et mere moderne og overskueligt layout.',
+            'Favicons for dashboard-domæner hentes nu mere pålideligt for flere websteder.',
+            'Mindre UI-finpudsninger på tværs af dashboardet.',
           ],
         },
       ],
     },
     {
-      id: 'v142-fixes',
+      id: 'v143-fixes',
       title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Rettet et problem, hvor session replays ikke kunne hente deres segmenter, så optagelser ikke kunne afspilles.',
-            'Ironisk nok rettet en fejl, hvor det at indsende en fejlrapport uden for et dashboard selv slog fejl.',
+            'Rettet et problem, hvor brugere uden et navn på deres konto ikke kunne opdatere deres indstillinger.',
+            'Rettet et problem, hvor det viste tema ikke længere stemte overens med den gemte indstilling, hvis man annullerede et temaskifte.',
           ],
         },
       ],
@@ -52,10 +53,61 @@ const v142ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v142ChangelogEntryDa;
+export const latestChangelogModalDa = v143ChangelogEntryDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
-  v142ChangelogEntryDa,
+  v143ChangelogEntryDa,
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Globale egenskaber i funnels, filter for udgående links og smartere referrergruppering',
+      summary:
+        'Filtrér funnel-trin efter Globale egenskaber, segmentér analyser efter udgående links, og få mere præcis gruppering af referrers. Denne udgivelse hæver også den korteste tilladte periode for dataopbevaring og retter en fejl, der gjorde session replays uafspilelige.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels understøtter nu Globale egenskaber. Du kan nu filtrere funnel-trin efter alle de globale egenskaber, du knytter til dine events — præcis som andre steder i dashboardet.',
+              "Et nyt filter for udgående links gør det muligt at filtrere og segmentere analyser efter, hvilke eksterne URL'er besøgende har klikket på.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gruppering af referrers er nu markant mere præcis, så trafikkilder samles mere ensartet i hele dashboardet.',
+              'Den korteste tilladte periode for dataopbevaring er hævet fra 3 til 6 måneder (session replay er fortsat 2 måneder).',
+              'Mindre forbedringer i brugeroplevelse og tilgængelighed på tværs af filtre, dashboard-kort og login-formularen.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor session replays ikke kunne hente deres segmenter, så optagelser ikke kunne afspilles.',
+              'Ironisk nok rettet en fejl, hvor det at indsende en fejlrapport uden for et dashboard selv slog fejl.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.1',

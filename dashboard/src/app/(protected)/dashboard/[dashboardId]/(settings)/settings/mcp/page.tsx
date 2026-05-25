@@ -1,7 +1,7 @@
 import { getMcpTokensAction } from '@/app/actions/dashboard/mcpToken.action';
 import { getTranslations } from 'next-intl/server';
-import SettingsPageHeader from '../SettingsPageHeader';
-import SettingsSection from '../SettingsSection';
+import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
+import SettingsSection from '@/components/settings/SettingsSection';
 import { McpTokenManager } from './McpTokenManager';
 
 interface McpPageProps {

@@ -1,8 +1,9 @@
+'use client';
+
 import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/actions/auth/totp.action';
-import SettingsCard from '@/components/SettingsCard';
+import SettingRow from '../shared/SettingRow';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -15,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
-import { Check, Clipboard, KeySquare, Loader2, Trash2 } from 'lucide-react';
+import { Check, Clipboard, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import QRCode from 'react-qr-code';
@@ -50,7 +51,7 @@ function SetupTotp() {
           setTotpUrl(url.data);
           setIsDialogOpen(open);
         } else {
-          toast.error('Failed to setup two-factor authentication. Please try again.');
+          toast.error(t('setupFailed'));
         }
       });
     }
@@ -67,7 +68,7 @@ function SetupTotp() {
       setTotpSecretCopied(true);
       setTimeout(() => setTotpSecretCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error(t('copyFailed'));
     }
   };
 
@@ -79,11 +80,11 @@ function SetupTotp() {
       if (enabled.success) {
         await setSession({ totpEnabled: true });
         setIsDialogOpen(false);
-        toast.success('Two-factor authentication enabled successfully');
+        toast.success(t('enabledSuccess'));
       } else {
         setTotp('');
         totpInputRef.current?.focus();
-        toast.error('Failed to enable two-factor authentication. Please try again.');
+        toast.error(t('enableFailed'));
       }
     });
   };
@@ -103,8 +104,8 @@ function SetupTotp() {
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
       <AlertDialogTrigger asChild>
-        <Button className='w-full cursor-pointer sm:w-auto' disabled={isPending || isDialogOpen}>
-          {isPending || isDialogOpen ? <Loader2 className='h-4 w-4 animate-spin' /> : t('enable')}
+        <Button variant='outline' size='sm' disabled={isPending} className='cursor-pointer'>
+          {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('enable')}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent
@@ -157,49 +158,75 @@ function SetupTotp() {
 function DisableTotp() {
   const t = useTranslations('components.userSettings.security.totp');
   const { update: setSession } = useSession();
+  const totpInputRef = useRef<HTMLInputElement>(null);
+  const [totp, setTotp] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleDisableTotp = () => {
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      setTotp('');
+    }
+    setIsDialogOpen(open);
+  };
+
+  const handleDialogOpenAutoFocus = (e: Event) => {
+    e.preventDefault();
+    totpInputRef.current?.focus();
+  };
+
+  const handleOnSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
     startTransition(async () => {
-      const disabled = await disableTotpAction();
+      const disabled = await disableTotpAction(totp);
       if (disabled.success) {
         await setSession({ totpEnabled: false });
         setIsDialogOpen(false);
+        setTotp('');
         toast.success(t('disabledSuccess'));
       } else {
+        setTotp('');
+        totpInputRef.current?.focus();
         toast.error(t('disableFailed'));
       }
     });
   };
 
   return (
-    <div className='flex space-x-2'>
-      <div className='flex items-center gap-1 text-sm text-green-600'>
-        <Check className='h-3 w-3' />
-        <span>{t('enabled')}</span>
+    <div className='flex items-center gap-3'>
+      <div className='flex items-center gap-1.5 text-sm text-green-600'>
+        <Check className='h-4 w-4' />
+        <span className='font-medium'>{t('enabled')}</span>
       </div>
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
         <AlertDialogTrigger asChild>
-          <Button variant='link' disabled={isPending} className='text-muted-foreground cursor-pointer'>
-            <Trash2 />
+          <Button variant='outline' size='sm' disabled={isPending} className='cursor-pointer'>
+            {t('disable')}
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent className='w-80'>
+        <AlertDialogContent className='w-80' onOpenAutoFocus={handleDialogOpenAutoFocus}>
           <AlertDialogHeader>
             <AlertDialogTitle className='flex items-center gap-2'>{t('disableTitle')}</AlertDialogTitle>
             <AlertDialogDescription>{t('disableDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>{t('cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDisableTotp}
-              disabled={isPending}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-            >
-              {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('disable')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          <form onSubmit={handleOnSubmit}>
+            <div className='mb-4 flex flex-col gap-4'>
+              <OtpInput value={totp} onValueChange={setTotp} disabled={isPending} ref={totpInputRef} />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+                {t('cancel')}
+              </AlertDialogCancel>
+              <Button
+                type='submit'
+                disabled={isPending || totp.length !== 6}
+                className='bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer'
+              >
+                {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('disable')}
+              </Button>
+            </AlertDialogFooter>
+          </form>
         </AlertDialogContent>
       </AlertDialog>
     </div>
@@ -211,21 +238,19 @@ export default function UserSecurityTotpSettings() {
   const t = useTranslations('components.userSettings.security.totp');
   const hasPassword = Boolean(session?.user?.hasPassword);
 
-  return (
-    <SettingsCard icon={KeySquare} title={t('title')} description={t('description')}>
-      {session?.user.totpEnabled ? (
-        <DisableTotp />
-      ) : hasPassword ? (
-        <SetupTotp />
-      ) : (
-        <DisabledTooltip disabled message={t('managedByOAuth')}>
-          {(isDisabled) => (
-            <Button disabled={isDisabled} className='w-full sm:w-auto'>
-              {t('enable')}
-            </Button>
-          )}
-        </DisabledTooltip>
+  const action = session?.user.totpEnabled ? (
+    <DisableTotp />
+  ) : hasPassword ? (
+    <SetupTotp />
+  ) : (
+    <DisabledTooltip disabled message={t('managedByOAuth')}>
+      {(isDisabled) => (
+        <Button variant='outline' size='sm' disabled={isDisabled} className='cursor-pointer'>
+          {t('enable')}
+        </Button>
       )}
-    </SettingsCard>
+    </DisabledTooltip>
   );
+
+  return <SettingRow label={t('title')} description={t('description')} action={action} />;
 }

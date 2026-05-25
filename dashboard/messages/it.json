@@ -2775,55 +2775,49 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profilo",
+        "account": "Account",
         "preferences": "Preferenze",
-        "usage": "Utilizzo",
-        "billing": "Fatturazione",
-        "security": "Sicurezza",
-        "danger": "Zona pericolosa"
+        "billing": "Fatturazione"
       },
       "dialog": {
         "title": "Impostazioni utente",
         "description": "Gestisci le impostazioni e le preferenze del tuo account.",
-        "loading": "Caricamento impostazioni...",
-        "loadFailed": "Caricamento impostazioni non riuscito",
-        "noSettings": "Nessuna impostazione trovata",
-        "buttons": {
-          "cancel": "Annulla",
-          "saving": "Salvataggio...",
-          "saveChanges": "Salva modifiche"
-        },
         "toast": {
-          "success": "Impostazioni salvate con successo!",
           "error": "Impossibile salvare le impostazioni. Riprova."
+        },
+        "help": {
+          "trigger": "Hai bisogno di aiuto?",
+          "documentation": "Documentazione",
+          "reportBug": "Segnala un bug",
+          "contactSupport": "Contatta l'assistenza"
         }
       },
       "profile": {
         "title": "Profilo",
-        "description": "Modifica le tue informazioni personali",
         "nameLabel": "Nome",
         "namePlaceholder": "Inserisci il tuo nome",
-        "optional": "Opzionale",
         "emailLabel": "Email",
         "verified": "Verificato",
         "unverified": "Non verificato",
-        "updateButton": "Aggiorna profilo",
+        "signedInWith": "Connesso con {provider}",
+        "memberSince": "Membro da {date}",
+        "updateButton": "Aggiorna",
         "toast": {
-          "success": "Profilo aggiornato con successo",
-          "error": "Impossibile aggiornare il profilo. Riprova."
+          "nameSuccess": "Nome aggiornato"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Aspetto",
-          "description": "Personalizza l'aspetto visivo della tua dashboard",
           "themeLabel": "Tema",
+          "themeDescription": "Scegli un tema personale per la dashboard",
           "light": "Chiaro",
           "dark": "Scuro",
           "system": "Sistema"
         },
         "avatar": {
           "label": "Avatar",
+          "description": "Come viene mostrata la tua immagine del profilo",
           "none": "Nessuno",
           "gravatar": "Gravatar",
           "noteIntro": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
@@ -2831,37 +2825,51 @@
         },
         "localization": {
           "title": "Localizzazione",
-          "description": "Imposta le tue preferenze linguistiche",
-          "language": "Lingua"
+          "language": "Lingua",
+          "languageDescription": "Scegli la lingua della dashboard"
         },
         "notifications": {
           "title": "Notifiche",
-          "description": "Configura le tue preferenze di notifica",
-          "emailNotifications": "Notifiche email",
-          "marketingEmails": "Email marketing"
+          "marketingEmails": "Email marketing",
+          "marketingEmailsDescription": "Aggiornamenti sul prodotto, annunci e consigli"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Hai bisogno di più eventi?",
-          "upgradeHint": "Aggiorna il tuo piano per ottenere più eventi e sbloccare funzionalità aggiuntive.",
-          "viewPlans": "Vedi i piani"
+      "billing": {
+        "loadError": "Impossibile caricare i dati di fatturazione.",
+        "currentPlan": {
+          "title": "Piano attuale",
+          "free": "Gratis",
+          "pricePerMonth": "{price} / mese",
+          "renewsOn": "Si rinnova il {date}",
+          "endsOn": "L'abbonamento termina il {date}",
+          "upgrade": "Aggiorna",
+          "changePlan": "Cambia piano"
         },
-        "error": "Impossibile caricare i dati di utilizzo"
-      },
-      "billingPortal": {
-        "title": "Portale di fatturazione",
-        "description": "Gestisci i dettagli di fatturazione e accedi alla cronologia completa",
-        "access": "Accedi al portale di fatturazione",
-        "accessButton": "Apri portale di fatturazione",
-        "explainer": "Visualizza tutte le fatture passate, aggiorna i metodi di pagamento e gestisci la fatturazione tramite il portale clienti sicuro di Stripe.",
-        "notAvailable": "Il portale di fatturazione sarà disponibile una volta effettuato l'upgrade a un piano a pagamento.",
-        "needHelp": "Hai bisogno di aiuto con la fatturazione?",
-        "contactSupport": "Contatta il supporto",
-        "toastError": "Impossibile aprire il portale di fatturazione, riprova."
+        "usage": {
+          "title": "Utilizzo",
+          "eventsLabel": "Eventi",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Si reimposta tra {days} giorni"
+        },
+        "payment": {
+          "title": "Pagamento e fatture",
+          "label": "Gestisci nel portale di fatturazione",
+          "description": "Metodo di pagamento, fatture e dettagli di fatturazione.",
+          "openPortal": "Apri portale di fatturazione"
+        },
+        "cancellation": {
+          "title": "Annullamento",
+          "label": "Annulla abbonamento",
+          "description": "Interrompi la fatturazione al termine del periodo corrente.",
+          "cancel": "Annulla"
+        },
+        "portal": {
+          "openError": "Impossibile aprire il portale di fatturazione, riprova."
+        }
       },
       "security": {
-        "title": "Password e autenticazione",
+        "title": "Sicurezza account",
+        "passwordRowLabel": "Password",
         "description": "Modifica la password del tuo account",
         "currentPassword": "Password attuale",
         "newPassword": "Nuova password",
@@ -2870,12 +2878,14 @@
         "passwordsMatch": "Le password coincidono",
         "changePassword": "Cambia password",
         "passwordManagedByOAuth": "Password gestita da OAuth",
+        "togglePasswordVisibility": "Mostra/nascondi {field}",
+        "cancel": "Annulla",
         "toast": {
           "success": "Password aggiornata con successo"
         },
         "totp": {
           "title": "Autenticazione a due fattori",
-          "description": "Aggiungi un ulteriore livello di sicurezza richiedendo una seconda forma di verifica oltre alla password",
+          "description": "Aggiungi un ulteriore livello di sicurezza al tuo account.",
           "enable": "Abilita 2FA",
           "instructions": "Per abilitare la 2FA, scansiona il QR code con la tua app di autenticazione oppure usa la <setup>chiave di configurazione</setup> per impostarla manualmente, poi inserisci il codice di verifica qui sotto.",
           "cancel": "Annulla",
@@ -2883,17 +2893,34 @@
           "enabled": "Abilitato",
           "disable": "Disabilita",
           "disableTitle": "Disabilita 2FA",
-          "disableDescription": "Sei sicuro di voler disabilitare l'autenticazione a due fattori per il tuo account?",
+          "disableDescription": "Inserisci il codice di verifica dalla tua app di autenticazione per disabilitare l'autenticazione a due fattori.",
           "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
           "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova.",
+          "setupFailed": "Impossibile configurare l'autenticazione a due fattori. Riprova.",
+          "copyFailed": "Impossibile copiare",
+          "enabledSuccess": "Autenticazione a due fattori abilitata con successo",
+          "enableFailed": "Impossibile abilitare l'autenticazione a due fattori. Riprova.",
           "managedByOAuth": "L'autenticazione a due fattori è gestita dal tuo provider di accesso"
         }
       },
+      "sessions": {
+        "title": "Sessioni",
+        "activeCount": "Connesso su {count, plural, =0 {nessun dispositivo} =1 {1 dispositivo} other {# dispositivi}}",
+        "description": "Disconnetti da ovunque tranne che da questo dispositivo.",
+        "signOutOthers": "Disconnetti altri dispositivi",
+        "dialog": {
+          "title": "Disconnettere altri dispositivi?",
+          "description": "Tutte le altre sessioni verranno terminate immediatamente. Il dispositivo attuale rimarrà connesso.",
+          "cancel": "Annulla",
+          "confirm": "Disconnetti altri dispositivi"
+        },
+        "toast": {
+          "success": "Disconnesso da {count, plural, =0 {nessun altro dispositivo} =1 {1 altro dispositivo} other {# altri dispositivi}}."
+        }
+      },
       "danger": {
-        "title": "Elimina account",
-        "description": "Elimina definitivamente il tuo account e tutti i dati associati",
-        "warning": "Attenzione: questa azione non può essere annullata",
-        "details": "Questo eliminerà definitivamente il tuo account, rimuoverà l'accesso a tutte le dashboard e cancellerà tutte le impostazioni personali.",
+        "sectionTitle": "Zona pericolosa",
+        "details": "Elimina definitivamente il tuo account e tutti i dati associati.",
         "delete": "Elimina account",
         "dialog": {
           "title": "Elimina account definitivamente",
