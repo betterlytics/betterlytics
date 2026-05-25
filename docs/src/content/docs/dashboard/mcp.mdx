@@ -3,7 +3,7 @@ title: "MCP Server - Betterlytics"
 description: "Connect AI agents to your Betterlytics analytics data using the Model Context Protocol (MCP)."
 ---
 
-import { Callout } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 # MCP Server
 
@@ -20,11 +20,54 @@ Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)
 
 ### Claude Desktop
 
-Go to **Settings > Connectors**, add a new connector with the following URL and your authorization token:
+Claude Desktop's **Connectors** UI only supports OAuth-based remote servers, so it can't pass a bearer token directly. Use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) proxy instead (requires [Node.js](https://nodejs.org/) installed).
 
+Open **Settings > Developer > Edit Config** to reveal `claude_desktop_config.json`, then add `betterlytics` to `mcpServers`.
+
+<Tabs items={['macOS / Linux', 'Windows']}>
+  <Tabs.Tab>
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://betterlytics.io/api/mcp",
+        "--header",
+        "Authorization:Bearer btl_your_token_here"
+      ]
+    }
+  }
+}
 ```
-https://betterlytics.io/api/mcp
+  </Tabs.Tab>
+  <Tabs.Tab>
+Claude Desktop spawns `npx.cmd` through `cmd.exe /C` without quoting the path, which breaks on the space in `C:\Program Files\nodejs\`. Invoke `cmd` yourself instead so it can resolve `npx` via PATH:
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://betterlytics.io/api/mcp",
+        "--header",
+        "Authorization:Bearer btl_your_token_here"
+      ]
+    }
+  }
+}
 ```
+  </Tabs.Tab>
+</Tabs>
+
+After saving, fully quit Claude Desktop (tray icon > Quit on Windows, ⌘Q on macOS) and reopen it.
 
 ### Claude Code
 
@@ -70,7 +113,7 @@ Add to your [MCP config](https://docs.windsurf.com/windsurf/cascade/mcp) (`~/.co
 
 ### Antigravity
 
-Add to your [MCP config](https://ai.google.dev/gemini-api/docs/antigravity/mcp) (`~/.gemini/antigravity/mcp_config.json`):
+Add to your [MCP config](https://antigravity.google/docs/mcp) (`~/.gemini/antigravity/mcp_config.json`):
 
 ```json
 {

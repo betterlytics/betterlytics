@@ -2,7 +2,6 @@ use std::env;
 use std::path::PathBuf;
 use std::time::Duration;
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GeolocationMode {
     Disabled,
@@ -36,6 +35,8 @@ pub struct Config {
     pub geoip_update_interval: Duration,
     // Referrer and User Agent parsing configuration
     pub referrer_db_path: PathBuf,
+    pub custom_referrers_path: PathBuf,
+    pub ga4_source_categories_path: PathBuf,
     pub ua_regexes_path: PathBuf,
     pub data_retention_days: i32,
     // Monitoring configuration
@@ -125,6 +126,12 @@ impl Config {
             referrer_db_path: env::var("REFERRER_DB_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/snowplow_referers/referers-latest.json")),
+            custom_referrers_path: env::var("CUSTOM_REFERRERS_PATH")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("assets/referrers_lists/custom_referrers.json")),
+            ga4_source_categories_path: env::var("GA4_SOURCE_CATEGORIES_PATH")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("assets/referrers_lists/ga4-source-categories.csv")),
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),

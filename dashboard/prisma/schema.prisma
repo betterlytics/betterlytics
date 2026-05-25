@@ -58,6 +58,23 @@ enum ErrorGroupStatusValue {
   ignored
 }
 
+enum BugReportStatus {
+  open
+  resolved
+  ignored
+}
+
+enum SuperAdminAuditStatus {
+  success
+  failed
+}
+
+enum GithubStarPromptState {
+  pending
+  dismissed
+  starred
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -110,6 +127,8 @@ model User {
 
   onboardingCompletedAt DateTime?
 
+  githubStarPromptState GithubStarPromptState @default(pending)
+
   dashboardAccess UserDashboard[]
   settings UserSettings?
   subscription Subscription?
@@ -118,6 +137,8 @@ model User {
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
+
+  deletedAt DateTime?
 }
 
 model VerificationToken {
@@ -171,6 +192,8 @@ model Dashboard {
   mcpTokens McpToken[]
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
+
+  @@index([createdAt])
 }
 
 model ErrorGroup {
@@ -281,6 +304,10 @@ model DashboardSettings {
 
   // Data Settings
   dataRetentionDays Int @default(365) // Number of days to retain data
+
+  // Grace window after a plan-downgrade clamp
+  retentionGraceUntil     DateTime?
+  retentionGraceRestoreDays Int?
 
   // Report Settings
   weeklyReports Boolean @default(false)
@@ -409,12 +436,14 @@ model BugReport {
   dashboardId String?
 
   message String
+  status BugReportStatus @default(open)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([dashboardId])
   @@index([userId])
+  @@index([status])
 }
 
 model Annotation {
@@ -510,4 +539,29 @@ model DashboardIntegration {
 
   @@unique([dashboardId, type])
   @@index([dashboardId])
+}
+
+model SentEmail {
+  id                String   @id @default(cuid())
+  recipientKey      String
+  campaignKey       String
+  providerMessageId String?
+  sentAt            DateTime @default(now())
+
+  @@unique([recipientKey, campaignKey])
+  @@index([recipientKey])
+}
+
+model SuperAdminAuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String
+  action       String
+  targetType   String
+  targetId     String?
+  payload      Json     @default("{}")
+  status       SuperAdminAuditStatus @default(success)
+  createdAt    DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([createdAt])
 }

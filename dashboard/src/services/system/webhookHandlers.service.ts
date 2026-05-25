@@ -1,15 +1,25 @@
 import Stripe from 'stripe';
-import type { Currency } from '@/entities/billing/billing.entities';
+import { STARTER_SUBSCRIPTION_STATIC, type Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
-import { getTierConfigFromLookupKey } from '@/lib/billing/plans';
-import { addMonths } from 'date-fns';
+import { getTierConfigFromLookupKey, type TierName } from '@/lib/billing/plans';
+import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { addDays, addMonths } from 'date-fns';
+import { env } from '@/lib/env';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
+import { capitalizeFirstLetter } from '@/utils/formatters';
+import { applyTierChangeToRetention } from '@/services/dashboard/dashboardSettings.service';
+import { findUserById } from '@/repositories/postgres/user.repository';
+import { findOwnedDashboardDomainsWithActiveRetentionGrace } from '@/repositories/postgres/dashboardSettings.repository';
 import {
   findSubscriptionByPaymentId,
   setSubscriptionStatus,
   upsertUserSubscription,
 } from '@/services/billing/subscription.service';
 
-export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+const RETENTION_GRACE_DAYS = 30;
+
+export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, eventId: string) {
   try {
     if (!session.metadata?.userId) {
       throw new Error('No userId in session metadata');
@@ -41,6 +51,8 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
       paymentSubscriptionId: session.subscription as string,
       paymentPriceId: subscriptionItem.price.id,
     });
+
+    await syncRetentionToTier(userId, tierConfig.tier, eventId);
   } catch (error) {
     console.error('Error handling checkout completed:', error);
     throw error;
@@ -71,13 +83,17 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   }
 }
 
-export async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+export async function handleSubscriptionDeleted(subscription: Stripe.Subscription, eventId: string) {
   try {
     const localSubscription = await findSubscriptionByPaymentId(subscription.id);
     if (!localSubscription) {
       console.log('No local subscription found for Stripe subscription:', subscription.id);
       return;
     }
+
+    const previousStatus = localSubscription.status;
+    const wasInvoluntary =
+      subscription.cancellation_details?.reason === 'payment_failed' || previousStatus === 'past_due';
 
     const now = new Date();
 
@@ -95,13 +111,45 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
       paymentSubscriptionId: undefined,
       paymentPriceId: undefined,
     });
+
+    await syncRetentionToTier(localSubscription.userId, 'growth', eventId);
+
+    if (wasInvoluntary) {
+      await sendSubscriptionPaymentCancelledNotification(localSubscription.userId, eventId);
+    }
   } catch (error) {
     console.error('Error handling subscription deleted:', error);
     throw error;
   }
 }
 
-export async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+async function sendSubscriptionPaymentCancelledNotification(userId: string, eventId: string): Promise<void> {
+  try {
+    const user = await findUserById(userId);
+    if (!user?.email) {
+      console.warn({ event: 'subscription-payment-cancelled:email-skipped', reason: 'no-email', userId });
+      return;
+    }
+    const affectedDashboards = await findOwnedDashboardDomainsWithActiveRetentionGrace(userId);
+    await enqueueEmail({
+      type: 'subscription-payment-cancelled',
+      recipientKey: createUserRecipientKey(userId),
+      campaignKey: `subscription-payment-cancelled:${eventId}`,
+      data: {
+        to: user.email,
+        userName: user.name,
+        billingUrl: `${env.PUBLIC_BASE_URL}/billing`,
+        freeEventLimit: STARTER_SUBSCRIPTION_STATIC.eventLimit,
+        freeRetentionDays: getMaxRetentionDaysForTier(STARTER_SUBSCRIPTION_STATIC.tier),
+        affectedDashboards,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to enqueue subscription-payment-cancelled notification:', { userId, err });
+  }
+}
+
+export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, eventId: string) {
   try {
     const localSubscription = await findSubscriptionByPaymentId(subscription.id);
     if (!localSubscription) {
@@ -126,10 +174,43 @@ export async function handleSubscriptionUpdated(subscription: Stripe.Subscriptio
       paymentSubscriptionId: subscription.id,
       paymentPriceId: subscriptionItem.price.id,
     });
+
+    if (localSubscription.tier !== tierConfig.tier) {
+      await syncRetentionToTier(localSubscription.userId, tierConfig.tier, eventId);
+    }
   } catch (error) {
     console.error('Error handling subscription updated:', error);
     throw error;
   }
+}
+
+async function syncRetentionToTier(userId: string, newTier: TierName, eventId: string): Promise<void> {
+  const newMaxDays = getMaxRetentionDaysForTier(newTier);
+  const graceUntil = addDays(new Date(), RETENTION_GRACE_DAYS);
+
+  const result = await applyTierChangeToRetention(userId, newMaxDays, graceUntil);
+  if (result.previousMaxRetention == null) return;
+
+  const user = await findUserById(userId);
+  if (!user?.email) {
+    console.warn({ event: 'retention-clamp:email-skipped', reason: 'no-email', userId });
+    return;
+  }
+
+  await enqueueEmail({
+    type: 'data-retention-clamp',
+    recipientKey: createUserRecipientKey(userId),
+    campaignKey: `data-retention-clamp:${eventId}`,
+    data: {
+      to: user.email,
+      userName: user.name,
+      newPlanName: capitalizeFirstLetter(newTier),
+      previousRetentionDays: result.previousMaxRetention,
+      newRetentionDays: newMaxDays,
+      graceUntil,
+      upgradeUrl: `${env.PUBLIC_BASE_URL}/billing`,
+    },
+  });
 }
 
 async function getPriceAmountByCurrency(priceId: string, currency: string): Promise<number> {

@@ -1,4 +1,4 @@
-'server only';
+import 'server-only';
 
 import {
   parseFilterColumn,
@@ -10,10 +10,15 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { filterColumnSql } from './filter-sql';
+import { filterColumnSql, filterColumnSqlForSession } from './filter-sql';
 
 // Filters
-const MAIN_TABLE_FILTERS: TableFilterColumn[] = ['url', 'event_type', 'custom_event_name'];
+const MAIN_TABLE_FILTERS: TableFilterColumn[] = [
+  'url',
+  'event_type',
+  'custom_event_name',
+  'outbound_link_url',
+];
 const SESSION_TUPLE_COLUMNS: (TableFilterColumn | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
   'entry_page',
   'exit_page',
@@ -218,9 +223,7 @@ function buildGlobalPropertyFilterQuery(filter: GpFilter) {
 }
 
 function buildSessionFilterQuery(filter: StandardFilter) {
-  const isTupleColumn = SESSION_TUPLE_COLUMNS.includes(filter.col);
-  const baseColumn = filterColumnSql(filter.col);
-  const column = isTupleColumn ? safeSql`${baseColumn}.2` : baseColumn;
+  const column = filterColumnSqlForSession(filter.col, SESSION_TUPLE_COLUMNS);
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
   const quantifier = filter.operator.quantifier;

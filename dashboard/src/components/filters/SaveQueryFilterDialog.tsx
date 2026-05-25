@@ -58,7 +58,7 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-w-[320px]'>
+      <DialogContent aria-describedby={undefined} className='max-w-[320px]'>
         <DialogHeader>
           <DialogTitle>{t('selector.saveFiltersTitle')}</DialogTitle>
         </DialogHeader>

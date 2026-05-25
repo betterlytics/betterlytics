@@ -9,6 +9,8 @@ import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSet
 import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import TimezoneCookieInitializer from '@/app/(protected)/TimezoneCookieInitializer';
+import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
+import { getAuthSession } from '@/auth/auth-actions';
 
 export async function generateMetadata({
   params,
@@ -48,21 +50,32 @@ export default async function PublicDashboardLayout({ params, children }: Public
   const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
   await assertPublicDashboardAccess(dashboardId);
-  const initialSettings = await getDashboardSettingsAction(dashboardId);
+  const [initialSettings, session] = await Promise.all([
+    getDashboardSettingsAction(dashboardId),
+    getAuthSession(),
+  ]);
+
+  const shell = (
+    <DashboardLayoutShell
+      dashboardId={dashboardId}
+      isDemo={true}
+      basePath={`/${locale}/share`}
+      includeIntegrationManager={false}
+    >
+      <div className='flex w-full justify-center'>{children}</div>
+    </DashboardLayoutShell>
+  );
 
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <TimezoneCookieInitializer />
       <DashboardAuthProvider isDemo={true} role='viewer'>
         <DashboardProvider initialSettings={initialSettings}>
-          <DashboardLayoutShell
-            dashboardId={dashboardId}
-            isDemo={true}
-            basePath={`/${locale}/share`}
-            includeIntegrationManager={false}
-          >
-            <div className='flex w-full justify-center'>{children}</div>
-          </DashboardLayoutShell>
+          {session?.user.settings ? (
+            <UserSettingsProvider initialSettings={session.user.settings}>{shell}</UserSettingsProvider>
+          ) : (
+            shell
+          )}
         </DashboardProvider>
       </DashboardAuthProvider>
     </PublicEnvironmentVariablesProvider>

@@ -8,10 +8,10 @@ import {
   deletePasswordResetToken,
   deleteUserPasswordResetTokens,
 } from '@/repositories/postgres/passwordReset.repository';
-import { sendResetPasswordEmail } from '@/services/email/mail.service';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { invalidateAllUserSessions } from '@/services/session.service';
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
-import { getDisplayName } from '@/utils/userUtils';
 
 const TOKEN_EXPIRY_HOURS = 1;
 
@@ -46,17 +46,18 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
 
     await createPasswordResetToken(user.id, resetToken, expiryDate);
 
-    try {
-      const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
-      await sendResetPasswordEmail({
+    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+    await enqueueEmail({
+      type: 'reset-password',
+      recipientKey: createUserRecipientKey(user.id),
+      campaignKey: `reset-password:${resetToken}`,
+      data: {
         to: user.email,
-        userName: getDisplayName(user.name, user.email),
+        userName: user.name,
         resetUrl,
         expirationTime: `${TOKEN_EXPIRY_HOURS} hour${TOKEN_EXPIRY_HOURS > 1 ? 's' : ''}`,
-      });
-    } catch (emailError) {
-      console.error('Failed to send password reset email:', emailError);
-    }
+      },
+    });
 
     return true;
   } catch (error) {
@@ -91,10 +92,35 @@ export async function resetPassword(resetPasswordData: ResetPasswordData) {
 
     await deleteUserPasswordResetTokens(resetToken.userId);
 
+    if (targetUser.email) {
+      await sendPasswordChangedNotification(targetUser.id, targetUser.email, targetUser.name);
+    }
+
     return true;
   } catch (error) {
     console.error('Error during password reset:', error);
     throw new Error('Failed to reset password');
+  }
+}
+
+export async function sendPasswordChangedNotification(
+  userId: string,
+  email: string,
+  name: string | null,
+): Promise<void> {
+  try {
+    await enqueueEmail({
+      type: 'password-changed',
+      recipientKey: createUserRecipientKey(userId),
+      campaignKey: `password-changed:${new Date().toISOString()}`,
+      data: {
+        to: email,
+        userName: name,
+        resetPasswordUrl: `${process.env.NEXTAUTH_URL}/forgot-password`,
+      },
+    });
+  } catch (err) {
+    console.error('Failed to enqueue password-changed notification:', { userId, err });
   }
 }
 

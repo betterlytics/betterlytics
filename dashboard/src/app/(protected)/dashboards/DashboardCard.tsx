@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useBARouter } from '@/hooks/use-ba-router';
 import { DashboardWithMemberCount } from '@/entities/dashboard/dashboard.entities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -17,32 +16,31 @@ interface DashboardCardProps {
 export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const t = useTranslations('misc');
   const tPage = useTranslations('dashboardsPage');
-  const router = useBARouter();
 
   const { formattedDate, loading: loadingDate } = useFormattedDate(dashboard.createdAt, {
     options: { year: 'numeric', month: 'short', day: 'numeric' },
   });
 
-  const handleCardClick = () => {
-    router.push(`/dashboard/${dashboard.id}`);
-  };
-
   const hasMultipleMembers = dashboard.memberCount > 1;
 
   return (
-    <Card
-      className='group hover:border-primary/30 border-border/50 h-full cursor-pointer transition-all duration-200 hover:shadow-lg'
-      onClick={handleCardClick}
-    >
+    <Card className='group hover:border-primary/30 focus-within:border-primary/30 has-[>a:focus-visible]:ring-ring/50 has-[>a:focus-visible]:ring-1 border-border/50 relative z-0 h-full cursor-pointer transition-all duration-200 hover:shadow-lg focus-within:shadow-lg'>
+      <Link
+        href={`/dashboard/${dashboard.id}`}
+        className='absolute inset-0 z-0 outline-none'
+        aria-label={tPage('goToDashboardTooltip', { domain: dashboard.domain })}
+        title={tPage('goToDashboardTooltip', { domain: dashboard.domain })}
+      />
+
       <div className='block h-full'>
         <CardHeader className='pb-4'>
           <div className='flex items-start justify-between'>
             <div className='flex items-center gap-3'>
-              <div className='bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center rounded-md p-1.5 transition-colors'>
+              <div className='bg-primary/10 group-hover:bg-primary/20 group-focus-within:bg-primary/20 flex items-center justify-center rounded-md p-1.5 transition-colors'>
                 <DomainFavicon domain={dashboard.domain} size={24} className='h-7 w-7' />
               </div>
               <div className='min-w-0 flex-1'>
-                <CardTitle className='group-hover:text-primary truncate text-lg font-semibold transition-colors'>
+                <CardTitle className='group-hover:text-primary group-focus-within:text-primary truncate text-lg font-semibold transition-colors'>
                   {dashboard.domain}
                 </CardTitle>
                 <p className='text-muted-foreground mt-1 text-sm'>{dashboard.siteId}</p>
@@ -61,7 +59,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
                   </Tooltip>
                 </TooltipProvider>
               ) : (
-                <ExternalLink className='text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100' />
+                <ExternalLink className='text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100' />
               )}
             </div>
           </div>
@@ -85,9 +83,8 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
             <div className='flex w-8 justify-center'>
               <Link
                 href={`/dashboard/${dashboard.id}/settings`}
-                className='hover:bg-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
-                title='Dashboard Settings'
-                onClick={(e) => e.stopPropagation()}
+                className='hover:bg-muted relative z-10 inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md p-0 transition-colors'
+                title={tPage('settingsTooltip')}
               >
                 <Settings className='text-muted-foreground h-4 w-4' />
               </Link>

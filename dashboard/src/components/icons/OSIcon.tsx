@@ -4,6 +4,7 @@ import React from 'react';
 import { Monitor } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { useTheme } from 'next-themes';
+import { cn } from '@/lib/utils';
 import { osIconNamesThemed, osLabels, type OSType } from '@/constants/operatingSystemIcons';
 
 interface OSIconProps {
@@ -24,10 +25,14 @@ export const OSIcon = React.memo<OSIconProps>(({ name, className = 'h-3.5 w-3.5'
   }, [name, resolvedTheme]);
 
   if (!iconName) {
-    return <Monitor className={className} />;
+    return <Monitor className={cn('shrink-0', className)} />;
   }
 
-  return <Icon icon={iconName} className={className} />;
+  return (
+    <span className={cn('inline-flex shrink-0 items-center justify-center align-[-0.125em]', className)}>
+      <Icon icon={iconName} className='h-full w-full' />
+    </span>
+  );
 });
 
 OSIcon.displayName = 'OSIcon';

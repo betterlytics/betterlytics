@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
-        "description": "Enkel og kraftig analyse som respekterer personvern.<br></br>Informasjonskapselfri, GDPR-klar og uten behov for samtykkebannere.",
+        "description": "Enkel og kraftig analyse som respekterer personvern. <br></br>Informasjonskapselfri, GDPR-klar og uten behov for samtykkebannere.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaGithub": "Se på GitHub",
         "ctaDemo": "Se live demo",
@@ -1140,7 +1140,7 @@
         ]
       },
       "hero": {
-        "title": "Alle funksjonene du trenger for<br></br><highlight>bedre analyse</highlight>",
+        "title": "Alle funksjonene du trenger for <br></br><highlight>bedre analyse</highlight>",
         "description": "Utforsk alt Betterlytics tilbyr, fra sanntidsdashboard til konverteringstrakter. All analyse du trenger, uten informasjonskapsler, samtykkebannere eller kompromisser på personvern.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaDemo": "Se live demo"
@@ -1628,7 +1628,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enheter",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Egendefinerte hendelser",
+      "events": "Hendelser",
       "weeklyTrends": "Ukentlige trender"
     },
     "goTo": "Gå til {section}",
@@ -1646,7 +1646,8 @@
       "referrers": "Henvisere",
       "sources": "Kilder",
       "channels": "Kanaler",
-      "events": "Hendelser"
+      "events": "Egendefinerte hendelser",
+      "topProperties": "Globale egenskaper"
     },
     "emptyStates": {
       "adjustTimeRange": "Juster tidsrom eller filtre",
@@ -1661,6 +1662,8 @@
     "emptyTitle": "Ingen dashboard ennå",
     "emptyDescription": "Opprett ditt første dashboard for å begynne å spore analyse for nettstedet ditt.",
     "memberCountTooltip": "{count, plural, one {{count} medlem} other {{count} medlemmer}}",
+    "goToDashboardTooltip": "Gå til {domain}",
+    "settingsTooltip": "Dashboard-innstillinger",
     "createCard": {
       "title": "Opprett dashboard",
       "description": "Legg til et nytt dashboard"
@@ -2391,7 +2394,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-innhold",
         "custom_event_name": "Hendelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "outbound_link_url": "Utgående lenke"
       },
       "selector": {
         "triggerLabel": "Filtre",
@@ -2414,7 +2418,8 @@
         "toastUndo": "Angre",
         "savedFiltersLimitReached": "Maksimalt antall lagrede filtre nådd"
       },
-      "filterBy": "Filtrer etter {label}"
+      "filterBy": "Filtrer etter {label}",
+      "removeFilter": "Fjern filter"
     },
     "funnels": {
       "skeleton": {
@@ -2502,8 +2507,10 @@
         "filterByPath": "Filtrer etter {path}",
         "visitors": "Besøkende",
         "pageviews": "Sidevisninger",
+        "sessionPageviews": "Sidevisninger i økter",
         "bounceRate": "Fluktfrekvens",
         "avgTime": "Gj.sn. tid",
+        "avgSessionTime": "Gj.sn. økttid",
         "entryRate": "Inngangsfrekvens",
         "exitRate": "Utgangsfrekvens",
         "avgScrollDepth": "Scroll-dybde",
@@ -2761,55 +2768,49 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profil",
+        "account": "Konto",
         "preferences": "Preferanser",
-        "usage": "Forbruk",
-        "billing": "Fakturering",
-        "security": "Sikkerhet",
-        "danger": "Faresone"
+        "billing": "Fakturering"
       },
       "dialog": {
         "title": "Brukerinnstillinger",
         "description": "Administrer kontoinnstillingene og preferansene dine.",
-        "loading": "Laster inn innstillinger...",
-        "loadFailed": "Kunne ikke laste inn innstillinger",
-        "noSettings": "Ingen innstillinger funnet",
-        "buttons": {
-          "cancel": "Avbryt",
-          "saving": "Lagrer...",
-          "saveChanges": "Lagre endringer"
-        },
         "toast": {
-          "success": "Innstillinger lagret!",
           "error": "Kunne ikke lagre innstillinger. Prøv igjen."
+        },
+        "help": {
+          "trigger": "Trenger du hjelp?",
+          "documentation": "Dokumentasjon",
+          "reportBug": "Rapporter en feil",
+          "contactSupport": "Kontakt kundestøtte"
         }
       },
       "profile": {
         "title": "Profil",
-        "description": "Rediger personopplysningene dine",
         "nameLabel": "Navn",
         "namePlaceholder": "Skriv inn navnet ditt",
-        "optional": "Valgfritt",
         "emailLabel": "E-post",
         "verified": "Bekreftet",
         "unverified": "Ikke verifisert",
-        "updateButton": "Oppdater profil",
+        "signedInWith": "Innlogget med {provider}",
+        "memberSince": "Medlem siden {date}",
+        "updateButton": "Oppdater",
         "toast": {
-          "success": "Profil oppdatert",
-          "error": "Kunne ikke oppdatere profil. Prøv igjen."
+          "nameSuccess": "Navn oppdatert"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Utseende",
-          "description": "Tilpass det visuelle uttrykket for dashboardet ditt",
           "themeLabel": "Tema",
+          "themeDescription": "Velg et personlig tema for dashbordet",
           "light": "Lys",
           "dark": "Mørk",
           "system": "Systemstandard"
         },
         "avatar": {
           "label": "Profilbilde",
+          "description": "Hvordan profilbildet ditt vises",
           "none": "Ingen",
           "gravatar": "Gravatar-tjeneste",
           "noteIntro": "Merk: Gravatar er en tredjepartstjeneste – aktivering kan dele e-post-hashen din med serverne deres.",
@@ -2817,37 +2818,51 @@
         },
         "localization": {
           "title": "Lokalisering",
-          "description": "Velg språk",
-          "language": "Språk"
+          "language": "Språk",
+          "languageDescription": "Velg språk for dashbordet"
         },
         "notifications": {
           "title": "Varsler",
-          "description": "Konfigurer varslingspreferansene dine",
-          "emailNotifications": "E-postvarsler",
-          "marketingEmails": "Markedsførings-e-poster"
+          "marketingEmails": "Markedsførings-e-poster",
+          "marketingEmailsDescription": "Produktoppdateringer, kunngjøringer og tips"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Trenger du flere hendelser?",
-          "upgradeHint": "Oppgrader planen din for å få flere hendelser og låse opp flere funksjoner.",
-          "viewPlans": "Se planer"
+      "billing": {
+        "loadError": "Kan ikke laste inn faktureringsdata.",
+        "currentPlan": {
+          "title": "Nåværende plan",
+          "free": "Gratis",
+          "pricePerMonth": "{price} / måned",
+          "renewsOn": "Fornyes {date}",
+          "endsOn": "Abonnementet slutter {date}",
+          "upgrade": "Oppgrader",
+          "changePlan": "Bytt plan"
         },
-        "error": "Kan ikke laste inn forbruksdata"
-      },
-      "billingPortal": {
-        "title": "Faktureringsportal",
-        "description": "Administrer faktureringsopplysningene dine og se full fakturahistorikk",
-        "access": "Tilgang til faktureringsportal",
-        "accessButton": "Åpne faktureringsportal",
-        "explainer": "Se tidligere fakturaer, oppdater betalingsmetoder og administrer faktureringen din via Stripes sikre kundeportal.",
-        "notAvailable": "Faktureringsportalen er tilgjengelig når du oppgraderer til en betalt plan.",
-        "needHelp": "Trenger du hjelp med fakturering?",
-        "contactSupport": "Kontakt support",
-        "toastError": "Kunne ikke åpne faktureringsportal, prøv igjen."
+        "usage": {
+          "title": "Forbruk",
+          "eventsLabel": "Hendelser",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Tilbakestilles om {days} dager"
+        },
+        "payment": {
+          "title": "Betaling og fakturaer",
+          "label": "Administrer i faktureringsportalen",
+          "description": "Betalingsmetode, fakturaer og faktureringsopplysninger.",
+          "openPortal": "Åpne faktureringsportal"
+        },
+        "cancellation": {
+          "title": "Avbestilling",
+          "label": "Avbestill abonnement",
+          "description": "Stopp fakturering ved slutten av nåværende periode.",
+          "cancel": "Avbestill"
+        },
+        "portal": {
+          "openError": "Kunne ikke åpne faktureringsportal, prøv igjen."
+        }
       },
       "security": {
-        "title": "Passord og autentisering",
+        "title": "Kontosikkerhet",
+        "passwordRowLabel": "Passord",
         "description": "Bytt kontopassord",
         "currentPassword": "Nåværende passord",
         "newPassword": "Nytt passord",
@@ -2856,12 +2871,14 @@
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
+        "togglePasswordVisibility": "Vis/skjul {field}",
+        "cancel": "Avbryt",
         "toast": {
           "success": "Passord oppdatert"
         },
         "totp": {
           "title": "Tofaktorautentisering",
-          "description": "Legg til et ekstra sikkerhetslag ved å kreve en ekstra godkjenning i tillegg til passordet ditt",
+          "description": "Legg til et ekstra sikkerhetslag på kontoen din.",
           "enable": "Aktiver 2FA",
           "instructions": "For å aktivere 2FA skal du skanne QR-koden med autentiseringsappen din, eller bruke <setup>oppsettsnøkkelen</setup> for manuell konfigurasjon, og deretter skrive inn verifiseringskoden nedenfor.",
           "cancel": "Avbryt",
@@ -2869,16 +2886,34 @@
           "enabled": "Aktivert",
           "disable": "Deaktiver",
           "disableTitle": "Deaktiver 2FA",
-          "disableDescription": "Er du sikker på at du vil deaktivere tofaktorautentisering for kontoen din?",
+          "disableDescription": "Skriv inn bekreftelseskoden fra autentiseringsappen din for å deaktivere tofaktorautentisering.",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
-          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen."
+          "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
+          "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
+          "copyFailed": "Kunne ikke kopiere",
+          "enabledSuccess": "Tofaktorautentisering aktivert",
+          "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen.",
+          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din"
+        }
+      },
+      "sessions": {
+        "title": "Økter",
+        "activeCount": "Innlogget på {count, plural, =0 {ingen enheter} =1 {1 enhet} other {# enheter}}",
+        "description": "Logg ut overalt unntatt på denne enheten.",
+        "signOutOthers": "Logg ut andre enheter",
+        "dialog": {
+          "title": "Logge ut andre enheter?",
+          "description": "Alle andre økter avsluttes umiddelbart. Den nåværende enheten forblir innlogget.",
+          "cancel": "Avbryt",
+          "confirm": "Logg ut andre enheter"
+        },
+        "toast": {
+          "success": "Logget ut av {count, plural, =0 {ingen andre enheter} =1 {1 annen enhet} other {# andre enheter}}."
         }
       },
       "danger": {
-        "title": "Slett konto",
-        "description": "Slett kontoen din og alle tilknyttede data permanent",
-        "warning": "Advarsel: Denne handlingen kan ikke angres",
-        "details": "Dette vil slette kontoen din permanent, fjerne tilgang til alle dashboards og slette alle personlige innstillinger.",
+        "sectionTitle": "Faresone",
+        "details": "Slett kontoen din og alle tilknyttede data permanent.",
         "delete": "Slett konto",
         "dialog": {
           "title": "Slett konto permanent",
@@ -2915,16 +2950,15 @@
         "retentionLabel": "Periode for dataoppbevaring",
         "retentionHelp": "Hvor lenge analysedata lagres før automatisk sletting",
         "presets": {
-          "d30": "30 dager",
-          "m3": "3 måneder",
           "m6": "6 måneder",
           "y1": "1 år",
           "y2": "2 år",
-          "y3": "3 år"
+          "y3": "3 år",
+          "y5": "5 år"
         },
         "retentionConfirm": {
           "title": "Endre oppbevaringsperiode?",
-          "description": "Er du sikker på at du vil endre dataoppbevaringsperioden til {period}?"
+          "description": "Hvis du endrer oppbevaringen til {period}, kan hendelser eldre enn {period} bli slettet permanent ved neste planlagte opprydding."
         },
         "siteRules": {
           "title": "Nettstedsregler",
@@ -3155,6 +3189,12 @@
       "description": "Sørg for at sporing er aktivert.",
       "action": "Lær mer"
     }
+  },
+  "githubStar": {
+    "title": "Liker du Betterlytics?",
+    "description": "En stjerne på GitHub hjelper flere utviklere å oppdage prosjektet.",
+    "action": "Gi stjerne på GitHub",
+    "dismiss": "Lukk"
   },
   "members": {
     "table": {

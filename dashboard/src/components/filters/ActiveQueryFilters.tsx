@@ -1,44 +1,43 @@
 'use client';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
 import { XIcon } from 'lucide-react';
-import { formatQueryFilter } from '@/utils/queryFilterFormatters';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { FilterDescription } from '@/components/filters/FilterDescription';
 
 export function ActiveQueryFilters() {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
   const t = useTranslations('components.filters');
-  const locale = useLocale();
 
   if (queryFilters.length === 0) {
     return null;
   }
   return (
     <div className='flex flex-wrap gap-1 sm:justify-end'>
-      {queryFilters.map((filter) => {
-        const strategy = getFilterStrategy(filter.column);
-        return (
-          <Badge
-            key={filter.id}
-            variant='outline'
-            className='text-muted-foreground border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 px-2 py-1'
-          >
-            {strategy.type === 'json_property' && (
-              <span className='text-muted-foreground/60 mr-0.5 text-xs'>
-                {t('globalProperties', { count: 1 })}
-              </span>
-            )}
-            {formatQueryFilter(filter, t, locale)}
-            <div
-              className='mt-0.5 size-3.5 cursor-pointer opacity-80 hover:opacity-100'
-              onClick={() => removeQueryFilter(filter.id)}
-            >
-              <XIcon className='size-full' />
-            </div>
-          </Badge>
-        );
-      })}
+      {queryFilters.map((filter) => (
+        <Badge
+          key={filter.id}
+          variant='outline'
+          className='gap-1.5 border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 p-1 px-1.5'
+        >
+          <FilterDescription filter={filter} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant='ghost'
+                aria-label={t('removeFilter')}
+                className='text-muted-foreground/80 size-6 cursor-pointer hover:text-foreground focus-visible:text-foreground -mx-0.5'
+                onClick={() => removeQueryFilter(filter.id)}
+              >
+                <XIcon className='size-3.5' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('removeFilter')}</TooltipContent>
+          </Tooltip>
+        </Badge>
+      ))}
     </div>
   );
 }

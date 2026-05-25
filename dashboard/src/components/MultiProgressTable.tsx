@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -162,7 +163,7 @@ function MultiProgressTable<T extends ProgressBarData>({
                 />
 
                 {isExpandable && isExpanded && (
-                  <div className='mt-2 ml-4 border-l'>
+                  <div className='mt-2 ml-4 border-l' onClick={(e) => e.stopPropagation()}>
                     {renderProgressList(children as T[], tabKey, level + 1)}
                   </div>
                 )}
@@ -223,7 +224,9 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-          {renderTabContent(tab)}
+           <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
+            {renderTabContent(tab)}
+          </ScrollArea>
         </TabsContent>
       )),
     [tabs, renderTabContent],
@@ -243,13 +246,13 @@ function MultiProgressTable<T extends ProgressBarData>({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col px-0'>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <div className='relative h-[22rem] overflow-y-auto'>
+          <div className='relative'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
                 <Spinner />
               </div>
             )}
-            <div className={cn('h-full', loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
+            <div className={cn(loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
           </div>
         </Tabs>
       </CardContent>

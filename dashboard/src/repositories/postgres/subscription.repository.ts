@@ -2,11 +2,68 @@ import prisma from '@/lib/postgres';
 import {
   Subscription,
   SubscriptionSchema,
+  SubscriptionWithOwnedSites,
+  SubscriptionWithOwnedSitesSchema,
+  SubscriptionEndingSoonCandidate,
+  SubscriptionEndingSoonCandidateSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
   buildStarterSubscription,
 } from '@/entities/billing/billing.entities';
 import { addMonths, startOfDay } from 'date-fns';
+
+export async function findActiveSubscriptionsWithOwnedSites(): Promise<SubscriptionWithOwnedSites[]> {
+  const subs = await prisma.subscription.findMany({
+    where: {
+      status: { in: ['active', 'past_due'] },
+      user: { email: { not: null } },
+    },
+    select: {
+      userId: true,
+      tier: true,
+      eventLimit: true,
+      currentPeriodStart: true,
+      currentPeriodEnd: true,
+      paymentSubscriptionId: true,
+      user: {
+        select: {
+          email: true,
+          name: true,
+          dashboardAccess: {
+            where: { role: 'owner' },
+            select: { dashboard: { select: { siteId: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  return subs.map((s) =>
+    SubscriptionWithOwnedSitesSchema.parse({
+      userId: s.userId,
+      userEmail: s.user.email,
+      userName: s.user.name,
+      tier: s.tier,
+      eventLimit: s.eventLimit,
+      currentPeriodStart: s.currentPeriodStart,
+      currentPeriodEnd: s.currentPeriodEnd,
+      paymentSubscriptionId: s.paymentSubscriptionId,
+      siteIds: s.user.dashboardAccess.map((ud) => ud.dashboard.siteId),
+    }),
+  );
+}
+
+export async function updateSubscriptionPeriod(
+  userId: string,
+  currentPeriodStart: Date,
+  currentPeriodEnd: Date,
+): Promise<{ currentPeriodStart: Date; currentPeriodEnd: Date }> {
+  return prisma.subscription.update({
+    where: { userId },
+    data: { currentPeriodStart, currentPeriodEnd },
+    select: { currentPeriodStart: true, currentPeriodEnd: true },
+  });
+}
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
@@ -86,6 +143,42 @@ export async function updateSubscriptionStatus(
   } catch (error) {
     console.error('Failed to update subscription status:', error);
     return null;
+  }
+}
+
+export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<SubscriptionEndingSoonCandidate[]> {
+  try {
+    const subs = await prisma.subscription.findMany({
+      where: {
+        cancelAtPeriodEnd: true,
+        status: 'active',
+        pricePerMonth: { gt: 0 },
+        currentPeriodEnd: { lte: endingBefore, gte: new Date() },
+        user: { email: { not: null }, deletedAt: null },
+      },
+      select: {
+        userId: true,
+        tier: true,
+        currentPeriodEnd: true,
+        user: { select: { email: true, name: true } },
+      },
+    });
+
+    return subs.flatMap((s) => {
+      if (!s.user.email) return [];
+      return [
+        SubscriptionEndingSoonCandidateSchema.parse({
+          userId: s.userId,
+          userEmail: s.user.email,
+          userName: s.user.name,
+          tier: s.tier,
+          currentPeriodEnd: s.currentPeriodEnd,
+        }),
+      ];
+    });
+  } catch (error) {
+    console.error('Failed to find subscriptions ending soon:', error);
+    throw new Error('Failed to find subscriptions ending soon');
   }
 }
 

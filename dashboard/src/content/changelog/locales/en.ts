@@ -1,47 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-export const latestChangelogModalEn: ChangelogEntryData = {
+const v143ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.0',
-    releasedAt: '2026-04-19',
-    title: 'Global Properties & Performance Improvements',
+    version: 'v1.4.3',
+    releasedAt: '2026-05-24',
+    title: 'Refreshed Account Settings & Stronger Security',
     summary:
-      'Segment your analytics by any dimension you care about with the new Global Properties feature, and enjoy significantly faster dashboard load times thanks to broad performance improvements.',
+      'A redesigned user settings dialog, new options to manage active sessions, stronger controls around two-factor authentication, plus a handful of fixes and polish.',
   },
   sections: [
     {
-      id: 'v140-new-features',
-      title: 'New Features',
+      id: 'v143-security',
+      title: 'Security',
       blocks: [
         {
           type: 'list',
           items: [
-            'Global Properties let you attach shared context to every event sent from your site, such as logged-in status, plan tier, or user role. This makes it easy to segment any report by these properties, for example comparing logged-in users to anonymous visitors.',
+            'You can now sign out of all other active sessions from your account settings.',
+            'Disabling two-factor authentication now requires a valid TOTP code, adding an extra layer of protection against unauthorized changes.',
+            'Two-factor authentication is no longer offered for accounts signed in through Google or GitHub, since the provider already handles it.',
           ],
         },
       ],
     },
     {
-      id: 'v140-performance',
-      title: 'Performance',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Dashboards now load significantly faster, with the biggest improvements on high-traffic sites and longer time ranges.',
-            'Charts and tables now load as you scroll to them, so the data at the top of the page appears sooner instead of waiting for the entire page to finish.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v140-improvements',
+      id: 'v143-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Session metrics are now more accurate, especially for long-lasting sessions. Session count, bounce rate, and time on site now better reflect what visitors actually did on your site.',
+            'The user settings dialog has been redesigned with a cleaner, more organized layout.',
+            'Favicons for dashboard domains now resolve more reliably for more sites.',
+            'Various small UI polish across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v143-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where users without a name set on their account could not update their settings.',
+            'Fixed an issue where canceling a theme change could leave the displayed theme out of sync with the saved setting.',
           ],
         },
       ],
@@ -49,7 +53,124 @@ export const latestChangelogModalEn: ChangelogEntryData = {
   ],
 };
 
+export const latestChangelogModalEn = v143ChangelogEntryEn;
+
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v143ChangelogEntryEn,
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Funnel Global Properties, Outbound Link Filter & Smarter Referrer Grouping',
+      summary:
+        'Filter funnel steps by Global Properties, segment analytics by outbound link, and enjoy more accurate referrer classification. This release also extends default data retention and fixes a session replay loading issue.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels now support Global Properties. Filter funnel steps by any global property you attach to your events, just like elsewhere in the dashboard.',
+              'A new outbound link filter lets you filter and segment analytics by which external URLs visitors clicked.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Referrer classification is now significantly more accurate, with cleaner grouping of traffic sources throughout the dashboard.',
+              'Minimum data retention has been increased from 3 months to 6 months (session replay remains at 2 months).',
+              'Various small UX and accessibility polish across filters, dashboard cards, and the sign-in form.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where session replays could fail to load their segments, leaving recordings unplayable.',
+              'Ironically, fixed a bug where submitting a bug report from outside a dashboard would itself fail.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.1',
+      releasedAt: '2026-05-05',
+      title: 'Faster Pages, Active Time & Event Property Insights',
+      summary:
+        'This release makes the Pages report faster, improves time-on-page accuracy with active time measurement, adds Global Properties insights to the Events table on the Overview page, and fixes a few dashboard annoyances.',
+    },
+    sections: [
+      {
+        id: 'v141-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The Events table on the Overview page now includes a Global Properties tab, making it easier to see which properties and values appear across unique visitors.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-performance',
+        title: 'Performance',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The Pages report has been heavily optimized and should now load significantly faster, especially for larger datasets.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Time on page is now based on active time instead of wall-clock time, so duration metrics better reflect how long visitors actually engaged with a page.',
+              'Your selected time range is now preserved when switching between dashboards.',
+              'Entry and exit page reports now focus on the metrics that fit those views. Scroll depth has been removed from both tabs, and bounce rate has also been removed from exit pages.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where world map tooltips could stay visible after your cursor left the map.',
+              'Improved timezone detection so pages load more reliably for visitors in affected environments.',
+              'Fixed a Firefox issue that made certain table columns difficult to select and copy.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.0',

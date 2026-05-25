@@ -7,7 +7,6 @@ export const featureFlags = {
   enableDashboardTracking: env.ENABLE_DASHBOARD_TRACKING,
   enableRegistration: env.ENABLE_REGISTRATION,
   enableEmails: env.ENABLE_EMAILS,
-  enableEmailPreview: env.ENABLE_MAIL_PREVIEW_PAGE,
   enableAccountVerification: env.ENABLE_ACCOUNT_VERIFICATION,
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,

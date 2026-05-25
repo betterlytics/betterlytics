@@ -6,8 +6,8 @@ import { MembersTable } from './MembersTable';
 import { InviteSection } from './InviteSection';
 import { getTranslations } from 'next-intl/server';
 import { LeaveDashboardSection } from './LeaveDashboardSection';
-import SettingsPageHeader from '../SettingsPageHeader';
-import SettingsSection from '../SettingsSection';
+import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
+import SettingsSection from '@/components/settings/SettingsSection';
 
 interface MembersPageProps {
   params: Promise<{

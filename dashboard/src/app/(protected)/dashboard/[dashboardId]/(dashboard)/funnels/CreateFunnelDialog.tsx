@@ -27,6 +27,11 @@ type CreateFunnelDialogProps = {
   disabled?: boolean;
 };
 
+const createDefaultSteps = () => [
+  { id: generateTempId(), column: 'url' as const, operator: '=' as const, values: [], name: '' },
+  { id: generateTempId(), column: 'url' as const, operator: '=' as const, values: [], name: '' },
+];
+
 export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: CreateFunnelDialogProps) {
   const t = useTranslations('components.funnels');
   const [isOpen, setIsOpen] = useState(false);
@@ -50,10 +55,7 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
   } = useFunnelDialog({
     dashboardId,
     initialName: '',
-    initialSteps: [
-      { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-      { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-    ],
+    initialSteps: createDefaultSteps(),
   });
 
   const isCreateValid = useMemo(
@@ -78,37 +80,32 @@ export function CreateFunnelDialog({ triggerText, triggerVariant, disabled }: Cr
         setIsOpen(false);
         toast.success(t('create.successMessage'));
         utils.funnels.list.invalidate({ dashboardId });
-        reset({
-          name: '',
-          isStrict: false,
-          steps: [
-            { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-            { id: generateTempId(), column: 'url', operator: '=', values: [], name: '' },
-          ],
-        });
+        reset({ name: '', isStrict: false, steps: createDefaultSteps() });
       })
       .catch(() => {
         toast.error(t('create.errorMessage'));
       });
   }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, reset, t, utils]);
 
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setHasAttemptedSubmit(false);
+    }
+  }, []);
+
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (!open) {
-          setHasAttemptedSubmit(false);
-        }
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant={triggerVariant || 'ghost'} className='cursor-pointer' disabled={disabled}>
           <PlusIcon className='h-4 w-4' />
           {triggerText}
         </Button>
       </DialogTrigger>
-      <DialogContent className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'>
+      <DialogContent
+        aria-describedby={undefined}
+        className='bg-background flex max-h-[90dvh] min-h-[70dvh] w-[70dvw] !max-w-[1000px] flex-col'
+      >
         <DialogHeader>
           <DialogTitle>{t('create.createFunnel')}</DialogTitle>
         </DialogHeader>

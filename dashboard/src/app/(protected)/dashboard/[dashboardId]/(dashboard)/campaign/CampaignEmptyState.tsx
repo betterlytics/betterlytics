@@ -3,8 +3,8 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
-import Link from 'next/link';
+import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
+import ExternalLink from '@/components/ExternalLink';
 import { cn } from '@/lib/utils';
 import { formatDuration } from '@/utils/dateFormatters';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
@@ -136,10 +136,14 @@ export function CampaignEmptyState() {
         </div>
         <div className='flex justify-center'>
           <Button asChild className='shadow-primary/10 shadow-lg'>
-            <Link href='https://betterlytics.io/docs/dashboard/campaigns' target='_blank'>
-              <ExternalLink className='mr-2 h-4 w-4' />
+            <ExternalLink
+              href='https://betterlytics.io/docs/dashboard/campaigns'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <ExternalLinkIcon className='mr-2 h-4 w-4' />
               {t('docsLinkLabel')}
-            </Link>
+            </ExternalLink>
           </Button>
         </div>
       </div>

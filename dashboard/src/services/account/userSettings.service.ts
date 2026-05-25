@@ -7,6 +7,7 @@ import * as UserRepository from '@/repositories/postgres/user.repository';
 import { invalidateOtherUserSessions } from '@/services/session.service';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
+import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
 import { UserException } from '@/lib/exceptions';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
@@ -61,8 +62,8 @@ export async function deleteUser(userId: string): Promise<void> {
       await InvitationRepository.cancelPendingInvitationsForDashboards(deletedDashboardIds);
     }
 
-    await UserRepository.deleteUser(userId);
-    console.log(`Successfully deleted user ${userId} and all associated data`);
+    await UserRepository.anonymizeUser(userId);
+    console.log(`Successfully anonymized user ${userId} and deleted all associated data`);
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error);
     throw new Error('Failed to delete user account and associated data');
@@ -76,6 +77,10 @@ export async function changeUserPassword(
   currentSessionToken?: string,
 ): Promise<void> {
   try {
+    if (!currentSessionToken) {
+      throw new UserException('No active session token found');
+    }
+
     const isOldPasswordValid = await UserRepository.verifyUserPassword(userId, oldPassword);
 
     if (!isOldPasswordValid) {
@@ -83,9 +88,11 @@ export async function changeUserPassword(
     }
 
     await UserRepository.updateUserPassword(userId, newPassword);
+    await invalidateOtherUserSessions(userId, currentSessionToken);
 
-    if (currentSessionToken) {
-      await invalidateOtherUserSessions(userId, currentSessionToken);
+    const user = await UserRepository.findUserById(userId);
+    if (user?.email) {
+      await sendPasswordChangedNotification(userId, user.email, user.name);
     }
 
     console.log(`Successfully updated password for user ${userId}`);
