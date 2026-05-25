@@ -70,7 +70,13 @@ export function FunnelDialogContent({
   const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
 
   return (
-    <div className='flex min-h-0 flex-1 flex-col p-2 gap-1 sm:gap-2 sm:p-5 bg-card border-border border-1 rounded-lg'>
+    <div 
+      className='flex min-h-0 flex-1 flex-col p-2 gap-1 sm:gap-2 sm:p-5 bg-card border-border border-1 rounded-lg'
+      style={{
+        '--min-funnel-pt': '260px',
+        '--funnel-row-h': 'min(550px, calc(100dvh - var(--min-funnel-pt)))',
+      } as React.CSSProperties}
+    >
       <div className='flex flex-wrap items-end gap-2 sm:gap-4 mb-1'>
         <div className='w-full sm:w-auto sm:max-w-md sm:min-w-40'>
           <Label htmlFor='name' className='text-foreground mb-1 block'>
@@ -104,10 +110,12 @@ export function FunnelDialogContent({
         </Button>
       </div>
 
-      <div className='grid min-h-0 flex-1 grid-cols-24 overflow-hidden windowed:gap-6 windowed:grid-rows-[minmax(0,550px)]'>
+      <div
+        className='grid min-h-0 flex-1 grid-cols-24 overflow-hidden lg:gap-6 lg:grid-rows-[minmax(0,var(--funnel-row-h))]'
+      >
         <FunnelStepAccordion
           listRef={stepsListRef}
-          className='col-span-24 min-h-0 min-w-0 windowed:col-span-13'
+          className='col-span-24 min-h-0 min-w-0 lg:col-span-13'
           steps={funnelSteps}
           initialOpenId={initialOpenId}
           onReorder={setFunnelSteps}
@@ -117,7 +125,7 @@ export function FunnelDialogContent({
           hasAttemptedSubmit={hasAttemptedSubmit}
         />
         <FunnelBarplot
-          className='hidden max-h-[420px] pt-3 windowed:flex windowed:col-span-11 [&_[data-slot=funnel-barplot-card]]:bg-secondary/50 min-h-96'
+          className='hidden max-h-[min(420px,var(--funnel-row-h))] pt-3 lg:flex lg:col-span-11 [&_[data-slot=funnel-barplot-card]]:bg-secondary/50 min-h-[min(24rem,var(--funnel-row-h))]'
           funnel={funnelPreview}
           emptySteps={emptySteps}
           status={previewStatus}

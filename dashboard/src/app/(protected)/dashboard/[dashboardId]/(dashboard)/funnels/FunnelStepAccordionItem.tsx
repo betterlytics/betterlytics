@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { GripVertical, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef, type AnimationEvent, type RefObject } from 'react';
 
 import { FunnelStepFiltersEditor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelStepFiltersEditor';
 import { AccordionContent, AccordionItem } from '@/components/ui/accordion';
@@ -25,6 +25,7 @@ type FunnelStepAccordionItemProps = {
   onUpdate: (next: FunnelStep) => void;
   onRequestRemoval: (id: string) => void;
   globalPropertyKeys?: string[];
+  userInitiatedOpenRef: RefObject<string | null>;
 };
 
 function FunnelStepAccordionItemComponent({
@@ -34,6 +35,7 @@ function FunnelStepAccordionItemComponent({
   onUpdate,
   onRequestRemoval,
   globalPropertyKeys,
+  userInitiatedOpenRef,
 }: FunnelStepAccordionItemProps) {
   const t = useTranslations('components.funnels.create');
   const tFilters = useTranslations('components.filters');
@@ -45,6 +47,24 @@ function FunnelStepAccordionItemComponent({
   const sortable = useSortable({ id: step.id });
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = sortable;
   const { onKeyDown: _keyboardActivator, ...pointerListeners } = listeners ?? {};
+
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const composedRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      wrapperRef.current = node;
+      setNodeRef(node);
+    },
+    [setNodeRef],
+  );
+
+  const handleContentAnimationEnd = useCallback(
+    (e: AnimationEvent<HTMLDivElement>) => {
+      if (e.currentTarget.dataset.state !== 'open') return;
+      if (userInitiatedOpenRef.current !== step.id) return;
+      wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    },
+    [step.id, userInitiatedOpenRef],
+  );
 
   const stepRef = useRef(step);
   stepRef.current = step;
@@ -104,7 +124,12 @@ function FunnelStepAccordionItemComponent({
         strokeLinecap='round'
         strokeLinejoin='round'
         aria-hidden='true'
-        className='text-muted-foreground size-4 rounded-md transition-transform duration-200 group-data-[state=open]/item:rotate-180 group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-2 group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-ring/50 group-has-[[data-slot=step-trigger]:focus-visible]/header:border group-has-[[data-slot=step-trigger]:focus-visible]/header:border-ring'
+        className={cn(
+          'text-muted-foreground size-4 rounded-md',
+          'group-data-[state=open]/item:rotate-180 transition-transform duration-200',
+          'group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-2 group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-ring/50',
+          'group-has-[[data-slot=step-trigger]:focus-visible]/header:border group-has-[[data-slot=step-trigger]:focus-visible]/header:border-ring'
+        )}
       >
         <line x1='5' y1='12' x2='19' y2='12' />
         <line
@@ -188,7 +213,7 @@ function FunnelStepAccordionItemComponent({
               'absolute top-0 right-0 z-10 size-5 -translate-y-1/2 translate-x-1/2 rounded-full',
               'opacity-0 transition-opacity duration-150',
               'group-hover/step:opacity-100',
-              'max-sm:group-data-[state=open]/item:opacity-100',
+              'no-hover:group-data-[state=open]/item:opacity-100',
               'focus-visible:opacity-100 focus-visible:ring-2 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:border',
               '[body.dnd-dragging_&]:opacity-0! [body.dnd-dragging_&]:pointer-events-none',
             )}
@@ -204,13 +229,13 @@ function FunnelStepAccordionItemComponent({
 
   return (
     <div
-      ref={setNodeRef}
+      ref={composedRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
         'group/step relative flex items-start',
         'gap-2 sm:gap-4',
-        'will-change-transform',
-        'transition-[filter] duration-150',
+        'transition-[filter] duration-150 will-change-transform',
+        'scroll-mt-2.5',
         isDragging && 'z-10 drop-shadow-lg',
       )}
       {...pointerListeners}
@@ -250,7 +275,10 @@ function FunnelStepAccordionItemComponent({
       >
         {StepHeader}
         {DeleteStepButton}
-        <AccordionContent className={'bg-muted/10 relative px-3 pb-1 border-t cursor-grab active:cursor-grabbing'}>
+        <AccordionContent
+          onAnimationEnd={handleContentAnimationEnd}
+          className={'bg-muted/10 relative px-3 pb-1 border-t cursor-grab active:cursor-grabbing'}
+        >
           <div className={'bg-primary/60 absolute left-0 w-0.5 h-full rounded-bl-md'} />
           <FunnelStepFiltersEditor
             filters={step.filters}

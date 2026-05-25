@@ -1,19 +1,21 @@
 'use client';
 
-import { memo, useCallback, useRef, useState } from 'react';
 import { SaveIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { memo, useCallback, useRef, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { SavedFiltersSection } from '@/components/filters/SavedFiltersSection';
 import { SaveQueryFilterDialog } from '@/components/filters/SaveQueryFilterDialog';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
-import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
-import { filterEmptyQueryFilters } from '@/utils/queryFilters';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { createEmptyQueryFilter, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
+import { cn } from '@/lib/utils';
+import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 
 type FunnelStepFiltersEditorProps = {
   filters: QueryFilter[];
@@ -30,6 +32,7 @@ function FunnelStepFiltersEditorComponent({
   globalPropertyKeys,
 }: FunnelStepFiltersEditorProps) {
   const t = useTranslations('components.filters');
+  const isMobile = useIsMobile();
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
 
@@ -72,9 +75,16 @@ function FunnelStepFiltersEditorComponent({
   }, []);
 
   return (
-    <div className="py-1" onMouseDown={preventDragFromInteractiveElements}>
+    <div
+      className="py-1"
+      onMouseDown={preventDragFromInteractiveElements}
+      style={{
+        '--funnel-step-chrome': '80px',
+        '--funnel-editor-h': 'calc(var(--funnel-row-h) - var(--funnel-step-chrome))',
+      } as React.CSSProperties}
+    >
       <div
-        className='grid max-h-[45vh] grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden p-1'
+        className='grid max-h-[var(--funnel-editor-h)] grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden p-1'
       >
         <ScrollArea
           className='h-full min-h-0 [&_[data-slot=scroll-area-scrollbar]]:!w-2'
@@ -90,6 +100,15 @@ function FunnelStepFiltersEditorComponent({
                 requestRemoval={handleRemove}
                 globalPropertyKeys={globalPropertyKeys}
                 hideClearAllButton
+                formatLength={isMobile ? 20 : 35}
+                className={cn(
+                  'md:grid-cols-[minmax(0,8fr)_minmax(0,2fr)_minmax(0,2fr)]',
+                  'md:[grid-template-areas:"col_op_op"_"val_val_delete"]!',
+                  'md:grid-rows-[auto_auto] md:border',
+                  'xl:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,5fr)_minmax(0,1fr)]',
+                  'xl:[grid-template-areas:"col_op_val_delete"]!',
+                  'xl:grid-rows-1 xl:border-0',
+                )}
               />
             ))}
           </div>
@@ -120,7 +139,7 @@ function FunnelStepFiltersEditorComponent({
           </DisabledTooltip>
         </div>
         <SavedFiltersSection
-          className="[&_[data-slot=saved-filters-collapsible-content]]:grid-rows-[fit-content(20vh)]"
+          className="[&_[data-slot=saved-filters-collapsible-content]]:grid-rows-[fit-content(calc(var(--funnel-editor-h)*5/9))]"
           onLoadFilter={onChange}
           isOpen={isSavedFiltersOpen}
           onOpenChange={setIsSavedFiltersOpen}

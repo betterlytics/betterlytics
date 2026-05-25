@@ -59,6 +59,7 @@ export function FunnelStepAccordion({
   const draggedItemPriorOpenRef = useRef<{ id: string; wasOpen: boolean } | null>(null);
   const draggedStepsRef = useRef<FunnelStep[] | null>(null);
   const prevIdsRef = useRef<string[]>(steps.map((s) => s.id));
+  const userInitiatedOpenRef = useRef<string | null>(null);
   
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
@@ -171,8 +172,7 @@ export function FunnelStepAccordion({
       <ScrollArea
         type={isDragging ? 'always' : 'hover'}
         className={cn(
-          'windowed:-mr-3',
-          'max-sm:[&_[data-slot=scroll-area-scrollbar]]:hidden',
+          'lg:-mr-3 max-sm:[&_[data-slot=scroll-area-scrollbar]]:hidden',
           className,
         )}
       >
@@ -182,8 +182,12 @@ export function FunnelStepAccordion({
             type='single'
             collapsible
             value={openStepId ?? ''}
-            onValueChange={(value) => setOpenStepId(value || undefined)}
-            className='flex flex-col gap-3 py-3 px-3 sm:pl-1 windowed:pr-5'
+            onValueChange={(value) => {
+              const next = value || undefined;
+              userInitiatedOpenRef.current = next ?? null;
+              setOpenStepId(next);
+            }}
+            className='flex flex-col gap-3 py-3 px-3 sm:pl-1 lg:pr-5'
           >
             {steps.map((step, index) => (
               <FunnelStepAccordionItem
@@ -194,6 +198,7 @@ export function FunnelStepAccordion({
                 onUpdate={onUpdateStep}
                 onRequestRemoval={handleRequestRemoval}
                 globalPropertyKeys={globalPropertyKeys}
+                userInitiatedOpenRef={userInitiatedOpenRef}
               />
             ))}
           </Accordion>

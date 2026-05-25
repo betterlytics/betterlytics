@@ -4,6 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant windowed (@media (min-width: 64rem) and (min-height: 43.75rem));
+@custom-variant no-hover (@media (hover: none));
 
 @theme inline {
   --color-background: var(--background);
