@@ -133,8 +133,8 @@ function blur(
   if (sigma <= 0) return buf;
   // Box radius for a 3-pass approximation of a gaussian of the given sigma.
   const r = Math.max(1, Math.round((sigma * Math.sqrt(3)) / 2));
-  let a = buf;
-  let b = new Uint8ClampedArray(buf.length);
+  const a = buf;
+  const b = new Uint8ClampedArray(buf.length);
   for (let pass = 0; pass < 3; pass++) {
     boxBlurH(a, b, w, h, r);
     boxBlurV(b, a, w, h, r);
