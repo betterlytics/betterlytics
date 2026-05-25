@@ -258,7 +258,7 @@ function FunnelStep({
         <div className='text-popover-foreground flex flex-wrap items-center gap-1 rounded-md p-2 font-medium'>
           {step.step.filters.map((filter, i) => (
             <React.Fragment key={filter.id}>
-              {i > 0 && <span className='text-muted-foreground/80'>AND</span>}
+              {i > 0 && <span className='text-muted-foreground/80'>and</span>}
               <FilterDescription filter={filter} />
             </React.Fragment>
           ))}
