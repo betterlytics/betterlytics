@@ -4,7 +4,18 @@ import { createUsageAlertEmailTemplate } from '@/services/email/template/usage-a
 import { createFirstPaymentWelcomeEmailTemplate } from '@/services/email/template/first-payment-welcome-mail';
 import { createDashboardInvitationEmailTemplate } from '@/services/email/template/invitation-mail';
 import { createReportEmailTemplate } from '@/services/email/template/weekly-report-mail';
+import { createDataRetentionClampEmailTemplate } from '@/services/email/template/data-retention-clamp-mail';
+import { createPasswordChangedEmailTemplate } from '@/services/email/template/password-changed-mail';
+import { createTwoFactorEnabledEmailTemplate } from '@/services/email/template/two-factor-enabled-mail';
+import { createTwoFactorDisabledEmailTemplate } from '@/services/email/template/two-factor-disabled-mail';
+import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
+import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
+import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
 import type { EmailTemplate } from '@/services/email/types';
+import { createSubscriptionEndingSoonEmailTemplate } from './template/subscription-ending-soon-mail';
+import { createSubscriptionPaymentCancelledEmailTemplate } from './template/subscription-payment-cancelled-mail';
+import { createInvitationAcceptedEmailTemplate } from './template/invitation-accepted-mail';
+import { createMemberRemovedEmailTemplate } from './template/member-removed-mail';
 
 export const SEND_EMAIL_JOB_NAME = 'send-email';
 
@@ -37,15 +48,69 @@ export const EMAIL_TYPES = {
     saasOnly: true,
     retry: DEFAULT_RETRY,
   },
-  'report': {
+  report: {
     template: createReportEmailTemplate,
     saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
+  'data-retention-clamp': {
+    template: createDataRetentionClampEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'subscription-ending-soon': {
+    template: createSubscriptionEndingSoonEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'subscription-payment-cancelled': {
+    template: createSubscriptionPaymentCancelledEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'invitation-accepted': {
+    template: createInvitationAcceptedEmailTemplate,
+    saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
+  'member-removed': {
+    template: createMemberRemovedEmailTemplate,
+    saasOnly: false,
+    retry: DEFAULT_RETRY,
+  },
+  'password-changed': {
+    template: createPasswordChangedEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-enabled': {
+    template: createTwoFactorEnabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-disabled': {
+    template: createTwoFactorDisabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'create-site-nudge': {
+    template: createCreateSiteNudgeEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'setup-help': {
+    template: createSetupHelpEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'first-visitor-detected': {
+    template: createFirstVisitorDetectedEmailTemplate,
+    saasOnly: true,
     retry: DEFAULT_RETRY,
   },
 } as const;
 
 export type EmailType = keyof typeof EMAIL_TYPES;
-export const EMAIL_TYPE_NAMES = Object.keys(EMAIL_TYPES) as EmailType[];
 type DataFor<T extends EmailType> = Parameters<(typeof EMAIL_TYPES)[T]['template']>[0];
 
 export type SendEmailPayload = {
@@ -57,7 +122,7 @@ export type SendEmailPayload = {
   };
 }[EmailType];
 
-export function renderEmail(payload: SendEmailPayload): EmailTemplate {
-  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate;
+export async function renderEmail(payload: SendEmailPayload): Promise<EmailTemplate> {
+  const template = EMAIL_TYPES[payload.type].template as (data: unknown) => EmailTemplate | Promise<EmailTemplate>;
   return template(payload.data);
 }

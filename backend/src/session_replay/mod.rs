@@ -60,9 +60,23 @@ pub struct PresignPutRequest {
 pub struct PresignPutResponse {
     pub url: String,
     pub key: String,
+    #[serde(with = "u64_as_string")]
     pub session_id: u64,
+    #[serde(with = "u64_as_string")]
     pub visitor_id: u64,
     pub sse: bool,
+}
+
+mod u64_as_string {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S: Serializer>(v: &u64, s: S) -> Result<S::Ok, S::Error> {
+        s.collect_str(v)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<u64, D::Error> {
+        String::deserialize(d)?.parse().map_err(serde::de::Error::custom)
+    }
 }
 
 pub async fn presign_put_segment(
@@ -129,7 +143,9 @@ pub async fn presign_put_segment(
 #[derive(serde::Deserialize)]
 pub struct FinalizeRequest {
     pub site_id: String,
+    #[serde(with = "u64_as_string")]
     pub session_id: u64,
+    #[serde(with = "u64_as_string")]
     pub visitor_id: u64,
     pub started_at: i64,
     pub ended_at: i64,

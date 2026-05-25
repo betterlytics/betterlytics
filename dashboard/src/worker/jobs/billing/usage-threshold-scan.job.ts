@@ -10,6 +10,7 @@ import {
   sumUsageForSubscription,
 } from '@/services/billing/usage-scan.service';
 import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 
 async function runUsageThresholdScan(): Promise<void> {
@@ -33,11 +34,11 @@ async function runUsageThresholdScan(): Promise<void> {
 
       await enqueueEmail({
         type: 'usage-alert',
-        recipientKey: sub.userId,
+        recipientKey: createUserRecipientKey(sub.userId),
         campaignKey: `usage-alert:${kind}:${sub.currentPeriodStart.toISOString()}`,
         data: {
           to: sub.userEmail,
-          userName: sub.userName ?? sub.userEmail,
+          userName: sub.userName,
           currentUsage: usage,
           usageLimit: sub.eventLimit,
           usagePercentage: pct,

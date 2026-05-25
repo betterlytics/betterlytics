@@ -1,19 +1,17 @@
 'use client';
 
-import { useUserSettings } from '@/hooks/useUserSettings';
-import { useMemo } from 'react';
+import { useUserSettings } from '@/contexts/UserSettingsProvider';
 import { Avatar } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 import { GravatarImage } from '@/components/ui/gravatar-image';
 import { useSession } from 'next-auth/react';
 
 export function BAAvatar() {
-  const { settings } = useUserSettings();
-  const avatarMode = useMemo(() => settings?.avatar, [settings?.avatar]);
+  const settings = useUserSettings();
 
   return (
     <Avatar className='relative h-8 w-8'>
-      {avatarMode === 'gravatar' ? <GravatarAvatar /> : <DefaultAvatar />}
+      {settings.avatar === 'gravatar' ? <GravatarAvatar /> : <DefaultAvatar />}
     </Avatar>
   );
 }

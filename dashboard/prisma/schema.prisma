@@ -69,6 +69,12 @@ enum SuperAdminAuditStatus {
   failed
 }
 
+enum GithubStarPromptState {
+  pending
+  dismissed
+  starred
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -120,6 +126,8 @@ model User {
   changelogVersionSeen String? @default("v0")
 
   onboardingCompletedAt DateTime?
+
+  githubStarPromptState GithubStarPromptState @default(pending)
 
   dashboardAccess UserDashboard[]
   settings UserSettings?
@@ -184,6 +192,8 @@ model Dashboard {
   mcpTokens McpToken[]
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
+
+  @@index([createdAt])
 }
 
 model ErrorGroup {
@@ -294,6 +304,10 @@ model DashboardSettings {
 
   // Data Settings
   dataRetentionDays Int @default(365) // Number of days to retain data
+
+  // Grace window after a plan-downgrade clamp
+  retentionGraceUntil     DateTime?
+  retentionGraceRestoreDays Int?
 
   // Report Settings
   weeklyReports Boolean @default(false)

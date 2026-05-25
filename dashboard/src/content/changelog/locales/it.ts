@@ -1,62 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v141ChangelogEntryIt: ChangelogEntryData = {
+const v143ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.1',
-    releasedAt: '2026-05-05',
-    title: 'Pagine più rapide, tempo attivo e insight sulle proprietà degli eventi',
+    version: 'v1.4.3',
+    releasedAt: '2026-05-24',
+    title: 'Impostazioni account rinnovate e maggiore sicurezza',
     summary:
-      'Questa release rende più veloce il report Pagine, migliora la precisione del tempo sulla pagina grazie alla misurazione del tempo attivo, aggiunge insight sulle Proprietà globali alla tabella Eventi nella pagina Panoramica e corregge alcuni fastidi della dashboard.',
+      'Una finestra delle impostazioni utente ridisegnata, nuove opzioni per gestire le sessioni attive, controlli più rigorosi sull\'autenticazione a due fattori, oltre a una manciata di correzioni e rifiniture.',
   },
   sections: [
     {
-      id: 'v141-new-features',
-      title: 'Nuove funzionalità',
+      id: 'v143-security',
+      title: 'Sicurezza',
       blocks: [
         {
           type: 'list',
           items: [
-            'La tabella Eventi nella pagina Panoramica ora include una scheda Proprietà globali, così è più facile vedere quali proprietà e valori compaiono tra i visitatori unici.',
+            'Ora puoi disconnetterti da tutte le altre sessioni attive direttamente dalle impostazioni del tuo account.',
+            'Per disattivare l\'autenticazione a due fattori è ora necessario un codice TOTP valido, per una protezione aggiuntiva contro modifiche non autorizzate.',
+            'L\'autenticazione a due fattori non è più disponibile per gli account che accedono tramite Google o GitHub, dato che il provider la gestisce già.',
           ],
         },
       ],
     },
     {
-      id: 'v141-performance',
-      title: 'Prestazioni',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Il report Pagine è stato ottimizzato in modo significativo e ora dovrebbe caricarsi molto più rapidamente, soprattutto con dataset più grandi.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v141-improvements',
+      id: 'v143-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'Il tempo sulla pagina ora si basa sul tempo attivo invece che sul tempo cronologico, così le metriche di durata riflettono meglio quanto a lungo i visitatori hanno davvero interagito con una pagina.',
-            'L\'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all\'altra.',
-            'I report Pagine di ingresso e Pagine di uscita ora si concentrano sulle metriche più adatte a quelle viste. La profondità di scorrimento è stata rimossa da entrambe le schede, e la frequenza di rimbalzo è stata rimossa anche da Pagine di uscita.',
+            'La finestra delle impostazioni utente è stata ridisegnata con un layout più pulito e ordinato.',
+            'Le favicon dei domini delle dashboard vengono caricate in modo più affidabile per un numero maggiore di siti.',
+            'Piccole rifiniture all\'interfaccia in tutta la dashboard.',
           ],
         },
       ],
     },
     {
-      id: 'v141-fixes',
+      id: 'v143-fixes',
       title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui i tooltip della mappa mondiale potevano restare visibili dopo che il cursore aveva lasciato la mappa.',
-            'Migliorato il rilevamento del fuso orario, così le pagine si caricano in modo più affidabile negli ambienti interessati.',
-            'Risolto un problema in Firefox che rendeva difficile selezionare e copiare alcune colonne delle tabelle.',
+            'Risolto un problema per cui gli utenti senza un nome impostato sull\'account non riuscivano ad aggiornare le proprie impostazioni.',
+            'Risolto un problema per cui annullare un cambio di tema poteva lasciare il tema visualizzato non allineato con l\'impostazione salvata.',
           ],
         },
       ],
@@ -64,10 +53,124 @@ const v141ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v141ChangelogEntryIt;
+export const latestChangelogModalIt = v143ChangelogEntryIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
-  v141ChangelogEntryIt,
+  v143ChangelogEntryIt,
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Proprietà globali nei funnel, filtro per link esterni e raggruppamento referrer più intelligente',
+      summary:
+        'Filtra i passaggi dei funnel in base alle Proprietà globali, segmenta le analisi per link esterno e ottieni un raggruppamento dei referrer più preciso. Questa release alza anche il limite minimo di conservazione dei dati e corregge un problema che impediva la riproduzione dei session replay.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'I funnel ora supportano le Proprietà globali. Puoi filtrare i passaggi dei funnel in base a qualsiasi proprietà globale che associ ai tuoi eventi, proprio come nel resto della dashboard.',
+              'Un nuovo filtro per i link esterni ti permette di filtrare e segmentare le analisi in base agli URL esterni su cui i visitatori hanno cliccato.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Il raggruppamento dei referrer è ora notevolmente più preciso, così le fonti di traffico vengono accorpate in modo più coerente in tutta la dashboard.',
+              'Il limite minimo di conservazione dei dati è stato portato da 3 a 6 mesi (il session replay resta a 2 mesi).',
+              'Piccoli miglioramenti di usabilità e accessibilità su filtri, schede della dashboard e modulo di accesso.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema per cui i session replay non riuscivano a caricare i propri segmenti, rendendo le registrazioni non riproducibili.',
+              'Ironicamente, risolto un bug per cui inviare una segnalazione di bug al di fuori di una dashboard non funzionava a sua volta.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.1',
+      releasedAt: '2026-05-05',
+      title: 'Pagine più rapide, tempo attivo e insight sulle proprietà degli eventi',
+      summary:
+        'Questa release rende più veloce il report Pagine, migliora la precisione del tempo sulla pagina grazie alla misurazione del tempo attivo, aggiunge insight sulle Proprietà globali alla tabella Eventi nella pagina Panoramica e corregge alcuni fastidi della dashboard.',
+    },
+    sections: [
+      {
+        id: 'v141-new-features',
+        title: 'Nuove funzionalità',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La tabella Eventi nella pagina Panoramica ora include una scheda Proprietà globali, così è più facile vedere quali proprietà e valori compaiono tra i visitatori unici.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-performance',
+        title: 'Prestazioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Il report Pagine è stato ottimizzato in modo significativo e ora dovrebbe caricarsi molto più rapidamente, soprattutto con dataset più grandi.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Il tempo sulla pagina ora si basa sul tempo attivo invece che sul tempo cronologico, così le metriche di durata riflettono meglio quanto a lungo i visitatori hanno davvero interagito con una pagina.',
+              'L\'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all\'altra.',
+              'I report Pagine di ingresso e Pagine di uscita ora si concentrano sulle metriche più adatte a quelle viste. La profondità di scorrimento è stata rimossa da entrambe le schede, e la frequenza di rimbalzo è stata rimossa anche da Pagine di uscita.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Risolto un problema per cui i tooltip della mappa mondiale potevano restare visibili dopo che il cursore aveva lasciato la mappa.',
+              'Migliorato il rilevamento del fuso orario, così le pagine si caricano in modo più affidabile negli ambienti interessati.',
+              'Risolto un problema in Firefox che rendeva difficile selezionare e copiare alcune colonne delle tabelle.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.0',

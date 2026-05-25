@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PropertyValueBar } from '@/components/PropertyValueBar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslations } from 'next-intl';
 import DataEmptyComponent from './DataEmptyComponent';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -223,7 +224,9 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-          <div className='h-[22rem] overflow-y-auto'>{renderTabContent(tab)}</div>
+           <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
+            {renderTabContent(tab)}
+          </ScrollArea>
         </TabsContent>
       )),
     [tabs, renderTabContent],

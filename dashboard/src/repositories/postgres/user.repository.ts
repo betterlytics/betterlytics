@@ -1,7 +1,7 @@
 import 'server-only';
 
 import prisma from '@/lib/postgres';
-import { Prisma } from '@prisma/client';
+import { GithubStarPromptState, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import {
   User,
@@ -11,6 +11,8 @@ import {
   RegisterUserSchema,
   RegisterUserData,
   UpdateUserData,
+  UserWithoutDashboardCandidate,
+  UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
@@ -21,6 +23,14 @@ const SALT_ROUNDS = 10;
 
 export async function findUserById(userId: string): Promise<User | null> {
   return await findUserBy({ id: userId });
+}
+
+export async function findUserOAuthProviders(userId: string): Promise<string[]> {
+  const accounts = await prisma.account.findMany({
+    where: { userId },
+    select: { provider: true },
+  });
+  return accounts.map((a) => a.provider);
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
@@ -37,6 +47,21 @@ async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | nu
   } catch (error) {
     console.error(`Error finding user by ${where}:`, error);
     throw new Error(`Failed to find user by ${where}.`);
+  }
+}
+
+export async function setGithubStarPromptState(
+  userId: string,
+  state: GithubStarPromptState,
+): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { githubStarPromptState: state },
+    });
+  } catch (error) {
+    console.error('Error updating github star prompt state:', error);
+    throw new Error('Failed to update github star prompt state');
   }
 }
 
@@ -187,6 +212,32 @@ export async function acceptTermsForUser(userId: string, version: number): Promi
   } catch (error) {
     console.error(`Error accepting terms for user ${userId}:`, error);
     throw new Error(`Failed to accept terms for user ${userId}.`);
+  }
+}
+
+export async function findUsersWithoutDashboardsInWindow(
+  window: { signedUpAfter: Date; signedUpBefore: Date },
+  limit: number,
+): Promise<UserWithoutDashboardCandidate[]> {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        email: { not: null },
+        createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
+        dashboardAccess: { none: {} },
+      },
+      select: { id: true, email: true, name: true },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+    });
+
+    return users
+      .filter((u) => u.email)
+      .map((u) => UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }));
+  } catch (error) {
+    console.error('Error finding users without dashboards in window:', error);
+    throw new Error('Failed to find users without dashboards in window');
   }
 }
 

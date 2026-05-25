@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
-import { signIn, getProviders } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
+import type { getEnabledOAuthProviders } from '@/lib/auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { CheckCircleIcon } from 'lucide-react';
@@ -38,7 +39,7 @@ const itemVariants = {
 };
 
 type SignupFormProps = {
-  providers: Awaited<ReturnType<typeof getProviders>>;
+  providers: ReturnType<typeof getEnabledOAuthProviders>;
 };
 
 export default function SignupForm({ providers }: SignupFormProps) {
@@ -220,12 +221,12 @@ export default function SignupForm({ providers }: SignupFormProps) {
                 <span className='block sm:inline'>{error}</span>
               </div>
             )}
-            {(providers?.google || providers?.github) && (
+            {(providers.google || providers.github) && (
               <p className='text-muted-foreground mt-2 text-center text-sm'>{t('form.signUpWith')}</p>
             )}
             <div className='flex gap-3'>
               {/* Google Registration Button */}
-              {providers?.google && (
+              {providers.google && (
                 <button
                   type='button'
                   onClick={() => handleOAuthRegistration('google')}
@@ -241,7 +242,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
               )}
 
               {/* GitHub Registration Button */}
-              {providers?.github && (
+              {providers.github && (
                 <button
                   type='button'
                   onClick={() => handleOAuthRegistration('github')}
@@ -257,7 +258,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
               )}
             </div>
 
-            {(providers?.google || providers?.github) && (
+            {(providers.google || providers.github) && (
               <div className='relative my-4 flex items-center'>
                 <div className='border-border flex-grow border-t'></div>
                 <span className='text-muted-foreground mx-4 flex-shrink text-sm'>{t('form.orDivider')}</span>

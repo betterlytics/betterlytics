@@ -4,6 +4,8 @@ import {
   SubscriptionSchema,
   SubscriptionWithOwnedSites,
   SubscriptionWithOwnedSitesSchema,
+  SubscriptionEndingSoonCandidate,
+  SubscriptionEndingSoonCandidateSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
   buildStarterSubscription,
@@ -141,6 +143,42 @@ export async function updateSubscriptionStatus(
   } catch (error) {
     console.error('Failed to update subscription status:', error);
     return null;
+  }
+}
+
+export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<SubscriptionEndingSoonCandidate[]> {
+  try {
+    const subs = await prisma.subscription.findMany({
+      where: {
+        cancelAtPeriodEnd: true,
+        status: 'active',
+        pricePerMonth: { gt: 0 },
+        currentPeriodEnd: { lte: endingBefore, gte: new Date() },
+        user: { email: { not: null }, deletedAt: null },
+      },
+      select: {
+        userId: true,
+        tier: true,
+        currentPeriodEnd: true,
+        user: { select: { email: true, name: true } },
+      },
+    });
+
+    return subs.flatMap((s) => {
+      if (!s.user.email) return [];
+      return [
+        SubscriptionEndingSoonCandidateSchema.parse({
+          userId: s.userId,
+          userEmail: s.user.email,
+          userName: s.user.name,
+          tier: s.tier,
+          currentPeriodEnd: s.currentPeriodEnd,
+        }),
+      ];
+    });
+  } catch (error) {
+    console.error('Failed to find subscriptions ending soon:', error);
+    throw new Error('Failed to find subscriptions ending soon');
   }
 }
 

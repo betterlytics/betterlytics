@@ -31,10 +31,45 @@ export const usageThresholdScanJobDefinition = {
   saasOnly: true,
 } as const satisfies JobDefinition;
 
+export const retentionPurgeJobDefinition = {
+  name: 'retention-purge',
+  schedule: '0 2 * * 6',
+  retryLimit: 2,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+} as const satisfies JobDefinition;
+
+export const subscriptionEndingScanJobDefinition = {
+  name: 'subscription-ending-scan',
+  schedule: '0 10 * * *',
+  retryLimit: 3,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+  saasOnly: true,
+} as const satisfies JobDefinition;
+
+export const onboardingEmailsJobDefinition = {
+  name: 'onboarding-emails',
+  schedule: '0 * * * *',
+  retryLimit: 3,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+  saasOnly: true,
+} as const satisfies JobDefinition;
+
 export const JOB_DEFINITIONS = [
   emailReportsJobDefinition,
   sendEmailJobDefinition,
   usageThresholdScanJobDefinition,
+  retentionPurgeJobDefinition,
+  subscriptionEndingScanJobDefinition,
+  onboardingEmailsJobDefinition,
 ] as const;
 
 export type JobName = (typeof JOB_DEFINITIONS)[number]['name'];

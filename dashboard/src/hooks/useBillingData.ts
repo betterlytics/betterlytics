@@ -1,41 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getUserBillingData } from '@/actions/billing.action';
-import type { UserBillingData } from '@/entities/billing/billing.entities';
 
-interface UseBillingDataReturn {
-  billingData: UserBillingData | null;
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => void;
-}
+const BILLING_QUERY_KEY = ['userBilling'] as const;
 
-export function useBillingData(): UseBillingDataReturn {
-  const [billingData, setBillingData] = useState<UserBillingData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchBillingData = async () => {
-    setIsLoading(true);
-    setError(null);
-    const data = await getUserBillingData();
-    if (data.success) {
-      setBillingData(data.data);
-    } else {
-      setError(data.error.message);
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchBillingData();
-  }, []);
+export function useBillingData() {
+  const query = useQuery({
+    queryKey: BILLING_QUERY_KEY,
+    queryFn: async () => {
+      const result = await getUserBillingData();
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+      return result.data;
+    },
+  });
 
   return {
-    billingData,
-    isLoading,
-    error,
-    refetch: fetchBillingData,
+    billingData: query.data ?? null,
+    isLoading: query.isLoading,
+    error: query.error ? query.error.message : null,
+    refetch: query.refetch,
   };
 }

@@ -63,9 +63,20 @@ export const DashboardWithMemberCountSchema = DashboardSchema.extend({
   memberCount: z.number(),
 });
 
+export const OnboardingDashboardCandidateSchema = z.object({
+  dashboardId: z.string(),
+  siteId: z.string(),
+  domain: z.string(),
+  createdAt: z.date(),
+  ownerUserId: z.string(),
+  ownerEmail: z.string().email(),
+  ownerName: z.string().nullable(),
+});
+
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardWithMemberCount = z.infer<typeof DashboardWithMemberCountSchema>;
 export type DashboardWriteData = z.infer<typeof DashboardWriteSchema>;
 export type DashboardFindByUserData = z.infer<typeof DashboardFindByUserSchema>;
 export type DashboardUser = z.infer<typeof DashboardUserSchema>;
 export type DashboardWithSiteConfig = z.infer<typeof DashboardWithSiteConfigSchema>;
+export type OnboardingDashboardCandidate = z.infer<typeof OnboardingDashboardCandidateSchema>;

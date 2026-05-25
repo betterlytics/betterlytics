@@ -1,19 +1,18 @@
 'use server';
 
-import { withDashboardMutationAuthContext } from '@/auth/auth-actions';
+import { withUserAuth } from '@/auth/auth-actions';
 import { BugReportSubmission, BugReportSubmissionSchema } from '@/entities/system/bugReport.entities';
 import { submitBugReport } from '@/services/system/bugReports.service';
-import { type AuthContext } from '@/entities/auth/authContext.entities';
+import { type User } from 'next-auth';
 
-export const submitBugReportAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, payload: BugReportSubmission) => {
+export const submitBugReportAction = withUserAuth(
+  async (user: User, dashboardId: string | undefined, payload: BugReportSubmission) => {
     const data = BugReportSubmissionSchema.parse(payload);
 
     await submitBugReport({
-      userId: ctx.userId,
-      dashboardId: ctx.dashboardId,
+      userId: user.id,
+      dashboardId: dashboardId || undefined,
       message: data.message,
     });
   },
-  { permission: 'canSubmitBugReports' },
 );

@@ -32,17 +32,15 @@ export const UserSettingsCreateSchema = z
   })
   .strict();
 
-export const UserSettingsUpdateSchema = z.object({
-  theme: z.nativeEnum(Theme).optional(),
-  language: z.enum(SUPPORTED_LANGUAGES).optional(),
-  avatar: z.nativeEnum(AvatarMode).optional(),
-  emailNotifications: z.boolean().optional(),
-  marketingEmails: z.boolean().optional(),
-});
-
-export const UserSettingsFormDataSchema = UserSettingsUpdateSchema.extend({
-  name: z.string().nullable().optional(),
-});
+export const UserSettingsUpdateSchema = UserSettingsSchema
+  .pick({
+    theme: true,
+    language: true,
+    avatar: true,
+    emailNotifications: true,
+    marketingEmails: true,
+  })
+  .partial();
 
 // Default user settings matching database defaults
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
@@ -56,4 +54,3 @@ export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'create
 export type UserSettingsUpdate = z.infer<typeof UserSettingsUpdateSchema>;
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 export type UserSettingsCreate = z.infer<typeof UserSettingsCreateSchema>;
-export type UserSettingsFormData = z.infer<typeof UserSettingsFormDataSchema>;

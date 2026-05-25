@@ -12,6 +12,8 @@ import {
   DashboardWithSiteConfigSchema,
   DashboardWriteData,
   DashboardWriteSchema,
+  OnboardingDashboardCandidate,
+  OnboardingDashboardCandidateSchema,
 } from '@/entities/dashboard/dashboard.entities';
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
@@ -301,6 +303,61 @@ export async function deleteOwnedDashboards(userId: string): Promise<string[]> {
   } catch (error) {
     console.error(`Error deleting owned dashboards for user ${userId}:`, error);
     throw new Error('Failed to delete owned dashboards');
+  }
+}
+
+export async function findOnboardingDashboardCandidates(
+  createdAfter: Date,
+  limit: number,
+): Promise<OnboardingDashboardCandidate[]> {
+  try {
+    const dashboards = await prisma.dashboard.findMany({
+      where: {
+        deletedAt: null,
+        createdAt: { gt: createdAfter },
+        userAccess: {
+          some: {
+            role: 'owner',
+            user: { deletedAt: null, email: { not: null } },
+          },
+        },
+      },
+      select: {
+        id: true,
+        siteId: true,
+        domain: true,
+        createdAt: true,
+        userAccess: {
+          where: { role: 'owner', user: { deletedAt: null, email: { not: null } } },
+          orderBy: { createdAt: 'asc' },
+          take: 1,
+          select: {
+            user: { select: { id: true, email: true, name: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+    });
+
+    return dashboards.flatMap((d) => {
+      const owner = d.userAccess[0]?.user;
+      if (!owner?.email) return [];
+      return [
+        OnboardingDashboardCandidateSchema.parse({
+          dashboardId: d.id,
+          siteId: d.siteId,
+          domain: d.domain,
+          createdAt: d.createdAt,
+          ownerUserId: owner.id,
+          ownerEmail: owner.email,
+          ownerName: owner.name,
+        }),
+      ];
+    });
+  } catch (error) {
+    console.error('Error finding onboarding dashboard candidates:', error);
+    throw new Error('Failed to find onboarding dashboard candidates');
   }
 }
 

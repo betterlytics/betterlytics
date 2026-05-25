@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useMemo, use } from 'react';
 import { toast } from 'sonner';
-import SettingsPageHeader from '../SettingsPageHeader';
+import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
   saveIntegrationAction,
