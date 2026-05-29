@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
 
 interface SuccessCheckmarkProps {
   label?: string;
@@ -19,13 +19,7 @@ const LABEL_DELAY_MS = CIRCLE_DRAW_MS + CHECK_DRAW_MS;
 const POLISH_DELAY_MS = LABEL_DELAY_MS;
 
 export function SuccessCheckmark({ label, description, className }: SuccessCheckmarkProps) {
-  const [animate, setAnimate] = useState(false);
-
-  useEffect(() => {
-    // Defer one frame so the initial (offset-hidden) state paints before the transition triggers
-    const id = requestAnimationFrame(() => setAnimate(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
+  const animate = useEntranceAnimation();
 
   return (
     <div

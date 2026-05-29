@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useEntranceAnimation } from '@/hooks/useEntranceAnimation';
 
 interface FailureCheckmarkProps {
   label?: string;
@@ -18,12 +18,7 @@ const X_DELAY_MS = CIRCLE_DRAW_MS;
 const LABEL_DELAY_MS = CIRCLE_DRAW_MS + X_DRAW_MS;
 
 export function FailureCheckmark({ label, description, className }: FailureCheckmarkProps) {
-  const [animate, setAnimate] = useState(false);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setAnimate(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
+  const animate = useEntranceAnimation();
 
   return (
     <div

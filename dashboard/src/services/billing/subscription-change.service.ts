@@ -10,6 +10,7 @@ import {
 import type { SelectedPlan } from '@/types/pricing';
 import { UserException } from '@/lib/exceptions';
 import { syncSubscriptionFromStripe } from '@/services/system/webhookHandlers.service';
+import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
 
 function isProrationLine(line: Stripe.InvoiceLineItem): boolean {
   const parent = line.parent;
@@ -34,12 +35,7 @@ function priceAmountForCurrency(price: Stripe.Price, currencyLower: string): num
 }
 
 async function resolvePrice(lookupKey: string): Promise<Stripe.Price> {
-  const prices = await stripe.prices.list({
-    lookup_keys: [lookupKey],
-    active: true,
-    expand: ['data.currency_options'],
-  });
-  const price = prices.data[0];
+  const price = await findActivePriceByLookupKey(lookupKey);
   if (!price) {
     throw new UserException('Selected plan is not available.');
   }

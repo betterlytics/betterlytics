@@ -10,20 +10,15 @@ import { getOrCreateStripeCustomer, getLockedCustomerCurrency } from '@/services
 import { Stripe } from 'stripe';
 import { UserException } from '@/lib/exceptions';
 import type { Currency } from '@/entities/billing/billing.entities';
+import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   try {
-    const prices = await stripe.prices.list({
-      lookup_keys: [lookupKey],
-      active: true,
-      expand: ['data.currency_options'],
-    });
-
-    if (prices.data.length === 0) {
+    const price = await findActivePriceByLookupKey(lookupKey);
+    if (!price) {
       throw new Error(`No price found for lookup key: ${lookupKey}`);
     }
-
-    return prices.data[0];
+    return price;
   } catch (error) {
     console.error('Error retrieving price from lookup key:', error);
     throw new Error(`Failed to retrieve price for lookup key: ${lookupKey}`);
