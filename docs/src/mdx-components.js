@@ -10,7 +10,6 @@ import {
   IntegrationIcon,
 } from "./app/components/IntegrationIconRow";
 import { BlogFAQ } from "./app/blog/components/BlogFAQ";
-import { BlogCta } from "./app/blog/components/BlogCta";
 
 const themeComponents = getThemeComponents();
 
@@ -24,7 +23,6 @@ export function useMDXComponents(components) {
     IntegrationIcon,
     Callout,
     FAQ: BlogFAQ,
-    Cta: BlogCta,
     ...components,
   };
 }

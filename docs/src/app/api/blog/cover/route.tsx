@@ -1,66 +1,23 @@
-import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import {
-  computeTextureRgba,
-  gridFor,
   hashStr,
   isTextureName,
   renderDefaultsFor,
   type PaletteName,
   type TextureName,
 } from "@/app/blog/lib/cover-textures";
-import { renderTexturePng } from "@/app/blog/lib/cover-raster";
 import { getBlogPostBySlug } from "@/app/blog/lib/registry";
 import { pickTexture } from "@/app/blog/lib/cover";
+import {
+  formatCoverDate,
+  pngResponse,
+  renderCover,
+} from "@/app/blog/lib/cover-render";
 
-// In-page blog cover image (1200×630, light surface, procedural texture).
-//
-// Driven by `?slug=` (reads the post's frontmatter `cover` config + text), with
-// every raw query param still overriding for the tuning playground. Output is
-// deterministic given (texture, seed, params), so it's cached immutably.
-
-const W = 1200;
-const H = 630;
-const CQW = 12; // 1cqw at 1200px wide
-
-// Chrome colors, pre-resolved to hex (Satori's oklch parser falls back to black).
-const C = {
-  surface: "#f7f7f8",
-  border: "#e6e6e6",
-  hero: "#101113",
-  brand: "#101113", // "Betterlytics" wordmark — near-black
-  label: "#4d4f55", // category + "Blog" wordmark — gray
-  date: "#8a8d93",
-};
-
-const FONT_DIR = join(process.cwd(), "assets", "fonts");
-const LOGO_PATH = join(
-  process.cwd(),
-  "public",
-  "betterlytics-logo-dark-simple.svg",
-);
-
-let fontCache: { w500: Buffer; w700: Buffer } | null = null;
-let logoDataUrl: string | null = null;
-
-async function loadFonts() {
-  if (fontCache) return fontCache;
-  const [w500, w700] = await Promise.all([
-    readFile(join(FONT_DIR, "inter-tight-latin-500-normal.woff")),
-    readFile(join(FONT_DIR, "inter-tight-latin-700-normal.woff")),
-  ]);
-  fontCache = { w500, w700 };
-  return fontCache;
-}
-
-async function loadLogoDataUrl() {
-  if (logoDataUrl) return logoDataUrl;
-  const svg = await readFile(LOGO_PATH, "utf8");
-  logoDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-  return logoDataUrl;
-}
+// Tuning playground for the procedural blog cover (1200×630). Every raw query
+// param overrides the post's frontmatter-derived defaults, so designers can
+// dial in a look before pinning it. The canonical production cover is served
+// statically from `/api/blog/cover/[slug]` (prerendered at build).
 
 function num(v: string | null, fallback: number): number {
   if (v == null) return fallback;
@@ -91,30 +48,6 @@ function coverCacheSet(key: string, bytes: ArrayBuffer): void {
     const oldest = coverCache.keys().next().value;
     if (oldest !== undefined) coverCache.delete(oldest);
   }
-}
-
-// ArrayBuffer is a valid BodyInit, and `new Response(buf)` copies the bytes —
-// so a cached buffer can be served many times without being consumed.
-function pngResponse(bytes: ArrayBuffer): Response {
-  return new Response(bytes, {
-    headers: {
-      "Content-Type": "image/png",
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
-  });
-}
-
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-// Deterministic, locale-independent date for the cover (matches the design's
-// "May 15, 2026"). UTC so a midnight-Z publishedAt doesn't drift a day.
-function formatCoverDate(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -193,163 +126,23 @@ export async function GET(req: NextRequest): Promise<Response> {
     searchParams.get("hero") ?? fm?.blueWord ?? fm?.tags[0] ?? "Betterlytics";
   const category = searchParams.get("category") ?? fm?.tags[0] ?? "";
   const date =
-    searchParams.get("date") ??
-    (fm ? formatCoverDate(fm.publishedAt) : "");
+    searchParams.get("date") ?? (fm ? formatCoverDate(fm.publishedAt) : "");
 
-  // --- Build the texture background ---
-  const small = computeTextureRgba(texture, seed, {
-    params,
+  const bytes = await renderCover({
+    texture,
+    seed,
     palette,
-    contrast,
-  });
-  const grid = gridFor(texture);
-  const png = renderTexturePng({
-    small,
-    smallW: grid.w,
-    smallH: grid.h,
-    width: W,
-    height: H,
+    params,
     blurSigma,
+    contrast,
     grain,
-    grainSeed: (seed ^ 0x9e3779b9) >>> 0,
     fade,
     vignette,
+    hero,
+    category,
+    date,
   });
-  const bgDataUrl = `data:image/png;base64,${png.toString("base64")}`;
 
-  // --- Chrome ---
-  const { w500, w700 } = await loadFonts();
-  const logoSrc = await loadLogoDataUrl();
-  const heroSize = hero.length > 8 ? 7 * CQW : 9 * CQW; // 84px / 108px
-
-  const image = new ImageResponse(
-    (
-      <div
-        style={{
-          width: W,
-          height: H,
-          display: "flex",
-          position: "relative",
-          fontFamily: "Inter Tight",
-          color: C.hero,
-          background: C.surface,
-        }}
-      >
-        {/* Texture background, full bleed */}
-        <img
-          src={bgDataUrl}
-          width={W}
-          height={H}
-          alt=""
-          style={{ position: "absolute", top: 0, left: 0 }}
-        />
-
-        {/* Hairline frame border */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: W,
-            height: H,
-            border: `1px solid ${C.border}`,
-          }}
-        />
-
-        {/* Top-left: category */}
-        <div
-          style={{
-            position: "absolute",
-            top: 4.166 * CQW,
-            left: 5 * CQW,
-            fontSize: 2.4 * CQW,
-            fontWeight: 500,
-            color: C.label,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {category}
-        </div>
-
-        {/* Top-right: brand mark + wordmark ("Betterlytics" dark, "Blog" gray) */}
-        <div
-          style={{
-            position: "absolute",
-            top: 4.166 * CQW,
-            right: 5 * CQW,
-            display: "flex",
-            alignItems: "center",
-            gap: 1.166 * CQW,
-            fontSize: 2.4 * CQW,
-            fontWeight: 500,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          <img src={logoSrc} width={2.8 * CQW} height={2.8 * CQW} alt="" />
-          <div style={{ display: "flex", alignItems: "baseline" }}>
-            <span style={{ color: C.brand }}>Betterlytics</span>
-            <span style={{ color: C.label, marginLeft: 0.7 * CQW }}>Blog</span>
-          </div>
-        </div>
-
-        {/* Hero word — vertically centered, left-aligned */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 5 * CQW,
-            width: W * 0.65 - 5 * CQW, // hero box: left 5cqw → right edge 35% from right
-            height: H,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              fontSize: heroSize,
-              fontWeight: 700,
-              letterSpacing: "-0.035em",
-              lineHeight: 0.96,
-              color: C.hero,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {hero}
-          </div>
-        </div>
-
-        {/* Bottom-left: date */}
-        {date ? (
-          <div
-            style={{
-              position: "absolute",
-              bottom: 4.166 * CQW,
-              left: 5 * CQW,
-              fontSize: 2 * CQW,
-              fontWeight: 500,
-              color: C.date,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {date}
-          </div>
-        ) : null}
-      </div>
-    ),
-    {
-      width: W,
-      height: H,
-      fonts: [
-        { name: "Inter Tight", data: w500, weight: 500, style: "normal" },
-        { name: "Inter Tight", data: w700, weight: 700, style: "normal" },
-      ],
-    },
-  );
-
-  // Read the rendered bytes so we can both cache them and serve with our own
-  // immutable headers. The `&v=` token (from the resolver) busts the cache when
-  // a post's cover config or text changes.
-  const rendered = await image.arrayBuffer();
-  if (cacheable) coverCacheSet(cacheKey, rendered);
-  return pngResponse(rendered);
+  if (cacheable) coverCacheSet(cacheKey, bytes);
+  return pngResponse(bytes);
 }

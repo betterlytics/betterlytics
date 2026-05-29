@@ -1,8 +1,3 @@
-/* =========================================================
-   Betterlytics Blog — restrained editorial.
-   Flat surfaces, neutral tints, hairline borders, no glow.
-   ========================================================= */
-
 .blog-root {
   --blog-accent: var(--primary);
   --blog-content-width: 680px;
@@ -164,7 +159,6 @@
 }
 
 /* ---------- Cover ---------- */
-/* No frame chrome — the image carries its own visual treatment. */
 .post-cover {
   position: relative;
   margin: 0 0 40px;
@@ -566,11 +560,7 @@
   color: var(--blog-accent);
 }
 
-/* =========================================================
-   Blog index — featured + uniform grid (design "Blog Index v6").
-   Covers come from resolveCover (photo or /api/blog/cover); this
-   file only governs layout.
-   ========================================================= */
+/* ---------- Blog Index ---------- */
 .blog-index {
   --bi-display: var(--font-roboto-mono), "Inter Tight", sans-serif;
   max-width: 1200px;
@@ -614,10 +604,10 @@
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--muted);
+  background: transparent;
 }
 .blog-index .bi-cover img {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* ---------- Featured row ---------- */

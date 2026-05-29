@@ -51,7 +51,7 @@ export function resolveCover(post: BlogPost): ResolvedCover {
     return { ...fm.coverImage, generated: false };
   }
   return {
-    src: `/api/blog/cover?slug=${encodeURIComponent(post.slug)}&v=${coverVersion(post)}`,
+    src: `/api/blog/cover/${encodeURIComponent(post.slug)}?v=${coverVersion(post)}`,
     alt: fm.title,
     width: 1200,
     height: 630,

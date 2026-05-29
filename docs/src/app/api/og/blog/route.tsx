@@ -4,20 +4,14 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getBlogPostBySlug } from "@/app/blog/lib/registry";
 
-// Variant E.3.3 of the locked design: dark canvas, two hairline dividers,
-// header (B-mark + "Betterlytics Blog"), centered title with one blue word.
-// No corner fill, no bottom chart, no tag pills.
-
-// Hex equivalents of the design's hsl()/oklch() tokens — Satori's CSS color
-// parser falls back to black on the modern oklch() syntax, so we pre-resolve.
 const C = {
-  bg: "#101113",       // hsl(222 5% 6.5%)
-  fg: "#F2F3F5",       // oklch(0.96 0.01 265)
-  fgBright: "#FFFFFF", // pure white for the wordmark (header contrast lift)
-  fgMuted: "#A8A8AF",  // oklch(0.7 0.02 265) — body / generic muted
-  fgDim: "#6E7076",    // deeper muted for header 'Blog' wordmark
-  blue: "#60A5FA",     // tailwind blue-400 — matches landing hero's `dark:text-blue-400` highlight
-  divider: "#7A7C80",  // brightened from hsl(0 0% 38%) — more confident architecture
+  bg: "#101113",
+  fg: "#F2F3F5",
+  fgBright: "#FFFFFF",
+  fgMuted: "#A8A8AF",
+  fgDim: "#6E7076",
+  blue: "#60A5FA",
+  divider: "#7A7C80",
 };
 
 const W = 1200;
@@ -26,7 +20,7 @@ const HEADER_H = 100;
 const RIGHT_COL_W = 100;
 const DIVIDER_W = 2;
 const PAD_L = 64;
-const PAD_R = RIGHT_COL_W + 32; // 132
+const PAD_R = RIGHT_COL_W + 32;
 
 const FONT_DIR = join(process.cwd(), "assets", "fonts");
 const LOGO_PATH = join(
@@ -104,8 +98,6 @@ export async function GET(req: NextRequest): Promise<ImageResponse> {
           position: "relative",
         }}
       >
-
-        {/* z=2 — vertical divider */}
         <div
           style={{
             position: "absolute",
@@ -117,7 +109,6 @@ export async function GET(req: NextRequest): Promise<ImageResponse> {
             zIndex: 2,
           }}
         />
-        {/* z=2 — horizontal divider */}
         <div
           style={{
             position: "absolute",
@@ -129,8 +120,6 @@ export async function GET(req: NextRequest): Promise<ImageResponse> {
             zIndex: 2,
           }}
         />
-
-        {/* z=3 — header */}
         <div
           style={{
             height: HEADER_H,
@@ -167,8 +156,6 @@ export async function GET(req: NextRequest): Promise<ImageResponse> {
             </span>
           </div>
         </div>
-
-        {/* z=3 — body */}
         <div
           style={{
             flex: 1,
