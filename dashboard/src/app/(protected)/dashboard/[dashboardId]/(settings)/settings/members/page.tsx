@@ -38,7 +38,11 @@ export default async function MembersPage({ params }: MembersPageProps) {
       <SettingsPageHeader title={tSidebar('members')} />
       <div className='space-y-12'>
         <SettingsSection title={t('settings.invite.title')} description={t('settings.invite.description')}>
-          <InviteSection dashboardId={dashboardId} pendingInvitations={pendingInvitations} />
+          <InviteSection
+            dashboardId={dashboardId}
+            pendingInvitations={pendingInvitations}
+            memberCount={members.length}
+          />
         </SettingsSection>
 
         <SettingsSection title={t('settings.activeMembers.title')}>

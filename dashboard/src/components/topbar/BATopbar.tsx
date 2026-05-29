@@ -31,6 +31,7 @@ import { useIsEmbedded } from '@/hooks/use-is-embedded';
 import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { Link as LocaleLink } from '@/i18n/navigation';
 
 export default function BATopbar() {
@@ -45,6 +46,7 @@ export default function BATopbar() {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
+  const { openPlanPicker } = useBillingFlow();
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -131,11 +133,9 @@ export default function BATopbar() {
                         </NextLink>
                       </DropdownMenuItem>
                       {isBillingEnabled && (
-                        <DropdownMenuItem asChild className='cursor-pointer'>
-                          <NextLink href='/billing'>
-                            <CreditCard className='mr-2 h-4 w-4' />
-                            <span>{t('upgradePlan')}</span>
-                          </NextLink>
+                        <DropdownMenuItem onClick={openPlanPicker} className='cursor-pointer'>
+                          <CreditCard className='mr-2 h-4 w-4' />
+                          <span>{t('upgradePlan')}</span>
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>

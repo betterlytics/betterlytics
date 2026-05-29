@@ -4,13 +4,23 @@ import { withUserAuth, withDashboardAuthContext } from '@/auth/auth-actions';
 import { getUserBillingStats, getDashboardOwnerBillingStats } from '@/services/billing/billing.service';
 import { listUserInvoices } from '@/services/billing/invoice.service';
 import {
+  previewSubscriptionChange,
+  applySubscriptionChange,
+} from '@/services/billing/subscription-change.service';
+import {
   type UserBillingData,
   type UserInvoice,
+  type SubscriptionChangePreview,
   buildSelfHostedBillingData,
 } from '@/entities/billing/billing.entities';
+import { SelectedPlanSchema, type SelectedPlan } from '@/types/pricing';
 import { User } from 'next-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { UserException } from '@/lib/exceptions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
+import { z } from 'zod';
+
+const AttemptIdSchema = z.string().uuid();
 
 export const getUserBillingData = withUserAuth(async (user: User): Promise<UserBillingData> => {
   if (!isFeatureEnabled('enableBilling')) {
@@ -27,6 +37,30 @@ export const getUserInvoices = withUserAuth(async (user: User): Promise<UserInvo
 
   return listUserInvoices(user.id);
 });
+
+export const getSubscriptionChangePreview = withUserAuth(
+  async (user: User, targetPlan: SelectedPlan): Promise<SubscriptionChangePreview> => {
+    if (!isFeatureEnabled('enableBilling')) {
+      throw new UserException('Billing is not enabled.');
+    }
+    const validatedPlan = SelectedPlanSchema.parse(targetPlan);
+    return previewSubscriptionChange(user.id, validatedPlan);
+  },
+);
+
+export const changeSubscriptionPlan = withUserAuth(
+  async (user: User, targetPlan: SelectedPlan, attemptId: string): Promise<void> => {
+    if (!isFeatureEnabled('enableBilling')) {
+      throw new UserException('Billing is not enabled.');
+    }
+    if (!user.emailVerified) {
+      throw new UserException('Email verification required to change plans.');
+    }
+    const validatedPlan = SelectedPlanSchema.parse(targetPlan);
+    const validatedAttemptId = AttemptIdSchema.parse(attemptId);
+    await applySubscriptionChange(user.id, validatedPlan, validatedAttemptId);
+  },
+);
 
 export const getDashboardOwnerBillingData = withDashboardAuthContext(
   async (ctx: AuthContext): Promise<UserBillingData> => {

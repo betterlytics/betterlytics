@@ -22,6 +22,7 @@ interface PricingComponentProps {
   className?: string;
   billingData?: UserBillingData;
   defaultCurrency?: Currency;
+  lockedCurrency?: Currency;
 }
 
 export function PricingComponent({
@@ -30,15 +31,11 @@ export function PricingComponent({
   className = '',
   billingData,
   defaultCurrency = 'USD',
+  lockedCurrency,
 }: PricingComponentProps) {
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(defaultCurrency);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
   const currentRange = EVENT_RANGES[selectedRangeIndex];
-
-  const handleSliderChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const index = parseInt(e.target.value);
-    setSelectedRangeIndex(index);
-  }, []);
 
   const handleCurrencyChange = useCallback((currency: string) => {
     setSelectedCurrency(currency as Currency);
@@ -52,26 +49,28 @@ export function PricingComponent({
             <PricingSlider
               currentRange={currentRange}
               selectedRangeIndex={selectedRangeIndex}
-              handleSliderChange={handleSliderChange}
+              onSelectIndex={setSelectedRangeIndex}
             />
           </div>
-          <div className='text-muted-foreground col-start-3 flex flex-shrink-0 justify-center text-xs lg:col-start-5 lg:justify-end'>
-            <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
-              <SelectTrigger size='sm' className='cursor-pointer'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value='USD' className='cursor-pointer'>
-                    USD ($)
-                  </SelectItem>
-                  <SelectItem value='EUR' className='cursor-pointer'>
-                    EUR (€)
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
+          {!lockedCurrency && (
+            <div className='text-muted-foreground col-start-3 flex flex-shrink-0 justify-center text-xs lg:col-start-5 lg:justify-end'>
+              <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
+                <SelectTrigger size='sm' className='cursor-pointer'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value='USD' className='cursor-pointer'>
+                      USD ($)
+                    </SelectItem>
+                    <SelectItem value='EUR' className='cursor-pointer'>
+                      EUR (€)
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <PricingCards

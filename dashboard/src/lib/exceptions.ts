@@ -14,10 +14,14 @@ export class ForbiddenError extends Error {
  * considered internal and not exposed directly to users.
  */
 export class UserException extends Error {
-  constructor(message: string) {
+  // Stable identifier the UI can use to render a localized message
+  code?: string;
+
+  constructor(message: string, code?: string) {
     super(message);
     this.name = 'UserException';
-    
+    this.code = code;
+
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, UserException);
     }

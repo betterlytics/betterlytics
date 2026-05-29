@@ -2,6 +2,7 @@ import { TierName } from './plans';
 
 export type DashboardCapabilities = {
   maxDashboards: number;
+  maxMembers: number;
 };
 
 export type MonitoringCapabilities = {
@@ -30,7 +31,7 @@ export type PlanCapabilities = {
 
 export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
   growth: {
-    dashboards: { maxDashboards: 2 },
+    dashboards: { maxDashboards: 2, maxMembers: 3 },
     monitoring: {
       maxMonitors: 1,
       minIntervalSeconds: 300,
@@ -43,7 +44,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     dataRetention: { maxDataRetentionDays: 365 },
   },
   professional: {
-    dashboards: { maxDashboards: 50 },
+    dashboards: { maxDashboards: 50, maxMembers: 50 },
     monitoring: {
       maxMonitors: 50,
       minIntervalSeconds: 60,
@@ -56,7 +57,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     dataRetention: { maxDataRetentionDays: 1095 },
   },
   enterprise: {
-    dashboards: { maxDashboards: 9999 },
+    dashboards: { maxDashboards: 9999, maxMembers: 9999 },
     monitoring: {
       maxMonitors: 9999,
       minIntervalSeconds: 30,
@@ -76,6 +77,10 @@ export function getCapabilitiesForTier(tier: TierName): PlanCapabilities {
 
 export function getDashboardLimitForTier(tier: TierName): number {
   return PLAN_CAPABILITIES[tier].dashboards.maxDashboards;
+}
+
+export function getMaxMembersForTier(tier: TierName): number {
+  return PLAN_CAPABILITIES[tier].dashboards.maxMembers;
 }
 
 export function isEmailReportsEnabled(tier: TierName): boolean {

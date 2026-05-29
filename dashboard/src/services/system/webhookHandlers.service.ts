@@ -1,3 +1,5 @@
+import 'server-only';
+
 import Stripe from 'stripe';
 import { STARTER_SUBSCRIPTION_STATIC, type Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
@@ -76,6 +78,14 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       return;
     }
 
+    if (subscription.status === 'past_due') return;
+
+    const fresh = await stripe.subscriptions.retrieve(subscriptionId);
+    if (fresh.status !== 'past_due' && fresh.status !== 'unpaid') {
+      console.log('Skipping stale invoice.payment_failed; Stripe shows', fresh.status);
+      return;
+    }
+
     await setSubscriptionStatus(subscription.userId, 'past_due');
   } catch (error) {
     console.error('Error handling invoice payment failed:', error);
@@ -108,8 +118,8 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
       currentPeriodStart: now,
       currentPeriodEnd: addMonths(now, 1),
       cancelAtPeriodEnd: false,
-      paymentSubscriptionId: undefined,
-      paymentPriceId: undefined,
+      paymentSubscriptionId: null,
+      paymentPriceId: null,
     });
 
     await syncRetentionToTier(localSubscription.userId, 'growth', eventId);
@@ -151,36 +161,48 @@ async function sendSubscriptionPaymentCancelledNotification(userId: string, even
 
 export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, eventId: string) {
   try {
-    const localSubscription = await findSubscriptionByPaymentId(subscription.id);
-    if (!localSubscription) {
-      throw new Error(`No local subscription found for Stripe subscription: ${subscription.id}`);
-    }
-
-    const subscriptionItem = subscription.items.data[0];
-    const tierConfig = getTierConfigFromLookupKey(subscriptionItem.price.lookup_key as string);
-    const pricePerMonth = await getPriceAmountByCurrency(subscriptionItem.price.id, localSubscription.currency);
-
-    await upsertUserSubscription({
-      userId: localSubscription.userId,
-      tier: tierConfig.tier,
-      status: subscription.status,
-      eventLimit: tierConfig.eventLimit,
-      pricePerMonth,
-      currency: subscription.currency.toUpperCase() as Currency,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
-      paymentCustomerId: subscription.customer as string,
-      paymentSubscriptionId: subscription.id,
-      paymentPriceId: subscriptionItem.price.id,
-    });
-
-    if (localSubscription.tier !== tierConfig.tier) {
-      await syncRetentionToTier(localSubscription.userId, tierConfig.tier, eventId);
-    }
+    await syncSubscriptionFromStripe(subscription, eventId);
   } catch (error) {
     console.error('Error handling subscription updated:', error);
     throw error;
+  }
+}
+
+// Idempotent so concurrent calls are safe.
+export async function syncSubscriptionFromStripe(
+  subscription: Stripe.Subscription,
+  eventId: string,
+): Promise<void> {
+  const localSubscription = await findSubscriptionByPaymentId(subscription.id);
+  if (!localSubscription) {
+    throw new Error(`No local subscription found for Stripe subscription: ${subscription.id}`);
+  }
+
+  const subscriptionItem = subscription.items.data[0];
+  const tierConfig = getTierConfigFromLookupKey(subscriptionItem.price.lookup_key as string);
+
+  const pricePerMonth = await getPriceAmountByCurrency(
+    subscriptionItem.price.id,
+    subscription.currency.toUpperCase() as Currency,
+  );
+
+  await upsertUserSubscription({
+    userId: localSubscription.userId,
+    tier: tierConfig.tier,
+    status: subscription.status,
+    eventLimit: tierConfig.eventLimit,
+    pricePerMonth,
+    currency: subscription.currency.toUpperCase() as Currency,
+    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
+    currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
+    paymentCustomerId: subscription.customer as string,
+    paymentSubscriptionId: subscription.id,
+    paymentPriceId: subscriptionItem.price.id,
+  });
+
+  if (localSubscription.tier !== tierConfig.tier) {
+    await syncRetentionToTier(localSubscription.userId, tierConfig.tier, eventId);
   }
 }
 

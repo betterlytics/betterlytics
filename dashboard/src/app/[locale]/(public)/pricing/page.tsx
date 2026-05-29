@@ -3,7 +3,7 @@ import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { StructuredData } from '@/components/StructuredData';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
-import { FeatureComparisonSection } from '@/app/[locale]/(public)/pricing/FeatureComparisonSection';
+import { FeatureComparisonSection } from '@/components/billing/FeatureComparisonSection';
 import { CoreFeaturesSection } from '@/components/pricing/CoreFeaturesSection';
 import { BillingFAQGrid } from '@/app/(protected)/billing/BillingFAQGrid';
 import { getTranslations, getLocale } from 'next-intl/server';

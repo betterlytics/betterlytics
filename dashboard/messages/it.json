@@ -1410,19 +1410,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
-      "allFeatures": "Tutte le funzionalità dashboard e analitiche",
+      "customEventVolume": "Volume eventi personalizzato",
       "twoSites": "Fino a 2 siti",
       "upTo50Sites": "Fino a 50 siti",
       "unlimitedSites": "Siti illimitati",
+      "threeTeamMembers": "Fino a 3 membri del team",
+      "upTo50TeamMembers": "Fino a 50 membri del team",
+      "unlimitedTeamMembers": "Membri del team illimitati",
       "retention1PlusYear": "Conservazione dati 1+ anno",
       "retention3PlusYears": "Conservazione dati 3+ anni",
       "retention5PlusYears": "Conservazione dati 5+ anni",
-      "emailSupport": "Supporto email",
-      "prioritySupport": "Supporto prioritario",
-      "dedicatedSupport": "Supporto dedicato e aiuto",
+      "fullDashboard": "Dashboard di web analytics completa",
+      "funnelsJourneys": "Funnel e percorsi utente",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Tracciamento errori",
+      "uptime1": "1 monitor uptime",
+      "uptime50": "50 monitor uptime con controlli ogni minuto",
+      "uptimeUnlimited": "Monitor uptime illimitati",
+      "emailReports": "Report email pianificati",
+      "customHttp": "Controlli uptime avanzati (metodi HTTP, header e codici di stato personalizzati)",
+      "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Growth",
-      "everythingInProfessional": "Tutto in Professional"
+      "everythingInStarter": "Tutto in Growth, più:",
+      "everythingInProfessional": "Tutto in Professional, più:"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -1433,12 +1443,12 @@
       "contactUs": "Contattaci"
     },
     "badges": {
-      "mostPopular": "Più popolare",
+      "mostPopular": "Consigliato",
       "current": "Attuale"
     },
     "labels": {
       "free": "Gratuito",
-      "custom": "Contattaci"
+      "custom": "Personalizzato"
     }
   },
   "pricingComparison": {
@@ -1480,8 +1490,8 @@
       "teamMembers": {
         "name": "Membri del team",
         "values": {
-          "1": "1",
-          "upTo5": "Fino a 5",
+          "upTo3": "Fino a 3",
+          "upTo50": "Fino a 50",
           "unlimited": "Illimitati"
         }
       },
@@ -2184,17 +2194,47 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Il checkout è stato annullato. Puoi riprovare in qualsiasi momento.",
         "contactForCustomPlan": "Contattaci per un piano personalizzato",
-        "planSelectionFailed": "Impossibile elaborare la selezione del piano, riprova.",
-        "subscriptionChangesNote": "Le modifiche al tuo abbonamento saranno elaborate immediatamente tramite il portale di fatturazione sicuro di Stripe.",
-        "freePlanNote": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+        "subscriptionChangesNote": "Le modifiche al tuo abbonamento avranno effetto immediato, con fatturazione proporzionale per la differenza.",
+        "freePlanNote": "Inizia con il nostro piano gratuito — nessuna carta di credito richiesta."
       },
       "embeddedCheckout": {
         "title": "Completa il tuo abbonamento",
         "description": "Completa il tuo acquisto in modo sicuro con Stripe.",
         "loadError": "Non è stato possibile caricare il checkout. Riprova.",
-        "creatingSession": "Creazione di una sessione di pagamento sicura…"
+        "creatingSession": "Creazione di una sessione di pagamento sicura…",
+        "successTitle": "Pagamento riuscito",
+        "successDescription": "Sei ora su {tier}. Benvenuto in Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Scegli il tuo piano",
+        "description": "Scegli il piano più adatto alle tue esigenze.",
+        "showComparison": "Confronta tutte le funzionalità",
+        "hideComparison": "Nascondi confronto funzionalità"
+      },
+      "changePlan": {
+        "title": "Conferma cambio piano",
+        "description": "Rivedi gli addebiti proporzionali prima di confermare.",
+        "summaryCharge": "Passerai a {tier} ({events} eventi / mese) immediatamente. {amount} verranno addebitati ora per il resto del periodo, poi {nextAmount}/mese a partire dal {date}.",
+        "summaryCredit": "Passerai a {tier} ({events} eventi / mese). {amount} di credito per il tempo non utilizzato sarà applicato alla prossima fattura di {nextAmount}/mese il {date}.",
+        "loading": "Calcolo della proporzione in corso…",
+        "error": "Impossibile calcolare la proporzione. Riprova.",
+        "newPlanCharge": "Addebito proporzionale del nuovo piano",
+        "unusedTimeCredit": "Credito per tempo non utilizzato",
+        "totalDueToday": "Dovuto oggi",
+        "totalCreditedToday": "Accreditato oggi",
+        "confirm": "Conferma cambio",
+        "back": "Indietro",
+        "successLabel": "Piano cambiato",
+        "successDescription": "Sei ora su {tier}.",
+        "failureLabel": "Modifica piano non riuscita",
+        "authRequiredLabel": "Azione richiesta",
+        "close": "Chiudi",
+        "updatePaymentMethod": "Aggiorna metodo di pagamento",
+        "errors": {
+          "cardDeclined": "Non è stato possibile addebitare il tuo metodo di pagamento. Aggiorna la tua carta e riprova.",
+          "authenticationRequired": "Controlla la tua email per autenticare questo pagamento e completare il tuo aggiornamento."
+        }
       },
       "currentPlan": {
         "title": "Piano attuale",
@@ -3176,6 +3216,7 @@
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
+      "memberLimitReached": "Il tuo piano consente fino a {limit} membri del team su questa dashboard. Effettua l'upgrade per invitare altri.",
       "invitationAlreadySent": "È già stato inviato un invito a questa email",
       "invitationNotFoundOrProcessed": "Invito non trovato o già elaborato",
       "invitationExpired": "Questo invito è scaduto",
@@ -3270,6 +3311,7 @@
       "emailPlaceholder": "collega@example.com",
       "roleLabel": "Ruolo",
       "inviteButton": "Invita",
+      "upgradeToInvite": "Esegui l'upgrade per invitare altri",
       "sending": "Invio in corso...",
       "pending": "In sospeso",
       "invited": "Invitato",

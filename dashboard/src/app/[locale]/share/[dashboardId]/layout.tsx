@@ -3,6 +3,7 @@ import DashboardLayoutShell from '@/app/(dashboard)/DashboardLayoutShell';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
 import { DashboardProvider } from '@/app/(protected)/dashboard/[dashboardId]/DashboardProvider';
+import { BillingFlowProvider } from '@/contexts/BillingFlowProvider';
 import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { assertPublicDashboardAccess } from '@/services/auth/auth.service';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
@@ -71,11 +72,13 @@ export default async function PublicDashboardLayout({ params, children }: Public
       <TimezoneCookieInitializer />
       <DashboardAuthProvider isDemo={true} role='viewer'>
         <DashboardProvider initialSettings={initialSettings}>
-          {session?.user.settings ? (
-            <UserSettingsProvider initialSettings={session.user.settings}>{shell}</UserSettingsProvider>
-          ) : (
-            shell
-          )}
+          <BillingFlowProvider>
+            {session?.user.settings ? (
+              <UserSettingsProvider initialSettings={session.user.settings}>{shell}</UserSettingsProvider>
+            ) : (
+              shell
+            )}
+          </BillingFlowProvider>
         </DashboardProvider>
       </DashboardAuthProvider>
     </PublicEnvironmentVariablesProvider>

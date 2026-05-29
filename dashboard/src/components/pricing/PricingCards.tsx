@@ -24,12 +24,14 @@ interface PricingCardsProps {
   billingData?: UserBillingData;
 }
 
+type FeatureItem = string | { kind: 'header'; label: string };
+
 interface PlanConfig {
   tier: Tier;
   price_cents: number;
   period: string;
   description: string;
-  features: readonly string[];
+  features: readonly FeatureItem[];
   cta: string;
   popular: boolean;
   lookup_key: string | null;
@@ -52,6 +54,12 @@ export function PricingCards({
   const isFree = growthPrice === 0;
   const isCustom = growthPrice < 0;
 
+  const eventsLabel = t('features.upToEventsPerMonth', {
+    events:
+      formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) +
+      (eventRange.value > 10_000_000 ? '+' : ''),
+  });
+
   const plans: PlanConfig[] = useMemo(
     () => [
       {
@@ -60,11 +68,15 @@ export function PricingCards({
         period: !isFree && !isCustom ? t('periodPerMonth') : '',
         description: t('descriptions.growth'),
         features: [
-          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
-          t('features.allFeatures'),
+          eventsLabel,
           t('features.twoSites'),
+          t('features.threeTeamMembers'),
           t('features.retention1PlusYear'),
-          t('features.emailSupport'),
+          t('features.uptime1'),
+          t('features.fullDashboard'),
+          t('features.funnelsJourneys'),
+          t('features.sessionReplay'),
+          t('features.errorTracking'),
         ],
         cta: isFree ? t('cta.getStartedForFree') : isCustom ? t('cta.contactSales') : t('cta.getStarted'),
         popular: false,
@@ -76,13 +88,13 @@ export function PricingCards({
         period: !isCustom ? t('periodPerMonth') : '',
         description: t('descriptions.professional'),
         features: [
-          t('features.upToEventsPerMonth', { events: formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) + (eventRange.value > 10_000_000 ? '+' : '') }),
-          t('features.everythingInStarter'),
+          { kind: 'header', label: t('features.everythingInStarter') },
           t('features.upTo50Sites'),
+          t('features.upTo50TeamMembers'),
           t('features.retention3PlusYears'),
-          //'Access to API',
-          //'Up to 10 team members',
-          t('features.prioritySupport'),
+          t('features.uptime50'),
+          t('features.customHttp'),
+          t('features.emailReports'),
         ],
         cta: isCustom ? t('cta.contactSales') : t('cta.getStarted'),
         popular: true,
@@ -94,10 +106,12 @@ export function PricingCards({
         period: '',
         description: t('descriptions.enterprise'),
         features: [
-          t('features.everythingInProfessional'),
+          { kind: 'header', label: t('features.everythingInProfessional') },
           t('features.unlimitedSites'),
+          t('features.unlimitedTeamMembers'),
           t('features.retention5PlusYears'),
-          //'Unlimited team members',
+          t('features.uptimeUnlimited'),
+          t('features.customEventVolume'),
           t('features.dedicatedSupport'),
           t('features.slaGuarantee'),
         ],
@@ -106,7 +120,7 @@ export function PricingCards({
         lookup_key: null,
       },
     ],
-    [eventRange, growthPrice, professionalPrice, isFree, isCustom, t, locale],
+    [eventRange, growthPrice, professionalPrice, isFree, isCustom, eventsLabel, t],
   );
 
   const handlePlanClick = (plan: PlanConfig) => {
@@ -130,6 +144,21 @@ export function PricingCards({
   };
 
   const renderButton = (plan: PlanConfig) => {
+    if (plan.tier === 'enterprise') {
+      return (
+        <Link
+          href='/contact'
+          className='w-full'
+          target={mode === 'billing' ? '_blank' : undefined}
+          rel={mode === 'billing' ? 'noopener noreferrer' : undefined}
+        >
+          <Button className='mt-auto w-full cursor-pointer' variant='outline'>
+            {t('cta.contactUs')}
+          </Button>
+        </Link>
+      );
+    }
+
     if (mode === 'billing' && billingData) {
       const isCurrentPlan =
         billingData.subscription.tier === plan.tier && billingData.subscription.eventLimit === eventRange.value;
@@ -142,8 +171,6 @@ export function PricingCards({
         buttonText = t('cta.currentPlan');
         buttonVariant = 'secondary';
         isDisabled = true;
-      } else if (plan.tier === 'enterprise') {
-        buttonText = t('cta.contactSales');
       } else if (plan.tier === 'growth' && plan.price_cents === 0) {
         buttonText = t('cta.getStartedForFree');
         isDisabled = true;
@@ -222,16 +249,26 @@ export function PricingCards({
                 <span className='text-muted-foreground -translate-y-[0.4em] text-lg'>{plan.period}</span>
               )}
             </div>
-            <CardDescription className='mt-2'>{plan.description}</CardDescription>
+            <CardDescription className='mt-2 min-h-10'>{plan.description}</CardDescription>
           </CardHeader>
           <CardContent className='flex flex-grow flex-col'>
             <ul className='mb-6 flex-grow space-y-3'>
-              {plan.features.map((feature) => (
-                <li key={feature} className='flex items-center'>
-                  <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
-                  <span className='text-foreground/90 text-sm'>{feature}</span>
-                </li>
-              ))}
+              {plan.features.map((feature, idx) => {
+                if (typeof feature === 'string') {
+                  return (
+                    <li key={feature} className='flex items-center'>
+                      <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
+                      <span className='text-foreground/90 text-sm'>{feature}</span>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={`h-${idx}`} className='flex items-center'>
+                    <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
+                    <span className='text-foreground text-sm font-semibold'>{feature.label}</span>
+                  </li>
+                );
+              })}
             </ul>
             {renderButton(plan)}
           </CardContent>

@@ -3,8 +3,8 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { useBARouter } from '@/hooks/use-ba-router';
 import { useBillingData } from '@/hooks/useBillingData';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import { CancelSubscriptionDialog } from '@/components/billing/CancelSubscriptionDialog';
 import { Progress } from '@/components/ui/progress';
@@ -23,8 +23,8 @@ interface UserBillingSettingsProps {
 export default function UserBillingSettings({ onCloseDialog }: UserBillingSettingsProps) {
   const t = useTranslations('components.userSettings.billing');
   const locale = useLocale();
-  const router = useBARouter();
   const { billingData, isLoading, error } = useBillingData();
+  const { openPlanPicker } = useBillingFlow();
 
   const handleOpenPortal = async () => {
     const result = await createStripeCustomerPortalSession();
@@ -37,7 +37,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
 
   const handleViewPlans = () => {
     onCloseDialog?.();
-    router.push('/billing');
+    openPlanPicker();
   };
 
   if (isLoading) {

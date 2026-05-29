@@ -8,6 +8,7 @@ import { DevWidget } from '@/components/dev/DevWidget';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { BillingFlowProvider } from '@/contexts/BillingFlowProvider';
 import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -30,10 +31,12 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
       <UserSettingsProvider initialSettings={initialSettings}>
-        <TimezoneCookieInitializer />
-        <UserThemeInitializer theme={initialSettings.theme} />
-        {children}
-        {env.IS_DEVELOPMENT && <DevWidgetLoader userId={session.user.id} />}
+        <BillingFlowProvider>
+          <TimezoneCookieInitializer />
+          <UserThemeInitializer theme={initialSettings.theme} />
+          {children}
+          {env.IS_DEVELOPMENT && <DevWidgetLoader userId={session.user.id} />}
+        </BillingFlowProvider>
       </UserSettingsProvider>
     </PublicEnvironmentVariablesProvider>
   );

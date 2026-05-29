@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import { addMonths, startOfDay } from 'date-fns';
 import {

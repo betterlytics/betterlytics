@@ -85,9 +85,9 @@ export const UpsertSubscriptionSchema = z.object({
   cancelAtPeriodEnd: z.boolean().default(false),
   currentPeriodStart: z.date(),
   currentPeriodEnd: z.date(),
-  paymentCustomerId: z.string().optional(),
-  paymentSubscriptionId: z.string().optional(),
-  paymentPriceId: z.string().optional(),
+  paymentCustomerId: z.string().nullish(),
+  paymentSubscriptionId: z.string().nullish(),
+  paymentPriceId: z.string().nullish(),
 });
 
 export const UsageDataSchema = z.object({
@@ -139,6 +139,20 @@ export const SubscriptionEndingSoonCandidateSchema = z.object({
   currentPeriodEnd: z.date(),
 });
 
+export const SubscriptionChangePreviewLineSchema = z.object({
+  description: z.string().nullable(),
+  amount: z.number(),
+  proration: z.boolean(),
+});
+
+export const SubscriptionChangePreviewSchema = z.object({
+  amountDue: z.number(),
+  currency: z.string(),
+  nextRenewalAmount: z.number(),
+  nextRenewalDate: z.date(),
+  lines: z.array(SubscriptionChangePreviewLineSchema),
+});
+
 export const InvoiceStatusSchema = z.enum(['draft', 'open', 'paid', 'uncollectible', 'void']);
 
 export const UserInvoiceSchema = z.object({
@@ -180,3 +194,5 @@ export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
 export type UserBillingData = z.infer<typeof UserBillingDataSchema>;
 export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
 export type UserInvoice = z.infer<typeof UserInvoiceSchema>;
+export type SubscriptionChangePreviewLine = z.infer<typeof SubscriptionChangePreviewLineSchema>;
+export type SubscriptionChangePreview = z.infer<typeof SubscriptionChangePreviewSchema>;

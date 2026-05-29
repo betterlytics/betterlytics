@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import { stripe } from '@/lib/billing/stripe';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';

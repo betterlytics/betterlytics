@@ -6,13 +6,16 @@ import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
 import { User } from 'next-auth';
 import { env } from '@/lib/env';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
+import { getOrCreateStripeCustomer, getLockedCustomerCurrency } from '@/services/billing/customer.service';
 import { Stripe } from 'stripe';
 import { UserException } from '@/lib/exceptions';
+import type { Currency } from '@/entities/billing/billing.entities';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   try {
     const prices = await stripe.prices.list({
       lookup_keys: [lookupKey],
+      active: true,
       expand: ['data.currency_options'],
     });
 
@@ -25,6 +28,17 @@ async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
     console.error('Error retrieving price from lookup key:', error);
     throw new Error(`Failed to retrieve price for lookup key: ${lookupKey}`);
   }
+}
+
+const LIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription.Status[] = ['active', 'trialing', 'past_due', 'unpaid'];
+
+async function hasLiveSubscription(customerId: string): Promise<boolean> {
+  const subscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+    status: 'all',
+    limit: 100,
+  });
+  return subscriptions.data.some((subscription) => LIVE_SUBSCRIPTION_STATUSES.includes(subscription.status));
 }
 
 export type EmbeddedCheckoutSession = {
@@ -54,6 +68,19 @@ export const createStripeCheckoutSession = withUserAuth(
       }
 
       const price = await getPriceByLookupKey(validatedPlan.lookup_key);
+      const customerId = await getOrCreateStripeCustomer(user);
+
+      if (await hasLiveSubscription(customerId)) {
+        throw new UserException('You already have an active subscription. Refresh the page to change your plan.');
+      }
+
+      const lockedCurrency = await getLockedCustomerCurrency(customerId);
+      const effectiveCurrency = (lockedCurrency?.toUpperCase() ?? validatedPlan.currency) as Currency;
+      const effectiveCurrencyLower = effectiveCurrency.toLowerCase();
+
+      if (price.currency !== effectiveCurrencyLower && !price.currency_options?.[effectiveCurrencyLower]) {
+        throw new UserException(`This plan is not available in ${effectiveCurrency}. Please contact support.`);
+      }
 
       const checkoutSession = await stripe.checkout.sessions.create({
         ui_mode: 'embedded_page',
@@ -64,15 +91,16 @@ export const createStripeCheckoutSession = withUserAuth(
           },
         ],
         mode: 'subscription',
-        currency: validatedPlan.currency.toLowerCase(),
-        customer_email: user.email,
+        currency: effectiveCurrencyLower,
+        customer: customerId,
         metadata: {
           userId: user.id,
           lookupKey: validatedPlan.lookup_key,
           requestedCurrency: validatedPlan.currency,
+          effectiveCurrency,
           isInitialSubscription: 'true',
         },
-        return_url: `${env.PUBLIC_BASE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+        return_url: `${env.PUBLIC_BASE_URL}/billing?checkout=success`,
         redirect_on_completion: 'if_required',
         allow_promotion_codes: true,
         billing_address_collection: 'required',
@@ -88,6 +116,7 @@ export const createStripeCheckoutSession = withUserAuth(
         sessionId: checkoutSession.id,
       };
     } catch (error) {
+      if (error instanceof UserException) throw error;
       console.error('Failed to create Stripe checkout session:', error);
       throw new UserException('Failed to create checkout session. Please try again.');
     }
