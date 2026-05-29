@@ -29,8 +29,11 @@
 
 .post-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 40px;
+}
+.post-grid > * {
+  min-width: 0;
 }
 @media (min-width: 1240px) {
   .post-grid {
@@ -305,6 +308,17 @@
 .blog-prose tbody td:last-child {
   font-weight: 500;
   color: var(--foreground);
+}
+
+/* Tables wrap to fit on small screens instead of forcing horizontal scroll */
+@media (max-width: 600px) {
+  .blog-prose table {
+    table-layout: fixed;
+  }
+  .blog-prose th,
+  .blog-prose td {
+    overflow-wrap: break-word;
+  }
 }
 
 /* Inline code */
