@@ -90,13 +90,7 @@ export function ChangePlanDialog({ open, onOpenChange, onBack, targetPlan }: Cha
 
   const isAuthRequired = failure?.code === 'authentication_required';
   const isCardDeclined = failure?.code === 'card_declined';
-  const headerLabel = showSuccess
-    ? t('successLabel')
-    : failure
-      ? isAuthRequired
-        ? t('authRequiredLabel')
-        : t('failureLabel')
-      : t('title');
+  const headerLabel = t(getHeaderLabelKey({ showSuccess, hasFailure: failure !== null, isAuthRequired }));
 
   return (
     <Dialog open={open} onOpenChange={(next) => !isApplying && !showSuccess && onOpenChange(next)}>
@@ -158,11 +152,8 @@ function FailureBody({ failure, isAuthRequired, isCardDeclined, onClose }: Failu
   const t = useTranslations('components.billing.changePlan');
   const [openingPortal, setOpeningPortal] = useState(false);
 
-  const localizedMessage = isAuthRequired
-    ? t('errors.authenticationRequired')
-    : isCardDeclined
-      ? t('errors.cardDeclined')
-      : failure.message;
+  const messageKey = getFailureMessageKey({ isAuthRequired, isCardDeclined });
+  const localizedMessage = messageKey ? t(messageKey) : failure.message;
 
   const handleOpenPortal = async () => {
     setOpeningPortal(true);
@@ -279,18 +270,42 @@ function Row({ label, amount, tone, emphasize }: RowProps) {
     <div className='flex items-baseline justify-between gap-4'>
       <dt className={emphasize ? 'text-foreground font-semibold' : 'text-muted-foreground'}>{label}</dt>
       <dd
-        className={[
+        className={cn(
           'whitespace-nowrap tabular-nums',
-          emphasize ? 'text-base font-semibold' : '',
-          tone === 'credit' ? 'text-emerald-600 dark:text-emerald-400' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
+          emphasize && 'text-base font-semibold',
+          tone === 'credit' && 'text-emerald-600 dark:text-emerald-400',
+        )}
       >
         {amount}
       </dd>
     </div>
   );
+}
+
+function getHeaderLabelKey({
+  showSuccess,
+  hasFailure,
+  isAuthRequired,
+}: {
+  showSuccess: boolean;
+  hasFailure: boolean;
+  isAuthRequired: boolean;
+}) {
+  if (showSuccess) return 'successLabel';
+  if (!hasFailure) return 'title';
+  return isAuthRequired ? 'authRequiredLabel' : 'failureLabel';
+}
+
+function getFailureMessageKey({
+  isAuthRequired,
+  isCardDeclined,
+}: {
+  isAuthRequired: boolean;
+  isCardDeclined: boolean;
+}) {
+  if (isAuthRequired) return 'errors.authenticationRequired';
+  if (isCardDeclined) return 'errors.cardDeclined';
+  return null;
 }
 
 function summarizeProration(lines: SubscriptionChangePreviewLine[]): { charge: number; credit: number } {
