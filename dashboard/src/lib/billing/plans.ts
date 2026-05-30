@@ -174,6 +174,10 @@ export const EVENT_RANGES = [
 export type EventRange = (typeof EVENT_RANGES)[number];
 export type TierName = 'growth' | 'professional' | 'enterprise';
 
+export function isContactSalesRange(range: EventRange): boolean {
+  return range.growth.lookup_key === null && range.professional.lookup_key === null;
+}
+
 export const TIER_TO_PLANNAME_KEY: Record<TierName, 'growth' | 'professional' | 'enterprise'> = {
   growth: 'growth',
   professional: 'professional',

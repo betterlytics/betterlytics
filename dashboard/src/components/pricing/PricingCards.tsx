@@ -9,7 +9,7 @@ import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing.entities';
 import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
-import { EventRange } from '@/lib/billing/plans';
+import { EventRange, isContactSalesRange } from '@/lib/billing/plans';
 import { Dispatch, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -52,7 +52,7 @@ export function PricingCards({
     currency === 'EUR' ? eventRange.professional.price.eur_cents : eventRange.professional.price.usd_cents;
 
   const isFree = growthPrice === 0;
-  const isCustom = growthPrice < 0;
+  const isContactSales = isContactSalesRange(eventRange);
 
   const eventsLabel = t('features.upToEventsPerMonth', {
     events:
@@ -65,7 +65,7 @@ export function PricingCards({
       {
         tier: 'growth',
         price_cents: growthPrice,
-        period: !isFree && !isCustom ? t('periodPerMonth') : '',
+        period: !isFree && !isContactSales ? t('periodPerMonth') : '',
         description: t('descriptions.growth'),
         features: [
           eventsLabel,
@@ -78,14 +78,14 @@ export function PricingCards({
           t('features.sessionReplay'),
           t('features.errorTracking'),
         ],
-        cta: isFree ? t('cta.getStartedForFree') : isCustom ? t('cta.contactSales') : t('cta.getStarted'),
+        cta: isFree ? t('cta.getStartedForFree') : isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
         popular: false,
         lookup_key: eventRange.growth.lookup_key,
       },
       {
         tier: 'professional',
         price_cents: professionalPrice,
-        period: !isCustom ? t('periodPerMonth') : '',
+        period: !isContactSales ? t('periodPerMonth') : '',
         description: t('descriptions.professional'),
         features: [
           { kind: 'header', label: t('features.everythingInStarter') },
@@ -96,7 +96,7 @@ export function PricingCards({
           t('features.customHttp'),
           t('features.emailReports'),
         ],
-        cta: isCustom ? t('cta.contactSales') : t('cta.getStarted'),
+        cta: isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
         popular: true,
         lookup_key: eventRange.professional.lookup_key,
       },
@@ -120,7 +120,7 @@ export function PricingCards({
         lookup_key: null,
       },
     ],
-    [eventRange, growthPrice, professionalPrice, isFree, isCustom, eventsLabel, t],
+    [eventRange, growthPrice, professionalPrice, isFree, isContactSales, eventsLabel, t],
   );
 
   const handlePlanClick = (plan: PlanConfig) => {
@@ -144,7 +144,7 @@ export function PricingCards({
   };
 
   const renderButton = (plan: PlanConfig) => {
-    if (plan.tier === 'enterprise') {
+    if (plan.tier === 'enterprise' || isContactSales) {
       return (
         <Link
           href='/contact'

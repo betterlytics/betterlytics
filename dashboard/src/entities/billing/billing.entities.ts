@@ -150,6 +150,7 @@ export const SubscriptionChangePreviewSchema = z.object({
   currency: z.string(),
   nextRenewalAmount: z.number(),
   nextRenewalDate: z.date(),
+  appliedBalance: z.number(),
   lines: z.array(SubscriptionChangePreviewLineSchema),
 });
 

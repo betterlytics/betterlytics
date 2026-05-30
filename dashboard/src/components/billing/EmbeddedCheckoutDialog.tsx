@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ interface EmbeddedCheckoutDialogProps {
 
 export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedCheckoutDialogProps) {
   const t = useTranslations('components.billing.embeddedCheckout');
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { PUBLIC_STRIPE_PUBLISHABLE_KEY } = usePublicEnvironmentVariablesContext();
 
@@ -70,8 +72,11 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
     queryClient.invalidateQueries({ queryKey: ['userBilling'] });
     queryClient.invalidateQueries({ queryKey: ['userInvoices'] });
     setShowSuccess(true);
-    setTimeout(() => onOpenChange(false), SUCCESS_AUTO_CLOSE_MS);
-  }, [queryClient, onOpenChange]);
+    setTimeout(() => {
+      onOpenChange(false);
+      router.refresh();
+    }, SUCCESS_AUTO_CLOSE_MS);
+  }, [queryClient, onOpenChange, router]);
 
   const checkoutOptions = useMemo(
     () => (clientSecret ? { clientSecret, onComplete: handleComplete } : null),

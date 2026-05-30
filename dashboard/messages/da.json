@@ -2213,6 +2213,7 @@
         "error": "Kunne ikke beregne forholdsmæssig pris. Prøv igen.",
         "newPlanCharge": "Forholdsmæssig betaling for ny plan",
         "unusedTimeCredit": "Kredit for ubrugt tid",
+        "accountCreditApplied": "Anvendt tilgodehavende",
         "totalDueToday": "Betales i dag",
         "totalCreditedToday": "Krediteres i dag",
         "confirm": "Bekræft ændring",

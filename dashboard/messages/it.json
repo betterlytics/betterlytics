@@ -2221,6 +2221,7 @@
         "error": "Impossibile calcolare la proporzione. Riprova.",
         "newPlanCharge": "Addebito proporzionale del nuovo piano",
         "unusedTimeCredit": "Credito per tempo non utilizzato",
+        "accountCreditApplied": "Credito dell'account applicato",
         "totalDueToday": "Dovuto oggi",
         "totalCreditedToday": "Accreditato oggi",
         "confirm": "Conferma cambio",

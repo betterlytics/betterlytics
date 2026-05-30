@@ -1,7 +1,7 @@
 'use client';
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
-import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
+import { EVENT_RANGES, EventRange, isContactSalesRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
@@ -23,7 +23,7 @@ export function PricingSlider({
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
 
-  const isUnlimited = currentRange.value > 10_000_000;
+  const isUnlimited = isContactSalesRange(currentRange);
   const lastIndex = EVENT_RANGES.length - 1;
 
   return (
@@ -57,10 +57,9 @@ export function PricingSlider({
       <div className='relative mt-3 h-4 w-full'>
         {EVENT_RANGES.map((range, index) => {
           const isActive = range.value === currentRange.value;
-          const label =
-            range.value > 10_000_000
-              ? `${formatNumber(10_000_000, locale, { maximumFractionDigits: 0 })}+`
-              : formatNumber(range.value, locale, { maximumFractionDigits: 0 });
+          const label = isContactSalesRange(range)
+            ? `${formatNumber(10_000_000, locale, { maximumFractionDigits: 0 })}+`
+            : formatNumber(range.value, locale, { maximumFractionDigits: 0 });
           return (
             <button
               key={range.value}
