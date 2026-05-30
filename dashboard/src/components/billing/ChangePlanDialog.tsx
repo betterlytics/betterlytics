@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -36,6 +37,7 @@ interface ChangePlanDialogProps {
 export function ChangePlanDialog({ open, onOpenChange, onBack, targetPlan }: ChangePlanDialogProps) {
   const t = useTranslations('components.billing.changePlan');
   const locale = useLocale() as SupportedLanguages;
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isApplying, startApplying] = useTransition();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -77,6 +79,7 @@ export function ChangePlanDialog({ open, onOpenChange, onBack, targetPlan }: Cha
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['userBilling'] });
         queryClient.invalidateQueries({ queryKey: ['userInvoices'] });
+        router.refresh();
         setShowSuccess(true);
         setTimeout(() => onOpenChange(false), SUCCESS_AUTO_CLOSE_MS);
       } else {
