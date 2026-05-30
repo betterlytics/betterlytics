@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { getUserBillingData } from '@/actions/billing.action';
 
 interface UsageAlertBannerProps {
@@ -18,6 +18,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
   const locale = useLocale();
   const billingData = use(billingDataPromise);
   const { addBanner, removeBanner } = useBannerContext();
+  const { openPlanPicker } = useBillingFlow();
 
   useEffect(() => {
     if (!billingData.success) {
@@ -44,12 +45,12 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
       }),
       action: (
         <Button
-          asChild
           variant='default'
+          onClick={openPlanPicker}
           className='text-primary-foreground cursor-pointer border-1 border-white bg-amber-600/50 shadow-md hover:bg-amber-600/20'
           size='sm'
         >
-          <Link href='/billing'>{t('action')}</Link>
+          {t('action')}
         </Button>
       ),
       dismissible: true,
@@ -58,7 +59,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
     });
 
     return () => removeBanner('usage-alert-banner');
-  }, [billingData, addBanner, removeBanner, t, locale]);
+  }, [billingData, addBanner, removeBanner, openPlanPicker, t, locale]);
 
   return null;
 }
