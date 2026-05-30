@@ -107,11 +107,16 @@ export async function previewSubscriptionChange(
       },
     });
 
+    const proratedSubtotal = preview.lines.data
+      .filter(isProrationLine)
+      .reduce((sum, line) => sum + line.amount, 0);
+
     return SubscriptionChangePreviewSchema.parse({
       amountDue: preview.amount_due,
       currency: preview.currency.toUpperCase(),
       nextRenewalAmount: priceAmountForCurrency(newPrice, preview.currency),
-      nextRenewalDate: new Date((preview.period_end ?? currentPeriodEnd) * 1000),
+      nextRenewalDate: new Date(currentPeriodEnd * 1000),
+      appliedBalance: Math.max(0, proratedSubtotal - preview.amount_due),
       lines: preview.lines.data.map((line) => ({
         description: line.description,
         amount: line.amount,

@@ -2210,6 +2210,7 @@
         "error": "Could not calculate proration. Please try again.",
         "newPlanCharge": "New plan charge (prorated)",
         "unusedTimeCredit": "Credit for unused time",
+        "accountCreditApplied": "Account credit applied",
         "totalDueToday": "Due today",
         "totalCreditedToday": "Credited today",
         "confirm": "Confirm change",

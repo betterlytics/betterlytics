@@ -215,7 +215,7 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
     return <p className='text-destructive py-4 text-sm'>{t('error')}</p>;
   }
 
-  const { amountDue, currency, nextRenewalAmount, nextRenewalDate, lines } = query.data;
+  const { amountDue, currency, nextRenewalAmount, nextRenewalDate, appliedBalance, lines } = query.data;
   const { charge, credit } = summarizeProration(lines);
   const isCredit = amountDue < 0;
 
@@ -244,6 +244,13 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
         {charge > 0 && <Row label={t('newPlanCharge')} amount={formatPrice(charge, currency, locale)} />}
         {credit > 0 && (
           <Row label={t('unusedTimeCredit')} amount={`−${formatPrice(credit, currency, locale)}`} tone='credit' />
+        )}
+        {appliedBalance > 0 && (
+          <Row
+            label={t('accountCreditApplied')}
+            amount={`−${formatPrice(appliedBalance, currency, locale)}`}
+            tone='credit'
+          />
         )}
       </dl>
 
