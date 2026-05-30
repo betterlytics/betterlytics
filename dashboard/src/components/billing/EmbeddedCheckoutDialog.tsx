@@ -87,7 +87,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
     <Dialog open={open} onOpenChange={(next) => !showSuccess && onOpenChange(next)}>
       <DialogContent
         style={{ maxWidth: `${STRIPE_TWO_COLUMN_MIN_PX}px` }}
-        className='dark bg-background max-h-[92vh] min-h-[600px] w-[95vw] gap-0 overflow-hidden rounded-3xl p-0 shadow-2xl [&>button]:hidden'
+        className='dark bg-background flex max-h-[92dvh] w-[95vw] flex-col gap-0 overflow-hidden rounded-3xl p-0 shadow-2xl sm:min-h-[600px] [&>button]:hidden'
         overlayClassName='bg-black/70 backdrop-blur-sm'
       >
         <DialogHeader className='sr-only'>
@@ -95,7 +95,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <div className='h-full overflow-y-auto py-4 md:py-6'>
+        <div className='min-h-0 flex-1 overflow-y-auto py-4 md:py-6'>
           {showSuccess ? (
             <div className='flex h-full min-h-[400px] flex-col items-center justify-center'>
               <SuccessCheckmark
