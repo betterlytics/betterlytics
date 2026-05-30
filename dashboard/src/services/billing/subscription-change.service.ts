@@ -125,6 +125,16 @@ export async function previewSubscriptionChange(
   }
 }
 
+async function clearScheduledCancellation(sub: Stripe.Subscription): Promise<Stripe.Subscription> {
+  if (sub.cancel_at_period_end) {
+    return stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
+  }
+  if (sub.cancel_at !== null) {
+    return stripe.subscriptions.update(sub.id, { cancel_at: null });
+  }
+  return sub;
+}
+
 export async function applySubscriptionChange(
   userId: string,
   targetPlan: SelectedPlan,
@@ -140,7 +150,6 @@ export async function applySubscriptionChange(
         items: [{ id: itemId, price: newPrice.id }],
         proration_behavior: PRORATION_BEHAVIOR,
         payment_behavior: 'pending_if_incomplete',
-        cancel_at_period_end: false,
         metadata: {
           lookupKey: targetPlan.lookup_key ?? '',
         },
@@ -154,9 +163,12 @@ export async function applySubscriptionChange(
       updated.pending_update === null && (updated.status === 'active' || updated.status === 'trialing');
 
     if (succeeded) {
+      // Changing plans means the user is staying, so undo any scheduled cancellation.
+      const finalSub = await clearScheduledCancellation(updated);
+
       // Optimistic write so the user doesn't see a stale plan before the webhook lands.
       try {
-        await syncSubscriptionFromStripe(updated, `optimistic:${updated.id}:${Date.now()}`);
+        await syncSubscriptionFromStripe(finalSub, `optimistic:${finalSub.id}:${Date.now()}`);
       } catch (writeError) {
         // Payment succeeded; don't fail the user-facing request. Webhook reconciles.
         console.error('Optimistic subscription sync failed; relying on webhook:', writeError);

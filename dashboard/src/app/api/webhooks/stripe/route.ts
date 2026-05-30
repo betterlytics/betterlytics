@@ -51,6 +51,10 @@ export async function POST(req: NextRequest) {
         await handleSubscriptionUpdated(event.data.object as Stripe.Subscription, event.id);
         break;
 
+      case 'customer.subscription.pending_update_applied':
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription, event.id);
+        break;
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }

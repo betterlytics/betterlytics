@@ -186,6 +186,8 @@ export async function syncSubscriptionFromStripe(
     subscription.currency.toUpperCase() as Currency,
   );
 
+  const isCancelling = subscription.cancel_at_period_end || subscription.cancel_at !== null;
+
   await upsertUserSubscription({
     userId: localSubscription.userId,
     tier: tierConfig.tier,
@@ -193,7 +195,7 @@ export async function syncSubscriptionFromStripe(
     eventLimit: tierConfig.eventLimit,
     pricePerMonth,
     currency: subscription.currency.toUpperCase() as Currency,
-    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    cancelAtPeriodEnd: isCancelling,
     currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
     currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
     paymentCustomerId: subscription.customer as string,
