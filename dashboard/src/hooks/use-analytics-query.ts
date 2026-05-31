@@ -5,7 +5,7 @@ import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entit
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
-import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 
 export function useAnalyticsQuery(): BAAnalyticsQuery {
   const {
@@ -20,12 +20,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
   } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
   const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
-  const isFilterColumnAllowed = useIsFilterColumnAllowed();
-
-  const allowedQueryFilters = useMemo(
-    () => queryFilters.filter((filter) => isFilterColumnAllowed(filter.column)),
-    [queryFilters, isFilterColumnAllowed],
-  );
+  const allowedQueryFilters = useAllowedQueryFilters(queryFilters);
 
   return useMemo(
     () => ({

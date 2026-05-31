@@ -17,7 +17,7 @@ import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useQueryState } from '@/hooks/use-query-state';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
@@ -41,7 +41,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const filters = useQueryFilters(initOrDefault(contextQueryFilters));
-  const isFilterColumnAllowed = useIsFilterColumnAllowed();
+  const nonEmptyFilters = useMemo(() => filterEmptyQueryFilters(contextQueryFilters), [contextQueryFilters]);
 
   useEffect(() => {
     filters.setQueryFilters(initOrDefault(contextQueryFilters));
@@ -82,10 +82,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     [setQueryFilters],
   );
 
-  const activeFilterCount = useMemo(
-    () => filterEmptyQueryFilters(contextQueryFilters).filter((f) => isFilterColumnAllowed(f.column)).length,
-    [contextQueryFilters, isFilterColumnAllowed],
-  );
+  const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
   const trigger = (
     <Button

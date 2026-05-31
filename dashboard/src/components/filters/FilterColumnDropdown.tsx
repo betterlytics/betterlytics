@@ -20,11 +20,11 @@ import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
-import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
+import { useIsFilterColumnAllowed, useIsFilterColumnVisible } from '@/hooks/use-is-filter-column-allowed';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Dispatch } from 'react';
+import { Dispatch, useMemo } from 'react';
 
 type FilterColumnDropdownProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -42,7 +42,17 @@ export function FilterColumnDropdown<TEntity>({
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
+  const isFilterColumnVisible = useIsFilterColumnVisible();
   const isFilterColumnAllowed = useIsFilterColumnAllowed();
+
+  const visibleColumns = useMemo(
+    () =>
+      FILTER_COLUMN_SELECT_OPTIONS.filter((column) => isFilterColumnVisible(column.value)).map((column) => ({
+        ...column,
+        disabled: !isFilterColumnAllowed(column.value),
+      })),
+    [isFilterColumnVisible, isFilterColumnAllowed],
+  );
 
   const strategy = getFilterStrategy(filter.column);
 
@@ -52,12 +62,12 @@ export function FilterColumnDropdown<TEntity>({
         <BADropdownMenuTrigger asChild>
           <button
             className={cn(
-              'flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 shadow-xs',
+              'border-input flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 shadow-xs',
               'cursor-pointer text-sm whitespace-nowrap outline-none',
               'dark:bg-input/30 dark:hover:bg-input/50',
               'data-[placeholder]:text-muted-foreground',
               '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4',
-              'focus-visible:border-ring focus-visible:ring focus-visible:ring-ring/50',
+              'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring',
             )}
           >
             <FilterColumnLabel column={filter.column} className='min-w-0 gap-2' />
@@ -72,8 +82,8 @@ export function FilterColumnDropdown<TEntity>({
             {t('type')}
           </BADropdownMenuLabel>
           <BADropdownMenuGroup>
-            {FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
-              const disabled = !isFilterColumnAllowed(column.value);
+            {visibleColumns.map((column) => {
+              const { disabled } = column;
               const active = filter.column === column.value;
               return (
                 <BADropdownMenuItem
