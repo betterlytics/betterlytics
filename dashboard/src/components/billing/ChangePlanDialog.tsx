@@ -239,30 +239,47 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
     nextAmount: formatPrice(renewalAmount, currency, locale),
   });
 
+  const hasLineItems = charge > 0 || credit > 0 || appliedBalance > 0;
+
   return (
     <div className='space-y-4 py-1 text-sm'>
-      <p className='text-muted-foreground'>{summary}</p>
+      <p className='text-muted-foreground leading-relaxed'>{summary}</p>
 
-      <dl className='space-y-2'>
-        {charge > 0 && <Row label={t('newPlanCharge')} amount={formatPrice(charge, currency, locale)} />}
-        {credit > 0 && (
-          <Row label={t('unusedTimeCredit')} amount={`−${formatPrice(credit, currency, locale)}`} tone='credit' />
+      <div className='overflow-hidden rounded-lg border'>
+        {hasLineItems && (
+          <dl className='space-y-2.5 p-4'>
+            {charge > 0 && <Row label={t('newPlanCharge')} amount={formatPrice(charge, currency, locale)} />}
+            {credit > 0 && (
+              <Row label={t('unusedTimeCredit')} amount={`−${formatPrice(credit, currency, locale)}`} tone='credit' />
+            )}
+            {appliedBalance > 0 && (
+              <Row
+                label={t('accountCreditApplied')}
+                amount={`−${formatPrice(appliedBalance, currency, locale)}`}
+                tone='credit'
+              />
+            )}
+          </dl>
         )}
-        {appliedBalance > 0 && (
-          <Row
-            label={t('accountCreditApplied')}
-            amount={`−${formatPrice(appliedBalance, currency, locale)}`}
-            tone='credit'
-          />
-        )}
-      </dl>
 
-      <div className='border-border border-t pt-3'>
-        <Row
-          label={isCredit ? t('totalCreditedToday') : t('totalDueToday')}
-          amount={formatPrice(amountAbs, currency, locale)}
-          emphasize
-        />
+        <div
+          className={cn(
+            'bg-muted/50 flex items-baseline justify-between gap-4 px-4 py-3',
+            hasLineItems && 'border-t',
+          )}
+        >
+          <span className='text-foreground font-semibold'>
+            {isCredit ? t('totalCreditedToday') : t('totalDueToday')}
+          </span>
+          <span
+            className={cn(
+              'text-lg font-semibold whitespace-nowrap tabular-nums',
+              isCredit && 'text-emerald-600 dark:text-emerald-400',
+            )}
+          >
+            {formatPrice(amountAbs, currency, locale)}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -272,17 +289,15 @@ interface RowProps {
   label: string;
   amount: string;
   tone?: 'credit';
-  emphasize?: boolean;
 }
 
-function Row({ label, amount, tone, emphasize }: RowProps) {
+function Row({ label, amount, tone }: RowProps) {
   return (
     <div className='flex items-baseline justify-between gap-4'>
-      <dt className={emphasize ? 'text-foreground font-semibold' : 'text-muted-foreground'}>{label}</dt>
+      <dt className='text-muted-foreground'>{label}</dt>
       <dd
         className={cn(
           'whitespace-nowrap tabular-nums',
-          emphasize && 'text-base font-semibold',
           tone === 'credit' && 'text-emerald-600 dark:text-emerald-400',
         )}
       >
