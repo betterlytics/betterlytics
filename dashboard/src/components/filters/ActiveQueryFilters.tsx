@@ -1,7 +1,6 @@
 'use client';
-import { useMemo } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { useIsFilterColumnAllowed } from '@/hooks/use-is-filter-column-allowed';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
@@ -11,13 +10,9 @@ import { FilterDescription } from '@/components/filters/FilterDescription';
 
 export function ActiveQueryFilters() {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
-  const isFilterColumnAllowed = useIsFilterColumnAllowed();
   const t = useTranslations('components.filters');
 
-  const visibleFilters = useMemo(
-    () => queryFilters.filter((filter) => isFilterColumnAllowed(filter.column)),
-    [queryFilters, isFilterColumnAllowed],
-  );
+  const visibleFilters = useAllowedQueryFilters(queryFilters);
 
   if (visibleFilters.length === 0) {
     return null;
