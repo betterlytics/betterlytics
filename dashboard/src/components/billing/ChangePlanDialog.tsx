@@ -242,7 +242,7 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
   const hasLineItems = charge > 0 || credit > 0 || appliedBalance > 0;
 
   return (
-    <div className='space-y-4 py-1 text-sm'>
+    <div className='space-y-6 py-1 text-sm'>
       <p className='text-muted-foreground leading-relaxed'>{summary}</p>
 
       <div className='overflow-hidden rounded-lg border'>
