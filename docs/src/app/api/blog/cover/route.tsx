@@ -51,6 +51,14 @@ function coverCacheSet(key: string, bytes: ArrayBuffer): void {
 }
 
 export async function GET(req: NextRequest): Promise<Response> {
+  // Design-time tuning playground only. In production the canonical covers are
+  // served statically from `/api/blog/cover/[slug]`, so this dynamic endpoint —
+  // which runs a full Satori render per request and can't be cached when params
+  // vary — must not be reachable (it would be an unauthenticated CPU-DoS vector).
+  if (process.env.NODE_ENV === "production") {
+    return new Response("Not found", { status: 404 });
+  }
+
   const { searchParams } = new URL(req.url);
 
   const cacheable = searchParams.has("slug") || searchParams.has("seed");
