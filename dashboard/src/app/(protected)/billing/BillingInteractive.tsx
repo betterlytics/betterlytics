@@ -38,7 +38,7 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
         onPlanSelect={selectPlan}
         billingData={billingData}
         defaultCurrency={billingData.subscription.currency ?? 'USD'}
-        lockedCurrency={billingData.isExistingPaidSubscriber ? billingData.subscription.currency : undefined}
+        lockedCurrency={billingData.subscription.currencyLocked ? billingData.subscription.currency : undefined}
       />
 
       <div className='mt-6 text-center'>

@@ -1,9 +1,11 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
+import { PlanStatusBadge } from './PlanStatusBadge';
+import { SubscriptionStatusBanner } from './SubscriptionStatusBanner';
+import { derivePlanStatus } from '@/lib/billing/subscription-status';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, TrendingUp, AlertTriangle, ExternalLink, AlertCircle } from 'lucide-react';
+import { Calendar, TrendingUp, AlertTriangle, ExternalLink } from 'lucide-react';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { formatPrice } from '@/utils/pricing';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
@@ -22,8 +24,10 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
   const t = useTranslations('components.billing.currentPlan');
   const locale = useLocale();
 
-  const isCanceled = subscription.cancelAtPeriodEnd;
-  const isActive = subscription.status === 'active';
+  const planStatus = derivePlanStatus(subscription.status, subscription.cancelAtPeriodEnd);
+  const isCanceled = planStatus === 'canceling';
+  const isPastDue = planStatus === 'pastDue';
+  const canCancel = planStatus === 'active' || planStatus === 'pastDue';
 
   const handleManageSubscription = async () => {
     try {
@@ -40,31 +44,13 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
 
   return (
     <div className='bg-card space-y-4 rounded-lg border p-6'>
-      {isCanceled && (
-        <div className='flex items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950'>
-          <AlertCircle className='h-5 w-5 flex-shrink-0 text-orange-600 dark:text-orange-400' />
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-orange-800 dark:text-orange-200'>{t('canceledBannerTitle')}</p>
-            <p className='text-xs text-orange-700 dark:text-orange-300'>
-              {t('canceledBannerBody', { date: subscription.currentPeriodEnd.toLocaleDateString(locale) })}
-            </p>
-          </div>
-        </div>
-      )}
+      <SubscriptionStatusBanner planStatus={planStatus} periodEnd={subscription.currentPeriodEnd} />
       <div className='flex items-start justify-between'>
         <div className='flex-1'>
           <div className='flex items-center gap-2'>
             <TrendingUp size={16} className='text-muted-foreground' />
             <h3 className='text-lg font-semibold'>{t('title')}</h3>
-            {isCanceled ? (
-              <Badge variant='destructive' className='capitalize'>
-                {t('canceled')}
-              </Badge>
-            ) : (
-              <Badge variant={isActive ? 'default' : 'secondary'} className='capitalize'>
-                {subscription.status}
-              </Badge>
-            )}
+            <PlanStatusBadge planStatus={planStatus} />
           </div>
           {isCanceled ? (
             <p className='text-muted-foreground text-sm'>{t('expiresInDays', { days: usage.daysUntilReset })}</p>
@@ -128,12 +114,12 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           <div className='flex w-full flex-wrap justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end'>
             <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
               <ExternalLink className='mr-2 h-4 w-4' />
-              {isCanceled ? t('reactivate') : t('manage')}
+              {isCanceled ? t('reactivate') : isPastDue ? t('updatePayment') : t('manage')}
             </Button>
 
-            {!isCanceled && (
-              <CancelSubscriptionDialog tier={subscription.tier} isActive={isActive}>
-                <Button variant='outline' size='sm' disabled={!isActive} className='flex items-center gap-2'>
+            {canCancel && (
+              <CancelSubscriptionDialog tier={subscription.tier} isActive={canCancel}>
+                <Button variant='outline' size='sm' className='flex items-center gap-2'>
                   <AlertTriangle className='h-4 w-4' />
                   {t('cancel')}
                 </Button>

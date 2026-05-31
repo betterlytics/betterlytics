@@ -2249,10 +2249,19 @@
         "usageProgress": "{current} av {limit} hendelser",
         "resetsInDays": "Nullstilles om {days} dager",
         "expiresInDays": "Utløper om {days} dager",
-        "canceled": "Avbrutt",
+        
         "manage": "Administrer abonnement",
         "reactivate": "Reaktiver abonnement",
-        "cancel": "Avslutt abonnement"
+        "cancel": "Avslutt abonnement",
+        "pastDueBannerTitle": "Betaling forfalt",
+        "pastDueBannerBody": "Vi kunne ikke behandle din siste betaling. Oppdater betalingsmetoden for å beholde abonnementet.",
+        "updatePayment": "Oppdater betalingsmetode"
+      },
+      "planStatus": {
+        "active": "Aktiv",
+        "canceling": "Avsluttes",
+        "pastDue": "Forfalt",
+        "inactive": "Inaktiv"
       },
       "planNames": {
         "growth": "Growth-plan",
@@ -2883,7 +2892,8 @@
           "renewsOn": "Fornyes {date}",
           "endsOn": "Abonnementet slutter {date}",
           "upgrade": "Oppgrader",
-          "changePlan": "Bytt plan"
+          "changePlan": "Bytt plan",
+          "pastDue": "Betaling forfalt"
         },
         "usage": {
           "title": "Forbruk",

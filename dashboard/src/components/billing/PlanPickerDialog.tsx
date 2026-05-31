@@ -52,7 +52,7 @@ export function PlanPickerDialog({
             <PricingComponent
               billingData={billingData}
               defaultCurrency={billingData.subscription.currency ?? 'USD'}
-              lockedCurrency={billingData.isExistingPaidSubscriber ? billingData.subscription.currency : undefined}
+              lockedCurrency={billingData.subscription.currencyLocked ? billingData.subscription.currency : undefined}
               initialRangeIndex={initialRangeIndex}
               onPlanSelect={onPlanSelected}
             />

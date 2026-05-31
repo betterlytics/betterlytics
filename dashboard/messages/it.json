@@ -2249,10 +2249,19 @@
         "usageProgress": "{current} di {limit} eventi",
         "resetsInDays": "Si azzera tra {days} giorni",
         "expiresInDays": "Scade tra {days} giorni",
-        "canceled": "Annullato",
+        
         "manage": "Gestisci abbonamento",
         "reactivate": "Riattiva abbonamento",
-        "cancel": "Annulla abbonamento"
+        "cancel": "Annulla abbonamento",
+        "pastDueBannerTitle": "Pagamento scaduto",
+        "pastDueBannerBody": "Non è stato possibile elaborare il tuo ultimo pagamento. Aggiorna il metodo di pagamento per mantenere attivo il tuo abbonamento.",
+        "updatePayment": "Aggiorna metodo di pagamento"
+      },
+      "planStatus": {
+        "active": "Attivo",
+        "canceling": "In annullamento",
+        "pastDue": "Scaduto",
+        "inactive": "Inattivo"
       },
       "planNames": {
         "growth": "Piano Growth",
@@ -2883,7 +2892,8 @@
           "renewsOn": "Si rinnova il {date}",
           "endsOn": "L'abbonamento termina il {date}",
           "upgrade": "Aggiorna",
-          "changePlan": "Cambia piano"
+          "changePlan": "Cambia piano",
+          "pastDue": "Pagamento scaduto"
         },
         "usage": {
           "title": "Utilizzo",

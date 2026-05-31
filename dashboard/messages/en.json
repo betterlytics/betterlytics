@@ -2238,10 +2238,19 @@
         "usageProgress": "{current} of {limit} events",
         "resetsInDays": "Resets in {days} days",
         "expiresInDays": "Expires in {days} days",
-        "canceled": "Canceled",
+        
         "manage": "Manage Subscription",
         "reactivate": "Reactivate Subscription",
-        "cancel": "Cancel Subscription"
+        "cancel": "Cancel Subscription",
+        "pastDueBannerTitle": "Payment Past Due",
+        "pastDueBannerBody": "We couldn't process your last payment. Update your payment method to keep your subscription active.",
+        "updatePayment": "Update Payment Method"
+      },
+      "planStatus": {
+        "active": "Active",
+        "canceling": "Canceling",
+        "pastDue": "Past due",
+        "inactive": "Inactive"
       },
       "planNames": {
         "growth": "Growth Plan",
@@ -2869,7 +2878,8 @@
           "renewsOn": "Renews on {date}",
           "endsOn": "Subscription ends on {date}",
           "upgrade": "Upgrade",
-          "changePlan": "Change plan"
+          "changePlan": "Change plan",
+          "pastDue": "Payment past due"
         },
         "usage": {
           "title": "Usage",

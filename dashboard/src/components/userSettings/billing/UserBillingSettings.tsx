@@ -10,8 +10,11 @@ import { CancelSubscriptionDialog } from '@/components/billing/CancelSubscriptio
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PlanStatusBadge } from '@/components/billing/PlanStatusBadge';
+import { SubscriptionStatusBanner } from '@/components/billing/SubscriptionStatusBanner';
 import { formatPrice } from '@/utils/pricing';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { derivePlanStatus } from '@/lib/billing/subscription-status';
 import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
 import UserBillingInvoicesSettings from './UserBillingInvoicesSettings';
@@ -59,8 +62,10 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
 
   const { subscription, usage } = billingData;
   const isPaid = billingData.isExistingPaidSubscriber;
-  const isCanceled = subscription.cancelAtPeriodEnd;
-  const isActive = subscription.status === 'active';
+
+  const planStatus = derivePlanStatus(subscription.status, subscription.cancelAtPeriodEnd);
+  const canCancel = isPaid && (planStatus === 'active' || planStatus === 'pastDue');
+
   const renewalDate = subscription.currentPeriodEnd.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
@@ -74,17 +79,32 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
           price: formatPrice(subscription.pricePerMonth, subscription.currency, locale),
         });
 
-  const periodLabel = isCanceled
-    ? t('currentPlan.endsOn', { date: renewalDate })
-    : t('currentPlan.renewsOn', { date: renewalDate });
+  let periodLabel: string;
+  if (planStatus === 'pastDue') {
+    periodLabel = t('currentPlan.pastDue');
+  } else if (planStatus === 'canceling') {
+    periodLabel = t('currentPlan.endsOn', { date: renewalDate });
+  } else {
+    periodLabel = t('currentPlan.renewsOn', { date: renewalDate });
+  }
 
   const planSummary = isPaid ? `${priceLabel} (${periodLabel})` : priceLabel;
 
   return (
     <div>
       <UserSettingsSection title={t('currentPlan.title')}>
+        <SubscriptionStatusBanner
+          planStatus={planStatus}
+          periodEnd={subscription.currentPeriodEnd}
+          onAction={handleOpenPortal}
+        />
         <SettingRow
-          label={<span className='capitalize'>{subscription.tier}</span>}
+          label={
+            <span className='flex items-center gap-2'>
+              <span className='capitalize'>{subscription.tier}</span>
+              {isPaid && <PlanStatusBadge planStatus={planStatus} />}
+            </span>
+          }
           description={planSummary}
           action={
             <Button
@@ -108,11 +128,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             </p>
           </div>
           <div className='flex max-w-md flex-1 items-center gap-3'>
-            <Progress
-              value={Math.min(usage.usagePercentage, 100)}
-              className='h-2 flex-1'
-              color='var(--primary)'
-            />
+            <Progress value={Math.min(usage.usagePercentage, 100)} className='h-2 flex-1' color='var(--primary)' />
             <span
               className={`text-xs whitespace-nowrap ${usage.isOverLimit ? 'text-destructive font-medium' : 'text-muted-foreground'}`}
             >
@@ -143,13 +159,13 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
 
       <UserBillingInvoicesSettings />
 
-      {isPaid && isActive && !isCanceled && (
+      {canCancel && (
         <UserSettingsSection title={t('cancellation.title')}>
           <SettingRow
             label={t('cancellation.label')}
             description={t('cancellation.description')}
             action={
-              <CancelSubscriptionDialog tier={subscription.tier} isActive={isActive}>
+              <CancelSubscriptionDialog tier={subscription.tier} isActive={canCancel}>
                 <Button variant='destructive' size='sm' className='cursor-pointer'>
                   {t('cancellation.cancel')}
                 </Button>

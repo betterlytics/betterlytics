@@ -5,7 +5,7 @@ import { STARTER_SUBSCRIPTION_STATIC, type Currency } from '@/entities/billing/b
 import { stripe } from '@/lib/billing/stripe';
 import { getTierConfigFromLookupKey, type TierName } from '@/lib/billing/plans';
 import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
-import { addDays, addMonths } from 'date-fns';
+import { addDays } from 'date-fns';
 import { env } from '@/lib/env';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
@@ -20,6 +20,9 @@ import {
 } from '@/services/billing/subscription.service';
 
 const RETENTION_GRACE_DAYS = 30;
+
+const ENTITLED_STATUSES = new Set<Stripe.Subscription.Status>(['active', 'trialing', 'past_due']);
+const TERMINAL_STATUSES = new Set<Stripe.Subscription.Status>(['canceled', 'incomplete_expired']);
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, eventId: string) {
   try {
@@ -42,10 +45,11 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
     await upsertUserSubscription({
       userId,
       tier: tierConfig.tier,
-      status: 'active',
+      status: stripeSubscription.status,
       eventLimit: tierConfig.eventLimit,
       pricePerMonth,
       currency: paymentCurrency.toUpperCase() as Currency,
+      currencyLocked: true,
       cancelAtPeriodEnd: false,
       currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
       currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
@@ -78,7 +82,7 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       return;
     }
 
-    if (subscription.status === 'past_due') return;
+    if (subscription.status === 'past_due' || subscription.status === 'unpaid') return;
 
     const fresh = await stripe.subscriptions.retrieve(subscriptionId);
     if (fresh.status !== 'past_due' && fresh.status !== 'unpaid') {
@@ -86,7 +90,7 @@ export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       return;
     }
 
-    await setSubscriptionStatus(subscription.userId, 'past_due');
+    await setSubscriptionStatus(subscription.userId, fresh.status);
   } catch (error) {
     console.error('Error handling invoice payment failed:', error);
     throw error;
@@ -105,24 +109,8 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
     const wasInvoluntary =
       subscription.cancellation_details?.reason === 'payment_failed' || previousStatus === 'past_due';
 
-    const now = new Date();
-
-    // Downgrade to free Growth plan
-    await upsertUserSubscription({
-      userId: localSubscription.userId,
-      tier: 'growth',
-      status: 'active',
-      eventLimit: 10000,
-      pricePerMonth: 0,
-      currency: localSubscription.currency,
-      currentPeriodStart: now,
-      currentPeriodEnd: addMonths(now, 1),
-      cancelAtPeriodEnd: false,
-      paymentSubscriptionId: null,
-      paymentPriceId: null,
-    });
-
-    await syncRetentionToTier(localSubscription.userId, 'growth', eventId);
+    // Terminal cancellation: detach the Stripe link entirely (a new subscription is required)
+    await revokePaidEntitlement(localSubscription, null, eventId);
 
     if (wasInvoluntary) {
       await sendSubscriptionPaymentCancelledNotification(localSubscription.userId, eventId);
@@ -159,6 +147,35 @@ async function sendSubscriptionPaymentCancelledNotification(userId: string, even
   }
 }
 
+// Reset a user to the free Growth plan. Pass `link` to retain the Stripe association so a
+// revivable subscription restores automatically on the next event
+async function revokePaidEntitlement(
+  localSubscription: {
+    userId: string;
+    currency: Currency;
+    tier: string;
+    currentPeriodStart: Date;
+    currentPeriodEnd: Date;
+  },
+  link: { customerId: string; subscriptionId: string; priceId: string } | null,
+  eventId: string,
+): Promise<void> {
+  await upsertUserSubscription({
+    ...STARTER_SUBSCRIPTION_STATIC,
+    userId: localSubscription.userId,
+    currency: localSubscription.currency,
+    currentPeriodStart: localSubscription.currentPeriodStart,
+    currentPeriodEnd: localSubscription.currentPeriodEnd,
+    paymentCustomerId: link?.customerId,
+    paymentSubscriptionId: link ? link.subscriptionId : null,
+    paymentPriceId: link ? link.priceId : null,
+  });
+
+  if (localSubscription.tier !== STARTER_SUBSCRIPTION_STATIC.tier) {
+    await syncRetentionToTier(localSubscription.userId, 'growth', eventId);
+  }
+}
+
 export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, eventId: string) {
   try {
     await syncSubscriptionFromStripe(subscription, eventId);
@@ -178,28 +195,40 @@ export async function syncSubscriptionFromStripe(
     throw new Error(`No local subscription found for Stripe subscription: ${subscription.id}`);
   }
 
-  const subscriptionItem = subscription.items.data[0];
+  const fresh = await stripe.subscriptions.retrieve(subscription.id);
+  const subscriptionItem = fresh.items.data[0];
+
+  // Keep the Stripe link for revivable states so a later payment restores the paid tier
+  if (!ENTITLED_STATUSES.has(fresh.status)) {
+    const link = TERMINAL_STATUSES.has(fresh.status)
+      ? null
+      : { customerId: fresh.customer as string, subscriptionId: fresh.id, priceId: subscriptionItem.price.id };
+    await revokePaidEntitlement(localSubscription, link, eventId);
+    return;
+  }
+
   const tierConfig = getTierConfigFromLookupKey(subscriptionItem.price.lookup_key as string);
 
   const pricePerMonth = await getPriceAmountByCurrency(
     subscriptionItem.price.id,
-    subscription.currency.toUpperCase() as Currency,
+    fresh.currency.toUpperCase() as Currency,
   );
 
-  const isCancelling = subscription.cancel_at_period_end || subscription.cancel_at !== null;
+  const isCancelling = fresh.cancel_at_period_end || fresh.cancel_at !== null;
 
   await upsertUserSubscription({
     userId: localSubscription.userId,
     tier: tierConfig.tier,
-    status: subscription.status,
+    status: fresh.status,
     eventLimit: tierConfig.eventLimit,
     pricePerMonth,
-    currency: subscription.currency.toUpperCase() as Currency,
+    currency: fresh.currency.toUpperCase() as Currency,
+    currencyLocked: true,
     cancelAtPeriodEnd: isCancelling,
     currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000),
     currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000),
-    paymentCustomerId: subscription.customer as string,
-    paymentSubscriptionId: subscription.id,
+    paymentCustomerId: fresh.customer as string,
+    paymentSubscriptionId: fresh.id,
     paymentPriceId: subscriptionItem.price.id,
   });
 
