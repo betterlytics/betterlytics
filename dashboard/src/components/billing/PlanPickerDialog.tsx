@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -29,6 +29,12 @@ export function PlanPickerDialog({
 }: PlanPickerDialogProps) {
   const t = useTranslations('components.billing.planPicker');
   const [comparisonOpen, setComparisonOpen] = useState(false);
+  const comparisonTriggerRef = useRef<HTMLButtonElement>(null);
+
+  const handleComparisonAnimationEnd = (e: React.AnimationEvent<HTMLDivElement>) => {
+    if (e.currentTarget !== e.target || !comparisonOpen) return;
+    comparisonTriggerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const initialRangeIndex = useMemo(() => {
     const eventLimit = initialEventLimit ?? billingData.subscription.eventLimit;
@@ -52,17 +58,25 @@ export function PlanPickerDialog({
             <PricingComponent
               billingData={billingData}
               defaultCurrency={billingData.subscription.currency ?? 'USD'}
-              lockedCurrency={billingData.subscription.currencyLocked ? billingData.subscription.currency : undefined}
+              lockedCurrency={
+                billingData.subscription.currencyLocked ? billingData.subscription.currency : undefined
+              }
               initialRangeIndex={initialRangeIndex}
               onPlanSelect={onPlanSelected}
             />
 
             <Collapsible open={comparisonOpen} onOpenChange={setComparisonOpen} className='group/comparison mt-20'>
-              <CollapsibleTrigger className='text-muted-foreground hover:text-foreground mx-auto flex cursor-pointer items-center gap-1.5 text-sm transition-colors'>
+              <CollapsibleTrigger
+                ref={comparisonTriggerRef}
+                className='text-muted-foreground hover:text-foreground mx-auto flex cursor-pointer scroll-mt-4 items-center gap-1.5 text-sm transition-colors'
+              >
                 {comparisonOpen ? t('hideComparison') : t('showComparison')}
                 <ChevronDown className='h-4 w-4 transition-transform group-data-[state=open]/comparison:rotate-180' />
               </CollapsibleTrigger>
-              <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-clip'>
+              <CollapsibleContent
+                onAnimationEnd={handleComparisonAnimationEnd}
+                className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-clip'
+              >
                 <div className='mt-6'>
                   <FeatureComparisonSection />
                 </div>
