@@ -53,12 +53,8 @@ function initials(name: string): string {
 export default async function BlogIndexPage() {
   const posts = await getBlogPosts();
 
-  // Featured = newest post flagged `featured` (posts are newest-first), else
-  // the newest post. The rest fill the grid.
+  // Featured = newest post flagged `featured` (posts are newest-first)
   const featured = posts.find((p) => p.frontmatter.featured) ?? posts[0];
-  const rest = featured
-    ? posts.filter((p) => p.slug !== featured.slug)
-    : posts;
 
   const featuredCover = featured ? resolveCover(featured) : null;
   const featuredAuthor = featured ? getAuthor(featured.frontmatter.author) : null;
@@ -126,7 +122,7 @@ export default async function BlogIndexPage() {
             )}
 
             <div className="bi-grid">
-              {rest.map((p) => {
+              {posts.map((p) => {
                 const cover = resolveCover(p);
                 const category = p.frontmatter.tags[0];
                 return (
