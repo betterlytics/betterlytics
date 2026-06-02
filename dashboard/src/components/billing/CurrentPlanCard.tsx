@@ -2,10 +2,11 @@
 
 import { PlanStatusBadge } from './PlanStatusBadge';
 import { SubscriptionStatusBanner } from './SubscriptionStatusBanner';
+import { CreditBalanceCallout } from './CreditBalanceCallout';
 import { derivePlanStatus } from '@/lib/billing/subscription-status';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, TrendingUp, AlertTriangle, ExternalLink } from 'lucide-react';
+import { TrendingUp, AlertTriangle, ExternalLink } from 'lucide-react';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { formatPrice } from '@/utils/pricing';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
@@ -77,9 +78,16 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         </div>
 
         <div className='space-y-3'>
-          <div className='flex items-center gap-2'>
-            <TrendingUp size={16} className='text-muted-foreground' />
-            <span className='text-sm font-medium'>{t('eventUsage')}</span>
+          <div className='space-y-1'>
+            <div className='flex items-center gap-2'>
+              <TrendingUp size={16} className='text-muted-foreground' />
+              <span className='text-sm font-medium'>{t('eventUsage')}</span>
+            </div>
+            {!isCanceled && (
+              <p className='text-muted-foreground text-xs'>
+                {t('resetsInDays', { days: usage.daysUntilReset })}
+              </p>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -100,34 +108,25 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         </div>
       </div>
 
-      <div className='flex flex-wrap items-center gap-2'>
-        <div className='text-muted-foreground flex items-center gap-2 text-sm'>
-          <Calendar size={14} />
-          {isCanceled ? (
-            <span>{t('expiresInDays', { days: usage.daysUntilReset })}</span>
-          ) : (
-            <span>{t('resetsInDays', { days: usage.daysUntilReset })}</span>
+      <CreditBalanceCallout variant='plain' />
+
+      {showManagementButtons && billingData.isExistingPaidSubscriber && (
+        <div className='flex flex-wrap justify-end gap-2'>
+          <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
+            <ExternalLink className='mr-2 h-4 w-4' />
+            {isCanceled ? t('reactivate') : isPastDue ? t('updatePayment') : t('manage')}
+          </Button>
+
+          {canCancel && (
+            <CancelSubscriptionDialog tier={subscription.tier} isActive={canCancel}>
+              <Button variant='outline' size='sm' className='flex items-center gap-2'>
+                <AlertTriangle className='h-4 w-4' />
+                {t('cancel')}
+              </Button>
+            </CancelSubscriptionDialog>
           )}
         </div>
-
-        {showManagementButtons && billingData.isExistingPaidSubscriber && (
-          <div className='flex w-full flex-wrap justify-start gap-2 sm:ml-auto sm:w-auto sm:justify-end'>
-            <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
-              <ExternalLink className='mr-2 h-4 w-4' />
-              {isCanceled ? t('reactivate') : isPastDue ? t('updatePayment') : t('manage')}
-            </Button>
-
-            {canCancel && (
-              <CancelSubscriptionDialog tier={subscription.tier} isActive={canCancel}>
-                <Button variant='outline' size='sm' className='flex items-center gap-2'>
-                  <AlertTriangle className='h-4 w-4' />
-                  {t('cancel')}
-                </Button>
-              </CancelSubscriptionDialog>
-            )}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

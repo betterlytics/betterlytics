@@ -3,6 +3,7 @@
 import { withUserAuth, withDashboardAuthContext } from '@/auth/auth-actions';
 import { getUserBillingStats, getDashboardOwnerBillingStats } from '@/services/billing/billing.service';
 import { listUserInvoices } from '@/services/billing/invoice.service';
+import { getCustomerCreditBalance } from '@/services/billing/customer.service';
 import {
   previewSubscriptionChange,
   applySubscriptionChange,
@@ -10,6 +11,7 @@ import {
 import {
   type UserBillingData,
   type UserInvoice,
+  type CustomerCreditBalance,
   type SubscriptionChangePreview,
   buildSelfHostedBillingData,
 } from '@/entities/billing/billing.entities';
@@ -36,6 +38,14 @@ export const getUserInvoices = withUserAuth(async (user: User): Promise<UserInvo
   }
 
   return listUserInvoices(user.id);
+});
+
+export const getUserCreditBalance = withUserAuth(async (user: User): Promise<CustomerCreditBalance> => {
+  if (!isFeatureEnabled('enableBilling')) {
+    return { creditBalance: 0, currency: 'USD' };
+  }
+
+  return getCustomerCreditBalance(user.id);
 });
 
 export const getSubscriptionChangePreview = withUserAuth(

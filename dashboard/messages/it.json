@@ -2237,6 +2237,10 @@
           "authenticationRequired": "Controlla la tua email per autenticare questo pagamento e completare il tuo aggiornamento."
         }
       },
+      "creditBalance": {
+        "label": "Credito sul conto",
+        "hint": "Applicato automaticamente alle fatture future"
+      },
       "currentPlan": {
         "title": "Piano attuale",
         "canceledBannerTitle": "Abbonamento annullato",

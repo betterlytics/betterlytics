@@ -2237,6 +2237,10 @@
           "authenticationRequired": "Sjekk e-posten din for å godkjenne denne betalingen og fullføre oppgraderingen."
         }
       },
+      "creditBalance": {
+        "label": "Kontokreditt",
+        "hint": "Brukes automatisk på fremtidige fakturaer"
+      },
       "currentPlan": {
         "title": "Nåværende plan",
         "canceledBannerTitle": "Abonnement avbrutt",

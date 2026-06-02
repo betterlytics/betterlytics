@@ -5,6 +5,7 @@ import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { CreditBalanceCallout } from '@/components/billing/CreditBalanceCallout';
 import { useUserInvoices } from '@/hooks/useUserInvoices';
 import type { UserInvoice } from '@/entities/billing/billing.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -34,6 +35,8 @@ export default function UserBillingInvoicesSettings() {
 
   return (
     <UserSettingsSection title={t('title')}>
+      <CreditBalanceCallout className='mb-4' />
+
       <div className='-mx-2 overflow-x-auto'>
         <table className='w-full text-sm'>
           <thead>
