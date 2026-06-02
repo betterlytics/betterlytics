@@ -2907,7 +2907,8 @@
             "open": "Open",
             "paid": "Paid",
             "uncollectible": "Uncollectible",
-            "void": "Void"
+            "void": "Void",
+            "credit": "Credit"
           }
         },
         "cancellation": {

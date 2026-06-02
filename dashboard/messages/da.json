@@ -2913,7 +2913,8 @@
             "open": "Åben",
             "paid": "Betalt",
             "uncollectible": "Uinddrivelig",
-            "void": "Annulleret"
+            "void": "Annulleret",
+            "credit": "Kredit"
           }
         },
         "cancellation": {

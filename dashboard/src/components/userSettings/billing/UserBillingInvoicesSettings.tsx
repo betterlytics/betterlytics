@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import { useUserInvoices } from '@/hooks/useUserInvoices';
 import type { UserInvoice } from '@/entities/billing/billing.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -68,15 +69,20 @@ function InvoiceRow({ invoice, locale }: InvoiceRowProps) {
     month: 'short',
     day: 'numeric',
   });
+
+  // A negative invoice total is credit added to the customer's balance
+  const isCredit = invoice.total < 0;
   const total = formatPrice(invoice.total, invoice.currency, locale as SupportedLanguages);
   const viewUrl = invoice.hostedInvoiceUrl ?? invoice.invoicePdf;
 
   return (
     <tr className='border-border/60 border-b last:border-b-0'>
       <td className='px-2 py-3'>{date}</td>
-      <td className='px-2 py-3 tabular-nums'>{total}</td>
+      <td className={cn('px-2 py-3 tabular-nums', isCredit && 'text-emerald-600 dark:text-emerald-400')}>
+        {total}
+      </td>
       <td className='px-2 py-3'>
-        <InvoiceStatusBadge status={invoice.status} />
+        <InvoiceStatusBadge status={invoice.status} isCredit={isCredit} />
       </td>
       <td className='px-2 py-3 text-right'>
         {viewUrl && (
@@ -109,8 +115,17 @@ const INVOICE_BADGE_STYLES: Record<
   void: { variant: 'destructive' },
 };
 
-function InvoiceStatusBadge({ status }: { status: UserInvoice['status'] }) {
+function InvoiceStatusBadge({ status, isCredit }: { status: UserInvoice['status']; isCredit?: boolean }) {
   const t = useTranslations('components.userSettings.billing.invoices.status');
+
+  if (isCredit) {
+    return (
+      <Badge variant={INVOICE_BADGE_STYLES.paid.variant} className={INVOICE_BADGE_STYLES.paid.className}>
+        {t('credit')}
+      </Badge>
+    );
+  }
+
   if (!status) {
     return null;
   }

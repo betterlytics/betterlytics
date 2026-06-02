@@ -2921,7 +2921,8 @@
             "open": "Aperta",
             "paid": "Pagata",
             "uncollectible": "Non riscuotibile",
-            "void": "Annullata"
+            "void": "Annullata",
+            "credit": "Credito"
           }
         },
         "cancellation": {

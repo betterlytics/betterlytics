@@ -2921,7 +2921,8 @@
             "open": "Åpen",
             "paid": "Betalt",
             "uncollectible": "Ikke innkrevbar",
-            "void": "Annullert"
+            "void": "Annullert",
+            "credit": "Kreditt"
           }
         },
         "cancellation": {
