@@ -67,7 +67,7 @@ export function QueryFilterInputRow<TEntity>({
           />
         )}
       </DisabledTooltip>
-      <DisabledTooltip disabled={disabled} message={disabledMessage} wrapperClassName='[grid-area:val]'>
+      <DisabledTooltip disabled={disabled} message={disabledMessage} wrapperClassName='[grid-area:val] cursor-not-allowed'>
         {(isDisabled) => (
           <FilterValueSearch
             filter={filter}
