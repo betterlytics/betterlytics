@@ -5,7 +5,7 @@ import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
-import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
+import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/use-is-filter-column-allowed';
 import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useTranslations } from 'next-intl';
@@ -40,8 +40,8 @@ export function QueryFiltersSelectorContent({
   globalPropertyKeys,
 }: QueryFiltersSelectorContentProps) {
   const t = useTranslations('components.filters');
-  const tDemo = useTranslations('components.demoMode');
   const getColumnStatus = useFilterColumnStatus();
+  const getDisabledMessage = useFilterColumnDisabledMessage();
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   const { queryFilters, addEmptyQueryFilter, removeQueryFilter, updateQueryFilter } = filters;
@@ -181,13 +181,7 @@ export function QueryFiltersSelectorContent({
                   requestRemoval={requestFilterRemoval}
                   globalPropertyKeys={globalPropertyKeys}
                   disabled={status.disabled}
-                  disabledMessage={
-                    status.reason === 'page'
-                      ? t('notAvailableOnPage')
-                      : status.reason === 'demo'
-                        ? tDemo('notAvailable')
-                        : undefined
-                  }
+                  disabledMessage={getDisabledMessage(status) ?? undefined}
                 />
               );
             })}
