@@ -1,6 +1,6 @@
 'use client';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
+import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/use-is-filter-column-allowed';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 export function ActiveQueryFilters() {
   const { queryFilters, removeQueryFilter } = useQueryFiltersContext();
   const t = useTranslations('components.filters');
-  const tDemo = useTranslations('components.demoMode');
   const getColumnStatus = useFilterColumnStatus();
+  const getDisabledMessage = useFilterColumnDisabledMessage();
 
   if (queryFilters.length === 0) {
     return null;
@@ -22,12 +22,7 @@ export function ActiveQueryFilters() {
     <div className='flex flex-wrap gap-1 sm:justify-end'>
       {queryFilters.map((filter) => {
         const status = getColumnStatus(filter.column);
-        const disabledMessage =
-          status.reason === 'page'
-            ? t('notAvailableOnPage')
-            : status.reason === 'demo'
-              ? tDemo('notAvailable')
-              : null;
+        const disabledMessage = getDisabledMessage(status);
         return (
           <Badge
             key={filter.id}

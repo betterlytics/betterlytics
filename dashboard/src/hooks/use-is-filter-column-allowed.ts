@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { useHiddenQueryFilterColumns } from '@/contexts/QueryFilterColumnsVisibilityProvider';
 import {
@@ -44,16 +45,25 @@ export function useFilterColumnStatus() {
   );
 }
 
-/** Whether a column is visible on the current page (per-page visibility only, ignores demo mode). */
-export function useIsFilterColumnVisible() {
-  const hidden = useHiddenQueryFilterColumns();
+/**
+ * Maps a column status to a human-readable reason it is disabled (null when enabled).
+ * Centralizes the reason -> message mapping so call sites don't re-derive it.
+ */
+export function useFilterColumnDisabledMessage() {
+  const t = useTranslations('components.filters');
+  const tDemo = useTranslations('components.demoMode');
   return useCallback(
-    (column: FilterColumn): boolean => {
-      const parsed = parseFilterColumn(column);
-      if (parsed.kind === 'gp') return true;
-      return !hidden.has(parsed.col);
+    (status: FilterColumnStatus): string | null => {
+      switch (status.reason) {
+        case 'page':
+          return t('notAvailableOnPage');
+        case 'demo':
+          return tDemo('notAvailable');
+        default:
+          return null;
+      }
     },
-    [hidden],
+    [t, tDemo],
   );
 }
 
