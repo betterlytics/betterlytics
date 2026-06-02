@@ -2419,7 +2419,8 @@
         "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto"
       },
       "filterBy": "Filtra per {label}",
-      "removeFilter": "Rimuovi filtro"
+      "removeFilter": "Rimuovi filtro",
+      "notAvailableOnPage": "Non disponibile in questa pagina"
     },
     "funnels": {
       "skeleton": {

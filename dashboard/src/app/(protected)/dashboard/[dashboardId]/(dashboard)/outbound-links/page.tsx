@@ -9,7 +9,7 @@ import { getTranslations } from 'next-intl/server';
 export default async function OutboundLinksPage() {
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <QueryFilterColumnsVisibilityProvider show={{ custom_event_name: false }}>
+    <QueryFilterColumnsVisibilityProvider hide={['custom_event_name']}>
       <div className='container space-y-4 p-2 pt-4 sm:p-6'>
         <DashboardHeader title={t('outboundLinks')}>
           <DashboardFilters />

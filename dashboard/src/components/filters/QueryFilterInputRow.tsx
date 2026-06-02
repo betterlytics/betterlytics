@@ -2,10 +2,11 @@ import { Button } from '@/components/ui/button';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { cn } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
-import { Dispatch } from 'react';
+import { Dispatch, type ReactNode } from 'react';
 import { FilterColumnDropdown } from '@/components/filters/FilterColumnDropdown';
 import { FilterOperatorSelector } from '@/components/filters/FilterOperatorSelector';
 import { FilterValueSearch } from '@/components/filters/FilterValueSearch';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 
 type QueryFilterInputRowProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -15,6 +16,8 @@ type QueryFilterInputRowProps<TEntity> = {
   formatLength?: number;
   valueError?: boolean;
   className?: string;
+  disabled?: boolean;
+  disabledMessage?: ReactNode;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   requestRemoval?: (id: QueryFilter['id']) => void;
 };
@@ -29,6 +32,8 @@ export function QueryFilterInputRow<TEntity>({
   formatLength,
   valueError,
   className,
+  disabled = false,
+  disabledMessage,
 }: QueryFilterInputRowProps<TEntity>) {
   return (
     <div
@@ -39,26 +44,41 @@ export function QueryFilterInputRow<TEntity>({
         className,
       )}
     >
-      <FilterColumnDropdown
-        filter={filter}
-        onFilterUpdate={onFilterUpdate}
-        globalPropertyKeys={globalPropertyKeys}
-        className='[grid-area:col]'
-      />
-      <FilterOperatorSelector
-        filter={filter}
-        onFilterUpdate={onFilterUpdate}
-        className='[grid-area:op]'
-      />
-      <FilterValueSearch
-        filter={filter}
-        onFilterUpdate={onFilterUpdate}
-        key={filter.column}
-        className='[grid-area:val]'
-        useExtendedRange={useExtendedRange}
-        formatLength={formatLength}
-        valueError={valueError}
-      />
+      <DisabledTooltip disabled={disabled} message={disabledMessage} wrapperClassName='[grid-area:col]'>
+        {(isDisabled) => (
+          <FilterColumnDropdown
+            filter={filter}
+            onFilterUpdate={onFilterUpdate}
+            globalPropertyKeys={globalPropertyKeys}
+            disabled={isDisabled}
+            className='[grid-area:col]'
+          />
+        )}
+      </DisabledTooltip>
+      <DisabledTooltip disabled={disabled} message={disabledMessage} wrapperClassName='[grid-area:op]'>
+        {(isDisabled) => (
+          <FilterOperatorSelector
+            filter={filter}
+            onFilterUpdate={onFilterUpdate}
+            disabled={isDisabled}
+            className='[grid-area:op]'
+          />
+        )}
+      </DisabledTooltip>
+      <DisabledTooltip disabled={disabled} message={disabledMessage} wrapperClassName='[grid-area:val]'>
+        {(isDisabled) => (
+          <FilterValueSearch
+            filter={filter}
+            onFilterUpdate={onFilterUpdate}
+            key={filter.column}
+            disabled={isDisabled}
+            className='[grid-area:val]'
+            useExtendedRange={useExtendedRange}
+            formatLength={formatLength}
+            valueError={valueError}
+          />
+        )}
+      </DisabledTooltip>
       <Button
         variant='ghost'
         className='[grid-area:delete] cursor-pointer'

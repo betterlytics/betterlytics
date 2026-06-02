@@ -2411,7 +2411,8 @@
         "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
       },
       "filterBy": "Filtrer efter {label}",
-      "removeFilter": "Fjern filter"
+      "removeFilter": "Fjern filter",
+      "notAvailableOnPage": "Ikke tilgængelig på denne side"
     },
     "funnels": {
       "skeleton": {

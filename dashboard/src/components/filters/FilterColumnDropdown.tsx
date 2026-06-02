@@ -31,6 +31,7 @@ type FilterColumnDropdownProps<TEntity> = {
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   globalPropertyKeys?: string[];
   className?: string;
+  disabled?: boolean;
 };
 
 export function FilterColumnDropdown<TEntity>({
@@ -38,6 +39,7 @@ export function FilterColumnDropdown<TEntity>({
   onFilterUpdate,
   globalPropertyKeys,
   className,
+  disabled = false,
 }: FilterColumnDropdownProps<TEntity>) {
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
@@ -61,6 +63,7 @@ export function FilterColumnDropdown<TEntity>({
       <BADropdownMenu modal>
         <BADropdownMenuTrigger asChild>
           <button
+            disabled={disabled}
             className={cn(
               'border-input flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 shadow-xs',
               'cursor-pointer text-sm whitespace-nowrap outline-none',
@@ -68,6 +71,7 @@ export function FilterColumnDropdown<TEntity>({
               'data-[placeholder]:text-muted-foreground',
               '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4',
               'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring',
+              'disabled:cursor-not-allowed disabled:opacity-50',
             )}
           >
             <FilterColumnLabel column={filter.column} className='min-w-0 gap-2' />
