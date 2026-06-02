@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { useQueryFilterColumnsVisibility } from '@/contexts/QueryFilterColumnsVisibilityProvider';
+import { useHiddenQueryFilterColumns } from '@/contexts/QueryFilterColumnsVisibilityProvider';
 import {
   parseFilterColumn,
   type FilterColumn,
@@ -12,32 +12,55 @@ import {
 
 const DEMO_ALLOWED_COLUMNS = new Set<TableFilterColumn>(['url', 'device_type']);
 
+/**
+ * Why a filter column cannot be used on the current page:
+ * - `page`: the column is hidden here (its data is not available on this page)
+ * - `demo`: demo mode does not permit this column
+ */
+export type FilterColumnDisabledReason = 'demo' | 'page';
+
+export type FilterColumnStatus =
+  | { disabled: false; reason: null }
+  | { disabled: true; reason: FilterColumnDisabledReason };
+
+const ENABLED: FilterColumnStatus = { disabled: false, reason: null };
+
+/**
+ * Resolves whether a column is usable on the current page and, if not, why.
+ * Per-page hiding takes precedence over the demo reason.
+ */
+export function useFilterColumnStatus() {
+  const { isDemo } = useDashboardAuth();
+  const hidden = useHiddenQueryFilterColumns();
+  return useCallback(
+    (column: FilterColumn): FilterColumnStatus => {
+      const parsed = parseFilterColumn(column);
+      if (parsed.kind === 'gp') return isDemo ? { disabled: true, reason: 'demo' } : ENABLED;
+      if (hidden.has(parsed.col)) return { disabled: true, reason: 'page' };
+      if (isDemo && !DEMO_ALLOWED_COLUMNS.has(parsed.col)) return { disabled: true, reason: 'demo' };
+      return ENABLED;
+    },
+    [isDemo, hidden],
+  );
+}
+
 /** Whether a column is visible on the current page (per-page visibility only, ignores demo mode). */
-export function useIsFilterColumnVisible(): (column: FilterColumn) => boolean {
-  const visibility = useQueryFilterColumnsVisibility();
+export function useIsFilterColumnVisible() {
+  const hidden = useHiddenQueryFilterColumns();
   return useCallback(
     (column: FilterColumn): boolean => {
       const parsed = parseFilterColumn(column);
       if (parsed.kind === 'gp') return true;
-      return visibility[parsed.col];
+      return !hidden.has(parsed.col);
     },
-    [visibility],
+    [hidden],
   );
 }
 
 /** Whether a column is usable: composes demo-mode allow-listing with per-page visibility. */
-export function useIsFilterColumnAllowed(): (column: FilterColumn) => boolean {
-  const { isDemo } = useDashboardAuth();
-  const visibility = useQueryFilterColumnsVisibility();
-  return useCallback(
-    (column: FilterColumn): boolean => {
-      const parsed = parseFilterColumn(column);
-      if (parsed.kind === 'gp') return !isDemo;
-      if (isDemo && !DEMO_ALLOWED_COLUMNS.has(parsed.col)) return false;
-      return visibility[parsed.col];
-    },
-    [isDemo, visibility],
-  );
+export function useIsFilterColumnAllowed() {
+  const getStatus = useFilterColumnStatus();
+  return useCallback((column: FilterColumn): boolean => !getStatus(column).disabled, [getStatus]);
 }
 
 /** Filters a list of query filters down to those allowed on the current page. */

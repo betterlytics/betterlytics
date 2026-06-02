@@ -2488,7 +2488,8 @@
         "maxFiltersReachedToast": "Puoi applicare fino a {max} filtri. Rimuovine uno per aggiungerne un altro."
       },
       "filterBy": "Filtra per {label}",
-      "removeFilter": "Rimuovi filtro"
+      "removeFilter": "Rimuovi filtro",
+      "notAvailableOnPage": "Non disponibile in questa pagina"
     },
     "funnels": {
       "skeleton": {
