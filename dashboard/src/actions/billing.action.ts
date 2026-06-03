@@ -6,6 +6,8 @@ import { listUserInvoices } from '@/services/billing/invoice.service';
 import {
   previewSubscriptionChange,
   applySubscriptionChange,
+  syncSubscriptionChangeStatus,
+  type ApplyChangeResult,
 } from '@/services/billing/subscription-change.service';
 import {
   type UserBillingData,
@@ -49,7 +51,7 @@ export const getSubscriptionChangePreview = withUserAuth(
 );
 
 export const changeSubscriptionPlan = withUserAuth(
-  async (user: User, targetPlan: SelectedPlan, attemptId: string): Promise<void> => {
+  async (user: User, targetPlan: SelectedPlan, attemptId: string): Promise<ApplyChangeResult> => {
     if (!isFeatureEnabled('enableBilling')) {
       throw new UserException('Billing is not enabled.');
     }
@@ -58,7 +60,19 @@ export const changeSubscriptionPlan = withUserAuth(
     }
     const validatedPlan = SelectedPlanSchema.parse(targetPlan);
     const validatedAttemptId = AttemptIdSchema.parse(attemptId);
-    await applySubscriptionChange(user.id, validatedPlan, validatedAttemptId);
+    return applySubscriptionChange(user.id, validatedPlan, validatedAttemptId);
+  },
+);
+
+export const syncSubscriptionPlanChangeStatus = withUserAuth(
+  async (user: User): Promise<ApplyChangeResult> => {
+    if (!isFeatureEnabled('enableBilling')) {
+      throw new UserException('Billing is not enabled.');
+    }
+    if (!user.emailVerified) {
+      throw new UserException('Email verification required to change plans.');
+    }
+    return syncSubscriptionChangeStatus(user.id);
   },
 );
 

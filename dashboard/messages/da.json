@@ -2221,12 +2221,16 @@
         "successLabel": "Plan ændret",
         "successDescription": "Du er nu på {tier}.",
         "failureLabel": "Planændring mislykkedes",
-        "authRequiredLabel": "Handling påkrævet",
+        "authRequiredLabel": "Bekræftelse påkrævet",
+        "authenticatingLabel": "Bekræfter din betaling",
+        "authenticatingDescription": "Gennemfør bekræftelsen fra din bank for at fuldføre din opgradering.",
+        "finalizingLabel": "Fuldfører din opgradering…",
         "close": "Luk",
+        "tryAgain": "Prøv igen",
         "updatePaymentMethod": "Opdater betalingsmetode",
         "errors": {
           "cardDeclined": "Vi kunne ikke debitere din betalingsmetode. Opdater dit kort og prøv igen.",
-          "authenticationRequired": "Tjek din e-mail for at godkende denne betaling og fuldføre din opgradering."
+          "authenticationRetry": "Vi kunne ikke bekræfte din betaling. Prøv igen for at fuldføre din opgradering."
         }
       },
       "currentPlan": {

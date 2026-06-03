@@ -140,15 +140,18 @@ async function clearScheduledCancellation(sub: Stripe.Subscription): Promise<Str
   return sub;
 }
 
+export type ApplyChangeResult =
+  | { status: 'succeeded' }
+  | { status: 'requires_action'; clientSecret: string };
+
 export async function applySubscriptionChange(
   userId: string,
   targetPlan: SelectedPlan,
   attemptId: string,
-): Promise<void> {
+): Promise<ApplyChangeResult> {
   try {
     const { subscriptionId, itemId, newPrice } = await resolveSubscriptionContext(userId, targetPlan);
 
-    // pending_if_incomplete: subscription only changes if the prorated invoice is paid.
     const updated = await stripe.subscriptions.update(
       subscriptionId,
       {
@@ -164,38 +167,12 @@ export async function applySubscriptionChange(
       },
     );
 
-    const succeeded =
-      updated.pending_update === null && (updated.status === 'active' || updated.status === 'trialing');
-
-    if (succeeded) {
-      // Changing plans means the user is staying, so undo any scheduled cancellation.
-      const finalSub = await clearScheduledCancellation(updated);
-
-      // Optimistic write so the user doesn't see a stale plan before the webhook lands.
-      try {
-        await syncSubscriptionFromStripe(finalSub, `optimistic:${finalSub.id}:${Date.now()}`);
-      } catch (writeError) {
-        // Payment succeeded; don't fail the user-facing request. Webhook reconciles.
-        console.error('Optimistic subscription sync failed; relying on webhook:', writeError);
-      }
-      return;
+    if (isSubscriptionPaid(updated)) {
+      await persistPaidSubscription(updated);
+      return { status: 'succeeded' };
     }
 
-    const outcome = await resolvePaymentOutcome(updated.latest_invoice);
-    if (outcome === 'authentication_required') {
-      throw new UserException(
-        'Please check your email to authenticate this payment and complete your upgrade.',
-        'authentication_required',
-      );
-    }
-    if (outcome === 'card_declined') {
-      throw new UserException(
-        'We could not charge your payment method. Please update your card and try again.',
-        'card_declined',
-      );
-    }
-
-    throw new UserException('Could not confirm the payment status. Please try again in a moment.');
+    return resolveIncompleteOutcome(updated.latest_invoice);
   } catch (error) {
     if (error instanceof UserException) throw error;
     console.error('Failed to apply subscription change:', error);
@@ -203,13 +180,74 @@ export async function applySubscriptionChange(
   }
 }
 
-type PaymentOutcome = 'authentication_required' | 'card_declined' | 'unconfirmed';
+export async function syncSubscriptionChangeStatus(userId: string): Promise<ApplyChangeResult> {
+  try {
+    const localSubscription = await getUserSubscription(userId);
+    if (!localSubscription?.paymentSubscriptionId) {
+      throw new UserException('You do not have an active subscription to change.');
+    }
+
+    const subscription = await stripe.subscriptions.retrieve(localSubscription.paymentSubscriptionId);
+
+    if (isSubscriptionPaid(subscription)) {
+      await persistPaidSubscription(subscription);
+      return { status: 'succeeded' };
+    }
+
+    return resolveIncompleteOutcome(subscription.latest_invoice);
+  } catch (error) {
+    if (error instanceof UserException) throw error;
+    console.error('Failed to sync subscription change status:', error);
+    throw new UserException('Could not confirm the payment status. Please try again in a moment.');
+  }
+}
+
+function isSubscriptionPaid(sub: Stripe.Subscription): boolean {
+  return sub.pending_update === null && (sub.status === 'active' || sub.status === 'trialing');
+}
+
+async function persistPaidSubscription(sub: Stripe.Subscription): Promise<void> {
+  const finalSub = await clearScheduledCancellation(sub);
+
+  try {
+    await syncSubscriptionFromStripe(finalSub, `optimistic:${finalSub.id}:${Date.now()}`);
+  } catch (writeError) {
+    console.error('Optimistic subscription sync failed; relying on webhook:', writeError);
+  }
+}
+
+async function resolveIncompleteOutcome(
+  latestInvoice: Stripe.Subscription['latest_invoice'],
+): Promise<ApplyChangeResult> {
+  const outcome = await resolvePaymentOutcome(latestInvoice);
+
+  if (outcome.kind === 'succeeded') {
+    return { status: 'succeeded' };
+  }
+  if (outcome.kind === 'authentication_required') {
+    return { status: 'requires_action', clientSecret: outcome.clientSecret };
+  }
+  if (outcome.kind === 'card_declined') {
+    throw new UserException(
+      'We could not charge your payment method. Please update your card and try again.',
+      'card_declined',
+    );
+  }
+
+  throw new UserException('Could not confirm the payment status. Please try again in a moment.');
+}
+
+type PaymentOutcome =
+  | { kind: 'succeeded' }
+  | { kind: 'authentication_required'; clientSecret: string }
+  | { kind: 'card_declined' }
+  | { kind: 'unconfirmed' };
 
 async function resolvePaymentOutcome(
   latestInvoice: Stripe.Subscription['latest_invoice'],
 ): Promise<PaymentOutcome> {
   const invoiceId = typeof latestInvoice === 'string' ? latestInvoice : latestInvoice?.id;
-  if (!invoiceId) return 'unconfirmed';
+  if (!invoiceId) return { kind: 'unconfirmed' };
 
   try {
     const invoice = await stripe.invoices.retrieve(invoiceId, {
@@ -221,15 +259,20 @@ async function resolvePaymentOutcome(
       .find((intent): intent is Stripe.PaymentIntent => intent != null && typeof intent !== 'string');
 
     switch (paymentIntent?.status) {
+      case 'succeeded':
+      case 'processing':
+        return { kind: 'succeeded' };
       case 'requires_action':
-        return 'authentication_required';
+        return paymentIntent.client_secret
+          ? { kind: 'authentication_required', clientSecret: paymentIntent.client_secret }
+          : { kind: 'unconfirmed' };
       case 'requires_payment_method':
-        return 'card_declined';
+        return { kind: 'card_declined' };
       default:
-        return 'unconfirmed';
+        return { kind: 'unconfirmed' };
     }
   } catch (error) {
     console.warn('Could not determine subscription payment outcome:', error);
-    return 'unconfirmed';
+    return { kind: 'unconfirmed' };
   }
 }

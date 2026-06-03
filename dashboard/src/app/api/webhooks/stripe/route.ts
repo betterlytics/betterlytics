@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, stripeSignature as string, env.STRIPE_WEBHOOK_SECRET);
+      event = stripe.webhooks.constructEvent(body, stripeSignature, env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
@@ -36,23 +36,23 @@ export async function POST(req: NextRequest) {
 
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session, event.id);
+        await handleCheckoutCompleted(event.data.object, event.id);
         break;
 
       case 'invoice.payment_failed':
-        await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
+        await handleInvoicePaymentFailed(event.data.object);
         break;
 
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription, event.id);
+        await handleSubscriptionDeleted(event.data.object, event.id);
         break;
 
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription, event.id);
+        await handleSubscriptionUpdated(event.data.object, event.id);
         break;
 
       case 'customer.subscription.pending_update_applied':
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription, event.id);
+        await handleSubscriptionUpdated(event.data.object, event.id);
         break;
 
       default:

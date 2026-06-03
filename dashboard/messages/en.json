@@ -2218,12 +2218,16 @@
         "successLabel": "Plan changed",
         "successDescription": "You're now on {tier}.",
         "failureLabel": "Plan change failed",
-        "authRequiredLabel": "Action required",
+        "authRequiredLabel": "Verification needed",
+        "authenticatingLabel": "Verifying your payment",
+        "authenticatingDescription": "Complete the verification from your bank to finish your upgrade.",
+        "finalizingLabel": "Completing your upgrade…",
         "close": "Close",
+        "tryAgain": "Try again",
         "updatePaymentMethod": "Update payment method",
         "errors": {
           "cardDeclined": "We could not charge your payment method. Please update your card and try again.",
-          "authenticationRequired": "Please check your email to authenticate this payment and complete your upgrade."
+          "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade."
         }
       },
       "currentPlan": {

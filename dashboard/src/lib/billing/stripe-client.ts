@@ -13,3 +13,11 @@ export function getStripeClient(publishableKey: string): Promise<Stripe | null> 
   }
   return stripePromise;
 }
+
+export async function confirm3DS(publishableKey: string, clientSecret: string): Promise<boolean> {
+  const stripe = publishableKey ? await getStripeClient(publishableKey) : null;
+  if (!stripe) return false;
+
+  const { error } = await stripe.handleNextAction({ clientSecret });
+  return !error;
+}

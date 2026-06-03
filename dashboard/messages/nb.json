@@ -2229,12 +2229,16 @@
         "successLabel": "Plan endret",
         "successDescription": "Du er nå på {tier}.",
         "failureLabel": "Planendring mislyktes",
-        "authRequiredLabel": "Handling kreves",
+        "authRequiredLabel": "Bekreftelse kreves",
+        "authenticatingLabel": "Bekrefter betalingen din",
+        "authenticatingDescription": "Fullfør bekreftelsen fra banken din for å fullføre oppgraderingen.",
+        "finalizingLabel": "Fullfører oppgraderingen din…",
         "close": "Lukk",
+        "tryAgain": "Prøv igjen",
         "updatePaymentMethod": "Oppdater betalingsmetode",
         "errors": {
           "cardDeclined": "Vi kunne ikke belaste betalingsmetoden din. Oppdater kortet ditt og prøv igjen.",
-          "authenticationRequired": "Sjekk e-posten din for å godkjenne denne betalingen og fullføre oppgraderingen."
+          "authenticationRetry": "Vi kunne ikke bekrefte betalingen din. Prøv igjen for å fullføre oppgraderingen."
         }
       },
       "currentPlan": {

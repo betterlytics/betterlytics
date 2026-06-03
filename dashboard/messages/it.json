@@ -2229,12 +2229,16 @@
         "successLabel": "Piano cambiato",
         "successDescription": "Sei ora su {tier}.",
         "failureLabel": "Modifica piano non riuscita",
-        "authRequiredLabel": "Azione richiesta",
+        "authRequiredLabel": "Verifica richiesta",
+        "authenticatingLabel": "Verifica del pagamento in corso",
+        "authenticatingDescription": "Completa la verifica della tua banca per finalizzare l'aggiornamento.",
+        "finalizingLabel": "Completamento dell'aggiornamento…",
         "close": "Chiudi",
+        "tryAgain": "Riprova",
         "updatePaymentMethod": "Aggiorna metodo di pagamento",
         "errors": {
           "cardDeclined": "Non è stato possibile addebitare il tuo metodo di pagamento. Aggiorna la tua carta e riprova.",
-          "authenticationRequired": "Controlla la tua email per autenticare questo pagamento e completare il tuo aggiornamento."
+          "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento."
         }
       },
       "currentPlan": {
