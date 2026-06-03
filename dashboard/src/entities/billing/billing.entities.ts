@@ -201,3 +201,8 @@ export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
 export type UserInvoice = z.infer<typeof UserInvoiceSchema>;
 export type SubscriptionChangePreviewLine = z.infer<typeof SubscriptionChangePreviewLineSchema>;
 export type SubscriptionChangePreview = z.infer<typeof SubscriptionChangePreviewSchema>;
+
+export type CustomerCreditBalance = {
+  creditBalance: number;
+  currency: string;
+};

@@ -2230,6 +2230,10 @@
           "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade."
         }
       },
+      "creditBalance": {
+        "label": "Account credit",
+        "hint": "Applied automatically to future invoices"
+      },
       "currentPlan": {
         "title": "Current Plan",
         "canceledBannerTitle": "Subscription Canceled",
@@ -2911,7 +2915,8 @@
             "open": "Open",
             "paid": "Paid",
             "uncollectible": "Uncollectible",
-            "void": "Void"
+            "void": "Void",
+            "credit": "Credit"
           }
         },
         "cancellation": {

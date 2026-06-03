@@ -2241,6 +2241,10 @@
           "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento."
         }
       },
+      "creditBalance": {
+        "label": "Credito sul conto",
+        "hint": "Applicato automaticamente alle fatture future"
+      },
       "currentPlan": {
         "title": "Piano attuale",
         "canceledBannerTitle": "Abbonamento annullato",
@@ -2925,7 +2929,8 @@
             "open": "Aperta",
             "paid": "Pagata",
             "uncollectible": "Non riscuotibile",
-            "void": "Annullata"
+            "void": "Annullata",
+            "credit": "Credito"
           }
         },
         "cancellation": {

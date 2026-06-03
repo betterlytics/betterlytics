@@ -2233,6 +2233,10 @@
           "authenticationRetry": "Vi kunne ikke bekræfte din betaling. Prøv igen for at fuldføre din opgradering."
         }
       },
+      "creditBalance": {
+        "label": "Kontokredit",
+        "hint": "Anvendes automatisk på fremtidige fakturaer"
+      },
       "currentPlan": {
         "title": "Nuværende plan",
         "canceledBannerTitle": "Abonnement annulleret",
@@ -2917,7 +2921,8 @@
             "open": "Åben",
             "paid": "Betalt",
             "uncollectible": "Uinddrivelig",
-            "void": "Annulleret"
+            "void": "Annulleret",
+            "credit": "Kredit"
           }
         },
         "cancellation": {
