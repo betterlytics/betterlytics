@@ -2227,7 +2227,8 @@
         "updatePaymentMethod": "Update payment method",
         "errors": {
           "cardDeclined": "We could not charge your payment method. Please update your card and try again.",
-          "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade."
+          "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade.",
+          "unexpected": "Something went wrong. Please try again."
         }
       },
       "creditBalance": {

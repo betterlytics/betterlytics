@@ -2238,7 +2238,8 @@
         "updatePaymentMethod": "Aggiorna metodo di pagamento",
         "errors": {
           "cardDeclined": "Non è stato possibile addebitare il tuo metodo di pagamento. Aggiorna la tua carta e riprova.",
-          "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento."
+          "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento.",
+          "unexpected": "Qualcosa è andato storto. Riprova."
         }
       },
       "creditBalance": {

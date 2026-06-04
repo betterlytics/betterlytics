@@ -2238,7 +2238,8 @@
         "updatePaymentMethod": "Oppdater betalingsmetode",
         "errors": {
           "cardDeclined": "Vi kunne ikke belaste betalingsmetoden din. Oppdater kortet ditt og prøv igjen.",
-          "authenticationRetry": "Vi kunne ikke bekrefte betalingen din. Prøv igjen for å fullføre oppgraderingen."
+          "authenticationRetry": "Vi kunne ikke bekrefte betalingen din. Prøv igjen for å fullføre oppgraderingen.",
+          "unexpected": "Noe gikk galt. Prøv igjen."
         }
       },
       "creditBalance": {
