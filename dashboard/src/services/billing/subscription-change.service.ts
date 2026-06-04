@@ -11,6 +11,7 @@ import type { SelectedPlan } from '@/types/pricing';
 import { UserException } from '@/lib/exceptions';
 import { syncSubscriptionFromStripe } from '@/services/system/webhookHandlers.service';
 import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
+import { clearScheduledCancellation } from '@/services/billing/subscription.service';
 
 function isProrationLine(line: Stripe.InvoiceLineItem): boolean {
   const parent = line.parent;
@@ -128,16 +129,6 @@ export async function previewSubscriptionChange(
     console.error('Failed to preview subscription change:', error);
     throw new UserException('Could not preview plan change. Please try again.');
   }
-}
-
-async function clearScheduledCancellation(sub: Stripe.Subscription): Promise<Stripe.Subscription> {
-  if (sub.cancel_at_period_end) {
-    return stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
-  }
-  if (sub.cancel_at !== null) {
-    return stripe.subscriptions.update(sub.id, { cancel_at: null });
-  }
-  return sub;
 }
 
 export type ApplyChangeResult =

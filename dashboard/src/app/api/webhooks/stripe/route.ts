@@ -7,6 +7,7 @@ import {
   handleInvoicePaymentFailed,
   handleSubscriptionDeleted,
   handleSubscriptionUpdated,
+  handlePendingUpdateApplied,
 } from '@/services/system/webhookHandlers.service';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
         break;
 
       case 'customer.subscription.pending_update_applied':
-        await handleSubscriptionUpdated(event.data.object, event.id);
+        await handlePendingUpdateApplied(event.data.object, event.id);
         break;
 
       default:

@@ -14,6 +14,7 @@ import { applyTierChangeToRetention } from '@/services/dashboard/dashboardSettin
 import { findUserById } from '@/repositories/postgres/user.repository';
 import { findOwnedDashboardDomainsWithActiveRetentionGrace } from '@/repositories/postgres/dashboardSettings.repository';
 import {
+  clearScheduledCancellation,
   findSubscriptionByPaymentId,
   setSubscriptionStatus,
   upsertUserSubscription,
@@ -181,6 +182,16 @@ export async function handleSubscriptionUpdated(subscription: Stripe.Subscriptio
     await syncSubscriptionFromStripe(subscription, eventId);
   } catch (error) {
     console.error('Error handling subscription updated:', error);
+    throw error;
+  }
+}
+
+export async function handlePendingUpdateApplied(subscription: Stripe.Subscription, eventId: string) {
+  try {
+    const sub = await clearScheduledCancellation(subscription);
+    await syncSubscriptionFromStripe(sub, eventId);
+  } catch (error) {
+    console.error('Error handling pending update applied:', error);
     throw error;
   }
 }
