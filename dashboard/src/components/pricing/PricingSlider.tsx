@@ -66,7 +66,7 @@ export function PricingSlider({
               type='button'
               onClick={() => onSelectIndex(index)}
               className={cn(
-                'absolute -translate-x-1/2 cursor-pointer rounded text-xs transition-colors',
+                'absolute -translate-x-1/2 cursor-pointer rounded text-[10px] tabular-nums transition-colors sm:text-xs',
                 isActive ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground',
               )}
               style={{ left: `calc(0.625rem + (100% - 1.25rem) * ${index / lastIndex})` }}
