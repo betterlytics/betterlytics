@@ -141,7 +141,7 @@ export function ComparisonTable({
         {/* Mobile */}
         <div className='md:hidden'>
           <div
-            className='border-border/50 bg-muted/30 grid gap-2 border-b px-4 py-3'
+            className='border-border/50 bg-muted sticky top-0 z-30 grid gap-2 border-b px-4 py-3'
             style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
           >
             {columns.map((column, idx) => (
