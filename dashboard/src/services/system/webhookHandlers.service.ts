@@ -202,11 +202,18 @@ export async function syncSubscriptionFromStripe(
   eventId: string,
 ): Promise<void> {
   const localSubscription = await findSubscriptionByPaymentId(subscription.id);
+  const fresh = await stripe.subscriptions.retrieve(subscription.id);
+
   if (!localSubscription) {
+    if (TERMINAL_STATUSES.has(fresh.status)) {
+      console.warn(
+        `Ignoring stale subscription event ${eventId} for ${fresh.id} (no local row, status ${fresh.status})`,
+      );
+      return;
+    }
     throw new Error(`No local subscription found for Stripe subscription: ${subscription.id}`);
   }
 
-  const fresh = await stripe.subscriptions.retrieve(subscription.id);
   const subscriptionItem = fresh.items.data[0];
 
   // Keep the Stripe link for revivable states so a later payment restores the paid tier
