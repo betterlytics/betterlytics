@@ -87,7 +87,7 @@ export function isValidTotp(totp: string, secret: string): boolean {
   return validTotp !== null;
 }
 
-export async function disableTotp(userId: string): Promise<void> {
+export async function disableTotp(userId: string, totp: string): Promise<void> {
   try {
     const user = await UsersRepository.findUserById(userId);
     if (!user) {
@@ -96,6 +96,15 @@ export async function disableTotp(userId: string): Promise<void> {
 
     if (!user.totpEnabled) {
       throw new Error('Totp already disabled');
+    }
+
+    if (!user.totpSecret) {
+      throw new Error('Totp not set up');
+    }
+
+    const validTotp = isValidTotp(totp, user.totpSecret);
+    if (!validTotp) {
+      throw new Error('Totp is invalid');
     }
 
     await UsersRepository.updateUser(userId, {

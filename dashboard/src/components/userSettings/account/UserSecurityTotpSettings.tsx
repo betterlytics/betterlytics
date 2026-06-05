@@ -4,7 +4,6 @@ import { disableTotpAction, enableTotpAction, setupTotpAction } from '@/app/acti
 import SettingRow from '../shared/SettingRow';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -159,17 +158,36 @@ function SetupTotp() {
 function DisableTotp() {
   const t = useTranslations('components.userSettings.security.totp');
   const { update: setSession } = useSession();
+  const totpInputRef = useRef<HTMLInputElement>(null);
+  const [totp, setTotp] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleDisableTotp = () => {
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      setTotp('');
+    }
+    setIsDialogOpen(open);
+  };
+
+  const handleDialogOpenAutoFocus = (e: Event) => {
+    e.preventDefault();
+    totpInputRef.current?.focus();
+  };
+
+  const handleOnSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
     startTransition(async () => {
-      const disabled = await disableTotpAction();
+      const disabled = await disableTotpAction(totp);
       if (disabled.success) {
         await setSession({ totpEnabled: false });
         setIsDialogOpen(false);
+        setTotp('');
         toast.success(t('disabledSuccess'));
       } else {
+        setTotp('');
+        totpInputRef.current?.focus();
         toast.error(t('disableFailed'));
       }
     });
@@ -181,27 +199,34 @@ function DisableTotp() {
         <Check className='h-4 w-4' />
         <span className='font-medium'>{t('enabled')}</span>
       </div>
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
         <AlertDialogTrigger asChild>
           <Button variant='outline' size='sm' disabled={isPending} className='cursor-pointer'>
             {t('disable')}
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent className='w-80'>
+        <AlertDialogContent className='w-80' onOpenAutoFocus={handleDialogOpenAutoFocus}>
           <AlertDialogHeader>
             <AlertDialogTitle className='flex items-center gap-2'>{t('disableTitle')}</AlertDialogTitle>
             <AlertDialogDescription>{t('disableDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>{t('cancel')}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDisableTotp}
-              disabled={isPending}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-            >
-              {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('disable')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          <form onSubmit={handleOnSubmit}>
+            <div className='mb-4 flex flex-col gap-4'>
+              <OtpInput value={totp} onValueChange={setTotp} disabled={isPending} ref={totpInputRef} />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+                {t('cancel')}
+              </AlertDialogCancel>
+              <Button
+                type='submit'
+                disabled={isPending || totp.length !== 6}
+                className='bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer'
+              >
+                {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('disable')}
+              </Button>
+            </AlertDialogFooter>
+          </form>
         </AlertDialogContent>
       </AlertDialog>
     </div>

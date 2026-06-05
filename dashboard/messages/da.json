@@ -2963,7 +2963,7 @@
           "enabled": "Aktiveret",
           "disable": "Deaktivér",
           "disableTitle": "Deaktivér 2FA",
-          "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
+          "disableDescription": "Indtast bekræftelseskoden fra din autentificeringsapp for at deaktivere to-faktor-godkendelse.",
           "disabledSuccess": "To-faktor-godkendelse deaktiveret",
           "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen.",
           "setupFailed": "Kunne ikke konfigurere to-faktor-godkendelse. Prøv igen.",

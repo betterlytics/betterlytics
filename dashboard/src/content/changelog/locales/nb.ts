@@ -1,50 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v142ChangelogEntryNb: ChangelogEntryData = {
+const v143ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.2',
-    releasedAt: '2026-05-17',
-    title: 'Globale egenskaper i trakter, filter for utgående lenker og smartere referrergruppering',
+    version: 'v1.4.3',
+    releasedAt: '2026-05-24',
+    title: 'Oppdaterte kontoinnstillinger og styrket sikkerhet',
     summary:
-      'Filtrer trakttrinn etter Globale egenskaper, segmenter analyser etter utgående lenke, og få mer presis gruppering av referrers. Denne utgivelsen hever også den korteste tillatte perioden for dataoppbevaring og retter en feil som gjorde at session replays ikke kunne spilles av.',
+      'En redesignet dialog for brukerinnstillinger, nye muligheter for å administrere aktive økter, styrkede kontroller rundt tofaktorautentisering, samt en håndfull rettelser og finpussinger.',
   },
   sections: [
     {
-      id: 'v142-new-features',
-      title: 'Nye funksjoner',
+      id: 'v143-security',
+      title: 'Sikkerhet',
       blocks: [
         {
           type: 'list',
           items: [
-            'Trakter støtter nå Globale egenskaper. Du kan nå filtrere trakttrinn etter alle de globale egenskapene du knytter til hendelsene dine — akkurat som andre steder i dashbordet.',
-            'Et nytt filter for utgående lenker gjør det enkelt å filtrere og segmentere analyser etter hvilke eksterne URL-er besøkende har klikket på.',
+            'Du kan nå logge ut av alle andre aktive økter direkte fra kontoinnstillingene dine.',
+            'Deaktivering av tofaktorautentisering krever nå en gyldig TOTP-kode, noe som gir ekstra beskyttelse mot uautoriserte endringer.',
+            'Tofaktorautentisering tilbys ikke lenger for kontoer som logger inn via Google eller GitHub, siden leverandøren allerede håndterer det.',
           ],
         },
       ],
     },
     {
-      id: 'v142-improvements',
+      id: 'v143-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Gruppering av referrers er nå betydelig mer presis, slik at trafikkilder samles på en mer enhetlig måte i hele dashbordet.',
-            'Den korteste tillatte perioden for dataoppbevaring er hevet fra 3 til 6 måneder (session replay er fortsatt 2 måneder).',
-            'Mindre forbedringer i brukeropplevelse og tilgjengelighet på tvers av filtre, dashboard-kort og innloggingsskjemaet.',
+            'Dialogen for brukerinnstillinger er redesignet med et mer moderne og ryddig oppsett.',
+            'Favicons for dashboard-domener hentes nå mer pålitelig for flere nettsteder.',
+            'Mindre UI-finpussinger på tvers av dashbordet.',
           ],
         },
       ],
     },
     {
-      id: 'v142-fixes',
+      id: 'v143-fixes',
       title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Rettet et problem der session replays ikke klarte å hente segmentene sine, slik at opptak ikke kunne spilles av.',
-            'Ironisk nok rettet en feil der det å sende inn en feilrapport utenfor et dashboard selv slo feil.',
+            'Rettet et problem der brukere uten et navn på kontoen sin ikke kunne oppdatere innstillingene sine.',
+            'Rettet et problem der det viste temaet ikke lenger samsvarte med den lagrede innstillingen hvis man avbrøt et temaskifte.',
           ],
         },
       ],
@@ -52,10 +53,61 @@ const v142ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v142ChangelogEntryNb;
+export const latestChangelogModalNb = v143ChangelogEntryNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
-  v142ChangelogEntryNb,
+  v143ChangelogEntryNb,
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Globale egenskaper i trakter, filter for utgående lenker og smartere referrergruppering',
+      summary:
+        'Filtrer trakttrinn etter Globale egenskaper, segmenter analyser etter utgående lenke, og få mer presis gruppering av referrers. Denne utgivelsen hever også den korteste tillatte perioden for dataoppbevaring og retter en feil som gjorde at session replays ikke kunne spilles av.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'Nye funksjoner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Trakter støtter nå Globale egenskaper. Du kan nå filtrere trakttrinn etter alle de globale egenskapene du knytter til hendelsene dine — akkurat som andre steder i dashbordet.',
+              'Et nytt filter for utgående lenker gjør det enkelt å filtrere og segmentere analyser etter hvilke eksterne URL-er besøkende har klikket på.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gruppering av referrers er nå betydelig mer presis, slik at trafikkilder samles på en mer enhetlig måte i hele dashbordet.',
+              'Den korteste tillatte perioden for dataoppbevaring er hevet fra 3 til 6 måneder (session replay er fortsatt 2 måneder).',
+              'Mindre forbedringer i brukeropplevelse og tilgjengelighet på tvers av filtre, dashboard-kort og innloggingsskjemaet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem der session replays ikke klarte å hente segmentene sine, slik at opptak ikke kunne spilles av.',
+              'Ironisk nok rettet en feil der det å sende inn en feilrapport utenfor et dashboard selv slo feil.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.1',
