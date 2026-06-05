@@ -2973,7 +2973,7 @@
           "enabled": "Aktivert",
           "disable": "Deaktiver",
           "disableTitle": "Deaktiver 2FA",
-          "disableDescription": "Er du sikker på at du vil deaktivere tofaktorautentisering for kontoen din?",
+          "disableDescription": "Skriv inn bekreftelseskoden fra autentiseringsappen din for å deaktivere tofaktorautentisering.",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
           "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
           "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
