@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 import type { Stripe } from '@stripe/stripe-js';
+import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { SuccessCheckmark } from '@/components/billing/SuccessCheckmark';
@@ -83,6 +84,8 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
     [clientSecret, handleComplete],
   );
 
+  const showCheckout = !showSuccess && !hasError && !!stripePromise && !!checkoutOptions;
+
   return (
     <Dialog open={open} onOpenChange={(next) => !showSuccess && onOpenChange(next)}>
       <DialogContent
@@ -95,14 +98,17 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <div className='min-h-0 flex-1 overflow-y-auto py-4 md:py-6'>
+        <div
+          className={cn(
+            'min-h-0 flex-1 overflow-y-auto py-4 md:py-6',
+            !showCheckout && 'flex min-h-[400px] flex-col items-center justify-center',
+          )}
+        >
           {showSuccess ? (
-            <div className='flex h-full min-h-[400px] flex-col items-center justify-center'>
-              <SuccessCheckmark
-                label={t('successTitle')}
-                description={plan ? t('successDescription', { tier: plan.tier }) : undefined}
-              />
-            </div>
+            <SuccessCheckmark
+              label={t('successTitle')}
+              description={plan ? t('successDescription', { tier: plan.tier }) : undefined}
+            />
           ) : hasError || !stripePromise ? (
             <div className='text-muted-foreground p-8 text-center text-sm'>{t('loadError')}</div>
           ) : checkoutOptions ? (
@@ -110,7 +116,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
               <EmbeddedCheckout />
             </EmbeddedCheckoutProvider>
           ) : (
-            <div className='text-muted-foreground flex h-full min-h-[400px] flex-col items-center justify-center gap-4 text-sm'>
+            <div className='text-muted-foreground flex flex-col items-center justify-center gap-4 text-sm'>
               <Spinner />
               <span>{t('creatingSession')}</span>
             </div>
