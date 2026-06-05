@@ -2835,6 +2835,7 @@
         "toast": {
           "error": "Kunne ikke gemme indstillinger. Prøv igen."
         },
+        "upgradePlan": "Opgrader plan",
         "help": {
           "trigger": "Brug for hjælp?",
           "documentation": "Dokumentation",

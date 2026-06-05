@@ -2843,6 +2843,7 @@
         "toast": {
           "error": "Impossibile salvare le impostazioni. Riprova."
         },
+        "upgradePlan": "Aggiorna piano",
         "help": {
           "trigger": "Hai bisogno di aiuto?",
           "documentation": "Documentazione",

@@ -2843,6 +2843,7 @@
         "toast": {
           "error": "Kunne ikke lagre innstillinger. Prøv igjen."
         },
+        "upgradePlan": "Oppgrader plan",
         "help": {
           "trigger": "Trenger du hjelp?",
           "documentation": "Dokumentasjon",
