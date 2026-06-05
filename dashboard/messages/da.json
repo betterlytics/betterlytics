@@ -1391,7 +1391,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Månedlige events"
+    "monthlyEvents": "Månedlige events",
+    "suggested": "Anbefalet",
+    "recommend": "Baseret på din estimerede trafik anbefaler vi <emphasis>{events} events / måned</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/måned",

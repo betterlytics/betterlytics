@@ -50,8 +50,8 @@ export function PlanPickerDialog({
       >
         <ScrollArea className='min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]>div]:!block [&>[data-slot=scroll-area-scrollbar]]:z-40'>
           <div className='px-3 pt-5 pb-6 sm:px-8 sm:pt-8'>
-            <DialogHeader className='pb-6 sm:text-center'>
-              <DialogTitle className='text-2xl'>{t('title')}</DialogTitle>
+            <DialogHeader className='pb-3 sm:text-center'>
+              <DialogTitle className='text-2xl sm:text-3xl'>{t('title')}</DialogTitle>
               <DialogDescription className='sr-only'>{t('description')}</DialogDescription>
             </DialogHeader>
 

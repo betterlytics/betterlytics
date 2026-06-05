@@ -1,6 +1,7 @@
 'use client';
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
+import { ChevronDown } from 'lucide-react';
 import { EVENT_RANGES, EventRange, isContactSalesRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/utils/formatters';
@@ -11,6 +12,7 @@ interface PricingSliderProps {
   currentRange: EventRange;
   selectedRangeIndex: number;
   onSelectIndex: (index: number) => void;
+  suggestedRangeIndex?: number;
   className?: string;
 }
 
@@ -18,6 +20,7 @@ export function PricingSlider({
   currentRange,
   selectedRangeIndex,
   onSelectIndex,
+  suggestedRangeIndex,
   className = '',
 }: PricingSliderProps) {
   const t = useTranslations('pricingSlider');
@@ -25,6 +28,10 @@ export function PricingSlider({
 
   const isUnlimited = isContactSalesRange(currentRange);
   const lastIndex = EVENT_RANGES.length - 1;
+  const suggestedLeft =
+    suggestedRangeIndex === undefined
+      ? undefined
+      : `calc(0.625rem + (100% - 1.25rem) * ${suggestedRangeIndex / lastIndex})`; // This is to match the slider calculation
 
   return (
     <div className={className}>
@@ -39,6 +46,20 @@ export function PricingSlider({
         />
         <span className='text-muted-foreground text-sm'>{t('monthlyEvents')}</span>
       </div>
+
+      {suggestedRangeIndex !== undefined && (
+        <div className='relative -mb-1.5 h-7 w-full'>
+          <div
+            className='text-muted-foreground absolute bottom-0 flex -translate-x-1/2 flex-col items-center text-sm leading-tight'
+            style={{ left: suggestedLeft }}
+          >
+            <span className='whitespace-nowrap'>{t('suggested')}</span>
+            <ChevronDown
+              className={cn('h-3.5 w-3.5', suggestedRangeIndex === selectedRangeIndex && 'invisible')}
+            />
+          </div>
+        </div>
+      )}
 
       <SliderPrimitive.Root
         value={[selectedRangeIndex]}

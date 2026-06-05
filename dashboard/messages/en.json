@@ -1388,7 +1388,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Monthly Events"
+    "monthlyEvents": "Monthly Events",
+    "suggested": "Suggested",
+    "recommend": "Based on your estimated traffic, we recommend <emphasis>{events} events / month</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/month",

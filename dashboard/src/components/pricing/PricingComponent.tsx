@@ -2,11 +2,14 @@
 
 import { Dispatch, useCallback, useState } from 'react';
 import { NumberFlowGroup } from '@number-flow/react';
+import { useLocale, useTranslations } from 'next-intl';
 import { PricingSlider } from './PricingSlider';
 import { PricingCards } from './PricingCards';
 import { SelectedPlan } from '@/types/pricing';
 import { cn } from '@/lib/utils';
 import { EVENT_RANGES } from '@/lib/billing/plans';
+import { formatNumber } from '@/utils/formatters';
+import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
 import {
   Select,
@@ -36,9 +39,13 @@ export function PricingComponent({
   lockedCurrency,
   stickyControls = false,
 }: PricingComponentProps) {
+  const t = useTranslations('pricingSlider');
+  const locale = useLocale();
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
   const currentRange = EVENT_RANGES[selectedRangeIndex];
+  const projection = useUsageProjection(billingData?.usage);
+  const recommendedRange = projection ? EVENT_RANGES[projection.suggestedRangeIndex] : null;
 
   const handleCurrencyChange = useCallback((currency: string) => {
     setSelectedCurrency(currency as Currency);
@@ -50,8 +57,9 @@ export function PricingComponent({
         <div
           className={cn(
             stickyControls
-              ? 'bg-background border-border/60 sticky top-0 z-20 -mx-3 mb-8 border-b px-3 pt-5 pb-4 sm:-mx-8 sm:border-b-0 sm:px-8 sm:pt-6'
-              : 'mb-8',
+              ? 'bg-background border-border/60 sticky top-0 z-20 -mx-3 border-b px-3 pt-3 pb-4 sm:-mx-8 sm:border-b-0 sm:px-8 sm:pt-4'
+              : '',
+            projection ? 'mb-1' : 'mb-8',
           )}
         >
           <div className='grid grid-cols-5 items-end justify-center gap-6'>
@@ -60,6 +68,7 @@ export function PricingComponent({
                 currentRange={currentRange}
                 selectedRangeIndex={selectedRangeIndex}
                 onSelectIndex={setSelectedRangeIndex}
+                suggestedRangeIndex={projection?.suggestedRangeIndex}
               />
             </div>
             {!lockedCurrency && (
@@ -83,6 +92,17 @@ export function PricingComponent({
             )}
           </div>
         </div>
+
+        {recommendedRange && (
+          <p className='text-muted-foreground mb-9 text-center text-sm'>
+            {t.rich('recommend', {
+              events:
+                formatNumber(recommendedRange.value, locale, { maximumFractionDigits: 0 }) +
+                (recommendedRange.value > 10_000_000 ? '+' : ''),
+              emphasis: (chunks) => <span className='text-foreground font-semibold'>{chunks}</span>,
+            })}
+          </p>
+        )}
 
         <PricingCards
           eventRange={currentRange}

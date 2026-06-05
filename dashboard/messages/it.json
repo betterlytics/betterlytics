@@ -1399,7 +1399,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Eventi mensili"
+    "monthlyEvents": "Eventi mensili",
+    "suggested": "Consigliato",
+    "recommend": "In base al tuo traffico stimato, ti consigliamo <emphasis>{events} eventi / mese</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/mese",
