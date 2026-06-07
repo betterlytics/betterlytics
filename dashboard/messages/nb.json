@@ -2449,6 +2449,7 @@
         "filterCount": "{count, plural, =0 {Ingen filtre} =1 {1 filter} other {# filtre}}",
         "tooltip": {
           "deleteStep": "Slett trinn {index}",
+          "minStepsHint": "En trakt må ha minst {count} trinn",
           "reorderStep": "Omorganiser trinn {index}",
           "toggleStep": "Vis/skjul trinn {index}"
         }

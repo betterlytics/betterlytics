@@ -195,6 +195,7 @@ export function FunnelStepAccordion({
                 step={step}
                 index={index}
                 showEmptyError={hasAttemptedSubmit}
+                canRemoveStep={steps.length > 2}
                 onUpdate={onUpdateStep}
                 onRequestRemoval={handleRequestRemoval}
                 globalPropertyKeys={globalPropertyKeys}

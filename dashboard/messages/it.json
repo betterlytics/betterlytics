@@ -2449,6 +2449,7 @@
         "filterCount": "{count, plural, =0 {Nessun filtro} =1 {1 filtro} other {# filtri}}",
         "tooltip": {
           "deleteStep": "Elimina passaggio {index}",
+          "minStepsHint": "Un funnel deve avere almeno {count} passaggi",
           "reorderStep": "Riordina passaggio {index}",
           "toggleStep": "Mostra/nascondi passaggio {index}"
         }

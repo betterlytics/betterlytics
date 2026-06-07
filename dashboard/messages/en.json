@@ -2438,6 +2438,7 @@
         "filterCount": "{count, plural, =0 {No filters} =1 {1 filter} other {# filters}}",
         "tooltip": {
           "deleteStep": "Delete step {index}",
+          "minStepsHint": "A funnel needs at least {count} steps",
           "reorderStep": "Reorder step {index}",
           "toggleStep": "Toggle step {index}"
         }
