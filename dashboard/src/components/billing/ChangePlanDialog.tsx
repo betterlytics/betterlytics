@@ -34,9 +34,16 @@ interface ChangePlanDialogProps {
   onOpenChange: (open: boolean) => void;
   onBack?: () => void;
   targetPlan: SelectedPlan | null;
+  resumesCanceledSubscription?: boolean;
 }
 
-export function ChangePlanDialog({ open, onOpenChange, onBack, targetPlan }: ChangePlanDialogProps) {
+export function ChangePlanDialog({
+  open,
+  onOpenChange,
+  onBack,
+  targetPlan,
+  resumesCanceledSubscription = false,
+}: ChangePlanDialogProps) {
   const t = useTranslations('components.billing.changePlan');
   const locale = useLocale() as SupportedLanguages;
   const queryClient = useQueryClient();
@@ -112,6 +119,10 @@ export function ChangePlanDialog({ open, onOpenChange, onBack, targetPlan }: Cha
         ) : (
           <>
             <PreviewBody query={previewQuery} targetPlan={targetPlan} locale={locale} />
+
+            {resumesCanceledSubscription && !previewQuery.isError && (
+              <p className='text-muted-foreground mt-3 text-xs'>{t('resumeNote')}</p>
+            )}
 
             <div className='flex items-center justify-end gap-2'>
               <Button

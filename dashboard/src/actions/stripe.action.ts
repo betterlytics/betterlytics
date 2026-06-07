@@ -11,6 +11,7 @@ import { Stripe } from 'stripe';
 import { UserException } from '@/lib/exceptions';
 import type { Currency } from '@/entities/billing/billing.entities';
 import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
+import { LIVE_SUBSCRIPTION_STATUSES } from '@/lib/billing/subscription-status';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   try {
@@ -25,15 +26,13 @@ async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   }
 }
 
-const LIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription.Status[] = ['active', 'trialing', 'past_due', 'unpaid'];
-
 async function hasLiveSubscription(customerId: string): Promise<boolean> {
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
     status: 'all',
     limit: 100,
   });
-  return subscriptions.data.some((subscription) => LIVE_SUBSCRIPTION_STATUSES.includes(subscription.status));
+  return subscriptions.data.some((subscription) => LIVE_SUBSCRIPTION_STATUSES.has(subscription.status));
 }
 
 export type EmbeddedCheckoutSession = {

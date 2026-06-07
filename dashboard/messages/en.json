@@ -2206,6 +2206,7 @@
       "changePlan": {
         "title": "Confirm plan change",
         "description": "Review the prorated charges before confirming.",
+        "resumeNote": "Your subscription is scheduled to cancel — confirming this change keeps it active and resumes billing.",
         "summaryCharge": "You'll switch to {tier} ({events} events / month) right away. {amount} will be charged now for the remaining period, and {nextAmount}/month thereafter starting {date}.",
         "summaryCredit": "You'll switch to {tier} ({events} events / month). {amount} credit for unused time will be applied to your next invoice of {nextAmount}/month on {date}.",
         "loading": "Calculating proration…",
@@ -2249,7 +2250,6 @@
         "usageProgress": "{current} of {limit} events",
         "resetsInDays": "Resets in {days} days",
         "expiresInDays": "Expires in {days} days",
-        
         "manage": "Manage Subscription",
         "reactivate": "Reactivate Subscription",
         "cancel": "Cancel Subscription",

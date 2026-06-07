@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing.entities';
-import { formatPrice } from '@/utils/pricing';
-import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
+import { formatPrice, formatEventCount } from '@/utils/pricing';
+import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange, isContactSalesRange } from '@/lib/billing/plans';
 import { Dispatch, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -55,9 +55,7 @@ export function PricingCards({
   const isContactSales = isContactSalesRange(eventRange);
 
   const eventsLabel = t('features.upToEventsPerMonth', {
-    events:
-      formatNumber(eventRange.value, locale, { maximumFractionDigits: 0 }) +
-      (eventRange.value > 10_000_000 ? '+' : ''),
+    events: formatEventCount(eventRange.value, locale),
   });
 
   const plans: PlanConfig[] = useMemo(

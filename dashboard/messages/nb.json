@@ -2217,6 +2217,7 @@
       "changePlan": {
         "title": "Bekreft planendring",
         "description": "Gjennomgå den forholdsmessige beregningen før du bekrefter.",
+        "resumeNote": "Abonnementet ditt er planlagt avsluttet – bekrefter du denne endringen, forblir det aktivt, og faktureringen gjenopptas.",
         "summaryCharge": "Du bytter til {tier} ({events} hendelser / måned) med en gang. {amount} belastes nå for resten av perioden, og {nextAmount}/måned deretter fra {date}.",
         "summaryCredit": "Du bytter til {tier} ({events} hendelser / måned). {amount} kreditt for ubrukt tid trekkes fra neste faktura på {nextAmount}/måned den {date}.",
         "loading": "Beregner forholdsmessig pris…",
@@ -2260,7 +2261,6 @@
         "usageProgress": "{current} av {limit} hendelser",
         "resetsInDays": "Nullstilles om {days} dager",
         "expiresInDays": "Utløper om {days} dager",
-        
         "manage": "Administrer abonnement",
         "reactivate": "Reaktiver abonnement",
         "cancel": "Avslutt abonnement",

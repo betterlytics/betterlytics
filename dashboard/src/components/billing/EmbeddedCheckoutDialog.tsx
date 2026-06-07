@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
@@ -69,11 +69,19 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
     }
   }, [open]);
 
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
+
   const handleComplete = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['userBilling'] });
     queryClient.invalidateQueries({ queryKey: ['userInvoices'] });
     setShowSuccess(true);
-    setTimeout(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
       onOpenChange(false);
       router.refresh();
     }, SUCCESS_AUTO_CLOSE_MS);

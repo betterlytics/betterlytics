@@ -4,7 +4,7 @@ import * as SliderPrimitive from '@radix-ui/react-slider';
 import { ChevronDown } from 'lucide-react';
 import { EVENT_RANGES, EventRange, isContactSalesRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
-import { formatNumber } from '@/utils/formatters';
+import { formatEventCount } from '@/utils/pricing';
 import { useLocale, useTranslations } from 'next-intl';
 import NumberFlow from '@number-flow/react';
 
@@ -78,9 +78,7 @@ export function PricingSlider({
       <div className='relative mt-3 h-4 w-full'>
         {EVENT_RANGES.map((range, index) => {
           const isActive = range.value === currentRange.value;
-          const label = isContactSalesRange(range)
-            ? `${formatNumber(10_000_000, locale, { maximumFractionDigits: 0 })}+`
-            : formatNumber(range.value, locale, { maximumFractionDigits: 0 });
+          const label = formatEventCount(range.value, locale);
           return (
             <button
               key={range.value}

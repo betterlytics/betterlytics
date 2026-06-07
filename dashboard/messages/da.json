@@ -2209,6 +2209,7 @@
       "changePlan": {
         "title": "Bekræft planændring",
         "description": "Gennemgå den forholdsmæssige beregning, før du bekræfter.",
+        "resumeNote": "Dit abonnement er planlagt til at blive annulleret – bekræfter du denne ændring, forbliver det aktivt, og faktureringen genoptages.",
         "summaryCharge": "Du skifter til {tier} ({events} events / måned) med det samme. {amount} opkræves nu for resten af perioden, og {nextAmount}/måned derefter fra {date}.",
         "summaryCredit": "Du skifter til {tier} ({events} events / måned). {amount} kredit for ubrugt tid trækkes fra din næste faktura på {nextAmount}/måned den {date}.",
         "loading": "Beregner forholdsmæssig pris…",
@@ -2252,7 +2253,6 @@
         "usageProgress": "{current} af {limit} events",
         "resetsInDays": "Nulstilles om {days} dage",
         "expiresInDays": "Udløber om {days} dage",
-        
         "manage": "Administrér abonnement",
         "reactivate": "Genaktivér abonnement",
         "cancel": "Annullér abonnement",

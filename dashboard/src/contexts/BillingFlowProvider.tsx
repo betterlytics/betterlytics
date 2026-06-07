@@ -102,6 +102,17 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
     [billingData, session, t, openBillingPortal],
   );
 
+  const handleCheckoutOpenChange = useCallback((next: boolean) => {
+    if (!next) setCheckoutPlan(null);
+  }, []);
+
+  const handleChangePlanOpenChange = useCallback((next: boolean) => {
+    if (!next) {
+      setChangePlan(null);
+      setChangePlanFromPicker(false);
+    }
+  }, []);
+
   return (
     <BillingFlowContext.Provider value={{ openPlanPicker, selectPlan }}>
       {children}
@@ -124,20 +135,13 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
 
       <EmbeddedCheckoutDialog
         open={checkoutPlan !== null}
-        onOpenChange={(next) => {
-          if (!next) setCheckoutPlan(null);
-        }}
+        onOpenChange={handleCheckoutOpenChange}
         plan={checkoutPlan}
       />
 
       <ChangePlanDialog
         open={changePlan !== null}
-        onOpenChange={(next) => {
-          if (!next) {
-            setChangePlan(null);
-            setChangePlanFromPicker(false);
-          }
-        }}
+        onOpenChange={handleChangePlanOpenChange}
         onBack={
           changePlanFromPicker
             ? () => {
@@ -149,6 +153,7 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
             : undefined
         }
         targetPlan={changePlan}
+        resumesCanceledSubscription={billingData?.subscription.cancelAtPeriodEnd ?? false}
       />
 
       {session?.user?.email && (

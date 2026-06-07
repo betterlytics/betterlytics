@@ -17,7 +17,7 @@ export function useUsageProjection(usage?: UsageData): UsageProjection | null {
     const rawProjected = usage.current * (totalTime / elapsedTime);
 
     const foundIndex = EVENT_RANGES.findIndex((range) => range.value >= rawProjected);
-    const suggestedRangeIndex = Math.max(foundIndex, 0);
+    const suggestedRangeIndex = foundIndex === -1 ? EVENT_RANGES.length - 1 : foundIndex;
 
     return { suggestedRangeIndex };
   }, [usage]);

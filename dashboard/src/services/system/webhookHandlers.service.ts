@@ -19,11 +19,9 @@ import {
   setSubscriptionStatus,
   upsertUserSubscription,
 } from '@/services/billing/subscription.service';
+import { TIER_RETAINING_STATUSES, TERMINAL_STATUSES } from '@/lib/billing/subscription-status';
 
 const RETENTION_GRACE_DAYS = 30;
-
-const ENTITLED_STATUSES = new Set<Stripe.Subscription.Status>(['active', 'trialing', 'past_due']);
-const TERMINAL_STATUSES = new Set<Stripe.Subscription.Status>(['canceled', 'incomplete_expired']);
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, eventId: string) {
   try {
@@ -217,7 +215,7 @@ export async function syncSubscriptionFromStripe(
   const subscriptionItem = fresh.items.data[0];
 
   // Keep the Stripe link for revivable states so a later payment restores the paid tier
-  if (!ENTITLED_STATUSES.has(fresh.status)) {
+  if (!TIER_RETAINING_STATUSES.has(fresh.status)) {
     const link = TERMINAL_STATUSES.has(fresh.status)
       ? null
       : { customerId: fresh.customer as string, subscriptionId: fresh.id, priceId: subscriptionItem.price.id };

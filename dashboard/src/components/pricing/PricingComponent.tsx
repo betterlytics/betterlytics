@@ -8,7 +8,7 @@ import { PricingCards } from './PricingCards';
 import { SelectedPlan } from '@/types/pricing';
 import { cn } from '@/lib/utils';
 import { EVENT_RANGES } from '@/lib/billing/plans';
-import { formatNumber } from '@/utils/formatters';
+import { formatEventCount } from '@/utils/pricing';
 import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
 import {
@@ -96,9 +96,7 @@ export function PricingComponent({
         {recommendedRange && (
           <p className='text-muted-foreground mb-9 text-center text-sm'>
             {t.rich('recommend', {
-              events:
-                formatNumber(recommendedRange.value, locale, { maximumFractionDigits: 0 }) +
-                (recommendedRange.value > 10_000_000 ? '+' : ''),
+              events: formatEventCount(recommendedRange.value, locale),
               emphasis: (chunks) => <span className='text-foreground font-semibold'>{chunks}</span>,
             })}
           </p>

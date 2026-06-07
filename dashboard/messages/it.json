@@ -2217,6 +2217,7 @@
       "changePlan": {
         "title": "Conferma cambio piano",
         "description": "Rivedi gli addebiti proporzionali prima di confermare.",
+        "resumeNote": "Il tuo abbonamento è programmato per essere annullato: confermando questa modifica rimarrà attivo e la fatturazione riprenderà.",
         "summaryCharge": "Passerai a {tier} ({events} eventi / mese) immediatamente. {amount} verranno addebitati ora per il resto del periodo, poi {nextAmount}/mese a partire dal {date}.",
         "summaryCredit": "Passerai a {tier} ({events} eventi / mese). {amount} di credito per il tempo non utilizzato sarà applicato alla prossima fattura di {nextAmount}/mese il {date}.",
         "loading": "Calcolo della proporzione in corso…",
@@ -2260,7 +2261,6 @@
         "usageProgress": "{current} di {limit} eventi",
         "resetsInDays": "Si azzera tra {days} giorni",
         "expiresInDays": "Scade tra {days} giorni",
-        
         "manage": "Gestisci abbonamento",
         "reactivate": "Riattiva abbonamento",
         "cancel": "Annulla abbonamento",
