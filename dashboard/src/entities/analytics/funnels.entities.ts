@@ -25,6 +25,8 @@ export const FunnelPreviewSchema = z.object({
   isStrict: z.boolean(),
 });
 
+const CreateFunnelFilterSchema = QueryFilterSchema.omit({ id: true });
+
 export const CreateFunnelSchema = z.object({
   name: z.string().min(1, 'Funnel name is required'),
   dashboardId: z.string().cuid('Valid Dashboard ID is required'),
@@ -33,7 +35,14 @@ export const CreateFunnelSchema = z.object({
     .array(
       z.object({
         name: z.string().min(1, 'Name is required'),
-        filters: z.array(QueryFilterSchema.omit({ id: true })).min(1),
+        filters: z
+          .array(CreateFunnelFilterSchema)
+          .transform((filters) =>
+            filters
+              .map((filter) => ({ ...filter, values: filter.values.filter(Boolean) }))
+              .filter((filter) => filter.values.length > 0),
+          )
+          .pipe(z.array(CreateFunnelFilterSchema).min(1, 'At least one filter with a value is required')),
       }),
     )
     .min(2),
