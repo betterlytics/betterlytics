@@ -96,18 +96,17 @@ function FunnelStepAccordionItemComponent({
           'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
         )}
       >
-        <Badge
+        <div
           aria-hidden
           {...pointerListeners}
           className={cn(
-            'font-mono tabular-nums shadow',
-            'px-1.5 rounded-full',
-            'absolute top-1/2 z-10 -translate-y-1/2',
-            'left-0 -translate-x-3/5',
+            'dark:border-border border-foreground/30 bg-card shadow',
+            'flex size-4 items-center justify-center rounded-full border p-3',
+            'absolute top-1/2 left-0 z-10 -translate-y-1/2 -translate-x-3/5',
           )}
         >
-          {index + 1}
-        </Badge>
+          <p className='text-foreground text-xs leading-none tabular-nums'>{index + 1}</p>
+        </div>
       </AccordionPrimitive.Trigger>
     );
   }, [t, step.name, index, listeners]);
@@ -248,14 +247,13 @@ function FunnelStepAccordionItemComponent({
             aria-label={t('tooltip.reorderStep', { index: index + 1 })}
             className={cn(
               'hidden sm:flex',
-              'bg-card dark:bg-secondary/50 text-primary',
-              isDragging && 'dark:bg-secondary',
-              'h-[2.25rem] w-6 items-center justify-center rounded-md border my-2',
+              'text-muted-foreground/60 hover:text-foreground transition-colors',
+              'h-[2.25rem] w-6 items-center justify-center rounded-md my-2',
               'cursor-grab active:cursor-grabbing',
               'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
             )}
           >
-            <GripVertical className='size-5' />
+            <GripVertical className='size-4' />
           </div>
         </TooltipTrigger>
         <TooltipContent className='[body.dnd-dragging_&]:opacity-0'>
