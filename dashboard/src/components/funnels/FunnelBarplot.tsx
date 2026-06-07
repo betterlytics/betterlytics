@@ -13,6 +13,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { FunnelChartSkeleton } from '@/components/skeleton/FunnelChartSkeleton';
 
 type EmptyStep = {
+  id: string;
   name: string;
 };
 
@@ -87,7 +88,7 @@ export default function FunnelBarplot({
         <div className={cn('group/steps relative flex w-fit flex-col sm:flex-row', fill && 'sm:flex-1')}>
           {funnel.steps.map((step, i) => (
             <FunnelStep
-              key={i}
+              key={step.step.id}
               step={step}
               index={i}
               funnel={funnel}
@@ -97,7 +98,7 @@ export default function FunnelBarplot({
           ))}
           {emptySteps?.map((step, i) => (
             <div
-              key={i}
+              key={step.id}
               className={cn(
                 'flex h-40 flex-row-reverse sm:h-auto sm:w-50 sm:flex-col',
                 'bg-muted/30 transition-all duration-200 ease-out',
@@ -121,16 +122,14 @@ export default function FunnelBarplot({
                 className={cn(
                   'hidden w-full pt-2 sm:flex',
                   fill ? 'sm:flex-1' : 'h-40',
-                  i === funnel.steps.length - 1 &&
-                    'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
                 )}
               >
-                <HorizontalProgress key={i} percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
+                <HorizontalProgress percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
                 {i < emptySteps.length - 1 && <HorizontalConnector previousPercentage={1} currentPercentage={1} />}
               </div>
               <div className='flex h-40 w-40 flex-col sm:hidden'>
-                <VerticalProgress key={i} percentage={1} />
-                {i < funnel.steps.length - 1 && <VerticalConnector previousPercentage={1} currentPercentage={1} />}
+                <VerticalProgress percentage={1} />
+                {i < emptySteps.length - 1 && <VerticalConnector previousPercentage={1} currentPercentage={1} />}
               </div>
               <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
                 <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'></div>
@@ -258,7 +257,7 @@ function FunnelStep({
         <div className='text-popover-foreground flex flex-wrap items-center gap-1 rounded-md p-2 font-medium'>
           {step.step.filters.map((filter, i) => (
             <React.Fragment key={filter.id}>
-              {i > 0 && <span className='text-muted-foreground/80'>and</span>}
+              {i > 0 && <span className='text-muted-foreground/80'>{tPlot('and')}</span>}
               <FilterDescription filter={filter} />
             </React.Fragment>
           ))}

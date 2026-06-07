@@ -2394,7 +2394,6 @@
         "title": "Filtre",
         "emptyNoneSelected": "Ingen filtre valgt – klik Anvend for at gemme",
         "addFilter": "Tilføj filter",
-        "addFilterPlaceholder": "Tilføj et eller flere filtre",
         "cancel": "Annuller",
         "apply": "Anvend",
         "selectValue": "Vælg en værdi",
@@ -2475,7 +2474,8 @@
         "stepLabel": "Trin {index}",
         "visitors": "Besøgende",
         "dropOff": "Frafald",
-        "conversion": "Konvertering"
+        "conversion": "Konvertering",
+        "and": "og"
       },
       "delete": {
         "title": "Slet tragt",

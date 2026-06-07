@@ -2402,7 +2402,6 @@
         "title": "Filtre",
         "emptyNoneSelected": "Ingen filtre valgt – klikk Bruk for å lagre",
         "addFilter": "Legg til filter",
-        "addFilterPlaceholder": "Legg til ett eller flere filtre",
         "cancel": "Avbryt",
         "apply": "Bruk",
         "selectValue": "Velg en verdi",
@@ -2483,7 +2482,8 @@
         "stepLabel": "Trinn {index}",
         "visitors": "Besøkende",
         "dropOff": "Frafall",
-        "conversion": "Konvertering"
+        "conversion": "Konvertering",
+        "and": "og"
       },
       "delete": {
         "title": "Slett trakt",

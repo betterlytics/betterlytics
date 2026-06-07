@@ -2402,7 +2402,6 @@
         "title": "Filtri",
         "emptyNoneSelected": "Nessun filtro selezionato - premi Applica per salvare",
         "addFilter": "Aggiungi filtro",
-        "addFilterPlaceholder": "Aggiungi uno o più filtri",
         "cancel": "Annulla",
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
@@ -2483,7 +2482,8 @@
         "stepLabel": "Passaggio {index}",
         "visitors": "Visitatori",
         "dropOff": "Abbandono",
-        "conversion": "Conversione"
+        "conversion": "Conversione",
+        "and": "e"
       },
       "delete": {
         "title": "Elimina funnel",

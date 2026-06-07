@@ -4,10 +4,7 @@ import { SQL, safeSql } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { DateTimeString } from '@/types/dates';
 import { FunnelStep } from '@/entities/analytics/funnels.entities';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
-
-const isUsableFilter = (f: QueryFilter) =>
-  Boolean(f.column) && Boolean(f.operator) && f.values.every(Boolean);
+import { isUsableFilter } from '@/entities/analytics/filter.entities';
 
 /**
  * Build one compound SQL condition per funnel step (filters AND'd together).

@@ -125,7 +125,7 @@ export function FunnelDialogContent({
           hasAttemptedSubmit={hasAttemptedSubmit}
         />
         <FunnelBarplot
-          className='hidden max-h-[min(420px,var(--funnel-row-h))] pt-3 lg:flex lg:col-span-11 [&_[data-slot=funnel-barplot-card]]:bg-secondary/50 min-h-[min(24rem,var(--funnel-row-h))]'
+          className='hidden max-h-[min(420px,var(--funnel-row-h))] pt-3 lg:flex lg:col-span-11 min-h-[min(24rem,var(--funnel-row-h))]'
           funnel={funnelPreview}
           emptySteps={emptySteps}
           status={previewStatus}
