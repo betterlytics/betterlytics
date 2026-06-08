@@ -7,12 +7,11 @@ use tracing::error;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
-use crate::session;
 use crate::storage::s3::S3Service;
 use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
-use crate::analytics::detect_device_type_from_resolution;
-use crate::analytics::generate_fingerprint;
+use crate::visitor;
+use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution};
 use chrono::{DateTime, Utc};
 
 use crate::db::{SharedDatabase, SessionReplayRow};
@@ -102,20 +101,23 @@ pub async fn presign_put_segment(
         .and_then(|url| extract_domain_and_path_from_url(url).0)
         .and_then(|domain| extract_root_domain(&domain));
 
-    let fingerprint = generate_fingerprint(
-        &ip_address,
-        device_type_from_res.as_deref(),
-        Some(parsed.browser.as_str()),
-        parsed.browser_version.as_deref(),
-        Some(parsed.os.as_str()),
-        root_domain.as_deref(),
-    );
-
-    let (session_id, _session_start) = session::get_or_create_session_id(&req.site_id, fingerprint, Utc::now())
-        .map_err(|e| {
-            error!("Failed to get session ID: {}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
-        })?;
+    let identity = {
+        let attrs = VisitorAttrs {
+            ip: &ip_address,
+            device_type: device_type_from_res.as_deref(),
+            browser: Some(parsed.browser.as_str()),
+            browser_version: parsed.browser_version.as_deref(),
+            os: Some(parsed.os.as_str()),
+            root_domain: root_domain.as_deref(),
+        };
+        visitor::identify(&req.site_id, &attrs, Utc::now()).await
+    }
+    .map_err(|e| {
+        error!("Failed to get session ID: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })?;
+    let fingerprint = identity.fingerprint;
+    let session_id = identity.session_id;
 
     if req.content_length == 0 || req.content_length > MAX_CONTENT_LENGTH_BYTES {
         return Err((StatusCode::BAD_REQUEST, "invalid content_length".to_string()));
