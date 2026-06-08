@@ -107,7 +107,7 @@ function FunnelStepAccordionItemComponent({
           className={cn(
             'dark:border-border border-foreground/30 bg-card shadow',
             'flex size-4 items-center justify-center rounded-full border p-3',
-            'absolute top-1/2 left-0 z-10 -translate-y-1/2 -translate-x-3/5',
+            'absolute top-1/2 left-0 z-10 -translate-y-1/2 -translate-x-1/2',
           )}
         >
           <p className='text-foreground text-xs leading-none tabular-nums'>{index + 1}</p>
@@ -175,7 +175,7 @@ function FunnelStepAccordionItemComponent({
               'relative z-10 grid w-full items-center',
               'grid-cols-[1fr_auto_auto_auto] sm:grid-cols-[10rem_1fr_auto_auto_auto]',
               'gap-1.5 sm:gap-2.5',
-              'pr-2 pl-4 py-2 sm:pr-3 sm:pl-5 sm:py-2.5',
+              'pr-4 pl-4 py-2 sm:pl-5 sm:py-2.5',
               'pointer-events-none select-none',
             )}
           >
@@ -257,7 +257,7 @@ function FunnelStepAccordionItemComponent({
         {StepHeader}
         <AccordionContent
           onAnimationEnd={handleContentAnimationEnd}
-          className={'bg-muted/10 relative px-3 pb-1 border-t cursor-grab active:cursor-grabbing'}
+          className={'bg-muted/10 relative pl-3 pr-1 pb-1 border-t cursor-grab active:cursor-grabbing'}
         >
           <div className={'bg-primary/60 absolute left-0 w-0.5 h-full rounded-bl-md'} />
           <FunnelStepFiltersEditor

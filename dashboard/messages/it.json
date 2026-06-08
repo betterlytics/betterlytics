@@ -2495,6 +2495,7 @@
         "errorMessage": "Eliminazione funnel fallita!"
       },
       "preview": {
+        "title": "Anteprima funnel",
         "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
       },
       "emptyState": {

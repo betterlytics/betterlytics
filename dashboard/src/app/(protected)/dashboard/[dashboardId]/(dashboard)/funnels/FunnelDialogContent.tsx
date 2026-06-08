@@ -77,37 +77,42 @@ export function FunnelDialogContent({
         '--funnel-row-h': 'min(550px, calc(100dvh - var(--min-funnel-pt)))',
       } as React.CSSProperties}
     >
-      <div className='flex flex-wrap items-end gap-2 sm:gap-4 mb-1'>
-        <div className='w-full sm:w-auto sm:max-w-md sm:min-w-40'>
-          <Label htmlFor='name' className='text-foreground mb-1 block'>
-            {labels.name} <span className='text-destructive'>*</span>
-          </Label>
-          <Input
-            id='name'
-            placeholder={labels.namePlaceholder}
-            value={metadata.name}
-            onChange={(evt) => setName(evt.target.value)}
-            className={cn(showNameError && 'border-destructive')}
-          />
+      <div className='grid grid-cols-24 lg:gap-6 mb-1'>
+        <div className='col-span-24 lg:col-span-13 lg:pl-11 flex flex-wrap items-end gap-2 sm:gap-4'>
+          <div className='w-full sm:w-auto sm:max-w-md sm:min-w-40'>
+            <Label htmlFor='name' className='text-foreground mb-1 block'>
+              {labels.name} <span className='text-destructive'>*</span>
+            </Label>
+            <Input
+              id='name'
+              placeholder={labels.namePlaceholder}
+              value={metadata.name}
+              onChange={(evt) => setName(evt.target.value)}
+              className={cn(showNameError && 'border-destructive')}
+            />
+          </div>
+          <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
+            <Label htmlFor='strict-mode' className='text-foreground cursor-pointer'>
+              {labels.strictMode}
+            </Label>
+            <Switch
+              id='strict-mode'
+              className='cursor-pointer'
+              checked={metadata.isStrict}
+              onCheckedChange={setIsStrict}
+            />
+          </div>
+          <Button
+            variant='outline'
+            onClick={handleAddStep}
+            className='ml-auto cursor-pointer whitespace-nowrap'
+          >
+            <PlusIcon className='size-4' /> {labels.addStep}
+          </Button>
         </div>
-        <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
-          <Label htmlFor='strict-mode' className='text-foreground cursor-pointer'>
-            {labels.strictMode}
-          </Label>
-          <Switch
-            id='strict-mode'
-            className='cursor-pointer'
-            checked={metadata.isStrict}
-            onCheckedChange={setIsStrict}
-          />
+        <div className='hidden lg:flex lg:col-span-11 items-end'>
+          <h2 className='text-foreground text-base font-semibold'>{t('title')}</h2>
         </div>
-        <Button
-          variant='outline'
-          onClick={handleAddStep}
-          className='ml-auto cursor-pointer whitespace-nowrap'
-        >
-          <PlusIcon className='size-4' /> {labels.addStep}
-        </Button>
       </div>
 
       <div

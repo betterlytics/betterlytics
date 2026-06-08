@@ -2484,6 +2484,7 @@
         "errorMessage": "Funnel deletion failed!"
       },
       "preview": {
+        "title": "Funnel preview",
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
       },
       "emptyState": {

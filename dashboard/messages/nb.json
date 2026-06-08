@@ -2495,6 +2495,7 @@
         "errorMessage": "Sletting av trakt mislyktes!"
       },
       "preview": {
+        "title": "Forhåndsvisning av trakt",
         "defineAtLeastTwoSteps": "Definer minst 2 trinn for å se forhåndsvisningen."
       },
       "emptyState": {

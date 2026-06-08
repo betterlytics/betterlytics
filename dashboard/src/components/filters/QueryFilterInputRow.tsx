@@ -64,7 +64,8 @@ export function QueryFilterInputRow<TEntity>({
       />
       <Button
         variant='ghost'
-        className='[grid-area:delete] cursor-pointer'
+        size='icon'
+        className='[grid-area:delete] size-8 cursor-pointer justify-self-end text-muted-foreground hover:text-foreground'
         onClick={() => requestRemoval?.(filter.id)}
         disabled={disableDeletion}
       >

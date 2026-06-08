@@ -2487,6 +2487,7 @@
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
       "preview": {
+        "title": "Forhåndsvisning af tragt",
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
       },
       "emptyState": {

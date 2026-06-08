@@ -84,7 +84,7 @@ function FunnelStepFiltersEditorComponent({
       } as React.CSSProperties}
     >
       <div
-        className='grid max-h-[var(--funnel-editor-h)] grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden p-1'
+        className='grid max-h-[var(--funnel-editor-h)] grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden py-1 pl-1'
       >
         <ScrollArea
           className='h-full min-h-0 [&_[data-slot=scroll-area-scrollbar]]:!w-2'
@@ -105,7 +105,7 @@ function FunnelStepFiltersEditorComponent({
                   'md:grid-cols-[minmax(0,8fr)_minmax(0,2fr)_minmax(0,2fr)]',
                   'md:[grid-template-areas:"col_op_op"_"val_val_delete"]!',
                   'md:grid-rows-[auto_auto] md:border',
-                  'xl:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,5fr)_minmax(0,1fr)]',
+                  'xl:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,5fr)_auto]',
                   'xl:[grid-template-areas:"col_op_val_delete"]!',
                   'xl:grid-rows-1 xl:border-0',
                 )}
@@ -114,7 +114,7 @@ function FunnelStepFiltersEditorComponent({
           </div>
         </ScrollArea>
         <Separator />
-        <div className='flex items-center justify-between gap-2'>
+        <div className='flex items-center justify-between gap-2 pr-1'>
           <Button
             className='h-8 cursor-pointer md:w-28'
             onClick={handleAdd}
@@ -128,8 +128,9 @@ function FunnelStepFiltersEditorComponent({
           >
             {(isLimitDisabled) => (
               <Button
-                className='h-8 cursor-pointer'
                 variant='ghost'
+                size='icon'
+                className='size-8 cursor-pointer text-muted-foreground hover:text-foreground'
                 onClick={() => setIsSaveDialogOpen(true)}
                 disabled={!hasValidFilters || isLimitDisabled}
               >
