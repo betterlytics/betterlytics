@@ -123,7 +123,7 @@ export function FunnelDialogContent({
           addStepLabel={labels.addStep}
         />
         <FunnelBarplot
-          className='hidden max-h-[min(420px,var(--funnel-row-h))] pt-3 lg:flex lg:min-w-0 lg:flex-1 min-h-[min(18rem,var(--funnel-row-h))]'
+          className='hidden pt-3 lg:flex lg:min-w-0 lg:flex-1 min-h-[min(18rem,var(--funnel-row-h))]'
           funnel={funnelPreview}
           emptySteps={emptySteps}
           status={previewStatus}
