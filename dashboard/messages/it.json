@@ -2494,8 +2494,8 @@
         "successMessage": "Funnel eliminato!",
         "errorMessage": "Eliminazione funnel fallita!"
       },
+      "strictModeInfo": "Se attivata, i visitatori devono completare i passaggi in ordine senza visitare altre pagine nel frattempo.",
       "preview": {
-        "title": "Anteprima funnel",
         "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
       },
       "emptyState": {

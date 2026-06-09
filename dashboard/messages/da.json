@@ -2486,8 +2486,8 @@
         "successMessage": "Tragt slettet!",
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
+      "strictModeInfo": "Når aktiveret, skal besøgende gennemføre trinnene i rækkefølge uden at besøge andre sider undervejs.",
       "preview": {
-        "title": "Forhåndsvisning af tragt",
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
       },
       "emptyState": {

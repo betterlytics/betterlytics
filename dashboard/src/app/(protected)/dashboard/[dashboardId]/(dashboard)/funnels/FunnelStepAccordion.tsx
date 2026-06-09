@@ -20,10 +20,11 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { PlusIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type Ref } from 'react';
 
 import { Accordion } from '@/components/ui/accordion';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { createEmptyQueryFilter } from '@/entities/analytics/filter.entities';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
 import { cn } from '@/lib/utils';
@@ -40,6 +41,8 @@ type FunnelStepAccordionProps = {
   hasAttemptedSubmit: boolean;
   className?: string;
   listRef?: Ref<HTMLDivElement>;
+  onAddStep: () => void;
+  addStepLabel: string;
 };
 
 export function FunnelStepAccordion({
@@ -52,6 +55,8 @@ export function FunnelStepAccordion({
   hasAttemptedSubmit,
   className,
   listRef,
+  onAddStep,
+  addStepLabel,
 }: FunnelStepAccordionProps) {
   const [openStepId, setOpenStepId] = useState<string | undefined>(initialOpenId);
   const [isDragging, setIsDragging] = useState(false);
@@ -60,6 +65,11 @@ export function FunnelStepAccordion({
   const draggedStepsRef = useRef<FunnelStep[] | null>(null);
   const prevIdsRef = useRef<string[]>(steps.map((s) => s.id));
   const userInitiatedOpenRef = useRef<string | null>(null);
+  // Set to the id of a freshly-appended step so the item can keep the list
+  // pinned to the bottom while its expand animation runs (keeping it + the
+  // sticky Add Step button fully in view).
+  const appendedStepIdRef = useRef<string | null>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
   
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
@@ -70,6 +80,13 @@ export function FunnelStepAccordion({
   useEffect(() => {
     const currentIds = steps.map((s) => s.id);
     const appended = currentIds.filter((id) => !prevIdsRef.current.includes(id));
+    if (appended.length > 0) {
+      appendedStepIdRef.current = appended[appended.length - 1];
+      // Show the new (still collapsed) step right away instead of letting it
+      // render out of view behind the sticky Add Step button.
+      const scroller = scrollerRef.current;
+      if (scroller) scroller.scrollTop = scroller.scrollHeight;
+    }
     setOpenStepId((prev) => {
       if (appended.length > 0) return appended[appended.length - 1];
       return prev && currentIds.includes(prev) ? prev : undefined;
@@ -169,10 +186,16 @@ export function FunnelStepAccordion({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <ScrollArea
-        type={isDragging ? 'always' : 'hover'}
+      <div
+        ref={scrollerRef}
+        data-slot='steps-scroll'
         className={cn(
-          'lg:-mr-3 max-sm:[&_[data-slot=scroll-area-scrollbar]]:hidden',
+          'overflow-x-hidden overflow-y-auto overscroll-contain',
+          '[scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]',
+          '[&::-webkit-scrollbar]:w-2',
+          '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border',
+          '[&::-webkit-scrollbar-track]:bg-transparent',
+          'max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden',
           className,
         )}
       >
@@ -187,7 +210,7 @@ export function FunnelStepAccordion({
               userInitiatedOpenRef.current = next ?? null;
               setOpenStepId(next);
             }}
-            className='flex flex-col gap-3 py-3 px-3 sm:pl-1 lg:pr-5'
+            className='flex flex-col gap-3 px-3 pt-3 pb-1 sm:pl-1 lg:pr-3'
           >
             {steps.map((step, index) => (
               <FunnelStepAccordionItem
@@ -200,11 +223,20 @@ export function FunnelStepAccordion({
                 onRequestRemoval={handleRequestRemoval}
                 globalPropertyKeys={globalPropertyKeys}
                 userInitiatedOpenRef={userInitiatedOpenRef}
+                appendedStepIdRef={appendedStepIdRef}
               />
             ))}
           </Accordion>
         </SortableContext>
-      </ScrollArea>
+
+        {/* Sits in-flow under the last step, but pins to the bottom of the
+            scroll area when the list overflows (steps scroll underneath). */}
+        <div className='bg-background sticky -bottom-px z-10 px-3 pt-2 pb-2 shadow-[0_-10px_12px_-6px_var(--background)] sm:pl-11 lg:pr-3'>
+          <Button variant='outline' onClick={onAddStep} className='w-full cursor-pointer'>
+            <PlusIcon className='size-4' /> {addStepLabel}
+          </Button>
+        </div>
+      </div>
     </DndContext>
   );
 }

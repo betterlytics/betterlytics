@@ -45,16 +45,16 @@ export default function FunnelBarplot({
   if (status === 'empty') {
     return (
       <div className={cn('flex min-h-[16rem] flex-col', fill && 'h-full', className)}>
-        <div className='bg-card flex w-full flex-1 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center'>
+        <div className='bg-card flex w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center'>
           <svg
             className='text-muted-foreground/60 mb-3 size-12'
             viewBox='0 0 24 24'
             fill='none'
             stroke='currentColor'
-            strokeWidth='1.4'
+            strokeWidth='1.2'
             aria-hidden
           >
-            <path d='M3 5h18l-7 9v6l-4-2v-4z' />
+            <path d='M21 5H3l7 9v6l4-2v-4z' />
           </svg>
           <p className='text-muted-foreground text-sm'>{emptyMessage ?? tPreview('defineAtLeastTwoSteps')}</p>
         </div>
@@ -80,7 +80,7 @@ export default function FunnelBarplot({
       )}
       <div
         className={cn(
-          'bg-card w-full overflow-x-auto rounded-xl border shadow-sm transition-opacity',
+          'bg-card w-full overflow-x-auto rounded-lg border shadow-sm transition-opacity',
           fill && 'flex flex-1 flex-col',
           refetching && 'pointer-events-none opacity-60',
         )}

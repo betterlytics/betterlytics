@@ -2483,8 +2483,8 @@
         "successMessage": "Funnel deleted!",
         "errorMessage": "Funnel deletion failed!"
       },
+      "strictModeInfo": "When enabled, visitors must complete the steps in order without visiting any other pages in between.",
       "preview": {
-        "title": "Funnel preview",
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
       },
       "emptyState": {

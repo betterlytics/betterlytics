@@ -2494,8 +2494,8 @@
         "successMessage": "Trakt slettet!",
         "errorMessage": "Sletting av trakt mislyktes!"
       },
+      "strictModeInfo": "Når aktivert, må besøkende fullføre trinnene i rekkefølge uten å besøke andre sider underveis.",
       "preview": {
-        "title": "Forhåndsvisning av trakt",
         "defineAtLeastTwoSteps": "Definer minst 2 trinn for å se forhåndsvisningen."
       },
       "emptyState": {

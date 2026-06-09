@@ -60,7 +60,7 @@ export function FunnelChartSkeleton({
   return (
     <div
       className={cn(
-        'bg-card w-full overflow-x-auto rounded-xl border shadow-sm',
+        'bg-card w-full overflow-x-auto rounded-lg border shadow-sm',
         fill && 'flex flex-1 flex-col',
         className,
       )}
