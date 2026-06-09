@@ -64,7 +64,7 @@ pub async fn init(pool: Arc<PostgresPool>) -> Result<()> {
 /// Lock-free read on the hot path. When the UTC day has rolled over, the cached salts (still
 /// a valid secret, just yesterday's) are returned immediately and the rotation is kicked off
 /// in the background, so an event never blocks on Postgres.
-pub async fn current_and_previous() -> (Salt, Option<Salt>) {
+pub fn current_and_previous() -> (Salt, Option<Salt>) {
     let state = STATE
         .get()
         .expect("salt::init must be called before current_and_previous");

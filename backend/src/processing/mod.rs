@@ -175,7 +175,7 @@ impl EventProcessor {
                 os: processed.os.as_deref(),
                 root_domain: root_domain.as_deref(),
             };
-            visitor::identify(&site_id, &attrs, timestamp).await
+            visitor::identify(&site_id, &attrs, timestamp)
         };
 
         match identity {

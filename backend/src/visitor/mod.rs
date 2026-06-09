@@ -16,12 +16,12 @@ pub struct VisitorIdentity {
 }
 
 /// Compute the visitor fingerprint and resolve the session
-pub async fn identify(
+pub fn identify(
     site_id: &str,
     attrs: &VisitorAttrs<'_>,
     event_timestamp: DateTime<Utc>,
 ) -> Result<VisitorIdentity> {
-    let (current_salt, previous_salt) = salt::current_and_previous().await;
+    let (current_salt, previous_salt) = salt::current_and_previous();
 
     let fingerprint = generate_fingerprint(&current_salt, attrs);
 

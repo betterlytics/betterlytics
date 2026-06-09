@@ -110,7 +110,7 @@ pub async fn presign_put_segment(
             os: Some(parsed.os.as_str()),
             root_domain: root_domain.as_deref(),
         };
-        visitor::identify(&req.site_id, &attrs, Utc::now()).await
+        visitor::identify(&req.site_id, &attrs, Utc::now())
     }
     .map_err(|e| {
         error!("Failed to get session ID: {}", e);
