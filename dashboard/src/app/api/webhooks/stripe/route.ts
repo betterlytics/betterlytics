@@ -11,6 +11,7 @@ import {
 } from '@/services/system/webhookHandlers.service';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { NonRetryableWebhookError } from '@/lib/exceptions';
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,6 +63,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
+    if (error instanceof NonRetryableWebhookError) {
+      console.error('Dropping non-retryable webhook event:', error.message);
+      return NextResponse.json({ received: true, dropped: true });
+    }
     console.error('Webhook error:', error);
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }

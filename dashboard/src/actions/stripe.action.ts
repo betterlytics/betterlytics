@@ -38,10 +38,25 @@ async function hasLiveSubscription(customerId: string): Promise<boolean> {
   return subscriptions.data.some((subscription) => LIVE_SUBSCRIPTION_STATUSES.has(subscription.status));
 }
 
+async function expireOpenCheckoutSessions(customerId: string): Promise<void> {
+  const openSessions = await stripe.checkout.sessions.list({
+    customer: customerId,
+    status: 'open',
+  });
+
+  for (const session of openSessions.data) {
+    await stripe.checkout.sessions.expire(session.id).catch((error) => {
+      console.warn(`Could not expire stale checkout session ${session.id}:`, error);
+    });
+  }
+}
+
 export type EmbeddedCheckoutSession = {
   clientSecret: string;
   sessionId: string;
 };
+
+const CHECKOUT_SESSION_TTL_SECONDS = 30 * 60;
 
 export const createStripeCheckoutSession = withUserAuth(
   async (user: User, planData: SelectedPlan): Promise<EmbeddedCheckoutSession> => {
@@ -71,6 +86,8 @@ export const createStripeCheckoutSession = withUserAuth(
         throw new UserException('You already have an active subscription. Refresh the page to change your plan.');
       }
 
+      await expireOpenCheckoutSessions(customerId);
+
       const lockedCurrency = await getLockedCustomerCurrency(customerId);
       const effectiveCurrency = (lockedCurrency?.toUpperCase() ?? validatedPlan.currency) as Currency;
       const effectiveCurrencyLower = effectiveCurrency.toLowerCase();
@@ -90,6 +107,7 @@ export const createStripeCheckoutSession = withUserAuth(
         mode: 'subscription',
         currency: effectiveCurrencyLower,
         customer: customerId,
+        expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
         metadata: {
           userId: user.id,
           lookupKey: validatedPlan.lookup_key,

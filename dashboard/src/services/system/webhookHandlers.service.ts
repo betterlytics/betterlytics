@@ -19,25 +19,53 @@ import {
   setSubscriptionStatus,
   upsertUserSubscription,
 } from '@/services/billing/subscription.service';
-import { TIER_RETAINING_STATUSES, TERMINAL_STATUSES } from '@/lib/billing/subscription-status';
+import {
+  LIVE_SUBSCRIPTION_STATUSES,
+  TIER_RETAINING_STATUSES,
+  TERMINAL_STATUSES,
+} from '@/lib/billing/subscription-status';
+import { NonRetryableWebhookError } from '@/lib/exceptions';
 
 const RETENTION_GRACE_DAYS = 30;
+
+function getTierConfigForWebhook(lookupKey: string | null | undefined): { tier: TierName; eventLimit: number } {
+  if (!lookupKey) {
+    throw new NonRetryableWebhookError('Subscription price has no lookup key');
+  }
+  try {
+    return getTierConfigFromLookupKey(lookupKey);
+  } catch {
+    throw new NonRetryableWebhookError(`Unknown price lookup key: ${lookupKey}`);
+  }
+}
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, eventId: string) {
   try {
     if (!session.metadata?.userId) {
-      throw new Error('No userId in session metadata');
+      throw new NonRetryableWebhookError('No userId in session metadata');
     }
 
     if (!session.subscription) {
-      throw new Error('No subscription in session');
+      throw new NonRetryableWebhookError('No subscription in session');
     }
 
     const { userId } = session.metadata;
     const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
+
+    const verdict = await resolveDuplicateSubscriptions(
+      stripeSubscription.customer as string,
+      stripeSubscription.id,
+    );
+    if (verdict === 'duplicate') {
+      console.warn(
+        `Checkout ${session.id} created duplicate subscription ${stripeSubscription.id}; refunded, skipping provisioning`,
+      );
+      return;
+    }
+
     const subscriptionItem = stripeSubscription.items.data[0];
 
-    const tierConfig = getTierConfigFromLookupKey(subscriptionItem.price.lookup_key as string);
+    const tierConfig = getTierConfigForWebhook(subscriptionItem.price.lookup_key);
     const paymentCurrency = session.currency || subscriptionItem.price.currency;
     const pricePerMonth = await getPriceAmountByCurrency(subscriptionItem.price.id, paymentCurrency);
 
@@ -62,6 +90,63 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
     console.error('Error handling checkout completed:', error);
     throw error;
   }
+}
+
+async function resolveDuplicateSubscriptions(
+  customerId: string,
+  incomingSubscriptionId: string,
+): Promise<'keep' | 'duplicate'> {
+  const subscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+    status: 'all',
+    limit: 100,
+  });
+
+  const live = subscriptions.data
+    .filter((sub) => LIVE_SUBSCRIPTION_STATUSES.has(sub.status))
+    .sort((a, b) => a.created - b.created);
+
+  const [winner, ...duplicates] = live;
+  if (!winner || duplicates.length === 0) return 'keep';
+
+  for (const duplicate of duplicates) {
+    await cancelAndRefundDuplicate(duplicate);
+  }
+
+  return winner.id === incomingSubscriptionId ? 'keep' : 'duplicate';
+}
+
+async function cancelAndRefundDuplicate(subscription: Stripe.Subscription): Promise<void> {
+  console.warn(`Canceling duplicate subscription ${subscription.id} for customer ${subscription.customer}`);
+
+  await stripe.subscriptions.cancel(subscription.id).catch(() => {
+    // Already canceled by a concurrent handler run
+  });
+
+  const invoiceId =
+    typeof subscription.latest_invoice === 'string'
+      ? subscription.latest_invoice
+      : subscription.latest_invoice?.id;
+  if (!invoiceId) return;
+
+  const invoice = await stripe.invoices.retrieve(invoiceId, {
+    expand: ['payments.data.payment.payment_intent'],
+  });
+
+  const paymentIntent = (invoice.payments?.data ?? [])
+    .map((invoicePayment) => invoicePayment.payment.payment_intent)
+    .find(
+      (intent): intent is Stripe.PaymentIntent =>
+        intent != null && typeof intent !== 'string' && intent.status === 'succeeded',
+    );
+  if (!paymentIntent) return;
+
+  // Idempotency key makes the refund race-safe if both webhook deliveries
+  // process the same duplicate concurrently
+  await stripe.refunds.create(
+    { payment_intent: paymentIntent.id },
+    { idempotencyKey: `dup-refund:${subscription.id}` },
+  );
 }
 
 export async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
@@ -209,7 +294,7 @@ export async function syncSubscriptionFromStripe(
       );
       return;
     }
-    throw new Error(`No local subscription found for Stripe subscription: ${subscription.id}`);
+    throw new NonRetryableWebhookError(`No local subscription found for Stripe subscription: ${subscription.id}`);
   }
 
   const subscriptionItem = fresh.items.data[0];
@@ -223,7 +308,7 @@ export async function syncSubscriptionFromStripe(
     return;
   }
 
-  const tierConfig = getTierConfigFromLookupKey(subscriptionItem.price.lookup_key as string);
+  const tierConfig = getTierConfigForWebhook(subscriptionItem.price.lookup_key);
 
   const pricePerMonth = await getPriceAmountByCurrency(
     subscriptionItem.price.id,
