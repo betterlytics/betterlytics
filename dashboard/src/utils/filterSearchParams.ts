@@ -36,14 +36,14 @@ function getDefaultFilters(): FilterQueryParams {
   const granularity = 'hour';
 
   const now = new Date();
-  const range = getResolvedRanges('24h', 'previous', 'Etc/UTC', now, now, 'hour', undefined, undefined, 0, false);
+  const range = getResolvedRanges('today', 'previous', 'Etc/UTC', now, now, 'hour', undefined, undefined, 0, false);
 
   return {
     queryFilters: [],
     startDate: range.main.start,
     endDate: range.main.end,
     granularity,
-    interval: '24h',
+    interval: 'today',
     compare: 'previous',
     compareAlignWeekdays: false,
     userJourney: {
