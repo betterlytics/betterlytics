@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { useBillingFlow } from '@/contexts/BillingFlowProvider';
+import { syncCheckoutSession } from '@/actions/stripe.action';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SuccessCheckmark } from '@/components/billing/SuccessCheckmark';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
@@ -25,9 +26,15 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
 
   useEffect(() => {
     if (searchParams.get('checkout') !== 'success') return;
+    const sessionId = searchParams.get('session_id');
     setShowSuccess(true);
     router.replace('/billing', { scroll: false });
-    router.refresh();
+    void (async () => {
+      if (sessionId) {
+        await syncCheckoutSession(sessionId).catch(() => undefined);
+      }
+      router.refresh();
+    })();
     const timer = setTimeout(() => setShowSuccess(false), SUCCESS_AUTO_CLOSE_MS);
     return () => clearTimeout(timer);
   }, [searchParams, router]);

@@ -13,7 +13,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { SuccessCheckmark } from '@/components/billing/SuccessCheckmark';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { getStripeClient } from '@/lib/billing/stripe-client';
-import { createStripeCheckoutSession } from '@/actions/stripe.action';
+import { createStripeCheckoutSession, syncCheckoutSession } from '@/actions/stripe.action';
 import type { SelectedPlan } from '@/types/pricing';
 
 // Minimum DialogContent width at which Stripe embedded_page renders as two-column
@@ -33,6 +33,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
   const { PUBLIC_STRIPE_PUBLISHABLE_KEY } = usePublicEnvironmentVariablesContext();
 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -51,6 +52,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
       if (canceled) return;
       if (result.success) {
         setClientSecret(result.data.clientSecret);
+        setSessionId(result.data.sessionId);
       } else {
         setHasError(true);
         toast.error(t('loadError'));
@@ -64,6 +66,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
   useEffect(() => {
     if (!open) {
       setClientSecret(null);
+      setSessionId(null);
       setHasError(false);
       setShowSuccess(false);
     }
@@ -77,15 +80,20 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
   }, []);
 
   const handleComplete = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ['userBilling'] });
-    queryClient.invalidateQueries({ queryKey: ['userInvoices'] });
     setShowSuccess(true);
+    void (async () => {
+      if (sessionId) {
+        await syncCheckoutSession(sessionId).catch(() => undefined);
+      }
+      queryClient.invalidateQueries({ queryKey: ['userBilling'] });
+      queryClient.invalidateQueries({ queryKey: ['userInvoices'] });
+      router.refresh();
+    })();
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     closeTimerRef.current = setTimeout(() => {
       onOpenChange(false);
-      router.refresh();
     }, SUCCESS_AUTO_CLOSE_MS);
-  }, [queryClient, onOpenChange, router]);
+  }, [queryClient, onOpenChange, router, sessionId]);
 
   const checkoutOptions = useMemo(
     () => (clientSecret ? { clientSecret, onComplete: handleComplete } : null),

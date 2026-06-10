@@ -12,6 +12,9 @@ import { UserException } from '@/lib/exceptions';
 import type { Currency } from '@/entities/billing/billing.entities';
 import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
 import { LIVE_SUBSCRIPTION_STATUSES } from '@/lib/billing/subscription-status';
+import { handleCheckoutCompleted } from '@/services/system/webhookHandlers.service';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { z } from 'zod';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
   try {
@@ -94,7 +97,7 @@ export const createStripeCheckoutSession = withUserAuth(
           effectiveCurrency,
           isInitialSubscription: 'true',
         },
-        return_url: `${env.PUBLIC_BASE_URL}/billing?checkout=success`,
+        return_url: `${env.PUBLIC_BASE_URL}/billing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         redirect_on_completion: 'if_required',
         allow_promotion_codes: true,
         billing_address_collection: 'required',
@@ -113,6 +116,38 @@ export const createStripeCheckoutSession = withUserAuth(
       if (error instanceof UserException) throw error;
       console.error('Failed to create Stripe checkout session:', error);
       throw new UserException('Failed to create checkout session. Please try again.');
+    }
+  },
+);
+
+const CheckoutSessionIdSchema = z.string().min(1).max(255);
+
+export type CheckoutSyncResult = { status: 'synced' | 'pending' };
+
+export const syncCheckoutSession = withUserAuth(
+  async (user: User, sessionId: string): Promise<CheckoutSyncResult> => {
+    if (!isFeatureEnabled('enableBilling')) {
+      throw new UserException('Billing is not enabled.');
+    }
+    try {
+      const id = CheckoutSessionIdSchema.parse(sessionId);
+      const session = await stripe.checkout.sessions.retrieve(id);
+
+      if (session.metadata?.userId !== user.id) {
+        throw new UserException('This checkout session does not belong to you.');
+      }
+
+      const settled = session.payment_status === 'paid' || session.payment_status === 'no_payment_required';
+      if (session.status !== 'complete' || !settled || !session.subscription) {
+        return { status: 'pending' };
+      }
+
+      await handleCheckoutCompleted(session, `optimistic-checkout:${id}`);
+      return { status: 'synced' };
+    } catch (error) {
+      if (error instanceof UserException) throw error;
+      console.error('Failed to sync checkout session:', error);
+      throw new UserException('Could not confirm your subscription yet. It will update shortly.');
     }
   },
 );
