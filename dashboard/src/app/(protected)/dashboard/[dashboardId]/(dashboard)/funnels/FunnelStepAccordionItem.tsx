@@ -262,6 +262,7 @@ function FunnelStepAccordionItemComponent({
   return (
     <div
       ref={composedRef}
+      data-step-id={step.id}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
         'relative flex items-start',

@@ -10,10 +10,13 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  type ClientRect,
   type DragEndEvent,
   type DragStartEvent,
+  type Modifier,
+  type Transform,
 } from '@dnd-kit/core';
-import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
@@ -21,7 +24,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { PlusIcon } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState, type Ref } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type Ref } from 'react';
 
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -30,6 +33,17 @@ import type { FunnelStep } from '@/entities/analytics/funnels.entities';
 import { cn } from '@/lib/utils';
 
 import FunnelStepAccordionItem from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelStepAccordionItem';
+
+function clampTransformToRect(transform: Transform, dragging: ClientRect, bounds: ClientRect): Transform {
+  if (dragging.height >= bounds.height) return transform;
+  const next = { ...transform };
+  if (dragging.top + transform.y <= bounds.top) {
+    next.y = bounds.top - dragging.top;
+  } else if (dragging.bottom + transform.y >= bounds.top + bounds.height) {
+    next.y = bounds.top + bounds.height - dragging.bottom;
+  }
+  return next;
+}
 
 type FunnelStepAccordionProps = {
   steps: FunnelStep[];
@@ -70,7 +84,46 @@ export function FunnelStepAccordion({
   // sticky Add Step button fully in view).
   const appendedStepIdRef = useRef<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  
+  const addStepPinRef = useRef<HTMLDivElement>(null);
+  const draggedHeightRef = useRef<number | null>(null);
+  const draggedObserverRef = useRef<ResizeObserver | null>(null);
+
+  const modifiers = useMemo<Modifier[]>(
+    () => [
+      restrictToVerticalAxis,
+      ({ scrollableAncestorRects, draggingNodeRect, transform }) => {
+        const ancestor = scrollableAncestorRects[0];
+        if (!draggingNodeRect || !ancestor) return transform;
+        const pinTop = addStepPinRef.current?.getBoundingClientRect().top;
+        const boundedBottom = pinTop !== undefined ? Math.min(pinTop, ancestor.bottom) : ancestor.bottom;
+        const bounded: ClientRect = {
+          ...ancestor,
+          bottom: boundedBottom,
+          height: boundedBottom - ancestor.top,
+        };
+
+        const liveHeight = draggedHeightRef.current ?? draggingNodeRect.height;
+        const live: ClientRect = {
+          ...draggingNodeRect,
+          height: liveHeight,
+          bottom: draggingNodeRect.top + liveHeight,
+        };
+
+        return clampTransformToRect(transform, live, bounded);
+      },
+    ],
+    [],
+  );
+
+  const releaseDraggedObserver = useCallback(() => {
+    draggedObserverRef.current?.disconnect();
+    draggedObserverRef.current = null;
+    draggedHeightRef.current = null;
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => () => releaseDraggedObserver(), []);
+
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
@@ -136,6 +189,16 @@ export function FunnelStepAccordion({
         draggedItemPriorOpenRef.current = { id, wasOpen };
         return wasOpen ? undefined : prev;
       });
+
+      const el = document.querySelector<HTMLElement>(`[data-step-id="${CSS.escape(id)}"]`);
+      if (!el) return;
+      draggedHeightRef.current = el.offsetHeight;
+      const observer = new ResizeObserver(([entry]) => {
+        draggedHeightRef.current = entry.contentRect.height;
+      });
+      observer.observe(el);
+      draggedObserverRef.current?.disconnect();
+      draggedObserverRef.current = observer;
     },
     [steps],
   );
@@ -143,6 +206,7 @@ export function FunnelStepAccordion({
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       setIsDragging(false);
+      releaseDraggedObserver();
       const snapshot = draggedStepsRef.current ?? steps;
       draggedStepsRef.current = null;
       const { active, over } = event;
@@ -159,25 +223,26 @@ export function FunnelStepAccordion({
       onReorder(arrayMove(snapshot, oldIndex, newIndex));
       restoreDraggedOpenState();
     },
-    [steps, onReorder, restoreDraggedOpenState],
+    [steps, onReorder, restoreDraggedOpenState, releaseDraggedObserver],
   );
 
   const handleDragCancel = useCallback(() => {
     setIsDragging(false);
+    releaseDraggedObserver();
     draggedStepsRef.current = null;
     restoreDraggedOpenState();
-  }, [restoreDraggedOpenState]);
+  }, [restoreDraggedOpenState, releaseDraggedObserver]);
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
+      modifiers={modifiers}
       measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
       autoScroll={{
         interval: 16,
         acceleration: 12,
-        threshold: { x: 0, y: 0.1 },
+        threshold: { x: 0, y: 0.185 },
         layoutShiftCompensation: false,
         activator: AutoScrollActivator.DraggableRect,
         canScroll: (el) => el !== document.scrollingElement,
@@ -191,6 +256,7 @@ export function FunnelStepAccordion({
         data-slot='steps-scroll'
         className={cn(
           'overflow-x-hidden overflow-y-auto overscroll-contain',
+          'scroll-pb-14',
           '[scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]',
           '[&::-webkit-scrollbar]:w-2',
           '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border',
@@ -231,7 +297,10 @@ export function FunnelStepAccordion({
 
         {/* Sits in-flow under the last step, but pins to the bottom of the
             scroll area when the list overflows (steps scroll underneath). */}
-        <div className='bg-background sticky -bottom-px z-10 pl-7 pr-1 pt-2 pb-2 shadow-[0_-10px_12px_-6px_var(--background)] sm:pl-10 sm:pr-3'>
+        <div
+          ref={addStepPinRef}
+          className='bg-background sticky -bottom-px z-10 pl-7 pr-1 pt-2 pb-2 shadow-[0_-10px_12px_-6px_var(--background)] sm:pl-10 sm:pr-3'
+        >
           <Button variant='outline' onClick={onAddStep} className='w-full cursor-pointer'>
             <PlusIcon className='size-4' /> {addStepLabel}
           </Button>
