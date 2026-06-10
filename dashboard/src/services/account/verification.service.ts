@@ -10,6 +10,7 @@ import {
 } from '@/repositories/postgres/verification.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { env } from '@/lib/env';
 import {
   SendVerificationEmailData,
@@ -21,7 +22,6 @@ import {
 import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
 import { addMinutes, isBefore, subMinutes } from 'date-fns';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { getDisplayName } from '@/utils/userUtils';
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 const VERIFICATION_URL_BASE = env.PUBLIC_BASE_URL;
@@ -61,12 +61,11 @@ export async function sendVerificationEmail(data: SendVerificationEmailData): Pr
 
     await enqueueEmail({
       type: 'email-verification',
-      recipientKey: user.id,
+      recipientKey: createUserRecipientKey(user.id),
       campaignKey: `email-verification:${token}`,
       data: {
         to: email,
-        userName: getDisplayName(user.name, user.email),
-        verificationToken: token,
+        userName: user.name,
         verificationUrl,
       },
     });

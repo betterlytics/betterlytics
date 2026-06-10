@@ -10,7 +10,10 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METADATA, type SupportedLanguages } from '@/constants/i18n';
 import { updateDevSubscriptionAction } from '@/app/actions/dev.actions';
-import { updateUserSettingsAction } from '@/app/actions/account/userSettings.action';
+import {
+  updateUserLanguageAction,
+  updateUserThemeAction,
+} from '@/app/actions/account/userSettings.action';
 import { TIER_TO_PLANNAME_KEY, type TierName } from '@/lib/billing/plans';
 import { useRouter } from 'next/navigation';
 import type { Theme } from '@prisma/client';
@@ -52,7 +55,7 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
 
   function handleLanguageChange(lang: string) {
     startTransition(async () => {
-      await updateUserSettingsAction({ language: lang as SupportedLanguages });
+      await updateUserLanguageAction({ language: lang as SupportedLanguages });
       router.refresh();
     });
   }
@@ -60,7 +63,7 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
   function handleThemeChange(value: string) {
     setTheme(value);
     startTransition(async () => {
-      await updateUserSettingsAction({ theme: value as Theme });
+      await updateUserThemeAction({ theme: value as Theme });
     });
   }
 

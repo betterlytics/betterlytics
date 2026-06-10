@@ -177,6 +177,28 @@ export async function cancelPendingInvitationsForDashboards(dashboardIds: string
   }
 }
 
+/**
+ * Returns the subset of `emails` that currently have an active (non-expired) pending invitation.
+ */
+export async function findEmailsWithActivePendingInvitations(emails: string[]): Promise<Set<string>> {
+  if (emails.length === 0) return new Set();
+  try {
+    const rows = await prisma.dashboardInvitation.findMany({
+      where: {
+        email: { in: emails.map((e) => e.toLowerCase()) },
+        status: 'pending',
+        expiresAt: { gt: new Date() },
+      },
+      select: { email: true },
+      distinct: ['email'],
+    });
+    return new Set(rows.map((r) => r.email.toLowerCase()));
+  } catch (error) {
+    console.error('Error finding emails with active pending invitations:', error);
+    throw new Error('Failed to find emails with active pending invitations');
+  }
+}
+
 export async function findPendingInvitationsByEmail(email: string): Promise<InvitationWithInviter[]> {
   try {
     const invitations = await prisma.dashboardInvitation.findMany({

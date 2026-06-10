@@ -21,12 +21,13 @@ async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
   }
 
   if (await hasBeenSent(payload.recipientKey, payload.campaignKey)) {
+    console.debug('[email-worker] skipping send: already sent');
     emailSendsTotal.inc({ type: payload.type, status: 'skipped_duplicate' });
     return;
   }
 
   try {
-    const template = renderEmail(payload);
+    const template = await renderEmail(payload);
     const providerMessageId = await dispatchEmail(template, payload.data, {
       mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
       smtpHost: workerEnv.SMTP_HOST,

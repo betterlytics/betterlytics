@@ -149,6 +149,8 @@ export const authOptions: NextAuthOptions = {
       session.user.termsAcceptedAt = user.termsAcceptedAt;
       session.user.termsAcceptedVersion = user.termsAcceptedVersion;
       session.user.changelogVersionSeen = user.changelogVersionSeen;
+      session.user.createdAt = user.createdAt;
+      session.user.githubStarPromptState = user.githubStarPromptState;
       session.user.settings = settings;
 
       if (session.user.settings?.language) {
@@ -162,6 +164,13 @@ export const authOptions: NextAuthOptions = {
 
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
+}
+
+export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
+  return {
+    google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    github: Boolean(env.GITHUB_ID && env.GITHUB_SECRET),
+  };
 }
 
 function buildSocialProviders(): Provider[] {

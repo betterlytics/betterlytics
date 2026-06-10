@@ -101,7 +101,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                     {savedFilters.map((savedFilter) => (
                       <div
                         key={savedFilter.id}
-                        className='hover:bg-accent has-focus-visible:ring-ring/50 has-focus-visible:ring flex items-center rounded-md transition-colors last:mb-1 pr-2'
+                        className='group/saved-filter hover:bg-accent has-focus-visible:ring-ring/50 has-focus-visible:ring flex items-center rounded-md transition-colors last:mb-1 pr-2'
                       >
                         <button
                           type='button'
@@ -115,7 +115,10 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
                             <Button
                               variant='ghost'
                               size='icon'
-                              className='dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer'
+                              className={cn(
+                                'dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer opacity-0 transition-opacity focus-visible:opacity-100 group-hover/saved-filter:opacity-100',
+                                deletingFilterId === savedFilter.id && 'opacity-100',
+                              )}
                               onClick={(e) => handleDelete(savedFilter.id, e)}
                               disabled={disabled || deletingFilterId === savedFilter.id}
                             >

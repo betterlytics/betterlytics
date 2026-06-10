@@ -9,7 +9,6 @@ import {
 import { enqueueEmail } from '@/services/email/email.service';
 import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { getWeeklyReportData, getMonthlyReportData, ReportData } from './report-data.service';
-import { env } from '@/lib/env';
 
 type ReportType = 'weekly' | 'monthly';
 
@@ -18,7 +17,6 @@ async function enqueueReports(
   recipients: string[],
   reportData: ReportData,
   dashboardId: string,
-  dashboardUrl: string,
   periodKey: string,
 ): Promise<void> {
   for (const recipient of recipients) {
@@ -27,7 +25,7 @@ async function enqueueReports(
         type: 'report',
         recipientKey: createEmailRecipientKey(recipient),
         campaignKey: `${reportType}-report:${dashboardId}:${periodKey}`,
-        data: { to: recipient, reportData, dashboardUrl },
+        data: { to: recipient, reportData },
       });
     } catch (error) {
       console.error(`Failed to enqueue ${reportType} report to ${recipient}:`, error);
@@ -39,17 +37,9 @@ export async function sendWeeklyReport(settings: DashboardWithReportSettings): P
   const { dashboard } = settings;
 
   const reportData = await getWeeklyReportData(dashboard.id, dashboard.siteId, dashboard.domain);
-  const dashboardUrl = `${env.PUBLIC_BASE_URL}/dashboard/${dashboard.id}`;
   const periodKey = format(reportData.period.start, 'yyyy-MM-dd');
 
-  await enqueueReports(
-    'weekly',
-    settings.weeklyReportRecipients,
-    reportData,
-    dashboard.id,
-    dashboardUrl,
-    periodKey,
-  );
+  await enqueueReports('weekly', settings.weeklyReportRecipients, reportData, dashboard.id, periodKey);
 
   await updateWeeklyReportSentAt(settings.id);
 }
@@ -58,17 +48,9 @@ export async function sendMonthlyReport(settings: DashboardWithReportSettings): 
   const { dashboard } = settings;
 
   const reportData = await getMonthlyReportData(dashboard.id, dashboard.siteId, dashboard.domain);
-  const dashboardUrl = `${env.PUBLIC_BASE_URL}/dashboard/${dashboard.id}`;
   const periodKey = format(reportData.period.start, 'yyyy-MM-dd');
 
-  await enqueueReports(
-    'monthly',
-    settings.monthlyReportRecipients,
-    reportData,
-    dashboard.id,
-    dashboardUrl,
-    periodKey,
-  );
+  await enqueueReports('monthly', settings.monthlyReportRecipients, reportData, dashboard.id, periodKey);
 
   await updateMonthlyReportSentAt(settings.id);
 }

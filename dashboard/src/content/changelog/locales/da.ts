@@ -1,62 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v141ChangelogEntryDa: ChangelogEntryData = {
+const v143ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.1',
-    releasedAt: '2026-05-05',
-    title: 'Hurtigere sider, aktiv tid og indsigt i hændelsesegenskaber',
+    version: 'v1.4.3',
+    releasedAt: '2026-05-24',
+    title: 'Opdaterede kontoindstillinger og styrket sikkerhed',
     summary:
-      'Denne release gør Sider-rapporten hurtigere, forbedrer nøjagtigheden af tid på siden med måling af aktiv tid, tilføjer indsigter om Globale egenskaber til Hændelser-tabellen på Oversigt-siden og retter et par irriterende detaljer i dashboardet.',
+      'En redesignet dialog for brugerindstillinger, nye muligheder for at administrere aktive sessioner, styrkede kontroller omkring tofaktorgodkendelse samt en håndfuld rettelser og finpudsninger.',
   },
   sections: [
     {
-      id: 'v141-new-features',
-      title: 'Nye funktioner',
+      id: 'v143-security',
+      title: 'Sikkerhed',
       blocks: [
         {
           type: 'list',
           items: [
-            'Hændelser-tabellen på Oversigt-siden har nu en Globale egenskaber-fane, så det er nemmere at se, hvilke egenskaber og værdier der optræder på tværs af unikke besøgende.',
+            'Du kan nu logge ud af alle andre aktive sessioner direkte fra dine kontoindstillinger.',
+            'Deaktivering af tofaktorgodkendelse kræver nu en gyldig TOTP-kode, hvilket giver ekstra beskyttelse mod uautoriserede ændringer.',
+            'Tofaktorgodkendelse tilbydes ikke længere for konti, der logger ind via Google eller GitHub, da udbyderen allerede håndterer det.',
           ],
         },
       ],
     },
     {
-      id: 'v141-performance',
-      title: 'Ydeevne',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Sider-rapporten er blevet optimeret markant og bør nu indlæses betydeligt hurtigere, især ved større datasæt.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v141-improvements',
+      id: 'v143-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Tid på siden er nu baseret på aktiv tid i stedet for almindelig klokketid, så varighedsmålinger bedre afspejler, hvor længe besøgende faktisk var engagerede på en side.',
-            'Din valgte tidsperiode bevares nu, når du skifter mellem dashboards.',
-            'Indgangssider- og Udgangssider-rapporterne fokuserer nu på de målinger, der passer til visningerne. Scroll-dybde er fjernet fra begge faner, og afvisningsprocent er også fjernet fra Udgangssider.',
+            'Dialogen for brugerindstillinger er blevet redesignet med et mere moderne og overskueligt layout.',
+            'Favicons for dashboard-domæner hentes nu mere pålideligt for flere websteder.',
+            'Mindre UI-finpudsninger på tværs af dashboardet.',
           ],
         },
       ],
     },
     {
-      id: 'v141-fixes',
+      id: 'v143-fixes',
       title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Rettet en fejl, hvor tooltips på verdenskortet kunne forblive synlige, efter markøren havde forladt kortet.',
-            'Forbedret registrering af tidszone, så sider indlæses mere stabilt for besøgende i berørte miljøer.',
-            'Rettet et Firefox-problem, der gjorde visse tabelkolonner svære at markere og kopiere.',
+            'Rettet et problem, hvor brugere uden et navn på deres konto ikke kunne opdatere deres indstillinger.',
+            'Rettet et problem, hvor det viste tema ikke længere stemte overens med den gemte indstilling, hvis man annullerede et temaskifte.',
           ],
         },
       ],
@@ -64,10 +53,124 @@ const v141ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v141ChangelogEntryDa;
+export const latestChangelogModalDa = v143ChangelogEntryDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
-  v141ChangelogEntryDa,
+  v143ChangelogEntryDa,
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Globale egenskaber i funnels, filter for udgående links og smartere referrergruppering',
+      summary:
+        'Filtrér funnel-trin efter Globale egenskaber, segmentér analyser efter udgående links, og få mere præcis gruppering af referrers. Denne udgivelse hæver også den korteste tilladte periode for dataopbevaring og retter en fejl, der gjorde session replays uafspilelige.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels understøtter nu Globale egenskaber. Du kan nu filtrere funnel-trin efter alle de globale egenskaber, du knytter til dine events — præcis som andre steder i dashboardet.',
+              "Et nyt filter for udgående links gør det muligt at filtrere og segmentere analyser efter, hvilke eksterne URL'er besøgende har klikket på.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gruppering af referrers er nu markant mere præcis, så trafikkilder samles mere ensartet i hele dashboardet.',
+              'Den korteste tilladte periode for dataopbevaring er hævet fra 3 til 6 måneder (session replay er fortsat 2 måneder).',
+              'Mindre forbedringer i brugeroplevelse og tilgængelighed på tværs af filtre, dashboard-kort og login-formularen.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor session replays ikke kunne hente deres segmenter, så optagelser ikke kunne afspilles.',
+              'Ironisk nok rettet en fejl, hvor det at indsende en fejlrapport uden for et dashboard selv slog fejl.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.1',
+      releasedAt: '2026-05-05',
+      title: 'Hurtigere sider, aktiv tid og indsigt i hændelsesegenskaber',
+      summary:
+        'Denne release gør Sider-rapporten hurtigere, forbedrer nøjagtigheden af tid på siden med måling af aktiv tid, tilføjer indsigter om Globale egenskaber til Hændelser-tabellen på Oversigt-siden og retter et par irriterende detaljer i dashboardet.',
+    },
+    sections: [
+      {
+        id: 'v141-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Hændelser-tabellen på Oversigt-siden har nu en Globale egenskaber-fane, så det er nemmere at se, hvilke egenskaber og værdier der optræder på tværs af unikke besøgende.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-performance',
+        title: 'Ydeevne',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sider-rapporten er blevet optimeret markant og bør nu indlæses betydeligt hurtigere, især ved større datasæt.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Tid på siden er nu baseret på aktiv tid i stedet for almindelig klokketid, så varighedsmålinger bedre afspejler, hvor længe besøgende faktisk var engagerede på en side.',
+              'Din valgte tidsperiode bevares nu, når du skifter mellem dashboards.',
+              'Indgangssider- og Udgangssider-rapporterne fokuserer nu på de målinger, der passer til visningerne. Scroll-dybde er fjernet fra begge faner, og afvisningsprocent er også fjernet fra Udgangssider.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet en fejl, hvor tooltips på verdenskortet kunne forblive synlige, efter markøren havde forladt kortet.',
+              'Forbedret registrering af tidszone, så sider indlæses mere stabilt for besøgende i berørte miljøer.',
+              'Rettet et Firefox-problem, der gjorde visse tabelkolonner svære at markere og kopiere.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.0',

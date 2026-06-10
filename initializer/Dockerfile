@@ -20,4 +20,4 @@ COPY ./scripts ./scripts
 COPY ./migrations ./migrations
 COPY ./prisma ./prisma
 
-CMD pnpm run migrate-clickhouse && prisma migrate deploy --schema ./prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js && node scripts/post_migrate_monitoring_ro.js
+CMD pnpm run migrate-clickhouse && node scripts/post_migrate_clickhouse.js && prisma migrate deploy --schema ./prisma/schema.prisma && node scripts/provision_roles.js

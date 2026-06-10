@@ -22,6 +22,7 @@ import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
 import { isHttpUrl } from '../utils';
 import { useMonitorForm } from '../shared/hooks/useMonitorForm';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../shared/components';
 
 type EditMonitorSheetProps = {
@@ -54,6 +55,8 @@ export function EditMonitorSheet({
   const { deleteMutation } = useMonitorMutations(dashboardId, monitor.id);
   const form = useMonitorForm({ mode: 'edit', monitor });
 
+  const { markPending, onAnimationEnd } = useOverlayReset(() => form.reset());
+
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       if (newOpen) {
@@ -71,10 +74,10 @@ export function EditMonitorSheet({
   );
 
   const handleConfirmDiscard = useCallback(() => {
-    form.reset();
+    markPending();
     setShowConfirmDialog(false);
     setOpen(false);
-  }, [form]);
+  }, [markPending]);
 
   const handleSave = useCallback(() => {
     startTransition(async () => {
@@ -108,7 +111,11 @@ export function EditMonitorSheet({
     <>
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild>{trigger ?? <Button size='sm'>{t('trigger')}</Button>}</SheetTrigger>
-        <SheetContent side='right' className='w-full max-w-2xl overflow-y-auto p-0 sm:max-w-4xl'>
+        <SheetContent
+          side='right'
+          className='w-full max-w-2xl overflow-y-auto p-0 sm:max-w-4xl'
+          onAnimationEnd={onAnimationEnd}
+        >
           <div className='flex h-full flex-col'>
             <SheetHeader className='border-border space-y-0 border-b px-6 py-5'>
               <SheetTitle className='text-lg font-semibold'>{t('title')}</SheetTitle>

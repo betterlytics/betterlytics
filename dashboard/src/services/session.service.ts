@@ -26,3 +26,7 @@ export async function invalidateAllUserSessions(userId: string): Promise<number>
 export async function invalidateOtherUserSessions(userId: string, currentSessionToken: string): Promise<number> {
   return SessionRepository.deleteOtherUserSessions(userId, currentSessionToken);
 }
+
+export async function countUserSessions(userId: string): Promise<number> {
+  return SessionRepository.countUserSessions(userId);
+}

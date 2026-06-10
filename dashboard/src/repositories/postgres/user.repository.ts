@@ -1,5 +1,7 @@
+import 'server-only';
+
 import prisma from '@/lib/postgres';
-import { Prisma } from '@prisma/client';
+import { GithubStarPromptState, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import {
   User,
@@ -9,6 +11,8 @@ import {
   RegisterUserSchema,
   RegisterUserData,
   UpdateUserData,
+  UserWithoutDashboardCandidate,
+  UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
@@ -19,6 +23,14 @@ const SALT_ROUNDS = 10;
 
 export async function findUserById(userId: string): Promise<User | null> {
   return await findUserBy({ id: userId });
+}
+
+export async function findUserOAuthProviders(userId: string): Promise<string[]> {
+  const accounts = await prisma.account.findMany({
+    where: { userId },
+    select: { provider: true },
+  });
+  return accounts.map((a) => a.provider);
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
@@ -35,6 +47,21 @@ async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | nu
   } catch (error) {
     console.error(`Error finding user by ${where}:`, error);
     throw new Error(`Failed to find user by ${where}.`);
+  }
+}
+
+export async function setGithubStarPromptState(
+  userId: string,
+  state: GithubStarPromptState,
+): Promise<void> {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { githubStarPromptState: state },
+    });
+  } catch (error) {
+    console.error('Error updating github star prompt state:', error);
+    throw new Error('Failed to update github star prompt state');
   }
 }
 
@@ -102,17 +129,6 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   }
 }
 
-export async function deleteUser(userId: string): Promise<void> {
-  try {
-    await prisma.user.delete({
-      where: { id: userId },
-    });
-  } catch (error) {
-    console.error(`Error deleting user ${userId}:`, error);
-    throw new Error(`Failed to delete user ${userId}.`);
-  }
-}
-
 export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
   try {
     const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -157,6 +173,36 @@ export async function markOnboardingCompleted(userId: string): Promise<void> {
   }
 }
 
+export async function anonymizeUser(userId: string): Promise<void> {
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          email: `deleted_${userId}@deleted.invalid`,
+          name: null,
+          image: null,
+          passwordHash: null,
+          totpEnabled: false,
+          totpSecret: null,
+          emailVerified: null,
+          deletedAt: new Date(),
+        },
+      }),
+      prisma.account.deleteMany({ where: { userId } }),
+      prisma.session.deleteMany({ where: { userId } }),
+      prisma.passwordResetToken.deleteMany({ where: { userId } }),
+      prisma.mcpToken.updateMany({
+        where: { createdBy: userId, deletedAt: null },
+        data: { deletedAt: new Date() },
+      }),
+    ]);
+  } catch (error) {
+    console.error(`Error anonymizing user ${userId}:`, error);
+    throw new Error(`Failed to anonymize user ${userId}.`);
+  }
+}
+
 export async function acceptTermsForUser(userId: string, version: number): Promise<void> {
   try {
     await prisma.user.update({
@@ -166,6 +212,32 @@ export async function acceptTermsForUser(userId: string, version: number): Promi
   } catch (error) {
     console.error(`Error accepting terms for user ${userId}:`, error);
     throw new Error(`Failed to accept terms for user ${userId}.`);
+  }
+}
+
+export async function findUsersWithoutDashboardsInWindow(
+  window: { signedUpAfter: Date; signedUpBefore: Date },
+  limit: number,
+): Promise<UserWithoutDashboardCandidate[]> {
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        email: { not: null },
+        createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
+        dashboardAccess: { none: {} },
+      },
+      select: { id: true, email: true, name: true },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+    });
+
+    return users
+      .filter((u) => u.email)
+      .map((u) => UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }));
+  } catch (error) {
+    console.error('Error finding users without dashboards in window:', error);
+    throw new Error('Failed to find users without dashboards in window');
   }
 }
 

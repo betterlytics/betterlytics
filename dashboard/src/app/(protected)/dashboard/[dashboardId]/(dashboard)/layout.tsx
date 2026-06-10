@@ -14,6 +14,8 @@ import { getUserBillingData } from '@/actions/billing.action';
 import { requireAuth } from '@/auth/auth-actions';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { RealtimeQuerySync } from '@/components/dashboard/RealtimeQuerySync';
+import GithubStarCard from '@/components/githubStar/GithubStarCard';
+import { getGithubStarPromptEligibility } from '@/actions/githubStarPrompt.action';
 
 type DashboardSidebarLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -34,6 +36,8 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
   const mustAcceptTerms =
     isClientFeatureEnabled('isCloud') &&
     (!session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION);
+
+  const githubStarEligibilityPromise = getGithubStarPromptEligibility();
 
   return (
     <SidebarProvider>
@@ -58,6 +62,9 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
           {children}
         </div>
       </BannerProvider>
+      <Suspense fallback={null}>
+        <GithubStarCard eligibilityPromise={githubStarEligibilityPromise} />
+      </Suspense>
     </SidebarProvider>
   );
 }
