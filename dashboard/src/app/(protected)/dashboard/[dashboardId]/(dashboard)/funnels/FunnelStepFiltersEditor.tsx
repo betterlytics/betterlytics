@@ -114,7 +114,7 @@ function FunnelStepFiltersEditorComponent({
           </div>
         </ScrollArea>
         <Separator />
-        <div className='flex items-center justify-between gap-2 pr-1'>
+        <div className='flex items-center justify-between gap-2 px-1'>
           <Button
             className='h-8 cursor-pointer md:w-28'
             onClick={handleAdd}
@@ -140,7 +140,7 @@ function FunnelStepFiltersEditorComponent({
           </DisabledTooltip>
         </div>
         <SavedFiltersSection
-          className="[&_[data-slot=saved-filters-collapsible-content]]:grid-rows-[fit-content(calc(var(--funnel-editor-h)*5/9))]"
+          className="pr-1 [&_[data-slot=collapsible-trigger]]:pr-2 [&_[data-slot=saved-filters-collapsible-content]]:grid-rows-[fit-content(calc(var(--funnel-editor-h)*5/9))]"
           onLoadFilter={onChange}
           isOpen={isSavedFiltersOpen}
           onOpenChange={setIsSavedFiltersOpen}
