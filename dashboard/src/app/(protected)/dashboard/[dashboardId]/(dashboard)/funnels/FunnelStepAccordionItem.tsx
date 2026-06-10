@@ -219,7 +219,7 @@ function FunnelStepAccordionItemComponent({
               'relative z-10 grid w-full items-center',
               'grid-cols-[1fr_auto_auto_auto]',
               'gap-1.5 sm:gap-2.5',
-              'pr-4 pl-4 py-2 sm:pl-5 sm:py-2.5',
+              'py-2 pr-3 pl-3.5 sm:py-2.5 sm:pr-4 sm:pl-5',
               'pointer-events-none select-none',
             )}
           >
@@ -277,9 +277,9 @@ function FunnelStepAccordionItemComponent({
         {...listeners}
         aria-label={t('tooltip.reorderStep', { index: index + 1 })}
         className={cn(
-          'hidden sm:flex',
+          'flex',
           'text-muted-foreground/60 hover:text-foreground transition-colors',
-          'h-[2.25rem] w-6 items-center justify-center rounded-md my-2',
+          'h-[2.25rem] w-5 sm:w-6 items-center justify-center rounded-md my-2',
           'cursor-grab active:cursor-grabbing',
           'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
         )}

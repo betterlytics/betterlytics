@@ -38,7 +38,7 @@ export function FunnelDialogLayout({
       <DialogContent
         aria-describedby={undefined}
         className={cn(
-          'bg-background rounded-none flex flex-col [&>button]:cursor-pointer p-4 sm:p-5 lg:p-6',
+          'bg-background rounded-none flex flex-col [&>button]:cursor-pointer p-3 sm:p-5 lg:p-6',
           'w-screen h-dvh !max-w-none border-0',
           'windowed:w-[90dvw] windowed:h-auto windowed:max-h-[85dvh] windowed:!max-w-[92rem] windowed:rounded-lg windowed:border',
         )}
