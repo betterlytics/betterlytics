@@ -77,7 +77,10 @@ export function FunnelDialogContent({
         '--funnel-row-h': 'min(520px, calc(100dvh - var(--min-funnel-pt)))',
       } as React.CSSProperties}
     >
-      <div className='flex flex-wrap items-end gap-x-6 gap-y-3'>
+      {/* On lg, span the same width as the steps column below (36rem basis,
+          pr-5 ≈ its internal right padding + scrollbar gutter) so the Strict
+          Mode toggle right-aligns with the step cards. */}
+      <div className='flex flex-wrap items-end gap-x-6 gap-y-3 lg:max-w-[36rem] lg:justify-between lg:pr-5'>
         <div className='w-full sm:w-auto sm:max-w-sm sm:min-w-[18rem]'>
           <Label htmlFor='name' className='text-foreground mb-1.5 block'>
             {labels.name} <span className='text-destructive'>*</span>
