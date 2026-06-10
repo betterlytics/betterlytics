@@ -11,7 +11,7 @@ export const SavedFilterEntrySchema = z.object({
 export const SavedFilterSchema = z.object({
   id: z.string().cuid(),
   name: z.string().min(1).max(64),
-  entries: z.array(SavedFilterEntrySchema).max(MAX_FILTER_ROWS),
+  entries: z.array(SavedFilterEntrySchema),
   dashboardId: z.string().cuid(),
 });
 
