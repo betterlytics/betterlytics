@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown, GripVertical, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { memo, useCallback, useMemo, useRef, type AnimationEvent, type RefObject } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, type AnimationEvent, type RefObject } from 'react';
 
 import { FunnelStepFiltersEditor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelStepFiltersEditor';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
@@ -27,6 +27,7 @@ type FunnelStepAccordionItemProps = {
   onRequestRemoval: (id: string) => void;
   globalPropertyKeys?: string[];
   userInitiatedOpenRef: RefObject<string | null>;
+  appendedStepIdRef: RefObject<string | null>;
 };
 
 function FunnelStepAccordionItemComponent({
@@ -38,6 +39,7 @@ function FunnelStepAccordionItemComponent({
   onRequestRemoval,
   globalPropertyKeys,
   userInitiatedOpenRef,
+  appendedStepIdRef,
 }: FunnelStepAccordionItemProps) {
   const t = useTranslations('components.funnels.create');
   const tFilters = useTranslations('components.filters');
@@ -62,13 +64,55 @@ function FunnelStepAccordionItemComponent({
     [setNodeRef],
   );
 
+  const pinRafRef = useRef<number | null>(null);
+  const stopPinningToBottom = useCallback(() => {
+    if (pinRafRef.current !== null) {
+      cancelAnimationFrame(pinRafRef.current);
+      pinRafRef.current = null;
+    }
+  }, []);
+  useEffect(() => stopPinningToBottom, [stopPinningToBottom]);
+
+  // While a freshly-appended step's expand animation runs, keep the list
+  // pinned to the bottom so the growing content stays above the sticky
+  // Add Step button instead of unfolding behind it.
+  const handleContentAnimationStart = useCallback(
+    (e: AnimationEvent<HTMLDivElement>) => {
+      const content = e.currentTarget;
+      if (e.target !== content || content.dataset.state !== 'open') return;
+      if (appendedStepIdRef.current !== step.id || pinRafRef.current !== null) return;
+      const scroller = wrapperRef.current?.closest<HTMLElement>('[data-slot="steps-scroll"]');
+      if (!scroller) return;
+      const pin = () => {
+        if (content.dataset.state !== 'open') {
+          pinRafRef.current = null;
+          return;
+        }
+        scroller.scrollTop = scroller.scrollHeight;
+        pinRafRef.current = requestAnimationFrame(pin);
+      };
+      pin();
+    },
+    [step.id, appendedStepIdRef],
+  );
+
   const handleContentAnimationEnd = useCallback(
     (e: AnimationEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget) return;
+      stopPinningToBottom();
       if (e.currentTarget.dataset.state !== 'open') return;
+      // A freshly-appended step: settle the list at the very bottom so the new
+      // step sits fully above the sticky Add Step button.
+      if (appendedStepIdRef.current === step.id) {
+        appendedStepIdRef.current = null;
+        const scroller = wrapperRef.current?.closest<HTMLElement>('[data-slot="steps-scroll"]');
+        if (scroller) scroller.scrollTop = scroller.scrollHeight;
+        return;
+      }
       if (userInitiatedOpenRef.current !== step.id) return;
       wrapperRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     },
-    [step.id, userInitiatedOpenRef],
+    [step.id, userInitiatedOpenRef, appendedStepIdRef, stopPinningToBottom],
   );
 
   const stepRef = useRef(step);
@@ -173,9 +217,9 @@ function FunnelStepAccordionItemComponent({
           <div
             className={cn(
               'relative z-10 grid w-full items-center',
-              'grid-cols-[1fr_auto_auto_auto] sm:grid-cols-[10rem_1fr_auto_auto_auto]',
+              'grid-cols-[1fr_auto_auto_auto]',
               'gap-1.5 sm:gap-2.5',
-              'pr-4 pl-4 py-2 sm:pl-5 sm:py-2.5',
+              'py-2 pr-3 pl-3.5 sm:py-2.5 sm:pr-4 sm:pl-5',
               'pointer-events-none select-none',
             )}
           >
@@ -190,12 +234,11 @@ function FunnelStepAccordionItemComponent({
               data-focus-target
               className={cn(
                 'pointer-events-auto cursor-text',
-                'h-8 w-full sm:w-60',
+                'h-8 w-full',
                 'placeholder:text-muted-foreground/70',
                 showNameError && 'border-destructive',
               )}
             />
-            <span aria-hidden className='h-full' />
             <Badge
               variant='secondary'
               className={cn(
@@ -219,6 +262,7 @@ function FunnelStepAccordionItemComponent({
   return (
     <div
       ref={composedRef}
+      data-step-id={step.id}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
         'relative flex items-start',
@@ -234,9 +278,9 @@ function FunnelStepAccordionItemComponent({
         {...listeners}
         aria-label={t('tooltip.reorderStep', { index: index + 1 })}
         className={cn(
-          'hidden sm:flex',
+          'flex',
           'text-muted-foreground/60 hover:text-foreground transition-colors',
-          'h-[2.25rem] w-6 items-center justify-center rounded-md my-2',
+          'h-[2.25rem] w-5 sm:w-6 items-center justify-center rounded-md my-2',
           'cursor-grab active:cursor-grabbing',
           'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
         )}
@@ -256,6 +300,7 @@ function FunnelStepAccordionItemComponent({
       >
         {StepHeader}
         <AccordionContent
+          onAnimationStart={handleContentAnimationStart}
           onAnimationEnd={handleContentAnimationEnd}
           className={'bg-muted/10 relative pl-3 pr-1 pb-1 border-t cursor-grab active:cursor-grabbing'}
         >
