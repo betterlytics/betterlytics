@@ -89,7 +89,7 @@ export default function FunnelBarplot({
           refetching && 'pointer-events-none opacity-60',
         )}
       >
-        <div className={cn('group/steps relative flex w-full min-w-fit flex-col sm:flex-row', fill && 'sm:flex-1')}>
+        <div className={cn('group/steps relative flex flex-col sm:flex-row', fill ? 'w-full min-w-fit sm:flex-1' : 'w-fit')}>
           {funnel.steps.map((step, i) => (
             <FunnelStep
               key={step.step.id}
