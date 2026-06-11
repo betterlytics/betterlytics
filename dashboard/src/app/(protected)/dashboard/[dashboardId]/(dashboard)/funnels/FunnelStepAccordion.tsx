@@ -275,7 +275,7 @@ export function FunnelStepAccordion({
               userInitiatedOpenRef.current = next ?? null;
               setOpenStepId(next);
             }}
-            className='flex flex-col gap-3 pr-1 pt-3 pb-1 sm:pr-3'
+            className='flex flex-col gap-3 pl-1 pr-1 pt-3 pb-1 sm:pr-3'
           >
             {steps.map((step, index) => (
               <FunnelStepAccordionItem
@@ -298,7 +298,7 @@ export function FunnelStepAccordion({
             scroll area when the list overflows (steps scroll underneath). */}
         <div
           ref={addStepPinRef}
-          className='bg-background sticky -bottom-px z-10 pl-7 pr-1 pt-2 pb-2 shadow-[0_-10px_12px_-6px_var(--background)] sm:pl-10 sm:pr-3'
+          className='bg-background sticky -bottom-px z-10 pl-8 pr-1 pt-2 pb-2 shadow-[0_-10px_12px_-6px_var(--background)] sm:pl-11 sm:pr-3'
         >
           <Button variant='outline' onClick={onAddStep} className='w-full cursor-pointer'>
             <PlusIcon className='size-4' /> {addStepLabel}
