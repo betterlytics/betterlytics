@@ -9,6 +9,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { trpc } from '@/trpc/client';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { UpdateFunnelSchema, type FunnelStep } from '@/entities/analytics/funnels.entities';
 import { toast } from 'sonner';
 import { FunnelDialogContent } from './FunnelDialogContent';
@@ -65,6 +66,32 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
     return false;
   }, [funnel, funnelSteps, metadata.isStrict, metadata.name]);
 
+  const { markPending, onAnimationEnd } = useOverlayReset(() => {
+    setHasAttemptedSubmit(false);
+    reset({
+      name: funnel.name,
+      isStrict: funnel.isStrict,
+      steps: funnel.steps.map((s) => s.step),
+    });
+  });
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (open) {
+        setHasAttemptedSubmit(false);
+        reset({
+          name: funnel.name,
+          isStrict: funnel.isStrict,
+          steps: funnel.steps.map((s) => s.step),
+        });
+      } else {
+        markPending();
+      }
+      setIsOpen(open);
+    },
+    [funnel, reset, markPending],
+  );
+
   const handleEditFunnel = useCallback(() => {
     setHasAttemptedSubmit(true);
     if (!isEditValid) {
@@ -78,8 +105,7 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
       isStrict: metadata.isStrict,
     })
       .then(() => {
-        setIsOpen(false);
-        setHasAttemptedSubmit(false);
+        handleOpenChange(false);
         toast.success(t('edit.successMessage'));
         utils.funnels.list.invalidate({ dashboardId });
         utils.funnels.details.invalidate({ dashboardId, funnelId: funnel.id });
@@ -87,27 +113,13 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
       .catch(() => {
         toast.error(t('edit.errorMessage'));
       });
-  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t, utils]);
-
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (open) {
-        setHasAttemptedSubmit(false);
-        reset({
-          name: funnel.name,
-          isStrict: funnel.isStrict,
-          steps: funnel.steps.map((s) => s.step),
-        });
-      }
-      setIsOpen(open);
-    },
-    [funnel, reset],
-  );
+  }, [dashboardId, funnel.id, funnelSteps, metadata.isStrict, metadata.name, t, utils, handleOpenChange]);
 
   return (
     <FunnelDialogLayout
       open={isOpen}
       onOpenChange={handleOpenChange}
+      onAnimationEnd={onAnimationEnd}
       title={t('edit.title')}
       trigger={
         <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
@@ -116,7 +128,7 @@ export function EditFunnelDialog({ funnel, disabled }: EditFunnelDialogProps) {
       }
       footer={
         <>
-          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => handleOpenChange(false)}>
             {t('edit.cancel')}
           </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleEditFunnel} disabled={!isDirty}>

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { CreateFunnelSchema } from '@/entities/analytics/funnels.entities';
 import { PresentedFunnel } from '@/presenters/toFunnel';
 import { postFunnelAction } from '@/app/actions/index.actions';
@@ -50,21 +51,18 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
     [dashboardId, funnelSteps, metadata.isStrict, metadata.name],
   );
 
-  const handleCloneFunnel = useCallback(() => {
-    setHasAttemptedSubmit(true);
-    if (!isCreateValid) return;
-
-    postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
-      .then(() => {
-        setIsOpen(false);
-        setHasAttemptedSubmit(false);
-        toast.success(t('successMessage'));
-        utils.funnels.list.invalidate({ dashboardId });
-      })
-      .catch(() => {
-        toast.error(t('errorMessage'));
-      });
-  }, [dashboardId, funnelSteps, isCreateValid, metadata.isStrict, metadata.name, t, utils]);
+  const { markPending, onAnimationEnd } = useOverlayReset(() => {
+    setHasAttemptedSubmit(false);
+    reset({
+      name: `${funnel.name} (copy)`,
+      isStrict: funnel.isStrict,
+      steps: funnel.steps.map(({ step }) => ({
+        ...step,
+        id: generateTempId(),
+        filters: step.filters.map((f) => ({ ...f, id: generateTempId() })),
+      })),
+    });
+  });
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
@@ -78,14 +76,33 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
           filters: step.filters.map((f) => ({ ...f, id: generateTempId() })),
         })),
       });
+    } else {
+      markPending();
     }
     setIsOpen(open);
   };
+
+  const handleCloneFunnel = useCallback(() => {
+    setHasAttemptedSubmit(true);
+    if (!isCreateValid) return;
+
+    postFunnelAction(dashboardId, metadata.name, funnelSteps, metadata.isStrict)
+      .then(() => {
+        markPending();
+        setIsOpen(false);
+        toast.success(t('successMessage'));
+        utils.funnels.list.invalidate({ dashboardId });
+      })
+      .catch(() => {
+        toast.error(t('errorMessage'));
+      });
+  }, [dashboardId, funnelSteps, isCreateValid, markPending, metadata.isStrict, metadata.name, t, utils]);
 
   return (
     <FunnelDialogLayout
       open={isOpen}
       onOpenChange={handleOpenChange}
+      onAnimationEnd={onAnimationEnd}
       title={t('title')}
       trigger={
         <Button variant='ghost' className='cursor-pointer' disabled={disabled}>
@@ -94,7 +111,7 @@ export function CloneFunnelDialog({ funnel, disabled }: CloneFunnelDialogProps) 
       }
       footer={
         <>
-          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => setIsOpen(false)}>
+          <Button variant='outline' className='w-30 cursor-pointer' onClick={() => handleOpenChange(false)}>
             {t('cancel')}
           </Button>
           <Button variant='default' className='w-30 cursor-pointer' onClick={handleCloneFunnel}>
