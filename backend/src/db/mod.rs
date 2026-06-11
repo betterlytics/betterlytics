@@ -11,7 +11,7 @@ use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
 mod models;
-pub use models::{EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
+pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
@@ -36,6 +36,17 @@ impl Database {
         Self::spawn_dispatcher(event_rx, worker_senders);
 
         Ok(Self { clickhouse, event_tx, config })
+    }
+
+    /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
+    pub async fn fetch_active_sessions(&self, window: Duration) -> Result<Vec<ActiveSessionRow>> {
+        let rows = self
+            .clickhouse
+            .inner()
+            .query(&active_sessions_query(window.as_secs()))
+            .fetch_all::<ActiveSessionRow>()
+            .await?;
+        Ok(rows)
     }
 
     fn create_channels() -> (mpsc::Sender<ProcessedEvent>, mpsc::Receiver<ProcessedEvent>) {
@@ -306,4 +317,18 @@ async fn run_inserter_worker(
         worker_id, stats
     );
     Ok(())
+}
+
+/// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
+/// `idx_session_end` minmax skip index, so the cost is bounded by the number of *active*
+/// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
+fn active_sessions_query(window_secs: u64) -> String {
+    format!(
+        "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
+                argMax(session_id, session_end) AS session_id, \
+                argMax(session_created_at, session_end) AS session_created_at \
+         FROM analytics.sessions \
+         WHERE session_end > now() - toIntervalSecond({window_secs}) \
+         GROUP BY site_id, visitor_id"
+    )
 }

@@ -111,11 +111,7 @@ pub async fn presign_put_segment(
             root_domain: root_domain.as_deref(),
         };
         visitor::identify(&req.site_id, &attrs, Utc::now()).await
-    }
-    .map_err(|e| {
-        error!("Failed to get session ID: {}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
-    })?;
+    };
     let fingerprint = identity.fingerprint;
     let session_id = identity.session_id;
 

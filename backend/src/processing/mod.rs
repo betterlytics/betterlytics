@@ -178,17 +178,9 @@ impl EventProcessor {
             visitor::identify(&site_id, &attrs, timestamp).await
         };
 
-        match identity {
-            Ok(identity) => {
-                processed.visitor_fingerprint = identity.fingerprint;
-                processed.session_id = identity.session_id;
-                processed.session_created_at = identity.session_created_at;
-            }
-            Err(e) => {
-                error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
-                return Ok(());
-            }
-        };
+        processed.visitor_fingerprint = identity.fingerprint;
+        processed.session_id = identity.session_id;
+        processed.session_created_at = identity.session_created_at;
 
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
