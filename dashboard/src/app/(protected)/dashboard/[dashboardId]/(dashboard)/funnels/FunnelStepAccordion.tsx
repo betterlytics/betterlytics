@@ -14,9 +14,9 @@ import {
   type DragEndEvent,
   type DragStartEvent,
   type Modifier,
-  type Transform,
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import type { Transform } from '@dnd-kit/utilities';
 import {
   arrayMove,
   SortableContext,
