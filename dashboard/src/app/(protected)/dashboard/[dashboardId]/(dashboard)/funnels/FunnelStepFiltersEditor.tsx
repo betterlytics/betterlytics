@@ -100,6 +100,7 @@ function FunnelStepFiltersEditorComponent({
                 requestRemoval={handleRemove}
                 globalPropertyKeys={globalPropertyKeys}
                 hideClearAllButton
+                useExtendedRange
                 formatLength={isMobile ? 20 : 35}
                 className={cn(
                   'md:grid-cols-[minmax(0,8fr)_minmax(0,2fr)_minmax(0,2fr)]',
