@@ -370,6 +370,14 @@ model SiteConfig {
 }
 
 
+/// Secret, daily-rotated salt used by the analytics backend to anonymize visitor fingerprints
+model AnalyticsSalt {
+  saltDate   DateTime @id @db.Date
+  salt       Bytes
+  insertedAt DateTime @default(now())
+}
+
+
 model MonitorCheck {
   id                    String    @id @default(cuid())
   dashboard             Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)

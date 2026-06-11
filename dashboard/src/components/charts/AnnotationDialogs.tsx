@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
 import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
@@ -113,6 +114,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [editForm, setEditForm] = useState<AnnotationFormState>(emptyForm);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+    const { markPending: markCreatePending, onAnimationEnd: onCreateAnimationEnd } = useOverlayReset(() =>
+      setCreateForm(emptyForm),
+    );
+    const { markPending: markEditPending, onAnimationEnd: onEditAnimationEnd } = useOverlayReset(() => {
+      setEditForm(emptyForm);
+      setSelectedAnnotation(null);
+    });
+
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
         setCreateForm({
@@ -149,8 +158,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         colorToken: createForm.color,
       });
 
+      markCreatePending();
       setShowCreateDialog(false);
-      setCreateForm(emptyForm);
     };
 
     const handleUpdateAnnotation = () => {
@@ -163,9 +172,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         date: (editForm.date ?? new Date(selectedAnnotation.date)).getTime(),
       });
 
+      markEditPending();
       setShowEditDialog(false);
-      setSelectedAnnotation(null);
-      setEditForm(emptyForm);
     };
 
     const handleDeleteAnnotation = () => {
@@ -173,16 +181,25 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
 
       onDeleteAnnotation(selectedAnnotation.id);
 
+      markEditPending();
       setShowDeleteConfirm(false);
       setShowEditDialog(false);
-      setSelectedAnnotation(null);
-      setEditForm(emptyForm);
+    };
+
+    const handleCreateCancel = () => {
+      markCreatePending();
+      setShowCreateDialog(false);
+    };
+
+    const handleEditCancel = () => {
+      markEditPending();
+      setShowEditDialog(false);
     };
 
     return (
       <>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogContent className='sm:max-w-md'>
+          <DialogContent className='sm:max-w-md' onAnimationEnd={onCreateAnimationEnd}>
             <DialogHeader>
               <DialogTitle>{t('addTitle')}</DialogTitle>
             </DialogHeader>
@@ -226,7 +243,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               />
             </div>
             <DialogFooter>
-              <Button variant='outline' className='cursor-pointer' onClick={() => setShowCreateDialog(false)}>
+              <Button variant='outline' className='cursor-pointer' onClick={handleCreateCancel}>
                 {t('cancel')}
               </Button>
               <Button
@@ -249,7 +266,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
             }
           }}
         >
-          <DialogContent className='sm:max-w-md'>
+          <DialogContent className='sm:max-w-md' onAnimationEnd={onEditAnimationEnd}>
             <DialogHeader>
               <DialogTitle>{t('editTitle')}</DialogTitle>
             </DialogHeader>
@@ -326,7 +343,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 <Button
                   variant='outline'
                   className='min-w-[104px] cursor-pointer'
-                  onClick={() => setShowEditDialog(false)}
+                  onClick={handleEditCancel}
                 >
                   {t('cancel')}
                 </Button>
