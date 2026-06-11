@@ -79,9 +79,6 @@ export function FunnelStepAccordion({
   const draggedStepsRef = useRef<FunnelStep[] | null>(null);
   const prevIdsRef = useRef<string[]>(steps.map((s) => s.id));
   const userInitiatedOpenRef = useRef<string | null>(null);
-  // Set to the id of a freshly-appended step so the item can keep the list
-  // pinned to the bottom while its expand animation runs (keeping it + the
-  // sticky Add Step button fully in view).
   const appendedStepIdRef = useRef<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const addStepPinRef = useRef<HTMLDivElement>(null);
@@ -135,8 +132,7 @@ export function FunnelStepAccordion({
     const appended = currentIds.filter((id) => !prevIdsRef.current.includes(id));
     if (appended.length > 0) {
       appendedStepIdRef.current = appended[appended.length - 1];
-      // Show the new (still collapsed) step right away instead of letting it
-      // render out of view behind the sticky Add Step button.
+      // New step would otherwise render out of view behind the sticky Add Step pin
       const scroller = scrollerRef.current;
       if (scroller) scroller.scrollTop = scroller.scrollHeight;
     }

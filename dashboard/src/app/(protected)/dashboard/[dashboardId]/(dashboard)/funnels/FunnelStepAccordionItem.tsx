@@ -73,9 +73,7 @@ function FunnelStepAccordionItemComponent({
   }, []);
   useEffect(() => stopPinningToBottom, [stopPinningToBottom]);
 
-  // While a freshly-appended step's expand animation runs, keep the list
-  // pinned to the bottom so the growing content stays above the sticky
-  // Add Step button instead of unfolding behind it.
+  // Re-pin each frame while the appended step expands, or the growing content unfolds behind the sticky pin
   const handleContentAnimationStart = useCallback(
     (e: AnimationEvent<HTMLDivElement>) => {
       const content = e.currentTarget;
@@ -101,8 +99,6 @@ function FunnelStepAccordionItemComponent({
       if (e.target !== e.currentTarget) return;
       stopPinningToBottom();
       if (e.currentTarget.dataset.state !== 'open') return;
-      // A freshly-appended step: settle the list at the very bottom so the new
-      // step sits fully above the sticky Add Step button.
       if (appendedStepIdRef.current === step.id) {
         appendedStepIdRef.current = null;
         const scroller = wrapperRef.current?.closest<HTMLElement>('[data-slot="steps-scroll"]');
