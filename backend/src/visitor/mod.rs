@@ -1,6 +1,5 @@
 //! Visitor identification: turns request attributes into a salted fingerprint and a session id
 
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 
 use crate::analytics::{VisitorAttrs, generate_fingerprint};
@@ -20,7 +19,7 @@ pub fn identify(
     site_id: &str,
     attrs: &VisitorAttrs<'_>,
     event_timestamp: DateTime<Utc>,
-) -> Result<VisitorIdentity> {
+) -> VisitorIdentity {
     let (current_salt, previous_salt) = salt::current_and_previous();
 
     let fingerprint = generate_fingerprint(&current_salt, attrs);
@@ -30,11 +29,11 @@ pub fn identify(
         fingerprint,
         || previous_salt.as_ref().map(|s| generate_fingerprint(s, attrs)),
         event_timestamp,
-    )?;
+    );
 
-    Ok(VisitorIdentity {
+    VisitorIdentity {
         fingerprint,
         session_id,
         session_created_at,
-    })
+    }
 }

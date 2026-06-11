@@ -47,6 +47,8 @@ pub struct Config {
     pub monitor_incidents_table: String,
     // Session replay configuration
     pub enable_session_replay: bool,
+    // Warm the in-memory session cache from ClickHouse on boot (so sessions survive restarts)
+    pub session_cache_warm_enabled: bool,
     // S3 session replay storage configuration
     pub s3_enabled: bool,
     pub s3_region: Option<String>,
@@ -157,6 +159,10 @@ impl Config {
             enable_session_replay: env::var("SESSION_REPLAYS_ENABLED")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
+            // On by default; can be used to disable session warming if it catches a bad query plan
+            session_cache_warm_enabled: env::var("ENABLE_SESSION_CACHE_WARM")
+                .map(|val| val.to_lowercase() != "false")
+                .unwrap_or(true),
             // S3 configuration (optional; defaults to disabled)
             s3_enabled: env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_region: env::var("S3_REGION").ok(),
