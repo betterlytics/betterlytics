@@ -76,15 +76,15 @@ function FunnelStepFiltersEditorComponent({
 
   return (
     <div
-      className="py-1"
+      className={cn(
+        'py-1',
+        'supports-[height:1cqh]:[--funnel-editor-h:calc(100cqh_-_132px)]',
+        'not-supports-[height:1cqh]:[--funnel-editor-h:calc(min(520px,100dvh_-_348px)_-_80px)]',
+      )}
       onMouseDown={preventDragFromInteractiveElements}
-      style={{
-        '--funnel-step-chrome': '80px',
-        '--funnel-editor-h': 'calc(var(--funnel-row-h) - var(--funnel-step-chrome))',
-      } as React.CSSProperties}
     >
       <div
-        className='grid max-h-[var(--funnel-editor-h)] grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden py-1 pl-1'
+        className='grid max-h-(--funnel-editor-h) grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden py-1 pl-1'
       >
         <ScrollArea
           className='h-full min-h-0 [&_[data-slot=scroll-area-scrollbar]]:!w-2'

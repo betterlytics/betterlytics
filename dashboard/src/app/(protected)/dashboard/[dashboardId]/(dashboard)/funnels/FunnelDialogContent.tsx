@@ -70,14 +70,8 @@ export function FunnelDialogContent({
   const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
 
   return (
-    <div
-      className='flex min-h-0 flex-1 flex-col gap-4'
-      style={{
-        '--min-funnel-pt': '348px',
-        '--funnel-row-h': 'min(520px, calc(100dvh - var(--min-funnel-pt)))',
-      } as React.CSSProperties}
-    >
-      <div className='flex flex-wrap items-end gap-x-6 gap-y-3'>
+    <div className='flex min-h-0 flex-1 flex-col gap-4'>
+      <div className='flex shrink-0 flex-wrap items-end gap-x-6 gap-y-3'>
         <div className='w-full sm:w-auto sm:max-w-sm sm:min-w-[18rem]'>
           <Label htmlFor='name' className='text-foreground mb-1.5 block'>
             {labels.name} <span className='text-destructive'>*</span>
@@ -108,7 +102,7 @@ export function FunnelDialogContent({
 
       <Separator className='mt-2' />
 
-      <div className='flex min-h-0 flex-1 flex-col overflow-hidden lg:h-[var(--funnel-row-h)] lg:flex-none lg:flex-row lg:gap-6'>
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden lg:h-[520px] lg:flex-initial lg:flex-row lg:gap-6'>
         <FunnelStepAccordion
           listRef={stepsListRef}
           className='min-h-0 min-w-0 flex-1 lg:flex-[0_1_36rem]'
@@ -123,7 +117,7 @@ export function FunnelDialogContent({
           addStepLabel={labels.addStep}
         />
         <FunnelBarplot
-          className='hidden pt-3 lg:flex lg:min-w-0 lg:flex-1 min-h-[min(18rem,var(--funnel-row-h))]'
+          className='hidden pt-3 lg:flex lg:min-w-0 lg:flex-1'
           funnel={funnelPreview}
           emptySteps={emptySteps}
           status={previewStatus}

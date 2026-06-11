@@ -255,8 +255,7 @@ export function FunnelStepAccordion({
         ref={scrollerRef}
         data-slot='steps-scroll'
         className={cn(
-          'overflow-x-hidden overflow-y-auto overscroll-contain',
-          'scroll-pb-14',
+          'overflow-x-hidden overflow-y-auto overscroll-contain scroll-pb-14 [container-type:size]',
           '[scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]',
           '[&::-webkit-scrollbar]:w-2',
           '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border',
