@@ -2408,7 +2408,8 @@
         "savedFiltersLimitReached": "Maximum saved filters reached"
       },
       "filterBy": "Filter by {label}",
-      "removeFilter": "Remove filter"
+      "removeFilter": "Remove filter",
+      "notAvailableOnPage": "Not available on this page"
     },
     "funnels": {
       "skeleton": {

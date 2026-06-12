@@ -14,6 +14,7 @@ type FilterValueSearchProps<TEntity> = {
   useExtendedRange?: boolean;
   formatLength?: number;
   valueError?: boolean;
+  disabled?: boolean;
 };
 
 export function FilterValueSearch<TEntity>({
@@ -23,6 +24,7 @@ export function FilterValueSearch<TEntity>({
   useExtendedRange,
   formatLength = 25,
   valueError,
+  disabled,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
@@ -54,6 +56,7 @@ export function FilterValueSearch<TEntity>({
   return (
     <MultiSelect
       options={multiSelectOptions}
+      disabled={disabled}
       inputValue={search}
       onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
