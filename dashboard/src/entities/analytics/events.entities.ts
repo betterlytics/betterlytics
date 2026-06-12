@@ -32,6 +32,7 @@ export const EventPropertiesOverviewSchema = z.object({
   eventName: z.string(),
   totalEvents: z.number(),
   properties: z.array(EventPropertyAnalyticsSchema),
+  globalProperties: z.array(EventPropertyAnalyticsSchema),
 });
 
 export const EventLogEntrySchema = z.object({

@@ -14,3 +14,19 @@ export const GlobalPropertyKeyValueRowSchema = z.object({
 });
 
 export type GlobalPropertyKeyValueRow = z.infer<typeof GlobalPropertyKeyValueRowSchema>;
+
+export const GlobalPropertyEventCountRowSchema = z.object({
+  property_key: z.string(),
+  event_count: z.coerce.number().int().nonnegative(),
+  unique_value_count: z.coerce.number().int().nonnegative(),
+});
+
+export type GlobalPropertyEventCountRow = z.infer<typeof GlobalPropertyEventCountRowSchema>;
+
+export const GlobalPropertyEventValueRowSchema = z.object({
+  property_key: z.string(),
+  value: z.string(),
+  event_count: z.coerce.number().int().nonnegative(),
+});
+
+export type GlobalPropertyEventValueRow = z.infer<typeof GlobalPropertyEventValueRowSchema>;
