@@ -2475,7 +2475,9 @@
         "toastFilterDeletedSuccess": "Filter slettet",
         "toastFilterDeletedError": "Kunne ikke slette filter",
         "toastUndo": "Fortryd",
-        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
+        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået",
+        "maxFiltersReached": "Maksimalt {max} filtre",
+        "maxFiltersReachedToast": "Du kan anvende op til {max} filtre. Fjern ét for at tilføje et nyt."
       },
       "filterBy": "Filtrer efter {label}",
       "removeFilter": "Fjern filter"

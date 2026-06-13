@@ -2483,7 +2483,9 @@
         "toastFilterDeletedSuccess": "Filter slettet",
         "toastFilterDeletedError": "Kunne ikke slette filter",
         "toastUndo": "Angre",
-        "savedFiltersLimitReached": "Maksimalt antall lagrede filtre nådd"
+        "savedFiltersLimitReached": "Maksimalt antall lagrede filtre nådd",
+        "maxFiltersReached": "Maksimalt {max} filtre",
+        "maxFiltersReachedToast": "Du kan bruke opptil {max} filtre. Fjern ett for å legge til et nytt."
       },
       "filterBy": "Filtrer etter {label}",
       "removeFilter": "Fjern filter"

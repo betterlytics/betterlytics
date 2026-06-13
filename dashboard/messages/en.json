@@ -2472,7 +2472,9 @@
         "toastFilterDeletedSuccess": "Filter deleted",
         "toastFilterDeletedError": "Failed to delete filter",
         "toastUndo": "Undo",
-        "savedFiltersLimitReached": "Maximum saved filters reached"
+        "savedFiltersLimitReached": "Maximum saved filters reached",
+        "maxFiltersReached": "Maximum {max} filters",
+        "maxFiltersReachedToast": "You can apply up to {max} filters. Remove one to add another."
       },
       "filterBy": "Filter by {label}",
       "removeFilter": "Remove filter"
