@@ -278,6 +278,8 @@ function FunnelStepAccordionItemComponent({
           'text-muted-foreground/60 hover:text-foreground transition-colors',
           'h-[2.25rem] w-5 sm:w-6 items-center justify-center rounded-md my-2',
           'cursor-grab active:cursor-grabbing',
+          // Stop the touch long-press from selecting/zooming/showing the iOS callout while grabbing
+          'touch-none select-none [-webkit-touch-callout:none] [-webkit-tap-highlight-color:transparent]',
           'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
         )}
       >

@@ -330,8 +330,13 @@
   overflow: visible !important;
 }
 
-/* Force grabbing cursor everywhere during dnd-kit drag (toggled by FunnelStepAccordion) */
+/* Force grabbing cursor everywhere during dnd-kit drag, and suppress the text
+   selection / iOS callout the browser otherwise fires on a touch long-press
+   (toggled by FunnelStepAccordion) */
 body.dnd-dragging,
 body.dnd-dragging * {
   cursor: grabbing !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-touch-callout: none !important;
 }
