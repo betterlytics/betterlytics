@@ -2437,7 +2437,14 @@
         "create": "Opret",
         "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
-        "errorMessage": "Tragtoprettelse mislykkedes!"
+        "errorMessage": "Tragtoprettelse mislykkedes!",
+        "filterCount": "{count, plural, =0 {Ingen filtre} =1 {1 filter} other {# filtre}}",
+        "tooltip": {
+          "deleteStep": "Slet trin {index}",
+          "minStepsHint": "En tragt skal have mindst {count} trin",
+          "reorderStep": "Omarranger trin {index}",
+          "toggleStep": "Vis/skjul trin {index}"
+        }
       },
       "edit": {
         "title": "Rediger tragt",
@@ -2468,7 +2475,8 @@
         "stepLabel": "Trin {index}",
         "visitors": "Besøgende",
         "dropOff": "Frafald",
-        "conversion": "Konvertering"
+        "conversion": "Konvertering",
+        "and": "og"
       },
       "delete": {
         "title": "Slet tragt",
@@ -2478,6 +2486,7 @@
         "successMessage": "Tragt slettet!",
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
+      "strictModeInfo": "Når aktiveret, skal besøgende gennemføre trinnene i rækkefølge uden at besøge andre sider undervejs.",
       "preview": {
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
       },

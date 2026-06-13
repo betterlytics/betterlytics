@@ -2445,7 +2445,14 @@
         "create": "Opprett",
         "createDisabledHint": "Angi et traktnavn og definer minst to trinn. <br></br> Hvert trinn må ha både et navn og en valgt verdi.",
         "successMessage": "Trakt opprettet!",
-        "errorMessage": "Traktopprettelse mislyktes!"
+        "errorMessage": "Traktopprettelse mislyktes!",
+        "filterCount": "{count, plural, =0 {Ingen filtre} =1 {1 filter} other {# filtre}}",
+        "tooltip": {
+          "deleteStep": "Slett trinn {index}",
+          "minStepsHint": "En trakt må ha minst {count} trinn",
+          "reorderStep": "Omorganiser trinn {index}",
+          "toggleStep": "Vis/skjul trinn {index}"
+        }
       },
       "edit": {
         "title": "Rediger trakt",
@@ -2476,7 +2483,8 @@
         "stepLabel": "Trinn {index}",
         "visitors": "Besøkende",
         "dropOff": "Frafall",
-        "conversion": "Konvertering"
+        "conversion": "Konvertering",
+        "and": "og"
       },
       "delete": {
         "title": "Slett trakt",
@@ -2486,6 +2494,7 @@
         "successMessage": "Trakt slettet!",
         "errorMessage": "Sletting av trakt mislyktes!"
       },
+      "strictModeInfo": "Når aktivert, må besøkende fullføre trinnene i rekkefølge uten å besøke andre sider underveis.",
       "preview": {
         "defineAtLeastTwoSteps": "Definer minst 2 trinn for å se forhåndsvisningen."
       },

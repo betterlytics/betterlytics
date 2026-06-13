@@ -8,8 +8,8 @@ import { McpFunnelPreviewInputSchema } from '@/mcp/tools/funnelPreview';
 
 describe('McpFunnelPreviewInputSchema', () => {
   const validSteps = [
-    { name: 'Homepage', column: 'url' as const, operator: '=' as const, values: ['/'] },
-    { name: 'Pricing', column: 'url' as const, operator: '=' as const, values: ['/pricing'] },
+    { name: 'Homepage', filters: [{ column: 'url' as const, operator: '=' as const, values: ['/'] }] },
+    { name: 'Pricing', filters: [{ column: 'url' as const, operator: '=' as const, values: ['/pricing'] }] },
   ];
 
   it('accepts valid input with required fields', () => {
@@ -35,8 +35,8 @@ describe('McpFunnelPreviewInputSchema', () => {
     const result = McpFunnelPreviewInputSchema.safeParse({
       timeRange: '7d',
       steps: [
-        { name: '', column: 'url', operator: '=', values: ['/'] },
-        { name: 'Pricing', column: 'url', operator: '=', values: ['/pricing'] },
+        { name: '', filters: [{ column: 'url', operator: '=', values: ['/'] }] },
+        { name: 'Pricing', filters: [{ column: 'url', operator: '=', values: ['/pricing'] }] },
       ],
     });
     expect(result.success).toBe(false);
@@ -57,6 +57,34 @@ describe('McpFunnelPreviewInputSchema', () => {
     const result = McpFunnelPreviewInputSchema.safeParse({
       timeRange: 'custom',
       steps: validSteps,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('accepts a step with multiple filters (AND-logic)', () => {
+    const result = McpFunnelPreviewInputSchema.safeParse({
+      timeRange: '7d',
+      steps: [
+        {
+          name: 'Pricing from DK',
+          filters: [
+            { column: 'url', operator: '=', values: ['/pricing'] },
+            { column: 'country_code', operator: '=', values: ['DK'] },
+          ],
+        },
+        validSteps[1],
+      ],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.steps[0].filters).toHaveLength(2);
+    }
+  });
+
+  it('rejects a step with zero filters', () => {
+    const result = McpFunnelPreviewInputSchema.safeParse({
+      timeRange: '7d',
+      steps: [{ name: 'Homepage', filters: [] }, validSteps[1]],
     });
     expect(result.success).toBe(false);
   });

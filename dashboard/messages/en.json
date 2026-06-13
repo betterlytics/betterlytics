@@ -2434,7 +2434,14 @@
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
-        "errorMessage": "Funnel creation failed!"
+        "errorMessage": "Funnel creation failed!",
+        "filterCount": "{count, plural, =0 {No filters} =1 {1 filter} other {# filters}}",
+        "tooltip": {
+          "deleteStep": "Delete step {index}",
+          "minStepsHint": "A funnel needs at least {count} steps",
+          "reorderStep": "Reorder step {index}",
+          "toggleStep": "Toggle step {index}"
+        }
       },
       "edit": {
         "title": "Edit funnel",
@@ -2465,7 +2472,8 @@
         "stepLabel": "Step {index}",
         "visitors": "Visitors",
         "dropOff": "Drop-off",
-        "conversion": "Conversion"
+        "conversion": "Conversion",
+        "and": "and"
       },
       "delete": {
         "title": "Delete funnel",
@@ -2475,6 +2483,7 @@
         "successMessage": "Funnel deleted!",
         "errorMessage": "Funnel deletion failed!"
       },
+      "strictModeInfo": "When enabled, visitors must complete the steps in order without visiting any other pages in between.",
       "preview": {
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
       },

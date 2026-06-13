@@ -13,7 +13,6 @@ import {
 } from '@/services/analytics/funnels.service';
 import { withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
-import { revalidatePath } from 'next/cache';
 
 export const postFunnelAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, name: string, funnelSteps: FunnelStep[], isStrict: boolean) => {
@@ -23,7 +22,6 @@ export const postFunnelAction = withDashboardMutationAuthContext(
       funnelSteps,
       isStrict,
     });
-    revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
     return createFunnelForDashboard(funnel);
   },
 );
@@ -31,7 +29,6 @@ export const postFunnelAction = withDashboardMutationAuthContext(
 export const deleteFunnelAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, funnelId: string): Promise<void> => {
     await deleteFunnelFromDashboard(ctx.dashboardId, funnelId);
-    revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
   },
 );
 
@@ -39,6 +36,5 @@ export const updateFunnelAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, data: UpdateFunnel): Promise<void> => {
     const validatedData = UpdateFunnelSchema.parse(data);
     await updateFunnelForDashboard(ctx.dashboardId, validatedData);
-    revalidatePath(`/dashboard/${ctx.dashboardId}/funnels`);
   },
 );
