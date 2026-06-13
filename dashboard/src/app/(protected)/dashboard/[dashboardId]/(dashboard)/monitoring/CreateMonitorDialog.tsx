@@ -16,6 +16,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import { MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { useMonitorForm } from './shared/hooks/useMonitorForm';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from './shared/components';
 import { normalizeUrl } from '@/utils/domainValidation';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
@@ -57,6 +58,8 @@ export function CreateMonitorDialog({
     form.reset();
   };
 
+  const { markPending, onAnimationEnd } = useOverlayReset(resetForm);
+
   const onSubmit = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
     startTransition(async () => {
@@ -67,7 +70,7 @@ export function CreateMonitorDialog({
           icon: <CheckCircle2 className='h-4 w-4 text-emerald-500' />,
           description: t('successDescription'),
         });
-        resetForm();
+        markPending();
         setOpen(false);
         router.refresh();
       } catch (error) {
@@ -75,6 +78,11 @@ export function CreateMonitorDialog({
         toast.error(t('error'));
       }
     });
+  };
+
+  const handleCancel = () => {
+    markPending();
+    setOpen(false);
   };
 
   const nameAtLimit = (form.state.name?.length ?? 0) >= MONITOR_LIMITS.NAME_MAX;
@@ -118,7 +126,7 @@ export function CreateMonitorDialog({
           </span>
         </Button>
       </DialogTrigger>
-      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
+      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl' onAnimationEnd={onAnimationEnd}>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
         </DialogHeader>
@@ -200,7 +208,7 @@ export function CreateMonitorDialog({
               type='button'
               variant='outline'
               className='cursor-pointer'
-              onClick={() => setOpen(false)}
+              onClick={handleCancel}
               disabled={isPending}
             >
               {t('actions.cancel')}

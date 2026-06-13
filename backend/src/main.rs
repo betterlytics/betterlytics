@@ -28,6 +28,7 @@ mod outbound_link;
 mod postgres;
 mod processing;
 mod referrer;
+mod salt;
 mod sanitize;
 mod session;
 mod ip_parser;
@@ -36,6 +37,7 @@ mod site_config;
 mod storage;
 mod ua_parser;
 mod url_utils;
+mod visitor;
 mod utils;
 mod validation;
 
@@ -148,6 +150,18 @@ async fn main() {
     let site_config_repo: Arc<dyn SiteConfigDataSource> = Arc::new(
         SiteConfigRepository::new(Arc::clone(&site_config_pool)),
     );
+
+    // Initialize the secret rotating salt used to anonymize visitor fingerprints.
+    // Uses a dedicated read-write Postgres role; loads (or creates) today's salt now so
+    // the first event does not pay the rotation cost.
+    let salts_pool = Arc::new(
+        PostgresPool::new(&config.salts_database_url, "betterlytics_salts", 5)
+            .await
+            .expect("Failed to create salts PostgreSQL pool"),
+    );
+    salt::init(salts_pool)
+        .await
+        .expect("Failed to initialize salt service");
 
     let refresh_config = RefreshConfig::default();
 
