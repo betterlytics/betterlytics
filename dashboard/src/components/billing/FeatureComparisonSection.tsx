@@ -27,6 +27,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'monthlyEvents', growth: 'range', professional: 'range', enterprise: 'custom' },
       { key: 'sites', growth: 'upTo2', professional: 'upTo50', enterprise: 'unlimited' },
       { key: 'dataRetention', growth: '1year', professional: '3years', enterprise: '5years' },
+      { key: 'teamMembers', growth: 'upTo3', professional: 'upTo50', enterprise: 'unlimited' },
     ],
   },
   {

@@ -125,6 +125,18 @@ export async function upsertSubscription(data: UpsertSubscriptionData): Promise<
   return SubscriptionSchema.parse(subscription);
 }
 
+export async function setSubscriptionPaymentCustomerId(userId: string, paymentCustomerId: string): Promise<void> {
+  await prisma.subscription.upsert({
+    where: { userId },
+    create: {
+      user: { connect: { id: userId } },
+      ...buildStarterSubscription(),
+      paymentCustomerId,
+    },
+    update: { paymentCustomerId },
+  });
+}
+
 export async function updateSubscriptionStatus(
   userId: string,
   status: string,

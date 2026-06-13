@@ -37,6 +37,7 @@ export function buildSelfHostedBillingData(): UserBillingData {
       eventLimit: 999_999_999,
       pricePerMonth: 0,
       currency: PrismaCurrency.USD,
+      currencyLocked: true,
       status: 'active' as const,
       cancelAtPeriodEnd: false,
       currentPeriodEnd: periodEnd,
@@ -63,6 +64,7 @@ export const SubscriptionSchema = z.object({
   eventLimit: z.number(),
   pricePerMonth: z.number(),
   currency: CurrencySchema,
+  currencyLocked: z.boolean(),
   currentPeriodStart: z.date(),
   currentPeriodEnd: z.date(),
   quotaExceededDate: z.date().nullable(),
@@ -82,12 +84,13 @@ export const UpsertSubscriptionSchema = z.object({
   eventLimit: z.number(),
   pricePerMonth: z.number(),
   currency: CurrencySchema,
+  currencyLocked: z.boolean().optional(),
   cancelAtPeriodEnd: z.boolean().default(false),
   currentPeriodStart: z.date(),
   currentPeriodEnd: z.date(),
-  paymentCustomerId: z.string().optional(),
-  paymentSubscriptionId: z.string().optional(),
-  paymentPriceId: z.string().optional(),
+  paymentCustomerId: z.string().nullish(),
+  paymentSubscriptionId: z.string().nullish(),
+  paymentPriceId: z.string().nullish(),
 });
 
 export const UsageDataSchema = z.object({
@@ -139,12 +142,41 @@ export const SubscriptionEndingSoonCandidateSchema = z.object({
   currentPeriodEnd: z.date(),
 });
 
+export const SubscriptionChangePreviewLineSchema = z.object({
+  description: z.string().nullable(),
+  amount: z.number(),
+  proration: z.boolean(),
+});
+
+export const SubscriptionChangePreviewSchema = z.object({
+  amountDue: z.number(),
+  currency: z.string(),
+  nextRenewalAmount: z.number(),
+  nextRenewalDate: z.date(),
+  appliedBalance: z.number(),
+  lines: z.array(SubscriptionChangePreviewLineSchema),
+});
+
+export const InvoiceStatusSchema = z.enum(['draft', 'open', 'paid', 'uncollectible', 'void']);
+
+export const UserInvoiceSchema = z.object({
+  id: z.string(),
+  number: z.string().nullable(),
+  created: z.date(),
+  total: z.number(),
+  currency: z.string(),
+  status: InvoiceStatusSchema.nullable(),
+  hostedInvoiceUrl: z.string().nullable(),
+  invoicePdf: z.string().nullable(),
+});
+
 export const UserBillingDataSchema = z.object({
   subscription: z.object({
     tier: TierSchema,
     eventLimit: z.number(),
     pricePerMonth: z.number(),
     currency: CurrencySchema,
+    currencyLocked: z.boolean(),
     currentPeriodEnd: z.date(),
     status: z.string(),
     cancelAtPeriodEnd: z.boolean(),
@@ -165,3 +197,12 @@ export type SubscriptionWithOwnedSites = z.infer<typeof SubscriptionWithOwnedSit
 export type SubscriptionEndingSoonCandidate = z.infer<typeof SubscriptionEndingSoonCandidateSchema>;
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
 export type UserBillingData = z.infer<typeof UserBillingDataSchema>;
+export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
+export type UserInvoice = z.infer<typeof UserInvoiceSchema>;
+export type SubscriptionChangePreviewLine = z.infer<typeof SubscriptionChangePreviewLineSchema>;
+export type SubscriptionChangePreview = z.infer<typeof SubscriptionChangePreviewSchema>;
+
+export type CustomerCreditBalance = {
+  creditBalance: number;
+  currency: string;
+};

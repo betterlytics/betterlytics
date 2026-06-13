@@ -1399,7 +1399,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Månedlige hendelser"
+    "monthlyEvents": "Månedlige hendelser",
+    "suggested": "Anbefalt",
+    "recommend": "Basert på din estimerte trafikk anbefaler vi <emphasis>{events} hendelser / måned</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/måned",
@@ -1410,19 +1412,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Opptil {events} hendelser/måned",
-      "allFeatures": "Alle dashboard- og analysefunksjoner",
+      "customEventVolume": "Tilpasset hendelsesvolum",
       "twoSites": "Opptil 2 nettsteder",
       "upTo50Sites": "Opptil 50 nettsteder",
       "unlimitedSites": "Ubegrenset antall nettsteder",
+      "threeTeamMembers": "Opptil 3 teammedlemmer",
+      "upTo50TeamMembers": "Opptil 50 teammedlemmer",
+      "unlimitedTeamMembers": "Ubegrenset antall teammedlemmer",
       "retention1PlusYear": "1+ år datalagring",
       "retention3PlusYears": "3+ år datalagring",
       "retention5PlusYears": "5+ år datalagring",
-      "emailSupport": "E-postsupport",
-      "prioritySupport": "Prioritert support",
-      "dedicatedSupport": "Dedikert support og hjelp",
+      "fullDashboard": "Komplett web-analytics dashboard",
+      "funnelsJourneys": "Funnels og brukerreiser",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Feilsporing",
+      "uptime1": "1 oppetidsmonitor",
+      "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
+      "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer",
+      "emailReports": "Planlagte e-postrapporter",
+      "customHttp": "Avanserte oppetidssjekker (tilpassede HTTP-metoder, headere og statuskoder)",
+      "dedicatedSupport": "Dedikert support",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Vekst",
-      "everythingInProfessional": "Alt i Profesjonell"
+      "everythingInStarter": "Alt i Vekst, pluss:",
+      "everythingInProfessional": "Alt i Profesjonell, pluss:"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -1433,12 +1445,12 @@
       "contactUs": "Kontakt oss"
     },
     "badges": {
-      "mostPopular": "Mest populær",
+      "mostPopular": "Anbefalt",
       "current": "Nåværende"
     },
     "labels": {
       "free": "Gratis",
-      "custom": "Kontakt oss"
+      "custom": "Tilpasset"
     }
   },
   "pricingComparison": {
@@ -1480,8 +1492,8 @@
       "teamMembers": {
         "name": "Teammedlemmer",
         "values": {
-          "1": "1 bruker",
-          "upTo5": "Opptil 5",
+          "upTo3": "Opptil 3",
+          "upTo50": "Opptil 50",
           "unlimited": "Ubegrenset"
         }
       },
@@ -2184,11 +2196,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Betalingen ble avbrutt. Du kan prøve igjen når som helst.",
         "contactForCustomPlan": "Kontakt oss for en tilpasset plan",
-        "planSelectionFailed": "Kunne ikke behandle valg av plan. Prøv igjen.",
-        "subscriptionChangesNote": "Endringer i abonnementet ditt behandles umiddelbart via Stripes sikre faktureringsportal.",
+        "subscriptionChangesNote": "Endringer i abonnementet ditt trer i kraft umiddelbart, med forholdsmessig fakturering for differansen.",
         "freePlanNote": "Start med gratisplanen vår – ingen kredittkort kreves."
+      },
+      "embeddedCheckout": {
+        "title": "Fullfør abonnementet",
+        "description": "Fullfør kjøpet trygt med Stripe.",
+        "loadError": "Vi kunne ikke laste inn betalingen. Prøv igjen.",
+        "creatingSession": "Oppretter en sikker betalingsøkt…",
+        "successTitle": "Betaling fullført",
+        "successDescription": "Du er nå på {tier}. Velkommen til Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Velg planen din",
+        "description": "Velg planen som passer dine behov.",
+        "showComparison": "Sammenlign alle funksjoner",
+        "hideComparison": "Skjul funksjonssammenligning"
+      },
+      "changePlan": {
+        "title": "Bekreft planendring",
+        "description": "Gjennomgå den forholdsmessige beregningen før du bekrefter.",
+        "resumeNote": "Abonnementet ditt er planlagt avsluttet – bekrefter du denne endringen, forblir det aktivt, og faktureringen gjenopptas.",
+        "summaryCharge": "Du bytter til {tier} ({events} hendelser / måned) med en gang. {amount} belastes nå for resten av perioden, og {nextAmount}/måned deretter fra {date}.",
+        "summaryCredit": "Du bytter til {tier} ({events} hendelser / måned). {amount} kreditt for ubrukt tid trekkes fra neste faktura på {nextAmount}/måned den {date}.",
+        "loading": "Beregner forholdsmessig pris…",
+        "error": "Kunne ikke beregne forholdsmessig pris. Prøv igjen.",
+        "newPlanCharge": "Forholdsmessig betaling for ny plan",
+        "unusedTimeCredit": "Kreditt for ubrukt tid",
+        "accountCreditApplied": "Brukt tilgodehavende",
+        "totalDueToday": "Betales i dag",
+        "totalCreditedToday": "Krediteres i dag",
+        "confirm": "Bekreft endring",
+        "back": "Tilbake",
+        "successLabel": "Plan endret",
+        "successDescription": "Du er nå på {tier}.",
+        "failureLabel": "Planendring mislyktes",
+        "authRequiredLabel": "Bekreftelse kreves",
+        "authenticatingLabel": "Bekrefter betalingen din",
+        "authenticatingDescription": "Fullfør bekreftelsen fra banken din for å fullføre oppgraderingen.",
+        "finalizingLabel": "Fullfører oppgraderingen din…",
+        "close": "Lukk",
+        "tryAgain": "Prøv igjen",
+        "updatePaymentMethod": "Oppdater betalingsmetode",
+        "errors": {
+          "cardDeclined": "Vi kunne ikke belaste betalingsmetoden din. Oppdater kortet ditt og prøv igjen.",
+          "authenticationRetry": "Vi kunne ikke bekrefte betalingen din. Prøv igjen for å fullføre oppgraderingen.",
+          "unexpected": "Noe gikk galt. Prøv igjen."
+        }
+      },
+      "creditBalance": {
+        "label": "Kontokreditt",
+        "hint": "Brukes automatisk på fremtidige fakturaer"
       },
       "currentPlan": {
         "title": "Nåværende plan",
@@ -2202,10 +2261,18 @@
         "usageProgress": "{current} av {limit} hendelser",
         "resetsInDays": "Nullstilles om {days} dager",
         "expiresInDays": "Utløper om {days} dager",
-        "canceled": "Avbrutt",
         "manage": "Administrer abonnement",
         "reactivate": "Reaktiver abonnement",
-        "cancel": "Avslutt abonnement"
+        "cancel": "Avslutt abonnement",
+        "pastDueBannerTitle": "Betaling forfalt",
+        "pastDueBannerBody": "Vi kunne ikke behandle din siste betaling. Oppdater betalingsmetoden for å beholde abonnementet.",
+        "updatePayment": "Oppdater betalingsmetode"
+      },
+      "planStatus": {
+        "active": "Aktiv",
+        "canceling": "Avsluttes",
+        "pastDue": "Forfalt",
+        "inactive": "Inaktiv"
       },
       "planNames": {
         "growth": "Growth-plan",
@@ -2787,6 +2854,7 @@
         "toast": {
           "error": "Kunne ikke lagre innstillinger. Prøv igjen."
         },
+        "upgradePlan": "Oppgrader plan",
         "help": {
           "trigger": "Trenger du hjelp?",
           "documentation": "Dokumentasjon",
@@ -2845,7 +2913,8 @@
           "renewsOn": "Fornyes {date}",
           "endsOn": "Abonnementet slutter {date}",
           "upgrade": "Oppgrader",
-          "changePlan": "Bytt plan"
+          "changePlan": "Bytt plan",
+          "pastDue": "Betaling forfalt"
         },
         "usage": {
           "title": "Forbruk",
@@ -2858,6 +2927,24 @@
           "label": "Administrer i faktureringsportalen",
           "description": "Betalingsmetode, fakturaer og faktureringsopplysninger.",
           "openPortal": "Åpne faktureringsportal"
+        },
+        "invoices": {
+          "title": "Fakturaer",
+          "view": "Vis",
+          "columns": {
+            "date": "Dato",
+            "total": "Totalt",
+            "status": "Status",
+            "actions": "Handlinger"
+          },
+          "status": {
+            "draft": "Utkast",
+            "open": "Åpen",
+            "paid": "Betalt",
+            "uncollectible": "Ikke innkrevbar",
+            "void": "Annullert",
+            "credit": "Kreditt"
+          }
         },
         "cancellation": {
           "title": "Avbestilling",
@@ -3162,6 +3249,7 @@
     },
     "invitations": {
       "userAlreadyHasAccess": "Brukeren har allerede tilgang til dette dashboardet",
+      "memberLimitReached": "Planen din tillater opptil {limit} teammedlemmer på dette dashboardet. Oppgrader for å invitere flere.",
       "invitationAlreadySent": "En invitasjon er allerede sendt til denne e-postadressen",
       "invitationNotFoundOrProcessed": "Invitasjon ikke funnet eller allerede behandlet",
       "invitationExpired": "Denne invitasjonen er utløpt",
@@ -3256,6 +3344,7 @@
       "emailPlaceholder": "kollega@example.com",
       "roleLabel": "Rolle",
       "inviteButton": "Inviter",
+      "upgradeToInvite": "Oppgrader for å invitere flere",
       "sending": "Sender...",
       "pending": "Venter",
       "invited": "Invitert",

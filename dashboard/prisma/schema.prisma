@@ -422,6 +422,9 @@ model Subscription {
   eventLimit Int // Selected event limit: 10_000, 50_000, 100_000, etc.
   pricePerMonth Int // Price in cents
   currency Currency @default(USD)
+  // True once the customer has completed a payment. Stripe permanently locks customer.currency on
+  // first payment, so this mirrors that lock locally (set once, never unset) to gate currency choice.
+  currencyLocked Boolean @default(false)
 
   // Billing cycle
   currentPeriodStart DateTime

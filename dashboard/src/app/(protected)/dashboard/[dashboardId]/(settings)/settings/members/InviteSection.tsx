@@ -14,21 +14,29 @@ import { DashboardRole } from '@prisma/client';
 import { useLocale, useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { UpgradeButton } from '@/components/billing/UpgradeButton';
 
 const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true });
 
 interface InviteSectionProps {
   dashboardId: string;
   pendingInvitations: InvitationWithInviter[];
+  memberCount: number;
 }
 
-export function InviteSection({ dashboardId, pendingInvitations }: InviteSectionProps) {
+export function InviteSection({ dashboardId, pendingInvitations, memberCount }: InviteSectionProps) {
   const t = useTranslations('invitations');
   const tRoles = useTranslations('members.roles');
   const locale = useLocale();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<DashboardRole>('viewer');
   const [isPending, startTransition] = useTransition();
+  const { caps, isLoading: capsLoading } = useCapabilities();
+  const maxMembers = caps.dashboards.maxMembers;
+  const seatsUsed = memberCount + pendingInvitations.length;
+  const showCounter = maxMembers < 9999;
+  const atLimit = !capsLoading && seatsUsed >= maxMembers;
 
   const handleInvite = () => {
     if (!email) return;
@@ -75,9 +83,9 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
                 className='text-sm'
                 placeholder={t('section.emailPlaceholder')}
                 value={email}
-                disabled={disabled}
+                disabled={disabled || atLimit}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
+                onKeyDown={(e) => e.key === 'Enter' && !atLimit && handleInvite()}
               />
             )}
           </PermissionGate>
@@ -86,7 +94,11 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
           <label className='text-muted-foreground text-sm'>{t('section.roleLabel')}</label>
           <PermissionGate permission='canInviteMembers'>
             {(disabled) => (
-              <Select value={role} onValueChange={(v) => setRole(v as DashboardRole)} disabled={disabled}>
+              <Select
+                value={role}
+                onValueChange={(v) => setRole(v as DashboardRole)}
+                disabled={disabled || atLimit}
+              >
                 <SelectTrigger className='w-full cursor-pointer'>
                   <SelectValue />
                 </SelectTrigger>
@@ -105,18 +117,27 @@ export function InviteSection({ dashboardId, pendingInvitations }: InviteSection
             )}
           </PermissionGate>
         </div>
-        <PermissionGate permission='canInviteMembers'>
-          {(disabled) => (
-            <Button
-              onClick={handleInvite}
-              disabled={!email || isPending || disabled}
-              className='cursor-pointer sm:w-auto'
-            >
-              <Mail className='size-4' />
-              {isPending ? t('section.sending') : t('section.inviteButton')}
-            </Button>
-          )}
-        </PermissionGate>
+        {atLimit ? (
+          <UpgradeButton>{t('section.upgradeToInvite')}</UpgradeButton>
+        ) : (
+          <PermissionGate permission='canInviteMembers'>
+            {(disabled) => (
+              <Button
+                onClick={handleInvite}
+                disabled={!email || isPending || disabled}
+                className='cursor-pointer sm:w-auto'
+              >
+                <Mail className='size-4' />
+                {isPending ? t('section.sending') : t('section.inviteButton')}
+                {showCounter && (
+                  <span className='ml-1.5 text-xs opacity-70'>
+                    ({seatsUsed}/{maxMembers})
+                  </span>
+                )}
+              </Button>
+            )}
+          </PermissionGate>
+        )}
       </div>
 
       {hasPendingInvitations && (
