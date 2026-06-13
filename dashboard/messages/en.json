@@ -4026,8 +4026,7 @@
       "monitors": "Monitors",
       "monitorsHint": "{selected} of {total} shown",
       "publicNamePlaceholder": "Public display name",
-      "moveUp": "Move up",
-      "moveDown": "Move down",
+      "reorderMonitor": "Reorder monitor",
       "preview": "Live preview"
     }
   }

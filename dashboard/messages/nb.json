@@ -4040,8 +4040,7 @@
       "monitors": "Monitorer",
       "monitorsHint": "{selected} av {total} vises",
       "publicNamePlaceholder": "Offentlig visningsnavn",
-      "moveUp": "Flytt opp",
-      "moveDown": "Flytt ned",
+      "reorderMonitor": "Omorganiser monitor",
       "preview": "Direkte forhåndsvisning"
     }
   }

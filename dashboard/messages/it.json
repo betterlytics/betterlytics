@@ -4040,8 +4040,7 @@
       "monitors": "Monitor",
       "monitorsHint": "{selected} di {total} visibili",
       "publicNamePlaceholder": "Nome visualizzato pubblico",
-      "moveUp": "Sposta su",
-      "moveDown": "Sposta giù",
+      "reorderMonitor": "Riordina monitor",
       "preview": "Anteprima live"
     }
   }

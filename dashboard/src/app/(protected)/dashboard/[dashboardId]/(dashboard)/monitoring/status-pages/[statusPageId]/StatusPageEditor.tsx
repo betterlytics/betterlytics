@@ -4,11 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, ChevronDown, ChevronUp, Copy, ExternalLink, Upload } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,7 +31,9 @@ import {
 } from '@/entities/analytics/statusPage.entities';
 import { ColorPickerPopover } from '@/components/ColorPickerPopover';
 import { ColorSwatchPicker } from '@/components/ColorSwatchPicker';
+import { SortableList } from '@/components/dnd/SortableList';
 import { LivePreview } from './LivePreview';
+import { SortableMonitorRow, type MonitorRow } from './SortableMonitorRow';
 import {
   checkStatusPageSlugAction,
   setStatusPagePublishedAction,
@@ -40,14 +41,6 @@ import {
 } from '@/app/actions/analytics/statusPage.actions';
 
 const ACCENT_PRESETS = ['#4845d8', '#3b82f6', '#22c55e', '#8b5cf6', '#f59e0b', '#0ea5e9'];
-
-type MonitorRow = {
-  monitorCheckId: string;
-  name: string | null;
-  url: string;
-  included: boolean;
-  publicName: string;
-};
 
 type StatusPageEditorProps = {
   dashboardId: string;
@@ -178,16 +171,6 @@ export function StatusPageEditor({
       cancelled = true;
     };
   }, [debouncedSlug, dashboardId, statusPage.id, statusPage.slug]);
-
-  const moveRow = (index: number, direction: -1 | 1) => {
-    setMonitorRows((rows) => {
-      const target = index + direction;
-      if (target < 0 || target >= rows.length) return rows;
-      const next = [...rows];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  };
 
   const updateRow = (index: number, patch: Partial<MonitorRow>) => {
     setMonitorRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
@@ -413,53 +396,22 @@ export function StatusPageEditor({
                 {t('monitorsHint', { selected: includedCount, total: monitorRows.length })}
               </span>
             </div>
-            <div className='space-y-2'>
+            <SortableList
+              items={monitorRows}
+              getId={(row) => row.monitorCheckId}
+              onReorder={(next) => setMonitorRows(next)}
+              className='space-y-2'
+            >
               {monitorRows.map((row, index) => (
-                <div
+                <SortableMonitorRow
                   key={row.monitorCheckId}
-                  className={`border-border flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center ${row.included ? '' : 'opacity-55'}`}
-                >
-                  <div className='flex flex-none flex-col'>
-                    <button
-                      type='button'
-                      aria-label={t('moveUp')}
-                      onClick={() => moveRow(index, -1)}
-                      disabled={index === 0}
-                      className='text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-30'
-                    >
-                      <ChevronUp className='h-4 w-4' />
-                    </button>
-                    <button
-                      type='button'
-                      aria-label={t('moveDown')}
-                      onClick={() => moveRow(index, 1)}
-                      disabled={index === monitorRows.length - 1}
-                      className='text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-30'
-                    >
-                      <ChevronDown className='h-4 w-4' />
-                    </button>
-                  </div>
-                  <Checkbox
-                    checked={row.included}
-                    onCheckedChange={(checked) => updateRow(index, { included: checked === true })}
-                    disabled={!row.included && includedCount >= STATUS_PAGE_LIMITS.MONITORS_MAX}
-                    className='flex-none cursor-pointer'
-                  />
-                  <div className='min-w-0 flex-1'>
-                    <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
-                    <div className='text-muted-foreground truncate text-xs'>{row.url}</div>
-                  </div>
-                  <Input
-                    value={row.publicName}
-                    maxLength={STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX}
-                    placeholder={t('publicNamePlaceholder')}
-                    disabled={!row.included}
-                    onChange={(e) => updateRow(index, { publicName: e.target.value })}
-                    className='sm:w-56'
-                  />
-                </div>
+                  row={row}
+                  includedCount={includedCount}
+                  onToggleIncluded={(included) => updateRow(index, { included })}
+                  onPublicNameChange={(publicName) => updateRow(index, { publicName })}
+                />
               ))}
-            </div>
+            </SortableList>
           </section>
 
         </div>

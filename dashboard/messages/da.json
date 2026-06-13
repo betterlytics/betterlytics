@@ -4032,8 +4032,7 @@
       "monitors": "Monitorer",
       "monitorsHint": "{selected} af {total} vises",
       "publicNamePlaceholder": "Offentligt visningsnavn",
-      "moveUp": "Flyt op",
-      "moveDown": "Flyt ned",
+      "reorderMonitor": "Omarranger monitor",
       "preview": "Live forhåndsvisning"
     }
   }
