@@ -299,7 +299,7 @@ importers:
         specifier: ^2.0.3
         version: 2.0.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       stripe:
-        specifier: ^22.1.1
+        specifier: 22.1.1
         version: 22.1.1(@types/node@20.19.0)
       superjson:
         specifier: ^2.2.6

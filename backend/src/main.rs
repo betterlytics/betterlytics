@@ -163,6 +163,10 @@ async fn main() {
         .await
         .expect("Failed to initialize salt service");
 
+    if config.session_cache_warm_enabled {
+        warm_session_cache(&db).await;
+    }
+
     let refresh_config = RefreshConfig::default();
 
     let site_cfg_cache =
@@ -258,7 +262,21 @@ async fn main() {
     .unwrap();
 }
 
-
+/// Warm the session cache from ClickHouse so in-flight sessions survive a restart
+async fn warm_session_cache(db: &Database) {
+    match db.fetch_active_sessions(session::SESSION_EXPIRY).await {
+        Ok(rows) => {
+            let warmed = session::warm(rows.into_iter().map(|r| session::WarmSession {
+                site_id: r.site_id,
+                visitor_fingerprint: r.visitor_id,
+                session_id: r.session_id,
+                created_at: r.session_created_at,
+            }));
+            info!("Warmed {} active sessions into the session cache", warmed);
+        }
+        Err(e) => warn!("Session cache warm failed (starting with empty cache): {}", e),
+    }
+}
 
 async fn health_check(
     State((db, _, _, _, _, _)): State<(

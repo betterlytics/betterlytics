@@ -109,7 +109,7 @@
     "rrweb-player": "1.0.0-alpha.4",
     "server-only": "^0.0.1",
     "sonner": "^2.0.3",
-    "stripe": "^22.1.1",
+    "stripe": "22.1.1",
     "superjson": "^2.2.6",
     "tailwind-merge": "^3.2.0",
     "uuid": "^11.1.0",
