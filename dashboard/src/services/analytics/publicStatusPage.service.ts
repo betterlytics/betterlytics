@@ -14,19 +14,15 @@ import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { env } from '@/lib/env';
 import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';
 import {
-  getIncidentSegmentsForMonitors,
   getLatestCheckInfoForMonitors,
   getMonitorUptimeBuckets,
   getOpenIncidentsForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
 import { getPublishedStatusPageBySlug, getStatusPageSnapshotById } from '@/repositories/postgres/statusPage.repository';
+import { listPublishedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
-import { getPublicIncidentCause } from '@/lib/monitorReasonCodes';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { getStatusPageFixture } from './publicStatusPage.fixtures';
-
-const INCIDENTS_PER_MONITOR = 10;
-const INCIDENTS_SHOWN = 10;
 
 function deriveMonitorStatus(
   isEnabled: boolean,
@@ -86,7 +82,7 @@ async function assembleStatusPage(published: PublishedStatusPage): Promise<Statu
   const rangeStart = toDateTimeString(new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000));
   const rangeEnd = toDateTimeString(rangeEndDate);
 
-  const [bucketsPerMonitor, openIncidents, latestCheckInfo, incidentSegments] = await Promise.all([
+  const [bucketsPerMonitor, openIncidents, latestCheckInfo, publishedIncidents] = await Promise.all([
     Promise.all(
       monitors.map((monitor) =>
         getMonitorUptimeBuckets(
@@ -105,9 +101,7 @@ async function assembleStatusPage(published: PublishedStatusPage): Promise<Statu
     getOpenIncidentsForMonitors(checkIds, siteId),
     getLatestCheckInfoForMonitors(checkIds, siteId),
 
-    page.showPastIncidents
-      ? getIncidentSegmentsForMonitors(checkIds, siteId, days, INCIDENTS_PER_MONITOR)
-      : Promise.resolve(null),
+    page.showPastIncidents ? listPublishedIncidents(page.id) : Promise.resolve(null),
   ]);
 
   const publicMonitors = monitors.map((monitor, index) => {
@@ -144,24 +138,25 @@ async function assembleStatusPage(published: PublishedStatusPage): Promise<Statu
   });
 
   const incidents =
-    incidentSegments == null
+    publishedIncidents == null
       ? null
-      : Array.from(incidentSegments.entries())
-          .flatMap(([checkId, segments]) =>
-            segments.map((segment) => ({
-              checkId,
-              incident: {
-                monitorPublicName:
-                  monitors.find((monitor) => monitor.monitorCheckId === checkId)?.publicName ?? '',
-                startedAt: segment.start,
-                resolvedAt: segment.end,
-                durationMs: segment.end != null ? segment.durationMs : null,
-                cause: getPublicIncidentCause(segment.reason),
-              } satisfies PublicStatusPageIncident,
-            })),
-          )
-          .sort((a, b) => (a.incident.startedAt < b.incident.startedAt ? 1 : -1))
-          .slice(0, INCIDENTS_SHOWN);
+      : publishedIncidents.map((incident) => {
+          // Resolve the affected monitor's public name from the page's monitors; null = page-wide
+          // (or the monitor is no longer on the page).
+          const monitorIndex = incident.monitorCheckId ? checkIds.indexOf(incident.monitorCheckId) : -1;
+          return {
+            monitorIndex,
+            incident: {
+              title: incident.title,
+              body: incident.body,
+              impact: incident.impact,
+              status: incident.status,
+              monitorPublicName: monitorIndex >= 0 ? monitors[monitorIndex].publicName : null,
+              startedAt: incident.startedAt.toISOString(),
+              resolvedAt: incident.resolvedAt ? incident.resolvedAt.toISOString() : null,
+            } satisfies PublicStatusPageIncident,
+          };
+        });
 
   const lastCheckTimestamps = Object.values(latestCheckInfo)
     .map((info) => info.ts)
@@ -187,6 +182,6 @@ async function assembleStatusPage(published: PublishedStatusPage): Promise<Statu
   return {
     data,
     monitorCheckIds: checkIds,
-    incidentMonitorIndexes: (incidents ?? []).map((entry) => checkIds.indexOf(entry.checkId)),
+    incidentMonitorIndexes: (incidents ?? []).map((entry) => entry.monitorIndex),
   };
 }

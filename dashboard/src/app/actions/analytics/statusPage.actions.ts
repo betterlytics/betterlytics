@@ -9,6 +9,8 @@ import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
   defaultPublicMonitorName,
   StatusPageCreateSchema,
+  StatusPageIncidentCreateSchema,
+  StatusPageIncidentUpdateSchema,
   StatusPageSlugSchema,
   StatusPageUpdateSchema,
 } from '@/entities/analytics/statusPage.entities';
@@ -21,6 +23,15 @@ import {
   removeStatusPage,
   saveStatusPage,
 } from '@/services/analytics/statusPage.service';
+import {
+  addStatusPageIncident,
+  countActiveStatusPageIncidents,
+  getIncidentsForStatusPage,
+  getIncidentSuggestions,
+  publishStatusPageIncident,
+  removeStatusPageIncident,
+  saveStatusPageIncident,
+} from '@/services/analytics/statusPageIncident.service';
 import { getStatusPagePreviewData } from '@/services/analytics/publicStatusPage.service';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
@@ -68,13 +79,9 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
     }
 
     const result = await saveStatusPage(ctx.dashboardId, payload);
-    if (!result) {
-      throw new UserException(t('statusPageNotFound'));
-    }
-
     // The old public URL must drop out of the cache when the slug changes
-    revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
-    return result.page;
+    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
+    return result?.page ?? null;
   },
 );
 
@@ -160,5 +167,52 @@ export const checkStatusPageSlugAction = withDashboardAuthContext(
       return { available: false, reason: 'taken' as const };
     }
     return { available: true as const };
+  },
+);
+
+export const fetchStatusPageIncidentsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => getIncidentsForStatusPage(ctx.dashboardId, statusPageId),
+);
+
+export const fetchIncidentSuggestionsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => getIncidentSuggestions(ctx.dashboardId, statusPageId),
+);
+
+export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentCreateSchema>) => {
+    const payload = StatusPageIncidentCreateSchema.parse(input);
+
+    if ((await countActiveStatusPageIncidents(ctx.dashboardId, payload.statusPageId)) >= STATUS_PAGE_LIMITS.INCIDENTS_MAX) {
+      throw new UserException((await getTranslations('validation'))('statusPageIncidentLimit'));
+    }
+
+    const { incident, slug } = await addStatusPageIncident(ctx.dashboardId, ctx.userId, payload);
+    revalidateStatusPagePaths(ctx.dashboardId, payload.isPublished ? slug : undefined);
+    return incident;
+  },
+);
+
+export const updateStatusPageIncidentAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdateSchema>) => {
+    const payload = StatusPageIncidentUpdateSchema.parse(input);
+
+    const result = await saveStatusPageIncident(ctx.dashboardId, payload);
+    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
+    return result?.incident ?? null;
+  },
+);
+
+export const setStatusPageIncidentPublishedAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, statusPageId: string, incidentId: string, isPublished: boolean) => {
+    const result = await publishStatusPageIncident(ctx.dashboardId, statusPageId, incidentId, isPublished);
+    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
+    return result?.incident ?? null;
+  },
+);
+
+export const deleteStatusPageIncidentAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, statusPageId: string, incidentId: string) => {
+    const slug = await removeStatusPageIncident(ctx.dashboardId, statusPageId, incidentId);
+    if (slug) revalidateStatusPagePaths(ctx.dashboardId, slug);
   },
 );

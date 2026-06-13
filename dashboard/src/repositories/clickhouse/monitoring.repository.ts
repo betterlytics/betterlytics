@@ -418,6 +418,62 @@ export async function getIncidentSegmentsForMonitors(
   return segments;
 }
 
+export type DetectedOutageRow = {
+  detectedIncidentId: string;
+  monitorCheckId: string;
+  reasonCode: string;
+  ongoing: boolean;
+  startedAt: string;
+  resolvedAt: string | null;
+  severity: string;
+};
+
+/**
+ * TLS incidents are excluded (cert expiry is not downtime).
+ */
+export async function getDetectedOutagesForMonitors(
+  checkIds: string[],
+  siteId: string,
+  days: number,
+  limit: number,
+): Promise<DetectedOutageRow[]> {
+  if (!checkIds.length) return [];
+
+  const query = safeSql`
+    SELECT
+      toString(incident_id) AS incident_id,
+      check_id,
+      state,
+      severity,
+      reason_code,
+      started_at,
+      resolved_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND started_at >= now() - INTERVAL {days:Int32} DAY
+    ORDER BY started_at DESC
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, days, limit },
+    })
+    .toPromise()) as any[];
+
+  return rows.map((row) => ({
+    detectedIncidentId: row.incident_id,
+    monitorCheckId: row.check_id,
+    reasonCode: row.reason_code,
+    ongoing: row.state === 'ongoing',
+    startedAt: toIsoUtc(row.started_at) ?? row.started_at,
+    resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+    severity: row.severity,
+  }));
+}
+
 export async function getOpenIncidentsForMonitors(
   checkIds: string[],
   siteId: string,

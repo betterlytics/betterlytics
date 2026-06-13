@@ -77,11 +77,13 @@ const baseMonitors = (): PublicStatusPageMonitor[] => [
 ];
 
 const resolvedApiIncident = {
+  title: 'API elevated error rates',
+  body: 'A deploy introduced elevated 5xx responses on the API. We rolled back and confirmed recovery.',
+  impact: 'outage' as const,
+  status: 'resolved' as const,
   monitorPublicName: 'API',
   startedAt: isoDaysAgo(9),
   resolvedAt: isoDaysAgo(9, 19, 44),
-  durationMs: 23 * 60_000,
-  cause: 'serverError' as const,
 };
 
 const FIXTURES: Record<string, () => PublicStatusPageData> = {
@@ -120,11 +122,13 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
       monitors,
       incidents: [
         {
+          title: 'API degraded performance',
+          body: "We're investigating elevated error rates and slow responses on the API.",
+          impact: 'degraded' as const,
+          status: 'investigating' as const,
           monitorPublicName: 'API',
           startedAt: isoMinutesAgo(21),
           resolvedAt: null,
-          durationMs: null,
-          cause: 'serverError' as const,
         },
         resolvedApiIncident,
       ],
@@ -146,18 +150,22 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
       monitors,
       incidents: [
         {
+          title: 'Website unreachable',
+          body: "The website is currently unreachable. We've identified a network issue and are working on it.",
+          impact: 'outage' as const,
+          status: 'identified' as const,
           monitorPublicName: 'Website',
           startedAt: isoMinutesAgo(48),
           resolvedAt: null,
-          durationMs: null,
-          cause: 'network' as const,
         },
         {
+          title: 'API outage',
+          body: 'The API is returning server errors. We are investigating.',
+          impact: 'outage' as const,
+          status: 'investigating' as const,
           monitorPublicName: 'API',
           startedAt: isoMinutesAgo(52),
           resolvedAt: null,
-          durationMs: null,
-          cause: 'serverError' as const,
         },
         resolvedApiIncident,
       ],

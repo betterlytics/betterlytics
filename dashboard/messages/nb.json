@@ -3241,7 +3241,7 @@
     "urlMustBeOnDomain": "URL-en må være på {domain} eller et underdomene",
     "monitorAlreadyExists": "En monitor for denne URL-en finnes allerede",
     "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
-    "statusPageNotFound": "Statussiden ble ikke funnet",
+    "statusPageIncidentLimit": "Denne statussiden har nådd grensen for hendelser",
     "capabilities": {
       "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til Pro for å opprette flere dashboards.",
       "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til Pro for å opprette flere monitorer.",
@@ -3945,13 +3945,15 @@
     "incident": {
       "resolved": "Løst · varte {duration}",
       "ongoing": "Pågående siden {time}",
-      "cause": {
-        "serverError": "HTTP-serverfeil",
-        "clientError": "HTTP-klientfeil",
-        "timeout": "Tidsavbrudd",
-        "ssl": "SSL/TLS-problem",
-        "network": "Nettverkstilkobling",
-        "disruption": "Tjenesteforstyrrelse"
+      "impact": {
+        "degraded": "Redusert",
+        "outage": "Nedetid"
+      },
+      "status": {
+        "investigating": "Undersøker",
+        "identified": "Identifisert",
+        "monitoring": "Overvåker",
+        "resolved": "Løst"
       }
     },
     "duration": {
@@ -4041,7 +4043,51 @@
       "monitorsHint": "{selected} av {total} vises",
       "publicNamePlaceholder": "Offentlig visningsnavn",
       "reorderMonitor": "Omorganiser monitor",
-      "preview": "Direkte forhåndsvisning"
+      "preview": "Direkte forhåndsvisning",
+      "incidents": {
+        "title": "Hendelser",
+        "hint": "Skriv og publiser hendelser. Oppdagede nedetider foreslås nedenfor — ingenting blir offentlig før du publiserer det.",
+        "newIncident": "Ny hendelse",
+        "editIncident": "Rediger hendelse",
+        "formHint": "Besøkende ser dette på den offentlige statussiden din når den er publisert.",
+        "suggestionsTitle": "Oppdagede nedetider",
+        "createFromSuggestion": "Opprett hendelse",
+        "suggestedTitle": "{monitor} nedetid",
+        "ongoingSince": "pågår siden {date}",
+        "noIncidents": "Ingen hendelser ennå.",
+        "draft": "Utkast",
+        "published": "Publisert",
+        "publish": "Publiser",
+        "unpublish": "Avpubliser",
+        "edit": "Rediger",
+        "delete": "Slett",
+        "saved": "Hendelse lagret",
+        "deleted": "Hendelse slettet",
+        "error": "Noe gikk galt",
+        "impact": {
+          "degraded": "Redusert",
+          "outage": "Nedetid"
+        },
+        "status": {
+          "investigating": "Undersøker",
+          "identified": "Identifisert",
+          "monitoring": "Overvåker",
+          "resolved": "Løst"
+        },
+        "form": {
+          "title": "Tittel",
+          "body": "Melding",
+          "impact": "Påvirkning",
+          "status": "Status",
+          "monitor": "Berørt monitor",
+          "monitorNone": "Ingen (hele siden)",
+          "startedAt": "Startet",
+          "resolvedAt": "Løst (valgfritt)",
+          "publish": "Publisert",
+          "save": "Lagre",
+          "cancel": "Avbryt"
+        }
+      }
     }
   }
 }

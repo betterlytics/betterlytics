@@ -33,6 +33,7 @@ import { ColorPickerPopover } from '@/components/ColorPickerPopover';
 import { ColorSwatchPicker } from '@/components/ColorSwatchPicker';
 import { SortableList } from '@/components/dnd/SortableList';
 import { LivePreview } from './LivePreview';
+import { IncidentsManager } from './IncidentsManager';
 import { SortableMonitorRow, type MonitorRow } from './SortableMonitorRow';
 import {
   checkStatusPageSlugAction,
@@ -413,6 +414,17 @@ export function StatusPageEditor({
               ))}
             </SortableList>
           </section>
+
+          <IncidentsManager
+            dashboardId={dashboardId}
+            statusPageId={statusPage.id}
+            monitors={monitorRows
+              .filter((row) => row.included)
+              .map((row) => ({
+                monitorCheckId: row.monitorCheckId,
+                publicName: row.publicName.trim() || row.name || row.url,
+              }))}
+          />
 
         </div>
 

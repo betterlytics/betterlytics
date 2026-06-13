@@ -75,6 +75,18 @@ enum GithubStarPromptState {
   starred
 }
 
+enum StatusPageIncidentImpact {
+  degraded
+  outage
+}
+
+enum StatusPageIncidentStatus {
+  investigating
+  identified
+  monitoring
+  resolved
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -137,6 +149,7 @@ model User {
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
+  statusPageIncidents StatusPageIncident[]
 
   deletedAt DateTime?
 }
@@ -440,6 +453,7 @@ model StatusPage {
   deletedAt DateTime?
 
   monitors StatusPageMonitor[]
+  incidents StatusPageIncident[]
 
   @@index([dashboardId])
   @@unique([id, dashboardId])
@@ -458,6 +472,39 @@ model StatusPageMonitor {
   position   Int    @default(0)
 
   @@unique([statusPageId, monitorCheckId])
+  @@index([statusPageId])
+}
+
+model StatusPageIncident {
+  id           String @id @default(cuid())
+  statusPageId String
+  dashboardId  String // shared with the StatusPage composite FK, so an incident stays within its dashboard
+
+  statusPage StatusPage @relation(fields: [statusPageId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+
+  title  String
+  body   String                                            // single message in v1; a timeline of updates is a future child table
+  impact StatusPageIncidentImpact @default(outage)
+  status StatusPageIncidentStatus @default(investigating)
+
+  startedAt   DateTime
+  resolvedAt  DateTime?
+  isPublished Boolean   @default(false) // NEVER set automatically — the user always publishes
+
+  // Optional affected monitor; display reference only (validated in the action layer), so no FK.
+  monitorCheckId String?
+  // Stable id of the detected ClickHouse incident (analytics.monitor_incidents.incident_id) this was
+  // seeded from; enables opt-in auto-resolve later. Null for manually authored incidents.
+  detectedIncidentId String?
+
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String?  // audit; nulled (not cascaded) if the author is removed so the page keeps its incidents
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([statusPageId, isPublished])
   @@index([statusPageId])
 }
 

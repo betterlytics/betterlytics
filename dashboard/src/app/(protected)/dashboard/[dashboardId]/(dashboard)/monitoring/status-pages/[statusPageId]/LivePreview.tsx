@@ -89,13 +89,11 @@ export function LivePreview({
     );
 
     const incidents = draft.showPastIncidents
-      ? (payload.data.incidents ?? [])
-          .map((incident, index) => ({ incident, monitorIndex: payload.incidentMonitorIndexes[index] }))
-          .filter(({ monitorIndex }) => nameByMonitorIndex.has(monitorIndex))
-          .map(({ incident, monitorIndex }) => ({
-            ...incident,
-            monitorPublicName: nameByMonitorIndex.get(monitorIndex) || incident.monitorPublicName,
-          }))
+      ? (payload.data.incidents ?? []).map((incident, index) => {
+          const monitorIndex = payload.incidentMonitorIndexes[index];
+          const draftName = monitorIndex >= 0 ? nameByMonitorIndex.get(monitorIndex) : undefined;
+          return { ...incident, monitorPublicName: draftName ?? null };
+        })
       : null;
 
     return {

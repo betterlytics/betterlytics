@@ -3241,7 +3241,7 @@
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
-    "statusPageNotFound": "Pagina di stato non trovata",
+    "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
     "capabilities": {
       "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
       "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
@@ -3945,13 +3945,15 @@
     "incident": {
       "resolved": "Risolto · durata {duration}",
       "ongoing": "In corso da {time}",
-      "cause": {
-        "serverError": "Errori del server HTTP",
-        "clientError": "Errori del client HTTP",
-        "timeout": "Timeout",
-        "ssl": "Problema SSL/TLS",
-        "network": "Connettività di rete",
-        "disruption": "Interruzione del servizio"
+      "impact": {
+        "degraded": "Degradato",
+        "outage": "Interruzione"
+      },
+      "status": {
+        "investigating": "In esame",
+        "identified": "Identificato",
+        "monitoring": "Monitoraggio",
+        "resolved": "Risolto"
       }
     },
     "duration": {
@@ -4041,7 +4043,51 @@
       "monitorsHint": "{selected} di {total} visibili",
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
-      "preview": "Anteprima live"
+      "preview": "Anteprima live",
+      "incidents": {
+        "title": "Incidenti",
+        "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto — nulla diventa pubblico finché non lo pubblichi.",
+        "newIncident": "Nuovo incidente",
+        "editIncident": "Modifica incidente",
+        "formHint": "I visitatori lo vedranno sulla tua pagina di stato pubblica una volta pubblicato.",
+        "suggestionsTitle": "Interruzioni rilevate",
+        "createFromSuggestion": "Crea incidente",
+        "suggestedTitle": "Interruzione di {monitor}",
+        "ongoingSince": "in corso da {date}",
+        "noIncidents": "Ancora nessun incidente.",
+        "draft": "Bozza",
+        "published": "Pubblicato",
+        "publish": "Pubblica",
+        "unpublish": "Annulla pubblicazione",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "saved": "Incidente salvato",
+        "deleted": "Incidente eliminato",
+        "error": "Qualcosa è andato storto",
+        "impact": {
+          "degraded": "Degradato",
+          "outage": "Interruzione"
+        },
+        "status": {
+          "investigating": "In esame",
+          "identified": "Identificato",
+          "monitoring": "Monitoraggio",
+          "resolved": "Risolto"
+        },
+        "form": {
+          "title": "Titolo",
+          "body": "Messaggio",
+          "impact": "Impatto",
+          "status": "Stato",
+          "monitor": "Monitor interessato",
+          "monitorNone": "Nessuno (intera pagina)",
+          "startedAt": "Iniziato",
+          "resolvedAt": "Risolto (facoltativo)",
+          "publish": "Pubblicato",
+          "save": "Salva",
+          "cancel": "Annulla"
+        }
+      }
     }
   }
 }

@@ -3233,7 +3233,7 @@
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
-    "statusPageNotFound": "Statussiden blev ikke fundet",
+    "statusPageIncidentLimit": "Denne statusside har nået sin grænse for hændelser",
     "capabilities": {
       "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til Pro for at oprette flere dashboards.",
       "monitorLimit": "Du har nået din monitor-grænse. Opgrader til Pro for at oprette flere monitorer.",
@@ -3937,13 +3937,15 @@
     "incident": {
       "resolved": "Løst · varede {duration}",
       "ongoing": "Igangværende siden {time}",
-      "cause": {
-        "serverError": "HTTP-serverfejl",
-        "clientError": "HTTP-klientfejl",
-        "timeout": "Tidsudløb",
-        "ssl": "SSL/TLS-problem",
-        "network": "Netværksforbindelse",
-        "disruption": "Driftsforstyrrelse"
+      "impact": {
+        "degraded": "Forringet",
+        "outage": "Nedbrud"
+      },
+      "status": {
+        "investigating": "Undersøger",
+        "identified": "Identificeret",
+        "monitoring": "Overvåger",
+        "resolved": "Løst"
       }
     },
     "duration": {
@@ -4033,7 +4035,51 @@
       "monitorsHint": "{selected} af {total} vises",
       "publicNamePlaceholder": "Offentligt visningsnavn",
       "reorderMonitor": "Omarranger monitor",
-      "preview": "Live forhåndsvisning"
+      "preview": "Live forhåndsvisning",
+      "incidents": {
+        "title": "Hændelser",
+        "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor — intet bliver offentligt, før du udgiver det.",
+        "newIncident": "Ny hændelse",
+        "editIncident": "Rediger hændelse",
+        "formHint": "Besøgende ser dette på din offentlige statusside, når den er udgivet.",
+        "suggestionsTitle": "Registrerede nedbrud",
+        "createFromSuggestion": "Opret hændelse",
+        "suggestedTitle": "{monitor} nedbrud",
+        "ongoingSince": "i gang siden {date}",
+        "noIncidents": "Ingen hændelser endnu.",
+        "draft": "Kladde",
+        "published": "Udgivet",
+        "publish": "Udgiv",
+        "unpublish": "Træk tilbage",
+        "edit": "Rediger",
+        "delete": "Slet",
+        "saved": "Hændelse gemt",
+        "deleted": "Hændelse slettet",
+        "error": "Noget gik galt",
+        "impact": {
+          "degraded": "Forringet",
+          "outage": "Nedbrud"
+        },
+        "status": {
+          "investigating": "Undersøger",
+          "identified": "Identificeret",
+          "monitoring": "Overvåger",
+          "resolved": "Løst"
+        },
+        "form": {
+          "title": "Titel",
+          "body": "Besked",
+          "impact": "Påvirkning",
+          "status": "Status",
+          "monitor": "Påvirket monitor",
+          "monitorNone": "Ingen (hele siden)",
+          "startedAt": "Startet",
+          "resolvedAt": "Løst (valgfrit)",
+          "publish": "Udgivet",
+          "save": "Gem",
+          "cancel": "Annuller"
+        }
+      }
     }
   }
 }

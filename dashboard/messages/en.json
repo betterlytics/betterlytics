@@ -3227,7 +3227,7 @@
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
     "statusPageSlugTaken": "This URL slug is already in use",
-    "statusPageNotFound": "Status page not found",
+    "statusPageIncidentLimit": "This status page has reached its incident limit",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
@@ -3931,13 +3931,15 @@
     "incident": {
       "resolved": "Resolved · lasted {duration}",
       "ongoing": "Ongoing since {time}",
-      "cause": {
-        "serverError": "HTTP server errors",
-        "clientError": "HTTP client errors",
-        "timeout": "Timeouts",
-        "ssl": "SSL/TLS issue",
-        "network": "Network connectivity",
-        "disruption": "Service disruption"
+      "impact": {
+        "degraded": "Degraded",
+        "outage": "Outage"
+      },
+      "status": {
+        "investigating": "Investigating",
+        "identified": "Identified",
+        "monitoring": "Monitoring",
+        "resolved": "Resolved"
       }
     },
     "duration": {
@@ -4027,7 +4029,51 @@
       "monitorsHint": "{selected} of {total} shown",
       "publicNamePlaceholder": "Public display name",
       "reorderMonitor": "Reorder monitor",
-      "preview": "Live preview"
+      "preview": "Live preview",
+      "incidents": {
+        "title": "Incidents",
+        "hint": "Write and publish incidents. Detected outages are suggested below — nothing goes public until you publish it.",
+        "newIncident": "New incident",
+        "editIncident": "Edit incident",
+        "formHint": "Visitors see this on your public status page once published.",
+        "suggestionsTitle": "Detected outages",
+        "createFromSuggestion": "Create incident",
+        "suggestedTitle": "{monitor} outage",
+        "ongoingSince": "ongoing since {date}",
+        "noIncidents": "No incidents yet.",
+        "draft": "Draft",
+        "published": "Published",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "edit": "Edit",
+        "delete": "Delete",
+        "saved": "Incident saved",
+        "deleted": "Incident deleted",
+        "error": "Something went wrong",
+        "impact": {
+          "degraded": "Degraded",
+          "outage": "Outage"
+        },
+        "status": {
+          "investigating": "Investigating",
+          "identified": "Identified",
+          "monitoring": "Monitoring",
+          "resolved": "Resolved"
+        },
+        "form": {
+          "title": "Title",
+          "body": "Message",
+          "impact": "Impact",
+          "status": "Status",
+          "monitor": "Affected monitor",
+          "monitorNone": "None (page-wide)",
+          "startedAt": "Started",
+          "resolvedAt": "Resolved (optional)",
+          "publish": "Published",
+          "save": "Save",
+          "cancel": "Cancel"
+        }
+      }
     }
   }
 }
