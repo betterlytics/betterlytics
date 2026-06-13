@@ -187,6 +187,7 @@ model Dashboard {
   bugReports BugReport[]
   annotations Annotation[]
   monitorChecks MonitorCheck[]
+  statusPages StatusPage[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
   mcpTokens McpToken[]
@@ -407,8 +408,57 @@ model MonitorCheck {
 
   deletedAt             DateTime?
 
+  statusPageMonitors    StatusPageMonitor[]
+
   @@index([dashboardId])
   @@unique([id, dashboardId])
+}
+
+model StatusPage {
+  id          String    @id @default(cuid())
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  // Uniqueness is enforced by a partial unique index (slug WHERE deletedAt IS NULL) created
+  // in the migration. Prisma can't express partial indexes, so there is no @unique here; never use findUnique({ where: { slug } }).
+  slug        String  // global among live pages, lowercase, [a-z0-9-]; reserved names enforced in entities
+  name        String
+  description String?
+
+  isPublished Boolean @default(false) // enforced on every public read
+
+  // Branding (structured only — no custom CSS)
+  theme       String  @default("system") // 'light' | 'dark' | 'system'
+  accentColor String  @default("#4845d8")
+  logoUrl     String?
+  language    String  @default("en")
+
+  showPastIncidents Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  monitors StatusPageMonitor[]
+
+  @@index([dashboardId])
+  @@unique([id, dashboardId])
+}
+
+model StatusPageMonitor {
+  id             String @id @default(cuid())
+  statusPageId   String
+  monitorCheckId String
+  dashboardId    String // shared by both composite FKs, so a page can only reference monitors of its own dashboard
+
+  statusPage   StatusPage   @relation(fields: [statusPageId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+  monitorCheck MonitorCheck @relation(fields: [monitorCheckId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+
+  publicName String // always stored explicitly; the public page never falls back to internal monitor fields
+  position   Int    @default(0)
+
+  @@unique([statusPageId, monitorCheckId])
+  @@index([statusPageId])
 }
 
 model Subscription {

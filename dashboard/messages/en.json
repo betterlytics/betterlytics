@@ -3226,6 +3226,8 @@
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
+    "statusPageSlugTaken": "This URL slug is already in use",
+    "statusPageNotFound": "Status page not found",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
@@ -3897,6 +3899,136 @@
       "volumeChart": {
         "errorCount": "{count, plural, one {# error} other {# errors}}"
       }
+    }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "All systems operational",
+      "degraded": "Degraded performance",
+      "outage": "Some systems are down",
+      "unknown": "Status unavailable"
+    },
+    "statusNote": {
+      "degraded": "Some services are slower than usual"
+    },
+    "lastUpdated": "Last updated on {date}",
+    "lastUpdatedInline": "last updated on {date}",
+    "uptimeValue": "{uptime} uptime",
+    "monitorStatus": {
+      "operational": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "No data"
+    },
+    "uptimeWindow": {
+      "start": "{days} days ago",
+      "today": "Today"
+    },
+    "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
+    "pastIncidents": "Past incidents",
+    "noIncidents": "No incidents in the last {days} days.",
+    "noOtherIncidents": "No other incidents in the last {days} days.",
+    "incident": {
+      "resolved": "Resolved · lasted {duration}",
+      "ongoing": "Ongoing since {time}",
+      "cause": {
+        "serverError": "HTTP server errors",
+        "clientError": "HTTP client errors",
+        "timeout": "Timeouts",
+        "ssl": "SSL/TLS issue",
+        "network": "Network connectivity",
+        "disruption": "Service disruption"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minute} other {# minutes}}",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "days": "{count, plural, one {# day} other {# days}}"
+    },
+    "poweredBy": "Powered by"
+  },
+  "statusPagesPage": {
+    "title": "Status Pages",
+    "newStatusPage": "New status page",
+    "error": "Something went wrong",
+    "finishSetup": "Finish setup to publish",
+    "empty": {
+      "title": "No status pages yet",
+      "description": "Pick which monitors to show, add your logo and colors, and share a public page your users can check during incidents.",
+      "cta": "Create your first status page"
+    },
+    "badge": {
+      "public": "Public",
+      "draft": "Draft"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitors}}",
+    "actions": {
+      "copyLink": "Copy link",
+      "viewPage": "View page",
+      "more": "More actions",
+      "linkCopied": "Link copied to clipboard"
+    },
+    "editor": {
+      "back": "Status Pages",
+      "save": "Save changes",
+      "publish": "Publish status page",
+      "unpublish": "Unpublish",
+      "saved": "Status page saved",
+      "unpublished": "Status page unpublished",
+      "publishSuccess": {
+        "title": "Your status page is live",
+        "description": "Anyone with the link can see it. It updates automatically as your monitors run.",
+        "copy": "Copy link",
+        "copied": "Link copied to clipboard",
+        "back": "Back to Status Pages",
+        "view": "View page"
+      },
+      "deleted": "Status page deleted",
+      "error": "Something went wrong",
+      "delete": "Delete status page",
+      "deleteConfirmTitle": "Delete this status page?",
+      "deleteConfirmDescription": "The public page stops working immediately. This cannot be undone.",
+      "deleteConfirm": "Delete",
+      "cancel": "Cancel",
+      "pageDetails": "Page details",
+      "pageName": "Page name",
+      "publicUrl": "Public URL",
+      "slugStatus": {
+        "checking": "Checking…",
+        "available": "Available",
+        "taken": "Already taken",
+        "invalid": "Invalid slug"
+      },
+      "slugWarning": "Changing the URL of a published page breaks existing links.",
+      "homepageUrl": "Homepage URL",
+      "homepageUrlHint": "Where the logo and page title link to.",
+      "customDomain": "Custom domain",
+      "customDomainHint": "Host the page on your own domain.",
+      "visibility": {
+        "title": "Visibility",
+        "public": "Public",
+        "publicHint": "Anyone with the link can view. Indexed by search engines.",
+        "unlisted": "Unlisted",
+        "unlistedHint": "Anyone with the link can view, but hidden from search engines."
+      },
+      "branding": "Branding",
+      "logo": "Logo",
+      "uploadLogo": "Upload logo",
+      "accentColor": "Accent color",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "language": "Language",
+      "showPastIncidents": "Show past incidents",
+      "monitors": "Monitors",
+      "monitorsHint": "{selected} of {total} shown",
+      "publicNamePlaceholder": "Public display name",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "preview": "Live preview"
     }
   }
 }

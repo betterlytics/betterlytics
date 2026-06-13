@@ -1,0 +1,164 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { getMessages, getTranslations } from 'next-intl/server';
+import z from 'zod';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
+import { type AuthContext } from '@/entities/auth/authContext.entities';
+import {
+  defaultPublicMonitorName,
+  StatusPageCreateSchema,
+  StatusPageSlugSchema,
+  StatusPageUpdateSchema,
+} from '@/entities/analytics/statusPage.entities';
+import {
+  addStatusPage,
+  getStatusPage,
+  getStatusPagesForDashboard,
+  isStatusPageSlugAvailable,
+  publishStatusPage,
+  removeStatusPage,
+  saveStatusPage,
+} from '@/services/analytics/statusPage.service';
+import { getStatusPagePreviewData } from '@/services/analytics/publicStatusPage.service';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
+import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
+import { UserException } from '@/lib/exceptions';
+
+function revalidateStatusPagePaths(dashboardId: string, ...slugs: Array<string | undefined>) {
+  revalidatePath(`/dashboard/${dashboardId}/monitoring/status-pages`);
+  for (const slug of new Set(slugs.filter(Boolean))) {
+    revalidatePath(`/status/${slug}`);
+  }
+}
+
+export const fetchStatusPagesAction = withDashboardAuthContext(async (ctx: AuthContext) => {
+  return getStatusPagesForDashboard(ctx.dashboardId);
+});
+
+export const fetchStatusPageAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => await getStatusPage(ctx.dashboardId, statusPageId),
+);
+
+export const createStatusPageAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, input: z.input<typeof StatusPageCreateSchema>) => {
+    const t = await getTranslations('validation');
+    const payload = StatusPageCreateSchema.parse(input);
+
+    if (!(await isStatusPageSlugAvailable(payload.slug))) {
+      throw new UserException(t('statusPageSlugTaken'));
+    }
+
+    const created = await addStatusPage(ctx.dashboardId, payload);
+
+    revalidateStatusPagePaths(ctx.dashboardId);
+    return created;
+  },
+);
+
+export const updateStatusPageAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, input: z.input<typeof StatusPageUpdateSchema>) => {
+    const t = await getTranslations('validation');
+    const payload = StatusPageUpdateSchema.parse(input);
+
+    if (payload.slug != null && !(await isStatusPageSlugAvailable(payload.slug, payload.id))) {
+      throw new UserException(t('statusPageSlugTaken'));
+    }
+
+    const result = await saveStatusPage(ctx.dashboardId, payload);
+    if (!result) {
+      throw new UserException(t('statusPageNotFound'));
+    }
+
+    // The old public URL must drop out of the cache when the slug changes
+    revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
+    return result.page;
+  },
+);
+
+export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, statusPageId: string, isPublished: boolean) => {
+    const updated = await publishStatusPage(ctx.dashboardId, statusPageId, isPublished);
+
+    revalidateStatusPagePaths(ctx.dashboardId, updated.slug);
+    return updated;
+  },
+);
+
+export const deleteStatusPageAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => {
+    const deletedSlug = await removeStatusPage(ctx.dashboardId, statusPageId);
+
+    revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
+  },
+);
+
+export const fetchStatusPagePreviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => getStatusPagePreviewData(ctx.dashboardId, statusPageId),
+);
+
+export const fetchPublicStatusPageMessagesAction = withDashboardAuthContext(
+  async (_ctx: AuthContext, language: SupportedLanguages) => {
+    const messages = await getMessages({ locale: language });
+    return messages.publicStatusPage as Record<string, unknown>;
+  },
+);
+
+function slugifyDomain(domain: string): string {
+  return domain
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export const createDraftStatusPageAction = withDashboardMutationAuthContext(async (ctx: AuthContext) => {
+  const [dashboard, monitors] = await Promise.all([
+    findDashboardById(ctx.dashboardId),
+    listMonitorChecks(ctx.dashboardId),
+  ]);
+
+  const base = slugifyDomain(dashboard.domain) || 'my-status-page';
+  const candidates = [base, `${base}-status`, ...Array.from({ length: 8 }, (_, i) => `${base}-${i + 2}`)];
+
+  let slug: string | undefined;
+  for (const candidate of candidates) {
+    const parsed = StatusPageSlugSchema.safeParse(candidate);
+    if (parsed.success && (await isStatusPageSlugAvailable(parsed.data))) {
+      slug = parsed.data;
+      break;
+    }
+  }
+  if (!slug) {
+    const t = await getTranslations('validation');
+    throw new UserException(t('statusPageSlugTaken'));
+  }
+
+  const domainLabel = dashboard.domain.split('.')[0] || dashboard.domain;
+  const name = `${domainLabel.charAt(0).toUpperCase()}${domainLabel.slice(1)} Status`;
+
+  const created = await addStatusPage(ctx.dashboardId, {
+    ...StatusPageCreateSchema.parse({ name, slug }),
+    monitors: monitors.slice(0, STATUS_PAGE_LIMITS.MONITORS_MAX).map((monitor) => ({
+      monitorCheckId: monitor.id,
+      publicName: defaultPublicMonitorName(monitor),
+    })),
+  });
+
+  revalidateStatusPagePaths(ctx.dashboardId);
+  return created;
+});
+
+export const checkStatusPageSlugAction = withDashboardAuthContext(
+  async (_ctx: AuthContext, slug: string, excludeStatusPageId?: string) => {
+    const parsed = StatusPageSlugSchema.safeParse(slug);
+    if (!parsed.success) {
+      return { available: false, reason: 'invalid' as const };
+    }
+    if (!(await isStatusPageSlugAvailable(parsed.data, excludeStatusPageId))) {
+      return { available: false, reason: 'taken' as const };
+    }
+    return { available: true as const };
+  },
+);

@@ -3240,6 +3240,8 @@
     "termsOfServiceRequired": "Du må godta vilkårene for å fortsette.",
     "urlMustBeOnDomain": "URL-en må være på {domain} eller et underdomene",
     "monitorAlreadyExists": "En monitor for denne URL-en finnes allerede",
+    "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
+    "statusPageNotFound": "Statussiden ble ikke funnet",
     "capabilities": {
       "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til Pro for å opprette flere dashboards.",
       "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til Pro for å opprette flere monitorer.",
@@ -3911,6 +3913,136 @@
       "volumeChart": {
         "errorCount": "{count, plural, one {# feil} other {# feil}}"
       }
+    }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "Alle systemer fungerer normalt",
+      "degraded": "Redusert ytelse",
+      "outage": "Noen systemer er nede",
+      "unknown": "Status utilgjengelig"
+    },
+    "statusNote": {
+      "degraded": "Noen tjenester er tregere enn vanlig"
+    },
+    "lastUpdated": "Sist oppdatert {date}",
+    "lastUpdatedInline": "sist oppdatert {date}",
+    "uptimeValue": "{uptime} oppetid",
+    "monitorStatus": {
+      "operational": "Operativ",
+      "degraded": "Redusert",
+      "down": "Nede",
+      "unknown": "Ingen data"
+    },
+    "uptimeWindow": {
+      "start": "{days} dager siden",
+      "today": "I dag"
+    },
+    "overallUptime": "Samlet oppetid <value>{uptime}</value> · siste {days} dager",
+    "pastIncidents": "Tidligere hendelser",
+    "noIncidents": "Ingen hendelser de siste {days} dagene.",
+    "noOtherIncidents": "Ingen andre hendelser de siste {days} dagene.",
+    "incident": {
+      "resolved": "Løst · varte {duration}",
+      "ongoing": "Pågående siden {time}",
+      "cause": {
+        "serverError": "HTTP-serverfeil",
+        "clientError": "HTTP-klientfeil",
+        "timeout": "Tidsavbrudd",
+        "ssl": "SSL/TLS-problem",
+        "network": "Nettverkstilkobling",
+        "disruption": "Tjenesteforstyrrelse"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minutt} other {# minutter}}",
+      "hours": "{count, plural, one {# time} other {# timer}}",
+      "days": "{count, plural, one {# dag} other {# dager}}"
+    },
+    "poweredBy": "Levert av"
+  },
+  "statusPagesPage": {
+    "title": "Statussider",
+    "newStatusPage": "Ny statusside",
+    "error": "Noe gikk galt",
+    "finishSetup": "Fullfør oppsettet for å publisere",
+    "empty": {
+      "title": "Ingen statussider ennå",
+      "description": "Velg hvilke monitorer som skal vises, legg til logoen og fargene dine, og del en offentlig side brukerne dine kan sjekke under hendelser.",
+      "cta": "Opprett din første statusside"
+    },
+    "badge": {
+      "public": "Offentlig",
+      "draft": "Utkast"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitorer}}",
+    "actions": {
+      "copyLink": "Kopier lenke",
+      "viewPage": "Vis side",
+      "more": "Flere handlinger",
+      "linkCopied": "Lenke kopiert til utklippstavlen"
+    },
+    "editor": {
+      "back": "Statussider",
+      "save": "Lagre endringer",
+      "publish": "Publiser statusside",
+      "unpublish": "Avpubliser",
+      "saved": "Statusside lagret",
+      "unpublished": "Statusside avpublisert",
+      "publishSuccess": {
+        "title": "Statussiden din er live",
+        "description": "Alle med lenken kan se den. Den oppdateres automatisk etter hvert som monitorene dine kjører.",
+        "copy": "Kopier lenke",
+        "copied": "Lenke kopiert til utklippstavlen",
+        "back": "Tilbake til Statussider",
+        "view": "Vis side"
+      },
+      "deleted": "Statusside slettet",
+      "error": "Noe gikk galt",
+      "delete": "Slett statusside",
+      "deleteConfirmTitle": "Slette denne statussiden?",
+      "deleteConfirmDescription": "Den offentlige siden slutter å fungere umiddelbart. Dette kan ikke angres.",
+      "deleteConfirm": "Slett",
+      "cancel": "Avbryt",
+      "pageDetails": "Sidedetaljer",
+      "pageName": "Sidenavn",
+      "publicUrl": "Offentlig URL",
+      "slugStatus": {
+        "checking": "Sjekker…",
+        "available": "Ledig",
+        "taken": "Allerede i bruk",
+        "invalid": "Ugyldig slug"
+      },
+      "slugWarning": "Å endre URL-en til en publisert side ødelegger eksisterende lenker.",
+      "homepageUrl": "Hjemmeside-URL",
+      "homepageUrlHint": "Hvor logoen og sidetittelen lenker til.",
+      "customDomain": "Eget domene",
+      "customDomainHint": "Host siden på ditt eget domene.",
+      "branding": "Merkevare",
+      "visibility": {
+        "title": "Synlighet",
+        "public": "Offentlig",
+        "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
+        "unlisted": "Ikke oppført",
+        "unlistedHint": "Alle med lenken kan se siden, men den skjules for søkemotorer."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Last opp logo",
+      "accentColor": "Aksentfarge",
+      "theme": "Tema",
+      "themes": {
+        "light": "Lys",
+        "dark": "Mørk",
+        "system": "System"
+      },
+      "language": "Språk",
+      "showPastIncidents": "Vis tidligere hendelser",
+      "monitors": "Monitorer",
+      "monitorsHint": "{selected} av {total} vises",
+      "publicNamePlaceholder": "Offentlig visningsnavn",
+      "moveUp": "Flytt opp",
+      "moveDown": "Flytt ned",
+      "preview": "Direkte forhåndsvisning"
     }
   }
 }
