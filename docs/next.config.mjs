@@ -14,5 +14,4 @@ if (result.error) {
 
 export default withNextra({
   output: "standalone",
-  basePath: "/docs",
 });

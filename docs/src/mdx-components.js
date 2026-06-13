@@ -1,4 +1,5 @@
 import { useMDXComponents as getThemeComponents } from "nextra-theme-docs";
+import { Callout } from "nextra/components";
 import {
   DashboardSectionGrid,
   DashboardSectionCard,
@@ -8,6 +9,7 @@ import {
   IntegrationIconRow,
   IntegrationIcon,
 } from "./app/components/IntegrationIconRow";
+import { BlogFAQ } from "./app/blog/components/BlogFAQ";
 
 const themeComponents = getThemeComponents();
 
@@ -19,6 +21,8 @@ export function useMDXComponents(components) {
     HostingComparisonTable,
     IntegrationIconRow,
     IntegrationIcon,
+    Callout,
+    FAQ: BlogFAQ,
     ...components,
   };
 }
