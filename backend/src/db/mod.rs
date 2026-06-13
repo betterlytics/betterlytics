@@ -43,7 +43,7 @@ impl Database {
         let rows = self
             .clickhouse
             .inner()
-            .query(&active_sessions_query(window.as_secs()))
+            .query(&active_sessions_query(window))
             .fetch_all::<ActiveSessionRow>()
             .await?;
         Ok(rows)
@@ -322,7 +322,8 @@ async fn run_inserter_worker(
 /// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
 /// `idx_session_end` minmax skip index, so the cost is bounded by the number of *active*
 /// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
-fn active_sessions_query(window_secs: u64) -> String {
+fn active_sessions_query(window: Duration) -> String {
+    let window_secs = window.as_secs();
     format!(
         "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
                 argMax(session_id, session_end) AS session_id, \
