@@ -8,6 +8,7 @@ import {
   type MonitoringCapabilities,
   type DashboardCapabilities,
 } from '@/lib/billing/capabilities';
+import { resolveEntitledTier } from '@/lib/billing/subscription-status';
 import { TierName } from '@/lib/billing/plans';
 import { useDashboardAuth } from './DashboardAuthProvider';
 
@@ -48,7 +49,7 @@ export function CapabilitiesProvider({ dashboardId, children }: CapabilitiesProv
     const fetchTier = async () => {
       try {
         const billingData = await getDashboardOwnerBillingData(dashboardId);
-        setTier(billingData.subscription.tier);
+        setTier(resolveEntitledTier(billingData.subscription));
       } catch (error) {
         console.error('Failed to fetch dashboard capabilities:', error);
       }

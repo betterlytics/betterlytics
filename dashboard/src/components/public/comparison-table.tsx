@@ -79,16 +79,19 @@ export function ComparisonTable({
 }: ComparisonTableProps) {
   return (
     <div className='space-y-2'>
-      <div className='border-border/50 bg-card/30 overflow-hidden rounded-xl border backdrop-blur-sm'>
+      <div className='border-border/50 bg-card/30 rounded-xl border backdrop-blur-sm'>
         {/* Desktop */}
         <table className='hidden w-full md:table'>
           <thead>
-            <tr className='border-border/50 bg-muted/30 border-b'>
-              <th className='px-6 py-4 text-left'>
+            <tr className='border-border/50 border-b'>
+              <th className='bg-card border-border/50 sticky top-0 z-30 border-b px-6 py-4 text-left'>
                 <span className='text-muted-foreground text-sm font-medium'>{featureColumnLabel}</span>
               </th>
               {columns.map((column, idx) => (
-                <th key={idx} className='px-6 py-4 text-center'>
+                <th
+                  key={idx}
+                  className='bg-card border-border/50 sticky top-0 z-30 border-b px-6 py-4 text-center'
+                >
                   <div className='flex items-center justify-center gap-2'>
                     {column.logo}
                     <span
@@ -116,7 +119,7 @@ export function ComparisonTable({
                   <tr
                     key={`${catIdx}-${featureIdx}`}
                     className={cn(
-                      'hover:bg-muted/20 transition-colors',
+                      'hover:bg-muted/40 transition-colors',
                       featureIdx !== category.features.length - 1 && 'border-border/30 border-b',
                     )}
                   >
@@ -138,7 +141,7 @@ export function ComparisonTable({
         {/* Mobile */}
         <div className='md:hidden'>
           <div
-            className='border-border/50 bg-muted/30 grid gap-2 border-b px-4 py-3'
+            className='border-border/50 bg-muted sticky top-0 z-30 grid gap-2 border-b px-4 py-3'
             style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
           >
             {columns.map((column, idx) => (

@@ -1,6 +1,11 @@
 import 'server-only';
 
-import { parseFilterColumn, QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import {
+  isUsableFilter,
+  parseFilterColumn,
+  QueryFilter,
+  QueryFilterSchema,
+} from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
@@ -33,10 +38,7 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
  * Build query filters using `safeSql`
  */
 function getFilterQuery(queryFilters: QueryFilter[]) {
-  const nonEmptyFilters = queryFilters.filter(
-    (filter) =>
-      Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
-  );
+  const nonEmptyFilters = queryFilters.filter(isUsableFilter);
 
   const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
 

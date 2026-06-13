@@ -1391,7 +1391,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Månedlige events"
+    "monthlyEvents": "Månedlige events",
+    "suggested": "Anbefalet",
+    "recommend": "Baseret på din estimerede trafik anbefaler vi <emphasis>{events} events / måned</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/måned",
@@ -1402,19 +1404,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Op til {events} events/måned",
-      "allFeatures": "Alle dashboard- og analysefunktioner",
+      "customEventVolume": "Tilpasset event-mængde",
       "twoSites": "Op til 2 hjemmesider",
       "upTo50Sites": "Op til 50 hjemmesider",
       "unlimitedSites": "Ubegrænsede hjemmesider",
+      "threeTeamMembers": "Op til 3 team-medlemmer",
+      "upTo50TeamMembers": "Op til 50 team-medlemmer",
+      "unlimitedTeamMembers": "Ubegrænset antal team-medlemmer",
       "retention1PlusYear": "1+ års dataopbevaring",
       "retention3PlusYears": "3+ års dataopbevaring",
       "retention5PlusYears": "5+ års dataopbevaring",
-      "emailSupport": "E-mail support",
-      "prioritySupport": "Prioriteret support",
-      "dedicatedSupport": "Dedikeret support og hjælp",
+      "fullDashboard": "Komplet web-analytics dashboard",
+      "funnelsJourneys": "Funnels og brugerrejser",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Fejlsporing",
+      "uptime1": "1 uptime-monitor",
+      "uptime50": "50 uptime-monitorer med 1-minuts tjek",
+      "uptimeUnlimited": "Ubegrænset antal uptime-monitorer",
+      "emailReports": "Planlagte e-mailrapporter",
+      "customHttp": "Avancerede uptime-tjek (tilpassede HTTP-metoder, headers og statuskoder)",
+      "dedicatedSupport": "Dedikeret support",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Growth",
-      "everythingInProfessional": "Alt i Professional"
+      "everythingInStarter": "Alt i Growth, plus:",
+      "everythingInProfessional": "Alt i Professional, plus:"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -1425,12 +1437,12 @@
       "contactUs": "Kontakt os"
     },
     "badges": {
-      "mostPopular": "Mest populær",
+      "mostPopular": "Anbefalet",
       "current": "Nuværende"
     },
     "labels": {
       "free": "Gratis",
-      "custom": "Kontakt os"
+      "custom": "Tilpasset"
     }
   },
   "pricingComparison": {
@@ -1470,11 +1482,11 @@
         }
       },
       "teamMembers": {
-        "name": "Teammedlemmer",
+        "name": "Team-medlemmer",
         "values": {
-          "1": "1",
-          "upTo5": "Op til 5",
-          "unlimited": "Ubegrænsede"
+          "upTo3": "Op til 3",
+          "upTo50": "Op til 50",
+          "unlimited": "Ubegrænset"
         }
       },
       "dashboardFeatures": {
@@ -2176,11 +2188,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Betalingen blev annulleret. Du kan prøve igen når som helst.",
         "contactForCustomPlan": "Kontakt os for en tilpasset plan",
-        "planSelectionFailed": "Kunne ikke behandle valg af plan. Prøv igen.",
-        "subscriptionChangesNote": "Ændringer i dit abonnement behandles straks gennem Stripes sikre faktureringsportal.",
+        "subscriptionChangesNote": "Ændringer i dit abonnement træder i kraft med det samme, med forholdsmæssig fakturering for differencen.",
         "freePlanNote": "Start med vores gratis plan – intet kreditkort krævet."
+      },
+      "embeddedCheckout": {
+        "title": "Fuldfør dit abonnement",
+        "description": "Gennemfør dit køb sikkert med Stripe.",
+        "loadError": "Vi kunne ikke indlæse betalingen. Prøv venligst igen.",
+        "creatingSession": "Opretter en sikker betalingssession…",
+        "successTitle": "Betaling gennemført",
+        "successDescription": "Du er nu på {tier}. Velkommen til Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Vælg din plan",
+        "description": "Vælg den plan, der passer til dine behov.",
+        "showComparison": "Sammenlign alle funktioner",
+        "hideComparison": "Skjul funktionssammenligning"
+      },
+      "changePlan": {
+        "title": "Bekræft planændring",
+        "description": "Gennemgå den forholdsmæssige beregning, før du bekræfter.",
+        "resumeNote": "Dit abonnement er planlagt til at blive annulleret – bekræfter du denne ændring, forbliver det aktivt, og faktureringen genoptages.",
+        "summaryCharge": "Du skifter til {tier} ({events} events / måned) med det samme. {amount} opkræves nu for resten af perioden, og {nextAmount}/måned derefter fra {date}.",
+        "summaryCredit": "Du skifter til {tier} ({events} events / måned). {amount} kredit for ubrugt tid trækkes fra din næste faktura på {nextAmount}/måned den {date}.",
+        "loading": "Beregner forholdsmæssig pris…",
+        "error": "Kunne ikke beregne forholdsmæssig pris. Prøv igen.",
+        "newPlanCharge": "Forholdsmæssig betaling for ny plan",
+        "unusedTimeCredit": "Kredit for ubrugt tid",
+        "accountCreditApplied": "Anvendt tilgodehavende",
+        "totalDueToday": "Betales i dag",
+        "totalCreditedToday": "Krediteres i dag",
+        "confirm": "Bekræft ændring",
+        "back": "Tilbage",
+        "successLabel": "Plan ændret",
+        "successDescription": "Du er nu på {tier}.",
+        "failureLabel": "Planændring mislykkedes",
+        "authRequiredLabel": "Bekræftelse påkrævet",
+        "authenticatingLabel": "Bekræfter din betaling",
+        "authenticatingDescription": "Gennemfør bekræftelsen fra din bank for at fuldføre din opgradering.",
+        "finalizingLabel": "Fuldfører din opgradering…",
+        "close": "Luk",
+        "tryAgain": "Prøv igen",
+        "updatePaymentMethod": "Opdater betalingsmetode",
+        "errors": {
+          "cardDeclined": "Vi kunne ikke debitere din betalingsmetode. Opdater dit kort og prøv igen.",
+          "authenticationRetry": "Vi kunne ikke bekræfte din betaling. Prøv igen for at fuldføre din opgradering.",
+          "unexpected": "Noget gik galt. Prøv igen."
+        }
+      },
+      "creditBalance": {
+        "label": "Kontokredit",
+        "hint": "Anvendes automatisk på fremtidige fakturaer"
       },
       "currentPlan": {
         "title": "Nuværende plan",
@@ -2194,10 +2253,18 @@
         "usageProgress": "{current} af {limit} events",
         "resetsInDays": "Nulstilles om {days} dage",
         "expiresInDays": "Udløber om {days} dage",
-        "canceled": "Annulleret",
         "manage": "Administrér abonnement",
         "reactivate": "Genaktivér abonnement",
-        "cancel": "Annullér abonnement"
+        "cancel": "Annullér abonnement",
+        "pastDueBannerTitle": "Betaling forfalden",
+        "pastDueBannerBody": "Vi kunne ikke behandle din seneste betaling. Opdater din betalingsmetode for at beholde dit abonnement.",
+        "updatePayment": "Opdater betalingsmetode"
+      },
+      "planStatus": {
+        "active": "Aktiv",
+        "canceling": "Annulleres",
+        "pastDue": "Forfalden",
+        "inactive": "Inaktiv"
       },
       "planNames": {
         "growth": "Growth-plan",
@@ -2439,7 +2506,14 @@
         "create": "Opret",
         "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
-        "errorMessage": "Tragtoprettelse mislykkedes!"
+        "errorMessage": "Tragtoprettelse mislykkedes!",
+        "filterCount": "{count, plural, =0 {Ingen filtre} =1 {1 filter} other {# filtre}}",
+        "tooltip": {
+          "deleteStep": "Slet trin {index}",
+          "minStepsHint": "En tragt skal have mindst {count} trin",
+          "reorderStep": "Omarranger trin {index}",
+          "toggleStep": "Vis/skjul trin {index}"
+        }
       },
       "edit": {
         "title": "Rediger tragt",
@@ -2470,7 +2544,8 @@
         "stepLabel": "Trin {index}",
         "visitors": "Besøgende",
         "dropOff": "Frafald",
-        "conversion": "Konvertering"
+        "conversion": "Konvertering",
+        "and": "og"
       },
       "delete": {
         "title": "Slet tragt",
@@ -2480,6 +2555,7 @@
         "successMessage": "Tragt slettet!",
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
+      "strictModeInfo": "Når aktiveret, skal besøgende gennemføre trinnene i rækkefølge uden at besøge andre sider undervejs.",
       "preview": {
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
       },
@@ -2772,6 +2848,7 @@
         "toast": {
           "error": "Kunne ikke gemme indstillinger. Prøv igen."
         },
+        "upgradePlan": "Opgrader plan",
         "help": {
           "trigger": "Brug for hjælp?",
           "documentation": "Dokumentation",
@@ -2830,7 +2907,8 @@
           "renewsOn": "Fornyes den {date}",
           "endsOn": "Abonnement udløber den {date}",
           "upgrade": "Opgradér",
-          "changePlan": "Skift plan"
+          "changePlan": "Skift plan",
+          "pastDue": "Betaling forfalden"
         },
         "usage": {
           "title": "Forbrug",
@@ -2843,6 +2921,24 @@
           "label": "Administrér i faktureringsportalen",
           "description": "Betalingsmetode, fakturaer og faktureringsoplysninger.",
           "openPortal": "Åbn faktureringsportal"
+        },
+        "invoices": {
+          "title": "Fakturaer",
+          "view": "Vis",
+          "columns": {
+            "date": "Dato",
+            "total": "Beløb",
+            "status": "Status",
+            "actions": "Handlinger"
+          },
+          "status": {
+            "draft": "Kladde",
+            "open": "Åben",
+            "paid": "Betalt",
+            "uncollectible": "Uinddrivelig",
+            "void": "Annulleret",
+            "credit": "Kredit"
+          }
         },
         "cancellation": {
           "title": "Annullering",
@@ -3147,6 +3243,7 @@
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
+      "memberLimitReached": "Din plan tillader op til {limit} team-medlemmer på dette dashboard. Opgrader for at invitere flere.",
       "invitationAlreadySent": "Der er allerede sendt en invitation til denne e-mail",
       "invitationNotFoundOrProcessed": "Invitation ikke fundet eller allerede behandlet",
       "invitationExpired": "Denne invitation er udløbet",
@@ -3241,6 +3338,7 @@
       "emailPlaceholder": "kollega@example.com",
       "roleLabel": "Rolle",
       "inviteButton": "Inviter",
+      "upgradeToInvite": "Opgrader for at invitere flere",
       "sending": "Sender...",
       "pending": "Afventer",
       "invited": "Inviteret",

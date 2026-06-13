@@ -1399,7 +1399,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Eventi mensili"
+    "monthlyEvents": "Eventi mensili",
+    "suggested": "Consigliato",
+    "recommend": "In base al tuo traffico stimato, ti consigliamo <emphasis>{events} eventi / mese</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/mese",
@@ -1410,19 +1412,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
-      "allFeatures": "Tutte le funzionalità dashboard e analitiche",
+      "customEventVolume": "Volume eventi personalizzato",
       "twoSites": "Fino a 2 siti",
       "upTo50Sites": "Fino a 50 siti",
       "unlimitedSites": "Siti illimitati",
+      "threeTeamMembers": "Fino a 3 membri del team",
+      "upTo50TeamMembers": "Fino a 50 membri del team",
+      "unlimitedTeamMembers": "Membri del team illimitati",
       "retention1PlusYear": "Conservazione dati 1+ anno",
       "retention3PlusYears": "Conservazione dati 3+ anni",
       "retention5PlusYears": "Conservazione dati 5+ anni",
-      "emailSupport": "Supporto email",
-      "prioritySupport": "Supporto prioritario",
-      "dedicatedSupport": "Supporto dedicato e aiuto",
+      "fullDashboard": "Dashboard di web analytics completa",
+      "funnelsJourneys": "Funnel e percorsi utente",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Tracciamento errori",
+      "uptime1": "1 monitor uptime",
+      "uptime50": "50 monitor uptime con controlli ogni minuto",
+      "uptimeUnlimited": "Monitor uptime illimitati",
+      "emailReports": "Report email pianificati",
+      "customHttp": "Controlli uptime avanzati (metodi HTTP, header e codici di stato personalizzati)",
+      "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Growth",
-      "everythingInProfessional": "Tutto in Professional"
+      "everythingInStarter": "Tutto in Growth, più:",
+      "everythingInProfessional": "Tutto in Professional, più:"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -1433,12 +1445,12 @@
       "contactUs": "Contattaci"
     },
     "badges": {
-      "mostPopular": "Più popolare",
+      "mostPopular": "Consigliato",
       "current": "Attuale"
     },
     "labels": {
       "free": "Gratuito",
-      "custom": "Contattaci"
+      "custom": "Personalizzato"
     }
   },
   "pricingComparison": {
@@ -1480,8 +1492,8 @@
       "teamMembers": {
         "name": "Membri del team",
         "values": {
-          "1": "1",
-          "upTo5": "Fino a 5",
+          "upTo3": "Fino a 3",
+          "upTo50": "Fino a 50",
           "unlimited": "Illimitati"
         }
       },
@@ -2184,11 +2196,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Il checkout è stato annullato. Puoi riprovare in qualsiasi momento.",
         "contactForCustomPlan": "Contattaci per un piano personalizzato",
-        "planSelectionFailed": "Impossibile elaborare la selezione del piano, riprova.",
-        "subscriptionChangesNote": "Le modifiche al tuo abbonamento saranno elaborate immediatamente tramite il portale di fatturazione sicuro di Stripe.",
-        "freePlanNote": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+        "subscriptionChangesNote": "Le modifiche al tuo abbonamento avranno effetto immediato, con fatturazione proporzionale per la differenza.",
+        "freePlanNote": "Inizia con il nostro piano gratuito — nessuna carta di credito richiesta."
+      },
+      "embeddedCheckout": {
+        "title": "Completa il tuo abbonamento",
+        "description": "Completa il tuo acquisto in modo sicuro con Stripe.",
+        "loadError": "Non è stato possibile caricare il checkout. Riprova.",
+        "creatingSession": "Creazione di una sessione di pagamento sicura…",
+        "successTitle": "Pagamento riuscito",
+        "successDescription": "Sei ora su {tier}. Benvenuto in Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Scegli il tuo piano",
+        "description": "Scegli il piano più adatto alle tue esigenze.",
+        "showComparison": "Confronta tutte le funzionalità",
+        "hideComparison": "Nascondi confronto funzionalità"
+      },
+      "changePlan": {
+        "title": "Conferma cambio piano",
+        "description": "Rivedi gli addebiti proporzionali prima di confermare.",
+        "resumeNote": "Il tuo abbonamento è programmato per essere annullato: confermando questa modifica rimarrà attivo e la fatturazione riprenderà.",
+        "summaryCharge": "Passerai a {tier} ({events} eventi / mese) immediatamente. {amount} verranno addebitati ora per il resto del periodo, poi {nextAmount}/mese a partire dal {date}.",
+        "summaryCredit": "Passerai a {tier} ({events} eventi / mese). {amount} di credito per il tempo non utilizzato sarà applicato alla prossima fattura di {nextAmount}/mese il {date}.",
+        "loading": "Calcolo della proporzione in corso…",
+        "error": "Impossibile calcolare la proporzione. Riprova.",
+        "newPlanCharge": "Addebito proporzionale del nuovo piano",
+        "unusedTimeCredit": "Credito per tempo non utilizzato",
+        "accountCreditApplied": "Credito dell'account applicato",
+        "totalDueToday": "Dovuto oggi",
+        "totalCreditedToday": "Accreditato oggi",
+        "confirm": "Conferma cambio",
+        "back": "Indietro",
+        "successLabel": "Piano cambiato",
+        "successDescription": "Sei ora su {tier}.",
+        "failureLabel": "Modifica piano non riuscita",
+        "authRequiredLabel": "Verifica richiesta",
+        "authenticatingLabel": "Verifica del pagamento in corso",
+        "authenticatingDescription": "Completa la verifica della tua banca per finalizzare l'aggiornamento.",
+        "finalizingLabel": "Completamento dell'aggiornamento…",
+        "close": "Chiudi",
+        "tryAgain": "Riprova",
+        "updatePaymentMethod": "Aggiorna metodo di pagamento",
+        "errors": {
+          "cardDeclined": "Non è stato possibile addebitare il tuo metodo di pagamento. Aggiorna la tua carta e riprova.",
+          "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento.",
+          "unexpected": "Qualcosa è andato storto. Riprova."
+        }
+      },
+      "creditBalance": {
+        "label": "Credito sul conto",
+        "hint": "Applicato automaticamente alle fatture future"
       },
       "currentPlan": {
         "title": "Piano attuale",
@@ -2202,10 +2261,18 @@
         "usageProgress": "{current} di {limit} eventi",
         "resetsInDays": "Si azzera tra {days} giorni",
         "expiresInDays": "Scade tra {days} giorni",
-        "canceled": "Annullato",
         "manage": "Gestisci abbonamento",
         "reactivate": "Riattiva abbonamento",
-        "cancel": "Annulla abbonamento"
+        "cancel": "Annulla abbonamento",
+        "pastDueBannerTitle": "Pagamento scaduto",
+        "pastDueBannerBody": "Non è stato possibile elaborare il tuo ultimo pagamento. Aggiorna il metodo di pagamento per mantenere attivo il tuo abbonamento.",
+        "updatePayment": "Aggiorna metodo di pagamento"
+      },
+      "planStatus": {
+        "active": "Attivo",
+        "canceling": "In annullamento",
+        "pastDue": "Scaduto",
+        "inactive": "Inattivo"
       },
       "planNames": {
         "growth": "Piano Growth",
@@ -2447,7 +2514,14 @@
         "create": "Crea",
         "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
-        "errorMessage": "Creazione funnel fallita!"
+        "errorMessage": "Creazione funnel fallita!",
+        "filterCount": "{count, plural, =0 {Nessun filtro} =1 {1 filtro} other {# filtri}}",
+        "tooltip": {
+          "deleteStep": "Elimina passaggio {index}",
+          "minStepsHint": "Un funnel deve avere almeno {count} passaggi",
+          "reorderStep": "Riordina passaggio {index}",
+          "toggleStep": "Mostra/nascondi passaggio {index}"
+        }
       },
       "edit": {
         "title": "Modifica funnel",
@@ -2478,7 +2552,8 @@
         "stepLabel": "Passaggio {index}",
         "visitors": "Visitatori",
         "dropOff": "Abbandono",
-        "conversion": "Conversione"
+        "conversion": "Conversione",
+        "and": "e"
       },
       "delete": {
         "title": "Elimina funnel",
@@ -2488,6 +2563,7 @@
         "successMessage": "Funnel eliminato!",
         "errorMessage": "Eliminazione funnel fallita!"
       },
+      "strictModeInfo": "Se attivata, i visitatori devono completare i passaggi in ordine senza visitare altre pagine nel frattempo.",
       "preview": {
         "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
       },
@@ -2780,6 +2856,7 @@
         "toast": {
           "error": "Impossibile salvare le impostazioni. Riprova."
         },
+        "upgradePlan": "Aggiorna piano",
         "help": {
           "trigger": "Hai bisogno di aiuto?",
           "documentation": "Documentazione",
@@ -2838,7 +2915,8 @@
           "renewsOn": "Si rinnova il {date}",
           "endsOn": "L'abbonamento termina il {date}",
           "upgrade": "Aggiorna",
-          "changePlan": "Cambia piano"
+          "changePlan": "Cambia piano",
+          "pastDue": "Pagamento scaduto"
         },
         "usage": {
           "title": "Utilizzo",
@@ -2851,6 +2929,24 @@
           "label": "Gestisci nel portale di fatturazione",
           "description": "Metodo di pagamento, fatture e dettagli di fatturazione.",
           "openPortal": "Apri portale di fatturazione"
+        },
+        "invoices": {
+          "title": "Fatture",
+          "view": "Visualizza",
+          "columns": {
+            "date": "Data",
+            "total": "Totale",
+            "status": "Stato",
+            "actions": "Azioni"
+          },
+          "status": {
+            "draft": "Bozza",
+            "open": "Aperta",
+            "paid": "Pagata",
+            "uncollectible": "Non riscuotibile",
+            "void": "Annullata",
+            "credit": "Credito"
+          }
         },
         "cancellation": {
           "title": "Annullamento",
@@ -3155,6 +3251,7 @@
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
+      "memberLimitReached": "Il tuo piano consente fino a {limit} membri del team su questa dashboard. Effettua l'upgrade per invitare altri.",
       "invitationAlreadySent": "È già stato inviato un invito a questa email",
       "invitationNotFoundOrProcessed": "Invito non trovato o già elaborato",
       "invitationExpired": "Questo invito è scaduto",
@@ -3249,6 +3346,7 @@
       "emailPlaceholder": "collega@example.com",
       "roleLabel": "Ruolo",
       "inviteButton": "Invita",
+      "upgradeToInvite": "Esegui l'upgrade per invitare altri",
       "sending": "Invio in corso...",
       "pending": "In sospeso",
       "invited": "Invitato",

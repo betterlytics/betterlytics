@@ -14,6 +14,7 @@ type FilterValueSearchProps<TEntity> = {
   useExtendedRange?: boolean;
   formatLength?: number;
   valueError?: boolean;
+  hideClearAllButton?: boolean;
 };
 
 export function FilterValueSearch<TEntity>({
@@ -23,6 +24,7 @@ export function FilterValueSearch<TEntity>({
   useExtendedRange,
   formatLength = 25,
   valueError,
+  hideClearAllButton,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
@@ -68,6 +70,7 @@ export function FilterValueSearch<TEntity>({
         shouldFilter: false, // Parent handles filtering via hook
       }}
       badgeClassName='bg-popover'
+      hideClearAllButton={hideClearAllButton}
       emptyIndicator={
         <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
           <span>{t('noValuesForCurrentPeriod')}</span>

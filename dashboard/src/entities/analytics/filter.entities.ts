@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { generateTempId } from '@/utils/temporaryId';
+
 export const FILTER_COLUMNS = [
   'url',
   'domain',
@@ -49,6 +51,19 @@ export const QueryFilterSchema = z.object({
 });
 
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
+
+export function createEmptyQueryFilter(): QueryFilter {
+  return { id: generateTempId(), column: 'url', operator: '=', values: [] };
+}
+
+/**
+ * A filter is usable in a query once it has a column, an operator, and at least
+ * one non-empty value. Incomplete filters are skipped.
+ */
+export function isUsableFilter(filter: QueryFilter): boolean {
+  return Boolean(filter.column) && Boolean(filter.operator) && filter.values.every(Boolean);
+}
+
 export type FilterColumn = TableFilterColumn | `gp.${string}`;
 export type TableFilterColumn = (typeof FILTER_COLUMNS)[number];
 export type FilterOperator = (typeof FILTER_OPERATORS)[number];

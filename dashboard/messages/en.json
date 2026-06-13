@@ -1388,7 +1388,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Monthly Events"
+    "monthlyEvents": "Monthly Events",
+    "suggested": "Suggested",
+    "recommend": "Based on your estimated traffic, we recommend <emphasis>{events} events / month</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/month",
@@ -1399,19 +1401,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Up to {events} events/month",
-      "allFeatures": "All dashboard & analytics features",
+      "customEventVolume": "Custom event volume",
       "twoSites": "Up to 2 sites",
       "upTo50Sites": "Up to 50 sites",
       "unlimitedSites": "Unlimited sites",
+      "threeTeamMembers": "Up to 3 team members",
+      "upTo50TeamMembers": "Up to 50 team members",
+      "unlimitedTeamMembers": "Unlimited team members",
       "retention1PlusYear": "1+ year data retention",
       "retention3PlusYears": "3+ years data retention",
       "retention5PlusYears": "5+ years data retention",
-      "emailSupport": "Email support",
-      "prioritySupport": "Priority support",
-      "dedicatedSupport": "Dedicated support & help",
+      "fullDashboard": "Full web analytics dashboard",
+      "funnelsJourneys": "Funnels & user journeys",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Error tracking",
+      "uptime1": "1 uptime monitor",
+      "uptime50": "50 uptime monitors with 1-minute checks",
+      "uptimeUnlimited": "Unlimited uptime monitors",
+      "emailReports": "Scheduled email reports",
+      "customHttp": "Advanced uptime checks (custom HTTP methods, headers & status codes)",
+      "dedicatedSupport": "Dedicated support",
       "slaGuarantee": "SLA guarantee",
-      "everythingInStarter": "Everything in Growth",
-      "everythingInProfessional": "Everything in Professional"
+      "everythingInStarter": "Everything in Growth, plus:",
+      "everythingInProfessional": "Everything in Professional, plus:"
     },
     "cta": {
       "getStartedForFree": "Get Started for Free",
@@ -1422,12 +1434,12 @@
       "contactUs": "Contact Us"
     },
     "badges": {
-      "mostPopular": "Most Popular",
+      "mostPopular": "Recommended",
       "current": "Current"
     },
     "labels": {
       "free": "Free",
-      "custom": "Contact us"
+      "custom": "Custom"
     }
   },
   "pricingComparison": {
@@ -1469,8 +1481,8 @@
       "teamMembers": {
         "name": "Team members",
         "values": {
-          "1": "1",
-          "upTo5": "Up to 5",
+          "upTo3": "Up to 3",
+          "upTo50": "Up to 50",
           "unlimited": "Unlimited"
         }
       },
@@ -2173,11 +2185,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Checkout was canceled. You can try again anytime.",
         "contactForCustomPlan": "Please contact us for a custom plan",
-        "planSelectionFailed": "Failed to process plan selection, please try again.",
-        "subscriptionChangesNote": "Changes to your subscription will be processed immediately through Stripe's secure billing portal.",
-        "freePlanNote": "Start with our free plan - no credit card required."
+        "subscriptionChangesNote": "Changes to your subscription will be processed immediately, with prorated billing for any difference.",
+        "freePlanNote": "Start with our free plan — no credit card required."
+      },
+      "embeddedCheckout": {
+        "title": "Complete your subscription",
+        "description": "Securely complete your purchase with Stripe.",
+        "loadError": "We couldn't load the checkout. Please try again.",
+        "creatingSession": "Creating a secure checkout session…",
+        "successTitle": "Payment successful",
+        "successDescription": "You're now on {tier}. Welcome to Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Choose your plan",
+        "description": "Choose the plan that fits your needs.",
+        "showComparison": "Compare all features",
+        "hideComparison": "Hide feature comparison"
+      },
+      "changePlan": {
+        "title": "Confirm plan change",
+        "description": "Review the prorated charges before confirming.",
+        "resumeNote": "Your subscription is scheduled to cancel — confirming this change keeps it active and resumes billing.",
+        "summaryCharge": "You'll switch to {tier} ({events} events / month) right away. {amount} will be charged now for the remaining period, and {nextAmount}/month thereafter starting {date}.",
+        "summaryCredit": "You'll switch to {tier} ({events} events / month). {amount} credit for unused time will be applied to your next invoice of {nextAmount}/month on {date}.",
+        "loading": "Calculating proration…",
+        "error": "Could not calculate proration. Please try again.",
+        "newPlanCharge": "New plan charge (prorated)",
+        "unusedTimeCredit": "Credit for unused time",
+        "accountCreditApplied": "Account credit applied",
+        "totalDueToday": "Due today",
+        "totalCreditedToday": "Credited today",
+        "confirm": "Confirm change",
+        "back": "Back",
+        "successLabel": "Plan changed",
+        "successDescription": "You're now on {tier}.",
+        "failureLabel": "Plan change failed",
+        "authRequiredLabel": "Verification needed",
+        "authenticatingLabel": "Verifying your payment",
+        "authenticatingDescription": "Complete the verification from your bank to finish your upgrade.",
+        "finalizingLabel": "Completing your upgrade…",
+        "close": "Close",
+        "tryAgain": "Try again",
+        "updatePaymentMethod": "Update payment method",
+        "errors": {
+          "cardDeclined": "We could not charge your payment method. Please update your card and try again.",
+          "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade.",
+          "unexpected": "Something went wrong. Please try again."
+        }
+      },
+      "creditBalance": {
+        "label": "Account credit",
+        "hint": "Applied automatically to future invoices"
       },
       "currentPlan": {
         "title": "Current Plan",
@@ -2191,10 +2250,18 @@
         "usageProgress": "{current} of {limit} events",
         "resetsInDays": "Resets in {days} days",
         "expiresInDays": "Expires in {days} days",
-        "canceled": "Canceled",
         "manage": "Manage Subscription",
         "reactivate": "Reactivate Subscription",
-        "cancel": "Cancel Subscription"
+        "cancel": "Cancel Subscription",
+        "pastDueBannerTitle": "Payment Past Due",
+        "pastDueBannerBody": "We couldn't process your last payment. Update your payment method to keep your subscription active.",
+        "updatePayment": "Update Payment Method"
+      },
+      "planStatus": {
+        "active": "Active",
+        "canceling": "Canceling",
+        "pastDue": "Past due",
+        "inactive": "Inactive"
       },
       "planNames": {
         "growth": "Growth Plan",
@@ -2436,7 +2503,14 @@
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
-        "errorMessage": "Funnel creation failed!"
+        "errorMessage": "Funnel creation failed!",
+        "filterCount": "{count, plural, =0 {No filters} =1 {1 filter} other {# filters}}",
+        "tooltip": {
+          "deleteStep": "Delete step {index}",
+          "minStepsHint": "A funnel needs at least {count} steps",
+          "reorderStep": "Reorder step {index}",
+          "toggleStep": "Toggle step {index}"
+        }
       },
       "edit": {
         "title": "Edit funnel",
@@ -2467,7 +2541,8 @@
         "stepLabel": "Step {index}",
         "visitors": "Visitors",
         "dropOff": "Drop-off",
-        "conversion": "Conversion"
+        "conversion": "Conversion",
+        "and": "and"
       },
       "delete": {
         "title": "Delete funnel",
@@ -2477,6 +2552,7 @@
         "successMessage": "Funnel deleted!",
         "errorMessage": "Funnel deletion failed!"
       },
+      "strictModeInfo": "When enabled, visitors must complete the steps in order without visiting any other pages in between.",
       "preview": {
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
       },
@@ -2763,6 +2839,7 @@
       "dialog": {
         "title": "User Settings",
         "description": "Manage your account settings and preferences.",
+        "upgradePlan": "Upgrade plan",
         "toast": {
           "error": "Failed to save settings. Please try again."
         },
@@ -2824,7 +2901,8 @@
           "renewsOn": "Renews on {date}",
           "endsOn": "Subscription ends on {date}",
           "upgrade": "Upgrade",
-          "changePlan": "Change plan"
+          "changePlan": "Change plan",
+          "pastDue": "Payment past due"
         },
         "usage": {
           "title": "Usage",
@@ -2837,6 +2915,24 @@
           "label": "Manage in billing portal",
           "description": "Payment method, invoices, and billing details.",
           "openPortal": "Open Billing Portal"
+        },
+        "invoices": {
+          "title": "Invoices",
+          "view": "View",
+          "columns": {
+            "date": "Date",
+            "total": "Total",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "status": {
+            "draft": "Draft",
+            "open": "Open",
+            "paid": "Paid",
+            "uncollectible": "Uncollectible",
+            "void": "Void",
+            "credit": "Credit"
+          }
         },
         "cancellation": {
           "title": "Cancellation",
@@ -3141,6 +3237,7 @@
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
+      "memberLimitReached": "Your plan allows up to {limit} team members on this dashboard. Upgrade to invite more.",
       "invitationAlreadySent": "An invitation has already been sent to this email",
       "invitationNotFoundOrProcessed": "Invitation not found or already processed",
       "invitationExpired": "This invitation has expired",
@@ -3235,6 +3332,7 @@
       "emailPlaceholder": "colleague@example.com",
       "roleLabel": "Role",
       "inviteButton": "Invite",
+      "upgradeToInvite": "Upgrade to invite more",
       "sending": "Sending...",
       "pending": "Pending",
       "invited": "Invited",

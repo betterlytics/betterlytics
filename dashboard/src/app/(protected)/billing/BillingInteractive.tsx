@@ -1,87 +1,73 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { toast } from 'sonner';
-import { PricingComponent } from '@/components/pricing/PricingComponent';
-import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
-import { createStripeCheckoutSession, createStripeCustomerPortalSession } from '@/actions/stripe.action';
-import type { UserBillingData } from '@/entities/billing/billing.entities';
-import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { PricingComponent } from '@/components/pricing/PricingComponent';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
+import { syncCheckoutSession } from '@/actions/stripe.action';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { SuccessCheckmark } from '@/components/billing/SuccessCheckmark';
+import type { UserBillingData } from '@/entities/billing/billing.entities';
+
+const SUCCESS_AUTO_CLOSE_MS = 2400;
 
 interface BillingInteractiveProps {
   billingData: UserBillingData;
 }
 
 export function BillingInteractive({ billingData }: BillingInteractiveProps) {
-  const searchParams = useSearchParams();
-  const { data: session } = useSession();
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const t = useTranslations('components.billing.interactive');
+  const tCheckout = useTranslations('components.billing.embeddedCheckout');
+  const { selectPlan } = useBillingFlow();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    if (searchParams?.get('canceled') === 'true') {
-      toast.info(t('checkoutCanceled'));
-    }
-  }, [searchParams]);
-
-  const handlePlanSelect = async (planData: SelectedPlan) => {
-    try {
-      const validatedPlan = SelectedPlanSchema.parse(planData);
-
-      if (validatedPlan.tier === 'enterprise') {
-        toast.info(t('contactForCustomPlan'));
-        return;
+    if (searchParams.get('checkout') !== 'success') return;
+    const sessionId = searchParams.get('session_id');
+    setShowSuccess(true);
+    router.replace('/billing', { scroll: false });
+    void (async () => {
+      if (sessionId) {
+        await syncCheckoutSession(sessionId).catch(() => undefined);
       }
-
-      if (!session?.user?.emailVerified) {
-        setShowVerificationModal(true);
-        return;
-      }
-
-      if (billingData.isExistingPaidSubscriber) {
-        const portalUrl = await createStripeCustomerPortalSession(validatedPlan);
-        if (portalUrl.success) {
-          window.location.href = portalUrl.data;
-        } else {
-          throw new Error('NO_PORTAL_URL');
-        }
-        return;
-      }
-
-      const result = await createStripeCheckoutSession(validatedPlan);
-      if (result.success) {
-        window.location.href = result.data;
-      } else {
-        throw new Error('NO_CHECKOUT_URL');
-      }
-    } catch {
-      toast.error(t('planSelectionFailed'));
-    }
-  };
+      router.refresh();
+    })();
+    const timer = setTimeout(() => setShowSuccess(false), SUCCESS_AUTO_CLOSE_MS);
+    return () => clearTimeout(timer);
+  }, [searchParams, router]);
 
   return (
     <>
-      <PricingComponent onPlanSelect={handlePlanSelect} billingData={billingData} defaultCurrency={'USD'} />
+      <PricingComponent
+        onPlanSelect={selectPlan}
+        billingData={billingData}
+        defaultCurrency={billingData.subscription.currency ?? 'USD'}
+        lockedCurrency={billingData.subscription.currencyLocked ? billingData.subscription.currency : undefined}
+      />
 
       <div className='mt-6 text-center'>
-        {billingData.isExistingPaidSubscriber ? (
-          <p className='text-muted-foreground text-sm'>{t('subscriptionChangesNote')}</p>
-        ) : (
-          <p className='text-muted-foreground text-sm'>{t('freePlanNote')}</p>
-        )}
+        <p className='text-muted-foreground text-sm'>
+          {billingData.isExistingPaidSubscriber ? t('subscriptionChangesNote') : t('freePlanNote')}
+        </p>
       </div>
 
-      {session?.user?.email && (
-        <VerificationRequiredModal
-          isOpen={showVerificationModal}
-          onClose={() => setShowVerificationModal(false)}
-          userEmail={session.user.email}
-          userName={session.user.name || undefined}
-        />
-      )}
+      <Dialog open={showSuccess} onOpenChange={(next) => !next && setShowSuccess(false)}>
+        <DialogContent className='sm:max-w-md' overlayClassName='bg-white/85 dark:bg-black/85 backdrop-blur-sm'>
+          <DialogHeader className='sr-only'>
+            <DialogTitle>{tCheckout('successTitle')}</DialogTitle>
+            <DialogDescription>
+              {tCheckout('successDescription', { tier: billingData.subscription.tier })}
+            </DialogDescription>
+          </DialogHeader>
+          <SuccessCheckmark
+            label={tCheckout('successTitle')}
+            description={tCheckout('successDescription', { tier: billingData.subscription.tier })}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

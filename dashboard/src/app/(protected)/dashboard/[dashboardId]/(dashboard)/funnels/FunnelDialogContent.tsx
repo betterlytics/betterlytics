@@ -1,63 +1,67 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef } from 'react';
-import { PlusIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
+
 import FunnelBarplot from '@/components/funnels/FunnelBarplot';
-import { FunnelStepFilter } from './FunnelStepFilter';
-import { Reorder } from 'motion/react';
+import { InfoTooltip } from '@/components/ui-extended/InfoTooltip';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import type { useFunnelDialog } from '@/hooks/use-funnel-dialog';
+import { useQueryState } from '@/hooks/use-query-state';
 import { cn } from '@/lib/utils';
-import { useFunnelDialog } from '@/hooks/use-funnel-dialog';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
-import { useQueryState } from '@/hooks/use-query-state';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { FunnelStepAccordion } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelStepAccordion';
 
 type FunnelDialogContentProps = {
-  metadata: ReturnType<typeof useFunnelDialog>['metadata'];
-  setName: ReturnType<typeof useFunnelDialog>['setName'];
-  setIsStrict: ReturnType<typeof useFunnelDialog>['setIsStrict'];
-  funnelSteps: ReturnType<typeof useFunnelDialog>['funnelSteps'];
-  addEmptyFunnelStep: ReturnType<typeof useFunnelDialog>['addEmptyFunnelStep'];
-  setFunnelSteps: ReturnType<typeof useFunnelDialog>['setFunnelSteps'];
-  updateFunnelStep: ReturnType<typeof useFunnelDialog>['updateFunnelStep'];
-  removeFunnelStep: ReturnType<typeof useFunnelDialog>['removeFunnelStep'];
-  searchableFunnelSteps: ReturnType<typeof useFunnelDialog>['searchableFunnelSteps'];
-  funnelPreview: ReturnType<typeof useFunnelDialog>['funnelPreview'];
-  emptySteps: ReturnType<typeof useFunnelDialog>['emptySteps'];
-  isPreviewLoading: ReturnType<typeof useFunnelDialog>['isPreviewLoading'];
+  dialog: ReturnType<typeof useFunnelDialog>;
   hasAttemptedSubmit: boolean;
+  initialOpenId: string | undefined;
   labels: {
     name: string;
     namePlaceholder?: string;
     strictMode: string;
     addStep: string;
-    livePreview: string;
-    defineAtLeastTwoSteps: string;
   };
 };
 
 export function FunnelDialogContent({
-  metadata,
-  setName,
-  setIsStrict,
-  funnelSteps,
-  addEmptyFunnelStep,
-  setFunnelSteps,
-  updateFunnelStep,
-  removeFunnelStep,
-  searchableFunnelSteps,
-  funnelPreview,
-  emptySteps,
-  isPreviewLoading,
+  dialog,
   hasAttemptedSubmit,
+  initialOpenId,
   labels,
 }: FunnelDialogContentProps) {
+  const {
+    metadata,
+    setName,
+    setIsStrict,
+    funnelSteps,
+    addEmptyFunnelStep,
+    setFunnelSteps,
+    updateFunnelStep,
+    removeFunnelStep,
+    funnelPreview,
+    emptySteps,
+    previewStatus,
+    previewRefetching,
+  } = dialog;
+  const t = useTranslations('components.funnels');
   const isNameEmpty = metadata.name.trim() === '';
   const showNameError = hasAttemptedSubmit && isNameEmpty;
+
+  const stepsListRef = useRef<HTMLDivElement>(null);
+  const handleAddStep = useCallback(() => {
+    addEmptyFunnelStep();
+    requestAnimationFrame(() => {
+      stepsListRef.current?.lastElementChild
+        ?.querySelector<HTMLElement>('[data-focus-target]')
+        ?.focus({ preventScroll: true });
+    });
+  }, [addEmptyFunnelStep]);
 
   const { input, options } = useBAQueryParams();
   const { isDemo } = useDashboardAuth();
@@ -65,122 +69,62 @@ export function FunnelDialogContent({
   const { data, loading } = useQueryState(gpQuery, !isDemo);
   const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
 
-  // Local state for smooth drag reordering without triggering refetches
-  const [localSteps, setLocalSteps] = useState(funnelSteps);
-  const localStepsRef = useRef(localSteps);
-  const isDraggingRef = useRef(false);
-
-  useEffect(() => {
-    localStepsRef.current = localSteps;
-  }, [localSteps]);
-
-  // Sync local state when funnelSteps changes externally (e.g., add/remove step)
-  useEffect(() => {
-    if (!isDraggingRef.current) {
-      setLocalSteps(funnelSteps);
-    }
-  }, [funnelSteps]);
-
-  const handleDragStart = useCallback(() => {
-    isDraggingRef.current = true;
-  }, []);
-
-  const handleDragEnd = useCallback(() => {
-    isDraggingRef.current = false;
-    setFunnelSteps(localStepsRef.current);
-  }, [setFunnelSteps]);
-
-  const requestStepRemoval = useCallback(
-    (id: string) => {
-      if (funnelSteps.length <= 2) {
-        updateFunnelStep({ id, column: 'url', operator: '=', values: [], name: '' });
-      } else {
-        removeFunnelStep(id);
-      }
-    },
-    [funnelSteps.length, updateFunnelStep, removeFunnelStep],
-  );
-
   return (
-    <div className='scrollbar-thin bg-card flex min-h-0 flex-1 flex-col overflow-y-auto rounded-lg'>
-      <div className='flex flex-1 flex-col'>
-        <div className='flex flex-1 flex-col gap-4 rounded-lg p-4'>
-          <div className='flex w-full justify-between'>
-            <div className='flex gap-4'>
-              <div className='max-w-md min-w-40'>
-                <Label htmlFor='name' className='text-foreground mb-1 block'>
-                  {labels.name} <span className='text-destructive'>*</span>
-                </Label>
-                <Input
-                  id='name'
-                  placeholder={labels.namePlaceholder}
-                  value={metadata.name}
-                  onChange={(evt) => setName(evt.target.value)}
-                  className={cn(showNameError && 'border-destructive')}
-                />
-              </div>
-              <div className='flex items-end'>
-                <div className='flex h-9 items-center gap-2 rounded-lg px-2'>
-                  <Label htmlFor='strict-mode' className='text-foreground cursor-pointer'>
-                    {labels.strictMode}
-                  </Label>
-                  <Switch
-                    id='strict-mode'
-                    className='cursor-pointer'
-                    checked={metadata.isStrict}
-                    onCheckedChange={setIsStrict}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='flex items-end'>
-              <Button variant='outline' onClick={addEmptyFunnelStep} className='cursor-pointer whitespace-nowrap'>
-                <PlusIcon className='h-4 w-4' /> {labels.addStep}
-              </Button>
-            </div>
-          </div>
-          <Reorder.Group axis='y' values={localSteps} onReorder={setLocalSteps} className='flex flex-col gap-2'>
-            {localSteps.map((step, index) => (
-              <Reorder.Item
-                key={step.id}
-                value={step}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                className='dark:border-border border-foreground/30 bg-card relative flex cursor-move items-center rounded-md border pl-4'
-              >
-                <div className='dark:border-border border-foreground/30 bg-card absolute -left-3 flex size-4 items-center justify-center rounded-full border p-3 shadow'>
-                  <p className='text-muted-foreground text-sm font-medium'>{index + 1}</p>
-                </div>
-                <FunnelStepFilter
-                  onFilterUpdate={updateFunnelStep}
-                  filter={step}
-                  requestRemoval={requestStepRemoval}
-                  showEmptyError={hasAttemptedSubmit}
-                  globalPropertyKeys={globalPropertyKeys}
-                />
-              </Reorder.Item>
-            ))}
-          </Reorder.Group>
+    <div className='flex min-h-0 flex-1 flex-col gap-4'>
+      <div className='flex shrink-0 flex-wrap items-end gap-x-6 gap-y-3'>
+        <div className='w-full sm:w-auto sm:max-w-sm sm:min-w-[18rem]'>
+          <Label htmlFor='name' className='text-foreground mb-1.5 block'>
+            {labels.name} <span className='text-destructive'>*</span>
+          </Label>
+          <Input
+            id='name'
+            placeholder={labels.namePlaceholder}
+            value={metadata.name}
+            onChange={(evt) => setName(evt.target.value)}
+            className={cn(showNameError && 'border-destructive')}
+          />
         </div>
-        {searchableFunnelSteps.length < 2 && (
-          <div className='text-muted-foreground flex flex-1 items-center justify-center p-4'>
-            <p>{labels.defineAtLeastTwoSteps}</p>
-          </div>
-        )}
-        {searchableFunnelSteps.length >= 2 &&
-          (!isPreviewLoading && funnelPreview ? (
-            <div className='space-y-4 rounded-lg p-4'>
-              <Label htmlFor='name' className='text-foreground mb-2 block pl-1'>
-                {labels.livePreview}
-              </Label>
-              <FunnelBarplot funnel={funnelPreview} emptySteps={emptySteps} />
-            </div>
-          ) : (
-            <section className='space-y-3'>
-              <div className='bg-muted h-6 w-48 animate-pulse rounded' />
-              <div className='bg-muted h-40 w-full animate-pulse rounded' />
-            </section>
-          ))}
+        <div className='flex h-9 items-center gap-2'>
+          <Label htmlFor='strict-mode' className='text-foreground cursor-pointer'>
+            {labels.strictMode}
+          </Label>
+          <InfoTooltip side='top' iconClassName='size-3.5' ariaLabel={labels.strictMode}>
+            <InfoTooltip.Description>{t('strictModeInfo')}</InfoTooltip.Description>
+          </InfoTooltip>
+          <Switch
+            id='strict-mode'
+            className='cursor-pointer'
+            checked={metadata.isStrict}
+            onCheckedChange={setIsStrict}
+          />
+        </div>
+      </div>
+
+      <Separator className='mt-2' />
+
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden lg:h-[520px] lg:flex-initial lg:flex-row lg:gap-6'>
+        <FunnelStepAccordion
+          listRef={stepsListRef}
+          className='min-h-0 min-w-0 flex-1 lg:flex-[0_1_36rem]'
+          steps={funnelSteps}
+          initialOpenId={initialOpenId}
+          onReorder={setFunnelSteps}
+          onUpdateStep={updateFunnelStep}
+          onRemoveStep={removeFunnelStep}
+          globalPropertyKeys={globalPropertyKeys}
+          hasAttemptedSubmit={hasAttemptedSubmit}
+          onAddStep={handleAddStep}
+          addStepLabel={labels.addStep}
+        />
+        <FunnelBarplot
+          className='hidden pt-3 lg:flex lg:min-w-0 lg:flex-1'
+          funnel={funnelPreview}
+          emptySteps={emptySteps}
+          status={previewStatus}
+          refetching={previewRefetching}
+          emptyMessage={t('preview.defineAtLeastTwoSteps')}
+          fill
+        />
       </div>
     </div>
   );

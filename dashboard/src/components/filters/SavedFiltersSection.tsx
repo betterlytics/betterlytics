@@ -13,16 +13,16 @@ import { useSavedFilters, useDeleteSavedFilter, useRestoreSavedFilter } from '@/
 import { type SavedFilter } from '@/entities/analytics/savedFilters.entities';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { PermissionGate } from '../tooltip/PermissionGate';
 
 type SavedFiltersSectionProps = {
+  className?: string;
   onLoadFilter: Dispatch<QueryFilter[]>;
   isOpen: boolean;
   onOpenChange: Dispatch<boolean>;
 };
 
-export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: SavedFiltersSectionProps) {
+export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange, className }: SavedFiltersSectionProps) {
   const t = useTranslations('components.filters');
   const [deletingFilterId, setDeletingFilterId] = useState<string | null>(null);
 
@@ -71,7 +71,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
   return (
     <PermissionGate allowViewer>
       {(disabled) => (
-        <div className='flex flex-col gap-2'>
+        <div className={cn('flex flex-col gap-2', className)}>
           <Separator />
           <Collapsible
             className={cn('group')}
@@ -91,7 +91,10 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange }: Save
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className='grid grid-cols-1 grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'>
+              <div 
+                className='grid grid-cols-1 grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'
+                data-slot='saved-filters-collapsible-content'
+              >
                 <ScrollArea
                   className='h-full min-h-0 [&>[data-slot=scroll-area-viewport]>div]:!block'
                   onWheel={(e) => e.stopPropagation()}
