@@ -84,7 +84,7 @@ function WizardStepper({
         return (
           <Fragment key={step}>
             {index > 0 && (
-              <span className='bg-border relative h-px w-8 overflow-hidden' aria-hidden>
+              <span className='bg-border relative h-0.5 w-8 overflow-hidden rounded-full' aria-hidden>
                 <span
                   className={cn(
                     'absolute inset-0 origin-left bg-emerald-500 motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out',
@@ -102,14 +102,14 @@ function WizardStepper({
             >
               <span
                 className={cn(
-                  'flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold motion-safe:transition-all motion-safe:duration-300',
+                  'flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold motion-safe:transition-all motion-safe:duration-300',
                   done || active
                     ? 'bg-emerald-500 text-emerald-950'
                     : 'border-border text-muted-foreground border',
                   active && 'ring-offset-background ring-2 ring-emerald-500/30 ring-offset-2',
                 )}
               >
-                {done ? <Check className='h-3 w-3' strokeWidth={3} /> : index + 1}
+                {done ? <Check className='h-3.5 w-3.5' strokeWidth={3} /> : index + 1}
               </span>
               {/* Ghost reserves the bold width so the active label doesn't widen the row on each step. */}
               <span className='grid text-xs'>
