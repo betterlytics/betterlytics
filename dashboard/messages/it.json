@@ -3242,6 +3242,9 @@
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
     "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
+    "statusPageLogoInvalid": "Impossibile leggere il file come immagine",
+    "statusPageLogoTooLarge": "Il logo è troppo grande",
+    "statusPageLogoBadType": "Il logo deve essere un'immagine PNG, JPEG o WebP",
     "capabilities": {
       "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
       "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
@@ -4031,6 +4034,9 @@
       },
       "logo": "Logo",
       "uploadLogo": "Carica logo",
+      "replaceLogo": "Sostituisci",
+      "removeLogo": "Rimuovi",
+      "logoTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
       "accentColor": "Colore principale",
       "theme": "Tema",
       "themes": {

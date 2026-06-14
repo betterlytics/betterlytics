@@ -10,6 +10,16 @@ import {
   type StatusPageWithMonitors,
 } from '@/entities/analytics/statusPage.entities';
 
+/**
+ * The app consumes a single `logoUrl` string. An uploaded logo is served by the
+ * /status/{slug}/logo route handler; we derive that URL here (with the hash as a cache-bust
+ * token) so callers never touch the blob. Falls back to the owner-pasted external URL.
+ */
+function resolveLogoUrl(row: { slug: string; logoHash: string | null; logoUrl: string | null }): string | null {
+  if (row.logoHash) return `/status/${row.slug}/logo?v=${row.logoHash}`;
+  return row.logoUrl ?? null;
+}
+
 export async function listStatusPages(dashboardId: string): Promise<StatusPageListItem[]> {
   const rows = await prisma.statusPage.findMany({
     where: { dashboardId, deletedAt: null },
@@ -17,7 +27,10 @@ export async function listStatusPages(dashboardId: string): Promise<StatusPageLi
     orderBy: { createdAt: 'asc' },
   });
 
-  return rows.map(({ _count, ...row }) => ({ ...StatusPageSchema.parse(row), monitorCount: _count.monitors }));
+  return rows.map(({ _count, ...row }) => ({
+    ...StatusPageSchema.parse({ ...row, logoUrl: resolveLogoUrl(row) }),
+    monitorCount: _count.monitors,
+  }));
 }
 
 export async function getStatusPageById(
@@ -32,7 +45,7 @@ export async function getStatusPageById(
 
   const { monitors, ...page } = row;
   return {
-    ...StatusPageSchema.parse(page),
+    ...StatusPageSchema.parse({ ...page, logoUrl: resolveLogoUrl(page) }),
     monitors: monitors.map((monitor) => StatusPageMonitorRowSchema.parse(monitor)),
   };
 }
@@ -116,6 +129,59 @@ export async function removeMonitorFromStatusPages(dashboardId: string, monitorC
   await prisma.statusPageMonitor.deleteMany({ where: { dashboardId, monitorCheckId } });
 }
 
+/**
+ * Store an uploaded logo and stamp its hash on the page, atomically. The page update is keyed by the
+ * composite (id, dashboardId), so it throws if the page isn't owned by this dashboard — that ownership
+ * check also guards the logo upsert in the same transaction. Returns the slug for cache revalidation.
+ */
+export async function setStatusPageLogo(
+  dashboardId: string,
+  statusPageId: string,
+  logo: { data: Buffer; mimeType: string; hash: string },
+): Promise<string> {
+  const [page] = await prisma.$transaction([
+    prisma.statusPage.update({
+      where: { id_dashboardId: { id: statusPageId, dashboardId } },
+      data: { logoHash: logo.hash, logoUrl: null },
+      select: { slug: true },
+    }),
+    prisma.statusPageLogo.upsert({
+      where: { statusPageId },
+      create: { statusPageId, data: logo.data, mimeType: logo.mimeType },
+      update: { data: logo.data, mimeType: logo.mimeType },
+    }),
+  ]);
+  return page.slug;
+}
+
+export async function removeStatusPageLogo(dashboardId: string, statusPageId: string): Promise<string> {
+  const [page] = await prisma.$transaction([
+    prisma.statusPage.update({
+      where: { id_dashboardId: { id: statusPageId, dashboardId } },
+      data: { logoHash: null },
+      select: { slug: true },
+    }),
+    prisma.statusPageLogo.deleteMany({ where: { statusPageId } }),
+  ]);
+  return page.slug;
+}
+
+/**
+ * Read for the public logo route handler — the ONLY query that loads the blob. Not gated on
+ * isPublished so the editor's live preview can render draft pages' logos; the slug uniquely
+ * identifies a non-deleted page (partial unique index).
+ */
+export async function getStatusPageLogoBySlug(
+  slug: string,
+): Promise<{ data: Buffer; mimeType: string; hash: string | null } | null> {
+  const logo = await prisma.statusPageLogo.findFirst({
+    where: { statusPage: { slug, deletedAt: null } },
+    select: { data: true, mimeType: true, statusPage: { select: { logoHash: true } } },
+  });
+  if (!logo) return null;
+  return { data: Buffer.from(logo.data), mimeType: logo.mimeType, hash: logo.statusPage.logoHash };
+}
+
 const statusPageSnapshotInclude = {
   dashboard: { select: { siteId: true } },
   monitors: {
@@ -132,7 +198,7 @@ type StatusPageSnapshotRow = NonNullable<
 function toPublishedStatusPage(row: StatusPageSnapshotRow): PublishedStatusPage {
   const { dashboard, monitors, ...page } = row;
   return {
-    page: StatusPageSchema.parse(page),
+    page: StatusPageSchema.parse({ ...page, logoUrl: resolveLogoUrl(page) }),
     siteId: dashboard.siteId,
     monitors: monitors.map((monitor) => ({
       monitorCheckId: monitor.monitorCheckId,

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Copy, ExternalLink, Megaphone, Upload } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, Loader2, Megaphone, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -44,11 +44,39 @@ import { IncidentsManager } from './IncidentsManager';
 import { SortableMonitorRow, type MonitorRow } from './SortableMonitorRow';
 import {
   checkStatusPageSlugAction,
+  removeStatusPageLogoAction,
   setStatusPagePublishedAction,
   updateStatusPageAction,
+  uploadStatusPageLogoAction,
 } from '@/app/actions/analytics/statusPage.actions';
 
 const ACCENT_PRESETS = ['#4845d8', '#3b82f6', '#22c55e', '#8b5cf6', '#f59e0b', '#0ea5e9'];
+
+// Generous guard so we don't read an enormous file into the tab before resizing; the canvas
+// step shrinks the logo to well under STATUS_PAGE_LIMITS.LOGO_MAX_BYTES regardless.
+const MAX_ORIGINAL_LOGO_BYTES = 10 * 1024 * 1024;
+const LOGO_MAX_DIMENSION = 128;
+
+/** Downscale to a small square-bounded WebP on the client so the server only ever stores a tiny blob. */
+async function resizeToWebp(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  try {
+    const scale = Math.min(1, LOGO_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Canvas unsupported');
+    context.drawImage(bitmap, 0, 0, width, height);
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Encode failed'))), 'image/webp', 0.9);
+    });
+  } finally {
+    bitmap.close();
+  }
+}
 
 type StatusPageEditorProps = {
   dashboardId: string;
@@ -100,6 +128,8 @@ export function StatusPageEditor({
   const [slug, setSlug] = useState(statusPage.slug);
   const [theme, setTheme] = useState<StatusPageTheme>(statusPage.theme);
   const [accentColor, setAccentColor] = useState(statusPage.accentColor);
+  const [logoUrl, setLogoUrl] = useState<string | null>(statusPage.logoUrl);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [language, setLanguage] = useState<SupportedLanguages>(statusPage.language);
   const [showPastIncidents, setShowPastIncidents] = useState(statusPage.showPastIncidents);
   const [homepageUrl, setHomepageUrl] = useState('');
@@ -167,6 +197,44 @@ export function StatusPageEditor({
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
+
+  // Logo is uploaded via its own action (binary, with its own validation), independent of the
+  // debounced JSON autosave above.
+  const logoMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const blob = await resizeToWebp(file);
+      const formData = new FormData();
+      formData.append('logo', blob, 'logo.webp');
+      return uploadStatusPageLogoAction(dashboardId, statusPage.id, formData);
+    },
+    onSuccess: (result) => {
+      setLogoUrl(result.logoUrl);
+      router.refresh();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
+  const removeLogoMutation = useMutation({
+    mutationFn: async () => removeStatusPageLogoAction(dashboardId, statusPage.id),
+    onSuccess: () => {
+      setLogoUrl(null);
+      router.refresh();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
+  const handleLogoSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = ''; // allow re-selecting the same file
+    if (!file) return;
+    if (file.size > MAX_ORIGINAL_LOGO_BYTES) {
+      toast.error(t('logoTooLarge'));
+      return;
+    }
+    logoMutation.mutate(file);
+  };
+
+  const logoBusy = logoMutation.isPending || removeLogoMutation.isPending;
 
   const debouncedSlug = useDebounce(slug, 400);
   useEffect(() => {
@@ -337,13 +405,65 @@ export function StatusPageEditor({
             <div className='flex flex-wrap items-start gap-6'>
               <div className='space-y-2'>
                 <Label>{t('logo')}</Label>
-                <button
-                  type='button'
-                  className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-36 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-dashed text-xs transition-colors'
-                >
-                  <Upload className='h-3.5 w-3.5' />
-                  {t('uploadLogo')}
-                </button>
+                <input
+                  ref={logoInputRef}
+                  type='file'
+                  accept='image/png,image/jpeg,image/webp'
+                  className='hidden'
+                  onChange={handleLogoSelected}
+                />
+                <PermissionGate>
+                  {(disabled) =>
+                    logoUrl ? (
+                      // Fixed-size chip, same footprint as the empty tile so uploading doesn't shift layout.
+                      // Block (not inline-block) so there's no inline baseline/descender gap below it.
+                      <div className='relative h-20 w-20'>
+                        <button
+                          type='button'
+                          aria-label={t('replaceLogo')}
+                          disabled={disabled || logoBusy}
+                          onClick={() => logoInputRef.current?.click()}
+                          className='group border-input relative block h-20 w-20 cursor-pointer overflow-hidden rounded-md border disabled:cursor-not-allowed'
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element -- owner-provided logo, not optimizable via next/image */}
+                          <img src={logoUrl} alt='' className='h-full w-full object-contain p-1.5' />
+                          <span className='absolute inset-0 flex flex-col items-center justify-center gap-0.5 bg-black/55 text-[10px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100'>
+                            <Upload className='h-4 w-4' />
+                            {t('replaceLogo')}
+                          </span>
+                          {logoBusy && (
+                            <span className='absolute inset-0 flex items-center justify-center bg-black/55'>
+                              <Loader2 className='h-5 w-5 animate-spin text-white' />
+                            </span>
+                          )}
+                        </button>
+                        <button
+                          type='button'
+                          aria-label={t('removeLogo')}
+                          disabled={disabled || logoBusy}
+                          onClick={() => removeLogoMutation.mutate()}
+                          className='border-input bg-background text-muted-foreground hover:text-destructive absolute -top-1.5 -right-1.5 z-10 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+                        >
+                          <X className='h-3 w-3' />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type='button'
+                        disabled={disabled || logoBusy}
+                        onClick={() => logoInputRef.current?.click()}
+                        className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed px-1 text-center text-[10px] leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+                      >
+                        {logoMutation.isPending ? (
+                          <Loader2 className='h-5 w-5 animate-spin' />
+                        ) : (
+                          <Upload className='h-5 w-5' />
+                        )}
+                        {t('uploadLogo')}
+                      </button>
+                    )
+                  }
+                </PermissionGate>
               </div>
               <ColorSwatchPicker
                 label={t('accentColor')}
@@ -482,6 +602,7 @@ export function StatusPageEditor({
               theme,
               accentColor,
               language,
+              logoUrl,
               showPastIncidents,
               monitors: monitorRows.map((row) => ({
                 monitorCheckId: row.monitorCheckId,
