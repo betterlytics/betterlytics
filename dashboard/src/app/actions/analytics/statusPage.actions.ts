@@ -183,21 +183,9 @@ function averageUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
 async function computeStatusPageDefaults(dashboardId: string) {
   const dashboard = await findDashboardById(dashboardId);
 
-  const base = slugifyDomain(dashboard.domain) || 'my-status-page';
-  const candidates = [base, `${base}-status`, ...Array.from({ length: 8 }, (_, i) => `${base}-${i + 2}`)];
-
-  let slug: string | undefined;
-  for (const candidate of candidates) {
-    const parsed = StatusPageSlugSchema.safeParse(candidate);
-    if (parsed.success && (await isStatusPageSlugAvailable(parsed.data))) {
-      slug = parsed.data;
-      break;
-    }
-  }
-  if (!slug) {
-    const t = await getTranslations('validation');
-    throw new UserException(t('statusPageSlugTaken'));
-  }
+  const slug =
+    slugifyDomain(dashboard.domain).slice(0, STATUS_PAGE_LIMITS.SLUG_MAX).replace(/-+$/, '') ||
+    'my-status-page';
 
   const domainLabel = dashboard.domain.split('.')[0] || dashboard.domain;
   const name = `${domainLabel.charAt(0).toUpperCase()}${domainLabel.slice(1)} Status`;

@@ -4096,7 +4096,13 @@
         "createMonitor": "Crea un monitor",
         "selectedCount": "{selected} di {total} monitor selezionati",
         "publicNames": "Nomi pubblici e ordine",
-        "dragReorder": "Trascina per riordinare"
+        "dragReorder": "Trascina per riordinare",
+        "confirmDiscard": {
+          "title": "Vuoi annullare questa pagina di stato?",
+          "description": "Hai apportato modifiche che andranno perse se chiudi ora. Non è stato salvato nulla.",
+          "keep": "Continua a modificare",
+          "discard": "Annulla modifiche"
+        }
       },
       "incidents": {
         "title": "Incidenti",

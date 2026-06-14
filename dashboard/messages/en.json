@@ -4082,7 +4082,13 @@
         "createMonitor": "Create a monitor",
         "selectedCount": "{selected} of {total} monitors selected",
         "publicNames": "Public names & order",
-        "dragReorder": "Drag to reorder"
+        "dragReorder": "Drag to reorder",
+        "confirmDiscard": {
+          "title": "Discard this status page?",
+          "description": "You've made changes that will be lost if you close now. Nothing has been saved yet.",
+          "keep": "Keep editing",
+          "discard": "Discard"
+        }
       },
       "incidents": {
         "title": "Incidents",

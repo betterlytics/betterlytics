@@ -4088,7 +4088,13 @@
         "createMonitor": "Opret en monitor",
         "selectedCount": "{selected} af {total} monitorer valgt",
         "publicNames": "Offentlige navne og rækkefølge",
-        "dragReorder": "Træk for at ændre rækkefølge"
+        "dragReorder": "Træk for at ændre rækkefølge",
+        "confirmDiscard": {
+          "title": "Vil du kassere denne statusside?",
+          "description": "Du har lavet ændringer, der går tabt, hvis du lukker nu. Intet er gemt endnu.",
+          "keep": "Fortsæt redigering",
+          "discard": "Kasser"
+        }
       },
       "incidents": {
         "title": "Hændelser",

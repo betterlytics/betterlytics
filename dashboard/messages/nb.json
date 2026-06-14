@@ -4096,7 +4096,13 @@
         "createMonitor": "Opprett en overvåker",
         "selectedCount": "{selected} av {total} overvåkere valgt",
         "publicNames": "Offentlige navn og rekkefølge",
-        "dragReorder": "Dra for å endre rekkefølge"
+        "dragReorder": "Dra for å endre rekkefølge",
+        "confirmDiscard": {
+          "title": "Forkaste denne statussiden?",
+          "description": "Du har gjort endringer som går tapt hvis du lukker nå. Ingenting er lagret ennå.",
+          "keep": "Fortsett redigering",
+          "discard": "Forkast"
+        }
       },
       "incidents": {
         "title": "Hendelser",
