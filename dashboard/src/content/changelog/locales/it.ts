@@ -1,51 +1,63 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v143ChangelogEntryIt: ChangelogEntryData = {
+const v144ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.3',
-    releasedAt: '2026-05-24',
-    title: 'Impostazioni account rinnovate e maggiore sicurezza',
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Funnel con più criteri, fatturazione più fluida e maggiore privacy',
     summary:
-      'Una finestra delle impostazioni utente ridisegnata, nuove opzioni per gestire le sessioni attive, controlli più rigorosi sull\'autenticazione a due fattori, oltre a una manciata di correzioni e rifiniture.',
+      "Crea funnel più precisi con più criteri per ogni passaggio, ora utilizzabili anche da dispositivi mobili. Gestisci il tuo abbonamento e le tue fatture senza uscire dall'app e offri ai tuoi visitatori una privacy ancora più forte.",
   },
   sections: [
     {
-      id: 'v143-security',
-      title: 'Sicurezza',
+      id: 'v144-new-features',
+      title: 'Nuove funzionalità',
       blocks: [
         {
           type: 'list',
           items: [
-            'Ora puoi disconnetterti da tutte le altre sessioni attive direttamente dalle impostazioni del tuo account.',
-            'Per disattivare l\'autenticazione a due fattori è ora necessario un codice TOTP valido, per una protezione aggiuntiva contro modifiche non autorizzate.',
-            'L\'autenticazione a due fattori non è più disponibile per gli account che accedono tramite Google o GitHub, dato che il provider la gestisce già.',
+            'I passaggi dei funnel ora supportano più criteri. Ogni passaggio può combinare più filtri, ad esempio una pagina specifica e un referrer, così puoi definire percorsi di conversione molto più precisi.',
+            "Ora puoi creare e modificare i funnel da dispositivi mobili, con un'esperienza fluida su smartphone e tablet.",
+            "Gestisci il tuo abbonamento senza uscire da Betterlytics. Ora puoi passare a un piano superiore o inferiore direttamente nell'app, con un'anteprima chiara di eventuali addebiti o crediti proporzionali prima di confermare. Anche il pagamento avviene in modo sicuro nell'app, senza reindirizzamenti a una pagina esterna.",
+            'Visualizza e apri le tue fatture passate direttamente dalle impostazioni del tuo account.',
           ],
         },
       ],
     },
     {
-      id: 'v143-improvements',
+      id: 'v144-privacy-security',
+      title: 'Privacy e sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Abbiamo ulteriormente rafforzato l'anonimizzazione dei dati dei visitatori, a conferma del nostro impegno per la privacy: le analisi non possono mai essere ricondotte a singole persone.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'La finestra delle impostazioni utente è stata ridisegnata con un layout più pulito e ordinato.',
-            'Le favicon dei domini delle dashboard vengono caricate in modo più affidabile per un numero maggiore di siti.',
-            'Piccole rifiniture all\'interfaccia in tutta la dashboard.',
+            'Il credito per il tempo di abbonamento non utilizzato viene ora mostrato nelle impostazioni di fatturazione e applicato automaticamente alle fatture future.',
+            'I problemi di pagamento sono ora più chiari, con un avviso quando un pagamento è scaduto e la possibilità di aggiornare il metodo di pagamento con un solo clic.',
+            'La pagina dei prezzi è stata rinnovata con un volume di eventi suggerito in base al traffico stimato e una panoramica più chiara di ciò che include ogni piano.',
           ],
         },
       ],
     },
     {
-      id: 'v143-fixes',
+      id: 'v144-fixes',
       title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui gli utenti senza un nome impostato sull\'account non riuscivano ad aggiornare le proprie impostazioni.',
-            'Risolto un problema per cui annullare un cambio di tema poteva lasciare il tema visualizzato non allineato con l\'impostazione salvata.',
+            "Risolto un breve sfarfallio visivo che poteva comparire alla chiusura delle finestre di dialogo in tutta l'app.",
           ],
         },
       ],
@@ -53,10 +65,62 @@ const v143ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v143ChangelogEntryIt;
+export const latestChangelogModalIt = v144ChangelogEntryIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
-  v143ChangelogEntryIt,
+  v144ChangelogEntryIt,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Impostazioni account rinnovate e maggiore sicurezza',
+      summary:
+        "Una finestra delle impostazioni utente ridisegnata, nuove opzioni per gestire le sessioni attive, controlli più rigorosi sull'autenticazione a due fattori, oltre a una manciata di correzioni e rifiniture.",
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Ora puoi disconnetterti da tutte le altre sessioni attive direttamente dalle impostazioni del tuo account.',
+              "Per disattivare l'autenticazione a due fattori è ora necessario un codice TOTP valido, per una protezione aggiuntiva contro modifiche non autorizzate.",
+              "L'autenticazione a due fattori non è più disponibile per gli account che accedono tramite Google o GitHub, dato che il provider la gestisce già.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La finestra delle impostazioni utente è stata ridisegnata con un layout più pulito e ordinato.',
+              'Le favicon dei domini delle dashboard vengono caricate in modo più affidabile per un numero maggiore di siti.',
+              "Piccole rifiniture all'interfaccia in tutta la dashboard.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "Risolto un problema per cui gli utenti senza un nome impostato sull'account non riuscivano ad aggiornare le proprie impostazioni.",
+              "Risolto un problema per cui annullare un cambio di tema poteva lasciare il tema visualizzato non allineato con l'impostazione salvata.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.2',
