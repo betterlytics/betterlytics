@@ -245,6 +245,7 @@ function WizardForm({
       included: row.included,
       publicName: row.publicName,
     })),
+    logoUrl: null
   };
 
   if (created) {
