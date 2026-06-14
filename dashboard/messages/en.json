@@ -4040,6 +4040,7 @@
       "publicNamePlaceholder": "Public display name",
       "reorderMonitor": "Reorder monitor",
       "preview": "Live preview",
+      "loadingPreview": "Loading preview…",
       "tabs": {
         "setup": "Page setup",
         "incidents": "Incidents"

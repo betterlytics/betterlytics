@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { FlowOverlay } from './FlowOverlay';
+import { FlowOverlayHeader } from './FlowOverlayHeader';
 import {
   STATUS_PAGE_LIMITS,
   type DetectedOutageSuggestion,
@@ -261,30 +262,32 @@ export function IncidentsManager({
 
   if (open) {
     return (
-      <FlowOverlay
-        title={form.id ? t('editIncident') : t('newIncident')}
-        closeAriaLabel={t('form.cancel')}
-        onClose={() => setOpen(false)}
-        actions={
-          <>
-            <Button variant='outline' size='sm' onClick={() => setOpen(false)} className='cursor-pointer'>
-              {t('form.cancel')}
-            </Button>
-            <PermissionGate>
-              {(disabled) => (
-                <Button
-                  size='sm'
-                  disabled={disabled || !formValid || saveMutation.isPending}
-                  onClick={() => saveMutation.mutate(form)}
-                  className='cursor-pointer'
-                >
-                  {t('form.save')}
-                </Button>
-              )}
-            </PermissionGate>
-          </>
-        }
-      >
+      <FlowOverlay>
+        <FlowOverlayHeader
+          title={form.id ? t('editIncident') : t('newIncident')}
+          closeAriaLabel={t('form.cancel')}
+          onClose={() => setOpen(false)}
+          actions={
+            <>
+              <Button variant='outline' size='sm' onClick={() => setOpen(false)} className='cursor-pointer'>
+                {t('form.cancel')}
+              </Button>
+              <PermissionGate>
+                {(disabled) => (
+                  <Button
+                    size='sm'
+                    disabled={disabled || !formValid || saveMutation.isPending}
+                    onClick={() => saveMutation.mutate(form)}
+                    className='cursor-pointer'
+                  >
+                    {t('form.save')}
+                  </Button>
+                )}
+              </PermissionGate>
+            </>
+          }
+        />
+        <div className='flex-1 overflow-y-auto'>
         <div className='mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10'>
           <div className='space-y-1'>
             <h2 className='text-lg font-semibold'>{form.id ? t('editIncident') : t('newIncident')}</h2>
@@ -403,6 +406,7 @@ export function IncidentsManager({
               />
             </div>
           </div>
+        </div>
         </div>
       </FlowOverlay>
     );

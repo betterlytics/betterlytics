@@ -4054,6 +4054,7 @@
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
       "preview": "Anteprima live",
+      "loadingPreview": "Caricamento anteprima…",
       "tabs": {
         "setup": "Impostazioni pagina",
         "incidents": "Incidenti"

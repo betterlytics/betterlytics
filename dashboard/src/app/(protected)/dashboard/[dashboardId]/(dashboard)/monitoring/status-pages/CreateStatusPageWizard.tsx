@@ -26,6 +26,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Spinner } from '@/components/ui/spinner';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import {
@@ -48,6 +49,7 @@ import {
 import { formatPercentage } from '@/utils/formatters';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { FlowOverlay } from './[statusPageId]/FlowOverlay';
+import { FlowOverlayHeader } from './[statusPageId]/FlowOverlayHeader';
 import { LivePreview, type PreviewDraft } from './[statusPageId]/LivePreview';
 import { SortableNameRow } from './[statusPageId]/SortableNameRow';
 import { type MonitorRow } from './[statusPageId]/SortableMonitorRow';
@@ -134,6 +136,26 @@ function WizardStepper({
           </Fragment>
         );
       })}
+    </div>
+  );
+}
+
+function PreviewLoadingFrame({ publicHost, slug }: { publicHost: string; slug: string }) {
+  const t = useTranslations('statusPagesPage.editor');
+  return (
+    <div className='bg-card border-border flex flex-col overflow-hidden rounded-xl border'>
+      <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
+        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
+        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
+        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
+        <span className='bg-muted text-muted-foreground ml-2 min-w-0 flex-1 truncate rounded-md px-2.5 py-0.5 text-xs'>
+          {`${publicHost}/status/${slug}`}
+        </span>
+      </div>
+      <div className='flex min-h-[360px] flex-col items-center justify-center gap-3'>
+        <Spinner size='sm' />
+        <span className='text-muted-foreground text-sm'>{t('loadingPreview')}</span>
+      </div>
     </div>
   );
 }
@@ -307,12 +329,14 @@ function WizardForm({
   if (created) {
     const publicUrl = `${publicBaseUrl}/status/${created.slug}`;
     return (
-      <FlowOverlay
-        title={t('wizard.title')}
-        closeAriaLabel={t('wizard.close')}
-        onClose={() => router.push(`/dashboard/${dashboardId}/monitoring/status-pages`)}
-      >
-        <div className='mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 text-center'>
+      <>
+        <FlowOverlayHeader
+          title={t('wizard.title')}
+          closeAriaLabel={t('wizard.close')}
+          onClose={() => router.push(`/dashboard/${dashboardId}/monitoring/status-pages`)}
+        />
+        <div className='flex-1 overflow-y-auto'>
+          <div className='mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 text-center'>
           <span className='flex h-13 w-13 items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_0_8px_rgba(34,197,94,0.15)]'>
             <Check className='h-6 w-6 text-white' strokeWidth={3} aria-hidden />
           </span>
@@ -349,8 +373,9 @@ function WizardForm({
               </a>
             </Button>
           </div>
+          </div>
         </div>
-      </FlowOverlay>
+      </>
     );
   }
 
@@ -379,7 +404,7 @@ function WizardForm({
             onClick={() => commitMutation.mutate(false)}
             className='cursor-pointer'
           >
-            {submittingDraft && <Loader2 className='mr-1.5 h-3.5 w-3.5 animate-spin' />}
+            {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
             {t('wizard.saveDraft')}
           </Button>
           <Button
@@ -388,7 +413,7 @@ function WizardForm({
             onClick={() => commitMutation.mutate(true)}
             className='cursor-pointer'
           >
-            {submittingPublish && <Loader2 className='mr-1.5 h-3.5 w-3.5 animate-spin' />}
+            {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
             {t('publish')}
           </Button>
         </>
@@ -403,7 +428,7 @@ function WizardForm({
 
   return (
     <>
-      <FlowOverlay
+      <FlowOverlayHeader
         title={t('wizard.title')}
         closeAriaLabel={t('wizard.close')}
         onClose={handleClose}
@@ -418,8 +443,8 @@ function WizardForm({
           />
         }
         actions={actions}
-        bodyClassName='flex min-h-0 flex-1 justify-center overflow-hidden'
-      >
+      />
+      <div className='flex min-h-0 flex-1 justify-center overflow-hidden'>
         <div className='flex min-h-0 w-full max-w-6xl'>
           <div className='flex-1 overflow-y-auto'>
             <div className='mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10'>
@@ -876,14 +901,12 @@ function WizardForm({
               ) : previewQuery.isError ? (
                 <p className='text-muted-foreground pt-10 text-sm'>{t('error')}</p>
               ) : (
-                <div className='flex justify-center pt-10'>
-                  <Loader2 className='text-muted-foreground h-6 w-6 animate-spin' />
-                </div>
+                <PreviewLoadingFrame publicHost={publicHost} slug={slug} />
               )}
             </div>
           </aside>
         </div>
-      </FlowOverlay>
+      </div>
       <ConfirmDialog
         open={showDiscardConfirm}
         onOpenChange={setShowDiscardConfirm}
@@ -914,27 +937,32 @@ export function CreateStatusPageWizard({
     gcTime: 0,
   });
 
-  if (defaultsQuery.data) {
-    return (
-      <WizardForm
-        dashboardId={dashboardId}
-        publicHost={publicHost}
-        publicBaseUrl={publicBaseUrl}
-        defaults={defaultsQuery.data}
-        onClose={onClose}
-      />
-    );
-  }
-
   return (
-    <FlowOverlay title={t('wizard.title')} closeAriaLabel={t('wizard.close')} onClose={onClose}>
-      <div className='flex h-full items-center justify-center py-20'>
-        {defaultsQuery.isError ? (
-          <p className='text-muted-foreground text-sm'>{t('error')}</p>
-        ) : (
-          <Loader2 className='text-muted-foreground h-6 w-6 animate-spin' />
-        )}
-      </div>
+    <FlowOverlay>
+      {defaultsQuery.data ? (
+        <WizardForm
+          dashboardId={dashboardId}
+          publicHost={publicHost}
+          publicBaseUrl={publicBaseUrl}
+          defaults={defaultsQuery.data}
+          onClose={onClose}
+        />
+      ) : (
+        <>
+          <FlowOverlayHeader
+            title={t('wizard.title')}
+            closeAriaLabel={t('wizard.close')}
+            onClose={onClose}
+          />
+          <div className='flex flex-1 items-center justify-center py-20'>
+            {defaultsQuery.isError ? (
+              <p className='text-muted-foreground text-sm'>{t('error')}</p>
+            ) : (
+              <Spinner />
+            )}
+          </div>
+        </>
+      )}
     </FlowOverlay>
   );
 }

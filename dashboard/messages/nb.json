@@ -4054,6 +4054,7 @@
       "publicNamePlaceholder": "Offentlig visningsnavn",
       "reorderMonitor": "Omorganiser monitor",
       "preview": "Direkte forhåndsvisning",
+      "loadingPreview": "Laster forhåndsvisning…",
       "tabs": {
         "setup": "Sideoppsett",
         "incidents": "Hendelser"
