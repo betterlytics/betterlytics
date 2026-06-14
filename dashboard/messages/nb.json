@@ -4034,6 +4034,8 @@
       },
       "logo": "Logo",
       "uploadLogo": "Last opp logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Last opp favicon",
       "replaceLogo": "Erstatt",
       "removeLogo": "Fjern",
       "logoTooLarge": "Bildet er for stort. Velg en mindre fil.",

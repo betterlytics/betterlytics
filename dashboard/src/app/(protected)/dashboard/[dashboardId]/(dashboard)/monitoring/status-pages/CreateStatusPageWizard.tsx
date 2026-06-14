@@ -567,15 +567,28 @@ function WizardForm({
                       />
                     </div>
                     <div className='space-y-6'>
-                      <div className='space-y-2'>
-                        <Label>{t('logo')}</Label>
-                        <button
-                          type='button'
-                          className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-36 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-dashed text-xs transition-colors'
-                        >
-                          <Upload className='h-3.5 w-3.5' />
-                          {t('uploadLogo')}
-                        </button>
+                      <div className='flex flex-wrap items-start gap-4'>
+                        <div className='space-y-2'>
+                          <Label>{t('logo')}</Label>
+                          <button
+                            type='button'
+                            className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-36 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-dashed text-xs transition-colors'
+                          >
+                            <Upload className='h-3.5 w-3.5' />
+                            {t('uploadLogo')}
+                          </button>
+                        </div>
+                        <div className='space-y-2'>
+                          <Label>{t('favicon')}</Label>
+                          <button
+                            type='button'
+                            aria-label={t('uploadFavicon')}
+                            title={t('uploadFavicon')}
+                            className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-16 cursor-pointer items-center justify-center rounded-md border border-dashed transition-colors'
+                          >
+                            <Upload className='h-4 w-4' />
+                          </button>
+                        </div>
                       </div>
                       <ColorSwatchPicker
                         label={t('accentColor')}

@@ -4034,6 +4034,8 @@
       },
       "logo": "Logo",
       "uploadLogo": "Carica logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Carica favicon",
       "replaceLogo": "Sostituisci",
       "removeLogo": "Rimuovi",
       "logoTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",

@@ -4020,6 +4020,8 @@
       "branding": "Branding",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Upload favicon",
       "replaceLogo": "Replace",
       "removeLogo": "Remove",
       "logoTooLarge": "That image is too large. Please choose a smaller file.",

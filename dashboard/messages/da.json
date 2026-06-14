@@ -4026,6 +4026,8 @@
       "branding": "Branding",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Upload favicon",
       "replaceLogo": "Erstat",
       "removeLogo": "Fjern",
       "logoTooLarge": "Billedet er for stort. Vælg en mindre fil.",
