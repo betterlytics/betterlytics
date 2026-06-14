@@ -1,9 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Globe } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
@@ -80,10 +82,12 @@ type MonitoringClientProps = {
   dashboardId: string;
   monitors: MonitorWithStatus[];
   domain: string;
+  statusPagesEnabled: boolean;
 };
 
-export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringClientProps) {
+export function MonitoringClient({ dashboardId, monitors, domain, statusPagesEnabled }: MonitoringClientProps) {
   const t = useTranslations('monitoringPage');
+  const tStatusPages = useTranslations('statusPagesPage');
   const { caps } = useCapabilities();
 
   const monitorCount = monitors.length;
@@ -252,6 +256,14 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
               </SelectContent>
             </Select>
           </div>
+          {statusPagesEnabled && (
+            <Button variant='outline' asChild>
+              <Link href={`/dashboard/${dashboardId}/monitoring/status-pages`}>
+                <Globe className='mr-1 h-4 w-4' />
+                {tStatusPages('title')}
+              </Link>
+            </Button>
+          )}
           <PermissionGate>
             {(disabled) => (
               <CreateMonitorDialog

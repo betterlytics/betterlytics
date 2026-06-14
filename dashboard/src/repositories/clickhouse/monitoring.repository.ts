@@ -360,6 +360,120 @@ export async function getMonitorIncidentSegments(
   );
 }
 
+/**
+ * Batched variant of getMonitorIncidentSegments for the public status page:
+ * one query for all monitors of a page (newest-first per monitor). TLS
+ * incidents are excluded as cert expiry is not downtime.
+ */
+export async function getIncidentSegmentsForMonitors(
+  checkIds: string[],
+  siteId: string,
+  days: number,
+  limitPerMonitor: number,
+): Promise<Map<string, MonitorIncidentSegment[]>> {
+  if (!checkIds.length) return new Map();
+
+  const query = safeSql`
+    SELECT
+      check_id,
+      state,
+      reason_code,
+      started_at,
+      resolved_at,
+      last_event_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND started_at >= now() - INTERVAL {days:Int32} DAY
+    ORDER BY check_id, started_at DESC
+    LIMIT {limit:UInt32} BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, days, limit: limitPerMonitor },
+    })
+    .toPromise()) as any[];
+
+  const segments = new Map<string, MonitorIncidentSegment[]>();
+  for (const row of rows) {
+    const segment = MonitorIncidentSegmentSchema.parse({
+      state: row.state,
+      reason: row.reason_code,
+      start: toIsoUtc(row.started_at) ?? row.started_at,
+      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+      durationMs:
+        row.started_at && (row.resolved_at || row.last_event_at)
+          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
+          : null,
+    });
+    const existing = segments.get(row.check_id);
+    if (existing) {
+      existing.push(segment);
+    } else {
+      segments.set(row.check_id, [segment]);
+    }
+  }
+  return segments;
+}
+
+export type DetectedOutageRow = {
+  detectedIncidentId: string;
+  monitorCheckId: string;
+  reasonCode: string;
+  ongoing: boolean;
+  startedAt: string;
+  resolvedAt: string | null;
+  severity: string;
+};
+
+/**
+ * TLS incidents are excluded (cert expiry is not downtime).
+ */
+export async function getDetectedOutagesForMonitors(
+  checkIds: string[],
+  siteId: string,
+  days: number,
+  limit: number,
+): Promise<DetectedOutageRow[]> {
+  if (!checkIds.length) return [];
+
+  const query = safeSql`
+    SELECT
+      toString(incident_id) AS incident_id,
+      check_id,
+      state,
+      severity,
+      reason_code,
+      started_at,
+      resolved_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND started_at >= now() - INTERVAL {days:Int32} DAY
+    ORDER BY started_at DESC
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, days, limit },
+    })
+    .toPromise()) as any[];
+
+  return rows.map((row) => ({
+    detectedIncidentId: row.incident_id,
+    monitorCheckId: row.check_id,
+    reasonCode: row.reason_code,
+    ongoing: row.state === 'ongoing',
+    startedAt: toIsoUtc(row.started_at) ?? row.started_at,
+    resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+    severity: row.severity,
+  }));
+}
+
 export async function getOpenIncidentsForMonitors(
   checkIds: string[],
   siteId: string,

@@ -3,11 +3,12 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
-import { ChevronDown, GripVertical, Trash2 } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { memo, useCallback, useEffect, useMemo, useRef, type AnimationEvent, type RefObject } from 'react';
 
 import { FunnelStepFiltersEditor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelStepFiltersEditor';
+import { DragHandle } from '@/components/dnd/DragHandle';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { AccordionContent, AccordionItem } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -269,22 +270,12 @@ function FunnelStepAccordionItemComponent({
       )}
       {...pointerListeners}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        aria-label={t('tooltip.reorderStep', { index: index + 1 })}
-        className={cn(
-          'flex',
-          'text-muted-foreground/60 hover:text-foreground transition-colors',
-          'h-[2.25rem] w-5 sm:w-6 items-center justify-center rounded-md my-2',
-          'cursor-grab active:cursor-grabbing',
-          // Stop the touch long-press from selecting/zooming/showing the iOS callout while grabbing
-          'touch-none select-none [-webkit-touch-callout:none] [-webkit-tap-highlight-color:transparent]',
-          'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
-        )}
-      >
-        <GripVertical className='size-4' />
-      </div>
+      <DragHandle
+        attributes={attributes}
+        listeners={listeners}
+        label={t('tooltip.reorderStep', { index: index + 1 })}
+        className='my-2 h-[2.25rem] w-5 rounded-md sm:w-6'
+      />
 
       <AccordionItem
         value={step.id}

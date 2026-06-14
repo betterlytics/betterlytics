@@ -75,6 +75,18 @@ enum GithubStarPromptState {
   starred
 }
 
+enum StatusPageIncidentImpact {
+  degraded
+  outage
+}
+
+enum StatusPageIncidentStatus {
+  investigating
+  identified
+  monitoring
+  resolved
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -137,6 +149,7 @@ model User {
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
+  statusPageIncidents StatusPageIncident[]
 
   deletedAt DateTime?
 }
@@ -187,6 +200,7 @@ model Dashboard {
   bugReports BugReport[]
   annotations Annotation[]
   monitorChecks MonitorCheck[]
+  statusPages StatusPage[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
   mcpTokens McpToken[]
@@ -407,8 +421,107 @@ model MonitorCheck {
 
   deletedAt             DateTime?
 
+  statusPageMonitors    StatusPageMonitor[]
+
   @@index([dashboardId])
   @@unique([id, dashboardId])
+}
+
+model StatusPage {
+  id          String    @id @default(cuid())
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  // Uniqueness is enforced by a partial unique index (slug WHERE deletedAt IS NULL) created
+  // in the migration. Prisma can't express partial indexes, so there is no @unique here; never use findUnique({ where: { slug } }).
+  slug        String  // global among live pages, lowercase, [a-z0-9-]; reserved names enforced in entities
+  name        String
+  description String?
+
+  isPublished Boolean @default(false) // enforced on every public read
+
+  // Branding (structured only — no custom CSS)
+  theme       String  @default("system") // 'light' | 'dark' | 'system'
+  accentColor String  @default("#4845d8")
+  logoUrl     String? // external-URL escape hatch (owner pastes a URL); null when an uploaded logo is used
+  // Present iff an uploaded logo exists. sha256 prefix of the bytes: doubles as the "has logo" flag and as
+  // the cache-bust token in the rendered /status/{slug}/logo?v={hash} URL. Tiny, so it rides along on every
+  // read; the heavy bytes live in StatusPageLogo so they're never loaded unless explicitly queried.
+  logoHash    String?
+  language    String  @default("en")
+
+  showPastIncidents Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  monitors StatusPageMonitor[]
+  incidents StatusPageIncident[]
+  logo      StatusPageLogo?
+
+  @@index([dashboardId])
+  @@unique([id, dashboardId])
+}
+
+// Uploaded logo bytes, split off StatusPage so the blob is never pulled into a status-page read
+// unless this relation is explicitly queried (the /status/{slug}/logo route handler is the only reader).
+model StatusPageLogo {
+  statusPageId String     @id
+  statusPage   StatusPage @relation(fields: [statusPageId], references: [id], onDelete: Cascade)
+
+  data      Bytes
+  mimeType  String
+  updatedAt DateTime @updatedAt
+}
+
+model StatusPageMonitor {
+  id             String @id @default(cuid())
+  statusPageId   String
+  monitorCheckId String
+  dashboardId    String // shared by both composite FKs, so a page can only reference monitors of its own dashboard
+
+  statusPage   StatusPage   @relation(fields: [statusPageId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+  monitorCheck MonitorCheck @relation(fields: [monitorCheckId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+
+  publicName String // always stored explicitly; the public page never falls back to internal monitor fields
+  position   Int    @default(0)
+
+  @@unique([statusPageId, monitorCheckId])
+  @@index([statusPageId])
+}
+
+model StatusPageIncident {
+  id           String @id @default(cuid())
+  statusPageId String
+  dashboardId  String // shared with the StatusPage composite FK, so an incident stays within its dashboard
+
+  statusPage StatusPage @relation(fields: [statusPageId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+
+  title  String
+  body   String                                            // single message in v1; a timeline of updates is a future child table
+  impact StatusPageIncidentImpact @default(outage)
+  status StatusPageIncidentStatus @default(investigating)
+
+  startedAt   DateTime
+  resolvedAt  DateTime?
+  isPublished Boolean   @default(false) // NEVER set automatically — the user always publishes
+
+  // Optional affected monitor; display reference only (validated in the action layer), so no FK.
+  monitorCheckId String?
+  // Stable id of the detected ClickHouse incident (analytics.monitor_incidents.incident_id) this was
+  // seeded from; enables opt-in auto-resolve later. Null for manually authored incidents.
+  detectedIncidentId String?
+
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String?  // audit; nulled (not cascaded) if the author is removed so the page keeps its incidents
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([statusPageId, isPublished])
+  @@index([statusPageId])
 }
 
 model Subscription {

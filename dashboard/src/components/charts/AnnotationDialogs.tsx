@@ -3,6 +3,7 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
+import { ColorSwatchPicker as SharedColorSwatchPicker } from '@/components/ColorSwatchPicker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +43,7 @@ export interface AnnotationDialogsRef {
   openEditDialog: (annotation: ChartAnnotation) => void;
 }
 
-interface ColorSwatchPickerProps {
+interface AnnotationColorSwatchPickerProps {
   palette: readonly AnnotationColorToken[];
   value: AnnotationColorToken;
   onChange: (color: AnnotationColorToken) => void;
@@ -57,7 +58,7 @@ interface AnnotationFormState {
   color: AnnotationColorToken;
 }
 
-const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
+const ColorSwatchPicker: React.FC<AnnotationColorSwatchPickerProps> = ({
   palette,
   value,
   onChange,
@@ -68,27 +69,16 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
   const isDark = resolvedTheme === 'dark';
 
   return (
-    <div className='grid gap-2'>
-      {label ? <Label className='text-sm font-medium'>{label}</Label> : null}
-      <div className='flex flex-wrap gap-2'>
-        {palette.map((colorToken) => {
-          const hex = resolveAnnotationColor(colorToken, isDark ? 'dark' : 'light');
-          const isSelected = value === colorToken;
-          return (
-            <button
-              key={colorToken}
-              type='button'
-              onClick={() => onChange(colorToken)}
-              className={`h-8 w-8 rounded-full border transition ${
-                isSelected ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
-              }`}
-              style={{ backgroundColor: hex }}
-              aria-label={ariaLabelForColor ? ariaLabelForColor(colorToken) : `Select color ${colorToken}`}
-            />
-          );
-        })}
-      </div>
-    </div>
+    <SharedColorSwatchPicker
+      options={palette.map((colorToken) => ({
+        value: colorToken,
+        hex: resolveAnnotationColor(colorToken, isDark ? 'dark' : 'light'),
+      }))}
+      value={value}
+      onChange={onChange}
+      label={label}
+      ariaLabelForValue={ariaLabelForColor}
+    />
   );
 };
 

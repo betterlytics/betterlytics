@@ -3226,6 +3226,11 @@
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
+    "statusPageSlugTaken": "This URL slug is already in use",
+    "statusPageIncidentLimit": "This status page has reached its incident limit",
+    "statusPageLogoInvalid": "That file could not be read as an image",
+    "statusPageLogoTooLarge": "The logo is too large",
+    "statusPageLogoBadType": "The logo must be a PNG, JPEG or WebP image",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
@@ -3896,6 +3901,245 @@
       },
       "volumeChart": {
         "errorCount": "{count, plural, one {# error} other {# errors}}"
+      }
+    }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "All systems operational",
+      "degraded": "Degraded performance",
+      "outage": "Some systems are down",
+      "unknown": "Status unavailable"
+    },
+    "statusNote": {
+      "degraded": "Some services are slower than usual"
+    },
+    "lastUpdated": "Last updated on {date}",
+    "lastUpdatedInline": "last updated on {date}",
+    "uptimeValue": "{uptime} uptime",
+    "monitorStatus": {
+      "operational": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "No data"
+    },
+    "uptimeWindow": {
+      "start": "{days} days ago",
+      "today": "Today"
+    },
+    "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
+    "pastIncidents": "Past incidents",
+    "noIncidents": "No incidents in the last {days} days.",
+    "noOtherIncidents": "No other incidents in the last {days} days.",
+    "incident": {
+      "resolved": "Resolved · lasted {duration}",
+      "ongoing": "Ongoing since {time}",
+      "impact": {
+        "degraded": "Degraded",
+        "outage": "Outage"
+      },
+      "status": {
+        "investigating": "Investigating",
+        "identified": "Identified",
+        "monitoring": "Monitoring",
+        "resolved": "Resolved"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minute} other {# minutes}}",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "days": "{count, plural, one {# day} other {# days}}"
+    },
+    "poweredBy": "Powered by"
+  },
+  "statusPagesPage": {
+    "title": "Status Pages",
+    "newStatusPage": "New status page",
+    "error": "Something went wrong",
+    "finishSetup": "Finish setup to publish",
+    "empty": {
+      "title": "No status pages yet",
+      "description": "Pick which monitors to show, add your logo and colors, and share a public page your users can check during incidents.",
+      "cta": "Create your first status page"
+    },
+    "badge": {
+      "public": "Public",
+      "draft": "Draft"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitors}}",
+    "actions": {
+      "copyLink": "Copy link",
+      "viewPage": "View page",
+      "more": "More actions",
+      "linkCopied": "Link copied to clipboard"
+    },
+    "editor": {
+      "back": "Status Pages",
+      "save": "Save changes",
+      "publish": "Publish status page",
+      "unpublish": "Unpublish",
+      "saved": "Status page saved",
+      "unpublished": "Status page unpublished",
+      "publishSuccess": {
+        "title": "Your status page is live",
+        "description": "Anyone with the link can see it. It updates automatically as your monitors run.",
+        "copy": "Copy link",
+        "copied": "Link copied to clipboard",
+        "back": "Back to Status Pages",
+        "manage": "Manage page",
+        "view": "View page"
+      },
+      "deleted": "Status page deleted",
+      "error": "Something went wrong",
+      "delete": "Delete status page",
+      "deleteConfirmTitle": "Delete this status page?",
+      "deleteConfirmDescription": "The public page stops working immediately. This cannot be undone.",
+      "deleteConfirm": "Delete",
+      "cancel": "Cancel",
+      "pageDetails": "Page details",
+      "pageName": "Page name",
+      "publicUrl": "Public URL",
+      "slugStatus": {
+        "checking": "Checking…",
+        "available": "Available",
+        "taken": "Already taken",
+        "invalid": "Invalid slug"
+      },
+      "slugWarning": "Changing the URL of a published page breaks existing links.",
+      "homepageUrl": "Homepage URL",
+      "homepageUrlHint": "Where the logo and page title link to.",
+      "customDomain": "Custom domain",
+      "customDomainHint": "Host the page on your own domain.",
+      "visibility": {
+        "title": "Visibility",
+        "public": "Public",
+        "publicHint": "Anyone with the link can view. Indexed by search engines.",
+        "unlisted": "Unlisted",
+        "unlistedHint": "Anyone with the link can view, but hidden from search engines."
+      },
+      "branding": "Branding",
+      "logo": "Logo",
+      "uploadLogo": "Upload logo",
+      "replaceLogo": "Replace",
+      "removeLogo": "Remove",
+      "logoTooLarge": "That image is too large. Please choose a smaller file.",
+      "accentColor": "Accent color",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "language": "Language",
+      "showPastIncidents": "Show past incidents",
+      "monitors": "Monitors",
+      "monitorsHint": "{selected} of {total} shown",
+      "publicNamePlaceholder": "Public display name",
+      "reorderMonitor": "Reorder monitor",
+      "preview": "Live preview",
+      "tabs": {
+        "setup": "Page setup",
+        "incidents": "Incidents"
+      },
+      "incidentsLocked": {
+        "title": "Publish your page to post incidents",
+        "description": "Incidents you write appear on your public status page. Finish setting up and publish your page first, then you can keep visitors informed.",
+        "cta": "Go to Page setup"
+      },
+      "wizard": {
+        "title": "New status page",
+        "close": "Close",
+        "back": "Back",
+        "continue": "Continue",
+        "saveDraft": "Save as draft",
+        "steps": {
+          "select": "Select",
+          "customize": "Customize",
+          "publish": "Publish"
+        },
+        "select": {
+          "heading": "Pick what to show",
+          "description": "Choose which monitors appear on your public page. You can rename and reorder them next."
+        },
+        "customize": {
+          "heading": "Make it yours",
+          "description": "Branding and display names — all optional, sensible defaults apply."
+        },
+        "publish": {
+          "heading": "Ready to publish",
+          "description": "Confirm where it lives and who can see it. You can change anything later."
+        },
+        "summary": "Summary",
+        "summaryMonitors": "{count, plural, one {# monitor} other {# monitors}}",
+        "selectAll": "Select all",
+        "searchMonitors": "Search monitors",
+        "noSearchResults": "No monitors match your search.",
+        "noMonitorsTitle": "No monitors yet",
+        "noMonitors": "Create your first monitor to start tracking uptime, then add it to this page.",
+        "noMonitorYet": "Don't see one?",
+        "createMonitor": "Create a monitor",
+        "selectedCount": "{selected} of {total} monitors selected",
+        "publicNames": "Public names & order",
+        "dragReorder": "Drag to reorder"
+      },
+      "incidents": {
+        "title": "Incidents",
+        "hint": "Write and publish incidents. Detected outages are suggested below — nothing goes public until you publish it.",
+        "newIncident": "New incident",
+        "backToList": "Back to incidents",
+        "editIncident": "Edit incident",
+        "formHint": "Visitors see this on your public status page once published.",
+        "suggestionsTitle": "Detected outages",
+        "createFromSuggestion": "Create incident",
+        "suggestedTitle": "{monitor} outage",
+        "ongoingSince": "ongoing since {date}",
+        "noIncidents": "No incidents yet.",
+        "emptyHint": "When something breaks, post an incident here to keep your visitors in the loop.",
+        "suggestionsHint": "Auto-detected from your monitors — review and publish to make them public.",
+        "pageWide": "Page-wide",
+        "ongoingFor": "Ongoing for {duration}",
+        "lasted": "Lasted {duration}",
+        "draft": "Draft",
+        "published": "Published",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
+        "edit": "Edit",
+        "delete": "Delete",
+        "actions": "Actions",
+        "table": {
+          "incident": "Incident",
+          "status": "Status",
+          "impact": "Impact",
+          "affected": "Affected",
+          "started": "Started"
+        },
+        "saved": "Incident saved",
+        "deleted": "Incident deleted",
+        "error": "Something went wrong",
+        "impact": {
+          "degraded": "Degraded",
+          "outage": "Outage"
+        },
+        "status": {
+          "investigating": "Investigating",
+          "identified": "Identified",
+          "monitoring": "Monitoring",
+          "resolved": "Resolved"
+        },
+        "form": {
+          "title": "Title",
+          "body": "Message",
+          "impact": "Impact",
+          "status": "Status",
+          "monitor": "Affected monitor",
+          "monitorNone": "None (page-wide)",
+          "startedAt": "Started",
+          "resolvedAt": "Resolved (optional)",
+          "publish": "Published",
+          "publishHint": "Visible on your public status page",
+          "save": "Save",
+          "cancel": "Cancel"
+        }
       }
     }
   }
