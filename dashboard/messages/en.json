@@ -3228,6 +3228,9 @@
     "monitorAlreadyExists": "A monitor for this URL already exists",
     "statusPageSlugTaken": "This URL slug is already in use",
     "statusPageIncidentLimit": "This status page has reached its incident limit",
+    "statusPageLogoInvalid": "That file could not be read as an image",
+    "statusPageLogoTooLarge": "The logo is too large",
+    "statusPageLogoBadType": "The logo must be a PNG, JPEG or WebP image",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
@@ -4016,6 +4019,9 @@
       "branding": "Branding",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
+      "replaceLogo": "Replace",
+      "removeLogo": "Remove",
+      "logoTooLarge": "That image is too large. Please choose a smaller file.",
       "accentColor": "Accent color",
       "theme": "Theme",
       "themes": {

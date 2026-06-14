@@ -3,6 +3,8 @@ import {
   deleteStatusPage,
   getStatusPageById,
   listStatusPages,
+  removeStatusPageLogo,
+  setStatusPageLogo,
   setStatusPagePublished,
   statusPageSlugExists,
   updateStatusPage,
@@ -56,4 +58,16 @@ export async function removeStatusPage(dashboardId: string, statusPageId: string
 
 export async function isStatusPageSlugAvailable(slug: string, excludeStatusPageId?: string): Promise<boolean> {
   return !(await statusPageSlugExists(slug, excludeStatusPageId));
+}
+
+export async function saveStatusPageLogo(
+  dashboardId: string,
+  statusPageId: string,
+  logo: { data: Buffer; mimeType: string; hash: string },
+): Promise<string> {
+  return setStatusPageLogo(dashboardId, statusPageId, logo);
+}
+
+export async function clearStatusPageLogo(dashboardId: string, statusPageId: string): Promise<string> {
+  return removeStatusPageLogo(dashboardId, statusPageId);
 }

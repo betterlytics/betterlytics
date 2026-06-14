@@ -1,5 +1,6 @@
 'use server';
 
+import { createHash } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
@@ -16,12 +17,14 @@ import {
 } from '@/entities/analytics/statusPage.entities';
 import {
   addStatusPage,
+  clearStatusPageLogo,
   getStatusPage,
   getStatusPagesForDashboard,
   isStatusPageSlugAvailable,
   publishStatusPage,
   removeStatusPage,
   saveStatusPage,
+  saveStatusPageLogo,
 } from '@/services/analytics/statusPage.service';
 import {
   addStatusPageIncident,
@@ -33,7 +36,7 @@ import {
   saveStatusPageIncident,
 } from '@/services/analytics/statusPageIncident.service';
 import { getStatusPagePreviewData } from '@/services/analytics/publicStatusPage.service';
-import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS, STATUS_PAGE_LOGO_MIME } from '@/entities/analytics/statusPage.entities';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { UserException } from '@/lib/exceptions';
@@ -99,6 +102,38 @@ export const deleteStatusPageAction = withDashboardMutationAuthContext(
     const deletedSlug = await removeStatusPage(ctx.dashboardId, statusPageId);
 
     revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
+  },
+);
+
+export const uploadStatusPageLogoAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, statusPageId: string, formData: FormData) => {
+    const t = await getTranslations('validation');
+    const file = formData.get('logo');
+
+    if (!(file instanceof File) || file.size === 0) {
+      throw new UserException(t('statusPageLogoInvalid'));
+    }
+    if (file.size > STATUS_PAGE_LIMITS.LOGO_MAX_BYTES) {
+      throw new UserException(t('statusPageLogoTooLarge'));
+    }
+    if (!STATUS_PAGE_LOGO_MIME.has(file.type)) {
+      throw new UserException(t('statusPageLogoBadType'));
+    }
+
+    const data = Buffer.from(await file.arrayBuffer());
+    const hash = createHash('sha256').update(data).digest('hex').slice(0, 16);
+
+    const slug = await saveStatusPageLogo(ctx.dashboardId, statusPageId, { data, mimeType: file.type, hash });
+
+    revalidateStatusPagePaths(ctx.dashboardId, slug);
+    return { logoUrl: `/status/${slug}/logo?v=${hash}` };
+  },
+);
+
+export const removeStatusPageLogoAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => {
+    const slug = await clearStatusPageLogo(ctx.dashboardId, statusPageId);
+    revalidateStatusPagePaths(ctx.dashboardId, slug);
   },
 );
 

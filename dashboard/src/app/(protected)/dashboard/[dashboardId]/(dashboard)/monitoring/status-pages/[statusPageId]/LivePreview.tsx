@@ -19,6 +19,7 @@ export type PreviewDraft = {
   theme: StatusPageTheme;
   accentColor: string;
   language: SupportedLanguages;
+  logoUrl: string | null;
   showPastIncidents: boolean;
   monitors: Array<{ monitorCheckId: string; included: boolean; publicName: string }>;
 };
@@ -102,6 +103,7 @@ export function LivePreview({
       slug: draft.slug,
       theme: draft.theme,
       language: draft.language,
+      logoUrl: draft.logoUrl,
       accentColor: StatusPageAccentColorSchema.safeParse(draft.accentColor).success
         ? draft.accentColor
         : payload.data.accentColor,

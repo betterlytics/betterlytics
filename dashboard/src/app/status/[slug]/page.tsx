@@ -34,6 +34,8 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
     description,
     alternates: { canonical: `${env.PUBLIC_BASE_URL}/status/${data.slug}` },
     openGraph: { title: data.name, description },
+    // Reuse the owner's logo as the tab favicon; the URL is already cache-busted via ?v={hash}.
+    icons: data.logoUrl ? { icon: [{ url: data.logoUrl }] } : undefined,
   };
 }
 

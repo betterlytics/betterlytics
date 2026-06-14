@@ -12,7 +12,12 @@ export const STATUS_PAGE_LIMITS = {
   INCIDENT_BODY_MAX: 2000,
   INCIDENTS_MAX: 50,
   SUGGESTIONS_MAX: 20,
+  // Logos are resized client-side to a small raster before upload; the cap is a server-side backstop.
+  LOGO_MAX_BYTES: 64 * 1024,
 } as const;
+
+/** Raster formats only — the client canvas-resize produces these, and excluding SVG avoids its sanitization burden. */
+export const STATUS_PAGE_LOGO_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 export const STATUS_PAGE_DEFAULT_ACCENT_COLOR = '#4845d8';
 

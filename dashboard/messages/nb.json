@@ -3242,6 +3242,9 @@
     "monitorAlreadyExists": "En monitor for denne URL-en finnes allerede",
     "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
     "statusPageIncidentLimit": "Denne statussiden har nådd grensen for hendelser",
+    "statusPageLogoInvalid": "Filen kunne ikke leses som et bilde",
+    "statusPageLogoTooLarge": "Logoen er for stor",
+    "statusPageLogoBadType": "Logoen må være et PNG-, JPEG- eller WebP-bilde",
     "capabilities": {
       "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til Pro for å opprette flere dashboards.",
       "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til Pro for å opprette flere monitorer.",
@@ -4030,6 +4033,9 @@
       },
       "logo": "Logo",
       "uploadLogo": "Last opp logo",
+      "replaceLogo": "Erstatt",
+      "removeLogo": "Fjern",
+      "logoTooLarge": "Bildet er for stort. Velg en mindre fil.",
       "accentColor": "Aksentfarge",
       "theme": "Tema",
       "themes": {

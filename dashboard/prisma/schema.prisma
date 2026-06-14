@@ -443,7 +443,11 @@ model StatusPage {
   // Branding (structured only — no custom CSS)
   theme       String  @default("system") // 'light' | 'dark' | 'system'
   accentColor String  @default("#4845d8")
-  logoUrl     String?
+  logoUrl     String? // external-URL escape hatch (owner pastes a URL); null when an uploaded logo is used
+  // Present iff an uploaded logo exists. sha256 prefix of the bytes: doubles as the "has logo" flag and as
+  // the cache-bust token in the rendered /status/{slug}/logo?v={hash} URL. Tiny, so it rides along on every
+  // read; the heavy bytes live in StatusPageLogo so they're never loaded unless explicitly queried.
+  logoHash    String?
   language    String  @default("en")
 
   showPastIncidents Boolean @default(true)
@@ -454,9 +458,21 @@ model StatusPage {
 
   monitors StatusPageMonitor[]
   incidents StatusPageIncident[]
+  logo      StatusPageLogo?
 
   @@index([dashboardId])
   @@unique([id, dashboardId])
+}
+
+// Uploaded logo bytes, split off StatusPage so the blob is never pulled into a status-page read
+// unless this relation is explicitly queried (the /status/{slug}/logo route handler is the only reader).
+model StatusPageLogo {
+  statusPageId String     @id
+  statusPage   StatusPage @relation(fields: [statusPageId], references: [id], onDelete: Cascade)
+
+  data      Bytes
+  mimeType  String
+  updatedAt DateTime @updatedAt
 }
 
 model StatusPageMonitor {

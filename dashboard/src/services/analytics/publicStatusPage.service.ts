@@ -18,7 +18,11 @@ import {
   getMonitorUptimeBuckets,
   getOpenIncidentsForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
-import { getPublishedStatusPageBySlug, getStatusPageSnapshotById } from '@/repositories/postgres/statusPage.repository';
+import {
+  getPublishedStatusPageBySlug,
+  getStatusPageLogoBySlug,
+  getStatusPageSnapshotById,
+} from '@/repositories/postgres/statusPage.repository';
 import { listPublishedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
@@ -44,6 +48,10 @@ export const getPublicStatusPageData = cache(async (slug: string): Promise<Publi
   }
   return env.IS_DEVELOPMENT ? getStatusPageFixture(slug) : null;
 });
+
+export async function getPublicStatusPageLogo(slug: string) {
+  return getStatusPageLogoBySlug(slug);
+}
 
 export async function getStatusPagePreviewData(
   dashboardId: string,
