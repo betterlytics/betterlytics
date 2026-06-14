@@ -39,6 +39,7 @@ import {
 import { ColorPickerPopover } from '@/components/ColorPickerPopover';
 import { ColorSwatchPicker } from '@/components/ColorSwatchPicker';
 import { SortableList } from '@/components/dnd/SortableList';
+import { ThemeSegmentedControl } from '../ThemeSegmentedControl';
 import { LivePreview } from './LivePreview';
 import { IncidentsManager } from './IncidentsManager';
 import { SortableMonitorRow, type MonitorRow } from './SortableMonitorRow';
@@ -480,18 +481,7 @@ export function StatusPageEditor({
               </ColorSwatchPicker>
               <div className='space-y-2'>
                 <Label>{t('theme')}</Label>
-                <div className='border-input inline-flex overflow-hidden rounded-md border'>
-                  {(['light', 'dark', 'system'] as const).map((value) => (
-                    <button
-                      key={value}
-                      type='button'
-                      onClick={() => setTheme(value)}
-                      className={`cursor-pointer px-3.5 py-1.5 text-sm ${theme === value ? 'bg-secondary font-semibold' : 'text-muted-foreground'}`}
-                    >
-                      {t(`themes.${value}`)}
-                    </button>
-                  ))}
-                </div>
+                <ThemeSegmentedControl value={theme} onChange={setTheme} />
               </div>
             </div>
             <div className='space-y-2'>
