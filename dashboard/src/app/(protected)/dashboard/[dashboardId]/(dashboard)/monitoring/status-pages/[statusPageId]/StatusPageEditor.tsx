@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Copy, ExternalLink, Upload } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, Megaphone, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -20,11 +20,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  UnderlineTabs,
+  UnderlineTabsContent,
+  UnderlineTabsList,
+  UnderlineTabsTrigger,
+} from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useDebounce } from '@/hooks/useDebounce';
 import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {
   STATUS_PAGE_LIMITS,
+  type PublicStatusPageIncident,
   type StatusPagePreviewPayload,
   type StatusPageTheme,
   type StatusPageWithMonitors,
@@ -101,6 +108,10 @@ export function StatusPageEditor({
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
   const [monitorRows, setMonitorRows] = useState<MonitorRow[]>(() => buildMonitorRows(statusPage, monitors));
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+  const [activeTab, setActiveTab] = useState<'setup' | 'incidents'>(
+    statusPage.isPublished ? 'incidents' : 'setup',
+  );
+  const [draftIncident, setDraftIncident] = useState<PublicStatusPageIncident | null>(null);
 
   const payload = useMemo(
     () => ({
@@ -147,6 +158,7 @@ export function StatusPageEditor({
     onSuccess: (updated) => {
       savedPayloadRef.current = JSON.stringify(payload);
       if (updated.isPublished) {
+        setActiveTab('incidents');
         setShowPublishSuccess(true);
       } else {
         toast.success(t('unpublished'));
@@ -178,6 +190,14 @@ export function StatusPageEditor({
   };
 
   const includedCount = monitorRows.filter((row) => row.included).length;
+  
+  const incidentMonitors = useMemo(
+    () =>
+      monitorRows
+        .filter((row) => row.included)
+        .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() || row.name || row.url })),
+    [monitorRows],
+  );
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const saveDisabled = !isDirty || payload.name.length === 0 || slugStatus === 'taken' || slugStatus === 'invalid';
 
@@ -238,8 +258,15 @@ export function StatusPageEditor({
         </div>
       </div>
 
-      <div className='grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:items-start'>
-        <div className='space-y-4'>
+      <UnderlineTabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'setup' | 'incidents')}>
+        <UnderlineTabsList>
+          <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
+          <UnderlineTabsTrigger value='setup'>{t('tabs.setup')}</UnderlineTabsTrigger>
+        </UnderlineTabsList>
+
+        <div className='mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:items-start'>
+          <div className='space-y-4'>
+            <UnderlineTabsContent value='setup' className='space-y-4'>
           <section className='bg-card border-border space-y-4 rounded-xl border p-5'>
             <h2 className='font-semibold'>{t('pageDetails')}</h2>
             <div className='grid gap-4 sm:grid-cols-2'>
@@ -414,19 +441,32 @@ export function StatusPageEditor({
               ))}
             </SortableList>
           </section>
+            </UnderlineTabsContent>
 
-          <IncidentsManager
-            dashboardId={dashboardId}
-            statusPageId={statusPage.id}
-            monitors={monitorRows
-              .filter((row) => row.included)
-              .map((row) => ({
-                monitorCheckId: row.monitorCheckId,
-                publicName: row.publicName.trim() || row.name || row.url,
-              }))}
-          />
-
-        </div>
+            <UnderlineTabsContent value='incidents'>
+              {statusPage.isPublished ? (
+                <IncidentsManager
+                  dashboardId={dashboardId}
+                  statusPageId={statusPage.id}
+                  monitors={incidentMonitors}
+                  onDraftIncidentChange={setDraftIncident}
+                />
+              ) : (
+                <div className='bg-card border-border flex flex-col items-center rounded-xl border px-6 py-14 text-center'>
+                  <span className='bg-muted text-muted-foreground flex h-12 w-12 items-center justify-center rounded-full'>
+                    <Megaphone className='h-6 w-6' />
+                  </span>
+                  <h3 className='mt-4 font-semibold'>{t('incidentsLocked.title')}</h3>
+                  <p className='text-muted-foreground mt-1 max-w-sm text-sm leading-relaxed'>
+                    {t('incidentsLocked.description')}
+                  </p>
+                  <Button className='mt-5 cursor-pointer' onClick={() => setActiveTab('setup')}>
+                    {t('incidentsLocked.cta')}
+                  </Button>
+                </div>
+              )}
+            </UnderlineTabsContent>
+          </div>
 
         <div className='lg:sticky lg:top-4'>
           <LivePreview
@@ -435,6 +475,7 @@ export function StatusPageEditor({
             initialLanguage={statusPage.language}
             initialMessages={previewMessages}
             publicHost={publicHost}
+            draftIncident={draftIncident}
             draft={{
               name,
               slug,
@@ -450,7 +491,8 @@ export function StatusPageEditor({
             }}
           />
         </div>
-      </div>
+        </div>
+      </UnderlineTabs>
 
       <Dialog open={showPublishSuccess} onOpenChange={setShowPublishSuccess}>
         <DialogContent className='sm:max-w-md'>

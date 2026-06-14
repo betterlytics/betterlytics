@@ -3997,6 +3997,7 @@
         "copy": "Copia link",
         "copied": "Link copiato negli appunti",
         "back": "Torna alle Pagine di stato",
+        "manage": "Gestisci pagina",
         "view": "Vedi pagina"
       },
       "deleted": "Pagina di stato eliminata",
@@ -4044,10 +4045,56 @@
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
       "preview": "Anteprima live",
+      "tabs": {
+        "setup": "Impostazioni pagina",
+        "incidents": "Incidenti"
+      },
+      "incidentsLocked": {
+        "title": "Pubblica la pagina per creare incidenti",
+        "description": "Gli incidenti che scrivi appaiono sulla tua pagina di stato pubblica. Completa la configurazione e pubblica prima la pagina, così potrai tenere informati i visitatori.",
+        "cta": "Vai a Impostazioni pagina"
+      },
+      "wizard": {
+        "title": "Nuova pagina di stato",
+        "close": "Chiudi",
+        "back": "Indietro",
+        "continue": "Continua",
+        "saveDraft": "Salva come bozza",
+        "steps": {
+          "select": "Seleziona",
+          "customize": "Personalizza",
+          "publish": "Pubblica"
+        },
+        "select": {
+          "heading": "Scegli cosa mostrare",
+          "description": "Scegli quali monitor appaiono sulla tua pagina pubblica. Potrai rinominarli e riordinarli dopo."
+        },
+        "customize": {
+          "heading": "Rendila tua",
+          "description": "Branding e nomi visualizzati: tutto facoltativo, si applicano impostazioni predefinite sensate."
+        },
+        "publish": {
+          "heading": "Pronta per la pubblicazione",
+          "description": "Conferma dove si trova e chi può vederla. Puoi modificare tutto in seguito."
+        },
+        "summary": "Riepilogo",
+        "summaryMonitors": "{count, plural, one {# monitor} other {# monitor}}",
+        "selectAll": "Seleziona tutti",
+        "searchMonitors": "Cerca monitor",
+        "noSearchResults": "Nessun monitor corrisponde alla ricerca.",
+        "noMonitorsTitle": "Ancora nessun monitor",
+        "noMonitors": "Crea il tuo primo monitor per iniziare a tracciare l'uptime, poi aggiungilo a questa pagina.",
+        "noMonitorYet": "Non lo vedi?",
+        "createMonitor": "Crea un monitor",
+        "selectedCount": "{selected} di {total} monitor selezionati",
+        "publicNames": "Nomi pubblici e ordine",
+        "dragReorder": "Trascina per riordinare"
+      },
       "incidents": {
         "title": "Incidenti",
         "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto — nulla diventa pubblico finché non lo pubblichi.",
         "newIncident": "Nuovo incidente",
+        "backToList": "Torna agli incidenti",
         "editIncident": "Modifica incidente",
         "formHint": "I visitatori lo vedranno sulla tua pagina di stato pubblica una volta pubblicato.",
         "suggestionsTitle": "Interruzioni rilevate",
@@ -4055,12 +4102,25 @@
         "suggestedTitle": "Interruzione di {monitor}",
         "ongoingSince": "in corso da {date}",
         "noIncidents": "Ancora nessun incidente.",
+        "emptyHint": "Quando qualcosa si rompe, pubblica un incidente qui per tenere informati i tuoi visitatori.",
+        "suggestionsHint": "Rilevati automaticamente dai tuoi monitor: esamina e pubblica per renderli pubblici.",
+        "pageWide": "Intera pagina",
+        "ongoingFor": "In corso da {duration}",
+        "lasted": "Durata {duration}",
         "draft": "Bozza",
         "published": "Pubblicato",
         "publish": "Pubblica",
         "unpublish": "Annulla pubblicazione",
         "edit": "Modifica",
         "delete": "Elimina",
+        "actions": "Azioni",
+        "table": {
+          "incident": "Incidente",
+          "status": "Stato",
+          "impact": "Impatto",
+          "affected": "Interessato",
+          "started": "Iniziato"
+        },
         "saved": "Incidente salvato",
         "deleted": "Incidente eliminato",
         "error": "Qualcosa è andato storto",
@@ -4084,6 +4144,7 @@
           "startedAt": "Iniziato",
           "resolvedAt": "Risolto (facoltativo)",
           "publish": "Pubblicato",
+          "publishHint": "Visibile sulla tua pagina di stato pubblica",
           "save": "Salva",
           "cancel": "Annulla"
         }

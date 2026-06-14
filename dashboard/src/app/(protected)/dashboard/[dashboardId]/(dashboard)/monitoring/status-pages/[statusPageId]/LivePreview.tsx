@@ -8,6 +8,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import {
   StatusPageAccentColorSchema,
   type PublicStatusPageData,
+  type PublicStatusPageIncident,
   type StatusPagePreviewPayload,
   type StatusPageTheme,
 } from '@/entities/analytics/statusPage.entities';
@@ -30,6 +31,7 @@ type LivePreviewProps = {
   initialMessages: Record<string, unknown>;
   publicHost: string;
   draft: PreviewDraft;
+  draftIncident?: PublicStatusPageIncident | null;
 };
 
 /**
@@ -45,6 +47,7 @@ export function LivePreview({
   initialMessages,
   publicHost,
   draft: liveDraft,
+  draftIncident,
 }: LivePreviewProps) {
   const tEditor = useTranslations('statusPagesPage.editor');
   
@@ -88,12 +91,16 @@ export function LivePreview({
         .filter(([index]) => index != null),
     );
 
-    const incidents = draft.showPastIncidents
+    const publishedIncidents = draft.showPastIncidents
       ? (payload.data.incidents ?? []).map((incident, index) => {
           const monitorIndex = payload.incidentMonitorIndexes[index];
           const draftName = monitorIndex >= 0 ? nameByMonitorIndex.get(monitorIndex) : undefined;
           return { ...incident, monitorPublicName: draftName ?? null };
         })
+      : null;
+      
+    const incidents = draft.showPastIncidents
+      ? [...(draftIncident ? [draftIncident] : []), ...(publishedIncidents ?? [])]
       : null;
 
     return {
@@ -110,7 +117,7 @@ export function LivePreview({
       monitors,
       incidents,
     };
-  }, [payload, draft]);
+  }, [payload, draft, draftIncident]);
 
   const messages = messagesByLanguage[draft.language] ?? initialMessages;
 

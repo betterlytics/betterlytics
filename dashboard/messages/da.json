@@ -3989,6 +3989,7 @@
         "copy": "Kopiér link",
         "copied": "Link kopieret til udklipsholderen",
         "back": "Tilbage til Statussider",
+        "manage": "Administrer side",
         "view": "Vis side"
       },
       "deleted": "Statusside slettet",
@@ -4036,10 +4037,56 @@
       "publicNamePlaceholder": "Offentligt visningsnavn",
       "reorderMonitor": "Omarranger monitor",
       "preview": "Live forhåndsvisning",
+      "tabs": {
+        "setup": "Sideopsætning",
+        "incidents": "Hændelser"
+      },
+      "incidentsLocked": {
+        "title": "Udgiv din side for at oprette hændelser",
+        "description": "Hændelser, du skriver, vises på din offentlige statusside. Færdiggør opsætningen og udgiv din side først, så kan du holde de besøgende informeret.",
+        "cta": "Gå til Sideopsætning"
+      },
+      "wizard": {
+        "title": "Ny statusside",
+        "close": "Luk",
+        "back": "Tilbage",
+        "continue": "Fortsæt",
+        "saveDraft": "Gem som kladde",
+        "steps": {
+          "select": "Vælg",
+          "customize": "Tilpas",
+          "publish": "Udgiv"
+        },
+        "select": {
+          "heading": "Vælg hvad der skal vises",
+          "description": "Vælg hvilke monitorer der vises på din offentlige side. Du kan omdøbe og omarrangere dem bagefter."
+        },
+        "customize": {
+          "heading": "Gør den til din",
+          "description": "Branding og visningsnavne – alt er valgfrit, fornuftige standarder anvendes."
+        },
+        "publish": {
+          "heading": "Klar til at udgive",
+          "description": "Bekræft hvor den ligger, og hvem der kan se den. Du kan ændre alt senere."
+        },
+        "summary": "Oversigt",
+        "summaryMonitors": "{count, plural, one {# monitor} other {# monitorer}}",
+        "selectAll": "Vælg alle",
+        "searchMonitors": "Søg efter monitorer",
+        "noSearchResults": "Ingen monitorer matcher din søgning.",
+        "noMonitorsTitle": "Ingen monitorer endnu",
+        "noMonitors": "Opret din første monitor for at begynde at spore oppetid, og tilføj den så til denne side.",
+        "noMonitorYet": "Kan du ikke se den?",
+        "createMonitor": "Opret en monitor",
+        "selectedCount": "{selected} af {total} monitorer valgt",
+        "publicNames": "Offentlige navne og rækkefølge",
+        "dragReorder": "Træk for at ændre rækkefølge"
+      },
       "incidents": {
         "title": "Hændelser",
         "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor — intet bliver offentligt, før du udgiver det.",
         "newIncident": "Ny hændelse",
+        "backToList": "Tilbage til hændelser",
         "editIncident": "Rediger hændelse",
         "formHint": "Besøgende ser dette på din offentlige statusside, når den er udgivet.",
         "suggestionsTitle": "Registrerede nedbrud",
@@ -4047,12 +4094,25 @@
         "suggestedTitle": "{monitor} nedbrud",
         "ongoingSince": "i gang siden {date}",
         "noIncidents": "Ingen hændelser endnu.",
+        "emptyHint": "Når noget går galt, så opret en hændelse her, så dine besøgende holdes opdateret.",
+        "suggestionsHint": "Automatisk registreret fra dine monitorer – gennemse og udgiv for at gøre dem offentlige.",
+        "pageWide": "Hele siden",
+        "ongoingFor": "I gang i {duration}",
+        "lasted": "Varede {duration}",
         "draft": "Kladde",
         "published": "Udgivet",
         "publish": "Udgiv",
         "unpublish": "Træk tilbage",
         "edit": "Rediger",
         "delete": "Slet",
+        "actions": "Handlinger",
+        "table": {
+          "incident": "Hændelse",
+          "status": "Status",
+          "impact": "Påvirkning",
+          "affected": "Påvirket",
+          "started": "Startet"
+        },
         "saved": "Hændelse gemt",
         "deleted": "Hændelse slettet",
         "error": "Noget gik galt",
@@ -4076,6 +4136,7 @@
           "startedAt": "Startet",
           "resolvedAt": "Løst (valgfrit)",
           "publish": "Udgivet",
+          "publishHint": "Synlig på din offentlige statusside",
           "save": "Gem",
           "cancel": "Annuller"
         }

@@ -2,6 +2,7 @@ import { cache } from 'react';
 import {
   defaultPublicMonitorName,
   PublicStatusPageDataSchema,
+  STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
   type PublicDailyUptimeBucket,
   type PublicMonitorStatus,
@@ -18,7 +19,10 @@ import {
   getMonitorUptimeBuckets,
   getOpenIncidentsForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
-import { getPublishedStatusPageBySlug, getStatusPageSnapshotById } from '@/repositories/postgres/statusPage.repository';
+import {
+  getPublishedStatusPageBySlug,
+  getStatusPageSnapshotById,
+} from '@/repositories/postgres/statusPage.repository';
 import { listPublishedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
@@ -71,6 +75,49 @@ export async function getStatusPagePreviewData(
   };
 
   return assembleStatusPage(previewSnapshot);
+}
+
+/**
+ * Preview payload for a status page that does NOT exist yet (the create wizard): assembles
+ * uptime/incident data for ALL of the dashboard's monitors using default page settings. The wizard
+ * layers its live draft (name/slug/branding/selection) on top client-side, so these defaults are
+ * just fallbacks.
+ */
+export async function getStatusPagePreviewDataForDashboard(
+  dashboardId: string,
+  siteId: string,
+): Promise<StatusPagePreviewPayload> {
+  const allMonitors = await listMonitorChecks(dashboardId);
+  const now = new Date();
+
+  const draftSnapshot: PublishedStatusPage = {
+    page: {
+      id: 'draft-preview',
+      dashboardId,
+      slug: 'preview',
+      name: '',
+      description: null,
+      isPublished: false,
+      theme: 'system',
+      accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
+      logoUrl: null,
+      language: 'en',
+      // No persisted page yet → no published incidents to fetch; disable the section to skip the query.
+      showPastIncidents: false,
+      createdAt: now,
+      updatedAt: now,
+    },
+    siteId,
+    monitors: allMonitors.map((monitor, index) => ({
+      monitorCheckId: monitor.id,
+      publicName: defaultPublicMonitorName(monitor),
+      position: index,
+      isEnabled: monitor.isEnabled,
+      monitorCreatedAt: monitor.createdAt,
+    })),
+  };
+
+  return assembleStatusPage(draftSnapshot);
 }
 
 async function assembleStatusPage(published: PublishedStatusPage): Promise<StatusPagePreviewPayload> {

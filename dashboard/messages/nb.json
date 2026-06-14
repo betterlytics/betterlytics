@@ -3997,6 +3997,7 @@
         "copy": "Kopier lenke",
         "copied": "Lenke kopiert til utklippstavlen",
         "back": "Tilbake til Statussider",
+        "manage": "Administrer side",
         "view": "Vis side"
       },
       "deleted": "Statusside slettet",
@@ -4044,10 +4045,56 @@
       "publicNamePlaceholder": "Offentlig visningsnavn",
       "reorderMonitor": "Omorganiser monitor",
       "preview": "Direkte forhåndsvisning",
+      "tabs": {
+        "setup": "Sideoppsett",
+        "incidents": "Hendelser"
+      },
+      "incidentsLocked": {
+        "title": "Publiser siden for å opprette hendelser",
+        "description": "Hendelser du skriver vises på den offentlige statussiden din. Fullfør oppsettet og publiser siden først, så kan du holde besøkende informert.",
+        "cta": "Gå til Sideoppsett"
+      },
+      "wizard": {
+        "title": "Ny statusside",
+        "close": "Lukk",
+        "back": "Tilbake",
+        "continue": "Fortsett",
+        "saveDraft": "Lagre som utkast",
+        "steps": {
+          "select": "Velg",
+          "customize": "Tilpass",
+          "publish": "Publiser"
+        },
+        "select": {
+          "heading": "Velg hva som skal vises",
+          "description": "Velg hvilke overvåkere som vises på den offentlige siden. Du kan gi dem nytt navn og omorganisere dem etterpå."
+        },
+        "customize": {
+          "heading": "Gjør den til din",
+          "description": "Merkevare og visningsnavn – alt er valgfritt, fornuftige standarder gjelder."
+        },
+        "publish": {
+          "heading": "Klar til å publisere",
+          "description": "Bekreft hvor den ligger og hvem som kan se den. Du kan endre alt senere."
+        },
+        "summary": "Oppsummering",
+        "summaryMonitors": "{count, plural, one {# overvåker} other {# overvåkere}}",
+        "selectAll": "Velg alle",
+        "searchMonitors": "Søk etter overvåkere",
+        "noSearchResults": "Ingen overvåkere samsvarer med søket ditt.",
+        "noMonitorsTitle": "Ingen overvåkere ennå",
+        "noMonitors": "Opprett din første overvåker for å begynne å spore oppetid, og legg den så til på denne siden.",
+        "noMonitorYet": "Ser du den ikke?",
+        "createMonitor": "Opprett en overvåker",
+        "selectedCount": "{selected} av {total} overvåkere valgt",
+        "publicNames": "Offentlige navn og rekkefølge",
+        "dragReorder": "Dra for å endre rekkefølge"
+      },
       "incidents": {
         "title": "Hendelser",
         "hint": "Skriv og publiser hendelser. Oppdagede nedetider foreslås nedenfor — ingenting blir offentlig før du publiserer det.",
         "newIncident": "Ny hendelse",
+        "backToList": "Tilbake til hendelser",
         "editIncident": "Rediger hendelse",
         "formHint": "Besøkende ser dette på den offentlige statussiden din når den er publisert.",
         "suggestionsTitle": "Oppdagede nedetider",
@@ -4055,12 +4102,25 @@
         "suggestedTitle": "{monitor} nedetid",
         "ongoingSince": "pågår siden {date}",
         "noIncidents": "Ingen hendelser ennå.",
+        "emptyHint": "Når noe går galt, opprett en hendelse her for å holde besøkende oppdatert.",
+        "suggestionsHint": "Automatisk oppdaget fra monitorene dine – se gjennom og publiser for å gjøre dem offentlige.",
+        "pageWide": "Hele siden",
+        "ongoingFor": "Pågår i {duration}",
+        "lasted": "Varte {duration}",
         "draft": "Utkast",
         "published": "Publisert",
         "publish": "Publiser",
         "unpublish": "Avpubliser",
         "edit": "Rediger",
         "delete": "Slett",
+        "actions": "Handlinger",
+        "table": {
+          "incident": "Hendelse",
+          "status": "Status",
+          "impact": "Påvirkning",
+          "affected": "Berørt",
+          "started": "Startet"
+        },
         "saved": "Hendelse lagret",
         "deleted": "Hendelse slettet",
         "error": "Noe gikk galt",
@@ -4084,6 +4144,7 @@
           "startedAt": "Startet",
           "resolvedAt": "Løst (valgfritt)",
           "publish": "Publisert",
+          "publishHint": "Synlig på den offentlige statussiden din",
           "save": "Lagre",
           "cancel": "Avbryt"
         }

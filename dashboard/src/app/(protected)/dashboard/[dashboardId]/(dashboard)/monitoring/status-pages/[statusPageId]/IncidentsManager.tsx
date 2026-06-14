@@ -1,29 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Activity, Eye, EyeOff, MoreHorizontal, Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { FlowOverlay } from './FlowOverlay';
 import {
   STATUS_PAGE_LIMITS,
   type DetectedOutageSuggestion,
+  type PublicStatusPageIncident,
   type StatusPageIncident,
   type StatusPageIncidentImpact,
   type StatusPageIncidentStatusValue,
@@ -43,10 +49,28 @@ type IncidentsManagerProps = {
   dashboardId: string;
   statusPageId: string;
   monitors: MonitorOption[];
+  onDraftIncidentChange?: (incident: PublicStatusPageIncident | null) => void;
 };
 
 const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'outage'];
 const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified', 'monitoring', 'resolved'];
+
+const SEVERITY_DOT: Record<StatusPageIncidentImpact, string> = {
+  outage: 'bg-rose-500',
+  degraded: 'bg-amber-500',
+};
+
+const LIFECYCLE_DOT: Record<StatusPageIncidentStatusValue, string> = {
+  investigating: 'bg-amber-500',
+  identified: 'bg-orange-500',
+  monitoring: 'bg-sky-500',
+  resolved: 'bg-emerald-500',
+};
+
+const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
+  degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  outage: 'border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400',
+};
 
 type IncidentForm = {
   id: string | null;
@@ -84,10 +108,17 @@ function emptyForm(): IncidentForm {
   };
 }
 
-export function IncidentsManager({ dashboardId, statusPageId, monitors }: IncidentsManagerProps) {
+export function IncidentsManager({
+  dashboardId,
+  statusPageId,
+  monitors,
+  onDraftIncidentChange,
+}: IncidentsManagerProps) {
   const t = useTranslations('statusPagesPage.editor.incidents');
+  const locale = useLocale() as SupportedLanguages;
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(
+  );
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
@@ -111,6 +142,28 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
   };
 
   const monitorNameById = new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName]));
+
+  useEffect(() => {
+    if (!onDraftIncidentChange) return;
+    if (!open) {
+      onDraftIncidentChange(null);
+      return;
+    }
+    onDraftIncidentChange({
+      title: form.title.trim(),
+      body: form.body.trim(),
+      impact: form.impact,
+      status: form.status,
+      monitorPublicName: form.monitorCheckId ? (monitorNameById.get(form.monitorCheckId) ?? null) : null,
+      startedAt: form.startedAtLocal ? new Date(form.startedAtLocal).toISOString() : new Date().toISOString(),
+      resolvedAt: form.resolvedAtLocal ? new Date(form.resolvedAtLocal).toISOString() : null,
+    });
+    // monitorNameById is derived from `monitors`, so depend on that instead of the fresh Map identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, form, monitors, onDraftIncidentChange]);
+
+  // Clear the preview draft when this tab unmounts.
+  useEffect(() => () => onDraftIncidentChange?.(null), [onDraftIncidentChange]);
 
   const saveMutation = useMutation({
     mutationFn: async (values: IncidentForm) => {
@@ -206,142 +259,44 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
   const suggestions = suggestionsQuery.data ?? [];
   const formValid = form.title.trim().length > 0 && form.body.trim().length > 0 && form.startedAtLocal.length > 0;
 
-  return (
-    <section className='bg-card border-border space-y-4 rounded-xl border p-5'>
-      <div className='flex items-baseline justify-between'>
-        <div>
-          <h2 className='font-semibold'>{t('title')}</h2>
-          <p className='text-muted-foreground text-xs'>{t('hint')}</p>
-        </div>
-        <PermissionGate>
-          {(disabled) => (
-            <Button size='sm' variant='outline' disabled={disabled} onClick={openCreate} className='cursor-pointer'>
-              <Plus className='mr-1 h-3.5 w-3.5' />
-              {t('newIncident')}
+  if (open) {
+    return (
+      <FlowOverlay
+        title={form.id ? t('editIncident') : t('newIncident')}
+        closeAriaLabel={t('form.cancel')}
+        onClose={() => setOpen(false)}
+        actions={
+          <>
+            <Button variant='outline' size='sm' onClick={() => setOpen(false)} className='cursor-pointer'>
+              {t('form.cancel')}
             </Button>
-          )}
-        </PermissionGate>
-      </div>
-
-      {suggestions.length > 0 && (
-        <div className='border-border space-y-2 rounded-lg border border-dashed p-3'>
-          <div className='text-muted-foreground flex items-center gap-1.5 text-xs font-medium'>
-            <Sparkles className='h-3.5 w-3.5' />
-            {t('suggestionsTitle')}
+            <PermissionGate>
+              {(disabled) => (
+                <Button
+                  size='sm'
+                  disabled={disabled || !formValid || saveMutation.isPending}
+                  onClick={() => saveMutation.mutate(form)}
+                  className='cursor-pointer'
+                >
+                  {t('form.save')}
+                </Button>
+              )}
+            </PermissionGate>
+          </>
+        }
+      >
+        <div className='mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-10'>
+          <div className='space-y-1'>
+            <h2 className='text-lg font-semibold'>{form.id ? t('editIncident') : t('newIncident')}</h2>
+            <p className='text-muted-foreground text-sm'>{t('formHint')}</p>
           </div>
-          {suggestions.map((suggestion) => (
-            <div key={suggestion.detectedIncidentId} className='flex items-center justify-between gap-3 text-sm'>
-              <div className='min-w-0'>
-                <span className='font-medium'>{suggestion.monitorPublicName}</span>
-                <span className='text-muted-foreground'>
-                  {' · '}
-                  {suggestion.ongoing
-                    ? t('ongoingSince', { date: new Date(suggestion.startedAt).toLocaleString() })
-                    : new Date(suggestion.startedAt).toLocaleString()}
-                </span>
-              </div>
-              <PermissionGate>
-                {(disabled) => (
-                  <Button
-                    size='sm'
-                    variant='ghost'
-                    disabled={disabled}
-                    onClick={() => openFromSuggestion(suggestion)}
-                    className='flex-none cursor-pointer'
-                  >
-                    {t('createFromSuggestion')}
-                  </Button>
-                )}
-              </PermissionGate>
-            </div>
-          ))}
-        </div>
-      )}
 
-      <div className='space-y-2'>
-        {incidents.length === 0 ? (
-          <p className='text-muted-foreground text-sm'>{t('noIncidents')}</p>
-        ) : (
-          incidents.map((incident) => (
-            <div
-              key={incident.id}
-              className='border-border flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center'
-            >
-              <div className='min-w-0 flex-1'>
-                <div className='flex items-center gap-2'>
-                  <span className='truncate text-sm font-medium'>{incident.title}</span>
-                  <span
-                    className={`flex-none rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                      incident.isPublished
-                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {incident.isPublished ? t('published') : t('draft')}
-                  </span>
-                </div>
-                <div className='text-muted-foreground truncate text-xs'>
-                  {t(`status.${incident.status}`)} · {t(`impact.${incident.impact}`)}
-                  {incident.monitorCheckId && monitorNameById.has(incident.monitorCheckId)
-                    ? ` · ${monitorNameById.get(incident.monitorCheckId)}`
-                    : ''}
-                </div>
-              </div>
-              <div className='flex flex-none items-center gap-1'>
-                <PermissionGate>
-                  {(disabled) => (
-                    <>
-                      <Button
-                        size='sm'
-                        variant='ghost'
-                        disabled={disabled}
-                        onClick={() => openEdit(incident)}
-                        className='cursor-pointer'
-                      >
-                        {t('edit')}
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        disabled={disabled || publishMutation.isPending}
-                        onClick={() =>
-                          publishMutation.mutate({ incidentId: incident.id, isPublished: !incident.isPublished })
-                        }
-                        className='cursor-pointer'
-                      >
-                        {incident.isPublished ? t('unpublish') : t('publish')}
-                      </Button>
-                      <Button
-                        size='sm'
-                        variant='ghost'
-                        disabled={disabled || deleteMutation.isPending}
-                        onClick={() => deleteMutation.mutate(incident.id)}
-                        aria-label={t('delete')}
-                        className='text-muted-foreground hover:text-destructive cursor-pointer'
-                      >
-                        <Trash2 className='h-3.5 w-3.5' />
-                      </Button>
-                    </>
-                  )}
-                </PermissionGate>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className='sm:max-w-lg'>
-          <DialogHeader>
-            <DialogTitle>{form.id ? t('editIncident') : t('newIncident')}</DialogTitle>
-            <DialogDescription>{t('formHint')}</DialogDescription>
-          </DialogHeader>
-
-          <div className='space-y-3'>
+          <div className='mt-7 space-y-4'>
             <div className='space-y-1.5'>
               <Label htmlFor='inc-title'>{t('form.title')}</Label>
               <Input
                 id='inc-title'
+                autoFocus
                 value={form.title}
                 maxLength={STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
@@ -351,20 +306,20 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
               <Label htmlFor='inc-body'>{t('form.body')}</Label>
               <Textarea
                 id='inc-body'
-                rows={4}
+                rows={5}
                 value={form.body}
                 maxLength={STATUS_PAGE_LIMITS.INCIDENT_BODY_MAX}
                 onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
               />
             </div>
-            <div className='grid gap-3 sm:grid-cols-2'>
+            <div className='grid gap-4 sm:grid-cols-2'>
               <div className='space-y-1.5'>
                 <Label>{t('form.impact')}</Label>
                 <Select
                   value={form.impact}
                   onValueChange={(value) => setForm((f) => ({ ...f, impact: value as StatusPageIncidentImpact }))}
                 >
-                  <SelectTrigger className='cursor-pointer'>
+                  <SelectTrigger className='w-full cursor-pointer'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -380,11 +335,9 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
                 <Label>{t('form.status')}</Label>
                 <Select
                   value={form.status}
-                  onValueChange={(value) =>
-                    setForm((f) => ({ ...f, status: value as StatusPageIncidentStatusValue }))
-                  }
+                  onValueChange={(value) => setForm((f) => ({ ...f, status: value as StatusPageIncidentStatusValue }))}
                 >
-                  <SelectTrigger className='cursor-pointer'>
+                  <SelectTrigger className='w-full cursor-pointer'>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -401,11 +354,9 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
               <Label>{t('form.monitor')}</Label>
               <Select
                 value={form.monitorCheckId ?? 'none'}
-                onValueChange={(value) =>
-                  setForm((f) => ({ ...f, monitorCheckId: value === 'none' ? null : value }))
-                }
+                onValueChange={(value) => setForm((f) => ({ ...f, monitorCheckId: value === 'none' ? null : value }))}
               >
-                <SelectTrigger className='cursor-pointer'>
+                <SelectTrigger className='w-full cursor-pointer'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -420,7 +371,7 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
                 </SelectContent>
               </Select>
             </div>
-            <div className='grid gap-3 sm:grid-cols-2'>
+            <div className='grid gap-4 sm:grid-cols-2'>
               <div className='space-y-1.5'>
                 <Label htmlFor='inc-started'>{t('form.startedAt')}</Label>
                 <Input
@@ -440,30 +391,231 @@ export function IncidentsManager({ dashboardId, statusPageId, monitors }: Incide
                 />
               </div>
             </div>
-            <div className='flex items-center gap-2 pt-1'>
+            <div className='border-border flex items-center justify-between rounded-lg border p-4'>
+              <div>
+                <Label htmlFor='inc-published'>{t('form.publish')}</Label>
+                <p className='text-muted-foreground text-xs'>{t('form.publishHint')}</p>
+              </div>
               <Switch
                 id='inc-published'
                 checked={form.isPublished}
                 onCheckedChange={(checked) => setForm((f) => ({ ...f, isPublished: checked }))}
               />
-              <Label htmlFor='inc-published'>{t('form.publish')}</Label>
             </div>
           </div>
+        </div>
+      </FlowOverlay>
+    );
+  }
 
-          <DialogFooter>
-            <Button variant='outline' onClick={() => setOpen(false)} className='cursor-pointer'>
-              {t('form.cancel')}
+  return (
+    <div className='space-y-4'>
+      <div className='flex items-baseline justify-between'>
+        <div>
+          <h2 className='font-semibold'>{t('title')}</h2>
+          <p className='text-muted-foreground text-xs'>{t('hint')}</p>
+        </div>
+        <PermissionGate>
+          {(disabled) => (
+            <Button size='sm' disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
+              <Plus className='mr-1 h-3.5 w-3.5' />
+              {t('newIncident')}
             </Button>
-            <Button
-              disabled={!formValid || saveMutation.isPending}
-              onClick={() => saveMutation.mutate(form)}
-              className='cursor-pointer'
-            >
-              {t('form.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </section>
+          )}
+        </PermissionGate>
+      </div>
+
+      {suggestions.length > 0 && (
+        <div className='rounded-lg border border-amber-500/30 bg-amber-500/[0.07] p-4'>
+          <div className='flex items-center gap-2'>
+            <TriangleAlert className='h-4 w-4 text-amber-500' />
+            <span className='text-[11px] font-bold tracking-wide text-amber-600 uppercase dark:text-amber-400'>
+              {t('suggestionsTitle')}
+            </span>
+          </div>
+          <p className='text-muted-foreground mt-1 text-xs'>{t('suggestionsHint')}</p>
+          <div className='mt-1 divide-y divide-amber-500/15'>
+            {suggestions.map((suggestion) => (
+              <div key={suggestion.detectedIncidentId} className='flex items-center justify-between gap-3 py-2.5'>
+                <div className='flex min-w-0 items-center gap-2.5'>
+                  <span className='flex h-7 w-7 flex-none items-center justify-center rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400'>
+                    <TriangleAlert className='h-3.5 w-3.5' />
+                  </span>
+                  <div className='min-w-0'>
+                    <div className='text-foreground truncate text-sm font-medium'>{suggestion.monitorPublicName}</div>
+                    <div suppressHydrationWarning className='text-muted-foreground truncate text-xs'>
+                      {suggestion.ongoing
+                        ? t('ongoingSince', { date: formatRelativeTimeFromNow(suggestion.startedAt, locale) })
+                        : new Date(suggestion.startedAt).toLocaleString(locale)}
+                    </div>
+                  </div>
+                </div>
+                <PermissionGate>
+                  {(disabled) => (
+                    <Button
+                      size='sm'
+                      disabled={disabled}
+                      onClick={() => openFromSuggestion(suggestion)}
+                      className='flex-none cursor-pointer bg-amber-500 text-white hover:bg-amber-500/90'
+                    >
+                      {t('createFromSuggestion')}
+                    </Button>
+                  )}
+                </PermissionGate>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className='border-border overflow-x-auto rounded-lg border'>
+        <Table className='min-w-[620px]'>
+          <TableHeader>
+            <TableRow className='border-border bg-muted/50 hover:bg-muted/50'>
+              <TableHead className='text-foreground px-4 py-2.5 text-xs font-medium'>{t('table.incident')}</TableHead>
+              <TableHead className='text-foreground px-4 py-2.5 text-xs font-medium'>{t('table.status')}</TableHead>
+              <TableHead className='text-foreground px-4 py-2.5 text-xs font-medium'>{t('table.impact')}</TableHead>
+              <TableHead className='text-foreground hidden px-4 py-2.5 text-xs font-medium xl:table-cell'>
+                {t('table.affected')}
+              </TableHead>
+              <TableHead className='text-foreground px-4 py-2.5 text-xs font-medium'>{t('table.started')}</TableHead>
+              <TableHead className='w-10 px-2' />
+            </TableRow>
+          </TableHeader>
+          <TableBody className='divide-border divide-y'>
+            {incidents.length === 0 ? (
+              <TableRow className='hover:bg-transparent'>
+                <TableCell colSpan={6} className='py-14'>
+                  <div className='flex flex-col items-center justify-center text-center'>
+                    <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
+                      <Activity className='h-5 w-5' />
+                    </span>
+                    <p className='text-foreground mt-3 text-sm font-medium'>{t('noIncidents')}</p>
+                    <p className='text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed'>{t('emptyHint')}</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              incidents.map((incident) => {
+                const resolved = incident.resolvedAt != null;
+                const monitorName = incident.monitorCheckId ? monitorNameById.get(incident.monitorCheckId) : null;
+                const monitorLabel = monitorName ?? t('pageWide');
+                const durationMs = incident.resolvedAt
+                  ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
+                  : null;
+                // formatElapsedTime renders the compact "2d 14h" / "45m" shape; feed it a synthetic start
+                // so it formats a fixed duration rather than time-from-now.
+                const timePart = resolved
+                  ? t('lasted', { duration: formatElapsedTime(new Date(Date.now() - (durationMs ?? 0)), locale) })
+                  : t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
+                const startedLabel = formatLocalDateTime(incident.startedAt, locale, {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                });
+
+                return (
+                  <TableRow
+                    key={incident.id}
+                    onClick={() => openEdit(incident)}
+                    className='group hover:bg-accent dark:hover:bg-primary/10 cursor-pointer'
+                  >
+                    <TableCell className='w-full max-w-0 min-w-[180px] px-4 py-3 align-middle'>
+                      <div className='flex items-center gap-2'>
+                        <span
+                          className={cn(
+                            'size-2 flex-none rounded-full',
+                            resolved ? 'bg-emerald-500' : SEVERITY_DOT[incident.impact],
+                          )}
+                          aria-hidden
+                        />
+                        <span className='text-foreground truncate text-sm font-medium'>{incident.title}</span>
+                        {!incident.isPublished && (
+                          <Badge variant='secondary' className='flex-none px-1.5 py-0 text-[10px] font-semibold'>
+                            {t('draft')}
+                          </Badge>
+                        )}
+                      </div>
+                      {incident.body && (
+                        <p className='text-muted-foreground mt-0.5 truncate pl-4 text-xs'>{incident.body}</p>
+                      )}
+                    </TableCell>
+                    <TableCell className='px-4 py-3 align-middle'>
+                      <Badge variant='outline' className='gap-1.5 font-medium'>
+                        <span className={cn('size-1.5 rounded-full', LIFECYCLE_DOT[incident.status])} aria-hidden />
+                        {t(`status.${incident.status}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='px-4 py-3 align-middle'>
+                      <Badge variant='outline' className={cn('font-medium', IMPACT_BADGE[incident.impact])}>
+                        {t(`impact.${incident.impact}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='text-muted-foreground hidden max-w-[160px] truncate px-4 py-3 align-middle text-sm xl:table-cell'>
+                      {monitorLabel}
+                    </TableCell>
+                    <TableCell className='px-4 py-3 align-middle'>
+                      <div suppressHydrationWarning className='text-foreground text-sm whitespace-nowrap'>
+                        {startedLabel}
+                      </div>
+                      <div suppressHydrationWarning className='text-muted-foreground text-xs whitespace-nowrap'>
+                        {timePart}
+                      </div>
+                    </TableCell>
+                    <TableCell className='w-10 px-2 align-middle' onClick={(e) => e.stopPropagation()}>
+                      <PermissionGate hideWhenDisabled>
+                        {() => (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                size='icon'
+                                variant='ghost'
+                                disabled={publishMutation.isPending || deleteMutation.isPending}
+                                aria-label={t('actions')}
+                                className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer focus:opacity-100 data-[state=open]:opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
+                              >
+                                <MoreHorizontal className='h-4 w-4' />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='end'>
+                              <DropdownMenuItem onClick={() => openEdit(incident)} className='cursor-pointer'>
+                                <Pencil className='h-3.5 w-3.5' />
+                                {t('edit')}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  publishMutation.mutate({ incidentId: incident.id, isPublished: !incident.isPublished })
+                                }
+                                className='cursor-pointer'
+                              >
+                                {incident.isPublished ? (
+                                  <EyeOff className='h-3.5 w-3.5' />
+                                ) : (
+                                  <Eye className='h-3.5 w-3.5' />
+                                )}
+                                {incident.isPublished ? t('unpublish') : t('publish')}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                variant='destructive'
+                                onClick={() => deleteMutation.mutate(incident.id)}
+                                className='cursor-pointer'
+                              >
+                                <Trash2 className='h-3.5 w-3.5' />
+                                {t('delete')}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </PermissionGate>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }

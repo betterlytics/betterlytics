@@ -5,35 +5,18 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTranslations } from 'next-intl';
 
 import { DragHandle } from '@/components/dnd/DragHandle';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
-import { type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { cn } from '@/lib/utils';
+import type { MonitorRow } from './SortableMonitorRow';
 
-export type MonitorRow = {
-  monitorCheckId: string;
-  name: string | null;
-  url: string;
-  included: boolean;
-  publicName: string;
-  operationalState?: MonitorOperationalState;
-  uptimePercent?: number | null;
-};
-
-type SortableMonitorRowProps = {
+type SortableNameRowProps = {
   row: MonitorRow;
-  includedCount: number;
-  onToggleIncluded: (included: boolean) => void;
   onPublicNameChange: (publicName: string) => void;
 };
 
-export function SortableMonitorRow({
-  row,
-  includedCount,
-  onToggleIncluded,
-  onPublicNameChange,
-}: SortableMonitorRowProps) {
+/** Drag-to-reorder + rename for an already-selected monitor (no include checkbox). */
+export function SortableNameRow({ row, onPublicNameChange }: SortableNameRowProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: row.monitorCheckId,
@@ -45,7 +28,6 @@ export function SortableMonitorRow({
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
         'border-border bg-card flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center',
-        !row.included && 'opacity-55',
         isDragging && 'z-10 drop-shadow-lg',
       )}
     >
@@ -56,12 +38,6 @@ export function SortableMonitorRow({
         label={t('reorderMonitor')}
         className='h-9 w-5 flex-none'
       />
-      <Checkbox
-        checked={row.included}
-        onCheckedChange={(checked) => onToggleIncluded(checked === true)}
-        disabled={!row.included && includedCount >= STATUS_PAGE_LIMITS.MONITORS_MAX}
-        className='flex-none cursor-pointer'
-      />
       <div className='min-w-0 flex-1'>
         <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
         <div className='text-muted-foreground truncate text-xs'>{row.url}</div>
@@ -70,7 +46,6 @@ export function SortableMonitorRow({
         value={row.publicName}
         maxLength={STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX}
         placeholder={t('publicNamePlaceholder')}
-        disabled={!row.included}
         onChange={(e) => onPublicNameChange(e.target.value)}
         className='sm:w-56'
       />

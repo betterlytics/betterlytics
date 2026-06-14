@@ -27,9 +27,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { createDraftStatusPageAction, deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
+import { deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage.entities';
 import { StatusPagesEmptyState } from './StatusPagesEmptyState';
+import { CreateStatusPageWizard } from './CreateStatusPageWizard';
 
 function accentForeground(accentHex: string): string {
   const channel = (offset: number) => {
@@ -74,15 +75,7 @@ export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl }: S
   const t = useTranslations('statusPagesPage');
   const router = useRouter();
 
-  const createMutation = useMutation({
-    mutationFn: async () => createDraftStatusPageAction(dashboardId),
-    onSuccess: (created) => {
-      router.push(`/dashboard/${dashboardId}/monitoring/status-pages/${created.id}`);
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : t('error'));
-    },
-  });
+  const [showWizard, setShowWizard] = useState(false);
 
   const copyLink = (slug: string) => {
     navigator.clipboard.writeText(`${publicBaseUrl}/status/${slug}`);
@@ -105,11 +98,7 @@ export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl }: S
   const createButton = (label: string) => (
     <PermissionGate>
       {(disabled) => (
-        <Button
-          disabled={disabled || createMutation.isPending}
-          onClick={() => createMutation.mutate()}
-          className='cursor-pointer'
-        >
+        <Button disabled={disabled} onClick={() => setShowWizard(true)} className='cursor-pointer'>
           <Plus className='mr-1 h-4 w-4' />
           {label}
         </Button>
@@ -117,8 +106,22 @@ export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl }: S
     </PermissionGate>
   );
 
+  const wizard = showWizard && (
+    <CreateStatusPageWizard
+      dashboardId={dashboardId}
+      publicHost={publicHost}
+      publicBaseUrl={publicBaseUrl}
+      onClose={() => setShowWizard(false)}
+    />
+  );
+
   if (statusPages.length === 0) {
-    return <StatusPagesEmptyState createButton={createButton(t('empty.cta'))} />;
+    return (
+      <>
+        <StatusPagesEmptyState createButton={createButton(t('empty.cta'))} />
+        {wizard}
+      </>
+    );
   }
 
   return (
@@ -230,6 +233,7 @@ export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl }: S
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {wizard}
     </div>
   );
 }

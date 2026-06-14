@@ -32,10 +32,15 @@ import {
   removeStatusPageIncident,
   saveStatusPageIncident,
 } from '@/services/analytics/statusPageIncident.service';
-import { getStatusPagePreviewData } from '@/services/analytics/publicStatusPage.service';
+import {
+  getStatusPagePreviewData,
+  getStatusPagePreviewDataForDashboard,
+} from '@/services/analytics/publicStatusPage.service';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
-import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
+import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
+import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';
+import { getUserTimezone } from '@/lib/cookies';
 import { UserException } from '@/lib/exceptions';
 
 function revalidateStatusPagePaths(dashboardId: string, ...slugs: Array<string | undefined>) {
@@ -106,6 +111,20 @@ export const fetchStatusPagePreviewAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => getStatusPagePreviewData(ctx.dashboardId, statusPageId),
 );
 
+/** Live-preview payload + messages for the create wizard (no persisted page yet). */
+export const fetchStatusPageDraftPreviewAction = withDashboardAuthContext(async (ctx: AuthContext) => {
+  const language: SupportedLanguages = 'en';
+  const [payload, messages] = await Promise.all([
+    getStatusPagePreviewDataForDashboard(ctx.dashboardId, ctx.siteId),
+    getMessages({ locale: language }),
+  ]);
+  return {
+    payload,
+    language,
+    messages: messages.publicStatusPage as Record<string, unknown>,
+  };
+});
+
 export const fetchPublicStatusPageMessagesAction = withDashboardAuthContext(
   async (_ctx: AuthContext, language: SupportedLanguages) => {
     const messages = await getMessages({ locale: language });
@@ -120,11 +139,14 @@ function slugifyDomain(domain: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export const createDraftStatusPageAction = withDashboardMutationAuthContext(async (ctx: AuthContext) => {
-  const [dashboard, monitors] = await Promise.all([
-    findDashboardById(ctx.dashboardId),
-    listMonitorChecks(ctx.dashboardId),
-  ]);
+function averageUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
+  const valid = buckets.filter((bucket) => bucket.upRatio != null);
+  if (valid.length === 0) return null;
+  return (valid.reduce((sum, bucket) => sum + (bucket.upRatio ?? 0), 0) / valid.length) * 100;
+}
+
+async function computeStatusPageDefaults(dashboardId: string) {
+  const dashboard = await findDashboardById(dashboardId);
 
   const base = slugifyDomain(dashboard.domain) || 'my-status-page';
   const candidates = [base, `${base}-status`, ...Array.from({ length: 8 }, (_, i) => `${base}-${i + 2}`)];
@@ -145,16 +167,27 @@ export const createDraftStatusPageAction = withDashboardMutationAuthContext(asyn
   const domainLabel = dashboard.domain.split('.')[0] || dashboard.domain;
   const name = `${domainLabel.charAt(0).toUpperCase()}${domainLabel.slice(1)} Status`;
 
-  const created = await addStatusPage(ctx.dashboardId, {
-    ...StatusPageCreateSchema.parse({ name, slug }),
+  return { name, slug };
+}
+
+export const suggestStatusPageDefaultsAction = withDashboardAuthContext(async (ctx: AuthContext) => {
+  const timezone = await getUserTimezone();
+  const [{ name, slug }, monitors] = await Promise.all([
+    computeStatusPageDefaults(ctx.dashboardId),
+    getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId, timezone),
+  ]);
+  return {
+    name,
+    slug,
     monitors: monitors.slice(0, STATUS_PAGE_LIMITS.MONITORS_MAX).map((monitor) => ({
       monitorCheckId: monitor.id,
+      name: monitor.name ?? null,
+      url: monitor.url,
       publicName: defaultPublicMonitorName(monitor),
+      operationalState: monitor.operationalState,
+      uptimePercent: averageUptimePercent(monitor.uptimeBuckets),
     })),
-  });
-
-  revalidateStatusPagePaths(ctx.dashboardId);
-  return created;
+  };
 });
 
 export const checkStatusPageSlugAction = withDashboardAuthContext(
@@ -182,7 +215,10 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentCreateSchema>) => {
     const payload = StatusPageIncidentCreateSchema.parse(input);
 
-    if ((await countActiveStatusPageIncidents(ctx.dashboardId, payload.statusPageId)) >= STATUS_PAGE_LIMITS.INCIDENTS_MAX) {
+    if (
+      (await countActiveStatusPageIncidents(ctx.dashboardId, payload.statusPageId)) >=
+      STATUS_PAGE_LIMITS.INCIDENTS_MAX
+    ) {
       throw new UserException((await getTranslations('validation'))('statusPageIncidentLimit'));
     }
 
