@@ -4,9 +4,9 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
     releasedAt: '2026-06-14',
-    title: 'Funnels med flere betingelser, nemmere betaling og styrket privatliv',
+    title: 'Funnels med flere kriterier, nemmere betaling og styrket privatliv',
     summary:
-      'Byg mere præcise funnels med flere betingelser for hvert trin, nu også på mobil. Administrer dit abonnement og dine fakturaer uden at forlade appen, og få endnu bedre beskyttelse af besøgendes privatliv.',
+      'Byg mere præcise funnels med flere kriterier for hvert trin, nu også på mobil. Administrer dit abonnement og dine fakturaer uden at forlade appen, og få endnu bedre beskyttelse af besøgendes privatliv.',
   },
   sections: [
     {
@@ -16,7 +16,7 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Funnel-trin understøtter nu flere betingelser. Hvert trin kan kombinere flere filtre, for eksempel en bestemt side og en referrer, så du kan definere langt mere præcise konverteringsstier.',
+            'Funnel-trin understøtter nu flere kriterier. Hvert trin kan kombinere flere filtre, for eksempel en bestemt side og en referrer, så du kan definere langt mere præcise konverteringsstier.',
             'Du kan nu oprette og redigere funnels på mobil, så det fungerer problemfrit på både telefoner og tablets.',
             'Administrer dit abonnement uden at forlade Betterlytics. Du kan nu opgradere, nedgradere eller skifte abonnement direkte i appen, med et tydeligt overblik over eventuelle forholdsmæssige beløb eller tilgodehavender, før du bekræfter. Betalingen gennemføres også sikkert i appen, uden omdirigering til en ekstern side.',
             'Se og åbn dine tidligere fakturaer direkte fra dine kontoindstillinger.',

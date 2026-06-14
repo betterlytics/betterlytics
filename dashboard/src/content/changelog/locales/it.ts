@@ -4,9 +4,9 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
     releasedAt: '2026-06-14',
-    title: 'Funnel con più condizioni, fatturazione più fluida e maggiore privacy',
+    title: 'Funnel con più criteri, fatturazione più fluida e maggiore privacy',
     summary:
-      "Crea funnel più precisi con più condizioni per ogni passaggio, ora utilizzabili anche da dispositivi mobili. Gestisci il tuo abbonamento e le tue fatture senza uscire dall'app e offri ai tuoi visitatori una privacy ancora più forte.",
+      "Crea funnel più precisi con più criteri per ogni passaggio, ora utilizzabili anche da dispositivi mobili. Gestisci il tuo abbonamento e le tue fatture senza uscire dall'app e offri ai tuoi visitatori una privacy ancora più forte.",
   },
   sections: [
     {
@@ -16,7 +16,7 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'I passaggi dei funnel ora supportano più condizioni. Ogni passaggio può combinare più filtri, ad esempio una pagina specifica e un referrer, così puoi definire percorsi di conversione molto più precisi.',
+            'I passaggi dei funnel ora supportano più criteri. Ogni passaggio può combinare più filtri, ad esempio una pagina specifica e un referrer, così puoi definire percorsi di conversione molto più precisi.',
             "Ora puoi creare e modificare i funnel da dispositivi mobili, con un'esperienza fluida su smartphone e tablet.",
             "Gestisci il tuo abbonamento senza uscire da Betterlytics. Ora puoi passare a un piano superiore o inferiore direttamente nell'app, con un'anteprima chiara di eventuali addebiti o crediti proporzionali prima di confermare. Anche il pagamento avviene in modo sicuro nell'app, senza reindirizzamenti a una pagina esterna.",
             'Visualizza e apri le tue fatture passate direttamente dalle impostazioni del tuo account.',

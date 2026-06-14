@@ -4,9 +4,9 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
     releasedAt: '2026-06-14',
-    title: 'Trakter med flere betingelser, enklere betaling og styrket personvern',
+    title: 'Trakter med flere kriterier, enklere betaling og styrket personvern',
     summary:
-      'Bygg mer presise trakter med flere betingelser per trinn, nå også på mobil. Administrer abonnementet og fakturaene dine uten å forlate appen, og få enda bedre personvern for de besøkende.',
+      'Bygg mer presise trakter med flere kriterier per trinn, nå også på mobil. Administrer abonnementet og fakturaene dine uten å forlate appen, og få enda bedre personvern for de besøkende.',
   },
   sections: [
     {
@@ -16,7 +16,7 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Trakttrinn støtter nå flere betingelser. Hvert trinn kan kombinere flere filtre, for eksempel en bestemt side og en referrer, slik at du kan definere langt mer presise konverteringsstier.',
+            'Trakttrinn støtter nå flere kriterier. Hvert trinn kan kombinere flere filtre, for eksempel en bestemt side og en referrer, slik at du kan definere langt mer presise konverteringsstier.',
             'Du kan nå opprette og redigere trakter på mobil, slik at det fungerer problemfritt på både telefoner og nettbrett.',
             'Administrer abonnementet ditt uten å forlate Betterlytics. Du kan nå oppgradere, nedgradere eller bytte abonnement direkte i appen, med en tydelig oversikt over eventuelle forholdsmessige beløp eller tilgodebeløp før du bekrefter. Betalingen skjer også trygt i appen, uten omdirigering til en ekstern side.',
             'Se og åpne tidligere fakturaer direkte fra kontoinnstillingene dine.',
