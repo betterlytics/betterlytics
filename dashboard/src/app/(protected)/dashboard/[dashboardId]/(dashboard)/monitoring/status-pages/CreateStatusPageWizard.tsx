@@ -5,7 +5,19 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Check, Copy, ExternalLink, Loader2, Plus, Search, Upload } from 'lucide-react';
+import {
+  Check,
+  Copy,
+  ExternalLink,
+  Loader2,
+  Maximize2,
+  MoveLeft,
+  MoveRight,
+  Plus,
+  Search,
+  Upload,
+  X,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -13,6 +25,9 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import {
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
@@ -135,6 +150,7 @@ function WizardForm({
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [name, setName] = useState(defaults.name);
   const [slug, setSlug] = useState(defaults.slug);
@@ -142,6 +158,9 @@ function WizardForm({
   const [theme, setTheme] = useState<StatusPageTheme>('system');
   const [accentColor, setAccentColor] = useState(STATUS_PAGE_DEFAULT_ACCENT_COLOR);
   const [visibility, setVisibility] = useState<'public' | 'unlisted'>('public');
+  const [homepageUrl, setHomepageUrl] = useState('');
+  const [customDomain, setCustomDomain] = useState('');
+  const [showPastIncidents, setShowPastIncidents] = useState(true);
   const [monitorRows, setMonitorRows] = useState<MonitorRow[]>(() =>
     defaults.monitors.map((monitor) => ({
       monitorCheckId: monitor.monitorCheckId,
@@ -197,6 +216,7 @@ function WizardForm({
         slug,
         theme,
         accentColor,
+        showPastIncidents,
         monitors: monitorRows
           .filter((row) => row.included)
           .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() })),
@@ -239,13 +259,13 @@ function WizardForm({
     theme,
     accentColor,
     language: previewQuery.data?.language ?? 'en',
-    showPastIncidents: true,
+    showPastIncidents,
     monitors: monitorRows.map((row) => ({
       monitorCheckId: row.monitorCheckId,
       included: row.included,
       publicName: row.publicName,
     })),
-    logoUrl: null
+    logoUrl: null,
   };
 
   if (created) {
@@ -310,6 +330,7 @@ function WizardForm({
           }}
           className='cursor-pointer'
         >
+          <MoveLeft className='mr-1.5 h-3.5 w-3.5' />
           {t('wizard.back')}
         </Button>
       )}
@@ -344,6 +365,7 @@ function WizardForm({
           className='cursor-pointer'
         >
           {t('wizard.continue')}
+          <MoveRight className='ml-1.5 h-3.5 w-3.5' />
         </Button>
       )}
     </>
@@ -509,7 +531,7 @@ function WizardForm({
                       onChange={(e) => setName(e.target.value)}
                     />
                   </div>
-                  <div className='flex flex-wrap items-start gap-8'>
+                  <div className='space-y-6'>
                     <div className='space-y-2'>
                       <Label>{t('logo')}</Label>
                       <button
@@ -553,6 +575,35 @@ function WizardForm({
                     </div>
                   </div>
 
+                  <div className='space-y-1.5'>
+                    <div className='space-y-0.5'>
+                      <Label htmlFor='wiz-homepage'>{t('homepageUrl')}</Label>
+                      <p className='text-muted-foreground text-xs'>{t('homepageUrlHint')}</p>
+                    </div>
+                    <Input
+                      id='wiz-homepage'
+                      type='url'
+                      value={homepageUrl}
+                      placeholder='https://example.com'
+                      onChange={(e) => setHomepageUrl(e.target.value)}
+                    />
+                  </div>
+
+                  <div className='flex items-center justify-between gap-4'>
+                    <div className='min-w-0 space-y-0.5'>
+                      <Label htmlFor='wiz-incidents' className='cursor-pointer'>
+                        {t('showPastIncidents')}
+                      </Label>
+                      <p className='text-muted-foreground text-xs'>{t('showPastIncidentsHint')}</p>
+                    </div>
+                    <Switch
+                      id='wiz-incidents'
+                      checked={showPastIncidents}
+                      onCheckedChange={setShowPastIncidents}
+                      className='flex-none'
+                    />
+                  </div>
+
                   {includedRows.length > 0 && (
                     <div className='space-y-2'>
                       <div className='flex items-baseline justify-between'>
@@ -590,61 +641,107 @@ function WizardForm({
                     <p className='text-muted-foreground text-sm'>{t('wizard.publish.description')}</p>
                   </div>
 
-                  <div className='space-y-1.5'>
+                  <div className='space-y-2'>
                     <Label htmlFor='wiz-slug'>{t('publicUrl')}</Label>
-                    <div className='flex items-stretch'>
-                      <span className='border-input bg-muted text-muted-foreground flex max-w-[55%] min-w-0 items-center rounded-l-md border border-r-0 px-3 text-sm'>
-                        <span className='truncate'>{publicHost}/status/</span>
-                      </span>
-                      <Input
-                        id='wiz-slug'
-                        value={slug}
-                        maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
-                        onChange={(e) => setSlug(e.target.value.toLowerCase())}
-                        className='min-w-0 rounded-l-none'
-                      />
-                    </div>
-                    {slugStatus !== 'idle' && (
-                      <p
-                        className={cn(
-                          'text-xs',
-                          slugStatus === 'available'
-                            ? 'text-emerald-600 dark:text-emerald-400'
-                            : slugStatus === 'checking'
-                              ? 'text-muted-foreground'
-                              : 'text-destructive',
-                        )}
+                    <div className='flex items-center gap-1.5'>
+                      <div className='flex min-w-0 flex-1 items-stretch'>
+                        <span className='border-input bg-muted text-muted-foreground flex max-w-[45%] min-w-0 items-center rounded-l-md border border-r-0 px-3 text-sm'>
+                          <span className='truncate'>{publicHost}/status/</span>
+                        </span>
+                        <div className='relative min-w-0 flex-1'>
+                          <Input
+                            id='wiz-slug'
+                            value={slug}
+                            maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
+                            onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                            className='rounded-l-none pr-9'
+                          />
+                          <span className='absolute top-1/2 right-2.5 -translate-y-1/2'>
+                            {slugStatus === 'checking' && (
+                              <Loader2
+                                className='text-muted-foreground h-4 w-4 animate-spin'
+                                aria-label={t('slugStatus.checking')}
+                              />
+                            )}
+                            {slugStatus === 'available' && (
+                              <Check className='h-4 w-4 text-emerald-500' aria-label={t('slugStatus.available')} />
+                            )}
+                            {(slugStatus === 'taken' || slugStatus === 'invalid') && (
+                              <X className='text-destructive h-4 w-4' aria-label={t(`slugStatus.${slugStatus}`)} />
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${publicBaseUrl}/status/${slug}`);
+                          toast.success(t('publishSuccess.copied'));
+                        }}
+                        aria-label={t('publishSuccess.copy')}
+                        title={t('publishSuccess.copy')}
+                        className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-9 w-9 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
                       >
-                        {t(`slugStatus.${slugStatus}`)}
-                      </p>
+                        <Copy className='h-4 w-4' />
+                      </button>
+                    </div>
+                    {(slugStatus === 'taken' || slugStatus === 'invalid') && (
+                      <p className='text-destructive text-xs'>{t(`slugStatus.${slugStatus}`)}</p>
                     )}
                   </div>
 
-                  <div className='space-y-3'>
-                    <Label>{t('visibility.title')}</Label>
-                    {(['public', 'unlisted'] as const).map((option) => (
-                      <button
-                        key={option}
-                        type='button'
-                        onClick={() => setVisibility(option)}
-                        className='flex w-full cursor-pointer items-start gap-3 text-left'
-                      >
-                        <span
-                          className={cn(
-                            'mt-0.5 flex h-4 w-4 flex-none items-center justify-center rounded-full border',
-                            visibility === option ? 'border-primary' : 'border-input',
-                          )}
-                        >
-                          {visibility === option && <span className='bg-primary h-2 w-2 rounded-full' />}
-                        </span>
-                        <span>
-                          <span className='text-sm font-medium'>{t(`visibility.${option}`)}</span>
-                          <span className='text-muted-foreground block text-xs'>
-                            {t(`visibility.${option}Hint`)}
-                          </span>
-                        </span>
-                      </button>
-                    ))}
+                  <div className='space-y-1.5'>
+                    <div className='space-y-0.5'>
+                      <Label htmlFor='wiz-domain'>{t('customDomain')}</Label>
+                      <p className='text-muted-foreground text-xs'>{t('customDomainHint')}</p>
+                    </div>
+                    <Input
+                      id='wiz-domain'
+                      value={customDomain}
+                      placeholder='status.example.com'
+                      onChange={(e) => setCustomDomain(e.target.value)}
+                    />
+                  </div>
+
+                  <div className='space-y-2'>
+                    <Label id='wiz-visibility'>{t('visibility.title')}</Label>
+                    <div
+                      role='radiogroup'
+                      aria-labelledby='wiz-visibility'
+                      className='border-border bg-card overflow-hidden rounded-xl border'
+                    >
+                      {(['public', 'unlisted'] as const).map((option) => {
+                        const selected = visibility === option;
+                        return (
+                          <button
+                            key={option}
+                            type='button'
+                            role='radio'
+                            aria-checked={selected}
+                            onClick={() => setVisibility(option)}
+                            className={cn(
+                              'border-border flex w-full cursor-pointer items-start gap-3 border-t px-4 py-3.5 text-left transition-colors first:border-t-0',
+                              selected ? 'bg-primary/[0.07]' : 'hover:bg-muted/40',
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                'mt-0.5 flex h-4 w-4 flex-none items-center justify-center rounded-full border-2 transition-colors',
+                                selected ? 'border-primary' : 'border-muted-foreground',
+                              )}
+                            >
+                              {selected && <span className='bg-primary h-2 w-2 rounded-full' />}
+                            </span>
+                            <span className='min-w-0'>
+                              <span className='block text-sm font-semibold'>{t(`visibility.${option}`)}</span>
+                              <span className='text-muted-foreground mt-0.5 block text-xs leading-relaxed'>
+                                {t(`visibility.${option}Hint`)}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <div className='border-border bg-muted/40 space-y-2 rounded-lg border p-4'>
@@ -679,17 +776,61 @@ function WizardForm({
           </div>
         </div>
 
-        <aside className='hidden min-h-0 w-[460px] flex-none overflow-y-auto lg:block'>
+        <aside className='hidden min-h-0 w-[500px] flex-none overflow-y-auto lg:block'>
           <div className='min-h-full px-2 py-8 sm:py-10'>
             {previewQuery.data ? (
-              <LivePreview
-                dashboardId={dashboardId}
-                payload={previewQuery.data.payload}
-                initialLanguage={previewQuery.data.language}
-                initialMessages={previewQuery.data.messages}
-                publicHost={publicHost}
-                draft={previewDraft}
-              />
+              <>
+                <div className='group relative'>
+                  <LivePreview
+                    dashboardId={dashboardId}
+                    payload={previewQuery.data.payload}
+                    initialLanguage={previewQuery.data.language}
+                    initialMessages={previewQuery.data.messages}
+                    publicHost={publicHost}
+                    draft={previewDraft}
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setPreviewOpen(true)}
+                    aria-label={t('wizard.enlargePreview')}
+                    className='absolute inset-0 flex cursor-pointer items-center justify-center rounded-xl opacity-0 transition-opacity hover:bg-black/30 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
+                  >
+                    <span className='flex items-center gap-1.5 rounded-md bg-black/70 px-3 py-1.5 text-xs font-medium text-white shadow-sm'>
+                      <Maximize2 className='h-3.5 w-3.5' />
+                      {t('wizard.enlargePreview')}
+                    </span>
+                  </button>
+                </div>
+                <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+                  <DialogPortal>
+                    <DialogOverlay />
+                    <DialogPrimitive.Content
+                      aria-describedby={undefined}
+                      className='data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 w-full max-w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 duration-200'
+                    >
+                      <DialogTitle className='sr-only'>{t('preview')}</DialogTitle>
+                      <LivePreview
+                        dashboardId={dashboardId}
+                        payload={previewQuery.data.payload}
+                        initialLanguage={previewQuery.data.language}
+                        initialMessages={previewQuery.data.messages}
+                        publicHost={publicHost}
+                        draft={previewDraft}
+                        zoom={0.85}
+                        className='max-h-[88vh]'
+                        chromeRight={
+                          <DialogClose
+                            aria-label={t('wizard.close')}
+                            className='text-muted-foreground hover:text-foreground hover:bg-muted -mr-1 flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded transition-colors'
+                          >
+                            <X className='h-4 w-4' />
+                          </DialogClose>
+                        }
+                      />
+                    </DialogPrimitive.Content>
+                  </DialogPortal>
+                </Dialog>
+              </>
             ) : previewQuery.isError ? (
               <p className='text-muted-foreground pt-10 text-sm'>{t('error')}</p>
             ) : (

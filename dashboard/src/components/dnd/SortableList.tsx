@@ -1,7 +1,7 @@
 'use client';
 
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useCallback, useState, type ReactNode } from 'react';
 
@@ -38,7 +38,7 @@ export function SortableList<T>({ items, getId, onReorder, children, className }
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis]}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={handleDragEnd}
       onDragCancel={() => setIsDragging(false)}

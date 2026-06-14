@@ -4046,6 +4046,7 @@
       },
       "language": "Lingua",
       "showPastIncidents": "Mostra incidenti passati",
+      "showPastIncidentsHint": "Mostra una cronologia degli incidenti risolti sulla tua pagina pubblica.",
       "monitors": "Monitor",
       "monitorsHint": "{selected} di {total} visibili",
       "publicNamePlaceholder": "Nome visualizzato pubblico",
@@ -4066,6 +4067,7 @@
         "back": "Indietro",
         "continue": "Continua",
         "saveDraft": "Salva come bozza",
+        "enlargePreview": "Ingrandisci anteprima",
         "steps": {
           "select": "Seleziona",
           "customize": "Personalizza",
@@ -4077,7 +4079,7 @@
         },
         "customize": {
           "heading": "Rendila tua",
-          "description": "Branding e nomi visualizzati: tutto facoltativo, si applicano impostazioni predefinite sensate."
+          "description": "Branding e nomi visualizzati. L'anteprima si aggiorna mentre procedi."
         },
         "publish": {
           "heading": "Pronta per la pubblicazione",

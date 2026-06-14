@@ -1,6 +1,6 @@
 'use client';
 
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
 import { fetchPublicStatusPageMessagesAction } from '@/app/actions/analytics/statusPage.actions';
 import { StatusPageView } from '@/app/status/[slug]/components/StatusPageView';
@@ -13,6 +13,7 @@ import {
   type StatusPageTheme,
 } from '@/entities/analytics/statusPage.entities';
 import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';
+import { cn } from '@/lib/utils';
 
 export type PreviewDraft = {
   name: string;
@@ -33,6 +34,12 @@ type LivePreviewProps = {
   publicHost: string;
   draft: PreviewDraft;
   draftIncident?: PublicStatusPageIncident | null;
+  /** Scale of the rendered page inside the browser frame. Defaults to 0.5 (half size). */
+  zoom?: number;
+  /** Extra element after the "Live preview" label in the chrome bar (e.g. a close button in a modal). */
+  chromeRight?: ReactNode;
+  /** Extra classes on the outer frame */
+  className?: string;
 };
 
 /**
@@ -49,13 +56,16 @@ export function LivePreview({
   publicHost,
   draft: liveDraft,
   draftIncident,
+  zoom = 0.5,
+  chromeRight,
+  className,
 }: LivePreviewProps) {
   const tEditor = useTranslations('statusPagesPage.editor');
-  
+
   const draft = useDeferredValue(liveDraft);
-  const [messagesByLanguage, setMessagesByLanguage] = useState<Partial<Record<SupportedLanguages, Record<string, unknown>>>>(
-    { [initialLanguage]: initialMessages },
-  );
+  const [messagesByLanguage, setMessagesByLanguage] = useState<
+    Partial<Record<SupportedLanguages, Record<string, unknown>>>
+  >({ [initialLanguage]: initialMessages });
 
   useEffect(() => {
     if (messagesByLanguage[draft.language]) return;
@@ -99,7 +109,7 @@ export function LivePreview({
           return { ...incident, monitorPublicName: draftName ?? null };
         })
       : null;
-      
+
     const incidents = draft.showPastIncidents
       ? [...(draftIncident ? [draftIncident] : []), ...(publishedIncidents ?? [])]
       : null;
@@ -123,9 +133,17 @@ export function LivePreview({
 
   const messages = messagesByLanguage[draft.language] ?? initialMessages;
 
+  const body = (
+    <div className='[&_.bl-status-page]:min-h-0' style={{ zoom }}>
+      <NextIntlClientProvider locale={draft.language} messages={{ publicStatusPage: messages }}>
+        <StatusPageView data={data} />
+      </NextIntlClientProvider>
+    </div>
+  );
+
   return (
-    <div className='bg-card border-border overflow-hidden rounded-xl border'>
-      <div className='border-border flex items-center gap-1.5 border-b px-3 py-2'>
+    <div className={cn('bg-card border-border flex flex-col overflow-hidden rounded-xl border', className)}>
+      <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
         <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
         <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
         <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
@@ -133,13 +151,9 @@ export function LivePreview({
           {`${publicHost}/status/${draft.slug}`}
         </span>
         <span className='text-muted-foreground ml-1 flex-none text-xs'>{tEditor('preview')}</span>
+        {chromeRight}
       </div>
-      {/* zoom (not transform) so the scaled preview also lays out at half size */}
-      <div style={{ zoom: 0.5 }}>
-        <NextIntlClientProvider locale={draft.language} messages={{ publicStatusPage: messages }}>
-          <StatusPageView data={data} />
-        </NextIntlClientProvider>
-      </div>
+      <div className='min-h-0 flex-1 overflow-y-auto'>{body}</div>
     </div>
   );
 }

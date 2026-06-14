@@ -4038,6 +4038,7 @@
       },
       "language": "Sprog",
       "showPastIncidents": "Vis tidligere hændelser",
+      "showPastIncidentsHint": "Vis en historik over løste hændelser på din offentlige side.",
       "monitors": "Monitorer",
       "monitorsHint": "{selected} af {total} vises",
       "publicNamePlaceholder": "Offentligt visningsnavn",
@@ -4058,6 +4059,7 @@
         "back": "Tilbage",
         "continue": "Fortsæt",
         "saveDraft": "Gem som kladde",
+        "enlargePreview": "Forstør forhåndsvisning",
         "steps": {
           "select": "Vælg",
           "customize": "Tilpas",
@@ -4069,7 +4071,7 @@
         },
         "customize": {
           "heading": "Gør den til din",
-          "description": "Branding og visningsnavne – alt er valgfrit, fornuftige standarder anvendes."
+          "description": "Branding og visningsnavne. Forhåndsvisningen opdateres undervejs."
         },
         "publish": {
           "heading": "Klar til at udgive",

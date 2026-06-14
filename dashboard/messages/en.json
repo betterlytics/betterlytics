@@ -4032,6 +4032,7 @@
       },
       "language": "Language",
       "showPastIncidents": "Show past incidents",
+      "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
       "monitors": "Monitors",
       "monitorsHint": "{selected} of {total} shown",
       "publicNamePlaceholder": "Public display name",
@@ -4052,6 +4053,7 @@
         "back": "Back",
         "continue": "Continue",
         "saveDraft": "Save as draft",
+        "enlargePreview": "Enlarge preview",
         "steps": {
           "select": "Select",
           "customize": "Customize",
@@ -4063,7 +4065,7 @@
         },
         "customize": {
           "heading": "Make it yours",
-          "description": "Branding and display names — all optional, sensible defaults apply."
+          "description": "Branding and display names. The preview updates as you go."
         },
         "publish": {
           "heading": "Ready to publish",
