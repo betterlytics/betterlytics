@@ -3990,6 +3990,11 @@
     "editor": {
       "back": "Pagine di stato",
       "save": "Salva modifiche",
+      "statusPublished": "Pubblicato",
+      "statusDraft": "Bozza",
+      "viewPage": "Vedi pagina",
+      "copyUrl": "Copia URL",
+      "moreActions": "Altre azioni",
       "publish": "Pubblica pagina di stato",
       "unpublish": "Annulla pubblicazione",
       "saved": "Pagina di stato salvata",
@@ -4011,6 +4016,7 @@
       "deleteConfirm": "Elimina",
       "cancel": "Annulla",
       "pageDetails": "Dettagli pagina",
+      "pageDetailsHint": "Nomi e indirizzi della tua pagina di stato pubblica.",
       "pageName": "Nome pagina",
       "publicUrl": "URL pubblico",
       "slugStatus": {
@@ -4025,8 +4031,12 @@
       "customDomain": "Dominio personalizzato",
       "customDomainHint": "Ospita la pagina sul tuo dominio.",
       "branding": "Branding",
+      "brandHint": "Logo e colore principale mostrati sulla pagina pubblica.",
+      "appearance": "Aspetto",
+      "appearanceHint": "Tema predefinito per i visitatori.",
       "visibility": {
         "title": "Visibilità",
+        "hint": "Controlla chi può trovare la tua pagina di stato.",
         "public": "Pubblica",
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
         "unlisted": "Non in elenco",
@@ -4050,13 +4060,16 @@
       "showPastIncidentsHint": "Mostra una cronologia degli incidenti risolti sulla tua pagina pubblica.",
       "monitors": "Monitor",
       "monitorsHint": "{selected} di {total} visibili",
+      "monitorsDescription": "Trascina per riordinare, attiva/disattiva la visibilità e imposta i nomi pubblici.",
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
       "preview": "Anteprima live",
       "loadingPreview": "Caricamento anteprima…",
       "tabs": {
-        "setup": "Impostazioni pagina",
-        "incidents": "Incidenti"
+        "incidents": "Incidenti",
+        "general": "Generale",
+        "customize": "Personalizza",
+        "monitors": "Monitor"
       },
       "incidentsLocked": {
         "title": "Pubblica la pagina per creare incidenti",
@@ -4108,6 +4121,11 @@
       },
       "incidents": {
         "title": "Incidenti",
+        "pastIncidents": "Incidenti passati",
+        "listSubtitle": "Gli aggiornamenti appaiono sulla tua pagina pubblica.",
+        "detectedTitle": "Interruzione rilevata",
+        "detectedDescription": "{monitor} — {detail}",
+        "internal": "Interno",
         "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto — nulla diventa pubblico finché non lo pubblichi.",
         "newIncident": "Nuovo incidente",
         "backToList": "Torna agli incidenti",
@@ -4162,7 +4180,11 @@
           "publish": "Pubblicato",
           "publishHint": "Visibile sulla tua pagina di stato pubblica",
           "save": "Salva",
-          "cancel": "Annulla"
+          "cancel": "Annulla",
+          "saveInternal": "Salva come interno",
+          "publishCta": "Pubblica",
+          "updatePublic": "Aggiorna pagina pubblica",
+          "saveHint": "Salvalo internamente per il tuo team o pubblicalo sulla pagina di stato pubblica."
         }
       }
     }

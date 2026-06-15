@@ -5,8 +5,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTranslations } from 'next-intl';
 
 import { DragHandle } from '@/components/dnd/DragHandle';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,8 @@ export type MonitorRow = {
 
 type SortableMonitorRowProps = {
   row: MonitorRow;
+  /** Position in the list — drives the hairline divider between rows (none on the first). */
+  index: number;
   includedCount: number;
   onToggleIncluded: (included: boolean) => void;
   onPublicNameChange: (publicName: string) => void;
@@ -30,6 +32,7 @@ type SortableMonitorRowProps = {
 
 export function SortableMonitorRow({
   row,
+  index,
   includedCount,
   onToggleIncluded,
   onPublicNameChange,
@@ -44,27 +47,31 @@ export function SortableMonitorRow({
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={cn(
-        'border-border bg-card flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center',
+        'bg-card flex flex-col gap-3 p-3.5 sm:flex-row sm:items-center',
+        index > 0 && 'border-border border-t',
         !row.included && 'opacity-55',
-        isDragging && 'z-10 drop-shadow-lg',
+        isDragging && 'relative z-10 shadow-lg',
       )}
     >
-      <DragHandle
-        ref={setActivatorNodeRef}
-        attributes={attributes}
-        listeners={listeners}
-        label={t('reorderMonitor')}
-        className='h-9 w-5 flex-none'
-      />
-      <Checkbox
-        checked={row.included}
-        onCheckedChange={(checked) => onToggleIncluded(checked === true)}
-        disabled={!row.included && includedCount >= STATUS_PAGE_LIMITS.MONITORS_MAX}
-        className='flex-none cursor-pointer'
-      />
-      <div className='min-w-0 flex-1'>
-        <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
-        <div className='text-muted-foreground truncate text-xs'>{row.url}</div>
+      <div className='flex min-w-0 items-center gap-3 sm:flex-1'>
+        <DragHandle
+          ref={setActivatorNodeRef}
+          attributes={attributes}
+          listeners={listeners}
+          label={t('reorderMonitor')}
+          className='h-9 w-5 flex-none'
+        />
+        <Switch
+          checked={row.included}
+          onCheckedChange={(checked) => onToggleIncluded(checked === true)}
+          disabled={!row.included && includedCount >= STATUS_PAGE_LIMITS.MONITORS_MAX}
+          aria-label={row.name ?? row.url}
+          className='flex-none cursor-pointer'
+        />
+        <div className='min-w-0 flex-1'>
+          <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
+          <div className='text-muted-foreground truncate font-mono text-xs'>{row.url}</div>
+        </div>
       </div>
       <Input
         value={row.publicName}
@@ -72,7 +79,7 @@ export function SortableMonitorRow({
         placeholder={t('publicNamePlaceholder')}
         disabled={!row.included}
         onChange={(e) => onPublicNameChange(e.target.value)}
-        className='sm:w-56'
+        className='sm:w-56 sm:flex-none'
       />
     </div>
   );

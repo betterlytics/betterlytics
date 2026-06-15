@@ -3982,6 +3982,11 @@
     "editor": {
       "back": "Statussider",
       "save": "Gem ændringer",
+      "statusPublished": "Udgivet",
+      "statusDraft": "Kladde",
+      "viewPage": "Vis side",
+      "copyUrl": "Kopiér URL",
+      "moreActions": "Flere handlinger",
       "publish": "Udgiv statusside",
       "unpublish": "Afpublicér",
       "saved": "Statusside gemt",
@@ -4003,6 +4008,7 @@
       "deleteConfirm": "Slet",
       "cancel": "Annuller",
       "pageDetails": "Sidedetaljer",
+      "pageDetailsHint": "Navne og adresser til din offentlige statusside.",
       "pageName": "Sidenavn",
       "publicUrl": "Offentlig URL",
       "slugStatus": {
@@ -4018,12 +4024,16 @@
       "customDomainHint": "Host siden på dit eget domæne.",
       "visibility": {
         "title": "Synlighed",
+        "hint": "Bestem hvem der kan finde din statusside.",
         "public": "Offentlig",
         "publicHint": "Alle med linket kan se siden. Indekseres af søgemaskiner.",
         "unlisted": "Ikke listet",
         "unlistedHint": "Alle med linket kan se siden, men den skjules for søgemaskiner."
       },
       "branding": "Branding",
+      "brandHint": "Logo og accentfarve vist på den offentlige side.",
+      "appearance": "Udseende",
+      "appearanceHint": "Standardtema for besøgende.",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",
@@ -4042,13 +4052,16 @@
       "showPastIncidentsHint": "Vis en historik over løste hændelser på din offentlige side.",
       "monitors": "Monitorer",
       "monitorsHint": "{selected} af {total} vises",
+      "monitorsDescription": "Træk for at omarrangere, slå synlighed til/fra, og angiv offentlige visningsnavne.",
       "publicNamePlaceholder": "Offentligt visningsnavn",
       "reorderMonitor": "Omarranger monitor",
       "preview": "Live forhåndsvisning",
       "loadingPreview": "Indlæser forhåndsvisning…",
       "tabs": {
-        "setup": "Sideopsætning",
-        "incidents": "Hændelser"
+        "incidents": "Hændelser",
+        "general": "Generelt",
+        "customize": "Tilpas",
+        "monitors": "Monitorer"
       },
       "incidentsLocked": {
         "title": "Udgiv din side for at oprette hændelser",
@@ -4100,6 +4113,11 @@
       },
       "incidents": {
         "title": "Hændelser",
+        "pastIncidents": "Tidligere hændelser",
+        "listSubtitle": "Opdateringer vises på din offentlige side.",
+        "detectedTitle": "Registreret nedbrud",
+        "detectedDescription": "{monitor} — {detail}",
+        "internal": "Intern",
         "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor — intet bliver offentligt, før du udgiver det.",
         "newIncident": "Ny hændelse",
         "backToList": "Tilbage til hændelser",
@@ -4154,7 +4172,11 @@
           "publish": "Udgivet",
           "publishHint": "Synlig på din offentlige statusside",
           "save": "Gem",
-          "cancel": "Annuller"
+          "cancel": "Annuller",
+          "saveInternal": "Gem internt",
+          "publishCta": "Udgiv",
+          "updatePublic": "Opdatér offentlig side",
+          "saveHint": "Gem den internt til dit team, eller udgiv den til den offentlige statusside."
         }
       }
     }

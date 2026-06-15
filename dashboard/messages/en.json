@@ -3976,6 +3976,11 @@
     "editor": {
       "back": "Status Pages",
       "save": "Save changes",
+      "statusPublished": "Published",
+      "statusDraft": "Draft",
+      "viewPage": "View page",
+      "copyUrl": "Copy URL",
+      "moreActions": "More actions",
       "publish": "Publish status page",
       "unpublish": "Unpublish",
       "saved": "Status page saved",
@@ -3997,6 +4002,7 @@
       "deleteConfirm": "Delete",
       "cancel": "Cancel",
       "pageDetails": "Page details",
+      "pageDetailsHint": "Names and addresses for your public status page.",
       "pageName": "Page name",
       "publicUrl": "Public URL",
       "slugStatus": {
@@ -4012,12 +4018,16 @@
       "customDomainHint": "Host the page on your own domain.",
       "visibility": {
         "title": "Visibility",
+        "hint": "Control who can find your status page.",
         "public": "Public",
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
         "unlisted": "Unlisted",
         "unlistedHint": "Anyone with the link can view, but hidden from search engines."
       },
       "branding": "Branding",
+      "brandHint": "Logo and accent color shown on the public page.",
+      "appearance": "Appearance",
+      "appearanceHint": "Default theme for visitors.",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",
@@ -4036,13 +4046,16 @@
       "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
       "monitors": "Monitors",
       "monitorsHint": "{selected} of {total} shown",
+      "monitorsDescription": "Drag to reorder, toggle visibility, and set public display names.",
       "publicNamePlaceholder": "Public display name",
       "reorderMonitor": "Reorder monitor",
       "preview": "Live preview",
       "loadingPreview": "Loading preview…",
       "tabs": {
-        "setup": "Page setup",
-        "incidents": "Incidents"
+        "incidents": "Incidents",
+        "general": "General",
+        "customize": "Customize",
+        "monitors": "Monitors"
       },
       "incidentsLocked": {
         "title": "Publish your page to post incidents",
@@ -4094,6 +4107,11 @@
       },
       "incidents": {
         "title": "Incidents",
+        "pastIncidents": "Past incidents",
+        "listSubtitle": "Updates appear on your public page.",
+        "detectedTitle": "Detected outage",
+        "detectedDescription": "{monitor} — {detail}",
+        "internal": "Internal",
         "hint": "Write and publish incidents. Detected outages are suggested below — nothing goes public until you publish it.",
         "newIncident": "New incident",
         "backToList": "Back to incidents",
@@ -4148,7 +4166,11 @@
           "publish": "Published",
           "publishHint": "Visible on your public status page",
           "save": "Save",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "saveInternal": "Save as internal",
+          "publishCta": "Publish",
+          "updatePublic": "Update public page",
+          "saveHint": "Save it internally for your team, or publish to the public status page."
         }
       }
     }

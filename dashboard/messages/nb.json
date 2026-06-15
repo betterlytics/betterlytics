@@ -3990,6 +3990,11 @@
     "editor": {
       "back": "Statussider",
       "save": "Lagre endringer",
+      "statusPublished": "Publisert",
+      "statusDraft": "Utkast",
+      "viewPage": "Vis side",
+      "copyUrl": "Kopier URL",
+      "moreActions": "Flere handlinger",
       "publish": "Publiser statusside",
       "unpublish": "Avpubliser",
       "saved": "Statusside lagret",
@@ -4011,6 +4016,7 @@
       "deleteConfirm": "Slett",
       "cancel": "Avbryt",
       "pageDetails": "Sidedetaljer",
+      "pageDetailsHint": "Navn og adresser for den offentlige statussiden din.",
       "pageName": "Sidenavn",
       "publicUrl": "Offentlig URL",
       "slugStatus": {
@@ -4025,8 +4031,12 @@
       "customDomain": "Eget domene",
       "customDomainHint": "Host siden på ditt eget domene.",
       "branding": "Merkevare",
+      "brandHint": "Logo og aksentfarge vist på den offentlige siden.",
+      "appearance": "Utseende",
+      "appearanceHint": "Standardtema for besøkende.",
       "visibility": {
         "title": "Synlighet",
+        "hint": "Bestem hvem som kan finne statussiden din.",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
         "unlisted": "Ikke oppført",
@@ -4050,13 +4060,16 @@
       "showPastIncidentsHint": "Vis en historikk over løste hendelser på din offentlige side.",
       "monitors": "Monitorer",
       "monitorsHint": "{selected} av {total} vises",
+      "monitorsDescription": "Dra for å endre rekkefølge, slå synlighet av/på, og angi offentlige visningsnavn.",
       "publicNamePlaceholder": "Offentlig visningsnavn",
       "reorderMonitor": "Omorganiser monitor",
       "preview": "Direkte forhåndsvisning",
       "loadingPreview": "Laster forhåndsvisning…",
       "tabs": {
-        "setup": "Sideoppsett",
-        "incidents": "Hendelser"
+        "incidents": "Hendelser",
+        "general": "Generelt",
+        "customize": "Tilpass",
+        "monitors": "Monitorer"
       },
       "incidentsLocked": {
         "title": "Publiser siden for å opprette hendelser",
@@ -4108,6 +4121,11 @@
       },
       "incidents": {
         "title": "Hendelser",
+        "pastIncidents": "Tidligere hendelser",
+        "listSubtitle": "Oppdateringer vises på den offentlige siden din.",
+        "detectedTitle": "Oppdaget nedetid",
+        "detectedDescription": "{monitor} — {detail}",
+        "internal": "Intern",
         "hint": "Skriv og publiser hendelser. Oppdagede nedetider foreslås nedenfor — ingenting blir offentlig før du publiserer det.",
         "newIncident": "Ny hendelse",
         "backToList": "Tilbake til hendelser",
@@ -4162,7 +4180,11 @@
           "publish": "Publisert",
           "publishHint": "Synlig på den offentlige statussiden din",
           "save": "Lagre",
-          "cancel": "Avbryt"
+          "cancel": "Avbryt",
+          "saveInternal": "Lagre internt",
+          "publishCta": "Publiser",
+          "updatePublic": "Oppdater offentlig side",
+          "saveHint": "Lagre den internt for teamet ditt, eller publiser den til den offentlige statussiden."
         }
       }
     }
