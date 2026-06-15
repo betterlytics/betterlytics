@@ -126,7 +126,6 @@ function WizardStepper({
               >
                 {done ? <Check className='h-3.5 w-3.5' strokeWidth={3} /> : index + 1}
               </span>
-              {/* Ghost reserves the bold width so the active label doesn't widen the row on each step. */}
               <span className='grid text-xs'>
                 <span aria-hidden className='invisible col-start-1 row-start-1 font-semibold'>
                   {labels[step]}
@@ -167,6 +166,99 @@ function PreviewLoadingFrame({ publicHost, slug }: { publicHost: string; slug: s
       <div className='flex min-h-[360px] flex-col items-center justify-center gap-3'>
         <Spinner size='sm' />
         <span className='text-muted-foreground text-sm'>{t('loadingPreview')}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Compact step indicator for mobile, where the full {@link WizardStepper} is hidden. */
+function MobileStepProgress({ step }: { step: number }) {
+  const t = useTranslations('statusPagesPage.editor');
+  return (
+    <div className='border-border flex items-center gap-3 border-b px-4 py-2.5 lg:hidden'>
+      <div className='flex flex-1 gap-1.5' aria-hidden>
+        {STEPS.map((s, i) => (
+          <span key={s} className='bg-border relative h-1 flex-1 overflow-hidden rounded-full'>
+            <span
+              className={cn(
+                'absolute inset-0 origin-left rounded-full bg-emerald-500 motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out',
+                i <= step ? 'scale-x-100' : 'scale-x-0',
+              )}
+            />
+          </span>
+        ))}
+      </div>
+      <span className='text-muted-foreground grid flex-none text-xs font-medium'>
+        {STEPS.map((s, i) => (
+          <span
+            key={s}
+            aria-hidden={i !== step}
+            className={cn('col-start-1 row-start-1 text-right whitespace-nowrap', i !== step && 'invisible')}
+          >
+            {t(`wizard.steps.${s}`)}
+          </span>
+        ))}
+      </span>
+    </div>
+  );
+}
+
+/** Bottom-anchored nav/commit actions for mobile; the desktop equivalent lives in the header. */
+function MobileActionBar({
+  step,
+  isLast,
+  canContinue,
+  canCommit,
+  submittingDraft,
+  submittingPublish,
+  onBack,
+  onNext,
+  onPublish,
+  onSaveDraft,
+}: {
+  step: number;
+  isLast: boolean;
+  canContinue: boolean;
+  canCommit: boolean;
+  submittingDraft: boolean;
+  submittingPublish: boolean;
+  onBack: () => void;
+  onNext: () => void;
+  onPublish: () => void;
+  onSaveDraft: () => void;
+}) {
+  const t = useTranslations('statusPagesPage.editor');
+  return (
+    <div className='border-border flex flex-none flex-col gap-2 border-t p-3 lg:hidden'>
+      {isLast && (
+        <Button
+          variant='ghost'
+          disabled={!canCommit}
+          onClick={onSaveDraft}
+          className='text-muted-foreground w-full cursor-pointer'
+        >
+          {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
+          {t('wizard.saveDraft')}
+        </Button>
+      )}
+      <div className='flex items-center gap-2'>
+        {step > 0 && (
+          <Button variant='outline' onClick={onBack} className='flex-none cursor-pointer'>
+            <MoveLeft className='mr-1.5 h-4 w-4' />
+            {t('wizard.back')}
+          </Button>
+        )}
+        {isLast ? (
+          <Button disabled={!canCommit} onClick={onPublish} className='flex-1 cursor-pointer'>
+            {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
+            {t('publish')}
+          </Button>
+        ) : (
+          <Button disabled={!canContinue} onClick={onNext} className='flex-1 cursor-pointer'>
+            {t('wizard.continue')}
+            <MoveRight className='ml-1.5 h-4 w-4' />
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -422,50 +514,60 @@ function WizardForm({
     );
   }
 
+  const goBack = () => {
+    setDirection('back');
+    setStep((s) => s - 1);
+  };
+
   const actions = (
     <>
-      {step > 0 && (
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={() => {
-            setDirection('back');
-            setStep((s) => s - 1);
-          }}
-          className='cursor-pointer'
-        >
-          <MoveLeft className='mr-1.5 h-3.5 w-3.5' />
-          {t('wizard.back')}
-        </Button>
-      )}
-      {isLast ? (
-        <>
-          <Button
-            variant='outline'
-            size='sm'
-            disabled={!canCommit}
-            onClick={() => commitMutation.mutate(false)}
-            className='cursor-pointer'
-          >
-            {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
-            {t('wizard.saveDraft')}
+      <Button
+        type='button'
+        variant='outline'
+        size='sm'
+        onClick={() => setPreviewOpen(true)}
+        disabled={!previewQuery.data}
+        className='cursor-pointer lg:hidden'
+      >
+        <Maximize2 className='mr-1.5 h-3.5 w-3.5' />
+        {t('preview')}
+      </Button>
+      <div className='hidden items-center gap-2 lg:flex'>
+        {step > 0 && (
+          <Button variant='outline' size='sm' onClick={goBack} className='cursor-pointer'>
+            <MoveLeft className='mr-1.5 h-3.5 w-3.5' />
+            {t('wizard.back')}
           </Button>
-          <Button
-            size='sm'
-            disabled={!canCommit}
-            onClick={() => commitMutation.mutate(true)}
-            className='cursor-pointer'
-          >
-            {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
-            {t('publish')}
+        )}
+        {isLast ? (
+          <>
+            <Button
+              variant='outline'
+              size='sm'
+              disabled={!canCommit}
+              onClick={() => commitMutation.mutate(false)}
+              className='cursor-pointer'
+            >
+              {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
+              {t('wizard.saveDraft')}
+            </Button>
+            <Button
+              size='sm'
+              disabled={!canCommit}
+              onClick={() => commitMutation.mutate(true)}
+              className='cursor-pointer'
+            >
+              {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
+              {t('publish')}
+            </Button>
+          </>
+        ) : (
+          <Button size='sm' disabled={!canContinue} onClick={goNext} className='cursor-pointer'>
+            {t('wizard.continue')}
+            <MoveRight className='ml-1.5 h-3.5 w-3.5' />
           </Button>
-        </>
-      ) : (
-        <Button size='sm' disabled={!canContinue} onClick={goNext} className='cursor-pointer'>
-          {t('wizard.continue')}
-          <MoveRight className='ml-1.5 h-3.5 w-3.5' />
-        </Button>
-      )}
+        )}
+      </div>
     </>
   );
 
@@ -487,6 +589,7 @@ function WizardForm({
         }
         actions={actions}
       />
+      <MobileStepProgress step={step} />
       <div className='flex min-h-0 flex-1 justify-center overflow-hidden'>
         <div className='flex min-h-0 w-full max-w-6xl'>
           <div className='flex-1 overflow-y-auto'>
@@ -861,35 +964,6 @@ function WizardForm({
                         })}
                       </div>
                     </div>
-
-                    <div className='border-border bg-muted/40 space-y-2 rounded-lg border p-4'>
-                      <div className='text-muted-foreground text-xs font-medium'>{t('wizard.summary')}</div>
-                      <div className='flex justify-between gap-4 text-sm'>
-                        <span className='text-muted-foreground'>{t('pageName')}</span>
-                        <span className='min-w-0 truncate font-medium'>{name.trim() || defaults.name}</span>
-                      </div>
-                      <div className='flex justify-between text-sm'>
-                        <span className='text-muted-foreground'>{t('monitors')}</span>
-                        <span className='font-medium'>
-                          {t('wizard.summaryMonitors', { count: includedCount })}
-                        </span>
-                      </div>
-                      <div className='flex justify-between text-sm'>
-                        <span className='text-muted-foreground'>{t('theme')}</span>
-                        <span className='font-medium'>{t(`themes.${theme}`)}</span>
-                      </div>
-                      <div className='flex items-center justify-between text-sm'>
-                        <span className='text-muted-foreground'>{t('accentColor')}</span>
-                        <span className='flex items-center gap-2 font-medium'>
-                          <span
-                            className='h-3.5 w-3.5 rounded-full'
-                            style={{ backgroundColor: accentColor }}
-                            aria-hidden
-                          />
-                          {accentColor}
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -919,33 +993,6 @@ function WizardForm({
                       </span>
                     </button>
                   </div>
-                  <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-                    <DialogPortal>
-                      <DialogOverlay />
-                      <DialogPrimitive.Content
-                        aria-describedby={undefined}
-                        className='data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 w-full max-w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 duration-200'
-                      >
-                        <DialogTitle className='sr-only'>{t('preview')}</DialogTitle>
-                        <LivePreview
-                          payload={previewQuery.data.payload}
-                          messages={previewQuery.data.messages}
-                          publicHost={publicHost}
-                          draft={previewDraft}
-                          zoom={0.85}
-                          className='max-h-[88vh]'
-                          chromeRight={
-                            <DialogClose
-                              aria-label={t('wizard.close')}
-                              className='text-muted-foreground hover:text-foreground hover:bg-muted -mr-1 flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded transition-colors'
-                            >
-                              <X className='h-4 w-4' />
-                            </DialogClose>
-                          }
-                        />
-                      </DialogPrimitive.Content>
-                    </DialogPortal>
-                  </Dialog>
                 </>
               ) : previewQuery.isError ? (
                 <p className='text-muted-foreground pt-10 text-sm'>{t('error')}</p>
@@ -956,6 +1003,47 @@ function WizardForm({
           </aside>
         </div>
       </div>
+      <MobileActionBar
+        step={step}
+        isLast={isLast}
+        canContinue={canContinue}
+        canCommit={canCommit}
+        submittingDraft={submittingDraft}
+        submittingPublish={submittingPublish}
+        onBack={goBack}
+        onNext={goNext}
+        onPublish={() => commitMutation.mutate(true)}
+        onSaveDraft={() => commitMutation.mutate(false)}
+      />
+      {previewQuery.data && (
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogPortal>
+            <DialogOverlay />
+            <DialogPrimitive.Content
+              aria-describedby={undefined}
+              className='data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 w-full max-w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 duration-200'
+            >
+              <DialogTitle className='sr-only'>{t('preview')}</DialogTitle>
+              <LivePreview
+                payload={previewQuery.data.payload}
+                messages={previewQuery.data.messages}
+                publicHost={publicHost}
+                draft={previewDraft}
+                zoom={0.85}
+                className='max-h-[88vh]'
+                chromeRight={
+                  <DialogClose
+                    aria-label={t('wizard.close')}
+                    className='text-muted-foreground hover:text-foreground hover:bg-muted -mr-1 flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded transition-colors'
+                  >
+                    <X className='h-4 w-4' />
+                  </DialogClose>
+                }
+              />
+            </DialogPrimitive.Content>
+          </DialogPortal>
+        </Dialog>
+      )}
       <Dialog open={createMonitorOpen} onOpenChange={setCreateMonitorOpen}>
         <DialogContent
           className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'
