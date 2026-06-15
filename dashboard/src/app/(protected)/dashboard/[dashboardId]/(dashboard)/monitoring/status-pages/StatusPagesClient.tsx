@@ -69,9 +69,10 @@ type StatusPagesClientProps = {
   dashboardId: string;
   statusPages: StatusPageListItem[];
   publicBaseUrl: string;
+  domain: string;
 };
 
-export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl }: StatusPagesClientProps) {
+export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl, domain }: StatusPagesClientProps) {
   const t = useTranslations('statusPagesPage');
   const router = useRouter();
 
@@ -111,6 +112,7 @@ export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl }: S
       dashboardId={dashboardId}
       publicHost={publicHost}
       publicBaseUrl={publicBaseUrl}
+      domain={domain}
       onClose={() => setShowWizard(false)}
     />
   );

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { fetchStatusPagesAction } from '@/app/actions/analytics/statusPage.actions';
+import { getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { StatusPagesClient } from './StatusPagesClient';
@@ -14,11 +15,19 @@ export default async function StatusPagesPage({ params }: StatusPagesPageParams)
   }
 
   const { dashboardId } = await params;
-  const statusPages = await fetchStatusPagesAction(dashboardId);
+  const [statusPages, dashboard] = await Promise.all([
+    fetchStatusPagesAction(dashboardId),
+    getCurrentDashboardAction(dashboardId),
+  ]);
 
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
-      <StatusPagesClient dashboardId={dashboardId} statusPages={statusPages} publicBaseUrl={env.PUBLIC_BASE_URL} />
+      <StatusPagesClient
+        dashboardId={dashboardId}
+        statusPages={statusPages}
+        publicBaseUrl={env.PUBLIC_BASE_URL}
+        domain={dashboard.domain}
+      />
     </div>
   );
 }

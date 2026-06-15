@@ -1,10 +1,9 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
   Check,
   Copy,
@@ -28,7 +27,15 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Spinner } from '@/components/ui/spinner';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
@@ -53,6 +60,10 @@ import { FlowOverlayHeader } from './[statusPageId]/FlowOverlayHeader';
 import { LivePreview, type PreviewDraft } from './[statusPageId]/LivePreview';
 import { SortableNameRow } from './[statusPageId]/SortableNameRow';
 import { type MonitorRow } from './[statusPageId]/SortableMonitorRow';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
+import { useCreateMonitor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/shared/hooks/useCreateMonitor';
+import { CreateMonitorForm } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/CreateMonitorForm';
 
 const ACCENT_PRESETS = ['#4845d8', '#3b82f6', '#22c55e', '#8b5cf6', '#f59e0b', '#0ea5e9'];
 const STEPS = ['select', 'customize', 'publish'] as const;
@@ -65,6 +76,7 @@ type CreateStatusPageWizardProps = {
   dashboardId: string;
   publicHost: string;
   publicBaseUrl: string;
+  domain: string;
   onClose: () => void;
 };
 
@@ -164,17 +176,20 @@ function WizardForm({
   dashboardId,
   publicHost,
   publicBaseUrl,
+  domain,
   defaults,
   onClose,
 }: CreateStatusPageWizardProps & { defaults: WizardDefaults }) {
   const t = useTranslations('statusPagesPage.editor');
   const tStatus = useTranslations('monitoring.status');
+  const tMonitorForm = useTranslations('monitoringPage.form');
   const locale = useLocale();
   const router = useRouter();
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [createMonitorOpen, setCreateMonitorOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [name, setName] = useState(defaults.name);
   const [slug, setSlug] = useState(defaults.slug);
@@ -220,6 +235,8 @@ function WizardForm({
   const allSelected = monitorRows.length > 0 && monitorRows.every((row) => row.included);
   const toggleAll = (checked: boolean) =>
     setMonitorRows((rows) => rows.map((row) => ({ ...row, included: checked })));
+  const { caps } = useCapabilities();
+  const atMonitorLimit = monitorRows.length >= caps.monitoring.maxMonitors;
   const normalizedSearch = search.trim().toLowerCase();
   const filteredRows = normalizedSearch
     ? monitorRows.filter(
@@ -228,7 +245,6 @@ function WizardForm({
           row.url.toLowerCase().includes(normalizedSearch),
       )
     : monitorRows;
-  const monitoringHref = `/dashboard/${dashboardId}/monitoring`;
 
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
@@ -324,6 +340,34 @@ function WizardForm({
     })),
     logoUrl: null,
   };
+
+  const markPendingRef = useRef<() => void>(() => {});
+  const createMonitor = useCreateMonitor({
+    dashboardId,
+    domain,
+    existingUrls: monitorRows.map((row) => row.url),
+    onCreated: (monitor) => {
+      setMonitorRows((rows) => [
+        ...rows,
+        {
+          monitorCheckId: monitor.id,
+          name: monitor.name ?? null,
+          url: monitor.url,
+          included: true,
+          publicName: monitor.name ?? monitor.url,
+          operationalState: 'preparing',
+          uptimePercent: null,
+        },
+      ]);
+      markPendingRef.current();
+      setCreateMonitorOpen(false);
+      previewQuery.refetch();
+    },
+  });
+  const { markPending: markCreateMonitorPending, onAnimationEnd: onCreateMonitorAnimationEnd } = useOverlayReset(
+    createMonitor.reset,
+  );
+  markPendingRef.current = markCreateMonitorPending;
 
   if (created) {
     const publicUrl = `${publicBaseUrl}/status/${created.slug}`;
@@ -474,11 +518,15 @@ function WizardForm({
                             {t('wizard.noMonitors')}
                           </p>
                         </div>
-                        <Button asChild size='sm' className='mt-1 cursor-pointer'>
-                          <Link href={monitoringHref}>
-                            <Plus className='mr-1 h-4 w-4' />
-                            {t('wizard.createMonitor')}
-                          </Link>
+                        <Button
+                          size='sm'
+                          className='mt-1 cursor-pointer'
+                          disabled={atMonitorLimit}
+                          title={atMonitorLimit ? tMonitorForm('upgradeToCreate') : undefined}
+                          onClick={() => setCreateMonitorOpen(true)}
+                        >
+                          <Plus className='mr-1 h-4 w-4' />
+                          {t('wizard.createMonitor')}
                         </Button>
                       </div>
                     ) : (
@@ -564,9 +612,15 @@ function WizardForm({
                             </span>
                             <span className='text-muted-foreground'>
                               {t('wizard.noMonitorYet')}{' '}
-                              <Link href={monitoringHref} className='text-primary font-medium hover:underline'>
+                              <button
+                                type='button'
+                                onClick={() => setCreateMonitorOpen(true)}
+                                disabled={atMonitorLimit}
+                                title={atMonitorLimit ? tMonitorForm('upgradeToCreate') : undefined}
+                                className='text-primary font-medium hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60 enabled:cursor-pointer'
+                              >
                                 {t('wizard.createMonitor')}
-                              </Link>
+                              </button>
                             </span>
                           </div>
                         </div>
@@ -902,6 +956,24 @@ function WizardForm({
           </aside>
         </div>
       </div>
+      <Dialog open={createMonitorOpen} onOpenChange={setCreateMonitorOpen}>
+        <DialogContent
+          className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'
+          onAnimationEnd={onCreateMonitorAnimationEnd}
+        >
+          <DialogHeader>
+            <DialogTitle>{tMonitorForm('title')}</DialogTitle>
+          </DialogHeader>
+          <CreateMonitorForm
+            create={createMonitor}
+            domain={domain}
+            onCancel={() => {
+              markCreateMonitorPending();
+              setCreateMonitorOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
       <ConfirmDialog
         open={showDiscardConfirm}
         onOpenChange={setShowDiscardConfirm}
@@ -922,6 +994,7 @@ export function CreateStatusPageWizard({
   dashboardId,
   publicHost,
   publicBaseUrl,
+  domain,
   onClose,
 }: CreateStatusPageWizardProps) {
   const t = useTranslations('statusPagesPage.editor');
@@ -939,6 +1012,7 @@ export function CreateStatusPageWizard({
           dashboardId={dashboardId}
           publicHost={publicHost}
           publicBaseUrl={publicBaseUrl}
+          domain={domain}
           defaults={defaultsQuery.data}
           onClose={onClose}
         />
