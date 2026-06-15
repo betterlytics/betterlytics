@@ -6,13 +6,13 @@ export function PastIncidents({ data }: { data: PublicStatusPageData }) {
   const t = useTranslations('publicStatusPage');
   const days = STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS;
 
-  const dateLabel = new Intl.DateTimeFormat(data.language, {
+  const dateLabel = new Intl.DateTimeFormat('en', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     timeZone: 'UTC',
   });
-  const timeLabel = new Intl.DateTimeFormat(data.language, {
+  const timeLabel = new Intl.DateTimeFormat('en', {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'UTC',

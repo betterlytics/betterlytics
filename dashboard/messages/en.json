@@ -4032,7 +4032,6 @@
         "dark": "Dark",
         "system": "System"
       },
-      "language": "Language",
       "showPastIncidents": "Show past incidents",
       "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
       "monitors": "Monitors",

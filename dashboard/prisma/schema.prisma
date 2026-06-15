@@ -448,7 +448,6 @@ model StatusPage {
   // the cache-bust token in the rendered /status/{slug}/logo?v={hash} URL. Tiny, so it rides along on every
   // read; the heavy bytes live in StatusPageLogo so they're never loaded unless explicitly queried.
   logoHash    String?
-  language    String  @default("en")
 
   showPastIncidents Boolean @default(true)
 

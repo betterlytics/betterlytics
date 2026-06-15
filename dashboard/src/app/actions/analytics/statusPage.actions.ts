@@ -4,7 +4,6 @@ import { createHash } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
-import type { SupportedLanguages } from '@/constants/i18n';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
@@ -148,24 +147,15 @@ export const fetchStatusPagePreviewAction = withDashboardAuthContext(
 
 /** Live-preview payload + messages for the create wizard (no persisted page yet). */
 export const fetchStatusPageDraftPreviewAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  const language: SupportedLanguages = 'en';
   const [payload, messages] = await Promise.all([
     getStatusPagePreviewDataForDashboard(ctx.dashboardId, ctx.siteId),
-    getMessages({ locale: language }),
+    getMessages({ locale: 'en' }),
   ]);
   return {
     payload,
-    language,
     messages: messages.publicStatusPage as Record<string, unknown>,
   };
 });
-
-export const fetchPublicStatusPageMessagesAction = withDashboardAuthContext(
-  async (_ctx: AuthContext, language: SupportedLanguages) => {
-    const messages = await getMessages({ locale: language });
-    return messages.publicStatusPage as Record<string, unknown>;
-  },
-);
 
 function slugifyDomain(domain: string): string {
   return domain

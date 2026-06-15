@@ -106,7 +106,6 @@ export async function getStatusPagePreviewDataForDashboard(
       theme: 'system',
       accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
       logoUrl: null,
-      language: 'en',
       // No persisted page yet → no published incidents to fetch; disable the section to skip the query.
       showPastIncidents: false,
       createdAt: now,
@@ -223,7 +222,6 @@ async function assembleStatusPage(published: PublishedStatusPage): Promise<Statu
     logoUrl: page.logoUrl,
     accentColor: page.accentColor,
     theme: page.theme,
-    language: page.language,
     overallStatus: deriveOverallStatus(publicMonitors.map((monitor) => monitor.status)),
     lastUpdatedAt,
     overallUptime: deriveOverallUptime(publicMonitors.map((monitor) => monitor.uptime)),

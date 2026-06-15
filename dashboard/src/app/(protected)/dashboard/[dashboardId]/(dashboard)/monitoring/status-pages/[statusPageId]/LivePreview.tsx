@@ -1,10 +1,8 @@
 'use client';
 
-import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useDeferredValue, useMemo, type ReactNode } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
-import { fetchPublicStatusPageMessagesAction } from '@/app/actions/analytics/statusPage.actions';
 import { StatusPageView } from '@/app/status/[slug]/components/StatusPageView';
-import type { SupportedLanguages } from '@/constants/i18n';
 import {
   StatusPageAccentColorSchema,
   type PublicStatusPageData,
@@ -20,17 +18,15 @@ export type PreviewDraft = {
   slug: string;
   theme: StatusPageTheme;
   accentColor: string;
-  language: SupportedLanguages;
   logoUrl: string | null;
   showPastIncidents: boolean;
   monitors: Array<{ monitorCheckId: string; included: boolean; publicName: string }>;
 };
 
 type LivePreviewProps = {
-  dashboardId: string;
   payload: StatusPagePreviewPayload;
-  initialLanguage: SupportedLanguages;
-  initialMessages: Record<string, unknown>;
+  /** Public-status-page UI strings (English) for the rendered preview. */
+  messages: Record<string, unknown>;
   publicHost: string;
   draft: PreviewDraft;
   draftIncident?: PublicStatusPageIncident | null;
@@ -45,14 +41,11 @@ type LivePreviewProps = {
 /**
  * Client-composed live preview: the server assembles uptime/incident data for
  * ALL dashboard monitors once (payload), and every form edit is layered on top
- * here. Message bundles are fetched per page language so
- * the preview always reads in the OWNER's chosen language.
+ * here. Status pages always render in English.
  */
 export function LivePreview({
-  dashboardId,
   payload,
-  initialLanguage,
-  initialMessages,
+  messages,
   publicHost,
   draft: liveDraft,
   draftIncident,
@@ -63,22 +56,6 @@ export function LivePreview({
   const tEditor = useTranslations('statusPagesPage.editor');
 
   const draft = useDeferredValue(liveDraft);
-  const [messagesByLanguage, setMessagesByLanguage] = useState<
-    Partial<Record<SupportedLanguages, Record<string, unknown>>>
-  >({ [initialLanguage]: initialMessages });
-
-  useEffect(() => {
-    if (messagesByLanguage[draft.language]) return;
-    let cancelled = false;
-    fetchPublicStatusPageMessagesAction(dashboardId, draft.language).then((messages) => {
-      if (!cancelled) {
-        setMessagesByLanguage((current) => ({ ...current, [draft.language]: messages }));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [draft.language, dashboardId, messagesByLanguage]);
 
   const data = useMemo<PublicStatusPageData>(() => {
     const indexByCheckId = new Map(payload.monitorCheckIds.map((checkId, index) => [checkId, index]));
@@ -119,7 +96,6 @@ export function LivePreview({
       name: draft.name.trim() || payload.data.name,
       slug: draft.slug,
       theme: draft.theme,
-      language: draft.language,
       logoUrl: draft.logoUrl,
       accentColor: StatusPageAccentColorSchema.safeParse(draft.accentColor).success
         ? draft.accentColor
@@ -131,11 +107,9 @@ export function LivePreview({
     };
   }, [payload, draft, draftIncident]);
 
-  const messages = messagesByLanguage[draft.language] ?? initialMessages;
-
   const body = (
     <div className='[&_.bl-status-page]:min-h-0' style={{ zoom }}>
-      <NextIntlClientProvider locale={draft.language} messages={{ publicStatusPage: messages }}>
+      <NextIntlClientProvider locale='en' messages={{ publicStatusPage: messages }}>
         <StatusPageView data={data} />
       </NextIntlClientProvider>
     </div>

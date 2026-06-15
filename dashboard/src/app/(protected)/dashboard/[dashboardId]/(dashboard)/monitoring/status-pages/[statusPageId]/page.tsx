@@ -31,7 +31,7 @@ export default async function StatusPageEditorPage({ params }: StatusPageEditorP
     notFound();
   }
 
-  const previewMessages = (await getMessages({ locale: statusPage.language })).publicStatusPage as Record<
+  const previewMessages = (await getMessages({ locale: 'en' })).publicStatusPage as Record<
     string,
     unknown
   >;

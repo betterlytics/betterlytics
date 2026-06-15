@@ -316,7 +316,6 @@ function WizardForm({
     slug,
     theme,
     accentColor,
-    language: previewQuery.data?.language ?? 'en',
     showPastIncidents,
     monitors: monitorRows.map((row) => ({
       monitorCheckId: row.monitorCheckId,
@@ -849,10 +848,8 @@ function WizardForm({
                 <>
                   <div className='group relative'>
                     <LivePreview
-                      dashboardId={dashboardId}
                       payload={previewQuery.data.payload}
-                      initialLanguage={previewQuery.data.language}
-                      initialMessages={previewQuery.data.messages}
+                      messages={previewQuery.data.messages}
                       publicHost={publicHost}
                       draft={previewDraft}
                     />
@@ -877,10 +874,8 @@ function WizardForm({
                       >
                         <DialogTitle className='sr-only'>{t('preview')}</DialogTitle>
                         <LivePreview
-                          dashboardId={dashboardId}
                           payload={previewQuery.data.payload}
-                          initialLanguage={previewQuery.data.language}
-                          initialMessages={previewQuery.data.messages}
+                          messages={previewQuery.data.messages}
                           publicHost={publicHost}
                           draft={previewDraft}
                           zoom={0.85}

@@ -10,7 +10,6 @@ import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
@@ -28,7 +27,6 @@ import {
 } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useDebounce } from '@/hooks/useDebounce';
-import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {
   STATUS_PAGE_LIMITS,
   type PublicStatusPageIncident,
@@ -131,7 +129,6 @@ export function StatusPageEditor({
   const [accentColor, setAccentColor] = useState(statusPage.accentColor);
   const [logoUrl, setLogoUrl] = useState<string | null>(statusPage.logoUrl);
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const [language, setLanguage] = useState<SupportedLanguages>(statusPage.language);
   const [showPastIncidents, setShowPastIncidents] = useState(statusPage.showPastIncidents);
   const [homepageUrl, setHomepageUrl] = useState('');
   const [customDomain, setCustomDomain] = useState('');
@@ -151,13 +148,12 @@ export function StatusPageEditor({
       slug,
       theme,
       accentColor,
-      language,
       showPastIncidents,
       monitors: monitorRows
         .filter((row) => row.included)
         .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() })),
     }),
-    [statusPage.id, name, slug, theme, accentColor, language, showPastIncidents, monitorRows],
+    [statusPage.id, name, slug, theme, accentColor, showPastIncidents, monitorRows],
   );
 
   const savedPayloadRef = useRef(JSON.stringify(payload));
@@ -484,21 +480,6 @@ export function StatusPageEditor({
                 <ThemeSegmentedControl value={theme} onChange={setTheme} />
               </div>
             </div>
-            <div className='space-y-2'>
-              <Label>{t('language')}</Label>
-              <Select value={language} onValueChange={(value) => setLanguage(value as SupportedLanguages)}>
-                <SelectTrigger className='w-[150px] cursor-pointer'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUPPORTED_LANGUAGES.map((value) => (
-                    <SelectItem key={value} value={value} className='cursor-pointer'>
-                      {LANGUAGE_METADATA[value].name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </section>
 
           <section className='bg-card border-border space-y-3 rounded-xl border p-5'>
@@ -580,10 +561,8 @@ export function StatusPageEditor({
 
         <div className='lg:sticky lg:top-4'>
           <LivePreview
-            dashboardId={dashboardId}
             payload={previewPayload}
-            initialLanguage={statusPage.language}
-            initialMessages={previewMessages}
+            messages={previewMessages}
             publicHost={publicHost}
             draftIncident={draftIncident}
             draft={{
@@ -591,7 +570,6 @@ export function StatusPageEditor({
               slug,
               theme,
               accentColor,
-              language,
               logoUrl,
               showPastIncidents,
               monitors: monitorRows.map((row) => ({

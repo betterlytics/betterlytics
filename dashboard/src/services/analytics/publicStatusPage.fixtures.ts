@@ -93,7 +93,6 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     logoUrl: null,
     accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
     theme: 'light',
-    language: 'en',
     overallStatus: 'operational',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.98,
@@ -103,7 +102,6 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
 
   'demo-dark': () => ({ ...FIXTURES['demo'](), slug: 'demo-dark', theme: 'dark' }),
   'demo-system': () => ({ ...FIXTURES['demo'](), slug: 'demo-system', theme: 'system' }),
-  'demo-da': () => ({ ...FIXTURES['demo'](), slug: 'demo-da', language: 'da' }),
 
   'demo-degraded': () => {
     const monitors = baseMonitors();
@@ -178,7 +176,6 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     logoUrl: null,
     accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
     theme: 'light',
-    language: 'en',
     overallStatus: 'unknown',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: null,
@@ -195,7 +192,6 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     logoUrl: null,
     accentColor: '#22c55e',
     theme: 'light',
-    language: 'en',
     overallStatus: 'operational',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.91,
@@ -218,7 +214,6 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     logoUrl: null,
     accentColor: '#0ea5e9',
     theme: 'light',
-    language: 'en',
     overallStatus: 'operational',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.99,

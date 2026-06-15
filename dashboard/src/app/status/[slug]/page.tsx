@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
     return {};
   }
 
-  const t = await getTranslations({ locale: data.language, namespace: 'publicStatusPage' });
+  const t = await getTranslations({ locale: 'en', namespace: 'publicStatusPage' });
   const description = t(`banner.${data.overallStatus}`);
 
   return {
@@ -46,11 +46,11 @@ export default async function PublicStatusPage({ params }: StatusPageParams) {
     notFound();
   }
 
-  // Scope translations to the OWNER's chosen page language (not the visitor's)
-  const messages = await getMessages({ locale: data.language });
+  // Status pages always render in English, independent of the visitor's locale.
+  const messages = await getMessages({ locale: 'en' });
 
   return (
-    <NextIntlClientProvider locale={data.language} messages={{ publicStatusPage: messages.publicStatusPage }}>
+    <NextIntlClientProvider locale='en' messages={{ publicStatusPage: messages.publicStatusPage }}>
       <StatusPageView data={data} />
     </NextIntlClientProvider>
   );

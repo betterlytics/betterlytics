@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 
 export const STATUS_PAGE_LIMITS = {
   NAME_MAX: 60,
@@ -50,8 +49,6 @@ export const RESERVED_STATUS_PAGE_SLUG_PREFIX = /^demo(-|$)/;
 export const StatusPageThemeSchema = z.enum(['light', 'dark', 'system']);
 export type StatusPageTheme = z.infer<typeof StatusPageThemeSchema>;
 
-export const StatusPageLanguageSchema = z.enum(SUPPORTED_LANGUAGES);
-
 export const StatusPageSlugSchema = z
   .string()
   .trim()
@@ -78,7 +75,6 @@ export const StatusPageCreateSchema = z.object({
   theme: StatusPageThemeSchema.default('system'),
   accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
   logoUrl: z.string().nullable().optional(),
-  language: StatusPageLanguageSchema.default('en'),
   showPastIncidents: z.boolean().default(true),
   monitors: z.array(StatusPageMonitorSelectionSchema).max(STATUS_PAGE_LIMITS.MONITORS_MAX).default([]),
 });
@@ -100,7 +96,6 @@ export const StatusPageSchema = z.object({
   theme: StatusPageThemeSchema,
   accentColor: z.string(),
   logoUrl: z.string().nullable(),
-  language: StatusPageLanguageSchema,
   showPastIncidents: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -202,7 +197,6 @@ export const PublicStatusPageDataSchema = z.object({
   logoUrl: z.string().nullable(),
   accentColor: z.string(),
   theme: StatusPageThemeSchema,
-  language: StatusPageLanguageSchema,
   overallStatus: PublicOverallStatusSchema,
   lastUpdatedAt: z.string(),
   /** Percent 0..100 (mean of per-monitor uptime), null when no monitor has data */

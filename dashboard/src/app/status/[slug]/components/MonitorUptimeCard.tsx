@@ -57,7 +57,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
             <div className='flex flex-none items-center gap-3'>
               {monitor.uptime != null && (
                 <span suppressHydrationWarning className='hidden text-[13px] text-[var(--sp-muted)] sm:inline'>
-                  {t('uptimeValue', { uptime: formatPercentage(monitor.uptime, data.language, UPTIME_FORMAT) })}
+                  {t('uptimeValue', { uptime: formatPercentage(monitor.uptime, 'en', UPTIME_FORMAT) })}
                 </span>
               )}
               <span className='rounded-full border px-3 py-1 text-xs font-semibold' style={STATUS_PILL[monitor.status]}>
@@ -70,7 +70,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
             startLabelFull={t('uptimeWindow.start', { days: STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS })}
             startLabelCompact={t('uptimeWindow.start', { days: UPTIME_BARS_COMPACT_DAYS })}
             todayLabel={t('uptimeWindow.today')}
-            locale={data.language}
+            locale='en'
           />
         </div>
       ))}
@@ -80,7 +80,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
           className='border-t border-[var(--sp-card-divider)] bg-[var(--sp-card-footer-bg)] px-5 py-3.5 text-xs text-[var(--sp-muted)] sm:px-6'
         >
           {t.rich('overallUptime', {
-            uptime: formatPercentage(data.overallUptime, data.language, UPTIME_FORMAT),
+            uptime: formatPercentage(data.overallUptime, 'en', UPTIME_FORMAT),
             days: STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS,
             value: (chunks) => <span className='font-semibold text-[var(--sp-text)]'>{chunks}</span>,
           })}

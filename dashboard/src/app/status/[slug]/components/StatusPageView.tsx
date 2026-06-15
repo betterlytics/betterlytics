@@ -22,7 +22,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
   const t = useTranslations('publicStatusPage');
 
   const lastUpdated =
-    formatLocalDateTime(data.lastUpdatedAt, data.language, {
+    formatLocalDateTime(data.lastUpdatedAt, 'en', {
       dateStyle: 'medium',
       timeStyle: 'short',
       timeZone: 'UTC',
