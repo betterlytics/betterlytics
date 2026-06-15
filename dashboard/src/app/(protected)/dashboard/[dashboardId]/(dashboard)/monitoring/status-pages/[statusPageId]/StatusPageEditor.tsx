@@ -359,7 +359,7 @@ export function StatusPageEditor({
         {/* Tab bar shares its row with a contextual Save action. The reserved min-height keeps the
             row a constant height whether or not Save is shown, so switching tabs never shifts the
             layout (the Save button only appears on the page-settings tabs). */}
-        <div className='border-border flex min-h-10 flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b'>
+        <div className='border-border flex min-h-11 flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
             <UnderlineTabsTrigger value='general'>{t('tabs.general')}</UnderlineTabsTrigger>
@@ -373,7 +373,7 @@ export function StatusPageEditor({
                   size='sm'
                   disabled={disabled || saveDisabled || saveMutation.isPending}
                   onClick={() => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) })}
-                  className='mb-1 cursor-pointer'
+                  className='mb-2 cursor-pointer'
                 >
                   {t('save')}
                 </Button>
