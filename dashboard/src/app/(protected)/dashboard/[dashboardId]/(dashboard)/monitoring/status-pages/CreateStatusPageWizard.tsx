@@ -897,7 +897,7 @@ function WizardForm({
           </div>
 
           <aside className='hidden min-h-0 w-[500px] flex-none overflow-y-auto lg:block'>
-            <div className='min-h-full px-2 py-8 sm:py-10'>
+            <div className='min-h-full py-8 pr-2 pl-6 sm:py-10'>
               {previewQuery.data ? (
                 <>
                   <div className='group relative'>
