@@ -86,14 +86,7 @@ function WizardForm({
 
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
-      const page = await createStatusPageAction(dashboardId, {
-        name: form.name.trim(),
-        slug: form.slug,
-        theme: form.theme,
-        accentColor: form.accentColor,
-        showPastIncidents: form.showPastIncidents,
-        monitors: form.monitorsPayload,
-      });
+      const page = await createStatusPageAction(dashboardId, form.input);
       if (publish) await setStatusPagePublishedAction(dashboardId, page.id, true);
       return { page, publish };
     },
@@ -113,10 +106,9 @@ function WizardForm({
     publish: t('wizard.steps.publish'),
   };
 
-  const nameEmpty = form.name.trim().length === 0;
   const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
-  const canContinue = step !== 1 || !nameEmpty;
-  const canCommit = !nameEmpty && !slugBlocked && !commitMutation.isPending;
+  const canContinue = step !== 1 || !form.isNameEmpty;
+  const canCommit = !form.isNameEmpty && !slugBlocked && !commitMutation.isPending;
   const isLast = step === STEPS.length - 1;
   const submittingPublish = commitMutation.isPending && commitMutation.variables === true;
   const submittingDraft = commitMutation.isPending && commitMutation.variables === false;

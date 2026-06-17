@@ -49,6 +49,21 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     [monitorRows],
   );
 
+  const isNameEmpty = name.trim().length === 0;
+
+  // Server-shaped input for create/update actions: trimmed name, only the included monitors.
+  const input = useMemo(
+    () => ({ name: name.trim(), slug, theme, accentColor, showPastIncidents, monitors: monitorsPayload }),
+    [name, slug, theme, accentColor, showPastIncidents, monitorsPayload],
+  );
+
+  // The editable form state, as a plain snapshot. Used to capture/restore a save point when
+  // discarding edits.
+  const snapshot: Omit<StatusPageFormInitial, 'logoUrl'> = useMemo(
+    () => ({ name, slug, theme, accentColor, showPastIncidents, monitorRows }),
+    [name, slug, theme, accentColor, showPastIncidents, monitorRows],
+  );
+
   const previewDraft: PreviewDraft = useMemo(
     () => ({
       name,
@@ -84,7 +99,10 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     updateRow,
     reset,
     includedCount,
+    isNameEmpty,
     monitorsPayload,
+    input,
+    snapshot,
     previewDraft,
   };
 }

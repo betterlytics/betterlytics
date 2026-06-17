@@ -97,42 +97,17 @@ export function StatusPageEditor({
     currentSlug: statusPage.slug,
   });
 
-  const payload = useMemo(
-    () => ({
-      id: statusPage.id,
-      name: form.name.trim(),
-      slug: form.slug,
-      theme: form.theme,
-      accentColor: form.accentColor,
-      showPastIncidents: form.showPastIncidents,
-      monitors: form.monitorsPayload,
-    }),
-    [statusPage.id, form.name, form.slug, form.theme, form.accentColor, form.showPastIncidents, form.monitorsPayload],
-  );
+  const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
 
   const { isDirty, markSaved } = useUnsavedChanges(payload);
 
-  const savedSnapshotRef = useRef({
-    name: statusPage.name,
-    slug: statusPage.slug,
-    theme: statusPage.theme,
-    accentColor: statusPage.accentColor,
-    showPastIncidents: statusPage.showPastIncidents,
-    monitorRows: initialMonitorRows,
-  });
+  const savedSnapshotRef = useRef(form.snapshot);
 
   const saveMutation = useMutation({
     mutationFn: async () => updateStatusPageAction(dashboardId, payload),
     onSuccess: () => {
       markSaved();
-      savedSnapshotRef.current = {
-        name: form.name,
-        slug: form.slug,
-        theme: form.theme,
-        accentColor: form.accentColor,
-        showPastIncidents: form.showPastIncidents,
-        monitorRows: form.monitorRows,
-      };
+      savedSnapshotRef.current = form.snapshot;
       router.refresh();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
@@ -164,7 +139,7 @@ export function StatusPageEditor({
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
   const saveDisabled =
-    !isDirty || payload.name.length === 0 || slugStatus === 'taken' || slugStatus === 'invalid';
+    !isDirty || form.isNameEmpty || slugStatus === 'taken' || slugStatus === 'invalid';
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
