@@ -1030,6 +1030,7 @@ function WizardForm({
                 publicHost={publicHost}
                 draft={previewDraft}
                 zoom={0.85}
+                centerUrl
                 className='max-h-[88vh]'
                 chromeRight={
                   <DialogClose

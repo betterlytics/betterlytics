@@ -34,6 +34,8 @@ type LivePreviewProps = {
   zoom?: number;
   /** Extra element after the "Live preview" label in the chrome bar (e.g. a close button in a modal). */
   chromeRight?: ReactNode;
+  /** Center the URL pill at its content width instead of stretching it full-width (nicer on the wide modal view). */
+  centerUrl?: boolean;
   /** Extra classes on the outer frame */
   className?: string;
 };
@@ -51,6 +53,7 @@ export function LivePreview({
   draftIncident,
   zoom = 0.5,
   chromeRight,
+  centerUrl = false,
   className,
 }: LivePreviewProps) {
   const tEditor = useTranslations('statusPagesPage.editor');
@@ -118,14 +121,23 @@ export function LivePreview({
   return (
     <div className={cn('bg-card border-border flex flex-col overflow-hidden rounded-xl border', className)}>
       <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
-        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
-        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
-        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
-        <span className='bg-muted text-muted-foreground ml-2 min-w-0 flex-1 truncate rounded-md px-2.5 py-0.5 text-xs'>
+        <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1' : 'flex-none')}>
+          <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
+          <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
+          <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
+        </div>
+        <span
+          className={cn(
+            'bg-muted text-muted-foreground min-w-0 truncate rounded-md px-2.5 py-0.5 text-xs',
+            centerUrl ? 'max-w-[60%]' : 'ml-2 flex-1',
+          )}
+        >
           {`${publicHost}/status/${draft.slug}`}
         </span>
-        <span className='text-muted-foreground ml-1 flex-none text-xs'>{tEditor('preview')}</span>
-        {chromeRight}
+        <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1 justify-end' : 'ml-1 flex-none')}>
+          <span className='text-muted-foreground flex-none text-xs'>{tEditor('preview')}</span>
+          {chromeRight}
+        </div>
       </div>
       <div className='min-h-0 flex-1 overflow-y-auto'>{body}</div>
     </div>
