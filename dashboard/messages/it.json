@@ -4034,6 +4034,7 @@
       "brandHint": "Logo e colore principale mostrati sulla pagina pubblica.",
       "appearance": "Aspetto",
       "appearanceHint": "Tema predefinito per i visitatori.",
+      "comingSoon": "Prossimamente",
       "visibility": {
         "title": "Visibilità",
         "hint": "Controlla chi può trovare la tua pagina di stato.",

@@ -17,25 +17,27 @@ import { useDebounce } from '@/hooks/useDebounce';
 import {
   STATUS_PAGE_LIMITS,
   type StatusPagePreviewPayload,
-  type StatusPageTheme,
   type StatusPageWithMonitors,
 } from '@/entities/analytics/statusPage.entities';
-import { ColorPickerPopover } from '@/components/ColorPickerPopover';
-import { ColorSwatchPicker } from '@/components/ColorSwatchPicker';
-import { SortableList } from '@/components/dnd/SortableList';
 import { cn } from '@/lib/utils';
-import { ThemeSegmentedControl } from '../ThemeSegmentedControl';
-import { LivePreview } from './LivePreview';
 import { IncidentsManager } from './IncidentsManager';
-import { SortableMonitorRow, type MonitorRow } from './SortableMonitorRow';
+import { SortableList } from '@/components/dnd/SortableList';
+import { LivePreview } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LivePreview';
 import {
-  checkStatusPageSlugAction,
+  SortableMonitorRow,
+  type MonitorRow,
+} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
+import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/AccentColorField';
+import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
+import { VisibilityRadioGroup } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/VisibilityRadioGroup';
+import { ComingSoonBadge, ComingSoonField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ComingSoonField';
+import { useStatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
+import { useSlugAvailability } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useSlugAvailability';
+import {
   removeStatusPageLogoAction,
   updateStatusPageAction,
   uploadStatusPageLogoAction,
 } from '@/app/actions/analytics/statusPage.actions';
-
-const ACCENT_PRESETS = ['#4845d8', '#3b82f6', '#22c55e', '#8b5cf6', '#f59e0b', '#0ea5e9'];
 
 type TabKey = 'incidents' | 'general' | 'customize' | 'monitors';
 const CONFIG_TABS: TabKey[] = ['general', 'customize', 'monitors'];
@@ -138,34 +140,39 @@ export function StatusPageEditor({
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
 
-  const [name, setName] = useState(statusPage.name);
-  const [slug, setSlug] = useState(statusPage.slug);
-  const [theme, setTheme] = useState<StatusPageTheme>(statusPage.theme);
-  const [accentColor, setAccentColor] = useState(statusPage.accentColor);
-  const [logoUrl, setLogoUrl] = useState<string | null>(statusPage.logoUrl);
+  const initialMonitorRows = useMemo(() => buildMonitorRows(statusPage, monitors), [statusPage, monitors]);
+  const form = useStatusPageFormState({
+    name: statusPage.name,
+    slug: statusPage.slug,
+    theme: statusPage.theme,
+    accentColor: statusPage.accentColor,
+    logoUrl: statusPage.logoUrl,
+    showPastIncidents: statusPage.showPastIncidents,
+    monitorRows: initialMonitorRows,
+  });
+
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const [showPastIncidents, setShowPastIncidents] = useState(statusPage.showPastIncidents);
-  const [homepageUrl, setHomepageUrl] = useState('');
-  const [customDomain, setCustomDomain] = useState('');
-  const [visibility, setVisibility] = useState<'public' | 'unlisted'>('public');
   const [copied, setCopied] = useState(false);
-  const [monitorRows, setMonitorRows] = useState<MonitorRow[]>(() => buildMonitorRows(statusPage, monitors));
-  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const [activeTab, setActiveTab] = useState<TabKey>('incidents');
+
+  const slugStatus = useSlugAvailability({
+    dashboardId,
+    slug: form.slug,
+    excludeStatusPageId: statusPage.id,
+    currentSlug: statusPage.slug,
+  });
 
   const payload = useMemo(
     () => ({
       id: statusPage.id,
-      name: name.trim(),
-      slug,
-      theme,
-      accentColor,
-      showPastIncidents,
-      monitors: monitorRows
-        .filter((row) => row.included)
-        .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() })),
+      name: form.name.trim(),
+      slug: form.slug,
+      theme: form.theme,
+      accentColor: form.accentColor,
+      showPastIncidents: form.showPastIncidents,
+      monitors: form.monitorsPayload,
     }),
-    [statusPage.id, name, slug, theme, accentColor, showPastIncidents, monitorRows],
+    [statusPage.id, form.name, form.slug, form.theme, form.accentColor, form.showPastIncidents, form.monitorsPayload],
   );
 
   const savedPayloadRef = useRef(JSON.stringify(payload));
@@ -199,7 +206,7 @@ export function StatusPageEditor({
       return uploadStatusPageLogoAction(dashboardId, statusPage.id, formData);
     },
     onSuccess: (result) => {
-      setLogoUrl(result.logoUrl);
+      form.setLogoUrl(result.logoUrl);
       router.refresh();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
@@ -208,7 +215,7 @@ export function StatusPageEditor({
   const removeLogoMutation = useMutation({
     mutationFn: async () => removeStatusPageLogoAction(dashboardId, statusPage.id),
     onSuccess: () => {
-      setLogoUrl(null);
+      form.setLogoUrl(null);
       router.refresh();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
@@ -227,39 +234,20 @@ export function StatusPageEditor({
 
   const logoBusy = logoMutation.isPending || removeLogoMutation.isPending;
 
-  const debouncedSlug = useDebounce(slug, 400);
-  useEffect(() => {
-    if (debouncedSlug === statusPage.slug) {
-      setSlugStatus('idle');
-      return;
-    }
-    let cancelled = false;
-    setSlugStatus('checking');
-    checkStatusPageSlugAction(dashboardId, debouncedSlug, statusPage.id).then((result) => {
-      if (cancelled) return;
-      setSlugStatus(result.available ? 'available' : result.reason === 'taken' ? 'taken' : 'invalid');
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedSlug, dashboardId, statusPage.id, statusPage.slug]);
-
-  const updateRow = (index: number, patch: Partial<MonitorRow>) => {
-    setMonitorRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
-  };
-
-  const includedCount = monitorRows.filter((row) => row.included).length;
-
   const incidentMonitors = useMemo(
     () =>
-      monitorRows
+      form.monitorRows
         .filter((row) => row.included)
-        .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() || row.name || row.url })),
-    [monitorRows],
+        .map((row) => ({
+          monitorCheckId: row.monitorCheckId,
+          publicName: row.publicName.trim() || row.name || row.url,
+        })),
+    [form.monitorRows],
   );
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
-  const publicUrl = `${publicBaseUrl}/status/${slug}`;
-  const saveDisabled = !isDirty || payload.name.length === 0 || slugStatus === 'taken' || slugStatus === 'invalid';
+  const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
+  const saveDisabled =
+    !isDirty || payload.name.length === 0 || slugStatus === 'taken' || slugStatus === 'invalid';
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -287,19 +275,7 @@ export function StatusPageEditor({
       payload={previewPayload}
       messages={previewMessages}
       publicHost={publicHost}
-      draft={{
-        name,
-        slug,
-        theme,
-        accentColor,
-        logoUrl,
-        showPastIncidents,
-        monitors: monitorRows.map((row) => ({
-          monitorCheckId: row.monitorCheckId,
-          included: row.included,
-          publicName: row.publicName,
-        })),
-      }}
+      draft={form.previewDraft}
     />
   );
 
@@ -316,7 +292,7 @@ export function StatusPageEditor({
 
       <div className='min-w-0'>
         <div className='mb-2.5 flex items-center gap-2.5'>
-          <h1 className='truncate text-xl font-semibold tracking-tight'>{name || statusPage.name}</h1>
+          <h1 className='truncate text-xl font-semibold tracking-tight'>{form.name || statusPage.name}</h1>
           <span
             className={cn(
               'flex-none rounded-md px-2 py-0.5 text-xs font-semibold',
@@ -332,7 +308,7 @@ export function StatusPageEditor({
           <div className='border-border bg-card flex h-8 items-center gap-2 rounded-md border pr-1 pl-2.5'>
             <Link2 className='text-muted-foreground h-3.5 w-3.5 flex-none' />
             <span className='text-muted-foreground max-w-[55vw] truncate font-mono text-xs sm:max-w-xs'>
-              {publicHost}/status/<span className='text-foreground font-medium'>{slug}</span>
+              {publicHost}/status/<span className='text-foreground font-medium'>{form.slug}</span>
             </span>
             <button
               type='button'
@@ -400,9 +376,9 @@ export function StatusPageEditor({
                           <Label htmlFor='sp-name'>{t('pageName')}</Label>
                           <Input
                             id='sp-name'
-                            value={name}
+                            value={form.name}
                             maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => form.setName(e.target.value)}
                           />
                         </div>
                         <div className='space-y-2'>
@@ -413,14 +389,14 @@ export function StatusPageEditor({
                             </span>
                             <Input
                               id='sp-slug'
-                              value={slug}
+                              value={form.slug}
                               maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
-                              onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                              onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
                               className='min-w-0 flex-1 rounded-l-none font-mono'
                             />
                           </div>
                           <div className='flex justify-between text-xs'>
-                            {statusPage.isPublished && slug !== statusPage.slug ? (
+                            {statusPage.isPublished && form.slug !== statusPage.slug ? (
                               <span className='text-amber-600 dark:text-amber-400'>{t('slugWarning')}</span>
                             ) : (
                               <span />
@@ -430,27 +406,19 @@ export function StatusPageEditor({
                         </div>
                       </div>
                       <div className='grid gap-4 sm:grid-cols-2'>
-                        <div className='space-y-2'>
-                          <Label htmlFor='sp-homepage'>{t('homepageUrl')}</Label>
-                          <Input
-                            id='sp-homepage'
-                            type='url'
-                            value={homepageUrl}
-                            placeholder='https://example.com'
-                            onChange={(e) => setHomepageUrl(e.target.value)}
-                          />
-                          <p className='text-muted-foreground text-xs'>{t('homepageUrlHint')}</p>
-                        </div>
-                        <div className='space-y-2'>
-                          <Label htmlFor='sp-domain'>{t('customDomain')}</Label>
-                          <Input
-                            id='sp-domain'
-                            value={customDomain}
-                            placeholder='status.example.com'
-                            onChange={(e) => setCustomDomain(e.target.value)}
-                          />
-                          <p className='text-muted-foreground text-xs'>{t('customDomainHint')}</p>
-                        </div>
+                        <ComingSoonField
+                          id='sp-homepage'
+                          label={t('homepageUrl')}
+                          hint={t('homepageUrlHint')}
+                          placeholder='https://example.com'
+                          type='url'
+                        />
+                        <ComingSoonField
+                          id='sp-domain'
+                          label={t('customDomain')}
+                          hint={t('customDomainHint')}
+                          placeholder='status.example.com'
+                        />
                       </div>
                       <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
                         <div>
@@ -458,44 +426,16 @@ export function StatusPageEditor({
                           <p className='text-muted-foreground mt-0.5 text-xs'>{t('showPastIncidentsHint')}</p>
                         </div>
                         <Switch
-                          checked={showPastIncidents}
-                          onCheckedChange={setShowPastIncidents}
+                          checked={form.showPastIncidents}
+                          onCheckedChange={form.setShowPastIncidents}
                           aria-label={t('showPastIncidents')}
                         />
                       </div>
                     </div>
                   </Section>
 
-                  <Section title={t('visibility.title')} description={t('visibility.hint')}>
-                    <div className='bg-card border-border overflow-hidden rounded-xl border'>
-                      {(['public', 'unlisted'] as const).map((option, index) => (
-                        <button
-                          key={option}
-                          type='button'
-                          onClick={() => setVisibility(option)}
-                          className={cn(
-                            'flex w-full cursor-pointer items-start gap-3 p-4 text-left transition-colors',
-                            index > 0 && 'border-border border-t',
-                            visibility === option ? 'bg-primary/6' : 'hover:bg-muted/40',
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              'mt-0.5 flex h-4 w-4 flex-none items-center justify-center rounded-full border',
-                              visibility === option ? 'border-primary' : 'border-input',
-                            )}
-                          >
-                            {visibility === option && <span className='bg-primary h-2 w-2 rounded-full' />}
-                          </span>
-                          <span className='min-w-0'>
-                            <span className='block text-sm font-medium'>{t(`visibility.${option}`)}</span>
-                            <span className='text-muted-foreground mt-0.5 block text-xs leading-relaxed'>
-                              {t(`visibility.${option}Hint`)}
-                            </span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                  <Section title={t('visibility.title')} description={t('visibility.hint')} aside={<ComingSoonBadge />}>
+                    <VisibilityRadioGroup />
                   </Section>
                 </>
               )}
@@ -515,7 +455,7 @@ export function StatusPageEditor({
                         />
                         <PermissionGate>
                           {(disabled) =>
-                            logoUrl ? (
+                            form.logoUrl ? (
                               // Fixed-size chip, same footprint as the empty tile so uploading doesn't shift layout.
                               <div className='relative h-20 w-20'>
                                 <button
@@ -526,7 +466,7 @@ export function StatusPageEditor({
                                   className='group border-input relative block h-20 w-20 cursor-pointer overflow-hidden rounded-md border disabled:cursor-not-allowed'
                                 >
                                   {/* eslint-disable-next-line @next/next/no-img-element -- owner-provided logo, not optimizable via next/image */}
-                                  <img src={logoUrl} alt='' className='h-full w-full object-contain p-1.5' />
+                                  <img src={form.logoUrl} alt='' className='h-full w-full object-contain p-1.5' />
                                   <span className='absolute inset-0 flex flex-col items-center justify-center gap-0.5 bg-black/55 text-[10px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100'>
                                     <Upload className='h-4 w-4' />
                                     {t('replaceLogo')}
@@ -565,28 +505,13 @@ export function StatusPageEditor({
                           }
                         </PermissionGate>
                       </div>
-                      <ColorSwatchPicker
-                        label={t('accentColor')}
-                        options={ACCENT_PRESETS.map((preset) => ({ value: preset, hex: preset }))}
-                        value={accentColor}
-                        onChange={setAccentColor}
-                      >
-                        <ColorPickerPopover
-                          value={accentColor}
-                          onChange={setAccentColor}
-                          selected={!ACCENT_PRESETS.includes(accentColor)}
-                          ariaLabel={t('accentColor')}
-                        />
-                      </ColorSwatchPicker>
+                      <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
                     </div>
                   </Section>
 
                   <Section title={t('appearance')} description={t('appearanceHint')}>
                     <div className='bg-card border-border rounded-xl border p-5'>
-                      <div className='space-y-2'>
-                        <Label>{t('theme')}</Label>
-                        <ThemeSegmentedControl value={theme} onChange={setTheme} />
-                      </div>
+                      <ThemeField value={form.theme} onChange={form.setTheme} />
                     </div>
                   </Section>
                 </>
@@ -598,24 +523,24 @@ export function StatusPageEditor({
                   description={t('monitorsDescription')}
                   aside={
                     <span className='text-muted-foreground flex-none text-xs whitespace-nowrap'>
-                      {t('monitorsHint', { selected: includedCount, total: monitorRows.length })}
+                      {t('monitorsHint', { selected: form.includedCount, total: form.monitorRows.length })}
                     </span>
                   }
                 >
                   <SortableList
-                    items={monitorRows}
+                    items={form.monitorRows}
                     getId={(row) => row.monitorCheckId}
-                    onReorder={(next) => setMonitorRows(next)}
+                    onReorder={(next) => form.setMonitorRows(next)}
                     className='bg-card border-border overflow-hidden rounded-xl border'
                   >
-                    {monitorRows.map((row, index) => (
+                    {form.monitorRows.map((row, index) => (
                       <SortableMonitorRow
                         key={row.monitorCheckId}
                         row={row}
                         index={index}
-                        includedCount={includedCount}
-                        onToggleIncluded={(included) => updateRow(index, { included })}
-                        onPublicNameChange={(publicName) => updateRow(index, { publicName })}
+                        includedCount={form.includedCount}
+                        onToggleIncluded={(included) => form.updateRow(index, { included })}
+                        onPublicNameChange={(publicName) => form.updateRow(index, { publicName })}
                       />
                     ))}
                   </SortableList>

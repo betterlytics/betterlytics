@@ -4028,6 +4028,7 @@
       "brandHint": "Logo and accent color shown on the public page.",
       "appearance": "Appearance",
       "appearanceHint": "Default theme for visitors.",
+      "comingSoon": "Coming soon",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",

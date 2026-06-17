@@ -4034,6 +4034,7 @@
       "brandHint": "Logo og aksentfarge vist på den offentlige siden.",
       "appearance": "Utseende",
       "appearanceHint": "Standardtema for besøkende.",
+      "comingSoon": "Kommer snart",
       "visibility": {
         "title": "Synlighet",
         "hint": "Bestem hvem som kan finne statussiden din.",

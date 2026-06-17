@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -36,18 +35,10 @@ import {
   DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  STATUS_PAGE_DEFAULT_ACCENT_COLOR,
-  STATUS_PAGE_LIMITS,
-  type StatusPageTheme,
-} from '@/entities/analytics/statusPage.entities';
-import { ColorPickerPopover } from '@/components/ColorPickerPopover';
-import { ColorSwatchPicker } from '@/components/ColorSwatchPicker';
+import { STATUS_PAGE_DEFAULT_ACCENT_COLOR, STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { ConfirmDialog } from '@/components/dialogs';
 import { SortableList } from '@/components/dnd/SortableList';
-import { ThemeSegmentedControl } from './ThemeSegmentedControl';
 import {
-  checkStatusPageSlugAction,
   createStatusPageAction,
   fetchStatusPageDraftPreviewAction,
   setStatusPagePublishedAction,
@@ -55,20 +46,23 @@ import {
 } from '@/app/actions/analytics/statusPage.actions';
 import { formatPercentage } from '@/utils/formatters';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
-import { FlowOverlay } from './[statusPageId]/FlowOverlay';
-import { FlowOverlayHeader } from './[statusPageId]/FlowOverlayHeader';
-import { LivePreview, type PreviewDraft } from './[statusPageId]/LivePreview';
-import { SortableNameRow } from './[statusPageId]/SortableNameRow';
-import { type MonitorRow } from './[statusPageId]/SortableMonitorRow';
+import { FlowOverlay } from './shared/FlowOverlay';
+import { FlowOverlayHeader } from './shared/FlowOverlayHeader';
+import { LivePreview } from './shared/LivePreview';
+import { SortableNameRow } from './shared/SortableNameRow';
+import { AccentColorField } from './shared/AccentColorField';
+import { ThemeField } from './shared/ThemeField';
+import { VisibilityRadioGroup } from './shared/VisibilityRadioGroup';
+import { ComingSoonBadge, ComingSoonField } from './shared/ComingSoonField';
+import { useStatusPageFormState } from './shared/useStatusPageFormState';
+import { useSlugAvailability } from './shared/useSlugAvailability';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { useCreateMonitor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/shared/hooks/useCreateMonitor';
 import { CreateMonitorForm } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/CreateMonitorForm';
 
-const ACCENT_PRESETS = ['#4845d8', '#3b82f6', '#22c55e', '#8b5cf6', '#f59e0b', '#0ea5e9'];
 const STEPS = ['select', 'customize', 'publish'] as const;
 type Step = (typeof STEPS)[number];
-type SlugStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
 
 type WizardDefaults = Awaited<ReturnType<typeof suggestStatusPageDefaultsAction>>;
 
@@ -283,17 +277,16 @@ function WizardForm({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [createMonitorOpen, setCreateMonitorOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [name, setName] = useState(defaults.name);
-  const [slug, setSlug] = useState(defaults.slug);
-  const [slugStatus, setSlugStatus] = useState<SlugStatus>('idle');
-  const [theme, setTheme] = useState<StatusPageTheme>('system');
-  const [accentColor, setAccentColor] = useState(STATUS_PAGE_DEFAULT_ACCENT_COLOR);
-  const [visibility, setVisibility] = useState<'public' | 'unlisted'>('public');
-  const [homepageUrl, setHomepageUrl] = useState('');
-  const [customDomain, setCustomDomain] = useState('');
-  const [showPastIncidents, setShowPastIncidents] = useState(true);
-  const [monitorRows, setMonitorRows] = useState<MonitorRow[]>(() =>
-    defaults.monitors.map((monitor) => ({
+  const [created, setCreated] = useState<{ id: string; slug: string } | null>(null);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const form = useStatusPageFormState({
+    name: defaults.name,
+    slug: defaults.slug,
+    theme: 'system',
+    accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
+    showPastIncidents: true,
+    monitorRows: defaults.monitors.map((monitor) => ({
       monitorCheckId: monitor.monitorCheckId,
       name: monitor.name,
       url: monitor.url,
@@ -302,53 +295,34 @@ function WizardForm({
       operationalState: monitor.operationalState,
       uptimePercent: monitor.uptimePercent,
     })),
-  );
-  const [created, setCreated] = useState<{ id: string; slug: string } | null>(null);
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  });
+  const slugStatus = useSlugAvailability({ dashboardId, slug: form.slug });
 
-  const debouncedSlug = useDebounce(slug, 500);
-  useEffect(() => {
-    let cancelled = false;
-    setSlugStatus('checking');
-    checkStatusPageSlugAction(dashboardId, debouncedSlug).then((result) => {
-      if (cancelled) return;
-      setSlugStatus(result.available ? 'available' : result.reason === 'taken' ? 'taken' : 'invalid');
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedSlug, dashboardId]);
-
-  const updateRow = (index: number, patch: Partial<MonitorRow>) =>
-    setMonitorRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
-  const includedRows = monitorRows.filter((row) => row.included);
-  const excludedRows = monitorRows.filter((row) => !row.included);
-  const includedCount = includedRows.length;
-  const allSelected = monitorRows.length > 0 && monitorRows.every((row) => row.included);
+  const includedRows = form.monitorRows.filter((row) => row.included);
+  const excludedRows = form.monitorRows.filter((row) => !row.included);
+  const allSelected = form.monitorRows.length > 0 && form.monitorRows.every((row) => row.included);
   const toggleAll = (checked: boolean) =>
-    setMonitorRows((rows) => rows.map((row) => ({ ...row, included: checked })));
+    form.setMonitorRows((rows) => rows.map((row) => ({ ...row, included: checked })));
   const { caps } = useCapabilities();
-  const atMonitorLimit = monitorRows.length >= caps.monitoring.maxMonitors;
+  const atMonitorLimit = form.monitorRows.length >= caps.monitoring.maxMonitors;
   const normalizedSearch = search.trim().toLowerCase();
   const filteredRows = normalizedSearch
-    ? monitorRows.filter(
+    ? form.monitorRows.filter(
         (row) =>
           (row.name ?? '').toLowerCase().includes(normalizedSearch) ||
           row.url.toLowerCase().includes(normalizedSearch),
       )
-    : monitorRows;
+    : form.monitorRows;
 
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
       const page = await createStatusPageAction(dashboardId, {
-        name: name.trim(),
-        slug,
-        theme,
-        accentColor,
-        showPastIncidents,
-        monitors: monitorRows
-          .filter((row) => row.included)
-          .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() })),
+        name: form.name.trim(),
+        slug: form.slug,
+        theme: form.theme,
+        accentColor: form.accentColor,
+        showPastIncidents: form.showPastIncidents,
+        monitors: form.monitorsPayload,
       });
       if (publish) await setStatusPagePublishedAction(dashboardId, page.id, true);
       return { page, publish };
@@ -369,7 +343,7 @@ function WizardForm({
     publish: t('wizard.steps.publish'),
   };
 
-  const nameEmpty = name.trim().length === 0;
+  const nameEmpty = form.name.trim().length === 0;
   const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
   const canContinue = step !== 1 || !nameEmpty;
   const canCommit = !nameEmpty && !slugBlocked && !commitMutation.isPending;
@@ -378,23 +352,20 @@ function WizardForm({
   const submittingDraft = commitMutation.isPending && commitMutation.variables === false;
 
   const monitorsDirty =
-    monitorRows.length !== defaults.monitors.length ||
-    monitorRows.some((row, i) => {
+    form.monitorRows.length !== defaults.monitors.length ||
+    form.monitorRows.some((row, i) => {
       const def = defaults.monitors[i];
       return (
         !def || row.monitorCheckId !== def.monitorCheckId || !row.included || row.publicName !== def.publicName
       );
     });
-    
+
   const isDirty =
-    name !== defaults.name ||
-    slug !== defaults.slug ||
-    theme !== 'system' ||
-    accentColor !== STATUS_PAGE_DEFAULT_ACCENT_COLOR ||
-    visibility !== 'public' ||
-    homepageUrl.trim() !== '' ||
-    customDomain.trim() !== '' ||
-    !showPastIncidents ||
+    form.name !== defaults.name ||
+    form.slug !== defaults.slug ||
+    form.theme !== 'system' ||
+    form.accentColor !== STATUS_PAGE_DEFAULT_ACCENT_COLOR ||
+    !form.showPastIncidents ||
     monitorsDirty;
 
   const goNext = useCallback(() => {
@@ -419,27 +390,13 @@ function WizardForm({
     gcTime: 0,
   });
 
-  const previewDraft: PreviewDraft = {
-    name,
-    slug,
-    theme,
-    accentColor,
-    showPastIncidents,
-    monitors: monitorRows.map((row) => ({
-      monitorCheckId: row.monitorCheckId,
-      included: row.included,
-      publicName: row.publicName,
-    })),
-    logoUrl: null,
-  };
-
   const markPendingRef = useRef<() => void>(() => {});
   const createMonitor = useCreateMonitor({
     dashboardId,
     domain,
-    existingUrls: monitorRows.map((row) => row.url),
+    existingUrls: form.monitorRows.map((row) => row.url),
     onCreated: (monitor) => {
-      setMonitorRows((rows) => [
+      form.setMonitorRows((rows) => [
         ...rows,
         {
           monitorCheckId: monitor.id,
@@ -610,7 +567,7 @@ function WizardForm({
                       <p className='text-muted-foreground text-sm'>{t('wizard.select.description')}</p>
                     </div>
 
-                    {monitorRows.length === 0 ? (
+                    {form.monitorRows.length === 0 ? (
                       <div className='border-border flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center'>
                         <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
                           <Search className='h-5 w-5' />
@@ -661,7 +618,9 @@ function WizardForm({
                             </div>
                           ) : (
                             filteredRows.map((row) => {
-                              const index = monitorRows.findIndex((r) => r.monitorCheckId === row.monitorCheckId);
+                              const index = form.monitorRows.findIndex(
+                                (r) => r.monitorCheckId === row.monitorCheckId,
+                              );
                               const presentation = row.operationalState
                                 ? presentMonitorStatus(row.operationalState)
                                 : null;
@@ -675,7 +634,7 @@ function WizardForm({
                                 >
                                   <Checkbox
                                     checked={row.included}
-                                    onCheckedChange={(checked) => updateRow(index, { included: checked === true })}
+                                    onCheckedChange={(checked) => form.updateRow(index, { included: checked === true })}
                                     className='flex-none'
                                   />
                                   <div className='min-w-0 flex-1'>
@@ -711,7 +670,10 @@ function WizardForm({
                           )}
                           <div className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-t px-4 py-3 text-xs'>
                             <span className='text-muted-foreground'>
-                              {t('wizard.selectedCount', { selected: includedCount, total: monitorRows.length })}
+                              {t('wizard.selectedCount', {
+                                selected: form.includedCount,
+                                total: form.monitorRows.length,
+                              })}
                             </span>
                             <span className='text-muted-foreground'>
                               {t('wizard.noMonitorYet')}{' '}
@@ -742,9 +704,9 @@ function WizardForm({
                       <Label htmlFor='wiz-name'>{t('pageName')}</Label>
                       <Input
                         id='wiz-name'
-                        value={name}
+                        value={form.name}
                         maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => form.setName(e.target.value)}
                       />
                     </div>
                     <div className='space-y-6'>
@@ -771,38 +733,18 @@ function WizardForm({
                           </button>
                         </div>
                       </div>
-                      <ColorSwatchPicker
-                        label={t('accentColor')}
-                        options={ACCENT_PRESETS.map((preset) => ({ value: preset, hex: preset }))}
-                        value={accentColor}
-                        onChange={setAccentColor}
-                      >
-                        <ColorPickerPopover
-                          value={accentColor}
-                          onChange={setAccentColor}
-                          selected={!ACCENT_PRESETS.includes(accentColor)}
-                          ariaLabel={t('accentColor')}
-                        />
-                      </ColorSwatchPicker>
-                      <div className='space-y-2'>
-                        <Label>{t('theme')}</Label>
-                        <ThemeSegmentedControl value={theme} onChange={setTheme} />
-                      </div>
+                      <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
+                      <ThemeField value={form.theme} onChange={form.setTheme} />
                     </div>
 
-                    <div className='space-y-1.5'>
-                      <div className='space-y-0.5'>
-                        <Label htmlFor='wiz-homepage'>{t('homepageUrl')}</Label>
-                        <p className='text-muted-foreground text-xs'>{t('homepageUrlHint')}</p>
-                      </div>
-                      <Input
-                        id='wiz-homepage'
-                        type='url'
-                        value={homepageUrl}
-                        placeholder='https://example.com'
-                        onChange={(e) => setHomepageUrl(e.target.value)}
-                      />
-                    </div>
+                    <ComingSoonField
+                      id='wiz-homepage'
+                      label={t('homepageUrl')}
+                      hint={t('homepageUrlHint')}
+                      placeholder='https://example.com'
+                      type='url'
+                      hintPosition='top'
+                    />
 
                     <div className='flex items-center justify-between gap-4'>
                       <div className='min-w-0 space-y-0.5'>
@@ -813,8 +755,8 @@ function WizardForm({
                       </div>
                       <Switch
                         id='wiz-incidents'
-                        checked={showPastIncidents}
-                        onCheckedChange={setShowPastIncidents}
+                        checked={form.showPastIncidents}
+                        onCheckedChange={form.setShowPastIncidents}
                         className='flex-none'
                       />
                     </div>
@@ -828,7 +770,7 @@ function WizardForm({
                         <SortableList
                           items={includedRows}
                           getId={(row) => row.monitorCheckId}
-                          onReorder={(next) => setMonitorRows([...next, ...excludedRows])}
+                          onReorder={(next) => form.setMonitorRows([...next, ...excludedRows])}
                           className='space-y-2'
                         >
                           {includedRows.map((row) => (
@@ -836,8 +778,8 @@ function WizardForm({
                               key={row.monitorCheckId}
                               row={row}
                               onPublicNameChange={(publicName) =>
-                                updateRow(
-                                  monitorRows.findIndex((r) => r.monitorCheckId === row.monitorCheckId),
+                                form.updateRow(
+                                  form.monitorRows.findIndex((r) => r.monitorCheckId === row.monitorCheckId),
                                   { publicName },
                                 )
                               }
@@ -866,9 +808,9 @@ function WizardForm({
                           <div className='relative min-w-0 flex-1'>
                             <Input
                               id='wiz-slug'
-                              value={slug}
+                              value={form.slug}
                               maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
-                              onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                              onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
                               className='rounded-l-none pr-9'
                             />
                             <span className='absolute top-1/2 right-2.5 -translate-y-1/2'>
@@ -896,7 +838,7 @@ function WizardForm({
                         <button
                           type='button'
                           onClick={() => {
-                            navigator.clipboard.writeText(`${publicBaseUrl}/status/${slug}`);
+                            navigator.clipboard.writeText(`${publicBaseUrl}/status/${form.slug}`);
                             toast.success(t('publishSuccess.copied'));
                           }}
                           aria-label={t('publishSuccess.copy')}
@@ -911,58 +853,20 @@ function WizardForm({
                       )}
                     </div>
 
-                    <div className='space-y-1.5'>
-                      <div className='space-y-0.5'>
-                        <Label htmlFor='wiz-domain'>{t('customDomain')}</Label>
-                        <p className='text-muted-foreground text-xs'>{t('customDomainHint')}</p>
-                      </div>
-                      <Input
-                        id='wiz-domain'
-                        value={customDomain}
-                        placeholder='status.example.com'
-                        onChange={(e) => setCustomDomain(e.target.value)}
-                      />
-                    </div>
+                    <ComingSoonField
+                      id='wiz-domain'
+                      label={t('customDomain')}
+                      hint={t('customDomainHint')}
+                      placeholder='status.example.com'
+                      hintPosition='top'
+                    />
 
                     <div className='space-y-2'>
-                      <Label id='wiz-visibility'>{t('visibility.title')}</Label>
-                      <div
-                        role='radiogroup'
-                        aria-labelledby='wiz-visibility'
-                        className='border-border bg-card overflow-hidden rounded-xl border'
-                      >
-                        {(['public', 'unlisted'] as const).map((option) => {
-                          const selected = visibility === option;
-                          return (
-                            <button
-                              key={option}
-                              type='button'
-                              role='radio'
-                              aria-checked={selected}
-                              onClick={() => setVisibility(option)}
-                              className={cn(
-                                'border-border flex w-full cursor-pointer items-start gap-3 border-t px-4 py-3.5 text-left transition-colors first:border-t-0',
-                                selected ? 'bg-primary/[0.07]' : 'hover:bg-muted/40',
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  'mt-0.5 flex h-4 w-4 flex-none items-center justify-center rounded-full border-2 transition-colors',
-                                  selected ? 'border-primary' : 'border-muted-foreground',
-                                )}
-                              >
-                                {selected && <span className='bg-primary h-2 w-2 rounded-full' />}
-                              </span>
-                              <span className='min-w-0'>
-                                <span className='block text-sm font-semibold'>{t(`visibility.${option}`)}</span>
-                                <span className='text-muted-foreground mt-0.5 block text-xs leading-relaxed'>
-                                  {t(`visibility.${option}Hint`)}
-                                </span>
-                              </span>
-                            </button>
-                          );
-                        })}
+                      <div className='flex items-center gap-2'>
+                        <Label>{t('visibility.title')}</Label>
+                        <ComingSoonBadge />
                       </div>
+                      <VisibilityRadioGroup />
                     </div>
                   </div>
                 )}
@@ -979,7 +883,7 @@ function WizardForm({
                       payload={previewQuery.data.payload}
                       messages={previewQuery.data.messages}
                       publicHost={publicHost}
-                      draft={previewDraft}
+                      draft={form.previewDraft}
                     />
                     <button
                       type='button'
@@ -997,7 +901,7 @@ function WizardForm({
               ) : previewQuery.isError ? (
                 <p className='text-muted-foreground pt-10 text-sm'>{t('error')}</p>
               ) : (
-                <PreviewLoadingFrame publicHost={publicHost} slug={slug} />
+                <PreviewLoadingFrame publicHost={publicHost} slug={form.slug} />
               )}
             </div>
           </aside>
@@ -1028,7 +932,7 @@ function WizardForm({
                 payload={previewQuery.data.payload}
                 messages={previewQuery.data.messages}
                 publicHost={publicHost}
-                draft={previewDraft}
+                draft={form.previewDraft}
                 zoom={0.85}
                 centerUrl
                 className='max-h-[88vh]'
