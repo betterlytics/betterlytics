@@ -1014,12 +1014,20 @@
           "framework": {
             "title": "Klar til frameworks",
             "description": "Native support til React, Next.js, Vue og andre moderne frameworks med TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework-komponenter", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework-komponenter",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-hosted mulighed",
             "description": "Udrul på din egen infrastruktur med Docker for fuldt dataejerskab og kontrol.",
-            "features": { "f1": "Docker-udrulning", "f2": "Fuld kontrol", "f3": "GDPR-kompatibel" }
+            "features": {
+              "f1": "Docker-udrulning",
+              "f2": "Fuld kontrol",
+              "f3": "GDPR-kompatibel"
+            }
           }
         },
         "guideButton": "Se integrationsguide",
@@ -3735,10 +3743,10 @@
       "userKeyPlaceholder": "Din Pushover user key",
       "priorityLabel": "Notifikationsprioritet",
       "priorities": {
-        "-2": "Lavest: Ingen notifikation",
-        "-1": "Lav: Ingen lyd eller vibration",
         "0": "Normal (anbefalet)",
-        "1": "Høj: Ignorer stille timer"
+        "1": "Høj: Ignorer stille timer",
+        "-2": "Lavest: Ingen notifikation",
+        "-1": "Lav: Ingen lyd eller vibration"
       },
       "credentialsHint": "Find din user key på <link>pushover.net</link>",
       "priorityHint": "Læs mere om prioritetsniveauer <link>her</link>.",
@@ -3977,7 +3985,11 @@
       "copyLink": "Kopiér link",
       "viewPage": "Vis side",
       "more": "Flere handlinger",
-      "linkCopied": "Link kopieret til udklipsholderen"
+      "linkCopied": "Link kopieret til udklipsholderen",
+      "openPublicPage": "Åbn offentlig side",
+      "editPage": "Rediger side",
+      "viewPublicPage": "Vis offentlig side",
+      "copyUrl": "Kopiér offentlig URL"
     },
     "editor": {
       "back": "Statussider",
@@ -4187,6 +4199,22 @@
           "saveHint": "Gem den internt til dit team, eller udgiv den til den offentlige statusside."
         }
       }
-    }
+    },
+    "table": {
+      "statusPage": "Statusside",
+      "visibility": "Synlighed",
+      "monitors": "Monitorer",
+      "status": "Status"
+    },
+    "status": {
+      "operational": "Operationel",
+      "ongoingIncident": "Igangværende hændelse"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# statusside har en aktiv hændelse} other {# statussider har aktive hændelser}}",
+      "operationalTitle": "Alle statussider er operationelle",
+      "operationalDescription": "Ingen aktive hændelser."
+    },
+    "monitorsEmpty": "Ingen monitorer"
   }
 }

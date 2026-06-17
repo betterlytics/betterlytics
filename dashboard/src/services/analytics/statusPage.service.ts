@@ -9,6 +9,7 @@ import {
   statusPageSlugExists,
   updateStatusPage,
 } from '@/repositories/postgres/statusPage.repository';
+import { countActiveIncidentsByStatusPage } from '@/repositories/postgres/statusPageIncident.repository';
 import type {
   StatusPage,
   StatusPageCreate,
@@ -18,7 +19,15 @@ import type {
 } from '@/entities/analytics/statusPage.entities';
 
 export async function getStatusPagesForDashboard(dashboardId: string): Promise<StatusPageListItem[]> {
-  return listStatusPages(dashboardId);
+  const [pages, activeIncidentsByPage] = await Promise.all([
+    listStatusPages(dashboardId),
+    countActiveIncidentsByStatusPage(dashboardId),
+  ]);
+
+  return pages.map((page) => ({
+    ...page,
+    activeIncidentCount: activeIncidentsByPage.get(page.id) ?? 0,
+  }));
 }
 
 export async function getStatusPage(dashboardId: string, statusPageId: string): Promise<StatusPageWithMonitors | null> {

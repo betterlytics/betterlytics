@@ -20,16 +20,22 @@ function resolveLogoUrl(row: { slug: string; logoHash: string | null; logoUrl: s
   return row.logoUrl ?? null;
 }
 
-export async function listStatusPages(dashboardId: string): Promise<StatusPageListItem[]> {
+export async function listStatusPages(
+  dashboardId: string,
+): Promise<Omit<StatusPageListItem, 'activeIncidentCount'>[]> {
   const rows = await prisma.statusPage.findMany({
     where: { dashboardId, deletedAt: null },
-    include: { _count: { select: { monitors: true } } },
+    include: {
+      _count: { select: { monitors: true } },
+      monitors: { orderBy: { position: 'asc' }, select: { monitorCheckId: true, publicName: true } },
+    },
     orderBy: { createdAt: 'asc' },
   });
 
-  return rows.map(({ _count, ...row }) => ({
+  return rows.map(({ _count, monitors, ...row }) => ({
     ...StatusPageSchema.parse({ ...row, logoUrl: resolveLogoUrl(row) }),
     monitorCount: _count.monitors,
+    monitors: monitors,
   }));
 }
 
