@@ -532,7 +532,7 @@
       "lastUpdated": "Ultimo aggiornamento:",
       "scope": {
         "title": "Ambito di Questo DPA",
-        "body": "Questo Accordo sul Trattamento dei Dati (\u201cDPA\u201d) fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il servizio cloud ospitato Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Questo DPA non si applica alle installazioni self-hosted del nostro software open source; se esegui il self-hosting di Betterlytics, sei responsabile dei tuoi accordi sul trattamento dei dati e della conformità alle leggi applicabili.",
+        "body": "Questo Accordo sul Trattamento dei Dati (“DPA”) fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il servizio cloud ospitato Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Questo DPA non si applica alle installazioni self-hosted del nostro software open source; se esegui il self-hosting di Betterlytics, sei responsabile dei tuoi accordi sul trattamento dei dati e della conformità alle leggi applicabili.",
         "appliesTo": "Questo DPA si applica al trattamento dei dati dei visitatori del sito web raccolti tramite gli script di analisi Betterlytics, includendo sia:",
         "li1": "Dati anonimi (analitiche predefinite e anonimizzate), e",
         "li2": "Dati personali o pseudo-anonimi (funzionalità opzionali o qualsiasi inclusione accidentale di dati personali o pseudo-anonimi in URL, parametri di query o payload degli eventi), ad es. session replay, identificatori personalizzati o eventi personalizzati."
@@ -1833,14 +1833,14 @@
         "title": "Tempi e Sensibilità",
         "interval": {
           "label": "Intervallo di monitoraggio",
-          "description": "Il tuo sito verr\u00e0 controllato ogni {value}"
+          "description": "Il tuo sito verrà controllato ogni {value}"
         },
         "timeout": {
           "label": "Timeout richiesta",
-          "description": "Troppo breve pu\u00f2 causare falsi positivi"
+          "description": "Troppo breve può causare falsi positivi"
         },
         "sensitivity": {
-          "label": "Sensibilit\u00e0 incidenti",
+          "label": "Sensibilità incidenti",
           "description": "Numero di errori consecutivi prima che venga attivato un incidente",
           "valueOne": "1 errore",
           "valueOther": "{count} errori",
@@ -3743,10 +3743,10 @@
       "userKeyPlaceholder": "La tua user key Pushover",
       "priorityLabel": "Priorità notifica",
       "priorities": {
-        "-2": "Minima: Nessuna notifica",
-        "-1": "Bassa: Nessun suono o vibrazione",
         "0": "Normale (consigliato)",
-        "1": "Alta: Ignora le ore silenziose"
+        "1": "Alta: Ignora le ore silenziose",
+        "-2": "Minima: Nessuna notifica",
+        "-1": "Bassa: Nessun suono o vibrazione"
       },
       "credentialsHint": "Trova la tua user key su <link>pushover.net</link>",
       "priorityHint": "Scopri di più sui livelli di priorità <link>qui</link>.",
@@ -3985,7 +3985,11 @@
       "copyLink": "Copia link",
       "viewPage": "Vedi pagina",
       "more": "Altre azioni",
-      "linkCopied": "Link copiato negli appunti"
+      "linkCopied": "Link copiato negli appunti",
+      "openPublicPage": "Apri pagina pubblica",
+      "editPage": "Modifica pagina",
+      "viewPublicPage": "Visualizza pagina pubblica",
+      "copyUrl": "Copia URL pubblico"
     },
     "editor": {
       "back": "Pagine di stato",
@@ -4198,6 +4202,22 @@
           "saveHint": "Salvalo internamente per il tuo team o pubblicalo sulla pagina di stato pubblica."
         }
       }
-    }
+    },
+    "table": {
+      "statusPage": "Pagina di stato",
+      "visibility": "Visibilità",
+      "monitors": "Monitor",
+      "status": "Stato"
+    },
+    "status": {
+      "operational": "Operativo",
+      "ongoingIncident": "Incidente in corso"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# pagina di stato ha un incidente attivo} other {# pagine di stato hanno incidenti attivi}}",
+      "operationalTitle": "Tutte le pagine di stato sono operative",
+      "operationalDescription": "Nessun incidente attivo."
+    },
+    "monitorsEmpty": "Nessun monitor"
   }
 }

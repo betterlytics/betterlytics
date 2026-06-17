@@ -116,7 +116,13 @@ export type StatusPageMonitorRow = z.infer<typeof StatusPageMonitorRowSchema>;
 
 export type StatusPageWithMonitors = StatusPage & { monitors: StatusPageMonitorRow[] };
 
-export type StatusPageListItem = StatusPage & { monitorCount: number };
+export type StatusPageListMonitor = { monitorCheckId: string; publicName: string };
+
+export type StatusPageListItem = StatusPage & {
+  monitorCount: number;
+  monitors: StatusPageListMonitor[];
+  activeIncidentCount: number;
+};
 
 export type PublishedStatusPage = {
   page: StatusPage;

@@ -3743,10 +3743,10 @@
       "userKeyPlaceholder": "Din Pushover user key",
       "priorityLabel": "Varselprioritet",
       "priorities": {
-        "-2": "Lavest: Ingen varsel",
-        "-1": "Lav: Ingen lyd eller vibrasjon",
         "0": "Normal (anbefalt)",
-        "1": "Høy: Ignorer stille timer"
+        "1": "Høy: Ignorer stille timer",
+        "-2": "Lavest: Ingen varsel",
+        "-1": "Lav: Ingen lyd eller vibrasjon"
       },
       "credentialsHint": "Finn din user key på <link>pushover.net</link>",
       "priorityHint": "Les mer om prioritetsnivåer <link>her</link>.",
@@ -3985,7 +3985,11 @@
       "copyLink": "Kopier lenke",
       "viewPage": "Vis side",
       "more": "Flere handlinger",
-      "linkCopied": "Lenke kopiert til utklippstavlen"
+      "linkCopied": "Lenke kopiert til utklippstavlen",
+      "openPublicPage": "Åpne offentlig side",
+      "editPage": "Rediger side",
+      "viewPublicPage": "Vis offentlig side",
+      "copyUrl": "Kopier offentlig URL"
     },
     "editor": {
       "back": "Statussider",
@@ -4198,6 +4202,22 @@
           "saveHint": "Lagre den internt for teamet ditt, eller publiser den til den offentlige statussiden."
         }
       }
-    }
+    },
+    "table": {
+      "statusPage": "Statusside",
+      "visibility": "Synlighet",
+      "monitors": "Monitorer",
+      "status": "Status"
+    },
+    "status": {
+      "operational": "Operativ",
+      "ongoingIncident": "Pågående hendelse"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# statusside har en aktiv hendelse} other {# statussider har aktive hendelser}}",
+      "operationalTitle": "Alle statussider er operative",
+      "operationalDescription": "Ingen aktive hendelser."
+    },
+    "monitorsEmpty": "Ingen monitorer"
   }
 }

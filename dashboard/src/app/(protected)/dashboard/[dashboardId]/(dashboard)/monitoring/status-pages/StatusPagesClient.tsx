@@ -4,10 +4,20 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, Copy, ExternalLink, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Globe,
+  Lock,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -23,57 +33,39 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { cn } from '@/lib/utils';
 import { deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage.entities';
+import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
+import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { StatusPagesEmptyState } from './StatusPagesEmptyState';
 import { CreateStatusPageWizard } from './CreateStatusPageWizard';
 
-function accentForeground(accentHex: string): string {
-  const channel = (offset: number) => {
-    const c = parseInt(accentHex.slice(offset, offset + 2), 16) / 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  };
-  const luminance = 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
-  return luminance > 0.45 ? '#16181c' : '#ffffff';
-}
-
-function PageBrandChip({ page }: { page: StatusPageListItem }) {
-  return (
-    <span className='relative flex-none'>
-      {page.logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- owner-provided logo (arbitrary origin / data URI), not optimizable via next/image
-        <img src={page.logoUrl} alt='' className='border-border h-10 w-10 rounded-lg border object-contain' />
-      ) : (
-        <span
-          className='flex h-10 w-10 items-center justify-center rounded-lg text-base font-bold'
-          style={{ backgroundColor: page.accentColor, color: accentForeground(page.accentColor) }}
-        >
-          {page.name.charAt(0).toUpperCase()}
-        </span>
-      )}
-      <span
-        aria-hidden
-        className={`border-background absolute -right-1 -bottom-1 h-3.5 w-3.5 rounded-full border-2 ${
-          page.isPublished ? 'bg-emerald-500' : 'bg-muted-foreground/60'
-        }`}
-      />
-    </span>
-  );
-}
+const HEADER_GRID = 'grid-cols-[minmax(0,1.5fr)_110px_minmax(0,1fr)_150px_80px]';
+const ROW_GRID = 'md:grid md:grid-cols-[minmax(0,1.5fr)_110px_minmax(0,1fr)_150px_80px]';
 
 type StatusPagesClientProps = {
   dashboardId: string;
   statusPages: StatusPageListItem[];
+  monitorStatuses: Record<string, MonitorOperationalState>;
   publicBaseUrl: string;
   domain: string;
 };
 
-export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl, domain }: StatusPagesClientProps) {
+export function StatusPagesClient({
+  dashboardId,
+  statusPages,
+  monitorStatuses,
+  publicBaseUrl,
+  domain,
+}: StatusPagesClientProps) {
   const t = useTranslations('statusPagesPage');
+  const tStatus = useTranslations('monitoring.status');
   const router = useRouter();
 
   const [showWizard, setShowWizard] = useState(false);
@@ -126,95 +118,189 @@ export function StatusPagesClient({ dashboardId, statusPages, publicBaseUrl, dom
     );
   }
 
+  const incidentPages = statusPages.filter((page) => page.activeIncidentCount > 0);
+  const hasIncidents = incidentPages.length > 0;
+
   return (
     <div className='space-y-4'>
       <DashboardHeader title={t('title')}>{createButton(t('newStatusPage'))}</DashboardHeader>
 
+      <div
+        className={cn(
+          'flex items-center gap-3 rounded-xl border px-4 py-3.5',
+          hasIncidents ? 'border-amber-500/45 bg-amber-500/7' : 'border-emerald-500/40 bg-emerald-500/6',
+        )}
+      >
+        {hasIncidents ? (
+          <AlertTriangle className='h-4.5 w-4.5 shrink-0 text-amber-500' aria-hidden />
+        ) : (
+          <CheckCircle2 className='h-4.5 w-4.5 shrink-0 text-emerald-500' aria-hidden />
+        )}
+        <div className='min-w-0'>
+          <div className='text-foreground text-sm font-semibold'>
+            {hasIncidents
+              ? t('banner.incidentTitle', { count: incidentPages.length })
+              : t('banner.operationalTitle')}
+          </div>
+          <div className='text-muted-foreground mt-0.5 truncate text-xs'>
+            {hasIncidents ? incidentPages.map((page) => page.name).join(', ') : t('banner.operationalDescription')}
+          </div>
+        </div>
+      </div>
+
       <div className='bg-card border-border overflow-hidden rounded-xl border'>
-          {statusPages.map((page) => (
+        <div
+          className={cn(
+            'text-muted-foreground border-border hidden border-b px-5 py-2.5 text-[11px] font-semibold tracking-wider uppercase md:grid md:gap-4',
+            HEADER_GRID,
+          )}
+        >
+          <div>{t('table.statusPage')}</div>
+          <div>{t('table.visibility')}</div>
+          <div>{t('table.monitors')}</div>
+          <div>{t('table.status')}</div>
+          <div />
+        </div>
+
+        {statusPages.map((page) => {
+          const isIncident = page.activeIncidentCount > 0;
+          const editorHref = `/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`;
+          const publicUrl = `${publicBaseUrl}/status/${page.slug}`;
+
+          return (
             <div
               key={page.id}
-              className='border-border hover:bg-muted/40 relative flex flex-col gap-3 border-b px-4 py-4 transition-colors last:border-b-0 sm:flex-row sm:items-center sm:gap-4 sm:px-5'
+              className={cn(
+                'relative flex flex-wrap items-center gap-x-4 gap-y-2 border-b px-4 py-3.5 transition-colors last:border-b-0 md:items-center md:gap-4 md:px-5',
+                ROW_GRID,
+                isIncident ? 'bg-amber-500/6 hover:bg-amber-500/9' : 'hover:bg-muted/40',
+              )}
             >
-              <div className='flex min-w-0 flex-1 items-center gap-3.5'>
-                <PageBrandChip page={page} />
-                <div className='min-w-0 flex-1'>
-                  <div className='flex items-center gap-2'>
-                    {/* Stretched link: the whole row opens the editor */}
-                    <Link
-                      href={`/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`}
-                      className='truncate font-semibold after:absolute after:inset-0'
-                    >
-                      {page.name}
-                    </Link>
-                    <Badge variant={page.isPublished ? 'default' : 'secondary'} className='flex-none'>
-                      {page.isPublished ? t('badge.public') : t('badge.draft')}
-                    </Badge>
-                  </div>
-                  <div className='text-muted-foreground mt-0.5 truncate text-sm'>
-                    {`${publicHost}/status/${page.slug}`}
-                    {' · '}
-                    {t('monitorCount', { count: page.monitorCount })}
-                  </div>
-                </div>
+              {isIncident && <span aria-hidden className='absolute inset-y-0 left-0 w-0.75 bg-amber-500' />}
+
+              <div className='min-w-0 basis-full pr-16 md:basis-auto md:pr-0'>
+                <Link
+                  href={editorHref}
+                  className='text-foreground block truncate font-semibold after:absolute after:inset-0'
+                >
+                  {page.name}
+                </Link>
               </div>
-              <div className='flex flex-none items-center gap-1 self-end sm:self-auto'>
+
+              <div className='text-muted-foreground flex items-center gap-1.5 text-[13px]'>
                 {page.isPublished ? (
-                  <div className='relative z-10 flex items-center gap-1'>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='text-muted-foreground hover:text-foreground cursor-pointer'
-                      onClick={() => copyLink(page.slug)}
-                    >
-                      <Copy className='mr-1 h-3.5 w-3.5' />
-                      {t('actions.copyLink')}
-                    </Button>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      className='text-muted-foreground hover:text-foreground'
-                      asChild
-                    >
-                      <a href={`${publicBaseUrl}/status/${page.slug}`} target='_blank' rel='noopener noreferrer'>
-                        <ExternalLink className='mr-1 h-3.5 w-3.5' />
-                        {t('actions.viewPage')}
-                      </a>
-                    </Button>
-                  </div>
+                  <Globe className='h-3.5 w-3.5 shrink-0' aria-hidden />
                 ) : (
-                  <span className='text-muted-foreground px-2 text-xs'>{t('finishSetup')}</span>
+                  <Lock className='h-3.5 w-3.5 shrink-0' aria-hidden />
+                )}
+                <span>{page.isPublished ? t('badge.public') : t('badge.draft')}</span>
+              </div>
+
+              <div className='flex min-w-0 flex-wrap items-center gap-1.5'>
+                {page.monitors.length === 0 ? (
+                  <span className='text-muted-foreground/70 text-xs'>{t('monitorsEmpty')}</span>
+                ) : (
+                  page.monitors.map((monitor, index) => {
+                    const presentation = presentMonitorStatus(
+                      monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
+                    );
+                    return (
+                      <span
+                        key={`${monitor.monitorCheckId}-${index}`}
+                        title={`${monitor.publicName} — ${tStatus(presentation.labelKey)}`}
+                        className={cn(
+                          'h-2 w-2 shrink-0 cursor-default rounded-full transition-transform hover:scale-150',
+                          presentation.theme.dot,
+                        )}
+                      />
+                    );
+                  })
+                )}
+              </div>
+
+              <div className='flex items-center gap-2 text-[13px] whitespace-nowrap'>
+                <span
+                  className={cn('h-2 w-2 shrink-0 rounded-full', isIncident ? 'bg-amber-500' : 'bg-emerald-500')}
+                  aria-hidden
+                />
+                <span className={isIncident ? 'font-medium text-amber-500' : 'text-muted-foreground'}>
+                  {isIncident ? t('status.ongoingIncident') : t('status.operational')}
+                </span>
+              </div>
+
+              <div
+                className='absolute top-3 right-3 z-10 flex items-center gap-0.5 md:static md:justify-self-end'
+                onClick={(e) => e.stopPropagation()}
+              >
+                {page.isPublished && (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    asChild
+                    className='text-muted-foreground hover:text-foreground h-8 w-8'
+                  >
+                    <a
+                      href={publicUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      aria-label={t('actions.openPublicPage')}
+                    >
+                      <ExternalLink className='h-4 w-4' />
+                    </a>
+                  </Button>
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant='ghost'
-                      size='sm'
-                      className='text-muted-foreground hover:text-foreground relative z-10 h-8 w-8 cursor-pointer p-0'
+                      size='icon'
+                      className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer'
                       aria-label={t('actions.more')}
                     >
                       <MoreHorizontal className='h-4 w-4' />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end'>
+                  <DropdownMenuContent align='end' className='w-48'>
+                    <DropdownMenuItem asChild className='cursor-pointer'>
+                      <Link href={editorHref}>
+                        <Pencil className='mr-2 h-4 w-4' />
+                        {t('actions.editPage')}
+                      </Link>
+                    </DropdownMenuItem>
+                    {page.isPublished && (
+                      <>
+                        <DropdownMenuItem asChild className='cursor-pointer'>
+                          <a href={publicUrl} target='_blank' rel='noopener noreferrer'>
+                            <ExternalLink className='mr-2 h-4 w-4' />
+                            {t('actions.viewPublicPage')}
+                          </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => copyLink(page.slug)} className='cursor-pointer'>
+                          <Copy className='mr-2 h-4 w-4' />
+                          {t('actions.copyUrl')}
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
                     <PermissionGate>
                       {(disabled) => (
                         <DropdownMenuItem
                           disabled={disabled}
+                          variant='destructive'
                           onSelect={() => setDeleteTarget(page)}
-                          className='text-destructive focus:text-destructive cursor-pointer'
+                          className='cursor-pointer'
                         >
-                          <Trash2 className='text-destructive mr-1 h-3.5 w-3.5' />
+                          <Trash2 className='mr-2 h-4 w-4' />
                           {t('editor.delete')}
                         </DropdownMenuItem>
                       )}
                     </PermissionGate>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <ChevronRight className='text-muted-foreground/40 ml-1 hidden h-4 w-4 sm:block' aria-hidden />
               </div>
             </div>
-          ))}
+          );
+        })}
       </div>
 
       <AlertDialog open={deleteTarget != null} onOpenChange={(open) => !open && setDeleteTarget(null)}>

@@ -33,6 +33,15 @@ export async function countStatusPageIncidents(dashboardId: string, statusPageId
   return prisma.statusPageIncident.count({ where: { statusPageId, dashboardId, deletedAt: null } });
 }
 
+export async function countActiveIncidentsByStatusPage(dashboardId: string): Promise<Map<string, number>> {
+  const grouped = await prisma.statusPageIncident.groupBy({
+    by: ['statusPageId'],
+    where: { dashboardId, deletedAt: null, status: { not: 'resolved' } },
+    _count: { _all: true },
+  });
+  return new Map(grouped.map((row) => [row.statusPageId, row._count._all]));
+}
+
 export async function createStatusPageIncident(
   dashboardId: string,
   createdById: string,
