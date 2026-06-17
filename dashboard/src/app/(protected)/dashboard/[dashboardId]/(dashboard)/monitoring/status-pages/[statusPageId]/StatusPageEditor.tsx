@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -8,33 +8,23 @@ import { ArrowLeft, Check, Copy, ExternalLink, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { useDebounce } from '@/hooks/useDebounce';
 import {
   STATUS_PAGE_LIMITS,
   type StatusPagePreviewPayload,
   type StatusPageWithMonitors,
 } from '@/entities/analytics/statusPage.entities';
 import { cn } from '@/lib/utils';
-import { IncidentsManager } from './IncidentsManager';
-import { SortableList } from '@/components/dnd/SortableList';
+import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LivePreview';
-import {
-  SortableMonitorRow,
-  type MonitorRow,
-} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
-import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/AccentColorField';
-import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
-import { VisibilityRadioGroup } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/VisibilityRadioGroup';
-import { ComingSoonBadge, ComingSoonField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ComingSoonField';
+import { type MonitorRow } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
 import { useStatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useSlugAvailability';
-import { LogoUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LogoUploadField';
 import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
+import { GeneralTab } from './tabs/GeneralTab';
+import { CustomizeTab } from './tabs/CustomizeTab';
+import { MonitorsTab } from './tabs/MonitorsTab';
 
 type TabKey = 'incidents' | 'general' | 'customize' | 'monitors';
 const CONFIG_TABS: TabKey[] = ['general', 'customize', 'monitors'];
@@ -72,32 +62,6 @@ function buildMonitorRows(
       const positionB = selectionByMonitorId.get(b.monitorCheckId)?.position ?? Number.MAX_SAFE_INTEGER;
       return positionA - positionB;
     });
-}
-
-/** Section heading + description sit outside a lighter bordered box (Betterlytics settings pattern). */
-function Section({
-  title,
-  description,
-  aside,
-  children,
-}: {
-  title: string;
-  description?: string;
-  aside?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section>
-      <div className='mb-3 flex items-end justify-between gap-3'>
-        <div>
-          <h2 className='font-semibold'>{title}</h2>
-          {description && <p className='text-muted-foreground mt-1 text-sm'>{description}</p>}
-        </div>
-        {aside}
-      </div>
-      {children}
-    </section>
-  );
 }
 
 export function StatusPageEditor({
@@ -157,15 +121,6 @@ export function StatusPageEditor({
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  const debouncedPayload = useDebounce(payload, 800);
-  useEffect(() => {
-    if (statusPage.isPublished || saveMutation.isPending) return;
-    if (JSON.stringify(debouncedPayload) === savedPayloadRef.current) return;
-    if (debouncedPayload.name.length === 0 || slugStatus === 'taken' || slugStatus === 'invalid') return;
-    saveMutation.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mutate on settled draft changes only
-  }, [debouncedPayload]);
-
   const incidentMonitors = useMemo(
     () =>
       form.monitorRows
@@ -186,21 +141,6 @@ export function StatusPageEditor({
     setCopied(true);
     setTimeout(() => setCopied(false), 1400);
   };
-
-  const slugStatusLabel =
-    slugStatus === 'idle' ? null : (
-      <span
-        className={
-          slugStatus === 'available'
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : slugStatus === 'checking'
-              ? 'text-muted-foreground'
-              : 'text-destructive'
-        }
-      >
-        {t(`slugStatus.${slugStatus}`)}
-      </span>
-    );
 
   const livePreview = (
     <LivePreview
@@ -292,137 +232,24 @@ export function StatusPageEditor({
 
         {activeTab === 'incidents' ? (
           <div className='mt-6'>
-            <IncidentsManager dashboardId={dashboardId} statusPageId={statusPage.id} monitors={incidentMonitors} />
+            <IncidentsTab dashboardId={dashboardId} statusPageId={statusPage.id} monitors={incidentMonitors} />
           </div>
         ) : (
           <div className='mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:items-start'>
             <div className='space-y-8'>
               {activeTab === 'general' && (
-                <>
-                  <Section title={t('pageDetails')} description={t('pageDetailsHint')}>
-                    <div className='bg-card border-border space-y-4 rounded-xl border p-5'>
-                      {/* Page name and Public URL stack on smaller screens (so the URL isn't cramped),
-                          but share a row once there's room for both at 2xl. */}
-                      <div className='grid gap-4 2xl:grid-cols-2 2xl:items-start'>
-                        <div className='space-y-2'>
-                          <Label htmlFor='sp-name'>{t('pageName')}</Label>
-                          <Input
-                            id='sp-name'
-                            value={form.name}
-                            maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
-                            onChange={(e) => form.setName(e.target.value)}
-                          />
-                        </div>
-                        <div className='space-y-2'>
-                          <Label htmlFor='sp-slug'>{t('publicUrl')}</Label>
-                          <div className='flex items-stretch'>
-                            <span className='border-input bg-muted text-muted-foreground flex flex-none items-center rounded-l-md border border-r-0 px-3 font-mono text-sm whitespace-nowrap'>
-                              {publicHost}/status/
-                            </span>
-                            <Input
-                              id='sp-slug'
-                              value={form.slug}
-                              maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
-                              onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
-                              className='min-w-0 flex-1 rounded-l-none font-mono'
-                            />
-                          </div>
-                          <div className='flex justify-between text-xs'>
-                            {statusPage.isPublished && form.slug !== statusPage.slug ? (
-                              <span className='text-amber-600 dark:text-amber-400'>{t('slugWarning')}</span>
-                            ) : (
-                              <span />
-                            )}
-                            {slugStatusLabel}
-                          </div>
-                        </div>
-                      </div>
-                      <div className='grid gap-4 sm:grid-cols-2'>
-                        <ComingSoonField
-                          id='sp-homepage'
-                          label={t('homepageUrl')}
-                          hint={t('homepageUrlHint')}
-                          placeholder='https://example.com'
-                          type='url'
-                        />
-                        <ComingSoonField
-                          id='sp-domain'
-                          label={t('customDomain')}
-                          hint={t('customDomainHint')}
-                          placeholder='status.example.com'
-                        />
-                      </div>
-                      <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
-                        <div>
-                          <div className='text-sm font-medium'>{t('showPastIncidents')}</div>
-                          <p className='text-muted-foreground mt-0.5 text-xs'>{t('showPastIncidentsHint')}</p>
-                        </div>
-                        <Switch
-                          checked={form.showPastIncidents}
-                          onCheckedChange={form.setShowPastIncidents}
-                          aria-label={t('showPastIncidents')}
-                        />
-                      </div>
-                    </div>
-                  </Section>
-
-                  <Section title={t('visibility.title')} description={t('visibility.hint')} aside={<ComingSoonBadge />}>
-                    <VisibilityRadioGroup />
-                  </Section>
-                </>
+                <GeneralTab
+                  form={form}
+                  slugStatus={slugStatus}
+                  publicHost={publicHost}
+                  isPublished={statusPage.isPublished}
+                  savedSlug={statusPage.slug}
+                />
               )}
-
               {activeTab === 'customize' && (
-                <>
-                  <Section title={t('branding')} description={t('brandHint')}>
-                    <div className='bg-card border-border space-y-5 rounded-xl border p-5'>
-                      <LogoUploadField
-                        dashboardId={dashboardId}
-                        statusPageId={statusPage.id}
-                        logoUrl={form.logoUrl}
-                        onLogoChange={form.setLogoUrl}
-                      />
-                      <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
-                    </div>
-                  </Section>
-
-                  <Section title={t('appearance')} description={t('appearanceHint')}>
-                    <div className='bg-card border-border rounded-xl border p-5'>
-                      <ThemeField value={form.theme} onChange={form.setTheme} />
-                    </div>
-                  </Section>
-                </>
+                <CustomizeTab form={form} dashboardId={dashboardId} statusPageId={statusPage.id} />
               )}
-
-              {activeTab === 'monitors' && (
-                <Section
-                  title={t('monitors')}
-                  description={t('monitorsDescription')}
-                  aside={
-                    <span className='text-muted-foreground flex-none text-xs whitespace-nowrap'>
-                      {t('monitorsHint', { selected: form.includedCount, total: form.monitorRows.length })}
-                    </span>
-                  }
-                >
-                  <SortableList
-                    items={form.monitorRows}
-                    getId={(row) => row.monitorCheckId}
-                    onReorder={(next) => form.setMonitorRows(next)}
-                    className='bg-card border-border overflow-hidden rounded-xl border'
-                  >
-                    {form.monitorRows.map((row, index) => (
-                      <SortableMonitorRow
-                        key={row.monitorCheckId}
-                        row={row}
-                        index={index}
-                        includedCount={form.includedCount}
-                        onToggleIncluded={(included) => form.updateRow(index, { included })}
-                        onPublicNameChange={(publicName) => form.updateRow(index, { publicName })}
-                      />
-                    ))}
-                  </SortableList>
-                </Section>
-              )}
+              {activeTab === 'monitors' && <MonitorsTab form={form} />}
             </div>
 
             <div className='lg:sticky lg:top-4'>{livePreview}</div>

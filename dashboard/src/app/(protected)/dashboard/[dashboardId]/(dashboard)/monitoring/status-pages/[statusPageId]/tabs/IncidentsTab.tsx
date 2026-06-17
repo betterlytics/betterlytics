@@ -47,7 +47,7 @@ import {
 
 type MonitorOption = { monitorCheckId: string; publicName: string };
 
-type IncidentsManagerProps = {
+type IncidentsTabProps = {
   dashboardId: string;
   statusPageId: string;
   monitors: MonitorOption[];
@@ -107,7 +107,7 @@ function emptyForm(): IncidentForm {
   };
 }
 
-export function IncidentsManager({ dashboardId, statusPageId, monitors }: IncidentsManagerProps) {
+export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
   const router = useRouter();
