@@ -1,29 +1,13 @@
 'use client';
 
 import { Fragment, useCallback, useRef, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import {
-  Check,
-  Copy,
-  ExternalLink,
-  Loader2,
-  Maximize2,
-  MoveLeft,
-  MoveRight,
-  Plus,
-  Search,
-  Upload,
-  X,
-} from 'lucide-react';
+import { Check, Maximize2, MoveLeft, MoveRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Spinner } from '@/components/ui/spinner';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import {
@@ -35,28 +19,23 @@ import {
   DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { STATUS_PAGE_DEFAULT_ACCENT_COLOR, STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage.entities';
 import { ConfirmDialog } from '@/components/dialogs';
-import { SortableList } from '@/components/dnd/SortableList';
 import {
   createStatusPageAction,
   fetchStatusPageDraftPreviewAction,
   setStatusPagePublishedAction,
   suggestStatusPageDefaultsAction,
 } from '@/app/actions/analytics/statusPage.actions';
-import { formatPercentage } from '@/utils/formatters';
-import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { FlowOverlay } from './shared/FlowOverlay';
 import { FlowOverlayHeader } from './shared/FlowOverlayHeader';
 import { LivePreview } from './shared/LivePreview';
-import { SortableNameRow } from './shared/SortableNameRow';
-import { AccentColorField } from './shared/AccentColorField';
-import { ThemeField } from './shared/ThemeField';
-import { VisibilityRadioGroup } from './shared/VisibilityRadioGroup';
-import { ComingSoonBadge, ComingSoonField } from './shared/ComingSoonField';
 import { useStatusPageFormState } from './shared/useStatusPageFormState';
 import { useSlugAvailability } from './shared/useSlugAvailability';
-import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { SelectStep } from './wizard/SelectStep';
+import { CustomizeStep } from './wizard/CustomizeStep';
+import { PublishStep } from './wizard/PublishStep';
+import { PublishSuccess } from './wizard/PublishSuccess';
 import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { useCreateMonitor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/shared/hooks/useCreateMonitor';
 import { CreateMonitorForm } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/CreateMonitorForm';
@@ -267,16 +246,13 @@ function WizardForm({
   onClose,
 }: CreateStatusPageWizardProps & { defaults: WizardDefaults }) {
   const t = useTranslations('statusPagesPage.editor');
-  const tStatus = useTranslations('monitoring.status');
   const tMonitorForm = useTranslations('monitoringPage.form');
-  const locale = useLocale();
   const router = useRouter();
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [createMonitorOpen, setCreateMonitorOpen] = useState(false);
-  const [search, setSearch] = useState('');
   const [created, setCreated] = useState<{ id: string; slug: string } | null>(null);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
@@ -297,22 +273,6 @@ function WizardForm({
     })),
   });
   const slugStatus = useSlugAvailability({ dashboardId, slug: form.slug });
-
-  const includedRows = form.monitorRows.filter((row) => row.included);
-  const excludedRows = form.monitorRows.filter((row) => !row.included);
-  const allSelected = form.monitorRows.length > 0 && form.monitorRows.every((row) => row.included);
-  const toggleAll = (checked: boolean) =>
-    form.setMonitorRows((rows) => rows.map((row) => ({ ...row, included: checked })));
-  const { caps } = useCapabilities();
-  const atMonitorLimit = form.monitorRows.length >= caps.monitoring.maxMonitors;
-  const normalizedSearch = search.trim().toLowerCase();
-  const filteredRows = normalizedSearch
-    ? form.monitorRows.filter(
-        (row) =>
-          (row.name ?? '').toLowerCase().includes(normalizedSearch) ||
-          row.url.toLowerCase().includes(normalizedSearch),
-      )
-    : form.monitorRows;
 
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
@@ -419,55 +379,13 @@ function WizardForm({
   markPendingRef.current = markCreateMonitorPending;
 
   if (created) {
-    const publicUrl = `${publicBaseUrl}/status/${created.slug}`;
     return (
-      <>
-        <FlowOverlayHeader
-          title={t('wizard.title')}
-          closeAriaLabel={t('wizard.close')}
-          onClose={() => router.push(`/dashboard/${dashboardId}/monitoring/status-pages`)}
-        />
-        <div className='flex-1 overflow-y-auto'>
-          <div className='mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 text-center'>
-          <span className='flex h-13 w-13 items-center justify-center rounded-full bg-emerald-500 shadow-[0_0_0_8px_rgba(34,197,94,0.15)]'>
-            <Check className='h-6 w-6 text-white' strokeWidth={3} aria-hidden />
-          </span>
-          <h2 className='mt-5 text-xl font-bold'>{t('publishSuccess.title')}</h2>
-          <p className='text-muted-foreground mt-2 text-sm'>{t('publishSuccess.description')}</p>
-          <div className='mt-6 flex w-full items-stretch gap-2'>
-            <div className='border-input bg-muted text-foreground flex min-w-0 flex-1 items-center rounded-md border px-3 py-2 text-sm'>
-              <span className='truncate'>{`${publicHost}/status/${created.slug}`}</span>
-            </div>
-            <Button
-              variant='outline'
-              className='flex-none cursor-pointer'
-              onClick={() => {
-                navigator.clipboard.writeText(publicUrl);
-                toast.success(t('publishSuccess.copied'));
-              }}
-            >
-              <Copy className='mr-1 h-3.5 w-3.5' />
-              {t('publishSuccess.copy')}
-            </Button>
-          </div>
-          <div className='mt-6 flex gap-2'>
-            <Button
-              variant='outline'
-              className='cursor-pointer'
-              onClick={() => router.push(`/dashboard/${dashboardId}/monitoring/status-pages/${created.id}`)}
-            >
-              {t('publishSuccess.manage')}
-            </Button>
-            <Button asChild className='cursor-pointer'>
-              <a href={publicUrl} target='_blank' rel='noopener noreferrer'>
-                <ExternalLink className='mr-1 h-4 w-4' />
-                {t('publishSuccess.view')}
-              </a>
-            </Button>
-          </div>
-          </div>
-        </div>
-      </>
+      <PublishSuccess
+        dashboardId={dashboardId}
+        created={created}
+        publicHost={publicHost}
+        publicBaseUrl={publicBaseUrl}
+      />
     );
   }
 
@@ -560,315 +478,15 @@ function WizardForm({
                     : 'motion-safe:slide-in-from-left-3',
                 )}
               >
-                {step === 0 && (
-                  <div className='space-y-5'>
-                    <div className='space-y-1'>
-                      <h2 className='text-lg font-semibold'>{t('wizard.select.heading')}</h2>
-                      <p className='text-muted-foreground text-sm'>{t('wizard.select.description')}</p>
-                    </div>
-
-                    {form.monitorRows.length === 0 ? (
-                      <div className='border-border flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center'>
-                        <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
-                          <Search className='h-5 w-5' />
-                        </span>
-                        <div className='space-y-1'>
-                          <p className='text-sm font-semibold'>{t('wizard.noMonitorsTitle')}</p>
-                          <p className='text-muted-foreground mx-auto max-w-xs text-sm'>
-                            {t('wizard.noMonitors')}
-                          </p>
-                        </div>
-                        <Button
-                          size='sm'
-                          className='mt-1 cursor-pointer'
-                          disabled={atMonitorLimit}
-                          title={atMonitorLimit ? tMonitorForm('upgradeToCreate') : undefined}
-                          onClick={() => setCreateMonitorOpen(true)}
-                        >
-                          <Plus className='mr-1 h-4 w-4' />
-                          {t('wizard.createMonitor')}
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className='flex items-end justify-between gap-3'>
-                          <div className='relative w-full max-w-[240px]'>
-                            <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-                            <Input
-                              type='text'
-                              value={search}
-                              placeholder={t('wizard.searchMonitors')}
-                              onChange={(e) => setSearch(e.target.value)}
-                              className='pl-9'
-                            />
-                          </div>
-                          <label className='flex flex-none cursor-pointer items-center gap-2'>
-                            <Checkbox
-                              checked={allSelected}
-                              onCheckedChange={(checked) => toggleAll(checked === true)}
-                            />
-                            <span className='text-sm font-medium'>{t('wizard.selectAll')}</span>
-                          </label>
-                        </div>
-
-                        <div className='border-border bg-card overflow-hidden rounded-xl border'>
-                          {filteredRows.length === 0 ? (
-                            <div className='text-muted-foreground px-4 py-10 text-center text-sm'>
-                              {t('wizard.noSearchResults')}
-                            </div>
-                          ) : (
-                            filteredRows.map((row) => {
-                              const index = form.monitorRows.findIndex(
-                                (r) => r.monitorCheckId === row.monitorCheckId,
-                              );
-                              const presentation = row.operationalState
-                                ? presentMonitorStatus(row.operationalState)
-                                : null;
-                              return (
-                                <label
-                                  key={row.monitorCheckId}
-                                  className={cn(
-                                    'border-border/60 hover:bg-muted/40 flex cursor-pointer items-center gap-3.5 border-t px-4 py-3 transition first:border-t-0',
-                                    !row.included && 'opacity-50',
-                                  )}
-                                >
-                                  <Checkbox
-                                    checked={row.included}
-                                    onCheckedChange={(checked) => form.updateRow(index, { included: checked === true })}
-                                    className='flex-none'
-                                  />
-                                  <div className='min-w-0 flex-1'>
-                                    <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
-                                    <div className='text-muted-foreground truncate text-xs'>{row.url}</div>
-                                  </div>
-                                  <div className='flex flex-none items-center gap-2.5'>
-                                    {presentation && (
-                                      <span
-                                        className={cn(
-                                          'rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
-                                          presentation.theme.badgeBorder,
-                                          presentation.theme.badgeBg,
-                                          presentation.theme.text,
-                                        )}
-                                      >
-                                        {tStatus(presentation.labelKey)}
-                                      </span>
-                                    )}
-                                    <span className='text-muted-foreground w-12 text-right text-xs font-medium tabular-nums'>
-                                      {row.uptimePercent != null
-                                        ? formatPercentage(row.uptimePercent, locale, {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                            trimHundred: true,
-                                          })
-                                        : '—'}
-                                    </span>
-                                  </div>
-                                </label>
-                              );
-                            })
-                          )}
-                          <div className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-t px-4 py-3 text-xs'>
-                            <span className='text-muted-foreground'>
-                              {t('wizard.selectedCount', {
-                                selected: form.includedCount,
-                                total: form.monitorRows.length,
-                              })}
-                            </span>
-                            <span className='text-muted-foreground'>
-                              {t('wizard.noMonitorYet')}{' '}
-                              <button
-                                type='button'
-                                onClick={() => setCreateMonitorOpen(true)}
-                                disabled={atMonitorLimit}
-                                title={atMonitorLimit ? tMonitorForm('upgradeToCreate') : undefined}
-                                className='text-primary font-medium hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60 enabled:cursor-pointer'
-                              >
-                                {t('wizard.createMonitor')}
-                              </button>
-                            </span>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {step === 1 && (
-                  <div className='space-y-7'>
-                    <div className='space-y-1'>
-                      <h2 className='text-lg font-semibold'>{t('wizard.customize.heading')}</h2>
-                      <p className='text-muted-foreground text-sm'>{t('wizard.customize.description')}</p>
-                    </div>
-                    <div className='space-y-1.5'>
-                      <Label htmlFor='wiz-name'>{t('pageName')}</Label>
-                      <Input
-                        id='wiz-name'
-                        value={form.name}
-                        maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
-                        onChange={(e) => form.setName(e.target.value)}
-                      />
-                    </div>
-                    <div className='space-y-6'>
-                      <div className='flex flex-wrap items-start gap-4'>
-                        <div className='space-y-2'>
-                          <Label>{t('logo')}</Label>
-                          <button
-                            type='button'
-                            className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-36 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-dashed text-xs transition-colors'
-                          >
-                            <Upload className='h-3.5 w-3.5' />
-                            {t('uploadLogo')}
-                          </button>
-                        </div>
-                        <div className='space-y-2'>
-                          <Label>{t('favicon')}</Label>
-                          <button
-                            type='button'
-                            aria-label={t('uploadFavicon')}
-                            title={t('uploadFavicon')}
-                            className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-16 cursor-pointer items-center justify-center rounded-md border border-dashed transition-colors'
-                          >
-                            <Upload className='h-4 w-4' />
-                          </button>
-                        </div>
-                      </div>
-                      <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
-                      <ThemeField value={form.theme} onChange={form.setTheme} />
-                    </div>
-
-                    <ComingSoonField
-                      id='wiz-homepage'
-                      label={t('homepageUrl')}
-                      hint={t('homepageUrlHint')}
-                      placeholder='https://example.com'
-                      type='url'
-                      hintPosition='top'
-                    />
-
-                    <div className='flex items-center justify-between gap-4'>
-                      <div className='min-w-0 space-y-0.5'>
-                        <Label htmlFor='wiz-incidents' className='cursor-pointer'>
-                          {t('showPastIncidents')}
-                        </Label>
-                        <p className='text-muted-foreground text-xs'>{t('showPastIncidentsHint')}</p>
-                      </div>
-                      <Switch
-                        id='wiz-incidents'
-                        checked={form.showPastIncidents}
-                        onCheckedChange={form.setShowPastIncidents}
-                        className='flex-none'
-                      />
-                    </div>
-
-                    {includedRows.length > 0 && (
-                      <div className='space-y-2'>
-                        <div className='flex items-baseline justify-between'>
-                          <Label>{t('wizard.publicNames')}</Label>
-                          <span className='text-muted-foreground text-xs'>{t('wizard.dragReorder')}</span>
-                        </div>
-                        <SortableList
-                          items={includedRows}
-                          getId={(row) => row.monitorCheckId}
-                          onReorder={(next) => form.setMonitorRows([...next, ...excludedRows])}
-                          className='space-y-2'
-                        >
-                          {includedRows.map((row) => (
-                            <SortableNameRow
-                              key={row.monitorCheckId}
-                              row={row}
-                              onPublicNameChange={(publicName) =>
-                                form.updateRow(
-                                  form.monitorRows.findIndex((r) => r.monitorCheckId === row.monitorCheckId),
-                                  { publicName },
-                                )
-                              }
-                            />
-                          ))}
-                        </SortableList>
-                      </div>
-                    )}
-                  </div>
-                )}
-
+                {step === 0 && <SelectStep form={form} onCreateMonitor={() => setCreateMonitorOpen(true)} />}
+                {step === 1 && <CustomizeStep form={form} />}
                 {step === 2 && (
-                  <div className='space-y-6'>
-                    <div className='space-y-1'>
-                      <h2 className='text-lg font-semibold'>{t('wizard.publish.heading')}</h2>
-                      <p className='text-muted-foreground text-sm'>{t('wizard.publish.description')}</p>
-                    </div>
-
-                    <div className='space-y-2'>
-                      <Label htmlFor='wiz-slug'>{t('publicUrl')}</Label>
-                      <div className='flex items-center gap-1.5'>
-                        <div className='flex min-w-0 flex-1 items-stretch'>
-                          <span className='border-input bg-muted text-muted-foreground flex max-w-[45%] min-w-0 items-center rounded-l-md border border-r-0 px-3 text-sm'>
-                            <span className='truncate'>{publicHost}/status/</span>
-                          </span>
-                          <div className='relative min-w-0 flex-1'>
-                            <Input
-                              id='wiz-slug'
-                              value={form.slug}
-                              maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
-                              onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
-                              className='rounded-l-none pr-9'
-                            />
-                            <span className='absolute top-1/2 right-2.5 -translate-y-1/2'>
-                              {slugStatus === 'checking' && (
-                                <Loader2
-                                  className='text-muted-foreground h-4 w-4 animate-spin'
-                                  aria-label={t('slugStatus.checking')}
-                                />
-                              )}
-                              {slugStatus === 'available' && (
-                                <Check
-                                  className='h-4 w-4 text-emerald-500'
-                                  aria-label={t('slugStatus.available')}
-                                />
-                              )}
-                              {(slugStatus === 'taken' || slugStatus === 'invalid') && (
-                                <X
-                                  className='text-destructive h-4 w-4'
-                                  aria-label={t(`slugStatus.${slugStatus}`)}
-                                />
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            navigator.clipboard.writeText(`${publicBaseUrl}/status/${form.slug}`);
-                            toast.success(t('publishSuccess.copied'));
-                          }}
-                          aria-label={t('publishSuccess.copy')}
-                          title={t('publishSuccess.copy')}
-                          className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-9 w-9 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-                        >
-                          <Copy className='h-4 w-4' />
-                        </button>
-                      </div>
-                      {(slugStatus === 'taken' || slugStatus === 'invalid') && (
-                        <p className='text-destructive text-xs'>{t(`slugStatus.${slugStatus}`)}</p>
-                      )}
-                    </div>
-
-                    <ComingSoonField
-                      id='wiz-domain'
-                      label={t('customDomain')}
-                      hint={t('customDomainHint')}
-                      placeholder='status.example.com'
-                      hintPosition='top'
-                    />
-
-                    <div className='space-y-2'>
-                      <div className='flex items-center gap-2'>
-                        <Label>{t('visibility.title')}</Label>
-                        <ComingSoonBadge />
-                      </div>
-                      <VisibilityRadioGroup />
-                    </div>
-                  </div>
+                  <PublishStep
+                    form={form}
+                    slugStatus={slugStatus}
+                    publicHost={publicHost}
+                    publicBaseUrl={publicBaseUrl}
+                  />
                 )}
               </div>
             </div>
@@ -877,27 +495,25 @@ function WizardForm({
           <aside className='hidden min-h-0 w-[500px] flex-none overflow-y-auto lg:block'>
             <div className='min-h-full py-8 pr-2 pl-6 sm:py-10'>
               {previewQuery.data ? (
-                <>
-                  <div className='group relative'>
-                    <LivePreview
-                      payload={previewQuery.data.payload}
-                      messages={previewQuery.data.messages}
-                      publicHost={publicHost}
-                      draft={form.previewDraft}
-                    />
-                    <button
-                      type='button'
-                      onClick={() => setPreviewOpen(true)}
-                      aria-label={t('wizard.enlargePreview')}
-                      className='absolute inset-0 flex cursor-pointer items-center justify-center rounded-xl opacity-0 transition-opacity hover:bg-black/30 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
-                    >
-                      <span className='flex items-center gap-1.5 rounded-md bg-black/70 px-3 py-1.5 text-xs font-medium text-white shadow-sm'>
-                        <Maximize2 className='h-3.5 w-3.5' />
-                        {t('wizard.enlargePreview')}
-                      </span>
-                    </button>
-                  </div>
-                </>
+                <div className='group relative'>
+                  <LivePreview
+                    payload={previewQuery.data.payload}
+                    messages={previewQuery.data.messages}
+                    publicHost={publicHost}
+                    draft={form.previewDraft}
+                  />
+                  <button
+                    type='button'
+                    onClick={() => setPreviewOpen(true)}
+                    aria-label={t('wizard.enlargePreview')}
+                    className='absolute inset-0 flex cursor-pointer items-center justify-center rounded-xl opacity-0 transition-opacity hover:bg-black/30 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
+                  >
+                    <span className='flex items-center gap-1.5 rounded-md bg-black/70 px-3 py-1.5 text-xs font-medium text-white shadow-sm'>
+                      <Maximize2 className='h-3.5 w-3.5' />
+                      {t('wizard.enlargePreview')}
+                    </span>
+                  </button>
+                </div>
               ) : previewQuery.isError ? (
                 <p className='text-muted-foreground pt-10 text-sm'>{t('error')}</p>
               ) : (
@@ -1011,11 +627,7 @@ export function CreateStatusPageWizard({
         />
       ) : (
         <>
-          <FlowOverlayHeader
-            title={t('wizard.title')}
-            closeAriaLabel={t('wizard.close')}
-            onClose={onClose}
-          />
+          <FlowOverlayHeader title={t('wizard.title')} closeAriaLabel={t('wizard.close')} onClose={onClose} />
           <div className='flex flex-1 items-center justify-center py-20'>
             {defaultsQuery.isError ? (
               <p className='text-muted-foreground text-sm'>{t('error')}</p>

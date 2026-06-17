@@ -78,3 +78,5 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     previewDraft,
   };
 }
+
+export type StatusPageFormState = ReturnType<typeof useStatusPageFormState>;

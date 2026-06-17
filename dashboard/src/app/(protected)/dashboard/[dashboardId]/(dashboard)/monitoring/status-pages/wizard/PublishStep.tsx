@@ -1,0 +1,100 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { Check, Copy, Loader2, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
+import { type SlugStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/constants';
+import {
+  ComingSoonBadge,
+  ComingSoonField,
+} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ComingSoonField';
+import { VisibilityRadioGroup } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/VisibilityRadioGroup';
+import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
+
+type PublishStepProps = {
+  form: StatusPageFormState;
+  slugStatus: SlugStatus;
+  publicHost: string;
+  publicBaseUrl: string;
+};
+
+export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl }: PublishStepProps) {
+  const t = useTranslations('statusPagesPage.editor');
+
+  return (
+    <div className='space-y-6'>
+      <div className='space-y-1'>
+        <h2 className='text-lg font-semibold'>{t('wizard.publish.heading')}</h2>
+        <p className='text-muted-foreground text-sm'>{t('wizard.publish.description')}</p>
+      </div>
+
+      <div className='space-y-2'>
+        <Label htmlFor='wiz-slug'>{t('publicUrl')}</Label>
+        <div className='flex items-center gap-1.5'>
+          <div className='flex min-w-0 flex-1 items-stretch'>
+            <span className='border-input bg-muted text-muted-foreground flex max-w-[45%] min-w-0 items-center rounded-l-md border border-r-0 px-3 text-sm'>
+              <span className='truncate'>{publicHost}/status/</span>
+            </span>
+            <div className='relative min-w-0 flex-1'>
+              <Input
+                id='wiz-slug'
+                value={form.slug}
+                maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
+                onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
+                className='rounded-l-none pr-9'
+              />
+              <span className='absolute top-1/2 right-2.5 -translate-y-1/2'>
+                {slugStatus === 'checking' && (
+                  <Loader2
+                    className='text-muted-foreground h-4 w-4 animate-spin'
+                    aria-label={t('slugStatus.checking')}
+                  />
+                )}
+                {slugStatus === 'available' && (
+                  <Check className='h-4 w-4 text-emerald-500' aria-label={t('slugStatus.available')} />
+                )}
+                {(slugStatus === 'taken' || slugStatus === 'invalid') && (
+                  <X className='text-destructive h-4 w-4' aria-label={t(`slugStatus.${slugStatus}`)} />
+                )}
+              </span>
+            </div>
+          </div>
+          <button
+            type='button'
+            onClick={() => {
+              navigator.clipboard.writeText(`${publicBaseUrl}/status/${form.slug}`);
+              toast.success(t('publishSuccess.copied'));
+            }}
+            aria-label={t('publishSuccess.copy')}
+            title={t('publishSuccess.copy')}
+            className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-9 w-9 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
+          >
+            <Copy className='h-4 w-4' />
+          </button>
+        </div>
+        {(slugStatus === 'taken' || slugStatus === 'invalid') && (
+          <p className='text-destructive text-xs'>{t(`slugStatus.${slugStatus}`)}</p>
+        )}
+      </div>
+
+      <ComingSoonField
+        id='wiz-domain'
+        label={t('customDomain')}
+        hint={t('customDomainHint')}
+        placeholder='status.example.com'
+        hintPosition='top'
+      />
+
+      <div className='space-y-2'>
+        <div className='flex items-center gap-2'>
+          <Label>{t('visibility.title')}</Label>
+          <ComingSoonBadge />
+        </div>
+        <VisibilityRadioGroup />
+      </div>
+    </div>
+  );
+}
