@@ -3976,6 +3976,13 @@
     "editor": {
       "back": "Status Pages",
       "save": "Save changes",
+      "discard": "Discard changes",
+      "confirmLeave": {
+        "title": "Leave with unsaved changes?",
+        "description": "You've made changes that haven't been saved. If you leave now, they'll be lost.",
+        "stay": "Keep editing",
+        "leave": "Leave"
+      },
       "statusPublished": "Published",
       "statusDraft": "Draft",
       "viewPage": "View page",

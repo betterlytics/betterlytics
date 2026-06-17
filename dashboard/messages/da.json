@@ -3982,6 +3982,13 @@
     "editor": {
       "back": "Statussider",
       "save": "Gem ændringer",
+      "discard": "Kassér ændringer",
+      "confirmLeave": {
+        "title": "Forlad med ugemte ændringer?",
+        "description": "Du har lavet ændringer, der ikke er gemt. Hvis du forlader siden nu, går de tabt.",
+        "stay": "Fortsæt redigering",
+        "leave": "Forlad"
+      },
       "statusPublished": "Udgivet",
       "statusDraft": "Kladde",
       "viewPage": "Vis side",

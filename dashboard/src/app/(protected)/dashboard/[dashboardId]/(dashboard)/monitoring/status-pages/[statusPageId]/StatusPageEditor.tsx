@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { ConfirmDialog } from '@/components/dialogs';
 import {
   defaultPublicMonitorName,
   type StatusPagePreviewPayload,
@@ -20,6 +21,7 @@ import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LivePreview';
 import { type MonitorRow } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
 import { useStatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
+import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { useSlugAvailability } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useSlugAvailability';
 import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import { GeneralTab } from './tabs/GeneralTab';
@@ -86,6 +88,7 @@ export function StatusPageEditor({
 
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('incidents');
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   const slugStatus = useSlugAvailability({
     dashboardId,
@@ -107,17 +110,46 @@ export function StatusPageEditor({
     [statusPage.id, form.name, form.slug, form.theme, form.accentColor, form.showPastIncidents, form.monitorsPayload],
   );
 
-  const savedPayloadRef = useRef(JSON.stringify(payload));
-  const isDirty = JSON.stringify(payload) !== savedPayloadRef.current;
+  const { isDirty, markSaved } = useUnsavedChanges(payload);
+
+  const savedSnapshotRef = useRef({
+    name: statusPage.name,
+    slug: statusPage.slug,
+    theme: statusPage.theme,
+    accentColor: statusPage.accentColor,
+    showPastIncidents: statusPage.showPastIncidents,
+    monitorRows: initialMonitorRows,
+  });
 
   const saveMutation = useMutation({
     mutationFn: async () => updateStatusPageAction(dashboardId, payload),
     onSuccess: () => {
-      savedPayloadRef.current = JSON.stringify(payload);
+      markSaved();
+      savedSnapshotRef.current = {
+        name: form.name,
+        slug: form.slug,
+        theme: form.theme,
+        accentColor: form.accentColor,
+        showPastIncidents: form.showPastIncidents,
+        monitorRows: form.monitorRows,
+      };
       router.refresh();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
+
+  const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
+
+  const handleBackClick = useCallback(
+    (event: React.MouseEvent) => {
+      if (!isDirty) return;
+      event.preventDefault();
+      setShowLeaveConfirm(true);
+    },
+    [isDirty],
+  );
+
+  const backHref = `/dashboard/${dashboardId}/monitoring/status-pages`;
 
   const incidentMonitors = useMemo(
     () =>
@@ -153,7 +185,8 @@ export function StatusPageEditor({
     <div>
       {/* Persistent top bar */}
       <Link
-        href={`/dashboard/${dashboardId}/monitoring/status-pages`}
+        href={backHref}
+        onClick={handleBackClick}
         className='text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1.5 text-sm'
       >
         <ArrowLeft className='h-3.5 w-3.5' />
@@ -213,18 +246,32 @@ export function StatusPageEditor({
             <UnderlineTabsTrigger value='monitors'>{t('tabs.monitors')}</UnderlineTabsTrigger>
           </UnderlineTabsList>
           {CONFIG_TABS.includes(activeTab) && (
-            <PermissionGate>
-              {(disabled) => (
+            <div className='mb-2 flex items-center gap-2'>
+              {isDirty && (
                 <Button
+                  type='button'
+                  variant='ghost'
                   size='sm'
-                  disabled={disabled || saveDisabled || saveMutation.isPending}
-                  onClick={() => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) })}
-                  className='mb-2 cursor-pointer'
+                  disabled={saveMutation.isPending}
+                  onClick={handleDiscard}
+                  className='cursor-pointer'
                 >
-                  {t('save')}
+                  {t('discard')}
                 </Button>
               )}
-            </PermissionGate>
+              <PermissionGate>
+                {(disabled) => (
+                  <Button
+                    size='sm'
+                    disabled={disabled || saveDisabled || saveMutation.isPending}
+                    onClick={() => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) })}
+                    className='cursor-pointer'
+                  >
+                    {t('save')}
+                  </Button>
+                )}
+              </PermissionGate>
+            </div>
           )}
         </div>
 
@@ -254,6 +301,19 @@ export function StatusPageEditor({
           </div>
         )}
       </UnderlineTabs>
+
+      <ConfirmDialog
+        open={showLeaveConfirm}
+        onOpenChange={setShowLeaveConfirm}
+        title={t('confirmLeave.title')}
+        description={t('confirmLeave.description')}
+        cancelLabel={t('confirmLeave.stay')}
+        confirmLabel={t('confirmLeave.leave')}
+        onConfirm={() => {
+          setShowLeaveConfirm(false);
+          router.push(backHref);
+        }}
+      />
     </div>
   );
 }

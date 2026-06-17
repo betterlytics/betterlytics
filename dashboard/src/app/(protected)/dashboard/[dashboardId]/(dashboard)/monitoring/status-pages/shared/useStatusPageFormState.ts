@@ -30,6 +30,15 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     [],
   );
 
+  const reset = useCallback((values: Omit<StatusPageFormInitial, 'logoUrl'>) => {
+    setName(values.name);
+    setSlug(values.slug);
+    setTheme(values.theme);
+    setAccentColor(values.accentColor);
+    setShowPastIncidents(values.showPastIncidents);
+    setMonitorRows(values.monitorRows);
+  }, []);
+
   const includedCount = useMemo(() => monitorRows.filter((row) => row.included).length, [monitorRows]);
 
   const monitorsPayload = useMemo(
@@ -73,6 +82,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     monitorRows,
     setMonitorRows,
     updateRow,
+    reset,
     includedCount,
     monitorsPayload,
     previewDraft,

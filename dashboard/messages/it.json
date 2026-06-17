@@ -3990,6 +3990,13 @@
     "editor": {
       "back": "Pagine di stato",
       "save": "Salva modifiche",
+      "discard": "Annulla modifiche",
+      "confirmLeave": {
+        "title": "Uscire con modifiche non salvate?",
+        "description": "Hai apportato modifiche che non sono state salvate. Se esci ora, andranno perse.",
+        "stay": "Continua a modificare",
+        "leave": "Esci"
+      },
       "statusPublished": "Pubblicato",
       "statusDraft": "Bozza",
       "viewPage": "Vedi pagina",

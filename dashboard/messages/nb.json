@@ -3990,6 +3990,13 @@
     "editor": {
       "back": "Statussider",
       "save": "Lagre endringer",
+      "discard": "Forkast endringer",
+      "confirmLeave": {
+        "title": "Forlate med ulagrede endringer?",
+        "description": "Du har gjort endringer som ikke er lagret. Hvis du forlater nå, går de tapt.",
+        "stay": "Fortsett redigering",
+        "leave": "Forlat"
+      },
       "statusPublished": "Publisert",
       "statusDraft": "Utkast",
       "viewPage": "Vis side",
