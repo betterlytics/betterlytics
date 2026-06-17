@@ -43,6 +43,7 @@ import { deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actio
 import type { StatusPageListItem } from '@/entities/analytics/statusPage.entities';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
+import { MonitoringTooltip } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/[monitorId]/MonitoringTooltip';
 import { StatusPagesEmptyState } from './StatusPagesEmptyState';
 import { CreateStatusPageWizard } from './CreateStatusPageWizard';
 
@@ -196,7 +197,7 @@ export function StatusPagesClient({
                 <span>{page.isPublished ? t('badge.public') : t('badge.draft')}</span>
               </div>
 
-              <div className='flex min-w-0 flex-wrap items-center gap-1.5'>
+              <div className='relative z-10 flex w-fit min-w-0 flex-wrap items-center gap-1.5'>
                 {page.monitors.length === 0 ? (
                   <span className='text-muted-foreground/70 text-xs'>{t('monitorsEmpty')}</span>
                 ) : (
@@ -204,15 +205,21 @@ export function StatusPagesClient({
                     const presentation = presentMonitorStatus(
                       monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
                     );
+                    const statusLabel = tStatus(presentation.labelKey);
                     return (
-                      <span
+                      <MonitoringTooltip
                         key={`${monitor.monitorCheckId}-${index}`}
-                        title={`${monitor.publicName} — ${tStatus(presentation.labelKey)}`}
-                        className={cn(
-                          'h-2 w-2 shrink-0 cursor-default rounded-full transition-transform hover:scale-150',
-                          presentation.theme.dot,
-                        )}
-                      />
+                        title={t('monitorLabel')}
+                        description={monitor.publicName}
+                      >
+                        <span
+                          aria-label={`${monitor.publicName} — ${statusLabel}`}
+                          className={cn(
+                            'h-2 w-2 shrink-0 cursor-pointer rounded-full transition-transform hover:scale-150',
+                            presentation.theme.dot,
+                          )}
+                        />
+                      </MonitoringTooltip>
                     );
                   })
                 )}

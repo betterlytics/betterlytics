@@ -4218,6 +4218,7 @@
       "operationalTitle": "Alle statussider er operative",
       "operationalDescription": "Ingen aktive hendelser."
     },
-    "monitorsEmpty": "Ingen monitorer"
+    "monitorsEmpty": "Ingen monitorer",
+    "monitorLabel": "Monitor"
   }
 }
