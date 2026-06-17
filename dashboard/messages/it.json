@@ -4025,6 +4025,7 @@
       "pageDetails": "Dettagli pagina",
       "pageDetailsHint": "Nomi e indirizzi della tua pagina di stato pubblica.",
       "pageName": "Nome pagina",
+      "nameRequired": "Il nome della pagina è obbligatorio.",
       "publicUrl": "URL pubblico",
       "slugStatus": {
         "checking": "Verifica in corso…",
@@ -4068,6 +4069,7 @@
       "showPastIncidentsHint": "Mostra una cronologia degli incidenti risolti sulla tua pagina pubblica.",
       "monitors": "Monitor",
       "monitorsHint": "{selected} di {total} visibili",
+      "minMonitorsHint": "Aggiungi almeno un monitor per salvare le modifiche.",
       "monitorsDescription": "Trascina per riordinare, attiva/disattiva la visibilità e imposta i nomi pubblici.",
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
@@ -4118,6 +4120,7 @@
         "noMonitorYet": "Non lo vedi?",
         "createMonitor": "Crea un monitor",
         "selectedCount": "{selected} di {total} monitor selezionati",
+        "minMonitors": "Seleziona almeno un monitor per continuare.",
         "publicNames": "Nomi pubblici e ordine",
         "dragReorder": "Trascina per riordinare",
         "confirmDiscard": {

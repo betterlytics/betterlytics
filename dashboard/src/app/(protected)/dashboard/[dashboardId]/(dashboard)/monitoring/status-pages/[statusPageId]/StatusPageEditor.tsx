@@ -138,8 +138,9 @@ export function StatusPageEditor({
   );
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
+  const noMonitors = form.includedCount === 0;
   const saveDisabled =
-    !isDirty || form.isNameEmpty || slugStatus === 'taken' || slugStatus === 'invalid';
+    !isDirty || form.isNameEmpty || noMonitors || slugStatus === 'taken' || slugStatus === 'invalid';
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -239,6 +240,7 @@ export function StatusPageEditor({
                   <Button
                     size='sm'
                     disabled={disabled || saveDisabled || saveMutation.isPending}
+                    title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
                     onClick={() => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) })}
                     className='cursor-pointer'
                   >

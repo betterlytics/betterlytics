@@ -7,7 +7,7 @@ import { Pencil } from 'lucide-react';
 
 import { DragHandle } from '@/components/dnd/DragHandle';
 import { Input } from '@/components/ui/input';
-import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS, defaultPublicMonitorName } from '@/entities/analytics/statusPage.entities';
 import { cn } from '@/lib/utils';
 import type { MonitorRow } from './SortableMonitorRow';
 
@@ -45,7 +45,7 @@ export function SortableNameRow({ row, onPublicNameChange }: SortableNameRowProp
             aria-label={t('publicNamePlaceholder')}
             value={row.publicName}
             maxLength={STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX}
-            placeholder={t('publicNamePlaceholder')}
+            placeholder={defaultPublicMonitorName(row)}
             onChange={(e) => onPublicNameChange(e.target.value)}
             className='hover:bg-muted/50 focus-visible:bg-background dark:focus-visible:bg-input/30 h-7 w-full truncate border-transparent bg-transparent px-2 pr-8 text-sm font-medium shadow-none transition-colors dark:bg-transparent'
           />

@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { DragHandle } from '@/components/dnd/DragHandle';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { STATUS_PAGE_LIMITS, monitorRowLabel } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS, defaultPublicMonitorName, monitorRowLabel } from '@/entities/analytics/statusPage.entities';
 import { type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { cn } from '@/lib/utils';
 
@@ -76,7 +76,7 @@ export function SortableMonitorRow({
       <Input
         value={row.publicName}
         maxLength={STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX}
-        placeholder={t('publicNamePlaceholder')}
+        placeholder={defaultPublicMonitorName(row)}
         disabled={!row.included}
         onChange={(e) => onPublicNameChange(e.target.value)}
         className='sm:w-56 sm:flex-none'

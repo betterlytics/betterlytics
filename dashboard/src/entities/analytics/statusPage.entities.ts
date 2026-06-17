@@ -76,7 +76,10 @@ export const StatusPageCreateSchema = z.object({
   accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
   logoUrl: z.string().nullable().optional(),
   showPastIncidents: z.boolean().default(true),
-  monitors: z.array(StatusPageMonitorSelectionSchema).max(STATUS_PAGE_LIMITS.MONITORS_MAX).default([]),
+  monitors: z
+    .array(StatusPageMonitorSelectionSchema)
+    .min(1, 'Select at least one monitor')
+    .max(STATUS_PAGE_LIMITS.MONITORS_MAX),
 });
 export type StatusPageCreate = z.infer<typeof StatusPageCreateSchema>;
 

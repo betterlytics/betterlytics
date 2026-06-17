@@ -139,8 +139,10 @@ export function SelectStep({ form, onCreateMonitor }: SelectStepProps) {
               })
             )}
             <div className='border-border/60 bg-muted/60 flex items-center justify-between gap-3 border-t px-4 py-3 text-xs'>
-              <span className='text-muted-foreground'>
-                {t('wizard.selectedCount', { selected: form.includedCount, total: form.monitorRows.length })}
+              <span className={cn('text-muted-foreground', form.includedCount === 0 && 'text-destructive')}>
+                {form.includedCount === 0
+                  ? t('wizard.minMonitors')
+                  : t('wizard.selectedCount', { selected: form.includedCount, total: form.monitorRows.length })}
               </span>
               <span className='text-muted-foreground'>
                 {t('wizard.noMonitorYet')}{' '}

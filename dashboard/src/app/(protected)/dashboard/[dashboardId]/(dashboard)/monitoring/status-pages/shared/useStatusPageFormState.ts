@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { type StatusPageTheme } from '@/entities/analytics/statusPage.entities';
+import { defaultPublicMonitorName, type StatusPageTheme } from '@/entities/analytics/statusPage.entities';
 import { type PreviewDraft } from './LivePreview';
 import { type MonitorRow } from './SortableMonitorRow';
 
@@ -45,7 +45,10 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     () =>
       monitorRows
         .filter((row) => row.included)
-        .map((row) => ({ monitorCheckId: row.monitorCheckId, publicName: row.publicName.trim() })),
+        .map((row) => ({
+          monitorCheckId: row.monitorCheckId,
+          publicName: row.publicName.trim() || defaultPublicMonitorName(row),
+        })),
     [monitorRows],
   );
 

@@ -4011,6 +4011,7 @@
       "pageDetails": "Page details",
       "pageDetailsHint": "Names and addresses for your public status page.",
       "pageName": "Page name",
+      "nameRequired": "Page name is required.",
       "publicUrl": "Public URL",
       "slugStatus": {
         "checking": "Checking…",
@@ -4054,6 +4055,7 @@
       "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
       "monitors": "Monitors",
       "monitorsHint": "{selected} of {total} shown",
+      "minMonitorsHint": "Add at least one monitor to save changes.",
       "monitorsDescription": "Drag to reorder, toggle visibility, and set public display names.",
       "publicNamePlaceholder": "Public display name",
       "reorderMonitor": "Reorder monitor",
@@ -4104,6 +4106,7 @@
         "noMonitorYet": "Don't see one?",
         "createMonitor": "Create a monitor",
         "selectedCount": "{selected} of {total} monitors selected",
+        "minMonitors": "Select at least one monitor to continue.",
         "publicNames": "Public names & order",
         "dragReorder": "Drag to reorder",
         "confirmDiscard": {

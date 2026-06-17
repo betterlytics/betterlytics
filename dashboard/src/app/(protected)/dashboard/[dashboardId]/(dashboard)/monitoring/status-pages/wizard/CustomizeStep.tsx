@@ -34,8 +34,10 @@ export function CustomizeStep({ form }: CustomizeStepProps) {
           id='wiz-name'
           value={form.name}
           maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
+          aria-invalid={form.isNameEmpty}
           onChange={(e) => form.setName(e.target.value)}
         />
+        {form.isNameEmpty && <p className='text-destructive text-xs'>{t('nameRequired')}</p>}
       </div>
       <div className='space-y-6'>
         <div className='flex flex-wrap items-start gap-4'>

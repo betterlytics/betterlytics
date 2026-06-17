@@ -107,8 +107,9 @@ function WizardForm({
   };
 
   const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
-  const canContinue = step !== 1 || !form.isNameEmpty;
-  const canCommit = !form.isNameEmpty && !slugBlocked && !commitMutation.isPending;
+  const hasMonitors = form.includedCount > 0;
+  const canContinue = step === 0 ? hasMonitors : step === 1 ? !form.isNameEmpty : true;
+  const canCommit = hasMonitors && !form.isNameEmpty && !slugBlocked && !commitMutation.isPending;
   const isLast = step === STEPS.length - 1;
   const submittingPublish = commitMutation.isPending && commitMutation.variables === true;
   const submittingDraft = commitMutation.isPending && commitMutation.variables === false;

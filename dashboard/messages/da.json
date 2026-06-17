@@ -4017,6 +4017,7 @@
       "pageDetails": "Sidedetaljer",
       "pageDetailsHint": "Navne og adresser til din offentlige statusside.",
       "pageName": "Sidenavn",
+      "nameRequired": "Sidenavn er påkrævet.",
       "publicUrl": "Offentlig URL",
       "slugStatus": {
         "checking": "Tjekker…",
@@ -4060,6 +4061,7 @@
       "showPastIncidentsHint": "Vis en historik over løste hændelser på din offentlige side.",
       "monitors": "Monitorer",
       "monitorsHint": "{selected} af {total} vises",
+      "minMonitorsHint": "Tilføj mindst én monitor for at gemme ændringer.",
       "monitorsDescription": "Træk for at omarrangere, slå synlighed til/fra, og angiv offentlige visningsnavne.",
       "publicNamePlaceholder": "Offentligt visningsnavn",
       "reorderMonitor": "Omarranger monitor",
@@ -4110,6 +4112,7 @@
         "noMonitorYet": "Kan du ikke se den?",
         "createMonitor": "Opret en monitor",
         "selectedCount": "{selected} af {total} monitorer valgt",
+        "minMonitors": "Vælg mindst én monitor for at fortsætte.",
         "publicNames": "Offentlige navne og rækkefølge",
         "dragReorder": "Træk for at ændre rækkefølge",
         "confirmDiscard": {

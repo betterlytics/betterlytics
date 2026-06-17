@@ -18,12 +18,10 @@ type GeneralTabProps = {
   form: StatusPageFormState;
   slugStatus: SlugStatus;
   publicHost: string;
-  /** From the persisted page — drives the "changing a published slug breaks links" warning. */
   isPublished: boolean;
   savedSlug: string;
 };
 
-/** Page-settings tab: name, public URL (with live slug availability), placeholders, visibility. */
 export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlug }: GeneralTabProps) {
   const t = useTranslations('statusPagesPage.editor');
 
@@ -46,8 +44,6 @@ export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlu
     <>
       <Section title={t('pageDetails')} description={t('pageDetailsHint')}>
         <div className='bg-card border-border space-y-4 rounded-xl border p-5'>
-          {/* Page name and Public URL stack on smaller screens (so the URL isn't cramped),
-              but share a row once there's room for both at 2xl. */}
           <div className='grid gap-4 2xl:grid-cols-2 2xl:items-start'>
             <div className='space-y-2'>
               <Label htmlFor='sp-name'>{t('pageName')}</Label>
@@ -55,8 +51,10 @@ export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlu
                 id='sp-name'
                 value={form.name}
                 maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
+                aria-invalid={form.isNameEmpty}
                 onChange={(e) => form.setName(e.target.value)}
               />
+              {form.isNameEmpty && <p className='text-destructive text-xs'>{t('nameRequired')}</p>}
             </div>
             <div className='space-y-2'>
               <Label htmlFor='sp-slug'>{t('publicUrl')}</Label>
