@@ -11,7 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
-import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage.entities';
+import {
+  STATUS_PAGE_DEFAULT_ACCENT_COLOR,
+  defaultPublicMonitorName,
+} from '@/entities/analytics/statusPage.entities';
 import { ConfirmDialog } from '@/components/dialogs';
 import {
   createStatusPageAction,
@@ -325,7 +328,7 @@ function WizardForm({
               name: monitor.name ?? null,
               url: monitor.url,
               included: true,
-              publicName: monitor.name ?? monitor.url,
+              publicName: defaultPublicMonitorName(monitor),
               operationalState: 'preparing',
               uptimePercent: null,
             },

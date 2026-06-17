@@ -173,6 +173,14 @@ export function defaultPublicMonitorName(monitor: { name?: string | null; url: s
   return (monitor.name ?? new URL(monitor.url).hostname).slice(0, STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX);
 }
 
+/**
+ * Admin-facing label for a monitor in the dashboard's own lists (selection / reorder rows): its
+ * name, or the raw URL when unnamed so owners can tell rows apart.
+ */
+export function monitorRowLabel(monitor: { name?: string | null; url: string }): string {
+  return monitor.name ?? monitor.url;
+}
+
 export const StatusPageIncidentImpactSchema = z.enum(['degraded', 'outage']);
 export type StatusPageIncidentImpact = z.infer<typeof StatusPageIncidentImpactSchema>;
 

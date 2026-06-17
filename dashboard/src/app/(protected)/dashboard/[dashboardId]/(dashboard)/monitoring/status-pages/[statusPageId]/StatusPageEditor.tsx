@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import {
-  STATUS_PAGE_LIMITS,
+  defaultPublicMonitorName,
   type StatusPagePreviewPayload,
   type StatusPageWithMonitors,
 } from '@/entities/analytics/statusPage.entities';
@@ -43,8 +43,6 @@ function buildMonitorRows(
   monitors: StatusPageEditorProps['monitors'],
 ): MonitorRow[] {
   const selectionByMonitorId = new Map(statusPage.monitors.map((m) => [m.monitorCheckId, m]));
-  const defaultName = (monitor: { name: string | null; url: string }) =>
-    (monitor.name ?? new URL(monitor.url).hostname).slice(0, STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX);
 
   return monitors
     .map((monitor) => {
@@ -54,7 +52,7 @@ function buildMonitorRows(
         name: monitor.name,
         url: monitor.url,
         included: selection != null,
-        publicName: selection?.publicName ?? defaultName(monitor),
+        publicName: selection?.publicName ?? defaultPublicMonitorName(monitor),
       };
     })
     .sort((a, b) => {
@@ -127,7 +125,7 @@ export function StatusPageEditor({
         .filter((row) => row.included)
         .map((row) => ({
           monitorCheckId: row.monitorCheckId,
-          publicName: row.publicName.trim() || row.name || row.url,
+          publicName: row.publicName.trim() || defaultPublicMonitorName(row),
         })),
     [form.monitorRows],
   );

@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { DragHandle } from '@/components/dnd/DragHandle';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS, monitorRowLabel } from '@/entities/analytics/statusPage.entities';
 import { type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { cn } from '@/lib/utils';
 
@@ -65,11 +65,11 @@ export function SortableMonitorRow({
           checked={row.included}
           onCheckedChange={(checked) => onToggleIncluded(checked === true)}
           disabled={!row.included && includedCount >= STATUS_PAGE_LIMITS.MONITORS_MAX}
-          aria-label={row.name ?? row.url}
+          aria-label={monitorRowLabel(row)}
           className='flex-none cursor-pointer'
         />
         <div className='min-w-0 flex-1'>
-          <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
+          <div className='truncate text-sm font-medium'>{monitorRowLabel(row)}</div>
           <div className='text-muted-foreground truncate font-mono text-xs'>{row.url}</div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { formatPercentage } from '@/utils/formatters';
+import { monitorRowLabel } from '@/entities/analytics/statusPage.entities';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
@@ -107,7 +108,7 @@ export function SelectStep({ form, onCreateMonitor }: SelectStepProps) {
                       className='flex-none'
                     />
                     <div className='min-w-0 flex-1'>
-                      <div className='truncate text-sm font-medium'>{row.name ?? row.url}</div>
+                      <div className='truncate text-sm font-medium'>{monitorRowLabel(row)}</div>
                       <div className='text-muted-foreground truncate text-xs'>{row.url}</div>
                     </div>
                     <div className='flex flex-none items-center gap-2.5'>
