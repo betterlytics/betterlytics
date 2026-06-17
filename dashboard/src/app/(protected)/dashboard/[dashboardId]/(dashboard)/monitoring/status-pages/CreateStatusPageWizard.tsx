@@ -1,24 +1,16 @@
 'use client';
 
-import { Fragment, useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Check, Maximize2, MoveLeft, MoveRight, X } from 'lucide-react';
+import { Maximize2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage.entities';
 import { ConfirmDialog } from '@/components/dialogs';
 import {
@@ -27,21 +19,21 @@ import {
   setStatusPagePublishedAction,
   suggestStatusPageDefaultsAction,
 } from '@/app/actions/analytics/statusPage.actions';
+import { MonitorFormDialog } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/MonitorFormDialog';
 import { FlowOverlay } from './shared/FlowOverlay';
 import { FlowOverlayHeader } from './shared/FlowOverlayHeader';
 import { LivePreview } from './shared/LivePreview';
 import { useStatusPageFormState } from './shared/useStatusPageFormState';
 import { useSlugAvailability } from './shared/useSlugAvailability';
+import { STEPS, type Step } from './wizard/steps';
+import { WizardStepper } from './wizard/WizardStepper';
+import { MobileStepProgress } from './wizard/MobileStepProgress';
+import { PreviewLoadingFrame } from './wizard/PreviewLoadingFrame';
+import { WizardActions } from './wizard/WizardActions';
 import { SelectStep } from './wizard/SelectStep';
 import { CustomizeStep } from './wizard/CustomizeStep';
 import { PublishStep } from './wizard/PublishStep';
 import { PublishSuccess } from './wizard/PublishSuccess';
-import { useOverlayReset } from '@/hooks/use-overlay-reset';
-import { useCreateMonitor } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/shared/hooks/useCreateMonitor';
-import { CreateMonitorForm } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/CreateMonitorForm';
-
-const STEPS = ['select', 'customize', 'publish'] as const;
-type Step = (typeof STEPS)[number];
 
 type WizardDefaults = Awaited<ReturnType<typeof suggestStatusPageDefaultsAction>>;
 
@@ -53,190 +45,6 @@ type CreateStatusPageWizardProps = {
   onClose: () => void;
 };
 
-function WizardStepper({
-  current,
-  labels,
-  onJump,
-}: {
-  current: number;
-  labels: Record<Step, string>;
-  onJump: (index: number) => void;
-}) {
-  return (
-    <div className='flex items-center gap-3'>
-      {STEPS.map((step, index) => {
-        const done = index < current;
-        const active = index === current;
-        // The connector leading into this step is filled once we've reached it.
-        const connectorFilled = index <= current;
-        return (
-          <Fragment key={step}>
-            {index > 0 && (
-              <span className='bg-border relative h-0.5 w-8 overflow-hidden rounded-full' aria-hidden>
-                <span
-                  className={cn(
-                    'absolute inset-0 origin-left bg-emerald-500 motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out',
-                    connectorFilled ? 'scale-x-100' : 'scale-x-0',
-                  )}
-                />
-              </span>
-            )}
-            <button
-              type='button'
-              disabled={!done}
-              aria-current={active ? 'step' : undefined}
-              onClick={() => done && onJump(index)}
-              className={cn('group flex items-center gap-2', done ? 'cursor-pointer' : 'cursor-default')}
-            >
-              <span
-                className={cn(
-                  'flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold motion-safe:transition-all motion-safe:duration-300',
-                  done || active
-                    ? 'bg-emerald-500 text-emerald-950'
-                    : 'border-border text-muted-foreground border',
-                  active && 'ring-offset-background ring-2 ring-emerald-500/30 ring-offset-2',
-                )}
-              >
-                {done ? <Check className='h-3.5 w-3.5' strokeWidth={3} /> : index + 1}
-              </span>
-              <span className='grid text-xs'>
-                <span aria-hidden className='invisible col-start-1 row-start-1 font-semibold'>
-                  {labels[step]}
-                </span>
-                <span
-                  className={cn(
-                    'col-start-1 row-start-1 whitespace-nowrap transition-colors',
-                    active
-                      ? 'text-foreground font-semibold'
-                      : done
-                        ? 'text-muted-foreground group-hover:text-foreground'
-                        : 'text-muted-foreground',
-                  )}
-                >
-                  {labels[step]}
-                </span>
-              </span>
-            </button>
-          </Fragment>
-        );
-      })}
-    </div>
-  );
-}
-
-function PreviewLoadingFrame({ publicHost, slug }: { publicHost: string; slug: string }) {
-  const t = useTranslations('statusPagesPage.editor');
-  return (
-    <div className='bg-card border-border flex flex-col overflow-hidden rounded-xl border'>
-      <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
-        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
-        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
-        <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
-        <span className='bg-muted text-muted-foreground ml-2 min-w-0 flex-1 truncate rounded-md px-2.5 py-0.5 text-xs'>
-          {`${publicHost}/status/${slug}`}
-        </span>
-      </div>
-      <div className='flex min-h-[360px] flex-col items-center justify-center gap-3'>
-        <Spinner size='sm' />
-        <span className='text-muted-foreground text-sm'>{t('loadingPreview')}</span>
-      </div>
-    </div>
-  );
-}
-
-/** Compact step indicator for mobile, where the full {@link WizardStepper} is hidden. */
-function MobileStepProgress({ step }: { step: number }) {
-  const t = useTranslations('statusPagesPage.editor');
-  return (
-    <div className='border-border flex items-center gap-3 border-b px-4 py-2.5 lg:hidden'>
-      <div className='flex flex-1 gap-1.5' aria-hidden>
-        {STEPS.map((s, i) => (
-          <span key={s} className='bg-border relative h-1 flex-1 overflow-hidden rounded-full'>
-            <span
-              className={cn(
-                'absolute inset-0 origin-left rounded-full bg-emerald-500 motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out',
-                i <= step ? 'scale-x-100' : 'scale-x-0',
-              )}
-            />
-          </span>
-        ))}
-      </div>
-      <span className='text-muted-foreground grid flex-none text-xs font-medium'>
-        {STEPS.map((s, i) => (
-          <span
-            key={s}
-            aria-hidden={i !== step}
-            className={cn('col-start-1 row-start-1 text-right whitespace-nowrap', i !== step && 'invisible')}
-          >
-            {t(`wizard.steps.${s}`)}
-          </span>
-        ))}
-      </span>
-    </div>
-  );
-}
-
-/** Bottom-anchored nav/commit actions for mobile; the desktop equivalent lives in the header. */
-function MobileActionBar({
-  step,
-  isLast,
-  canContinue,
-  canCommit,
-  submittingDraft,
-  submittingPublish,
-  onBack,
-  onNext,
-  onPublish,
-  onSaveDraft,
-}: {
-  step: number;
-  isLast: boolean;
-  canContinue: boolean;
-  canCommit: boolean;
-  submittingDraft: boolean;
-  submittingPublish: boolean;
-  onBack: () => void;
-  onNext: () => void;
-  onPublish: () => void;
-  onSaveDraft: () => void;
-}) {
-  const t = useTranslations('statusPagesPage.editor');
-  return (
-    <div className='border-border flex flex-none flex-col gap-2 border-t p-3 lg:hidden'>
-      {isLast && (
-        <Button
-          variant='ghost'
-          disabled={!canCommit}
-          onClick={onSaveDraft}
-          className='text-muted-foreground w-full cursor-pointer'
-        >
-          {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
-          {t('wizard.saveDraft')}
-        </Button>
-      )}
-      <div className='flex items-center gap-2'>
-        {step > 0 && (
-          <Button variant='outline' onClick={onBack} className='flex-none cursor-pointer'>
-            <MoveLeft className='mr-1.5 h-4 w-4' />
-            {t('wizard.back')}
-          </Button>
-        )}
-        {isLast ? (
-          <Button disabled={!canCommit} onClick={onPublish} className='flex-1 cursor-pointer'>
-            {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
-            {t('publish')}
-          </Button>
-        ) : (
-          <Button disabled={!canContinue} onClick={onNext} className='flex-1 cursor-pointer'>
-            {t('wizard.continue')}
-            <MoveRight className='ml-1.5 h-4 w-4' />
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function WizardForm({
   dashboardId,
   publicHost,
@@ -246,7 +54,6 @@ function WizardForm({
   onClose,
 }: CreateStatusPageWizardProps & { defaults: WizardDefaults }) {
   const t = useTranslations('statusPagesPage.editor');
-  const tMonitorForm = useTranslations('monitoringPage.form');
   const router = useRouter();
 
   const [step, setStep] = useState(0);
@@ -350,34 +157,6 @@ function WizardForm({
     gcTime: 0,
   });
 
-  const markPendingRef = useRef<() => void>(() => {});
-  const createMonitor = useCreateMonitor({
-    dashboardId,
-    domain,
-    existingUrls: form.monitorRows.map((row) => row.url),
-    onCreated: (monitor) => {
-      form.setMonitorRows((rows) => [
-        ...rows,
-        {
-          monitorCheckId: monitor.id,
-          name: monitor.name ?? null,
-          url: monitor.url,
-          included: true,
-          publicName: monitor.name ?? monitor.url,
-          operationalState: 'preparing',
-          uptimePercent: null,
-        },
-      ]);
-      markPendingRef.current();
-      setCreateMonitorOpen(false);
-      previewQuery.refetch();
-    },
-  });
-  const { markPending: markCreateMonitorPending, onAnimationEnd: onCreateMonitorAnimationEnd } = useOverlayReset(
-    createMonitor.reset,
-  );
-  markPendingRef.current = markCreateMonitorPending;
-
   if (created) {
     return (
       <PublishSuccess
@@ -394,6 +173,19 @@ function WizardForm({
     setStep((s) => s - 1);
   };
 
+  const navProps = {
+    step,
+    isLast,
+    canContinue,
+    canCommit,
+    submittingDraft,
+    submittingPublish,
+    onBack: goBack,
+    onNext: goNext,
+    onPublish: () => commitMutation.mutate(true),
+    onSaveDraft: () => commitMutation.mutate(false),
+  };
+
   const actions = (
     <>
       <Button
@@ -407,42 +199,7 @@ function WizardForm({
         <Maximize2 className='mr-1.5 h-3.5 w-3.5' />
         {t('preview')}
       </Button>
-      <div className='hidden items-center gap-2 lg:flex'>
-        {step > 0 && (
-          <Button variant='outline' size='sm' onClick={goBack} className='cursor-pointer'>
-            <MoveLeft className='mr-1.5 h-3.5 w-3.5' />
-            {t('wizard.back')}
-          </Button>
-        )}
-        {isLast ? (
-          <>
-            <Button
-              variant='outline'
-              size='sm'
-              disabled={!canCommit}
-              onClick={() => commitMutation.mutate(false)}
-              className='cursor-pointer'
-            >
-              {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
-              {t('wizard.saveDraft')}
-            </Button>
-            <Button
-              size='sm'
-              disabled={!canCommit}
-              onClick={() => commitMutation.mutate(true)}
-              className='cursor-pointer'
-            >
-              {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
-              {t('publish')}
-            </Button>
-          </>
-        ) : (
-          <Button size='sm' disabled={!canContinue} onClick={goNext} className='cursor-pointer'>
-            {t('wizard.continue')}
-            <MoveRight className='ml-1.5 h-3.5 w-3.5' />
-          </Button>
-        )}
-      </div>
+      <WizardActions layout='header' {...navProps} />
     </>
   );
 
@@ -523,18 +280,7 @@ function WizardForm({
           </aside>
         </div>
       </div>
-      <MobileActionBar
-        step={step}
-        isLast={isLast}
-        canContinue={canContinue}
-        canCommit={canCommit}
-        submittingDraft={submittingDraft}
-        submittingPublish={submittingPublish}
-        onBack={goBack}
-        onNext={goNext}
-        onPublish={() => commitMutation.mutate(true)}
-        onSaveDraft={() => commitMutation.mutate(false)}
-      />
+      <WizardActions layout='bar' {...navProps} />
       {previewQuery.data && (
         <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
           <DialogPortal>
@@ -565,24 +311,28 @@ function WizardForm({
           </DialogPortal>
         </Dialog>
       )}
-      <Dialog open={createMonitorOpen} onOpenChange={setCreateMonitorOpen}>
-        <DialogContent
-          className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'
-          onAnimationEnd={onCreateMonitorAnimationEnd}
-        >
-          <DialogHeader>
-            <DialogTitle>{tMonitorForm('title')}</DialogTitle>
-          </DialogHeader>
-          <CreateMonitorForm
-            create={createMonitor}
-            domain={domain}
-            onCancel={() => {
-              markCreateMonitorPending();
-              setCreateMonitorOpen(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <MonitorFormDialog
+        open={createMonitorOpen}
+        onOpenChange={setCreateMonitorOpen}
+        dashboardId={dashboardId}
+        domain={domain}
+        existingUrls={form.monitorRows.map((row) => row.url)}
+        onCreated={(monitor) => {
+          form.setMonitorRows((rows) => [
+            ...rows,
+            {
+              monitorCheckId: monitor.id,
+              name: monitor.name ?? null,
+              url: monitor.url,
+              included: true,
+              publicName: monitor.name ?? monitor.url,
+              operationalState: 'preparing',
+              uptimePercent: null,
+            },
+          ]);
+          previewQuery.refetch();
+        }}
+      />
       <ConfirmDialog
         open={showDiscardConfirm}
         onOpenChange={setShowDiscardConfirm}
