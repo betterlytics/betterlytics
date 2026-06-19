@@ -72,6 +72,7 @@ function WizardForm({
     theme: 'system',
     accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
     showPastIncidents: true,
+    visibility: 'public',
     monitorRows: defaults.monitors.map((monitor) => ({
       monitorCheckId: monitor.monitorCheckId,
       name: monitor.name,
@@ -108,8 +109,14 @@ function WizardForm({
 
   const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
   const hasMonitors = form.includedCount > 0;
-  const canContinue = step === 0 ? hasMonitors : step === 1 ? !form.isNameEmpty : true;
-  const canCommit = hasMonitors && !form.isNameEmpty && !slugBlocked && !commitMutation.isPending;
+  const canContinue = step === 0 ? hasMonitors : step === 1 ? !form.isNameEmpty && form.isHomepageUrlValid : true;
+  const canCommit =
+    hasMonitors &&
+    !form.isNameEmpty &&
+    !slugBlocked &&
+    form.isHomepageUrlValid &&
+    form.isCustomDomainValid &&
+    !commitMutation.isPending;
   const isLast = step === STEPS.length - 1;
   const submittingPublish = commitMutation.isPending && commitMutation.variables === true;
   const submittingDraft = commitMutation.isPending && commitMutation.variables === false;
@@ -129,6 +136,9 @@ function WizardForm({
     form.theme !== 'system' ||
     form.accentColor !== STATUS_PAGE_DEFAULT_ACCENT_COLOR ||
     !form.showPastIncidents ||
+    form.visibility !== 'public' ||
+    form.homepageUrl.trim() !== '' ||
+    form.customDomain.trim() !== '' ||
     monitorsDirty;
 
   const goNext = useCallback(() => {
@@ -375,11 +385,7 @@ export function CreateStatusPageWizard({
         <>
           <FlowOverlayHeader title={t('wizard.title')} closeAriaLabel={t('wizard.close')} onClose={onClose} />
           <div className='flex flex-1 items-center justify-center py-20'>
-            {defaultsQuery.isError ? (
-              <p className='text-muted-foreground text-sm'>{t('error')}</p>
-            ) : (
-              <Spinner />
-            )}
+            {defaultsQuery.isError ? <p className='text-muted-foreground text-sm'>{t('error')}</p> : <Spinner />}
           </div>
         </>
       )}

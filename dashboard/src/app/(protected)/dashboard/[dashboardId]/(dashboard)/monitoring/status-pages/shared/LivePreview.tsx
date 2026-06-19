@@ -100,6 +100,9 @@ export function LivePreview({
       slug: draft.slug,
       theme: draft.theme,
       logoUrl: draft.logoUrl,
+      // The preview renders inline, so don't make the logo a real link that would navigate the
+      // editor away when clicked. The homepage link has no visual effect to preview anyway.
+      homepageUrl: null,
       accentColor: StatusPageAccentColorSchema.safeParse(draft.accentColor).success
         ? draft.accentColor
         : payload.data.accentColor,

@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
   return {
     title: data.name,
     description,
+    robots: data.noindex ? { index: false, follow: false } : undefined,
     alternates: { canonical: `${env.PUBLIC_BASE_URL}/status/${data.slug}` },
     openGraph: { title: data.name, description },
     // Reuse the owner's logo as the tab favicon; the URL is already cache-busted via ?v={hash}.

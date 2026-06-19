@@ -12,30 +12,51 @@ const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string 
 type StatusHeroProps = {
   name: string;
   logoUrl: string | null;
+  homepageUrl: string | null;
   overallStatus: PublicOverallStatus;
   bannerLabel: string;
   subTextLabel: string;
 };
 
-export function StatusHero({ name, logoUrl, overallStatus, bannerLabel, subTextLabel }: StatusHeroProps) {
+export function StatusHero({
+  name,
+  logoUrl,
+  homepageUrl,
+  overallStatus,
+  bannerLabel,
+  subTextLabel,
+}: StatusHeroProps) {
   const { Icon, band, glyph } = STATUS_BAND[overallStatus];
   const bandForeground = band ? '#ffffff' : 'var(--sp-accent-foreground)';
   const disc = band ? '#ffffff' : 'var(--sp-accent-foreground)';
 
+  const brand = (
+    <span className='flex min-w-0 items-center gap-2.5'>
+      {logoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- owner-provided logo (arbitrary origin / data URI), not optimizable via next/image
+        <img src={logoUrl} alt='' className='h-7 w-7 flex-none rounded-lg object-contain' />
+      ) : (
+        <span className='flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-[var(--sp-accent-foreground)] text-sm font-extrabold text-[var(--sp-accent)]'>
+          {name.charAt(0).toUpperCase()}
+        </span>
+      )}
+      <span className='truncate text-[17px] font-bold'>{name}</span>
+    </span>
+  );
+
   return (
     <header style={{ backgroundColor: band ?? 'var(--sp-accent)', color: bandForeground }}>
       <div className='mx-auto flex w-full max-w-3xl items-center px-4 pt-7 sm:px-8'>
-        <div className='flex min-w-0 items-center gap-2.5'>
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- owner-provided logo (arbitrary origin / data URI), not optimizable via next/image
-            <img src={logoUrl} alt='' className='h-7 w-7 flex-none rounded-lg object-contain' />
-          ) : (
-            <span className='flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-[var(--sp-accent-foreground)] text-sm font-extrabold text-[var(--sp-accent)]'>
-              {name.charAt(0).toUpperCase()}
-            </span>
-          )}
-          <span className='truncate text-[17px] font-bold'>{name}</span>
-        </div>
+        {homepageUrl ? (
+          <a
+            href={homepageUrl}
+            className='min-w-0 rounded-sm transition-opacity outline-none hover:opacity-80 focus-visible:opacity-80'
+          >
+            {brand}
+          </a>
+        ) : (
+          brand
+        )}
       </div>
       <div className='px-4 pt-10 pb-19 text-center sm:px-8'>
         <span

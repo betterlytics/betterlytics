@@ -4048,6 +4048,8 @@
       "homepageUrlHint": "Hvor logoet og sidetitlen linker hen.",
       "customDomain": "Eget domæne",
       "customDomainHint": "Host siden på dit eget domæne.",
+      "homepageUrlInvalid": "Indtast en gyldig URL, der starter med http:// eller https://.",
+      "customDomainInvalid": "Indtast et gyldigt domæne, f.eks. status.example.com.",
       "visibility": {
         "title": "Synlighed",
         "hint": "Bestem hvem der kan finde din statusside.",
@@ -4060,7 +4062,6 @@
       "brandHint": "Logo og accentfarve vist på den offentlige side.",
       "appearance": "Udseende",
       "appearanceHint": "Standardtema for besøgende.",
-      "comingSoon": "Kommer snart",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",

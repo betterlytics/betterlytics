@@ -7,10 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { type SlugStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/constants';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
-import {
-  ComingSoonBadge,
-  ComingSoonField,
-} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ComingSoonField';
+import { LabeledTextField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LabeledTextField';
 import { VisibilityRadioGroup } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/VisibilityRadioGroup';
 import { Section } from './Section';
 
@@ -81,18 +78,24 @@ export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlu
             </div>
           </div>
           <div className='grid gap-4 sm:grid-cols-2'>
-            <ComingSoonField
+            <LabeledTextField
               id='sp-homepage'
               label={t('homepageUrl')}
               hint={t('homepageUrlHint')}
               placeholder='https://example.com'
               type='url'
+              value={form.homepageUrl}
+              onChange={form.setHomepageUrl}
+              error={form.isHomepageUrlValid ? null : t('homepageUrlInvalid')}
             />
-            <ComingSoonField
+            <LabeledTextField
               id='sp-domain'
               label={t('customDomain')}
               hint={t('customDomainHint')}
               placeholder='status.example.com'
+              value={form.customDomain}
+              onChange={form.setCustomDomain}
+              error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
             />
           </div>
           <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
@@ -109,8 +112,8 @@ export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlu
         </div>
       </Section>
 
-      <Section title={t('visibility.title')} description={t('visibility.hint')} aside={<ComingSoonBadge />}>
-        <VisibilityRadioGroup />
+      <Section title={t('visibility.title')} description={t('visibility.hint')}>
+        <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
       </Section>
     </>
   );

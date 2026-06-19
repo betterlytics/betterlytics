@@ -4048,11 +4048,12 @@
       "homepageUrlHint": "Hvor logoen og sidetittelen lenker til.",
       "customDomain": "Eget domene",
       "customDomainHint": "Host siden på ditt eget domene.",
+      "homepageUrlInvalid": "Skriv inn en gyldig URL som starter med http:// eller https://.",
+      "customDomainInvalid": "Skriv inn et gyldig domene, f.eks. status.example.com.",
       "branding": "Merkevare",
       "brandHint": "Logo og aksentfarge vist på den offentlige siden.",
       "appearance": "Utseende",
       "appearanceHint": "Standardtema for besøkende.",
-      "comingSoon": "Kommer snart",
       "visibility": {
         "title": "Synlighet",
         "hint": "Bestem hvem som kan finne statussiden din.",

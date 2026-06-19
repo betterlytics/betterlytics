@@ -9,7 +9,7 @@ import { SortableList } from '@/components/dnd/SortableList';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/AccentColorField';
 import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
-import { ComingSoonField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ComingSoonField';
+import { LabeledTextField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LabeledTextField';
 import { SortableNameRow } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableNameRow';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 
@@ -67,13 +67,16 @@ export function CustomizeStep({ form }: CustomizeStepProps) {
         <ThemeField value={form.theme} onChange={form.setTheme} />
       </div>
 
-      <ComingSoonField
+      <LabeledTextField
         id='wiz-homepage'
         label={t('homepageUrl')}
         hint={t('homepageUrlHint')}
         placeholder='https://example.com'
         type='url'
         hintPosition='top'
+        value={form.homepageUrl}
+        onChange={form.setHomepageUrl}
+        error={form.isHomepageUrlValid ? null : t('homepageUrlInvalid')}
       />
 
       <div className='flex items-center justify-between gap-4'>

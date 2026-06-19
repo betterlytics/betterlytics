@@ -95,6 +95,9 @@ export function StatusPageEditor({
     accentColor: statusPage.accentColor,
     logoUrl: statusPage.logoUrl,
     showPastIncidents: statusPage.showPastIncidents,
+    visibility: statusPage.visibility,
+    homepageUrl: statusPage.homepageUrl,
+    customDomain: statusPage.customDomain,
     monitorRows: initialMonitorRows,
   });
 
@@ -114,7 +117,14 @@ export function StatusPageEditor({
 
   const sections = useMemo(
     () => ({
-      general: { name: form.input.name, slug: form.input.slug, showPastIncidents: form.input.showPastIncidents },
+      general: {
+        name: form.input.name,
+        slug: form.input.slug,
+        showPastIncidents: form.input.showPastIncidents,
+        visibility: form.input.visibility,
+        homepageUrl: form.input.homepageUrl,
+        customDomain: form.input.customDomain,
+      },
       customize: { theme: form.input.theme, accentColor: form.input.accentColor },
       monitors: form.input.monitors,
     }),
@@ -167,7 +177,13 @@ export function StatusPageEditor({
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
   const noMonitors = form.includedCount === 0;
   const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
-  const saveDisabled = !isDirty || form.isNameEmpty || noMonitors || slugNotSaveable;
+  const saveDisabled =
+    !isDirty ||
+    form.isNameEmpty ||
+    noMonitors ||
+    slugNotSaveable ||
+    !form.isHomepageUrlValid ||
+    !form.isCustomDomainValid;
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);

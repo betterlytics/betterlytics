@@ -7,10 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { type SlugStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/constants';
-import {
-  ComingSoonBadge,
-  ComingSoonField,
-} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ComingSoonField';
+import { LabeledTextField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LabeledTextField';
 import { VisibilityRadioGroup } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/VisibilityRadioGroup';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 
@@ -80,20 +77,20 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl }: Pub
         )}
       </div>
 
-      <ComingSoonField
+      <LabeledTextField
         id='wiz-domain'
         label={t('customDomain')}
         hint={t('customDomainHint')}
         placeholder='status.example.com'
         hintPosition='top'
+        value={form.customDomain}
+        onChange={form.setCustomDomain}
+        error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
       />
 
       <div className='space-y-2'>
-        <div className='flex items-center gap-2'>
-          <Label>{t('visibility.title')}</Label>
-          <ComingSoonBadge />
-        </div>
-        <VisibilityRadioGroup />
+        <Label>{t('visibility.title')}</Label>
+        <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
       </div>
     </div>
   );

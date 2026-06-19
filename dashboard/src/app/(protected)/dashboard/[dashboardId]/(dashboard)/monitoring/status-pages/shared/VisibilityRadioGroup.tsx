@@ -2,29 +2,36 @@
 
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { type StatusPageVisibility } from '@/entities/analytics/statusPage.entities';
 
-const VISIBILITY_OPTIONS = ['public', 'unlisted'] as const;
+const VISIBILITY_OPTIONS: StatusPageVisibility[] = ['public', 'unlisted'];
 
-export function VisibilityRadioGroup({ className }: { className?: string }) {
+type VisibilityRadioGroupProps = {
+  value: StatusPageVisibility;
+  onChange: (value: StatusPageVisibility) => void;
+  className?: string;
+};
+
+export function VisibilityRadioGroup({ value, onChange, className }: VisibilityRadioGroupProps) {
   const t = useTranslations('statusPagesPage.editor');
 
   return (
     <div
       role='radiogroup'
       aria-label={t('visibility.title')}
-      aria-disabled
-      className={cn(
-        'border-border bg-card pointer-events-none overflow-hidden rounded-xl border opacity-65',
-        className,
-      )}
+      className={cn('border-border bg-card overflow-hidden rounded-xl border', className)}
     >
       {VISIBILITY_OPTIONS.map((option, index) => {
-        const selected = option === 'public';
+        const selected = option === value;
         return (
-          <div
+          <button
             key={option}
+            type='button'
+            role='radio'
+            aria-checked={selected}
+            onClick={() => onChange(option)}
             className={cn(
-              'flex w-full items-start gap-3 px-4 py-3.5 text-left',
+              'hover:bg-muted/40 flex w-full cursor-pointer items-start gap-3 px-4 py-3.5 text-left transition-colors',
               index > 0 && 'border-border border-t',
             )}
           >
@@ -42,7 +49,7 @@ export function VisibilityRadioGroup({ className }: { className?: string }) {
                 {t(`visibility.${option}Hint`)}
               </span>
             </span>
-          </div>
+          </button>
         );
       })}
     </div>

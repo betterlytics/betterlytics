@@ -63,6 +63,29 @@ export const StatusPageSlugSchema = z
 
 export const StatusPageAccentColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a 6-digit hex color');
 
+export const StatusPageVisibilitySchema = z.enum(['public', 'unlisted']);
+export type StatusPageVisibility = z.infer<typeof StatusPageVisibilitySchema>;
+
+export const StatusPageHomepageUrlSchema = z
+  .string()
+  .trim()
+  .url()
+  .refine((value) => /^https?:\/\//i.test(value), 'Enter an http(s) URL');
+
+const CUSTOM_DOMAIN_REGEX = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+export const StatusPageCustomDomainSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(CUSTOM_DOMAIN_REGEX, 'Enter a valid domain, e.g. status.example.com');
+
+export function isValidHomepageUrl(value: string): boolean {
+  return value.trim() === '' || StatusPageHomepageUrlSchema.safeParse(value).success;
+}
+export function isValidCustomDomain(value: string): boolean {
+  return value.trim() === '' || StatusPageCustomDomainSchema.safeParse(value).success;
+}
+
 export const StatusPageMonitorSelectionSchema = z.object({
   monitorCheckId: z.string().min(1),
   publicName: z.string().trim().min(1).max(STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX),
@@ -76,6 +99,9 @@ export const StatusPageCreateSchema = z.object({
   accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
   logoUrl: z.string().nullable().optional(),
   showPastIncidents: z.boolean().default(true),
+  visibility: StatusPageVisibilitySchema.default('public'),
+  homepageUrl: StatusPageHomepageUrlSchema.nullable().optional(),
+  customDomain: StatusPageCustomDomainSchema.nullable().optional(),
   monitors: z
     .array(StatusPageMonitorSelectionSchema)
     .min(1, 'Select at least one monitor')
@@ -96,6 +122,9 @@ export const StatusPageSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   isPublished: z.boolean(),
+  visibility: StatusPageVisibilitySchema,
+  homepageUrl: z.string().nullable(),
+  customDomain: z.string().nullable(),
   theme: StatusPageThemeSchema,
   accentColor: z.string(),
   logoUrl: z.string().nullable(),
@@ -212,6 +241,8 @@ export const PublicStatusPageDataSchema = z.object({
   name: z.string(),
   slug: z.string(),
   logoUrl: z.string().nullable(),
+  homepageUrl: z.string().nullable().default(null),
+  noindex: z.boolean().default(false),
   accentColor: z.string(),
   theme: StatusPageThemeSchema,
   overallStatus: PublicOverallStatusSchema,

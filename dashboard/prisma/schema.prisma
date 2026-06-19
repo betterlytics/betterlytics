@@ -440,6 +440,16 @@ model StatusPage {
 
   isPublished Boolean @default(false) // enforced on every public read
 
+  // 'public' | 'unlisted'. Unlisted pages render normally but are excluded from search engines (noindex).
+  visibility String @default("public")
+
+  // Where the page's logo and title link to (owner's marketing site). null = not set.
+  homepageUrl String?
+
+  // Owner's own domain to host the page on (e.g. status.acme.com). Stored here; the routing,
+  // ownership verification and TLS provisioning are not wired up yet.
+  customDomain String?
+
   // Branding (structured only — no custom CSS)
   theme       String  @default("system") // 'light' | 'dark' | 'system'
   accentColor String  @default("#4845d8")

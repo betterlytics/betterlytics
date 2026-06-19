@@ -18,7 +18,6 @@ export async function GET(_request: Request, { params }: LogoRouteParams) {
       // Safe to cache forever: the rendered <img src> carries ?v={hash}, so new content => new URL.
       'Cache-Control': 'public, max-age=31536000, immutable',
       ...(logo.hash ? { ETag: `"${logo.hash}"` } : {}),
-      // Mirror the favicon proxy hardening: never let an image be treated as an active document.
       'Content-Security-Policy': "script-src 'none'",
       'Content-Disposition': 'inline',
     },

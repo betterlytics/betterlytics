@@ -4045,6 +4045,8 @@
       "homepageUrlHint": "Where the logo and page title link to.",
       "customDomain": "Custom domain",
       "customDomainHint": "Host the page on your own domain.",
+      "homepageUrlInvalid": "Enter a valid URL starting with http:// or https://.",
+      "customDomainInvalid": "Enter a valid domain, e.g. status.example.com.",
       "visibility": {
         "title": "Visibility",
         "hint": "Control who can find your status page.",
@@ -4057,7 +4059,6 @@
       "brandHint": "Logo and accent color shown on the public page.",
       "appearance": "Appearance",
       "appearanceHint": "Default theme for visitors.",
-      "comingSoon": "Coming soon",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",

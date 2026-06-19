@@ -4048,11 +4048,12 @@
       "homepageUrlHint": "Dove rimandano il logo e il titolo della pagina.",
       "customDomain": "Dominio personalizzato",
       "customDomainHint": "Ospita la pagina sul tuo dominio.",
+      "homepageUrlInvalid": "Inserisci un URL valido che inizia con http:// o https://.",
+      "customDomainInvalid": "Inserisci un dominio valido, es. status.example.com.",
       "branding": "Branding",
       "brandHint": "Logo e colore principale mostrati sulla pagina pubblica.",
       "appearance": "Aspetto",
       "appearanceHint": "Tema predefinito per i visitatori.",
-      "comingSoon": "Prossimamente",
       "visibility": {
         "title": "Visibilità",
         "hint": "Controlla chi può trovare la tua pagina di stato.",
