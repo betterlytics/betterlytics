@@ -4030,6 +4030,12 @@
       "pageDetailsHint": "Navn og adresser for den offentlige statussiden din.",
       "pageName": "Sidenavn",
       "nameRequired": "Sidenavn er påkrevd.",
+      "unsavedChanges": "Ulagrede endringer",
+      "confirmPublish": {
+        "title": "Publisere disse endringene?",
+        "description": "Endringene dine vises på den offentlige statussiden umiddelbart.",
+        "confirm": "Publiser endringer"
+      },
       "publicUrl": "Offentlig URL",
       "slugStatus": {
         "checking": "Sjekker…",

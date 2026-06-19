@@ -4027,6 +4027,12 @@
       "pageDetailsHint": "Names and addresses for your public status page.",
       "pageName": "Page name",
       "nameRequired": "Page name is required.",
+      "unsavedChanges": "Unsaved changes",
+      "confirmPublish": {
+        "title": "Publish these changes?",
+        "description": "Your edits will appear on the public status page right away.",
+        "confirm": "Publish changes"
+      },
       "publicUrl": "Public URL",
       "slugStatus": {
         "checking": "Checking…",

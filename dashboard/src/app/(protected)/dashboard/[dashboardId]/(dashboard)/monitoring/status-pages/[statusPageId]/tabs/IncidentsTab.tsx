@@ -278,7 +278,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </div>
         <PermissionGate>
           {(disabled) => (
-            <Button disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
+            <Button size='sm' disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
               <Plus className='mr-1 h-4 w-4' />
               {t('newIncident')}
             </Button>

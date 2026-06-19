@@ -8,6 +8,7 @@ import { ArrowLeft, Check, Copy, ExternalLink, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ConfirmDialog } from '@/components/dialogs';
@@ -64,6 +65,17 @@ function buildMonitorRows(
     });
 }
 
+function UnsavedDot({ label }: { label: string }) {
+  return (
+    <span
+      role='img'
+      aria-label={label}
+      title={label}
+      className='bg-primary ml-1.5 inline-block h-1.5 w-1.5 flex-none rounded-full align-middle'
+    />
+  );
+}
+
 export function StatusPageEditor({
   dashboardId,
   statusPage,
@@ -89,6 +101,7 @@ export function StatusPageEditor({
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('incidents');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
 
   const slugStatus = useSlugAvailability({
     dashboardId,
@@ -99,7 +112,16 @@ export function StatusPageEditor({
 
   const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
 
-  const { isDirty, markSaved } = useUnsavedChanges(payload);
+  const sections = useMemo(
+    () => ({
+      general: { name: form.input.name, slug: form.input.slug, showPastIncidents: form.input.showPastIncidents },
+      customize: { theme: form.input.theme, accentColor: form.input.accentColor },
+      monitors: form.input.monitors,
+    }),
+    [form.input],
+  );
+
+  const { isDirty, dirty, markSaved } = useUnsavedChanges(sections);
 
   const savedSnapshotRef = useRef(form.snapshot);
 
@@ -115,10 +137,15 @@ export function StatusPageEditor({
 
   const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
 
+  const saveNow = () => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) });
+
+  const handleSave = () => (statusPage.isPublished ? setShowPublishConfirm(true) : saveNow());
+
   const handleBackClick = useCallback(
     (event: React.MouseEvent) => {
       if (!isDirty) return;
       event.preventDefault();
+      event.stopPropagation();
       setShowLeaveConfirm(true);
     },
     [isDirty],
@@ -139,8 +166,8 @@ export function StatusPageEditor({
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
   const noMonitors = form.includedCount === 0;
-  const saveDisabled =
-    !isDirty || form.isNameEmpty || noMonitors || slugStatus === 'taken' || slugStatus === 'invalid';
+  const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
+  const saveDisabled = !isDirty || form.isNameEmpty || noMonitors || slugNotSaveable;
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -211,45 +238,22 @@ export function StatusPageEditor({
       </div>
 
       <UnderlineTabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabKey)} className='mt-5'>
-        {/* Tab bar shares its row with a contextual Save action. The reserved min-height keeps the
-            row a constant height whether or not Save is shown, so switching tabs never shifts the
-            layout (the Save button only appears on the page-settings tabs). */}
-        <div className='border-border flex min-h-11 flex-wrap items-end justify-between gap-x-4 gap-y-2 border-b'>
+        <div className='border-border border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='general'>{t('tabs.general')}</UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='customize'>{t('tabs.customize')}</UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='monitors'>{t('tabs.monitors')}</UnderlineTabsTrigger>
+            <UnderlineTabsTrigger value='general'>
+              {t('tabs.general')}
+              {dirty.general && <UnsavedDot label={t('unsavedChanges')} />}
+            </UnderlineTabsTrigger>
+            <UnderlineTabsTrigger value='customize'>
+              {t('tabs.customize')}
+              {dirty.customize && <UnsavedDot label={t('unsavedChanges')} />}
+            </UnderlineTabsTrigger>
+            <UnderlineTabsTrigger value='monitors'>
+              {t('tabs.monitors')}
+              {dirty.monitors && <UnsavedDot label={t('unsavedChanges')} />}
+            </UnderlineTabsTrigger>
           </UnderlineTabsList>
-          {CONFIG_TABS.includes(activeTab) && (
-            <div className='mb-2 flex items-center gap-2'>
-              {isDirty && (
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='sm'
-                  disabled={saveMutation.isPending}
-                  onClick={handleDiscard}
-                  className='cursor-pointer'
-                >
-                  {t('discard')}
-                </Button>
-              )}
-              <PermissionGate>
-                {(disabled) => (
-                  <Button
-                    size='sm'
-                    disabled={disabled || saveDisabled || saveMutation.isPending}
-                    title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
-                    onClick={() => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) })}
-                    className='cursor-pointer'
-                  >
-                    {t('save')}
-                  </Button>
-                )}
-              </PermissionGate>
-            </div>
-          )}
         </div>
 
         {activeTab === 'incidents' ? (
@@ -274,7 +278,37 @@ export function StatusPageEditor({
               {activeTab === 'monitors' && <MonitorsTab form={form} />}
             </div>
 
-            <div className='lg:sticky lg:top-4'>{livePreview}</div>
+            <div className='space-y-3'>
+              <div className='flex items-end justify-end gap-2 lg:h-12'>
+                {isDirty && (
+                  <Button
+                    type='button'
+                    variant='ghost'
+                    size='sm'
+                    disabled={saveMutation.isPending}
+                    onClick={handleDiscard}
+                    className='cursor-pointer'
+                  >
+                    {t('discard')}
+                  </Button>
+                )}
+                <PermissionGate>
+                  {(disabled) => (
+                    <Button
+                      size='sm'
+                      disabled={disabled || saveDisabled || saveMutation.isPending}
+                      title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
+                      onClick={handleSave}
+                      className='cursor-pointer'
+                    >
+                      {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {t('save')}
+                    </Button>
+                  )}
+                </PermissionGate>
+              </div>
+              <div className='lg:sticky lg:top-4'>{livePreview}</div>
+            </div>
           </div>
         )}
       </UnderlineTabs>
@@ -289,6 +323,18 @@ export function StatusPageEditor({
         onConfirm={() => {
           setShowLeaveConfirm(false);
           router.push(backHref);
+        }}
+      />
+
+      <ConfirmDialog
+        open={showPublishConfirm}
+        onOpenChange={setShowPublishConfirm}
+        title={t('confirmPublish.title')}
+        description={t('confirmPublish.description')}
+        confirmLabel={t('confirmPublish.confirm')}
+        onConfirm={() => {
+          setShowPublishConfirm(false);
+          saveNow();
         }}
       />
     </div>

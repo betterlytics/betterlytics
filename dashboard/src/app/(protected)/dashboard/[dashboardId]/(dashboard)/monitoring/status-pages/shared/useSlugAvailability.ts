@@ -41,5 +41,7 @@ export function useSlugAvailability({
     };
   }, [debouncedSlug, dashboardId, excludeStatusPageId, currentSlug]);
 
+  if (currentSlug != null && slug === currentSlug) return 'idle';
+  if (slug !== debouncedSlug) return 'checking';
   return status;
 }

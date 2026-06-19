@@ -4030,6 +4030,12 @@
       "pageDetailsHint": "Nomi e indirizzi della tua pagina di stato pubblica.",
       "pageName": "Nome pagina",
       "nameRequired": "Il nome della pagina è obbligatorio.",
+      "unsavedChanges": "Modifiche non salvate",
+      "confirmPublish": {
+        "title": "Pubblicare queste modifiche?",
+        "description": "Le tue modifiche appariranno subito sulla pagina di stato pubblica.",
+        "confirm": "Pubblica modifiche"
+      },
       "publicUrl": "URL pubblico",
       "slugStatus": {
         "checking": "Verifica in corso…",
