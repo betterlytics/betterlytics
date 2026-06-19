@@ -4224,6 +4224,7 @@
       "operationalTitle": "Tutte le pagine di stato sono operative",
       "operationalDescription": "Nessun incidente attivo."
     },
-    "monitorsEmpty": "Nessun monitor"
+    "monitorsEmpty": "Nessun monitor",
+    "monitorLabel": "Monitor"
   }
 }

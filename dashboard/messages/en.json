@@ -4221,6 +4221,7 @@
       "operationalTitle": "All status pages operational",
       "operationalDescription": "No active incidents."
     },
-    "monitorsEmpty": "No monitors"
+    "monitorsEmpty": "No monitors",
+    "monitorLabel": "Monitor"
   }
 }
