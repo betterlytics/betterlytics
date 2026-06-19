@@ -73,11 +73,19 @@ export const StatusPageHomepageUrlSchema = z
   .refine((value) => /^https?:\/\//i.test(value), 'Enter an http(s) URL');
 
 const CUSTOM_DOMAIN_REGEX = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+
+export const RESERVED_STATUS_PAGE_DOMAIN_LABELS = new Set(['betterlytics']);
+
+function isReservedStatusPageDomain(domain: string): boolean {
+  return domain.split('.').some((label) => RESERVED_STATUS_PAGE_DOMAIN_LABELS.has(label));
+}
+
 export const StatusPageCustomDomainSchema = z
   .string()
   .trim()
   .toLowerCase()
-  .regex(CUSTOM_DOMAIN_REGEX, 'Enter a valid domain, e.g. status.example.com');
+  .regex(CUSTOM_DOMAIN_REGEX, 'Enter a valid domain, e.g. status.example.com')
+  .refine((domain) => !isReservedStatusPageDomain(domain), 'This domain is reserved');
 
 export function isValidHomepageUrl(value: string): boolean {
   return value.trim() === '' || StatusPageHomepageUrlSchema.safeParse(value).success;

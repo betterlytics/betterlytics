@@ -6,6 +6,7 @@ import {
   removeStatusPageLogo,
   setStatusPageLogo,
   setStatusPagePublished,
+  statusPageCustomDomainExists,
   statusPageSlugExists,
   updateStatusPage,
 } from '@/repositories/postgres/statusPage.repository';
@@ -30,7 +31,10 @@ export async function getStatusPagesForDashboard(dashboardId: string): Promise<S
   }));
 }
 
-export async function getStatusPage(dashboardId: string, statusPageId: string): Promise<StatusPageWithMonitors | null> {
+export async function getStatusPage(
+  dashboardId: string,
+  statusPageId: string,
+): Promise<StatusPageWithMonitors | null> {
   return getStatusPageById(dashboardId, statusPageId);
 }
 
@@ -67,6 +71,13 @@ export async function removeStatusPage(dashboardId: string, statusPageId: string
 
 export async function isStatusPageSlugAvailable(slug: string, excludeStatusPageId?: string): Promise<boolean> {
   return !(await statusPageSlugExists(slug, excludeStatusPageId));
+}
+
+export async function isStatusPageCustomDomainAvailable(
+  domain: string,
+  excludeStatusPageId?: string,
+): Promise<boolean> {
+  return !(await statusPageCustomDomainExists(domain, excludeStatusPageId));
 }
 
 export async function saveStatusPageLogo(

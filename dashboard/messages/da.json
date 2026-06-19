@@ -3241,6 +3241,7 @@
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
+    "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
     "statusPageIncidentLimit": "Denne statusside har nået sin grænse for hændelser",
     "statusPageLogoInvalid": "Filen kunne ikke læses som et billede",
     "statusPageLogoTooLarge": "Logoet er for stort",

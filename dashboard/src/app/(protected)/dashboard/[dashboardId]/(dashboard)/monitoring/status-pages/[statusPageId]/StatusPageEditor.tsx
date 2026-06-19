@@ -37,6 +37,7 @@ type StatusPageEditorProps = {
   statusPage: StatusPageWithMonitors;
   monitors: Array<{ id: string; name: string | null; url: string }>;
   publicBaseUrl: string;
+  dashboardDomain: string;
   previewPayload: StatusPagePreviewPayload;
   previewMessages: Record<string, unknown>;
 };
@@ -81,6 +82,7 @@ export function StatusPageEditor({
   statusPage,
   monitors,
   publicBaseUrl,
+  dashboardDomain,
   previewPayload,
   previewMessages,
 }: StatusPageEditorProps) {
@@ -284,6 +286,7 @@ export function StatusPageEditor({
                   form={form}
                   slugStatus={slugStatus}
                   publicHost={publicHost}
+                  dashboardDomain={dashboardDomain}
                   isPublished={statusPage.isPublished}
                   savedSlug={statusPage.slug}
                 />

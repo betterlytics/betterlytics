@@ -16,9 +16,10 @@ type PublishStepProps = {
   slugStatus: SlugStatus;
   publicHost: string;
   publicBaseUrl: string;
+  domain: string;
 };
 
-export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl }: PublishStepProps) {
+export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domain }: PublishStepProps) {
   const t = useTranslations('statusPagesPage.editor');
 
   return (
@@ -81,7 +82,7 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl }: Pub
         id='wiz-domain'
         label={t('customDomain')}
         hint={t('customDomainHint')}
-        placeholder='status.example.com'
+        placeholder={`status.${domain}`}
         hintPosition='top'
         value={form.customDomain}
         onChange={form.setCustomDomain}

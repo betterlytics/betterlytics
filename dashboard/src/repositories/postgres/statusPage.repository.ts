@@ -61,6 +61,17 @@ export async function statusPageSlugExists(slug: string, excludeStatusPageId?: s
   return row != null && row.id !== excludeStatusPageId;
 }
 
+export async function statusPageCustomDomainExists(
+  domain: string,
+  excludeStatusPageId?: string,
+): Promise<boolean> {
+  const row = await prisma.statusPage.findFirst({
+    where: { customDomain: domain, deletedAt: null },
+    select: { id: true },
+  });
+  return row != null && row.id !== excludeStatusPageId;
+}
+
 export async function countStatusPages(dashboardId: string): Promise<number> {
   return prisma.statusPage.count({ where: { dashboardId, deletedAt: null } });
 }

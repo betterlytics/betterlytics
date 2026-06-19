@@ -3238,6 +3238,7 @@
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
     "statusPageSlugTaken": "This URL slug is already in use",
+    "statusPageDomainTaken": "This domain is already in use on another status page",
     "statusPageIncidentLimit": "This status page has reached its incident limit",
     "statusPageLogoInvalid": "That file could not be read as an image",
     "statusPageLogoTooLarge": "The logo is too large",

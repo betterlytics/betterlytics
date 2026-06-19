@@ -15,11 +15,19 @@ type GeneralTabProps = {
   form: StatusPageFormState;
   slugStatus: SlugStatus;
   publicHost: string;
+  dashboardDomain: string;
   isPublished: boolean;
   savedSlug: string;
 };
 
-export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlug }: GeneralTabProps) {
+export function GeneralTab({
+  form,
+  slugStatus,
+  publicHost,
+  dashboardDomain,
+  isPublished,
+  savedSlug,
+}: GeneralTabProps) {
   const t = useTranslations('statusPagesPage.editor');
 
   const slugStatusLabel =
@@ -92,7 +100,7 @@ export function GeneralTab({ form, slugStatus, publicHost, isPublished, savedSlu
               id='sp-domain'
               label={t('customDomain')}
               hint={t('customDomainHint')}
-              placeholder='status.example.com'
+              placeholder={`status.${dashboardDomain}`}
               value={form.customDomain}
               onChange={form.setCustomDomain}
               error={form.isCustomDomainValid ? null : t('customDomainInvalid')}

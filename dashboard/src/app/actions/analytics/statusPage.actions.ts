@@ -19,6 +19,7 @@ import {
   clearStatusPageLogo,
   getStatusPage,
   getStatusPagesForDashboard,
+  isStatusPageCustomDomainAvailable,
   isStatusPageSlugAvailable,
   publishStatusPage,
   removeStatusPage,
@@ -68,6 +69,9 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
     if (!(await isStatusPageSlugAvailable(payload.slug))) {
       throw new UserException(t('statusPageSlugTaken'));
     }
+    if (payload.customDomain != null && !(await isStatusPageCustomDomainAvailable(payload.customDomain))) {
+      throw new UserException(t('statusPageDomainTaken'));
+    }
 
     const created = await addStatusPage(ctx.dashboardId, payload);
 
@@ -83,6 +87,12 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
 
     if (payload.slug != null && !(await isStatusPageSlugAvailable(payload.slug, payload.id))) {
       throw new UserException(t('statusPageSlugTaken'));
+    }
+    if (
+      payload.customDomain != null &&
+      !(await isStatusPageCustomDomainAvailable(payload.customDomain, payload.id))
+    ) {
+      throw new UserException(t('statusPageDomainTaken'));
     }
 
     const result = await saveStatusPage(ctx.dashboardId, payload);
@@ -174,8 +184,7 @@ async function computeStatusPageDefaults(dashboardId: string) {
   const dashboard = await findDashboardById(dashboardId);
 
   const slug =
-    slugifyDomain(dashboard.domain).slice(0, STATUS_PAGE_LIMITS.SLUG_MAX).replace(/-+$/, '') ||
-    'my-status-page';
+    slugifyDomain(dashboard.domain).slice(0, STATUS_PAGE_LIMITS.SLUG_MAX).replace(/-+$/, '') || 'my-status-page';
 
   const domainLabel = dashboard.domain.split('.')[0] || dashboard.domain;
   const name = `${domainLabel.charAt(0).toUpperCase()}${domainLabel.slice(1)} Status`;

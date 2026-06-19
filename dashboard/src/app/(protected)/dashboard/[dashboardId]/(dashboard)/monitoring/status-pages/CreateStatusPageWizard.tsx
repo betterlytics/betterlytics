@@ -249,6 +249,7 @@ function WizardForm({
                     slugStatus={slugStatus}
                     publicHost={publicHost}
                     publicBaseUrl={publicBaseUrl}
+                    domain={domain}
                   />
                 )}
               </div>
