@@ -4,13 +4,14 @@ import {
   deleteStatusPage,
   getStatusPageById,
   listStatusPages,
-  removeStatusPageLogo,
-  setStatusPageLogo,
   setStatusPagePublished,
   statusPageCustomDomainExists,
   statusPageSlugExists,
   updateStatusPage,
+  type StatusPageImageWrites,
 } from '@/repositories/postgres/statusPage.repository';
+
+export type { StatusPageImageWrites } from '@/repositories/postgres/statusPage.repository';
 import { countActiveIncidentsByStatusPage } from '@/repositories/postgres/statusPageIncident.repository';
 import type {
   StatusPage,
@@ -43,18 +44,23 @@ export async function countStatusPagesForDashboard(dashboardId: string): Promise
   return countStatusPages(dashboardId);
 }
 
-export async function addStatusPage(dashboardId: string, data: StatusPageCreate): Promise<StatusPage> {
-  return createStatusPage(dashboardId, data);
+export async function addStatusPage(
+  dashboardId: string,
+  data: StatusPageCreate,
+  images?: StatusPageImageWrites,
+): Promise<StatusPage> {
+  return createStatusPage(dashboardId, data, images);
 }
 
 export async function saveStatusPage(
   dashboardId: string,
   data: StatusPageUpdate,
+  images?: StatusPageImageWrites,
 ): Promise<{ page: StatusPage; previousSlug: string } | null> {
   const existing = await getStatusPageById(dashboardId, data.id);
   if (!existing) return null;
 
-  const page = await updateStatusPage(dashboardId, data);
+  const page = await updateStatusPage(dashboardId, data, images);
   return { page, previousSlug: existing.slug };
 }
 
@@ -83,16 +89,4 @@ export async function isStatusPageCustomDomainAvailable(
   excludeStatusPageId?: string,
 ): Promise<boolean> {
   return !(await statusPageCustomDomainExists(domain, excludeStatusPageId));
-}
-
-export async function saveStatusPageLogo(
-  dashboardId: string,
-  statusPageId: string,
-  logo: { data: Buffer; mimeType: string; hash: string },
-): Promise<string> {
-  return setStatusPageLogo(dashboardId, statusPageId, logo);
-}
-
-export async function clearStatusPageLogo(dashboardId: string, statusPageId: string): Promise<string> {
-  return removeStatusPageLogo(dashboardId, statusPageId);
 }

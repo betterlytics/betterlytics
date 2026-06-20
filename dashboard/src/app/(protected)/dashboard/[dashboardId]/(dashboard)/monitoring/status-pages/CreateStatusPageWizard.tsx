@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,7 @@ import { MonitorFormDialog } from '@/app/(protected)/dashboard/[dashboardId]/(da
 import { FlowOverlay } from './shared/FlowOverlay';
 import { FlowOverlayHeader } from './shared/FlowOverlayHeader';
 import { LivePreview } from './shared/LivePreview';
+import { collectStagedImages } from './shared/collectStagedImages';
 import { useStatusPageFormState } from './shared/useStatusPageFormState';
 import { useSlugAvailability } from './shared/useSlugAvailability';
 import { STEPS, type Step } from './wizard/steps';
@@ -81,9 +82,16 @@ function WizardForm({
   });
   const slugStatus = useSlugAvailability({ dashboardId, slug: form.slug });
 
+  const createdPageRef = useRef<{ id: string; slug: string } | null>(null);
+
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
-      const page = await createStatusPageAction(dashboardId, form.input);
+      if (!createdPageRef.current) {
+        const images = await collectStagedImages(form);
+        const page = await createStatusPageAction(dashboardId, form.input, images);
+        createdPageRef.current = { id: page.id, slug: page.slug };
+      }
+      const page = createdPageRef.current;
       if (publish) await setStatusPagePublishedAction(dashboardId, page.id, true);
       return { page, publish };
     },
@@ -135,6 +143,7 @@ function WizardForm({
     form.visibility !== 'public' ||
     form.homepageUrl.trim() !== '' ||
     form.customDomain.trim() !== '' ||
+    form.hasStagedImages ||
     monitorsDirty;
 
   const goNext = useCallback(() => {

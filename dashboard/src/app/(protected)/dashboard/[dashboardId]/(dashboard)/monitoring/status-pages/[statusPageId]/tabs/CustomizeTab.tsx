@@ -6,20 +6,17 @@ import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
 import { ProBadge } from '@/components/billing/ProBadge';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
-import { LogoUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LogoUploadField';
-import { FaviconUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/FaviconUploadField';
+import { ImageUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ImageUploadField';
 import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/AccentColorField';
 import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
 import { Section } from './Section';
 
 type CustomizeTabProps = {
   form: StatusPageFormState;
-  dashboardId: string;
-  statusPageId: string;
 };
 
-/** Branding (logo + accent) and appearance (theme) tab. */
-export function CustomizeTab({ form, dashboardId, statusPageId }: CustomizeTabProps) {
+/** Branding (logo + favicon + accent) and appearance (theme) tab. */
+export function CustomizeTab({ form }: CustomizeTabProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
   const brandingLocked = !caps.statusPages.removeBranding;
@@ -29,13 +26,18 @@ export function CustomizeTab({ form, dashboardId, statusPageId }: CustomizeTabPr
       <Section title={t('branding')} description={t('brandHint')}>
         <div className='bg-card border-border space-y-5 rounded-xl border p-5'>
           <div className='flex flex-wrap items-start gap-4'>
-            <LogoUploadField
-              dashboardId={dashboardId}
-              statusPageId={statusPageId}
-              logoUrl={form.logoUrl}
-              onLogoChange={form.setLogoUrl}
+            <ImageUploadField
+              kind='logo'
+              value={form.logoUrl}
+              onSelect={form.stageLogo}
+              onRemove={form.removeLogo}
             />
-            <FaviconUploadField />
+            <ImageUploadField
+              kind='favicon'
+              value={form.faviconUrl}
+              onSelect={form.stageFavicon}
+              onRemove={form.removeFavicon}
+            />
           </div>
           <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
           <div className='border-border flex items-center justify-between gap-4 border-t pt-5'>

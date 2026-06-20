@@ -5,19 +5,72 @@ import {
   type PublishedStatusPage,
   type StatusPage,
   type StatusPageCreate,
+  type StatusPageImageKind,
   type StatusPageListItem,
   type StatusPageUpdate,
   type StatusPageWithMonitors,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 
+/** URL of an uploaded image, served by the /status/{slug}/image/{kind} route handler (with the hash as a cache-bust token). */
+function statusPageImageUrl(slug: string, kind: StatusPageImageKind, hash: string): string {
+  return `/status/${slug}/image/${kind}?v=${hash}`;
+}
+
 /**
- * The app consumes a single `logoUrl` string. An uploaded logo is served by the
- * /status/{slug}/logo route handler; we derive that URL here (with the hash as a cache-bust
- * token) so callers never touch the blob. Falls back to the owner-pasted external URL.
+ * The app consumes a single `logoUrl` string. We derive the uploaded-logo URL here so callers never
+ * touch the blob, falling back to the owner-pasted external URL.
  */
 function resolveLogoUrl(row: { slug: string; logoHash: string | null; logoUrl: string | null }): string | null {
-  if (row.logoHash) return `/status/${row.slug}/logo?v=${row.logoHash}`;
+  if (row.logoHash) return statusPageImageUrl(row.slug, 'logo', row.logoHash);
   return row.logoUrl ?? null;
+}
+
+function resolveFaviconUrl(row: { slug: string; faviconHash: string | null }): string | null {
+  if (row.faviconHash) return statusPageImageUrl(row.slug, 'favicon', row.faviconHash);
+  return null;
+}
+
+/** Parse a raw status-page row into the domain entity, resolving its derived image URLs. */
+function toStatusPage(
+  row: { slug: string; logoHash: string | null; logoUrl: string | null; faviconHash: string | null } & Record<
+    string,
+    unknown
+  >,
+): StatusPage {
+  return StatusPageSchema.parse({
+    ...row,
+    logoUrl: resolveLogoUrl(row),
+    faviconUrl: resolveFaviconUrl(row),
+  });
+}
+
+export type StatusPageImageWrite = { data: Buffer; mimeType: string; hash: string };
+
+export type StatusPageImageWrites = {
+  logo?: StatusPageImageWrite | null;
+  favicon?: StatusPageImageWrite | null;
+};
+
+/**
+ * Translate one kind's change into the page-row hash patch + the StatusPageImage row op to run in the
+ * same transaction. Returns `op: null` for "no change" (kept) so the caller can filter it out.
+ */
+function imageChange(statusPageId: string, kind: StatusPageImageKind, write: StatusPageImageWrite | null | undefined) {
+  if (write === undefined) return { data: {}, op: null };
+  if (write === null) {
+    const data = kind === 'logo' ? { logoHash: null } : { faviconHash: null };
+    return { data, op: prisma.statusPageImage.deleteMany({ where: { statusPageId, kind } }) };
+  }
+  // Uploading a logo also clears the external logoUrl escape hatch.
+  const data = kind === 'logo' ? { logoHash: write.hash, logoUrl: null } : { faviconHash: write.hash };
+  return {
+    data,
+    op: prisma.statusPageImage.upsert({
+      where: { statusPageId_kind: { statusPageId, kind } },
+      create: { statusPageId, kind, data: write.data, mimeType: write.mimeType },
+      update: { data: write.data, mimeType: write.mimeType },
+    }),
+  };
 }
 
 export async function listStatusPages(
@@ -33,7 +86,7 @@ export async function listStatusPages(
   });
 
   return rows.map(({ _count, monitors, ...row }) => ({
-    ...StatusPageSchema.parse({ ...row, logoUrl: resolveLogoUrl(row) }),
+    ...toStatusPage(row),
     monitorCount: _count.monitors,
     monitors: monitors,
   }));
@@ -51,7 +104,7 @@ export async function getStatusPageById(
 
   const { monitors, ...page } = row;
   return {
-    ...StatusPageSchema.parse({ ...page, logoUrl: resolveLogoUrl(page) }),
+    ...toStatusPage(page),
     monitors: monitors.map((monitor) => StatusPageMonitorRowSchema.parse(monitor)),
   };
 }
@@ -76,12 +129,21 @@ export async function countStatusPages(dashboardId: string): Promise<number> {
   return prisma.statusPage.count({ where: { dashboardId, deletedAt: null } });
 }
 
-export async function createStatusPage(dashboardId: string, data: StatusPageCreate): Promise<StatusPage> {
+export async function createStatusPage(
+  dashboardId: string,
+  data: StatusPageCreate,
+  images?: StatusPageImageWrites,
+): Promise<StatusPage> {
   const { monitors, ...page } = data;
+  const imageRows = (['logo', 'favicon'] as const).flatMap((kind) =>
+    images?.[kind] ? [{ kind, data: images[kind]!.data, mimeType: images[kind]!.mimeType }] : [],
+  );
   const created = await prisma.statusPage.create({
     data: {
       dashboardId,
       ...page,
+      ...(images?.logo ? { logoHash: images.logo.hash } : {}),
+      ...(images?.favicon ? { faviconHash: images.favicon.hash } : {}),
       monitors: {
         // dashboardId is set by the parent relation (composite FK [statusPageId, dashboardId])
         create: monitors.map((monitor, position) => ({
@@ -90,19 +152,27 @@ export async function createStatusPage(dashboardId: string, data: StatusPageCrea
           position,
         })),
       },
+      ...(imageRows.length ? { images: { create: imageRows } } : {}),
     },
   });
 
-  return StatusPageSchema.parse(created);
+  return toStatusPage(created);
 }
 
-export async function updateStatusPage(dashboardId: string, data: StatusPageUpdate): Promise<StatusPage> {
+export async function updateStatusPage(
+  dashboardId: string,
+  data: StatusPageUpdate,
+  images?: StatusPageImageWrites,
+): Promise<StatusPage> {
   const { id, monitors, ...page } = data;
+
+  const logo = imageChange(id, 'logo', images?.logo);
+  const favicon = imageChange(id, 'favicon', images?.favicon);
 
   const [updated] = await prisma.$transaction([
     prisma.statusPage.update({
       where: { id_dashboardId: { id, dashboardId } },
-      data: page,
+      data: { ...page, ...logo.data, ...favicon.data },
     }),
     ...(monitors
       ? [
@@ -118,9 +188,10 @@ export async function updateStatusPage(dashboardId: string, data: StatusPageUpda
           }),
         ]
       : []),
+    ...[logo.op, favicon.op].filter((op) => op !== null),
   ]);
 
-  return StatusPageSchema.parse(updated);
+  return toStatusPage(updated);
 }
 
 export async function setStatusPagePublished(
@@ -132,7 +203,7 @@ export async function setStatusPagePublished(
     where: { id_dashboardId: { id: statusPageId, dashboardId } },
     data: { isPublished },
   });
-  return StatusPageSchema.parse(updated);
+  return toStatusPage(updated);
 }
 
 export async function deleteStatusPage(dashboardId: string, statusPageId: string): Promise<void> {
@@ -147,56 +218,25 @@ export async function removeMonitorFromStatusPages(dashboardId: string, monitorC
 }
 
 /**
- * Store an uploaded logo and stamp its hash on the page, atomically. The page update is keyed by the
- * composite (id, dashboardId), so it throws if the page isn't owned by this dashboard — that ownership
- * check also guards the logo upsert in the same transaction. Returns the slug for cache revalidation.
- */
-export async function setStatusPageLogo(
-  dashboardId: string,
-  statusPageId: string,
-  logo: { data: Buffer; mimeType: string; hash: string },
-): Promise<string> {
-  const [page] = await prisma.$transaction([
-    prisma.statusPage.update({
-      where: { id_dashboardId: { id: statusPageId, dashboardId } },
-      data: { logoHash: logo.hash, logoUrl: null },
-      select: { slug: true },
-    }),
-    prisma.statusPageLogo.upsert({
-      where: { statusPageId },
-      create: { statusPageId, data: logo.data, mimeType: logo.mimeType },
-      update: { data: logo.data, mimeType: logo.mimeType },
-    }),
-  ]);
-  return page.slug;
-}
-
-export async function removeStatusPageLogo(dashboardId: string, statusPageId: string): Promise<string> {
-  const [page] = await prisma.$transaction([
-    prisma.statusPage.update({
-      where: { id_dashboardId: { id: statusPageId, dashboardId } },
-      data: { logoHash: null },
-      select: { slug: true },
-    }),
-    prisma.statusPageLogo.deleteMany({ where: { statusPageId } }),
-  ]);
-  return page.slug;
-}
-
-/**
- * Read for the public logo route handler — the ONLY query that loads the blob. Not gated on
- * isPublished so the editor's live preview can render draft pages' logos; the slug uniquely
+ * Read for the public image route handler — the ONLY query that loads the blob. Not gated on
+ * isPublished so the editor's live preview can render draft pages' images; the slug uniquely
  * identifies a non-deleted page (partial unique index).
  */
-export async function getStatusPageLogoBySlug(
+export async function getStatusPageImageBySlug(
   slug: string,
+  kind: StatusPageImageKind,
 ): Promise<{ data: Buffer; mimeType: string; hash: string | null } | null> {
-  const logo = await prisma.statusPageLogo.findFirst({
-    where: { statusPage: { slug, deletedAt: null } },
-    select: { data: true, mimeType: true, statusPage: { select: { logoHash: true } } },
+  const image = await prisma.statusPageImage.findFirst({
+    where: { kind, statusPage: { slug, deletedAt: null } },
+    select: {
+      data: true,
+      mimeType: true,
+      statusPage: { select: { logoHash: true, faviconHash: true } },
+    },
   });
-  if (!logo) return null;
-  return { data: Buffer.from(logo.data), mimeType: logo.mimeType, hash: logo.statusPage.logoHash };
+  if (!image) return null;
+  const hash = kind === 'logo' ? image.statusPage.logoHash : image.statusPage.faviconHash;
+  return { data: Buffer.from(image.data), mimeType: image.mimeType, hash };
 }
 
 const statusPageSnapshotInclude = {
@@ -215,7 +255,7 @@ type StatusPageSnapshotRow = NonNullable<
 function toPublishedStatusPage(row: StatusPageSnapshotRow): PublishedStatusPage {
   const { dashboard, monitors, ...page } = row;
   return {
-    page: StatusPageSchema.parse({ ...page, logoUrl: resolveLogoUrl(page) }),
+    page: toStatusPage(page),
     siteId: dashboard.siteId,
     monitors: monitors.map((monitor) => ({
       monitorCheckId: monitor.monitorCheckId,

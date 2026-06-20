@@ -12,6 +12,7 @@ import {
 } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { type PreviewDraft } from './LivePreview';
 import { type MonitorRow } from './SortableMonitorRow';
+import { useStagedImage } from './useStagedImage';
 
 export type StatusPageFormInitial = {
   name: string;
@@ -24,8 +25,11 @@ export type StatusPageFormInitial = {
   homepageUrl?: string | null;
   customDomain?: string | null;
   logoUrl?: string | null;
+  faviconUrl?: string | null;
   monitorRows: MonitorRow[];
 };
+
+type StatusPageFormSnapshot = Omit<StatusPageFormInitial, 'logoUrl' | 'faviconUrl'>;
 
 export function useStatusPageFormState(initial: StatusPageFormInitial) {
   const [name, setName] = useState(initial.name);
@@ -37,7 +41,8 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
   const [visibility, setVisibility] = useState<StatusPageVisibility>(initial.visibility);
   const [homepageUrl, setHomepageUrl] = useState(initial.homepageUrl ?? '');
   const [customDomain, setCustomDomain] = useState(initial.customDomain ?? '');
-  const [logoUrl, setLogoUrl] = useState<string | null>(initial.logoUrl ?? null);
+  const logo = useStagedImage(initial.logoUrl ?? null);
+  const favicon = useStagedImage(initial.faviconUrl ?? null);
   const [monitorRows, setMonitorRows] = useState<MonitorRow[]>(initial.monitorRows);
 
   const updateRow = useCallback(
@@ -46,18 +51,23 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     [],
   );
 
-  const reset = useCallback((values: Omit<StatusPageFormInitial, 'logoUrl'>) => {
-    setName(values.name);
-    setSlug(values.slug);
-    setTheme(values.theme);
-    setAccentColor(values.accentColor);
-    setShowPastIncidents(values.showPastIncidents);
-    setHideBranding(values.hideBranding ?? false);
-    setVisibility(values.visibility);
-    setHomepageUrl(values.homepageUrl ?? '');
-    setCustomDomain(values.customDomain ?? '');
-    setMonitorRows(values.monitorRows);
-  }, []);
+  const reset = useCallback(
+    (values: StatusPageFormSnapshot) => {
+      setName(values.name);
+      setSlug(values.slug);
+      setTheme(values.theme);
+      setAccentColor(values.accentColor);
+      setShowPastIncidents(values.showPastIncidents);
+      setHideBranding(values.hideBranding ?? false);
+      setVisibility(values.visibility);
+      setHomepageUrl(values.homepageUrl ?? '');
+      setCustomDomain(values.customDomain ?? '');
+      setMonitorRows(values.monitorRows);
+      logo.reset();
+      favicon.reset();
+    },
+    [logo, favicon],
+  );
 
   const includedCount = useMemo(() => monitorRows.filter((row) => row.included).length, [monitorRows]);
 
@@ -105,7 +115,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
 
   // The editable form state, as a plain snapshot. Used to capture/restore a save point when
   // discarding edits.
-  const snapshot: Omit<StatusPageFormInitial, 'logoUrl'> = useMemo(
+  const snapshot: StatusPageFormSnapshot = useMemo(
     () => ({
       name,
       slug,
@@ -138,7 +148,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       slug,
       theme,
       accentColor,
-      logoUrl,
+      logoUrl: logo.url,
       showPastIncidents,
       hideBranding,
       monitors: monitorRows.map((row) => ({
@@ -147,7 +157,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
         publicName: row.publicName,
       })),
     }),
-    [name, slug, theme, accentColor, logoUrl, showPastIncidents, hideBranding, monitorRows],
+    [name, slug, theme, accentColor, logo.url, showPastIncidents, hideBranding, monitorRows],
   );
 
   return {
@@ -169,8 +179,17 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     setHomepageUrl,
     customDomain,
     setCustomDomain,
-    logoUrl,
-    setLogoUrl,
+    logoUrl: logo.url,
+    stageLogo: logo.stage,
+    removeLogo: logo.remove,
+    logoChange: logo.change,
+    commitLogo: logo.commit,
+    faviconUrl: favicon.url,
+    stageFavicon: favicon.stage,
+    removeFavicon: favicon.remove,
+    faviconChange: favicon.change,
+    commitFavicon: favicon.commit,
+    hasStagedImages: logo.dirty || favicon.dirty,
     monitorRows,
     setMonitorRows,
     updateRow,

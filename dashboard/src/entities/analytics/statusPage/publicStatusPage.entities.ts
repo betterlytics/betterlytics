@@ -53,6 +53,7 @@ export const PublicStatusPageDataSchema = z.object({
   name: z.string(),
   slug: z.string(),
   logoUrl: z.string().nullable(),
+  faviconUrl: z.string().nullable().default(null),
   homepageUrl: z.string().nullable().default(null),
   noindex: z.boolean().default(false),
   accentColor: z.string(),

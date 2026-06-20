@@ -11,11 +11,33 @@ export const STATUS_PAGE_LIMITS = {
   INCIDENT_BODY_MAX: 2000,
   INCIDENTS_MAX: 50,
   SUGGESTIONS_MAX: 20,
-  // Logos are resized client-side to a small raster before upload; the cap is a server-side backstop.
-  LOGO_MAX_BYTES: 64 * 1024,
+  // Images are resized client-side to a small raster before upload; the cap is a server-side backstop.
+  IMAGE_MAX_BYTES: 64 * 1024,
+  // Server-side backstop on decoded dimensions (intrinsic px). Guards against decompression bombs from a
+  // client that bypasses the canvas resize.
+  IMAGE_MAX_DIMENSION: 1024,
 } as const;
 
-export const STATUS_PAGE_LOGO_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
+export const STATUS_PAGE_IMAGE_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
+export const STATUS_PAGE_IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp';
+
+export const STATUS_PAGE_IMAGE_KINDS = ['logo', 'favicon'] as const;
+export const StatusPageImageKindSchema = z.enum(STATUS_PAGE_IMAGE_KINDS);
+export type StatusPageImageKind = z.infer<typeof StatusPageImageKindSchema>;
+
+/** raw bytes = set/replace, null = remove, omitted = leave unchanged. */
+export type StatusPageImagesInput = {
+  logo?: Uint8Array | null;
+  favicon?: Uint8Array | null;
+};
+
+export const STATUS_PAGE_IMAGE_CONFIG: Record<
+  StatusPageImageKind,
+  { maxDimension: number; square: boolean }
+> = {
+  logo: { maxDimension: 128, square: false },
+  favicon: { maxDimension: 64, square: true },
+};
 
 export const STATUS_PAGE_DEFAULT_ACCENT_COLOR = '#4845d8';
 
@@ -129,6 +151,7 @@ export const StatusPageSchema = z.object({
   theme: StatusPageThemeSchema,
   accentColor: z.string(),
   logoUrl: z.string().nullable(),
+  faviconUrl: z.string().nullable(),
   showPastIncidents: z.boolean(),
   hideBranding: z.boolean(),
   createdAt: z.date(),

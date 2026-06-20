@@ -29,14 +29,17 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
   const t = await getTranslations({ locale: 'en', namespace: 'publicStatusPage' });
   const description = t(`banner.${data.overallStatus}`);
 
+  // Prefer the uploaded favicon; fall back to the logo. Both URLs are cache-busted via ?v={hash}.
+  const iconUrl = data.faviconUrl ?? data.logoUrl;
+
   return {
     title: data.name,
     description,
     robots: data.noindex ? { index: false, follow: false } : undefined,
     alternates: { canonical: `${env.PUBLIC_BASE_URL}/status/${data.slug}` },
     openGraph: { title: data.name, description },
-    // Reuse the owner's logo as the tab favicon; the URL is already cache-busted via ?v={hash}.
-    icons: data.logoUrl ? { icon: [{ url: data.logoUrl }] } : undefined,
+    // `sizes: 'any'` makes browsers prefer this over the app-wide /favicon.ico.
+    icons: iconUrl ? { icon: [{ url: iconUrl, sizes: 'any' }] } : undefined,
   };
 }
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -11,7 +10,7 @@ import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(das
 import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
 import { LabeledTextField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LabeledTextField';
 import { SortableNameRow } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableNameRow';
-import { FaviconUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/FaviconUploadField';
+import { ImageUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ImageUploadField';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 
 type CustomizeStepProps = {
@@ -42,17 +41,18 @@ export function CustomizeStep({ form }: CustomizeStepProps) {
       </div>
       <div className='space-y-6'>
         <div className='flex flex-wrap items-start gap-4'>
-          <div className='space-y-2'>
-            <Label>{t('logo')}</Label>
-            <button
-              type='button'
-              className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-36 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-dashed text-xs transition-colors'
-            >
-              <Upload className='h-3.5 w-3.5' />
-              {t('uploadLogo')}
-            </button>
-          </div>
-          <FaviconUploadField />
+          <ImageUploadField
+            kind='logo'
+            value={form.logoUrl}
+            onSelect={form.stageLogo}
+            onRemove={form.removeLogo}
+          />
+          <ImageUploadField
+            kind='favicon'
+            value={form.faviconUrl}
+            onSelect={form.stageFavicon}
+            onRemove={form.removeFavicon}
+          />
         </div>
         <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
         <ThemeField value={form.theme} onChange={form.setTheme} />

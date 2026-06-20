@@ -3,6 +3,7 @@ import {
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
   type PublishedStatusPage,
+  type StatusPageImageKind,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   PublicStatusPageDataSchema,
@@ -23,7 +24,7 @@ import {
 } from '@/repositories/clickhouse/monitoring.repository';
 import {
   getPublishedStatusPageBySlug,
-  getStatusPageLogoBySlug,
+  getStatusPageImageBySlug,
   getStatusPageSnapshotById,
 } from '@/repositories/postgres/statusPage.repository';
 import { listPublishedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
@@ -55,8 +56,8 @@ export const getPublicStatusPageData = cache(async (slug: string): Promise<Publi
   return env.IS_DEVELOPMENT ? getStatusPageFixture(slug) : null;
 });
 
-export async function getPublicStatusPageLogo(slug: string) {
-  return getStatusPageLogoBySlug(slug);
+export async function getPublicStatusPageImage(slug: string, kind: StatusPageImageKind) {
+  return getStatusPageImageBySlug(slug, kind);
 }
 
 export async function getStatusPagePreviewData(
@@ -114,6 +115,7 @@ export async function getStatusPagePreviewDataForDashboard(
       theme: 'system',
       accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
       logoUrl: null,
+      faviconUrl: null,
       showPastIncidents: false,
       hideBranding: false,
       createdAt: now,
@@ -225,6 +227,7 @@ async function assembleStatusPage(
     name: page.name,
     slug: page.slug,
     logoUrl: page.logoUrl,
+    faviconUrl: page.faviconUrl,
     homepageUrl: page.homepageUrl,
     noindex: page.visibility === 'unlisted',
     accentColor: page.accentColor,

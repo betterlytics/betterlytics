@@ -20,6 +20,7 @@ import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LivePreview';
 import { type MonitorRow } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
 import { useStatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
+import { collectStagedImages } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { useSlugAvailability } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useSlugAvailability';
 import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
@@ -93,6 +94,7 @@ export function StatusPageEditor({
     theme: statusPage.theme,
     accentColor: statusPage.accentColor,
     logoUrl: statusPage.logoUrl,
+    faviconUrl: statusPage.faviconUrl,
     showPastIncidents: statusPage.showPastIncidents,
     hideBranding: statusPage.hideBranding,
     visibility: statusPage.visibility,
@@ -140,8 +142,15 @@ export function StatusPageEditor({
   const savedSnapshotRef = useRef(form.snapshot);
 
   const saveMutation = useMutation({
-    mutationFn: async () => updateStatusPageAction(dashboardId, payload),
-    onSuccess: () => {
+    mutationFn: async () => {
+      const images = await collectStagedImages(form);
+      return updateStatusPageAction(dashboardId, payload, images);
+    },
+    onSuccess: (page) => {
+      if (page) {
+        form.commitLogo(page.logoUrl);
+        form.commitFavicon(page.faviconUrl);
+      }
       markSaved();
       savedSnapshotRef.current = form.snapshot;
       router.refresh();
@@ -155,14 +164,16 @@ export function StatusPageEditor({
 
   const handleSave = () => (statusPage.isPublished ? setShowPublishConfirm(true) : saveNow());
 
+  const effectiveDirty = isDirty || form.hasStagedImages;
+
   const handleBackClick = useCallback(
     (event: React.MouseEvent) => {
-      if (!isDirty) return;
+      if (!effectiveDirty) return;
       event.preventDefault();
       event.stopPropagation();
       setShowLeaveConfirm(true);
     },
-    [isDirty],
+    [effectiveDirty],
   );
 
   const backHref = `/dashboard/${dashboardId}/monitoring/status-pages`;
@@ -182,7 +193,7 @@ export function StatusPageEditor({
   const noMonitors = form.includedCount === 0;
   const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
   const saveDisabled =
-    !isDirty ||
+    !effectiveDirty ||
     form.isNameEmpty ||
     noMonitors ||
     slugNotSaveable ||
@@ -272,7 +283,7 @@ export function StatusPageEditor({
             </UnderlineTabsTrigger>
             <UnderlineTabsTrigger value='customize'>
               {t('tabs.customize')}
-              {dirty.customize && <UnsavedDot label={t('unsavedChanges')} />}
+              {(dirty.customize || form.hasStagedImages) && <UnsavedDot label={t('unsavedChanges')} />}
             </UnderlineTabsTrigger>
           </UnderlineTabsList>
         </div>
@@ -295,14 +306,12 @@ export function StatusPageEditor({
                 />
               )}
               {activeTab === 'monitors' && <MonitorsTab form={form} />}
-              {activeTab === 'customize' && (
-                <CustomizeTab form={form} dashboardId={dashboardId} statusPageId={statusPage.id} />
-              )}
+              {activeTab === 'customize' && <CustomizeTab form={form} />}
             </div>
 
             <div className='space-y-3'>
               <div className='flex items-end justify-end gap-2 lg:h-12'>
-                {isDirty && (
+                {effectiveDirty && (
                   <Button
                     type='button'
                     variant='ghost'

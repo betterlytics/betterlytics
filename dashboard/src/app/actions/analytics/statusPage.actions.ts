@@ -10,6 +10,7 @@ import {
   StatusPageCreateSchema,
   StatusPageSlugSchema,
   StatusPageUpdateSchema,
+  type StatusPageImagesInput,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   StatusPageIncidentCreateSchema,
@@ -18,7 +19,6 @@ import {
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import {
   addStatusPage,
-  clearStatusPageLogo,
   countStatusPagesForDashboard,
   getStatusPage,
   getStatusPagesForDashboard,
@@ -27,7 +27,7 @@ import {
   publishStatusPage,
   removeStatusPage,
   saveStatusPage,
-  saveStatusPageLogo,
+  type StatusPageImageWrites,
 } from '@/services/analytics/statusPage.service';
 import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { statusPageValidator } from '@/lib/billing/validators';
@@ -44,7 +44,8 @@ import {
   getStatusPagePreviewData,
   getStatusPagePreviewDataForDashboard,
 } from '@/services/analytics/publicStatusPage.service';
-import { STATUS_PAGE_LIMITS, STATUS_PAGE_LOGO_MIME } from '@/entities/analytics/statusPage/statusPage.entities';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
 import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';
@@ -66,10 +67,34 @@ export const fetchStatusPageAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => await getStatusPage(ctx.dashboardId, statusPageId),
 );
 
+/** Validate the staged branding images and turn them into storable writes (sniffed MIME + content hash). */
+async function prepareImageWrites(images?: StatusPageImagesInput): Promise<StatusPageImageWrites | undefined> {
+  if (!images) return undefined;
+  const t = await getTranslations('validation');
+
+  const prepare = (bytes: Uint8Array | null | undefined) => {
+    if (bytes === undefined) return undefined;
+    if (bytes === null) return null;
+    if (bytes.byteLength === 0) throw new UserException(t('statusPageImageInvalid'));
+    if (bytes.byteLength > STATUS_PAGE_LIMITS.IMAGE_MAX_BYTES) {
+      throw new UserException(t('statusPageImageTooLarge'));
+    }
+    
+    const inspected = inspectStatusPageImage(bytes);
+    if (!inspected) throw new UserException(t('statusPageImageBadType'));
+    const data = Buffer.from(bytes);
+    const hash = createHash('sha256').update(data).digest('hex').slice(0, 16);
+    return { data, mimeType: inspected.mimeType, hash };
+  };
+
+  return { logo: prepare(images.logo), favicon: prepare(images.favicon) };
+}
+
 export const createStatusPageAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof StatusPageCreateSchema>) => {
+  async (ctx: AuthContext, input: z.input<typeof StatusPageCreateSchema>, images?: StatusPageImagesInput) => {
     const t = await getTranslations('validation');
     const payload = StatusPageCreateSchema.parse(input);
+    const imageWrites = await prepareImageWrites(images);
 
     const caps = await getDashboardCapabilities(ctx.dashboardId);
     await (await statusPageValidator(caps.statusPages))
@@ -85,7 +110,7 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
       throw new UserException(t('statusPageDomainTaken'));
     }
 
-    const created = await addStatusPage(ctx.dashboardId, payload);
+    const created = await addStatusPage(ctx.dashboardId, payload, imageWrites);
 
     revalidateStatusPagePaths(ctx.dashboardId);
     return created;
@@ -93,9 +118,10 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
 );
 
 export const updateStatusPageAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof StatusPageUpdateSchema>) => {
+  async (ctx: AuthContext, input: z.input<typeof StatusPageUpdateSchema>, images?: StatusPageImagesInput) => {
     const t = await getTranslations('validation');
     const payload = StatusPageUpdateSchema.parse(input);
+    const imageWrites = await prepareImageWrites(images);
 
     const caps = await getDashboardCapabilities(ctx.dashboardId);
     await (await statusPageValidator(caps.statusPages))
@@ -113,7 +139,7 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
       throw new UserException(t('statusPageDomainTaken'));
     }
 
-    const result = await saveStatusPage(ctx.dashboardId, payload);
+    const result = await saveStatusPage(ctx.dashboardId, payload, imageWrites);
     // The old public URL must drop out of the cache when the slug changes
     if (result) revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
     return result?.page ?? null;
@@ -134,38 +160,6 @@ export const deleteStatusPageAction = withDashboardMutationAuthContext(
     const deletedSlug = await removeStatusPage(ctx.dashboardId, statusPageId);
 
     revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
-  },
-);
-
-export const uploadStatusPageLogoAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, statusPageId: string, formData: FormData) => {
-    const t = await getTranslations('validation');
-    const file = formData.get('logo');
-
-    if (!(file instanceof File) || file.size === 0) {
-      throw new UserException(t('statusPageLogoInvalid'));
-    }
-    if (file.size > STATUS_PAGE_LIMITS.LOGO_MAX_BYTES) {
-      throw new UserException(t('statusPageLogoTooLarge'));
-    }
-    if (!STATUS_PAGE_LOGO_MIME.has(file.type)) {
-      throw new UserException(t('statusPageLogoBadType'));
-    }
-
-    const data = Buffer.from(await file.arrayBuffer());
-    const hash = createHash('sha256').update(data).digest('hex').slice(0, 16);
-
-    const slug = await saveStatusPageLogo(ctx.dashboardId, statusPageId, { data, mimeType: file.type, hash });
-
-    revalidateStatusPagePaths(ctx.dashboardId, slug);
-    return { logoUrl: `/status/${slug}/logo?v=${hash}` };
-  },
-);
-
-export const removeStatusPageLogoAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, statusPageId: string) => {
-    const slug = await clearStatusPageLogo(ctx.dashboardId, statusPageId);
-    revalidateStatusPagePaths(ctx.dashboardId, slug);
   },
 );
 
