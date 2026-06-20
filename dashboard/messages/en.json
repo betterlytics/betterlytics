@@ -4151,6 +4151,21 @@
         "activeIncidents": "Active incidents",
         "pastIncidents": "Past incidents",
         "listSubtitle": "Updates appear on your public page.",
+        "filters": {
+          "search": "Search incidents",
+          "state": "State",
+          "stateAll": "All states",
+          "stateActive": "Active",
+          "stateResolved": "Resolved",
+          "visibility": "Visibility",
+          "visibilityAll": "All visibility",
+          "visibilityPublished": "Published",
+          "visibilityInternal": "Internal",
+          "reload": "Reload",
+          "noMatch": "No incidents match your filters."
+        },
+        "autoDetected": "Auto-detected",
+        "affectedMore": "+{count} more",
         "detectedTitle": "Detected outage",
         "detectedDescription": "{monitor} — {detail}",
         "internal": "Internal",
@@ -4181,7 +4196,9 @@
           "status": "Status",
           "impact": "Impact",
           "affected": "Affected",
-          "started": "Started"
+          "started": "Started",
+          "duration": "Duration",
+          "visibility": "Visibility"
         },
         "saved": "Incident saved",
         "deleted": "Incident deleted",

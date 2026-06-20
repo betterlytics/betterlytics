@@ -4154,6 +4154,21 @@
         "activeIncidents": "Aktive hændelser",
         "pastIncidents": "Tidligere hændelser",
         "listSubtitle": "Opdateringer vises på din offentlige side.",
+        "filters": {
+          "search": "Søg hændelser",
+          "state": "Tilstand",
+          "stateAll": "Alle tilstande",
+          "stateActive": "Aktive",
+          "stateResolved": "Løst",
+          "visibility": "Synlighed",
+          "visibilityAll": "Al synlighed",
+          "visibilityPublished": "Offentliggjort",
+          "visibilityInternal": "Intern",
+          "reload": "Genindlæs",
+          "noMatch": "Ingen hændelser matcher dine filtre."
+        },
+        "autoDetected": "Automatisk registreret",
+        "affectedMore": "+{count} flere",
         "detectedTitle": "Registreret nedbrud",
         "detectedDescription": "{monitor} — {detail}",
         "internal": "Intern",
@@ -4184,7 +4199,9 @@
           "status": "Status",
           "impact": "Påvirkning",
           "affected": "Påvirket",
-          "started": "Startet"
+          "started": "Startet",
+          "duration": "Varighed",
+          "visibility": "Synlighed"
         },
         "saved": "Hændelse gemt",
         "deleted": "Hændelse slettet",
