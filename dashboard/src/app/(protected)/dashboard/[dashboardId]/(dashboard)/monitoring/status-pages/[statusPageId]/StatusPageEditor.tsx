@@ -204,6 +204,7 @@ export function StatusPageEditor({
       messages={previewMessages}
       publicHost={publicHost}
       draft={form.previewDraft}
+      enlargeable
     />
   );
 
