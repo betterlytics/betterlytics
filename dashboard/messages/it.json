@@ -3946,6 +3946,7 @@
       "today": "Oggi"
     },
     "overallUptime": "Uptime complessivo <value>{uptime}</value> · ultimi {days} giorni",
+    "activeIncidents": "Incidenti attivi",
     "pastIncidents": "Incidenti passati",
     "noIncidents": "Nessun incidente negli ultimi {days} giorni.",
     "noOtherIncidents": "Nessun altro incidente negli ultimi {days} giorni.",
@@ -4150,6 +4151,7 @@
       },
       "incidents": {
         "title": "Incidenti",
+        "activeIncidents": "Incidenti attivi",
         "pastIncidents": "Incidenti passati",
         "listSubtitle": "Gli aggiornamenti appaiono sulla tua pagina pubblica.",
         "detectedTitle": "Interruzione rilevata",

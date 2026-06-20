@@ -3943,6 +3943,7 @@
       "today": "Today"
     },
     "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
+    "activeIncidents": "Active incidents",
     "pastIncidents": "Past incidents",
     "noIncidents": "No incidents in the last {days} days.",
     "noOtherIncidents": "No other incidents in the last {days} days.",
@@ -4147,6 +4148,7 @@
       },
       "incidents": {
         "title": "Incidents",
+        "activeIncidents": "Active incidents",
         "pastIncidents": "Past incidents",
         "listSubtitle": "Updates appear on your public page.",
         "detectedTitle": "Detected outage",
