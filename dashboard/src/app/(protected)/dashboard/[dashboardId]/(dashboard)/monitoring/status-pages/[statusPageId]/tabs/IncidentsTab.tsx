@@ -273,7 +273,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       {/* Past incidents header */}
       <div className='flex items-end justify-between gap-4'>
         <div>
-          <h2 className='text-lg font-semibold'>{t('pastIncidents')}</h2>
+          <h2 className='font-semibold'>{t('pastIncidents')}</h2>
           <p className='text-muted-foreground mt-1 text-sm'>{t('listSubtitle')}</p>
         </div>
         <PermissionGate>
