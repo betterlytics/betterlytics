@@ -4,13 +4,11 @@ import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Maximize2, X } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import {
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   defaultPublicMonitorName,
@@ -259,25 +257,15 @@ function WizardForm({
           <aside className='hidden min-h-0 w-[500px] flex-none overflow-y-auto lg:block'>
             <div className='min-h-full py-8 pr-2 pl-6 sm:py-10'>
               {previewQuery.data ? (
-                <div className='group relative'>
-                  <LivePreview
-                    payload={previewQuery.data.payload}
-                    messages={previewQuery.data.messages}
-                    publicHost={publicHost}
-                    draft={form.previewDraft}
-                  />
-                  <button
-                    type='button'
-                    onClick={() => setPreviewOpen(true)}
-                    aria-label={t('wizard.enlargePreview')}
-                    className='absolute inset-0 flex cursor-pointer items-center justify-center rounded-xl opacity-0 transition-opacity hover:bg-black/30 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
-                  >
-                    <span className='flex items-center gap-1.5 rounded-md bg-black/70 px-3 py-1.5 text-xs font-medium text-white shadow-sm'>
-                      <Maximize2 className='h-3.5 w-3.5' />
-                      {t('wizard.enlargePreview')}
-                    </span>
-                  </button>
-                </div>
+                <LivePreview
+                  payload={previewQuery.data.payload}
+                  messages={previewQuery.data.messages}
+                  publicHost={publicHost}
+                  draft={form.previewDraft}
+                  enlargeable
+                  enlargedOpen={previewOpen}
+                  onEnlargedOpenChange={setPreviewOpen}
+                />
               ) : previewQuery.isError ? (
                 <p className='text-muted-foreground pt-10 text-sm'>{t('error')}</p>
               ) : (
@@ -288,36 +276,6 @@ function WizardForm({
         </div>
       </div>
       <WizardActions layout='bar' {...navProps} />
-      {previewQuery.data && (
-        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-          <DialogPortal>
-            <DialogOverlay />
-            <DialogPrimitive.Content
-              aria-describedby={undefined}
-              className='data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 w-full max-w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 duration-200'
-            >
-              <DialogTitle className='sr-only'>{t('preview')}</DialogTitle>
-              <LivePreview
-                payload={previewQuery.data.payload}
-                messages={previewQuery.data.messages}
-                publicHost={publicHost}
-                draft={form.previewDraft}
-                zoom={0.85}
-                centerUrl
-                className='max-h-[88vh]'
-                chromeRight={
-                  <DialogClose
-                    aria-label={t('wizard.close')}
-                    className='text-muted-foreground hover:text-foreground hover:bg-muted -mr-1 flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded transition-colors'
-                  >
-                    <X className='h-4 w-4' />
-                  </DialogClose>
-                }
-              />
-            </DialogPrimitive.Content>
-          </DialogPortal>
-        </Dialog>
-      )}
       <MonitorFormDialog
         open={createMonitorOpen}
         onOpenChange={setCreateMonitorOpen}
