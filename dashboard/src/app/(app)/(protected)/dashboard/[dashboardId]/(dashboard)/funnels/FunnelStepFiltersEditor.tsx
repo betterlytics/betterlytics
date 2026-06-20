@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { createEmptyQueryFilter, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { cn } from '@/lib/utils';
@@ -20,7 +21,7 @@ import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 type FunnelStepFiltersEditorProps = {
   filters: QueryFilter[];
   onChange: (next: QueryFilter[]) => void;
-  globalPropertyKeys?: string[];
+  propertyKeys?: PropertyKeysBySource;
 };
 
 const INTERACTIVE_ELEMENT_SELECTOR =
@@ -29,7 +30,7 @@ const INTERACTIVE_ELEMENT_SELECTOR =
 function FunnelStepFiltersEditorComponent({
   filters,
   onChange,
-  globalPropertyKeys,
+  propertyKeys,
 }: FunnelStepFiltersEditorProps) {
   const t = useTranslations('components.filters');
   const isMobile = useIsMobile();
@@ -98,7 +99,7 @@ function FunnelStepFiltersEditorComponent({
                 filter={filter}
                 onFilterUpdate={handleUpdate}
                 requestRemoval={handleRemove}
-                globalPropertyKeys={globalPropertyKeys}
+                propertyKeys={propertyKeys}
                 hideClearAllButton
                 useExtendedRange
                 formatLength={isMobile ? 20 : 35}

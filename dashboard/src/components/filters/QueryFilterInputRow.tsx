@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import { cn } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
 import { Dispatch } from 'react';
@@ -10,7 +11,7 @@ import { FilterValueSearch } from '@/components/filters/FilterValueSearch';
 type QueryFilterInputRowProps<TEntity> = {
   filter: QueryFilter & TEntity;
   disableDeletion?: boolean;
-  globalPropertyKeys?: string[];
+  propertyKeys?: PropertyKeysBySource;
   useExtendedRange?: boolean;
   formatLength?: number;
   valueError?: boolean;
@@ -25,7 +26,7 @@ export function QueryFilterInputRow<TEntity>({
   onFilterUpdate,
   requestRemoval,
   disableDeletion,
-  globalPropertyKeys,
+  propertyKeys,
   useExtendedRange,
   formatLength,
   valueError,
@@ -44,7 +45,7 @@ export function QueryFilterInputRow<TEntity>({
       <FilterColumnDropdown
         filter={filter}
         onFilterUpdate={onFilterUpdate}
-        globalPropertyKeys={globalPropertyKeys}
+        propertyKeys={propertyKeys}
         className='[grid-area:col]'
       />
       <FilterOperatorSelector

@@ -10,6 +10,7 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
 import { filterColumnSql } from './filter-sql';
+import { buildPropertyFilterSql } from './property-source-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
 import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
@@ -54,15 +55,15 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
 
   switch (parsed.kind) {
-    case 'gp': {
-      const key = SQL.String({ [`gp_key_${filterIndex}`]: parsed.key });
-      const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
-      if (isWildcard) {
-        const hasKey = safeSql`has(global_properties_keys, ${key})`;
-        return filter.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
-      }
-      const extract = safeSql`global_properties_values[indexOf(global_properties_keys, ${key})]`;
-      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
+    case 'property': {
+      const keySql = SQL.String({ [`${parsed.source}_key_${filterIndex}`]: parsed.key });
+      return buildPropertyFilterSql(parsed.source, {
+        keySql,
+        valuesSql: values,
+        values: filter.values,
+        operator: filter.operator,
+        rawOperator: filter.rawOperator,
+      });
     }
     default: {
       const column = filterColumnSql(parsed.col);

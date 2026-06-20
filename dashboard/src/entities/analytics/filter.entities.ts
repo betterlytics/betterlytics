@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { generateTempId } from '@/utils/temporaryId';
+import { PROPERTY_SOURCES, detectPropertySource, type PropertySourceKind } from './propertySources';
 
 export const FILTER_COLUMNS = [
   'url',
@@ -25,22 +26,22 @@ export const FILTER_COLUMNS = [
   'outbound_link_url',
 ] as const;
 
-export const GP_PREFIX = 'gp.';
-
 export const FILTER_OPERATORS = ['=', '!='] as const;
 
 export const MAX_FILTER_ROWS = 10;
 
-const GP_KEY_PATTERN = /^[^\p{C}]{1,64}$/u;
+/** Shared key constraint for every property source: 1-64 chars, no control chars. */
+export const PROPERTY_KEY_PATTERN = /^[^\p{C}]{1,64}$/u;
 
 export const FilterColumnSchema = z.union([
   z.enum(FILTER_COLUMNS),
-  z
-    .string()
-    .startsWith(GP_PREFIX)
-    .refine((s) => GP_KEY_PATTERN.test(s.slice(GP_PREFIX.length)), {
-      message: 'Invalid global property key',
-    }),
+  z.string().refine(
+    (s) => {
+      const source = detectPropertySource(s);
+      return source !== null && PROPERTY_KEY_PATTERN.test(s.slice(PROPERTY_SOURCES[source].prefix.length));
+    },
+    { message: 'Invalid property column' },
+  ),
 ]) as z.ZodType<FilterColumn>;
 
 export const QueryFilterSchema = z.object({
@@ -64,30 +65,28 @@ export function isUsableFilter(filter: QueryFilter): boolean {
   return Boolean(filter.column) && Boolean(filter.operator) && filter.values.every(Boolean);
 }
 
-export type FilterColumn = TableFilterColumn | `gp.${string}`;
 export type TableFilterColumn = (typeof FILTER_COLUMNS)[number];
+export type FilterColumn = TableFilterColumn | `${PropertySourceKind}.${string}`;
 export type FilterOperator = (typeof FILTER_OPERATORS)[number];
 
 /**
  * Discriminated form of a filter column, produced by parseFilterColumn.
- * SQL-building code should operate on this — never on raw FilterColumn strings.
+ * SQL-building code should operate on this - never on raw FilterColumn strings.
  */
-export type ParsedFilterColumn = { kind: 'standard'; col: TableFilterColumn } | { kind: 'gp'; key: string };
+export type ParsedFilterColumn =
+  | { kind: 'standard'; col: TableFilterColumn }
+  | { kind: 'property'; source: PropertySourceKind; key: string };
 
 /**
  * Narrow a validated FilterColumn into a discriminated union suitable for SQL.
  * Assumes input has already passed FilterColumnSchema (e.g. via tRPC / QueryFilterSchema).
  */
 export function parseFilterColumn(col: FilterColumn): ParsedFilterColumn {
-  if (isGlobalPropertyColumn(col)) {
-    return { kind: 'gp', key: col.slice(GP_PREFIX.length) };
+  const source = detectPropertySource(col);
+  if (source === null) {
+    return { kind: 'standard', col: col as TableFilterColumn };
   }
-
-  return { kind: 'standard', col };
-}
-
-function isGlobalPropertyColumn(col: FilterColumn): col is `gp.${string}` {
-  return col.startsWith(GP_PREFIX);
+  return { kind: 'property', source, key: col.slice(PROPERTY_SOURCES[source].prefix.length) };
 }
 
 export function isFilterColumn(value: string): value is FilterColumn {

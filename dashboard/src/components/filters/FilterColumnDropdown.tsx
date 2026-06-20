@@ -4,24 +4,20 @@ import {
   BADropdownMenu,
   BADropdownMenuActiveIndicator,
   BADropdownMenuContent,
-  BADropdownMenuEmpty,
   BADropdownMenuGroup,
   BADropdownMenuItem,
   BADropdownMenuLabel,
   BADropdownMenuSeparator,
-  BADropdownMenuSkeletonItem,
-  BADropdownMenuSub,
-  BADropdownMenuSubContent,
-  BADropdownMenuSubTrigger,
   BADropdownMenuTrigger,
 } from '@/components/ba-dropdown-menu';
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
+import { PropertyKeysSubmenu } from '@/components/filters/PropertyKeysSubmenu';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type FilterColumn, type QueryFilter } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { PROPERTY_SOURCE_LIST, type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import { cn } from '@/lib/utils';
-import { ChevronDownIcon, TagsIcon } from 'lucide-react';
+import { Braces as BracesIcon, ChevronDownIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Dispatch } from 'react';
 
@@ -30,21 +26,19 @@ const DEMO_ALLOWED_COLUMNS = new Set<FilterColumn>(['url', 'device_type']);
 type FilterColumnDropdownProps<TEntity> = {
   filter: QueryFilter & TEntity;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
-  globalPropertyKeys?: string[];
+  propertyKeys?: PropertyKeysBySource;
   className?: string;
 };
 
 export function FilterColumnDropdown<TEntity>({
   filter,
   onFilterUpdate,
-  globalPropertyKeys,
+  propertyKeys,
   className,
 }: FilterColumnDropdownProps<TEntity>) {
   const t = useTranslations('components.filters');
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
-
-  const strategy = getFilterStrategy(filter.column);
 
   return (
     <div className={cn('flex flex-col', className)}>
@@ -99,38 +93,22 @@ export function FilterColumnDropdown<TEntity>({
           {isDemo ? (
             <BADropdownMenuItem disabled>
               <TagsIcon />
-              {t('globalProperties', { count: 2 })}
+              {t('properties')}
               <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
             </BADropdownMenuItem>
           ) : (
-            <BADropdownMenuSub>
-              <BADropdownMenuSubTrigger active={strategy.type === 'json_property'}>
-                <TagsIcon />
-                {t('globalProperties', { count: 2 })}
-              </BADropdownMenuSubTrigger>
-              <BADropdownMenuSubContent scrollClassName='max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))]'>
-                {globalPropertyKeys === undefined ? (
-                  Array.from({ length: 3 }).map((_, i) => <BADropdownMenuSkeletonItem key={i} />)
-                ) : globalPropertyKeys.length > 0 ? (
-                  globalPropertyKeys.map((key) => (
-                    <BADropdownMenuItem
-                      key={key}
-                      active={key === strategy.key}
-                      onSelect={() => {
-                        const next = `gp.${key}`;
-                        if (filter.column === next) return;
-                        onFilterUpdate({ ...filter, column: next, values: [] });
-                      }}
-                    >
-                      <span className='truncate'>{key}</span>
-                      <BADropdownMenuActiveIndicator />
-                    </BADropdownMenuItem>
-                  ))
-                ) : (
-                  <BADropdownMenuEmpty>{t('noProperties')}</BADropdownMenuEmpty>
-                )}
-              </BADropdownMenuSubContent>
-            </BADropdownMenuSub>
+            PROPERTY_SOURCE_LIST.map(({ source, labelKey }) => (
+              <PropertyKeysSubmenu
+                key={source}
+                source={source}
+                label={t(labelKey, { count: 2 })}
+                icon={source === 'cep' ? <BracesIcon /> : <TagsIcon />}
+                emptyLabel={t('noProperties')}
+                keys={propertyKeys?.[source]}
+                filter={filter}
+                onFilterUpdate={onFilterUpdate}
+              />
+            ))
           )}
         </BADropdownMenuContent>
       </BADropdownMenu>

@@ -2428,6 +2428,8 @@
       "is": "is",
       "isNot": "is not",
       "globalProperties": "{count, plural, one {Global Property} other {Global Properties}}",
+      "properties": "Properties",
+      "customEventProperties": "{count, plural, one {Custom Event Property} other {Custom Event Properties}}",
       "selectProperty": "Select property",
       "noProperties": "No properties found",
       "namePlaceholder": "Enter step name",
