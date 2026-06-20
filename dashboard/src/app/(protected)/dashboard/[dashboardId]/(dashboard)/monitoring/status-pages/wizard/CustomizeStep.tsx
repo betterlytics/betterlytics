@@ -11,6 +11,7 @@ import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(das
 import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
 import { LabeledTextField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LabeledTextField';
 import { SortableNameRow } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableNameRow';
+import { FaviconUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/FaviconUploadField';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 
 type CustomizeStepProps = {
@@ -51,17 +52,7 @@ export function CustomizeStep({ form }: CustomizeStepProps) {
               {t('uploadLogo')}
             </button>
           </div>
-          <div className='space-y-2'>
-            <Label>{t('favicon')}</Label>
-            <button
-              type='button'
-              aria-label={t('uploadFavicon')}
-              title={t('uploadFavicon')}
-              className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-16 cursor-pointer items-center justify-center rounded-md border border-dashed transition-colors'
-            >
-              <Upload className='h-4 w-4' />
-            </button>
-          </div>
+          <FaviconUploadField />
         </div>
         <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
         <ThemeField value={form.theme} onChange={form.setTheme} />

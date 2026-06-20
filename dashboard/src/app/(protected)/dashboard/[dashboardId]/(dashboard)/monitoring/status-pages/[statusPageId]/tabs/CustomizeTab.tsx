@@ -7,6 +7,7 @@ import { CapabilityGate } from '@/components/billing/CapabilityGate';
 import { ProBadge } from '@/components/billing/ProBadge';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 import { LogoUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LogoUploadField';
+import { FaviconUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/FaviconUploadField';
 import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/AccentColorField';
 import { ThemeField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/ThemeField';
 import { Section } from './Section';
@@ -27,12 +28,15 @@ export function CustomizeTab({ form, dashboardId, statusPageId }: CustomizeTabPr
     <>
       <Section title={t('branding')} description={t('brandHint')}>
         <div className='bg-card border-border space-y-5 rounded-xl border p-5'>
-          <LogoUploadField
-            dashboardId={dashboardId}
-            statusPageId={statusPageId}
-            logoUrl={form.logoUrl}
-            onLogoChange={form.setLogoUrl}
-          />
+          <div className='flex flex-wrap items-start gap-4'>
+            <LogoUploadField
+              dashboardId={dashboardId}
+              statusPageId={statusPageId}
+              logoUrl={form.logoUrl}
+              onLogoChange={form.setLogoUrl}
+            />
+            <FaviconUploadField />
+          </div>
           <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
           <div className='border-border flex items-center justify-between gap-4 border-t pt-5'>
             <div>
