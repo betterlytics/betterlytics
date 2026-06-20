@@ -5,7 +5,7 @@ import {
   type StatusPageIncident,
   type StatusPageIncidentCreate,
   type StatusPageIncidentUpdate,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPageIncident.entities';
 
 export async function listStatusPageIncidents(
   dashboardId: string,

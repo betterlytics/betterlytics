@@ -10,15 +10,15 @@ import {
 } from '@/repositories/postgres/statusPageIncident.repository';
 import { getStatusPageSnapshotById } from '@/repositories/postgres/statusPage.repository';
 import { getDetectedOutagesForMonitors } from '@/repositories/clickhouse/monitoring.repository';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
-  STATUS_PAGE_LIMITS,
   type DetectedOutageSuggestion,
   type IncidentWithSlug,
   type StatusPageIncident,
   type StatusPageIncidentCreate,
   type StatusPageIncidentImpact,
   type StatusPageIncidentUpdate,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPageIncident.entities';
 
 
 export function getIncidentsForStatusPage(dashboardId: string, statusPageId: string): Promise<StatusPageIncident[]> {

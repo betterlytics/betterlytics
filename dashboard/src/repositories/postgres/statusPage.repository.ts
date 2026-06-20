@@ -8,7 +8,7 @@ import {
   type StatusPageListItem,
   type StatusPageUpdate,
   type StatusPageWithMonitors,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPage.entities';
 
 /**
  * The app consumes a single `logoUrl` string. An uploaded logo is served by the

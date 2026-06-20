@@ -18,7 +18,7 @@ import type {
   StatusPageListItem,
   StatusPageUpdate,
   StatusPageWithMonitors,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPage.entities';
 
 export async function getStatusPagesForDashboard(dashboardId: string): Promise<StatusPageListItem[]> {
   const [pages, activeIncidentsByPage] = await Promise.all([

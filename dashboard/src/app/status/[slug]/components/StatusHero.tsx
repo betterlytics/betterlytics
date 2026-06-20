@@ -1,6 +1,6 @@
 import { Check, Minus, TriangleAlert, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { PublicOverallStatus } from '@/entities/analytics/statusPage.entities';
+import type { PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
 const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string | null; glyph: string }> = {
   operational: { Icon: Check, band: null, glyph: 'var(--sp-accent)' },

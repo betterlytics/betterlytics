@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import type { PublicStatusPageIncident } from '@/entities/analytics/statusPage.entities';
+import type { PublicStatusPageIncident } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
 const dateLabel = new Intl.DateTimeFormat('en', {
   month: 'short',

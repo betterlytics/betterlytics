@@ -7,7 +7,8 @@ import { useTranslations } from 'next-intl';
 import { DragHandle } from '@/components/dnd/DragHandle';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { STATUS_PAGE_LIMITS, defaultPublicMonitorName, monitorRowLabel } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import { defaultPublicMonitorName, monitorRowLabel } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { cn } from '@/lib/utils';
 

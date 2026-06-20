@@ -7,13 +7,15 @@ import z from 'zod';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
-  defaultPublicMonitorName,
   StatusPageCreateSchema,
-  StatusPageIncidentCreateSchema,
-  StatusPageIncidentUpdateSchema,
   StatusPageSlugSchema,
   StatusPageUpdateSchema,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPage.entities';
+import {
+  StatusPageIncidentCreateSchema,
+  StatusPageIncidentUpdateSchema,
+} from '@/entities/analytics/statusPage/statusPageIncident.entities';
+import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import {
   addStatusPage,
   clearStatusPageLogo,
@@ -42,7 +44,7 @@ import {
   getStatusPagePreviewData,
   getStatusPagePreviewDataForDashboard,
 } from '@/services/analytics/publicStatusPage.service';
-import { STATUS_PAGE_LIMITS, STATUS_PAGE_LOGO_MIME } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS, STATUS_PAGE_LOGO_MIME } from '@/entities/analytics/statusPage/statusPage.entities';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
 import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';

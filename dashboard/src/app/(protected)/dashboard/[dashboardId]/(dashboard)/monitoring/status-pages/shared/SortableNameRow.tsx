@@ -7,7 +7,8 @@ import { Pencil } from 'lucide-react';
 
 import { DragHandle } from '@/components/dnd/DragHandle';
 import { Input } from '@/components/ui/input';
-import { STATUS_PAGE_LIMITS, defaultPublicMonitorName } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
 import type { MonitorRow } from './SortableMonitorRow';
 

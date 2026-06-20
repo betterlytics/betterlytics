@@ -3,7 +3,7 @@
 import { Monitor, Moon, Sun, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { type StatusPageTheme } from '@/entities/analytics/statusPage.entities';
+import { type StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
 
 const THEME_OPTIONS: { value: StatusPageTheme; Icon: LucideIcon }[] = [
   { value: 'light', Icon: Sun },

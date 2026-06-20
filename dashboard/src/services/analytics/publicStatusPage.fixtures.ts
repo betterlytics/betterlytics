@@ -1,12 +1,14 @@
 import {
-  PublicStatusPageDataSchema,
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
+} from '@/entities/analytics/statusPage/statusPage.entities';
+import {
+  PublicStatusPageDataSchema,
   type PublicDailyUptimeBucket,
   type PublicMonitorStatus,
   type PublicStatusPageData,
   type PublicStatusPageMonitor,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
 /**
  * Fixture status pages, keyed by slug, used while the public page UI is being

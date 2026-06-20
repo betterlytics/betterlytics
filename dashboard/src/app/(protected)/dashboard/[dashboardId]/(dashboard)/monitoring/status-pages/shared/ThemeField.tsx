@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
-import { type StatusPageTheme } from '@/entities/analytics/statusPage.entities';
+import { type StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
 import { ThemeSegmentedControl } from './ThemeSegmentedControl';
 
 type ThemeFieldProps = {

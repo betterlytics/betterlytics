@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import type { PublicStatusPageData } from '@/entities/analytics/statusPage.entities';
+import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { IncidentCard } from './IncidentCard';
 
 export function ActiveIncidents({ data }: { data: PublicStatusPageData }) {

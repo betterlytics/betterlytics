@@ -42,7 +42,7 @@ import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { cn } from '@/lib/utils';
 import { deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
-import type { StatusPageListItem } from '@/entities/analytics/statusPage.entities';
+import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { MonitoringTooltip } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/[monitorId]/MonitoringTooltip';

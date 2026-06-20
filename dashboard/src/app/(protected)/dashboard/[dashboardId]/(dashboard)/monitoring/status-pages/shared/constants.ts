@@ -1,4 +1,4 @@
-import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
 
 /** Preset accent swatches offered in the picker; the first is the product default. */
 export const ACCENT_PRESETS = [

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { type StatusPageVisibility } from '@/entities/analytics/statusPage.entities';
+import { type StatusPageVisibility } from '@/entities/analytics/statusPage/statusPage.entities';
 
 const VISIBILITY_OPTIONS: StatusPageVisibility[] = ['public', 'unlisted'];
 

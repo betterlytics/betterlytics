@@ -1,4 +1,4 @@
-import type { PublicMonitorStatus, PublicOverallStatus } from '@/entities/analytics/statusPage.entities';
+import type { PublicMonitorStatus, PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
 export function deriveOverallStatus(statuses: PublicMonitorStatus[]): PublicOverallStatus {
   if (statuses.includes('down')) return 'outage';

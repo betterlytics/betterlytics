@@ -6,13 +6,12 @@ import { Maximize2, X } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import { StatusPageView } from '@/app/status/[slug]/components/StatusPageView';
+import { StatusPageAccentColorSchema, type StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
-  StatusPageAccentColorSchema,
   type PublicStatusPageData,
   type PublicStatusPageIncident,
   type StatusPagePreviewPayload,
-  type StatusPageTheme,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';
 import { cn } from '@/lib/utils';
 

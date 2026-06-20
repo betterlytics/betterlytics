@@ -3,7 +3,7 @@
 import '@/app/status/[slug]/status.css';
 import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
-import type { PublicStatusPageData } from '@/entities/analytics/statusPage.entities';
+import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { ActiveIncidents } from './ActiveIncidents';
 import { MonitorUptimeCard } from './MonitorUptimeCard';

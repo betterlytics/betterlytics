@@ -2,12 +2,14 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import {
+  type StatusPageTheme,
+  type StatusPageVisibility,
+} from '@/entities/analytics/statusPage/statusPage.entities';
+import {
   defaultPublicMonitorName,
   isValidCustomDomain,
   isValidHomepageUrl,
-  type StatusPageTheme,
-  type StatusPageVisibility,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPage.helpers';
 import { type PreviewDraft } from './LivePreview';
 import { type MonitorRow } from './SortableMonitorRow';
 

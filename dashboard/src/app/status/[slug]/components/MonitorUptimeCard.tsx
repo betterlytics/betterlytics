@@ -1,9 +1,9 @@
 import { useTranslations } from 'next-intl';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
-  STATUS_PAGE_LIMITS,
   type PublicMonitorStatus,
   type PublicStatusPageData,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatPercentage } from '@/utils/formatters';
 import { UptimeBars, UPTIME_BARS_COMPACT_DAYS } from './UptimeBars';
 

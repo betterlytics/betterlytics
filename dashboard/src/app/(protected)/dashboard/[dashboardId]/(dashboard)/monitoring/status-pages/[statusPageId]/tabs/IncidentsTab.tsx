@@ -29,13 +29,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
-  STATUS_PAGE_LIMITS,
   type DetectedOutageSuggestion,
   type StatusPageIncident,
   type StatusPageIncidentImpact,
   type StatusPageIncidentStatusValue,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import {
   createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,

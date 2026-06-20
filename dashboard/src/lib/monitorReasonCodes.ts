@@ -1,4 +1,4 @@
-import type { PublicIncidentCause } from '@/entities/analytics/statusPage.entities';
+import type { PublicIncidentCause } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
 export const REASON_CODE_KEYS = [
   'ok',

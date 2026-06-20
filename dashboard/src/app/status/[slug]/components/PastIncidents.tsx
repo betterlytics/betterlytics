@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
-import { STATUS_PAGE_LIMITS, type PublicStatusPageData } from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { IncidentCard } from './IncidentCard';
 
 export function PastIncidents({ data }: { data: PublicStatusPageData }) {

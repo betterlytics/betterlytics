@@ -1,16 +1,18 @@
 import { cache } from 'react';
 import {
-  defaultPublicMonitorName,
-  PublicStatusPageDataSchema,
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
+  type PublishedStatusPage,
+} from '@/entities/analytics/statusPage/statusPage.entities';
+import {
+  PublicStatusPageDataSchema,
   type PublicDailyUptimeBucket,
   type PublicMonitorStatus,
   type PublicStatusPageData,
   type PublicStatusPageIncident,
-  type PublishedStatusPage,
   type StatusPagePreviewPayload,
-} from '@/entities/analytics/statusPage.entities';
+} from '@/entities/analytics/statusPage/publicStatusPage.entities';
+import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { env } from '@/lib/env';
 import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';

@@ -9,10 +9,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import {
-  STATUS_PAGE_DEFAULT_ACCENT_COLOR,
-  defaultPublicMonitorName,
-} from '@/entities/analytics/statusPage.entities';
+import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
+import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { ConfirmDialog } from '@/components/dialogs';
 import {
   createStatusPageAction,

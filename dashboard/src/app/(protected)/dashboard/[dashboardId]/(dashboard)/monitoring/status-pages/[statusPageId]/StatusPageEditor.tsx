@@ -12,11 +12,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ConfirmDialog } from '@/components/dialogs';
-import {
-  defaultPublicMonitorName,
-  type StatusPagePreviewPayload,
-  type StatusPageWithMonitors,
-} from '@/entities/analytics/statusPage.entities';
+import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
+import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
+import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LivePreview';

@@ -1,5 +1,5 @@
 import type { SupportedLanguages } from '@/constants/i18n';
-import type { PublicDailyUptimeBucket } from '@/entities/analytics/statusPage.entities';
+import type { PublicDailyUptimeBucket } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatPercentage } from '@/utils/formatters';
 
 export const UPTIME_BARS_COMPACT_DAYS = 45;
