@@ -49,8 +49,8 @@ import { MonitoringTooltip } from '@/app/(protected)/dashboard/[dashboardId]/(da
 import { StatusPagesEmptyState } from './StatusPagesEmptyState';
 import { CreateStatusPageWizard } from './CreateStatusPageWizard';
 
-const HEADER_GRID = 'grid-cols-[minmax(0,1.5fr)_110px_minmax(0,1fr)_150px_80px]';
-const ROW_GRID = 'md:grid md:grid-cols-[minmax(0,1.5fr)_110px_minmax(0,1fr)_150px_80px]';
+const HEADER_GRID = 'grid-cols-[minmax(0,1fr)_150px_120px_150px_80px]';
+const ROW_GRID = 'md:grid md:grid-cols-[minmax(0,1fr)_150px_120px_150px_80px]';
 
 type StatusPagesClientProps = {
   dashboardId: string;
@@ -159,7 +159,7 @@ export function StatusPagesClient({
       <div className='bg-card border-border overflow-hidden rounded-xl border'>
         <div
           className={cn(
-            'text-muted-foreground border-border hidden border-b px-5 py-2.5 text-[11px] font-semibold tracking-wider uppercase md:grid md:gap-4',
+            'text-muted-foreground border-border hidden border-b px-5 py-2.5 text-xs font-semibold tracking-wider uppercase md:grid md:gap-4',
             HEADER_GRID,
           )}
         >
@@ -189,13 +189,13 @@ export function StatusPagesClient({
               <div className='min-w-0 basis-full pr-16 md:basis-auto md:pr-0'>
                 <Link
                   href={editorHref}
-                  className='text-foreground block truncate font-semibold after:absolute after:inset-0'
+                  className='text-foreground block truncate text-sm font-semibold after:absolute after:inset-0'
                 >
                   {page.name}
                 </Link>
               </div>
 
-              <div className='text-muted-foreground flex items-center gap-1.5 text-[13px]'>
+              <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
                 {page.isPublished ? (
                   <Globe className='h-3.5 w-3.5 shrink-0' aria-hidden />
                 ) : (
@@ -232,7 +232,7 @@ export function StatusPagesClient({
                 )}
               </div>
 
-              <div className='flex items-center gap-2 text-[13px] whitespace-nowrap'>
+              <div className='flex items-center gap-2 text-xs whitespace-nowrap'>
                 <span
                   className={cn('h-2 w-2 shrink-0 rounded-full', isIncident ? 'bg-amber-500' : 'bg-emerald-500')}
                   aria-hidden
