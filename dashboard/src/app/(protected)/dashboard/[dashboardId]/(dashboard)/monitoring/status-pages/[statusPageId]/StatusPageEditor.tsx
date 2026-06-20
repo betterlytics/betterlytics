@@ -30,7 +30,6 @@ import { CustomizeTab } from './tabs/CustomizeTab';
 import { MonitorsTab } from './tabs/MonitorsTab';
 
 type TabKey = 'incidents' | 'general' | 'customize' | 'monitors';
-const CONFIG_TABS: TabKey[] = ['general', 'customize', 'monitors'];
 
 type StatusPageEditorProps = {
   dashboardId: string;
@@ -269,13 +268,13 @@ export function StatusPageEditor({
               {t('tabs.general')}
               {dirty.general && <UnsavedDot label={t('unsavedChanges')} />}
             </UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='customize'>
-              {t('tabs.customize')}
-              {dirty.customize && <UnsavedDot label={t('unsavedChanges')} />}
-            </UnderlineTabsTrigger>
             <UnderlineTabsTrigger value='monitors'>
               {t('tabs.monitors')}
               {dirty.monitors && <UnsavedDot label={t('unsavedChanges')} />}
+            </UnderlineTabsTrigger>
+            <UnderlineTabsTrigger value='customize'>
+              {t('tabs.customize')}
+              {dirty.customize && <UnsavedDot label={t('unsavedChanges')} />}
             </UnderlineTabsTrigger>
           </UnderlineTabsList>
         </div>
@@ -297,10 +296,10 @@ export function StatusPageEditor({
                   savedSlug={statusPage.slug}
                 />
               )}
+              {activeTab === 'monitors' && <MonitorsTab form={form} />}
               {activeTab === 'customize' && (
                 <CustomizeTab form={form} dashboardId={dashboardId} statusPageId={statusPage.id} />
               )}
-              {activeTab === 'monitors' && <MonitorsTab form={form} />}
             </div>
 
             <div className='space-y-3'>
