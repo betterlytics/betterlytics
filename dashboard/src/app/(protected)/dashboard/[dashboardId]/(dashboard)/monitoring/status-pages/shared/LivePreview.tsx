@@ -20,6 +20,7 @@ export type PreviewDraft = {
   accentColor: string;
   logoUrl: string | null;
   showPastIncidents: boolean;
+  hideBranding: boolean;
   monitors: Array<{ monitorCheckId: string; included: boolean; publicName: string }>;
 };
 
@@ -106,6 +107,7 @@ export function LivePreview({
       accentColor: StatusPageAccentColorSchema.safeParse(draft.accentColor).success
         ? draft.accentColor
         : payload.data.accentColor,
+      hideBranding: draft.hideBranding,
       overallStatus: deriveOverallStatus(monitors.map((monitor) => monitor.status)),
       overallUptime: deriveOverallUptime(monitors.map((monitor) => monitor.uptime)),
       monitors,

@@ -4,6 +4,9 @@ import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { CapabilityGate } from '@/components/billing/CapabilityGate';
+import { ProBadge } from '@/components/billing/ProBadge';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { type SlugStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/constants';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
@@ -29,6 +32,8 @@ export function GeneralTab({
   savedSlug,
 }: GeneralTabProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const { caps } = useCapabilities();
+  const customDomainLocked = !caps.statusPages.customDomain;
 
   const slugStatusLabel =
     slugStatus === 'idle' ? null : (
@@ -96,15 +101,21 @@ export function GeneralTab({
               onChange={form.setHomepageUrl}
               error={form.isHomepageUrlValid ? null : t('homepageUrlInvalid')}
             />
-            <LabeledTextField
-              id='sp-domain'
-              label={t('customDomain')}
-              hint={t('customDomainHint')}
-              placeholder={`status.${dashboardDomain}`}
-              value={form.customDomain}
-              onChange={form.setCustomDomain}
-              error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
-            />
+            <CapabilityGate allowed={!customDomainLocked}>
+              {({ locked }) => (
+                <LabeledTextField
+                  id='sp-domain'
+                  label={t('customDomain')}
+                  labelAdornment={locked ? <ProBadge /> : undefined}
+                  hint={t('customDomainHint')}
+                  placeholder={`status.${dashboardDomain}`}
+                  value={form.customDomain}
+                  onChange={form.setCustomDomain}
+                  disabled={locked}
+                  error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
+                />
+              )}
+            </CapabilityGate>
           </div>
           <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
             <div>

@@ -107,6 +107,7 @@ export const StatusPageCreateSchema = z.object({
   accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
   logoUrl: z.string().nullable().optional(),
   showPastIncidents: z.boolean().default(true),
+  hideBranding: z.boolean().default(false),
   visibility: StatusPageVisibilitySchema.default('public'),
   homepageUrl: StatusPageHomepageUrlSchema.nullable().optional(),
   customDomain: StatusPageCustomDomainSchema.nullable().optional(),
@@ -137,6 +138,7 @@ export const StatusPageSchema = z.object({
   accentColor: z.string(),
   logoUrl: z.string().nullable(),
   showPastIncidents: z.boolean(),
+  hideBranding: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -257,6 +259,8 @@ export const PublicStatusPageDataSchema = z.object({
   lastUpdatedAt: z.string(),
   /** Percent 0..100 (mean of per-monitor uptime), null when no monitor has data */
   overallUptime: z.number().nullable(),
+  /** When true the "Powered by Betterlytics" footer is hidden */
+  hideBranding: z.boolean().default(false),
   monitors: z.array(PublicStatusPageMonitorSchema),
   /** null = past-incidents section disabled by the owner; [] = enabled but empty */
   incidents: z.array(PublicStatusPageIncidentSchema).nullable(),

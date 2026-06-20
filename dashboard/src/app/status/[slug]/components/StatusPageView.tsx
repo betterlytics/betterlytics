@@ -55,18 +55,20 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
       <main className='mx-auto -mt-11 w-full max-w-3xl px-4 pb-10 sm:px-8'>
         <MonitorUptimeCard data={data} />
         {data.incidents !== null && <PastIncidents data={data} />}
-        <footer className='mt-8 text-center text-xs text-[var(--sp-faint)]'>
-          {t('poweredBy')}{' '}
-          <a
-            href='https://betterlytics.io'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='ml-0.5 inline-flex items-center gap-1 align-middle font-bold text-[var(--sp-muted)] hover:underline'
-          >
-            <span aria-hidden className='bl-status-logo h-3.5 w-3.5' />
-            Betterlytics
-          </a>
-        </footer>
+        {!data.hideBranding && (
+          <footer className='mt-8 text-center text-xs text-[var(--sp-faint)]'>
+            {t('poweredBy')}{' '}
+            <a
+              href='https://betterlytics.io'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='ml-0.5 inline-flex items-center gap-1 align-middle font-bold text-[var(--sp-muted)] hover:underline'
+            >
+              <span aria-hidden className='bl-status-logo h-3.5 w-3.5' />
+              Betterlytics
+            </a>
+          </footer>
+        )}
       </main>
     </div>
   );

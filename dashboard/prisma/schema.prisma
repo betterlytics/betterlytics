@@ -461,6 +461,11 @@ model StatusPage {
 
   showPastIncidents Boolean @default(true)
 
+  // Owner toggle to hide the "Powered by Betterlytics" footer. Gated to the plan's removeBranding
+  // capability on write; the public render also re-checks the owner's current entitlement, so a
+  // downgrade restores the badge regardless of this stored flag.
+  hideBranding Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?

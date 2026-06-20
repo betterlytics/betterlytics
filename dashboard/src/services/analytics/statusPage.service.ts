@@ -1,4 +1,5 @@
 import {
+  countStatusPages,
   createStatusPage,
   deleteStatusPage,
   getStatusPageById,
@@ -36,6 +37,10 @@ export async function getStatusPage(
   statusPageId: string,
 ): Promise<StatusPageWithMonitors | null> {
   return getStatusPageById(dashboardId, statusPageId);
+}
+
+export async function countStatusPagesForDashboard(dashboardId: string): Promise<number> {
+  return countStatusPages(dashboardId);
 }
 
 export async function addStatusPage(dashboardId: string, data: StatusPageCreate): Promise<StatusPage> {

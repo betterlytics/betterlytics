@@ -22,11 +22,18 @@ export type DataRetentionCapabilities = {
   maxDataRetentionDays: number;
 };
 
+export type StatusPagesCapabilities = {
+  maxStatusPages: number;
+  customDomain: boolean;
+  removeBranding: boolean;
+};
+
 export type PlanCapabilities = {
   dashboards: DashboardCapabilities;
   monitoring: MonitoringCapabilities;
   emailReports: EmailReportCapabilities;
   dataRetention: DataRetentionCapabilities;
+  statusPages: StatusPagesCapabilities;
 };
 
 export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
@@ -42,6 +49,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     },
     emailReports: { emailReportsEnabled: false },
     dataRetention: { maxDataRetentionDays: 365 },
+    statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
   },
   professional: {
     dashboards: { maxDashboards: 50, maxMembers: 50 },
@@ -55,6 +63,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     },
     emailReports: { emailReportsEnabled: true },
     dataRetention: { maxDataRetentionDays: 1095 },
+    statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
   },
   enterprise: {
     dashboards: { maxDashboards: 9999, maxMembers: 9999 },
@@ -68,6 +77,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     },
     emailReports: { emailReportsEnabled: true },
     dataRetention: { maxDataRetentionDays: 1825 },
+    statusPages: { maxStatusPages: 9999, customDomain: true, removeBranding: true },
   },
 };
 

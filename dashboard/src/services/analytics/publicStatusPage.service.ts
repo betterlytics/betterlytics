@@ -26,6 +26,7 @@ import {
 } from '@/repositories/postgres/statusPage.repository';
 import { listPublishedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
+import { canRemoveStatusPageBranding } from '@/lib/billing/capabilityAccess';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { getStatusPageFixture } from './publicStatusPage.fixtures';
 
@@ -44,7 +45,9 @@ function deriveMonitorStatus(
 export const getPublicStatusPageData = cache(async (slug: string): Promise<PublicStatusPageData | null> => {
   const published = await getPublishedStatusPageBySlug(slug);
   if (published) {
-    const { data } = await assembleStatusPage(published);
+    const hideBranding =
+      published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
+    const { data } = await assembleStatusPage(published, { hideBranding });
     return data;
   }
   return env.IS_DEVELOPMENT ? getStatusPageFixture(slug) : null;
@@ -109,8 +112,8 @@ export async function getStatusPagePreviewDataForDashboard(
       theme: 'system',
       accentColor: STATUS_PAGE_DEFAULT_ACCENT_COLOR,
       logoUrl: null,
-      // No persisted page yet → no published incidents to fetch; disable the section to skip the query.
       showPastIncidents: false,
+      hideBranding: false,
       createdAt: now,
       updatedAt: now,
     },
@@ -127,7 +130,10 @@ export async function getStatusPagePreviewDataForDashboard(
   return assembleStatusPage(draftSnapshot);
 }
 
-async function assembleStatusPage(published: PublishedStatusPage): Promise<StatusPagePreviewPayload> {
+async function assembleStatusPage(
+  published: PublishedStatusPage,
+  options?: { hideBranding?: boolean },
+): Promise<StatusPagePreviewPayload> {
   const { page, siteId, monitors } = published;
   const days = STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS;
   const checkIds = monitors.map((monitor) => monitor.monitorCheckId);
@@ -230,6 +236,7 @@ async function assembleStatusPage(published: PublishedStatusPage): Promise<Statu
     overallStatus: deriveOverallStatus(publicMonitors.map((monitor) => monitor.status)),
     lastUpdatedAt,
     overallUptime: deriveOverallUptime(publicMonitors.map((monitor) => monitor.uptime)),
+    hideBranding: options?.hideBranding ?? false,
     monitors: publicMonitors,
     incidents: incidents == null ? null : incidents.map((entry) => entry.incident),
   });

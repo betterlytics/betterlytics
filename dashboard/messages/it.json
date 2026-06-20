@@ -3253,7 +3253,10 @@
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
       "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional",
-      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional"
+      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional",
+      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
+      "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
+      "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
@@ -3970,6 +3973,7 @@
   "statusPagesPage": {
     "title": "Pagine di stato",
     "newStatusPage": "Nuova pagina di stato",
+    "upgradeToCreate": "Upgrade per altri",
     "error": "Qualcosa è andato storto",
     "finishSetup": "Completa la configurazione per pubblicare",
     "empty": {
@@ -4051,6 +4055,8 @@
       "customDomainHint": "Ospita la pagina sul tuo dominio.",
       "homepageUrlInvalid": "Inserisci un URL valido che inizia con http:// o https://.",
       "customDomainInvalid": "Inserisci un dominio valido, es. status.example.com.",
+      "hideBranding": "Nascondi il branding Betterlytics",
+      "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
       "branding": "Branding",
       "brandHint": "Logo e colore principale mostrati sulla pagina pubblica.",
       "appearance": "Aspetto",

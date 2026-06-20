@@ -3250,7 +3250,10 @@
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
       "customHeaders": "Custom request headers require a Professional plan",
-      "keywordValidation": "Keyword validation requires a Professional plan"
+      "keywordValidation": "Keyword validation requires a Professional plan",
+      "statusPageLimit": "You have reached your status page limit. Upgrade to Pro to create more status pages.",
+      "statusPageCustomDomain": "Custom domains require a Professional plan",
+      "statusPageBranding": "Removing Betterlytics branding requires a Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
@@ -3967,6 +3970,7 @@
   "statusPagesPage": {
     "title": "Status Pages",
     "newStatusPage": "New status page",
+    "upgradeToCreate": "Upgrade to add more",
     "error": "Something went wrong",
     "finishSetup": "Finish setup to publish",
     "empty": {
@@ -4046,6 +4050,8 @@
       "homepageUrlHint": "Where the logo and page title link to.",
       "customDomain": "Custom domain",
       "customDomainHint": "Host the page on your own domain.",
+      "hideBranding": "Hide Betterlytics branding",
+      "hideBrandingHint": "Remove the \"Powered by Betterlytics\" footer from your public page.",
       "homepageUrlInvalid": "Enter a valid URL starting with http:// or https://.",
       "customDomainInvalid": "Enter a valid domain, e.g. status.example.com.",
       "visibility": {

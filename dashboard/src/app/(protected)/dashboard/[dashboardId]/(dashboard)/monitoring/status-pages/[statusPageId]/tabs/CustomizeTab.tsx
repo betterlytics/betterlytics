@@ -1,6 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Switch } from '@/components/ui/switch';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { CapabilityGate } from '@/components/billing/CapabilityGate';
+import { ProBadge } from '@/components/billing/ProBadge';
 import { type StatusPageFormState } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
 import { LogoUploadField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LogoUploadField';
 import { AccentColorField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/AccentColorField';
@@ -16,6 +20,8 @@ type CustomizeTabProps = {
 /** Branding (logo + accent) and appearance (theme) tab. */
 export function CustomizeTab({ form, dashboardId, statusPageId }: CustomizeTabProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const { caps } = useCapabilities();
+  const brandingLocked = !caps.statusPages.removeBranding;
 
   return (
     <>
@@ -28,6 +34,28 @@ export function CustomizeTab({ form, dashboardId, statusPageId }: CustomizeTabPr
             onLogoChange={form.setLogoUrl}
           />
           <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
+          <div className='border-border flex items-center justify-between gap-4 border-t pt-5'>
+            <div>
+              <div className='flex items-center gap-2'>
+                <span className='text-sm font-medium'>{t('hideBranding')}</span>
+                {brandingLocked && <ProBadge />}
+              </div>
+              <p className='text-muted-foreground mt-0.5 text-xs'>{t('hideBrandingHint')}</p>
+            </div>
+            <CapabilityGate allowed={!brandingLocked}>
+              {({ locked }) => (
+                <Switch
+                  checked={form.hideBranding}
+                  onCheckedChange={(value) => {
+                    if (locked) return;
+                    form.setHideBranding(value);
+                  }}
+                  disabled={locked}
+                  aria-label={t('hideBranding')}
+                />
+              )}
+            </CapabilityGate>
+          </div>
         </div>
       </Section>
 

@@ -98,6 +98,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     overallStatus: 'operational',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.98,
+    hideBranding: false,
     monitors: baseMonitors(),
     incidents: [resolvedApiIncident],
   }),
@@ -183,6 +184,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     overallStatus: 'unknown',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: null,
+    hideBranding: false,
     monitors: [
       monitor('0', 'Website', 'unknown', null, buildDays([], -1)),
       monitor('1', 'API', 'unknown', null, buildDays([], -1)),
@@ -201,6 +203,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     overallStatus: 'operational',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.91,
+    hideBranding: false,
     monitors: [
       ...baseMonitors(),
       monitor('4', 'Background job processing pipeline (EU region)', 'operational', 99.72, buildDays([{ daysAgo: 12, upRatio: 0.9 }])),
@@ -225,6 +228,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     overallStatus: 'operational',
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.99,
+    hideBranding: false,
     monitors: [monitor('0', 'Website', 'operational', 99.99, buildDays())],
     incidents: null,
   }),

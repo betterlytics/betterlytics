@@ -17,6 +17,7 @@ export type StatusPageFormInitial = {
   theme: StatusPageTheme;
   accentColor: string;
   showPastIncidents: boolean;
+  hideBranding?: boolean;
   visibility: StatusPageVisibility;
   homepageUrl?: string | null;
   customDomain?: string | null;
@@ -30,6 +31,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
   const [theme, setTheme] = useState<StatusPageTheme>(initial.theme);
   const [accentColor, setAccentColor] = useState(initial.accentColor);
   const [showPastIncidents, setShowPastIncidents] = useState(initial.showPastIncidents);
+  const [hideBranding, setHideBranding] = useState(initial.hideBranding ?? false);
   const [visibility, setVisibility] = useState<StatusPageVisibility>(initial.visibility);
   const [homepageUrl, setHomepageUrl] = useState(initial.homepageUrl ?? '');
   const [customDomain, setCustomDomain] = useState(initial.customDomain ?? '');
@@ -48,6 +50,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     setTheme(values.theme);
     setAccentColor(values.accentColor);
     setShowPastIncidents(values.showPastIncidents);
+    setHideBranding(values.hideBranding ?? false);
     setVisibility(values.visibility);
     setHomepageUrl(values.homepageUrl ?? '');
     setCustomDomain(values.customDomain ?? '');
@@ -78,12 +81,24 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       theme,
       accentColor,
       showPastIncidents,
+      hideBranding,
       visibility,
       homepageUrl: homepageUrl.trim() || null,
       customDomain: customDomain.trim() || null,
       monitors: monitorsPayload,
     }),
-    [name, slug, theme, accentColor, showPastIncidents, visibility, homepageUrl, customDomain, monitorsPayload],
+    [
+      name,
+      slug,
+      theme,
+      accentColor,
+      showPastIncidents,
+      hideBranding,
+      visibility,
+      homepageUrl,
+      customDomain,
+      monitorsPayload,
+    ],
   );
 
   // The editable form state, as a plain snapshot. Used to capture/restore a save point when
@@ -95,12 +110,24 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       theme,
       accentColor,
       showPastIncidents,
+      hideBranding,
       visibility,
       homepageUrl,
       customDomain,
       monitorRows,
     }),
-    [name, slug, theme, accentColor, showPastIncidents, visibility, homepageUrl, customDomain, monitorRows],
+    [
+      name,
+      slug,
+      theme,
+      accentColor,
+      showPastIncidents,
+      hideBranding,
+      visibility,
+      homepageUrl,
+      customDomain,
+      monitorRows,
+    ],
   );
 
   const previewDraft: PreviewDraft = useMemo(
@@ -111,13 +138,14 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       accentColor,
       logoUrl,
       showPastIncidents,
+      hideBranding,
       monitors: monitorRows.map((row) => ({
         monitorCheckId: row.monitorCheckId,
         included: row.included,
         publicName: row.publicName,
       })),
     }),
-    [name, slug, theme, accentColor, logoUrl, showPastIncidents, monitorRows],
+    [name, slug, theme, accentColor, logoUrl, showPastIncidents, hideBranding, monitorRows],
   );
 
   return {
@@ -131,6 +159,8 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     setAccentColor,
     showPastIncidents,
     setShowPastIncidents,
+    hideBranding,
+    setHideBranding,
     visibility,
     setVisibility,
     homepageUrl,

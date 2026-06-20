@@ -3253,7 +3253,10 @@
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
       "customHeaders": "Brugerdefinerede request headers kræver en Professional plan",
-      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan"
+      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan",
+      "statusPageLimit": "Du har nået din grænse for statussider. Opgrader til Pro for at oprette flere statussider.",
+      "statusPageCustomDomain": "Eget domæne kræver en Professional plan",
+      "statusPageBranding": "Fjernelse af Betterlytics-branding kræver en Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
@@ -3970,6 +3973,7 @@
   "statusPagesPage": {
     "title": "Statussider",
     "newStatusPage": "Ny statusside",
+    "upgradeToCreate": "Opgrader for flere",
     "error": "Noget gik galt",
     "finishSetup": "Færdiggør opsætningen for at udgive",
     "empty": {
@@ -4051,6 +4055,8 @@
       "customDomainHint": "Host siden på dit eget domæne.",
       "homepageUrlInvalid": "Indtast en gyldig URL, der starter med http:// eller https://.",
       "customDomainInvalid": "Indtast et gyldigt domæne, f.eks. status.example.com.",
+      "hideBranding": "Skjul Betterlytics-branding",
+      "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-foden fra din offentlige side.",
       "visibility": {
         "title": "Synlighed",
         "hint": "Bestem hvem der kan finde din statusside.",

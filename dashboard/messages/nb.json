@@ -3253,7 +3253,10 @@
       "httpMethod": "Tilpassede HTTP-metoder krever en profesjonell plan",
       "statusCodes": "Tilpassede statuskoder krever en profesjonell plan",
       "customHeaders": "Tilpassede forespørselshoder krever en profesjonell plan",
-      "keywordValidation": "Nøkkelordvalidering krever en profesjonell plan"
+      "keywordValidation": "Nøkkelordvalidering krever en profesjonell plan",
+      "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til Pro for å opprette flere statussider.",
+      "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
+      "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "Brukeren har allerede tilgang til dette dashboardet",
@@ -3970,6 +3973,7 @@
   "statusPagesPage": {
     "title": "Statussider",
     "newStatusPage": "Ny statusside",
+    "upgradeToCreate": "Oppgrader for å legge til flere",
     "error": "Noe gikk galt",
     "finishSetup": "Fullfør oppsettet for å publisere",
     "empty": {
@@ -4051,6 +4055,8 @@
       "customDomainHint": "Host siden på ditt eget domene.",
       "homepageUrlInvalid": "Skriv inn en gyldig URL som starter med http:// eller https://.",
       "customDomainInvalid": "Skriv inn et gyldig domene, f.eks. status.example.com.",
+      "hideBranding": "Skjul Betterlytics-merking",
+      "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-bunnteksten fra den offentlige siden.",
       "branding": "Merkevare",
       "brandHint": "Logo og aksentfarge vist på den offentlige siden.",
       "appearance": "Utseende",

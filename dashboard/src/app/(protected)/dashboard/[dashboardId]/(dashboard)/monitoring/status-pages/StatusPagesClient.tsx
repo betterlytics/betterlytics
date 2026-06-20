@@ -38,6 +38,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { UpgradeButton } from '@/components/billing/UpgradeButton';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { cn } from '@/lib/utils';
 import { deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage.entities';
@@ -68,6 +70,8 @@ export function StatusPagesClient({
   const t = useTranslations('statusPagesPage');
   const tStatus = useTranslations('monitoring.status');
   const router = useRouter();
+  const { caps } = useCapabilities();
+  const atStatusPageLimit = statusPages.length >= caps.statusPages.maxStatusPages;
 
   const [showWizard, setShowWizard] = useState(false);
 
@@ -89,16 +93,19 @@ export function StatusPagesClient({
 
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
 
-  const createButton = (label: string) => (
-    <PermissionGate>
-      {(disabled) => (
-        <Button disabled={disabled} onClick={() => setShowWizard(true)} className='cursor-pointer'>
-          <Plus className='mr-1 h-4 w-4' />
-          {label}
-        </Button>
-      )}
-    </PermissionGate>
-  );
+  const createButton = (label: string) =>
+    atStatusPageLimit ? (
+      <UpgradeButton>{t('upgradeToCreate')}</UpgradeButton>
+    ) : (
+      <PermissionGate>
+        {(disabled) => (
+          <Button disabled={disabled} onClick={() => setShowWizard(true)} className='cursor-pointer'>
+            <Plus className='mr-1 h-4 w-4' />
+            {label}
+          </Button>
+        )}
+      </PermissionGate>
+    );
 
   const wizard = showWizard && (
     <CreateStatusPageWizard

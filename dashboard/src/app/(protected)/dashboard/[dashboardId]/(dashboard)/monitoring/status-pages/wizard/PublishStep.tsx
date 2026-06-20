@@ -5,6 +5,9 @@ import { Check, Copy, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { CapabilityGate } from '@/components/billing/CapabilityGate';
+import { ProBadge } from '@/components/billing/ProBadge';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage.entities';
 import { type SlugStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/constants';
 import { LabeledTextField } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LabeledTextField';
@@ -21,6 +24,8 @@ type PublishStepProps = {
 
 export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domain }: PublishStepProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const { caps } = useCapabilities();
+  const customDomainLocked = !caps.statusPages.customDomain;
 
   return (
     <div className='space-y-6'>
@@ -78,16 +83,22 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domai
         )}
       </div>
 
-      <LabeledTextField
-        id='wiz-domain'
-        label={t('customDomain')}
-        hint={t('customDomainHint')}
-        placeholder={`status.${domain}`}
-        hintPosition='top'
-        value={form.customDomain}
-        onChange={form.setCustomDomain}
-        error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
-      />
+      <CapabilityGate allowed={!customDomainLocked}>
+        {({ locked }) => (
+          <LabeledTextField
+            id='wiz-domain'
+            label={t('customDomain')}
+            labelAdornment={locked ? <ProBadge /> : undefined}
+            hint={t('customDomainHint')}
+            placeholder={`status.${domain}`}
+            hintPosition='top'
+            value={form.customDomain}
+            onChange={form.setCustomDomain}
+            disabled={locked}
+            error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
+          />
+        )}
+      </CapabilityGate>
 
       <div className='space-y-2'>
         <Label>{t('visibility.title')}</Label>

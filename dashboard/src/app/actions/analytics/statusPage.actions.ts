@@ -17,6 +17,7 @@ import {
 import {
   addStatusPage,
   clearStatusPageLogo,
+  countStatusPagesForDashboard,
   getStatusPage,
   getStatusPagesForDashboard,
   isStatusPageCustomDomainAvailable,
@@ -26,6 +27,8 @@ import {
   saveStatusPage,
   saveStatusPageLogo,
 } from '@/services/analytics/statusPage.service';
+import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
+import { statusPageValidator } from '@/lib/billing/validators';
 import {
   addStatusPageIncident,
   countActiveStatusPageIncidents,
@@ -66,6 +69,13 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
     const t = await getTranslations('validation');
     const payload = StatusPageCreateSchema.parse(input);
 
+    const caps = await getDashboardCapabilities(ctx.dashboardId);
+    await (await statusPageValidator(caps.statusPages))
+      .statusPageLimit(() => countStatusPagesForDashboard(ctx.dashboardId))
+      .customDomain(payload.customDomain)
+      .removeBranding(payload.hideBranding)
+      .validate();
+
     if (!(await isStatusPageSlugAvailable(payload.slug))) {
       throw new UserException(t('statusPageSlugTaken'));
     }
@@ -84,6 +94,12 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageUpdateSchema>) => {
     const t = await getTranslations('validation');
     const payload = StatusPageUpdateSchema.parse(input);
+
+    const caps = await getDashboardCapabilities(ctx.dashboardId);
+    await (await statusPageValidator(caps.statusPages))
+      .customDomain(payload.customDomain)
+      .removeBranding(payload.hideBranding)
+      .validate();
 
     if (payload.slug != null && !(await isStatusPageSlugAvailable(payload.slug, payload.id))) {
       throw new UserException(t('statusPageSlugTaken'));
