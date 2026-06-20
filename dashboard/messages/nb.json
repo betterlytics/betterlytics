@@ -3946,6 +3946,7 @@
       "today": "I dag"
     },
     "overallUptime": "Samlet oppetid <value>{uptime}</value> · siste {days} dager",
+    "activeIncidents": "Aktive hendelser",
     "pastIncidents": "Tidligere hendelser",
     "noIncidents": "Ingen hendelser de siste {days} dagene.",
     "noOtherIncidents": "Ingen andre hendelser de siste {days} dagene.",
@@ -4150,6 +4151,7 @@
       },
       "incidents": {
         "title": "Hendelser",
+        "activeIncidents": "Aktive hendelser",
         "pastIncidents": "Tidligere hendelser",
         "listSubtitle": "Oppdateringer vises på den offentlige siden din.",
         "detectedTitle": "Oppdaget nedetid",

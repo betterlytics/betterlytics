@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import type { PublicStatusPageData } from '@/entities/analytics/statusPage.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { ActiveIncidents } from './ActiveIncidents';
 import { MonitorUptimeCard } from './MonitorUptimeCard';
 import { PastIncidents } from './PastIncidents';
 import { StatusHero } from './StatusHero';
@@ -54,7 +55,12 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
       />
       <main className='mx-auto -mt-11 w-full max-w-3xl px-4 pb-10 sm:px-8'>
         <MonitorUptimeCard data={data} />
-        {data.incidents !== null && <PastIncidents data={data} />}
+        {data.incidents !== null && (
+          <>
+            <ActiveIncidents data={data} />
+            <PastIncidents data={data} />
+          </>
+        )}
         {!data.hideBranding && (
           <footer className='mt-8 text-center text-xs text-[var(--sp-faint)]'>
             {t('poweredBy')}{' '}
