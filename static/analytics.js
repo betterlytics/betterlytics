@@ -387,9 +387,13 @@
   }
 
   function parseOutboundLink(link) {
-    var linkUrl = URL.parse(link.href, window.location.origin);
+    var linkUrl;
+    try {
+      linkUrl = new URL(link.href, window.location.origin);
+    } catch (e) {
+      return false;
+    }
     if (
-      linkUrl &&
       linkUrl.hostname !== window.location.hostname &&
       linkUrl.hostname !== ""
     ) {
