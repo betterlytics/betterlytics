@@ -4154,6 +4154,21 @@
         "activeIncidents": "Aktive hendelser",
         "pastIncidents": "Tidligere hendelser",
         "listSubtitle": "Oppdateringer vises på den offentlige siden din.",
+        "filters": {
+          "search": "Søk hendelser",
+          "state": "Tilstand",
+          "stateAll": "Alle tilstander",
+          "stateActive": "Aktive",
+          "stateResolved": "Løst",
+          "visibility": "Synlighet",
+          "visibilityAll": "All synlighet",
+          "visibilityPublished": "Publisert",
+          "visibilityInternal": "Intern",
+          "reload": "Last inn på nytt",
+          "noMatch": "Ingen hendelser samsvarer med filtrene."
+        },
+        "autoDetected": "Automatisk oppdaget",
+        "affectedMore": "+{count} flere",
         "detectedTitle": "Oppdaget nedetid",
         "detectedDescription": "{monitor} — {detail}",
         "internal": "Intern",
@@ -4184,7 +4199,9 @@
           "status": "Status",
           "impact": "Påvirkning",
           "affected": "Berørt",
-          "started": "Startet"
+          "started": "Startet",
+          "duration": "Varighet",
+          "visibility": "Synlighet"
         },
         "saved": "Hendelse lagret",
         "deleted": "Hendelse slettet",

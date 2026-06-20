@@ -1,10 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Activity, Check, Lock, MoreHorizontal, Pencil, Plus, Trash2, TriangleAlert } from 'lucide-react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+} from '@tanstack/react-table';
+import {
+  Activity,
+  ArrowDown,
+  ArrowUp,
+  Check,
+  Lock,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Sparkles,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -12,7 +36,17 @@ import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } fro
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +62,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PaginationControls } from '@/components/PaginationControls';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
@@ -53,22 +88,39 @@ type IncidentsTabProps = {
   monitors: MonitorOption[];
 };
 
+const PAGE_SIZE = 10;
+
 const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'outage'];
 const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified', 'monitoring', 'resolved'];
 
-// One colored chip per row — the current lifecycle status. Everything else stays neutral so the
-// status reads at a glance (see the design's "single clear indicator" refinement).
-const STATUS_PILL: Record<StatusPageIncidentStatusValue, string> = {
-  investigating: 'bg-amber-500/12 text-amber-600 dark:text-amber-400',
-  identified: 'bg-orange-500/12 text-orange-600 dark:text-orange-400',
-  monitoring: 'bg-sky-500/12 text-sky-600 dark:text-sky-400',
-  resolved: 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400',
+// "Active" = still ongoing (no resolved timestamp); "Resolved" = has one. These replace the old
+// active/past section split with a single filterable dimension.
+type StateFilter = 'all' | 'active' | 'resolved';
+type VisibilityFilter = 'all' | 'published' | 'internal';
+
+// Outline badges per lifecycle status — mirrors the errors table's status badges.
+const STATUS_BADGE: Record<StatusPageIncidentStatusValue, string> = {
+  investigating: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  identified: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  monitoring: 'border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400',
+  resolved: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+};
+
+const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
+  degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  outage: 'border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400',
 };
 
 // Impact selector in the modal: muted by default, tinted when picked.
 const IMPACT_SELECTED: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400',
   outage: 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400',
+};
+
+type IncidentColumnMeta = {
+  cellClassName?: string;
+  headerClassName?: string;
+  stopRowClick?: boolean;
 };
 
 type IncidentForm = {
@@ -115,6 +167,13 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
+
+  const [stateFilter, setStateFilter] = useState<StateFilter>('all');
+  const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>('all');
+  const [searchInput, setSearchInput] = useState('');
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'started', desc: true }]);
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: PAGE_SIZE });
 
   const incidentsKey = ['statusPageIncidents', statusPageId];
   const suggestionsKey = ['statusPageIncidentSuggestions', statusPageId];
@@ -224,118 +283,292 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     setOpen(true);
   };
 
-  const incidents = incidentsQuery.data ?? [];
-  // Open incidents (no resolved timestamp) are surfaced in their own group above the resolved history.
-  const activeIncidents = incidents.filter((incident) => incident.resolvedAt == null);
-  const pastIncidents = incidents.filter((incident) => incident.resolvedAt != null);
+  const incidents = useMemo(() => incidentsQuery.data ?? [], [incidentsQuery.data]);
   const suggestions = suggestionsQuery.data ?? [];
+  const isLoading = incidentsQuery.isLoading;
+  const isRefreshing = incidentsQuery.isFetching || suggestionsQuery.isFetching;
+
+  const monitorNameById = useMemo(
+    () => new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName])),
+    [monitors],
+  );
+
+  const affectedLabel = (incident: StatusPageIncident): string => {
+    if (incident.monitorCheckId == null) return t('pageWide');
+    return monitorNameById.get(incident.monitorCheckId) ?? '—';
+  };
+
+  const startedLabel = (incident: StatusPageIncident): string =>
+    formatLocalDateTime(incident.startedAt, locale, { month: 'short', day: 'numeric', year: 'numeric' }) ?? '';
+
+  // Compact "2d 14h" / "45m" duration: elapsed-since-start for ongoing, fixed span for resolved.
+  const durationMsOf = (incident: StatusPageIncident): number =>
+    incident.resolvedAt
+      ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
+      : Date.now() - new Date(incident.startedAt).getTime();
+
+  const durationLabel = (incident: StatusPageIncident): string => {
+    if (incident.resolvedAt) {
+      return t('lasted', { duration: formatElapsedTime(new Date(Date.now() - durationMsOf(incident)), locale) });
+    }
+    return t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
+  };
+
+  // Pre-filter by the State / Visibility selects before the table applies search + sort.
+  const filteredIncidents = useMemo(
+    () =>
+      incidents.filter((incident) => {
+        const isActive = incident.resolvedAt == null;
+        if (stateFilter === 'active' && !isActive) return false;
+        if (stateFilter === 'resolved' && isActive) return false;
+        if (visibilityFilter === 'published' && !incident.isPublished) return false;
+        if (visibilityFilter === 'internal' && incident.isPublished) return false;
+        return true;
+      }),
+    [incidents, stateFilter, visibilityFilter],
+  );
+
+  // Debounce the search box, and reset to the first page whenever it changes.
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setGlobalFilter(searchInput);
+      setPagination((p) => ({ ...p, pageIndex: 0 }));
+    }, 200);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPagination((p) => ({ ...p, pageIndex: 0 }));
+  }, [stateFilter, visibilityFilter]);
+
+  const columns = useMemo<ColumnDef<StatusPageIncident, unknown>[]>(
+    () => [
+      {
+        id: 'incident',
+        accessorFn: (row) => `${row.title} ${row.body}`,
+        header: t('table.incident'),
+        enableSorting: false,
+        meta: { cellClassName: 'w-full max-w-0 min-w-[200px]' } satisfies IncidentColumnMeta,
+        cell: ({ row }) => {
+          const incident = row.original;
+          return (
+            <div className='min-w-0'>
+              <div className='flex items-center gap-2'>
+                <span className='text-foreground truncate text-sm font-medium'>{incident.title}</span>
+                {incident.detectedIncidentId && (
+                  <span className='border-border text-muted-foreground inline-flex flex-none items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium'>
+                    <Sparkles className='h-2.5 w-2.5' />
+                    {t('autoDetected')}
+                  </span>
+                )}
+              </div>
+              {incident.body && <div className='text-muted-foreground truncate text-xs'>{incident.body}</div>}
+            </div>
+          );
+        },
+      },
+      {
+        id: 'impact',
+        accessorFn: (row) => row.impact,
+        header: t('table.impact'),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        meta: {
+          cellClassName: 'hidden md:table-cell',
+          headerClassName: 'hidden px-3 sm:px-6 md:table-cell',
+        } satisfies IncidentColumnMeta,
+        cell: ({ row }) => (
+          <Badge variant='outline' className={IMPACT_BADGE[row.original.impact]}>
+            {t(`impact.${row.original.impact}`)}
+          </Badge>
+        ),
+      },
+      {
+        id: 'affected',
+        accessorFn: (row) => affectedLabel(row),
+        header: t('table.affected'),
+        enableSorting: false,
+        meta: {
+          cellClassName: 'hidden lg:table-cell',
+          headerClassName: 'hidden px-3 sm:px-6 lg:table-cell',
+        } satisfies IncidentColumnMeta,
+        cell: ({ row }) => {
+          const incident = row.original;
+          // Page-wide incidents have no monitor — kept as plain text rather than a pill.
+          if (incident.monitorCheckId == null) {
+            return <span className='text-muted-foreground'>{t('pageWide')}</span>;
+          }
+          // One monitor per incident today; rendered as a capped pill list so multi-monitor
+          // support would be a drop-in here (the "+N more" pill stays dormant until then).
+          const names = [monitorNameById.get(incident.monitorCheckId) ?? '—'];
+          const MAX_PILLS = 2;
+          const shown = names.slice(0, MAX_PILLS);
+          const overflow = names.length - shown.length;
+          return (
+            <div className='flex min-w-0 flex-wrap items-center gap-1'>
+              {shown.map((name, i) => (
+                <Badge key={i} variant='secondary' className='max-w-[200px] font-normal'>
+                  <span className='min-w-0 truncate'>{name}</span>
+                </Badge>
+              ))}
+              {overflow > 0 && (
+                <Badge variant='outline' className='border-border text-muted-foreground font-normal'>
+                  {t('affectedMore', { count: overflow })}
+                </Badge>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        id: 'started',
+        accessorFn: (row) => new Date(row.startedAt).getTime(),
+        header: t('table.started'),
+        enableGlobalFilter: false,
+        meta: {
+          cellClassName: 'hidden sm:table-cell',
+          headerClassName: 'hidden px-3 sm:table-cell sm:px-6',
+        } satisfies IncidentColumnMeta,
+        cell: ({ row }) => <span suppressHydrationWarning>{startedLabel(row.original)}</span>,
+      },
+      {
+        id: 'duration',
+        accessorFn: (row) => durationMsOf(row),
+        header: t('table.duration'),
+        enableGlobalFilter: false,
+        meta: {
+          cellClassName: 'hidden xl:table-cell',
+          headerClassName: 'hidden px-3 sm:px-6 xl:table-cell',
+        } satisfies IncidentColumnMeta,
+        cell: ({ row }) => <span suppressHydrationWarning>{durationLabel(row.original)}</span>,
+      },
+      {
+        id: 'visibility',
+        accessorFn: (row) => row.isPublished,
+        header: t('table.visibility'),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        meta: {
+          cellClassName: 'hidden lg:table-cell',
+          headerClassName: 'hidden px-3 sm:px-6 lg:table-cell',
+        } satisfies IncidentColumnMeta,
+        cell: ({ row }) =>
+          row.original.isPublished ? (
+            <Badge variant='outline' className='border-border text-muted-foreground'>
+              {t('published')}
+            </Badge>
+          ) : (
+            <Badge
+              variant='outline'
+              className='border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+            >
+              <Lock className='mr-1 h-3 w-3' />
+              {t('internal')}
+            </Badge>
+          ),
+      },
+      {
+        id: 'status',
+        accessorFn: (row) => row.status,
+        header: t('table.status'),
+        enableSorting: false,
+        enableGlobalFilter: false,
+        cell: ({ row }) => (
+          <Badge variant='outline' className={STATUS_BADGE[row.original.status]}>
+            {t(`status.${row.original.status}`)}
+          </Badge>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        enableGlobalFilter: false,
+        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10', stopRowClick: true } satisfies IncidentColumnMeta,
+        cell: ({ row }) => {
+          const incident = row.original;
+          return (
+            <PermissionGate hideWhenDisabled>
+              {() => (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size='icon'
+                      variant='ghost'
+                      disabled={publishMutation.isPending || deleteMutation.isPending}
+                      aria-label={t('actions')}
+                      className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className='h-4 w-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem onClick={() => openEdit(incident)} className='cursor-pointer'>
+                      <Pencil className='h-3.5 w-3.5' />
+                      {t('edit')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        publishMutation.mutate({ incidentId: incident.id, isPublished: !incident.isPublished })
+                      }
+                      className='cursor-pointer'
+                    >
+                      {incident.isPublished ? <Lock className='h-3.5 w-3.5' /> : <Check className='h-3.5 w-3.5' />}
+                      {incident.isPublished ? t('unpublish') : t('publish')}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant='destructive'
+                      onClick={() => deleteMutation.mutate(incident.id)}
+                      className='cursor-pointer'
+                    >
+                      <Trash2 className='h-3.5 w-3.5' />
+                      {t('delete')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </PermissionGate>
+          );
+        },
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, locale, monitorNameById, publishMutation.isPending, deleteMutation.isPending],
+  );
+
+  const table = useReactTable({
+    data: filteredIncidents,
+    columns,
+    state: { sorting, globalFilter, pagination },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getRowId: (row) => row.id,
+  });
+
+  const visibleRows = table.getRowModel().rows;
+  const filteredCount = table.getFilteredRowModel().rows.length;
+  const columnCount = table.getVisibleLeafColumns().length;
+  const hasActiveFilters = globalFilter.trim().length > 0 || stateFilter !== 'all' || visibilityFilter !== 'all';
+
   const formValid = form.title.trim().length > 0 && form.body.trim().length > 0 && form.startedAtLocal.length > 0;
   const editingPublished = form.id != null && form.isPublished;
   const publishCta = editingPublished ? t('form.updatePublic') : t('form.publishCta');
 
-  const renderIncidentRow = (incident: StatusPageIncident, index: number) => {
-    const resolved = incident.resolvedAt != null;
-    const durationMs = incident.resolvedAt
-      ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
-      : null;
-    // formatElapsedTime renders the compact "2d 14h" / "45m" shape; feed it a synthetic start
-    // so it formats a fixed duration rather than time-from-now.
-    const duration = resolved
-      ? formatElapsedTime(new Date(Date.now() - (durationMs ?? 0)), locale)
-      : t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
-    const startedLabel = formatLocalDateTime(incident.startedAt, locale, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-
-    return (
-      <div
-        key={incident.id}
-        onClick={() => openEdit(incident)}
-        className={cn(
-          'group hover:bg-muted/40 flex cursor-pointer items-center gap-4 px-4 py-3.5 transition-colors',
-          index > 0 && 'border-border border-t',
-        )}
-      >
-        <div className='min-w-0 flex-1'>
-          <div className='flex items-center gap-2'>
-            <span className='text-foreground truncate text-sm font-medium'>{incident.title}</span>
-            {!incident.isPublished && (
-              <span className='border-border text-muted-foreground inline-flex flex-none items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold'>
-                <Lock className='h-2.5 w-2.5' />
-                {t('internal')}
-              </span>
-            )}
-          </div>
-          {incident.body && <p className='text-muted-foreground mt-0.5 truncate text-xs'>{incident.body}</p>}
-        </div>
-
-        <div suppressHydrationWarning className='hidden w-32 flex-none text-right sm:block'>
-          <div className='text-muted-foreground text-xs'>{startedLabel}</div>
-          <div className='text-muted-foreground/75 mt-0.5 text-xs'>{duration}</div>
-        </div>
-
-        <div className='w-24 flex-none'>
-          <span
-            className={cn(
-              'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium',
-              STATUS_PILL[incident.status],
-            )}
-          >
-            {t(`status.${incident.status}`)}
-          </span>
-        </div>
-
-        <div onClick={(e) => e.stopPropagation()}>
-          <PermissionGate hideWhenDisabled>
-            {() => (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size='icon'
-                    variant='ghost'
-                    disabled={publishMutation.isPending || deleteMutation.isPending}
-                    aria-label={t('actions')}
-                    className='text-muted-foreground hover:text-foreground h-8 w-8 flex-none cursor-pointer'
-                  >
-                    <MoreHorizontal className='h-4 w-4' />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end'>
-                  <DropdownMenuItem onClick={() => openEdit(incident)} className='cursor-pointer'>
-                    <Pencil className='h-3.5 w-3.5' />
-                    {t('edit')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      publishMutation.mutate({ incidentId: incident.id, isPublished: !incident.isPublished })
-                    }
-                    className='cursor-pointer'
-                  >
-                    {incident.isPublished ? <Lock className='h-3.5 w-3.5' /> : <Check className='h-3.5 w-3.5' />}
-                    {incident.isPublished ? t('unpublish') : t('publish')}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant='destructive'
-                    onClick={() => deleteMutation.mutate(incident.id)}
-                    className='cursor-pointer'
-                  >
-                    <Trash2 className='h-3.5 w-3.5' />
-                    {t('delete')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </PermissionGate>
-        </div>
-      </div>
-    );
+  const reload = () => {
+    incidentsQuery.refetch();
+    suggestionsQuery.refetch();
+    router.refresh();
   };
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-4'>
       {/* Detected outages — a restrained amber callout you can promote to an incident. */}
       {suggestions.map((suggestion) => {
         const detail = suggestion.ongoing
@@ -390,8 +623,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </PermissionGate>
       </div>
 
-      {/* Active incidents first, resolved history below */}
-      {incidents.length === 0 ? (
+      {!isLoading && incidents.length === 0 ? (
         <div className='bg-card border-border overflow-hidden rounded-xl border'>
           <div className='flex flex-col items-center justify-center px-6 py-16 text-center'>
             <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
@@ -402,24 +634,151 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           </div>
         </div>
       ) : (
-        <div className='space-y-6'>
-          {activeIncidents.length > 0 && (
-            <section className='space-y-2.5'>
-              <h3 className='text-foreground text-sm font-semibold'>{t('activeIncidents')}</h3>
-              <div className='bg-card border-border overflow-hidden rounded-xl border'>
-                {activeIncidents.map(renderIncidentRow)}
-              </div>
-            </section>
+        <>
+          {/* Toolbar: search on the left, State / Visibility filters + reload on the right. */}
+          <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
+            <div className='relative sm:max-w-xs sm:flex-1'>
+              <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+              <Input
+                type='text'
+                placeholder={t('filters.search')}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className='pl-9'
+              />
+            </div>
+            <div className='flex items-center gap-2 sm:ml-auto'>
+              <Select value={stateFilter} onValueChange={(v) => setStateFilter(v as StateFilter)}>
+                <SelectTrigger size='sm' className='w-[130px]' aria-label={t('filters.state')}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>{t('filters.stateAll')}</SelectItem>
+                  <SelectItem value='active'>{t('filters.stateActive')}</SelectItem>
+                  <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={visibilityFilter} onValueChange={(v) => setVisibilityFilter(v as VisibilityFilter)}>
+                <SelectTrigger size='sm' className='w-[140px]' aria-label={t('filters.visibility')}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>{t('filters.visibilityAll')}</SelectItem>
+                  <SelectItem value='published'>{t('filters.visibilityPublished')}</SelectItem>
+                  <SelectItem value='internal'>{t('filters.visibilityInternal')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <PermissionGate allowViewer>
+                {(disabled) => (
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    className='shrink-0 cursor-pointer'
+                    disabled={isRefreshing || disabled}
+                    onClick={reload}
+                    aria-label={t('filters.reload')}
+                  >
+                    <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
+                  </Button>
+                )}
+              </PermissionGate>
+            </div>
+          </div>
+
+          <div className='border-border overflow-x-auto rounded-lg border'>
+            <Table className='min-w-[920px]'>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow
+                    key={headerGroup.id}
+                    className='border-muted-foreground bg-accent hover:bg-accent border-b'
+                  >
+                    {headerGroup.headers.map((header) => {
+                      const canSort = header.column.getCanSort();
+                      const sorted = header.column.getIsSorted();
+                      const meta = header.column.columnDef.meta as IncidentColumnMeta | undefined;
+                      return (
+                        <TableHead
+                          key={header.id}
+                          className={cn(
+                            'text-foreground bg-muted/50 py-3 text-sm font-medium',
+                            meta?.headerClassName ?? 'px-3 sm:px-6',
+                            canSort && 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none',
+                          )}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          <div className='flex items-center gap-1'>
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {sorted && (
+                              <span className='ml-1'>
+                                {sorted === 'desc' ? (
+                                  <ArrowDown className='h-4 w-4' />
+                                ) : (
+                                  <ArrowUp className='h-4 w-4' />
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody className='divide-secondary divide-y'>
+                {isLoading ? (
+                  Array.from({ length: 5 }, (_, i) => (
+                    <TableRow key={i} className='hover:bg-transparent'>
+                      <TableCell colSpan={columnCount} className='px-3 py-3.5 sm:px-6'>
+                        <Skeleton className='h-5 w-full' />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : filteredCount === 0 ? (
+                  <TableRow className='hover:bg-transparent'>
+                    <TableCell colSpan={columnCount} className='py-12 text-center'>
+                      <p className='text-muted-foreground text-sm'>
+                        {hasActiveFilters ? t('filters.noMatch') : t('noIncidents')}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  visibleRows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
+                      onClick={() => openEdit(row.original)}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const meta = cell.column.columnDef.meta as IncidentColumnMeta | undefined;
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            className={cn('text-muted-foreground px-3 py-3 text-sm sm:px-6', meta?.cellClassName)}
+                            onClick={meta?.stopRowClick ? (e) => e.stopPropagation() : undefined}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {filteredCount > 0 && table.getPageCount() > 1 && (
+            <PaginationControls
+              pageIndex={table.getState().pagination.pageIndex}
+              totalPages={table.getPageCount()}
+              pageSize={pagination.pageSize}
+              totalItems={filteredCount}
+              onPageChange={(p) => table.setPageIndex(p)}
+              onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
+            />
           )}
-          {pastIncidents.length > 0 && (
-            <section className='space-y-2.5'>
-              <h3 className='text-foreground text-sm font-semibold'>{t('pastIncidents')}</h3>
-              <div className='bg-card border-border overflow-hidden rounded-xl border'>
-                {pastIncidents.map(renderIncidentRow)}
-              </div>
-            </section>
-          )}
-        </div>
+        </>
       )}
 
       {/* Create / edit incident modal */}

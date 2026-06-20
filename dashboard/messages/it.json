@@ -4154,6 +4154,21 @@
         "activeIncidents": "Incidenti attivi",
         "pastIncidents": "Incidenti passati",
         "listSubtitle": "Gli aggiornamenti appaiono sulla tua pagina pubblica.",
+        "filters": {
+          "search": "Cerca incidenti",
+          "state": "Stato",
+          "stateAll": "Tutti gli stati",
+          "stateActive": "Attivi",
+          "stateResolved": "Risolti",
+          "visibility": "Visibilità",
+          "visibilityAll": "Tutta la visibilità",
+          "visibilityPublished": "Pubblicato",
+          "visibilityInternal": "Interno",
+          "reload": "Ricarica",
+          "noMatch": "Nessun incidente corrisponde ai filtri."
+        },
+        "autoDetected": "Rilevato automaticamente",
+        "affectedMore": "+{count} altri",
         "detectedTitle": "Interruzione rilevata",
         "detectedDescription": "{monitor} — {detail}",
         "internal": "Interno",
@@ -4184,7 +4199,9 @@
           "status": "Stato",
           "impact": "Impatto",
           "affected": "Interessato",
-          "started": "Iniziato"
+          "started": "Iniziato",
+          "duration": "Durata",
+          "visibility": "Visibilità"
         },
         "saved": "Incidente salvato",
         "deleted": "Incidente eliminato",
