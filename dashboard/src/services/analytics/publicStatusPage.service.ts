@@ -16,8 +16,8 @@ import { env } from '@/lib/env';
 import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';
 import {
   getLatestCheckInfoForMonitors,
-  getMonitorUptimeBuckets,
   getOpenIncidentsForMonitors,
+  getUptimeBucketsForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
 import {
   getPublishedStatusPageBySlug,
@@ -142,20 +142,14 @@ async function assembleStatusPage(
   const rangeStart = toDateTimeString(new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000));
   const rangeEnd = toDateTimeString(rangeEndDate);
 
-  const [bucketsPerMonitor, openIncidents, latestCheckInfo, publishedIncidents] = await Promise.all([
-    Promise.all(
-      monitors.map((monitor) =>
-        getMonitorUptimeBuckets(
-          monitor.monitorCheckId,
-          siteId,
-          monitor.monitorCreatedAt,
-          'UTC',
-          rangeStart,
-          rangeEnd,
-          days,
-          'day',
-        ),
-      ),
+  const [bucketsByCheckId, openIncidents, latestCheckInfo, publishedIncidents] = await Promise.all([
+    getUptimeBucketsForMonitors(
+      monitors.map((monitor) => ({ checkId: monitor.monitorCheckId, createdAt: monitor.monitorCreatedAt })),
+      siteId,
+      'UTC',
+      rangeStart,
+      rangeEnd,
+      days,
     ),
 
     getOpenIncidentsForMonitors(checkIds, siteId),
@@ -165,7 +159,7 @@ async function assembleStatusPage(
   ]);
 
   const publicMonitors = monitors.map((monitor, index) => {
-    const buckets = bucketsPerMonitor[index];
+    const buckets = bucketsByCheckId.get(monitor.monitorCheckId) ?? [];
     const latest = latestCheckInfo[monitor.monitorCheckId];
 
     const dailyBuckets: PublicDailyUptimeBucket[] = buckets.map((bucket) => ({
