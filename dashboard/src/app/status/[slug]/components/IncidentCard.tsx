@@ -64,25 +64,39 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
   const visibleUpdates = updates.slice(0, MAX_VISIBLE_UPDATES);
   const hiddenUpdates = updates.slice(MAX_VISIBLE_UPDATES);
 
-  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number) => (
-    <li key={key} className='relative'>
-      <span
-        className='absolute top-1 -left-[21px] h-2.5 w-2.5 rounded-full border-2'
-        style={{ backgroundColor: statusColor(update.status), borderColor: 'var(--sp-card-bg)' }}
-      />
-      <div className='flex items-baseline justify-between gap-2'>
-        <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
-          {t(`incident.status.${update.status}`)}
-        </span>
-        <span suppressHydrationWarning className='flex-none text-[11px] text-[var(--sp-faint)]'>
-          {entryLabel.format(new Date(update.createdAt))}
+  // Timeline rail: a status-colored dot per entry with a connecting line down to the next, ringed in
+  // the card bg so the line breaks cleanly around it. The line is omitted on the last entry of a list.
+  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => (
+    <li key={key} className='grid grid-cols-[18px_minmax(0,1fr)] gap-3 pb-4 last:pb-0'>
+      <div className='relative'>
+        {!isLast ? (
+          <span
+            className='absolute top-2.5 -bottom-6.5 left-2 w-0.5'
+            style={{ background: 'var(--sp-card-border)' }}
+          />
+        ) : null}
+        <span className='flex h-5 items-center'>
+          <span
+            className='relative z-10 ml-1 h-2.5 w-2.5 rounded-full'
+            style={{ backgroundColor: statusColor(update.status), boxShadow: '0 0 0 3px var(--sp-card-bg)' }}
+          />
         </span>
       </div>
-      {update.message ? (
-        <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
-          {update.message}
-        </p>
-      ) : null}
+      <div className='min-w-0'>
+        <div className='flex items-baseline justify-between gap-2'>
+          <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
+            {t(`incident.status.${update.status}`)}
+          </span>
+          <span suppressHydrationWarning className='flex-none text-[11px] text-[var(--sp-faint)]'>
+            {entryLabel.format(new Date(update.createdAt))}
+          </span>
+        </div>
+        {update.message ? (
+          <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
+            {update.message}
+          </p>
+        ) : null}
+      </div>
     </li>
   );
 
@@ -108,8 +122,10 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
       ) : null}
 
       {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
-      <ol className='relative mt-3.5 space-y-3 border-l pl-4' style={{ borderColor: 'var(--sp-card-divider)' }}>
-        {visibleUpdates.map((update, index) => renderEntry(update, index))}
+      <ol className='relative mt-3.5'>
+        {visibleUpdates.map((update, index) =>
+          renderEntry(update, index, index === visibleUpdates.length - 1),
+        )}
       </ol>
 
       {hiddenUpdates.length > 0 ? (
@@ -130,11 +146,10 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
             </span>
             <span className='hidden group-open:inline'>{t('incident.showLess')}</span>
           </summary>
-          <ol
-            className='relative mt-3 space-y-3 border-l pl-4'
-            style={{ borderColor: 'var(--sp-card-divider)' }}
-          >
-            {hiddenUpdates.map((update, index) => renderEntry(update, visibleUpdates.length + index))}
+          <ol className='relative mt-3'>
+            {hiddenUpdates.map((update, index) =>
+              renderEntry(update, visibleUpdates.length + index, index === hiddenUpdates.length - 1),
+            )}
           </ol>
         </details>
       ) : null}
