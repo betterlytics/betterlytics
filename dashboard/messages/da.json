@@ -3243,6 +3243,8 @@
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
     "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
     "statusPageIncidentLimit": "Denne statusside har nået sin grænse for hændelser",
+    "statusPageIncidentUpdateLimit": "Denne hændelse har nået sin grænse for opdateringer",
+    "statusPageIncidentUpdateLast": "En hændelse skal have mindst én opdatering",
     "statusPageImageInvalid": "Filen kunne ikke læses som et billede",
     "statusPageImageTooLarge": "Billedet er for stort",
     "statusPageImageBadType": "Billedet skal være et PNG-, JPEG- eller WebP-billede",
@@ -3953,9 +3955,12 @@
     "incident": {
       "resolved": "Løst · varede {duration}",
       "ongoing": "Igangværende siden {time}",
+      "showMore": "Vis {count} tidligere {count, plural, one {opdatering} other {opdateringer}}",
+      "showLess": "Skjul tidligere opdateringer",
       "impact": {
         "degraded": "Forringet",
-        "outage": "Nedbrud"
+        "partial_outage": "Delvist nedbrud",
+        "outage": "Større nedbrud"
       },
       "status": {
         "investigating": "Undersøger",
@@ -4160,10 +4165,6 @@
           "stateAll": "Alle tilstande",
           "stateActive": "Aktive",
           "stateResolved": "Løst",
-          "visibility": "Synlighed",
-          "visibilityAll": "Al synlighed",
-          "visibilityPublished": "Offentliggjort",
-          "visibilityInternal": "Intern",
           "reload": "Genindlæs",
           "noMatch": "Ingen hændelser matcher dine filtre."
         },
@@ -4171,7 +4172,6 @@
         "affectedMore": "+{count} flere",
         "detectedTitle": "Registreret nedbrud",
         "detectedDescription": "{monitor} — {detail}",
-        "internal": "Intern",
         "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor — intet bliver offentligt, før du udgiver det.",
         "newIncident": "Ny hændelse",
         "backToList": "Tilbage til hændelser",
@@ -4188,9 +4188,6 @@
         "ongoingFor": "I gang i {duration}",
         "lasted": "Varede {duration}",
         "draft": "Kladde",
-        "published": "Udgivet",
-        "publish": "Udgiv",
-        "unpublish": "Træk tilbage",
         "edit": "Rediger",
         "delete": "Slet",
         "actions": "Handlinger",
@@ -4200,15 +4197,15 @@
           "impact": "Påvirkning",
           "affected": "Påvirket",
           "started": "Startet",
-          "duration": "Varighed",
-          "visibility": "Synlighed"
+          "duration": "Varighed"
         },
         "saved": "Hændelse gemt",
         "deleted": "Hændelse slettet",
         "error": "Noget gik galt",
         "impact": {
           "degraded": "Forringet",
-          "outage": "Nedbrud"
+          "partial_outage": "Delvist nedbrud",
+          "outage": "Større nedbrud"
         },
         "status": {
           "investigating": "Undersøger",
@@ -4218,21 +4215,37 @@
         },
         "form": {
           "title": "Titel",
-          "body": "Besked",
+          "detailsSection": "Hændelsesdetaljer",
           "impact": "Påvirkning",
-          "status": "Status",
           "monitor": "Påvirket monitor",
           "monitorNone": "Ingen (hele siden)",
-          "startedAt": "Startet",
-          "resolvedAt": "Løst (valgfrit)",
-          "publish": "Udgivet",
-          "publishHint": "Synlig på din offentlige statusside",
-          "save": "Gem",
           "cancel": "Annuller",
-          "saveInternal": "Gem internt",
           "publishCta": "Udgiv",
           "updatePublic": "Opdatér offentlig side",
-          "saveHint": "Gem den internt til dit team, eller udgiv den til den offentlige statusside."
+          "unsaved": "Ugemte ændringer",
+          "deleteIncident": "Slet hændelse"
+        },
+        "composer": {
+          "section": "Post en opdatering",
+          "messagePlaceholder": "Tilføj en besked (valgfrit)",
+          "time": "Opdateringstidspunkt"
+        },
+        "timeline": {
+          "title": "Tidslinje",
+          "addUpdate": "Tilføj opdatering",
+          "empty": "Ingen tidslinjeposter endnu.",
+          "editMessage": "Rediger besked",
+          "deleteUpdate": "Slet opdatering",
+          "done": "Færdig",
+          "updateDeleted": "Opdatering fjernet",
+          "pending": "Afventer",
+          "removePending": "Fjern opdatering"
+        },
+        "discard": {
+          "title": "Kassér ændringer?",
+          "description": "Du har ugemte ændringer. Hvis du lukker nu, går de tabt.",
+          "keep": "Fortsæt redigering",
+          "confirm": "Kassér"
         }
       }
     },

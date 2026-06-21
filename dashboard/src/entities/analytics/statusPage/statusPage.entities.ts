@@ -8,7 +8,8 @@ export const STATUS_PAGE_LIMITS = {
   MONITORS_MAX: 20,
   UPTIME_WINDOW_DAYS: 90,
   INCIDENT_TITLE_MAX: 100,
-  INCIDENT_BODY_MAX: 2000,
+  INCIDENT_UPDATE_MESSAGE_MAX: 2000,
+  INCIDENT_UPDATES_MAX: 100,
   INCIDENTS_MAX: 50,
   SUGGESTIONS_MAX: 20,
   // Images are resized client-side to a small raster before upload; the cap is a server-side backstop.

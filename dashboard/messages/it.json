@@ -3243,6 +3243,8 @@
     "statusPageSlugTaken": "Questo slug URL è già in uso",
     "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
     "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
+    "statusPageIncidentUpdateLimit": "Questo incidente ha raggiunto il limite di aggiornamenti",
+    "statusPageIncidentUpdateLast": "Un incidente deve mantenere almeno un aggiornamento",
     "statusPageImageInvalid": "Impossibile leggere il file come immagine",
     "statusPageImageTooLarge": "L'immagine è troppo grande",
     "statusPageImageBadType": "L'immagine deve essere un file PNG, JPEG o WebP",
@@ -3953,9 +3955,12 @@
     "incident": {
       "resolved": "Risolto · durata {duration}",
       "ongoing": "In corso da {time}",
+      "showMore": "Mostra {count} {count, plural, one {aggiornamento precedente} other {aggiornamenti precedenti}}",
+      "showLess": "Nascondi aggiornamenti precedenti",
       "impact": {
         "degraded": "Degradato",
-        "outage": "Interruzione"
+        "partial_outage": "Interruzione parziale",
+        "outage": "Interruzione totale"
       },
       "status": {
         "investigating": "In esame",
@@ -4160,10 +4165,6 @@
           "stateAll": "Tutti gli stati",
           "stateActive": "Attivi",
           "stateResolved": "Risolti",
-          "visibility": "Visibilità",
-          "visibilityAll": "Tutta la visibilità",
-          "visibilityPublished": "Pubblicato",
-          "visibilityInternal": "Interno",
           "reload": "Ricarica",
           "noMatch": "Nessun incidente corrisponde ai filtri."
         },
@@ -4171,7 +4172,6 @@
         "affectedMore": "+{count} altri",
         "detectedTitle": "Interruzione rilevata",
         "detectedDescription": "{monitor} — {detail}",
-        "internal": "Interno",
         "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto — nulla diventa pubblico finché non lo pubblichi.",
         "newIncident": "Nuovo incidente",
         "backToList": "Torna agli incidenti",
@@ -4188,9 +4188,6 @@
         "ongoingFor": "In corso da {duration}",
         "lasted": "Durata {duration}",
         "draft": "Bozza",
-        "published": "Pubblicato",
-        "publish": "Pubblica",
-        "unpublish": "Annulla pubblicazione",
         "edit": "Modifica",
         "delete": "Elimina",
         "actions": "Azioni",
@@ -4200,15 +4197,15 @@
           "impact": "Impatto",
           "affected": "Interessato",
           "started": "Iniziato",
-          "duration": "Durata",
-          "visibility": "Visibilità"
+          "duration": "Durata"
         },
         "saved": "Incidente salvato",
         "deleted": "Incidente eliminato",
         "error": "Qualcosa è andato storto",
         "impact": {
           "degraded": "Degradato",
-          "outage": "Interruzione"
+          "partial_outage": "Interruzione parziale",
+          "outage": "Interruzione totale"
         },
         "status": {
           "investigating": "In esame",
@@ -4218,21 +4215,37 @@
         },
         "form": {
           "title": "Titolo",
-          "body": "Messaggio",
+          "detailsSection": "Dettagli incidente",
           "impact": "Impatto",
-          "status": "Stato",
           "monitor": "Monitor interessato",
           "monitorNone": "Nessuno (intera pagina)",
-          "startedAt": "Iniziato",
-          "resolvedAt": "Risolto (facoltativo)",
-          "publish": "Pubblicato",
-          "publishHint": "Visibile sulla tua pagina di stato pubblica",
-          "save": "Salva",
           "cancel": "Annulla",
-          "saveInternal": "Salva come interno",
           "publishCta": "Pubblica",
           "updatePublic": "Aggiorna pagina pubblica",
-          "saveHint": "Salvalo internamente per il tuo team o pubblicalo sulla pagina di stato pubblica."
+          "unsaved": "Modifiche non salvate",
+          "deleteIncident": "Elimina incidente"
+        },
+        "composer": {
+          "section": "Pubblica un aggiornamento",
+          "messagePlaceholder": "Aggiungi un messaggio (facoltativo)",
+          "time": "Orario dell’aggiornamento"
+        },
+        "timeline": {
+          "title": "Cronologia",
+          "addUpdate": "Aggiungi aggiornamento",
+          "empty": "Nessuna voce nella cronologia.",
+          "editMessage": "Modifica messaggio",
+          "deleteUpdate": "Elimina aggiornamento",
+          "done": "Fatto",
+          "updateDeleted": "Aggiornamento rimosso",
+          "pending": "In sospeso",
+          "removePending": "Rimuovi aggiornamento"
+        },
+        "discard": {
+          "title": "Ignorare le modifiche?",
+          "description": "Hai modifiche non salvate. Se chiudi ora, andranno perse.",
+          "keep": "Continua a modificare",
+          "confirm": "Ignora"
         }
       }
     },

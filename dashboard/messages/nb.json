@@ -3243,6 +3243,8 @@
     "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
     "statusPageDomainTaken": "Dette domenet er allerede i bruk på en annen statusside",
     "statusPageIncidentLimit": "Denne statussiden har nådd grensen for hendelser",
+    "statusPageIncidentUpdateLimit": "Denne hendelsen har nådd grensen for oppdateringer",
+    "statusPageIncidentUpdateLast": "En hendelse må ha minst én oppdatering",
     "statusPageImageInvalid": "Filen kunne ikke leses som et bilde",
     "statusPageImageTooLarge": "Bildet er for stort",
     "statusPageImageBadType": "Bildet må være et PNG-, JPEG- eller WebP-bilde",
@@ -3953,9 +3955,12 @@
     "incident": {
       "resolved": "Løst · varte {duration}",
       "ongoing": "Pågående siden {time}",
+      "showMore": "Vis {count} tidligere {count, plural, one {oppdatering} other {oppdateringer}}",
+      "showLess": "Skjul tidligere oppdateringer",
       "impact": {
         "degraded": "Redusert",
-        "outage": "Nedetid"
+        "partial_outage": "Delvis nedetid",
+        "outage": "Større nedetid"
       },
       "status": {
         "investigating": "Undersøker",
@@ -4160,10 +4165,6 @@
           "stateAll": "Alle tilstander",
           "stateActive": "Aktive",
           "stateResolved": "Løst",
-          "visibility": "Synlighet",
-          "visibilityAll": "All synlighet",
-          "visibilityPublished": "Publisert",
-          "visibilityInternal": "Intern",
           "reload": "Last inn på nytt",
           "noMatch": "Ingen hendelser samsvarer med filtrene."
         },
@@ -4171,7 +4172,6 @@
         "affectedMore": "+{count} flere",
         "detectedTitle": "Oppdaget nedetid",
         "detectedDescription": "{monitor} — {detail}",
-        "internal": "Intern",
         "hint": "Skriv og publiser hendelser. Oppdagede nedetider foreslås nedenfor — ingenting blir offentlig før du publiserer det.",
         "newIncident": "Ny hendelse",
         "backToList": "Tilbake til hendelser",
@@ -4188,9 +4188,6 @@
         "ongoingFor": "Pågår i {duration}",
         "lasted": "Varte {duration}",
         "draft": "Utkast",
-        "published": "Publisert",
-        "publish": "Publiser",
-        "unpublish": "Avpubliser",
         "edit": "Rediger",
         "delete": "Slett",
         "actions": "Handlinger",
@@ -4200,15 +4197,15 @@
           "impact": "Påvirkning",
           "affected": "Berørt",
           "started": "Startet",
-          "duration": "Varighet",
-          "visibility": "Synlighet"
+          "duration": "Varighet"
         },
         "saved": "Hendelse lagret",
         "deleted": "Hendelse slettet",
         "error": "Noe gikk galt",
         "impact": {
           "degraded": "Redusert",
-          "outage": "Nedetid"
+          "partial_outage": "Delvis nedetid",
+          "outage": "Større nedetid"
         },
         "status": {
           "investigating": "Undersøker",
@@ -4218,21 +4215,37 @@
         },
         "form": {
           "title": "Tittel",
-          "body": "Melding",
+          "detailsSection": "Hendelsesdetaljer",
           "impact": "Påvirkning",
-          "status": "Status",
           "monitor": "Berørt monitor",
           "monitorNone": "Ingen (hele siden)",
-          "startedAt": "Startet",
-          "resolvedAt": "Løst (valgfritt)",
-          "publish": "Publisert",
-          "publishHint": "Synlig på den offentlige statussiden din",
-          "save": "Lagre",
           "cancel": "Avbryt",
-          "saveInternal": "Lagre internt",
           "publishCta": "Publiser",
           "updatePublic": "Oppdater offentlig side",
-          "saveHint": "Lagre den internt for teamet ditt, eller publiser den til den offentlige statussiden."
+          "unsaved": "Ulagrede endringer",
+          "deleteIncident": "Slett hendelse"
+        },
+        "composer": {
+          "section": "Publiser en oppdatering",
+          "messagePlaceholder": "Legg til en melding (valgfritt)",
+          "time": "Oppdateringstidspunkt"
+        },
+        "timeline": {
+          "title": "Tidslinje",
+          "addUpdate": "Legg til oppdatering",
+          "empty": "Ingen tidslinjeoppføringer ennå.",
+          "editMessage": "Rediger melding",
+          "deleteUpdate": "Slett oppdatering",
+          "done": "Ferdig",
+          "updateDeleted": "Oppdatering fjernet",
+          "pending": "Venter",
+          "removePending": "Fjern oppdatering"
+        },
+        "discard": {
+          "title": "Forkaste endringer?",
+          "description": "Du har ulagrede endringer. Hvis du lukker nå, går de tapt.",
+          "keep": "Fortsett redigering",
+          "confirm": "Forkast"
         }
       }
     },

@@ -37,6 +37,14 @@ export const PublicStatusPageMonitorSchema = z.object({
 });
 export type PublicStatusPageMonitor = z.infer<typeof PublicStatusPageMonitorSchema>;
 
+// A single public timeline update. Only the visitor-safe fields are exposed — never the author.
+export const PublicStatusPageIncidentUpdateSchema = z.object({
+  status: StatusPageIncidentStatusSchema,
+  message: z.string(),
+  createdAt: z.string(),
+});
+export type PublicStatusPageIncidentUpdate = z.infer<typeof PublicStatusPageIncidentUpdateSchema>;
+
 export const PublicStatusPageIncidentSchema = z.object({
   title: z.string(),
   body: z.string(),
@@ -46,6 +54,8 @@ export const PublicStatusPageIncidentSchema = z.object({
   monitorPublicName: z.string().nullable(),
   startedAt: z.string(),
   resolvedAt: z.string().nullable(),
+  /** Change timeline, newest first. Falls back to a single body entry if ever empty. */
+  updates: z.array(PublicStatusPageIncidentUpdateSchema).default([]),
 });
 export type PublicStatusPageIncident = z.infer<typeof PublicStatusPageIncidentSchema>;
 

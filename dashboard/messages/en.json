@@ -3240,6 +3240,8 @@
     "statusPageSlugTaken": "This URL slug is already in use",
     "statusPageDomainTaken": "This domain is already in use on another status page",
     "statusPageIncidentLimit": "This status page has reached its incident limit",
+    "statusPageIncidentUpdateLimit": "This incident has reached its update limit",
+    "statusPageIncidentUpdateLast": "An incident must keep at least one update",
     "statusPageImageInvalid": "That file could not be read as an image",
     "statusPageImageTooLarge": "The image is too large",
     "statusPageImageBadType": "The image must be a PNG, JPEG or WebP image",
@@ -3950,9 +3952,12 @@
     "incident": {
       "resolved": "Resolved · lasted {duration}",
       "ongoing": "Ongoing since {time}",
+      "showMore": "Show {count} earlier {count, plural, one {update} other {updates}}",
+      "showLess": "Hide earlier updates",
       "impact": {
         "degraded": "Degraded",
-        "outage": "Outage"
+        "partial_outage": "Partial Outage",
+        "outage": "Major Outage"
       },
       "status": {
         "investigating": "Investigating",
@@ -4157,10 +4162,6 @@
           "stateAll": "All states",
           "stateActive": "Active",
           "stateResolved": "Resolved",
-          "visibility": "Visibility",
-          "visibilityAll": "All visibility",
-          "visibilityPublished": "Published",
-          "visibilityInternal": "Internal",
           "reload": "Reload",
           "noMatch": "No incidents match your filters."
         },
@@ -4168,7 +4169,6 @@
         "affectedMore": "+{count} more",
         "detectedTitle": "Detected outage",
         "detectedDescription": "{monitor} — {detail}",
-        "internal": "Internal",
         "hint": "Write and publish incidents. Detected outages are suggested below — nothing goes public until you publish it.",
         "newIncident": "New incident",
         "backToList": "Back to incidents",
@@ -4185,9 +4185,6 @@
         "ongoingFor": "Ongoing for {duration}",
         "lasted": "Lasted {duration}",
         "draft": "Draft",
-        "published": "Published",
-        "publish": "Publish",
-        "unpublish": "Unpublish",
         "edit": "Edit",
         "delete": "Delete",
         "actions": "Actions",
@@ -4197,15 +4194,15 @@
           "impact": "Impact",
           "affected": "Affected",
           "started": "Started",
-          "duration": "Duration",
-          "visibility": "Visibility"
+          "duration": "Duration"
         },
         "saved": "Incident saved",
         "deleted": "Incident deleted",
         "error": "Something went wrong",
         "impact": {
           "degraded": "Degraded",
-          "outage": "Outage"
+          "partial_outage": "Partial Outage",
+          "outage": "Major Outage"
         },
         "status": {
           "investigating": "Investigating",
@@ -4215,21 +4212,37 @@
         },
         "form": {
           "title": "Title",
-          "body": "Message",
+          "detailsSection": "Incident details",
           "impact": "Impact",
-          "status": "Status",
           "monitor": "Affected monitor",
           "monitorNone": "None (page-wide)",
-          "startedAt": "Started",
-          "resolvedAt": "Resolved (optional)",
-          "publish": "Published",
-          "publishHint": "Visible on your public status page",
-          "save": "Save",
           "cancel": "Cancel",
-          "saveInternal": "Save as internal",
           "publishCta": "Publish",
           "updatePublic": "Update public page",
-          "saveHint": "Save it internally for your team, or publish to the public status page."
+          "unsaved": "Unsaved changes",
+          "deleteIncident": "Delete incident"
+        },
+        "composer": {
+          "section": "Post an update",
+          "messagePlaceholder": "Add a message (optional)",
+          "time": "Update time"
+        },
+        "timeline": {
+          "title": "Timeline",
+          "addUpdate": "Add update",
+          "empty": "No timeline entries yet.",
+          "editMessage": "Edit message",
+          "deleteUpdate": "Delete update",
+          "done": "Done",
+          "updateDeleted": "Update removed",
+          "pending": "Pending",
+          "removePending": "Remove update"
+        },
+        "discard": {
+          "title": "Discard changes?",
+          "description": "You have unsaved changes. If you close now, they will be lost.",
+          "keep": "Keep editing",
+          "confirm": "Discard"
         }
       }
     },

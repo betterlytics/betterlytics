@@ -86,6 +86,23 @@ const resolvedApiIncident = {
   monitorPublicName: 'API',
   startedAt: isoDaysAgo(9),
   resolvedAt: isoDaysAgo(9, 19, 44),
+  updates: [
+    {
+      status: 'resolved' as const,
+      message: 'Rolled back the deploy and confirmed 5xx rates are back to normal.',
+      createdAt: isoDaysAgo(9, 19, 44),
+    },
+    {
+      status: 'identified' as const,
+      message: 'Identified a bad deploy as the cause and started a rollback.',
+      createdAt: isoDaysAgo(9, 19, 30),
+    },
+    {
+      status: 'investigating' as const,
+      message: 'Investigating elevated 5xx responses on the API.',
+      createdAt: isoDaysAgo(9),
+    },
+  ],
 };
 
 const FIXTURES: Record<string, () => PublicStatusPageData> = {
@@ -133,6 +150,13 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           monitorPublicName: 'API',
           startedAt: isoMinutesAgo(21),
           resolvedAt: null,
+          updates: [
+            {
+              status: 'investigating' as const,
+              message: "We're investigating elevated error rates and slow responses on the API.",
+              createdAt: isoMinutesAgo(21),
+            },
+          ],
         },
         resolvedApiIncident,
       ],
@@ -161,6 +185,18 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           monitorPublicName: 'Website',
           startedAt: isoMinutesAgo(48),
           resolvedAt: null,
+          updates: [
+            {
+              status: 'identified' as const,
+              message: "We've identified a network issue and are working on a fix.",
+              createdAt: isoMinutesAgo(30),
+            },
+            {
+              status: 'investigating' as const,
+              message: 'The website is currently unreachable; investigating.',
+              createdAt: isoMinutesAgo(48),
+            },
+          ],
         },
         {
           title: 'API outage',
@@ -170,6 +206,13 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           monitorPublicName: 'API',
           startedAt: isoMinutesAgo(52),
           resolvedAt: null,
+          updates: [
+            {
+              status: 'investigating' as const,
+              message: 'The API is returning server errors. We are investigating.',
+              createdAt: isoMinutesAgo(52),
+            },
+          ],
         },
         resolvedApiIncident,
       ],

@@ -1,5 +1,8 @@
 import { useTranslations } from 'next-intl';
-import type { PublicStatusPageIncident } from '@/entities/analytics/statusPage/publicStatusPage.entities';
+import type {
+  PublicStatusPageIncident,
+  PublicStatusPageIncidentUpdate,
+} from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
 const dateLabel = new Intl.DateTimeFormat('en', {
   month: 'short',
@@ -12,6 +15,21 @@ const timeLabel = new Intl.DateTimeFormat('en', {
   minute: '2-digit',
   timeZone: 'UTC',
 });
+// Timeline entries can span days, so each carries its own date + time (the header only shows the start).
+const entryLabel = new Intl.DateTimeFormat('en', {
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'UTC',
+});
+
+function statusColor(status: PublicStatusPageIncident['status']): string {
+  return status === 'resolved' ? 'var(--sp-ok-text)' : 'var(--sp-warn-text)';
+}
+
+// Most-recent updates shown by default; older ones collapse into a <details> toggle.
+const MAX_VISIBLE_UPDATES = 3;
 
 export function IncidentCard({ incident }: { incident: PublicStatusPageIncident }) {
   const t = useTranslations('publicStatusPage');
@@ -21,7 +39,12 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
     incident.resolvedAt != null
       ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
       : null;
-  const impactColor = incident.impact === 'outage' ? 'var(--sp-down-text)' : 'var(--sp-warn-text)';
+  const impactColor =
+    incident.impact === 'outage'
+      ? 'var(--sp-down-text)'
+      : incident.impact === 'partial_outage'
+        ? 'var(--sp-partial-text)'
+        : 'var(--sp-warn-text)';
 
   const formatDuration = (ms: number) => {
     const minutes = Math.max(1, Math.round(ms / 60_000));
@@ -30,6 +53,38 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
     if (hours < 24) return t('duration.hours', { count: hours });
     return t('duration.days', { count: Math.round(hours / 24) });
   };
+
+  // Defensive fallback: a published incident should always have a seeded timeline, but synthesize one
+  // from the body so the card never renders empty if updates are somehow missing.
+  const updates: PublicStatusPageIncidentUpdate[] =
+    incident.updates.length > 0
+      ? incident.updates
+      : [{ status: incident.status, message: incident.body, createdAt: incident.startedAt }];
+
+  const visibleUpdates = updates.slice(0, MAX_VISIBLE_UPDATES);
+  const hiddenUpdates = updates.slice(MAX_VISIBLE_UPDATES);
+
+  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number) => (
+    <li key={key} className='relative'>
+      <span
+        className='absolute top-1 -left-[21px] h-2.5 w-2.5 rounded-full border-2'
+        style={{ backgroundColor: statusColor(update.status), borderColor: 'var(--sp-card-bg)' }}
+      />
+      <div className='flex items-baseline justify-between gap-2'>
+        <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
+          {t(`incident.status.${update.status}`)}
+        </span>
+        <span suppressHydrationWarning className='flex-none text-[11px] text-[var(--sp-faint)]'>
+          {entryLabel.format(new Date(update.createdAt))}
+        </span>
+      </div>
+      {update.message ? (
+        <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
+          {update.message}
+        </p>
+      ) : null}
+    </li>
+  );
 
   return (
     <article
@@ -51,22 +106,49 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
       {incident.monitorPublicName ? (
         <div className='text-xs text-[var(--sp-faint)]'>{incident.monitorPublicName}</div>
       ) : null}
-      <p className='mt-1.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>{incident.body}</p>
+
+      {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
+      <ol className='relative mt-3.5 space-y-3 border-l pl-4' style={{ borderColor: 'var(--sp-card-divider)' }}>
+        {visibleUpdates.map((update, index) => renderEntry(update, index))}
+      </ol>
+
+      {hiddenUpdates.length > 0 ? (
+        <details className='group mt-2'>
+          <summary className='inline-flex cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--sp-muted)] [&::-webkit-details-marker]:hidden hover:text-[var(--sp-text)]'>
+            <svg
+              className='h-3 w-3 transition-transform group-open:rotate-180'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              aria-hidden='true'
+            >
+              <path d='m6 9 6 6 6-6' strokeLinecap='round' strokeLinejoin='round' />
+            </svg>
+            <span className='group-open:hidden'>
+              {t('incident.showMore', { count: hiddenUpdates.length })}
+            </span>
+            <span className='hidden group-open:inline'>{t('incident.showLess')}</span>
+          </summary>
+          <ol
+            className='relative mt-3 space-y-3 border-l pl-4'
+            style={{ borderColor: 'var(--sp-card-divider)' }}
+          >
+            {hiddenUpdates.map((update, index) => renderEntry(update, visibleUpdates.length + index))}
+          </ol>
+        </details>
+      ) : null}
+
       <div
         suppressHydrationWarning
-        className='mt-2 text-[13px]'
+        className='mt-3 text-[13px]'
         style={{ color: ongoing ? 'var(--sp-warn-text)' : 'var(--sp-muted)' }}
       >
-        {ongoing ? (
-          <>
-            {t(`incident.status.${incident.status}`)} ·{' '}
-            {t('incident.ongoing', { time: timeLabel.format(new Date(incident.startedAt)) })}
-          </>
-        ) : durationMs != null ? (
-          t('incident.resolved', { duration: formatDuration(durationMs) })
-        ) : (
-          t(`incident.status.${incident.status}`)
-        )}
+        {ongoing
+          ? t('incident.ongoing', { time: timeLabel.format(new Date(incident.startedAt)) })
+          : durationMs != null
+            ? t('incident.resolved', { duration: formatDuration(durationMs) })
+            : null}
       </div>
     </article>
   );

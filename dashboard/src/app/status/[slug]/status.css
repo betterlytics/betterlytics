@@ -29,6 +29,8 @@
   --sp-ok-text: light-dark(#059669, #4ade80);
   --sp-warn: light-dark(#f5b40a, #f0b429);
   --sp-warn-text: light-dark(#b45309, #fbd34d);
+  --sp-partial: light-dark(#f97316, #fb923c);
+  --sp-partial-text: light-dark(#ea580c, #fdba74);
   --sp-down: light-dark(#ef4444, #f43f5e);
   --sp-down-text: light-dark(#dc2626, #fb7185);
   --sp-neutral: light-dark(#e5e7eb, #24282d);

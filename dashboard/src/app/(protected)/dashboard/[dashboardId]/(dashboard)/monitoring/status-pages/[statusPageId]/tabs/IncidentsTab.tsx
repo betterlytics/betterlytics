@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,6 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
-  Lock,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -28,6 +27,7 @@ import {
   Sparkles,
   Trash2,
   TriangleAlert,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -48,13 +48,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +64,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PaginationControls } from '@/components/PaginationControls';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { ConfirmDialog } from '@/components/dialogs';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   type DetectedOutageSuggestion,
@@ -74,9 +75,12 @@ import {
 import {
   createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,
+  deleteStatusPageIncidentUpdateAction,
+  editStatusPageIncidentUpdateAction,
   fetchIncidentSuggestionsAction,
+  fetchIncidentTimelineAction,
   fetchStatusPageIncidentsAction,
-  setStatusPageIncidentPublishedAction,
+  postStatusPageIncidentUpdateAction,
   updateStatusPageIncidentAction,
 } from '@/app/actions/analytics/statusPage.actions';
 
@@ -90,13 +94,12 @@ type IncidentsTabProps = {
 
 const PAGE_SIZE = 10;
 
-const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'outage'];
+const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'partial_outage', 'outage'];
 const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified', 'monitoring', 'resolved'];
 
 // "Active" = still ongoing (no resolved timestamp); "Resolved" = has one. These replace the old
 // active/past section split with a single filterable dimension.
 type StateFilter = 'all' | 'active' | 'resolved';
-type VisibilityFilter = 'all' | 'published' | 'internal';
 
 // Outline badges per lifecycle status — mirrors the errors table's status badges.
 const STATUS_BADGE: Record<StatusPageIncidentStatusValue, string> = {
@@ -106,14 +109,24 @@ const STATUS_BADGE: Record<StatusPageIncidentStatusValue, string> = {
   resolved: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
 };
 
+// Solid dot color for the timeline rail.
+const STATUS_DOT: Record<StatusPageIncidentStatusValue, string> = {
+  investigating: 'bg-amber-500',
+  identified: 'bg-orange-500',
+  monitoring: 'bg-sky-500',
+  resolved: 'bg-emerald-500',
+};
+
 const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  partial_outage: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
   outage: 'border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400',
 };
 
 // Impact selector in the modal: muted by default, tinted when picked.
 const IMPACT_SELECTED: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  partial_outage: 'border-orange-500/50 bg-orange-500/10 text-orange-600 dark:text-orange-400',
   outage: 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400',
 };
 
@@ -123,17 +136,28 @@ type IncidentColumnMeta = {
   stopRowClick?: boolean;
 };
 
+// Incident details only — status / resolved state are timeline-derived, never edited here.
 type IncidentForm = {
   id: string | null;
   detectedIncidentId: string | null;
   title: string;
-  body: string;
   impact: StatusPageIncidentImpact;
-  status: StatusPageIncidentStatusValue;
   monitorCheckId: string | null;
-  startedAtLocal: string;
-  resolvedAtLocal: string;
-  isPublished: boolean;
+};
+
+// The "Post an update" box. On create it's the incident's first update; on edit it stages new ones.
+type Composer = {
+  status: StatusPageIncidentStatusValue;
+  message: string;
+  timeLocal: string;
+};
+
+// An update staged in the sheet (edit mode) but not yet published — committed on save.
+type PendingUpdate = {
+  tempId: string;
+  status: StatusPageIncidentStatusValue;
+  message: string;
+  timeLocal: string;
 };
 
 function pad(n: number): string {
@@ -145,18 +169,11 @@ function toLocalInput(date: Date): string {
 }
 
 function emptyForm(): IncidentForm {
-  return {
-    id: null,
-    detectedIncidentId: null,
-    title: '',
-    body: '',
-    impact: 'outage',
-    status: 'investigating',
-    monitorCheckId: null,
-    startedAtLocal: toLocalInput(new Date()),
-    resolvedAtLocal: '',
-    isPublished: false,
-  };
+  return { id: null, detectedIncidentId: null, title: '', impact: 'outage', monitorCheckId: null };
+}
+
+function emptyComposer(): Composer {
+  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()) };
 }
 
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
@@ -166,10 +183,23 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
+  // Guards an accidental close (overlay / Esc / Cancel) when there's unsaved work in the sheet.
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
+  // Snapshot of the details, taken when the sheet opens, to surface an "unsaved changes" hint.
+  const [initialForm, setInitialForm] = useState<IncidentForm>(emptyForm);
+  // The "Post an update" box (first update on create, staged updates on edit).
+  const [composer, setComposer] = useState<Composer>(emptyComposer);
+  // Updates staged locally (edit mode) — not published until "Update public page".
+  const [pendingUpdates, setPendingUpdates] = useState<PendingUpdate[]>([]);
+  const pendingIdRef = useRef(0);
+  // Seeds the header status pill before the timeline loads (edit only).
+  const [incidentStatus, setIncidentStatus] = useState<StatusPageIncidentStatusValue>('investigating');
+  // Inline message edit of a timeline entry.
+  const [editingUpdateId, setEditingUpdateId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState('');
 
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
-  const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>('all');
   const [searchInput, setSearchInput] = useState('');
   const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'started', desc: true }]);
@@ -186,43 +216,68 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     queryKey: suggestionsKey,
     queryFn: () => fetchIncidentSuggestionsAction(dashboardId, statusPageId),
   });
+  // Timeline for the incident currently open in the edit modal; skipped while creating.
+  const timelineQuery = useQuery({
+    queryKey: ['statusPageIncidentTimeline', statusPageId, form.id],
+    queryFn: () => fetchIncidentTimelineAction(dashboardId, statusPageId, form.id as string),
+    enabled: open && form.id != null,
+  });
 
   const afterMutation = () => {
     queryClient.invalidateQueries({ queryKey: incidentsKey });
     queryClient.invalidateQueries({ queryKey: suggestionsKey });
+    queryClient.invalidateQueries({ queryKey: ['statusPageIncidentTimeline', statusPageId] });
     router.refresh(); // keep the live preview / public page in sync
   };
 
+  // Only the incident details count as metadata; staged updates are tracked separately.
+  const metadataDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
+  const hasChanges = metadataDirty || pendingUpdates.length > 0;
+  // Anything that would be lost on close: saved-but-unpublished work, a half-typed update, or an
+  // in-progress inline edit. Closing with any of these prompts before discarding.
+  const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
+
+  // Intercept close attempts (overlay click, Esc, the X, Cancel) — confirm first if work would be lost.
+  const requestClose = () => {
+    if (hasUnsavedWork) setShowDiscardConfirm(true);
+    else setOpen(false);
+  };
+
+  // Save publishes everything at once: incident details, plus any staged updates. On create the
+  // composer is the incident's first update; on edit, staged updates are posted in order.
   const saveMutation = useMutation({
-    mutationFn: async (values: IncidentForm) => {
-      const startedAt = new Date(values.startedAtLocal);
-      const resolvedAt = values.resolvedAtLocal ? new Date(values.resolvedAtLocal) : null;
-      if (values.id) {
-        return updateStatusPageIncidentAction(dashboardId, {
-          id: values.id,
+    mutationFn: async () => {
+      if (!form.id) {
+        return createStatusPageIncidentAction(dashboardId, {
           statusPageId,
-          title: values.title.trim(),
-          body: values.body.trim(),
-          impact: values.impact,
-          status: values.status,
-          monitorCheckId: values.monitorCheckId,
-          startedAt,
-          resolvedAt,
-          isPublished: values.isPublished,
+          title: form.title.trim(),
+          message: composer.message.trim(),
+          impact: form.impact,
+          status: composer.status,
+          monitorCheckId: form.monitorCheckId,
+          detectedIncidentId: form.detectedIncidentId,
+          startedAt: new Date(composer.timeLocal),
         });
       }
-      return createStatusPageIncidentAction(dashboardId, {
-        statusPageId,
-        title: values.title.trim(),
-        body: values.body.trim(),
-        impact: values.impact,
-        status: values.status,
-        monitorCheckId: values.monitorCheckId,
-        detectedIncidentId: values.detectedIncidentId,
-        startedAt,
-        resolvedAt,
-        isPublished: values.isPublished,
-      });
+
+      if (metadataDirty) {
+        await updateStatusPageIncidentAction(dashboardId, {
+          id: form.id,
+          statusPageId,
+          title: form.title.trim(),
+          impact: form.impact,
+          monitorCheckId: form.monitorCheckId,
+        });
+      }
+      for (const update of pendingUpdates) {
+        await postStatusPageIncidentUpdateAction(dashboardId, {
+          incidentId: form.id,
+          statusPageId,
+          status: update.status,
+          message: update.message.trim(),
+          occurredAt: new Date(update.timeLocal),
+        });
+      }
     },
     onSuccess: () => {
       setOpen(false);
@@ -232,10 +287,47 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  const publishMutation = useMutation({
-    mutationFn: ({ incidentId, isPublished }: { incidentId: string; isPublished: boolean }) =>
-      setStatusPageIncidentPublishedAction(dashboardId, statusPageId, incidentId, isPublished),
-    onSuccess: () => afterMutation(),
+  // Stage the composer's update locally (edit mode) — published later by "Update public page".
+  const stagePendingUpdate = () => {
+    pendingIdRef.current += 1;
+    const staged: PendingUpdate = {
+      tempId: `pending-${pendingIdRef.current}`,
+      status: composer.status,
+      message: composer.message.trim(),
+      timeLocal: composer.timeLocal,
+    };
+    setPendingUpdates((list) => [...list, staged]);
+    setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
+  };
+
+  const removePendingUpdate = (tempId: string) =>
+    setPendingUpdates((list) => list.filter((u) => u.tempId !== tempId));
+
+  // Edit only the message (text body) of an existing timeline update.
+  const editUpdateMutation = useMutation({
+    mutationFn: (updateId: string) =>
+      editStatusPageIncidentUpdateAction(dashboardId, {
+        incidentId: form.id as string,
+        statusPageId,
+        updateId,
+        message: editDraft.trim(),
+      }),
+    onSuccess: () => {
+      setEditingUpdateId(null);
+      afterMutation();
+      toast.success(t('saved'));
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
+  const deleteUpdateMutation = useMutation({
+    mutationFn: (updateId: string) =>
+      deleteStatusPageIncidentUpdateAction(dashboardId, { incidentId: form.id as string, statusPageId, updateId }),
+    onSuccess: (incident) => {
+      if (incident) setIncidentStatus(incident.status);
+      afterMutation();
+      toast.success(t('timeline.updateDeleted'));
+    },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
@@ -248,39 +340,57 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  const openCreate = () => {
-    setForm(emptyForm());
+  // Open the sheet, snapshotting the details for the dirty check and resetting the composer.
+  const openWith = (
+    next: IncidentForm,
+    nextComposer: Composer,
+    status: StatusPageIncidentStatusValue,
+  ) => {
+    setForm(next);
+    setInitialForm(next);
+    setComposer(nextComposer);
+    setPendingUpdates([]);
+    setIncidentStatus(status);
+    setEditingUpdateId(null);
     setOpen(true);
   };
 
-  const openEdit = (incident: StatusPageIncident) => {
-    setForm({
-      id: incident.id,
-      detectedIncidentId: incident.detectedIncidentId,
-      title: incident.title,
-      body: incident.body,
-      impact: incident.impact,
-      status: incident.status,
-      monitorCheckId: incident.monitorCheckId,
-      startedAtLocal: toLocalInput(new Date(incident.startedAt)),
-      resolvedAtLocal: incident.resolvedAt ? toLocalInput(new Date(incident.resolvedAt)) : '',
-      isPublished: incident.isPublished,
-    });
-    setOpen(true);
-  };
+  const openCreate = () => openWith(emptyForm(), emptyComposer(), 'investigating');
 
-  const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
-    setForm({
-      ...emptyForm(),
-      detectedIncidentId: suggestion.detectedIncidentId,
-      title: t('suggestedTitle', { monitor: suggestion.monitorPublicName }),
-      impact: suggestion.suggestedImpact,
-      status: suggestion.ongoing ? 'investigating' : 'resolved',
-      monitorCheckId: suggestion.monitorCheckId,
-      startedAtLocal: toLocalInput(new Date(suggestion.startedAt)),
-      resolvedAtLocal: suggestion.resolvedAt ? toLocalInput(new Date(suggestion.resolvedAt)) : '',
-    });
-    setOpen(true);
+  const openEdit = (incident: StatusPageIncident) =>
+    openWith(
+      {
+        id: incident.id,
+        detectedIncidentId: incident.detectedIncidentId,
+        title: incident.title,
+        impact: incident.impact,
+        monitorCheckId: incident.monitorCheckId,
+      },
+      // The composer starts on the incident's current status so a quick post defaults sensibly.
+      { ...emptyComposer(), status: incident.status },
+      incident.status,
+    );
+
+  const openFromSuggestion = (suggestion: DetectedOutageSuggestion) =>
+    openWith(
+      {
+        ...emptyForm(),
+        detectedIncidentId: suggestion.detectedIncidentId,
+        title: t('suggestedTitle', { monitor: suggestion.monitorPublicName }),
+        impact: suggestion.suggestedImpact,
+        monitorCheckId: suggestion.monitorCheckId,
+      },
+      {
+        ...emptyComposer(),
+        status: suggestion.ongoing ? 'investigating' : 'resolved',
+        timeLocal: toLocalInput(new Date(suggestion.startedAt)),
+      },
+      suggestion.ongoing ? 'investigating' : 'resolved',
+    );
+
+  const beginEditUpdate = (updateId: string, message: string) => {
+    setEditingUpdateId(updateId);
+    setEditDraft(message);
   };
 
   const incidents = useMemo(() => incidentsQuery.data ?? [], [incidentsQuery.data]);
@@ -314,18 +424,16 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     return t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
   };
 
-  // Pre-filter by the State / Visibility selects before the table applies search + sort.
+  // Pre-filter by the State select before the table applies search + sort.
   const filteredIncidents = useMemo(
     () =>
       incidents.filter((incident) => {
         const isActive = incident.resolvedAt == null;
         if (stateFilter === 'active' && !isActive) return false;
         if (stateFilter === 'resolved' && isActive) return false;
-        if (visibilityFilter === 'published' && !incident.isPublished) return false;
-        if (visibilityFilter === 'internal' && incident.isPublished) return false;
         return true;
       }),
-    [incidents, stateFilter, visibilityFilter],
+    [incidents, stateFilter],
   );
 
   // Debounce the search box, and reset to the first page whenever it changes.
@@ -339,7 +447,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   useEffect(() => {
     setPagination((p) => ({ ...p, pageIndex: 0 }));
-  }, [stateFilter, visibilityFilter]);
+  }, [stateFilter]);
 
   const columns = useMemo<ColumnDef<StatusPageIncident, unknown>[]>(
     () => [
@@ -443,31 +551,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         cell: ({ row }) => <span suppressHydrationWarning>{durationLabel(row.original)}</span>,
       },
       {
-        id: 'visibility',
-        accessorFn: (row) => row.isPublished,
-        header: t('table.visibility'),
-        enableSorting: false,
-        enableGlobalFilter: false,
-        meta: {
-          cellClassName: 'hidden lg:table-cell',
-          headerClassName: 'hidden px-3 sm:px-6 lg:table-cell',
-        } satisfies IncidentColumnMeta,
-        cell: ({ row }) =>
-          row.original.isPublished ? (
-            <Badge variant='outline' className='border-border text-muted-foreground'>
-              {t('published')}
-            </Badge>
-          ) : (
-            <Badge
-              variant='outline'
-              className='border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400'
-            >
-              <Lock className='mr-1 h-3 w-3' />
-              {t('internal')}
-            </Badge>
-          ),
-      },
-      {
         id: 'status',
         accessorFn: (row) => row.status,
         header: t('table.status'),
@@ -495,7 +578,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     <Button
                       size='icon'
                       variant='ghost'
-                      disabled={publishMutation.isPending || deleteMutation.isPending}
+                      disabled={deleteMutation.isPending}
                       aria-label={t('actions')}
                       className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
                       onClick={(e) => e.stopPropagation()}
@@ -507,15 +590,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     <DropdownMenuItem onClick={() => openEdit(incident)} className='cursor-pointer'>
                       <Pencil className='h-3.5 w-3.5' />
                       {t('edit')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        publishMutation.mutate({ incidentId: incident.id, isPublished: !incident.isPublished })
-                      }
-                      className='cursor-pointer'
-                    >
-                      {incident.isPublished ? <Lock className='h-3.5 w-3.5' /> : <Check className='h-3.5 w-3.5' />}
-                      {incident.isPublished ? t('unpublish') : t('publish')}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -535,7 +609,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [t, locale, monitorNameById, publishMutation.isPending, deleteMutation.isPending],
+    [t, locale, monitorNameById, deleteMutation.isPending],
   );
 
   const table = useReactTable({
@@ -555,11 +629,37 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const visibleRows = table.getRowModel().rows;
   const filteredCount = table.getFilteredRowModel().rows.length;
   const columnCount = table.getVisibleLeafColumns().length;
-  const hasActiveFilters = globalFilter.trim().length > 0 || stateFilter !== 'all' || visibilityFilter !== 'all';
+  const hasActiveFilters = globalFilter.trim().length > 0 || stateFilter !== 'all';
 
-  const formValid = form.title.trim().length > 0 && form.body.trim().length > 0 && form.startedAtLocal.length > 0;
-  const editingPublished = form.id != null && form.isPublished;
-  const publishCta = editingPublished ? t('form.updatePublic') : t('form.publishCta');
+  // Newest-first saved timeline for the open incident.
+  const timeline = useMemo(() => (timelineQuery.data ?? []).slice().reverse(), [timelineQuery.data]);
+  // One newest-first list for the rail: staged updates on top, then the saved timeline.
+  const timelineRows = useMemo(
+    () => [
+      ...pendingUpdates
+        .slice()
+        .reverse()
+        .map((u) => ({ kind: 'pending' as const, key: u.tempId, id: u.tempId, status: u.status, message: u.message, date: new Date(u.timeLocal) })),
+      ...timeline.map((e) => ({ kind: 'saved' as const, key: e.id, id: e.id, status: e.status, message: e.message, date: e.createdAt })),
+    ],
+    [pendingUpdates, timeline],
+  );
+  // Most recent status across staged + saved updates — drives the header pill and "status changed".
+  const latestStatus =
+    pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
+  const headerStatus = form.id != null ? latestStatus : composer.status;
+  // Keep the timeline bounded — count saved + staged updates against the cap.
+  const atUpdateCap = timeline.length + pendingUpdates.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
+  // Can stage an update when there's a message or the status actually moves, and we're under the cap.
+  const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
+
+  // A title is all that's required; the first update's message is optional.
+  const formValid = form.title.trim().length > 0;
+  // Incidents are always public, so saving is always a publish — "Update public page" when editing,
+  // "Publish" when creating.
+  const saveCta = form.id != null ? t('form.updatePublic') : t('form.publishCta');
+  // New incidents always save; edits only when details changed or updates are staged.
+  const canSave = formValid && (form.id == null || hasChanges);
 
   const reload = () => {
     incidentsQuery.refetch();
@@ -635,7 +735,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </div>
       ) : (
         <>
-          {/* Toolbar: search on the left, State / Visibility filters + reload on the right. */}
+          {/* Toolbar: search on the left, State filter + reload on the right. */}
           <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
             <div className='relative sm:max-w-xs sm:flex-1'>
               <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
@@ -656,16 +756,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                   <SelectItem value='all'>{t('filters.stateAll')}</SelectItem>
                   <SelectItem value='active'>{t('filters.stateActive')}</SelectItem>
                   <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={visibilityFilter} onValueChange={(v) => setVisibilityFilter(v as VisibilityFilter)}>
-                <SelectTrigger size='sm' className='w-[140px]' aria-label={t('filters.visibility')}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>{t('filters.visibilityAll')}</SelectItem>
-                  <SelectItem value='published'>{t('filters.visibilityPublished')}</SelectItem>
-                  <SelectItem value='internal'>{t('filters.visibilityInternal')}</SelectItem>
                 </SelectContent>
               </Select>
               <PermissionGate allowViewer>
@@ -781,158 +871,346 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </>
       )}
 
-      {/* Create / edit incident modal */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className='max-h-[calc(100vh-4rem)] overflow-y-auto sm:max-w-xl'>
-          <DialogHeader>
-            <DialogTitle>{form.id ? t('editIncident') : t('newIncident')}</DialogTitle>
-            <DialogDescription>{t('form.saveHint')}</DialogDescription>
-          </DialogHeader>
-
-          <div className='space-y-5'>
-            <div className='space-y-1.5'>
-              <Label htmlFor='inc-title'>{t('form.title')}</Label>
-              <Input
-                id='inc-title'
-                value={form.title}
-                maxLength={STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              />
-            </div>
-
-            <div className='space-y-2'>
-              <Label>{t('form.impact')}</Label>
-              <div className='flex flex-wrap gap-2'>
-                {IMPACTS.map((option) => {
-                  const selected = form.impact === option;
-                  return (
-                    <button
-                      key={option}
-                      type='button'
-                      onClick={() => setForm((f) => ({ ...f, impact: option }))}
-                      className={cn(
-                        'cursor-pointer rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                        selected
-                          ? IMPACT_SELECTED[option]
-                          : 'border-border text-muted-foreground hover:text-foreground',
-                      )}
-                    >
-                      {t(`impact.${option}`)}
-                    </button>
-                  );
-                })}
+      {/* Create / edit incident sheet — one slide-over shared by both flows */}
+      <Sheet open={open} onOpenChange={(next) => (next ? setOpen(true) : requestClose())}>
+        <SheetContent side='right' className='flex w-full flex-col gap-0 p-0 sm:max-w-2xl'>
+          <SheetHeader className='flex-row items-start justify-between space-y-0 border-b px-6 py-4 pr-12'>
+            <div className='min-w-0 space-y-1'>
+              <div className='flex flex-wrap items-center gap-2'>
+                <SheetTitle className='text-base'>{form.id ? t('editIncident') : t('newIncident')}</SheetTitle>
+                <Badge variant='outline' className={STATUS_BADGE[headerStatus]}>
+                  {t(`status.${headerStatus}`)}
+                </Badge>
               </div>
+              <SheetDescription className='text-xs'>{t('formHint')}</SheetDescription>
             </div>
+          </SheetHeader>
 
-            <div className='space-y-2'>
-              <Label>{t('form.monitor')}</Label>
-              <div className='flex flex-wrap gap-2'>
-                <Chip
-                  selected={form.monitorCheckId === null}
-                  onClick={() => setForm((f) => ({ ...f, monitorCheckId: null }))}
-                  label={t('form.monitorNone')}
+          {/* Scrollable body */}
+          <div className='min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5'>
+            <section className='space-y-5'>
+              <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
+                {t('form.detailsSection')}
+              </div>
+
+              <div className='space-y-1.5'>
+                <Label htmlFor='inc-title'>{t('form.title')}</Label>
+                <Input
+                  id='inc-title'
+                  value={form.title}
+                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX}
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 />
-                {monitors.map((monitor) => (
+              </div>
+
+              <div className='space-y-2'>
+                <Label>{t('form.impact')}</Label>
+                <div className='flex flex-wrap gap-2'>
+                  {IMPACTS.map((option) => {
+                    const selected = form.impact === option;
+                    return (
+                      <button
+                        key={option}
+                        type='button'
+                        onClick={() => setForm((f) => ({ ...f, impact: option }))}
+                        className={cn(
+                          'cursor-pointer rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                          selected
+                            ? IMPACT_SELECTED[option]
+                            : 'border-border text-muted-foreground hover:text-foreground',
+                        )}
+                      >
+                        {t(`impact.${option}`)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className='space-y-2'>
+                <Label>{t('form.monitor')}</Label>
+                <div className='flex flex-wrap gap-2'>
                   <Chip
-                    key={monitor.monitorCheckId}
-                    selected={form.monitorCheckId === monitor.monitorCheckId}
-                    onClick={() => setForm((f) => ({ ...f, monitorCheckId: monitor.monitorCheckId }))}
-                    label={monitor.publicName}
+                    selected={form.monitorCheckId === null}
+                    onClick={() => setForm((f) => ({ ...f, monitorCheckId: null }))}
+                    label={t('form.monitorNone')}
                   />
-                ))}
+                  {monitors.map((monitor) => (
+                    <Chip
+                      key={monitor.monitorCheckId}
+                      selected={form.monitorCheckId === monitor.monitorCheckId}
+                      onClick={() => setForm((f) => ({ ...f, monitorCheckId: monitor.monitorCheckId }))}
+                      label={monitor.publicName}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className='space-y-2'>
-              <Label>{t('form.status')}</Label>
-              <div className='bg-secondary inline-flex flex-wrap gap-1 rounded-md p-1'>
-                {STATUSES.map((option) => {
-                  const selected = form.status === option;
-                  return (
-                    <button
-                      key={option}
-                      type='button'
-                      onClick={() => setForm((f) => ({ ...f, status: option }))}
-                      className={cn(
-                        'cursor-pointer rounded px-3 py-1.5 text-sm transition-colors',
-                        selected
-                          ? 'bg-card text-foreground font-medium shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground',
+            </section>
+
+            <div className='bg-border h-px' />
+
+            {/* Post an update — the standalone "quick status update" box. */}
+            <section className='space-y-3'>
+              <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
+                {t('composer.section')}
+              </div>
+              <div className='border-border bg-muted/30 space-y-3 rounded-xl border p-3.5'>
+                <div className='flex flex-wrap gap-1.5'>
+                  {STATUSES.map((option) => {
+                    const selected = composer.status === option;
+                    return (
+                      <button
+                        key={option}
+                        type='button'
+                        onClick={() => setComposer((c) => ({ ...c, status: option }))}
+                        className={cn(
+                          'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
+                          selected
+                            ? STATUS_BADGE[option]
+                            : 'border-border text-muted-foreground hover:text-foreground',
+                        )}
+                      >
+                        {t(`status.${option}`)}
+                      </button>
+                    );
+                  })}
+                </div>
+                <Textarea
+                  id='inc-message'
+                  rows={3}
+                  placeholder={t('composer.messagePlaceholder')}
+                  value={composer.message}
+                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
+                  onChange={(e) => setComposer((c) => ({ ...c, message: e.target.value }))}
+                />
+                <div className='flex flex-wrap items-center gap-2'>
+                  <Input
+                    type='datetime-local'
+                    aria-label={t('composer.time')}
+                    value={composer.timeLocal}
+                    onChange={(e) => setComposer((c) => ({ ...c, timeLocal: e.target.value }))}
+                    className='h-9 w-auto min-w-0 flex-1 sm:flex-none'
+                  />
+                  {form.id != null && (
+                    <PermissionGate>
+                      {(disabled) => (
+                        <Button
+                          size='sm'
+                          variant='outline'
+                          onClick={stagePendingUpdate}
+                          disabled={disabled || !canPost}
+                          className='ml-auto cursor-pointer'
+                        >
+                          <Plus className='h-3.5 w-3.5' />
+                          {t('timeline.addUpdate')}
+                        </Button>
                       )}
-                    >
-                      {t(`status.${option}`)}
-                    </button>
-                  );
-                })}
+                    </PermissionGate>
+                  )}
+                </div>
               </div>
-            </div>
+            </section>
 
-            <div className='space-y-1.5'>
-              <Label htmlFor='inc-body'>{t('form.body')}</Label>
-              <Textarea
-                id='inc-body'
-                rows={4}
-                value={form.body}
-                maxLength={STATUS_PAGE_LIMITS.INCIDENT_BODY_MAX}
-                onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
-              />
-            </div>
+            {/* Timeline — only the message (text body) of each entry can be edited. */}
+            {form.id != null && (
+              <section className='space-y-3'>
+                <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
+                  {t('timeline.title')}
+                </div>
+                {timelineQuery.isLoading ? (
+                  <div className='space-y-2'>
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <Skeleton key={i} className='h-16 w-full' />
+                    ))}
+                  </div>
+                ) : timeline.length === 0 && pendingUpdates.length === 0 ? (
+                  <p className='text-muted-foreground text-sm'>{t('timeline.empty')}</p>
+                ) : (
+                  <ol className='relative'>
+                    {timelineRows.map((row, i) => {
+                      const isLast = i === timelineRows.length - 1;
+                      const pending = row.kind === 'pending';
+                      const editing = !pending && editingUpdateId === row.id;
+                      return (
+                        <li
+                          key={row.key}
+                          className='group grid grid-cols-[18px_minmax(0,1fr)] gap-3.5 pb-4.5 last:pb-0'
+                        >
+                          {/* Rail: connecting line + status dot, centered on the title row. */}
+                          <div className='relative'>
+                            {!isLast && <div className='bg-border absolute -bottom-8 left-2 top-3.5 w-0.5' />}
+                            <div className='flex h-7 items-center'>
+                              <div
+                                className={cn(
+                                  'ring-background relative z-10 ml-1 h-2.5 w-2.5 rounded-full ring',
+                                  pending ? 'bg-background border-2 border-amber-500' : STATUS_DOT[row.status],
+                                )}
+                              />
+                            </div>
+                          </div>
 
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='space-y-1.5'>
-                <Label htmlFor='inc-started'>{t('form.startedAt')}</Label>
-                <Input
-                  id='inc-started'
-                  type='datetime-local'
-                  value={form.startedAtLocal}
-                  onChange={(e) => setForm((f) => ({ ...f, startedAtLocal: e.target.value }))}
-                />
-              </div>
-              <div className='space-y-1.5'>
-                <Label htmlFor='inc-resolved'>{t('form.resolvedAt')}</Label>
-                <Input
-                  id='inc-resolved'
-                  type='datetime-local'
-                  value={form.resolvedAtLocal}
-                  onChange={(e) => setForm((f) => ({ ...f, resolvedAtLocal: e.target.value }))}
-                />
-              </div>
-            </div>
+                          {/* Content */}
+                          <div className='min-w-0'>
+                            <div className='flex h-7 items-center gap-2'>
+                              <span className='text-foreground text-sm font-bold'>{t(`status.${row.status}`)}</span>
+                              {pending && (
+                                <span className='inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400'>
+                                  <span className='h-1.5 w-1.5 rounded-full bg-amber-500' />
+                                  {t('timeline.pending')}
+                                </span>
+                              )}
+                              <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
+                                {pending ? (
+                                  <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    aria-label={t('timeline.removePending')}
+                                    onClick={() => removePendingUpdate(row.id)}
+                                    className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                  >
+                                    <X className='h-3.5 w-3.5' />
+                                  </Button>
+                                ) : (
+                                  <PermissionGate hideWhenDisabled>
+                                    {() => (
+                                      <>
+                                        <Button
+                                          size='icon'
+                                          variant='ghost'
+                                          aria-label={t('timeline.editMessage')}
+                                          onClick={() => beginEditUpdate(row.id, row.message)}
+                                          className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
+                                        >
+                                          <Pencil className='h-3.5 w-3.5' />
+                                        </Button>
+                                        <Button
+                                          size='icon'
+                                          variant='ghost'
+                                          aria-label={t('timeline.deleteUpdate')}
+                                          disabled={timeline.length <= 1 || deleteUpdateMutation.isPending}
+                                          onClick={() => deleteUpdateMutation.mutate(row.id)}
+                                          className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                        >
+                                          <Trash2 className='h-3.5 w-3.5' />
+                                        </Button>
+                                      </>
+                                    )}
+                                  </PermissionGate>
+                                )}
+                              </div>
+                            </div>
+
+                            {editing ? (
+                              <div className='mt-2 space-y-2'>
+                                <Textarea
+                                  rows={3}
+                                  autoFocus
+                                  value={editDraft}
+                                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
+                                  onChange={(e) => setEditDraft(e.target.value)}
+                                />
+                                <div className='flex justify-end gap-2'>
+                                  <Button
+                                    size='sm'
+                                    variant='outline'
+                                    onClick={() => setEditingUpdateId(null)}
+                                    className='cursor-pointer'
+                                  >
+                                    {t('form.cancel')}
+                                  </Button>
+                                  <Button
+                                    size='sm'
+                                    onClick={() => editUpdateMutation.mutate(row.id)}
+                                    disabled={editUpdateMutation.isPending}
+                                    className='cursor-pointer'
+                                  >
+                                    {t('timeline.done')}
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              row.message && (
+                                <p className='text-foreground/85 mt-1 text-sm whitespace-pre-line'>{row.message}</p>
+                              )
+                            )}
+
+                            <div suppressHydrationWarning className='text-muted-foreground mt-1.5 text-xs'>
+                              {formatLocalDateTime(row.date, locale, {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+              </section>
+            )}
           </div>
 
-          <DialogFooter className='sm:items-center sm:justify-between'>
-            <Button variant='outline' onClick={() => setOpen(false)} className='cursor-pointer'>
-              {t('form.cancel')}
-            </Button>
-            <div className='flex flex-col-reverse gap-2 sm:flex-row sm:items-center'>
+          {/* Sticky footer */}
+          <SheetFooter className='flex-row flex-wrap items-center gap-2 border-t px-6 py-3'>
+            {form.id != null && (
               <PermissionGate>
                 {(disabled) => (
                   <Button
-                    variant='outline'
-                    disabled={disabled || !formValid || saveMutation.isPending}
-                    onClick={() => saveMutation.mutate({ ...form, isPublished: false })}
-                    className='cursor-pointer'
+                    variant='ghost'
+                    disabled={disabled || deleteMutation.isPending}
+                    onClick={() => {
+                      deleteMutation.mutate(form.id as string);
+                      setOpen(false);
+                    }}
+                    className='text-destructive hover:text-destructive cursor-pointer'
                   >
-                    <Lock className='h-3.5 w-3.5' />
-                    {t('form.saveInternal')}
+                    <Trash2 className='h-4 w-4' />
+                    {t('form.deleteIncident')}
                   </Button>
                 )}
               </PermissionGate>
+            )}
+            <div className='ml-auto flex flex-wrap items-center justify-end gap-2'>
+              {hasChanges && (
+                <span className='text-muted-foreground hidden items-center gap-1.5 text-xs sm:flex'>
+                  <span className='h-2 w-2 rounded-full bg-amber-500' />
+                  {t('form.unsaved')}
+                </span>
+              )}
+              <Button variant='outline' onClick={requestClose} className='cursor-pointer'>
+                {t('form.cancel')}
+              </Button>
               <PermissionGate>
                 {(disabled) => (
                   <Button
-                    disabled={disabled || !formValid || saveMutation.isPending}
-                    onClick={() => saveMutation.mutate({ ...form, isPublished: true })}
+                    disabled={disabled || !canSave || saveMutation.isPending}
+                    onClick={() => saveMutation.mutate()}
                     className='cursor-pointer'
                   >
-                    {publishCta}
+                    {saveCta}
                   </Button>
                 )}
               </PermissionGate>
             </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
+      <ConfirmDialog
+        open={showDiscardConfirm}
+        onOpenChange={setShowDiscardConfirm}
+        title={t('discard.title')}
+        description={t('discard.description')}
+        cancelLabel={t('discard.keep')}
+        confirmLabel={t('discard.confirm')}
+        onConfirm={() => {
+          setShowDiscardConfirm(false);
+          setOpen(false);
+        }}
+      />
     </div>
   );
 }

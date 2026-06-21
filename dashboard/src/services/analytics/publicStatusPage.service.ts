@@ -27,7 +27,11 @@ import {
   getStatusPageImageBySlug,
   getStatusPageSnapshotById,
 } from '@/repositories/postgres/statusPage.repository';
-import { listPublishedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
+import {
+  listPublishedIncidents,
+  listPublishedIncidentUpdates,
+} from '@/repositories/postgres/statusPageIncident.repository';
+import { type StatusPageIncidentTimelineEntry } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { canRemoveStatusPageBranding } from '@/lib/billing/capabilityAccess';
 import { toDateTimeString } from '@/utils/dateFormatters';
@@ -195,6 +199,11 @@ async function assembleStatusPage(
     };
   });
 
+  const updatesByIncident: Map<string, StatusPageIncidentTimelineEntry[]> =
+    publishedIncidents == null
+      ? new Map()
+      : await listPublishedIncidentUpdates(publishedIncidents.map((incident) => incident.id));
+
   const incidents =
     publishedIncidents == null
       ? null
@@ -202,6 +211,12 @@ async function assembleStatusPage(
           // Resolve the affected monitor's public name from the page's monitors; null = page-wide
           // (or the monitor is no longer on the page).
           const monitorIndex = incident.monitorCheckId ? checkIds.indexOf(incident.monitorCheckId) : -1;
+          // Every update is an intentional, message-bearing post — surface them all (newest-first).
+          const updates = (updatesByIncident.get(incident.id) ?? []).map((entry) => ({
+            status: entry.status,
+            message: entry.message,
+            createdAt: entry.createdAt.toISOString(),
+          }));
           return {
             monitorIndex,
             incident: {
@@ -212,6 +227,7 @@ async function assembleStatusPage(
               monitorPublicName: monitorIndex >= 0 ? monitors[monitorIndex].publicName : null,
               startedAt: incident.startedAt.toISOString(),
               resolvedAt: incident.resolvedAt ? incident.resolvedAt.toISOString() : null,
+              updates,
             } satisfies PublicStatusPageIncident,
           };
         });
