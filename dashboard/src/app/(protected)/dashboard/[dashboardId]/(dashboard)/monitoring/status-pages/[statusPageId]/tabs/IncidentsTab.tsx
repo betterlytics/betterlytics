@@ -456,7 +456,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         accessorFn: (row) => `${row.title} ${row.body}`,
         header: t('table.incident'),
         enableSorting: false,
-        meta: { cellClassName: 'w-full max-w-0 min-w-[200px]' } satisfies IncidentColumnMeta,
+        meta: { cellClassName: 'w-full max-w-0 min-w-[140px] sm:min-w-[200px]' } satisfies IncidentColumnMeta,
         cell: ({ row }) => {
           const incident = row.original;
           return (
@@ -776,7 +776,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           </div>
 
           <div className='border-border overflow-x-auto rounded-lg border'>
-            <Table className='min-w-[920px]'>
+            <Table className='min-w-0 sm:min-w-[600px] md:min-w-[720px] lg:min-w-[880px] xl:min-w-[920px]'>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow

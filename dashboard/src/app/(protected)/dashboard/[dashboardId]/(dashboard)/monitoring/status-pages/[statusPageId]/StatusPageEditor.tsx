@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Copy, ExternalLink, Link2 } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, Link2, Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -105,6 +105,7 @@ export function StatusPageEditor({
 
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('incidents');
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
 
@@ -213,11 +214,13 @@ export function StatusPageEditor({
       publicHost={publicHost}
       draft={form.previewDraft}
       enlargeable
+      enlargedOpen={previewOpen}
+      onEnlargedOpenChange={setPreviewOpen}
     />
   );
 
   return (
-    <div>
+    <div className={cn(activeTab !== 'incidents' && 'pb-20 lg:pb-0')}>
       {/* Persistent top bar */}
       <Link
         href={backHref}
@@ -266,11 +269,22 @@ export function StatusPageEditor({
             {t('viewPage')}
             <ExternalLink className='h-3 w-3' />
           </a>
+          {/* On phones the inline preview pane is hidden, so surface preview up here next to "View page". */}
+          {activeTab !== 'incidents' && (
+            <button
+              type='button'
+              onClick={() => setPreviewOpen(true)}
+              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-sm transition-colors lg:hidden'
+            >
+              <Maximize2 className='h-3.5 w-3.5' />
+              {t('preview')}
+            </button>
+          )}
         </div>
       </div>
 
       <UnderlineTabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabKey)} className='mt-5'>
-        <div className='border-border border-b'>
+        <div className='border-border overflow-x-auto border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
             <UnderlineTabsTrigger value='general'>
@@ -309,7 +323,7 @@ export function StatusPageEditor({
               {activeTab === 'customize' && <CustomizeTab form={form} />}
             </div>
 
-            <div className='space-y-3'>
+            <div className='hidden space-y-3 lg:block'>
               <div className='flex items-end justify-end gap-2 lg:h-12'>
                 {effectiveDirty && (
                   <Button
@@ -343,6 +357,38 @@ export function StatusPageEditor({
           </div>
         )}
       </UnderlineTabs>
+
+      {/* Mobile save bar: the desktop right column (with its save cluster) is hidden on phones. */}
+      {activeTab !== 'incidents' && (
+        <div className='bg-background border-border fixed inset-x-0 bottom-0 z-40 flex items-center justify-end gap-2 border-t px-4 py-3 lg:hidden'>
+          {effectiveDirty && (
+            <Button
+              type='button'
+              variant='ghost'
+              size='sm'
+              disabled={saveMutation.isPending}
+              onClick={handleDiscard}
+              className='cursor-pointer'
+            >
+              {t('discard')}
+            </Button>
+          )}
+          <PermissionGate>
+            {(disabled) => (
+              <Button
+                size='sm'
+                disabled={disabled || saveDisabled || saveMutation.isPending}
+                title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
+                onClick={handleSave}
+                className='cursor-pointer'
+              >
+                {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                {t('save')}
+              </Button>
+            )}
+          </PermissionGate>
+        </div>
+      )}
 
       <ConfirmDialog
         open={showLeaveConfirm}
