@@ -4079,6 +4079,8 @@
       "uploadLogo": "Carica logo",
       "favicon": "Favicon",
       "uploadFavicon": "Carica favicon",
+      "logoHint": "Mostrato nell'intestazione della pagina. PNG, JPEG o WebP; le immagini grandi vengono ridotte.",
+      "faviconHint": "Mostrata nella scheda del browser. Usa un'immagine quadrata PNG, JPEG o WebP.",
       "replaceImage": "Sostituisci",
       "removeImage": "Rimuovi",
       "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",

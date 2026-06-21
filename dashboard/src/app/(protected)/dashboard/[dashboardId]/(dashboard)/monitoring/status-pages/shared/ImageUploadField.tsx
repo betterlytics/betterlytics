@@ -33,8 +33,8 @@ export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploa
   const [processing, setProcessing] = useState(false);
 
   const text = {
-    logo: { label: t('logo'), upload: t('uploadLogo') },
-    favicon: { label: t('favicon'), upload: t('uploadFavicon') },
+    logo: { label: t('logo'), upload: t('uploadLogo'), hint: t('logoHint') },
+    favicon: { label: t('favicon'), upload: t('uploadFavicon'), hint: t('faviconHint') },
   }[kind];
 
   const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,19 +57,24 @@ export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploa
   };
 
   return (
-    <div className='space-y-2'>
-      <Label>{text.label}</Label>
-      <input ref={inputRef} type='file' accept={STATUS_PAGE_IMAGE_ACCEPT} className='hidden' onChange={handleFile} />
+    <div className='flex items-center gap-4'>
+      <input
+        ref={inputRef}
+        type='file'
+        accept={STATUS_PAGE_IMAGE_ACCEPT}
+        className='hidden'
+        onChange={handleFile}
+      />
       <PermissionGate>
         {(disabled) =>
           value ? (
-            <div className='relative h-20 w-20'>
+            <div className='relative h-16 w-16 flex-none'>
               <button
                 type='button'
                 aria-label={t('replaceImage')}
                 disabled={disabled || processing}
                 onClick={() => inputRef.current?.click()}
-                className='group border-input relative block h-20 w-20 cursor-pointer overflow-hidden rounded-md border disabled:cursor-not-allowed'
+                className='group border-input relative block h-16 w-16 cursor-pointer overflow-hidden rounded-md border disabled:cursor-not-allowed'
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- owner-provided image, not optimizable via next/image */}
                 <img src={value} alt='' className='h-full w-full object-contain p-1.5' />
@@ -96,16 +101,20 @@ export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploa
           ) : (
             <button
               type='button'
+              aria-label={text.upload}
               disabled={disabled || processing}
               onClick={() => inputRef.current?.click()}
-              className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed px-1 text-center text-[10px] leading-tight transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+              className='border-input text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground flex h-16 w-16 flex-none cursor-pointer items-center justify-center rounded-md border border-dashed transition-colors disabled:cursor-not-allowed disabled:opacity-50'
             >
               {processing ? <Loader2 className='h-5 w-5 animate-spin' /> : <Upload className='h-5 w-5' />}
-              {text.upload}
             </button>
           )
         }
       </PermissionGate>
+      <div className='min-w-0 space-y-1'>
+        <Label>{text.label}</Label>
+        <p className='text-muted-foreground text-xs leading-relaxed'>{text.hint}</p>
+      </div>
     </div>
   );
 }

@@ -4079,6 +4079,8 @@
       "uploadLogo": "Last opp logo",
       "favicon": "Favicon",
       "uploadFavicon": "Last opp favicon",
+      "logoHint": "Vises i sidens topptekst. PNG, JPEG eller WebP; store bilder skaleres ned.",
+      "faviconHint": "Vises i nettleserfanen. Bruk et kvadratisk PNG-, JPEG- eller WebP-bilde.",
       "replaceImage": "Erstatt",
       "removeImage": "Fjern",
       "imageTooLarge": "Bildet er for stort. Velg en mindre fil.",
