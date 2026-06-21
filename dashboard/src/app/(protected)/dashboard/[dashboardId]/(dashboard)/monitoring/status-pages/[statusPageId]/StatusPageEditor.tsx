@@ -220,7 +220,7 @@ export function StatusPageEditor({
   );
 
   return (
-    <div className={cn(activeTab !== 'incidents' && 'pb-20 lg:pb-0')}>
+    <div className={cn(activeTab !== 'incidents' && 'pb-24 lg:pb-0')}>
       {/* Persistent top bar */}
       <Link
         href={backHref}
@@ -358,25 +358,24 @@ export function StatusPageEditor({
         )}
       </UnderlineTabs>
 
-      {/* Mobile save bar: the desktop right column (with its save cluster) is hidden on phones. */}
+      {/* Mobile save cluster: the desktop right column (with its save cluster) is hidden on phones.
+          Floats bottom-right to pair with the global sidebar trigger (bottom-left). bottom-[33px] = the
+          trigger's bottom-10 (40px) minus this panel's padding+border (7px), so the buttons line up
+          vertically with the trigger. */}
       {activeTab !== 'incidents' && (
-        <div className='bg-background border-border fixed inset-x-0 bottom-0 z-40 flex items-center justify-end gap-2 border-t px-4 py-3 lg:hidden'>
-          {effectiveDirty && (
-            <Button
-              type='button'
-              variant='ghost'
-              size='sm'
-              disabled={saveMutation.isPending}
-              onClick={handleDiscard}
-              className='cursor-pointer'
-            >
-              {t('discard')}
-            </Button>
-          )}
+        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg lg:hidden'>
+          <Button
+            type='button'
+            variant='outline'
+            disabled={!effectiveDirty || saveMutation.isPending}
+            onClick={handleDiscard}
+            className='cursor-pointer'
+          >
+            {t('discard')}
+          </Button>
           <PermissionGate>
             {(disabled) => (
               <Button
-                size='sm'
                 disabled={disabled || saveDisabled || saveMutation.isPending}
                 title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
                 onClick={handleSave}
