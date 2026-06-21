@@ -3948,8 +3948,7 @@
       "today": "I dag"
     },
     "overallUptime": "Samlet oppetid <value>{uptime}</value> · siste {days} dager",
-    "activeIncidents": "Aktive hendelser",
-    "pastIncidents": "Tidligere hendelser",
+    "incidents": "Hendelser",
     "noIncidents": "Ingen hendelser de siste {days} dagene.",
     "noOtherIncidents": "Ingen andre hendelser de siste {days} dagene.",
     "incident": {

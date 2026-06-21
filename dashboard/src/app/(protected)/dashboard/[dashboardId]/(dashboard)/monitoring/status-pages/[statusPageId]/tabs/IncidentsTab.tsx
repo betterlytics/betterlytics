@@ -1165,7 +1165,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                       deleteMutation.mutate(form.id as string);
                       setOpen(false);
                     }}
-                    className='text-destructive hover:text-destructive cursor-pointer'
+                    className='text-destructive hover:text-destructive hidden cursor-pointer sm:inline-flex'
                   >
                     <Trash2 className='h-4 w-4' />
                     {t('form.deleteIncident')}

@@ -3948,8 +3948,7 @@
       "today": "Oggi"
     },
     "overallUptime": "Uptime complessivo <value>{uptime}</value> · ultimi {days} giorni",
-    "activeIncidents": "Incidenti attivi",
-    "pastIncidents": "Incidenti passati",
+    "incidents": "Incidenti",
     "noIncidents": "Nessun incidente negli ultimi {days} giorni.",
     "noOtherIncidents": "Nessun altro incidente negli ultimi {days} giorni.",
     "incident": {

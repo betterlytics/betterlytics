@@ -10,17 +10,13 @@ const dateLabel = new Intl.DateTimeFormat('en', {
   year: 'numeric',
   timeZone: 'UTC',
 });
-const timeLabel = new Intl.DateTimeFormat('en', {
-  hour: '2-digit',
-  minute: '2-digit',
-  timeZone: 'UTC',
-});
 // Timeline entries can span days, so each carries its own date + time (the header only shows the start).
 const entryLabel = new Intl.DateTimeFormat('en', {
   month: 'short',
   day: 'numeric',
   hour: '2-digit',
   minute: '2-digit',
+  hour12: false,
   timeZone: 'UTC',
 });
 
@@ -160,7 +156,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         style={{ color: ongoing ? 'var(--sp-warn-text)' : 'var(--sp-muted)' }}
       >
         {ongoing
-          ? t('incident.ongoing', { time: timeLabel.format(new Date(incident.startedAt)) })
+          ? t('incident.ongoing', { time: entryLabel.format(new Date(incident.startedAt)) })
           : durationMs != null
             ? t('incident.resolved', { duration: formatDuration(durationMs) })
             : null}

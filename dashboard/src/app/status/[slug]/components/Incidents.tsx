@@ -3,15 +3,21 @@ import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.e
 import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { IncidentCard } from './IncidentCard';
 
-export function PastIncidents({ data }: { data: PublicStatusPageData }) {
-  // Only resolved incidents belong here — open ones are shown by <ActiveIncidents />.
-  const incidents = (data.incidents ?? []).filter((incident) => incident.resolvedAt != null);
+export function Incidents({ data }: { data: PublicStatusPageData }) {
   const t = useTranslations('publicStatusPage');
   const days = STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS;
 
+  // One unified list: unresolved incidents lead (they read as current), resolved ones follow. Each
+  // card self-describes its state via its border + footer, so no separate active/past headings.
+  const all = data.incidents ?? [];
+  const incidents = [
+    ...all.filter((incident) => incident.resolvedAt == null),
+    ...all.filter((incident) => incident.resolvedAt != null),
+  ];
+
   return (
     <section className='mt-9'>
-      <h2 className='text-[15px] font-bold text-[var(--sp-heading)]'>{t('pastIncidents')}</h2>
+      <h2 className='text-[15px] font-bold text-[var(--sp-heading)]'>{t('incidents')}</h2>
       {incidents.length === 0 ? (
         <p className='mt-3 text-center text-[13px] text-[var(--sp-faint)]'>{t('noIncidents', { days })}</p>
       ) : (
