@@ -25,7 +25,7 @@ export function CustomizeTab({ form }: CustomizeTabProps) {
     <>
       <Section title={t('branding')} description={t('brandHint')}>
         <div className='bg-card border-border space-y-5 rounded-xl border p-5'>
-          <div className='flex flex-wrap items-start gap-4'>
+          <div className='space-y-4'>
             <ImageUploadField
               kind='logo'
               value={form.logoUrl}

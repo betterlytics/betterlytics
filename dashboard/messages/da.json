@@ -4074,6 +4074,8 @@
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",
       "uploadFavicon": "Upload favicon",
+      "logoHint": "Vises i sidens header. PNG, JPEG eller WebP; store billeder skaleres ned.",
+      "faviconHint": "Vises i browserfanen. Brug et kvadratisk PNG-, JPEG- eller WebP-billede.",
       "replaceImage": "Erstat",
       "removeImage": "Fjern",
       "imageTooLarge": "Billedet er for stort. Vælg en mindre fil.",

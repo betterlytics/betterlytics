@@ -4071,6 +4071,8 @@
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",
       "uploadFavicon": "Upload favicon",
+      "logoHint": "Shown in the page header. PNG, JPEG, or WebP; large images are scaled down.",
+      "faviconHint": "Shown in the browser tab. Use a square PNG, JPEG, or WebP.",
       "replaceImage": "Replace",
       "removeImage": "Remove",
       "imageTooLarge": "That image is too large. Please choose a smaller file.",
