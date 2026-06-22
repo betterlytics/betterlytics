@@ -90,7 +90,7 @@ export function GeneralTab({
               </div>
             </div>
           </div>
-          <div className='grid gap-4 sm:grid-cols-2'>
+          <div className='grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2'>
             <LabeledTextField
               id='sp-homepage'
               label={t('homepageUrl')}

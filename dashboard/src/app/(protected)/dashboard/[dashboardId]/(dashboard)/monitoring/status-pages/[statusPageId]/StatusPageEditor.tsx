@@ -220,7 +220,7 @@ export function StatusPageEditor({
   );
 
   return (
-    <div className={cn(activeTab !== 'incidents' && 'pb-24 lg:pb-0')}>
+    <div className={cn(activeTab !== 'incidents' && 'pb-24 xl:pb-0')}>
       {/* Persistent top bar */}
       <Link
         href={backHref}
@@ -274,7 +274,7 @@ export function StatusPageEditor({
             <button
               type='button'
               onClick={() => setPreviewOpen(true)}
-              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-sm transition-colors lg:hidden'
+              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-sm transition-colors xl:hidden'
             >
               <Maximize2 className='h-3.5 w-3.5' />
               {t('preview')}
@@ -307,7 +307,7 @@ export function StatusPageEditor({
             <IncidentsTab dashboardId={dashboardId} statusPageId={statusPage.id} monitors={incidentMonitors} />
           </div>
         ) : (
-          <div className='mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:items-start'>
+          <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
             <div className='space-y-8'>
               {activeTab === 'general' && (
                 <GeneralTab
@@ -323,8 +323,8 @@ export function StatusPageEditor({
               {activeTab === 'customize' && <CustomizeTab form={form} />}
             </div>
 
-            <div className='hidden space-y-3 lg:block'>
-              <div className='flex items-end justify-end gap-2 lg:h-12'>
+            <div className='hidden space-y-3 xl:block'>
+              <div className='flex items-end justify-end gap-2 xl:h-12'>
                 {effectiveDirty && (
                   <Button
                     type='button'
@@ -352,7 +352,7 @@ export function StatusPageEditor({
                   )}
                 </PermissionGate>
               </div>
-              <div className='lg:sticky lg:top-4'>{livePreview}</div>
+              <div className='xl:sticky xl:top-4'>{livePreview}</div>
             </div>
           </div>
         )}
@@ -363,7 +363,7 @@ export function StatusPageEditor({
           trigger's bottom-10 (40px) minus this panel's padding+border (7px), so the buttons line up
           vertically with the trigger. */}
       {activeTab !== 'incidents' && (
-        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg lg:hidden'>
+        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg xl:hidden'>
           <Button
             type='button'
             variant='outline'
