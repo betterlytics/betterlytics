@@ -265,7 +265,14 @@ export async function getUptimeBucketsForMonitors(
 
   const rows = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_ids: checkIds, created_ats: createdAts, site_id: siteId, timezone, buckets },
+      params: {
+        ...query.taggedParams,
+        check_ids: checkIds,
+        created_ats: createdAts,
+        site_id: siteId,
+        timezone,
+        buckets,
+      },
     })
     .toPromise()) as any[];
 
@@ -568,6 +575,9 @@ export type DetectedOutageRow = {
 };
 
 /**
+ * Detected outages to suggest as incidents on a status page. Only currently-ongoing detections are
+ * returned: once a monitor recovers the evaluator flips its incident to 'resolved', and an
+ * already-recovered blip shouldn't keep prompting "create an incident" while the monitor is back up.
  * TLS incidents are excluded (cert expiry is not downtime).
  */
 export async function getDetectedOutagesForMonitors(
@@ -591,6 +601,7 @@ export async function getDetectedOutagesForMonitors(
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
       AND kind != 'tls'
+      AND state = 'ongoing'
       AND started_at >= now() - INTERVAL {days:Int32} DAY
     ORDER BY started_at DESC
     LIMIT {limit:UInt32}
