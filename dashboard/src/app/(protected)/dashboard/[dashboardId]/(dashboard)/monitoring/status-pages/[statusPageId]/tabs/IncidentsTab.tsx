@@ -676,8 +676,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           : (formatLocalDateTime(suggestion.startedAt, locale, {
               month: 'short',
               day: 'numeric',
-              hour: 'numeric',
+              hour: '2-digit',
               minute: '2-digit',
+              hour12: false,
             }) ?? '');
         return (
           <div
@@ -1139,8 +1140,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                               {formatLocalDateTime(row.date, locale, {
                                 month: 'short',
                                 day: 'numeric',
-                                hour: 'numeric',
+                                hour: '2-digit',
                                 minute: '2-digit',
+                                hour12: false,
                               })}
                             </div>
                           </div>
