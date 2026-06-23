@@ -3937,6 +3937,7 @@
     "lastUpdated": "Sist oppdatert {date}",
     "lastUpdatedInline": "sist oppdatert {date}",
     "uptimeValue": "{uptime} oppetid",
+    "noData": "Ingen data",
     "monitorStatus": {
       "operational": "Operativ",
       "degraded": "Redusert",

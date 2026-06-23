@@ -3937,6 +3937,7 @@
     "lastUpdated": "Ultimo aggiornamento: {date}",
     "lastUpdatedInline": "ultimo aggiornamento: {date}",
     "uptimeValue": "{uptime} di uptime",
+    "noData": "Nessun dato",
     "monitorStatus": {
       "operational": "Operativo",
       "degraded": "Ridotto",

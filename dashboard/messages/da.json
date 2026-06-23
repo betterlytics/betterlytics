@@ -3937,6 +3937,7 @@
     "lastUpdated": "Senest opdateret {date}",
     "lastUpdatedInline": "senest opdateret {date}",
     "uptimeValue": "{uptime} oppetid",
+    "noData": "Ingen data",
     "monitorStatus": {
       "operational": "Operationel",
       "degraded": "Nedsat",
