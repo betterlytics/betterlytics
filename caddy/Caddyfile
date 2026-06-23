@@ -1,0 +1,23 @@
+{
+	email {$ACME_EMAIL}
+	acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+	on_demand_tls {
+		ask http://{$STATUS_PAGE_UPSTREAM}/api/status-page/ask
+	}
+}
+
+import routes.caddy
+
+*.{$STATUS_PAGE_DOMAIN} {
+	tls {
+		dns hetzner {env.DNS_API_TOKEN}
+	}
+	import tier1_routes
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	import tier2_routes
+}

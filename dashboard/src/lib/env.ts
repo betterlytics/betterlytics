@@ -35,6 +35,7 @@ const appEnvSchema = z.object({
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,
   DEMO_DASHBOARD_ID: z.string().optional(),
+  STATUS_PAGE_DOMAIN: z.string().optional().default('status.betterlytics.io'),
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()

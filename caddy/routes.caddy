@@ -1,0 +1,47 @@
+# Shared routing imported by Caddyfile (prod/dev-server) and Caddyfile.local.
+# Only /, /_next/static/* and /favicon.ico are exposed on status hosts.
+
+(tier1_routes) {
+	encode zstd gzip
+
+	handle /_next/static/* {
+		reverse_proxy {$STATUS_PAGE_UPSTREAM}
+	}
+	handle /favicon.ico {
+		reverse_proxy {$STATUS_PAGE_UPSTREAM}
+	}
+
+	# Slug = leftmost host label; regex must mirror app-side slug validation
+	@root {
+		path /
+		header_regexp slug Host ^([a-z0-9-]+)\.
+	}
+	handle @root {
+		rewrite * /status/{re.slug.1}
+		reverse_proxy {$STATUS_PAGE_UPSTREAM}
+	}
+
+	handle {
+		respond 404
+	}
+}
+
+(tier2_routes) {
+	encode zstd gzip
+
+	handle /_next/static/* {
+		reverse_proxy {$STATUS_PAGE_UPSTREAM}
+	}
+	handle /favicon.ico {
+		reverse_proxy {$STATUS_PAGE_UPSTREAM}
+	}
+
+	handle / {
+		rewrite * /status/domain/{host}
+		reverse_proxy {$STATUS_PAGE_UPSTREAM}
+	}
+
+	handle {
+		respond 404
+	}
+}

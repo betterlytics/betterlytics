@@ -70,6 +70,14 @@ export const RESERVED_STATUS_PAGE_SLUGS = new Set([
   'signup',
   'status',
   'www',
+  // Reserved for status-page DNS / serving infra. `pages` is load-bearing: it is the tier-2
+  // custom-domain CNAME target (pages.<STATUS_PAGE_DOMAIN>) and lives inside the tier-1 namespace.
+  'pages',
+  'mail',
+  'ns1',
+  'ns2',
+  'dev',
+  'staging',
 ]);
 
 export const RESERVED_STATUS_PAGE_SLUG_PREFIX = /^demo(-|$)/;

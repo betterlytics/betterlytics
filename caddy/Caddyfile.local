@@ -1,0 +1,22 @@
+# Local development: Caddy's internal CA issues all certs (no ACME, no DNS token).
+# On-demand issuance still consults the ask endpoint, so tier 2 authorization
+# runs the same code path as production.
+{
+	local_certs
+	on_demand_tls {
+		ask http://{$STATUS_PAGE_UPSTREAM}/api/status-page/ask
+	}
+}
+
+import routes.caddy
+
+*.{$STATUS_PAGE_DOMAIN} {
+	import tier1_routes
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	import tier2_routes
+}
