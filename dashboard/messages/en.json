@@ -3996,8 +3996,15 @@
       "linkCopied": "Link copied to clipboard",
       "openPublicPage": "Open public page",
       "editPage": "Edit page",
-      "viewPublicPage": "View public page",
-      "copyUrl": "Copy public URL"
+      "copyUrl": "Copy public URL",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "publishedToast": "Status page published",
+      "unpublishedToast": "Status page taken offline",
+      "publishConfirmTitle": "Publish status page?",
+      "publishConfirmDescription": "It will become publicly accessible at its URL.",
+      "unpublishConfirmTitle": "Unpublish status page?",
+      "unpublishConfirmDescription": "It will be taken offline and visitors will no longer be able to access it."
     },
     "editor": {
       "back": "Status Pages",

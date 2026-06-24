@@ -3999,8 +3999,15 @@
       "linkCopied": "Link copiato negli appunti",
       "openPublicPage": "Apri pagina pubblica",
       "editPage": "Modifica pagina",
-      "viewPublicPage": "Visualizza pagina pubblica",
-      "copyUrl": "Copia URL pubblico"
+      "copyUrl": "Copia URL pubblico",
+      "publish": "Pubblica",
+      "unpublish": "Annulla pubblicazione",
+      "publishedToast": "Pagina di stato pubblicata",
+      "unpublishedToast": "Pagina di stato messa offline",
+      "publishConfirmTitle": "Pubblicare la pagina di stato?",
+      "publishConfirmDescription": "Diventerà accessibile pubblicamente al suo URL.",
+      "unpublishConfirmTitle": "Annullare la pubblicazione della pagina di stato?",
+      "unpublishConfirmDescription": "Verrà messa offline e i visitatori non potranno più accedervi."
     },
     "editor": {
       "back": "Pagine di stato",

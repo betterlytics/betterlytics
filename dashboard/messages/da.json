@@ -3999,8 +3999,15 @@
       "linkCopied": "Link kopieret til udklipsholderen",
       "openPublicPage": "Åbn offentlig side",
       "editPage": "Rediger side",
-      "viewPublicPage": "Vis offentlig side",
-      "copyUrl": "Kopiér offentlig URL"
+      "copyUrl": "Kopiér offentlig URL",
+      "publish": "Udgiv",
+      "unpublish": "Fjern udgivelse",
+      "publishedToast": "Statusside udgivet",
+      "unpublishedToast": "Statusside taget offline",
+      "publishConfirmTitle": "Udgiv statusside?",
+      "publishConfirmDescription": "Den bliver offentligt tilgængelig på sin URL.",
+      "unpublishConfirmTitle": "Fjern udgivelse af statusside?",
+      "unpublishConfirmDescription": "Den tages offline, og besøgende kan ikke længere få adgang til den."
     },
     "editor": {
       "back": "Statussider",

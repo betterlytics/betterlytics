@@ -41,7 +41,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { cn } from '@/lib/utils';
-import { deleteStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
+import { deleteStatusPageAction, setStatusPagePublishedAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
@@ -86,6 +86,18 @@ export function StatusPagesClient({
     onSuccess: () => {
       toast.success(t('editor.deleted'));
       setDeleteTarget(null);
+      router.refresh();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
+  const [publishTarget, setPublishTarget] = useState<StatusPageListItem | null>(null);
+  const publishMutation = useMutation({
+    mutationFn: ({ id, isPublished }: { id: string; isPublished: boolean }) =>
+      setStatusPagePublishedAction(dashboardId, id, isPublished),
+    onSuccess: (_result, { isPublished }) => {
+      toast.success(isPublished ? t('actions.publishedToast') : t('actions.unpublishedToast'));
+      setPublishTarget(null);
       router.refresh();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
@@ -282,19 +294,27 @@ export function StatusPagesClient({
                       </Link>
                     </DropdownMenuItem>
                     {page.isPublished && (
-                      <>
-                        <DropdownMenuItem asChild className='cursor-pointer'>
-                          <a href={publicUrl} target='_blank' rel='noopener noreferrer'>
-                            <ExternalLink className='mr-2 h-4 w-4' />
-                            {t('actions.viewPublicPage')}
-                          </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => copyLink(page.slug)} className='cursor-pointer'>
-                          <Copy className='mr-2 h-4 w-4' />
-                          {t('actions.copyUrl')}
-                        </DropdownMenuItem>
-                      </>
+                      <DropdownMenuItem onSelect={() => copyLink(page.slug)} className='cursor-pointer'>
+                        <Copy className='mr-2 h-4 w-4' />
+                        {t('actions.copyUrl')}
+                      </DropdownMenuItem>
                     )}
+                    <PermissionGate>
+                      {(disabled) => (
+                        <DropdownMenuItem
+                          disabled={disabled}
+                          onSelect={() => setPublishTarget(page)}
+                          className='cursor-pointer'
+                        >
+                          {page.isPublished ? (
+                            <Lock className='mr-2 h-4 w-4' />
+                          ) : (
+                            <Globe className='mr-2 h-4 w-4' />
+                          )}
+                          {page.isPublished ? t('actions.unpublish') : t('actions.publish')}
+                        </DropdownMenuItem>
+                      )}
+                    </PermissionGate>
                     <DropdownMenuSeparator />
                     <PermissionGate>
                       {(disabled) => (
@@ -331,6 +351,36 @@ export function StatusPagesClient({
               className='bg-destructive hover:bg-destructive/90 cursor-pointer text-white'
             >
               {t('editor.deleteConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={publishTarget != null} onOpenChange={(open) => !open && setPublishTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {publishTarget?.isPublished
+                ? t('actions.unpublishConfirmTitle')
+                : t('actions.publishConfirmTitle')}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {publishTarget?.isPublished
+                ? t('actions.unpublishConfirmDescription')
+                : t('actions.publishConfirmDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className='cursor-pointer'>{t('editor.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={publishMutation.isPending}
+              onClick={() =>
+                publishTarget &&
+                publishMutation.mutate({ id: publishTarget.id, isPublished: !publishTarget.isPublished })
+              }
+              className='cursor-pointer'
+            >
+              {publishTarget?.isPublished ? t('actions.unpublish') : t('actions.publish')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
