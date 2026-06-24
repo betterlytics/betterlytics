@@ -264,10 +264,11 @@ export function StatusPageEditor({
             href={publicUrl}
             target='_blank'
             rel='noopener noreferrer'
-            className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors'
+            aria-label={t('viewPage')}
+            title={t('viewPage')}
+            className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors'
           >
-            {t('viewPage')}
-            <ExternalLink className='h-3 w-3' />
+            <ExternalLink className='h-3.5 w-3.5' />
           </a>
           {/* On phones the inline preview pane is hidden, so surface preview up here next to "View page". */}
           {activeTab !== 'incidents' && (
