@@ -57,6 +57,7 @@ export function GeneralTab({
           <div className='grid gap-4 2xl:grid-cols-2 2xl:items-start'>
             <div className='space-y-2'>
               <Label htmlFor='sp-name'>{t('pageName')}</Label>
+              <p className='text-muted-foreground text-xs'>{t('pageNameHint')}</p>
               <Input
                 id='sp-name'
                 value={form.name}
@@ -68,6 +69,7 @@ export function GeneralTab({
             </div>
             <div className='space-y-2'>
               <Label htmlFor='sp-slug'>{t('publicUrl')}</Label>
+              <p className='text-muted-foreground text-xs'>{t('publicUrlHint')}</p>
               <div className='flex items-stretch'>
                 <span className='border-input bg-muted text-muted-foreground flex flex-none items-center rounded-l-md border border-r-0 px-3 font-mono text-sm whitespace-nowrap'>
                   {publicHost}/status/

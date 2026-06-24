@@ -4040,6 +4040,7 @@
       "pageDetails": "Impostazioni pagina",
       "pageDetailsHint": "Dettagli e opzioni principali della tua pagina di stato pubblica.",
       "pageName": "Nome pagina",
+      "pageNameHint": "Mostrato in cima alla tua pagina pubblica e nella scheda del browser.",
       "nameRequired": "Il nome della pagina è obbligatorio.",
       "unsavedChanges": "Modifiche non salvate",
       "confirmPublish": {
@@ -4048,6 +4049,7 @@
         "confirm": "Pubblica modifiche"
       },
       "publicUrl": "URL pubblico",
+      "publicUrlHint": "L'indirizzo web dove viene pubblicata la tua pagina di stato.",
       "slugStatus": {
         "checking": "Verifica in corso…",
         "available": "Disponibile",

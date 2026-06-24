@@ -4040,6 +4040,7 @@
       "pageDetails": "Sideinnstillinger",
       "pageDetailsHint": "Grunnleggende detaljer og valg for den offentlige statussiden din.",
       "pageName": "Sidenavn",
+      "pageNameHint": "Vises øverst på den offentlige siden din og i nettleserfanen.",
       "nameRequired": "Sidenavn er påkrevd.",
       "unsavedChanges": "Ulagrede endringer",
       "confirmPublish": {
@@ -4048,6 +4049,7 @@
         "confirm": "Publiser endringer"
       },
       "publicUrl": "Offentlig URL",
+      "publicUrlHint": "Nettadressen der statussiden din er publisert.",
       "slugStatus": {
         "checking": "Sjekker…",
         "available": "Ledig",

@@ -4037,6 +4037,7 @@
       "pageDetails": "Page settings",
       "pageDetailsHint": "Core details and options for your public status page.",
       "pageName": "Page name",
+      "pageNameHint": "Shown at the top of your public page and in the browser tab.",
       "nameRequired": "Page name is required.",
       "unsavedChanges": "Unsaved changes",
       "confirmPublish": {
@@ -4045,6 +4046,7 @@
         "confirm": "Publish changes"
       },
       "publicUrl": "Public URL",
+      "publicUrlHint": "The web address where your status page is published.",
       "slugStatus": {
         "checking": "Checking…",
         "available": "Available",
