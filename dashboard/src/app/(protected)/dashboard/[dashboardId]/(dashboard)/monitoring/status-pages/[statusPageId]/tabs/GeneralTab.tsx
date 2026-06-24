@@ -95,6 +95,7 @@ export function GeneralTab({
               id='sp-homepage'
               label={t('homepageUrl')}
               hint={t('homepageUrlHint')}
+              hintPosition='top'
               placeholder='https://example.com'
               type='url'
               value={form.homepageUrl}
@@ -108,6 +109,7 @@ export function GeneralTab({
                   label={t('customDomain')}
                   labelAdornment={locked ? <ProBadge /> : undefined}
                   hint={t('customDomainHint')}
+                  hintPosition='top'
                   placeholder={`status.${dashboardDomain}`}
                   value={form.customDomain}
                   onChange={form.setCustomDomain}
