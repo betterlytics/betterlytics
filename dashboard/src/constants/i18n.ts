@@ -1,7 +1,7 @@
-import { enGB, da, it, nb } from 'date-fns/locale';
+import { enGB, da, it, nb, ja } from 'date-fns/locale';
 import type { Locale } from 'date-fns';
 
-export const SUPPORTED_LANGUAGES = ['en', 'da', 'it', 'nb'] as const;
+export const SUPPORTED_LANGUAGES = ['en', 'da', 'it', 'nb', 'ja'] as const;
 
 export type SupportedLanguages = (typeof SUPPORTED_LANGUAGES)[number];
 
@@ -10,6 +10,7 @@ export const LANGUAGE_METADATA = {
   da: { name: 'Dansk', code: 'DK', ogLocale: 'da_DK', dateFnsLocale: da },
   it: { name: 'Italiano', code: 'IT', ogLocale: 'it_IT', dateFnsLocale: it },
   nb: { name: 'Norsk', code: 'NO', ogLocale: 'nb_NO', dateFnsLocale: nb },
+  ja: { name: '日本語', code: 'JP', ogLocale: 'ja_JP', dateFnsLocale: ja },
 } as const satisfies Record<
   SupportedLanguages,
   { name: string; code: string; ogLocale: string; dateFnsLocale: Locale }
