@@ -4164,7 +4164,6 @@
           "stateAll": "All states",
           "stateActive": "Active",
           "stateResolved": "Resolved",
-          "reload": "Reload",
           "noMatch": "No incidents match your filters."
         },
         "autoDetected": "Auto-detected",

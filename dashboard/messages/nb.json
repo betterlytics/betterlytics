@@ -4167,7 +4167,6 @@
           "stateAll": "Alle tilstander",
           "stateActive": "Aktive",
           "stateResolved": "Løst",
-          "reload": "Last inn på nytt",
           "noMatch": "Ingen hendelser samsvarer med filtrene."
         },
         "autoDetected": "Automatisk oppdaget",

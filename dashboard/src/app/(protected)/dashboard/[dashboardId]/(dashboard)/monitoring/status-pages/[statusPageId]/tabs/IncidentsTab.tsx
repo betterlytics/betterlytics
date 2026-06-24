@@ -22,7 +22,6 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
-  RefreshCw,
   Search,
   Sparkles,
   Trash2,
@@ -396,7 +395,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const incidents = useMemo(() => incidentsQuery.data ?? [], [incidentsQuery.data]);
   const suggestions = suggestionsQuery.data ?? [];
   const isLoading = incidentsQuery.isLoading;
-  const isRefreshing = incidentsQuery.isFetching || suggestionsQuery.isFetching;
 
   const monitorNameById = useMemo(
     () => new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName])),
@@ -661,12 +659,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   // New incidents always save; edits only when details changed or updates are staged.
   const canSave = formValid && (form.id == null || hasChanges);
 
-  const reload = () => {
-    incidentsQuery.refetch();
-    suggestionsQuery.refetch();
-    router.refresh();
-  };
-
   return (
     <div className='space-y-4'>
       {/* Detected outages — a restrained amber callout you can promote to an incident. */}
@@ -736,7 +728,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </div>
       ) : (
         <>
-          {/* Toolbar: search on the left, State filter + reload on the right. */}
+          {/* Toolbar: search on the left, State filter on the right. */}
           <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
             <div className='relative sm:max-w-xs sm:flex-1'>
               <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
@@ -759,20 +751,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                   <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
                 </SelectContent>
               </Select>
-              <PermissionGate allowViewer>
-                {(disabled) => (
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='shrink-0 cursor-pointer'
-                    disabled={isRefreshing || disabled}
-                    onClick={reload}
-                    aria-label={t('filters.reload')}
-                  >
-                    <RefreshCw className={cn('h-4 w-4', isRefreshing && 'animate-spin')} />
-                  </Button>
-                )}
-              </PermissionGate>
             </div>
           </div>
 

@@ -4167,7 +4167,6 @@
           "stateAll": "Tutti gli stati",
           "stateActive": "Attivi",
           "stateResolved": "Risolti",
-          "reload": "Ricarica",
           "noMatch": "Nessun incidente corrisponde ai filtri."
         },
         "autoDetected": "Rilevato automaticamente",
