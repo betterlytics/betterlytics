@@ -395,6 +395,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const incidents = useMemo(() => incidentsQuery.data ?? [], [incidentsQuery.data]);
   const suggestions = suggestionsQuery.data ?? [];
   const isLoading = incidentsQuery.isLoading;
+  const isEmpty = !isLoading && incidents.length === 0;
 
   const monitorNameById = useMemo(
     () => new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName])),
@@ -700,23 +701,48 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         );
       })}
 
-      {/* Header */}
-      <div className='flex items-end justify-between gap-4'>
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
         <div>
           <h2 className='font-semibold'>{t('title')}</h2>
           <p className='text-muted-foreground mt-1 text-sm'>{t('listSubtitle')}</p>
         </div>
-        <PermissionGate>
-          {(disabled) => (
-            <Button size='sm' disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
-              <Plus className='mr-1 h-4 w-4' />
-              {t('newIncident')}
-            </Button>
+        <div className='flex flex-wrap items-center gap-2 sm:justify-end'>
+          {!isEmpty && (
+            <>
+              <div className='relative w-full sm:w-48'>
+                <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+                <Input
+                  type='text'
+                  placeholder={t('filters.search')}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className='h-8 pl-9'
+                />
+              </div>
+              <Select value={stateFilter} onValueChange={(v) => setStateFilter(v as StateFilter)}>
+                <SelectTrigger size='sm' className='w-[130px]' aria-label={t('filters.state')}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>{t('filters.stateAll')}</SelectItem>
+                  <SelectItem value='active'>{t('filters.stateActive')}</SelectItem>
+                  <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </>
           )}
-        </PermissionGate>
+          <PermissionGate>
+            {(disabled) => (
+              <Button size='sm' disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
+                <Plus className='mr-1 h-4 w-4' />
+                {t('newIncident')}
+              </Button>
+            )}
+          </PermissionGate>
+        </div>
       </div>
 
-      {!isLoading && incidents.length === 0 ? (
+      {isEmpty ? (
         <div className='bg-card border-border overflow-hidden rounded-xl border'>
           <div className='flex flex-col items-center justify-center px-6 py-16 text-center'>
             <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
@@ -728,32 +754,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </div>
       ) : (
         <>
-          {/* Toolbar: search on the left, State filter on the right. */}
-          <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
-            <div className='relative sm:max-w-xs sm:flex-1'>
-              <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-              <Input
-                type='text'
-                placeholder={t('filters.search')}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className='pl-9'
-              />
-            </div>
-            <div className='flex items-center gap-2 sm:ml-auto'>
-              <Select value={stateFilter} onValueChange={(v) => setStateFilter(v as StateFilter)}>
-                <SelectTrigger size='sm' className='w-[130px]' aria-label={t('filters.state')}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>{t('filters.stateAll')}</SelectItem>
-                  <SelectItem value='active'>{t('filters.stateActive')}</SelectItem>
-                  <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           <div className='border-border overflow-x-auto rounded-lg border'>
             <Table className='min-w-0 sm:min-w-[600px] md:min-w-[720px] lg:min-w-[880px] xl:min-w-[920px]'>
               <TableHeader>
