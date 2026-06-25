@@ -1,4 +1,5 @@
 import type { SupportedLanguages } from '@/constants/i18n';
+import { getStringWidth, sliceToWidth } from '@/utils/stringWidth';
 
 /**
  * Format a number using locale-aware compact notation (e.g., 1.5K, 1,5 t).
@@ -33,16 +34,20 @@ export function formatPercentage(
 }
 
 /**
- * Format a string, adds ellipsis to middle of string instead of end
+ * Format a string, adds ellipsis to the middle of the string instead of the end.
+ *
+ * `maxLength` is a budget of rendered columns, not code units, so wide scripts
+ * (Japanese, Chinese, Korean) and emoji stay within the same visual width as
+ * Latin text instead of overflowing. Slicing is grapheme-safe.
  */
 export function formatString(value: string, maxLength: number = 50) {
-  if (value.length <= maxLength) {
+  if (getStringWidth(value) <= maxLength) {
     return value;
   }
   const half = Math.floor(maxLength / 2);
 
-  const start = value.slice(0, half);
-  const end = value.slice(-half);
+  const start = sliceToWidth(value, half);
+  const end = sliceToWidth(value, half, true);
 
   return `${start}...${end}`;
 }
