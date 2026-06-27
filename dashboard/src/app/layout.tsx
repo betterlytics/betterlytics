@@ -2,13 +2,11 @@ import { Inter, Inter_Tight } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { env } from '@/lib/env';
-import Providers from '@/app/Providers';
+import BaseProviders from '@/app/BaseProviders';
 import { Toaster } from '@/components/ui/sonner';
 import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
-import { NextIntlClientProvider } from 'next-intl';
-import ThemeColorUpdater from '@/app/ThemeColorUpdater';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import type { Metadata } from 'next';
 
@@ -63,10 +61,7 @@ export default async function RootLayout({
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
-        <ThemeColorUpdater />
-        <NextIntlClientProvider>
-          <Providers>{children}</Providers>
-        </NextIntlClientProvider>
+        <BaseProviders>{children}</BaseProviders>
         <Toaster />
       </body>
     </html>

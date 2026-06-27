@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
-import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
+import { DateTimePicker24h } from '@/app/(app)/(protected)/dashboards/DateTimePicker';
 import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { Label } from '@/components/ui/label';
 import {
