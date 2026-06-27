@@ -10,7 +10,12 @@ import routes.caddy
 
 *.{$STATUS_PAGE_DOMAIN} {
 	tls {
-		dns hetzner {env.DNS_API_TOKEN}
+    dns namecheap {
+      api_key {env.DNS_API_TOKEN}
+      user {env.DNS_API_USER}
+      api_endpoint https://api.namecheap.com/xml.response
+      client_ip {env.DNS_CLIENT_IP}
+    }
 	}
 	import tier1_routes
 }
