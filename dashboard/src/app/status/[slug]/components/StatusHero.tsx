@@ -1,6 +1,7 @@
 import { Check, Minus, TriangleAlert, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
+import { StatusPageBrandAvatar } from '@/components/statusPage/StatusPageBrandAvatar';
 
 const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string | null; glyph: string }> = {
   operational: { Icon: Check, band: null, glyph: 'var(--sp-accent)' },
@@ -12,6 +13,7 @@ const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string 
 type StatusHeroProps = {
   name: string;
   logoUrl: string | null;
+  accentColor: string;
   homepageUrl: string | null;
   overallStatus: PublicOverallStatus;
   bannerLabel: string;
@@ -21,6 +23,7 @@ type StatusHeroProps = {
 export function StatusHero({
   name,
   logoUrl,
+  accentColor,
   homepageUrl,
   overallStatus,
   bannerLabel,
@@ -32,14 +35,12 @@ export function StatusHero({
 
   const brand = (
     <span className='flex min-w-0 items-center gap-2.5'>
-      {logoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- owner-provided logo (arbitrary origin / data URI), not optimizable via next/image
-        <img src={logoUrl} alt='' className='h-7 w-7 flex-none rounded-lg object-contain' />
-      ) : (
-        <span className='flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-[var(--sp-accent-foreground)] text-sm font-extrabold text-[var(--sp-accent)]'>
-          {name.charAt(0).toUpperCase()}
-        </span>
-      )}
+      <StatusPageBrandAvatar
+        name={name}
+        imageUrl={logoUrl}
+        accentColor={accentColor}
+        className='h-7 w-7 rounded-lg text-sm'
+      />
       <span className='truncate text-[17px] font-bold'>{name}</span>
     </span>
   );

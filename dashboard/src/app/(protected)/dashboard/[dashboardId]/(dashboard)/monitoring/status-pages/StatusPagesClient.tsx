@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { StatusPageBrandAvatar } from '@/components/statusPage/StatusPageBrandAvatar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
@@ -198,10 +199,17 @@ export function StatusPagesClient({
             >
               {isIncident && <span aria-hidden className='absolute inset-y-0 left-0 w-0.75 bg-amber-500' />}
 
-              <div className='min-w-0 basis-full pr-16 md:basis-auto md:pr-0'>
+              <div className='flex min-w-0 basis-full items-center gap-3 pr-16 md:basis-auto md:pr-0'>
+                <StatusPageBrandAvatar
+                  name={page.name}
+                  imageUrl={page.faviconUrl}
+                  accentColor={page.accentColor}
+                  imageFit='cover'
+                  className='border-border/60 bg-background h-9 w-9 rounded-lg border text-sm'
+                />
                 <Link
                   href={editorHref}
-                  className='text-foreground block truncate text-sm font-semibold after:absolute after:inset-0'
+                  className='text-foreground block min-w-0 truncate text-sm font-semibold after:absolute after:inset-0'
                 >
                   {page.name}
                 </Link>
