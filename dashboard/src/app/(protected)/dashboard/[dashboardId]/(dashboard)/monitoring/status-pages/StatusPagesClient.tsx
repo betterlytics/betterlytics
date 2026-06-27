@@ -6,7 +6,6 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
-  ArrowRight,
   CheckCircle2,
   Copy,
   ExternalLink,
@@ -187,7 +186,13 @@ export function StatusPagesClient({
               ? t('banner.incidentTitle', { count: incidentPages.length })
               : t('banner.operationalTitle')}
           </div>
-          {hasIncidents ? (
+          {!hasIncidents ? (
+            <div className='text-muted-foreground mt-0.5 truncate text-xs'>
+              {t('banner.operationalDescription')}
+            </div>
+          ) : incidentPages.length === 1 ? (
+            <div className='text-muted-foreground mt-0.5 truncate text-xs'>{incidentPages[0].name}</div>
+          ) : (
             <div className='mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs'>
               {incidentPages.map((page, index) => (
                 <span key={page.id}>
@@ -201,10 +206,6 @@ export function StatusPagesClient({
                 </span>
               ))}
             </div>
-          ) : (
-            <div className='text-muted-foreground mt-0.5 truncate text-xs'>
-              {t('banner.operationalDescription')}
-            </div>
           )}
         </div>
         {hasIncidents && incidentPages.length === 1 && (
@@ -212,11 +213,10 @@ export function StatusPagesClient({
             asChild
             variant='outline'
             size='sm'
-            className='shrink-0 border-amber-500/40 text-amber-600 hover:bg-amber-500/10 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-400'
+            className='shrink-0 border-amber-500/30 bg-amber-500/15 text-amber-700 hover:bg-amber-500/25 hover:text-amber-700 dark:text-amber-300 dark:hover:text-amber-300'
           >
             <Link href={`/dashboard/${dashboardId}/monitoring/status-pages/${incidentPages[0].id}`}>
               {t('banner.viewIncidents')}
-              <ArrowRight className='ml-1 h-3.5 w-3.5' />
             </Link>
           </Button>
         )}
