@@ -4272,9 +4272,11 @@
     "banner": {
       "incidentTitle": "{count, plural, one {# statusside har en aktiv hændelse} other {# statussider har aktive hændelser}}",
       "operationalTitle": "Alle statussider er operationelle",
-      "operationalDescription": "Ingen aktive hændelser."
+      "operationalDescription": "Ingen aktive hændelser.",
+      "viewIncidents": "Se hændelser"
     },
     "monitorsEmpty": "Ingen monitorer",
-    "monitorLabel": "Monitor"
+    "monitorLabel": "Monitor",
+    "monitorsUp": "oppe"
   }
 }

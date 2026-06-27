@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   Copy,
   ExternalLink,
@@ -45,13 +46,36 @@ import { cn } from '@/lib/utils';
 import { deleteStatusPageAction, setStatusPagePublishedAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
-import { presentMonitorStatus } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
+import {
+  MONITOR_TONE,
+  presentMonitorStatus,
+  type MonitorTone,
+} from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { MonitoringTooltip } from '@/app/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/[monitorId]/MonitoringTooltip';
 import { StatusPagesEmptyState } from './StatusPagesEmptyState';
 import { CreateStatusPageWizard } from './CreateStatusPageWizard';
 
-const HEADER_GRID = 'grid-cols-[minmax(0,1fr)_150px_120px_150px_80px]';
-const ROW_GRID = 'md:grid md:grid-cols-[minmax(0,1fr)_150px_120px_150px_80px]';
+const HEADER_GRID = 'grid-cols-[minmax(0,1fr)_150px_170px_150px_80px]';
+const ROW_GRID = 'md:grid md:grid-cols-[minmax(0,1fr)_150px_170px_150px_80px]';
+
+function summarizeMonitorHealth(states: MonitorOperationalState[]): {
+  upCount: number;
+  total: number;
+  tone: MonitorTone;
+} {
+  const upCount = states.filter((state) => state === 'up').length;
+
+  let tone: MonitorTone = 'neutral';
+  if (states.includes('down')) {
+    tone = 'down';
+  } else if (states.includes('degraded')) {
+    tone = 'warn';
+  } else if (upCount > 0) {
+    tone = 'ok';
+  }
+
+  return { upCount, total: states.length, tone };
+}
 
 type StatusPagesClientProps = {
   dashboardId: string;
@@ -157,22 +181,51 @@ export function StatusPagesClient({
         ) : (
           <CheckCircle2 className='h-4.5 w-4.5 shrink-0 text-emerald-500' aria-hidden />
         )}
-        <div className='min-w-0'>
+        <div className='min-w-0 flex-1'>
           <div className='text-foreground text-sm font-semibold'>
             {hasIncidents
               ? t('banner.incidentTitle', { count: incidentPages.length })
               : t('banner.operationalTitle')}
           </div>
-          <div className='text-muted-foreground mt-0.5 truncate text-xs'>
-            {hasIncidents ? incidentPages.map((page) => page.name).join(', ') : t('banner.operationalDescription')}
-          </div>
+          {hasIncidents ? (
+            <div className='mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs'>
+              {incidentPages.map((page, index) => (
+                <span key={page.id}>
+                  <Link
+                    href={`/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`}
+                    className='font-medium text-amber-600 hover:underline dark:text-amber-400'
+                  >
+                    {page.name}
+                  </Link>
+                  {index < incidentPages.length - 1 && <span className='text-muted-foreground'>,</span>}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className='text-muted-foreground mt-0.5 truncate text-xs'>
+              {t('banner.operationalDescription')}
+            </div>
+          )}
         </div>
+        {hasIncidents && incidentPages.length === 1 && (
+          <Button
+            asChild
+            variant='outline'
+            size='sm'
+            className='shrink-0 border-amber-500/40 text-amber-600 hover:bg-amber-500/10 hover:text-amber-600 dark:text-amber-400 dark:hover:text-amber-400'
+          >
+            <Link href={`/dashboard/${dashboardId}/monitoring/status-pages/${incidentPages[0].id}`}>
+              {t('banner.viewIncidents')}
+              <ArrowRight className='ml-1 h-3.5 w-3.5' />
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className='bg-card border-border overflow-hidden rounded-xl border'>
         <div
           className={cn(
-            'text-muted-foreground border-border hidden border-b px-5 py-2.5 text-xs font-semibold tracking-wider uppercase md:grid md:gap-4',
+            'text-muted-foreground border-border hidden border-b px-5 py-2.5 text-xs font-semibold tracking-wider uppercase md:grid md:gap-6',
             HEADER_GRID,
           )}
         >
@@ -187,12 +240,17 @@ export function StatusPagesClient({
           const isIncident = page.activeIncidentCount > 0;
           const editorHref = `/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`;
           const publicUrl = `${publicBaseUrl}/status/${page.slug}`;
+          const monitorStates = page.monitors.map(
+            (monitor) => monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
+          );
+          const health = summarizeMonitorHealth(monitorStates);
+          const healthTheme = MONITOR_TONE[health.tone];
 
           return (
             <div
               key={page.id}
               className={cn(
-                'relative flex flex-wrap items-center gap-x-4 gap-y-2 border-b px-4 py-3.5 transition-colors last:border-b-0 md:items-center md:gap-4 md:px-5',
+                'relative flex flex-wrap items-center gap-x-4 gap-y-2 border-b px-4 py-3.5 transition-colors last:border-b-0 md:items-center md:gap-6 md:px-5',
                 ROW_GRID,
                 isIncident ? 'bg-amber-500/6 hover:bg-amber-500/9' : 'hover:bg-muted/40',
               )}
@@ -224,31 +282,35 @@ export function StatusPagesClient({
                 <span>{page.isPublished ? t('badge.public') : t('badge.draft')}</span>
               </div>
 
-              <div className='relative z-10 flex w-fit min-w-0 flex-wrap items-center gap-1.5'>
-                {page.monitors.length === 0 ? (
+              <div className='relative z-10 min-w-0'>
+                {health.total === 0 ? (
                   <span className='text-muted-foreground/70 text-xs'>{t('monitorsEmpty')}</span>
                 ) : (
-                  page.monitors.map((monitor, index) => {
-                    const presentation = presentMonitorStatus(
-                      monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
-                    );
-                    const statusLabel = tStatus(presentation.labelKey);
-                    return (
-                      <MonitoringTooltip
-                        key={`${monitor.monitorCheckId}-${index}`}
-                        title={t('monitorLabel')}
-                        description={monitor.publicName}
-                      >
-                        <span
-                          aria-label={`${monitor.publicName} — ${statusLabel}`}
-                          className={cn(
-                            'h-2 w-2 shrink-0 cursor-pointer rounded-full transition-transform hover:scale-150',
-                            presentation.theme.dot,
-                          )}
-                        />
-                      </MonitoringTooltip>
-                    );
-                  })
+                  <div className='flex flex-col gap-1.5'>
+                    <div className='flex items-baseline gap-1.5 text-xs'>
+                      <span className={cn('font-semibold tabular-nums', healthTheme.text)}>
+                        {health.upCount}/{health.total}
+                      </span>
+                      <span className='text-muted-foreground'>{t('monitorsUp')}</span>
+                    </div>
+                    <div className='flex h-1.5 w-20 gap-0.5 overflow-hidden rounded-full'>
+                      {page.monitors.map((monitor, index) => {
+                        const presentation = presentMonitorStatus(monitorStates[index]);
+                        const statusLabel = tStatus(presentation.labelKey);
+                        return (
+                          <MonitoringTooltip key={`${monitor.monitorCheckId}-${index}`} title={monitor.publicName}>
+                            <span
+                              aria-label={`${monitor.publicName} — ${statusLabel}`}
+                              className={cn(
+                                'h-full min-w-0 flex-1 cursor-pointer transition-opacity hover:opacity-80',
+                                presentation.theme.dot,
+                              )}
+                            />
+                          </MonitoringTooltip>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
               </div>
 
