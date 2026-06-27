@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Copy, ExternalLink, Link2, Maximize2 } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
@@ -225,57 +225,60 @@ export function StatusPageEditor({
       <Link
         href={backHref}
         onClick={handleBackClick}
-        className='text-muted-foreground hover:text-foreground mb-3 inline-flex items-center gap-1.5 text-sm'
+        className='text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm'
       >
         <ArrowLeft className='h-3.5 w-3.5' />
         {t('back')}
       </Link>
 
       <div className='min-w-0'>
-        <div className='mb-2.5 flex items-center gap-2.5'>
-          <h1 className='truncate text-xl font-semibold tracking-tight'>{form.name || statusPage.name}</h1>
+        <div className='mb-2 flex items-center gap-2.5'>
+          <h1 className='truncate text-2xl font-semibold tracking-tight'>{form.name || statusPage.name}</h1>
           <span
             className={cn(
-              'flex-none rounded-md px-2 py-0.5 text-xs font-semibold',
+              'inline-flex flex-none items-center rounded-full border px-2.5 py-0.5 text-xs font-medium',
               statusPage.isPublished
-                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                : 'bg-muted text-muted-foreground',
+                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                : 'border-border bg-muted/40 text-muted-foreground',
             )}
           >
             {statusPage.isPublished ? t('statusPublished') : t('statusDraft')}
           </span>
         </div>
+
         <div className='flex flex-wrap items-center gap-2'>
-          <div className='border-border bg-card flex h-8 items-center gap-2 rounded-md border pr-1 pl-2.5'>
-            <Link2 className='text-muted-foreground h-3.5 w-3.5 flex-none' />
-            <span className='text-muted-foreground max-w-[55vw] truncate font-mono text-xs sm:max-w-xs'>
-              {publicHost}/status/<span className='text-foreground font-medium'>{form.slug}</span>
+          <div className='border-border bg-card flex h-9 items-center rounded-lg border'>
+            <span className='flex min-w-0 items-center py-1 pr-2 pl-3'>
+              <span className='text-muted-foreground max-w-[55vw] truncate font-mono text-xs sm:max-w-xs'>
+                {publicHost}/status/<span className='text-foreground font-medium'>{form.slug}</span>
+              </span>
             </span>
+            <span aria-hidden className='bg-border h-5 w-px flex-none' />
             <button
               type='button'
               onClick={copyUrl}
               aria-label={t('copyUrl')}
-              className='text-muted-foreground hover:text-foreground hover:bg-accent flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded'
+              className='text-muted-foreground hover:text-foreground hover:bg-accent mx-0.5 flex h-7 w-7 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
             >
               {copied ? <Check className='h-3.5 w-3.5 text-emerald-500' /> : <Copy className='h-3.5 w-3.5' />}
             </button>
+            <a
+              href={publicUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              aria-label={t('viewPage')}
+              title={t('viewPage')}
+              className='text-muted-foreground hover:text-foreground hover:bg-accent mr-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-md transition-colors'
+            >
+              <ExternalLink className='h-3.5 w-3.5' />
+            </a>
           </div>
-          <a
-            href={publicUrl}
-            target='_blank'
-            rel='noopener noreferrer'
-            aria-label={t('viewPage')}
-            title={t('viewPage')}
-            className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors'
-          >
-            <ExternalLink className='h-3.5 w-3.5' />
-          </a>
-          {/* On phones the inline preview pane is hidden, so surface preview up here next to "View page". */}
+
           {activeTab !== 'incidents' && (
             <button
               type='button'
               onClick={() => setPreviewOpen(true)}
-              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-3 text-sm transition-colors xl:hidden'
+              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors xl:hidden'
             >
               <Maximize2 className='h-3.5 w-3.5' />
               {t('preview')}
@@ -284,7 +287,7 @@ export function StatusPageEditor({
         </div>
       </div>
 
-      <UnderlineTabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabKey)} className='mt-5'>
+      <UnderlineTabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabKey)} className='mt-6'>
         <div className='border-border overflow-x-auto border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
