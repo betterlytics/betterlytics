@@ -40,7 +40,7 @@ export function CustomizeStep({ form }: CustomizeStepProps) {
         {form.isNameEmpty && <p className='text-destructive text-xs'>{t('nameRequired')}</p>}
       </div>
       <div className='space-y-6'>
-        <div className='space-y-4'>
+        <div className='grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2'>
           <ImageUploadField
             kind='logo'
             value={form.logoUrl}
