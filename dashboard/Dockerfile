@@ -16,6 +16,8 @@ FROM base AS builder
 
 WORKDIR /app
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 RUN pnpm install -g prisma@6.9.0
 
 COPY package*.json .
