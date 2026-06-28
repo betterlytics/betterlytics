@@ -67,7 +67,7 @@ export function CustomizeTab({ form }: CustomizeTabProps) {
 
       <Section title={t('appearance')} description={t('appearanceHint')}>
         <div className='bg-card border-border rounded-xl border p-5'>
-          <ThemeField value={form.theme} onChange={form.setTheme} />
+          <ThemeField value={form.theme} onChange={form.setTheme} layout='row' />
         </div>
       </Section>
     </>
