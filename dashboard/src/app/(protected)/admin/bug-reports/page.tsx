@@ -33,10 +33,6 @@ function statusBadgeVariant(status: BugReportStatus): 'default' | 'secondary' | 
   return 'outline';
 }
 
-function truncate(text: string, length = 80) {
-  return text.length > length ? `${text.slice(0, length)}…` : text;
-}
-
 function parseStatusFilter(raw: string | undefined): BugReportStatus | 'all' {
   if (raw === 'open' || raw === 'resolved' || raw === 'ignored' || raw === 'all') return raw;
   return 'open';
@@ -103,7 +99,7 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
               reports.map((report) => (
                 <TableRow key={report.id}>
                   <TableCell className='font-medium'>{report.userEmail}</TableCell>
-                  <TableCell className='text-muted-foreground max-w-sm'>{truncate(report.message)}</TableCell>
+                  <TableCell className='text-muted-foreground max-w-sm truncate'>{report.message}</TableCell>
                   <TableCell className='text-muted-foreground font-mono text-xs'>
                     {report.dashboardId ?? '—'}
                   </TableCell>
