@@ -39,6 +39,27 @@ function statusColor(status: PublicStatusPageIncident['status']): string {
   return status === 'resolved' ? 'var(--sp-ok-text)' : 'var(--sp-warn-text)';
 }
 
+const IMPACT_PILL: Record<
+  PublicStatusPageIncident['impact'],
+  { color: string; background: string; borderColor: string }
+> = {
+  degraded: {
+    color: 'var(--sp-pill-warn-text)',
+    background: 'var(--sp-pill-warn-bg)',
+    borderColor: 'var(--sp-pill-warn-border)',
+  },
+  partial_outage: {
+    color: 'var(--sp-pill-partial-text)',
+    background: 'var(--sp-pill-partial-bg)',
+    borderColor: 'var(--sp-pill-partial-border)',
+  },
+  outage: {
+    color: 'var(--sp-pill-down-text)',
+    background: 'var(--sp-pill-down-bg)',
+    borderColor: 'var(--sp-pill-down-border)',
+  },
+};
+
 // Most-recent updates shown by default; older ones collapse into a <details> toggle.
 const MAX_VISIBLE_UPDATES = 3;
 
@@ -49,12 +70,6 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
   const startedAt = new Date(incident.startedAt);
   const durationMs =
     incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() - startedAt.getTime() : null;
-  const impactColor =
-    incident.impact === 'outage'
-      ? 'var(--sp-down-text)'
-      : incident.impact === 'partial_outage'
-        ? 'var(--sp-partial-text)'
-        : 'var(--sp-warn-text)';
 
   const formatDuration = (ms: number) => {
     const minutes = Math.max(1, Math.round(ms / 60_000));
@@ -129,8 +144,8 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
           </div>
         </div>
         <span
-          className='flex-none rounded-full px-2 py-0.5 text-[11px] font-semibold'
-          style={{ color: impactColor, backgroundColor: 'color-mix(in srgb, currentColor 12%, transparent)' }}
+          className='flex-none rounded-full border px-3 py-1 text-xs font-semibold'
+          style={IMPACT_PILL[incident.impact]}
         >
           {t(`incident.impact.${incident.impact}`)}
         </span>

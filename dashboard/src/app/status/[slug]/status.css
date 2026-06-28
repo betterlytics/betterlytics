@@ -46,6 +46,9 @@
   --sp-pill-down-text: light-dark(#b91c1c, #fb7185);
   --sp-pill-down-bg: light-dark(#fef2f2, #2a1014);
   --sp-pill-down-border: light-dark(#fecaca, #5c1b24);
+  --sp-pill-partial-text: light-dark(#c2410c, #fdba74);
+  --sp-pill-partial-bg: light-dark(#fff7ed, #2a1709);
+  --sp-pill-partial-border: light-dark(#fed7aa, #6b3a10);
   --sp-pill-neutral-text: light-dark(#6b7280, #8a929c);
   --sp-pill-neutral-bg: light-dark(#f9fafb, #171a1e);
   --sp-pill-neutral-border: light-dark(#e5e7eb, #2a2f35);
