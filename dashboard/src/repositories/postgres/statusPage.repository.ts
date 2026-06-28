@@ -18,11 +18,10 @@ function statusPageImageUrl(slug: string, kind: StatusPageImageKind, hash: strin
 
 /**
  * The app consumes a single `logoUrl` string. We derive the uploaded-logo URL here so callers never
- * touch the blob, falling back to the owner-pasted external URL.
+ * touch the blob.
  */
-function resolveLogoUrl(row: { slug: string; logoHash: string | null; logoUrl: string | null }): string | null {
-  if (row.logoHash) return statusPageImageUrl(row.slug, 'logo', row.logoHash);
-  return row.logoUrl ?? null;
+function resolveLogoUrl(row: { slug: string; logoHash: string | null }): string | null {
+  return row.logoHash ? statusPageImageUrl(row.slug, 'logo', row.logoHash) : null;
 }
 
 function resolveFaviconUrl(row: { slug: string; faviconHash: string | null }): string | null {
@@ -32,10 +31,7 @@ function resolveFaviconUrl(row: { slug: string; faviconHash: string | null }): s
 
 /** Parse a raw status-page row into the domain entity, resolving its derived image URLs. */
 function toStatusPage(
-  row: { slug: string; logoHash: string | null; logoUrl: string | null; faviconHash: string | null } & Record<
-    string,
-    unknown
-  >,
+  row: { slug: string; logoHash: string | null; faviconHash: string | null } & Record<string, unknown>,
 ): StatusPage {
   return StatusPageSchema.parse({
     ...row,
@@ -61,8 +57,7 @@ function imageChange(statusPageId: string, kind: StatusPageImageKind, write: Sta
     const data = kind === 'logo' ? { logoHash: null } : { faviconHash: null };
     return { data, op: prisma.statusPageImage.deleteMany({ where: { statusPageId, kind } }) };
   }
-  // Uploading a logo also clears the external logoUrl escape hatch.
-  const data = kind === 'logo' ? { logoHash: write.hash, logoUrl: null } : { faviconHash: write.hash };
+  const data = kind === 'logo' ? { logoHash: write.hash } : { faviconHash: write.hash };
   return {
     data,
     op: prisma.statusPageImage.upsert({

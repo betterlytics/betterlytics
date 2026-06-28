@@ -454,7 +454,6 @@ model StatusPage {
   // Branding (structured only — no custom CSS)
   theme       String  @default("system") // 'light' | 'dark' | 'system'
   accentColor String  @default("#4845d8")
-  logoUrl     String? // external-URL escape hatch (owner pastes a URL); null when an uploaded logo is used
   // Present iff an uploaded logo/favicon exists. sha256 prefix of the bytes: doubles as the "has image" flag
   // and as a cache-bust token.
   logoHash    String?

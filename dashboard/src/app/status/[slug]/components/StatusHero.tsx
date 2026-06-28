@@ -33,11 +33,14 @@ export function StatusHero({
   const bandForeground = band ? '#ffffff' : 'var(--sp-accent-foreground)';
   const disc = band ? '#ffffff' : 'var(--sp-accent-foreground)';
 
-  const brand = (
+  const brand = logoUrl ? (
+    // eslint-disable-next-line @next/next/no-img-element -- served from our image route, or a client-side blob preview in the editor; already a small resized WebP, so next/image adds nothing
+    <img src={logoUrl} alt={name} className='h-10 w-auto max-w-[60vw] object-contain sm:max-w-xs' />
+  ) : (
     <span className='flex min-w-0 items-center gap-2.5'>
       <StatusPageBrandAvatar
         name={name}
-        imageUrl={logoUrl}
+        imageUrl={null}
         accentColor={accentColor}
         className='h-7 w-7 rounded-lg text-sm'
       />

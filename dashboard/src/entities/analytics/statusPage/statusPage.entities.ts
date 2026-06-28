@@ -36,7 +36,7 @@ export const STATUS_PAGE_IMAGE_CONFIG: Record<
   StatusPageImageKind,
   { maxDimension: number; square: boolean }
 > = {
-  logo: { maxDimension: 128, square: false },
+  logo: { maxDimension: 256, square: false },
   favicon: { maxDimension: 64, square: true },
 };
 
@@ -120,7 +120,6 @@ export const StatusPageCreateSchema = z.object({
   slug: StatusPageSlugSchema,
   theme: StatusPageThemeSchema.default('system'),
   accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
-  logoUrl: z.string().nullable().optional(),
   showPastIncidents: z.boolean().default(true),
   hideBranding: z.boolean().default(false),
   visibility: StatusPageVisibilitySchema.default('public'),
