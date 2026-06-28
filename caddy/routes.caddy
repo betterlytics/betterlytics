@@ -8,7 +8,7 @@
 
 	# Static / public app-shell assets + the owner-uploaded logo/favicon image route. Each
 	# path already matches its upstream route (the slug lives in the image path), so no rewrite.
-	handle /_next/static/* /favicon.ico /status/*/image/* /betterlytics-logo-dark-simple.svg {
+	handle /_next/static/* /status/*/image/* /betterlytics-logo-dark-simple.svg {
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 
@@ -30,7 +30,7 @@
 (tier2_routes) {
 	encode zstd gzip
 
-	handle /_next/static/* /favicon.ico /status/*/image/* /betterlytics-logo-dark-simple.svg {
+	handle /_next/static/* /status/*/image/* /betterlytics-logo-dark-simple.svg {
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 
