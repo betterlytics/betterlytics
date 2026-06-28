@@ -501,13 +501,17 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         } satisfies IncidentColumnMeta,
         cell: ({ row }) => {
           const incident = row.original;
-          // Page-wide incidents have no monitor — kept as plain text rather than a pill.
           if (incident.monitorCheckId == null) {
             return <span className='text-muted-foreground'>{t('pageWide')}</span>;
           }
+
+          const monitorName = monitorNameById.get(incident.monitorCheckId);
+          if (monitorName == null) {
+            return <span className='text-muted-foreground'>—</span>;
+          }
           // One monitor per incident today; rendered as a capped pill list so multi-monitor
           // support would be a drop-in here (the "+N more" pill stays dormant until then).
-          const names = [monitorNameById.get(incident.monitorCheckId) ?? '—'];
+          const names = [monitorName];
           const MAX_PILLS = 2;
           const shown = names.slice(0, MAX_PILLS);
           const overflow = names.length - shown.length;
