@@ -10,7 +10,7 @@ const dateLabel = new Intl.DateTimeFormat('en', {
   year: 'numeric',
   timeZone: 'UTC',
 });
-// Timeline entries can span days, so each carries its own date + time (the header only shows the start).
+
 const entryLabel = new Intl.DateTimeFormat('en', {
   month: 'short',
   day: 'numeric',
@@ -19,6 +19,21 @@ const entryLabel = new Intl.DateTimeFormat('en', {
   hour12: false,
   timeZone: 'UTC',
 });
+
+const timeLabel = new Intl.DateTimeFormat('en', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  timeZone: 'UTC',
+});
+
+function isSameUTCDay(a: Date, b: Date): boolean {
+  return (
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate()
+  );
+}
 
 function statusColor(status: PublicStatusPageIncident['status']): string {
   return status === 'resolved' ? 'var(--sp-ok-text)' : 'var(--sp-warn-text)';
@@ -31,10 +46,9 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
   const t = useTranslations('publicStatusPage');
 
   const ongoing = incident.resolvedAt == null;
+  const startedAt = new Date(incident.startedAt);
   const durationMs =
-    incident.resolvedAt != null
-      ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
-      : null;
+    incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() - startedAt.getTime() : null;
   const impactColor =
     incident.impact === 'outage'
       ? 'var(--sp-down-text)'
@@ -60,62 +74,67 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
   const visibleUpdates = updates.slice(0, MAX_VISIBLE_UPDATES);
   const hiddenUpdates = updates.slice(MAX_VISIBLE_UPDATES);
 
+  const meta = [incident.monitorPublicName, dateLabel.format(startedAt)].filter(Boolean).join(' · ');
+
   // Timeline rail: a status-colored dot per entry with a connecting line down to the next, ringed in
   // the card bg so the line breaks cleanly around it. The line is omitted on the last entry of a list.
-  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => (
-    <li key={key} className='grid grid-cols-[18px_minmax(0,1fr)] gap-3 pb-4 last:pb-0'>
-      <div className='relative'>
-        {!isLast ? (
-          <span
-            className='absolute top-2.5 -bottom-6.5 left-2 w-0.5'
-            style={{ background: 'var(--sp-card-border)' }}
-          />
-        ) : null}
-        <span className='flex h-5 items-center'>
-          <span
-            className='relative z-10 ml-1 h-2.5 w-2.5 rounded-full'
-            style={{ backgroundColor: statusColor(update.status), boxShadow: '0 0 0 3px var(--sp-card-bg)' }}
-          />
-        </span>
-      </div>
-      <div className='min-w-0'>
-        <div className='flex items-baseline justify-between gap-2'>
-          <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
-            {t(`incident.status.${update.status}`)}
-          </span>
-          <span suppressHydrationWarning className='flex-none text-[11px] text-[var(--sp-faint)]'>
-            {entryLabel.format(new Date(update.createdAt))}
+  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
+    const entryDate = new Date(update.createdAt);
+    const showDate = !isSameUTCDay(entryDate, startedAt);
+    return (
+      <li key={key} className='grid grid-cols-[18px_minmax(0,1fr)] gap-3 pb-4 last:pb-0'>
+        <div className='relative'>
+          {!isLast ? (
+            <span
+              className='absolute top-2.5 -bottom-6.5 left-2 w-0.5'
+              style={{ background: 'var(--sp-card-border)' }}
+            />
+          ) : null}
+          <span className='flex h-5 items-center'>
+            <span
+              className='relative z-10 ml-1 h-2.5 w-2.5 rounded-full'
+              style={{ backgroundColor: statusColor(update.status), boxShadow: '0 0 0 3px var(--sp-card-bg)' }}
+            />
           </span>
         </div>
-        {update.message ? (
-          <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
-            {update.message}
-          </p>
-        ) : null}
-      </div>
-    </li>
-  );
+        <div className='min-w-0'>
+          <div className='flex items-baseline justify-between gap-2'>
+            <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
+              {t(`incident.status.${update.status}`)}
+            </span>
+            <span suppressHydrationWarning className='flex-none text-[11px] text-[var(--sp-faint)]'>
+              {showDate ? entryLabel.format(entryDate) : timeLabel.format(entryDate)}
+            </span>
+          </div>
+          {update.message ? (
+            <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
+              {update.message}
+            </p>
+          ) : null}
+        </div>
+      </li>
+    );
+  };
 
   return (
     <article
       className='rounded-xl border bg-[var(--sp-card-bg)] px-5 py-4.5'
       style={{ borderColor: ongoing ? 'var(--sp-warn)' : 'var(--sp-card-border)' }}
     >
-      <div className='flex items-center justify-between gap-3'>
-        <div suppressHydrationWarning className='text-xs font-semibold text-[var(--sp-faint)]'>
-          {dateLabel.format(new Date(incident.startedAt)).toUpperCase()}
+      <div className='flex items-start justify-between gap-3'>
+        <div className='min-w-0'>
+          <h3 className='text-[15px] leading-snug font-semibold text-[var(--sp-text)]'>{incident.title}</h3>
+          <div suppressHydrationWarning className='mt-0.5 text-xs text-[var(--sp-muted)]'>
+            {meta}
+          </div>
         </div>
         <span
-          className='rounded-full px-2 py-0.5 text-[11px] font-semibold'
+          className='flex-none rounded-full px-2 py-0.5 text-[11px] font-semibold'
           style={{ color: impactColor, backgroundColor: 'color-mix(in srgb, currentColor 12%, transparent)' }}
         >
           {t(`incident.impact.${incident.impact}`)}
         </span>
       </div>
-      <div className='mt-1.5 text-sm font-semibold text-[var(--sp-text)]'>{incident.title}</div>
-      {incident.monitorPublicName ? (
-        <div className='text-xs text-[var(--sp-faint)]'>{incident.monitorPublicName}</div>
-      ) : null}
 
       {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
       <ol className='relative mt-3.5'>
@@ -156,7 +175,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         style={{ color: ongoing ? 'var(--sp-warn-text)' : 'var(--sp-muted)' }}
       >
         {ongoing
-          ? t('incident.ongoing', { time: entryLabel.format(new Date(incident.startedAt)) })
+          ? t('incident.ongoing', { time: entryLabel.format(startedAt) })
           : durationMs != null
             ? t('incident.resolved', { duration: formatDuration(durationMs) })
             : null}
