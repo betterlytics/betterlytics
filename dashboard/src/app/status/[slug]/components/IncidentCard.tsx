@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type {
   PublicStatusPageIncident,
@@ -5,37 +6,7 @@ import type {
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
-
-const dateLabel = new Intl.DateTimeFormat('en', {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-
-const entryLabel = new Intl.DateTimeFormat('en', {
-  month: 'short',
-  day: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-  timeZone: 'UTC',
-});
-
-const timeLabel = new Intl.DateTimeFormat('en', {
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-  timeZone: 'UTC',
-});
-
-function isSameUTCDay(a: Date, b: Date): boolean {
-  return (
-    a.getUTCFullYear() === b.getUTCFullYear() &&
-    a.getUTCMonth() === b.getUTCMonth() &&
-    a.getUTCDate() === b.getUTCDate()
-  );
-}
+import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
 
 const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
   amber: 'var(--sp-warn-text)',
@@ -74,6 +45,24 @@ const MAX_VISIBLE_UPDATES = 3;
 
 export function IncidentCard({ incident }: { incident: PublicStatusPageIncident }) {
   const t = useTranslations('publicStatusPage');
+  const timeZone = useDisplayTimeZone();
+
+  const fmt = useMemo(
+    () => ({
+      date: new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric', timeZone }),
+      entry: new Intl.DateTimeFormat('en', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone,
+      }),
+      time: new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone }),
+      dayKey: new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone }),
+    }),
+    [timeZone],
+  );
 
   const ongoing = incident.resolvedAt == null;
   const startedAt = new Date(incident.startedAt);
@@ -98,11 +87,11 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
   const visibleUpdates = updates.slice(0, MAX_VISIBLE_UPDATES);
   const hiddenUpdates = updates.slice(MAX_VISIBLE_UPDATES);
 
-  const meta = [incident.monitorPublicName, dateLabel.format(startedAt)].filter(Boolean).join(' · ');
+  const meta = [incident.monitorPublicName, fmt.date.format(startedAt)].filter(Boolean).join(' · ');
 
   const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
-    const showDate = !isSameUTCDay(entryDate, startedAt);
+    const showDate = fmt.dayKey.format(entryDate) !== fmt.dayKey.format(startedAt);
     return (
       <TimelineItem
         key={key}
@@ -115,7 +104,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
             suppressHydrationWarning
             className='flex h-5 items-center text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
           >
-            {showDate ? entryLabel.format(entryDate) : timeLabel.format(entryDate)}
+            {showDate ? fmt.entry.format(entryDate) : fmt.time.format(entryDate)}
           </span>
         }
         dot={
@@ -198,7 +187,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         style={{ color: ongoing ? 'var(--sp-warn-text)' : 'var(--sp-muted)' }}
       >
         {ongoing
-          ? t('incident.ongoing', { time: entryLabel.format(startedAt) })
+          ? t('incident.ongoing', { time: fmt.entry.format(startedAt) })
           : durationMs != null
             ? t('incident.resolved', { duration: formatDuration(durationMs) })
             : null}
