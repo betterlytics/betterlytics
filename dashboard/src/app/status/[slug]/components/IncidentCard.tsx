@@ -4,6 +4,7 @@ import type {
   PublicStatusPageIncidentUpdate,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
+import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 
 const dateLabel = new Intl.DateTimeFormat('en', {
   month: 'short',
@@ -103,40 +104,38 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
     const entryDate = new Date(update.createdAt);
     const showDate = !isSameUTCDay(entryDate, startedAt);
     return (
-      <li key={key} className='grid grid-cols-[auto_18px_minmax(0,1fr)] gap-x-3 pb-4 last:pb-0'>
-        <span
-          suppressHydrationWarning
-          className='flex h-5 items-center text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
-        >
-          {showDate ? entryLabel.format(entryDate) : timeLabel.format(entryDate)}
-        </span>
-        <div className='relative'>
-          {!isLast ? (
-            <span
-              className='absolute top-2.5 -bottom-6.5 left-2 w-0.5'
-              style={{ background: 'var(--sp-card-border)' }}
-            />
-          ) : null}
-          <span className='flex h-5 items-center'>
-            <span
-              className='relative z-10 ml-1 h-2.5 w-2.5 rounded-full'
-              style={{ backgroundColor: statusColor(update.status), boxShadow: '0 0 0 3px var(--sp-card-bg)' }}
-            />
+      <TimelineItem
+        key={key}
+        isLast={isLast}
+        headHeightPx={20}
+        spacingPx={16}
+        lineClassName='bg-[var(--sp-card-border)]'
+        leading={
+          <span
+            suppressHydrationWarning
+            className='flex h-5 items-center text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
+          >
+            {showDate ? entryLabel.format(entryDate) : timeLabel.format(entryDate)}
+          </span>
+        }
+        dot={
+          <span
+            className='h-2.5 w-2.5 rounded-full'
+            style={{ backgroundColor: statusColor(update.status), boxShadow: '0 0 0 3px var(--sp-card-bg)' }}
+          />
+        }
+      >
+        <div className='flex h-5 items-center'>
+          <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
+            {t(`incident.status.${update.status}`)}
           </span>
         </div>
-        <div className='min-w-0'>
-          <div className='flex h-5 items-center'>
-            <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
-              {t(`incident.status.${update.status}`)}
-            </span>
-          </div>
-          {update.message ? (
-            <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
-              {update.message}
-            </p>
-          ) : null}
-        </div>
-      </li>
+        {update.message ? (
+          <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
+            {update.message}
+          </p>
+        ) : null}
+      </TimelineItem>
     );
   };
 
@@ -161,11 +160,11 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
       </div>
 
       {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
-      <ol className='relative mt-3.5'>
+      <Timeline className='mt-3.5'>
         {visibleUpdates.map((update, index) =>
           renderEntry(update, index, index === visibleUpdates.length - 1),
         )}
-      </ol>
+      </Timeline>
 
       {hiddenUpdates.length > 0 ? (
         <details className='group mt-2'>
@@ -185,11 +184,11 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
             </span>
             <span className='hidden group-open:inline'>{t('incident.showLess')}</span>
           </summary>
-          <ol className='relative mt-3'>
+          <Timeline className='mt-3'>
             {hiddenUpdates.map((update, index) =>
               renderEntry(update, visibleUpdates.length + index, index === hiddenUpdates.length - 1),
             )}
-          </ol>
+          </Timeline>
         </details>
       ) : null}
 

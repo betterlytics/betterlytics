@@ -1,0 +1,53 @@
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
+
+export function Timeline({ children, className }: { children: ReactNode; className?: string }) {
+  return <ol className={cn('relative', className)}>{children}</ol>;
+}
+
+type TimelineItemProps = {
+  isLast: boolean;
+  headHeightPx: number;
+  spacingPx: number;
+  dot: ReactNode;
+  lineClassName: string;
+  leading?: ReactNode;
+  children: ReactNode;
+  className?: string;
+};
+
+export function TimelineItem({
+  isLast,
+  headHeightPx,
+  spacingPx,
+  dot,
+  lineClassName,
+  leading,
+  children,
+  className,
+}: TimelineItemProps) {
+  return (
+    <li
+      className={cn(
+        'grid gap-x-3',
+        leading != null ? 'grid-cols-[auto_18px_minmax(0,1fr)]' : 'grid-cols-[18px_minmax(0,1fr)]',
+        className,
+      )}
+      style={{ paddingBottom: isLast ? undefined : spacingPx }}
+    >
+      {leading}
+      <div className='relative flex justify-center'>
+        {!isLast ? (
+          <span
+            className={cn('absolute left-1/2 w-0.5 -translate-x-1/2', lineClassName)}
+            style={{ top: headHeightPx / 2, bottom: -(spacingPx + headHeightPx / 2) }}
+          />
+        ) : null}
+        <span className='relative z-10 flex items-center' style={{ height: headHeightPx }}>
+          {dot}
+        </span>
+      </div>
+      <div className='min-w-0'>{children}</div>
+    </li>
+  );
+}

@@ -72,6 +72,7 @@ import {
   type StatusPageIncidentStatusValue,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
+import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 import {
   createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,
@@ -671,7 +672,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   return (
     <div className='space-y-4'>
-      {/* Detected outages — a restrained amber callout you can promote to an incident. */}
       {suggestions.map((suggestion) => {
         const detail = suggestion.ongoing
           ? t('ongoingSince', { date: formatRelativeTimeFromNow(suggestion.startedAt, locale) })
@@ -859,7 +859,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </>
       )}
 
-      {/* Create / edit incident sheet — one slide-over shared by both flows */}
       <Sheet open={open} onOpenChange={(next) => (next ? setOpen(true) : requestClose())}>
         <SheetContent side='right' className='flex w-full flex-col gap-0 p-0 sm:max-w-2xl'>
           <SheetHeader className='flex-row items-start justify-between space-y-0 border-b px-6 py-4 pr-12'>
@@ -874,7 +873,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
             </div>
           </SheetHeader>
 
-          {/* Scrollable body */}
           <div className='min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5'>
             <section className='space-y-5'>
               <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
@@ -938,7 +936,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
             <div className='bg-border h-px' />
 
-            {/* Post an update — the standalone "quick status update" box. */}
             <section className='space-y-3'>
               <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
                 {t('composer.section')}
@@ -1000,7 +997,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
               </div>
             </section>
 
-            {/* Timeline — only the message (text body) of each entry can be edited. */}
             {form.id != null && (
               <section className='space-y-3'>
                 <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
@@ -1015,134 +1011,129 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                 ) : timeline.length === 0 && pendingUpdates.length === 0 ? (
                   <p className='text-muted-foreground text-sm'>{t('timeline.empty')}</p>
                 ) : (
-                  <ol className='relative'>
+                  <Timeline>
                     {timelineRows.map((row, i) => {
                       const isLast = i === timelineRows.length - 1;
                       const pending = row.kind === 'pending';
                       const editing = !pending && editingUpdateId === row.id;
                       return (
-                        <li
+                        <TimelineItem
                           key={row.key}
-                          className='group grid grid-cols-[18px_minmax(0,1fr)] gap-3.5 pb-4.5 last:pb-0'
-                        >
-                          {/* Rail: connecting line + status dot, centered on the title row. */}
-                          <div className='relative'>
-                            {!isLast && <div className='bg-border absolute -bottom-8 left-2 top-3.5 w-0.5' />}
-                            <div className='flex h-7 items-center'>
-                              <div
-                                className={cn(
-                                  'ring-background relative z-10 ml-1 h-2.5 w-2.5 rounded-full ring',
-                                  pending ? 'bg-background border-2 border-amber-500' : statusDotClass(row.status),
-                                )}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Content */}
-                          <div className='min-w-0'>
-                            <div className='flex h-7 items-center gap-2'>
-                              <span className='text-foreground text-sm font-bold'>{t(`status.${row.status}`)}</span>
-                              {pending && (
-                                <span className='inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400'>
-                                  <span className='h-1.5 w-1.5 rounded-full bg-amber-500' />
-                                  {t('timeline.pending')}
-                                </span>
+                          isLast={isLast}
+                          headHeightPx={28}
+                          spacingPx={18}
+                          lineClassName='bg-border'
+                          className='group'
+                          dot={
+                            <div
+                              className={cn(
+                                'h-2.5 w-2.5 rounded-full ring ring-background',
+                                pending ? 'bg-background border-2 border-amber-500' : statusDotClass(row.status),
                               )}
-                              <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
-                                {pending ? (
-                                  <Button
-                                    size='icon'
-                                    variant='ghost'
-                                    aria-label={t('timeline.removePending')}
-                                    onClick={() => removePendingUpdate(row.id)}
-                                    className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                  >
-                                    <X className='h-3.5 w-3.5' />
-                                  </Button>
-                                ) : (
-                                  <PermissionGate hideWhenDisabled>
-                                    {() => (
-                                      <>
-                                        <Button
-                                          size='icon'
-                                          variant='ghost'
-                                          aria-label={t('timeline.editMessage')}
-                                          onClick={() => beginEditUpdate(row.id, row.message)}
-                                          className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
-                                        >
-                                          <Pencil className='h-3.5 w-3.5' />
-                                        </Button>
-                                        <Button
-                                          size='icon'
-                                          variant='ghost'
-                                          aria-label={t('timeline.deleteUpdate')}
-                                          disabled={timeline.length <= 1 || deleteUpdateMutation.isPending}
-                                          onClick={() => deleteUpdateMutation.mutate(row.id)}
-                                          className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                        >
-                                          <Trash2 className='h-3.5 w-3.5' />
-                                        </Button>
-                                      </>
-                                    )}
-                                  </PermissionGate>
-                                )}
-                              </div>
-                            </div>
-
-                            {editing ? (
-                              <div className='mt-2 space-y-2'>
-                                <Textarea
-                                  rows={3}
-                                  autoFocus
-                                  value={editDraft}
-                                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
-                                  onChange={(e) => setEditDraft(e.target.value)}
-                                />
-                                <div className='flex justify-end gap-2'>
-                                  <Button
-                                    size='sm'
-                                    variant='outline'
-                                    onClick={() => setEditingUpdateId(null)}
-                                    className='cursor-pointer'
-                                  >
-                                    {t('form.cancel')}
-                                  </Button>
-                                  <Button
-                                    size='sm'
-                                    onClick={() => editUpdateMutation.mutate(row.id)}
-                                    disabled={editUpdateMutation.isPending}
-                                    className='cursor-pointer'
-                                  >
-                                    {t('timeline.done')}
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              row.message && (
-                                <p className='text-foreground/85 mt-1 text-sm whitespace-pre-line'>{row.message}</p>
-                              )
+                            />
+                          }
+                        >
+                          <div className='flex h-7 items-center gap-2'>
+                            <span className='text-foreground text-sm font-bold'>{t(`status.${row.status}`)}</span>
+                            {pending && (
+                              <span className='inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400'>
+                                <span className='h-1.5 w-1.5 rounded-full bg-amber-500' />
+                                {t('timeline.pending')}
+                              </span>
                             )}
-
-                            <div suppressHydrationWarning className='text-muted-foreground mt-1.5 text-xs'>
-                              {formatLocalDateTime(row.date, locale, {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false,
-                              })}
+                            <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
+                              {pending ? (
+                                <Button
+                                  size='icon'
+                                  variant='ghost'
+                                  aria-label={t('timeline.removePending')}
+                                  onClick={() => removePendingUpdate(row.id)}
+                                  className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                >
+                                  <X className='h-3.5 w-3.5' />
+                                </Button>
+                              ) : (
+                                <PermissionGate hideWhenDisabled>
+                                  {() => (
+                                    <>
+                                      <Button
+                                        size='icon'
+                                        variant='ghost'
+                                        aria-label={t('timeline.editMessage')}
+                                        onClick={() => beginEditUpdate(row.id, row.message)}
+                                        className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
+                                      >
+                                        <Pencil className='h-3.5 w-3.5' />
+                                      </Button>
+                                      <Button
+                                        size='icon'
+                                        variant='ghost'
+                                        aria-label={t('timeline.deleteUpdate')}
+                                        disabled={timeline.length <= 1 || deleteUpdateMutation.isPending}
+                                        onClick={() => deleteUpdateMutation.mutate(row.id)}
+                                        className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                      >
+                                        <Trash2 className='h-3.5 w-3.5' />
+                                      </Button>
+                                    </>
+                                  )}
+                                </PermissionGate>
+                              )}
                             </div>
                           </div>
-                        </li>
+
+                          {editing ? (
+                            <div className='mt-2 space-y-2'>
+                              <Textarea
+                                rows={3}
+                                autoFocus
+                                value={editDraft}
+                                maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
+                                onChange={(e) => setEditDraft(e.target.value)}
+                              />
+                              <div className='flex justify-end gap-2'>
+                                <Button
+                                  size='sm'
+                                  variant='outline'
+                                  onClick={() => setEditingUpdateId(null)}
+                                  className='cursor-pointer'
+                                >
+                                  {t('form.cancel')}
+                                </Button>
+                                <Button
+                                  size='sm'
+                                  onClick={() => editUpdateMutation.mutate(row.id)}
+                                  disabled={editUpdateMutation.isPending}
+                                  className='cursor-pointer'
+                                >
+                                  {t('timeline.done')}
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            row.message && (
+                              <p className='text-foreground/85 mt-1 text-sm whitespace-pre-line'>{row.message}</p>
+                            )
+                          )}
+
+                          <div suppressHydrationWarning className='text-muted-foreground mt-1.5 text-xs'>
+                            {formatLocalDateTime(row.date, locale, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false,
+                            })}
+                          </div>
+                        </TimelineItem>
                       );
                     })}
-                  </ol>
+                  </Timeline>
                 )}
               </section>
             )}
           </div>
 
-          {/* Sticky footer */}
           <SheetFooter className='flex-row flex-wrap items-center gap-2 border-t px-6 py-3'>
             {form.id != null && (
               <PermissionGate>
