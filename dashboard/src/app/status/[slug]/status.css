@@ -33,6 +33,8 @@
   --sp-partial-text: light-dark(#ea580c, #fdba74);
   --sp-down: light-dark(#ef4444, #f43f5e);
   --sp-down-text: light-dark(#dc2626, #fb7185);
+  --sp-info: light-dark(#0ea5e9, #38bdf8);
+  --sp-info-text: light-dark(#0284c7, #7dd3fc);
   --sp-neutral: light-dark(#e5e7eb, #24282d);
   --sp-card-shadow: 0 4px 16px rgba(40, 40, 90, 0.08);
 

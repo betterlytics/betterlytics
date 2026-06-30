@@ -71,6 +71,7 @@ import {
   type StatusPageIncidentImpact,
   type StatusPageIncidentStatusValue,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
+import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 import {
   createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,
@@ -100,21 +101,25 @@ const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified'
 // active/past section split with a single filterable dimension.
 type StateFilter = 'all' | 'active' | 'resolved';
 
-// Outline badges per lifecycle status — mirrors the errors table's status badges.
-const STATUS_BADGE: Record<StatusPageIncidentStatusValue, string> = {
-  investigating: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  identified: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  monitoring: 'border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400',
-  resolved: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+const STATUS_TONE_BADGE: Record<IncidentStatusTone, string> = {
+  amber: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+  orange: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  blue: 'border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400',
+  green: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
 };
 
-// Solid dot color for the timeline rail.
-const STATUS_DOT: Record<StatusPageIncidentStatusValue, string> = {
-  investigating: 'bg-amber-500',
-  identified: 'bg-orange-500',
-  monitoring: 'bg-sky-500',
-  resolved: 'bg-emerald-500',
+const STATUS_TONE_DOT: Record<IncidentStatusTone, string> = {
+  amber: 'bg-amber-500',
+  orange: 'bg-orange-500',
+  blue: 'bg-sky-500',
+  green: 'bg-emerald-500',
 };
+
+const statusBadgeClass = (status: StatusPageIncidentStatusValue) =>
+  STATUS_TONE_BADGE[INCIDENT_STATUS_TONE[status]];
+
+const statusDotClass = (status: StatusPageIncidentStatusValue) =>
+  STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
 
 const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -560,7 +565,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         enableSorting: false,
         enableGlobalFilter: false,
         cell: ({ row }) => (
-          <Badge variant='outline' className={STATUS_BADGE[row.original.status]}>
+          <Badge variant='outline' className={statusBadgeClass(row.original.status)}>
             {t(`status.${row.original.status}`)}
           </Badge>
         ),
@@ -861,7 +866,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
             <div className='min-w-0 space-y-1'>
               <div className='flex flex-wrap items-center gap-2'>
                 <SheetTitle className='text-base'>{form.id ? t('editIncident') : t('newIncident')}</SheetTitle>
-                <Badge variant='outline' className={STATUS_BADGE[headerStatus]}>
+                <Badge variant='outline' className={statusBadgeClass(headerStatus)}>
                   {t(`status.${headerStatus}`)}
                 </Badge>
               </div>
@@ -950,7 +955,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                         className={cn(
                           'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
                           selected
-                            ? STATUS_BADGE[option]
+                            ? statusBadgeClass(option)
                             : 'border-border text-muted-foreground hover:text-foreground',
                         )}
                       >
@@ -1027,7 +1032,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                               <div
                                 className={cn(
                                   'ring-background relative z-10 ml-1 h-2.5 w-2.5 rounded-full ring',
-                                  pending ? 'bg-background border-2 border-amber-500' : STATUS_DOT[row.status],
+                                  pending ? 'bg-background border-2 border-amber-500' : statusDotClass(row.status),
                                 )}
                               />
                             </div>

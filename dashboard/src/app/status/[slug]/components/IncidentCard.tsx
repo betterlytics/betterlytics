@@ -3,6 +3,7 @@ import type {
   PublicStatusPageIncident,
   PublicStatusPageIncidentUpdate,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
+import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 
 const dateLabel = new Intl.DateTimeFormat('en', {
   month: 'short',
@@ -35,8 +36,15 @@ function isSameUTCDay(a: Date, b: Date): boolean {
   );
 }
 
+const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
+  amber: 'var(--sp-warn-text)',
+  orange: 'var(--sp-partial-text)',
+  blue: 'var(--sp-info-text)',
+  green: 'var(--sp-ok-text)',
+};
+
 function statusColor(status: PublicStatusPageIncident['status']): string {
-  return status === 'resolved' ? 'var(--sp-ok-text)' : 'var(--sp-warn-text)';
+  return STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
 }
 
 const IMPACT_PILL: Record<
@@ -91,13 +99,17 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
 
   const meta = [incident.monitorPublicName, dateLabel.format(startedAt)].filter(Boolean).join(' · ');
 
-  // Timeline rail: a status-colored dot per entry with a connecting line down to the next, ringed in
-  // the card bg so the line breaks cleanly around it. The line is omitted on the last entry of a list.
   const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
     const showDate = !isSameUTCDay(entryDate, startedAt);
     return (
-      <li key={key} className='grid grid-cols-[18px_minmax(0,1fr)] gap-3 pb-4 last:pb-0'>
+      <li key={key} className='grid grid-cols-[auto_18px_minmax(0,1fr)] gap-x-3 pb-4 last:pb-0'>
+        <span
+          suppressHydrationWarning
+          className='flex h-5 items-center text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
+        >
+          {showDate ? entryLabel.format(entryDate) : timeLabel.format(entryDate)}
+        </span>
         <div className='relative'>
           {!isLast ? (
             <span
@@ -113,12 +125,9 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
           </span>
         </div>
         <div className='min-w-0'>
-          <div className='flex items-baseline justify-between gap-2'>
+          <div className='flex h-5 items-center'>
             <span className='text-[13px] font-semibold' style={{ color: statusColor(update.status) }}>
               {t(`incident.status.${update.status}`)}
-            </span>
-            <span suppressHydrationWarning className='flex-none text-[11px] text-[var(--sp-faint)]'>
-              {showDate ? entryLabel.format(entryDate) : timeLabel.format(entryDate)}
             </span>
           </div>
           {update.message ? (
