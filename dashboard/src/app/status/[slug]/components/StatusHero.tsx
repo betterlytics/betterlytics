@@ -6,6 +6,7 @@ import { StatusPageBrandAvatar } from '@/components/statusPage/StatusPageBrandAv
 const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string | null; glyph: string }> = {
   operational: { Icon: Check, band: null, glyph: 'var(--sp-accent)' },
   degraded: { Icon: TriangleAlert, band: '#d97706', glyph: '#d97706' },
+  partial_outage: { Icon: TriangleAlert, band: '#ea580c', glyph: '#ea580c' },
   outage: { Icon: X, band: '#dc2626', glyph: '#dc2626' },
   unknown: { Icon: Minus, band: null, glyph: '#9ca3af' },
 };

@@ -3928,7 +3928,8 @@
     "banner": {
       "operational": "Alle systemer fungerer normalt",
       "degraded": "Redusert ytelse",
-      "outage": "Noen systemer er nede",
+      "partial_outage": "Noen systemer er nede",
+      "outage": "Større driftsavbrudd",
       "unknown": "Status utilgjengelig"
     },
     "statusNote": {

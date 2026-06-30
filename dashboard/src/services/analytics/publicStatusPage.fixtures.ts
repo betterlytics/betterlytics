@@ -163,6 +163,42 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     };
   },
 
+  'demo-partial': () => {
+    const monitors = baseMonitors();
+    monitors[0] = {
+      ...monitors[0],
+      status: 'down',
+      uptime: 97.8,
+      days: monitors[0].days.map((d, i) => (i >= monitors[0].days.length - 1 ? { ...d, upRatio: 0.4 } : d)),
+    };
+    return {
+      ...FIXTURES['demo'](),
+      slug: 'demo-partial',
+      overallStatus: 'partial_outage',
+      overallUptime: 98.9,
+      monitors,
+      incidents: [
+        {
+          title: 'Website unreachable',
+          body: "The website is currently unreachable while the API stays healthy. We're investigating.",
+          impact: 'partial_outage' as const,
+          status: 'investigating' as const,
+          monitorPublicName: 'Website',
+          startedAt: isoMinutesAgo(18),
+          resolvedAt: null,
+          updates: [
+            {
+              status: 'investigating' as const,
+              message: "The website is currently unreachable while the API stays healthy. We're investigating.",
+              createdAt: isoMinutesAgo(18),
+            },
+          ],
+        },
+        resolvedApiIncident,
+      ],
+    };
+  },
+
   'demo-outage': () => {
     const monitors = baseMonitors().map((m) => ({
       ...m,

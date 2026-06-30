@@ -3925,7 +3925,8 @@
     "banner": {
       "operational": "All systems operational",
       "degraded": "Degraded performance",
-      "outage": "Some systems are down",
+      "partial_outage": "Some systems are down",
+      "outage": "Major outage",
       "unknown": "Status unavailable"
     },
     "statusNote": {

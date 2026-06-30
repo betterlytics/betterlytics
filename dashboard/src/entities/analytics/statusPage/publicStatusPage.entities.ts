@@ -2,7 +2,13 @@ import { z } from 'zod';
 import { StatusPageThemeSchema } from './statusPage.entities';
 import { StatusPageIncidentImpactSchema, StatusPageIncidentStatusSchema } from './statusPageIncident.entities';
 
-export const PublicOverallStatusSchema = z.enum(['operational', 'degraded', 'outage', 'unknown']);
+export const PublicOverallStatusSchema = z.enum([
+  'operational',
+  'degraded',
+  'partial_outage',
+  'outage',
+  'unknown',
+]);
 export type PublicOverallStatus = z.infer<typeof PublicOverallStatusSchema>;
 
 export const PublicMonitorStatusSchema = z.enum(['operational', 'degraded', 'down', 'unknown']);
