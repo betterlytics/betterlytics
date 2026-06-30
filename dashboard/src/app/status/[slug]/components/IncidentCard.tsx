@@ -87,11 +87,15 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
   const visibleUpdates = updates.slice(0, MAX_VISIBLE_UPDATES);
   const hiddenUpdates = updates.slice(MAX_VISIBLE_UPDATES);
 
+  const firstDayKey = updates.length > 0 ? fmt.dayKey.format(new Date(updates[0].createdAt)) : '';
+  const spansMultipleDays = updates.some(
+    (update) => fmt.dayKey.format(new Date(update.createdAt)) !== firstDayKey,
+  );
+
   const meta = [incident.monitorPublicName, fmt.date.format(startedAt)].filter(Boolean).join(' · ');
 
   const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
-    const showDate = fmt.dayKey.format(entryDate) !== fmt.dayKey.format(startedAt);
     return (
       <TimelineItem
         key={key}
@@ -102,9 +106,9 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         leading={
           <span
             suppressHydrationWarning
-            className='flex h-5 items-center text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
+            className='flex h-5 items-center justify-end text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
           >
-            {showDate ? fmt.entry.format(entryDate) : fmt.time.format(entryDate)}
+            {spansMultipleDays ? fmt.entry.format(entryDate) : fmt.time.format(entryDate)}
           </span>
         }
         dot={

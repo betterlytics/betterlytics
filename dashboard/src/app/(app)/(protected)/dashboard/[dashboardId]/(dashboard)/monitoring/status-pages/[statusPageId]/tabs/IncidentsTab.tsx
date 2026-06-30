@@ -122,6 +122,16 @@ const statusBadgeClass = (status: StatusPageIncidentStatusValue) =>
 const statusDotClass = (status: StatusPageIncidentStatusValue) =>
   STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
 
+const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
+  amber: 'text-amber-600 dark:text-amber-400',
+  orange: 'text-orange-600 dark:text-orange-400',
+  blue: 'text-sky-600 dark:text-sky-400',
+  green: 'text-emerald-600 dark:text-emerald-400',
+};
+
+const statusTextClass = (status: StatusPageIncidentStatusValue) =>
+  STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
+
 const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
   partial_outage: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
@@ -171,6 +181,10 @@ function pad(n: number): string {
 
 function toLocalInput(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function isSameLocalDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 function emptyForm(): IncidentForm {
@@ -653,21 +667,17 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     ],
     [pendingUpdates, timeline],
   );
-  // Most recent status across staged + saved updates — drives the header pill and "status changed".
-  const latestStatus =
-    pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
+  const timelineSpansDays = timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
+
+  const latestStatus = pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
   const headerStatus = form.id != null ? latestStatus : composer.status;
-  // Keep the timeline bounded — count saved + staged updates against the cap.
   const atUpdateCap = timeline.length + pendingUpdates.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
-  // Can stage an update when there's a message or the status actually moves, and we're under the cap.
   const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
 
-  // A title is all that's required; the first update's message is optional.
   const formValid = form.title.trim().length > 0;
-  // Incidents are always public, so saving is always a publish — "Update public page" when editing,
-  // "Publish" when creating.
+
   const saveCta = form.id != null ? t('form.updatePublic') : t('form.publishCta');
-  // New incidents always save; edits only when details changed or updates are staged.
+
   const canSave = formValid && (form.id == null || hasChanges);
 
   return (
@@ -1021,9 +1031,29 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                           key={row.key}
                           isLast={isLast}
                           headHeightPx={28}
-                          spacingPx={18}
+                          spacingPx={16}
                           lineClassName='bg-border'
                           className='group'
+                          leading={
+                            <span
+                              suppressHydrationWarning
+                              className='text-muted-foreground flex h-7 items-center justify-end text-[11px] tabular-nums whitespace-nowrap'
+                            >
+                              {timelineSpansDays
+                                ? formatLocalDateTime(row.date, locale, {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                  })
+                                : formatLocalDateTime(row.date, locale, {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                  })}
+                            </span>
+                          }
                           dot={
                             <div
                               className={cn(
@@ -1034,7 +1064,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                           }
                         >
                           <div className='flex h-7 items-center gap-2'>
-                            <span className='text-foreground text-sm font-bold'>{t(`status.${row.status}`)}</span>
+                            <span className={cn('text-[13px] font-semibold', statusTextClass(row.status))}>
+                              {t(`status.${row.status}`)}
+                            </span>
                             {pending && (
                               <span className='inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400'>
                                 <span className='h-1.5 w-1.5 rounded-full bg-amber-500' />
@@ -1112,19 +1144,11 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             </div>
                           ) : (
                             row.message && (
-                              <p className='text-foreground/85 mt-1 text-sm whitespace-pre-line'>{row.message}</p>
+                              <p className='text-muted-foreground mt-0.5 text-[13px] leading-relaxed whitespace-pre-line'>
+                                {row.message}
+                              </p>
                             )
                           )}
-
-                          <div suppressHydrationWarning className='text-muted-foreground mt-1.5 text-xs'>
-                            {formatLocalDateTime(row.date, locale, {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            })}
-                          </div>
                         </TimelineItem>
                       );
                     })}

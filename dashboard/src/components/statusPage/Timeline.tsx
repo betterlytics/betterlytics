@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Timeline({ children, className }: { children: ReactNode; className?: string }) {
-  return <ol className={cn('relative', className)}>{children}</ol>;
+  return (
+    <ol className={cn('relative grid grid-cols-[auto_18px_minmax(0,1fr)] gap-x-3', className)}>{children}</ol>
+  );
 }
 
 type TimelineItemProps = {
@@ -28,14 +30,10 @@ export function TimelineItem({
 }: TimelineItemProps) {
   return (
     <li
-      className={cn(
-        'grid gap-x-3',
-        leading != null ? 'grid-cols-[auto_18px_minmax(0,1fr)]' : 'grid-cols-[18px_minmax(0,1fr)]',
-        className,
-      )}
+      className={cn('col-span-3 grid [grid-template-columns:subgrid]', className)}
       style={{ paddingBottom: isLast ? undefined : spacingPx }}
     >
-      {leading}
+      {leading ?? <span />}
       <div className='relative flex justify-center'>
         {!isLast ? (
           <span

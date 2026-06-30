@@ -6,20 +6,29 @@ import { useTranslations } from 'next-intl';
 import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { accentForeground } from '@/components/statusPage/StatusPageBrandAvatar';
+import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
 import { Incidents } from './Incidents';
 import { MonitorUptimeCard } from './MonitorUptimeCard';
 import { StatusHero } from './StatusHero';
 
 export function StatusPageView({ data }: { data: PublicStatusPageData }) {
   const t = useTranslations('publicStatusPage');
+  const timeZone = useDisplayTimeZone();
 
-  const lastUpdated =
+  const lastUpdatedTime =
     formatLocalDateTime(data.lastUpdatedAt, 'en', {
       dateStyle: 'medium',
       timeStyle: 'short',
       hour12: false,
-      timeZone: 'UTC',
+      timeZone,
     }) ?? '';
+
+    const zoneLabel = lastUpdatedTime
+    ? new Intl.DateTimeFormat('en', { timeZone, timeZoneName: 'short' })
+        .formatToParts(new Date(data.lastUpdatedAt))
+        .find((part) => part.type === 'timeZoneName')?.value
+    : undefined;
+  const lastUpdated = zoneLabel ? `${lastUpdatedTime} ${zoneLabel}` : lastUpdatedTime;
 
   const subTextLabel =
     data.overallStatus === 'degraded'
