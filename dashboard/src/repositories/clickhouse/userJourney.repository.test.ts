@@ -81,4 +81,11 @@ describe('buildJourneyQuery', () => {
     expect(taggedSql).toContain('browser ILIKE');
     expect(taggedSql).toContain('path[1] ILIKE');
   });
+
+  it('truncates under a distinct alias so predicates bind the untruncated path', () => {
+    const { taggedSql } = build({ '2': [urlFilter(['/signup'])] });
+    expect(taggedSql).toContain('AS display_path');
+    expect(taggedSql).toContain('GROUP BY display_path');
+    expect(taggedSql).not.toMatch(/arraySlice\(path[^)]*\)\s+AS path/);
+  });
 });

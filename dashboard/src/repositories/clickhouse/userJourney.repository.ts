@@ -58,7 +58,7 @@ export function buildJourneyQuery({ queryFilters, stepFilters, sample }: Journey
     /* Positional step filters run on the full path, then trim to max_length for display */
     filtered_paths AS (
       SELECT
-        arraySlice(path, 1, {max_length:UInt8}) AS path,
+        arraySlice(path, 1, {max_length:UInt8}) AS display_path,
         _sample_factor
       FROM session_paths
       WHERE length(path) > 1
@@ -67,11 +67,11 @@ export function buildJourneyQuery({ queryFilters, stepFilters, sample }: Journey
     /* Group by distinct path and count occurrences, then take top N paths */
     top_paths AS (
       SELECT
-        path,
+        display_path AS path,
         COUNT(*) AS path_count,
         any(_sample_factor) as _sample_factor
       FROM filtered_paths
-      GROUP BY path
+      GROUP BY display_path
       ORDER BY path_count DESC
       LIMIT {limit:UInt32}
     )
