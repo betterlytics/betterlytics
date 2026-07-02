@@ -26,6 +26,8 @@ type QueryFiltersSelectorContentProps = {
   onCancel: () => void;
   onLoadSavedFilter?: (filters: QueryFilter[]) => void;
   globalPropertyKeys?: string[];
+  hideSavedFilters?: boolean;
+  useExtendedRange?: boolean;
 };
 
 export function QueryFiltersSelectorContent({
@@ -37,6 +39,8 @@ export function QueryFiltersSelectorContent({
   onCancel,
   onLoadSavedFilter,
   globalPropertyKeys,
+  hideSavedFilters,
+  useExtendedRange,
 }: QueryFiltersSelectorContentProps) {
   const t = useTranslations('components.filters');
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
@@ -118,25 +122,27 @@ export function QueryFiltersSelectorContent({
         )}
       </DisabledTooltip>
       <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-2'>
-        <PermissionGate>
-          {(disabled) => (
-            <DisabledTooltip
-              disabled={Boolean(!disabled && isSavedFiltersLimitReached)}
-              message={t('selector.savedFiltersLimitReached')}
-            >
-              {(isLimitDisabled) => (
-                <Button
-                  className='h-8 cursor-pointer'
-                  variant='ghost'
-                  onClick={() => setIsSaveDialogOpen(true)}
-                  disabled={disabled || !hasValidFilters || isLimitDisabled}
-                >
-                  <SaveIcon className='h-4 w-4' />
-                </Button>
-              )}
-            </DisabledTooltip>
-          )}
-        </PermissionGate>
+        {!hideSavedFilters && (
+          <PermissionGate>
+            {(disabled) => (
+              <DisabledTooltip
+                disabled={Boolean(!disabled && isSavedFiltersLimitReached)}
+                message={t('selector.savedFiltersLimitReached')}
+              >
+                {(isLimitDisabled) => (
+                  <Button
+                    className='h-8 cursor-pointer'
+                    variant='ghost'
+                    onClick={() => setIsSaveDialogOpen(true)}
+                    disabled={disabled || !hasValidFilters || isLimitDisabled}
+                  >
+                    <SaveIcon className='h-4 w-4' />
+                  </Button>
+                )}
+              </DisabledTooltip>
+            )}
+          </PermissionGate>
+        )}
         <Button
           className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
           disabled={!canApply}
@@ -181,17 +187,20 @@ export function QueryFiltersSelectorContent({
                 filter={filter}
                 requestRemoval={requestFilterRemoval}
                 globalPropertyKeys={globalPropertyKeys}
+                useExtendedRange={useExtendedRange}
               />
             ))}
           </div>
         </ScrollArea>
         <Separator />
         {ActionsRow}
-        <SavedFiltersSection
-          onLoadFilter={handleLoadSavedFilter}
-          isOpen={isSavedFiltersOpen}
-          onOpenChange={setIsSavedFiltersOpen}
-        />
+        {!hideSavedFilters && (
+          <SavedFiltersSection
+            onLoadFilter={handleLoadSavedFilter}
+            isOpen={isSavedFiltersOpen}
+            onOpenChange={setIsSavedFiltersOpen}
+          />
+        )}
       </div>
 
       <SaveQueryFilterDialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen} filters={queryFilters} />
