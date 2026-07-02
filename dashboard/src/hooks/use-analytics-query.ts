@@ -18,7 +18,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
     timeZone,
   } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
-  const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
+  const { numberOfSteps, numberOfJourneys, stepFilters } = useUserJourneyFilter();
 
   return useMemo(
     () => ({
@@ -33,7 +33,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       compareAlignWeekdays,
       timezone: timeZone,
       queryFilters,
-      userJourney: { numberOfSteps, numberOfJourneys, stepFilters: {} },
+      userJourney: { numberOfSteps, numberOfJourneys, stepFilters },
     }),
     [
       resolvedMainRange,
@@ -47,6 +47,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       queryFilters,
       numberOfSteps,
       numberOfJourneys,
+      stepFilters,
     ],
   );
 }
