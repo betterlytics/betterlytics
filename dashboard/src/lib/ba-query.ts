@@ -71,6 +71,16 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
   }
 }
 
+function buildPositionalUrlPredicate(filter: QueryFilter, position: number, predicateIndex: number) {
+  if (!Number.isInteger(position) || position < 0 || position > 32) {
+    throw new Error(`Invalid journey position: ${position}`);
+  }
+  const parsed = TransformQueryFilterSchema.parse(filter);
+  const values = SQL.StringArray({ [`step_filter_${predicateIndex}`]: parsed.values });
+  const element = safeSql`path[${SQL.Unsafe(String(position + 1))}]`;
+  return safeSql`${parsed.operator.quantifier}(pattern -> ${element} ${parsed.operator.operater} pattern, ${values})`;
+}
+
 // Utility for granularity
 const GranularityIntervalSchema = z.enum([
   '1 MONTH',
@@ -171,4 +181,5 @@ export const BAQuery = {
   getFilterQuery,
   getTimestampRange,
   getSampling,
+  buildPositionalUrlPredicate,
 };
