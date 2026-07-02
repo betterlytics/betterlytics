@@ -9,6 +9,7 @@ export const BATimeZone = z.string().transform((tz) => (tz === 'Etc/Unknown' ? '
 const UserJourneySchema = z.object({
   numberOfSteps: z.number().int().min(1).max(5),
   numberOfJourneys: z.number().int().min(1).max(100),
+  stepFilters: z.record(z.string().regex(/^[0-5]$/), z.array(QueryFilterSchema).max(MAX_FILTER_ROWS)).default({}),
 });
 
 export const BAAnalyticsQuerySchema = z.object({

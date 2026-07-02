@@ -43,7 +43,7 @@ export async function executeUserJourneys(rawInput: unknown, siteId: string) {
     granularity: 'day',
     queryFilters: filters,
     timezone: input.timezone,
-    userJourney: { numberOfSteps: input.maxSteps, numberOfJourneys: input.limit },
+    userJourney: { numberOfSteps: input.maxSteps, numberOfJourneys: input.limit, stepFilters: {} },
   };
 
   return getUserJourneyForSankeyDiagram(siteQuery, input.maxSteps, input.limit);
