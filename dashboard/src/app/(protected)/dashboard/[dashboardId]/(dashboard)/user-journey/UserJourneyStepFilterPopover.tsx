@@ -100,16 +100,12 @@ export function UserJourneyStepFilterPopover({
 
   return (
     <Popover open={isOpen} onOpenChange={handleOpenChange}>
-      {triggerSummary && !isOpen ? (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-          </TooltipTrigger>
-          <TooltipContent className='max-w-xs'>{triggerSummary}</TooltipContent>
-        </Tooltip>
-      ) : (
-        <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-      )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+        </TooltipTrigger>
+        {triggerSummary && !isOpen && <TooltipContent className='max-w-xs'>{triggerSummary}</TooltipContent>}
+      </Tooltip>
       <PopoverContent className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl' align={align}>
         {content}
       </PopoverContent>
