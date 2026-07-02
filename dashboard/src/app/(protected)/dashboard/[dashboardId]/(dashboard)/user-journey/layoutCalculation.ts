@@ -1,5 +1,5 @@
 import { NodePosition, LinkPosition } from './types';
-import { LAYOUT } from './constants';
+import { LAYOUT, getAvailableChartWidth } from './constants';
 import { SankeyGraph, GraphNode, GraphLink, NodeConnection } from './SankeyGraph';
 
 export interface LayoutResult {
@@ -40,9 +40,9 @@ export function calculateLayout(graph: SankeyGraph, width: number, height: numbe
  * Create layout configuration from graph metrics and dimensions
  */
 function createLayoutConfig(graph: SankeyGraph, width: number, height: number): LayoutConfig {
-  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight, labelMargin } = LAYOUT;
+  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight } = LAYOUT;
 
-  const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
+  const availableWidth = getAvailableChartWidth(width);
   const availableHeight = height - padding.top - padding.bottom;
   const depthSpacing = graph.maxDepth > 0 ? availableWidth / graph.maxDepth : 0;
 

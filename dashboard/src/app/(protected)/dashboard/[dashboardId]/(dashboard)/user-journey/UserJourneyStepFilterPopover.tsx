@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, type ComponentProps, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -36,7 +36,7 @@ export function UserJourneyStepFilterPopover({
   const t = useTranslations('components.userJourney');
 
   const { stepFilters, setStepFilters } = useUserJourneyFilter();
-  const committed = stepFilters[position] ?? [];
+  const committed = useMemo(() => stepFilters[position] ?? [], [stepFilters, position]);
   const filters = useQueryFilters(initOrDefault(committed));
   const { setQueryFilters } = filters;
 
@@ -48,10 +48,10 @@ export function UserJourneyStepFilterPopover({
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
-      if (open) setQueryFilters(initOrDefault(stepFilters[position] ?? []));
+      if (open) setQueryFilters(initOrDefault(committed));
       setIsOpen(open);
     },
-    [setQueryFilters, stepFilters, position],
+    [setQueryFilters, committed],
   );
 
   const applyFilters = useCallback(

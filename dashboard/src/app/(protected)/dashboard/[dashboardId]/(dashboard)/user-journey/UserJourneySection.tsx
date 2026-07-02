@@ -32,17 +32,19 @@ export default function UserJourneySection() {
         const nodes = journeyData?.nodes ?? [];
         const isEmpty = nodes.length === 0;
 
+        const emptyState = (
+          <div className='flex h-[300px] items-center justify-center text-center'>
+            <div>
+              <p className='text-muted-foreground mb-1'>{t('noUserJourneyData')}</p>
+              <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
+            </div>
+          </div>
+        );
+
         if (isEmpty && !hasStepFilters) {
           return (
             <Card className='mt-6'>
-              <CardContent className='p-8'>
-                <div className='flex h-[300px] items-center justify-center text-center'>
-                  <div>
-                    <p className='text-muted-foreground mb-1'>{t('noUserJourneyData')}</p>
-                    <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-                  </div>
-                </div>
-              </CardContent>
+              <CardContent className='p-8'>{emptyState}</CardContent>
             </Card>
           );
         }
@@ -54,12 +56,7 @@ export default function UserJourneySection() {
             <div className='min-w-[1000px]'>
               <UserJourneyStepBand renderedColumnCount={renderedColumnCount} />
               {isEmpty ? (
-                <div className='flex h-[300px] items-center justify-center text-center'>
-                  <div>
-                    <p className='text-muted-foreground mb-1'>{t('noUserJourneyData')}</p>
-                    <p className='text-muted-foreground/70 text-xs'>{t('adjustTimeRange')}</p>
-                  </div>
-                </div>
+                emptyState
               ) : (
                 <div className='px-4 pt-2 pb-4'>
                   <UserJourneyChart data={journeyData} />

@@ -36,8 +36,7 @@ export function setStepFiltersAt(
   filters: QueryFilter[],
 ): JourneyStepFilters {
   if (filters.length === 0) {
-    const { [String(position)]: _removed, ...rest } = stepFilters;
-    return rest;
+    return Object.fromEntries(Object.entries(stepFilters).filter(([key]) => key !== String(position)));
   }
   return { ...stepFilters, [String(position)]: filters };
 }

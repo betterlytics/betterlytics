@@ -1,4 +1,4 @@
-import { LAYOUT } from './constants';
+import { LAYOUT, getAvailableChartWidth } from './constants';
 
 const DIVIDER_GAP = 8;
 
@@ -18,9 +18,8 @@ function getEqualBoundaries(cellCount: number): number[] {
 
 function getAlignedBoundaries(cellCount: number): number[] {
   if (cellCount <= 1) return [0, 1];
-  const { chartWidth, labelMargin, padding, nodeWidth } = LAYOUT;
-  const availableWidth = chartWidth - padding.left - padding.right - nodeWidth - labelMargin;
-  const depthSpacing = availableWidth / (cellCount - 1);
+  const { chartWidth, padding } = LAYOUT;
+  const depthSpacing = getAvailableChartWidth() / (cellCount - 1);
   const inner = Array.from(
     { length: cellCount - 1 },
     (_, index) => (padding.left + (index + 1) * depthSpacing - DIVIDER_GAP) / chartWidth,

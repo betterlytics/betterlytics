@@ -44,3 +44,7 @@ export const LAYOUT = {
   compressionThreshold: 60,
   maxNodeHeight: 100,
 };
+
+export function getAvailableChartWidth(chartWidth: number = LAYOUT.chartWidth): number {
+  return Math.max(0, chartWidth - LAYOUT.padding.left - LAYOUT.padding.right - LAYOUT.nodeWidth - LAYOUT.labelMargin);
+}

@@ -8,7 +8,7 @@ import {
 } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
-import { safeSql, SQL } from './safe-sql';
+import { safeSql, SQL, type SQLTaggedExpression } from './safe-sql';
 import { filterColumnSql } from './filter-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
@@ -49,6 +49,14 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
   return filters.map((filter, index) => buildFilterQuery(filter, index));
 }
 
+function arrayPredicate(
+  operator: (typeof INTERNAL_FILTER_OPERATORS)[keyof typeof INTERNAL_FILTER_OPERATORS],
+  column: SQLTaggedExpression,
+  values: SQLTaggedExpression,
+) {
+  return safeSql`${operator.quantifier}(pattern -> ${column} ${operator.operater} pattern, ${values})`;
+}
+
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
   const parsed = parseFilterColumn(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
@@ -62,11 +70,10 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
         return filter.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
       }
       const extract = safeSql`global_properties_values[indexOf(global_properties_keys, ${key})]`;
-      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
+      return arrayPredicate(filter.operator, extract, values);
     }
     default: {
-      const column = filterColumnSql(parsed.col);
-      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+      return arrayPredicate(filter.operator, filterColumnSql(parsed.col), values);
     }
   }
 }
@@ -78,7 +85,7 @@ function buildPositionalUrlPredicate(filter: QueryFilter, position: number, pred
   const parsed = TransformQueryFilterSchema.parse(filter);
   const values = SQL.StringArray({ [`step_filter_${predicateIndex}`]: parsed.values });
   const element = safeSql`path[${SQL.Unsafe(String(position + 1))}]`;
-  return safeSql`${parsed.operator.quantifier}(pattern -> ${element} ${parsed.operator.operater} pattern, ${values})`;
+  return arrayPredicate(parsed.operator, element, values);
 }
 
 // Utility for granularity
