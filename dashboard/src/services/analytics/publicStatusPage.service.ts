@@ -150,7 +150,8 @@ async function assembleStatusPage(
   const days = STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS;
   const checkIds = monitors.map((monitor) => monitor.monitorCheckId);
 
-  const rangeEndDate = new Date();
+  const now = new Date();
+  const rangeEndDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   const rangeStart = toDateTimeString(new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000));
   const rangeEnd = toDateTimeString(rangeEndDate);
 
