@@ -49,7 +49,6 @@ function getDefaultFilters(): FilterQueryParams {
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
-      stepFilters: {},
     },
     compareStartDate: range.compare?.start,
     compareEndDate: range.compare?.end,
@@ -247,6 +246,7 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
 
   return {
     ...validated,
+    userJourney: { ...validated.userJourney, stepFilters: {} },
     timezone,
   };
 }
