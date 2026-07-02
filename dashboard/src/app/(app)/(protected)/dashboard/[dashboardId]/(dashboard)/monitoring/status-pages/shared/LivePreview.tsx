@@ -6,13 +6,19 @@ import { Maximize2, X } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import { StatusPageView } from '@/app/status/[slug]/components/StatusPageView';
-import { StatusPageAccentColorSchema, type StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
+import {
+  StatusPageAccentColorSchema,
+  type StatusPageTheme,
+} from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   type PublicStatusPageData,
   type PublicStatusPageIncident,
   type StatusPagePreviewPayload,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';
+import {
+  deriveOverallUptime,
+  deriveStatusWithIncidents,
+} from '@/entities/analytics/statusPage/publicStatusPage.helpers';
 import { cn } from '@/lib/utils';
 
 export type PreviewDraft = {
@@ -127,35 +133,65 @@ export function LivePreview({
     const indexByCheckId = new Map(payload.monitorCheckIds.map((checkId, index) => [checkId, index]));
     const includedRows = draft.monitors.filter((row) => row.included);
 
-    const monitors = includedRows.map((row, position) => {
+    const bases = includedRows.map((row) => {
       const index = indexByCheckId.get(row.monitorCheckId);
-      const base = index != null ? payload.data.monitors[index] : undefined;
-      return {
-        key: String(position),
-        publicName: row.publicName.trim() || (base?.publicName ?? ''),
-        status: base?.status ?? ('unknown' as const),
-        uptime: base?.uptime ?? null,
-        days: base?.days ?? [],
-      };
+      return index != null ? payload.data.monitors[index] : undefined;
     });
-
-    const nameByMonitorIndex = new Map(
-      includedRows
-        .map((row) => [indexByCheckId.get(row.monitorCheckId), row.publicName.trim()] as const)
-        .filter(([index]) => index != null),
+    const detectedStatuses = includedRows.map((row) => {
+      const index = indexByCheckId.get(row.monitorCheckId);
+      return index != null ? payload.detectedStatuses[index] : ('unknown' as const);
+    });
+    const publicNames = includedRows.map(
+      (row, position) => row.publicName.trim() || (bases[position]?.publicName ?? ''),
     );
 
-    const publishedIncidents = draft.showPastIncidents
-      ? (payload.data.incidents ?? []).map((incident, index) => {
-          const monitorIndex = payload.incidentMonitorIndexes[index];
-          const draftName = monitorIndex >= 0 ? nameByMonitorIndex.get(monitorIndex) : undefined;
-          return { ...incident, monitorPublicName: draftName ?? null };
-        })
-      : null;
+    const openDraft = draftIncident != null && draftIncident.resolvedAt == null ? draftIncident : null;
+    const openIncidents = [
+      ...(openDraft
+        ? [
+            {
+              impact: openDraft.impact,
+              monitorKey:
+                openDraft.monitorPublicName == null
+                  ? null
+                  : (includedRows[publicNames.indexOf(openDraft.monitorPublicName)]?.monitorCheckId ??
+                    'draft-monitor-gone'),
+            },
+          ]
+        : []),
+      ...(payload.data.incidents ?? []).flatMap((incident, index) =>
+        incident.resolvedAt == null
+          ? [{ impact: incident.impact, monitorKey: payload.incidentMonitorCheckIds[index] }]
+          : [],
+      ),
+    ];
 
-    const incidents = draft.showPastIncidents
-      ? [...(draftIncident ? [draftIncident] : []), ...(publishedIncidents ?? [])]
-      : null;
+    const { monitorStatuses, overallStatus } = deriveStatusWithIncidents(
+      includedRows.map((row, position) => ({ key: row.monitorCheckId, detected: detectedStatuses[position] })),
+      openIncidents,
+    );
+
+    const monitors = includedRows.map((row, position) => ({
+      key: String(position),
+      publicName: publicNames[position],
+      status: monitorStatuses[position],
+      uptime: bases[position]?.uptime ?? null,
+      days: bases[position]?.days ?? [],
+    }));
+
+    const nameByCheckId = new Map(
+      includedRows.map((row, position) => [row.monitorCheckId, publicNames[position]]),
+    );
+    const publishedIncidents = (payload.data.incidents ?? []).map((incident, index) => {
+      const checkId = payload.incidentMonitorCheckIds[index];
+      return { ...incident, monitorPublicName: (checkId != null ? nameByCheckId.get(checkId) : null) ?? null };
+    });
+
+    const allIncidents = [...(draftIncident ? [draftIncident] : []), ...publishedIncidents];
+    const visibleIncidents = draft.showPastIncidents
+      ? allIncidents
+      : allIncidents.filter((incident) => incident.resolvedAt == null);
+    const incidents = draft.showPastIncidents || visibleIncidents.length > 0 ? visibleIncidents : null;
 
     return {
       ...payload.data,
@@ -170,7 +206,8 @@ export function LivePreview({
         ? draft.accentColor
         : payload.data.accentColor,
       hideBranding: draft.hideBranding,
-      overallStatus: deriveOverallStatus(monitors.map((monitor) => monitor.status)),
+      showPastIncidents: draft.showPastIncidents,
+      overallStatus,
       overallUptime: deriveOverallUptime(monitors.map((monitor) => monitor.uptime)),
       monitors,
       incidents,

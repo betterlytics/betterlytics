@@ -119,6 +119,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.98,
     hideBranding: false,
+    showPastIncidents: true,
     monitors: baseMonitors(),
     incidents: [resolvedApiIncident],
   }),
@@ -268,6 +269,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: null,
     hideBranding: false,
+    showPastIncidents: true,
     monitors: [
       monitor('0', 'Website', 'unknown', null, buildDays([], -1)),
       monitor('1', 'API', 'unknown', null, buildDays([], -1)),
@@ -288,6 +290,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.91,
     hideBranding: false,
+    showPastIncidents: true,
     monitors: [
       ...baseMonitors(),
       monitor('4', 'Background job processing pipeline (EU region)', 'operational', 99.72, buildDays([{ daysAgo: 12, upRatio: 0.9 }])),
@@ -300,7 +303,6 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     incidents: [resolvedApiIncident],
   }),
 
-  // Single monitor + past-incidents section disabled by the owner (incidents: null)
   'demo-single': () => ({
     name: 'Northwind Status',
     slug: 'demo-single',
@@ -314,6 +316,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
     lastUpdatedAt: isoMinutesAgo(1),
     overallUptime: 99.99,
     hideBranding: false,
+    showPastIncidents: false,
     monitors: [monitor('0', 'Website', 'operational', 99.99, buildDays())],
     incidents: null,
   }),

@@ -10,13 +10,16 @@ import {
   type PublicDailyUptimeBucket,
   type PublicMonitorStatus,
   type PublicStatusPageData,
-  type PublicStatusPageIncident,
   type StatusPagePreviewPayload,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { env } from '@/lib/env';
-import { deriveOverallStatus, deriveOverallUptime } from '@/presenters/publicStatusPage';
+import {
+  deriveOverallUptime,
+  deriveStatusWithIncidents,
+  toPublicIncident,
+} from '@/entities/analytics/statusPage/publicStatusPage.helpers';
 import {
   getLatestCheckInfoForMonitors,
   getOpenIncidentsForMonitors,
@@ -163,12 +166,26 @@ async function assembleStatusPage(
     getOpenIncidentsForMonitors(checkIds, siteId),
     getLatestCheckInfoForMonitors(checkIds, siteId),
 
-    page.showPastIncidents ? listPublishedIncidents(page.id) : Promise.resolve(null),
+    listPublishedIncidents(page.id, { includeResolved: page.showPastIncidents }),
   ]);
+
+  const detectedStatuses = monitors.map((monitor) =>
+    deriveMonitorStatus(
+      monitor.isEnabled,
+      openIncidents.has(monitor.monitorCheckId),
+      latestCheckInfo[monitor.monitorCheckId]?.status,
+    ),
+  );
+
+  const { monitorStatuses, overallStatus } = deriveStatusWithIncidents(
+    monitors.map((monitor, index) => ({ key: monitor.monitorCheckId, detected: detectedStatuses[index] })),
+    publishedIncidents
+      .filter((incident) => incident.resolvedAt == null)
+      .map((incident) => ({ impact: incident.impact, monitorKey: incident.monitorCheckId })),
+  );
 
   const publicMonitors = monitors.map((monitor, index) => {
     const buckets = bucketsByCheckId.get(monitor.monitorCheckId) ?? [];
-    const latest = latestCheckInfo[monitor.monitorCheckId];
 
     const dailyBuckets: PublicDailyUptimeBucket[] = buckets.map((bucket) => ({
       date: bucket.bucket.slice(0, 10),
@@ -184,53 +201,32 @@ async function assembleStatusPage(
       totalSeconds += bucket.totalSeconds;
     }
 
-    const status = deriveMonitorStatus(
-      monitor.isEnabled,
-      openIncidents.has(monitor.monitorCheckId),
-      latest?.status,
-    );
-
     return {
       key: String(index),
       publicName: monitor.publicName,
-      status,
+      status: monitorStatuses[index],
       uptime: totalSeconds > 0 ? (uptimeSeconds / totalSeconds) * 100 : null,
       days: dailyBuckets,
     };
   });
 
-  const updatesByIncident: Map<string, StatusPageIncidentTimelineEntry[]> =
-    publishedIncidents == null
-      ? new Map()
-      : await listPublishedIncidentUpdates(publishedIncidents.map((incident) => incident.id));
+  const updatesByIncident: Map<string, StatusPageIncidentTimelineEntry[]> = await listPublishedIncidentUpdates(
+    publishedIncidents.map((incident) => incident.id),
+  );
 
-  const incidents =
-    publishedIncidents == null
-      ? null
-      : publishedIncidents.map((incident) => {
-          // Resolve the affected monitor's public name from the page's monitors; null = page-wide
-          // (or the monitor is no longer on the page).
-          const monitorIndex = incident.monitorCheckId ? checkIds.indexOf(incident.monitorCheckId) : -1;
-          // Every update is an intentional, message-bearing post — surface them all (newest-first).
-          const updates = (updatesByIncident.get(incident.id) ?? []).map((entry) => ({
-            status: entry.status,
-            message: entry.message,
-            createdAt: entry.createdAt.toISOString(),
-          }));
-          return {
-            monitorIndex,
-            incident: {
-              title: incident.title,
-              body: incident.body,
-              impact: incident.impact,
-              status: incident.status,
-              monitorPublicName: monitorIndex >= 0 ? monitors[monitorIndex].publicName : null,
-              startedAt: incident.startedAt.toISOString(),
-              resolvedAt: incident.resolvedAt ? incident.resolvedAt.toISOString() : null,
-              updates,
-            } satisfies PublicStatusPageIncident,
-          };
-        });
+  const mappedIncidents = publishedIncidents.map((incident) => {
+    const monitorIndex = incident.monitorCheckId ? checkIds.indexOf(incident.monitorCheckId) : -1;
+    return {
+      monitorCheckId: incident.monitorCheckId,
+      incident: toPublicIncident(
+        incident,
+        monitorIndex >= 0 ? monitors[monitorIndex].publicName : null,
+        updatesByIncident.get(incident.id) ?? [],
+      ),
+    };
+  });
+
+  const incidents = page.showPastIncidents || mappedIncidents.length > 0 ? mappedIncidents : null;
 
   const lastCheckTimestamps = Object.values(latestCheckInfo)
     .map((info) => info.ts)
@@ -248,10 +244,11 @@ async function assembleStatusPage(
     noindex: page.visibility === 'unlisted',
     accentColor: page.accentColor,
     theme: page.theme,
-    overallStatus: deriveOverallStatus(publicMonitors.map((monitor) => monitor.status)),
+    overallStatus,
     lastUpdatedAt,
     overallUptime: deriveOverallUptime(publicMonitors.map((monitor) => monitor.uptime)),
     hideBranding: options?.hideBranding ?? false,
+    showPastIncidents: page.showPastIncidents,
     monitors: publicMonitors,
     incidents: incidents == null ? null : incidents.map((entry) => entry.incident),
   });
@@ -259,6 +256,7 @@ async function assembleStatusPage(
   return {
     data,
     monitorCheckIds: checkIds,
-    incidentMonitorIndexes: (incidents ?? []).map((entry) => entry.monitorIndex),
+    detectedStatuses,
+    incidentMonitorCheckIds: (incidents ?? []).map((entry) => entry.monitorCheckId),
   };
 }

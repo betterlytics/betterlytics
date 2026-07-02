@@ -76,12 +76,10 @@ export const PublicStatusPageDataSchema = z.object({
   theme: StatusPageThemeSchema,
   overallStatus: PublicOverallStatusSchema,
   lastUpdatedAt: z.string(),
-  /** Percent 0..100 (mean of per-monitor uptime), null when no monitor has data */
   overallUptime: z.number().nullable(),
-  /** When true the "Powered by Betterlytics" footer is hidden */
   hideBranding: z.boolean().default(false),
+  showPastIncidents: z.boolean().default(true),
   monitors: z.array(PublicStatusPageMonitorSchema),
-  /** null = past-incidents section disabled by the owner; [] = enabled but empty */
   incidents: z.array(PublicStatusPageIncidentSchema).nullable(),
 });
 export type PublicStatusPageData = z.infer<typeof PublicStatusPageDataSchema>;
@@ -89,5 +87,6 @@ export type PublicStatusPageData = z.infer<typeof PublicStatusPageDataSchema>;
 export type StatusPagePreviewPayload = {
   data: PublicStatusPageData;
   monitorCheckIds: string[];
-  incidentMonitorIndexes: number[];
+  detectedStatuses: PublicMonitorStatus[];
+  incidentMonitorCheckIds: Array<string | null>;
 };

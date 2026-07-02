@@ -3947,9 +3947,9 @@
       "today": "Today"
     },
     "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
-    "incidents": "Incidents",
-    "noIncidents": "No incidents in the last {days} days.",
-    "noOtherIncidents": "No other incidents in the last {days} days.",
+    "activeIncidents": "Active incidents",
+    "pastIncidents": "Past incidents",
+    "noPastIncidents": "No past incidents in the last {days} days.",
     "incident": {
       "resolved": "Resolved · lasted {duration}",
       "ongoing": "Ongoing since {time}",

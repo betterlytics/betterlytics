@@ -3950,9 +3950,9 @@
       "today": "I dag"
     },
     "overallUptime": "Samlet oppetid <value>{uptime}</value> · seneste {days} dage",
-    "incidents": "Hændelser",
-    "noIncidents": "Ingen hændelser i de seneste {days} dage.",
-    "noOtherIncidents": "Ingen andre hændelser i de seneste {days} dage.",
+    "activeIncidents": "Aktive hændelser",
+    "pastIncidents": "Tidligere hændelser",
+    "noPastIncidents": "Ingen tidligere hændelser i de seneste {days} dage.",
     "incident": {
       "resolved": "Løst · varede {duration}",
       "ongoing": "Igangværende siden {time}",

@@ -243,10 +243,12 @@ export async function listPublishedIncidentUpdates(
   return byIncident;
 }
 
-// Incidents are always public now, so the public page shows every (non-deleted) incident.
-export async function listPublishedIncidents(statusPageId: string): Promise<StatusPageIncident[]> {
+export async function listPublishedIncidents(
+  statusPageId: string,
+  { includeResolved = true }: { includeResolved?: boolean } = {},
+): Promise<StatusPageIncident[]> {
   const rows = await prisma.statusPageIncident.findMany({
-    where: { statusPageId, deletedAt: null },
+    where: { statusPageId, deletedAt: null, ...(includeResolved ? {} : { resolvedAt: null }) },
     orderBy: { startedAt: 'desc' },
   });
   return rows.map((row) => StatusPageIncidentSchema.parse(row));
