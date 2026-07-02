@@ -88,4 +88,24 @@ describe('buildJourneyQuery', () => {
     expect(taggedSql).toContain('GROUP BY display_path');
     expect(taggedSql).not.toMatch(/arraySlice\(path[^)]*\)\s+AS path/);
   });
+
+  it('applies session and url filters from the same position to their own layers', () => {
+    const { taggedSql } = build({
+      '1': [{ id: 'd', column: 'device_type', operator: '=', values: ['Mobile'] }, urlFilter(['/signup'])],
+    });
+    const deviceIdx = taggedSql.indexOf('device_type');
+    expect(deviceIdx).toBeGreaterThan(-1);
+    expect(deviceIdx).toBeLessThan(taggedSql.indexOf('GROUP BY session_id'));
+    expect(taggedSql).toContain('path[2] ILIKE');
+  });
+
+  it('filters multiple distinct positions with independent parameters', () => {
+    const { taggedSql, taggedParams } = build({
+      '0': [urlFilter(['/'])],
+      '2': [urlFilter(['/signup'])],
+    });
+    expect(taggedSql).toContain('path[1] ILIKE');
+    expect(taggedSql).toContain('path[3] ILIKE');
+    expect(taggedParams).toMatchObject({ step_filter_0: ['/'], step_filter_1: ['/signup'] });
+  });
 });

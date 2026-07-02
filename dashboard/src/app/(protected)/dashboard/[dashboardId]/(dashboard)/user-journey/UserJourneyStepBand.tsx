@@ -21,7 +21,7 @@ export function UserJourneyStepBand({ renderedColumnCount }: UserJourneyStepBand
   const cells = getStepBandCells(cellCount, renderedColumnCount === cellCount);
 
   return (
-    <div className='bg-card sticky top-0 z-20 h-12 border-b' aria-label={t('stepBandLabel')}>
+    <div role='group' className='bg-card sticky top-0 z-20 h-12 border-b' aria-label={t('stepBandLabel')}>
       <div className='relative mx-4 h-full'>
         {cells.map((cell, position) => {
           const filters = stepFilters[position] ?? [];

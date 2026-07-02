@@ -55,6 +55,11 @@ describe('pruneStepFilters', () => {
     const pruned = pruneStepFilters({ '3': [filter({})] }, 3);
     expect(Object.keys(pruned)).toEqual(['3']);
   });
+
+  it('returns the same object when nothing is pruned', () => {
+    const stepFilters = { '1': [filter({})] };
+    expect(pruneStepFilters(stepFilters, 3)).toBe(stepFilters);
+  });
 });
 
 describe('setStepFiltersAt', () => {

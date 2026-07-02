@@ -43,7 +43,7 @@ export function UserJourneyFilterProvider({ children, initialNumberOfSteps, init
 
   const value = useMemo(
     () => ({ numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys, stepFilters, setStepFilters }),
-    [numberOfSteps, setNumberOfSteps, numberOfJourneys, stepFilters, setStepFilters],
+    [numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys, stepFilters, setStepFilters],
   );
 
   return <UserJourneyFilterContext.Provider value={value}>{children}</UserJourneyFilterContext.Provider>;

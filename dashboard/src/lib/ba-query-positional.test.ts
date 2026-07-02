@@ -1,4 +1,3 @@
-// dashboard/src/lib/ba-query-positional.test.ts
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@/lib/env', () => ({

@@ -27,7 +27,9 @@ export function splitStepFilters(stepFilters: JourneyStepFilters): {
 }
 
 export function pruneStepFilters(stepFilters: JourneyStepFilters, numberOfSteps: number): JourneyStepFilters {
-  return Object.fromEntries(Object.entries(stepFilters).filter(([position]) => Number(position) <= numberOfSteps));
+  const kept = Object.entries(stepFilters).filter(([position]) => Number(position) <= numberOfSteps);
+  if (kept.length === Object.keys(stepFilters).length) return stepFilters;
+  return Object.fromEntries(kept);
 }
 
 export function setStepFiltersAt(
