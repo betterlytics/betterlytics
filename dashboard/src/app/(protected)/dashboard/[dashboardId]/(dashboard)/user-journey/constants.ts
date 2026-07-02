@@ -35,6 +35,8 @@ export const COLORS = {
 // LAYOUT CONFIGURATION
 // ============================================
 export const LAYOUT = {
+  chartWidth: 900,
+  labelMargin: 110,
   padding: { top: 20, right: 20, bottom: 24, left: 20 },
   nodeWidth: 14,
   nodeRadius: 2,

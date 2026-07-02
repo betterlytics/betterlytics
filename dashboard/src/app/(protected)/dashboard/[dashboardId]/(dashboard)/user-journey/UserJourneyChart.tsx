@@ -5,6 +5,7 @@ import { Lock } from 'lucide-react';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { HighlightState, TooltipState } from './types';
+import { LAYOUT } from './constants';
 import { createSankeyGraph } from './SankeyGraph';
 import { calculateLayout } from './layoutCalculation';
 import { SankeyNode, SankeyLink } from './components';
@@ -20,7 +21,7 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
   // Calculate SVG dimensions based on graph structure
   const { width, height } = useMemo(() => {
     return {
-      width: 900,
+      width: LAYOUT.chartWidth,
       height: graph.maxColumnCount * 100,
     };
   }, [graph]);

@@ -40,8 +40,7 @@ export function calculateLayout(graph: SankeyGraph, width: number, height: numbe
  * Create layout configuration from graph metrics and dimensions
  */
 function createLayoutConfig(graph: SankeyGraph, width: number, height: number): LayoutConfig {
-  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight } = LAYOUT;
-  const labelMargin = 110;
+  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight, labelMargin } = LAYOUT;
 
   const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
   const availableHeight = height - padding.top - padding.bottom;
