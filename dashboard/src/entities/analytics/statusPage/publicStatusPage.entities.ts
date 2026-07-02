@@ -56,8 +56,8 @@ export const PublicStatusPageIncidentSchema = z.object({
   body: z.string(),
   impact: StatusPageIncidentImpactSchema,
   status: StatusPageIncidentStatusSchema,
-  /** Affected monitor's public name, or null for a page-wide incident. */
-  monitorPublicName: z.string().nullable(),
+  /** Affected monitors' public names; empty for a page-wide incident. */
+  monitorPublicNames: z.array(z.string()).default([]),
   startedAt: z.string(),
   resolvedAt: z.string().nullable(),
   /** Change timeline, newest first. Falls back to a single body entry if ever empty. */
@@ -88,5 +88,6 @@ export type StatusPagePreviewPayload = {
   data: PublicStatusPageData;
   monitorCheckIds: string[];
   detectedStatuses: PublicMonitorStatus[];
-  incidentMonitorCheckIds: Array<string | null>;
+  /** Affected monitor check ids per incident (same order as `data.incidents`); editor-only, for live rename remap. */
+  incidentMonitorCheckIds: string[][];
 };

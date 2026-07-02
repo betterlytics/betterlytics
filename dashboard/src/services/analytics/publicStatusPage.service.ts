@@ -19,6 +19,7 @@ import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
   toPublicIncident,
+  type OpenIncidentRef,
 } from '@/entities/analytics/statusPage/publicStatusPage.helpers';
 import {
   getLatestCheckInfoForMonitors,
@@ -179,9 +180,14 @@ async function assembleStatusPage(
 
   const { monitorStatuses, overallStatus } = deriveStatusWithIncidents(
     monitors.map((monitor, index) => ({ key: monitor.monitorCheckId, detected: detectedStatuses[index] })),
+    // One ref per affected monitor (removed monitors still escalate via ghost handling); empty = page-wide.
     publishedIncidents
       .filter((incident) => incident.resolvedAt == null)
-      .map((incident) => ({ impact: incident.impact, monitorKey: incident.monitorCheckId })),
+      .flatMap((incident): OpenIncidentRef[] =>
+        incident.monitorCheckIds.length === 0
+          ? [{ impact: incident.impact, monitorKey: null }]
+          : incident.monitorCheckIds.map((id) => ({ impact: incident.impact, monitorKey: id })),
+      ),
   );
 
   const publicMonitors = monitors.map((monitor, index) => {
@@ -214,13 +220,17 @@ async function assembleStatusPage(
     publishedIncidents.map((incident) => incident.id),
   );
 
+  const nameByCheckId = new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName]));
+
   const mappedIncidents = publishedIncidents.map((incident) => {
-    const monitorIndex = incident.monitorCheckId ? checkIds.indexOf(incident.monitorCheckId) : -1;
+    // Keep only monitors still on the page, then resolve each to its public name. Empty = page-wide
+    // (or every affected monitor has since been removed from the page).
+    const affectedCheckIds = incident.monitorCheckIds.filter((id) => nameByCheckId.has(id));
     return {
-      monitorCheckId: incident.monitorCheckId,
+      monitorCheckIds: affectedCheckIds,
       incident: toPublicIncident(
         incident,
-        monitorIndex >= 0 ? monitors[monitorIndex].publicName : null,
+        affectedCheckIds.map((id) => nameByCheckId.get(id) as string),
         updatesByIncident.get(incident.id) ?? [],
       ),
     };
@@ -257,6 +267,6 @@ async function assembleStatusPage(
     data,
     monitorCheckIds: checkIds,
     detectedStatuses,
-    incidentMonitorCheckIds: (incidents ?? []).map((entry) => entry.monitorCheckId),
+    incidentMonitorCheckIds: (incidents ?? []).map((entry) => entry.monitorCheckIds),
   };
 }

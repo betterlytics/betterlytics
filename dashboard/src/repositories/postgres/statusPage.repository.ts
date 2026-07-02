@@ -104,6 +104,18 @@ export async function getStatusPageById(
   };
 }
 
+/** The check ids of the monitors attached to a page — used to validate an incident's affected monitors. */
+export async function listStatusPageMonitorCheckIds(
+  dashboardId: string,
+  statusPageId: string,
+): Promise<string[]> {
+  const rows = await prisma.statusPageMonitor.findMany({
+    where: { statusPageId, dashboardId },
+    select: { monitorCheckId: true },
+  });
+  return rows.map((row) => row.monitorCheckId);
+}
+
 export async function statusPageSlugExists(slug: string, excludeStatusPageId?: string): Promise<boolean> {
   const row = await prisma.statusPage.findFirst({ where: { slug, deletedAt: null }, select: { id: true } });
   return row != null && row.id !== excludeStatusPageId;

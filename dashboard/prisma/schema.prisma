@@ -521,8 +521,9 @@ model StatusPageIncident {
   startedAt  DateTime
   resolvedAt DateTime?
 
-  // Optional affected monitor; display reference only (validated in the action layer), so no FK.
-  monitorCheckId String?
+  // Affected monitors; display reference only (validated in the action layer), so no FK. Empty = unspecified
+  // (scope not stated); every monitor selected reads as page-wide. Both are just states of this list.
+  monitorCheckIds String[] @default([])
   // Stable id of the detected ClickHouse incident (analytics.monitor_incidents.incident_id) this was
   // seeded from; enables opt-in auto-resolve later. Null for manually authored incidents.
   detectedIncidentId String?

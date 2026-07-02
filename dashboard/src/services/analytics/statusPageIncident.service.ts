@@ -12,7 +12,10 @@ import {
   postStatusPageIncidentUpdate,
   updateStatusPageIncident,
 } from '@/repositories/postgres/statusPageIncident.repository';
-import { getStatusPageSnapshotById } from '@/repositories/postgres/statusPage.repository';
+import {
+  getStatusPageSnapshotById,
+  listStatusPageMonitorCheckIds,
+} from '@/repositories/postgres/statusPage.repository';
 import { getDetectedOutagesForMonitors } from '@/repositories/clickhouse/monitoring.repository';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
@@ -100,6 +103,10 @@ export function removeStatusPageIncident(
 
 export function countActiveStatusPageIncidents(dashboardId: string, statusPageId: string): Promise<number> {
   return countStatusPageIncidents(dashboardId, statusPageId);
+}
+
+export function getStatusPageMonitorCheckIds(dashboardId: string, statusPageId: string): Promise<string[]> {
+  return listStatusPageMonitorCheckIds(dashboardId, statusPageId);
 }
 
 function severityToImpact(severity: string): StatusPageIncidentImpact {

@@ -92,7 +92,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
     (update) => fmt.dayKey.format(new Date(update.createdAt)) !== firstDayKey,
   );
 
-  const meta = [incident.monitorPublicName, fmt.date.format(startedAt)].filter(Boolean).join(' · ');
+  const meta = [incident.monitorPublicNames.join(", "), fmt.date.format(startedAt)].filter(Boolean).join(' · ');
 
   const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
@@ -151,6 +151,10 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
           {t(`incident.impact.${incident.impact}`)}
         </span>
       </div>
+      <div className='mt-1.5 text-sm font-semibold text-[var(--sp-text)]'>{incident.title}</div>
+      {incident.monitorPublicNames.length > 0 ? (
+        <div className='text-xs text-[var(--sp-faint)]'>{incident.monitorPublicNames.join(', ')}</div>
+      ) : null}
 
       {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
       <Timeline className='mt-3.5'>
