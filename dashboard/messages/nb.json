@@ -2641,7 +2641,12 @@
     "userJourney": {
       "steps": "Trinn",
       "topJourneys": "Topp {journeys} reiser",
-      "sessions": "Sesjoner"
+      "sessions": "Sesjoner",
+      "step": "Trinn {step}",
+      "filter": "Filter",
+      "stepFilterDialogTitle": "Trinn {step} · Filtre",
+      "stepFilterHint": "Reiser som er kortere enn dette trinnet, utelates.",
+      "stepBandLabel": "Filtre per trinn"
     },
     "outboundLinks": {
       "table": {

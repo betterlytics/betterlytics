@@ -2630,7 +2630,12 @@
     "userJourney": {
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
-      "sessions": "Sessions"
+      "sessions": "Sessions",
+      "step": "Step {step}",
+      "filter": "Filter",
+      "stepFilterDialogTitle": "Step {step} · Filters",
+      "stepFilterHint": "Journeys shorter than this step are excluded.",
+      "stepBandLabel": "Per-step filters"
     },
     "outboundLinks": {
       "table": {
