@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type {
   PublicStatusPageIncident,
@@ -7,6 +7,7 @@ import type {
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
+import { cn } from '@/lib/utils';
 
 const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
   amber: 'var(--sp-warn-text)',
@@ -46,6 +47,7 @@ const MAX_VISIBLE_UPDATES = 3;
 export function IncidentCard({ incident }: { incident: PublicStatusPageIncident }) {
   const t = useTranslations('publicStatusPage');
   const timeZone = useDisplayTimeZone();
+  const [expanded, setExpanded] = useState(false);
 
   const fmt = useMemo(
     () => ({
@@ -84,8 +86,8 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
       ? incident.updates
       : [{ status: incident.status, message: incident.body, createdAt: incident.startedAt }];
 
-  const visibleUpdates = updates.slice(0, MAX_VISIBLE_UPDATES);
-  const hiddenUpdates = updates.slice(MAX_VISIBLE_UPDATES);
+  const hiddenCount = Math.max(0, updates.length - MAX_VISIBLE_UPDATES);
+  const shownUpdates = expanded ? updates : updates.slice(0, MAX_VISIBLE_UPDATES);
 
   const firstDayKey = updates.length > 0 ? fmt.dayKey.format(new Date(updates[0].createdAt)) : '';
   const spansMultipleDays = updates.some(
@@ -153,37 +155,33 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         </span>
       </div>
 
-      {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
+      {/* Change timeline, newest first. The most recent entries stay visible; older ones expand
+          inline into the same timeline so the vertical line stays continuous. */}
       <Timeline className='mt-3.5'>
-        {visibleUpdates.map((update, index) =>
-          renderEntry(update, index, index === visibleUpdates.length - 1),
+        {shownUpdates.map((update, index) =>
+          renderEntry(update, index, index === shownUpdates.length - 1),
         )}
       </Timeline>
 
-      {hiddenUpdates.length > 0 ? (
-        <details className='group mt-2'>
-          <summary className='inline-flex cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--sp-muted)] [&::-webkit-details-marker]:hidden hover:text-[var(--sp-text)]'>
-            <svg
-              className='h-3 w-3 transition-transform group-open:rotate-180'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              aria-hidden='true'
-            >
-              <path d='m6 9 6 6 6-6' strokeLinecap='round' strokeLinejoin='round' />
-            </svg>
-            <span className='group-open:hidden'>
-              {t('incident.showMore', { count: hiddenUpdates.length })}
-            </span>
-            <span className='hidden group-open:inline'>{t('incident.showLess')}</span>
-          </summary>
-          <Timeline className='mt-3'>
-            {hiddenUpdates.map((update, index) =>
-              renderEntry(update, visibleUpdates.length + index, index === hiddenUpdates.length - 1),
-            )}
-          </Timeline>
-        </details>
+      {hiddenCount > 0 ? (
+        <button
+          type='button'
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className='mt-2 inline-flex cursor-pointer items-center gap-1 text-[12px] font-medium text-[var(--sp-muted)] transition-colors hover:text-[var(--sp-text)]'
+        >
+          <svg
+            className={cn('h-3 w-3 transition-transform', expanded && 'rotate-180')}
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            aria-hidden='true'
+          >
+            <path d='m6 9 6 6 6-6' strokeLinecap='round' strokeLinejoin='round' />
+          </svg>
+          {expanded ? t('incident.showLess') : t('incident.showMore', { count: hiddenCount })}
+        </button>
       ) : null}
 
       <div
