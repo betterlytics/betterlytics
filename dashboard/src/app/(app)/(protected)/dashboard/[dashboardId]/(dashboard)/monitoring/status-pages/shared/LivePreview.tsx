@@ -12,7 +12,6 @@ import {
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   type PublicStatusPageData,
-  type PublicStatusPageIncident,
   type StatusPagePreviewPayload,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import {
@@ -39,7 +38,6 @@ type LivePreviewProps = {
   messages: Record<string, unknown>;
   publicHost: string;
   draft: PreviewDraft;
-  draftIncident?: PublicStatusPageIncident | null;
   /** Show a hover affordance that opens the preview enlarged in a modal. */
   enlargeable?: boolean;
   /** Optionally control the enlarged modal from outside (e.g. a separate trigger button) */
@@ -116,7 +114,6 @@ export function LivePreview({
   messages,
   publicHost,
   draft: liveDraft,
-  draftIncident,
   enlargeable = false,
   enlargedOpen,
   onEnlargedOpenChange,
@@ -146,26 +143,15 @@ export function LivePreview({
       (row, position) => row.publicName.trim() || (bases[position]?.publicName ?? ''),
     );
 
-    const openDraft = draftIncident != null && draftIncident.resolvedAt == null ? draftIncident : null;
-    // One ref per affected monitor; no names = page-wide. A draft name that no longer matches an
-    // included monitor still escalates the overall status via the helper's ghost handling.
-    const openIncidents: OpenIncidentRef[] = [
-      ...(openDraft
-        ? openDraft.monitorPublicNames.length === 0
-          ? [{ impact: openDraft.impact, monitorKey: null }]
-          : openDraft.monitorPublicNames.map((name) => ({
-              impact: openDraft.impact,
-              monitorKey: includedRows[publicNames.indexOf(name)]?.monitorCheckId ?? 'draft-monitor-gone',
-            }))
-        : []),
-      ...(payload.data.incidents ?? []).flatMap((incident, index): OpenIncidentRef[] => {
+    const openIncidents: OpenIncidentRef[] = (payload.data.incidents ?? []).flatMap(
+      (incident, index): OpenIncidentRef[] => {
         if (incident.resolvedAt != null) return [];
         const checkIds = payload.incidentMonitorCheckIds[index] ?? [];
         return checkIds.length === 0
           ? [{ impact: incident.impact, monitorKey: null }]
           : checkIds.map((checkId) => ({ impact: incident.impact, monitorKey: checkId }));
-      }),
-    ];
+      },
+    );
 
     const { monitorStatuses, overallStatus } = deriveStatusWithIncidents(
       includedRows.map((row, position) => ({ key: row.monitorCheckId, detected: detectedStatuses[position] })),
@@ -191,10 +177,9 @@ export function LivePreview({
       return { ...incident, monitorPublicNames };
     });
 
-    const allIncidents = [...(draftIncident ? [draftIncident] : []), ...publishedIncidents];
     const visibleIncidents = draft.showPastIncidents
-      ? allIncidents
-      : allIncidents.filter((incident) => incident.resolvedAt == null);
+      ? publishedIncidents
+      : publishedIncidents.filter((incident) => incident.resolvedAt == null);
     const incidents = draft.showPastIncidents || visibleIncidents.length > 0 ? visibleIncidents : null;
 
     return {
@@ -216,7 +201,7 @@ export function LivePreview({
       monitors,
       incidents,
     };
-  }, [payload, draft, draftIncident]);
+  }, [payload, draft]);
 
   const frame = (
     <PreviewFrame
