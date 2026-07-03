@@ -126,7 +126,7 @@ export async function getIncidentSuggestions(
   const checkIds = snapshot.monitors.map((monitor) => monitor.monitorCheckId);
   if (!checkIds.length) return [];
 
-  const [detected, linkedIds] = await Promise.all([
+  const [detected, linkedIds, incidents] = await Promise.all([
     getDetectedOutagesForMonitors(
       checkIds,
       snapshot.siteId,
@@ -135,15 +135,47 @@ export async function getIncidentSuggestions(
       STATUS_PAGE_LIMITS.SUGGESTIONS_MAX * 3,
     ),
     listLinkedDetectedIncidentIds(dashboardId, statusPageId),
+    listStatusPageIncidents(dashboardId, statusPageId),
   ]);
   const linked = new Set(linkedIds);
 
-  const suggestions: DetectedOutageSuggestion[] = [];
+  const now = Date.now();
+  const coveredByIncident = (outage: { monitorCheckId: string; startedAt: string; resolvedAt: string | null }) => {
+    const start = new Date(outage.startedAt).getTime();
+    const end = outage.resolvedAt ? new Date(outage.resolvedAt).getTime() : now;
+    return incidents.some((incident) => {
+      const covers =
+        incident.monitorCheckIds.length === 0 || incident.monitorCheckIds.includes(outage.monitorCheckId);
+      return covers && start <= (incident.resolvedAt?.getTime() ?? now) && end >= incident.startedAt.getTime();
+    });
+  };
+
+  const byMonitor = new Map<string, DetectedOutageSuggestion>();
   for (const outage of detected) {
     if (linked.has(outage.detectedIncidentId)) continue;
     const monitorPublicName = nameByCheckId.get(outage.monitorCheckId);
     if (monitorPublicName == null) continue;
-    suggestions.push({
+    if (coveredByIncident(outage)) continue;
+
+    const impact = severityToImpact(outage.severity);
+    const existing = byMonitor.get(outage.monitorCheckId);
+    if (existing) {
+      if (impact === 'outage') existing.suggestedImpact = 'outage';
+      if (outage.ongoing && !existing.ongoing) {
+        byMonitor.set(outage.monitorCheckId, {
+          detectedIncidentId: outage.detectedIncidentId,
+          monitorCheckId: outage.monitorCheckId,
+          monitorPublicName,
+          startedAt: outage.startedAt,
+          resolvedAt: outage.resolvedAt,
+          ongoing: outage.ongoing,
+          reasonCode: outage.reasonCode,
+          suggestedImpact: existing.suggestedImpact,
+        });
+      }
+      continue;
+    }
+    byMonitor.set(outage.monitorCheckId, {
       detectedIncidentId: outage.detectedIncidentId,
       monitorCheckId: outage.monitorCheckId,
       monitorPublicName,
@@ -151,9 +183,8 @@ export async function getIncidentSuggestions(
       resolvedAt: outage.resolvedAt,
       ongoing: outage.ongoing,
       reasonCode: outage.reasonCode,
-      suggestedImpact: severityToImpact(outage.severity),
+      suggestedImpact: impact,
     });
-    if (suggestions.length >= STATUS_PAGE_LIMITS.SUGGESTIONS_MAX) break;
   }
-  return suggestions;
+  return [...byMonitor.values()].slice(0, STATUS_PAGE_LIMITS.SUGGESTIONS_MAX);
 }
