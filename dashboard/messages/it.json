@@ -3956,7 +3956,7 @@
     "noPastIncidents": "Nessun incidente passato negli ultimi {days} giorni.",
     "incident": {
       "resolved": "Risolto · durata {duration}",
-      "ongoing": "In corso da {time}",
+      "ongoing": "In corso · {duration} · da {time}",
       "showMore": "Mostra {count} {count, plural, one {aggiornamento precedente} other {aggiornamenti precedenti}}",
       "showLess": "Nascondi aggiornamenti precedenti",
       "impact": {

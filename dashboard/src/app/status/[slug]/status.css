@@ -24,6 +24,7 @@
   --sp-heading: light-dark(#16181c, #e7eaee);
   --sp-text: light-dark(#1a1d21, #e7eaee);
   --sp-muted: light-dark(#6b7280, #8a929c);
+  --sp-muted-strong: light-dark(#52575f, #9fa6b0);
   --sp-faint: light-dark(#9ca3af, #5c6570);
   --sp-ok: light-dark(#10b981, #22c55e);
   --sp-ok-text: light-dark(#059669, #4ade80);
@@ -54,6 +55,26 @@
   --sp-pill-neutral-text: light-dark(#6b7280, #8a929c);
   --sp-pill-neutral-bg: light-dark(#f9fafb, #171a1e);
   --sp-pill-neutral-border: light-dark(#e5e7eb, #2a2f35);
+}
+
+/* Brief highlight when an incident's affected-monitor chip scrolls to its uptime
+   row, so the eye lands on the right monitor. Tinted with the page's brand accent. */
+.bl-status-page .bl-monitor-flash {
+  animation: blMonitorFlash 1.5s ease-out;
+}
+@keyframes blMonitorFlash {
+  0%,
+  12% {
+    background-color: color-mix(in srgb, var(--sp-accent) 20%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bl-status-page .bl-monitor-flash {
+    animation-duration: 0.01ms;
+  }
 }
 
 /* Betterlytics mark for the powered-by footer: the SVG silhouette masked and

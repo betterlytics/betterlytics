@@ -30,7 +30,8 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
       {data.monitors.map((monitor) => (
         <div
           key={monitor.key}
-          className='border-b border-[var(--sp-card-divider)] px-5 py-5 last:border-b-0 sm:px-6'
+          id={`sp-monitor-${monitor.key}`}
+          className='scroll-mt-6 border-b border-[var(--sp-card-divider)] px-5 py-5 last:border-b-0 sm:px-6'
         >
           <div className='flex items-center justify-between gap-3'>
             <div className='flex min-w-0 items-center gap-2.5'>
