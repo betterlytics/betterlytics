@@ -179,16 +179,6 @@ export function StatusPageEditor({
 
   const backHref = `/dashboard/${dashboardId}/monitoring/status-pages`;
 
-  const incidentMonitors = useMemo(
-    () =>
-      form.monitorRows
-        .filter((row) => row.included)
-        .map((row) => ({
-          monitorCheckId: row.monitorCheckId,
-          publicName: row.publicName.trim() || defaultPublicMonitorName(row),
-        })),
-    [form.monitorRows],
-  );
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
   const noMonitors = form.includedCount === 0;
@@ -308,7 +298,7 @@ export function StatusPageEditor({
 
         {activeTab === 'incidents' ? (
           <div className='mt-6'>
-            <IncidentsTab dashboardId={dashboardId} statusPageId={statusPage.id} monitors={incidentMonitors} />
+            <IncidentsTab dashboardId={dashboardId} statusPageId={statusPage.id} monitors={form.monitorsPayload} />
           </div>
         ) : (
           <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>

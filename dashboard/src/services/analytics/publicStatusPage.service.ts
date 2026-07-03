@@ -35,7 +35,6 @@ import {
   listPublishedIncidents,
   listPublishedIncidentUpdates,
 } from '@/repositories/postgres/statusPageIncident.repository';
-import { type StatusPageIncidentTimelineEntry } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { canRemoveStatusPageBranding } from '@/lib/billing/capabilityAccess';
 import { toDateTimeString } from '@/utils/dateFormatters';
@@ -72,11 +71,13 @@ export async function getStatusPagePreviewData(
   dashboardId: string,
   statusPageId: string,
 ): Promise<StatusPagePreviewPayload | null> {
-  const snapshot = await getStatusPageSnapshotById(dashboardId, statusPageId);
+  const [snapshot, allMonitors] = await Promise.all([
+    getStatusPageSnapshotById(dashboardId, statusPageId),
+    listMonitorChecks(dashboardId),
+  ]);
   if (!snapshot) return null;
 
   const selectionByMonitorId = new Map(snapshot.monitors.map((monitor) => [monitor.monitorCheckId, monitor]));
-  const allMonitors = await listMonitorChecks(dashboardId);
 
   const previewSnapshot: PublishedStatusPage = {
     ...snapshot,
@@ -155,21 +156,25 @@ async function assembleStatusPage(
   const rangeStart = toDateTimeString(new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000));
   const rangeEnd = toDateTimeString(rangeEndDate);
 
-  const [bucketsByCheckId, openIncidents, latestCheckInfo, publishedIncidents] = await Promise.all([
-    getUptimeBucketsForMonitors(
-      monitors.map((monitor) => ({ checkId: monitor.monitorCheckId, createdAt: monitor.monitorCreatedAt })),
-      siteId,
-      'UTC',
-      rangeStart,
-      rangeEnd,
-      days,
-    ),
+  const [bucketsByCheckId, openIncidents, latestCheckInfo, { publishedIncidents, updatesByIncident }] =
+    await Promise.all([
+      getUptimeBucketsForMonitors(
+        monitors.map((monitor) => ({ checkId: monitor.monitorCheckId, createdAt: monitor.monitorCreatedAt })),
+        siteId,
+        'UTC',
+        rangeStart,
+        rangeEnd,
+        days,
+      ),
 
-    getOpenIncidentsForMonitors(checkIds, siteId),
-    getLatestCheckInfoForMonitors(checkIds, siteId),
+      getOpenIncidentsForMonitors(checkIds, siteId),
+      getLatestCheckInfoForMonitors(checkIds, siteId),
 
-    listPublishedIncidents(page.id, { includeResolved: page.showPastIncidents }),
-  ]);
+      listPublishedIncidents(page.id, { includeResolved: page.showPastIncidents }).then(async (incidents) => ({
+        publishedIncidents: incidents,
+        updatesByIncident: await listPublishedIncidentUpdates(incidents.map((incident) => incident.id)),
+      })),
+    ]);
 
   const detectedStatuses = monitors.map((monitor) =>
     deriveMonitorStatus(
@@ -216,10 +221,6 @@ async function assembleStatusPage(
       days: dailyBuckets,
     };
   });
-
-  const updatesByIncident: Map<string, StatusPageIncidentTimelineEntry[]> = await listPublishedIncidentUpdates(
-    publishedIncidents.map((incident) => incident.id),
-  );
 
   const nameByCheckId = new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName]));
 

@@ -42,9 +42,6 @@ const incidentTitle = z.string().trim().min(1).max(STATUS_PAGE_LIMITS.INCIDENT_T
 // Update messages are optional — a status-only update (e.g. "Monitoring", no text) is allowed.
 const incidentMessage = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX);
 
-// Create posts the incident's first update. `startedAt` defaults to the update's time (now); the
-// repo derives `body`/`resolvedAt` from the timeline, so they aren't direct inputs except for the
-// detected-outage path, which may seed an explicit `startedAt`/`resolvedAt`.
 export const StatusPageIncidentCreateSchema = z
   .object({
     statusPageId: z.string().min(1),

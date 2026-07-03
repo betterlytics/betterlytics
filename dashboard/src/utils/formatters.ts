@@ -32,6 +32,14 @@ export function formatPercentage(
   }).format(num / 100);
 }
 
+export function formatUptime(num: number, locale?: SupportedLanguages): string {
+  return formatPercentage(num, locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    trimHundred: true,
+  });
+}
+
 /**
  * Format a string, adds ellipsis to middle of string instead of end
  */

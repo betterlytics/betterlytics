@@ -12,18 +12,19 @@ import {
   type StatusPageIncidentUpdateEdit,
   type StatusPageIncidentUpdatePost,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 
-// Status, denormalized body, and resolvedAt all follow the timeline: status/resolvedAt from the
-// most recent update, body from the most recent update that actually has a message. Call this inside
-// the transaction after any post / edit / delete so the incident row stays in sync. Returns the
-// refreshed incident row.
 async function syncIncidentFromTimeline(tx: Prisma.TransactionClient, incidentId: string) {
-  const updates = await tx.statusPageIncidentUpdate.findMany({
+  const latest = await tx.statusPageIncidentUpdate.findFirst({
     where: { incidentId },
     orderBy: { createdAt: 'desc' },
+    select: { status: true, createdAt: true },
   });
-  const latest = updates[0];
-  const latestWithMessage = updates.find((u) => u.message.trim().length > 0);
+  const latestWithMessage = await tx.statusPageIncidentUpdate.findFirst({
+    where: { incidentId, message: { not: '' } },
+    orderBy: { createdAt: 'desc' },
+    select: { message: true },
+  });
   return tx.statusPageIncident.update({
     where: { id: incidentId },
     data: {
@@ -74,31 +75,35 @@ export async function createStatusPageIncident(
   createdById: string,
   data: StatusPageIncidentCreate,
 ): Promise<IncidentWithSlug> {
-  // `message` is the first update; the incident's startedAt is when that update happened (or now),
-  // and body/resolvedAt are derived from it (resolvedAt may be seeded for resolved detected outages).
   const { statusPageId, message, startedAt, resolvedAt, ...fields } = data;
   const occurredAt = startedAt ?? new Date();
+  const splitResolved =
+    fields.status === 'resolved' && resolvedAt != null && resolvedAt.getTime() > occurredAt.getTime();
   const created = await prisma.$transaction(async (tx) => {
     const incident = await tx.statusPageIncident.create({
-      data: {
-        statusPageId,
-        dashboardId,
-        createdById,
-        body: message,
-        startedAt: occurredAt,
-        resolvedAt: resolvedAt ?? (fields.status === 'resolved' ? occurredAt : null),
-        ...fields,
-      },
-      include: { statusPage: { select: { slug: true } } },
+      data: { statusPageId, dashboardId, createdById, body: message, startedAt: occurredAt, ...fields },
+      select: { id: true, statusPage: { select: { slug: true } } },
     });
 
     await tx.statusPageIncidentUpdate.create({
-      data: { incidentId: incident.id, status: incident.status, message, createdById, createdAt: occurredAt },
+      data: {
+        incidentId: incident.id,
+        status: splitResolved ? 'investigating' : fields.status,
+        message,
+        createdById,
+        createdAt: occurredAt,
+      },
     });
-    return incident;
+    if (splitResolved) {
+      await tx.statusPageIncidentUpdate.create({
+        data: { incidentId: incident.id, status: 'resolved', message: '', createdById, createdAt: resolvedAt },
+      });
+    }
+
+    const synced = await syncIncidentFromTimeline(tx, incident.id);
+    return { incident: synced, slug: incident.statusPage.slug };
   });
-  const { statusPage, ...incident } = created;
-  return { incident: StatusPageIncidentSchema.parse(incident), slug: statusPage.slug };
+  return { incident: StatusPageIncidentSchema.parse(created.incident), slug: created.slug };
 }
 
 // Metadata-only: title, impact, affected monitor. Status/body/resolvedAt are timeline-derived and
@@ -247,8 +252,15 @@ export async function listPublishedIncidents(
   statusPageId: string,
   { includeResolved = true }: { includeResolved?: boolean } = {},
 ): Promise<StatusPageIncident[]> {
+  const windowStart = new Date(Date.now() - STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   const rows = await prisma.statusPageIncident.findMany({
-    where: { statusPageId, deletedAt: null, ...(includeResolved ? {} : { resolvedAt: null }) },
+    where: {
+      statusPageId,
+      deletedAt: null,
+      ...(includeResolved
+        ? { OR: [{ resolvedAt: null }, { resolvedAt: { gte: windowStart } }] }
+        : { resolvedAt: null }),
+    },
     orderBy: { startedAt: 'desc' },
   });
   return rows.map((row) => StatusPageIncidentSchema.parse(row));
