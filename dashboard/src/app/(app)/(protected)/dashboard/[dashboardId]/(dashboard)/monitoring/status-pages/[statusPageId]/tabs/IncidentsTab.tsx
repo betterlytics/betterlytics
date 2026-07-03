@@ -39,13 +39,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Sheet,
   SheetContent,
@@ -119,8 +113,7 @@ const STATUS_TONE_DOT: Record<IncidentStatusTone, string> = {
 const statusBadgeClass = (status: StatusPageIncidentStatusValue) =>
   STATUS_TONE_BADGE[INCIDENT_STATUS_TONE[status]];
 
-const statusDotClass = (status: StatusPageIncidentStatusValue) =>
-  STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
+const statusDotClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
 
 const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
   amber: 'text-amber-600 dark:text-amber-400',
@@ -129,8 +122,7 @@ const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
   green: 'text-emerald-600 dark:text-emerald-400',
 };
 
-const statusTextClass = (status: StatusPageIncidentStatusValue) =>
-  STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
+const statusTextClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
 
 const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -165,6 +157,9 @@ type Composer = {
   status: StatusPageIncidentStatusValue;
   message: string;
   timeLocal: string;
+  // Create-only: when seeding an already-resolved detected outage, the real outage end. The repo
+  // turns it into a closing "resolved" timeline entry so the incident spans the true window.
+  seededResolvedAt: Date | null;
 };
 
 // An update staged in the sheet (edit mode) but not yet published — committed on save.
@@ -192,7 +187,7 @@ function emptyForm(): IncidentForm {
 }
 
 function emptyComposer(): Composer {
-  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()) };
+  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()), seededResolvedAt: null };
 }
 
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
@@ -276,6 +271,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           monitorCheckId: form.monitorCheckId,
           detectedIncidentId: form.detectedIncidentId,
           startedAt: new Date(composer.timeLocal),
+          resolvedAt: composer.seededResolvedAt,
         });
       }
 
@@ -360,11 +356,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   });
 
   // Open the sheet, snapshotting the details for the dirty check and resetting the composer.
-  const openWith = (
-    next: IncidentForm,
-    nextComposer: Composer,
-    status: StatusPageIncidentStatusValue,
-  ) => {
+  const openWith = (next: IncidentForm, nextComposer: Composer, status: StatusPageIncidentStatusValue) => {
     setForm(next);
     setInitialForm(next);
     setComposer(nextComposer);
@@ -390,7 +382,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       incident.status,
     );
 
-  const openFromSuggestion = (suggestion: DetectedOutageSuggestion) =>
+  const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
+    const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
     openWith(
       {
         ...emptyForm(),
@@ -401,11 +394,13 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       },
       {
         ...emptyComposer(),
-        status: suggestion.ongoing ? 'investigating' : 'resolved',
+        status: resolved ? 'resolved' : 'investigating',
         timeLocal: toLocalInput(new Date(suggestion.startedAt)),
+        seededResolvedAt: resolved ? new Date(suggestion.resolvedAt as string) : null,
       },
-      suggestion.ongoing ? 'investigating' : 'resolved',
+      resolved ? 'resolved' : 'investigating',
     );
+  };
 
   const beginEditUpdate = (updateId: string, message: string) => {
     setEditingUpdateId(updateId);
@@ -590,7 +585,11 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         header: '',
         enableSorting: false,
         enableGlobalFilter: false,
-        meta: { cellClassName: 'w-10 pr-2 sm:pr-4', headerClassName: 'w-10', stopRowClick: true } satisfies IncidentColumnMeta,
+        meta: {
+          cellClassName: 'w-10 pr-2 sm:pr-4',
+          headerClassName: 'w-10',
+          stopRowClick: true,
+        } satisfies IncidentColumnMeta,
         cell: ({ row }) => {
           const incident = row.original;
           return (
@@ -662,12 +661,27 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       ...pendingUpdates
         .slice()
         .reverse()
-        .map((u) => ({ kind: 'pending' as const, key: u.tempId, id: u.tempId, status: u.status, message: u.message, date: new Date(u.timeLocal) })),
-      ...timeline.map((e) => ({ kind: 'saved' as const, key: e.id, id: e.id, status: e.status, message: e.message, date: e.createdAt })),
+        .map((u) => ({
+          kind: 'pending' as const,
+          key: u.tempId,
+          id: u.tempId,
+          status: u.status,
+          message: u.message,
+          date: new Date(u.timeLocal),
+        })),
+      ...timeline.map((e) => ({
+        kind: 'saved' as const,
+        key: e.id,
+        id: e.id,
+        status: e.status,
+        message: e.message,
+        date: e.createdAt,
+      })),
     ],
     [pendingUpdates, timeline],
   );
-  const timelineSpansDays = timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
+  const timelineSpansDays =
+    timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
 
   const latestStatus = pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
   const headerStatus = form.id != null ? latestStatus : composer.status;
@@ -941,7 +955,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                   ))}
                 </div>
               </div>
-
             </section>
 
             <div className='bg-border h-px' />
@@ -1037,7 +1050,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                           leading={
                             <span
                               suppressHydrationWarning
-                              className='text-muted-foreground flex h-7 items-center justify-end text-[11px] tabular-nums whitespace-nowrap'
+                              className='text-muted-foreground flex h-7 items-center justify-end text-[11px] whitespace-nowrap tabular-nums'
                             >
                               {timelineSpansDays
                                 ? formatLocalDateTime(row.date, locale, {
@@ -1057,7 +1070,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                           dot={
                             <div
                               className={cn(
-                                'h-2.5 w-2.5 rounded-full ring ring-background',
+                                'ring-background h-2.5 w-2.5 rounded-full ring',
                                 pending ? 'bg-background border-2 border-amber-500' : statusDotClass(row.status),
                               )}
                             />

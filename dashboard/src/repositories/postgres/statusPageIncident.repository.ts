@@ -74,31 +74,35 @@ export async function createStatusPageIncident(
   createdById: string,
   data: StatusPageIncidentCreate,
 ): Promise<IncidentWithSlug> {
-  // `message` is the first update; the incident's startedAt is when that update happened (or now),
-  // and body/resolvedAt are derived from it (resolvedAt may be seeded for resolved detected outages).
   const { statusPageId, message, startedAt, resolvedAt, ...fields } = data;
   const occurredAt = startedAt ?? new Date();
+  const splitResolved =
+    fields.status === 'resolved' && resolvedAt != null && resolvedAt.getTime() > occurredAt.getTime();
   const created = await prisma.$transaction(async (tx) => {
     const incident = await tx.statusPageIncident.create({
-      data: {
-        statusPageId,
-        dashboardId,
-        createdById,
-        body: message,
-        startedAt: occurredAt,
-        resolvedAt: resolvedAt ?? (fields.status === 'resolved' ? occurredAt : null),
-        ...fields,
-      },
-      include: { statusPage: { select: { slug: true } } },
+      data: { statusPageId, dashboardId, createdById, body: message, startedAt: occurredAt, ...fields },
+      select: { id: true, statusPage: { select: { slug: true } } },
     });
 
     await tx.statusPageIncidentUpdate.create({
-      data: { incidentId: incident.id, status: incident.status, message, createdById, createdAt: occurredAt },
+      data: {
+        incidentId: incident.id,
+        status: splitResolved ? 'investigating' : fields.status,
+        message,
+        createdById,
+        createdAt: occurredAt,
+      },
     });
-    return incident;
+    if (splitResolved) {
+      await tx.statusPageIncidentUpdate.create({
+        data: { incidentId: incident.id, status: 'resolved', message: '', createdById, createdAt: resolvedAt },
+      });
+    }
+
+    const synced = await syncIncidentFromTimeline(tx, incident.id);
+    return { incident: synced, slug: incident.statusPage.slug };
   });
-  const { statusPage, ...incident } = created;
-  return { incident: StatusPageIncidentSchema.parse(incident), slug: statusPage.slug };
+  return { incident: StatusPageIncidentSchema.parse(created.incident), slug: created.slug };
 }
 
 // Metadata-only: title, impact, affected monitor. Status/body/resolvedAt are timeline-derived and
