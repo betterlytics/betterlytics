@@ -36,7 +36,7 @@ import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { statusPageValidator } from '@/lib/billing/validators';
 import {
   addStatusPageIncident,
-  addStatusPageIncidentUpdate,
+  addStatusPageIncidentUpdates,
   countActiveStatusPageIncidents,
   countIncidentUpdates,
   editStatusPageIncidentUpdateMessage,
@@ -327,16 +327,18 @@ export const updateStatusPageIncidentAction = withDashboardMutationAuthContext(
   },
 );
 
-// Post a new timeline update ("quick status update" box).
-export const postStatusPageIncidentUpdateAction = withDashboardMutationAuthContext(
+export const postStatusPageIncidentUpdatesAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdatePostSchema>) => {
     const payload = StatusPageIncidentUpdatePostSchema.parse(input);
 
-    if ((await countIncidentUpdates(payload.incidentId)) >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX) {
+    if (
+      (await countIncidentUpdates(payload.incidentId)) + payload.updates.length >
+      STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX
+    ) {
       throw new UserException((await getTranslations('validation'))('statusPageIncidentUpdateLimit'));
     }
 
-    const result = await addStatusPageIncidentUpdate(ctx.dashboardId, ctx.userId, payload);
+    const result = await addStatusPageIncidentUpdates(ctx.dashboardId, ctx.userId, payload);
     if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
     return result?.incident ?? null;
   },

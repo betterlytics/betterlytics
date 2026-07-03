@@ -575,15 +575,15 @@ export type DetectedOutageRow = {
 };
 
 /**
- * Detected outages to suggest as incidents on a status page. Only currently-ongoing detections are
- * returned: once a monitor recovers the evaluator flips its incident to 'resolved', and an
- * already-recovered blip shouldn't keep prompting "create an incident" while the monitor is back up.
- * TLS incidents are excluded (cert expiry is not downtime).
+ * Detected outages to suggest as incidents: ongoing ones, plus recently-recovered ones (within
+ * `resolvedMaxAgeDays`) so a finished outage can still be documented after the fact. TLS incidents
+ * are excluded (cert expiry is not downtime).
  */
 export async function getDetectedOutagesForMonitors(
   checkIds: string[],
   siteId: string,
   days: number,
+  resolvedMaxAgeDays: number,
   limit: number,
 ): Promise<DetectedOutageRow[]> {
   if (!checkIds.length) return [];
@@ -601,7 +601,7 @@ export async function getDetectedOutagesForMonitors(
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
       AND kind != 'tls'
-      AND state = 'ongoing'
+      AND (state = 'ongoing' OR resolved_at >= now() - INTERVAL {resolved_max_age_days:Int32} DAY)
       AND started_at >= now() - INTERVAL {days:Int32} DAY
     ORDER BY started_at DESC
     LIMIT {limit:UInt32}
@@ -609,7 +609,14 @@ export async function getDetectedOutagesForMonitors(
 
   const rows = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, days, limit },
+      params: {
+        ...query.taggedParams,
+        check_ids: checkIds,
+        site_id: siteId,
+        days,
+        resolved_max_age_days: resolvedMaxAgeDays,
+        limit,
+      },
     })
     .toPromise()) as any[];
 

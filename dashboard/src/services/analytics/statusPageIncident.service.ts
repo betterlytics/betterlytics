@@ -9,7 +9,7 @@ import {
   listLinkedDetectedIncidentIds,
   listStatusPageIncidents,
   listStatusPageIncidentUpdates,
-  postStatusPageIncidentUpdate,
+  postStatusPageIncidentUpdates,
   updateStatusPageIncident,
 } from '@/repositories/postgres/statusPageIncident.repository';
 import {
@@ -31,8 +31,10 @@ import {
   type StatusPageIncidentUpdatePost,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 
-
-export function getIncidentsForStatusPage(dashboardId: string, statusPageId: string): Promise<StatusPageIncident[]> {
+export function getIncidentsForStatusPage(
+  dashboardId: string,
+  statusPageId: string,
+): Promise<StatusPageIncident[]> {
   return listStatusPageIncidents(dashboardId, statusPageId);
 }
 
@@ -59,12 +61,12 @@ export function saveStatusPageIncident(
   return updateStatusPageIncident(dashboardId, data);
 }
 
-export function addStatusPageIncidentUpdate(
+export function addStatusPageIncidentUpdates(
   dashboardId: string,
   actorId: string,
   data: StatusPageIncidentUpdatePost,
 ): Promise<IncidentWithSlug | null> {
-  return postStatusPageIncidentUpdate(dashboardId, actorId, data);
+  return postStatusPageIncidentUpdates(dashboardId, actorId, data);
 }
 
 export function editStatusPageIncidentUpdateMessage(
@@ -129,6 +131,7 @@ export async function getIncidentSuggestions(
       checkIds,
       snapshot.siteId,
       STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS,
+      STATUS_PAGE_LIMITS.SUGGESTIONS_RESOLVED_MAX_AGE_DAYS,
       STATUS_PAGE_LIMITS.SUGGESTIONS_MAX * 3,
     ),
     listLinkedDetectedIncidentIds(dashboardId, statusPageId),

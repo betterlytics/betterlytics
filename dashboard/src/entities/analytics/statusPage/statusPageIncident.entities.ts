@@ -42,22 +42,29 @@ const incidentTitle = z.string().trim().min(1).max(STATUS_PAGE_LIMITS.INCIDENT_T
 // Update messages are optional — a status-only update (e.g. "Monitoring", no text) is allowed.
 const incidentMessage = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX);
 
-export const StatusPageIncidentCreateSchema = z
-  .object({
-    statusPageId: z.string().min(1),
-    title: incidentTitle,
-    message: incidentMessage.default(''),
-    impact: StatusPageIncidentImpactSchema.default('outage'),
-    status: StatusPageIncidentStatusSchema.default('investigating'),
-    startedAt: z.coerce.date().optional(),
-    resolvedAt: z.coerce.date().nullable().default(null),
-    monitorCheckIds: z.array(z.string().min(1)).default([]),
-    detectedIncidentId: z.string().min(1).nullable().default(null),
-  })
-  .refine((data) => data.resolvedAt == null || data.startedAt == null || data.resolvedAt >= data.startedAt, {
-    message: 'resolvedAt must be at or after startedAt',
-    path: ['resolvedAt'],
-  });
+// `occurredAt` defaults to now.
+const incidentUpdateInput = z.object({
+  status: StatusPageIncidentStatusSchema,
+  message: incidentMessage.default(''),
+  occurredAt: z.coerce.date().optional(),
+});
+
+// Create = the incident row + its first timeline update (the composer) + staged `updates`, in one
+// transaction. status/body/resolvedAt are timeline-derived, never direct inputs.
+export const StatusPageIncidentCreateSchema = z.object({
+  statusPageId: z.string().min(1),
+  title: incidentTitle,
+  message: incidentMessage.default(''),
+  impact: StatusPageIncidentImpactSchema.default('outage'),
+  status: StatusPageIncidentStatusSchema.default('investigating'),
+  startedAt: z.coerce.date().optional(),
+  updates: z
+    .array(incidentUpdateInput)
+    .max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX - 1)
+    .default([]),
+  monitorCheckIds: z.array(z.string().min(1)).default([]),
+  detectedIncidentId: z.string().min(1).nullable().default(null),
+});
 
 export type StatusPageIncidentCreate = z.infer<typeof StatusPageIncidentCreateSchema>;
 
@@ -72,13 +79,10 @@ export const StatusPageIncidentUpdateSchema = z.object({
 });
 export type StatusPageIncidentUpdate = z.infer<typeof StatusPageIncidentUpdateSchema>;
 
-// Post a new timeline update (the "quick status update" box). `occurredAt` defaults to now.
 export const StatusPageIncidentUpdatePostSchema = z.object({
   incidentId: z.string().min(1),
   statusPageId: z.string().min(1),
-  status: StatusPageIncidentStatusSchema,
-  message: incidentMessage.default(''),
-  occurredAt: z.coerce.date().optional(),
+  updates: z.array(incidentUpdateInput).min(1).max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX),
 });
 export type StatusPageIncidentUpdatePost = z.infer<typeof StatusPageIncidentUpdatePostSchema>;
 

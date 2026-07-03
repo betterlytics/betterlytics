@@ -76,7 +76,7 @@ import {
   fetchIncidentSuggestionsAction,
   fetchIncidentTimelineAction,
   fetchStatusPageIncidentsAction,
-  postStatusPageIncidentUpdateAction,
+  postStatusPageIncidentUpdatesAction,
   updateStatusPageIncidentAction,
 } from '@/app/actions/analytics/statusPage.actions';
 import { AffectedMonitorsPicker } from './AffectedMonitorsPicker';
@@ -159,9 +159,6 @@ type Composer = {
   status: StatusPageIncidentStatusValue;
   message: string;
   timeLocal: string;
-  // Create-only: when seeding an already-resolved detected outage, the real outage end. The repo
-  // turns it into a closing "resolved" timeline entry so the incident spans the true window.
-  seededResolvedAt: Date | null;
 };
 
 // An update staged in the sheet (edit mode) but not yet published — committed on save.
@@ -189,7 +186,7 @@ function emptyForm(): IncidentForm {
 }
 
 function emptyComposer(): Composer {
-  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()), seededResolvedAt: null };
+  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()) };
 }
 
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
@@ -263,8 +260,14 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   // composer is the incident's first update; on edit, staged updates are posted in order.
   const saveMutation = useMutation({
     mutationFn: async () => {
+      const stagedUpdates = pendingUpdates.map((update) => ({
+        status: update.status,
+        message: update.message.trim(),
+        occurredAt: new Date(update.timeLocal),
+      }));
+
       if (!form.id) {
-        return createStatusPageIncidentAction(dashboardId, {
+        await createStatusPageIncidentAction(dashboardId, {
           statusPageId,
           title: form.title.trim(),
           message: composer.message.trim(),
@@ -273,8 +276,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           monitorCheckIds: form.monitorCheckIds,
           detectedIncidentId: form.detectedIncidentId,
           startedAt: new Date(composer.timeLocal),
-          resolvedAt: composer.seededResolvedAt,
+          updates: stagedUpdates,
         });
+        return;
       }
 
       if (metadataDirty) {
@@ -286,13 +290,11 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           monitorCheckIds: form.monitorCheckIds,
         });
       }
-      for (const update of pendingUpdates) {
-        await postStatusPageIncidentUpdateAction(dashboardId, {
+      if (stagedUpdates.length > 0) {
+        await postStatusPageIncidentUpdatesAction(dashboardId, {
           incidentId: form.id,
           statusPageId,
-          status: update.status,
-          message: update.message.trim(),
-          occurredAt: new Date(update.timeLocal),
+          updates: stagedUpdates,
         });
       }
     },
@@ -358,11 +360,16 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   });
 
   // Open the sheet, snapshotting the details for the dirty check and resetting the composer.
-  const openWith = (next: IncidentForm, nextComposer: Composer, status: StatusPageIncidentStatusValue) => {
+  const openWith = (
+    next: IncidentForm,
+    nextComposer: Composer,
+    status: StatusPageIncidentStatusValue,
+    pending: PendingUpdate[] = [],
+  ) => {
     setForm(next);
     setInitialForm(next);
     setComposer(nextComposer);
-    setPendingUpdates([]);
+    setPendingUpdates(pending);
     setIncidentStatus(status);
     setEditingUpdateId(null);
     setOpen(true);
@@ -386,6 +393,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
     const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
+    pendingIdRef.current += 1;
     openWith(
       {
         ...emptyForm(),
@@ -396,11 +404,19 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       },
       {
         ...emptyComposer(),
-        status: resolved ? 'resolved' : 'investigating',
         timeLocal: toLocalInput(new Date(suggestion.startedAt)),
-        seededResolvedAt: resolved ? new Date(suggestion.resolvedAt as string) : null,
       },
-      resolved ? 'resolved' : 'investigating',
+      'investigating',
+      resolved
+        ? [
+            {
+              tempId: `pending-${pendingIdRef.current}`,
+              status: 'resolved',
+              message: '',
+              timeLocal: toLocalInput(new Date(suggestion.resolvedAt as string)),
+            },
+          ]
+        : [],
     );
   };
 
@@ -706,7 +722,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
 
   const latestStatus = pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
-  const headerStatus = form.id != null ? latestStatus : composer.status;
+
+  const headerStatus =
+    form.id != null ? latestStatus : (pendingUpdates[pendingUpdates.length - 1]?.status ?? composer.status);
   const atUpdateCap = timeline.length + pendingUpdates.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
   const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
 
@@ -1013,27 +1031,25 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     dateLabel={t('composer.time')}
                     timeLabel={t('composer.time')}
                   />
-                  {form.id != null && (
-                    <PermissionGate>
-                      {(disabled) => (
-                        <Button
-                          size='sm'
-                          variant='outline'
-                          onClick={stagePendingUpdate}
-                          disabled={disabled || !canPost}
-                          className='ml-auto cursor-pointer'
-                        >
-                          <Plus className='h-3.5 w-3.5' />
-                          {t('timeline.addUpdate')}
-                        </Button>
-                      )}
-                    </PermissionGate>
-                  )}
+                  <PermissionGate>
+                    {(disabled) => (
+                      <Button
+                        size='sm'
+                        variant='outline'
+                        onClick={stagePendingUpdate}
+                        disabled={disabled || !canPost}
+                        className='ml-auto cursor-pointer'
+                      >
+                        <Plus className='h-3.5 w-3.5' />
+                        {t('timeline.addUpdate')}
+                      </Button>
+                    )}
+                  </PermissionGate>
                 </div>
               </div>
             </section>
 
-            {form.id != null && (
+            {(form.id != null || pendingUpdates.length > 0) && (
               <section className='space-y-3'>
                 <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
                   {t('timeline.title')}

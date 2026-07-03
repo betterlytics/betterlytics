@@ -17,12 +17,12 @@ import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.e
 async function syncIncidentFromTimeline(tx: Prisma.TransactionClient, incidentId: string) {
   const latest = await tx.statusPageIncidentUpdate.findFirst({
     where: { incidentId },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: { status: true, createdAt: true },
   });
   const latestWithMessage = await tx.statusPageIncidentUpdate.findFirst({
     where: { incidentId, message: { not: '' } },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     select: { message: true },
   });
   return tx.statusPageIncident.update({
@@ -75,10 +75,8 @@ export async function createStatusPageIncident(
   createdById: string,
   data: StatusPageIncidentCreate,
 ): Promise<IncidentWithSlug> {
-  const { statusPageId, message, startedAt, resolvedAt, ...fields } = data;
+  const { statusPageId, message, startedAt, updates, ...fields } = data;
   const occurredAt = startedAt ?? new Date();
-  const splitResolved =
-    fields.status === 'resolved' && resolvedAt != null && resolvedAt.getTime() > occurredAt.getTime();
   const created = await prisma.$transaction(async (tx) => {
     const incident = await tx.statusPageIncident.create({
       data: { statusPageId, dashboardId, createdById, body: message, startedAt: occurredAt, ...fields },
@@ -86,17 +84,17 @@ export async function createStatusPageIncident(
     });
 
     await tx.statusPageIncidentUpdate.create({
-      data: {
-        incidentId: incident.id,
-        status: splitResolved ? 'investigating' : fields.status,
-        message,
-        createdById,
-        createdAt: occurredAt,
-      },
+      data: { incidentId: incident.id, status: fields.status, message, createdById, createdAt: occurredAt },
     });
-    if (splitResolved) {
-      await tx.statusPageIncidentUpdate.create({
-        data: { incidentId: incident.id, status: 'resolved', message: '', createdById, createdAt: resolvedAt },
+    if (updates.length > 0) {
+      await tx.statusPageIncidentUpdate.createMany({
+        data: updates.map((update) => ({
+          incidentId: incident.id,
+          status: update.status,
+          message: update.message,
+          createdById,
+          createdAt: update.occurredAt ?? new Date(),
+        })),
       });
     }
 
@@ -123,13 +121,13 @@ export async function updateStatusPageIncident(
   return { incident: StatusPageIncidentSchema.parse(updated), slug: existing.statusPage.slug };
 }
 
-/** Append a timeline update (the "post an update" box), then resync the incident's derived fields. */
-export async function postStatusPageIncidentUpdate(
+/** Append staged timeline updates in one transaction (all-or-nothing), then resync derived fields. */
+export async function postStatusPageIncidentUpdates(
   dashboardId: string,
   actorId: string | null,
   data: StatusPageIncidentUpdatePost,
 ): Promise<IncidentWithSlug | null> {
-  const { incidentId, statusPageId, status, message, occurredAt } = data;
+  const { incidentId, statusPageId, updates } = data;
   return prisma.$transaction(async (tx) => {
     const existing = await tx.statusPageIncident.findFirst({
       where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
@@ -137,8 +135,14 @@ export async function postStatusPageIncidentUpdate(
     });
     if (!existing) return null;
 
-    await tx.statusPageIncidentUpdate.create({
-      data: { incidentId, status, message, createdById: actorId, createdAt: occurredAt ?? new Date() },
+    await tx.statusPageIncidentUpdate.createMany({
+      data: updates.map((update) => ({
+        incidentId,
+        status: update.status,
+        message: update.message,
+        createdById: actorId,
+        createdAt: update.occurredAt ?? new Date(),
+      })),
     });
     const incident = await syncIncidentFromTimeline(tx, incidentId);
     return { incident: StatusPageIncidentSchema.parse(incident), slug: existing.statusPage.slug };
@@ -207,7 +211,7 @@ export async function listStatusPageIncidentUpdates(
 
   const rows = await prisma.statusPageIncidentUpdate.findMany({
     where: { incidentId: incident.id },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
   });
   return rows.map((row) => StatusPageIncidentTimelineEntrySchema.parse(row));
 }
@@ -235,7 +239,7 @@ export async function listPublishedIncidentUpdates(
 
   const rows = await prisma.statusPageIncidentUpdate.findMany({
     where: { incidentId: { in: incidentIds } },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
 
   const byIncident = new Map<string, StatusPageIncidentTimelineEntry[]>();

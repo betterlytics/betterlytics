@@ -12,6 +12,8 @@ export const STATUS_PAGE_LIMITS = {
   INCIDENT_UPDATES_MAX: 100,
   INCIDENTS_MAX: 50,
   SUGGESTIONS_MAX: 20,
+  // Recovered outages stop being suggested this long after resolving (covers overnight + weekends).
+  SUGGESTIONS_RESOLVED_MAX_AGE_DAYS: 3,
   // Images are resized client-side to a small raster before upload; the cap is a server-side backstop.
   IMAGE_MAX_BYTES: 64 * 1024,
   // Server-side backstop on decoded dimensions (intrinsic px). Guards against decompression bombs from a
@@ -32,10 +34,7 @@ export type StatusPageImagesInput = {
   favicon?: Uint8Array | null;
 };
 
-export const STATUS_PAGE_IMAGE_CONFIG: Record<
-  StatusPageImageKind,
-  { maxDimension: number; square: boolean }
-> = {
+export const STATUS_PAGE_IMAGE_CONFIG: Record<StatusPageImageKind, { maxDimension: number; square: boolean }> = {
   logo: { maxDimension: 256, square: false },
   favicon: { maxDimension: 64, square: true },
 };
