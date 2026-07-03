@@ -87,7 +87,7 @@ async function prepareImageWrites(images?: StatusPageImagesInput): Promise<Statu
     if (bytes.byteLength > STATUS_PAGE_LIMITS.IMAGE_MAX_BYTES) {
       throw new UserException(t('statusPageImageTooLarge'));
     }
-    
+
     const inspected = inspectStatusPageImage(bytes);
     if (!inspected) throw new UserException(t('statusPageImageBadType'));
     const data = Buffer.from(bytes);
@@ -104,17 +104,25 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
     const payload = StatusPageCreateSchema.parse(input);
     const imageWrites = await prepareImageWrites(images);
 
-    const caps = await getDashboardCapabilities(ctx.dashboardId);
-    await (await statusPageValidator(caps.statusPages))
+    const [caps, slugAvailable, domainAvailable] = await Promise.all([
+      getDashboardCapabilities(ctx.dashboardId),
+      isStatusPageSlugAvailable(payload.slug),
+      payload.customDomain != null
+        ? isStatusPageCustomDomainAvailable(payload.customDomain)
+        : Promise.resolve(true),
+    ]);
+    await (
+      await statusPageValidator(caps.statusPages)
+    )
       .statusPageLimit(() => countStatusPagesForDashboard(ctx.dashboardId))
       .customDomain(payload.customDomain)
       .removeBranding(payload.hideBranding)
       .validate();
 
-    if (!(await isStatusPageSlugAvailable(payload.slug))) {
+    if (!slugAvailable) {
       throw new UserException(t('statusPageSlugTaken'));
     }
-    if (payload.customDomain != null && !(await isStatusPageCustomDomainAvailable(payload.customDomain))) {
+    if (payload.customDomain != null && !domainAvailable) {
       throw new UserException(t('statusPageDomainTaken'));
     }
 
@@ -131,19 +139,22 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
     const payload = StatusPageUpdateSchema.parse(input);
     const imageWrites = await prepareImageWrites(images);
 
-    const caps = await getDashboardCapabilities(ctx.dashboardId);
+    const [caps, slugAvailable, domainAvailable] = await Promise.all([
+      getDashboardCapabilities(ctx.dashboardId),
+      payload.slug != null ? isStatusPageSlugAvailable(payload.slug, payload.id) : Promise.resolve(true),
+      payload.customDomain != null
+        ? isStatusPageCustomDomainAvailable(payload.customDomain, payload.id)
+        : Promise.resolve(true),
+    ]);
     await (await statusPageValidator(caps.statusPages))
       .customDomain(payload.customDomain)
       .removeBranding(payload.hideBranding)
       .validate();
 
-    if (payload.slug != null && !(await isStatusPageSlugAvailable(payload.slug, payload.id))) {
+    if (payload.slug != null && !slugAvailable) {
       throw new UserException(t('statusPageSlugTaken'));
     }
-    if (
-      payload.customDomain != null &&
-      !(await isStatusPageCustomDomainAvailable(payload.customDomain, payload.id))
-    ) {
+    if (payload.customDomain != null && !domainAvailable) {
       throw new UserException(t('statusPageDomainTaken'));
     }
 

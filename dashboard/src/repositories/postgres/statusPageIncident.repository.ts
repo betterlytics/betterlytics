@@ -12,18 +12,19 @@ import {
   type StatusPageIncidentUpdateEdit,
   type StatusPageIncidentUpdatePost,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 
-// Status, denormalized body, and resolvedAt all follow the timeline: status/resolvedAt from the
-// most recent update, body from the most recent update that actually has a message. Call this inside
-// the transaction after any post / edit / delete so the incident row stays in sync. Returns the
-// refreshed incident row.
 async function syncIncidentFromTimeline(tx: Prisma.TransactionClient, incidentId: string) {
-  const updates = await tx.statusPageIncidentUpdate.findMany({
+  const latest = await tx.statusPageIncidentUpdate.findFirst({
     where: { incidentId },
     orderBy: { createdAt: 'desc' },
+    select: { status: true, createdAt: true },
   });
-  const latest = updates[0];
-  const latestWithMessage = updates.find((u) => u.message.trim().length > 0);
+  const latestWithMessage = await tx.statusPageIncidentUpdate.findFirst({
+    where: { incidentId, message: { not: '' } },
+    orderBy: { createdAt: 'desc' },
+    select: { message: true },
+  });
   return tx.statusPageIncident.update({
     where: { id: incidentId },
     data: {
@@ -251,8 +252,15 @@ export async function listPublishedIncidents(
   statusPageId: string,
   { includeResolved = true }: { includeResolved?: boolean } = {},
 ): Promise<StatusPageIncident[]> {
+  const windowStart = new Date(Date.now() - STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   const rows = await prisma.statusPageIncident.findMany({
-    where: { statusPageId, deletedAt: null, ...(includeResolved ? {} : { resolvedAt: null }) },
+    where: {
+      statusPageId,
+      deletedAt: null,
+      ...(includeResolved
+        ? { OR: [{ resolvedAt: null }, { resolvedAt: { gte: windowStart } }] }
+        : { resolvedAt: null }),
+    },
     orderBy: { startedAt: 'desc' },
   });
   return rows.map((row) => StatusPageIncidentSchema.parse(row));
