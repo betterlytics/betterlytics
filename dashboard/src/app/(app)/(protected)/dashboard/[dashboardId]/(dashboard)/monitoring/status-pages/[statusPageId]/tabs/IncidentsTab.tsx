@@ -541,7 +541,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           return (
             <div className='flex items-center gap-1'>
               {shown.map((name, i) => (
-                <Badge key={i} variant='secondary' className='max-w-[140px] font-normal'>
+                <Badge key={i} variant='secondary' className='border-border max-w-35 font-normal'>
                   <span className='min-w-0 truncate'>{name}</span>
                 </Badge>
               ))}
