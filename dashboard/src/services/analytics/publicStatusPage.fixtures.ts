@@ -83,7 +83,7 @@ const resolvedApiIncident = {
   body: 'A deploy introduced elevated 5xx responses on the API. We rolled back and confirmed recovery.',
   impact: 'outage' as const,
   status: 'resolved' as const,
-  monitorPublicName: 'API',
+  monitorPublicNames: ['API'],
   startedAt: isoDaysAgo(9),
   resolvedAt: isoDaysAgo(9, 19, 44),
   updates: [
@@ -148,7 +148,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           body: "We're investigating elevated error rates and slow responses on the API.",
           impact: 'degraded' as const,
           status: 'investigating' as const,
-          monitorPublicName: 'API',
+          monitorPublicNames: ['API'],
           startedAt: isoMinutesAgo(21),
           resolvedAt: null,
           updates: [
@@ -184,7 +184,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           body: "The website is currently unreachable while the API stays healthy. We're investigating.",
           impact: 'partial_outage' as const,
           status: 'investigating' as const,
-          monitorPublicName: 'Website',
+          monitorPublicNames: ['Website'],
           startedAt: isoMinutesAgo(18),
           resolvedAt: null,
           updates: [
@@ -219,7 +219,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           body: "The website is currently unreachable. We've identified a network issue and are working on it.",
           impact: 'outage' as const,
           status: 'identified' as const,
-          monitorPublicName: 'Website',
+          monitorPublicNames: ['Website'],
           startedAt: isoMinutesAgo(48),
           resolvedAt: null,
           updates: [
@@ -240,7 +240,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
           body: 'The API is returning server errors. We are investigating.',
           impact: 'outage' as const,
           status: 'investigating' as const,
-          monitorPublicName: 'API',
+          monitorPublicNames: ['API'],
           startedAt: isoMinutesAgo(52),
           resolvedAt: null,
           updates: [

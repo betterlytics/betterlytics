@@ -18,7 +18,6 @@ import {
   Activity,
   ArrowDown,
   ArrowUp,
-  Check,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -34,12 +33,14 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Sheet,
   SheetContent,
@@ -78,6 +79,7 @@ import {
   postStatusPageIncidentUpdateAction,
   updateStatusPageIncidentAction,
 } from '@/app/actions/analytics/statusPage.actions';
+import { AffectedMonitorsPicker } from './AffectedMonitorsPicker';
 
 type MonitorOption = { monitorCheckId: string; publicName: string };
 
@@ -149,7 +151,7 @@ type IncidentForm = {
   detectedIncidentId: string | null;
   title: string;
   impact: StatusPageIncidentImpact;
-  monitorCheckId: string | null;
+  monitorCheckIds: string[];
 };
 
 // The "Post an update" box. On create it's the incident's first update; on edit it stages new ones.
@@ -183,7 +185,7 @@ function isSameLocalDay(a: Date, b: Date): boolean {
 }
 
 function emptyForm(): IncidentForm {
-  return { id: null, detectedIncidentId: null, title: '', impact: 'outage', monitorCheckId: null };
+  return { id: null, detectedIncidentId: null, title: '', impact: 'outage', monitorCheckIds: [] };
 }
 
 function emptyComposer(): Composer {
@@ -268,7 +270,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           message: composer.message.trim(),
           impact: form.impact,
           status: composer.status,
-          monitorCheckId: form.monitorCheckId,
+          monitorCheckIds: form.monitorCheckIds,
           detectedIncidentId: form.detectedIncidentId,
           startedAt: new Date(composer.timeLocal),
           resolvedAt: composer.seededResolvedAt,
@@ -281,7 +283,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           statusPageId,
           title: form.title.trim(),
           impact: form.impact,
-          monitorCheckId: form.monitorCheckId,
+          monitorCheckIds: form.monitorCheckIds,
         });
       }
       for (const update of pendingUpdates) {
@@ -375,7 +377,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         detectedIncidentId: incident.detectedIncidentId,
         title: incident.title,
         impact: incident.impact,
-        monitorCheckId: incident.monitorCheckId,
+        monitorCheckIds: incident.monitorCheckIds,
       },
       // The composer starts on the incident's current status so a quick post defaults sensibly.
       { ...emptyComposer(), status: incident.status },
@@ -390,7 +392,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         detectedIncidentId: suggestion.detectedIncidentId,
         title: t('suggestedTitle', { monitor: suggestion.monitorPublicName }),
         impact: suggestion.suggestedImpact,
-        monitorCheckId: suggestion.monitorCheckId,
+        monitorCheckIds: [suggestion.monitorCheckId],
       },
       {
         ...emptyComposer(),
@@ -417,9 +419,13 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     [monitors],
   );
 
+  // Resolve affected monitors to their public names, dropping any no longer on the page. Empty = page-wide.
+  const affectedNames = (incident: StatusPageIncident): string[] =>
+    incident.monitorCheckIds.map((id) => monitorNameById.get(id)).filter((name): name is string => name != null);
+
   const affectedLabel = (incident: StatusPageIncident): string => {
-    if (incident.monitorCheckId == null) return t('pageWide');
-    return monitorNameById.get(incident.monitorCheckId) ?? '—';
+    const names = affectedNames(incident);
+    return names.length > 0 ? names.join(', ') : t('unspecified');
   };
 
   const startedLabel = (incident: StatusPageIncident): string =>
@@ -515,32 +521,48 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           headerClassName: 'hidden px-3 sm:px-6 lg:table-cell',
         } satisfies IncidentColumnMeta,
         cell: ({ row }) => {
-          const incident = row.original;
-          if (incident.monitorCheckId == null) {
-            return <span className='text-muted-foreground'>{t('pageWide')}</span>;
+          const names = affectedNames(row.original);
+          if (names.length === 0) {
+            return <span className='text-muted-foreground'>{t('unspecified')}</span>;
           }
 
-          const monitorName = monitorNameById.get(incident.monitorCheckId);
-          if (monitorName == null) {
-            return <span className='text-muted-foreground'>—</span>;
-          }
-          // One monitor per incident today; rendered as a capped pill list so multi-monitor
-          // support would be a drop-in here (the "+N more" pill stays dormant until then).
-          const names = [monitorName];
+          // Capped pill list; monitors beyond the cap collapse into a "+N more" badge
+          // whose tooltip reveals the hidden names.
           const MAX_PILLS = 2;
           const shown = names.slice(0, MAX_PILLS);
-          const overflow = names.length - shown.length;
+          const hidden = names.slice(MAX_PILLS);
+          // No wrap: the cell's min width becomes the full pill row, so the greedy
+          // incident column (w-full) gives up space instead of the pills stacking.
           return (
-            <div className='flex min-w-0 flex-wrap items-center gap-1'>
+            <div className='flex items-center gap-1'>
               {shown.map((name, i) => (
-                <Badge key={i} variant='secondary' className='max-w-[200px] font-normal'>
+                <Badge key={i} variant='secondary' className='border-border max-w-35 font-normal'>
                   <span className='min-w-0 truncate'>{name}</span>
                 </Badge>
               ))}
-              {overflow > 0 && (
-                <Badge variant='outline' className='border-border text-muted-foreground font-normal'>
-                  {t('affectedMore', { count: overflow })}
-                </Badge>
+              {hidden.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant='outline'
+                      className='border-border text-muted-foreground cursor-help font-normal'
+                    >
+                      {t('affectedMore', { count: hidden.length })}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side='top'
+                    className='border-border bg-popover/95 text-popover-foreground pointer-events-none max-w-60 rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
+                  >
+                    <ul className='space-y-0.5 text-xs'>
+                      {hidden.map((name, i) => (
+                        <li key={i} className='truncate'>
+                          {name}
+                        </li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
           );
@@ -939,21 +961,12 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
               <div className='space-y-2'>
                 <Label>{t('form.monitor')}</Label>
-                <div className='flex flex-wrap gap-2'>
-                  <Chip
-                    selected={form.monitorCheckId === null}
-                    onClick={() => setForm((f) => ({ ...f, monitorCheckId: null }))}
-                    label={t('form.monitorNone')}
-                  />
-                  {monitors.map((monitor) => (
-                    <Chip
-                      key={monitor.monitorCheckId}
-                      selected={form.monitorCheckId === monitor.monitorCheckId}
-                      onClick={() => setForm((f) => ({ ...f, monitorCheckId: monitor.monitorCheckId }))}
-                      label={monitor.publicName}
-                    />
-                  ))}
-                </div>
+                <p className='text-muted-foreground text-xs'>{t('form.monitorHelp')}</p>
+                <AffectedMonitorsPicker
+                  monitors={monitors}
+                  value={form.monitorCheckIds}
+                  onChange={(ids) => setForm((f) => ({ ...f, monitorCheckIds: ids }))}
+                />
               </div>
             </section>
 
@@ -993,12 +1006,12 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                   onChange={(e) => setComposer((c) => ({ ...c, message: e.target.value }))}
                 />
                 <div className='flex flex-wrap items-center gap-2'>
-                  <Input
-                    type='datetime-local'
-                    aria-label={t('composer.time')}
-                    value={composer.timeLocal}
-                    onChange={(e) => setComposer((c) => ({ ...c, timeLocal: e.target.value }))}
-                    className='h-9 w-auto min-w-0 flex-1 sm:flex-none'
+                  <DateTimePicker
+                    value={new Date(composer.timeLocal)}
+                    onChange={(date) => setComposer((c) => ({ ...c, timeLocal: toLocalInput(date) }))}
+                    locale={locale}
+                    dateLabel={t('composer.time')}
+                    timeLabel={t('composer.time')}
                   />
                   {form.id != null && (
                     <PermissionGate>
@@ -1229,23 +1242,5 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         }}
       />
     </div>
-  );
-}
-
-function Chip({ selected, onClick, label }: { selected: boolean; onClick: () => void; label: string }) {
-  return (
-    <button
-      type='button'
-      onClick={onClick}
-      className={cn(
-        'inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors',
-        selected
-          ? 'border-primary bg-primary/10 text-foreground'
-          : 'border-border text-muted-foreground hover:text-foreground',
-      )}
-    >
-      {selected && <Check className='h-3.5 w-3.5' />}
-      {label}
-    </button>
   );
 }

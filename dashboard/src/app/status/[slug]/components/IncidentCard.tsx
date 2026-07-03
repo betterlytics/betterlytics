@@ -92,8 +92,6 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
     (update) => fmt.dayKey.format(new Date(update.createdAt)) !== firstDayKey,
   );
 
-  const meta = [incident.monitorPublicName, fmt.date.format(startedAt)].filter(Boolean).join(' · ');
-
   const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
     return (
@@ -141,8 +139,11 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         <div className='min-w-0'>
           <h3 className='text-[15px] leading-snug font-semibold text-[var(--sp-text)]'>{incident.title}</h3>
           <div suppressHydrationWarning className='mt-0.5 text-xs text-[var(--sp-muted)]'>
-            {meta}
+            {fmt.date.format(startedAt)}
           </div>
+          {incident.monitorPublicNames.length > 0 ? (
+            <div className='mt-0.5 text-xs text-[var(--sp-faint)]'>{incident.monitorPublicNames.join(', ')}</div>
+          ) : null}
         </div>
         <span
           className='flex-none rounded-full border px-3 py-1 text-xs font-semibold'

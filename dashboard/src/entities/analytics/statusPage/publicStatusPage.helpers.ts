@@ -123,7 +123,7 @@ export function deriveOverallUptime(uptimes: Array<number | null>): number | nul
 
 export function toPublicIncident(
   incident: StatusPageIncident,
-  monitorPublicName: string | null,
+  monitorPublicNames: string[],
   updates: StatusPageIncidentTimelineEntry[],
 ): PublicStatusPageIncident {
   return {
@@ -131,7 +131,7 @@ export function toPublicIncident(
     body: incident.body,
     impact: incident.impact,
     status: incident.status,
-    monitorPublicName,
+    monitorPublicNames,
     startedAt: incident.startedAt.toISOString(),
     resolvedAt: incident.resolvedAt ? incident.resolvedAt.toISOString() : null,
     updates: updates.map((entry) => ({

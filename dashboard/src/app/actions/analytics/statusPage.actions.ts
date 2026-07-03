@@ -43,6 +43,7 @@ import {
   getIncidentsForStatusPage,
   getIncidentSuggestions,
   getStatusPageIncidentTimeline,
+  getStatusPageMonitorCheckIds,
   removeStatusPageIncident,
   removeStatusPageIncidentUpdate,
   saveStatusPageIncident,
@@ -257,9 +258,31 @@ export const fetchIncidentTimelineAction = withDashboardAuthContext(
     getStatusPageIncidentTimeline(ctx.dashboardId, statusPageId, incidentId),
 );
 
+// Dedupe the affected monitors and reject any that aren't attached to this page (the field is
+// FK-less, so this is the only thing keeping it honest). Returns the cleaned list. Empty = page-wide.
+async function validateAffectedMonitors(
+  dashboardId: string,
+  statusPageId: string,
+  monitorCheckIds: string[],
+): Promise<string[]> {
+  const unique = [...new Set(monitorCheckIds)];
+  if (unique.length === 0) return [];
+
+  const valid = new Set(await getStatusPageMonitorCheckIds(dashboardId, statusPageId));
+  if (unique.some((id) => !valid.has(id))) {
+    throw new UserException((await getTranslations('validation'))('statusPageIncidentInvalidMonitor'));
+  }
+  return unique;
+}
+
 export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentCreateSchema>) => {
     const payload = StatusPageIncidentCreateSchema.parse(input);
+    payload.monitorCheckIds = await validateAffectedMonitors(
+      ctx.dashboardId,
+      payload.statusPageId,
+      payload.monitorCheckIds,
+    );
 
     if (
       (await countActiveStatusPageIncidents(ctx.dashboardId, payload.statusPageId)) >=
@@ -279,6 +302,13 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
 export const updateStatusPageIncidentAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdateSchema>) => {
     const payload = StatusPageIncidentUpdateSchema.parse(input);
+    if (payload.monitorCheckIds) {
+      payload.monitorCheckIds = await validateAffectedMonitors(
+        ctx.dashboardId,
+        payload.statusPageId,
+        payload.monitorCheckIds,
+      );
+    }
 
     const result = await saveStatusPageIncident(ctx.dashboardId, payload);
     if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);

@@ -16,7 +16,8 @@ export const StatusPageIncidentSchema = z.object({
   status: StatusPageIncidentStatusSchema,
   startedAt: z.date(),
   resolvedAt: z.date().nullable(),
-  monitorCheckId: z.string().nullable(),
+  // Affected monitors (display-only check ids); empty = unspecified, all selected = page-wide.
+  monitorCheckIds: z.array(z.string()).default([]),
   detectedIncidentId: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -50,7 +51,7 @@ export const StatusPageIncidentCreateSchema = z
     status: StatusPageIncidentStatusSchema.default('investigating'),
     startedAt: z.coerce.date().optional(),
     resolvedAt: z.coerce.date().nullable().default(null),
-    monitorCheckId: z.string().min(1).nullable().default(null),
+    monitorCheckIds: z.array(z.string().min(1)).default([]),
     detectedIncidentId: z.string().min(1).nullable().default(null),
   })
   .refine((data) => data.resolvedAt == null || data.startedAt == null || data.resolvedAt >= data.startedAt, {
@@ -67,7 +68,7 @@ export const StatusPageIncidentUpdateSchema = z.object({
   statusPageId: z.string().min(1),
   title: incidentTitle.optional(),
   impact: StatusPageIncidentImpactSchema.optional(),
-  monitorCheckId: z.string().min(1).nullable().optional(),
+  monitorCheckIds: z.array(z.string().min(1)).optional(),
 });
 export type StatusPageIncidentUpdate = z.infer<typeof StatusPageIncidentUpdateSchema>;
 

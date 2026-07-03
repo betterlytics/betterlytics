@@ -18,6 +18,7 @@ import {
 import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
+  type OpenIncidentRef,
 } from '@/entities/analytics/statusPage/publicStatusPage.helpers';
 import { cn } from '@/lib/utils';
 
@@ -146,24 +147,24 @@ export function LivePreview({
     );
 
     const openDraft = draftIncident != null && draftIncident.resolvedAt == null ? draftIncident : null;
-    const openIncidents = [
+    // One ref per affected monitor; no names = page-wide. A draft name that no longer matches an
+    // included monitor still escalates the overall status via the helper's ghost handling.
+    const openIncidents: OpenIncidentRef[] = [
       ...(openDraft
-        ? [
-            {
+        ? openDraft.monitorPublicNames.length === 0
+          ? [{ impact: openDraft.impact, monitorKey: null }]
+          : openDraft.monitorPublicNames.map((name) => ({
               impact: openDraft.impact,
-              monitorKey:
-                openDraft.monitorPublicName == null
-                  ? null
-                  : (includedRows[publicNames.indexOf(openDraft.monitorPublicName)]?.monitorCheckId ??
-                    'draft-monitor-gone'),
-            },
-          ]
+              monitorKey: includedRows[publicNames.indexOf(name)]?.monitorCheckId ?? 'draft-monitor-gone',
+            }))
         : []),
-      ...(payload.data.incidents ?? []).flatMap((incident, index) =>
-        incident.resolvedAt == null
-          ? [{ impact: incident.impact, monitorKey: payload.incidentMonitorCheckIds[index] }]
-          : [],
-      ),
+      ...(payload.data.incidents ?? []).flatMap((incident, index): OpenIncidentRef[] => {
+        if (incident.resolvedAt != null) return [];
+        const checkIds = payload.incidentMonitorCheckIds[index] ?? [];
+        return checkIds.length === 0
+          ? [{ impact: incident.impact, monitorKey: null }]
+          : checkIds.map((checkId) => ({ impact: incident.impact, monitorKey: checkId }));
+      }),
     ];
 
     const { monitorStatuses, overallStatus } = deriveStatusWithIncidents(
@@ -183,8 +184,11 @@ export function LivePreview({
       includedRows.map((row, position) => [row.monitorCheckId, publicNames[position]]),
     );
     const publishedIncidents = (payload.data.incidents ?? []).map((incident, index) => {
-      const checkId = payload.incidentMonitorCheckIds[index];
-      return { ...incident, monitorPublicName: (checkId != null ? nameByCheckId.get(checkId) : null) ?? null };
+      // Re-resolve affected monitors to their live (draft) names; drop any no longer included.
+      const monitorPublicNames = (payload.incidentMonitorCheckIds[index] ?? [])
+        .map((checkId) => nameByCheckId.get(checkId))
+        .filter((name): name is string => name != null && name.length > 0);
+      return { ...incident, monitorPublicNames };
     });
 
     const allIncidents = [...(draftIncident ? [draftIncident] : []), ...publishedIncidents];
