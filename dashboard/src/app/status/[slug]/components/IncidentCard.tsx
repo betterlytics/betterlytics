@@ -27,17 +27,33 @@ const IMPACT_PILL_TONE: Record<PublicStatusPageIncident['impact'], PillTone> = {
   outage: 'down',
 };
 
-// Most-recent updates shown by default; older ones collapse into a <details> toggle.
+// Most-recent updates shown by default; older ones collapse behind a toggle.
 const MAX_VISIBLE_UPDATES = 3;
 
-export function IncidentCard({ incident }: { incident: PublicStatusPageIncident }) {
+// Smooth-scroll to a monitor's uptime row (rendered above by MonitorUptimeCard) and briefly
+// flash it, so the visitor sees which monitor an affected-monitor chip refers to.
+function scrollToMonitor(key: string) {
+  const row = document.getElementById(`sp-monitor-${key}`);
+  if (!row) return;
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  row.classList.remove('bl-monitor-flash');
+  void row.offsetWidth; // restart the animation when the chip is clicked again
+  row.classList.add('bl-monitor-flash');
+}
+
+export function IncidentCard({
+  incident,
+  monitorKeyByName,
+}: {
+  incident: PublicStatusPageIncident;
+  monitorKeyByName?: Map<string, string>;
+}) {
   const t = useTranslations('publicStatusPage');
   const timeZone = useDisplayTimeZone();
   const [expanded, setExpanded] = useState(false);
 
   const fmt = useMemo(
     () => ({
-      date: new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric', timeZone }),
       entry: new Intl.DateTimeFormat('en', {
         month: 'short',
         day: 'numeric',
@@ -54,8 +70,10 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
 
   const ongoing = incident.resolvedAt == null;
   const startedAt = new Date(incident.startedAt);
+  // Resolved incidents show their total span; ongoing ones show how long they've run so far.
   const durationMs =
-    incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() - startedAt.getTime() : null;
+    (incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() : Date.now()) -
+    startedAt.getTime();
 
   const formatDuration = (ms: number) => {
     const minutes = Math.max(1, Math.round(ms / 60_000));
@@ -92,7 +110,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         leading={
           <span
             suppressHydrationWarning
-            className='flex h-5 items-center justify-end text-[11px] whitespace-nowrap text-[var(--sp-faint)] tabular-nums'
+            className='flex h-5 items-center justify-end text-[11px] whitespace-nowrap text-[var(--sp-muted)] tabular-nums'
           >
             {spansMultipleDays ? fmt.entry.format(entryDate) : fmt.time.format(entryDate)}
           </span>
@@ -123,15 +141,29 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
       className='rounded-xl border bg-[var(--sp-card-bg)] px-5 py-4.5'
       style={{ borderColor: ongoing ? 'var(--sp-warn)' : 'var(--sp-card-border)' }}
     >
-      <div className='flex items-start justify-between gap-3'>
+      <div className='flex items-start justify-between gap-4'>
         <div className='min-w-0'>
-          <h3 className='text-[15px] leading-snug font-semibold text-[var(--sp-text)]'>{incident.title}</h3>
-          <div suppressHydrationWarning className='mt-0.5 text-xs text-[var(--sp-muted)]'>
-            {fmt.date.format(startedAt)}
+          <h3 className='text-[18px] leading-snug font-bold tracking-[-0.01em] text-[var(--sp-text)]'>
+            {incident.title}
+          </h3>
+          {/* Status strip: a state dot plus a one-line summary of how long the incident has run. */}
+          <div
+            suppressHydrationWarning
+            className='mt-2 flex items-center gap-1.5 text-[13px] text-[var(--sp-muted-strong)]'
+          >
+            <span
+              className='h-2 w-2 flex-none rounded-full'
+              style={{ backgroundColor: ongoing ? 'var(--sp-warn)' : 'var(--sp-ok)' }}
+            />
+            <span>
+              {ongoing
+                ? t('incident.ongoing', {
+                    duration: formatDuration(durationMs),
+                    time: fmt.entry.format(startedAt),
+                  })
+                : t('incident.resolved', { duration: formatDuration(durationMs) })}
+            </span>
           </div>
-          {incident.monitorPublicNames.length > 0 ? (
-            <div className='mt-0.5 text-xs text-[var(--sp-faint)]'>{incident.monitorPublicNames.join(', ')}</div>
-          ) : null}
         </div>
         <span
           className='flex-none rounded-full border px-3 py-1 text-xs font-semibold'
@@ -141,9 +173,43 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         </span>
       </div>
 
+      {/* Affected monitors, one chip per monitor. When the monitor is shown above, the chip
+          links to and scrolls to its uptime row; otherwise it's a plain, non-interactive chip. */}
+      {incident.monitorPublicNames.length > 0 ? (
+        <div className='mt-3.5 flex flex-wrap gap-1.5'>
+          {incident.monitorPublicNames.map((name) => {
+            const monitorKey = monitorKeyByName?.get(name);
+            const chipClass =
+              'inline-flex items-center rounded-md border border-[var(--sp-pill-neutral-border)] bg-[var(--sp-pill-neutral-bg)] px-2 py-0.5 text-[12px] font-medium whitespace-nowrap text-[var(--sp-text)]';
+            return monitorKey ? (
+              <a
+                key={name}
+                href={`#sp-monitor-${monitorKey}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  scrollToMonitor(monitorKey);
+                }}
+                className={cn(
+                  chipClass,
+                  'transition-colors hover:border-[var(--sp-muted)] hover:bg-[var(--sp-neutral)]',
+                )}
+              >
+                {name}
+              </a>
+            ) : (
+              <span key={name} className={chipClass}>
+                {name}
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <div className='mt-4 mb-3.5 h-px bg-[var(--sp-card-divider)]' />
+
       {/* Change timeline, newest first. The most recent entries stay visible; older ones expand
           inline into the same timeline so the vertical line stays continuous. */}
-      <Timeline className='mt-3.5'>
+      <Timeline>
         {shownUpdates.map((update, index) =>
           renderEntry(update, index, index === shownUpdates.length - 1),
         )}
@@ -169,18 +235,6 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
           {expanded ? t('incident.showLess') : t('incident.showMore', { count: hiddenCount })}
         </button>
       ) : null}
-
-      <div
-        suppressHydrationWarning
-        className='mt-3 text-[13px]'
-        style={{ color: ongoing ? 'var(--sp-warn-text)' : 'var(--sp-muted)' }}
-      >
-        {ongoing
-          ? t('incident.ongoing', { time: fmt.entry.format(startedAt) })
-          : durationMs != null
-            ? t('incident.resolved', { duration: formatDuration(durationMs) })
-            : null}
-      </div>
     </article>
   );
 }

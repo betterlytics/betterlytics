@@ -14,10 +14,19 @@ export function Incidents({ data }: { data: PublicStatusPageData }) {
   const active = all.filter((incident) => incident.resolvedAt == null);
   const past = all.filter((incident) => incident.resolvedAt != null);
 
+  // Lets an incident's affected-monitor chip scroll to that monitor's uptime row above.
+  const monitorKeyByName = new Map(
+    data.monitors.map((monitor): [string, string] => [monitor.publicName, monitor.key]),
+  );
+
   const renderCards = (incidents: PublicStatusPageIncident[], keyPrefix: string) => (
     <div className='mt-3.5 flex flex-col gap-3'>
       {incidents.map((incident, index) => (
-        <IncidentCard key={`${keyPrefix}-${incident.startedAt}-${index}`} incident={incident} />
+        <IncidentCard
+          key={`${keyPrefix}-${incident.startedAt}-${index}`}
+          incident={incident}
+          monitorKeyByName={monitorKeyByName}
+        />
       ))}
     </div>
   );

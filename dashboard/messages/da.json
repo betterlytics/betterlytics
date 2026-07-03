@@ -3956,7 +3956,7 @@
     "noPastIncidents": "Ingen tidligere hændelser i de seneste {days} dage.",
     "incident": {
       "resolved": "Løst · varede {duration}",
-      "ongoing": "Igangværende siden {time}",
+      "ongoing": "Igangværende · {duration} · siden {time}",
       "showMore": "Vis {count} tidligere {count, plural, one {opdatering} other {opdateringer}}",
       "showLess": "Skjul tidligere opdateringer",
       "impact": {
