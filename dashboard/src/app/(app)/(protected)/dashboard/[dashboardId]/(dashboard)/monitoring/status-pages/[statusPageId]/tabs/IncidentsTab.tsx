@@ -39,6 +39,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Select,
   SelectContent,
@@ -530,10 +531,11 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
             return <span className='text-muted-foreground'>{t('unspecified')}</span>;
           }
 
-          // Capped pill list; monitors beyond the cap collapse into a "+N more" badge.
+          // Capped pill list; monitors beyond the cap collapse into a "+N more" badge
+          // whose tooltip reveals the hidden names.
           const MAX_PILLS = 2;
           const shown = names.slice(0, MAX_PILLS);
-          const overflow = names.length - shown.length;
+          const hidden = names.slice(MAX_PILLS);
           // No wrap: the cell's min width becomes the full pill row, so the greedy
           // incident column (w-full) gives up space instead of the pills stacking.
           return (
@@ -543,10 +545,29 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                   <span className='min-w-0 truncate'>{name}</span>
                 </Badge>
               ))}
-              {overflow > 0 && (
-                <Badge variant='outline' className='border-border text-muted-foreground font-normal'>
-                  {t('affectedMore', { count: overflow })}
-                </Badge>
+              {hidden.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant='outline'
+                      className='border-border text-muted-foreground cursor-help font-normal'
+                    >
+                      {t('affectedMore', { count: hidden.length })}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side='top'
+                    className='border-border bg-popover/95 text-popover-foreground pointer-events-none max-w-60 rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
+                  >
+                    <ul className='space-y-0.5 text-xs'>
+                      {hidden.map((name, i) => (
+                        <li key={i} className='truncate'>
+                          {name}
+                        </li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
           );
