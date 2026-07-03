@@ -4,13 +4,11 @@ import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
 import type { PublicDailyUptimeBucket } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { formatPercentage } from '@/utils/formatters';
+import { formatUptime } from '@/utils/formatters';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { UptimeBarTooltip } from './UptimeBarTooltip';
 
 export const UPTIME_BARS_COMPACT_DAYS = 45;
-
-const UPTIME_FORMAT = { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true } as const;
 
 function cellColor(upRatio: number | null): string {
   if (upRatio == null) return 'var(--sp-neutral)';
@@ -40,11 +38,10 @@ export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel
   const cells = (buckets: PublicDailyUptimeBucket[]) =>
     buckets.map((day) => {
       // date is yyyy-mm-dd, UTC bucketed — format in UTC so it never shifts a day per visitor timezone.
-      const dateLabel = formatLocalDateTime(day.date, locale, { dateStyle: 'medium', timeZone: 'UTC' }) ?? day.date;
+      const dateLabel =
+        formatLocalDateTime(day.date, locale, { dateStyle: 'medium', timeZone: 'UTC' }) ?? day.date;
       const description =
-        day.upRatio == null
-          ? t('noData')
-          : t('uptimeValue', { uptime: formatPercentage(day.upRatio * 100, locale, UPTIME_FORMAT) });
+        day.upRatio == null ? t('noData') : t('uptimeValue', { uptime: formatUptime(day.upRatio * 100, locale) });
 
       return (
         <UptimeBarTooltip key={day.date} title={dateLabel} description={description} container={container}>

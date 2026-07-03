@@ -6,6 +6,7 @@ import type {
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
+import { pillStyle, type PillTone } from '@/components/statusPage/pillStyle';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
 
 const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
@@ -19,25 +20,10 @@ function statusColor(status: PublicStatusPageIncident['status']): string {
   return STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
 }
 
-const IMPACT_PILL: Record<
-  PublicStatusPageIncident['impact'],
-  { color: string; background: string; borderColor: string }
-> = {
-  degraded: {
-    color: 'var(--sp-pill-warn-text)',
-    background: 'var(--sp-pill-warn-bg)',
-    borderColor: 'var(--sp-pill-warn-border)',
-  },
-  partial_outage: {
-    color: 'var(--sp-pill-partial-text)',
-    background: 'var(--sp-pill-partial-bg)',
-    borderColor: 'var(--sp-pill-partial-border)',
-  },
-  outage: {
-    color: 'var(--sp-pill-down-text)',
-    background: 'var(--sp-pill-down-bg)',
-    borderColor: 'var(--sp-pill-down-border)',
-  },
+const IMPACT_PILL_TONE: Record<PublicStatusPageIncident['impact'], PillTone> = {
+  degraded: 'warn',
+  partial_outage: 'partial',
+  outage: 'down',
 };
 
 // Most-recent updates shown by default; older ones collapse into a <details> toggle.
@@ -104,7 +90,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         leading={
           <span
             suppressHydrationWarning
-            className='flex h-5 items-center justify-end text-[11px] tabular-nums whitespace-nowrap text-[var(--sp-faint)]'
+            className='flex h-5 items-center justify-end text-[11px] whitespace-nowrap text-[var(--sp-faint)] tabular-nums'
           >
             {spansMultipleDays ? fmt.entry.format(entryDate) : fmt.time.format(entryDate)}
           </span>
@@ -147,7 +133,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
         </div>
         <span
           className='flex-none rounded-full border px-3 py-1 text-xs font-semibold'
-          style={IMPACT_PILL[incident.impact]}
+          style={pillStyle(IMPACT_PILL_TONE[incident.impact])}
         >
           {t(`incident.impact.${incident.impact}`)}
         </span>
@@ -155,14 +141,12 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
 
       {/* Change timeline, newest first. The most recent entries stay visible; older ones collapse. */}
       <Timeline className='mt-3.5'>
-        {visibleUpdates.map((update, index) =>
-          renderEntry(update, index, index === visibleUpdates.length - 1),
-        )}
+        {visibleUpdates.map((update, index) => renderEntry(update, index, index === visibleUpdates.length - 1))}
       </Timeline>
 
       {hiddenUpdates.length > 0 ? (
         <details className='group mt-2'>
-          <summary className='inline-flex cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--sp-muted)] [&::-webkit-details-marker]:hidden hover:text-[var(--sp-text)]'>
+          <summary className='inline-flex cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--sp-muted)] hover:text-[var(--sp-text)] [&::-webkit-details-marker]:hidden'>
             <svg
               className='h-3 w-3 transition-transform group-open:rotate-180'
               viewBox='0 0 24 24'
@@ -173,9 +157,7 @@ export function IncidentCard({ incident }: { incident: PublicStatusPageIncident 
             >
               <path d='m6 9 6 6 6-6' strokeLinecap='round' strokeLinejoin='round' />
             </svg>
-            <span className='group-open:hidden'>
-              {t('incident.showMore', { count: hiddenUpdates.length })}
-            </span>
+            <span className='group-open:hidden'>{t('incident.showMore', { count: hiddenUpdates.length })}</span>
             <span className='hidden group-open:inline'>{t('incident.showLess')}</span>
           </summary>
           <Timeline className='mt-3'>
