@@ -18,6 +18,7 @@ import {
   Activity,
   ArrowDown,
   ArrowUp,
+  ChevronDown,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -196,6 +197,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
+  // Collapse the detected-outages triage panel to get it out of the way of the incidents list.
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
   // Guards an accidental close (overlay / Esc / Cancel) when there's unsaved work in the sheet.
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
@@ -393,14 +396,18 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
     const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
+    const title =
+      suggestion.monitors.length === 1
+        ? t('suggestedTitle', { monitor: suggestion.monitors[0].monitorPublicName })
+        : t('suggestedTitleMulti', { count: suggestion.monitors.length });
     pendingIdRef.current += 1;
     openWith(
       {
         ...emptyForm(),
         detectedIncidentId: suggestion.detectedIncidentId,
-        title: t('suggestedTitle', { monitor: suggestion.monitorPublicName }),
+        title,
         impact: suggestion.suggestedImpact,
-        monitorCheckIds: [suggestion.monitorCheckId],
+        monitorCheckIds: suggestion.monitors.map((monitor) => monitor.monitorCheckId),
       },
       {
         ...emptyComposer(),
@@ -736,43 +743,73 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   return (
     <div className='space-y-4'>
-      {suggestions.map((suggestion) => {
-        const detail = suggestion.ongoing
-          ? t('ongoingSince', { date: formatRelativeTimeFromNow(suggestion.startedAt, locale) })
-          : (formatLocalDateTime(suggestion.startedAt, locale, {
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }) ?? '');
-        return (
-          <div
-            key={suggestion.detectedIncidentId}
-            className='flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/6 p-4'
+      {suggestions.length > 0 && (
+        <div className='overflow-hidden rounded-xl border border-amber-500/40 bg-amber-500/6'>
+          <button
+            type='button'
+            onClick={() => setSuggestionsOpen((prev) => !prev)}
+            aria-expanded={suggestionsOpen}
+            className='flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left'
           >
             <TriangleAlert className='h-5 w-5 flex-none text-amber-500' />
             <div className='min-w-0 flex-1'>
-              <div className='text-sm font-semibold'>{t('detectedTitle')}</div>
-              <div suppressHydrationWarning className='text-muted-foreground mt-0.5 text-xs'>
-                {t('detectedDescription', { monitor: suggestion.monitorPublicName, detail })}
-              </div>
+              <div className='text-sm font-semibold'>{t('detectedPanelTitle', { count: suggestions.length })}</div>
+              <div className='text-muted-foreground text-xs'>{t('suggestionsHint')}</div>
             </div>
-            <PermissionGate>
-              {(disabled) => (
-                <Button
-                  size='sm'
-                  disabled={disabled}
-                  onClick={() => openFromSuggestion(suggestion)}
-                  className='flex-none cursor-pointer bg-amber-500 text-white hover:bg-amber-500/90'
-                >
-                  {t('createFromSuggestion')}
-                </Button>
+            <ChevronDown
+              className={cn(
+                'text-muted-foreground h-4 w-4 flex-none transition-transform',
+                suggestionsOpen && 'rotate-180',
               )}
-            </PermissionGate>
-          </div>
-        );
-      })}
+            />
+          </button>
+          {suggestionsOpen && (
+            <div className='max-h-80 divide-y divide-amber-500/15 overflow-y-auto border-t border-amber-500/20'>
+              {suggestions.map((suggestion) => {
+                const detail = suggestion.ongoing
+                  ? t('ongoingSince', { date: formatRelativeTimeFromNow(suggestion.startedAt, locale) })
+                  : (formatLocalDateTime(suggestion.startedAt, locale, {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    }) ?? '');
+                const isMulti = suggestion.monitors.length > 1;
+                const names = suggestion.monitors.map((monitor) => monitor.monitorPublicName);
+                const shownNames = names.slice(0, 3);
+                const extra = names.length - shownNames.length;
+                const heading = isMulti ? t('detectedGroupMulti', { count: suggestion.monitors.length }) : names[0];
+                const subline = isMulti
+                  ? `${shownNames.join(', ')}${extra > 0 ? ` ${t('affectedMore', { count: extra })}` : ''} — ${detail}`
+                  : detail;
+                return (
+                  <div key={suggestion.detectedIncidentId} className='flex flex-wrap items-center gap-3 px-4 py-3'>
+                    <div className='min-w-0 flex-1'>
+                      <div className='truncate text-sm font-medium'>{heading}</div>
+                      <div suppressHydrationWarning className='text-muted-foreground mt-0.5 text-xs'>
+                        {subline}
+                      </div>
+                    </div>
+                    <PermissionGate>
+                      {(disabled) => (
+                        <Button
+                          size='sm'
+                          disabled={disabled}
+                          onClick={() => openFromSuggestion(suggestion)}
+                          className='flex-none cursor-pointer bg-amber-500 text-white hover:bg-amber-500/90'
+                        >
+                          {t('createFromSuggestion')}
+                        </Button>
+                      )}
+                    </PermissionGate>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
         <div>

@@ -14,6 +14,9 @@ export const STATUS_PAGE_LIMITS = {
   SUGGESTIONS_MAX: 20,
   // Recovered outages stop being suggested this long after resolving (covers overnight + weekends).
   SUGGESTIONS_RESOLVED_MAX_AGE_DAYS: 3,
+  // Detected outages whose start times fall within this window are treated as one incident (shared
+  // root cause across monitors) and folded into a single multi-monitor suggestion.
+  SUGGESTIONS_CORRELATION_WINDOW_MINUTES: 10,
   // Images are resized client-side to a small raster before upload; the cap is a server-side backstop.
   IMAGE_MAX_BYTES: 64 * 1024,
   // Server-side backstop on decoded dimensions (intrinsic px). Guards against decompression bombs from a
