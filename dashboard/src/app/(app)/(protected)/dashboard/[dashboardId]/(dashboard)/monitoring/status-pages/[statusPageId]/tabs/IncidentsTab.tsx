@@ -776,20 +776,42 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                       hour12: false,
                     }) ?? '');
                 const isMulti = suggestion.monitors.length > 1;
-                const names = suggestion.monitors.map((monitor) => monitor.monitorPublicName);
-                const shownNames = names.slice(0, 3);
-                const extra = names.length - shownNames.length;
-                const heading = isMulti ? t('detectedGroupMulti', { count: suggestion.monitors.length }) : names[0];
-                const subline = isMulti
-                  ? `${shownNames.join(', ')}${extra > 0 ? ` ${t('affectedMore', { count: extra })}` : ''} — ${detail}`
-                  : detail;
+                const heading = isMulti
+                  ? t('detectedGroupMulti', { count: suggestion.monitors.length })
+                  : suggestion.monitors[0].monitorPublicName;
+                const MAX_PILLS = 4;
+                const shown = suggestion.monitors.slice(0, MAX_PILLS);
+                const extra = suggestion.monitors.length - shown.length;
                 return (
                   <div key={suggestion.detectedIncidentId} className='flex flex-wrap items-center gap-3 px-4 py-3'>
                     <div className='min-w-0 flex-1'>
-                      <div className='truncate text-sm font-medium'>{heading}</div>
-                      <div suppressHydrationWarning className='text-muted-foreground mt-0.5 text-xs'>
-                        {subline}
+                      <div className='flex min-w-0 items-baseline gap-1.5'>
+                        <span className='min-w-0 truncate text-sm font-medium'>{heading}</span>
+                        <span
+                          suppressHydrationWarning
+                          className='text-muted-foreground flex-none text-xs'
+                        >
+                          {detail}
+                        </span>
                       </div>
+                      {isMulti && (
+                        <div className='mt-1.5 flex flex-wrap items-center gap-1'>
+                          {shown.map((monitor) => (
+                            <Badge
+                              key={monitor.monitorCheckId}
+                              variant='secondary'
+                              className='border-border max-w-40 font-normal'
+                            >
+                              <span className='min-w-0 truncate'>{monitor.monitorPublicName}</span>
+                            </Badge>
+                          ))}
+                          {extra > 0 && (
+                            <Badge variant='outline' className='border-border text-muted-foreground font-normal'>
+                              {t('affectedMore', { count: extra })}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <PermissionGate>
                       {(disabled) => (
