@@ -134,9 +134,7 @@ export const StatusPageCreateSchema = z.object({
 });
 export type StatusPageCreate = z.infer<typeof StatusPageCreateSchema>;
 
-// The slug is fixed when the page is created and is intentionally omitted here: it can only be set
-// through the create wizard, never changed by an update.
-export const StatusPageUpdateSchema = StatusPageCreateSchema.partial().omit({ slug: true }).extend({
+export const StatusPageUpdateSchema = StatusPageCreateSchema.partial().extend({
   id: z.string().min(1),
   isPublished: z.boolean().optional(),
 });

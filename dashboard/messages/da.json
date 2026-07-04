@@ -4058,12 +4058,14 @@
         "confirm": "Offentliggør ændringer"
       },
       "publicUrl": "Offentlig URL",
+      "publicUrlHint": "Webadressen hvor din statusside er offentliggjort.",
       "slugStatus": {
         "checking": "Tjekker…",
         "available": "Ledig",
         "taken": "Allerede i brug",
         "invalid": "Ugyldig slug"
       },
+      "slugWarning": "Ændring af URL'en på en udgivet side ødelægger eksisterende links.",
       "homepageUrl": "Hjemmeside-URL",
       "homepageUrlHint": "Hvor logoet og sidetitlen linker hen.",
       "customDomain": "Eget domæne",

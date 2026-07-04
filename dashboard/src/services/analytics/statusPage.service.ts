@@ -56,11 +56,12 @@ export async function saveStatusPage(
   dashboardId: string,
   data: StatusPageUpdate,
   images?: StatusPageImageWrites,
-): Promise<StatusPage | null> {
+): Promise<{ page: StatusPage; previousSlug: string } | null> {
   const existing = await getStatusPageById(dashboardId, data.id);
   if (!existing) return null;
 
-  return updateStatusPage(dashboardId, data, images);
+  const page = await updateStatusPage(dashboardId, data, images);
+  return { page, previousSlug: existing.slug };
 }
 
 export async function publishStatusPage(

@@ -22,6 +22,7 @@ import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import { GeneralTab } from './tabs/GeneralTab';
 import { CustomizeTab } from './tabs/CustomizeTab';
@@ -123,12 +124,20 @@ export function StatusPageEditor({
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
 
+  const slugStatus = useSlugAvailability({
+    dashboardId,
+    slug: form.slug,
+    excludeStatusPageId: statusPage.id,
+    currentSlug: statusPage.slug,
+  });
+
   const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
 
   const sections = useMemo(
     () => ({
       general: {
         name: form.input.name,
+        slug: form.input.slug,
         showPastIncidents: form.input.showPastIncidents,
         visibility: form.input.visibility,
         homepageUrl: form.input.homepageUrl,
@@ -188,8 +197,14 @@ export function StatusPageEditor({
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
   const noMonitors = form.includedCount === 0;
+  const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
   const saveDisabled =
-    !effectiveDirty || form.isNameEmpty || noMonitors || !form.isHomepageUrlValid || !form.isCustomDomainValid;
+    !effectiveDirty ||
+    form.isNameEmpty ||
+    noMonitors ||
+    slugNotSaveable ||
+    !form.isHomepageUrlValid ||
+    !form.isCustomDomainValid;
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -304,7 +319,14 @@ export function StatusPageEditor({
           <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
             <div className='space-y-8'>
               {activeTab === 'general' && (
-                <GeneralTab form={form} dashboardDomain={dashboardDomain} />
+                <GeneralTab
+                  form={form}
+                  slugStatus={slugStatus}
+                  publicHost={publicHost}
+                  dashboardDomain={dashboardDomain}
+                  isPublished={statusPage.isPublished}
+                  savedSlug={statusPage.slug}
+                />
               )}
               {activeTab === 'monitors' && <MonitorsTab form={form} />}
               {activeTab === 'customize' && <CustomizeTab form={form} />}
