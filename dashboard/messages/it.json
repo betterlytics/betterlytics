@@ -4193,7 +4193,6 @@
         "createFromSuggestion": "Crea incidente",
         "suggestedTitle": "Interruzione di {monitor}",
         "suggestedTitleMulti": "Interruzione che coinvolge {count} servizi",
-        "ongoingSince": "in corso da {date}",
         "noIncidents": "Ancora nessun incidente.",
         "emptyHint": "Quando qualcosa si rompe, pubblica un incidente qui per tenere informati i tuoi visitatori.",
         "suggestionsHint": "Rilevati automaticamente dai tuoi monitor: esamina e pubblica per renderli pubblici.",
@@ -4211,6 +4210,15 @@
           "affected": "Interessato",
           "started": "Iniziato",
           "duration": "Durata"
+        },
+        "suggestionsTable": {
+          "outage": "Interruzione",
+          "monitors": "Monitor",
+          "detected": "Rilevata",
+          "duration": "Durata",
+          "status": "Stato",
+          "ongoing": "In corso",
+          "resolved": "Risolta"
         },
         "saved": "Incidente salvato",
         "deleted": "Incidente eliminato",

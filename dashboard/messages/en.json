@@ -4190,7 +4190,6 @@
         "createFromSuggestion": "Create incident",
         "suggestedTitle": "{monitor} outage",
         "suggestedTitleMulti": "Outage affecting {count} services",
-        "ongoingSince": "ongoing since {date}",
         "noIncidents": "No incidents yet.",
         "emptyHint": "When something breaks, post an incident here to keep your visitors in the loop.",
         "suggestionsHint": "Auto-detected from your monitors — review and publish to make them public.",
@@ -4208,6 +4207,15 @@
           "affected": "Affected",
           "started": "Started",
           "duration": "Duration"
+        },
+        "suggestionsTable": {
+          "outage": "Outage",
+          "monitors": "Monitors",
+          "detected": "Detected",
+          "duration": "Duration",
+          "status": "Status",
+          "ongoing": "Ongoing",
+          "resolved": "Resolved"
         },
         "saved": "Incident saved",
         "deleted": "Incident deleted",
