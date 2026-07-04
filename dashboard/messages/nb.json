@@ -4193,7 +4193,6 @@
         "createFromSuggestion": "Opprett hendelse",
         "suggestedTitle": "{monitor} nedetid",
         "suggestedTitleMulti": "Nedetid som påvirker {count} tjenester",
-        "ongoingSince": "pågår siden {date}",
         "noIncidents": "Ingen hendelser ennå.",
         "emptyHint": "Når noe går galt, opprett en hendelse her for å holde besøkende oppdatert.",
         "suggestionsHint": "Automatisk oppdaget fra monitorene dine – se gjennom og publiser for å gjøre dem offentlige.",
@@ -4211,6 +4210,15 @@
           "affected": "Berørt",
           "started": "Startet",
           "duration": "Varighet"
+        },
+        "suggestionsTable": {
+          "outage": "Nedetid",
+          "monitors": "Monitorer",
+          "detected": "Oppdaget",
+          "duration": "Varighet",
+          "status": "Status",
+          "ongoing": "Pågår",
+          "resolved": "Løst"
         },
         "saved": "Hendelse lagret",
         "deleted": "Hendelse slettet",

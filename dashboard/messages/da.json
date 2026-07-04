@@ -4193,7 +4193,6 @@
         "createFromSuggestion": "Opret hændelse",
         "suggestedTitle": "{monitor} nedbrud",
         "suggestedTitleMulti": "Nedbrud der påvirker {count} tjenester",
-        "ongoingSince": "i gang siden {date}",
         "noIncidents": "Ingen hændelser endnu.",
         "emptyHint": "Når noget går galt, så opret en hændelse her, så dine besøgende holdes opdateret.",
         "suggestionsHint": "Automatisk registreret fra dine monitorer – gennemse og udgiv for at gøre dem offentlige.",
@@ -4211,6 +4210,15 @@
           "affected": "Påvirket",
           "started": "Startet",
           "duration": "Varighed"
+        },
+        "suggestionsTable": {
+          "outage": "Nedbrud",
+          "monitors": "Monitorer",
+          "detected": "Registreret",
+          "duration": "Varighed",
+          "status": "Status",
+          "ongoing": "I gang",
+          "resolved": "Løst"
         },
         "saved": "Hændelse gemt",
         "deleted": "Hændelse slettet",
