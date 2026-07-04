@@ -209,12 +209,7 @@ export function StatusPagesClient({
           )}
         </div>
         {hasIncidents && incidentPages.length === 1 && (
-          <Button
-            asChild
-            variant='outline'
-            size='sm'
-            className='shrink-0 border-amber-500/30 bg-amber-500/15 text-amber-700 hover:bg-amber-500/25 hover:text-amber-700 dark:text-amber-300 dark:hover:text-amber-300'
-          >
+          <Button asChild variant='outline' size='sm' className='shrink-0'>
             <Link href={`/dashboard/${dashboardId}/status-pages/${incidentPages[0].id}`}>
               {t('banner.viewIncidents')}
             </Link>
