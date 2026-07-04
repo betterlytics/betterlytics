@@ -4058,14 +4058,12 @@
         "confirm": "Pubblica modifiche"
       },
       "publicUrl": "URL pubblico",
-      "publicUrlHint": "L'indirizzo web dove viene pubblicata la tua pagina di stato.",
       "slugStatus": {
         "checking": "Verifica in corso…",
         "available": "Disponibile",
         "taken": "Già in uso",
         "invalid": "Slug non valido"
       },
-      "slugWarning": "Cambiare l'URL di una pagina pubblicata interrompe i link esistenti.",
       "homepageUrl": "URL della homepage",
       "homepageUrlHint": "Dove rimandano il logo e il titolo della pagina.",
       "customDomain": "Dominio personalizzato",
@@ -4145,7 +4143,7 @@
         },
         "publish": {
           "heading": "Pronta per la pubblicazione",
-          "description": "Conferma dove si trova e chi può vederla. Puoi modificare tutto in seguito."
+          "description": "Conferma dove si trova e chi può vederla."
         },
         "summary": "Riepilogo",
         "summaryMonitors": "{count, plural, one {# monitor} other {# monitor}}",

@@ -4055,14 +4055,12 @@
         "confirm": "Publish changes"
       },
       "publicUrl": "Public URL",
-      "publicUrlHint": "The web address where your status page is published.",
       "slugStatus": {
         "checking": "Checking…",
         "available": "Available",
         "taken": "Already taken",
         "invalid": "Invalid slug"
       },
-      "slugWarning": "Changing the URL of a published page breaks existing links.",
       "homepageUrl": "Homepage URL",
       "homepageUrlHint": "Where the logo and page title link to.",
       "customDomain": "Custom domain",
@@ -4142,7 +4140,7 @@
         },
         "publish": {
           "heading": "Ready to publish",
-          "description": "Confirm where it lives and who can see it. You can change anything later."
+          "description": "Confirm where it lives and who can see it."
         },
         "summary": "Summary",
         "summaryMonitors": "{count, plural, one {# monitor} other {# monitors}}",
