@@ -11,7 +11,7 @@ import { formatPercentage } from '@/utils/formatters';
 import { monitorRowLabel } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { presentMonitorStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
-import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
+import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 
 type SelectStepProps = {
   form: StatusPageFormState;

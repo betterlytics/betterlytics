@@ -17,12 +17,12 @@ import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/p
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
 import { IncidentsTab } from './tabs/IncidentsTab';
-import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/LivePreview';
-import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
-import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
-import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/collectStagedImages';
+import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
+import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SortableMonitorRow';
+import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
-import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useSlugAvailability';
+import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import { GeneralTab } from './tabs/GeneralTab';
 import { CustomizeTab } from './tabs/CustomizeTab';

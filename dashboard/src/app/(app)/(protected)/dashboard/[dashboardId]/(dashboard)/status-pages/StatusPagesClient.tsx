@@ -215,7 +215,7 @@ export function StatusPagesClient({
             size='sm'
             className='shrink-0 border-amber-500/30 bg-amber-500/15 text-amber-700 hover:bg-amber-500/25 hover:text-amber-700 dark:text-amber-300 dark:hover:text-amber-300'
           >
-            <Link href={`/dashboard/${dashboardId}/monitoring/status-pages/${incidentPages[0].id}`}>
+            <Link href={`/dashboard/${dashboardId}/status-pages/${incidentPages[0].id}`}>
               {t('banner.viewIncidents')}
             </Link>
           </Button>
@@ -238,7 +238,7 @@ export function StatusPagesClient({
 
         {statusPages.map((page) => {
           const isIncident = page.activeIncidentCount > 0;
-          const editorHref = `/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`;
+          const editorHref = `/dashboard/${dashboardId}/status-pages/${page.id}`;
           const publicUrl = `${publicBaseUrl}/status/${page.slug}`;
           const monitorStates = page.monitors.map(
             (monitor) => monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
