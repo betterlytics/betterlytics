@@ -139,8 +139,9 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
     const payload = StatusPageUpdateSchema.parse(input);
     const imageWrites = await prepareImageWrites(images);
 
-    const [caps, domainAvailable] = await Promise.all([
+    const [caps, slugAvailable, domainAvailable] = await Promise.all([
       getDashboardCapabilities(ctx.dashboardId),
+      payload.slug != null ? isStatusPageSlugAvailable(payload.slug, payload.id) : Promise.resolve(true),
       payload.customDomain != null
         ? isStatusPageCustomDomainAvailable(payload.customDomain, payload.id)
         : Promise.resolve(true),
@@ -150,13 +151,17 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
       .removeBranding(payload.hideBranding)
       .validate();
 
+    if (payload.slug != null && !slugAvailable) {
+      throw new UserException(t('statusPageSlugTaken'));
+    }
     if (payload.customDomain != null && !domainAvailable) {
       throw new UserException(t('statusPageDomainTaken'));
     }
 
-    const page = await saveStatusPage(ctx.dashboardId, payload, imageWrites);
-    if (page) revalidateStatusPagePaths(ctx.dashboardId, page.slug);
-    return page;
+    const result = await saveStatusPage(ctx.dashboardId, payload, imageWrites);
+    // The old public URL must drop out of the cache when the slug changes
+    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
+    return result?.page ?? null;
   },
 );
 
