@@ -4,6 +4,7 @@ import * as React from 'react';
 import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -27,6 +28,7 @@ function pad(value: number) {
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const TWELVE_HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
 /**
@@ -45,6 +47,10 @@ export function DateTimePicker({
   className,
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const hour12 = useDisplayHour12();
+
+  const meridiem: 'AM' | 'PM' = value.getHours() >= 12 ? 'PM' : 'AM';
+  const displayHour = hour12 ? ((value.getHours() + 11) % 12) + 1 : value.getHours();
 
   const triggerLabel = value.toLocaleString(locale, {
     year: 'numeric',
@@ -52,6 +58,7 @@ export function DateTimePicker({
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12,
   });
 
   const handleDaySelect = (day: Date | undefined) => {
@@ -73,8 +80,24 @@ export function DateTimePicker({
     onChange(next);
   };
 
+  const setHour12 = (display: number) => {
+    const isPM = value.getHours() >= 12;
+    const hour = display === 12 ? (isPM ? 12 : 0) : isPM ? display + 12 : display;
+    const next = new Date(value);
+    next.setHours(hour, value.getMinutes(), 0, 0);
+    onChange(next);
+  };
+
+  const setMeridiem = (next: 'AM' | 'PM') => {
+    if (next === meridiem) return;
+    const shifted = new Date(value);
+    shifted.setHours(value.getHours() + (next === 'PM' ? 12 : -12), value.getMinutes(), 0, 0);
+    onChange(shifted);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    // modal: without it, a parent Sheet's scroll lock swallows wheel events over the portaled popover.
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           type='button'
@@ -103,7 +126,13 @@ export function DateTimePicker({
               {timeLabel}
             </div>
             <div className='divide-border flex divide-x'>
-              <TimeColumn options={HOURS} selected={value.getHours()} onSelect={setHour} open={open} ariaLabel='Hours' />
+              <TimeColumn
+                options={hour12 ? TWELVE_HOURS : HOURS}
+                selected={displayHour}
+                onSelect={hour12 ? setHour12 : setHour}
+                open={open}
+                ariaLabel='Hours'
+              />
               <TimeColumn
                 options={MINUTES}
                 selected={value.getMinutes()}
@@ -111,6 +140,7 @@ export function DateTimePicker({
                 open={open}
                 ariaLabel='Minutes'
               />
+              {hour12 && <MeridiemColumn value={meridiem} onSelect={setMeridiem} />}
             </div>
           </div>
         </div>
@@ -157,5 +187,25 @@ function TimeColumn({
         ))}
       </div>
     </ScrollArea>
+  );
+}
+
+function MeridiemColumn({ value, onSelect }: { value: 'AM' | 'PM'; onSelect: (value: 'AM' | 'PM') => void }) {
+  return (
+    <div className='flex flex-col gap-1 p-2' aria-label='AM/PM'>
+      {(['AM', 'PM'] as const).map((option) => (
+        <Button
+          key={option}
+          type='button'
+          size='sm'
+          variant={option === value ? 'default' : 'ghost'}
+          aria-pressed={option === value}
+          onClick={() => onSelect(option)}
+          className='h-8 w-12 cursor-pointer justify-center px-0 font-normal'
+        >
+          {option}
+        </Button>
+      ))}
+    </div>
   );
 }

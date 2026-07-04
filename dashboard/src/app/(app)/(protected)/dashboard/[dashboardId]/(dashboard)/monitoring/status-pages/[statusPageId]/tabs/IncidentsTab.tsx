@@ -32,6 +32,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
+import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -193,6 +194,7 @@ function emptyComposer(): Composer {
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
+  const hour12 = useDisplayHour12();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -319,11 +321,16 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       timeLocal: composer.timeLocal,
     };
     setPendingUpdates((list) => [...list, staged]);
-    setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
+    setComposer((c) => ({ ...c, message: '' }));
   };
 
   const removePendingUpdate = (tempId: string) =>
     setPendingUpdates((list) => list.filter((u) => u.tempId !== tempId));
+
+  const commitPendingEdit = (tempId: string) => {
+    setPendingUpdates((list) => list.map((u) => (u.tempId === tempId ? { ...u, message: editDraft.trim() } : u)));
+    setEditingUpdateId(null);
+  };
 
   // Edit only the message (text body) of an existing timeline update.
   const editUpdateMutation = useMutation({
@@ -700,20 +707,16 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   // Newest-first saved timeline for the open incident.
   const timeline = useMemo(() => (timelineQuery.data ?? []).slice().reverse(), [timelineQuery.data]);
-  // One newest-first list for the rail: staged updates on top, then the saved timeline.
-  const timelineRows = useMemo(
-    () => [
-      ...pendingUpdates
-        .slice()
-        .reverse()
-        .map((u) => ({
-          kind: 'pending' as const,
-          key: u.tempId,
-          id: u.tempId,
-          status: u.status,
-          message: u.message,
-          date: new Date(u.timeLocal),
-        })),
+  const timelineRows = useMemo(() => {
+    const rows = [
+      ...pendingUpdates.map((u) => ({
+        kind: 'pending' as const,
+        key: u.tempId,
+        id: u.tempId,
+        status: u.status,
+        message: u.message,
+        date: new Date(u.timeLocal),
+      })),
       ...timeline.map((e) => ({
         kind: 'saved' as const,
         key: e.id,
@@ -722,16 +725,14 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         message: e.message,
         date: e.createdAt,
       })),
-    ],
-    [pendingUpdates, timeline],
-  );
+    ];
+    return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [pendingUpdates, timeline]);
   const timelineSpansDays =
     timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
 
-  const latestStatus = pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
-
-  const headerStatus =
-    form.id != null ? latestStatus : (pendingUpdates[pendingUpdates.length - 1]?.status ?? composer.status);
+  const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
+  const headerStatus = latestStatus;
   const atUpdateCap = timeline.length + pendingUpdates.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
   const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
 
@@ -773,7 +774,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit',
-                      hour12: false,
+                      hour12,
                     }) ?? '');
                 const isMulti = suggestion.monitors.length > 1;
                 const heading = isMulti
@@ -1126,7 +1127,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     {timelineRows.map((row, i) => {
                       const isLast = i === timelineRows.length - 1;
                       const pending = row.kind === 'pending';
-                      const editing = !pending && editingUpdateId === row.id;
+                      const editing = editingUpdateId === row.id;
                       return (
                         <TimelineItem
                           key={row.key}
@@ -1146,12 +1147,12 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit',
-                                    hour12: false,
+                                    hour12,
                                   })
                                 : formatLocalDateTime(row.date, locale, {
                                     hour: '2-digit',
                                     minute: '2-digit',
-                                    hour12: false,
+                                    hour12,
                                   })}
                             </span>
                           }
@@ -1176,15 +1177,26 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             )}
                             <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
                               {pending ? (
-                                <Button
-                                  size='icon'
-                                  variant='ghost'
-                                  aria-label={t('timeline.removePending')}
-                                  onClick={() => removePendingUpdate(row.id)}
-                                  className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                >
-                                  <X className='h-3.5 w-3.5' />
-                                </Button>
+                                <>
+                                  <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    aria-label={t('timeline.editMessage')}
+                                    onClick={() => beginEditUpdate(row.id, row.message)}
+                                    className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
+                                  >
+                                    <Pencil className='h-3.5 w-3.5' />
+                                  </Button>
+                                  <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    aria-label={t('timeline.removePending')}
+                                    onClick={() => removePendingUpdate(row.id)}
+                                    className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                  >
+                                    <X className='h-3.5 w-3.5' />
+                                  </Button>
+                                </>
                               ) : (
                                 <PermissionGate hideWhenDisabled>
                                   {() => (
@@ -1235,8 +1247,10 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                                 </Button>
                                 <Button
                                   size='sm'
-                                  onClick={() => editUpdateMutation.mutate(row.id)}
-                                  disabled={editUpdateMutation.isPending}
+                                  onClick={() =>
+                                    pending ? commitPendingEdit(row.id) : editUpdateMutation.mutate(row.id)
+                                  }
+                                  disabled={!pending && editUpdateMutation.isPending}
                                   className='cursor-pointer'
                                 >
                                   {t('timeline.done')}

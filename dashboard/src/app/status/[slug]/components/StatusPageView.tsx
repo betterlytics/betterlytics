@@ -7,6 +7,7 @@ import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publi
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { accentForeground } from '@/components/statusPage/StatusPageBrandAvatar';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
+import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { Incidents } from './Incidents';
 import { MonitorUptimeCard } from './MonitorUptimeCard';
 import { StatusHero } from './StatusHero';
@@ -14,12 +15,13 @@ import { StatusHero } from './StatusHero';
 export function StatusPageView({ data }: { data: PublicStatusPageData }) {
   const t = useTranslations('publicStatusPage');
   const timeZone = useDisplayTimeZone();
+  const hour12 = useDisplayHour12();
 
   const lastUpdatedTime =
     formatLocalDateTime(data.lastUpdatedAt, 'en', {
       dateStyle: 'medium',
       timeStyle: 'short',
-      hour12: false,
+      hour12,
       timeZone,
     }) ?? '';
 
