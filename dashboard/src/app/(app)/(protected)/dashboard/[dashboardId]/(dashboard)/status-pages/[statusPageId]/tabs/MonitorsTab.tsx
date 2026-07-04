@@ -3,8 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { SortableList } from '@/components/dnd/SortableList';
-import { SortableMonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/SortableMonitorRow';
-import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/useStatusPageFormState';
+import { SortableMonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SortableMonitorRow';
+import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { Section } from './Section';
 
 type MonitorsTabProps = {

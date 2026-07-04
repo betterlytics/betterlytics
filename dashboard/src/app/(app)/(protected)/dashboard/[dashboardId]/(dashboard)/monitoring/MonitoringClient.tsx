@@ -258,7 +258,7 @@ export function MonitoringClient({ dashboardId, monitors, domain, statusPagesEna
           </div>
           {statusPagesEnabled && (
             <Button variant='outline' asChild>
-              <Link href={`/dashboard/${dashboardId}/monitoring/status-pages`}>
+              <Link href={`/dashboard/${dashboardId}/status-pages`}>
                 <Globe className='mr-1 h-4 w-4' />
                 {tStatusPages('title')}
               </Link>

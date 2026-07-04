@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/status-pages/shared/FlowOverlayHeader';
+import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlayHeader';
 
 type PublishSuccessProps = {
   dashboardId: string;
