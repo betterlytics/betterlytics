@@ -49,7 +49,9 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
 
   return (
     <div className='space-y-2'>
+      {/* modal: without it, the parent Sheet's scroll lock swallows wheel events over the portaled popover. */}
       <Popover
+        modal
         open={open}
         onOpenChange={(next) => {
           setOpen(next);

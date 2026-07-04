@@ -8,6 +8,7 @@ import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/stat
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 import { pillStyle, type PillTone } from '@/components/statusPage/pillStyle';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
+import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { cn } from '@/lib/utils';
 
 const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
@@ -50,6 +51,7 @@ export function IncidentCard({
 }) {
   const t = useTranslations('publicStatusPage');
   const timeZone = useDisplayTimeZone();
+  const hour12 = useDisplayHour12();
   const [expanded, setExpanded] = useState(false);
 
   const fmt = useMemo(
@@ -59,13 +61,13 @@ export function IncidentCard({
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false,
+        hour12,
         timeZone,
       }),
-      time: new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone }),
+      time: new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', hour12, timeZone }),
       dayKey: new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone }),
     }),
-    [timeZone],
+    [timeZone, hour12],
   );
 
   const ongoing = incident.resolvedAt == null;

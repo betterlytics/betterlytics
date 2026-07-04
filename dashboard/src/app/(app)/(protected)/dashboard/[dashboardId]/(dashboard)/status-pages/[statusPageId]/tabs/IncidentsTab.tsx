@@ -18,6 +18,7 @@ import {
   Activity,
   ArrowDown,
   ArrowUp,
+  ChevronDown,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -31,6 +32,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
+import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -192,10 +194,13 @@ function emptyComposer(): Composer {
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
+  const hour12 = useDisplayHour12();
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
+  // Collapse the detected-outages triage panel to get it out of the way of the incidents list.
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
   // Guards an accidental close (overlay / Esc / Cancel) when there's unsaved work in the sheet.
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
@@ -316,11 +321,16 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       timeLocal: composer.timeLocal,
     };
     setPendingUpdates((list) => [...list, staged]);
-    setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
+    setComposer((c) => ({ ...c, message: '' }));
   };
 
   const removePendingUpdate = (tempId: string) =>
     setPendingUpdates((list) => list.filter((u) => u.tempId !== tempId));
+
+  const commitPendingEdit = (tempId: string) => {
+    setPendingUpdates((list) => list.map((u) => (u.tempId === tempId ? { ...u, message: editDraft.trim() } : u)));
+    setEditingUpdateId(null);
+  };
 
   // Edit only the message (text body) of an existing timeline update.
   const editUpdateMutation = useMutation({
@@ -393,14 +403,18 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
     const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
+    const title =
+      suggestion.monitors.length === 1
+        ? t('suggestedTitle', { monitor: suggestion.monitors[0].monitorPublicName })
+        : t('suggestedTitleMulti', { count: suggestion.monitors.length });
     pendingIdRef.current += 1;
     openWith(
       {
         ...emptyForm(),
         detectedIncidentId: suggestion.detectedIncidentId,
-        title: t('suggestedTitle', { monitor: suggestion.monitorPublicName }),
+        title,
         impact: suggestion.suggestedImpact,
-        monitorCheckIds: [suggestion.monitorCheckId],
+        monitorCheckIds: suggestion.monitors.map((monitor) => monitor.monitorCheckId),
       },
       {
         ...emptyComposer(),
@@ -693,20 +707,16 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   // Newest-first saved timeline for the open incident.
   const timeline = useMemo(() => (timelineQuery.data ?? []).slice().reverse(), [timelineQuery.data]);
-  // One newest-first list for the rail: staged updates on top, then the saved timeline.
-  const timelineRows = useMemo(
-    () => [
-      ...pendingUpdates
-        .slice()
-        .reverse()
-        .map((u) => ({
-          kind: 'pending' as const,
-          key: u.tempId,
-          id: u.tempId,
-          status: u.status,
-          message: u.message,
-          date: new Date(u.timeLocal),
-        })),
+  const timelineRows = useMemo(() => {
+    const rows = [
+      ...pendingUpdates.map((u) => ({
+        kind: 'pending' as const,
+        key: u.tempId,
+        id: u.tempId,
+        status: u.status,
+        message: u.message,
+        date: new Date(u.timeLocal),
+      })),
       ...timeline.map((e) => ({
         kind: 'saved' as const,
         key: e.id,
@@ -715,16 +725,14 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         message: e.message,
         date: e.createdAt,
       })),
-    ],
-    [pendingUpdates, timeline],
-  );
+    ];
+    return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [pendingUpdates, timeline]);
   const timelineSpansDays =
     timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
 
-  const latestStatus = pendingUpdates[pendingUpdates.length - 1]?.status ?? timeline[0]?.status ?? incidentStatus;
-
-  const headerStatus =
-    form.id != null ? latestStatus : (pendingUpdates[pendingUpdates.length - 1]?.status ?? composer.status);
+  const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
+  const headerStatus = latestStatus;
   const atUpdateCap = timeline.length + pendingUpdates.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
   const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
 
@@ -736,43 +744,95 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   return (
     <div className='space-y-4'>
-      {suggestions.map((suggestion) => {
-        const detail = suggestion.ongoing
-          ? t('ongoingSince', { date: formatRelativeTimeFromNow(suggestion.startedAt, locale) })
-          : (formatLocalDateTime(suggestion.startedAt, locale, {
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }) ?? '');
-        return (
-          <div
-            key={suggestion.detectedIncidentId}
-            className='flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/6 p-4'
+      {suggestions.length > 0 && (
+        <div className='overflow-hidden rounded-xl border border-amber-500/40 bg-amber-500/6'>
+          <button
+            type='button'
+            onClick={() => setSuggestionsOpen((prev) => !prev)}
+            aria-expanded={suggestionsOpen}
+            className='flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left'
           >
             <TriangleAlert className='h-5 w-5 flex-none text-amber-500' />
             <div className='min-w-0 flex-1'>
-              <div className='text-sm font-semibold'>{t('detectedTitle')}</div>
-              <div suppressHydrationWarning className='text-muted-foreground mt-0.5 text-xs'>
-                {t('detectedDescription', { monitor: suggestion.monitorPublicName, detail })}
-              </div>
+              <div className='text-sm font-semibold'>{t('detectedPanelTitle', { count: suggestions.length })}</div>
+              <div className='text-muted-foreground text-xs'>{t('suggestionsHint')}</div>
             </div>
-            <PermissionGate>
-              {(disabled) => (
-                <Button
-                  size='sm'
-                  disabled={disabled}
-                  onClick={() => openFromSuggestion(suggestion)}
-                  className='flex-none cursor-pointer bg-amber-500 text-white hover:bg-amber-500/90'
-                >
-                  {t('createFromSuggestion')}
-                </Button>
+            <ChevronDown
+              className={cn(
+                'text-muted-foreground h-4 w-4 flex-none transition-transform',
+                suggestionsOpen && 'rotate-180',
               )}
-            </PermissionGate>
-          </div>
-        );
-      })}
+            />
+          </button>
+          {suggestionsOpen && (
+            <div className='max-h-80 divide-y divide-amber-500/15 overflow-y-auto border-t border-amber-500/20'>
+              {suggestions.map((suggestion) => {
+                const detail = suggestion.ongoing
+                  ? t('ongoingSince', { date: formatRelativeTimeFromNow(suggestion.startedAt, locale) })
+                  : (formatLocalDateTime(suggestion.startedAt, locale, {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12,
+                    }) ?? '');
+                const isMulti = suggestion.monitors.length > 1;
+                const heading = isMulti
+                  ? t('detectedGroupMulti', { count: suggestion.monitors.length })
+                  : suggestion.monitors[0].monitorPublicName;
+                const MAX_PILLS = 4;
+                const shown = suggestion.monitors.slice(0, MAX_PILLS);
+                const extra = suggestion.monitors.length - shown.length;
+                return (
+                  <div key={suggestion.detectedIncidentId} className='flex flex-wrap items-center gap-3 px-4 py-3'>
+                    <div className='min-w-0 flex-1'>
+                      <div className='flex min-w-0 items-baseline gap-1.5'>
+                        <span className='min-w-0 truncate text-sm font-medium'>{heading}</span>
+                        <span
+                          suppressHydrationWarning
+                          className='text-muted-foreground flex-none text-xs'
+                        >
+                          {detail}
+                        </span>
+                      </div>
+                      {isMulti && (
+                        <div className='mt-1.5 flex flex-wrap items-center gap-1'>
+                          {shown.map((monitor) => (
+                            <Badge
+                              key={monitor.monitorCheckId}
+                              variant='secondary'
+                              className='border-border max-w-40 font-normal'
+                            >
+                              <span className='min-w-0 truncate'>{monitor.monitorPublicName}</span>
+                            </Badge>
+                          ))}
+                          {extra > 0 && (
+                            <Badge variant='outline' className='border-border text-muted-foreground font-normal'>
+                              {t('affectedMore', { count: extra })}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <PermissionGate>
+                      {(disabled) => (
+                        <Button
+                          size='sm'
+                          disabled={disabled}
+                          onClick={() => openFromSuggestion(suggestion)}
+                          className='flex-none cursor-pointer bg-amber-500 text-white hover:bg-amber-500/90'
+                        >
+                          {t('createFromSuggestion')}
+                        </Button>
+                      )}
+                    </PermissionGate>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
         <div>
@@ -1067,7 +1127,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     {timelineRows.map((row, i) => {
                       const isLast = i === timelineRows.length - 1;
                       const pending = row.kind === 'pending';
-                      const editing = !pending && editingUpdateId === row.id;
+                      const editing = editingUpdateId === row.id;
                       return (
                         <TimelineItem
                           key={row.key}
@@ -1087,12 +1147,12 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit',
-                                    hour12: false,
+                                    hour12,
                                   })
                                 : formatLocalDateTime(row.date, locale, {
                                     hour: '2-digit',
                                     minute: '2-digit',
-                                    hour12: false,
+                                    hour12,
                                   })}
                             </span>
                           }
@@ -1117,15 +1177,26 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             )}
                             <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
                               {pending ? (
-                                <Button
-                                  size='icon'
-                                  variant='ghost'
-                                  aria-label={t('timeline.removePending')}
-                                  onClick={() => removePendingUpdate(row.id)}
-                                  className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                >
-                                  <X className='h-3.5 w-3.5' />
-                                </Button>
+                                <>
+                                  <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    aria-label={t('timeline.editMessage')}
+                                    onClick={() => beginEditUpdate(row.id, row.message)}
+                                    className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
+                                  >
+                                    <Pencil className='h-3.5 w-3.5' />
+                                  </Button>
+                                  <Button
+                                    size='icon'
+                                    variant='ghost'
+                                    aria-label={t('timeline.removePending')}
+                                    onClick={() => removePendingUpdate(row.id)}
+                                    className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                  >
+                                    <X className='h-3.5 w-3.5' />
+                                  </Button>
+                                </>
                               ) : (
                                 <PermissionGate hideWhenDisabled>
                                   {() => (
@@ -1176,8 +1247,10 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                                 </Button>
                                 <Button
                                   size='sm'
-                                  onClick={() => editUpdateMutation.mutate(row.id)}
-                                  disabled={editUpdateMutation.isPending}
+                                  onClick={() =>
+                                    pending ? commitPendingEdit(row.id) : editUpdateMutation.mutate(row.id)
+                                  }
+                                  disabled={!pending && editUpdateMutation.isPending}
                                   className='cursor-pointer'
                                 >
                                   {t('timeline.done')}

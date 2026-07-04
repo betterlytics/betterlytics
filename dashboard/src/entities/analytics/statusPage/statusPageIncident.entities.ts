@@ -102,14 +102,23 @@ export const StatusPageIncidentUpdateDeleteSchema = z.object({
 });
 export type StatusPageIncidentUpdateDelete = z.infer<typeof StatusPageIncidentUpdateDeleteSchema>;
 
-export type DetectedOutageSuggestion = {
-  /** ClickHouse incident id (analytics.monitor_incidents.incident_id). */
-  detectedIncidentId: string;
+export type DetectedOutageMonitor = {
   monitorCheckId: string;
   monitorPublicName: string;
+};
+
+// A group of detected outages that started close enough together to be one real incident (shared
+// root cause across monitors). Single-monitor outages are just groups of one.
+export type DetectedOutageSuggestion = {
+  /** Representative ClickHouse incident id (the earliest in the group) */
+  detectedIncidentId: string;
+  monitors: DetectedOutageMonitor[];
+  /** Earliest start across the group. */
   startedAt: string;
+  /** Latest resolve across the group, or null if any monitor is still down. */
   resolvedAt: string | null;
+  /** True if any monitor in the group is still down. */
   ongoing: boolean;
-  reasonCode: string;
+  /** Worst impact across the group. */
   suggestedImpact: StatusPageIncidentImpact;
 };

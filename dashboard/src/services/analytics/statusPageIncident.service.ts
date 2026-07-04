@@ -19,6 +19,7 @@ import {
 import { getDetectedOutagesForMonitors } from '@/repositories/clickhouse/monitoring.repository';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
+  type DetectedOutageMonitor,
   type DetectedOutageSuggestion,
   type IncidentWithSlug,
   type StatusPageIncident,
@@ -115,6 +116,54 @@ function severityToImpact(severity: string): StatusPageIncidentImpact {
   return severity === 'critical' ? 'outage' : 'degraded';
 }
 
+type SurvivingOutage = {
+  detectedIncidentId: string;
+  monitorCheckId: string;
+  monitorPublicName: string;
+  startedAt: string;
+  startedAtMs: number;
+  resolvedAt: string | null;
+  ongoing: boolean;
+  impact: StatusPageIncidentImpact;
+};
+
+// Fold a start-ascending cluster of outages into one suggestion: the earliest is the representative,
+// monitors are deduped, impact is the worst, and the group is ongoing if any member still is.
+function buildSuggestion(cluster: SurvivingOutage[]): DetectedOutageSuggestion {
+  const monitors = new Map<string, DetectedOutageMonitor>();
+  let ongoing = false;
+  let impact: StatusPageIncidentImpact = 'degraded';
+  let latestResolvedMs = -Infinity;
+  let latestResolvedAt: string | null = null;
+
+  for (const outage of cluster) {
+    if (!monitors.has(outage.monitorCheckId)) {
+      monitors.set(outage.monitorCheckId, {
+        monitorCheckId: outage.monitorCheckId,
+        monitorPublicName: outage.monitorPublicName,
+      });
+    }
+    if (outage.ongoing) ongoing = true;
+    if (outage.impact === 'outage') impact = 'outage';
+    if (!outage.ongoing && outage.resolvedAt) {
+      const ms = new Date(outage.resolvedAt).getTime();
+      if (ms > latestResolvedMs) {
+        latestResolvedMs = ms;
+        latestResolvedAt = outage.resolvedAt;
+      }
+    }
+  }
+
+  return {
+    detectedIncidentId: cluster[0].detectedIncidentId,
+    monitors: [...monitors.values()],
+    startedAt: cluster[0].startedAt,
+    resolvedAt: ongoing ? null : latestResolvedAt,
+    ongoing,
+    suggestedImpact: impact,
+  };
+}
+
 export async function getIncidentSuggestions(
   dashboardId: string,
   statusPageId: string,
@@ -150,41 +199,41 @@ export async function getIncidentSuggestions(
     });
   };
 
-  const byMonitor = new Map<string, DetectedOutageSuggestion>();
+  const survivors: SurvivingOutage[] = [];
   for (const outage of detected) {
     if (linked.has(outage.detectedIncidentId)) continue;
     const monitorPublicName = nameByCheckId.get(outage.monitorCheckId);
     if (monitorPublicName == null) continue;
     if (coveredByIncident(outage)) continue;
-
-    const impact = severityToImpact(outage.severity);
-    const existing = byMonitor.get(outage.monitorCheckId);
-    if (existing) {
-      if (impact === 'outage') existing.suggestedImpact = 'outage';
-      if (outage.ongoing && !existing.ongoing) {
-        byMonitor.set(outage.monitorCheckId, {
-          detectedIncidentId: outage.detectedIncidentId,
-          monitorCheckId: outage.monitorCheckId,
-          monitorPublicName,
-          startedAt: outage.startedAt,
-          resolvedAt: outage.resolvedAt,
-          ongoing: outage.ongoing,
-          reasonCode: outage.reasonCode,
-          suggestedImpact: existing.suggestedImpact,
-        });
-      }
-      continue;
-    }
-    byMonitor.set(outage.monitorCheckId, {
+    survivors.push({
       detectedIncidentId: outage.detectedIncidentId,
       monitorCheckId: outage.monitorCheckId,
       monitorPublicName,
       startedAt: outage.startedAt,
+      startedAtMs: new Date(outage.startedAt).getTime(),
       resolvedAt: outage.resolvedAt,
       ongoing: outage.ongoing,
-      reasonCode: outage.reasonCode,
-      suggestedImpact: impact,
+      impact: severityToImpact(outage.severity),
     });
   }
-  return [...byMonitor.values()].slice(0, STATUS_PAGE_LIMITS.SUGGESTIONS_MAX);
+
+  survivors.sort((a, b) => a.startedAtMs - b.startedAtMs);
+  const windowMs = STATUS_PAGE_LIMITS.SUGGESTIONS_CORRELATION_WINDOW_MINUTES * 60_000;
+  const groups: DetectedOutageSuggestion[] = [];
+  let cluster: SurvivingOutage[] = [];
+  for (const outage of survivors) {
+    if (cluster.length && outage.startedAtMs - cluster[0].startedAtMs > windowMs) {
+      groups.push(buildSuggestion(cluster));
+      cluster = [];
+    }
+    cluster.push(outage);
+  }
+  if (cluster.length) groups.push(buildSuggestion(cluster));
+
+  groups.sort((a, b) => {
+    if (a.ongoing !== b.ongoing) return a.ongoing ? -1 : 1;
+    return new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
+  });
+
+  return groups.slice(0, STATUS_PAGE_LIMITS.SUGGESTIONS_MAX);
 }
