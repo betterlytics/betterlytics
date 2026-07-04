@@ -24,7 +24,7 @@ export function PublishSuccess({ dashboardId, created, publicHost, publicBaseUrl
       <FlowOverlayHeader
         title={t('wizard.title')}
         closeAriaLabel={t('wizard.close')}
-        onClose={() => router.push(`/dashboard/${dashboardId}/monitoring/status-pages`)}
+        onClose={() => router.push(`/dashboard/${dashboardId}/status-pages`)}
       />
       <div className='flex-1 overflow-y-auto'>
         <div className='mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 text-center'>
@@ -53,7 +53,7 @@ export function PublishSuccess({ dashboardId, created, publicHost, publicBaseUrl
             <Button
               variant='outline'
               className='cursor-pointer'
-              onClick={() => router.push(`/dashboard/${dashboardId}/monitoring/status-pages/${created.id}`)}
+              onClick={() => router.push(`/dashboard/${dashboardId}/status-pages/${created.id}`)}
             >
               {t('publishSuccess.manage')}
             </Button>

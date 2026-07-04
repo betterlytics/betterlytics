@@ -4058,14 +4058,12 @@
         "confirm": "Offentliggør ændringer"
       },
       "publicUrl": "Offentlig URL",
-      "publicUrlHint": "Webadressen hvor din statusside er offentliggjort.",
       "slugStatus": {
         "checking": "Tjekker…",
         "available": "Ledig",
         "taken": "Allerede i brug",
         "invalid": "Ugyldig slug"
       },
-      "slugWarning": "Ændring af URL'en på en udgivet side ødelægger eksisterende links.",
       "homepageUrl": "Hjemmeside-URL",
       "homepageUrlHint": "Hvor logoet og sidetitlen linker hen.",
       "customDomain": "Eget domæne",
@@ -4145,7 +4143,7 @@
         },
         "publish": {
           "heading": "Klar til at udgive",
-          "description": "Bekræft hvor den ligger, og hvem der kan se den. Du kan ændre alt senere."
+          "description": "Bekræft hvor den ligger, og hvem der kan se den."
         },
         "summary": "Oversigt",
         "summaryMonitors": "{count, plural, one {# monitor} other {# monitorer}}",

@@ -99,7 +99,7 @@ function WizardForm({
       if (publish) {
         setCreated({ id: page.id, slug: page.slug });
       } else {
-        router.push(`/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`);
+        router.push(`/dashboard/${dashboardId}/status-pages/${page.id}`);
       }
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),

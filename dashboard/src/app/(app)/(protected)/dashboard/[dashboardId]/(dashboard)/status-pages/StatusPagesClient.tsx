@@ -197,7 +197,7 @@ export function StatusPagesClient({
               {incidentPages.map((page, index) => (
                 <span key={page.id}>
                   <Link
-                    href={`/dashboard/${dashboardId}/monitoring/status-pages/${page.id}`}
+                    href={`/dashboard/${dashboardId}/status-pages/${page.id}`}
                     className='font-medium text-amber-600 hover:underline dark:text-amber-400'
                   >
                     {page.name}
