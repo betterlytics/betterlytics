@@ -1,7 +1,6 @@
 import { Check, Minus, TriangleAlert, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { StatusPageBrandAvatar } from '@/components/statusPage/StatusPageBrandAvatar';
 
 const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string | null; glyph: string }> = {
   operational: { Icon: Check, band: null, glyph: 'var(--sp-accent)' },
@@ -14,7 +13,6 @@ const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string 
 type StatusHeroProps = {
   name: string;
   logoUrl: string | null;
-  accentColor: string;
   homepageUrl: string | null;
   overallStatus: PublicOverallStatus;
   bannerLabel: string;
@@ -24,7 +22,6 @@ type StatusHeroProps = {
 export function StatusHero({
   name,
   logoUrl,
-  accentColor,
   homepageUrl,
   overallStatus,
   bannerLabel,
@@ -38,15 +35,7 @@ export function StatusHero({
     // eslint-disable-next-line @next/next/no-img-element -- served from our image route, or a client-side blob preview in the editor; already a small resized WebP, so next/image adds nothing
     <img src={logoUrl} alt={name} className='h-10 w-auto max-w-[60vw] object-contain sm:max-w-xs' />
   ) : (
-    <span className='flex min-w-0 items-center gap-2.5'>
-      <StatusPageBrandAvatar
-        name={name}
-        imageUrl={null}
-        accentColor={accentColor}
-        className='h-7 w-7 rounded-lg text-sm'
-      />
-      <span className='truncate text-[17px] font-bold'>{name}</span>
-    </span>
+    <span className='truncate text-xl font-bold tracking-tight'>{name}</span>
   );
 
   return (

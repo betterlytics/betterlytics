@@ -51,7 +51,6 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
       <StatusHero
         name={data.name}
         logoUrl={data.logoUrl}
-        accentColor={data.accentColor}
         homepageUrl={data.homepageUrl}
         overallStatus={data.overallStatus}
         bannerLabel={t(`banner.${data.overallStatus}`)}
