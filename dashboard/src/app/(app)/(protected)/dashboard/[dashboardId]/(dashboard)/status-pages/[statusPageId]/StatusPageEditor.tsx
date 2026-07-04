@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Check, Copy, ExternalLink, Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/navigation';
@@ -27,7 +27,10 @@ import { GeneralTab } from './tabs/GeneralTab';
 import { CustomizeTab } from './tabs/CustomizeTab';
 import { MonitorsTab } from './tabs/MonitorsTab';
 
-type TabKey = 'incidents' | 'general' | 'customize' | 'monitors';
+const TAB_KEYS = ['incidents', 'general', 'monitors', 'customize'] as const;
+type TabKey = (typeof TAB_KEYS)[number];
+
+const isTabKey = (value: string | null): value is TabKey => TAB_KEYS.includes(value as TabKey);
 
 type StatusPageEditorProps = {
   dashboardId: string;
@@ -103,7 +106,19 @@ export function StatusPageEditor({
   });
 
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabKey>('incidents');
+  const searchParams = useSearchParams();
+  const urlTab = searchParams.get('tab');
+  const activeTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
+
+  const setActiveTab = useCallback((tab: TabKey) => {
+    const params = new URLSearchParams(window.location.search);
+    if (tab === 'incidents') params.delete('tab');
+    else params.set('tab', tab);
+    const query = params.toString();
+    // Native replaceState keeps useSearchParams in sync without an RSC refetch or a history entry.
+    window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+  }, []);
+
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
