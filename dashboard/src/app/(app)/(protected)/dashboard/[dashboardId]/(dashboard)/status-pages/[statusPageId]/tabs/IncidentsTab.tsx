@@ -217,6 +217,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const [composer, setComposer] = useState<Composer>(emptyComposer);
   // Updates staged locally (edit mode) — not published until "Update public page".
   const [pendingUpdates, setPendingUpdates] = useState<PendingUpdate[]>([]);
+  // Baseline for the dirty check
+  const [initialPendingUpdates, setInitialPendingUpdates] = useState<PendingUpdate[]>([]);
   const pendingIdRef = useRef(0);
   // Seeds the header status pill before the timeline loads (edit only).
   const [incidentStatus, setIncidentStatus] = useState<StatusPageIncidentStatusValue>('investigating');
@@ -257,7 +259,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   // Only the incident details count as metadata; staged updates are tracked separately.
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
-  const hasChanges = metadataDirty || pendingUpdates.length > 0;
+  const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(initialPendingUpdates);
+  const hasChanges = metadataDirty || pendingDirty;
   // Anything that would be lost on close: saved-but-unpublished work, a half-typed update, or an
   // in-progress inline edit. Closing with any of these prompts before discarding.
   const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
@@ -387,6 +390,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     setInitialForm(next);
     setComposer(nextComposer);
     setPendingUpdates(pending);
+    setInitialPendingUpdates(pending);
     setIncidentStatus(status);
     setEditingUpdateId(null);
     setOpen(true);
