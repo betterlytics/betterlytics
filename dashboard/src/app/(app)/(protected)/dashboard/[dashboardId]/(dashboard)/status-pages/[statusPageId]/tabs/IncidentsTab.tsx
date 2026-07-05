@@ -119,6 +119,16 @@ const statusBadgeClass = (status: StatusPageIncidentStatusValue) =>
 
 const statusDotClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
 
+const STATUS_TONE_DOT_HOLLOW: Record<IncidentStatusTone, string> = {
+  amber: 'bg-background border-2 border-amber-500',
+  orange: 'bg-background border-2 border-orange-500',
+  blue: 'bg-background border-2 border-sky-500',
+  green: 'bg-background border-2 border-emerald-500',
+};
+
+const statusDotHollowClass = (status: StatusPageIncidentStatusValue) =>
+  STATUS_TONE_DOT_HOLLOW[INCIDENT_STATUS_TONE[status]];
+
 const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
   amber: 'text-amber-600 dark:text-amber-400',
   orange: 'text-orange-600 dark:text-orange-400',
@@ -1254,7 +1264,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             <div
                               className={cn(
                                 'ring-background h-2.5 w-2.5 rounded-full ring',
-                                pending ? 'bg-background border-2 border-amber-500' : statusDotClass(row.status),
+                                pending ? statusDotHollowClass(row.status) : statusDotClass(row.status),
                               )}
                             />
                           }
@@ -1263,12 +1273,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             <span className={cn('text-[13px] font-semibold', statusTextClass(row.status))}>
                               {t(`status.${row.status}`)}
                             </span>
-                            {pending && (
-                              <span className='inline-flex items-center gap-1 text-xs font-medium text-amber-600 dark:text-amber-400'>
-                                <span className='h-1.5 w-1.5 rounded-full bg-amber-500' />
-                                {t('timeline.pending')}
-                              </span>
-                            )}
                             <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
                               {pending ? (
                                 <>
@@ -1389,7 +1393,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
             <div className='ml-auto flex flex-wrap items-center justify-end gap-2'>
               {hasChanges && (
                 <span className='text-muted-foreground hidden items-center gap-1.5 text-xs sm:flex'>
-                  <span className='h-2 w-2 rounded-full bg-amber-500' />
+                  <span className='bg-primary h-2 w-2 rounded-full' />
                   {t('form.unsaved')}
                 </span>
               )}

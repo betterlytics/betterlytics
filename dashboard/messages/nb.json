@@ -4277,7 +4277,6 @@
           "deleteUpdate": "Slett oppdatering",
           "done": "Ferdig",
           "updateDeleted": "Oppdatering fjernet",
-          "pending": "Venter",
           "removePending": "Fjern oppdatering"
         },
         "discard": {

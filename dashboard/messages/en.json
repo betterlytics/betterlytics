@@ -4274,7 +4274,6 @@
           "deleteUpdate": "Delete update",
           "done": "Done",
           "updateDeleted": "Update removed",
-          "pending": "Pending",
           "removePending": "Remove update"
         },
         "discard": {
