@@ -4267,6 +4267,7 @@
         "composer": {
           "section": "Publiser en oppdatering",
           "messagePlaceholder": "Legg til en melding (valgfritt)",
+          "noopHint": "Legg til en melding eller endre statusen for å publisere en oppdatering.",
           "time": "Oppdateringstidspunkt"
         },
         "timeline": {

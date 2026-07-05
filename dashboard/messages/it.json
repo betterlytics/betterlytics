@@ -4267,6 +4267,7 @@
         "composer": {
           "section": "Pubblica un aggiornamento",
           "messagePlaceholder": "Aggiungi un messaggio (facoltativo)",
+          "noopHint": "Aggiungi un messaggio o cambia lo stato per pubblicare un aggiornamento.",
           "time": "Orario dell’aggiornamento"
         },
         "timeline": {

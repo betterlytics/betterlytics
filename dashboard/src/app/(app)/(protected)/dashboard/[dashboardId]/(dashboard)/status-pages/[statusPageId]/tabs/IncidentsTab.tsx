@@ -236,6 +236,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const [deletedUpdateIds, setDeletedUpdateIds] = useState<string[]>([]);
   const [titleTouched, setTitleTouched] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  // Set when the user tries to post a no-op update (same status, no message); surfaces the reason.
+  const [composerError, setComposerError] = useState(false);
+  const composerMessageRef = useRef<HTMLTextAreaElement>(null);
 
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
   const [searchInput, setSearchInput] = useState('');
@@ -341,6 +344,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     };
     setPendingUpdates((list) => [...list, staged]);
     setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
+    setComposerError(false);
   };
 
   const removePendingUpdate = (tempId: string) =>
@@ -400,6 +404,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     setEditedUpdates({});
     setDeletedUpdateIds([]);
     setTitleTouched(false);
+    setComposerError(false);
     setOpen(true);
   };
 
@@ -753,7 +758,17 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
   const headerStatus = latestStatus;
   const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
-  const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
+  const composerIsNoop = composer.message.trim().length === 0 && composer.status === latestStatus;
+  const showComposerHint = composerError && composerIsNoop;
+
+  const handleAddUpdate = () => {
+    if (composerIsNoop) {
+      setComposerError(true);
+      composerMessageRef.current?.focus();
+      return;
+    }
+    stagePendingUpdate();
+  };
 
   const titleMissing = form.title.trim().length === 0;
   const showTitleError = titleTouched && titleMissing;
@@ -1195,6 +1210,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                 </div>
                 <Textarea
                   id='inc-message'
+                  ref={composerMessageRef}
                   rows={3}
                   placeholder={t('composer.messagePlaceholder')}
                   value={composer.message}
@@ -1214,8 +1230,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                       <Button
                         size='sm'
                         variant='outline'
-                        onClick={stagePendingUpdate}
-                        disabled={disabled || !canPost}
+                        onClick={handleAddUpdate}
+                        disabled={disabled || atUpdateCap}
                         className='ml-auto cursor-pointer'
                       >
                         <Plus className='h-3.5 w-3.5' />
@@ -1224,6 +1240,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     )}
                   </PermissionGate>
                 </div>
+                {showComposerHint && <p className='text-destructive text-xs'>{t('composer.noopHint')}</p>}
               </div>
             </section>
 

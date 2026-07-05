@@ -4264,6 +4264,7 @@
         "composer": {
           "section": "Post an update",
           "messagePlaceholder": "Add a message (optional)",
+          "noopHint": "Add a message or change the status to post an update.",
           "time": "Update time"
         },
         "timeline": {

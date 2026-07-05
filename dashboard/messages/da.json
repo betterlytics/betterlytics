@@ -4267,6 +4267,7 @@
         "composer": {
           "section": "Post en opdatering",
           "messagePlaceholder": "Tilføj en besked (valgfrit)",
+          "noopHint": "Tilføj en besked eller skift status for at poste en opdatering.",
           "time": "Opdateringstidspunkt"
         },
         "timeline": {
