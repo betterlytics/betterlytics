@@ -54,9 +54,10 @@ export function IncidentCard({
   const hour12 = useDisplayHour12();
   const [expanded, setExpanded] = useState(false);
 
+  const currentYear = new Date().getFullYear();
   const fmt = useMemo(
     () => ({
-      entry: new Intl.DateTimeFormat('en', {
+      strip: new Intl.DateTimeFormat('en', {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -64,11 +65,31 @@ export function IncidentCard({
         hour12,
         timeZone,
       }),
-      time: new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', hour12, timeZone }),
-      dayKey: new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone }),
+      entry: new Intl.DateTimeFormat('en', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12,
+        timeZone,
+      }),
+      entryWithYear: new Intl.DateTimeFormat('en', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12,
+        timeZone,
+      }),
     }),
     [timeZone, hour12],
   );
+  // Drop the year for the current year; keep it once an entry is in a past year.
+  const formatEntry = (date: Date) =>
+    (date.getFullYear() === currentYear ? fmt.entry : fmt.entryWithYear).format(date);
 
   const ongoing = incident.resolvedAt == null;
   const startedAt = new Date(incident.startedAt);
@@ -95,12 +116,7 @@ export function IncidentCard({
   const hiddenCount = Math.max(0, updates.length - MAX_VISIBLE_UPDATES);
   const shownUpdates = expanded ? updates : updates.slice(0, MAX_VISIBLE_UPDATES);
 
-  const firstDayKey = updates.length > 0 ? fmt.dayKey.format(new Date(updates[0].createdAt)) : '';
-  const spansMultipleDays = updates.some(
-    (update) => fmt.dayKey.format(new Date(update.createdAt)) !== firstDayKey,
-  );
-
-  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
+  const renderEntry =(update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
     return (
       <TimelineItem
@@ -109,14 +125,6 @@ export function IncidentCard({
         headHeightPx={20}
         spacingPx={16}
         lineClassName='bg-[var(--sp-card-border)]'
-        leading={
-          <span
-            suppressHydrationWarning
-            className='flex h-5 items-center justify-end text-[11px] whitespace-nowrap text-[var(--sp-muted)] tabular-nums'
-          >
-            {spansMultipleDays ? fmt.entry.format(entryDate) : fmt.time.format(entryDate)}
-          </span>
-        }
         dot={
           <span
             className='h-2.5 w-2.5 rounded-full'
@@ -130,10 +138,18 @@ export function IncidentCard({
           </span>
         </div>
         {update.message ? (
-          <p className='mt-0.5 text-[13px] leading-relaxed break-words whitespace-pre-line text-[var(--sp-muted)]'>
+          <p className='mt-2 text-[13px] leading-relaxed break-words whitespace-pre-line text-[var(--sp-text)]'>
             {update.message}
           </p>
         ) : null}
+        {/* Timestamp sits under the update (incident.io / Statuspage style) so the message uses the
+            card's full width. Kept muted so the readable message stays the focus. */}
+        <div
+          suppressHydrationWarning
+          className='mt-2 text-[12px] whitespace-nowrap text-[var(--sp-muted)] tabular-nums'
+        >
+          {formatEntry(entryDate)}
+        </div>
       </TimelineItem>
     );
   };
@@ -152,7 +168,7 @@ export function IncidentCard({
             {ongoing
               ? t('incident.ongoing', {
                   duration: formatDuration(durationMs),
-                  time: fmt.entry.format(startedAt),
+                  time: fmt.strip.format(startedAt),
                 })
               : t('incident.resolved', { duration: formatDuration(durationMs) })}
           </div>

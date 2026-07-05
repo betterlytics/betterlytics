@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
+// A two-column timeline: a dot rail on the left (hugging the edge) and full-width content on the
+// right. Timestamps live inside the content, below each entry (incident.io / Statuspage style).
 export function Timeline({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <ol className={cn('relative grid grid-cols-[auto_18px_minmax(0,1fr)] gap-x-3', className)}>{children}</ol>
+    <ol className={cn('relative grid grid-cols-[18px_minmax(0,1fr)] gap-x-3', className)}>{children}</ol>
   );
 }
 
@@ -13,7 +15,6 @@ type TimelineItemProps = {
   spacingPx: number;
   dot: ReactNode;
   lineClassName: string;
-  leading?: ReactNode;
   children: ReactNode;
   className?: string;
 };
@@ -24,16 +25,14 @@ export function TimelineItem({
   spacingPx,
   dot,
   lineClassName,
-  leading,
   children,
   className,
 }: TimelineItemProps) {
   return (
     <li
-      className={cn('col-span-3 grid [grid-template-columns:subgrid]', className)}
+      className={cn('col-span-2 grid [grid-template-columns:subgrid]', className)}
       style={{ paddingBottom: isLast ? undefined : spacingPx }}
     >
-      {leading ?? <span />}
       <div className='relative flex justify-center'>
         {!isLast ? (
           <span

@@ -193,10 +193,6 @@ function toLocalInput(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-function isSameLocalDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-}
-
 function emptyForm(): IncidentForm {
   return { id: null, detectedIncidentId: null, title: '', impact: 'outage', monitorCheckIds: [] };
 }
@@ -752,7 +748,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     ];
     return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [pendingUpdates, timeline, editedUpdates, deletedUpdateIds]);
-  const timelineSpansDays = timelineRows.some((row) => !isSameLocalDay(row.date, new Date()));
 
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
   const headerStatus = latestStatus;
@@ -1270,26 +1265,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                           spacingPx={16}
                           lineClassName='bg-border'
                           className='group'
-                          leading={
-                            <span
-                              suppressHydrationWarning
-                              className='text-muted-foreground flex h-7 items-center justify-end text-[11px] whitespace-nowrap tabular-nums'
-                            >
-                              {timelineSpansDays
-                                ? formatLocalDateTime(row.date, locale, {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12,
-                                  })
-                                : formatLocalDateTime(row.date, locale, {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12,
-                                  })}
-                            </span>
-                          }
                           dot={
                             <div
                               className={cn(
@@ -1384,11 +1359,25 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             </div>
                           ) : (
                             row.message && (
-                              <p className='text-muted-foreground mt-0.5 text-[13px] leading-relaxed break-words whitespace-pre-line'>
+                              <p className='text-foreground mt-2 text-[13px] leading-relaxed break-words whitespace-pre-line'>
                                 {row.message}
                               </p>
                             )
                           )}
+                          <div
+                            suppressHydrationWarning
+                            className='text-muted-foreground mt-2 text-[12px] whitespace-nowrap tabular-nums'
+                          >
+                            {formatLocalDateTime(row.date, locale, {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              ...(row.date.getFullYear() === new Date().getFullYear() ? {} : { year: 'numeric' }),
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12,
+                            })}
+                          </div>
                         </TimelineItem>
                       );
                     })}
