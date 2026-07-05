@@ -146,6 +146,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     () => ({
       name,
       slug,
+      customDomain: customDomain.trim() || null,
       theme,
       accentColor,
       logoUrl: logo.url,
@@ -157,7 +158,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
         publicName: row.publicName,
       })),
     }),
-    [name, slug, theme, accentColor, logo.url, showPastIncidents, hideBranding, monitorRows],
+    [name, slug, customDomain, theme, accentColor, logo.url, showPastIncidents, hideBranding, monitorRows],
   );
 
   return {

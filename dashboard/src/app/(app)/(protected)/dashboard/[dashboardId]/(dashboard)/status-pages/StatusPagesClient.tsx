@@ -44,6 +44,10 @@ import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { cn } from '@/lib/utils';
 import { deleteStatusPageAction, setStatusPagePublishedAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
+import {
+  statusPagePublicUrl,
+  statusPagePublicUrlLabel,
+} from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import {
   MONITOR_TONE,
@@ -99,8 +103,8 @@ export function StatusPagesClient({
 
   const [showWizard, setShowWizard] = useState(false);
 
-  const copyLink = (slug: string) => {
-    navigator.clipboard.writeText(`${publicBaseUrl}/status/${slug}`);
+  const copyLink = (page: StatusPageListItem) => {
+    navigator.clipboard.writeText(statusPagePublicUrl(page, publicBaseUrl));
     toast.success(t('actions.linkCopied'));
   };
 
@@ -234,7 +238,7 @@ export function StatusPagesClient({
         {statusPages.map((page) => {
           const isIncident = page.activeIncidentCount > 0;
           const editorHref = `/dashboard/${dashboardId}/status-pages/${page.id}`;
-          const publicUrl = `${publicBaseUrl}/status/${page.slug}`;
+          const publicUrl = statusPagePublicUrl(page, publicBaseUrl);
           const monitorStates = page.monitors.map(
             (monitor) => monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
           );
@@ -260,12 +264,17 @@ export function StatusPagesClient({
                   imageFit='cover'
                   className='border-border/60 bg-background h-9 w-9 rounded-lg border text-sm'
                 />
-                <Link
-                  href={editorHref}
-                  className='text-foreground block min-w-0 truncate text-sm font-semibold after:absolute after:inset-0'
-                >
-                  {page.name}
-                </Link>
+                <div className='min-w-0'>
+                  <Link
+                    href={editorHref}
+                    className='text-foreground block min-w-0 truncate text-sm font-semibold after:absolute after:inset-0'
+                  >
+                    {page.name}
+                  </Link>
+                  <span className='text-muted-foreground block truncate text-xs'>
+                    {statusPagePublicUrlLabel(page)}
+                  </span>
+                </div>
               </div>
 
               <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
@@ -359,7 +368,7 @@ export function StatusPagesClient({
                       </Link>
                     </DropdownMenuItem>
                     {page.isPublished && (
-                      <DropdownMenuItem onSelect={() => copyLink(page.slug)} className='cursor-pointer'>
+                      <DropdownMenuItem onSelect={() => copyLink(page)} className='cursor-pointer'>
                         <Copy className='mr-2 h-4 w-4' />
                         {t('actions.copyUrl')}
                       </DropdownMenuItem>

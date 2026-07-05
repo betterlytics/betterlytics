@@ -68,6 +68,7 @@ export type PublicStatusPageIncident = z.infer<typeof PublicStatusPageIncidentSc
 export const PublicStatusPageDataSchema = z.object({
   name: z.string(),
   slug: z.string(),
+  customDomain: z.string().nullable().default(null),
   logoUrl: z.string().nullable(),
   faviconUrl: z.string().nullable().default(null),
   homepageUrl: z.string().nullable().default(null),
