@@ -4071,7 +4071,17 @@
       "hideBranding": "Hide Betterlytics branding",
       "hideBrandingHint": "Remove the \"Powered by Betterlytics\" footer from your public page.",
       "homepageUrlInvalid": "Enter a valid URL starting with http:// or https://.",
-      "customDomainInvalid": "Enter a valid domain, e.g. status.example.com.",
+      "customDomainInvalid": "Enter a subdomain, e.g. status.example.com.",
+      "customDomainSetup": {
+        "helpLabel": "Custom domain setup help",
+        "intro": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at Betterlytics.",
+        "recordType": "Type",
+        "recordName": "Name",
+        "recordValue": "Value",
+        "copy": "Copy value",
+        "nameHint": "Some providers add your domain automatically — if so, enter just <mono>{label}</mono> as the Name instead of the full <monoBreak>{domain}</monoBreak>.",
+        "propagation": "DNS changes can take up to a few hours to take effect."
+      },
       "visibility": {
         "title": "Visibility",
         "hint": "Choose whether search engines can index your status page.",

@@ -4072,7 +4072,17 @@
       "customDomain": "Eget domæne",
       "customDomainHint": "Host siden på dit eget domæne.",
       "homepageUrlInvalid": "Indtast en gyldig URL, der starter med http:// eller https://.",
-      "customDomainInvalid": "Indtast et gyldigt domæne, f.eks. status.example.com.",
+      "customDomainInvalid": "Indtast et underdomæne, f.eks. status.example.com.",
+      "customDomainSetup": {
+        "helpLabel": "Hjælp til opsætning af eget domæne",
+        "intro": "Tilføj denne DNS-post hos din domæneudbyder for at pege <strong>{domain}</strong> mod Betterlytics.",
+        "recordType": "Type",
+        "recordName": "Navn",
+        "recordValue": "Værdi",
+        "copy": "Kopiér værdi",
+        "nameHint": "Nogle udbydere tilføjer automatisk dit domæne — hvis det er tilfældet, skal du kun indtaste <mono>{label}</mono> som Navn i stedet for hele <monoBreak>{domain}</monoBreak>.",
+        "propagation": "DNS-ændringer kan tage op til nogle timer at træde i kraft."
+      },
       "hideBranding": "Skjul Betterlytics-branding",
       "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-foden fra din offentlige side.",
       "visibility": {

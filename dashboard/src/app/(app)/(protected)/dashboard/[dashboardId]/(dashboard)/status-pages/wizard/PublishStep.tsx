@@ -12,6 +12,10 @@ import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.e
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
 import { LabeledTextField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LabeledTextField';
 import { VisibilityRadioGroup } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/VisibilityRadioGroup';
+import {
+  CustomDomainSetup,
+  CustomDomainHelpLink,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 
 type PublishStepProps = {
@@ -88,7 +92,12 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domai
           <LabeledTextField
             id='wiz-domain'
             label={t('customDomain')}
-            labelAdornment={locked ? <ProBadge /> : undefined}
+            labelAdornment={
+              <>
+                {locked && <ProBadge />}
+                <CustomDomainHelpLink />
+              </>
+            }
             hint={t('customDomainHint')}
             placeholder={`status.${domain}`}
             hintPosition='top'
@@ -99,6 +108,15 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domai
           />
         )}
       </CapabilityGate>
+
+      {!customDomainLocked && (
+        <CustomDomainSetup
+          customDomain={form.customDomain}
+          slug={form.slug}
+          publicHost={publicHost}
+          isValid={form.isCustomDomainValid}
+        />
+      )}
 
       <div className='space-y-2'>
         <Label>{t('visibility.title')}</Label>

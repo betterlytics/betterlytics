@@ -1,6 +1,6 @@
 'use client';
 
-import { useDeferredValue, useMemo, useState, type ReactNode } from 'react';
+import { memo, useDeferredValue, useMemo, useState, type ReactNode } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
 import { Maximize2, X } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
@@ -49,7 +49,7 @@ type LivePreviewProps = {
 };
 
 /** The browser-chrome framed render of the status page at a given zoom. */
-function PreviewFrame({
+const PreviewFrame = memo(function PreviewFrame({
   data,
   messages,
   publicHost,
@@ -105,7 +105,7 @@ function PreviewFrame({
       </div>
     </div>
   );
-}
+});
 
 /**
  * Client-composed live preview: the server assembles uptime/incident data for
