@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 export type PreviewDraft = {
   name: string;
   slug: string;
+  customDomain: string | null;
   theme: StatusPageTheme;
   accentColor: string;
   logoUrl: string | null;
@@ -53,6 +54,7 @@ const PreviewFrame = memo(function PreviewFrame({
   messages,
   publicHost,
   slug,
+  customDomain,
   label,
   zoom,
   chromeRight,
@@ -63,6 +65,7 @@ const PreviewFrame = memo(function PreviewFrame({
   messages: Record<string, unknown>;
   publicHost: string;
   slug: string;
+  customDomain: string | null;
   label: string;
   /** Scale of the rendered page inside the browser frame. */
   zoom: number;
@@ -86,7 +89,7 @@ const PreviewFrame = memo(function PreviewFrame({
             centerUrl ? 'max-w-[60%]' : 'ml-2 flex-1',
           )}
         >
-          {`${publicHost}/status/${slug}`}
+          {customDomain ? customDomain : `${publicHost}/status/${slug}`}
         </span>
         <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1 justify-end' : 'ml-1 flex-none')}>
           <span className='text-muted-foreground flex-none text-xs'>{label}</span>
@@ -209,6 +212,7 @@ export function LivePreview({
       messages={messages}
       publicHost={publicHost}
       slug={draft.slug}
+      customDomain={draft.customDomain}
       label={tEditor('preview')}
       zoom={0.5}
       className={className}
@@ -247,6 +251,7 @@ export function LivePreview({
               messages={messages}
               publicHost={publicHost}
               slug={draft.slug}
+              customDomain={draft.customDomain}
               label={tEditor('preview')}
               zoom={0.85}
               centerUrl

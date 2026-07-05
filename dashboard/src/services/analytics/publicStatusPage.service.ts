@@ -250,6 +250,7 @@ async function assembleStatusPage(
   const data = PublicStatusPageDataSchema.parse({
     name: page.name,
     slug: page.slug,
+    customDomain: page.customDomain,
     logoUrl: page.logoUrl,
     faviconUrl: page.faviconUrl,
     homepageUrl: page.homepageUrl,

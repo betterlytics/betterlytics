@@ -109,6 +109,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
   demo: () => ({
     name: 'Northwind Status',
     slug: 'demo',
+    customDomain: null,
     logoUrl: null,
     faviconUrl: null,
     homepageUrl: null,
@@ -259,6 +260,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
   'demo-unknown': () => ({
     name: 'Northwind Status',
     slug: 'demo-unknown',
+    customDomain: null,
     logoUrl: null,
     faviconUrl: null,
     homepageUrl: null,
@@ -280,6 +282,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
   'demo-many': () => ({
     name: 'Northwind Status',
     slug: 'demo-many',
+    customDomain: null,
     logoUrl: null,
     faviconUrl: null,
     homepageUrl: null,
@@ -306,6 +309,7 @@ const FIXTURES: Record<string, () => PublicStatusPageData> = {
   'demo-single': () => ({
     name: 'Northwind Status',
     slug: 'demo-single',
+    customDomain: null,
     logoUrl: null,
     faviconUrl: null,
     homepageUrl: null,

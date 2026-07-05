@@ -15,7 +15,7 @@ import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
 import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
+import { defaultPublicMonitorName, statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
@@ -221,8 +221,12 @@ export function StatusPageEditor({
   const backHref = `/dashboard/${dashboardId}/status-pages`;
 
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
-  const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
-  const savedPublicUrl = `${publicBaseUrl}/status/${statusPage.slug}`;
+  const liveCustomDomain = form.input.customDomain;
+  const publicUrl = statusPagePublicUrl({ slug: form.slug, customDomain: liveCustomDomain }, publicBaseUrl);
+  const savedPublicUrl = statusPagePublicUrl(
+    { slug: statusPage.slug, customDomain: statusPage.customDomain },
+    publicBaseUrl,
+  );
   const noMonitors = form.includedCount === 0;
   const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
   const pageInvalid =
@@ -280,7 +284,13 @@ export function StatusPageEditor({
           <div className='border-border bg-card flex h-9 items-center rounded-lg border'>
             <span className='flex min-w-0 items-center py-1 pr-2 pl-3'>
               <span className='text-muted-foreground max-w-[55vw] truncate font-mono text-xs sm:max-w-xs'>
-                {publicHost}/status/<span className='text-foreground font-medium'>{form.slug}</span>
+                {liveCustomDomain ? (
+                  <span className='text-foreground font-medium'>{liveCustomDomain}</span>
+                ) : (
+                  <>
+                    {publicHost}/status/<span className='text-foreground font-medium'>{form.slug}</span>
+                  </>
+                )}
               </span>
             </span>
             <span aria-hidden className='bg-border h-5 w-px flex-none' />

@@ -7,6 +7,7 @@ import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import type { PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { getPublicStatusPageData } from '@/services/analytics/publicStatusPage.service';
+import { statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { StatusPageView } from './components/StatusPageView';
 
 export const revalidate = 60;
@@ -51,7 +52,8 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
     title: data.name,
     description,
     robots: data.noindex ? { index: false, follow: false } : undefined,
-    alternates: { canonical: `${env.PUBLIC_BASE_URL}/status/${data.slug}` },
+    // Prefer the custom domain as the canonical when set, so the /status/{slug} duplicate consolidates to it.
+    alternates: { canonical: statusPagePublicUrl(data, env.PUBLIC_BASE_URL) },
     openGraph: { title: data.name, description },
     // `sizes: 'any'` makes browsers prefer this over the app-wide /favicon.ico.
     icons: { icon: [{ url: iconUrl, sizes: 'any' }] },
