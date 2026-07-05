@@ -108,4 +108,9 @@ describe('buildJourneyQuery', () => {
     expect(taggedSql).toContain('path[3] ILIKE');
     expect(taggedParams).toMatchObject({ step_filter_0: ['/'], step_filter_1: ['/signup'] });
   });
+
+  it('rejects positions that fail the SQL injection guard', () => {
+    expect(() => build({ '40': [urlFilter(['/a'])] })).toThrow('Invalid journey position');
+    expect(() => build({ '1.5': [urlFilter(['/a'])] })).toThrow('Invalid journey position');
+  });
 });
