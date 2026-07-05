@@ -1,9 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
 import { ProBadge } from '@/components/billing/ProBadge';
@@ -21,6 +23,10 @@ type GeneralTabProps = {
   dashboardDomain: string;
   isPublished: boolean;
   savedSlug: string;
+  onUnpublish: () => void;
+  isUnpublishing: boolean;
+  onDelete: () => void;
+  isDeleting: boolean;
 };
 
 export function GeneralTab({
@@ -30,6 +36,10 @@ export function GeneralTab({
   dashboardDomain,
   isPublished,
   savedSlug,
+  onUnpublish,
+  isUnpublishing,
+  onDelete,
+  isDeleting,
 }: GeneralTabProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
@@ -137,6 +147,45 @@ export function GeneralTab({
 
       <Section title={t('visibility.title')} description={t('visibility.hint')}>
         <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
+      </Section>
+
+      <Section title={t('dangerZone.title')} description={t('dangerZone.hint')}>
+        <div className='border-destructive/30 bg-destructive/5 divide-destructive/20 divide-y rounded-xl border'>
+          {isPublished && (
+            <div className='flex flex-wrap items-center justify-between gap-4 p-5'>
+              <p className='text-muted-foreground text-sm'>{t('dangerZone.unpublishDescription')}</p>
+              <PermissionGate>
+                {(disabled) => (
+                  <Button
+                    type='button'
+                    variant='outline'
+                    disabled={disabled || isUnpublishing}
+                    onClick={onUnpublish}
+                    className='flex-none cursor-pointer'
+                  >
+                    {t('unpublish')}
+                  </Button>
+                )}
+              </PermissionGate>
+            </div>
+          )}
+          <div className='flex flex-wrap items-center justify-between gap-4 p-5'>
+            <p className='text-muted-foreground text-sm'>{t('dangerZone.deleteDescription')}</p>
+            <PermissionGate>
+              {(disabled) => (
+                <Button
+                  type='button'
+                  variant='destructive'
+                  disabled={disabled || isDeleting}
+                  onClick={onDelete}
+                  className='flex-none cursor-pointer'
+                >
+                  {t('delete')}
+                </Button>
+              )}
+            </PermissionGate>
+          </div>
+        </div>
       </Section>
     </>
   );

@@ -4052,6 +4052,7 @@
       "pageNameHint": "Mostrato in cima alla tua pagina pubblica e nella scheda del browser.",
       "nameRequired": "Il nome della pagina è obbligatorio.",
       "unsavedChanges": "Modifiche non salvate",
+      "publishNeedsSave": "Salva le modifiche prima di pubblicare.",
       "confirmPublish": {
         "title": "Pubblicare queste modifiche?",
         "description": "Le tue modifiche appariranno subito sulla pagina di stato pubblica.",
@@ -4085,6 +4086,12 @@
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
         "unlisted": "Non in elenco",
         "unlistedHint": "Chiunque abbia il link può vederla, ma è nascosta ai motori di ricerca."
+      },
+      "dangerZone": {
+        "title": "Zona pericolosa",
+        "hint": "Azioni distruttive. L'eliminazione non può essere annullata.",
+        "unpublishDescription": "Metti la pagina offline. I visitatori non potranno raggiungerla, ma puoi pubblicarla di nuovo in qualsiasi momento.",
+        "deleteDescription": "Elimina definitivamente questa pagina di stato e la sua cronologia degli incidenti. Questa azione non può essere annullata."
       },
       "logo": "Logo",
       "uploadLogo": "Carica logo",

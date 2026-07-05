@@ -4049,6 +4049,7 @@
       "pageNameHint": "Shown at the top of your public page and in the browser tab.",
       "nameRequired": "Page name is required.",
       "unsavedChanges": "Unsaved changes",
+      "publishNeedsSave": "Save your changes before publishing.",
       "confirmPublish": {
         "title": "Publish these changes?",
         "description": "Your edits will appear on the public status page right away.",
@@ -4078,6 +4079,12 @@
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
         "unlisted": "Unlisted",
         "unlistedHint": "Anyone with the link can view, but hidden from search engines."
+      },
+      "dangerZone": {
+        "title": "Danger zone",
+        "hint": "Destructive actions. Deleting can't be undone.",
+        "unpublishDescription": "Take the page offline. Visitors won't be able to reach it, but you can publish again anytime.",
+        "deleteDescription": "Permanently delete this status page and its incident history. This can't be undone."
       },
       "branding": "Branding",
       "brandHint": "Logo and accent color shown on the public page.",

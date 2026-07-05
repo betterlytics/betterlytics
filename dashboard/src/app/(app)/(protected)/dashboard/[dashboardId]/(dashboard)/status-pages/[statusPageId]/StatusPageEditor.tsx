@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { ConfirmDialog } from '@/components/dialogs';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
 import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
@@ -23,7 +24,11 @@ import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashb
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
-import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
+import {
+  deleteStatusPageAction,
+  setStatusPagePublishedAction,
+  updateStatusPageAction,
+} from '@/app/actions/analytics/statusPage.actions';
 import { GeneralTab } from './tabs/GeneralTab';
 import { CustomizeTab } from './tabs/CustomizeTab';
 import { MonitorsTab } from './tabs/MonitorsTab';
@@ -88,6 +93,7 @@ export function StatusPageEditor({
   previewMessages,
 }: StatusPageEditorProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const tActions = useTranslations('statusPagesPage.actions');
   const router = useRouter();
 
   const initialMonitorRows = useMemo(() => buildMonitorRows(statusPage, monitors), [statusPage, monitors]);
@@ -123,6 +129,8 @@ export function StatusPageEditor({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const slugStatus = useSlugAvailability({
     dashboardId,
@@ -174,6 +182,24 @@ export function StatusPageEditor({
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
+  const publishMutation = useMutation({
+    mutationFn: (isPublished: boolean) => setStatusPagePublishedAction(dashboardId, statusPage.id, isPublished),
+    onSuccess: (_result, isPublished) => {
+      toast.success(isPublished ? tActions('publishedToast') : tActions('unpublishedToast'));
+      router.refresh();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteStatusPageAction(dashboardId, statusPage.id),
+    onSuccess: () => {
+      toast.success(t('deleted'));
+      router.push(`/dashboard/${dashboardId}/status-pages`);
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
   const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
 
   const saveNow = () => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) });
@@ -196,15 +222,14 @@ export function StatusPageEditor({
 
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${publicBaseUrl}/status/${form.slug}`;
+  const savedPublicUrl = `${publicBaseUrl}/status/${statusPage.slug}`;
   const noMonitors = form.includedCount === 0;
   const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
-  const saveDisabled =
-    !effectiveDirty ||
-    form.isNameEmpty ||
-    noMonitors ||
-    slugNotSaveable ||
-    !form.isHomepageUrlValid ||
-    !form.isCustomDomainValid;
+  const pageInvalid =
+    form.isNameEmpty || noMonitors || slugNotSaveable || !form.isHomepageUrlValid || !form.isCustomDomainValid;
+  const saveDisabled = !effectiveDirty || pageInvalid;
+  const publishBlocked = effectiveDirty || pageInvalid;
+  const publishBlockedReason = effectiveDirty ? t('publishNeedsSave') : t('minMonitorsHint');
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -267,17 +292,39 @@ export function StatusPageEditor({
             >
               {copied ? <Check className='h-3.5 w-3.5 text-emerald-500' /> : <Copy className='h-3.5 w-3.5' />}
             </button>
-            <a
-              href={publicUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-              aria-label={t('viewPage')}
-              title={t('viewPage')}
-              className='text-muted-foreground hover:text-foreground hover:bg-accent mr-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-md transition-colors'
-            >
-              <ExternalLink className='h-3.5 w-3.5' />
-            </a>
+            {statusPage.isPublished && (
+              <a
+                href={savedPublicUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                aria-label={t('viewPage')}
+                title={t('viewPage')}
+                className='text-muted-foreground hover:text-foreground hover:bg-accent mr-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-md transition-colors'
+              >
+                <ExternalLink className='h-3.5 w-3.5' />
+              </a>
+            )}
           </div>
+
+          {!statusPage.isPublished && (
+            <PermissionGate>
+              {(disabled) => (
+                <DisabledTooltip disabled={!disabled && publishBlocked} message={publishBlockedReason}>
+                  {() => (
+                    <Button
+                      type='button'
+                      disabled={disabled || publishBlocked || publishMutation.isPending}
+                      onClick={() => publishMutation.mutate(true)}
+                      className='h-9 cursor-pointer'
+                    >
+                      {publishMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {tActions('publish')}
+                    </Button>
+                  )}
+                </DisabledTooltip>
+              )}
+            </PermissionGate>
+          )}
 
           {activeTab !== 'incidents' && (
             <button
@@ -326,6 +373,10 @@ export function StatusPageEditor({
                   dashboardDomain={dashboardDomain}
                   isPublished={statusPage.isPublished}
                   savedSlug={statusPage.slug}
+                  onUnpublish={() => setShowUnpublishConfirm(true)}
+                  isUnpublishing={publishMutation.isPending}
+                  onDelete={() => setShowDeleteConfirm(true)}
+                  isDeleting={deleteMutation.isPending}
                 />
               )}
               {activeTab === 'monitors' && <MonitorsTab form={form} />}
@@ -421,6 +472,30 @@ export function StatusPageEditor({
           setShowPublishConfirm(false);
           saveNow();
         }}
+      />
+
+      <ConfirmDialog
+        open={showUnpublishConfirm}
+        onOpenChange={setShowUnpublishConfirm}
+        title={tActions('unpublishConfirmTitle')}
+        description={tActions('unpublishConfirmDescription')}
+        confirmLabel={tActions('unpublish')}
+        onConfirm={() => {
+          setShowUnpublishConfirm(false);
+          publishMutation.mutate(false);
+        }}
+      />
+
+      <DestructiveActionDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title={t('deleteConfirmTitle')}
+        description={t('deleteConfirmDescription')}
+        confirmLabel={t('deleteConfirm')}
+        cancelLabel={t('cancel')}
+        onConfirm={() => deleteMutation.mutate()}
+        isPending={deleteMutation.isPending}
+        showIcon
       />
     </div>
   );
