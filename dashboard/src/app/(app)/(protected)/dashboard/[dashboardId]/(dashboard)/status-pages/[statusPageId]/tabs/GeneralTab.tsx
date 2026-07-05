@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { Check, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,10 @@ import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { LabeledTextField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LabeledTextField';
 import { VisibilityRadioGroup } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/VisibilityRadioGroup';
+import {
+  CustomDomainSetup,
+  CustomDomainHelpLink,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
 import { Section } from './Section';
 
 type GeneralTabProps = {
@@ -23,6 +28,7 @@ type GeneralTabProps = {
   dashboardDomain: string;
   isPublished: boolean;
   savedSlug: string;
+  savedCustomDomain: string | null;
   onUnpublish: () => void;
   isUnpublishing: boolean;
   onDelete: () => void;
@@ -36,6 +42,7 @@ export function GeneralTab({
   dashboardDomain,
   isPublished,
   savedSlug,
+  savedCustomDomain,
   onUnpublish,
   isUnpublishing,
   onDelete,
@@ -44,21 +51,10 @@ export function GeneralTab({
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
   const customDomainLocked = !caps.statusPages.customDomain;
-
-  const slugStatusLabel =
-    slugStatus === 'idle' ? null : (
-      <span
-        className={
-          slugStatus === 'available'
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : slugStatus === 'checking'
-              ? 'text-muted-foreground'
-              : 'text-destructive'
-        }
-      >
-        {t(`slugStatus.${slugStatus}`)}
-      </span>
-    );
+  // Only surface the DNS box once the slug or custom domain differs from what's saved (i.e. the CNAME
+  // target actually needs (re)pointing) — an unchanged, already-configured domain shouldn't nag.
+  const cnameInputsChanged =
+    form.slug !== savedSlug || form.customDomain.trim() !== (savedCustomDomain ?? '').trim();
 
   return (
     <>
@@ -84,22 +80,33 @@ export function GeneralTab({
                 <span className='border-input bg-muted text-muted-foreground flex flex-none items-center rounded-l-md border border-r-0 px-3 font-mono text-sm whitespace-nowrap'>
                   {publicHost}/status/
                 </span>
-                <Input
-                  id='sp-slug'
-                  value={form.slug}
-                  maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
-                  onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
-                  className='min-w-0 flex-1 rounded-l-none font-mono'
-                />
+                <div className='relative min-w-0 flex-1'>
+                  <Input
+                    id='sp-slug'
+                    value={form.slug}
+                    maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
+                    onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
+                    className='rounded-l-none pr-9 font-mono'
+                  />
+                  <span className='absolute top-1/2 right-2.5 -translate-y-1/2'>
+                    {slugStatus === 'checking' && (
+                      <Loader2
+                        className='text-muted-foreground h-4 w-4 animate-spin'
+                        aria-label={t('slugStatus.checking')}
+                      />
+                    )}
+                    {slugStatus === 'available' && (
+                      <Check className='h-4 w-4 text-emerald-500' aria-label={t('slugStatus.available')} />
+                    )}
+                    {(slugStatus === 'taken' || slugStatus === 'invalid') && (
+                      <X className='text-destructive h-4 w-4' aria-label={t(`slugStatus.${slugStatus}`)} />
+                    )}
+                  </span>
+                </div>
               </div>
-              <div className='flex justify-between text-xs'>
-                {isPublished && form.slug !== savedSlug ? (
-                  <span className='text-amber-600 dark:text-amber-400'>{t('slugWarning')}</span>
-                ) : (
-                  <span />
-                )}
-                {slugStatusLabel}
-              </div>
+              {(slugStatus === 'taken' || slugStatus === 'invalid') && (
+                <p className='text-destructive text-xs'>{t(`slugStatus.${slugStatus}`)}</p>
+              )}
             </div>
           </div>
           <div className='grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2'>
@@ -119,7 +126,12 @@ export function GeneralTab({
                 <LabeledTextField
                   id='sp-domain'
                   label={t('customDomain')}
-                  labelAdornment={locked ? <ProBadge /> : undefined}
+                  labelAdornment={
+                    <>
+                      {locked && <ProBadge />}
+                      <CustomDomainHelpLink />
+                    </>
+                  }
                   hint={t('customDomainHint')}
                   hintPosition='top'
                   placeholder={`status.${dashboardDomain}`}
@@ -131,6 +143,15 @@ export function GeneralTab({
               )}
             </CapabilityGate>
           </div>
+          {!customDomainLocked && (
+            <CustomDomainSetup
+              customDomain={form.customDomain}
+              slug={form.slug}
+              publicHost={publicHost}
+              isValid={form.isCustomDomainValid}
+              changed={cnameInputsChanged}
+            />
+          )}
           <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
             <div>
               <div className='text-sm font-medium'>{t('showPastIncidents')}</div>

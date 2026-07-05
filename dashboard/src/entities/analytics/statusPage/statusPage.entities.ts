@@ -104,11 +104,21 @@ function isReservedStatusPageDomain(domain: string): boolean {
   return domain.split('.').some((label) => RESERVED_STATUS_PAGE_DOMAIN_LABELS.has(label));
 }
 
+/**
+ * A CNAME can't live on the zone apex, so the custom domain must be a subdomain. Without a public
+ * suffix list we approximate "has a subdomain" as "at least three labels" (sub.domain.tld) — this
+ * rejects a bare apex like example.com while accepting status.example.com.
+ */
+function isStatusPageSubdomain(domain: string): boolean {
+  return domain.split('.').length >= 3;
+}
+
 export const StatusPageCustomDomainSchema = z
   .string()
   .trim()
   .toLowerCase()
   .regex(CUSTOM_DOMAIN_REGEX, 'Enter a valid domain, e.g. status.example.com')
+  .refine(isStatusPageSubdomain, 'Use a subdomain like status.example.com, not the root domain')
   .refine((domain) => !isReservedStatusPageDomain(domain), 'This domain is reserved');
 
 export const StatusPageMonitorSelectionSchema = z.object({

@@ -4072,7 +4072,17 @@
       "customDomain": "Dominio personalizzato",
       "customDomainHint": "Ospita la pagina sul tuo dominio.",
       "homepageUrlInvalid": "Inserisci un URL valido che inizia con http:// o https://.",
-      "customDomainInvalid": "Inserisci un dominio valido, es. status.example.com.",
+      "customDomainInvalid": "Inserisci un sottodominio, es. status.example.com.",
+      "customDomainSetup": {
+        "helpLabel": "Aiuto per la configurazione del dominio personalizzato",
+        "intro": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a Betterlytics.",
+        "recordType": "Tipo",
+        "recordName": "Nome",
+        "recordValue": "Valore",
+        "copy": "Copia valore",
+        "nameHint": "Alcuni provider aggiungono automaticamente il tuo dominio — in tal caso, inserisci solo <mono>{label}</mono> come Nome invece del <monoBreak>{domain}</monoBreak> completo.",
+        "propagation": "Le modifiche al DNS possono richiedere fino a qualche ora per avere effetto."
+      },
       "hideBranding": "Nascondi il branding Betterlytics",
       "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
       "branding": "Branding",

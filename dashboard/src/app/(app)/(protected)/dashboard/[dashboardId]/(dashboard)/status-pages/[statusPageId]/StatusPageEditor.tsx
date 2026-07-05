@@ -373,6 +373,7 @@ export function StatusPageEditor({
                   dashboardDomain={dashboardDomain}
                   isPublished={statusPage.isPublished}
                   savedSlug={statusPage.slug}
+                  savedCustomDomain={statusPage.customDomain}
                   onUnpublish={() => setShowUnpublishConfirm(true)}
                   isUnpublishing={publishMutation.isPending}
                   onDelete={() => setShowDeleteConfirm(true)}
