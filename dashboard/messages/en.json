@@ -3952,8 +3952,8 @@
     "pastIncidents": "Past incidents",
     "noPastIncidents": "No past incidents in the last {days} days.",
     "incident": {
-      "resolved": "Resolved · lasted {duration}",
-      "ongoing": "Ongoing · {duration} · since {time}",
+      "resolved": "Resolved after {duration}",
+      "ongoing": "Ongoing for {duration}, since {time}",
       "showMore": "Show {count} earlier {count, plural, one {update} other {updates}}",
       "showLess": "Hide earlier updates",
       "impact": {

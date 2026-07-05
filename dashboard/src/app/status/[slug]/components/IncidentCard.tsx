@@ -148,23 +148,13 @@ export function IncidentCard({
           <h3 className='text-[18px] leading-snug font-bold tracking-[-0.01em] break-words text-[var(--sp-text)]'>
             {incident.title}
           </h3>
-          {/* Status strip: a state dot plus a one-line summary of how long the incident has run. */}
-          <div
-            suppressHydrationWarning
-            className='mt-2 flex items-center gap-1.5 text-[13px] text-[var(--sp-muted-strong)]'
-          >
-            <span
-              className='h-2 w-2 flex-none rounded-full'
-              style={{ backgroundColor: ongoing ? 'var(--sp-warn)' : 'var(--sp-ok)' }}
-            />
-            <span>
-              {ongoing
-                ? t('incident.ongoing', {
-                    duration: formatDuration(durationMs),
-                    time: fmt.entry.format(startedAt),
-                  })
-                : t('incident.resolved', { duration: formatDuration(durationMs) })}
-            </span>
+          <div suppressHydrationWarning className='mt-2 text-[13px] text-[var(--sp-muted-strong)]'>
+            {ongoing
+              ? t('incident.ongoing', {
+                  duration: formatDuration(durationMs),
+                  time: fmt.entry.format(startedAt),
+                })
+              : t('incident.resolved', { duration: formatDuration(durationMs) })}
           </div>
         </div>
         <span
