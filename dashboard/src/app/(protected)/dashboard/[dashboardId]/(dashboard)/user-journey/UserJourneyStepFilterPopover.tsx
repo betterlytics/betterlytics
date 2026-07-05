@@ -32,6 +32,7 @@ export function UserJourneyStepFilterPopover({
   align = 'start',
 }: UserJourneyStepFilterPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.userJourney');
 
@@ -70,13 +71,11 @@ export function UserJourneyStepFilterPopover({
       <QueryFiltersSelectorContent
         initialFilters={committed}
         filters={filters}
-        isSavedFiltersOpen={false}
-        setIsSavedFiltersOpen={() => {}}
+        isSavedFiltersOpen={isSavedFiltersOpen}
+        setIsSavedFiltersOpen={setIsSavedFiltersOpen}
         onApply={applyFilters}
         onCancel={cancelFilters}
         globalPropertyKeys={globalPropertyKeys}
-        hideSavedFilters
-        useExtendedRange
       />
     </>
   );
