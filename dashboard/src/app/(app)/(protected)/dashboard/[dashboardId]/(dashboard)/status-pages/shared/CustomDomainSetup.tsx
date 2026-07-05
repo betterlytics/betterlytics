@@ -99,8 +99,10 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid, cha
         {t.rich('customDomainSetup.nameHint', {
           label: hostLabel,
           domain,
-          mono: (chunks) => <span className='font-mono'>{chunks}</span>,
-          monoBreak: (chunks) => <span className='font-mono break-all'>{chunks}</span>,
+          mono: (chunks) => <span className='text-foreground font-mono font-medium'>{chunks}</span>,
+          monoBreak: (chunks) => (
+            <span className='text-foreground font-mono font-medium break-all'>{chunks}</span>
+          ),
         })}
       </p>
       <p className='text-muted-foreground text-xs'>{t('customDomainSetup.propagation')}</p>
