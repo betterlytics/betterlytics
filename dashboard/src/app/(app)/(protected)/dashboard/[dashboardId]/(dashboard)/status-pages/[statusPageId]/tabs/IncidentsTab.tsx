@@ -213,8 +213,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
-  // Collapse the detected-outages triage panel to get it out of the way of the incidents list.
-  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   // Guards an accidental close (overlay / Esc / Cancel) when there's unsaved work in the sheet.
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
