@@ -157,16 +157,12 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
         </PopoverContent>
       </Popover>
 
-      {/* Live scope summary: amber when unspecified, otherwise the derived page-wide / scoped state. */}
-      <div className='text-muted-foreground flex items-center gap-2 text-xs'>
-        <span
-          className={cn('h-1.5 w-1.5 shrink-0 rounded-full', unspecified ? 'bg-amber-500' : 'bg-primary')}
-        />
+      <div className='text-muted-foreground text-xs'>
         {unspecified
           ? t('monitorSummaryUnspecified')
           : allSelected
             ? t('monitorSummaryPageWide', { count: total })
-            : t('monitorSummaryScoped', { count: selectedCount })}
+            : t('monitorSummaryScoped', { count: selectedCount, total })}
       </div>
     </div>
   );

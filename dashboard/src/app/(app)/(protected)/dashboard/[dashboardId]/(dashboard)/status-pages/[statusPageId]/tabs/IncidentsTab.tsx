@@ -341,7 +341,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       timeLocal: composer.timeLocal,
     };
     setPendingUpdates((list) => [...list, staged]);
-    setComposer((c) => ({ ...c, message: '' }));
+    setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
   };
 
   const removePendingUpdate = (tempId: string) =>
@@ -749,8 +749,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     ];
     return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [pendingUpdates, timeline]);
-  const timelineSpansDays =
-    timelineRows.length > 1 && timelineRows.some((row) => !isSameLocalDay(row.date, timelineRows[0].date));
+  const timelineSpansDays = timelineRows.some((row) => !isSameLocalDay(row.date, new Date()));
 
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
   const headerStatus = latestStatus;
