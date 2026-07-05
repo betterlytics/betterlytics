@@ -4052,6 +4052,7 @@
       "pageNameHint": "Vises øverst på den offentlige siden din og i nettleserfanen.",
       "nameRequired": "Sidenavn er påkrevd.",
       "unsavedChanges": "Ulagrede endringer",
+      "publishNeedsSave": "Lagre endringene før du publiserer.",
       "confirmPublish": {
         "title": "Publisere disse endringene?",
         "description": "Endringene dine vises på den offentlige statussiden umiddelbart.",
@@ -4085,6 +4086,12 @@
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
         "unlisted": "Ikke oppført",
         "unlistedHint": "Alle med lenken kan se siden, men den skjules for søkemotorer."
+      },
+      "dangerZone": {
+        "title": "Faresone",
+        "hint": "Destruktive handlinger. Sletting kan ikke angres.",
+        "unpublishDescription": "Ta siden offline. Besøkende vil ikke kunne nå den, men du kan publisere igjen når som helst.",
+        "deleteDescription": "Slett denne statussiden og hendelseshistorikken permanent. Dette kan ikke angres."
       },
       "logo": "Logo",
       "uploadLogo": "Last opp logo",
