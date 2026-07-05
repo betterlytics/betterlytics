@@ -130,7 +130,7 @@ export function IncidentCard({
           </span>
         </div>
         {update.message ? (
-          <p className='mt-0.5 text-[13px] leading-relaxed whitespace-pre-line text-[var(--sp-muted)]'>
+          <p className='mt-0.5 text-[13px] leading-relaxed break-words whitespace-pre-line text-[var(--sp-muted)]'>
             {update.message}
           </p>
         ) : null}
@@ -145,7 +145,7 @@ export function IncidentCard({
     >
       <div className='flex items-start justify-between gap-4'>
         <div className='min-w-0'>
-          <h3 className='text-[18px] leading-snug font-bold tracking-[-0.01em] text-[var(--sp-text)]'>
+          <h3 className='text-[18px] leading-snug font-bold tracking-[-0.01em] break-words text-[var(--sp-text)]'>
             {incident.title}
           </h3>
           {/* Status strip: a state dot plus a one-line summary of how long the incident has run. */}

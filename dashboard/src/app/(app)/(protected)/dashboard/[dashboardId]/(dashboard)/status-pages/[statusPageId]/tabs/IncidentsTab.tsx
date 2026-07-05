@@ -1384,7 +1384,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             </div>
                           ) : (
                             row.message && (
-                              <p className='text-muted-foreground mt-0.5 text-[13px] leading-relaxed whitespace-pre-line'>
+                              <p className='text-muted-foreground mt-0.5 text-[13px] leading-relaxed break-words whitespace-pre-line'>
                                 {row.message}
                               </p>
                             )
