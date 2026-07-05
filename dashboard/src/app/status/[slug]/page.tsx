@@ -37,7 +37,8 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
   const { slug } = await params;
   const data = await resolveStatusPage(slug);
   if (!data) {
-    return {};
+    // `manifest: null` for the same reason as the main return below.
+    return { manifest: null };
   }
 
   const t = await getTranslations({ locale: 'en', namespace: 'publicStatusPage' });
@@ -54,6 +55,8 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
     openGraph: { title: data.name, description },
     // `sizes: 'any'` makes browsers prefer this over the app-wide /favicon.ico.
     icons: { icon: [{ url: iconUrl, sizes: 'any' }] },
+    // Opt out of the app-wide web manifest
+    manifest: null,
   };
 }
 
