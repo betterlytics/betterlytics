@@ -78,11 +78,14 @@
 }
 
 /* Betterlytics mark for the powered-by footer: the SVG silhouette masked and
-   filled with currentColor, so it follows the theme like the adjacent text */
+   filled with currentColor, so it follows the theme like the adjacent text.
+   Referenced relatively (not as a bare `/…` public path) so the bundler emits it under
+   `/_next/static/media/…` — the status subdomain/custom-domain proxy forwards `/_next/static/*`
+   but 404s bare root paths, so an absolute public URL would fail to load there. */
 .bl-status-logo {
   display: inline-block;
   background-color: currentColor;
-  mask: url('/betterlytics-logo-dark-simple.svg') no-repeat center / contain;
+  mask: url('./betterlytics-mark.svg') no-repeat center / contain;
 }
 
 .bl-status-page[data-sp-theme='light'] {
