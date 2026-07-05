@@ -68,39 +68,24 @@ export const StatusPageIncidentCreateSchema = z.object({
 
 export type StatusPageIncidentCreate = z.infer<typeof StatusPageIncidentCreateSchema>;
 
-// Edit incident metadata only. Status/body/resolvedAt are derived from the timeline, so they are
-// never edited here — those change by posting/editing/removing updates.
-export const StatusPageIncidentUpdateSchema = z.object({
-  id: z.string().min(1),
-  statusPageId: z.string().min(1),
-  title: incidentTitle.optional(),
-  impact: StatusPageIncidentImpactSchema.optional(),
-  monitorCheckIds: z.array(z.string().min(1)).optional(),
-});
-export type StatusPageIncidentUpdate = z.infer<typeof StatusPageIncidentUpdateSchema>;
-
-export const StatusPageIncidentUpdatePostSchema = z.object({
+export const StatusPageIncidentBatchSaveSchema = z.object({
   incidentId: z.string().min(1),
   statusPageId: z.string().min(1),
-  updates: z.array(incidentUpdateInput).min(1).max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX),
+  metadata: z
+    .object({
+      title: incidentTitle,
+      impact: StatusPageIncidentImpactSchema,
+      monitorCheckIds: z.array(z.string().min(1)),
+    })
+    .optional(),
+  editedUpdates: z
+    .array(z.object({ updateId: z.string().min(1), message: incidentMessage.default('') }))
+    .max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX)
+    .default([]),
+  newUpdates: z.array(incidentUpdateInput).max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX).default([]),
+  deletedUpdateIds: z.array(z.string().min(1)).max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX).default([]),
 });
-export type StatusPageIncidentUpdatePost = z.infer<typeof StatusPageIncidentUpdatePostSchema>;
-
-// Edit an existing update — only its message (text body) is mutable; status and time are fixed.
-export const StatusPageIncidentUpdateEditSchema = z.object({
-  incidentId: z.string().min(1),
-  statusPageId: z.string().min(1),
-  updateId: z.string().min(1),
-  message: incidentMessage.default(''),
-});
-export type StatusPageIncidentUpdateEdit = z.infer<typeof StatusPageIncidentUpdateEditSchema>;
-
-export const StatusPageIncidentUpdateDeleteSchema = z.object({
-  incidentId: z.string().min(1),
-  statusPageId: z.string().min(1),
-  updateId: z.string().min(1),
-});
-export type StatusPageIncidentUpdateDelete = z.infer<typeof StatusPageIncidentUpdateDeleteSchema>;
+export type StatusPageIncidentBatchSave = z.infer<typeof StatusPageIncidentBatchSaveSchema>;
 
 export type DetectedOutageMonitor = {
   monitorCheckId: string;

@@ -5,12 +5,9 @@ import {
   StatusPageIncidentTimelineEntrySchema,
   type IncidentWithSlug,
   type StatusPageIncident,
+  type StatusPageIncidentBatchSave,
   type StatusPageIncidentCreate,
   type StatusPageIncidentTimelineEntry,
-  type StatusPageIncidentUpdate,
-  type StatusPageIncidentUpdateDelete,
-  type StatusPageIncidentUpdateEdit,
-  type StatusPageIncidentUpdatePost,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 
@@ -104,30 +101,12 @@ export async function createStatusPageIncident(
   return { incident: StatusPageIncidentSchema.parse(created.incident), slug: created.slug };
 }
 
-// Metadata-only: title, impact, affected monitor. Status/body/resolvedAt are timeline-derived and
-// only change through the update functions below.
-export async function updateStatusPageIncident(
-  dashboardId: string,
-  data: StatusPageIncidentUpdate,
-): Promise<IncidentWithSlug | null> {
-  const { id, statusPageId, ...metadata } = data;
-  const existing = await prisma.statusPageIncident.findFirst({
-    where: { id, statusPageId, dashboardId, deletedAt: null },
-    select: { id: true, statusPage: { select: { slug: true } } },
-  });
-  if (!existing) return null;
-
-  const updated = await prisma.statusPageIncident.update({ where: { id: existing.id }, data: metadata });
-  return { incident: StatusPageIncidentSchema.parse(updated), slug: existing.statusPage.slug };
-}
-
-/** Append staged timeline updates in one transaction (all-or-nothing), then resync derived fields. */
-export async function postStatusPageIncidentUpdates(
+export async function applyStatusPageIncidentChanges(
   dashboardId: string,
   actorId: string | null,
-  data: StatusPageIncidentUpdatePost,
+  data: StatusPageIncidentBatchSave,
 ): Promise<IncidentWithSlug | null> {
-  const { incidentId, statusPageId, updates } = data;
+  const { incidentId, statusPageId, metadata, editedUpdates, newUpdates, deletedUpdateIds } = data;
   return prisma.$transaction(async (tx) => {
     const existing = await tx.statusPageIncident.findFirst({
       where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
@@ -135,59 +114,34 @@ export async function postStatusPageIncidentUpdates(
     });
     if (!existing) return null;
 
-    await tx.statusPageIncidentUpdate.createMany({
-      data: updates.map((update) => ({
-        incidentId,
-        status: update.status,
-        message: update.message,
-        createdById: actorId,
-        createdAt: update.occurredAt ?? new Date(),
-      })),
-    });
-    const incident = await syncIncidentFromTimeline(tx, incidentId);
-    return { incident: StatusPageIncidentSchema.parse(incident), slug: existing.statusPage.slug };
-  });
-}
+    if (metadata) {
+      await tx.statusPageIncident.update({ where: { id: incidentId }, data: metadata });
+    }
+    for (const edit of editedUpdates) {
+      await tx.statusPageIncidentUpdate.updateMany({
+        where: { id: edit.updateId, incidentId },
+        data: { message: edit.message },
+      });
+    }
+    if (newUpdates.length > 0) {
+      await tx.statusPageIncidentUpdate.createMany({
+        data: newUpdates.map((update) => ({
+          incidentId,
+          status: update.status,
+          message: update.message,
+          createdById: actorId,
+          createdAt: update.occurredAt ?? new Date(),
+        })),
+      });
+    }
+    if (deletedUpdateIds.length > 0) {
+      await tx.statusPageIncidentUpdate.deleteMany({ where: { id: { in: deletedUpdateIds }, incidentId } });
+    }
 
-/** Edit only an existing update's message (text body); status and time are immutable. */
-export async function editStatusPageIncidentUpdate(
-  dashboardId: string,
-  data: StatusPageIncidentUpdateEdit,
-): Promise<IncidentWithSlug | null> {
-  const { incidentId, statusPageId, updateId, message } = data;
-  return prisma.$transaction(async (tx) => {
-    const existing = await tx.statusPageIncident.findFirst({
-      where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
-      select: { id: true, statusPage: { select: { slug: true } } },
-    });
-    if (!existing) return null;
-
-    const edited = await tx.statusPageIncidentUpdate.updateMany({
-      where: { id: updateId, incidentId },
-      data: { message },
-    });
-    if (edited.count === 0) return null;
-
-    const incident = await syncIncidentFromTimeline(tx, incidentId);
-    return { incident: StatusPageIncidentSchema.parse(incident), slug: existing.statusPage.slug };
-  });
-}
-
-/** Remove a timeline update, then resync derived fields. The caller guards against deleting the last. */
-export async function deleteStatusPageIncidentUpdate(
-  dashboardId: string,
-  data: StatusPageIncidentUpdateDelete,
-): Promise<IncidentWithSlug | null> {
-  const { incidentId, statusPageId, updateId } = data;
-  return prisma.$transaction(async (tx) => {
-    const existing = await tx.statusPageIncident.findFirst({
-      where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
-      select: { id: true, statusPage: { select: { slug: true } } },
-    });
-    if (!existing) return null;
-
-    const deleted = await tx.statusPageIncidentUpdate.deleteMany({ where: { id: updateId, incidentId } });
-    if (deleted.count === 0) return null;
+    const remaining = await tx.statusPageIncidentUpdate.count({ where: { incidentId } });
+    if (remaining < 1 || remaining > STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX) {
+      throw new Error(`Incident ${incidentId} timeline would have ${remaining} updates`);
+    }
 
     const incident = await syncIncidentFromTimeline(tx, incidentId);
     return { incident: StatusPageIncidentSchema.parse(incident), slug: existing.statusPage.slug };

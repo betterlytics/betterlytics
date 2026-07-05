@@ -64,7 +64,7 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
             className='border-input dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border bg-transparent px-2.5 py-1.5 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]'
           >
             {unspecified ? (
-              <span className='text-muted-foreground italic'>{t('monitorNotSpecified')}</span>
+              <span className='text-muted-foreground'>{t('monitorNotSpecified')}</span>
             ) : (
               tokens.map((token) => (
                 <span
@@ -157,13 +157,13 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
         </PopoverContent>
       </Popover>
 
-      <div className='text-muted-foreground text-xs'>
-        {unspecified
-          ? t('monitorSummaryUnspecified')
-          : allSelected
+      {!unspecified && (
+        <div className='text-muted-foreground text-xs'>
+          {allSelected
             ? t('monitorSummaryPageWide', { count: total })
             : t('monitorSummaryScoped', { count: selectedCount, total })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,16 +1,13 @@
 import {
+  applyStatusPageIncidentChanges,
   countStatusPageIncidents,
   countStatusPageIncidentUpdates,
   createStatusPageIncident,
   deleteStatusPageIncident,
-  deleteStatusPageIncidentUpdate,
-  editStatusPageIncidentUpdate,
   getStatusPageIncidentById,
   listLinkedDetectedIncidentIds,
   listStatusPageIncidents,
   listStatusPageIncidentUpdates,
-  postStatusPageIncidentUpdates,
-  updateStatusPageIncident,
 } from '@/repositories/postgres/statusPageIncident.repository';
 import {
   getStatusPageSnapshotById,
@@ -23,13 +20,10 @@ import {
   type DetectedOutageSuggestion,
   type IncidentWithSlug,
   type StatusPageIncident,
+  type StatusPageIncidentBatchSave,
   type StatusPageIncidentCreate,
   type StatusPageIncidentImpact,
   type StatusPageIncidentTimelineEntry,
-  type StatusPageIncidentUpdate,
-  type StatusPageIncidentUpdateDelete,
-  type StatusPageIncidentUpdateEdit,
-  type StatusPageIncidentUpdatePost,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 
 export function getIncidentsForStatusPage(
@@ -55,33 +49,12 @@ export function addStatusPageIncident(
   return createStatusPageIncident(dashboardId, createdById, data);
 }
 
-export function saveStatusPageIncident(
+export function saveStatusPageIncidentChanges(
   dashboardId: string,
-  data: StatusPageIncidentUpdate,
+  actorId: string | null,
+  data: StatusPageIncidentBatchSave,
 ): Promise<IncidentWithSlug | null> {
-  return updateStatusPageIncident(dashboardId, data);
-}
-
-export function addStatusPageIncidentUpdates(
-  dashboardId: string,
-  actorId: string,
-  data: StatusPageIncidentUpdatePost,
-): Promise<IncidentWithSlug | null> {
-  return postStatusPageIncidentUpdates(dashboardId, actorId, data);
-}
-
-export function editStatusPageIncidentUpdateMessage(
-  dashboardId: string,
-  data: StatusPageIncidentUpdateEdit,
-): Promise<IncidentWithSlug | null> {
-  return editStatusPageIncidentUpdate(dashboardId, data);
-}
-
-export function removeStatusPageIncidentUpdate(
-  dashboardId: string,
-  data: StatusPageIncidentUpdateDelete,
-): Promise<IncidentWithSlug | null> {
-  return deleteStatusPageIncidentUpdate(dashboardId, data);
+  return applyStatusPageIncidentChanges(dashboardId, actorId, data);
 }
 
 export function countIncidentUpdates(incidentId: string): Promise<number> {

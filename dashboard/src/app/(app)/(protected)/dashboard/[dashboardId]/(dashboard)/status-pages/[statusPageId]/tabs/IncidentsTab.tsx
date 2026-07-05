@@ -73,13 +73,10 @@ import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 import {
   createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,
-  deleteStatusPageIncidentUpdateAction,
-  editStatusPageIncidentUpdateAction,
   fetchIncidentSuggestionsAction,
   fetchIncidentTimelineAction,
   fetchStatusPageIncidentsAction,
-  postStatusPageIncidentUpdatesAction,
-  updateStatusPageIncidentAction,
+  saveStatusPageIncidentChangesAction,
 } from '@/app/actions/analytics/statusPage.actions';
 import { AffectedMonitorsPicker } from './AffectedMonitorsPicker';
 
@@ -235,6 +232,10 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   // Inline message edit of a timeline entry.
   const [editingUpdateId, setEditingUpdateId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState('');
+  const [editedUpdates, setEditedUpdates] = useState<Record<string, string>>({});
+  const [deletedUpdateIds, setDeletedUpdateIds] = useState<string[]>([]);
+  const [titleTouched, setTitleTouched] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
   const [searchInput, setSearchInput] = useState('');
@@ -270,7 +271,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   // Only the incident details count as metadata; staged updates are tracked separately.
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
   const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(initialPendingUpdates);
-  const hasChanges = metadataDirty || pendingDirty;
+  const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
+  const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty;
   // Anything that would be lost on close: saved-but-unpublished work, a half-typed update, or an
   // in-progress inline edit. Closing with any of these prompts before discarding.
   const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
@@ -306,22 +308,19 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         return;
       }
 
-      if (metadataDirty) {
-        await updateStatusPageIncidentAction(dashboardId, {
-          id: form.id,
-          statusPageId,
-          title: form.title.trim(),
-          impact: form.impact,
-          monitorCheckIds: form.monitorCheckIds,
-        });
-      }
-      if (stagedUpdates.length > 0) {
-        await postStatusPageIncidentUpdatesAction(dashboardId, {
-          incidentId: form.id,
-          statusPageId,
-          updates: stagedUpdates,
-        });
-      }
+      await saveStatusPageIncidentChangesAction(dashboardId, {
+        incidentId: form.id,
+        statusPageId,
+        metadata: metadataDirty
+          ? { title: form.title.trim(), impact: form.impact, monitorCheckIds: form.monitorCheckIds }
+          : undefined,
+        editedUpdates: Object.entries(editedUpdates).map(([updateId, message]) => ({
+          updateId,
+          message: message.trim(),
+        })),
+        newUpdates: stagedUpdates,
+        deletedUpdateIds,
+      });
     },
     onSuccess: () => {
       setOpen(false);
@@ -352,33 +351,28 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     setEditingUpdateId(null);
   };
 
-  // Edit only the message (text body) of an existing timeline update.
-  const editUpdateMutation = useMutation({
-    mutationFn: (updateId: string) =>
-      editStatusPageIncidentUpdateAction(dashboardId, {
-        incidentId: form.id as string,
-        statusPageId,
-        updateId,
-        message: editDraft.trim(),
-      }),
-    onSuccess: () => {
-      setEditingUpdateId(null);
-      afterMutation();
-      toast.success(t('saved'));
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
-  });
+  const commitSavedEdit = (updateId: string) => {
+    const original = timeline.find((e) => e.id === updateId)?.message ?? '';
+    const next = editDraft.trim();
+    setEditedUpdates((map) => {
+      const copy = { ...map };
+      if (next === original) delete copy[updateId];
+      else copy[updateId] = next;
+      return copy;
+    });
+    setEditingUpdateId(null);
+  };
 
-  const deleteUpdateMutation = useMutation({
-    mutationFn: (updateId: string) =>
-      deleteStatusPageIncidentUpdateAction(dashboardId, { incidentId: form.id as string, statusPageId, updateId }),
-    onSuccess: (incident) => {
-      if (incident) setIncidentStatus(incident.status);
-      afterMutation();
-      toast.success(t('timeline.updateDeleted'));
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
-  });
+  const stageDeleteUpdate = (updateId: string) => {
+    setDeletedUpdateIds((ids) => (ids.includes(updateId) ? ids : [...ids, updateId]));
+    setEditedUpdates((map) => {
+      if (!(updateId in map)) return map;
+      const copy = { ...map };
+      delete copy[updateId];
+      return copy;
+    });
+    if (editingUpdateId === updateId) setEditingUpdateId(null);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (incidentId: string) => deleteStatusPageIncidentAction(dashboardId, statusPageId, incidentId),
@@ -403,6 +397,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     setInitialPendingUpdates(pending);
     setIncidentStatus(status);
     setEditingUpdateId(null);
+    setEditedUpdates({});
+    setDeletedUpdateIds([]);
+    setTitleTouched(false);
     setOpen(true);
   };
 
@@ -738,29 +735,39 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         message: u.message,
         date: new Date(u.timeLocal),
       })),
-      ...timeline.map((e) => ({
-        kind: 'saved' as const,
-        key: e.id,
-        id: e.id,
-        status: e.status,
-        message: e.message,
-        date: e.createdAt,
-      })),
+      ...timeline
+        .filter((e) => !deletedUpdateIds.includes(e.id))
+        .map((e) => ({
+          kind: 'saved' as const,
+          key: e.id,
+          id: e.id,
+          status: e.status,
+          message: editedUpdates[e.id] ?? e.message,
+          date: e.createdAt,
+        })),
     ];
     return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [pendingUpdates, timeline]);
+  }, [pendingUpdates, timeline, editedUpdates, deletedUpdateIds]);
   const timelineSpansDays = timelineRows.some((row) => !isSameLocalDay(row.date, new Date()));
 
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
   const headerStatus = latestStatus;
-  const atUpdateCap = timeline.length + pendingUpdates.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
+  const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
   const canPost = !atUpdateCap && (composer.message.trim().length > 0 || composer.status !== latestStatus);
 
-  const formValid = form.title.trim().length > 0;
+  const titleMissing = form.title.trim().length === 0;
+  const showTitleError = titleTouched && titleMissing;
 
   const saveCta = form.id != null ? t('form.updatePublic') : t('form.publishCta');
 
-  const canSave = formValid && (form.id == null || hasChanges);
+  const handleSaveClick = () => {
+    if (titleMissing) {
+      setTitleTouched(true);
+      titleInputRef.current?.focus();
+      return;
+    }
+    saveMutation.mutate();
+  };
 
   return (
     <div className='space-y-4'>
@@ -1107,13 +1114,21 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
               </div>
 
               <div className='space-y-1.5'>
-                <Label htmlFor='inc-title'>{t('form.title')}</Label>
+                <Label htmlFor='inc-title'>
+                  {t('form.title')}
+                  <span className='text-destructive ml-0.5'>*</span>
+                </Label>
                 <Input
                   id='inc-title'
+                  ref={titleInputRef}
                   value={form.title}
                   maxLength={STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX}
+                  aria-invalid={showTitleError}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  onBlur={() => setTitleTouched(true)}
+                  className={cn(showTitleError && 'border-destructive focus-visible:ring-destructive/30')}
                 />
+                {showTitleError && <p className='text-destructive text-xs'>{t('form.titleRequired')}</p>}
               </div>
 
               <div className='space-y-2'>
@@ -1311,8 +1326,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                                         size='icon'
                                         variant='ghost'
                                         aria-label={t('timeline.deleteUpdate')}
-                                        disabled={timeline.length <= 1 || deleteUpdateMutation.isPending}
-                                        onClick={() => deleteUpdateMutation.mutate(row.id)}
+                                        disabled={timelineRows.length <= 1}
+                                        onClick={() => stageDeleteUpdate(row.id)}
                                         className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
                                       >
                                         <Trash2 className='h-3.5 w-3.5' />
@@ -1344,10 +1359,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                                 </Button>
                                 <Button
                                   size='sm'
-                                  onClick={() =>
-                                    pending ? commitPendingEdit(row.id) : editUpdateMutation.mutate(row.id)
-                                  }
-                                  disabled={!pending && editUpdateMutation.isPending}
+                                  onClick={() => (pending ? commitPendingEdit(row.id) : commitSavedEdit(row.id))}
                                   className='cursor-pointer'
                                 >
                                   {t('timeline.done')}
@@ -1402,8 +1414,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
               <PermissionGate>
                 {(disabled) => (
                   <Button
-                    disabled={disabled || !canSave || saveMutation.isPending}
-                    onClick={() => saveMutation.mutate()}
+                    disabled={disabled || saveMutation.isPending}
+                    onClick={handleSaveClick}
                     className='cursor-pointer'
                   >
                     {saveCta}

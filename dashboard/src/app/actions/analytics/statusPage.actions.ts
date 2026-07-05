@@ -13,11 +13,8 @@ import {
   type StatusPageImagesInput,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
+  StatusPageIncidentBatchSaveSchema,
   StatusPageIncidentCreateSchema,
-  StatusPageIncidentUpdateSchema,
-  StatusPageIncidentUpdateDeleteSchema,
-  StatusPageIncidentUpdateEditSchema,
-  StatusPageIncidentUpdatePostSchema,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import {
@@ -36,17 +33,14 @@ import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { statusPageValidator } from '@/lib/billing/validators';
 import {
   addStatusPageIncident,
-  addStatusPageIncidentUpdates,
   countActiveStatusPageIncidents,
   countIncidentUpdates,
-  editStatusPageIncidentUpdateMessage,
   getIncidentsForStatusPage,
   getIncidentSuggestions,
   getStatusPageIncidentTimeline,
   getStatusPageMonitorCheckIds,
   removeStatusPageIncident,
-  removeStatusPageIncidentUpdate,
-  saveStatusPageIncident,
+  saveStatusPageIncidentChanges,
 } from '@/services/analytics/statusPageIncident.service';
 import {
   getStatusPagePreviewData,
@@ -308,63 +302,29 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
   },
 );
 
-// Metadata only (title / impact / affected monitor). Status & timeline are changed via the update
-// actions below.
-export const updateStatusPageIncidentAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdateSchema>) => {
-    const payload = StatusPageIncidentUpdateSchema.parse(input);
-    if (payload.monitorCheckIds) {
-      payload.monitorCheckIds = await validateAffectedMonitors(
+export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentBatchSaveSchema>) => {
+    const payload = StatusPageIncidentBatchSaveSchema.parse(input);
+    if (payload.metadata) {
+      payload.metadata.monitorCheckIds = await validateAffectedMonitors(
         ctx.dashboardId,
         payload.statusPageId,
-        payload.monitorCheckIds,
+        payload.metadata.monitorCheckIds,
       );
     }
 
-    const result = await saveStatusPageIncident(ctx.dashboardId, payload);
-    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
-    return result?.incident ?? null;
-  },
-);
-
-export const postStatusPageIncidentUpdatesAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdatePostSchema>) => {
-    const payload = StatusPageIncidentUpdatePostSchema.parse(input);
-
-    if (
-      (await countIncidentUpdates(payload.incidentId)) + payload.updates.length >
-      STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX
-    ) {
+    const finalCount =
+      (await countIncidentUpdates(payload.incidentId)) +
+      payload.newUpdates.length -
+      payload.deletedUpdateIds.length;
+    if (finalCount > STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX) {
       throw new UserException((await getTranslations('validation'))('statusPageIncidentUpdateLimit'));
     }
-
-    const result = await addStatusPageIncidentUpdates(ctx.dashboardId, ctx.userId, payload);
-    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
-    return result?.incident ?? null;
-  },
-);
-
-// Edit an existing update's message (text body only).
-export const editStatusPageIncidentUpdateAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdateEditSchema>) => {
-    const payload = StatusPageIncidentUpdateEditSchema.parse(input);
-
-    const result = await editStatusPageIncidentUpdateMessage(ctx.dashboardId, payload);
-    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
-    return result?.incident ?? null;
-  },
-);
-
-// Remove a timeline update. An incident must keep at least one update, so the last one can't go.
-export const deleteStatusPageIncidentUpdateAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentUpdateDeleteSchema>) => {
-    const payload = StatusPageIncidentUpdateDeleteSchema.parse(input);
-
-    if ((await countIncidentUpdates(payload.incidentId)) <= 1) {
+    if (finalCount < 1) {
       throw new UserException((await getTranslations('validation'))('statusPageIncidentUpdateLast'));
     }
 
-    const result = await removeStatusPageIncidentUpdate(ctx.dashboardId, payload);
+    const result = await saveStatusPageIncidentChanges(ctx.dashboardId, ctx.userId, payload);
     if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
     return result?.incident ?? null;
   },
