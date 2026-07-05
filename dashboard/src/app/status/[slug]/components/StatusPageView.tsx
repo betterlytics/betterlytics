@@ -60,7 +60,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
         <MonitorUptimeCard data={data} />
         {data.incidents !== null && <Incidents data={data} />}
         {!data.hideBranding && (
-          <footer className='mt-8 text-center text-xs text-[var(--sp-faint)]'>
+          <footer className='mt-8 text-center text-xs text-[var(--sp-muted)]'>
             {t('poweredBy')}{' '}
             <a
               href='https://betterlytics.io'

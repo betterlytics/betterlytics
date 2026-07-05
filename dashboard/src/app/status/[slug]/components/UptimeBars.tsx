@@ -62,7 +62,7 @@ export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel
         {cells(days)}
       </div>
       <div className='mt-3 flex gap-[2px] sm:hidden'>{cells(days.slice(-UPTIME_BARS_COMPACT_DAYS))}</div>
-      <div className='mt-2 flex justify-between text-xs text-[var(--sp-faint)]'>
+      <div className='mt-2 flex justify-between text-xs text-[var(--sp-muted)]'>
         <span className='hidden sm:inline'>{startLabelFull}</span>
         <span className='sm:hidden'>{startLabelCompact}</span>
         <span>{todayLabel}</span>

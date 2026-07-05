@@ -44,7 +44,7 @@ export function Incidents({ data }: { data: PublicStatusPageData }) {
         <section className='mt-9'>
           <h2 className='text-[15px] font-bold text-[var(--sp-heading)]'>{t('pastIncidents')}</h2>
           {past.length === 0 ? (
-            <p className='mt-3 text-center text-[13px] text-[var(--sp-faint)]'>
+            <p className='mt-3 text-center text-[13px] text-[var(--sp-muted)]'>
               {t('noPastIncidents', { days })}
             </p>
           ) : (
