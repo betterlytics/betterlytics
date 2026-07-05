@@ -4074,7 +4074,7 @@
       "customDomainInvalid": "Enter a valid domain, e.g. status.example.com.",
       "visibility": {
         "title": "Visibility",
-        "hint": "Control who can find your status page.",
+        "hint": "Choose whether search engines can index your status page.",
         "public": "Public",
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
         "unlisted": "Unlisted",

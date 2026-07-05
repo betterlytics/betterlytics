@@ -4077,7 +4077,7 @@
       "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-foden fra din offentlige side.",
       "visibility": {
         "title": "Synlighed",
-        "hint": "Bestem hvem der kan finde din statusside.",
+        "hint": "Vælg, om søgemaskiner kan indeksere din statusside.",
         "public": "Offentlig",
         "publicHint": "Alle med linket kan se siden. Indekseres af søgemaskiner.",
         "unlisted": "Ikke listet",

@@ -4081,7 +4081,7 @@
       "appearanceHint": "Tema predefinito per i visitatori.",
       "visibility": {
         "title": "Visibilità",
-        "hint": "Controlla chi può trovare la tua pagina di stato.",
+        "hint": "Scegli se i motori di ricerca possono indicizzare la tua pagina di stato.",
         "public": "Pubblica",
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
         "unlisted": "Non in elenco",

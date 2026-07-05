@@ -4081,7 +4081,7 @@
       "appearanceHint": "Standardtema for besøkende.",
       "visibility": {
         "title": "Synlighet",
-        "hint": "Bestem hvem som kan finne statussiden din.",
+        "hint": "Velg om søkemotorer kan indeksere statussiden din.",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
         "unlisted": "Ikke oppført",
