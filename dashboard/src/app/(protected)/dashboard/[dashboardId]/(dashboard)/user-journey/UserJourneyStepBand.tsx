@@ -3,6 +3,7 @@
 import { FilterIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { FilterDescription } from '@/components/filters/FilterDescription';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 import { cn } from '@/lib/utils';
@@ -46,11 +47,11 @@ export function UserJourneyStepBand({ renderedColumnCount }: UserJourneyStepBand
                   ) : undefined
                 }
                 trigger={
-                  <button
-                    type='button'
+                  <Button
+                    variant='outline'
+                    size='sm'
                     className={cn(
-                      'inline-flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md border px-2 text-xs font-medium transition-colors',
-                      'hover:bg-accent',
+                      'h-7 cursor-pointer gap-1.5 px-2 text-xs',
                       isActive ? 'border-primary/50 text-foreground' : 'text-muted-foreground',
                     )}
                   >
@@ -62,7 +63,7 @@ export function UserJourneyStepBand({ renderedColumnCount }: UserJourneyStepBand
                     ) : (
                       <span>{t('filter')}</span>
                     )}
-                  </button>
+                  </Button>
                 }
               />
             </div>
