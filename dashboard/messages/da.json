@@ -1605,6 +1605,7 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Sessionsafspilninger",
       "monitoring": "Overvågning",
+      "statusPages": "Statussider",
       "categories": {
         "analytics": "Analyse",
         "behavior": "Adfærd",

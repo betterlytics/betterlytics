@@ -1605,6 +1605,7 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Session Replay",
       "monitoring": "Monitoring",
+      "statusPages": "Status Pages",
       "categories": {
         "analytics": "Analytics",
         "behavior": "Behavior",

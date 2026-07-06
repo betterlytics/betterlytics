@@ -27,7 +27,6 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
         dashboardId={dashboardId}
         monitors={monitors}
         domain={dashboard.domain}
-        statusPagesEnabled={isFeatureEnabled('enablePublicStatusPages')}
       />
     </div>
   );
