@@ -3959,6 +3959,8 @@
       "ongoing": "Igangværende i {duration}, siden {time}",
       "showMore": "Vis {count} tidligere {count, plural, one {opdatering} other {opdateringer}}",
       "showLess": "Skjul tidligere opdateringer",
+      "today": "I dag",
+      "yesterday": "I går",
       "impact": {
         "degraded": "Forringet",
         "partial_outage": "Delvist nedbrud",
