@@ -48,13 +48,25 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
   // Prefer the uploaded favicon, then the status-dot fallback.
   const iconUrl = data.faviconUrl ?? statusDotFavicon(data.overallStatus);
 
+  // The custom domain when set, otherwise the /status/{slug} URL. Used for both the canonical and the
+  // social embed URL so shared links resolve to the owner's own domain.
+  const publicUrl = statusPagePublicUrl(data, env.PUBLIC_BASE_URL);
+
   return {
     title: data.name,
     description,
     robots: data.noindex ? { index: false, follow: false } : undefined,
     // Prefer the custom domain as the canonical when set, so the /status/{slug} duplicate consolidates to it.
-    alternates: { canonical: statusPagePublicUrl(data, env.PUBLIC_BASE_URL) },
-    openGraph: { title: data.name, description },
+    alternates: { canonical: publicUrl },
+    openGraph: {
+      type: 'website',
+      url: publicUrl,
+      siteName: data.name,
+      title: data.name,
+      description,
+    },
+    // No image, so the compact card. X/Twitter reads these rather than the OG tags.
+    twitter: { card: 'summary', title: data.name, description },
     // `sizes: 'any'` makes browsers prefer this over the app-wide /favicon.ico.
     icons: { icon: [{ url: iconUrl, sizes: 'any' }] },
     // Opt out of the app-wide web manifest
