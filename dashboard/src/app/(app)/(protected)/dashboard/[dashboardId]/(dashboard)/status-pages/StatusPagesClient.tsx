@@ -17,7 +17,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,

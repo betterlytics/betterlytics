@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Check, Copy, ExternalLink, Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
