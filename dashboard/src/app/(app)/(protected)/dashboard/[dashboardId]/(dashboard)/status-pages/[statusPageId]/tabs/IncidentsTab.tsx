@@ -70,6 +70,7 @@ import {
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
+import { createIncidentEntryFormatter } from '@/components/statusPage/incidentEntryTimestamp';
 import {
   createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,
@@ -205,6 +206,12 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
   const hour12 = useDisplayHour12();
+  const todayLabel = t('timeline.today');
+  const yesterdayLabel = t('timeline.yesterday');
+  const formatIncidentEntry = useMemo(
+    () => createIncidentEntryFormatter({ locale, hour12, labels: { today: todayLabel, yesterday: yesterdayLabel } }),
+    [locale, hour12, todayLabel, yesterdayLabel],
+  );
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -1368,15 +1375,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                             suppressHydrationWarning
                             className='text-muted-foreground mt-2 text-[12px] whitespace-nowrap tabular-nums'
                           >
-                            {formatLocalDateTime(row.date, locale, {
-                              weekday: 'short',
-                              month: 'short',
-                              day: 'numeric',
-                              ...(row.date.getFullYear() === new Date().getFullYear() ? {} : { year: 'numeric' }),
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12,
-                            })}
+                            {formatIncidentEntry(row.date, new Date())}
                           </div>
                         </TimelineItem>
                       );

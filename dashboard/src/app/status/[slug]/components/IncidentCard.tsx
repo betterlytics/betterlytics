@@ -7,6 +7,7 @@ import type {
 import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 import { pillStyle, type PillTone } from '@/components/statusPage/pillStyle';
+import { createIncidentEntryFormatter } from '@/components/statusPage/incidentEntryTimestamp';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { cn } from '@/lib/utils';
@@ -54,46 +55,25 @@ export function IncidentCard({
   const hour12 = useDisplayHour12();
   const [expanded, setExpanded] = useState(false);
 
-  const currentYear = new Date().getFullYear();
-  const fmt = useMemo(
-    () => ({
-      strip: new Intl.DateTimeFormat('en', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12,
+  const todayLabel = t('incident.today');
+  const yesterdayLabel = t('incident.yesterday');
+  const formatIncidentEntry = useMemo(
+    () =>
+      createIncidentEntryFormatter({
+        locale: 'en',
         timeZone,
-      }),
-      entry: new Intl.DateTimeFormat('en', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
         hour12,
-        timeZone,
+        labels: { today: todayLabel, yesterday: yesterdayLabel },
       }),
-      entryWithYear: new Intl.DateTimeFormat('en', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12,
-        timeZone,
-      }),
-    }),
-    [timeZone, hour12],
+    [timeZone, hour12, todayLabel, yesterdayLabel],
   );
-  // Drop the year for the current year; keep it once an entry is in a past year.
-  const formatEntry = (date: Date) =>
-    (date.getFullYear() === currentYear ? fmt.entry : fmt.entryWithYear).format(date);
+
+  const now = new Date();
+  const formatEntry = (date: Date) => formatIncidentEntry(date, now);
 
   const ongoing = incident.resolvedAt == null;
   const startedAt = new Date(incident.startedAt);
-  // Resolved incidents show their total span; ongoing ones show how long they've run so far.
+  
   const durationMs =
     (incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() : Date.now()) -
     startedAt.getTime();
@@ -168,7 +148,7 @@ export function IncidentCard({
             {ongoing
               ? t('incident.ongoing', {
                   duration: formatDuration(durationMs),
-                  time: fmt.strip.format(startedAt),
+                  time: formatEntry(startedAt),
                 })
               : t('incident.resolved', { duration: formatDuration(durationMs) })}
           </div>

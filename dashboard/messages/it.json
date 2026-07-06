@@ -4282,6 +4282,8 @@
         },
         "timeline": {
           "title": "Cronologia",
+          "today": "Oggi",
+          "yesterday": "Ieri",
           "addUpdate": "Aggiungi aggiornamento",
           "empty": "Nessuna voce nella cronologia.",
           "editMessage": "Modifica messaggio",

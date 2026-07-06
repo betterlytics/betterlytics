@@ -4282,6 +4282,8 @@
         },
         "timeline": {
           "title": "Tidslinje",
+          "today": "I dag",
+          "yesterday": "I går",
           "addUpdate": "Legg til oppdatering",
           "empty": "Ingen tidslinjeoppføringer ennå.",
           "editMessage": "Rediger melding",

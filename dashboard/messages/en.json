@@ -3956,6 +3956,8 @@
       "ongoing": "Ongoing for {duration}, since {time}",
       "showMore": "Show {count} earlier {count, plural, one {update} other {updates}}",
       "showLess": "Hide earlier updates",
+      "today": "Today",
+      "yesterday": "Yesterday",
       "impact": {
         "degraded": "Degraded",
         "partial_outage": "Partial Outage",
@@ -4279,6 +4281,8 @@
         },
         "timeline": {
           "title": "Timeline",
+          "today": "Today",
+          "yesterday": "Yesterday",
           "addUpdate": "Add update",
           "empty": "No timeline entries yet.",
           "editMessage": "Edit message",
