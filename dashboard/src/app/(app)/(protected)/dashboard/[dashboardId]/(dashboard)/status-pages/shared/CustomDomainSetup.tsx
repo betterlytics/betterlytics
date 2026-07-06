@@ -33,23 +33,18 @@ type CustomDomainSetupProps = {
   slug: string;
   publicHost: string;
   isValid: boolean;
-  /**
-   * Whether the DNS-relevant inputs (slug/custom domain) differ from what's saved. Defaults true so the
-   * wizard always shows it for a new page; the editor passes false to hide it until something changes.
-   */
-  changed?: boolean;
 };
 
 /**
- * DNS setup instructions shown once a valid custom domain is entered and its inputs have changed. The
- * CNAME target embeds the slug ({slug}.status.{publicHost}), so changing the slug moves the target.
+ * DNS setup instructions shown whenever a valid custom domain is entered. The CNAME target embeds the
+ * slug ({slug}.status.{publicHost}), so changing the slug moves the target.
  */
-export function CustomDomainSetup({ customDomain, slug, publicHost, isValid, changed = true }: CustomDomainSetupProps) {
+export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: CustomDomainSetupProps) {
   const t = useTranslations('statusPagesPage.editor');
   const [copied, setCopied] = useState(false);
 
   const domain = customDomain.trim();
-  if (!changed || !domain || !isValid || !slug.trim()) return null;
+  if (!domain || !isValid || !slug.trim()) return null;
 
   const target = statusPageCnameTarget(slug, publicHost);
   // Many providers (Namecheap, Cloudflare, GoDaddy…) auto-append the domain, so the Name field wants

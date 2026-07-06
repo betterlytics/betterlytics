@@ -27,8 +27,6 @@ type GeneralTabProps = {
   publicHost: string;
   dashboardDomain: string;
   isPublished: boolean;
-  savedSlug: string;
-  savedCustomDomain: string | null;
   onUnpublish: () => void;
   isUnpublishing: boolean;
   onDelete: () => void;
@@ -41,8 +39,6 @@ export function GeneralTab({
   publicHost,
   dashboardDomain,
   isPublished,
-  savedSlug,
-  savedCustomDomain,
   onUnpublish,
   isUnpublishing,
   onDelete,
@@ -51,10 +47,6 @@ export function GeneralTab({
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
   const customDomainLocked = !caps.statusPages.customDomain;
-  // Only surface the DNS box once the slug or custom domain differs from what's saved (i.e. the CNAME
-  // target actually needs (re)pointing) — an unchanged, already-configured domain shouldn't nag.
-  const cnameInputsChanged =
-    form.slug !== savedSlug || form.customDomain.trim() !== (savedCustomDomain ?? '').trim();
 
   return (
     <>
@@ -149,7 +141,6 @@ export function GeneralTab({
               slug={form.slug}
               publicHost={publicHost}
               isValid={form.isCustomDomainValid}
-              changed={cnameInputsChanged}
             />
           )}
           <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
