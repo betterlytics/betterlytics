@@ -43,7 +43,9 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
   }
 
   const t = await getTranslations({ locale: 'en', namespace: 'publicStatusPage' });
-  const description = t(`banner.${data.overallStatus}`);
+  // A stable tagline rather than the live status text, so the meta/social description doesn't churn
+  // (and get cached mid-incident) every time the overall status changes.
+  const description = t('meta.description', { name: data.name });
 
   // Prefer the uploaded favicon, then the status-dot fallback.
   const iconUrl = data.faviconUrl ?? statusDotFavicon(data.overallStatus);

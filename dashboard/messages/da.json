@@ -3934,6 +3934,9 @@
       "outage": "Større nedbrud",
       "unknown": "Status utilgængelig"
     },
+    "meta": {
+      "description": "Seneste driftsstatus for {name}"
+    },
     "statusNote": {
       "degraded": "Nogle tjenester er langsommere end normalt"
     },
