@@ -3957,6 +3957,8 @@
     "overallUptime": "Uptime complessivo <value>{uptime}</value> · ultimi {days} giorni",
     "activeIncidents": "Incidenti attivi",
     "pastIncidents": "Incidenti passati",
+    "showPastIncidents": "Mostra incidenti passati",
+    "hidePastIncidents": "Nascondi incidenti passati",
     "noPastIncidents": "Nessun incidente passato negli ultimi {days} giorni.",
     "incident": {
       "resolved": "Risolto dopo {duration}",

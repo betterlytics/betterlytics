@@ -3957,6 +3957,8 @@
     "overallUptime": "Samlet oppetid <value>{uptime}</value> · seneste {days} dage",
     "activeIncidents": "Aktive hændelser",
     "pastIncidents": "Tidligere hændelser",
+    "showPastIncidents": "Vis tidligere hændelser",
+    "hidePastIncidents": "Skjul tidligere hændelser",
     "noPastIncidents": "Ingen tidligere hændelser i de seneste {days} dage.",
     "incident": {
       "resolved": "Løst efter {duration}",

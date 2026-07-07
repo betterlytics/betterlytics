@@ -3954,6 +3954,8 @@
     "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
     "activeIncidents": "Active incidents",
     "pastIncidents": "Past incidents",
+    "showPastIncidents": "Show past incidents",
+    "hidePastIncidents": "Hide past incidents",
     "noPastIncidents": "No past incidents in the last {days} days.",
     "incident": {
       "resolved": "Resolved after {duration}",
