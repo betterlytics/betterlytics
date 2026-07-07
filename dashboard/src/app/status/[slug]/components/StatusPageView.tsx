@@ -25,7 +25,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
       timeZone,
     }) ?? '';
 
-    const zoneLabel = lastUpdatedTime
+  const zoneLabel = lastUpdatedTime
     ? new Intl.DateTimeFormat('en', { timeZone, timeZoneName: 'short' })
         .formatToParts(new Date(data.lastUpdatedAt))
         .find((part) => part.type === 'timeZoneName')?.value
@@ -40,7 +40,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
   return (
     <div
       data-sp-theme={data.theme}
-      className='bl-status-page min-h-screen bg-[var(--sp-page-bg)] font-sans antialiased'
+      className='bl-status-page @container min-h-screen bg-[var(--sp-page-bg)] font-sans antialiased'
       style={
         {
           '--sp-accent': data.accentColor,
@@ -56,7 +56,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
         bannerLabel={t(`banner.${data.overallStatus}`)}
         subTextLabel={subTextLabel}
       />
-      <main className='mx-auto -mt-11 w-full max-w-3xl px-4 pb-10 sm:px-8'>
+      <main className='mx-auto -mt-11 w-full max-w-3xl px-4 pb-10 @min-[640px]:px-8'>
         <MonitorUptimeCard data={data} />
         {data.incidents !== null && <Incidents data={data} />}
         {!data.hideBranding && (

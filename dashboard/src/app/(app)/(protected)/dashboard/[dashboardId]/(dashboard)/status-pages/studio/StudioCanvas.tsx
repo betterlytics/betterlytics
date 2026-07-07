@@ -6,8 +6,10 @@ import { Minus, Monitor, Plus, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/spinner';
 import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
-import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import {
+  LivePreview,
+  type PreviewDraft,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
 
 /** Logical page width the preview renders at, per device. Desktop matches the public page's max-w-3xl. */
 const DEVICE_WIDTH = { desktop: 768, mobile: 390 } as const;
@@ -21,7 +23,7 @@ const FIT_PADDING = 96;
 type Device = keyof typeof DEVICE_WIDTH;
 
 type StudioCanvasProps = {
-  form: StatusPageFormState;
+  draft: PreviewDraft;
   preview: { payload: StatusPagePreviewPayload; messages: Record<string, unknown> } | null;
   previewError: boolean;
   publicHost: string;
@@ -35,7 +37,7 @@ type StudioCanvasProps = {
  * zoom pill (fit-by-default) and a desktop/mobile width toggle.
  */
 export function StudioCanvas({
-  form,
+  draft,
   preview,
   previewError,
   publicHost,
@@ -89,6 +91,13 @@ export function StudioCanvas({
     setPinnedZoom(null);
   };
 
+  // Stable object identity: an inline literal would bust PreviewFrame's memo on every
+  // keystroke and re-render the whole page preview synchronously (the lag the wizard never had).
+  const frameStyle = useMemo(
+    () => (zoom != null ? { width: Math.round(DEVICE_WIDTH[device] * zoom) } : undefined),
+    [device, zoom],
+  );
+
   return (
     <div
       ref={containerRef}
@@ -115,12 +124,13 @@ export function StudioCanvas({
               payload={preview.payload}
               messages={preview.messages}
               publicHost={publicHost}
-              draft={form.previewDraft}
+              draft={draft}
               enlargeable
+              hoverEnlarge={false}
               enlargedOpen={enlargedOpen}
               onEnlargedOpenChange={onEnlargedOpenChange}
               zoom={zoom}
-              frameStyle={{ width: Math.round(DEVICE_WIDTH[device] * zoom) }}
+              frameStyle={frameStyle}
               className='max-h-full flex-none shadow-xl'
             />
           </div>

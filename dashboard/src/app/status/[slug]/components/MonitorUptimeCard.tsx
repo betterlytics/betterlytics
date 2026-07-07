@@ -42,7 +42,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
           <div
             key={monitor.key}
             id={`sp-monitor-${monitor.key}`}
-            className='scroll-mt-6 border-b border-[var(--sp-card-divider)] px-5 py-5 last:border-b-0 sm:px-6'
+            className='scroll-mt-6 border-b border-[var(--sp-card-divider)] px-5 py-5 last:border-b-0 @min-[640px]:px-6'
           >
             <div className='flex items-center justify-between gap-3'>
               <div className='flex min-w-0 items-center gap-2'>
@@ -58,7 +58,10 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
               </div>
               <div className='flex flex-none items-center gap-3'>
                 {monitor.uptime != null && (
-                  <span suppressHydrationWarning className='hidden text-[13px] text-[var(--sp-muted)] sm:inline'>
+                  <span
+                    suppressHydrationWarning
+                    className='hidden text-[13px] text-[var(--sp-muted)] @min-[640px]:inline'
+                  >
                     {t('uptimeValue', { uptime: formatUptime(monitor.uptime, 'en') })}
                   </span>
                 )}
@@ -83,7 +86,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
       {data.overallUptime != null && (
         <div
           suppressHydrationWarning
-          className='border-t border-[var(--sp-card-divider)] bg-[var(--sp-card-footer-bg)] px-5 py-3.5 text-xs text-[var(--sp-muted)] sm:px-6'
+          className='border-t border-[var(--sp-card-divider)] bg-[var(--sp-card-footer-bg)] px-5 py-3.5 text-xs text-[var(--sp-muted)] @min-[640px]:px-6'
         >
           {t.rich('overallUptime', {
             uptime: formatUptime(data.overallUptime, 'en'),

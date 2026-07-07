@@ -33,14 +33,14 @@ export function StatusHero({
 
   const brand = logoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element -- served from our image route, or a client-side blob preview in the editor; already a small resized WebP, so next/image adds nothing
-    <img src={logoUrl} alt={name} className='h-10 w-auto max-w-[60vw] object-contain sm:max-w-xs' />
+    <img src={logoUrl} alt={name} className='h-10 w-auto max-w-[60cqw] object-contain @min-[640px]:max-w-xs' />
   ) : (
     <span className='truncate text-xl font-bold tracking-tight'>{name}</span>
   );
 
   return (
     <header style={{ backgroundColor: band ?? 'var(--sp-accent)', color: bandForeground }}>
-      <div className='mx-auto flex w-full max-w-3xl items-center px-4 pt-7 sm:px-8'>
+      <div className='mx-auto flex w-full max-w-3xl items-center px-4 pt-7 @min-[640px]:px-8'>
         {homepageUrl ? (
           <a
             href={homepageUrl}
@@ -52,7 +52,7 @@ export function StatusHero({
           brand
         )}
       </div>
-      <div className='px-4 pt-10 pb-19 text-center sm:px-8'>
+      <div className='px-4 pt-10 pb-19 text-center @min-[640px]:px-8'>
         <span
           className='inline-flex h-13 w-13 items-center justify-center rounded-full'
           style={{ backgroundColor: disc, boxShadow: `0 0 0 8px color-mix(in srgb, ${disc} 18%, transparent)` }}

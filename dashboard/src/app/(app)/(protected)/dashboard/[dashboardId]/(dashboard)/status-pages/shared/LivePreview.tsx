@@ -40,8 +40,10 @@ type LivePreviewProps = {
   messages: Record<string, unknown>;
   publicHost: string;
   draft: PreviewDraft;
-  /** Show a hover affordance that opens the preview enlarged in a modal. */
+  /** Mount the enlarged-modal machinery (required for any enlarge trigger, external or hover). */
   enlargeable?: boolean;
+  /** Show the hover "Enlarge" pill. The studio canvas turns it off: its zoom control makes the modal redundant on desktop, while the mobile header button still opens it. */
+  hoverEnlarge?: boolean;
   /** Optionally control the enlarged modal from outside (e.g. a separate trigger button) */
   enlargedOpen?: boolean;
   onEnlargedOpenChange?: (open: boolean) => void;
@@ -137,6 +139,7 @@ export function LivePreview({
   publicHost,
   draft: liveDraft,
   enlargeable = false,
+  hoverEnlarge = true,
   enlargedOpen,
   onEnlargedOpenChange,
   zoom = 0.5,
@@ -250,15 +253,17 @@ export function LivePreview({
           swallows wheel events and makes the preview unscrollable. */}
       <div className='group relative flex max-h-full min-h-0'>
         {frame}
-        <button
-          type='button'
-          onClick={() => setOpen(true)}
-          aria-label={tEditor('wizard.enlargePreview')}
-          className='absolute top-10 right-3 flex cursor-pointer items-center gap-1.5 rounded-md bg-black/70 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
-        >
-          <Maximize2 className='h-3.5 w-3.5' />
-          {tEditor('wizard.enlargePreview')}
-        </button>
+        {hoverEnlarge && (
+          <button
+            type='button'
+            onClick={() => setOpen(true)}
+            aria-label={tEditor('wizard.enlargePreview')}
+            className='absolute top-10 right-3 flex cursor-pointer items-center gap-1.5 rounded-md bg-black/70 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
+          >
+            <Maximize2 className='h-3.5 w-3.5' />
+            {tEditor('wizard.enlargePreview')}
+          </button>
+        )}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

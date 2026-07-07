@@ -105,7 +105,7 @@ export function StatusPageStudio({
         </div>
 
         <StudioCanvas
-          form={form}
+          draft={form.previewDraft}
           preview={preview}
           previewError={previewError}
           publicHost={publicHost}

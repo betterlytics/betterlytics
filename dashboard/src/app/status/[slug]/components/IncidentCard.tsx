@@ -73,10 +73,9 @@ export function IncidentCard({
 
   const ongoing = incident.resolvedAt == null;
   const startedAt = new Date(incident.startedAt);
-  
+
   const durationMs =
-    (incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() : Date.now()) -
-    startedAt.getTime();
+    (incident.resolvedAt != null ? new Date(incident.resolvedAt).getTime() : Date.now()) - startedAt.getTime();
 
   const formatDuration = (ms: number) => {
     const minutes = Math.max(1, Math.round(ms / 60_000));
@@ -96,7 +95,7 @@ export function IncidentCard({
   const hiddenCount = Math.max(0, updates.length - MAX_VISIBLE_UPDATES);
   const shownUpdates = expanded ? updates : updates.slice(0, MAX_VISIBLE_UPDATES);
 
-  const renderEntry =(update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
+  const renderEntry = (update: PublicStatusPageIncidentUpdate, key: number, isLast: boolean) => {
     const entryDate = new Date(update.createdAt);
     return (
       <TimelineItem
@@ -198,9 +197,7 @@ export function IncidentCard({
       {/* Change timeline, newest first. The most recent entries stay visible; older ones expand
           inline into the same timeline so the vertical line stays continuous. */}
       <Timeline>
-        {shownUpdates.map((update, index) =>
-          renderEntry(update, index, index === shownUpdates.length - 1),
-        )}
+        {shownUpdates.map((update, index) => renderEntry(update, index, index === shownUpdates.length - 1))}
       </Timeline>
 
       {hiddenCount > 0 ? (
