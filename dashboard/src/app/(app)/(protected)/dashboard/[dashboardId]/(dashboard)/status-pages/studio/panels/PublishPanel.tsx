@@ -1,20 +1,12 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Check, Loader2, X } from 'lucide-react';
+import { Check, Info, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useCapabilities } from '@/contexts/CapabilitiesProvider';
-import { CapabilityGate } from '@/components/billing/CapabilityGate';
-import { ProBadge } from '@/components/billing/ProBadge';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
-import { LabeledTextField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LabeledTextField';
 import { VisibilityRadioGroup } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/VisibilityRadioGroup';
-import {
-  CustomDomainSetup,
-  CustomDomainHelpLink,
-} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 
 type PublishPanelProps = {
@@ -25,13 +17,12 @@ type PublishPanelProps = {
 };
 
 /**
- * Create-mode only: the act of placing the page (address, visibility, optional domain).
- * Post-create these become lifecycle settings on the detail page — edit mode drops this tab.
+ * Create-mode only: the act of placing the page (address + visibility). A custom domain is
+ * deliberately absent: its DNS lifecycle cannot even start before the page exists, so it
+ * lives in page settings, and this tab only points there.
  */
 export function PublishPanel({ form, slugStatus, publicHost, domain }: PublishPanelProps) {
   const t = useTranslations('statusPagesPage.editor');
-  const { caps } = useCapabilities();
-  const customDomainLocked = !caps.statusPages.customDomain;
 
   return (
     <div className='space-y-8'>
@@ -77,38 +68,10 @@ export function PublishPanel({ form, slugStatus, publicHost, domain }: PublishPa
         <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
       </div>
 
-      <CapabilityGate allowed={!customDomainLocked}>
-        {({ locked }) => (
-          <LabeledTextField
-            id='studio-domain'
-            label={t('customDomain')}
-            labelAdornment={
-              <>
-                {locked && <ProBadge />}
-                <CustomDomainHelpLink />
-              </>
-            }
-            hint={t('customDomainHint')}
-            placeholder={`status.${domain}`}
-            hintPosition='top'
-            value={form.customDomain}
-            onChange={form.setCustomDomain}
-            disabled={locked}
-            error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
-          />
-        )}
-      </CapabilityGate>
-
-      {!customDomainLocked && (
-        <CustomDomainSetup
-          customDomain={form.customDomain}
-          slug={form.slug}
-          publicHost={publicHost}
-          isValid={form.isCustomDomainValid}
-        />
-      )}
-
-      {!customDomainLocked && <p className='text-muted-foreground text-xs'>{t('studio.domainAfterCreate')}</p>}
+      <div className='border-border bg-muted/40 text-muted-foreground flex items-start gap-2.5 rounded-lg border px-3.5 py-3 text-xs leading-relaxed'>
+        <Info className='mt-0.5 h-3.5 w-3.5 flex-none' aria-hidden />
+        <span>{t('studio.customDomainLater', { domain })}</span>
+      </div>
     </div>
   );
 }

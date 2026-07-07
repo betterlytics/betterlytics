@@ -150,6 +150,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       theme,
       accentColor,
       logoUrl: logo.url,
+      faviconUrl: favicon.url,
       showPastIncidents,
       hideBranding,
       monitors: monitorRows.map((row) => ({
@@ -158,7 +159,18 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
         publicName: row.publicName,
       })),
     }),
-    [name, slug, customDomain, theme, accentColor, logo.url, showPastIncidents, hideBranding, monitorRows],
+    [
+      name,
+      slug,
+      customDomain,
+      theme,
+      accentColor,
+      logo.url,
+      favicon.url,
+      showPastIncidents,
+      hideBranding,
+      monitorRows,
+    ],
   );
 
   return {

@@ -12,7 +12,8 @@ import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[das
 /** Logical page width the preview renders at, per device. Desktop matches the public page's max-w-3xl. */
 const DEVICE_WIDTH = { desktop: 768, mobile: 390 } as const;
 const ZOOM_MIN = 0.4;
-const ZOOM_MAX = 1.25;
+// Grid-aligned: the max must be a multiple of the step or clamping strands the zoom off-grid.
+const ZOOM_MAX = 1.2;
 const ZOOM_STEP = 0.1;
 /** Breathing room between the frame and the canvas edges when fitting. */
 const FIT_PADDING = 96;
@@ -71,7 +72,11 @@ export function StudioCanvas({
     (direction: 1 | -1) => {
       setPinnedZoom((current) => {
         const base = current ?? fitZoom ?? 1;
-        const next = Math.round((base + direction * ZOOM_STEP) * 100) / 100;
+        // Snap to the 10% grid: stepping from an arbitrary fit value (92% → 100%, not 102%)
+        // always lands on round steps, in either direction. Epsilon guards float division.
+        const gridSteps =
+          direction === 1 ? Math.floor(base / ZOOM_STEP + 1e-6) + 1 : Math.ceil(base / ZOOM_STEP - 1e-6) - 1;
+        const next = Math.round(gridSteps * ZOOM_STEP * 100) / 100;
         return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next));
       });
     },

@@ -4162,7 +4162,7 @@
         "zoomFit": "Adatta allo schermo",
         "desktopPreview": "Anteprima desktop",
         "mobilePreview": "Anteprima mobile",
-        "domainAfterCreate": "Facoltativo. La configurazione DNS avviene nelle impostazioni della pagina dopo la creazione."
+        "customDomainLater": "Vuoi usare il tuo dominio come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata."
       },
       "wizard": {
         "title": "Nuova pagina di stato",

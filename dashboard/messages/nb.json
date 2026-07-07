@@ -4162,7 +4162,7 @@
         "zoomFit": "Tilpass til skjermen",
         "desktopPreview": "Forhåndsvisning for datamaskin",
         "mobilePreview": "Forhåndsvisning for mobil",
-        "domainAfterCreate": "Valgfritt. DNS-oppsettet skjer i sidens innstillinger etter at siden er opprettet."
+        "customDomainLater": "Vil du bruke ditt eget domene som status.{domain}? Koble det til fra sidens innstillinger når siden er opprettet."
       },
       "wizard": {
         "title": "Ny statusside",

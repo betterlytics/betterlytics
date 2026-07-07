@@ -4159,7 +4159,7 @@
         "zoomFit": "Fit to screen",
         "desktopPreview": "Desktop preview",
         "mobilePreview": "Mobile preview",
-        "domainAfterCreate": "Optional. DNS setup happens in your page settings after the page is created."
+        "customDomainLater": "Want your own domain like status.{domain}? Connect it from your page settings once the page is created."
       },
       "wizard": {
         "title": "New status page",

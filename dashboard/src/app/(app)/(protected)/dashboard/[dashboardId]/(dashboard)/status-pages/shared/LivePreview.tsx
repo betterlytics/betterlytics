@@ -28,6 +28,7 @@ export type PreviewDraft = {
   theme: StatusPageTheme;
   accentColor: string;
   logoUrl: string | null;
+  faviconUrl: string | null;
   showPastIncidents: boolean;
   hideBranding: boolean;
   monitors: Array<{ monitorCheckId: string; included: boolean; publicName: string }>;
@@ -59,6 +60,7 @@ const PreviewFrame = memo(function PreviewFrame({
   publicHost,
   slug,
   customDomain,
+  faviconUrl,
   label,
   zoom,
   chromeRight,
@@ -71,6 +73,8 @@ const PreviewFrame = memo(function PreviewFrame({
   publicHost: string;
   slug: string;
   customDomain: string | null;
+  /** Staged/saved favicon rendered beside the chrome URL, mimicking a browser's site icon. */
+  faviconUrl?: string | null;
   label: string;
   /** Scale of the rendered page inside the browser frame. */
   zoom: number;
@@ -82,7 +86,10 @@ const PreviewFrame = memo(function PreviewFrame({
   style?: CSSProperties;
 }) {
   return (
-    <div className={cn('bg-card border-border flex flex-col overflow-hidden rounded-xl border', className)} style={style}>
+    <div
+      className={cn('bg-card border-border flex flex-col overflow-hidden rounded-xl border', className)}
+      style={style}
+    >
       <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
         <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1' : 'flex-none')}>
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
@@ -91,18 +98,24 @@ const PreviewFrame = memo(function PreviewFrame({
         </div>
         <span
           className={cn(
-            'bg-muted text-muted-foreground min-w-0 truncate rounded-md px-2.5 py-0.5 text-xs',
+            'bg-muted text-muted-foreground flex min-w-0 items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs',
             centerUrl ? 'max-w-[60%]' : 'ml-2 flex-1',
           )}
         >
-          {customDomain ? customDomain : `${publicHost}/status/${slug}`}
+          {faviconUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- owner-provided image (or staged blob), not optimizable via next/image
+            <img src={faviconUrl} alt='' className='h-3.5 w-3.5 flex-none rounded-[3px] object-contain' />
+          )}
+          <span className='truncate'>{customDomain ? customDomain : `${publicHost}/status/${slug}`}</span>
         </span>
         <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1 justify-end' : 'ml-1 flex-none')}>
           <span className='text-muted-foreground flex-none text-xs'>{label}</span>
           {chromeRight}
         </div>
       </div>
-      <div className='min-h-0 flex-1 overflow-y-auto'>
+      {/* Anchors go inert: preview content must never navigate the editor away (the page has
+          real links, e.g. the powered-by footer). Buttons stay live so expanders still work. */}
+      <div className='min-h-0 flex-1 overflow-y-auto [&_a]:pointer-events-none'>
         <div className='[&_.bl-status-page]:min-h-0' style={{ zoom }}>
           <NextIntlClientProvider locale='en' messages={{ publicStatusPage: messages }}>
             <StatusPageView data={data} />
@@ -221,6 +234,7 @@ export function LivePreview({
       publicHost={publicHost}
       slug={draft.slug}
       customDomain={draft.customDomain}
+      faviconUrl={draft.faviconUrl}
       label={tEditor('preview')}
       zoom={zoom}
       style={frameStyle}
@@ -232,18 +246,18 @@ export function LivePreview({
 
   return (
     <>
-      <div className='group relative'>
+      {/* The enlarge affordance is a small floating pill, NOT a full-frame cover: a cover
+          swallows wheel events and makes the preview unscrollable. */}
+      <div className='group relative flex max-h-full min-h-0'>
         {frame}
         <button
           type='button'
           onClick={() => setOpen(true)}
           aria-label={tEditor('wizard.enlargePreview')}
-          className='absolute inset-0 flex cursor-pointer items-center justify-center rounded-xl opacity-0 transition-opacity hover:bg-black/30 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
+          className='absolute top-10 right-3 flex cursor-pointer items-center gap-1.5 rounded-md bg-black/70 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
         >
-          <span className='flex items-center gap-1.5 rounded-md bg-black/70 px-3 py-1.5 text-xs font-medium text-white shadow-sm'>
-            <Maximize2 className='h-3.5 w-3.5' />
-            {tEditor('wizard.enlargePreview')}
-          </span>
+          <Maximize2 className='h-3.5 w-3.5' />
+          {tEditor('wizard.enlargePreview')}
         </button>
       </div>
 
@@ -261,6 +275,7 @@ export function LivePreview({
               publicHost={publicHost}
               slug={draft.slug}
               customDomain={draft.customDomain}
+              faviconUrl={draft.faviconUrl}
               label={tEditor('preview')}
               zoom={0.85}
               centerUrl
