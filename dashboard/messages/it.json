@@ -3934,6 +3934,9 @@
       "outage": "Interruzione grave",
       "unknown": "Stato non disponibile"
     },
+    "meta": {
+      "description": "Ultimo stato di uptime per {name}"
+    },
     "statusNote": {
       "degraded": "Alcuni servizi sono più lenti del solito"
     },
