@@ -1,8 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Check, Copy, Loader2, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { Check, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
@@ -18,28 +17,26 @@ import {
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 
-type PublishStepProps = {
+type PublishPanelProps = {
   form: StatusPageFormState;
   slugStatus: SlugStatus;
   publicHost: string;
-  publicBaseUrl: string;
   domain: string;
 };
 
-export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domain }: PublishStepProps) {
+/**
+ * Create-mode only: the act of placing the page (address, visibility, optional domain).
+ * Post-create these become lifecycle settings on the detail page — edit mode drops this tab.
+ */
+export function PublishPanel({ form, slugStatus, publicHost, domain }: PublishPanelProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
   const customDomainLocked = !caps.statusPages.customDomain;
 
   return (
-    <div className='space-y-6'>
-      <div className='space-y-1'>
-        <h2 className='text-lg font-semibold'>{t('wizard.publish.heading')}</h2>
-        <p className='text-muted-foreground text-sm'>{t('wizard.publish.description')}</p>
-      </div>
-
+    <div className='space-y-8'>
       <div className='space-y-2'>
-        <Label htmlFor='wiz-slug'>{t('publicUrl')}</Label>
+        <Label htmlFor='studio-slug'>{t('publicUrl')}</Label>
         <div className='flex items-center gap-1.5'>
           <div className='flex min-w-0 flex-1 items-stretch'>
             <span className='border-input bg-muted text-muted-foreground flex max-w-[45%] min-w-0 items-center rounded-l-md border border-r-0 px-3 text-sm'>
@@ -47,7 +44,7 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domai
             </span>
             <div className='relative min-w-0 flex-1'>
               <Input
-                id='wiz-slug'
+                id='studio-slug'
                 value={form.slug}
                 maxLength={STATUS_PAGE_LIMITS.SLUG_MAX}
                 onChange={(e) => form.setSlug(e.target.value.toLowerCase())}
@@ -69,28 +66,21 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domai
               </span>
             </div>
           </div>
-          <button
-            type='button'
-            onClick={() => {
-              navigator.clipboard.writeText(`${publicBaseUrl}/status/${form.slug}`);
-              toast.success(t('publishSuccess.copied'));
-            }}
-            aria-label={t('publishSuccess.copy')}
-            title={t('publishSuccess.copy')}
-            className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-9 w-9 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-          >
-            <Copy className='h-4 w-4' />
-          </button>
         </div>
         {(slugStatus === 'taken' || slugStatus === 'invalid') && (
           <p className='text-destructive text-xs'>{t(`slugStatus.${slugStatus}`)}</p>
         )}
       </div>
 
+      <div className='space-y-2'>
+        <Label>{t('visibility.title')}</Label>
+        <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
+      </div>
+
       <CapabilityGate allowed={!customDomainLocked}>
         {({ locked }) => (
           <LabeledTextField
-            id='wiz-domain'
+            id='studio-domain'
             label={t('customDomain')}
             labelAdornment={
               <>
@@ -118,10 +108,7 @@ export function PublishStep({ form, slugStatus, publicHost, publicBaseUrl, domai
         />
       )}
 
-      <div className='space-y-2'>
-        <Label>{t('visibility.title')}</Label>
-        <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
-      </div>
+      {!customDomainLocked && <p className='text-muted-foreground text-xs'>{t('studio.domainAfterCreate')}</p>}
     </div>
   );
 }

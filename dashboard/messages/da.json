@@ -4148,6 +4148,24 @@
         "description": "Hændelser, du skriver, vises på din offentlige statusside. Færdiggør opsætningen og udgiv din side først, så kan du holde de besøgende informeret.",
         "cta": "Gå til Sideopsætning"
       },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitorer",
+          "branding": "Branding",
+          "publish": "Udgiv"
+        },
+        "tabIssue": "Kræver opmærksomhed",
+        "draft": "Kladde",
+        "publicNamesHint": "Besøgende ser disse navne i stedet for dine interne monitornavne. Træk for at ændre rækkefølgen.",
+        "pageNameHint": "Bruges i browserfanen og linkforhåndsvisninger. Et logo erstatter det i sidens header.",
+        "themeHint": "Temaet besøgende ser. System følger den besøgendes enhedsindstilling.",
+        "zoomIn": "Zoom ind",
+        "zoomOut": "Zoom ud",
+        "zoomFit": "Tilpas til skærmen",
+        "desktopPreview": "Desktop-forhåndsvisning",
+        "mobilePreview": "Mobil-forhåndsvisning",
+        "domainAfterCreate": "Valgfrit. DNS-opsætningen sker i sidens indstillinger, efter siden er oprettet."
+      },
       "wizard": {
         "title": "Ny statusside",
         "close": "Luk",

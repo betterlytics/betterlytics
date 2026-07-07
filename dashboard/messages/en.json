@@ -4145,6 +4145,24 @@
         "description": "Incidents you write appear on your public status page. Finish setting up and publish your page first, then you can keep visitors informed.",
         "cta": "Go to Page setup"
       },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitors",
+          "branding": "Branding",
+          "publish": "Publish"
+        },
+        "tabIssue": "Needs attention",
+        "draft": "Draft",
+        "publicNamesHint": "Visitors see these names instead of your internal monitor names. Drag to reorder.",
+        "pageNameHint": "Used in the browser tab and link previews. A logo replaces it in the page header.",
+        "themeHint": "The theme visitors see. System follows each visitor's device setting.",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomFit": "Fit to screen",
+        "desktopPreview": "Desktop preview",
+        "mobilePreview": "Mobile preview",
+        "domainAfterCreate": "Optional. DNS setup happens in your page settings after the page is created."
+      },
       "wizard": {
         "title": "New status page",
         "close": "Close",

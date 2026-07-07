@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useDeferredValue, useMemo, useState, type ReactNode } from 'react';
+import { memo, useDeferredValue, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
 import { Maximize2, X } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
@@ -44,6 +44,10 @@ type LivePreviewProps = {
   /** Optionally control the enlarged modal from outside (e.g. a separate trigger button) */
   enlargedOpen?: boolean;
   onEnlargedOpenChange?: (open: boolean) => void;
+  /** Scale of the inline frame's rendered page. The studio canvas drives this; defaults to the embedded-preview scale. */
+  zoom?: number;
+  /** Inline styles on the outer frame — the studio canvas sets a dynamic pixel width per device/zoom. */
+  frameStyle?: CSSProperties;
   /** Extra classes on the outer frame */
   className?: string;
 };
@@ -60,6 +64,7 @@ const PreviewFrame = memo(function PreviewFrame({
   chromeRight,
   centerUrl = false,
   className,
+  style,
 }: {
   data: PublicStatusPageData;
   messages: Record<string, unknown>;
@@ -74,9 +79,10 @@ const PreviewFrame = memo(function PreviewFrame({
   /** Center the URL pill at its content width instead of stretching it full-width. */
   centerUrl?: boolean;
   className?: string;
+  style?: CSSProperties;
 }) {
   return (
-    <div className={cn('bg-card border-border flex flex-col overflow-hidden rounded-xl border', className)}>
+    <div className={cn('bg-card border-border flex flex-col overflow-hidden rounded-xl border', className)} style={style}>
       <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
         <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1' : 'flex-none')}>
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
@@ -120,6 +126,8 @@ export function LivePreview({
   enlargeable = false,
   enlargedOpen,
   onEnlargedOpenChange,
+  zoom = 0.5,
+  frameStyle,
   className,
 }: LivePreviewProps) {
   const tEditor = useTranslations('statusPagesPage.editor');
@@ -214,7 +222,8 @@ export function LivePreview({
       slug={draft.slug}
       customDomain={draft.customDomain}
       label={tEditor('preview')}
-      zoom={0.5}
+      zoom={zoom}
+      style={frameStyle}
       className={className}
     />
   );
