@@ -24,7 +24,6 @@ import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboar
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { StatusPageStudio } from './StatusPageStudio';
-import { PublishSuccessDialog } from './PublishSuccess';
 
 type StudioDefaults = Awaited<ReturnType<typeof suggestStatusPageDefaultsAction>>;
 
@@ -39,15 +38,11 @@ type CreateStatusPageStudioProps = {
 function StudioForm({
   dashboardId,
   publicHost,
+  publicBaseUrl,
   domain,
   defaults,
   onClose,
-  onPublished,
-}: Omit<CreateStatusPageStudioProps, 'publicBaseUrl'> & {
-  defaults: StudioDefaults;
-  /** Publish committed: the parent drops this whole overlay and shows the success dialog. */
-  onPublished: (page: { id: string; slug: string }) => void;
-}) {
+}: CreateStatusPageStudioProps & { defaults: StudioDefaults }) {
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
 
@@ -82,12 +77,18 @@ function StudioForm({
       const page = await createStatusPageAction(dashboardId, { ...form.input, isPublished: publish }, images);
       return { page, publish };
     },
+    // Both commits land on the page's own detail view; the URL/copy/view affordances live in its
+    // header, so publish needs no interstitial — just a live-confirmation toast on top.
     onSuccess: ({ page, publish }) => {
       if (publish) {
-        onPublished({ id: page.id, slug: page.slug });
-      } else {
-        router.push(`/dashboard/${dashboardId}/status-pages/${page.id}`);
+        toast.success(t('publishSuccess.title'), {
+          action: {
+            label: t('publishSuccess.view'),
+            onClick: () => window.open(`${publicBaseUrl}/status/${page.slug}`, '_blank', 'noopener,noreferrer'),
+          },
+        });
       }
+      router.push(`/dashboard/${dashboardId}/status-pages/${page.id}`);
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
@@ -277,8 +278,6 @@ export function CreateStatusPageStudio({
   onClose,
 }: CreateStatusPageStudioProps) {
   const t = useTranslations('statusPagesPage.editor');
-  const router = useRouter();
-  const [published, setPublished] = useState<{ id: string; slug: string } | null>(null);
   const defaultsQuery = useQuery({
     queryKey: ['statusPageDefaults', dashboardId],
     queryFn: () => suggestStatusPageDefaultsAction(dashboardId),
@@ -286,33 +285,16 @@ export function CreateStatusPageStudio({
     gcTime: 0,
   });
 
-  // The page exists and is live: the studio has nothing left to edit, so the overlay goes
-  // away entirely and a small success dialog sits over the (refreshed) list instead.
-  if (published) {
-    return (
-      <PublishSuccessDialog
-        dashboardId={dashboardId}
-        created={published}
-        publicHost={publicHost}
-        publicBaseUrl={publicBaseUrl}
-        onClose={() => {
-          onClose();
-          router.refresh();
-        }}
-      />
-    );
-  }
-
   return (
     <FlowOverlay>
       {defaultsQuery.data ? (
         <StudioForm
           dashboardId={dashboardId}
           publicHost={publicHost}
+          publicBaseUrl={publicBaseUrl}
           domain={domain}
           defaults={defaultsQuery.data}
           onClose={onClose}
-          onPublished={setPublished}
         />
       ) : (
         <>
