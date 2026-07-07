@@ -130,6 +130,8 @@ export type StatusPageMonitorSelection = z.infer<typeof StatusPageMonitorSelecti
 export const StatusPageCreateSchema = z.object({
   name: z.string().trim().min(1).max(STATUS_PAGE_LIMITS.NAME_MAX),
   slug: StatusPageSlugSchema,
+  // Publish-at-create rides the single insert, so create+publish can never half-fail.
+  isPublished: z.boolean().default(false),
   theme: StatusPageThemeSchema.default('system'),
   accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
   showPastIncidents: z.boolean().default(true),

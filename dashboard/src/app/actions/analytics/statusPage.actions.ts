@@ -122,7 +122,8 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
 
     const created = await addStatusPage(ctx.dashboardId, payload, imageWrites);
 
-    revalidateStatusPagePaths(ctx.dashboardId);
+    // A page published at create is public immediately, so its slug path must revalidate too.
+    revalidateStatusPagePaths(ctx.dashboardId, created.isPublished ? created.slug : undefined);
     return created;
   },
 );

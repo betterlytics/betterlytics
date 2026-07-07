@@ -56,7 +56,7 @@ import {
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import { MonitoringTooltip } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/[monitorId]/MonitoringTooltip';
 import { StatusPagesEmptyState } from './StatusPagesEmptyState';
-import { CreateStatusPageWizard } from './CreateStatusPageWizard';
+import { CreateStatusPageStudio } from './studio/CreateStatusPageStudio';
 
 const HEADER_GRID = 'grid-cols-[minmax(0,1fr)_150px_170px_150px_80px]';
 const ROW_GRID = 'md:grid md:grid-cols-[minmax(0,1fr)_150px_170px_150px_80px]';
@@ -148,7 +148,7 @@ export function StatusPagesClient({
     );
 
   const wizard = showWizard && (
-    <CreateStatusPageWizard
+    <CreateStatusPageStudio
       dashboardId={dashboardId}
       publicHost={publicHost}
       publicBaseUrl={publicBaseUrl}

@@ -4143,6 +4143,24 @@
         "description": "Hendelser du skriver vises på den offentlige statussiden din. Fullfør oppsettet og publiser siden først, så kan du holde besøkende informert.",
         "cta": "Gå til Sideoppsett"
       },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitorer",
+          "branding": "Branding",
+          "publish": "Publiser"
+        },
+        "tabIssue": "Krever oppmerksomhet",
+        "draft": "Utkast",
+        "publicNamesHint": "Besøkende ser disse navnene i stedet for de interne monitornavnene. Dra for å endre rekkefølgen.",
+        "pageNameHint": "Brukes i nettleserfanen og lenkeforhåndsvisninger. En logo erstatter det i sidens header.",
+        "themeHint": "Temaet besøkende ser. System følger enhetsinnstillingen til hver besøkende.",
+        "zoomIn": "Zoom inn",
+        "zoomOut": "Zoom ut",
+        "zoomFit": "Tilpass til skjermen",
+        "desktopPreview": "Forhåndsvisning for datamaskin",
+        "mobilePreview": "Forhåndsvisning for mobil",
+        "domainAfterCreate": "Valgfritt. DNS-oppsettet skjer i sidens innstillinger etter at siden er opprettet."
+      },
       "wizard": {
         "title": "Ny statusside",
         "close": "Lukk",

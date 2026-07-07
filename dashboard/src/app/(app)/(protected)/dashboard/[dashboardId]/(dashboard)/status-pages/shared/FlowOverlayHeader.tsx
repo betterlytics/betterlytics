@@ -30,16 +30,19 @@ export function FlowOverlayHeader({ title, closeAriaLabel, onClose, center, acti
 
   return (
     <header className='border-border grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 border-b px-4 py-3 sm:px-6'>
-      <div className='flex min-w-0 items-center gap-3'>
+      {/* No gap — explicit divider margins so the VISIBLE gaps match (the X's hit-area padding
+          otherwise makes the left gap look larger than the right). */}
+      <div className='flex min-w-0 items-center'>
         <button
           type='button'
           onClick={onClose}
           aria-label={closeAriaLabel}
-          className='border-border text-muted-foreground hover:text-foreground hover:bg-accent flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-md border transition-colors'
+          className='text-muted-foreground hover:text-foreground hover:bg-accent flex h-8 w-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
         >
           <X className='h-4 w-4' />
         </button>
-        <span className='truncate text-sm font-semibold'>{title}</span>
+        <span className='bg-border ml-2 h-5 w-px flex-none' aria-hidden />
+        <span className='ml-4 truncate text-sm font-semibold'>{title}</span>
       </div>
       {/* Always render the middle grid cell so the right column stays put; the stepper hides on small screens. */}
       <div>{center ? <div className='hidden lg:block'>{center}</div> : null}</div>
