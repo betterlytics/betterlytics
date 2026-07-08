@@ -31,10 +31,10 @@ import {
   setStatusPagePublishedAction,
   updateStatusPageAction,
 } from '@/app/actions/analytics/statusPage.actions';
-import { GeneralTab } from './tabs/GeneralTab';
+import { SettingsTab } from './tabs/SettingsTab';
 import { EditStatusPageStudio } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/studio/EditStatusPageStudio';
 
-const TAB_KEYS = ['incidents', 'general'] as const;
+const TAB_KEYS = ['incidents', 'settings'] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 const isTabKey = (value: string | null): value is TabKey => TAB_KEYS.includes(value as TabKey);
@@ -117,7 +117,7 @@ export function StatusPageEditor({
   const searchParams = useSearchParams();
   const urlTab = searchParams.get('tab');
   const activeTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
-  const onGeneralTab = activeTab === 'general';
+  const onSettingsTab = activeTab === 'settings';
 
   const setActiveTab = useCallback((tab: TabKey) => {
     const params = new URLSearchParams(window.location.search);
@@ -145,10 +145,10 @@ export function StatusPageEditor({
   const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
 
   // 'studio' groups everything edited in the fullscreen studio (design/content);
-  // 'general' is what stays editable on this page (lifecycle settings).
+  // 'settings' is what stays editable on this page (lifecycle settings).
   const sections = useMemo(
     () => ({
-      general: {
+      settings: {
         slug: form.input.slug,
         visibility: form.input.visibility,
         customDomain: form.input.customDomain,
@@ -289,7 +289,7 @@ export function StatusPageEditor({
   );
 
   return (
-    <div className={cn(onGeneralTab && 'pb-24 xl:pb-0')}>
+    <div className={cn(onSettingsTab && 'pb-24 xl:pb-0')}>
       {/* Persistent top bar */}
       <Link
         href={backHref}
@@ -382,7 +382,7 @@ export function StatusPageEditor({
             </PermissionGate>
           )}
 
-          {onGeneralTab && (
+          {onSettingsTab && (
             <button
               type='button'
               onClick={() => setPreviewOpen(true)}
@@ -399,9 +399,9 @@ export function StatusPageEditor({
         <div className='border-border overflow-x-auto border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='general'>
-              {t('tabs.general')}
-              {dirty.general && <UnsavedDot label={t('unsavedChanges')} />}
+            <UnderlineTabsTrigger value='settings'>
+              {t('tabs.settings')}
+              {dirty.settings && <UnsavedDot label={t('unsavedChanges')} />}
             </UnderlineTabsTrigger>
           </UnderlineTabsList>
         </div>
@@ -413,7 +413,7 @@ export function StatusPageEditor({
         ) : (
           <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
             <div className='space-y-8'>
-              <GeneralTab
+              <SettingsTab
                 form={form}
                 slugStatus={slugStatus}
                 publicHost={publicHost}
@@ -465,7 +465,7 @@ export function StatusPageEditor({
           Floats bottom-right to pair with the global sidebar trigger (bottom-left). bottom-[33px] = the
           trigger's bottom-10 (40px) minus this panel's padding+border (7px), so the buttons line up
           vertically with the trigger. */}
-      {onGeneralTab && (
+      {onSettingsTab && (
         <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg xl:hidden'>
           <Button
             type='button'

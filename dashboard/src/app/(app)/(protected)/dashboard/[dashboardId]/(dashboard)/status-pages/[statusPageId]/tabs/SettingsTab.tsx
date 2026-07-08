@@ -17,7 +17,7 @@ import {
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
 import { Section } from './Section';
 
-type GeneralTabProps = {
+type SettingsTabProps = {
   form: StatusPageFormState;
   slugStatus: SlugStatus;
   publicHost: string;
@@ -29,7 +29,7 @@ type GeneralTabProps = {
   isDeleting: boolean;
 };
 
-export function GeneralTab({
+export function SettingsTab({
   form,
   slugStatus,
   publicHost,
@@ -39,14 +39,14 @@ export function GeneralTab({
   isUnpublishing,
   onDelete,
   isDeleting,
-}: GeneralTabProps) {
+}: SettingsTabProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
   const customDomainLocked = !caps.statusPages.customDomain;
 
   return (
     <>
-      <Section title={t('pageDetails')} description={t('pageDetailsHint')}>
+      <Section title={t('publicAddress')} description={t('publicAddressHint')}>
         <div className='bg-card border-border space-y-4 rounded-xl border p-5'>
           <div className='grid gap-4 2xl:grid-cols-2 2xl:items-start'>
             <SlugField

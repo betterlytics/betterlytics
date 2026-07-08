@@ -4046,8 +4046,6 @@
       "deleteConfirmDescription": "The public page stops working immediately. This cannot be undone.",
       "deleteConfirm": "Delete",
       "cancel": "Cancel",
-      "pageDetails": "Page settings",
-      "pageDetailsHint": "Core details and options for your public status page.",
       "pageName": "Page name",
       "nameRequired": "Page name is required.",
       "editPage": "Edit page",
@@ -4121,7 +4119,7 @@
       "loadingPreview": "Loading preview…",
       "tabs": {
         "incidents": "Incidents",
-        "general": "General"
+        "settings": "Settings"
       },
       "studio": {
         "tabs": {
@@ -4283,7 +4281,9 @@
           "keep": "Keep editing",
           "confirm": "Discard"
         }
-      }
+      },
+      "publicAddress": "Public address",
+      "publicAddressHint": "Where your status page is available on the web."
     },
     "table": {
       "statusPage": "Status page",
