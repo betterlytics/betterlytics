@@ -56,8 +56,12 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
         bannerLabel={t(`banner.${data.overallStatus}`)}
         subTextLabel={subTextLabel}
       />
-      <main className='mx-auto -mt-11 w-full max-w-3xl px-4 pb-10 @min-[640px]:px-8'>
-        <MonitorUptimeCard data={data} />
+      <main className='mx-auto w-full max-w-3xl px-4 pb-10 @min-[640px]:px-8'>
+        {data.monitors.length > 0 && (
+          <div className='-mt-11'>
+            <MonitorUptimeCard data={data} />
+          </div>
+        )}
         {data.incidents !== null && <Incidents data={data} />}
         {!data.hideBranding && (
           <footer className='mt-8 text-center text-sm text-[var(--sp-muted)]'>
