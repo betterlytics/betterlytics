@@ -4084,7 +4084,6 @@
       },
       "visibility": {
         "title": "Visibility",
-        "hint": "Choose whether search engines can index your status page.",
         "public": "Public",
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
         "unlisted": "Unlisted",
@@ -4092,7 +4091,6 @@
       },
       "dangerZone": {
         "title": "Danger zone",
-        "hint": "Destructive actions. Deleting can't be undone.",
         "unpublishDescription": "Take the page offline. Visitors won't be able to reach it, but you can publish again anytime.",
         "deleteDescription": "Permanently delete this status page and its incident history. This can't be undone."
       },
@@ -4174,7 +4172,6 @@
         "title": "Incidents",
         "activeIncidents": "Active incidents",
         "pastIncidents": "Past incidents",
-        "listSubtitle": "Updates appear on your public page.",
         "filters": {
           "search": "Search incidents",
           "state": "State",
@@ -4282,8 +4279,7 @@
           "confirm": "Discard"
         }
       },
-      "publicAddress": "Public address",
-      "publicAddressHint": "Where your status page is available on the web."
+      "publicAddress": "Public address"
     },
     "table": {
       "statusPage": "Status page",

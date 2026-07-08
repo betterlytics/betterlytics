@@ -4086,7 +4086,6 @@
       "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-bunnteksten fra den offentlige siden.",
       "visibility": {
         "title": "Synlighet",
-        "hint": "Velg om søkemotorer kan indeksere statussiden din.",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
         "unlisted": "Ikke oppført",
@@ -4094,7 +4093,6 @@
       },
       "dangerZone": {
         "title": "Faresone",
-        "hint": "Destruktive handlinger. Sletting kan ikke angres.",
         "unpublishDescription": "Ta siden offline. Besøkende vil ikke kunne nå den, men du kan publisere igjen når som helst.",
         "deleteDescription": "Slett denne statussiden og hendelseshistorikken permanent. Dette kan ikke angres."
       },
@@ -4176,7 +4174,6 @@
         "title": "Hendelser",
         "activeIncidents": "Aktive hendelser",
         "pastIncidents": "Tidligere hendelser",
-        "listSubtitle": "Oppdateringer vises på den offentlige siden din.",
         "filters": {
           "search": "Søk hendelser",
           "state": "Tilstand",
@@ -4285,8 +4282,7 @@
         }
       },
       "editPage": "Rediger side",
-      "publicAddress": "Offentlig adresse",
-      "publicAddressHint": "Hvor statussiden din er tilgjengelig på nettet."
+      "publicAddress": "Offentlig adresse"
     },
     "table": {
       "statusPage": "Statusside",

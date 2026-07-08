@@ -46,7 +46,7 @@ export function SettingsTab({
 
   return (
     <>
-      <Section title={t('publicAddress')} description={t('publicAddressHint')}>
+      <Section title={t('publicAddress')}>
         <div className='bg-card border-border space-y-4 rounded-xl border p-5'>
           <div className='grid gap-4 2xl:grid-cols-2 2xl:items-start'>
             <SlugField
@@ -91,11 +91,11 @@ export function SettingsTab({
         </div>
       </Section>
 
-      <Section title={t('visibility.title')} description={t('visibility.hint')}>
+      <Section title={t('visibility.title')}>
         <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
       </Section>
 
-      <Section title={t('dangerZone.title')} description={t('dangerZone.hint')}>
+      <Section title={t('dangerZone.title')}>
         <div className='border-destructive/30 bg-destructive/5 divide-destructive/20 divide-y rounded-xl border'>
           {isPublished && (
             <div className='flex flex-wrap items-center justify-between gap-4 p-5'>

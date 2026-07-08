@@ -4086,7 +4086,6 @@
       "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
       "visibility": {
         "title": "Visibilità",
-        "hint": "Scegli se i motori di ricerca possono indicizzare la tua pagina di stato.",
         "public": "Pubblica",
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
         "unlisted": "Non in elenco",
@@ -4094,7 +4093,6 @@
       },
       "dangerZone": {
         "title": "Zona pericolosa",
-        "hint": "Azioni distruttive. L'eliminazione non può essere annullata.",
         "unpublishDescription": "Metti la pagina offline. I visitatori non potranno raggiungerla, ma puoi pubblicarla di nuovo in qualsiasi momento.",
         "deleteDescription": "Elimina definitivamente questa pagina di stato e la sua cronologia degli incidenti. Questa azione non può essere annullata."
       },
@@ -4176,7 +4174,6 @@
         "title": "Incidenti",
         "activeIncidents": "Incidenti attivi",
         "pastIncidents": "Incidenti passati",
-        "listSubtitle": "Gli aggiornamenti appaiono sulla tua pagina pubblica.",
         "filters": {
           "search": "Cerca incidenti",
           "state": "Stato",
@@ -4285,8 +4282,7 @@
         }
       },
       "editPage": "Modifica pagina",
-      "publicAddress": "Indirizzo pubblico",
-      "publicAddressHint": "Dove la tua pagina di stato è disponibile sul web."
+      "publicAddress": "Indirizzo pubblico"
     },
     "table": {
       "statusPage": "Pagina di stato",
