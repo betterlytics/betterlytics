@@ -412,7 +412,7 @@ export function StatusPageEditor({
           </div>
         ) : (
           <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
-            <div className='space-y-8'>
+            <div className='space-y-12'>
               <SettingsTab
                 form={form}
                 slugStatus={slugStatus}
