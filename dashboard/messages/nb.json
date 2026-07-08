@@ -3991,7 +3991,6 @@
     "newStatusPage": "Ny statusside",
     "upgradeToCreate": "Oppgrader for å legge til flere",
     "error": "Noe gikk galt",
-    "finishSetup": "Fullfør oppsettet for å publisere",
     "empty": {
       "title": "Ingen statussider ennå",
       "description": "Velg hvilke monitorer som skal vises, legg til logoen og fargene dine, og del en offentlig side brukerne dine kan sjekke under hendelser.",
@@ -4033,7 +4032,6 @@
       "statusDraft": "Utkast",
       "viewPage": "Vis side",
       "copyUrl": "Kopier URL",
-      "moreActions": "Flere handlinger",
       "publish": "Publiser statusside",
       "unpublish": "Avpubliser",
       "saved": "Statusside lagret",
@@ -4195,10 +4193,8 @@
         "detectedGroupMulti": "Nedetid på tvers av {count} monitorer",
         "hint": "Skriv og publiser hendelser. Oppdagede nedetider foreslås nedenfor. Ingenting blir offentlig før du publiserer det.",
         "newIncident": "Ny hendelse",
-        "backToList": "Tilbake til hendelser",
         "editIncident": "Rediger hendelse",
         "formHint": "Besøkende ser dette på den offentlige statussiden din når den er publisert.",
-        "suggestionsTitle": "Oppdagede nedetider",
         "createFromSuggestion": "Opprett hendelse",
         "suggestedTitle": "{monitor} nedetid",
         "suggestedTitleMulti": "Nedetid som påvirker {count} tjenester",
@@ -4281,7 +4277,6 @@
           "editMessage": "Rediger melding",
           "deleteUpdate": "Slett oppdatering",
           "done": "Ferdig",
-          "updateDeleted": "Oppdatering fjernet",
           "removePending": "Fjern oppdatering"
         },
         "discard": {
@@ -4310,7 +4305,6 @@
       "viewIncidents": "Se hendelser"
     },
     "monitorsEmpty": "Ingen monitorer",
-    "monitorLabel": "Monitor",
     "monitorsUp": "oppe"
   }
 }

@@ -117,6 +117,7 @@ export function StatusPageEditor({
   const searchParams = useSearchParams();
   const urlTab = searchParams.get('tab');
   const activeTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
+  const onGeneralTab = activeTab === 'general';
 
   const setActiveTab = useCallback((tab: TabKey) => {
     const params = new URLSearchParams(window.location.search);
@@ -288,7 +289,7 @@ export function StatusPageEditor({
   );
 
   return (
-    <div className={cn(activeTab !== 'incidents' && 'pb-24 xl:pb-0')}>
+    <div className={cn(onGeneralTab && 'pb-24 xl:pb-0')}>
       {/* Persistent top bar */}
       <Link
         href={backHref}
@@ -381,7 +382,7 @@ export function StatusPageEditor({
             </PermissionGate>
           )}
 
-          {activeTab !== 'incidents' && (
+          {onGeneralTab && (
             <button
               type='button'
               onClick={() => setPreviewOpen(true)}
@@ -464,7 +465,7 @@ export function StatusPageEditor({
           Floats bottom-right to pair with the global sidebar trigger (bottom-left). bottom-[33px] = the
           trigger's bottom-10 (40px) minus this panel's padding+border (7px), so the buttons line up
           vertically with the trigger. */}
-      {activeTab !== 'incidents' && (
+      {onGeneralTab && (
         <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg xl:hidden'>
           <Button
             type='button'

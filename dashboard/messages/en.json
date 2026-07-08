@@ -3988,7 +3988,6 @@
     "newStatusPage": "New status page",
     "upgradeToCreate": "Upgrade to add more",
     "error": "Something went wrong",
-    "finishSetup": "Finish setup to publish",
     "empty": {
       "title": "No status pages yet",
       "description": "Pick which monitors to show, add your logo and colors, and share a public page your users can check during incidents.",
@@ -4030,7 +4029,6 @@
       "statusDraft": "Draft",
       "viewPage": "View page",
       "copyUrl": "Copy URL",
-      "moreActions": "More actions",
       "publish": "Publish status page",
       "unpublish": "Unpublish",
       "saved": "Status page saved",
@@ -4193,10 +4191,8 @@
         "detectedGroupMulti": "Outage across {count} monitors",
         "hint": "Write and publish incidents. Detected outages are suggested below. Nothing goes public until you publish it.",
         "newIncident": "New incident",
-        "backToList": "Back to incidents",
         "editIncident": "Edit incident",
         "formHint": "Visitors see this on your public status page once published.",
-        "suggestionsTitle": "Detected outages",
         "createFromSuggestion": "Create incident",
         "suggestedTitle": "{monitor} outage",
         "suggestedTitleMulti": "Outage affecting {count} services",
@@ -4279,7 +4275,6 @@
           "editMessage": "Edit message",
           "deleteUpdate": "Delete update",
           "done": "Done",
-          "updateDeleted": "Update removed",
           "removePending": "Remove update"
         },
         "discard": {
@@ -4307,7 +4302,6 @@
       "viewIncidents": "View incidents"
     },
     "monitorsEmpty": "No monitors",
-    "monitorLabel": "Monitor",
     "monitorsUp": "up"
   }
 }

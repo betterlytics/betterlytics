@@ -3991,7 +3991,6 @@
     "newStatusPage": "Nuova pagina di stato",
     "upgradeToCreate": "Upgrade per altri",
     "error": "Qualcosa è andato storto",
-    "finishSetup": "Completa la configurazione per pubblicare",
     "empty": {
       "title": "Nessuna pagina di stato",
       "description": "Scegli quali monitor mostrare, aggiungi il tuo logo e i tuoi colori, e condividi una pagina pubblica che i tuoi utenti possono consultare durante gli incidenti.",
@@ -4033,7 +4032,6 @@
       "statusDraft": "Bozza",
       "viewPage": "Vedi pagina",
       "copyUrl": "Copia URL",
-      "moreActions": "Altre azioni",
       "publish": "Pubblica pagina di stato",
       "unpublish": "Annulla pubblicazione",
       "saved": "Pagina di stato salvata",
@@ -4195,10 +4193,8 @@
         "detectedGroupMulti": "Interruzione su {count} monitor",
         "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto. Nulla diventa pubblico finché non lo pubblichi.",
         "newIncident": "Nuovo incidente",
-        "backToList": "Torna agli incidenti",
         "editIncident": "Modifica incidente",
         "formHint": "I visitatori lo vedranno sulla tua pagina di stato pubblica una volta pubblicato.",
-        "suggestionsTitle": "Interruzioni rilevate",
         "createFromSuggestion": "Crea incidente",
         "suggestedTitle": "Interruzione di {monitor}",
         "suggestedTitleMulti": "Interruzione che coinvolge {count} servizi",
@@ -4281,7 +4277,6 @@
           "editMessage": "Modifica messaggio",
           "deleteUpdate": "Elimina aggiornamento",
           "done": "Fatto",
-          "updateDeleted": "Aggiornamento rimosso",
           "removePending": "Rimuovi aggiornamento"
         },
         "discard": {
@@ -4310,7 +4305,6 @@
       "viewIncidents": "Vedi incidenti"
     },
     "monitorsEmpty": "Nessun monitor",
-    "monitorLabel": "Monitor",
     "monitorsUp": "attivi"
   }
 }

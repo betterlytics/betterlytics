@@ -3991,7 +3991,6 @@
     "newStatusPage": "Ny statusside",
     "upgradeToCreate": "Opgrader for flere",
     "error": "Noget gik galt",
-    "finishSetup": "Færdiggør opsætningen for at udgive",
     "empty": {
       "title": "Ingen statussider endnu",
       "description": "Vælg hvilke monitorer der skal vises, tilføj dit logo og dine farver, og del en offentlig side dine brugere kan tjekke under hændelser.",
@@ -4033,7 +4032,6 @@
       "statusDraft": "Kladde",
       "viewPage": "Vis side",
       "copyUrl": "Kopiér URL",
-      "moreActions": "Flere handlinger",
       "publish": "Udgiv statusside",
       "unpublish": "Afpublicér",
       "saved": "Statusside gemt",
@@ -4195,10 +4193,8 @@
         "detectedGroupMulti": "Nedbrud på tværs af {count} monitorer",
         "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor. Intet bliver offentligt, før du udgiver det.",
         "newIncident": "Ny hændelse",
-        "backToList": "Tilbage til hændelser",
         "editIncident": "Rediger hændelse",
         "formHint": "Besøgende ser dette på din offentlige statusside, når den er udgivet.",
-        "suggestionsTitle": "Registrerede nedbrud",
         "createFromSuggestion": "Opret hændelse",
         "suggestedTitle": "{monitor} nedbrud",
         "suggestedTitleMulti": "Nedbrud der påvirker {count} tjenester",
@@ -4281,7 +4277,6 @@
           "editMessage": "Rediger besked",
           "deleteUpdate": "Slet opdatering",
           "done": "Færdig",
-          "updateDeleted": "Opdatering fjernet",
           "removePending": "Fjern opdatering"
         },
         "discard": {
@@ -4310,7 +4305,6 @@
       "viewIncidents": "Se hændelser"
     },
     "monitorsEmpty": "Ingen monitorer",
-    "monitorLabel": "Monitor",
     "monitorsUp": "oppe"
   }
 }
