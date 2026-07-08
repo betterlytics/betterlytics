@@ -964,7 +964,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
         <div>
           <h2 className='font-semibold'>{t('title')}</h2>
-          <p className='text-muted-foreground mt-1 text-sm'>{t('listSubtitle')}</p>
         </div>
         <div className='flex flex-wrap items-center gap-2 sm:justify-end'>
           {!isEmpty && (
