@@ -4300,8 +4300,6 @@
     },
     "banner": {
       "incidentTitle": "{count, plural, one {# pagina di stato ha un incidente attivo} other {# pagine di stato hanno incidenti attivi}}",
-      "operationalTitle": "Tutte le pagine di stato sono operative",
-      "operationalDescription": "Nessun incidente attivo.",
       "viewIncidents": "Vedi incidenti"
     },
     "monitorsEmpty": "Nessun monitor",

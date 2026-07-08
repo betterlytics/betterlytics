@@ -4297,8 +4297,6 @@
     },
     "banner": {
       "incidentTitle": "{count, plural, one {# status page has an active incident} other {# status pages have active incidents}}",
-      "operationalTitle": "All status pages operational",
-      "operationalDescription": "No active incidents.",
       "viewIncidents": "View incidents"
     },
     "monitorsEmpty": "No monitors",

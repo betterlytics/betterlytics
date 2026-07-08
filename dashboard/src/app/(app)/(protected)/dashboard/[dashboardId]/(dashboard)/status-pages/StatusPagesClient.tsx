@@ -6,7 +6,6 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
-  CheckCircle2,
   Copy,
   ExternalLink,
   Globe,
@@ -170,53 +169,40 @@ export function StatusPagesClient({
     <div className='space-y-4'>
       <DashboardHeader title={t('title')}>{createButton(t('newStatusPage'))}</DashboardHeader>
 
-      <div
-        className={cn(
-          'flex items-center gap-3 rounded-xl border px-4 py-3.5',
-          hasIncidents ? 'border-amber-500/45 bg-amber-500/7' : 'border-emerald-500/40 bg-emerald-500/6',
-        )}
-      >
-        {hasIncidents ? (
+      {hasIncidents && (
+        <div className='flex items-center gap-3 rounded-xl border border-amber-500/45 bg-amber-500/7 px-4 py-3.5'>
           <AlertTriangle className='h-4.5 w-4.5 shrink-0 text-amber-500' aria-hidden />
-        ) : (
-          <CheckCircle2 className='h-4.5 w-4.5 shrink-0 text-emerald-500' aria-hidden />
-        )}
-        <div className='min-w-0 flex-1'>
-          <div className='text-foreground text-sm font-semibold'>
-            {hasIncidents
-              ? t('banner.incidentTitle', { count: incidentPages.length })
-              : t('banner.operationalTitle')}
+          <div className='min-w-0 flex-1'>
+            <div className='text-foreground text-sm font-semibold'>
+              {t('banner.incidentTitle', { count: incidentPages.length })}
+            </div>
+            {incidentPages.length === 1 ? (
+              <div className='text-muted-foreground mt-0.5 truncate text-xs'>{incidentPages[0].name}</div>
+            ) : (
+              <div className='mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs'>
+                {incidentPages.map((page, index) => (
+                  <span key={page.id}>
+                    <Link
+                      href={`/dashboard/${dashboardId}/status-pages/${page.id}`}
+                      className='font-medium text-amber-600 hover:underline dark:text-amber-400'
+                    >
+                      {page.name}
+                    </Link>
+                    {index < incidentPages.length - 1 && <span className='text-muted-foreground'>,</span>}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-          {!hasIncidents ? (
-            <div className='text-muted-foreground mt-0.5 truncate text-xs'>
-              {t('banner.operationalDescription')}
-            </div>
-          ) : incidentPages.length === 1 ? (
-            <div className='text-muted-foreground mt-0.5 truncate text-xs'>{incidentPages[0].name}</div>
-          ) : (
-            <div className='mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-xs'>
-              {incidentPages.map((page, index) => (
-                <span key={page.id}>
-                  <Link
-                    href={`/dashboard/${dashboardId}/status-pages/${page.id}`}
-                    className='font-medium text-amber-600 hover:underline dark:text-amber-400'
-                  >
-                    {page.name}
-                  </Link>
-                  {index < incidentPages.length - 1 && <span className='text-muted-foreground'>,</span>}
-                </span>
-              ))}
-            </div>
+          {incidentPages.length === 1 && (
+            <Button asChild variant='outline' size='sm' className='shrink-0'>
+              <Link href={`/dashboard/${dashboardId}/status-pages/${incidentPages[0].id}`}>
+                {t('banner.viewIncidents')}
+              </Link>
+            </Button>
           )}
         </div>
-        {hasIncidents && incidentPages.length === 1 && (
-          <Button asChild variant='outline' size='sm' className='shrink-0'>
-            <Link href={`/dashboard/${dashboardId}/status-pages/${incidentPages[0].id}`}>
-              {t('banner.viewIncidents')}
-            </Link>
-          </Button>
-        )}
-      </div>
+      )}
 
       <div className='bg-card border-border overflow-hidden rounded-xl border'>
         <div

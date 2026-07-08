@@ -4300,8 +4300,6 @@
     },
     "banner": {
       "incidentTitle": "{count, plural, one {# statusside har en aktiv hendelse} other {# statussider har aktive hendelser}}",
-      "operationalTitle": "Alle statussider er operative",
-      "operationalDescription": "Ingen aktive hendelser.",
       "viewIncidents": "Se hendelser"
     },
     "monitorsEmpty": "Ingen monitorer",
