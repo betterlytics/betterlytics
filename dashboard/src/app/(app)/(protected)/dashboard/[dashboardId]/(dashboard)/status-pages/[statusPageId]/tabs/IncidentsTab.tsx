@@ -80,6 +80,7 @@ import {
   saveStatusPageIncidentChangesAction,
 } from '@/app/actions/analytics/statusPage.actions';
 import { AffectedMonitorsPicker } from './AffectedMonitorsPicker';
+import { Section } from './Section';
 
 type MonitorOption = { monitorCheckId: string; publicName: string };
 
@@ -961,153 +962,156 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         </div>
       )}
 
-      <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
-        <div>
-          <h2 className='font-semibold'>{t('title')}</h2>
-        </div>
-        <div className='flex flex-wrap items-center gap-2 sm:justify-end'>
-          {!isEmpty && (
-            <>
-              <div className='relative w-full sm:w-48'>
-                <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
-                <Input
-                  type='text'
-                  placeholder={t('filters.search')}
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className='h-8 pl-9'
-                />
-              </div>
-              <Select value={stateFilter} onValueChange={(v) => setStateFilter(v as StateFilter)}>
-                <SelectTrigger size='sm' className='w-[130px]' aria-label={t('filters.state')}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>{t('filters.stateAll')}</SelectItem>
-                  <SelectItem value='active'>{t('filters.stateActive')}</SelectItem>
-                  <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </>
-          )}
-          <PermissionGate>
-            {(disabled) => (
-              <Button size='sm' disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
-                <Plus className='mr-1 h-4 w-4' />
-                {t('newIncident')}
-              </Button>
+      <Section
+        title={t('title')}
+        aside={
+          <div className='flex flex-wrap items-center gap-2 sm:justify-end'>
+            {!isEmpty && (
+              <>
+                <div className='relative w-full sm:w-48'>
+                  <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+                  <Input
+                    type='text'
+                    placeholder={t('filters.search')}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className='h-8 pl-9'
+                  />
+                </div>
+                <Select value={stateFilter} onValueChange={(v) => setStateFilter(v as StateFilter)}>
+                  <SelectTrigger size='sm' className='w-[130px]' aria-label={t('filters.state')}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>{t('filters.stateAll')}</SelectItem>
+                    <SelectItem value='active'>{t('filters.stateActive')}</SelectItem>
+                    <SelectItem value='resolved'>{t('filters.stateResolved')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </>
             )}
-          </PermissionGate>
-        </div>
-      </div>
-
-      {isEmpty ? (
-        <div className='bg-card border-border overflow-hidden rounded-xl border'>
-          <div className='flex flex-col items-center justify-center px-6 py-16 text-center'>
-            <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
-              <Activity className='h-5 w-5' />
-            </span>
-            <p className='text-foreground mt-3 text-sm font-medium'>{t('noIncidents')}</p>
-            <p className='text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed'>{t('emptyHint')}</p>
+            <PermissionGate>
+              {(disabled) => (
+                <Button size='sm' disabled={disabled} onClick={openCreate} className='flex-none cursor-pointer'>
+                  <Plus className='mr-1 h-4 w-4' />
+                  {t('newIncident')}
+                </Button>
+              )}
+            </PermissionGate>
           </div>
-        </div>
-      ) : (
-        <>
-          <div className='border-border overflow-x-auto rounded-lg border'>
-            <Table className='min-w-0 sm:min-w-[600px] md:min-w-[720px] lg:min-w-[880px] xl:min-w-[920px]'>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow
-                    key={headerGroup.id}
-                    className='border-muted-foreground bg-accent hover:bg-accent border-b'
-                  >
-                    {headerGroup.headers.map((header) => {
-                      const canSort = header.column.getCanSort();
-                      const sorted = header.column.getIsSorted();
-                      const meta = header.column.columnDef.meta as IncidentColumnMeta | undefined;
-                      return (
-                        <TableHead
-                          key={header.id}
-                          className={cn(
-                            'text-foreground bg-muted/50 py-3 text-sm font-medium',
-                            meta?.headerClassName ?? 'px-3 sm:px-6',
-                            canSort && 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none',
-                          )}
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          <div className='flex items-center gap-1'>
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {sorted && (
-                              <span className='ml-1'>
-                                {sorted === 'desc' ? (
-                                  <ArrowDown className='h-4 w-4' />
-                                ) : (
-                                  <ArrowUp className='h-4 w-4' />
-                                )}
-                              </span>
-                            )}
-                          </div>
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody className='divide-secondary divide-y'>
-                {isLoading ? (
-                  Array.from({ length: 5 }, (_, i) => (
-                    <TableRow key={i} className='hover:bg-transparent'>
-                      <TableCell colSpan={columnCount} className='px-3 py-3.5 sm:px-6'>
-                        <Skeleton className='h-5 w-full' />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : filteredCount === 0 ? (
-                  <TableRow className='hover:bg-transparent'>
-                    <TableCell colSpan={columnCount} className='py-12 text-center'>
-                      <p className='text-muted-foreground text-sm'>
-                        {hasActiveFilters ? t('filters.noMatch') : t('noIncidents')}
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  visibleRows.map((row) => (
+        }
+      >
+        {isEmpty ? (
+          <div className='bg-card border-border overflow-hidden rounded-xl border'>
+            <div className='flex flex-col items-center justify-center px-6 py-16 text-center'>
+              <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
+                <Activity className='h-5 w-5' />
+              </span>
+              <p className='text-foreground mt-3 text-sm font-medium'>{t('noIncidents')}</p>
+              <p className='text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed'>{t('emptyHint')}</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className='border-border overflow-x-auto rounded-lg border'>
+              <Table className='min-w-0 sm:min-w-[600px] md:min-w-[720px] lg:min-w-[880px] xl:min-w-[920px]'>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow
-                      key={row.id}
-                      className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
-                      onClick={() => openEdit(row.original)}
+                      key={headerGroup.id}
+                      className='border-muted-foreground bg-accent hover:bg-accent border-b'
                     >
-                      {row.getVisibleCells().map((cell) => {
-                        const meta = cell.column.columnDef.meta as IncidentColumnMeta | undefined;
+                      {headerGroup.headers.map((header) => {
+                        const canSort = header.column.getCanSort();
+                        const sorted = header.column.getIsSorted();
+                        const meta = header.column.columnDef.meta as IncidentColumnMeta | undefined;
                         return (
-                          <TableCell
-                            key={cell.id}
-                            className={cn('text-muted-foreground px-3 py-3 text-sm sm:px-6', meta?.cellClassName)}
-                            onClick={meta?.stopRowClick ? (e) => e.stopPropagation() : undefined}
+                          <TableHead
+                            key={header.id}
+                            className={cn(
+                              'text-foreground bg-muted/50 py-3 text-sm font-medium',
+                              meta?.headerClassName ?? 'px-3 sm:px-6',
+                              canSort && 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none',
+                            )}
+                            onClick={header.column.getToggleSortingHandler()}
                           >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
+                            <div className='flex items-center gap-1'>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {sorted && (
+                                <span className='ml-1'>
+                                  {sorted === 'desc' ? (
+                                    <ArrowDown className='h-4 w-4' />
+                                  ) : (
+                                    <ArrowUp className='h-4 w-4' />
+                                  )}
+                                </span>
+                              )}
+                            </div>
+                          </TableHead>
                         );
                       })}
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ))}
+                </TableHeader>
+                <TableBody className='divide-secondary divide-y'>
+                  {isLoading ? (
+                    Array.from({ length: 5 }, (_, i) => (
+                      <TableRow key={i} className='hover:bg-transparent'>
+                        <TableCell colSpan={columnCount} className='px-3 py-3.5 sm:px-6'>
+                          <Skeleton className='h-5 w-full' />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : filteredCount === 0 ? (
+                    <TableRow className='hover:bg-transparent'>
+                      <TableCell colSpan={columnCount} className='py-12 text-center'>
+                        <p className='text-muted-foreground text-sm'>
+                          {hasActiveFilters ? t('filters.noMatch') : t('noIncidents')}
+                        </p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    visibleRows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
+                        onClick={() => openEdit(row.original)}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          const meta = cell.column.columnDef.meta as IncidentColumnMeta | undefined;
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              className={cn(
+                                'text-muted-foreground px-3 py-3 text-sm sm:px-6',
+                                meta?.cellClassName,
+                              )}
+                              onClick={meta?.stopRowClick ? (e) => e.stopPropagation() : undefined}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
 
-          {filteredCount > 0 && table.getPageCount() > 1 && (
-            <PaginationControls
-              pageIndex={table.getState().pagination.pageIndex}
-              totalPages={table.getPageCount()}
-              pageSize={pagination.pageSize}
-              totalItems={filteredCount}
-              onPageChange={(p) => table.setPageIndex(p)}
-              onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
-            />
-          )}
-        </>
-      )}
+            {filteredCount > 0 && table.getPageCount() > 1 && (
+              <PaginationControls
+                pageIndex={table.getState().pagination.pageIndex}
+                totalPages={table.getPageCount()}
+                pageSize={pagination.pageSize}
+                totalItems={filteredCount}
+                onPageChange={(p) => table.setPageIndex(p)}
+                onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
+              />
+            )}
+          </>
+        )}
+      </Section>
 
       <Sheet open={open} onOpenChange={(next) => (next ? setOpen(true) : requestClose())}>
         <SheetContent side='right' className='flex w-full flex-col gap-0 p-0 sm:max-w-2xl'>
