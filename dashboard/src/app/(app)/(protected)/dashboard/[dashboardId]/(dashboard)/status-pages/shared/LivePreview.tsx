@@ -66,7 +66,6 @@ const PreviewFrame = memo(function PreviewFrame({
   label,
   zoom,
   chromeRight,
-  centerUrl = false,
   className,
   style,
 }: {
@@ -82,8 +81,6 @@ const PreviewFrame = memo(function PreviewFrame({
   zoom: number;
   /** Extra element after the "Live preview" label in the chrome bar (e.g. a close button). */
   chromeRight?: ReactNode;
-  /** Center the URL pill at its content width instead of stretching it full-width. */
-  centerUrl?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -93,24 +90,19 @@ const PreviewFrame = memo(function PreviewFrame({
       style={style}
     >
       <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
-        <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1' : 'flex-none')}>
+        <div className='flex flex-1 items-center gap-1.5'>
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
         </div>
-        <span
-          className={cn(
-            'bg-muted text-muted-foreground flex min-w-0 items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs',
-            centerUrl ? 'max-w-[60%]' : 'ml-2 flex-1',
-          )}
-        >
+        <span className='bg-muted text-muted-foreground flex max-w-[60%] min-w-0 items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs'>
           {faviconUrl && (
             // eslint-disable-next-line @next/next/no-img-element -- owner-provided image (or staged blob), not optimizable via next/image
             <img src={faviconUrl} alt='' className='h-3.5 w-3.5 flex-none rounded-[3px] object-contain' />
           )}
           <span className='truncate'>{customDomain ? customDomain : `${publicHost}/status/${slug}`}</span>
         </span>
-        <div className={cn('flex items-center gap-1.5', centerUrl ? 'flex-1 justify-end' : 'ml-1 flex-none')}>
+        <div className='flex flex-1 items-center justify-end gap-1.5'>
           <span className='text-muted-foreground flex-none text-xs'>{label}</span>
           {chromeRight}
         </div>
@@ -283,7 +275,6 @@ export function LivePreview({
               faviconUrl={draft.faviconUrl}
               label={tEditor('preview')}
               zoom={0.85}
-              centerUrl
               className='max-h-[88vh]'
               chromeRight={
                 <DialogClose
