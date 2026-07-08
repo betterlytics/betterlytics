@@ -68,6 +68,25 @@ export function StudioCanvas({
     return Math.min(1, Math.max(ZOOM_MIN, fit));
   }, [availableWidth, device]);
 
+  // Pinch-to-zoom: trackpad pinches arrive as ctrlKey wheel events. Native non-passive
+  // listener because React's wheel handlers can't preventDefault the browser page-zoom.
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      // Line-mode deltas (discrete mouse wheels on some browsers) are ~3 per notch vs ~100px.
+      const delta = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 20 : event.deltaY;
+      setPinnedZoom((current) => {
+        const base = current ?? fitZoom ?? 1;
+        return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, base * Math.exp(-delta * 0.002)));
+      });
+    };
+    node.addEventListener('wheel', onWheel, { passive: false });
+    return () => node.removeEventListener('wheel', onWheel);
+  }, [fitZoom]);
+
   const zoom = pinnedZoom ?? fitZoom;
 
   const stepZoom = useCallback(
@@ -119,7 +138,7 @@ export function StudioCanvas({
         <p className='text-muted-foreground text-sm'>{t('error')}</p>
       ) : (
         zoom != null && (
-          <div className='flex max-h-full w-full justify-center overflow-hidden px-8 py-10'>
+          <div className='flex max-h-full w-full overflow-x-auto overflow-y-hidden px-8 py-10'>
             <LivePreview
               payload={preview.payload}
               messages={preview.messages}

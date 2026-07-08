@@ -251,7 +251,7 @@ export function LivePreview({
     <>
       {/* The enlarge affordance is a small floating pill, NOT a full-frame cover: a cover
           swallows wheel events and makes the preview unscrollable. */}
-      <div className='group relative flex max-h-full min-h-0'>
+      <div className='group relative mx-auto flex max-h-full min-h-0'>
         {frame}
         {hoverEnlarge && (
           <button
