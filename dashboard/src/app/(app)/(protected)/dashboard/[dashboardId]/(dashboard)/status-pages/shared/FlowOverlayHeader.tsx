@@ -28,9 +28,7 @@ export function FlowOverlayHeader({ title, closeAriaLabel, onClose, actions }: F
 
   return (
     <header className='border-border flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6'>
-      {/* No gap — explicit divider margins so the VISIBLE gaps match (the X's hit-area padding
-          otherwise makes the left gap look larger than the right). */}
-      <div className='flex min-w-0 items-center'>
+      <div className='-ml-2 flex min-w-0 items-center'>
         <button
           type='button'
           onClick={onClose}
