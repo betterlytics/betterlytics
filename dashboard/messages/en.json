@@ -4068,7 +4068,6 @@
         "taken": "Already taken",
         "invalid": "Invalid slug"
       },
-      "slugWarning": "Changing the URL of a published page breaks existing links.",
       "homepageUrl": "Homepage URL",
       "homepageUrlHint": "Where the logo and page title link to.",
       "customDomain": "Custom domain",

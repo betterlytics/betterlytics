@@ -1,7 +1,6 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { type StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
 import { ThemeSegmentedControl } from './ThemeSegmentedControl';

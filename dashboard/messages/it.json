@@ -4070,7 +4070,6 @@
         "taken": "Già in uso",
         "invalid": "Slug non valido"
       },
-      "slugWarning": "Cambiare l'URL di una pagina pubblicata interrompe i link esistenti.",
       "homepageUrl": "URL della homepage",
       "homepageUrlHint": "Dove rimandano il logo e il titolo della pagina.",
       "customDomain": "Dominio personalizzato",

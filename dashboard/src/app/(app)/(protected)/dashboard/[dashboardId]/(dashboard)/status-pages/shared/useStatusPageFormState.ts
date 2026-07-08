@@ -24,6 +24,19 @@ export type MonitorRow = {
   uptimePercent?: number | null;
 };
 
+/** Row for a monitor created mid-flow: included by default, still preparing, no uptime data yet. */
+export function newMonitorRow(monitor: { id: string; name?: string | null; url: string }): MonitorRow {
+  return {
+    monitorCheckId: monitor.id,
+    name: monitor.name ?? null,
+    url: monitor.url,
+    included: true,
+    publicName: defaultPublicMonitorName(monitor),
+    operationalState: 'preparing',
+    uptimePercent: null,
+  };
+}
+
 export type StatusPageFormInitial = {
   name: string;
   slug: string;

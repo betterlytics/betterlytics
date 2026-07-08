@@ -9,11 +9,13 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { ConfirmDialog } from '@/components/dialogs';
 import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { MonitorFormDialog } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/MonitorFormDialog';
 import { FlowOverlay } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlay';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
-import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import {
+  newMonitorRow,
+  type StatusPageFormState,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { StatusPageStudio } from './StatusPageStudio';
 
 type EditStatusPageStudioProps = {
@@ -142,20 +144,7 @@ export function EditStatusPageStudio({
         dashboardId={dashboardId}
         domain={domain}
         existingUrls={form.monitorRows.map((row) => row.url)}
-        onCreated={(monitor) => {
-          form.setMonitorRows((rows) => [
-            ...rows,
-            {
-              monitorCheckId: monitor.id,
-              name: monitor.name ?? null,
-              url: monitor.url,
-              included: true,
-              publicName: defaultPublicMonitorName(monitor),
-              operationalState: 'preparing',
-              uptimePercent: null,
-            },
-          ]);
-        }}
+        onCreated={(monitor) => form.setMonitorRows((rows) => [...rows, newMonitorRow(monitor)])}
       />
       <ConfirmDialog
         open={showDiscardConfirm}

@@ -98,7 +98,7 @@ export function StatusPagesClient({
   const { caps } = useCapabilities();
   const atStatusPageLimit = statusPages.length >= caps.statusPages.maxStatusPages;
 
-  const [showWizard, setShowWizard] = useState(false);
+  const [showCreateStudio, setShowCreateStudio] = useState(false);
 
   const copyLink = (page: StatusPageListItem) => {
     navigator.clipboard.writeText(statusPagePublicUrl(page, publicBaseUrl));
@@ -136,7 +136,7 @@ export function StatusPagesClient({
     ) : (
       <PermissionGate>
         {(disabled) => (
-          <Button disabled={disabled} onClick={() => setShowWizard(true)} className='cursor-pointer'>
+          <Button disabled={disabled} onClick={() => setShowCreateStudio(true)} className='cursor-pointer'>
             <Plus className='mr-1 h-4 w-4' />
             {label}
           </Button>
@@ -144,13 +144,13 @@ export function StatusPagesClient({
       </PermissionGate>
     );
 
-  const wizard = showWizard && (
+  const createStudio = showCreateStudio && (
     <CreateStatusPageStudio
       dashboardId={dashboardId}
       publicHost={publicHost}
       publicBaseUrl={publicBaseUrl}
       domain={domain}
-      onClose={() => setShowWizard(false)}
+      onClose={() => setShowCreateStudio(false)}
     />
   );
 
@@ -158,7 +158,7 @@ export function StatusPagesClient({
     return (
       <>
         <StatusPagesEmptyState createButton={createButton(t('empty.cta'))} />
-        {wizard}
+        {createStudio}
       </>
     );
   }
@@ -454,7 +454,7 @@ export function StatusPagesClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {wizard}
+      {createStudio}
     </div>
   );
 }

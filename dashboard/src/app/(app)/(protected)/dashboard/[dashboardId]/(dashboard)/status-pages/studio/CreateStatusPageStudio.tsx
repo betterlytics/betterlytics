@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
-import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { ConfirmDialog } from '@/components/dialogs';
 import {
   createStatusPageAction,
@@ -21,7 +20,10 @@ import { MonitorFormDialog } from '@/app/(app)/(protected)/dashboard/[dashboardI
 import { FlowOverlay } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlay';
 import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlayHeader';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
-import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import {
+  newMonitorRow,
+  useStatusPageFormState,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { StatusPageStudio } from './StatusPageStudio';
 
@@ -239,18 +241,7 @@ function StudioForm({
         domain={domain}
         existingUrls={form.monitorRows.map((row) => row.url)}
         onCreated={(monitor) => {
-          form.setMonitorRows((rows) => [
-            ...rows,
-            {
-              monitorCheckId: monitor.id,
-              name: monitor.name ?? null,
-              url: monitor.url,
-              included: true,
-              publicName: defaultPublicMonitorName(monitor),
-              operationalState: 'preparing',
-              uptimePercent: null,
-            },
-          ]);
+          form.setMonitorRows((rows) => [...rows, newMonitorRow(monitor)]);
           previewQuery.refetch();
         }}
       />
