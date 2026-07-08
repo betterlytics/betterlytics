@@ -79,6 +79,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
               startLabelCompact={t('uptimeWindow.start', { days: UPTIME_BARS_COMPACT_DAYS })}
               todayLabel={t('uptimeWindow.today')}
               locale='en'
+              theme={data.theme}
             />
           </div>
         );

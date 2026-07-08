@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
+import type { StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
 import type { PublicDailyUptimeBucket } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatUptime } from '@/utils/formatters';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
@@ -24,16 +24,12 @@ type UptimeBarsProps = {
   startLabelCompact: string;
   todayLabel: string;
   locale: SupportedLanguages;
+  /** Owner theme, forwarded so each pill's body-portaled tooltip keeps the page's colors. */
+  theme: StatusPageTheme;
 };
 
-export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel, locale }: UptimeBarsProps) {
+export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel, locale, theme }: UptimeBarsProps) {
   const t = useTranslations('publicStatusPage');
-
-  // Resolve the status-page root so each pill's tooltip portals inside it and keeps the owner's theme.
-  const [container, setContainer] = useState<HTMLElement | null>(null);
-  const resolveContainer = useCallback((node: HTMLDivElement | null) => {
-    if (node) setContainer(node.closest<HTMLElement>('.bl-status-page'));
-  }, []);
 
   const cells = (buckets: PublicDailyUptimeBucket[]) =>
     buckets.map((day) => {
@@ -44,7 +40,7 @@ export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel
         day.upRatio == null ? t('noData') : t('uptimeValue', { uptime: formatUptime(day.upRatio * 100, locale) });
 
       return (
-        <UptimeBarTooltip key={day.date} title={dateLabel} description={description} container={container}>
+        <UptimeBarTooltip key={day.date} title={dateLabel} description={description} theme={theme}>
           <span
             suppressHydrationWarning
             aria-label={`${dateLabel} · ${description}`}
@@ -58,7 +54,7 @@ export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel
   return (
     <>
       {/* 90 cells get too cramped on narrow widths so we collapse to the most recent 45 */}
-      <div ref={resolveContainer} className='mt-2 hidden gap-[2px] @min-[640px]:flex'>
+      <div className='mt-2 hidden gap-[2px] @min-[640px]:flex'>
         {cells(days)}
       </div>
       <div className='mt-3 flex gap-[2px] @min-[640px]:hidden'>{cells(days.slice(-UPTIME_BARS_COMPACT_DAYS))}</div>
