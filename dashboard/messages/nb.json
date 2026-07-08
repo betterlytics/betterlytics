@@ -4040,11 +4040,8 @@
       "unpublished": "Statusside avpublisert",
       "publishSuccess": {
         "title": "Statussiden din er live",
-        "description": "Alle med lenken kan se den. Den oppdateres automatisk etter hvert som monitorene dine kjører.",
         "copy": "Kopier lenke",
         "copied": "Lenke kopiert til utklippstavlen",
-        "back": "Tilbake til Statussider",
-        "manage": "Administrer side",
         "view": "Vis side"
       },
       "deleted": "Statusside slettet",
@@ -4057,7 +4054,6 @@
       "pageDetails": "Sideinnstillinger",
       "pageDetailsHint": "Grunnleggende detaljer og valg for den offentlige statussiden din.",
       "pageName": "Sidenavn",
-      "pageNameHint": "Vises øverst på den offentlige siden din og i nettleserfanen.",
       "nameRequired": "Sidenavn er påkrevd.",
       "unsavedChanges": "Ulagrede endringer",
       "publishNeedsSave": "Lagre endringene før du publiserer.",
@@ -4093,10 +4089,6 @@
       },
       "hideBranding": "Skjul Betterlytics-merking",
       "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-bunnteksten fra den offentlige siden.",
-      "branding": "Merkevare",
-      "brandHint": "Logo og aksentfarge vist på den offentlige siden.",
-      "appearance": "Utseende",
-      "appearanceHint": "Standardtema for besøkende.",
       "visibility": {
         "title": "Synlighet",
         "hint": "Velg om søkemotorer kan indeksere statussiden din.",
@@ -4115,8 +4107,6 @@
       "uploadLogo": "Last opp logo",
       "favicon": "Favicon",
       "uploadFavicon": "Last opp favicon",
-      "logoHint": "Vises i sidens topptekst. PNG, JPEG eller WebP; store bilder skaleres ned.",
-      "faviconHint": "Vises i nettleserfanen. Bruk et kvadratisk PNG-, JPEG- eller WebP-bilde.",
       "replaceImage": "Erstatt",
       "removeImage": "Fjern",
       "imageTooLarge": "Bildet er for stort. Velg en mindre fil.",
@@ -4129,24 +4119,14 @@
       },
       "showPastIncidents": "Vis tidligere hendelser",
       "showPastIncidentsHint": "Vis en historikk over løste hendelser på din offentlige side.",
-      "monitors": "Monitorer",
-      "monitorsHint": "{selected} av {total} vises",
       "minMonitorsHint": "Legg til minst én overvåker for å lagre endringer.",
-      "monitorsDescription": "Dra for å endre rekkefølge, slå synlighet av/på, og angi offentlige visningsnavn.",
       "publicNamePlaceholder": "Offentlig visningsnavn",
       "reorderMonitor": "Omorganiser monitor",
       "preview": "Direkte forhåndsvisning",
       "loadingPreview": "Laster forhåndsvisning…",
       "tabs": {
         "incidents": "Hendelser",
-        "general": "Generelt",
-        "customize": "Utseende",
-        "monitors": "Monitorer"
-      },
-      "incidentsLocked": {
-        "title": "Publiser siden for å opprette hendelser",
-        "description": "Hendelser du skriver vises på den offentlige statussiden din. Fullfør oppsettet og publiser siden først, så kan du holde besøkende informert.",
-        "cta": "Gå til Sideoppsett"
+        "general": "Generelt"
       },
       "studio": {
         "tabs": {
@@ -4164,34 +4144,22 @@
         "zoomFit": "Tilpass til skjermen",
         "desktopPreview": "Forhåndsvisning for datamaskin",
         "mobilePreview": "Forhåndsvisning for mobil",
-        "customDomainLater": "Vil du bruke ditt eget domene som status.{domain}? Koble det til fra sidens innstillinger når siden er opprettet."
+        "customDomainLater": "Vil du bruke ditt eget domene som status.{domain}? Koble det til fra sidens innstillinger når siden er opprettet.",
+        "discardEdits": {
+          "title": "Forkast endringene dine?",
+          "description": "Endringer gjort i editoren tilbakestilles til sist lagrede tilstand.",
+          "keep": "Fortsett å redigere",
+          "discard": "Forkast"
+        }
       },
       "wizard": {
         "title": "Ny statusside",
         "close": "Lukk",
-        "back": "Tilbake",
-        "continue": "Fortsett",
         "saveDraft": "Lagre som utkast",
         "enlargePreview": "Forstørr forhåndsvisning",
-        "steps": {
-          "select": "Velg",
-          "customize": "Tilpass",
-          "publish": "Publiser"
-        },
         "select": {
-          "heading": "Velg hva som skal vises",
-          "description": "Velg hvilke overvåkere som vises på den offentlige siden. Du kan gi dem nytt navn og omorganisere dem etterpå."
+          "heading": "Velg hva som skal vises"
         },
-        "customize": {
-          "heading": "Gjør den til din",
-          "description": "Merkevare og visningsnavn. Forhåndsvisningen oppdateres underveis."
-        },
-        "publish": {
-          "heading": "Klar til å publisere",
-          "description": "Bekreft hvor den ligger og hvem som kan se den."
-        },
-        "summary": "Oppsummering",
-        "summaryMonitors": "{count, plural, one {# overvåker} other {# overvåkere}}",
         "selectAll": "Velg alle",
         "searchMonitors": "Søk etter overvåkere",
         "noSearchResults": "Ingen overvåkere samsvarer med søket ditt.",
@@ -4202,7 +4170,6 @@
         "selectedCount": "{selected} av {total} overvåkere valgt",
         "minMonitors": "Velg minst én overvåker for å fortsette.",
         "publicNames": "Offentlige navn og rekkefølge",
-        "dragReorder": "Dra for å endre rekkefølge",
         "confirmDiscard": {
           "title": "Forkaste denne statussiden?",
           "description": "Du har gjort endringer som går tapt hvis du lukker nå. Ingenting er lagret ennå.",
@@ -4324,7 +4291,8 @@
           "keep": "Fortsett redigering",
           "confirm": "Forkast"
         }
-      }
+      },
+      "editPage": "Rediger side"
     },
     "table": {
       "statusPage": "Statusside",

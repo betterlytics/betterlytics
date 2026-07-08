@@ -4040,11 +4040,8 @@
       "unpublished": "Pubblicazione annullata",
       "publishSuccess": {
         "title": "La tua pagina di stato è online",
-        "description": "Chiunque abbia il link può vederla. Si aggiorna automaticamente man mano che i tuoi monitor vengono eseguiti.",
         "copy": "Copia link",
         "copied": "Link copiato negli appunti",
-        "back": "Torna alle Pagine di stato",
-        "manage": "Gestisci pagina",
         "view": "Vedi pagina"
       },
       "deleted": "Pagina di stato eliminata",
@@ -4057,7 +4054,6 @@
       "pageDetails": "Impostazioni pagina",
       "pageDetailsHint": "Dettagli e opzioni principali della tua pagina di stato pubblica.",
       "pageName": "Nome pagina",
-      "pageNameHint": "Mostrato in cima alla tua pagina pubblica e nella scheda del browser.",
       "nameRequired": "Il nome della pagina è obbligatorio.",
       "unsavedChanges": "Modifiche non salvate",
       "publishNeedsSave": "Salva le modifiche prima di pubblicare.",
@@ -4093,10 +4089,6 @@
       },
       "hideBranding": "Nascondi il branding Betterlytics",
       "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
-      "branding": "Branding",
-      "brandHint": "Logo e colore principale mostrati sulla pagina pubblica.",
-      "appearance": "Aspetto",
-      "appearanceHint": "Tema predefinito per i visitatori.",
       "visibility": {
         "title": "Visibilità",
         "hint": "Scegli se i motori di ricerca possono indicizzare la tua pagina di stato.",
@@ -4115,8 +4107,6 @@
       "uploadLogo": "Carica logo",
       "favicon": "Favicon",
       "uploadFavicon": "Carica favicon",
-      "logoHint": "Mostrato nell'intestazione della pagina. PNG, JPEG o WebP; le immagini grandi vengono ridotte.",
-      "faviconHint": "Mostrata nella scheda del browser. Usa un'immagine quadrata PNG, JPEG o WebP.",
       "replaceImage": "Sostituisci",
       "removeImage": "Rimuovi",
       "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
@@ -4129,24 +4119,14 @@
       },
       "showPastIncidents": "Mostra incidenti passati",
       "showPastIncidentsHint": "Mostra una cronologia degli incidenti risolti sulla tua pagina pubblica.",
-      "monitors": "Monitor",
-      "monitorsHint": "{selected} di {total} visibili",
       "minMonitorsHint": "Aggiungi almeno un monitor per salvare le modifiche.",
-      "monitorsDescription": "Trascina per riordinare, attiva/disattiva la visibilità e imposta i nomi pubblici.",
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
       "preview": "Anteprima live",
       "loadingPreview": "Caricamento anteprima…",
       "tabs": {
         "incidents": "Incidenti",
-        "general": "Generale",
-        "customize": "Aspetto",
-        "monitors": "Monitor"
-      },
-      "incidentsLocked": {
-        "title": "Pubblica la pagina per creare incidenti",
-        "description": "Gli incidenti che scrivi appaiono sulla tua pagina di stato pubblica. Completa la configurazione e pubblica prima la pagina, così potrai tenere informati i visitatori.",
-        "cta": "Vai a Impostazioni pagina"
+        "general": "Generale"
       },
       "studio": {
         "tabs": {
@@ -4164,34 +4144,22 @@
         "zoomFit": "Adatta allo schermo",
         "desktopPreview": "Anteprima desktop",
         "mobilePreview": "Anteprima mobile",
-        "customDomainLater": "Vuoi usare il tuo dominio come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata."
+        "customDomainLater": "Vuoi usare il tuo dominio come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata.",
+        "discardEdits": {
+          "title": "Annullare le modifiche?",
+          "description": "Le modifiche apportate nell'editor verranno riportate all'ultimo stato salvato.",
+          "keep": "Continua a modificare",
+          "discard": "Scarta"
+        }
       },
       "wizard": {
         "title": "Nuova pagina di stato",
         "close": "Chiudi",
-        "back": "Indietro",
-        "continue": "Continua",
         "saveDraft": "Salva come bozza",
         "enlargePreview": "Ingrandisci anteprima",
-        "steps": {
-          "select": "Seleziona",
-          "customize": "Personalizza",
-          "publish": "Pubblica"
-        },
         "select": {
-          "heading": "Scegli cosa mostrare",
-          "description": "Scegli quali monitor appaiono sulla tua pagina pubblica. Potrai rinominarli e riordinarli dopo."
+          "heading": "Scegli cosa mostrare"
         },
-        "customize": {
-          "heading": "Rendila tua",
-          "description": "Branding e nomi visualizzati. L'anteprima si aggiorna mentre procedi."
-        },
-        "publish": {
-          "heading": "Pronta per la pubblicazione",
-          "description": "Conferma dove si trova e chi può vederla."
-        },
-        "summary": "Riepilogo",
-        "summaryMonitors": "{count, plural, one {# monitor} other {# monitor}}",
         "selectAll": "Seleziona tutti",
         "searchMonitors": "Cerca monitor",
         "noSearchResults": "Nessun monitor corrisponde alla ricerca.",
@@ -4202,7 +4170,6 @@
         "selectedCount": "{selected} di {total} monitor selezionati",
         "minMonitors": "Seleziona almeno un monitor per continuare.",
         "publicNames": "Nomi pubblici e ordine",
-        "dragReorder": "Trascina per riordinare",
         "confirmDiscard": {
           "title": "Vuoi annullare questa pagina di stato?",
           "description": "Hai apportato modifiche che andranno perse se chiudi ora. Non è stato salvato nulla.",
@@ -4324,7 +4291,8 @@
           "keep": "Continua a modificare",
           "confirm": "Ignora"
         }
-      }
+      },
+      "editPage": "Modifica pagina"
     },
     "table": {
       "statusPage": "Pagina di stato",

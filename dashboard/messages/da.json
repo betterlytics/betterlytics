@@ -4040,11 +4040,8 @@
       "unpublished": "Statusside afpubliceret",
       "publishSuccess": {
         "title": "Din statusside er live",
-        "description": "Alle med linket kan se den. Den opdateres automatisk, efterhånden som dine monitorer kører.",
         "copy": "Kopiér link",
         "copied": "Link kopieret til udklipsholderen",
-        "back": "Tilbage til Statussider",
-        "manage": "Administrer side",
         "view": "Vis side"
       },
       "deleted": "Statusside slettet",
@@ -4057,7 +4054,6 @@
       "pageDetails": "Sideindstillinger",
       "pageDetailsHint": "Grundlæggende detaljer og valg for din offentlige statusside.",
       "pageName": "Sidenavn",
-      "pageNameHint": "Vises øverst på din offentlige side og i browserfanen.",
       "nameRequired": "Sidenavn er påkrævet.",
       "unsavedChanges": "Ugemte ændringer",
       "publishNeedsSave": "Gem dine ændringer før du udgiver.",
@@ -4107,16 +4103,10 @@
         "unpublishDescription": "Tag siden offline. Besøgende vil ikke kunne tilgå den, men du kan udgive igen når som helst.",
         "deleteDescription": "Slet denne statusside og dens hændelseshistorik permanent. Dette kan ikke fortrydes."
       },
-      "branding": "Branding",
-      "brandHint": "Logo og accentfarve vist på den offentlige side.",
-      "appearance": "Udseende",
-      "appearanceHint": "Standardtema for besøgende.",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",
       "uploadFavicon": "Upload favicon",
-      "logoHint": "Vises i sidens header. PNG, JPEG eller WebP; store billeder skaleres ned.",
-      "faviconHint": "Vises i browserfanen. Brug et kvadratisk PNG-, JPEG- eller WebP-billede.",
       "replaceImage": "Erstat",
       "removeImage": "Fjern",
       "imageTooLarge": "Billedet er for stort. Vælg en mindre fil.",
@@ -4129,24 +4119,14 @@
       },
       "showPastIncidents": "Vis tidligere hændelser",
       "showPastIncidentsHint": "Vis en historik over løste hændelser på din offentlige side.",
-      "monitors": "Monitorer",
-      "monitorsHint": "{selected} af {total} vises",
       "minMonitorsHint": "Tilføj mindst én monitor for at gemme ændringer.",
-      "monitorsDescription": "Træk for at omarrangere, slå synlighed til/fra, og angiv offentlige visningsnavne.",
       "publicNamePlaceholder": "Offentligt visningsnavn",
       "reorderMonitor": "Omarranger monitor",
       "preview": "Live forhåndsvisning",
       "loadingPreview": "Indlæser forhåndsvisning…",
       "tabs": {
         "incidents": "Hændelser",
-        "general": "Generelt",
-        "customize": "Udseende",
-        "monitors": "Monitorer"
-      },
-      "incidentsLocked": {
-        "title": "Udgiv din side for at oprette hændelser",
-        "description": "Hændelser, du skriver, vises på din offentlige statusside. Færdiggør opsætningen og udgiv din side først, så kan du holde de besøgende informeret.",
-        "cta": "Gå til Sideopsætning"
+        "general": "Generelt"
       },
       "studio": {
         "tabs": {
@@ -4164,34 +4144,22 @@
         "zoomFit": "Tilpas til skærmen",
         "desktopPreview": "Desktop-forhåndsvisning",
         "mobilePreview": "Mobil-forhåndsvisning",
-        "customDomainLater": "Vil du bruge dit eget domæne som status.{domain}? Forbind det fra sidens indstillinger, når siden er oprettet."
+        "customDomainLater": "Vil du bruge dit eget domæne som status.{domain}? Forbind det fra sidens indstillinger, når siden er oprettet.",
+        "discardEdits": {
+          "title": "Kassér dine ændringer?",
+          "description": "Ændringer foretaget i editoren rulles tilbage til den senest gemte tilstand.",
+          "keep": "Fortsæt redigering",
+          "discard": "Kassér"
+        }
       },
       "wizard": {
         "title": "Ny statusside",
         "close": "Luk",
-        "back": "Tilbage",
-        "continue": "Fortsæt",
         "saveDraft": "Gem som kladde",
         "enlargePreview": "Forstør forhåndsvisning",
-        "steps": {
-          "select": "Vælg",
-          "customize": "Tilpas",
-          "publish": "Udgiv"
-        },
         "select": {
-          "heading": "Vælg hvad der skal vises",
-          "description": "Vælg hvilke monitorer der vises på din offentlige side. Du kan omdøbe og omarrangere dem bagefter."
+          "heading": "Vælg hvad der skal vises"
         },
-        "customize": {
-          "heading": "Gør den til din",
-          "description": "Branding og visningsnavne. Forhåndsvisningen opdateres undervejs."
-        },
-        "publish": {
-          "heading": "Klar til at udgive",
-          "description": "Bekræft hvor den ligger, og hvem der kan se den."
-        },
-        "summary": "Oversigt",
-        "summaryMonitors": "{count, plural, one {# monitor} other {# monitorer}}",
         "selectAll": "Vælg alle",
         "searchMonitors": "Søg efter monitorer",
         "noSearchResults": "Ingen monitorer matcher din søgning.",
@@ -4202,7 +4170,6 @@
         "selectedCount": "{selected} af {total} monitorer valgt",
         "minMonitors": "Vælg mindst én monitor for at fortsætte.",
         "publicNames": "Offentlige navne og rækkefølge",
-        "dragReorder": "Træk for at ændre rækkefølge",
         "confirmDiscard": {
           "title": "Vil du kassere denne statusside?",
           "description": "Du har lavet ændringer, der går tabt, hvis du lukker nu. Intet er gemt endnu.",
@@ -4324,7 +4291,8 @@
           "keep": "Fortsæt redigering",
           "confirm": "Kassér"
         }
-      }
+      },
+      "editPage": "Rediger side"
     },
     "table": {
       "statusPage": "Statusside",

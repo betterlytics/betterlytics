@@ -88,7 +88,10 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
               ))
             )}
             <ChevronDown
-              className={cn('text-muted-foreground ml-auto h-4 w-4 shrink-0 transition-transform', open && 'rotate-180')}
+              className={cn(
+                'text-muted-foreground ml-auto h-4 w-4 shrink-0 transition-transform',
+                open && 'rotate-180',
+              )}
             />
           </button>
         </PopoverTrigger>

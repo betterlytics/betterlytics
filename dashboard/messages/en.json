@@ -4037,11 +4037,8 @@
       "unpublished": "Status page unpublished",
       "publishSuccess": {
         "title": "Your status page is live",
-        "description": "Anyone with the link can see it. It updates automatically as your monitors run.",
         "copy": "Copy link",
         "copied": "Link copied to clipboard",
-        "back": "Back to Status Pages",
-        "manage": "Manage page",
         "view": "View page"
       },
       "deleted": "Status page deleted",
@@ -4054,8 +4051,8 @@
       "pageDetails": "Page settings",
       "pageDetailsHint": "Core details and options for your public status page.",
       "pageName": "Page name",
-      "pageNameHint": "Shown at the top of your public page and in the browser tab.",
       "nameRequired": "Page name is required.",
+      "editPage": "Edit page",
       "unsavedChanges": "Unsaved changes",
       "publishNeedsSave": "Save your changes before publishing.",
       "confirmPublish": {
@@ -4104,16 +4101,10 @@
         "unpublishDescription": "Take the page offline. Visitors won't be able to reach it, but you can publish again anytime.",
         "deleteDescription": "Permanently delete this status page and its incident history. This can't be undone."
       },
-      "branding": "Branding",
-      "brandHint": "Logo and accent color shown on the public page.",
-      "appearance": "Appearance",
-      "appearanceHint": "Default theme for visitors.",
       "logo": "Logo",
       "uploadLogo": "Upload logo",
       "favicon": "Favicon",
       "uploadFavicon": "Upload favicon",
-      "logoHint": "Shown in the page header. PNG, JPEG, or WebP; large images are scaled down.",
-      "faviconHint": "Shown in the browser tab. Use a square PNG, JPEG, or WebP.",
       "replaceImage": "Replace",
       "removeImage": "Remove",
       "imageTooLarge": "That image is too large. Please choose a smaller file.",
@@ -4126,24 +4117,14 @@
       },
       "showPastIncidents": "Show past incidents",
       "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
-      "monitors": "Monitors",
-      "monitorsHint": "{selected} of {total} shown",
       "minMonitorsHint": "Add at least one monitor to save changes.",
-      "monitorsDescription": "Drag to reorder, toggle visibility, and set public display names.",
       "publicNamePlaceholder": "Public display name",
       "reorderMonitor": "Reorder monitor",
       "preview": "Live preview",
       "loadingPreview": "Loading preview…",
       "tabs": {
         "incidents": "Incidents",
-        "general": "General",
-        "customize": "Appearance",
-        "monitors": "Monitors"
-      },
-      "incidentsLocked": {
-        "title": "Publish your page to post incidents",
-        "description": "Incidents you write appear on your public status page. Finish setting up and publish your page first, then you can keep visitors informed.",
-        "cta": "Go to Page setup"
+        "general": "General"
       },
       "studio": {
         "tabs": {
@@ -4161,34 +4142,22 @@
         "zoomFit": "Fit to screen",
         "desktopPreview": "Desktop preview",
         "mobilePreview": "Mobile preview",
-        "customDomainLater": "Want your own domain like status.{domain}? Connect it from your page settings once the page is created."
+        "customDomainLater": "Want your own domain like status.{domain}? Connect it from your page settings once the page is created.",
+        "discardEdits": {
+          "title": "Discard your edits?",
+          "description": "Changes made in the editor will be reverted to the last saved state.",
+          "keep": "Keep editing",
+          "discard": "Discard"
+        }
       },
       "wizard": {
         "title": "New status page",
         "close": "Close",
-        "back": "Back",
-        "continue": "Continue",
         "saveDraft": "Save as draft",
         "enlargePreview": "Enlarge preview",
-        "steps": {
-          "select": "Select",
-          "customize": "Customize",
-          "publish": "Publish"
-        },
         "select": {
-          "heading": "Pick what to show",
-          "description": "Choose which monitors appear on your public page. You can rename and reorder them next."
+          "heading": "Pick what to show"
         },
-        "customize": {
-          "heading": "Make it yours",
-          "description": "Branding and display names. The preview updates as you go."
-        },
-        "publish": {
-          "heading": "Ready to publish",
-          "description": "Confirm where it lives and who can see it."
-        },
-        "summary": "Summary",
-        "summaryMonitors": "{count, plural, one {# monitor} other {# monitors}}",
         "selectAll": "Select all",
         "searchMonitors": "Search monitors",
         "noSearchResults": "No monitors match your search.",
@@ -4199,7 +4168,6 @@
         "selectedCount": "{selected} of {total} monitors selected",
         "minMonitors": "Select at least one monitor to continue.",
         "publicNames": "Public names & order",
-        "dragReorder": "Drag to reorder",
         "confirmDiscard": {
           "title": "Discard this status page?",
           "description": "You've made changes that will be lost if you close now. Nothing has been saved yet.",

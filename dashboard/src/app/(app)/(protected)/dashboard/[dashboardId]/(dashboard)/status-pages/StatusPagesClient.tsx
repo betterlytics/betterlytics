@@ -44,10 +44,7 @@ import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { cn } from '@/lib/utils';
 import { deleteStatusPageAction, setStatusPagePublishedAction } from '@/app/actions/analytics/statusPage.actions';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
-import {
-  statusPagePublicUrl,
-  statusPagePublicUrlLabel,
-} from '@/entities/analytics/statusPage/statusPage.helpers';
+import { statusPagePublicUrl, statusPagePublicUrlLabel } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import {
   MONITOR_TONE,
@@ -434,9 +431,7 @@ export function StatusPagesClient({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {publishTarget?.isPublished
-                ? t('actions.unpublishConfirmTitle')
-                : t('actions.publishConfirmTitle')}
+              {publishTarget?.isPublished ? t('actions.unpublishConfirmTitle') : t('actions.publishConfirmTitle')}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {publishTarget?.isPublished

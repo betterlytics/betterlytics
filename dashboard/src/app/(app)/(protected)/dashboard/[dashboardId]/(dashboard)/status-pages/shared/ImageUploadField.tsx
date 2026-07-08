@@ -26,27 +26,22 @@ type ImageUploadFieldProps = {
   onSelect: (blob: Blob) => void;
   /** Stages removal of the current image. */
   onRemove: () => void;
-  /**
-   * 'row' = tile beside label + hint (editor forms). 'tile' = label above a full-width
-   * drop tile, no hint (the studio's compact two-up grid) — formats and sizing are
-   * enforced by the picker/resizer, so the hint copy is optional reassurance.
-   */
-  variant?: 'row' | 'tile';
 };
 
-export function ImageUploadField({ kind, value, onSelect, onRemove, variant = 'row' }: ImageUploadFieldProps) {
+/**
+ * Label above a full-width drop tile, no hint copy: formats and sizing are enforced by
+ * the picker/resizer, so hints would be reassurance only.
+ */
+export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploadFieldProps) {
   const t = useTranslations('statusPagesPage.editor');
   const inputRef = useRef<HTMLInputElement>(null);
   const [processing, setProcessing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
   const text = {
-    logo: { label: t('logo'), hint: t('logoHint'), upload: t('uploadLogo') },
-    favicon: { label: t('favicon'), hint: t('faviconHint'), upload: t('uploadFavicon') },
+    logo: { label: t('logo'), upload: t('uploadLogo') },
+    favicon: { label: t('favicon'), upload: t('uploadFavicon') },
   }[kind];
-
-  // The logo is a wordmark (non-square) so it gets a wider frame; tiles fill their grid cell.
-  const tileClass = variant === 'tile' ? 'h-16 w-full' : kind === 'logo' ? 'h-16 w-28' : 'h-16 w-16';
 
   const processFile = async (file: File | undefined) => {
     if (!file) return;
@@ -75,10 +70,11 @@ export function ImageUploadField({ kind, value, onSelect, onRemove, variant = 'r
 
   return (
     <PermissionGate>
-      {(disabled) => {
-        const tile = (
+      {(disabled) => (
+        <div className='space-y-1.5'>
+          <Label>{text.label}</Label>
           <div
-            className={cn('relative', tileClass)}
+            className='relative h-16 w-full'
             onDragOver={(event) => {
               if (disabled || processing) return;
               event.preventDefault();
@@ -147,28 +143,8 @@ export function ImageUploadField({ kind, value, onSelect, onRemove, variant = 'r
               </button>
             )}
           </div>
-        );
-
-        if (variant === 'tile') {
-          return (
-            <div className='space-y-1.5'>
-              <Label>{text.label}</Label>
-              {tile}
-            </div>
-          );
-        }
-
-        return (
-          <div className='flex items-center gap-4'>
-            {/* Fixed tile column so stacked fields share one text edge (the logo tile is wider than the favicon tile by design). */}
-            <div className='w-28 flex-none'>{tile}</div>
-            <div className='min-w-0 space-y-1'>
-              <Label>{text.label}</Label>
-              <p className='text-muted-foreground text-xs leading-relaxed'>{text.hint}</p>
-            </div>
-          </div>
-        );
-      }}
+        </div>
+      )}
     </PermissionGate>
   );
 }

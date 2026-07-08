@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Check, Copy, ExternalLink, Maximize2 } from 'lucide-react';
+import { ArrowLeft, Check, Copy, ExternalLink, Maximize2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,10 @@ import { defaultPublicMonitorName, statusPagePublicUrl } from '@/entities/analyt
 import { cn } from '@/lib/utils';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
-import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SortableMonitorRow';
-import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import {
+  useStatusPageFormState,
+  type MonitorRow,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
@@ -30,10 +32,9 @@ import {
   updateStatusPageAction,
 } from '@/app/actions/analytics/statusPage.actions';
 import { GeneralTab } from './tabs/GeneralTab';
-import { CustomizeTab } from './tabs/CustomizeTab';
-import { MonitorsTab } from './tabs/MonitorsTab';
+import { EditStatusPageStudio } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/studio/EditStatusPageStudio';
 
-const TAB_KEYS = ['incidents', 'general', 'monitors', 'customize'] as const;
+const TAB_KEYS = ['incidents', 'general'] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 const isTabKey = (value: string | null): value is TabKey => TAB_KEYS.includes(value as TabKey);
@@ -127,6 +128,7 @@ export function StatusPageEditor({
   }, []);
 
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [showStudio, setShowStudio] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
@@ -141,22 +143,24 @@ export function StatusPageEditor({
 
   const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
 
+  // 'studio' groups everything edited in the fullscreen studio (design/content);
+  // 'general' is what stays editable on this page (lifecycle settings).
   const sections = useMemo(
     () => ({
       general: {
-        name: form.input.name,
         slug: form.input.slug,
-        showPastIncidents: form.input.showPastIncidents,
         visibility: form.input.visibility,
-        homepageUrl: form.input.homepageUrl,
         customDomain: form.input.customDomain,
       },
-      customize: {
+      studio: {
+        name: form.input.name,
+        homepageUrl: form.input.homepageUrl,
+        showPastIncidents: form.input.showPastIncidents,
         theme: form.input.theme,
         accentColor: form.input.accentColor,
         hideBranding: form.input.hideBranding,
+        monitors: form.input.monitors,
       },
-      monitors: form.input.monitors,
     }),
     [form.input],
   );
@@ -203,8 +207,26 @@ export function StatusPageEditor({
   const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
 
   const saveNow = () => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) });
+  const studioSaveNow = () =>
+    saveMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success(t('saved'));
+        setShowStudio(false);
+      },
+    });
 
-  const handleSave = () => (statusPage.isPublished ? setShowPublishConfirm(true) : saveNow());
+  // Both save entry points share the publish-confirm gate; the ref remembers which one to run.
+  const pendingSaveRef = useRef<() => void>(saveNow);
+  const requestSave = (run: () => void) => {
+    if (statusPage.isPublished) {
+      pendingSaveRef.current = run;
+      setShowPublishConfirm(true);
+    } else {
+      run();
+    }
+  };
+  const handleSave = () => requestSave(saveNow);
+  const handleStudioSave = () => requestSave(studioSaveNow);
 
   const effectiveDirty = isDirty || form.hasStagedImages;
 
@@ -234,6 +256,18 @@ export function StatusPageEditor({
   const saveDisabled = !effectiveDirty || pageInvalid;
   const publishBlocked = effectiveDirty || pageInvalid;
   const publishBlockedReason = effectiveDirty ? t('publishNeedsSave') : t('minMonitorsHint');
+  // First validation failure, for the studio's disabled-Save tooltip (a save persists the whole form).
+  const saveBlockedReason = noMonitors
+    ? t('minMonitorsHint')
+    : form.isNameEmpty
+      ? t('nameRequired')
+      : slugNotSaveable
+        ? t(`slugStatus.${slugStatus}`)
+        : !form.isHomepageUrlValid
+          ? t('homepageUrlInvalid')
+          : !form.isCustomDomainValid
+            ? t('customDomainInvalid')
+            : null;
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
@@ -316,6 +350,17 @@ export function StatusPageEditor({
             )}
           </div>
 
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => setShowStudio(true)}
+            className='h-9 cursor-pointer'
+          >
+            <Pencil className='mr-1.5 h-3.5 w-3.5' />
+            {t('editPage')}
+            {dirty.studio && <UnsavedDot label={t('unsavedChanges')} />}
+          </Button>
+
           {!statusPage.isPublished && (
             <PermissionGate>
               {(disabled) => (
@@ -357,14 +402,6 @@ export function StatusPageEditor({
               {t('tabs.general')}
               {dirty.general && <UnsavedDot label={t('unsavedChanges')} />}
             </UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='monitors'>
-              {t('tabs.monitors')}
-              {dirty.monitors && <UnsavedDot label={t('unsavedChanges')} />}
-            </UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='customize'>
-              {t('tabs.customize')}
-              {(dirty.customize || form.hasStagedImages) && <UnsavedDot label={t('unsavedChanges')} />}
-            </UnderlineTabsTrigger>
           </UnderlineTabsList>
         </div>
 
@@ -375,21 +412,17 @@ export function StatusPageEditor({
         ) : (
           <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
             <div className='space-y-8'>
-              {activeTab === 'general' && (
-                <GeneralTab
-                  form={form}
-                  slugStatus={slugStatus}
-                  publicHost={publicHost}
-                  dashboardDomain={dashboardDomain}
-                  isPublished={statusPage.isPublished}
-                  onUnpublish={() => setShowUnpublishConfirm(true)}
-                  isUnpublishing={publishMutation.isPending}
-                  onDelete={() => setShowDeleteConfirm(true)}
-                  isDeleting={deleteMutation.isPending}
-                />
-              )}
-              {activeTab === 'monitors' && <MonitorsTab form={form} />}
-              {activeTab === 'customize' && <CustomizeTab form={form} />}
+              <GeneralTab
+                form={form}
+                slugStatus={slugStatus}
+                publicHost={publicHost}
+                dashboardDomain={dashboardDomain}
+                isPublished={statusPage.isPublished}
+                onUnpublish={() => setShowUnpublishConfirm(true)}
+                isUnpublishing={publishMutation.isPending}
+                onDelete={() => setShowDeleteConfirm(true)}
+                isDeleting={deleteMutation.isPending}
+              />
             </div>
 
             <div className='hidden space-y-3 xl:block'>
@@ -479,9 +512,24 @@ export function StatusPageEditor({
         confirmLabel={t('confirmPublish.confirm')}
         onConfirm={() => {
           setShowPublishConfirm(false);
-          saveNow();
+          pendingSaveRef.current();
         }}
       />
+
+      {showStudio && (
+        <EditStatusPageStudio
+          dashboardId={dashboardId}
+          publicHost={publicHost}
+          domain={dashboardDomain}
+          form={form}
+          slugStatus={slugStatus}
+          preview={{ payload: previewPayload, messages: previewMessages }}
+          saving={saveMutation.isPending}
+          saveBlockedReason={saveBlockedReason}
+          onSave={handleStudioSave}
+          onClose={() => setShowStudio(false)}
+        />
+      )}
 
       <ConfirmDialog
         open={showUnpublishConfirm}

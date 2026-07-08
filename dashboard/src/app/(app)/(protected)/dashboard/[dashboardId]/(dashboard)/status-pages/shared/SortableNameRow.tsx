@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
-import type { MonitorRow } from './SortableMonitorRow';
+import type { MonitorRow } from './useStatusPageFormState';
 
 type SortableNameRowProps = {
   row: MonitorRow;
@@ -19,9 +19,10 @@ type SortableNameRowProps = {
 
 export function SortableNameRow({ row, onPublicNameChange }: SortableNameRowProps) {
   const t = useTranslations('statusPagesPage.editor');
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
-    id: row.monitorCheckId,
-  });
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({
+      id: row.monitorCheckId,
+    });
 
   return (
     <div

@@ -10,9 +10,19 @@ import {
   isValidCustomDomain,
   isValidHomepageUrl,
 } from '@/entities/analytics/statusPage/statusPage.helpers';
+import { type MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
 import { type PreviewDraft } from './LivePreview';
-import { type MonitorRow } from './SortableMonitorRow';
 import { useStagedImage } from './useStagedImage';
+
+export type MonitorRow = {
+  monitorCheckId: string;
+  name: string | null;
+  url: string;
+  included: boolean;
+  publicName: string;
+  operationalState?: MonitorOperationalState;
+  uptimePercent?: number | null;
+};
 
 export type StatusPageFormInitial = {
   name: string;

@@ -209,7 +209,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const todayLabel = t('timeline.today');
   const yesterdayLabel = t('timeline.yesterday');
   const formatIncidentEntry = useMemo(
-    () => createIncidentEntryFormatter({ locale, hour12, labels: { today: todayLabel, yesterday: yesterdayLabel } }),
+    () =>
+      createIncidentEntryFormatter({ locale, hour12, labels: { today: todayLabel, yesterday: yesterdayLabel } }),
     [locale, hour12, todayLabel, yesterdayLabel],
   );
   const router = useRouter();

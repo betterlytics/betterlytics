@@ -29,9 +29,7 @@ export function ThemeSegmentedControl({ value, onChange }: ThemeSegmentedControl
           aria-pressed={value === option}
           className={cn(
             'flex cursor-pointer items-center gap-1.5 px-3.5 py-1.5 text-sm transition-colors',
-            value === option
-              ? 'bg-secondary font-semibold'
-              : 'text-muted-foreground hover:text-foreground',
+            value === option ? 'bg-secondary font-semibold' : 'text-muted-foreground hover:text-foreground',
           )}
         >
           <Icon className='h-3.5 w-3.5' aria-hidden />

@@ -5,7 +5,6 @@ import { Check, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
@@ -54,18 +53,6 @@ export function GeneralTab({
         <div className='bg-card border-border space-y-4 rounded-xl border p-5'>
           <div className='grid gap-4 2xl:grid-cols-2 2xl:items-start'>
             <div className='space-y-2'>
-              <Label htmlFor='sp-name'>{t('pageName')}</Label>
-              <p className='text-muted-foreground text-xs'>{t('pageNameHint')}</p>
-              <Input
-                id='sp-name'
-                value={form.name}
-                maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
-                aria-invalid={form.isNameEmpty}
-                onChange={(e) => form.setName(e.target.value)}
-              />
-              {form.isNameEmpty && <p className='text-destructive text-xs'>{t('nameRequired')}</p>}
-            </div>
-            <div className='space-y-2'>
               <Label htmlFor='sp-slug'>{t('publicUrl')}</Label>
               <p className='text-muted-foreground text-xs'>{t('publicUrlHint')}</p>
               <div className='flex items-stretch'>
@@ -100,19 +87,6 @@ export function GeneralTab({
                 <p className='text-destructive text-xs'>{t(`slugStatus.${slugStatus}`)}</p>
               )}
             </div>
-          </div>
-          <div className='grid gap-4 grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2'>
-            <LabeledTextField
-              id='sp-homepage'
-              label={t('homepageUrl')}
-              hint={t('homepageUrlHint')}
-              hintPosition='top'
-              placeholder='https://example.com'
-              type='url'
-              value={form.homepageUrl}
-              onChange={form.setHomepageUrl}
-              error={form.isHomepageUrlValid ? null : t('homepageUrlInvalid')}
-            />
             <CapabilityGate allowed={!customDomainLocked}>
               {({ locked }) => (
                 <LabeledTextField
@@ -143,17 +117,6 @@ export function GeneralTab({
               isValid={form.isCustomDomainValid}
             />
           )}
-          <div className='border-border flex items-center justify-between gap-4 border-t pt-4'>
-            <div>
-              <div className='text-sm font-medium'>{t('showPastIncidents')}</div>
-              <p className='text-muted-foreground mt-0.5 text-xs'>{t('showPastIncidentsHint')}</p>
-            </div>
-            <Switch
-              checked={form.showPastIncidents}
-              onCheckedChange={form.setShowPastIncidents}
-              aria-label={t('showPastIncidents')}
-            />
-          </div>
         </div>
       </Section>
 
