@@ -70,6 +70,11 @@ export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploa
         return;
       }
       const blob = await resizeImageToWebp(file, STATUS_PAGE_IMAGE_CONFIG[kind]);
+      // The server enforces the same cap at save time; failing here keeps the feedback immediate.
+      if (blob.size > STATUS_PAGE_LIMITS.IMAGE_MAX_BYTES) {
+        toast.error(t('imageTooLarge'));
+        return;
+      }
       onSelect(blob);
     } catch {
       toast.error(t('error'));
