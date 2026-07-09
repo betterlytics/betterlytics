@@ -285,6 +285,7 @@ export function StatusPageEditor({
       enlargeable
       enlargedOpen={previewOpen}
       onEnlargedOpenChange={setPreviewOpen}
+      className='w-full'
     />
   );
 
