@@ -1,14 +1,21 @@
 # Shared routing imported by Caddyfile (prod/dev-server) and Caddyfile.local.
-# Exposed on status hosts: / (the public page), /_next/static/* build assets, the PWA
-# manifest + its icons, /favicon.ico, and the owner-uploaded logo/favicon image route.
-# Everything else 404s — these hosts must not serve the rest of the app.
+# Only / and /_next/static/* are exposed on status hosts.
 
 (tier1_routes) {
 	encode zstd gzip
 
-	# Static / public app-shell assets + the owner-uploaded logo/favicon image route. Each
-	# path already matches its upstream route (the slug lives in the image path), so no rewrite.
-	handle /_next/static/* /status/*/image/* /betterlytics-logo-dark-simple.svg {
+  rate_limit {
+		zone status_wildcard {
+			match {
+				path /
+			}
+			key {remote_host}
+			events 120
+			window 1m
+		}
+	}
+
+	handle /_next/static/* {
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 
@@ -30,7 +37,18 @@
 (tier2_routes) {
 	encode zstd gzip
 
-	handle /_next/static/* /status/*/image/* /betterlytics-logo-dark-simple.svg {
+  rate_limit {
+		zone status_domain {
+			match {
+				path /
+			}
+			key {remote_host}
+			events 120
+			window 1m
+		}
+	}
+
+	handle /_next/static/* {
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 

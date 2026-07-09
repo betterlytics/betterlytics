@@ -1,4 +1,5 @@
 {
+  order rate_limit before handle
 	email {$ACME_EMAIL}
 	acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
 	on_demand_tls {
@@ -10,12 +11,7 @@ import routes.caddy
 
 *.{$STATUS_PAGE_DOMAIN} {
 	tls {
-    dns namecheap {
-      api_key {env.DNS_API_TOKEN}
-      user {env.DNS_API_USER}
-      api_endpoint https://api.namecheap.com/xml.response
-      client_ip {env.DNS_CLIENT_IP}
-    }
+		dns hetzner {env.DNS_API_TOKEN}
 	}
 	import tier1_routes
 }
