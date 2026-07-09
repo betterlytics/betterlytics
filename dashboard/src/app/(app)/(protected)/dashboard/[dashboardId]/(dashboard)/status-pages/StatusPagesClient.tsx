@@ -10,9 +10,11 @@ import {
   ExternalLink,
   Globe,
   Lock,
+  Megaphone,
   MoreHorizontal,
   Pencil,
   Plus,
+  Settings,
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -345,9 +347,21 @@ export function StatusPagesClient({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align='end' className='w-48'>
                     <DropdownMenuItem asChild className='cursor-pointer'>
-                      <Link href={editorHref}>
+                      <Link href={`${editorHref}?studio=1`}>
                         <Pencil className='mr-2 h-4 w-4' />
                         {t('actions.editPage')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className='cursor-pointer'>
+                      <Link href={editorHref}>
+                        <Megaphone className='mr-2 h-4 w-4' />
+                        {t('actions.manageIncidents')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className='cursor-pointer'>
+                      <Link href={`${editorHref}?tab=settings`}>
+                        <Settings className='mr-2 h-4 w-4' />
+                        {t('actions.settings')}
                       </Link>
                     </DropdownMenuItem>
                     {page.isPublished && (

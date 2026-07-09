@@ -129,11 +129,21 @@ export function StatusPageEditor({
   }, []);
 
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [showStudio, setShowStudio] = useState(false);
+  const [showStudio, setShowStudio] = useState(() => searchParams.get('studio') === '1');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const closeStudio = useCallback(() => {
+    setShowStudio(false);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('studio')) {
+      params.delete('studio');
+      const query = params.toString();
+      window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+    }
+  }, []);
 
   const slugStatus = useSlugAvailability({
     dashboardId,
@@ -212,7 +222,7 @@ export function StatusPageEditor({
     saveMutation.mutate(undefined, {
       onSuccess: () => {
         toast.success(t('saved'));
-        setShowStudio(false);
+        closeStudio();
       },
     });
 
@@ -528,7 +538,7 @@ export function StatusPageEditor({
           saving={saveMutation.isPending}
           saveBlockedReason={saveBlockedReason}
           onSave={handleStudioSave}
-          onClose={() => setShowStudio(false)}
+          onClose={closeStudio}
         />
       )}
 
