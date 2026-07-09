@@ -25,7 +25,7 @@ export function SlugField({ id, value, onChange, publicHost, slugStatus, hint, m
   const t = useTranslations('statusPagesPage.editor');
 
   return (
-    <div className='space-y-2'>
+    <div className='space-y-1.5'>
       <Label htmlFor={id}>{t('publicUrl')}</Label>
       {hint && <p className='text-muted-foreground text-xs'>{hint}</p>}
       <div className='flex items-stretch'>
