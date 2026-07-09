@@ -19,6 +19,11 @@ export async function GET(_request: Request, { params }: ImageRouteParams) {
     return new NextResponse(null, { status: 404, headers: { 'Cache-Control': 'public, max-age=86400' } });
   }
 
+  // SVG is a document format, so it gets the stricter treatment: no resource loads of any kind,
+  // and `attachment` makes direct navigation download the file instead of rendering it as a page
+  // (<img> subresource loads ignore Content-Disposition, so embedding is unaffected).
+  const isSvg = image.mimeType === 'image/svg+xml';
+
   return new NextResponse(image.data as BodyInit, {
     status: 200,
     headers: {
@@ -29,8 +34,8 @@ export async function GET(_request: Request, { params }: ImageRouteParams) {
       // Owner-uploaded bytes served from our origin: never let the browser sniff a different type, and
       // disallow any script execution even if a payload slips past the upload-time validation.
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': "script-src 'none'",
-      'Content-Disposition': 'inline',
+      'Content-Security-Policy': isSvg ? "default-src 'none'" : "script-src 'none'",
+      'Content-Disposition': isSvg ? 'attachment' : 'inline',
     },
   });
 }

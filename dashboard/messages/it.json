@@ -3250,6 +3250,7 @@
     "statusPageImageInvalid": "Impossibile leggere il file come immagine",
     "statusPageImageTooLarge": "L'immagine è troppo grande",
     "statusPageImageBadType": "L'immagine deve essere un file PNG, JPEG o WebP",
+    "statusPageImageSvgUnsafe": "Il file SVG contiene contenuti non supportati o non sicuri",
     "capabilities": {
       "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
       "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
@@ -4105,6 +4106,7 @@
       "replaceImage": "Sostituisci",
       "removeImage": "Rimuovi",
       "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
+      "svgUnsafe": "L'SVG contiene contenuti non supportati o non sicuri. Prova un'esportazione vettoriale semplice.",
       "accentColor": "Colore principale",
       "theme": "Tema",
       "themes": {

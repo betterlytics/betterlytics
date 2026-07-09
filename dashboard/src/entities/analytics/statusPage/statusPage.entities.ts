@@ -18,18 +18,24 @@ export const STATUS_PAGE_LIMITS = {
   // root cause across monitors) and folded into a single multi-monitor suggestion.
   SUGGESTIONS_CORRELATION_WINDOW_MINUTES: 10,
   // Images are resized client-side to a small raster before upload; the cap is a server-side backstop.
-  IMAGE_MAX_BYTES: 64 * 1024,
+  // Sized so a 512px WebP of a worst-case (gradient/photo-heavy) logo still fits.
+  IMAGE_MAX_BYTES: 128 * 1024,
   // Server-side backstop on decoded dimensions (intrinsic px). Guards against decompression bombs from a
   // client that bypasses the canvas resize.
   IMAGE_MAX_DIMENSION: 1024,
 } as const;
 
+/** Accepted raster formats (both kinds). SVG is additionally accepted for the logo, via its own sanitizing path. */
 export const STATUS_PAGE_IMAGE_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
-export const STATUS_PAGE_IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp';
 
 export const STATUS_PAGE_IMAGE_KINDS = ['logo', 'favicon'] as const;
 export const StatusPageImageKindSchema = z.enum(STATUS_PAGE_IMAGE_KINDS);
 export type StatusPageImageKind = z.infer<typeof StatusPageImageKindSchema>;
+
+export const STATUS_PAGE_IMAGE_ACCEPT: Record<StatusPageImageKind, string> = {
+  logo: 'image/png,image/jpeg,image/webp,image/svg+xml,.svg',
+  favicon: 'image/png,image/jpeg,image/webp',
+};
 
 /** raw bytes = set/replace, null = remove, omitted = leave unchanged. */
 export type StatusPageImagesInput = {
@@ -38,7 +44,7 @@ export type StatusPageImagesInput = {
 };
 
 export const STATUS_PAGE_IMAGE_CONFIG: Record<StatusPageImageKind, { maxDimension: number; square: boolean }> = {
-  logo: { maxDimension: 256, square: false },
+  logo: { maxDimension: 512, square: false },
   favicon: { maxDimension: 64, square: true },
 };
 

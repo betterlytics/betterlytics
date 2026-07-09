@@ -9,9 +9,11 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import {
   STATUS_PAGE_IMAGE_ACCEPT,
   STATUS_PAGE_IMAGE_CONFIG,
+  STATUS_PAGE_LIMITS,
   type StatusPageImageKind,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import { cn } from '@/lib/utils';
+import { sanitizeSvgLogo } from '@/lib/svgSanitizer';
 import { resizeImageToWebp } from './resizeImage';
 
 // Generous guard so we don't read an enormous file into the tab before resizing; the canvas step
@@ -51,7 +53,28 @@ export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploa
     }
     setProcessing(true);
     try {
+      // SVG logos stay vector: sanitize instead of rasterizing. Staging the sanitizer's output
+      // means the preview shows exactly what the server (which re-runs the same check) will store.
+      const isSvg = file.type === 'image/svg+xml' || /\.svg$/i.test(file.name);
+      if (isSvg && kind === 'logo') {
+        if (file.size > STATUS_PAGE_LIMITS.IMAGE_MAX_BYTES) {
+          toast.error(t('imageTooLarge'));
+          return;
+        }
+        const sanitized = sanitizeSvgLogo(new Uint8Array(await file.arrayBuffer()));
+        if (!sanitized) {
+          toast.error(t('svgUnsafe'));
+          return;
+        }
+        onSelect(new Blob([sanitized], { type: 'image/svg+xml' }));
+        return;
+      }
       const blob = await resizeImageToWebp(file, STATUS_PAGE_IMAGE_CONFIG[kind]);
+      // The server enforces the same cap at save time; failing here keeps the feedback immediate.
+      if (blob.size > STATUS_PAGE_LIMITS.IMAGE_MAX_BYTES) {
+        toast.error(t('imageTooLarge'));
+        return;
+      }
       onSelect(blob);
     } catch {
       toast.error(t('error'));
@@ -91,7 +114,7 @@ export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploa
             <input
               ref={inputRef}
               type='file'
-              accept={STATUS_PAGE_IMAGE_ACCEPT}
+              accept={STATUS_PAGE_IMAGE_ACCEPT[kind]}
               className='hidden'
               onChange={handleFile}
             />
