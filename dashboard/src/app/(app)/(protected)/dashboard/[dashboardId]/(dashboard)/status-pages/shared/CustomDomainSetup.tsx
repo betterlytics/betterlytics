@@ -63,14 +63,14 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
           })}
         </p>
       </div>
-      <div className='border-border bg-card divide-border grid rounded-md border max-2xl:divide-y max-2xl:px-3 2xl:grid-cols-[auto_fit-content(40%)_minmax(0,1fr)] 2xl:p-3'>
-        <DnsField label={t('customDomainSetup.recordType')} className='max-2xl:py-3 2xl:pr-4'>
+      <div className='border-border bg-card divide-border grid rounded-md border max-2xl:divide-y max-2xl:px-3 2xl:grid-cols-[auto_fit-content(40%)_minmax(0,1fr)] 2xl:px-4 2xl:py-2.5'>
+        <DnsField label={t('customDomainSetup.recordType')} className='max-2xl:py-3 2xl:pr-6'>
           <span className='font-mono text-sm'>CNAME</span>
         </DnsField>
-        <DnsField label={t('customDomainSetup.recordName')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:px-4'>
+        <DnsField label={t('customDomainSetup.recordName')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:px-6'>
           <span className='font-mono text-sm break-all'>{domain}</span>
         </DnsField>
-        <DnsField label={t('customDomainSetup.recordValue')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:pl-4'>
+        <DnsField label={t('customDomainSetup.recordValue')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:pl-6'>
           <div className='flex items-center gap-2'>
             <span className='font-mono text-sm break-all'>{target}</span>
             <button
