@@ -10,12 +10,7 @@ import {
   type PublicStatusPageMonitor,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 
-/**
- * Fixture status pages, keyed by slug, used while the public page UI is being
- * validated against the design (PUBLIC_STATUS_PAGE_DESIGN.md §10 M1). Each slug
- * exercises a different state: themes, banner states, sparse data, monitor
- * counts and localization. Kept after real data wiring as test fixtures.
- */
+// Dev-only fixture status pages keyed by slug, each exercising a different state (see PUBLIC_STATUS_PAGE_DESIGN.md §10 M1).
 
 const WINDOW_DAYS = STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS;
 

@@ -8,7 +8,6 @@ type ColorSwatchPickerProps<T extends string> = {
   onChange: (value: T) => void;
   label?: string;
   ariaLabelForValue?: (value: T) => string;
-  /** Trailing extras rendered after the swatches (e.g. a custom-color input) */
   children?: React.ReactNode;
 };
 

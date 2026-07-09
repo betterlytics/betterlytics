@@ -34,11 +34,8 @@ export async function generateMetadata({ params }: StatusPageParams): Promise<Me
   // (and get cached mid-incident) every time the overall status changes.
   const description = t('meta.description', { name: data.name });
 
-  // Prefer the uploaded favicon, then the status-dot fallback.
   const iconUrl = data.faviconUrl ?? statusDotFavicon(data.overallStatus);
 
-  // The custom domain when set, otherwise the /status/{slug} URL. Used for both the canonical and the
-  // social embed URL so shared links resolve to the owner's own domain.
   const publicUrl = statusPagePublicUrl(data, env.PUBLIC_BASE_URL);
 
   return {

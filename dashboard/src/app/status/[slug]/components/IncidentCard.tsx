@@ -29,11 +29,8 @@ const IMPACT_PILL_TONE: Record<PublicStatusPageIncident['impact'], PillTone> = {
   outage: 'down',
 };
 
-// Most-recent updates shown by default; older ones collapse behind a toggle.
 const MAX_VISIBLE_UPDATES = 3;
 
-// Smooth-scroll to a monitor's uptime row (rendered above by MonitorUptimeCard) and briefly
-// flash it, so the visitor sees which monitor an affected-monitor chip refers to.
 function scrollToMonitor(key: string) {
   const row = document.getElementById(`sp-monitor-${key}`);
   if (!row) return;
@@ -121,8 +118,6 @@ export function IncidentCard({
             {update.message}
           </p>
         ) : null}
-        {/* Timestamp sits under the update (incident.io / Statuspage style) so the message uses the
-            card's full width. Kept muted so the readable message stays the focus. */}
         <div
           suppressHydrationWarning
           className='mt-2 text-[12px] whitespace-nowrap text-[var(--sp-muted)] tabular-nums'
@@ -160,8 +155,6 @@ export function IncidentCard({
         </span>
       </div>
 
-      {/* Affected monitors, one chip per monitor. When the monitor is shown above, the chip
-          links to and scrolls to its uptime row; otherwise it's a plain, non-interactive chip. */}
       {incident.monitorPublicNames.length > 0 ? (
         <div className='mt-3.5 flex flex-wrap gap-1.5'>
           {incident.monitorPublicNames.map((name) => {
@@ -194,8 +187,6 @@ export function IncidentCard({
 
       <div className='mt-4 mb-3.5 h-px bg-[var(--sp-card-divider)]' />
 
-      {/* Change timeline, newest first. The most recent entries stay visible; older ones expand
-          inline into the same timeline so the vertical line stays continuous. */}
       <Timeline>
         {shownUpdates.map((update, index) => renderEntry(update, index, index === shownUpdates.length - 1))}
       </Timeline>

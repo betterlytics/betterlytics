@@ -26,8 +26,6 @@ export type StatusPageIncident = z.infer<typeof StatusPageIncidentSchema>;
 
 export type IncidentWithSlug = { incident: StatusPageIncident; slug: string };
 
-// A single public timeline update: status + message + when. This is the whole content model now —
-// no per-field audit.
 export const StatusPageIncidentTimelineEntrySchema = z.object({
   id: z.string(),
   incidentId: z.string(),
@@ -42,15 +40,13 @@ const incidentTitle = z.string().trim().min(1).max(STATUS_PAGE_LIMITS.INCIDENT_T
 // Update messages are optional — a status-only update (e.g. "Monitoring", no text) is allowed.
 const incidentMessage = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX);
 
-// `occurredAt` defaults to now.
 const incidentUpdateInput = z.object({
   status: StatusPageIncidentStatusSchema,
   message: incidentMessage.default(''),
   occurredAt: z.coerce.date().optional(),
 });
 
-// Create = the incident row + its first timeline update (the composer) + staged `updates`, in one
-// transaction. status/body/resolvedAt are timeline-derived, never direct inputs.
+// status/body/resolvedAt are timeline-derived, never direct inputs.
 export const StatusPageIncidentCreateSchema = z.object({
   statusPageId: z.string().min(1),
   title: incidentTitle,

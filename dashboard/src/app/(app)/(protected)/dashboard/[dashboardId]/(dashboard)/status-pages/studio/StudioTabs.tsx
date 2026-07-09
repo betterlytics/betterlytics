@@ -9,7 +9,6 @@ type StudioTabsProps = {
   tabs: StudioTab[];
   active: StudioTab;
   onChange: (tab: StudioTab) => void;
-  /** Tabs with an invalid field get an attention dot, replacing the wizard's per-step gating. */
   issues: Partial<Record<StudioTab, boolean>>;
 };
 

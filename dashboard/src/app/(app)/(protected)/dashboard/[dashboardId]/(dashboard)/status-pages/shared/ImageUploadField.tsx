@@ -22,18 +22,11 @@ const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
 
 type ImageUploadFieldProps = {
   kind: StatusPageImageKind;
-  /** Current preview URL (a server URL or a staged object URL); null when none. */
   value: string | null;
-  /** Receives the resized WebP blob to stage. */
   onSelect: (blob: Blob) => void;
-  /** Stages removal of the current image. */
   onRemove: () => void;
 };
 
-/**
- * Label above a full-width drop tile, no hint copy: formats and sizing are enforced by
- * the picker/resizer, so hints would be reassurance only.
- */
 export function ImageUploadField({ kind, value, onSelect, onRemove }: ImageUploadFieldProps) {
   const t = useTranslations('statusPagesPage.editor');
   const inputRef = useRef<HTMLInputElement>(null);

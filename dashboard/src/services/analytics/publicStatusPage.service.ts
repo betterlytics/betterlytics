@@ -97,12 +97,8 @@ export async function getStatusPagePreviewData(
   return assembleStatusPage(previewSnapshot);
 }
 
-/**
- * Preview payload for a status page that does NOT exist yet (the create wizard): assembles
- * uptime/incident data for ALL of the dashboard's monitors using default page settings. The wizard
- * layers its live draft (name/slug/branding/selection) on top client-side, so these defaults are
- * just fallbacks.
- */
+// Preview for a not-yet-created page (create wizard): ALL of the dashboard's monitors with default
+// settings; the wizard overlays its live draft client-side, so these settings are just fallbacks.
 export async function getStatusPagePreviewDataForDashboard(
   dashboardId: string,
   siteId: string,
@@ -225,8 +221,7 @@ async function assembleStatusPage(
   const nameByCheckId = new Map(monitors.map((monitor) => [monitor.monitorCheckId, monitor.publicName]));
 
   const mappedIncidents = publishedIncidents.map((incident) => {
-    // Keep only monitors still on the page, then resolve each to its public name. Empty = page-wide
-    // (or every affected monitor has since been removed from the page).
+    // Empty = page-wide (or every affected monitor has since been removed from the page).
     const affectedCheckIds = incident.monitorCheckIds.filter((id) => nameByCheckId.has(id));
     return {
       monitorCheckIds: affectedCheckIds,

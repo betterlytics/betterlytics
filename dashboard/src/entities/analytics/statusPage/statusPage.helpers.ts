@@ -14,28 +14,18 @@ export function isValidCustomDomain(value: string): boolean {
 
 type StatusPageUrlParts = { slug: string; customDomain?: string | null };
 
-/**
- * The canonical public URL for a status page: its custom domain when set, otherwise the slug URL on
- * the primary host.
- */
 export function statusPagePublicUrl(page: StatusPageUrlParts, publicBaseUrl: string): string {
   return page.customDomain ? `https://${page.customDomain}` : `${publicBaseUrl}/status/${page.slug}`;
 }
 
-/** Compact, protocol-less form of the public URL for display (e.g. under a page name in a list). */
 export function statusPagePublicUrlLabel(page: StatusPageUrlParts): string {
   return page.customDomain ?? `/status/${page.slug}`;
 }
 
-/** Default public label for a monitor: its name, or the URL hostname when unnamed. */
 export function defaultPublicMonitorName(monitor: { name?: string | null; url: string }): string {
   return (monitor.name ?? new URL(monitor.url).hostname).slice(0, STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX);
 }
 
-/**
- * Admin-facing label for a monitor in the dashboard's own lists (selection / reorder rows): its
- * name, or the raw URL when unnamed so owners can tell rows apart.
- */
 export function monitorRowLabel(monitor: { name?: string | null; url: string }): string {
   return monitor.name ?? monitor.url;
 }

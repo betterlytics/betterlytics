@@ -24,7 +24,6 @@ export type MonitorRow = {
   uptimePercent?: number | null;
 };
 
-/** Row for a monitor created mid-flow: included by default, still preparing, no uptime data yet. */
 export function newMonitorRow(monitor: { id: string; name?: string | null; url: string }): MonitorRow {
   return {
     monitorCheckId: monitor.id,
@@ -136,8 +135,6 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     ],
   );
 
-  // The editable form state, as a plain snapshot. Used to capture/restore a save point when
-  // discarding edits.
   const snapshot: StatusPageFormSnapshot = useMemo(
     () => ({
       name,

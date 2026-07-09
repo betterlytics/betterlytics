@@ -15,11 +15,7 @@ type SortableListProps<T> = {
   className?: string;
 };
 
-/**
- * Vertical drag-and-drop list. Wraps children in a dnd-kit context and calls
- * `onReorder` with the new order when a drag settles. Each child must call
- * `useSortable({ id })` with an id from `getId` (see {@link DragHandle}).
- */
+/** Each child must call `useSortable({ id })` with an id from `getId` (see {@link DragHandle}). */
 export function SortableList<T>({ items, getId, onReorder, children, className }: SortableListProps<T>) {
   const [isDragging, setIsDragging] = useState(false);
   const sensors = useSortableSensors();

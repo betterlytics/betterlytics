@@ -15,7 +15,6 @@ type UseCreateMonitorOptions = {
   dashboardId: string;
   domain: string;
   existingUrls: string[];
-  /** Called with the created monitor after a successful submit. The caller decides what happens next (close, refresh, append, ...). */
   onCreated?: (monitor: MonitorCheck) => void;
 };
 

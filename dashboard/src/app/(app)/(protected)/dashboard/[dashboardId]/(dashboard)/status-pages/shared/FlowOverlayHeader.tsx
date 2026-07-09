@@ -7,16 +7,9 @@ type FlowOverlayHeaderProps = {
   title: ReactNode;
   closeAriaLabel: string;
   onClose: () => void;
-  /** Right-aligned actions (Cancel / Save, or Save draft / Publish). */
   actions?: ReactNode;
 };
 
-/**
- * The top bar for a {@link FlowOverlay}: close button + title and right-aligned actions.
- * Owns Escape-to-close so the binding lives with the close handler. Each flow state
- * (loading shell, loaded form) renders its own header with the close semantics it wants,
- * and only one is mounted at a time.
- */
 export function FlowOverlayHeader({ title, closeAriaLabel, onClose, actions }: FlowOverlayHeaderProps) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

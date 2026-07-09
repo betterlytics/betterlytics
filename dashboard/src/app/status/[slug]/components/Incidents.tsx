@@ -8,8 +8,6 @@ import type {
 import { cn } from '@/lib/utils';
 import { IncidentCard } from './IncidentCard';
 
-// Past incidents stay collapsed behind a toggle and are capped at the most recent ones,
-// so pages with a long history don't open onto a wall of resolved incidents.
 const MAX_PAST_INCIDENTS = 10;
 
 export function Incidents({ data }: { data: PublicStatusPageData }) {
@@ -50,8 +48,7 @@ export function Incidents({ data }: { data: PublicStatusPageData }) {
 
       {data.showPastIncidents && (
         <section className='mt-9'>
-          {/* Grid-rows 0fr -> 1fr transition animates to the content's natural height. The heading
-              lives inside the fold so the collapsed state is just the centered toggle button. */}
+          {/* Grid-rows 0fr -> 1fr transition animates to the content's natural height. */}
           <div
             className={cn(
               'grid transition-[grid-template-rows] duration-300 ease-in-out',

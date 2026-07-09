@@ -7,12 +7,10 @@ import { cn } from '@/lib/utils';
 
 export const CUSTOM_DOMAIN_DOCS_URL = 'https://betterlytics.io/docs/integration/custom-status-page-domain';
 
-/** The CNAME target a custom domain must point at. Embeds the slug, so it moves when the slug changes. */
 export function statusPageCnameTarget(slug: string, publicHost: string): string {
   return `${slug}.status.${publicHost}`;
 }
 
-/** Small (?) link to the custom-domain setup docs, sits next to the "Custom domain" field label. */
 export function CustomDomainHelpLink() {
   const t = useTranslations('statusPagesPage.editor');
   return (
@@ -36,10 +34,6 @@ type CustomDomainSetupProps = {
   isValid: boolean;
 };
 
-/**
- * DNS setup instructions shown whenever a valid custom domain is entered. The CNAME target embeds the
- * slug ({slug}.status.{publicHost}), so changing the slug moves the target.
- */
 export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: CustomDomainSetupProps) {
   const t = useTranslations('statusPagesPage.editor');
   const [copied, setCopied] = useState(false);
@@ -49,7 +43,7 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
 
   const target = statusPageCnameTarget(slug, publicHost);
   // Many providers (Namecheap, Cloudflare, GoDaddy…) auto-append the domain, so the Name field wants
-  // just the subdomain label. Show the first label as the example.
+  // just the subdomain label.
   const hostLabel = domain.split('.')[0];
 
   const copyTarget = () => {

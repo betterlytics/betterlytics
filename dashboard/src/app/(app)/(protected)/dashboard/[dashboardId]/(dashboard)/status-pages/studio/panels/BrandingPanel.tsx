@@ -18,7 +18,6 @@ type BrandingPanelProps = {
   form: StatusPageFormState;
 };
 
-/** Identity + look of the page: everything here is previewable content. Name leads (identity cluster). */
 export function BrandingPanel({ form }: BrandingPanelProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { caps } = useCapabilities();
@@ -64,7 +63,6 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
         error={form.isHomepageUrlValid ? null : t('homepageUrlInvalid')}
       />
 
-      {/* Divider: identity/appearance above, page-behavior toggles below. */}
       <div className='border-border space-y-6 border-t pt-6'>
         <div className='flex items-center justify-between gap-4'>
           <div className='min-w-0 space-y-0.5'>

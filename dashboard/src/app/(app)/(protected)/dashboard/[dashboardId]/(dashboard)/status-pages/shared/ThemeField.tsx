@@ -8,7 +8,6 @@ import { ThemeSegmentedControl } from './ThemeSegmentedControl';
 type ThemeFieldProps = {
   value: StatusPageTheme;
   onChange: (theme: StatusPageTheme) => void;
-  /** Optional line under the label, e.g. clarifying the theme applies to visitors, not this editor. */
   hint?: string;
 };
 

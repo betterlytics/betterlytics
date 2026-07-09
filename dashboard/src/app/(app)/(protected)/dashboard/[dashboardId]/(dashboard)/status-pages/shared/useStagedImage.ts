@@ -6,19 +6,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export type StagedImageChange = { kind: 'set'; blob: Blob } | { kind: 'remove' } | null;
 
 export type StagedImage = {
-  /** URL to display: the server URL, a local object URL for a staged file, or null when absent. */
   url: string | null;
-  /** The pending change to flush on save; null = unchanged. */
   change: StagedImageChange;
-  /** True while an unsaved change is staged. */
   dirty: boolean;
-  /** Stage a freshly-selected (already-resized) blob for upload on the next save. */
   stage: (blob: Blob) => void;
-  /** Stage removal of the current image. */
   remove: () => void;
-  /** Apply a successful save: the staged change becomes the server truth at `savedUrl`. */
   commit: (savedUrl: string | null) => void;
-  /** Discard the staged change, restoring the last saved state. */
   reset: () => void;
 };
 

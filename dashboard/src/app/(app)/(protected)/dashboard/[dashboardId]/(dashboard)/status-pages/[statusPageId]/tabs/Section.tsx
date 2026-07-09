@@ -1,6 +1,5 @@
 import { type ReactNode } from 'react';
 
-/** Section heading + description sit outside a lighter bordered box (Betterlytics settings pattern). */
 export function Section({
   title,
   description,

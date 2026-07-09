@@ -70,7 +70,6 @@ export const fetchStatusPageAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => await getStatusPage(ctx.dashboardId, statusPageId),
 );
 
-/** Validate the staged branding images and turn them into storable writes (sniffed MIME + content hash). */
 async function prepareImageWrites(images?: StatusPageImagesInput): Promise<StatusPageImageWrites | undefined> {
   if (!images) return undefined;
   const t = await getTranslations('validation');
@@ -187,7 +186,6 @@ export const fetchStatusPagePreviewAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => getStatusPagePreviewData(ctx.dashboardId, statusPageId),
 );
 
-/** Live-preview payload + messages for the create wizard (no persisted page yet). */
 export const fetchStatusPageDraftPreviewAction = withDashboardAuthContext(async (ctx: AuthContext) => {
   const [payload, messages] = await Promise.all([
     getStatusPagePreviewDataForDashboard(ctx.dashboardId, ctx.siteId),
@@ -270,8 +268,7 @@ export const fetchIncidentTimelineAction = withDashboardAuthContext(
     getStatusPageIncidentTimeline(ctx.dashboardId, statusPageId, incidentId),
 );
 
-// Dedupe the affected monitors and reject any that aren't attached to this page (the field is
-// FK-less, so this is the only thing keeping it honest). Returns the cleaned list. Empty = page-wide.
+// Reject affected monitors not attached to this page: the field is FK-less, so this validation is the only integrity check. Empty = page-wide.
 async function validateAffectedMonitors(
   dashboardId: string,
   statusPageId: string,

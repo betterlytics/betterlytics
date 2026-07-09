@@ -22,12 +22,11 @@ type EditStatusPageStudioProps = {
   dashboardId: string;
   publicHost: string;
   domain: string;
-  /** The editor's live form state, shared so studio edits reflect everywhere instantly. */
   form: StatusPageFormState;
   slugStatus: SlugStatus;
   preview: { payload: StatusPagePreviewPayload; messages: Record<string, unknown> };
   saving: boolean;
-  /** Validation blocking a save (covers the whole form — a save persists everything); null when saveable. */
+  /** Validation blocking a save; covers the whole form — a save persists everything. */
   saveBlockedReason: string | null;
   /** Runs the editor's save (with its publish-confirm flow) and closes the studio on success. */
   onSave: () => void;
@@ -57,7 +56,6 @@ export function EditStatusPageStudio({
   const [createMonitorOpen, setCreateMonitorOpen] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
-  // Mounted = opened, so this ref captures the state to restore on cancel.
   const openSnapshotRef = useRef(form.snapshot);
 
   const dirtySinceOpen = useMemo(

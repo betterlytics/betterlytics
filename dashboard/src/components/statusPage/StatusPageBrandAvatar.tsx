@@ -11,7 +11,6 @@ export function accentForeground(accentHex: string): string {
 
 type StatusPageBrandAvatarProps = {
   name: string;
-  /** Owner-provided brand image (logo or favicon); falls back to a monogram when null. */
   imageUrl: string | null;
   accentColor: string;
   /** Favicons are square (cover); logos are "wordmarks" (contain). */

@@ -45,18 +45,13 @@ type LivePreviewProps = {
   enlargeable?: boolean;
   /** Show the hover "Enlarge" pill. The studio canvas turns it off: its zoom control makes the modal redundant on desktop, while the mobile header button still opens it. */
   hoverEnlarge?: boolean;
-  /** Optionally control the enlarged modal from outside (e.g. a separate trigger button) */
   enlargedOpen?: boolean;
   onEnlargedOpenChange?: (open: boolean) => void;
-  /** Scale of the inline frame's rendered page. The studio canvas drives this; defaults to the embedded-preview scale. */
   zoom?: number;
-  /** Inline styles on the outer frame — the studio canvas sets a dynamic pixel width per device/zoom. */
   frameStyle?: CSSProperties;
-  /** Extra classes on the outer frame */
   className?: string;
 };
 
-/** The browser-chrome framed render of the status page at a given zoom. */
 const PreviewFrame = memo(function PreviewFrame({
   data,
   messages,
@@ -75,12 +70,9 @@ const PreviewFrame = memo(function PreviewFrame({
   publicHost: string;
   slug: string;
   customDomain: string | null;
-  /** Staged/saved favicon rendered beside the chrome URL, mimicking a browser's site icon; falls back to the same status dot the real tab shows. */
   faviconUrl?: string | null;
   label: string;
-  /** Scale of the rendered page inside the browser frame. */
   zoom: number;
-  /** Extra element after the "Live preview" label in the chrome bar (e.g. a close button). */
   chromeRight?: ReactNode;
   className?: string;
   style?: CSSProperties;

@@ -14,13 +14,10 @@ type SlugFieldProps = {
   onChange: (slug: string) => void;
   publicHost: string;
   slugStatus: SlugStatus;
-  /** Optional line under the label (e.g. the General tab's "where your page is published"). */
   hint?: string;
-  /** Monospace prefix + input, matching the General tab's URL styling. */
   mono?: boolean;
 };
 
-/** Slug input with the host prefix and live availability feedback. */
 export function SlugField({ id, value, onChange, publicHost, slugStatus, hint, mono = false }: SlugFieldProps) {
   const t = useTranslations('statusPagesPage.editor');
 

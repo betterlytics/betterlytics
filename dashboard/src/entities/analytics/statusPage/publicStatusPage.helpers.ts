@@ -29,9 +29,9 @@ function deriveOverallStatus(statuses: PublicMonitorStatus[]): PublicOverallStat
   const downCount = known.filter((status) => status === 'down').length;
 
   // only goes full-red when EVERYTHING is down; any mix of up + down is the milder "partial outage".
-  if (downCount === known.length) return 'outage'; // every monitor down -> full outage (red)
-  if (downCount > 0) return 'partial_outage'; // some, but not all, down -> partial outage (orange)
-  if (known.includes('degraded')) return 'degraded'; // none down, some slow -> degraded (amber)
+  if (downCount === known.length) return 'outage';
+  if (downCount > 0) return 'partial_outage';
+  if (known.includes('degraded')) return 'degraded';
   return 'operational';
 }
 

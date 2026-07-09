@@ -52,9 +52,6 @@ export const STATUS_PAGE_DEFAULT_ACCENT_COLOR = '#4845d8';
 
 export const STATUS_PAGE_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-/**
- * Slugs that must never become a public status page URL
- */
 export const RESERVED_STATUS_PAGE_SLUGS = new Set([
   'admin',
   'api',
