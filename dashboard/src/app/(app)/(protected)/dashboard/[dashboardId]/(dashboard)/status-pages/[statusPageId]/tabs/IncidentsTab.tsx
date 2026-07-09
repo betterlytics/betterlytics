@@ -15,9 +15,9 @@ import {
   type SortingState,
 } from '@tanstack/react-table';
 import {
-  Activity,
   ArrowDown,
   ArrowUp,
+  Check,
   ChevronDown,
   MoreHorizontal,
   Pencil,
@@ -1004,10 +1004,17 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         {isEmpty ? (
           <div className='bg-card border-border overflow-hidden rounded-xl border'>
             <div className='flex flex-col items-center justify-center px-6 py-16 text-center'>
-              <span className='bg-muted text-muted-foreground flex h-11 w-11 items-center justify-center rounded-full'>
-                <Activity className='h-5 w-5' />
+              <span
+                className={cn(
+                  'flex h-11 w-11 items-center justify-center rounded-full',
+                  suggestions.length === 0
+                    ? 'bg-emerald-500 text-white ring-8 ring-emerald-500/15'
+                    : 'bg-muted text-muted-foreground',
+                )}
+              >
+                <Check className='h-5 w-5' strokeWidth={3} />
               </span>
-              <p className='text-foreground mt-3 text-sm font-medium'>{t('noIncidents')}</p>
+              <p className='text-foreground mt-5 text-sm font-medium'>{t('noIncidents')}</p>
               <p className='text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed'>{t('emptyHint')}</p>
             </div>
           </div>
