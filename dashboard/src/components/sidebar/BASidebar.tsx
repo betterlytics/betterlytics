@@ -217,7 +217,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'errors' && <Badge variant='outline'>Beta</Badge>}
+                      {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
