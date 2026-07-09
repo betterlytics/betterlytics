@@ -10,6 +10,7 @@ import {
   StatusPageCreateSchema,
   StatusPageSlugSchema,
   StatusPageUpdateSchema,
+  type StatusPageImageKind,
   type StatusPageImagesInput,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
@@ -74,7 +75,7 @@ async function prepareImageWrites(images?: StatusPageImagesInput): Promise<Statu
   if (!images) return undefined;
   const t = await getTranslations('validation');
 
-  const prepare = (bytes: Uint8Array | null | undefined) => {
+  const prepare = (bytes: Uint8Array | null | undefined, kind: StatusPageImageKind) => {
     if (bytes === undefined) return undefined;
     if (bytes === null) return null;
     if (bytes.byteLength === 0) throw new UserException(t('statusPageImageInvalid'));
@@ -82,14 +83,19 @@ async function prepareImageWrites(images?: StatusPageImagesInput): Promise<Statu
       throw new UserException(t('statusPageImageTooLarge'));
     }
 
-    const inspected = inspectStatusPageImage(bytes);
-    if (!inspected) throw new UserException(t('statusPageImageBadType'));
-    const data = Buffer.from(bytes);
+    const inspected = inspectStatusPageImage(bytes, kind);
+    if (!inspected.ok) {
+      throw new UserException(
+        t(inspected.reason === 'svgRejected' ? 'statusPageImageSvgUnsafe' : 'statusPageImageBadType'),
+      );
+    }
+    // Store the inspected bytes, not the upload: for SVG that's the sanitizer's re-serialization.
+    const data = Buffer.from(inspected.data);
     const hash = createHash('sha256').update(data).digest('hex').slice(0, 16);
     return { data, mimeType: inspected.mimeType, hash };
   };
 
-  return { logo: prepare(images.logo), favicon: prepare(images.favicon) };
+  return { logo: prepare(images.logo, 'logo'), favicon: prepare(images.favicon, 'favicon') };
 }
 
 export const createStatusPageAction = withDashboardMutationAuthContext(

@@ -24,12 +24,17 @@ export const STATUS_PAGE_LIMITS = {
   IMAGE_MAX_DIMENSION: 1024,
 } as const;
 
+/** Accepted raster formats (both kinds). SVG is additionally accepted for the logo, via its own sanitizing path. */
 export const STATUS_PAGE_IMAGE_MIME = new Set(['image/png', 'image/jpeg', 'image/webp']);
-export const STATUS_PAGE_IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp';
 
 export const STATUS_PAGE_IMAGE_KINDS = ['logo', 'favicon'] as const;
 export const StatusPageImageKindSchema = z.enum(STATUS_PAGE_IMAGE_KINDS);
 export type StatusPageImageKind = z.infer<typeof StatusPageImageKindSchema>;
+
+export const STATUS_PAGE_IMAGE_ACCEPT: Record<StatusPageImageKind, string> = {
+  logo: 'image/png,image/jpeg,image/webp,image/svg+xml,.svg',
+  favicon: 'image/png,image/jpeg,image/webp',
+};
 
 /** raw bytes = set/replace, null = remove, omitted = leave unchanged. */
 export type StatusPageImagesInput = {

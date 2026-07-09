@@ -3250,6 +3250,7 @@
     "statusPageImageInvalid": "Filen kunne ikke læses som et billede",
     "statusPageImageTooLarge": "Billedet er for stort",
     "statusPageImageBadType": "Billedet skal være et PNG-, JPEG- eller WebP-billede",
+    "statusPageImageSvgUnsafe": "SVG-filen indeholder indhold, der ikke understøttes eller er usikkert",
     "capabilities": {
       "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til Pro for at oprette flere dashboards.",
       "monitorLimit": "Du har nået din monitor-grænse. Opgrader til Pro for at oprette flere monitorer.",
@@ -4103,6 +4104,7 @@
       "replaceImage": "Erstat",
       "removeImage": "Fjern",
       "imageTooLarge": "Billedet er for stort. Vælg en mindre fil.",
+      "svgUnsafe": "SVG'en indeholder indhold, der ikke understøttes eller er usikkert. Prøv en enkel vektoreksport.",
       "accentColor": "Accentfarve",
       "theme": "Tema",
       "themes": {
