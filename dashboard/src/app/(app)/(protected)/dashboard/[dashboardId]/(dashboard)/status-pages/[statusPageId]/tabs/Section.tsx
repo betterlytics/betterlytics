@@ -14,7 +14,7 @@ export function Section({
 }) {
   return (
     <section>
-      <div className='mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
+      <div className='mb-3 flex flex-col gap-3 sm:min-h-8 sm:flex-row sm:items-end sm:justify-between'>
         <div>
           <h2 className='font-semibold'>{title}</h2>
           {description && <p className='text-muted-foreground mt-1 text-sm'>{description}</p>}

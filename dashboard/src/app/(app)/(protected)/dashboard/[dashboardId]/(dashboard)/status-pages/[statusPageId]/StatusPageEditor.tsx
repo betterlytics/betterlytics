@@ -438,7 +438,7 @@ export function StatusPageEditor({
             </div>
 
             <div className='hidden xl:block'>
-              <div className='mb-3 flex h-6 items-end justify-end gap-2'>
+              <div className='mb-3 flex h-8 items-end justify-end gap-2'>
                 {effectiveDirty && (
                   <Button
                     type='button'
