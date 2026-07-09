@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Copy, HelpCircle, Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export const CUSTOM_DOMAIN_DOCS_URL = 'https://betterlytics.io/docs/integration/custom-status-page-domain';
 
@@ -68,14 +69,14 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
           })}
         </p>
       </div>
-      <div className='border-border bg-card grid gap-3 rounded-md border p-3 sm:grid-cols-[auto_1fr_1.5fr] sm:gap-4'>
-        <DnsField label={t('customDomainSetup.recordType')}>
+      <div className='border-border bg-card grid gap-3 rounded-md border p-3 sm:grid-cols-[auto_fit-content(40%)_minmax(0,1fr)] sm:gap-0'>
+        <DnsField label={t('customDomainSetup.recordType')} className='sm:pr-4'>
           <span className='font-mono text-sm'>CNAME</span>
         </DnsField>
-        <DnsField label={t('customDomainSetup.recordName')}>
+        <DnsField label={t('customDomainSetup.recordName')} className='sm:border-border sm:border-l sm:px-4'>
           <span className='font-mono text-sm break-all'>{domain}</span>
         </DnsField>
-        <DnsField label={t('customDomainSetup.recordValue')}>
+        <DnsField label={t('customDomainSetup.recordValue')} className='sm:border-border sm:border-l sm:pl-4'>
           <div className='flex items-center gap-2'>
             <span className='font-mono text-sm break-all'>{target}</span>
             <button
@@ -103,9 +104,17 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
   );
 }
 
-function DnsField({ label, children }: { label: string; children: React.ReactNode }) {
+function DnsField({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className='space-y-1'>
+    <div className={cn('space-y-1', className)}>
       <div className='text-muted-foreground text-[11px] font-medium tracking-wide uppercase'>{label}</div>
       {children}
     </div>
