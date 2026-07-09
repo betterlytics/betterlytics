@@ -5,27 +5,14 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import type { PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { getPublicStatusPageData } from '@/services/analytics/publicStatusPage.service';
 import { statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
+import { statusDotFavicon } from '@/entities/analytics/statusPage/publicStatusPage.helpers';
 import { StatusPageView } from './components/StatusPageView';
 
 export const revalidate = 60;
 
 type StatusPageParams = { params: Promise<{ slug: string }> };
-
-const FAVICON_DOT_COLOR: Record<PublicOverallStatus, string> = {
-  operational: '#10b981',
-  degraded: '#d97706',
-  partial_outage: '#ea580c',
-  outage: '#dc2626',
-  unknown: '#9ca3af',
-};
-
-function statusDotFavicon(status: PublicOverallStatus): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="${FAVICON_DOT_COLOR[status]}"/></svg>`;
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-}
 
 const resolveStatusPage = cache(async (slug: string) => {
   if (!isFeatureEnabled('enablePublicStatusPages')) {

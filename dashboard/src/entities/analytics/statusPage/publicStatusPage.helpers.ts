@@ -9,6 +9,19 @@ import type {
   StatusPageIncidentTimelineEntry,
 } from './statusPageIncident.entities';
 
+const FAVICON_DOT_COLOR: Record<PublicOverallStatus, string> = {
+  operational: '#10b981',
+  degraded: '#d97706',
+  partial_outage: '#ea580c',
+  outage: '#dc2626',
+  unknown: '#9ca3af',
+};
+
+export function statusDotFavicon(status: PublicOverallStatus): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="${FAVICON_DOT_COLOR[status]}"/></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 function deriveOverallStatus(statuses: PublicMonitorStatus[]): PublicOverallStatus {
   const known = statuses.filter((status) => status !== 'unknown');
   if (known.length === 0) return 'unknown';

@@ -41,7 +41,7 @@ export function StatusPageBrandAvatar({
     <span
       aria-hidden
       className={cn('flex flex-none items-center justify-center font-extrabold', className)}
-      style={{ backgroundColor: accentForeground(accentColor), color: accentColor }}
+      style={{ backgroundColor: accentColor, color: accentForeground(accentColor) }}
     >
       {name.charAt(0).toUpperCase()}
     </span>

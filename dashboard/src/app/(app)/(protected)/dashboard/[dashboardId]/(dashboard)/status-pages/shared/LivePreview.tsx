@@ -17,6 +17,7 @@ import {
 import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
+  statusDotFavicon,
   type OpenIncidentRef,
 } from '@/entities/analytics/statusPage/publicStatusPage.helpers';
 import { cn } from '@/lib/utils';
@@ -74,7 +75,7 @@ const PreviewFrame = memo(function PreviewFrame({
   publicHost: string;
   slug: string;
   customDomain: string | null;
-  /** Staged/saved favicon rendered beside the chrome URL, mimicking a browser's site icon. */
+  /** Staged/saved favicon rendered beside the chrome URL, mimicking a browser's site icon; falls back to the same status dot the real tab shows. */
   faviconUrl?: string | null;
   label: string;
   /** Scale of the rendered page inside the browser frame. */
@@ -96,10 +97,13 @@ const PreviewFrame = memo(function PreviewFrame({
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
         </div>
         <span className='bg-muted text-muted-foreground flex max-w-[60%] min-w-0 items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs'>
-          {faviconUrl && (
-            // eslint-disable-next-line @next/next/no-img-element -- owner-provided image (or staged blob), not optimizable via next/image
-            <img src={faviconUrl} alt='' className='h-3.5 w-3.5 flex-none rounded-[3px] object-contain' />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element -- owner-provided image (or staged blob / data URI), not optimizable via next/image */}
+          <img
+            src={faviconUrl ?? statusDotFavicon(data.overallStatus)}
+            alt=''
+            className='h-3.5 w-3.5 flex-none rounded-[3px] object-contain'
+          />
+
           <span className='truncate'>{customDomain ? customDomain : `${publicHost}/status/${slug}`}</span>
         </span>
         <div className='flex flex-1 items-center justify-end gap-1.5'>
