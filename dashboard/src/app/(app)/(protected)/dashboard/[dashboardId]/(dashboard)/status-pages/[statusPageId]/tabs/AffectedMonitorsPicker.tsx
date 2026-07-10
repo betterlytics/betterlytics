@@ -69,9 +69,8 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
                 >
                   {token.label}
                   <span
-                    role='button'
-                    tabIndex={-1}
-                    aria-label={t('monitorRemove', { monitor: token.label })}
+                    aria-hidden
+                    title={t('monitorRemove', { monitor: token.label })}
                     onClick={(e) => {
                       e.stopPropagation();
                       token.remove();

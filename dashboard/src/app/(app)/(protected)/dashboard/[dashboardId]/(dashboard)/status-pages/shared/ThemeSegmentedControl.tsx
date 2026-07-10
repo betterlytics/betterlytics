@@ -20,13 +20,14 @@ export function ThemeSegmentedControl({ value, onChange }: ThemeSegmentedControl
   const t = useTranslations('statusPagesPage.editor');
 
   return (
-    <div className='border-input inline-flex overflow-hidden rounded-md border'>
+    <div role='radiogroup' aria-label={t('theme')} className='border-input inline-flex overflow-hidden rounded-md border'>
       {THEME_OPTIONS.map(({ value: option, Icon }) => (
         <button
           key={option}
           type='button'
+          role='radio'
           onClick={() => onChange(option)}
-          aria-pressed={value === option}
+          aria-checked={value === option}
           className={cn(
             'flex cursor-pointer items-center gap-1.5 px-3.5 py-1.5 text-sm transition-colors',
             value === option ? 'bg-secondary font-semibold' : 'text-muted-foreground hover:text-foreground',

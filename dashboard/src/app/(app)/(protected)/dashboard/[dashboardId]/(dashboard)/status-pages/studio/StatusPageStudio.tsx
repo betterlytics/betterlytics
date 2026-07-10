@@ -83,7 +83,12 @@ export function StatusPageStudio({
           <div className='px-5 pt-5 sm:px-6'>
             <StudioTabs tabs={tabs} active={activeTab} onChange={setActiveTab} issues={tabIssues} />
           </div>
-          <div className='min-h-0 flex-1 overflow-y-auto px-5 pt-8 pb-6 sm:px-6'>
+          <div
+            role='tabpanel'
+            id={`studio-tabpanel-${activeTab}`}
+            aria-labelledby={`studio-tab-${activeTab}`}
+            className='min-h-0 flex-1 overflow-y-auto px-5 pt-8 pb-6 sm:px-6'
+          >
             {activeTab === 'monitors' && <MonitorsPanel form={form} onCreateMonitor={onCreateMonitor} />}
             {activeTab === 'branding' && <BrandingPanel form={form} />}
             {activeTab === 'publish' && (

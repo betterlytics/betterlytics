@@ -82,6 +82,7 @@ export function StudioCanvas({
             type='button'
             onClick={resetZoom}
             title={t('studio.zoomFit')}
+            aria-label={t('studio.zoomFit')}
             className='text-foreground hover:bg-accent cursor-pointer rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums transition-colors'
           >
             {Math.round(zoom * 100)}%

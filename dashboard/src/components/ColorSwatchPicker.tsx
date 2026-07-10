@@ -28,6 +28,7 @@ export function ColorSwatchPicker<T extends string>({
             key={option.value}
             type='button'
             onClick={() => onChange(option.value)}
+            aria-pressed={value === option.value}
             className={`h-8 w-8 cursor-pointer rounded-full border transition ${
               value === option.value ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
             }`}

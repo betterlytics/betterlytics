@@ -507,8 +507,15 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     visibleRows.map((row) => (
                       <TableRow
                         key={row.id}
-                        className='hover:bg-accent dark:hover:bg-primary/10 group cursor-pointer'
+                        tabIndex={0}
+                        className='hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring group cursor-pointer focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none'
                         onClick={() => openEdit(row.original)}
+                        onKeyDown={(e) => {
+                          if (e.target !== e.currentTarget) return;
+                          if (e.key !== 'Enter' && e.key !== ' ') return;
+                          e.preventDefault();
+                          openEdit(row.original);
+                        }}
                       >
                         {row.getVisibleCells().map((cell) => {
                           const meta = cell.column.columnDef.meta as IncidentColumnMeta | undefined;
