@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, ExternalLink, Maximize2, Pencil } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -12,11 +12,9 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
-import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { defaultPublicMonitorName, statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
+import { statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
 import { IncidentsTab } from './tabs/IncidentsTab';
-import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/monitorRow';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
@@ -35,35 +33,20 @@ const isTabKey = (value: string | null): value is TabKey => TAB_KEYS.includes(va
 type StatusPageEditorProps = {
   dashboardId: string;
   statusPage: StatusPageWithMonitors;
-  monitors: Array<{ id: string; name: string | null; url: string }>;
   publicBaseUrl: string;
   dashboardDomain: string;
-  previewPayload: StatusPagePreviewPayload;
-  previewMessages: Record<string, unknown>;
 };
 
-function buildMonitorRows(
-  statusPage: StatusPageWithMonitors,
-  monitors: StatusPageEditorProps['monitors'],
-): MonitorRow[] {
-  const selectionByMonitorId = new Map(statusPage.monitors.map((m) => [m.monitorCheckId, m]));
-
-  return monitors
-    .map((monitor) => {
-      const selection = selectionByMonitorId.get(monitor.id);
-      return {
-        monitorCheckId: monitor.id,
-        name: monitor.name,
-        url: monitor.url,
-        included: selection != null,
-        publicName: selection?.publicName ?? defaultPublicMonitorName(monitor),
-      };
-    })
-    .sort((a, b) => {
-      const positionA = selectionByMonitorId.get(a.monitorCheckId)?.position ?? Number.MAX_SAFE_INTEGER;
-      const positionB = selectionByMonitorId.get(b.monitorCheckId)?.position ?? Number.MAX_SAFE_INTEGER;
-      return positionA - positionB;
-    });
+function buildMonitorRows(statusPage: StatusPageWithMonitors): MonitorRow[] {
+  return [...statusPage.monitors]
+    .sort((a, b) => a.position - b.position)
+    .map((selection) => ({
+      monitorCheckId: selection.monitorCheckId,
+      name: null,
+      url: '',
+      included: true,
+      publicName: selection.publicName,
+    }));
 }
 
 function UnsavedDot({ label }: { label: string }) {
@@ -80,17 +63,14 @@ function UnsavedDot({ label }: { label: string }) {
 export function StatusPageEditor({
   dashboardId,
   statusPage,
-  monitors,
   publicBaseUrl,
   dashboardDomain,
-  previewPayload,
-  previewMessages,
 }: StatusPageEditorProps) {
   const t = useTranslations('statusPagesPage.editor');
   const tActions = useTranslations('statusPagesPage.actions');
   const router = useRouter();
 
-  const initialMonitorRows = useMemo(() => buildMonitorRows(statusPage, monitors), [statusPage, monitors]);
+  const initialMonitorRows = useMemo(() => buildMonitorRows(statusPage), [statusPage]);
   const form = useStatusPageFormState({
     name: statusPage.name,
     slug: statusPage.slug,
@@ -120,7 +100,6 @@ export function StatusPageEditor({
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }, []);
 
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [showStudio, setShowStudio] = useState(() => searchParams.get('studio') === '1');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
@@ -205,21 +184,8 @@ export function StatusPageEditor({
   const publishBlocked = effectiveDirty || pageInvalid;
   const publishBlockedReason = effectiveDirty ? t('publishNeedsSave') : t('minMonitorsHint');
 
-  const livePreview = (
-    <LivePreview
-      payload={previewPayload}
-      messages={previewMessages}
-      publicHost={publicHost}
-      draft={form.previewDraft}
-      enlargeable
-      enlargedOpen={previewOpen}
-      onEnlargedOpenChange={setPreviewOpen}
-      className='w-full'
-    />
-  );
-
   return (
-    <div className={cn(onSettingsTab && 'pb-24 xl:pb-0')}>
+    <div className={cn(onSettingsTab && 'pb-24')}>
       <Link
         href={backHref}
         onClick={handleBackClick}
@@ -310,16 +276,6 @@ export function StatusPageEditor({
             </PermissionGate>
           )}
 
-          {onSettingsTab && (
-            <button
-              type='button'
-              onClick={() => setPreviewOpen(true)}
-              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors xl:hidden'
-            >
-              <Maximize2 className='h-3.5 w-3.5' />
-              {t('preview')}
-            </button>
-          )}
         </div>
       </div>
 
@@ -339,52 +295,18 @@ export function StatusPageEditor({
             <IncidentsTab dashboardId={dashboardId} statusPageId={statusPage.id} monitors={form.monitorsPayload} />
           </div>
         ) : (
-          <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
-            <div className='space-y-12'>
-              <SettingsTab
-                form={form}
-                slugStatus={slugStatus}
-                publicHost={publicHost}
-                dashboardDomain={dashboardDomain}
-                isPublished={statusPage.isPublished}
-                onUnpublish={() => setShowUnpublishConfirm(true)}
-                isUnpublishing={publishMutation.isPending}
-                onDelete={() => setShowDeleteConfirm(true)}
-                isDeleting={deleteMutation.isPending}
-              />
-            </div>
-
-            <div className='hidden xl:block'>
-              <div className='mb-3 flex h-8 items-end justify-end gap-2'>
-                {effectiveDirty && (
-                  <Button
-                    type='button'
-                    variant='ghost'
-                    size='sm'
-                    disabled={saveMutation.isPending}
-                    onClick={handleDiscard}
-                    className='cursor-pointer'
-                  >
-                    {t('discard')}
-                  </Button>
-                )}
-                <PermissionGate>
-                  {(disabled) => (
-                    <Button
-                      size='sm'
-                      disabled={disabled || saveDisabled || saveMutation.isPending}
-                      title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
-                      onClick={handleSave}
-                      className='cursor-pointer'
-                    >
-                      {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
-                      {t('save')}
-                    </Button>
-                  )}
-                </PermissionGate>
-              </div>
-              <div className='xl:sticky xl:top-4'>{livePreview}</div>
-            </div>
+          <div className='mt-6 max-w-3xl space-y-12'>
+            <SettingsTab
+              form={form}
+              slugStatus={slugStatus}
+              publicHost={publicHost}
+              dashboardDomain={dashboardDomain}
+              isPublished={statusPage.isPublished}
+              onUnpublish={() => setShowUnpublishConfirm(true)}
+              isUnpublishing={publishMutation.isPending}
+              onDelete={() => setShowDeleteConfirm(true)}
+              isDeleting={deleteMutation.isPending}
+            />
           </div>
         )}
       </UnderlineTabs>
@@ -392,7 +314,7 @@ export function StatusPageEditor({
       {/* bottom-[33px] = the sidebar trigger's bottom-10 (40px) minus this panel's padding+border
           (7px), so the buttons line up vertically with the trigger (bottom-left). */}
       {onSettingsTab && (
-        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg xl:hidden'>
+        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg'>
           <Button
             type='button'
             variant='outline'
@@ -443,11 +365,11 @@ export function StatusPageEditor({
       {showStudio && (
         <EditStatusPageStudio
           dashboardId={dashboardId}
+          statusPageId={statusPage.id}
           publicHost={publicHost}
           domain={dashboardDomain}
           form={form}
           slugStatus={slugStatus}
-          preview={{ payload: previewPayload, messages: previewMessages }}
           saving={saveMutation.isPending}
           saveBlockedReason={saveBlockedReason}
           onSave={handleStudioSave}

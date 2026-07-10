@@ -3,7 +3,6 @@ import {
   createStatusPage,
   deleteStatusPage,
   getStatusPageById,
-  getStatusPageSnapshotById,
   listStatusPages,
   setStatusPagePublished,
   statusPageCustomDomainExists,
@@ -14,9 +13,7 @@ import {
 
 export type { StatusPageImageWrites } from '@/repositories/postgres/statusPage.repository';
 import { countActiveIncidentsByStatusPage } from '@/repositories/postgres/statusPageIncident.repository';
-import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
-import { assembleStatusPagePreview } from '@/services/analytics/publicStatusPage.service';
 import type {
   StatusPage,
   StatusPageCreate,
@@ -45,20 +42,13 @@ export async function getStatusPage(
 }
 
 export async function getStatusPageEditorData(dashboardId: string, statusPageId: string) {
-  const [statusPage, snapshot, allMonitors, dashboard] = await Promise.all([
+  const [statusPage, dashboard] = await Promise.all([
     getStatusPageById(dashboardId, statusPageId),
-    getStatusPageSnapshotById(dashboardId, statusPageId),
-    listMonitorChecks(dashboardId),
     findDashboardById(dashboardId),
   ]);
-  if (!statusPage || !snapshot) return null;
+  if (!statusPage) return null;
 
-  return {
-    statusPage,
-    monitors: allMonitors.map((monitor) => ({ id: monitor.id, name: monitor.name ?? null, url: monitor.url })),
-    previewPayload: await assembleStatusPagePreview(snapshot, allMonitors),
-    dashboardDomain: dashboard.domain,
-  };
+  return { statusPage, dashboardDomain: dashboard.domain };
 }
 
 export async function countStatusPagesForDashboard(dashboardId: string): Promise<number> {

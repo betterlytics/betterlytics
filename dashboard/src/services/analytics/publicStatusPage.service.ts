@@ -64,20 +64,20 @@ export async function getPublicStatusPageImage(slug: string, kind: StatusPageIma
   return getStatusPageImageBySlug(slug, kind);
 }
 
-export async function getStatusPagePreviewData(
-  dashboardId: string,
-  statusPageId: string,
-): Promise<StatusPagePreviewPayload | null> {
+export async function getStatusPageStudioData(dashboardId: string, statusPageId: string) {
   const [snapshot, allMonitors] = await Promise.all([
     getStatusPageSnapshotById(dashboardId, statusPageId),
     listMonitorChecks(dashboardId),
   ]);
   if (!snapshot) return null;
 
-  return assembleStatusPagePreview(snapshot, allMonitors);
+  return {
+    payload: await assembleStatusPagePreview(snapshot, allMonitors),
+    monitors: allMonitors.map((monitor) => ({ id: monitor.id, name: monitor.name ?? null, url: monitor.url })),
+  };
 }
 
-export async function assembleStatusPagePreview(
+async function assembleStatusPagePreview(
   snapshot: PublishedStatusPage,
   allMonitors: MonitorCheck[],
 ): Promise<StatusPagePreviewPayload> {

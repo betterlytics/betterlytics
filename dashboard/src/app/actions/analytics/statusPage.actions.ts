@@ -44,7 +44,10 @@ import {
   removeStatusPageIncident,
   saveStatusPageIncidentChanges,
 } from '@/services/analytics/statusPageIncident.service';
-import { getStatusPagePreviewDataForDashboard } from '@/services/analytics/publicStatusPage.service';
+import {
+  getStatusPagePreviewDataForDashboard,
+  getStatusPageStudioData,
+} from '@/services/analytics/publicStatusPage.service';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
@@ -66,6 +69,17 @@ export const fetchStatusPagesAction = withDashboardAuthContext(async (ctx: AuthC
 
 export const fetchStatusPageEditorDataAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => getStatusPageEditorData(ctx.dashboardId, statusPageId),
+);
+
+export const fetchStatusPageStudioDataAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => {
+    const [data, messages] = await Promise.all([
+      getStatusPageStudioData(ctx.dashboardId, statusPageId),
+      getMessages({ locale: 'en' }),
+    ]);
+    if (!data) return null;
+    return { ...data, messages: messages.publicStatusPage as Record<string, unknown> };
+  },
 );
 
 async function prepareImageWrites(images?: StatusPageImagesInput): Promise<StatusPageImageWrites | undefined> {
