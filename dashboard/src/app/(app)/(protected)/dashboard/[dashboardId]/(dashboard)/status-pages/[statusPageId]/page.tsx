@@ -1,11 +1,8 @@
 import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
-import { fetchStatusPageAction, fetchStatusPagePreviewAction } from '@/app/actions/analytics/statusPage.actions';
-import { fetchMonitorChecksAction } from '@/app/actions/analytics/monitoring.actions';
-import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
+import { fetchStatusPageEditorDataAction } from '@/app/actions/analytics/statusPage.actions';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { getUserTimezone } from '@/lib/cookies';
 import { StatusPageEditor } from './StatusPageEditor';
 
 type StatusPageEditorParams = {
@@ -18,15 +15,8 @@ export default async function StatusPageEditorPage({ params }: StatusPageEditorP
   }
 
   const { dashboardId, statusPageId } = await params;
-  const timezone = await getUserTimezone();
-  const [statusPage, monitors, previewPayload, dashboard] = await Promise.all([
-    fetchStatusPageAction(dashboardId, statusPageId),
-    fetchMonitorChecksAction(dashboardId, timezone),
-    fetchStatusPagePreviewAction(dashboardId, statusPageId),
-    findDashboardById(dashboardId),
-  ]);
-
-  if (!statusPage || !previewPayload) {
+  const editorData = await fetchStatusPageEditorDataAction(dashboardId, statusPageId);
+  if (!editorData) {
     notFound();
   }
 
@@ -36,11 +26,11 @@ export default async function StatusPageEditorPage({ params }: StatusPageEditorP
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       <StatusPageEditor
         dashboardId={dashboardId}
-        statusPage={statusPage}
-        monitors={monitors.map((monitor) => ({ id: monitor.id, name: monitor.name ?? null, url: monitor.url }))}
+        statusPage={editorData.statusPage}
+        monitors={editorData.monitors}
         publicBaseUrl={env.PUBLIC_BASE_URL}
-        dashboardDomain={dashboard.domain}
-        previewPayload={previewPayload}
+        dashboardDomain={editorData.dashboardDomain}
+        previewPayload={editorData.previewPayload}
         previewMessages={previewMessages}
       />
     </div>

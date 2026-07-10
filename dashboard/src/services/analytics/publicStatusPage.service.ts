@@ -1,4 +1,3 @@
-import { cache } from 'react';
 import {
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
@@ -13,9 +12,8 @@ import {
   type StatusPagePreviewPayload,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
-import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
+import type { MonitorCheck, MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
-import { env } from '@/lib/env';
 import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
@@ -39,7 +37,6 @@ import {
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { canRemoveStatusPageBranding } from '@/lib/billing/capabilityAccess';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { getStatusPageFixture } from './publicStatusPage.fixtures';
 
 function deriveMonitorStatus(
   isEnabled: boolean,
@@ -53,16 +50,15 @@ function deriveMonitorStatus(
   return 'operational';
 }
 
-export const getPublicStatusPageData = cache(async (slug: string): Promise<PublicStatusPageData | null> => {
+export async function getPublicStatusPageData(slug: string): Promise<PublicStatusPageData | null> {
   const published = await getPublishedStatusPageBySlug(slug);
-  if (published) {
-    const hideBranding =
-      published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
-    const { data } = await assembleStatusPage(published, { hideBranding });
-    return data;
-  }
-  return env.IS_DEVELOPMENT ? getStatusPageFixture(slug) : null;
-});
+  if (!published) return null;
+
+  const hideBranding =
+    published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
+  const { data } = await assembleStatusPage(published, { hideBranding });
+  return data;
+}
 
 export async function getPublicStatusPageImage(slug: string, kind: StatusPageImageKind) {
   return getStatusPageImageBySlug(slug, kind);
@@ -78,6 +74,13 @@ export async function getStatusPagePreviewData(
   ]);
   if (!snapshot) return null;
 
+  return assembleStatusPagePreview(snapshot, allMonitors);
+}
+
+export async function assembleStatusPagePreview(
+  snapshot: PublishedStatusPage,
+  allMonitors: MonitorCheck[],
+): Promise<StatusPagePreviewPayload> {
   const selectionByMonitorId = new Map(snapshot.monitors.map((monitor) => [monitor.monitorCheckId, monitor]));
 
   const previewSnapshot: PublishedStatusPage = {

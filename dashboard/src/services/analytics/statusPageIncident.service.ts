@@ -4,7 +4,6 @@ import {
   countStatusPageIncidentUpdates,
   createStatusPageIncident,
   deleteStatusPageIncident,
-  getStatusPageIncidentById,
   listLinkedDetectedIncidentIds,
   listStatusPageIncidents,
   listStatusPageIncidentUpdates,
@@ -31,14 +30,6 @@ export function getIncidentsForStatusPage(
   statusPageId: string,
 ): Promise<StatusPageIncident[]> {
   return listStatusPageIncidents(dashboardId, statusPageId);
-}
-
-export function getStatusPageIncident(
-  dashboardId: string,
-  statusPageId: string,
-  incidentId: string,
-): Promise<StatusPageIncident | null> {
-  return getStatusPageIncidentById(dashboardId, statusPageId, incidentId);
 }
 
 export function addStatusPageIncident(

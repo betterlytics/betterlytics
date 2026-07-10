@@ -22,7 +22,7 @@ import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/status
 import {
   addStatusPage,
   countStatusPagesForDashboard,
-  getStatusPage,
+  getStatusPageEditorData,
   getStatusPagesForDashboard,
   isStatusPageCustomDomainAvailable,
   isStatusPageSlugAvailable,
@@ -44,10 +44,7 @@ import {
   removeStatusPageIncident,
   saveStatusPageIncidentChanges,
 } from '@/services/analytics/statusPageIncident.service';
-import {
-  getStatusPagePreviewData,
-  getStatusPagePreviewDataForDashboard,
-} from '@/services/analytics/publicStatusPage.service';
+import { getStatusPagePreviewDataForDashboard } from '@/services/analytics/publicStatusPage.service';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
@@ -67,8 +64,8 @@ export const fetchStatusPagesAction = withDashboardAuthContext(async (ctx: AuthC
   return getStatusPagesForDashboard(ctx.dashboardId);
 });
 
-export const fetchStatusPageAction = withDashboardAuthContext(
-  async (ctx: AuthContext, statusPageId: string) => await getStatusPage(ctx.dashboardId, statusPageId),
+export const fetchStatusPageEditorDataAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => getStatusPageEditorData(ctx.dashboardId, statusPageId),
 );
 
 async function prepareImageWrites(images?: StatusPageImagesInput): Promise<StatusPageImageWrites | undefined> {
@@ -189,10 +186,6 @@ export const deleteStatusPageAction = withDashboardMutationAuthContext(
     revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
   },
   { permission: 'canDeleteStatusPages' },
-);
-
-export const fetchStatusPagePreviewAction = withDashboardAuthContext(
-  async (ctx: AuthContext, statusPageId: string) => getStatusPagePreviewData(ctx.dashboardId, statusPageId),
 );
 
 export const fetchStatusPageDraftPreviewAction = withDashboardAuthContext(async (ctx: AuthContext) => {
