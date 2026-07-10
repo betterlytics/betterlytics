@@ -100,7 +100,7 @@ export function SettingsTab({
           {isPublished && (
             <div className='flex flex-wrap items-center justify-between gap-4 p-5'>
               <p className='text-muted-foreground text-sm'>{t('dangerZone.unpublishDescription')}</p>
-              <PermissionGate>
+              <PermissionGate permission='canPublishStatusPages'>
                 {(disabled) => (
                   <Button
                     type='button'
@@ -117,7 +117,7 @@ export function SettingsTab({
           )}
           <div className='flex flex-wrap items-center justify-between gap-4 p-5'>
             <p className='text-muted-foreground text-sm'>{t('dangerZone.deleteDescription')}</p>
-            <PermissionGate>
+            <PermissionGate permission='canDeleteStatusPages'>
               {(disabled) => (
                 <Button
                   type='button'

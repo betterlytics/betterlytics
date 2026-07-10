@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
 import { ConfirmDialog } from '@/components/dialogs';
 import {
@@ -114,26 +115,11 @@ function StudioForm({
   const submittingPublish = commitMutation.isPending && commitMutation.variables === true;
   const submittingDraft = commitMutation.isPending && commitMutation.variables === false;
 
-  const monitorsDirty =
-    form.monitorRows.length !== defaults.monitors.length ||
-    form.monitorRows.some((row, i) => {
-      const def = defaults.monitors[i];
-      return (
-        !def || row.monitorCheckId !== def.monitorCheckId || !row.included || row.publicName !== def.publicName
-      );
-    });
-
-  const isDirty =
-    form.name !== defaults.name ||
-    form.slug !== defaults.slug ||
-    form.theme !== 'system' ||
-    form.accentColor !== STATUS_PAGE_DEFAULT_ACCENT_COLOR ||
-    !form.showPastIncidents ||
-    form.visibility !== 'public' ||
-    form.homepageUrl.trim() !== '' ||
-    form.customDomain.trim() !== '' ||
-    form.hasStagedImages ||
-    monitorsDirty;
+  const initialSnapshotRef = useRef(form.snapshot);
+  const isDirty = useMemo(
+    () => form.hasStagedImages || JSON.stringify(form.snapshot) !== JSON.stringify(initialSnapshotRef.current),
+    [form.snapshot, form.hasStagedImages],
+  );
 
   const handleClose = useCallback(() => {
     if (commitMutation.isPending) return;
@@ -164,29 +150,33 @@ function StudioForm({
         {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
         {t('wizard.saveDraft')}
       </Button>
-      {canCommit || !commitBlockReason ? (
-        <Button
-          size={size}
-          disabled={!canCommit}
-          onClick={() => commitMutation.mutate(true)}
-          className='cursor-pointer'
-        >
-          {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
-          {t('publish')}
-        </Button>
-      ) : (
-        <Tooltip>
-          {/* Disabled buttons swallow pointer events, so the tooltip hangs off a wrapper. */}
-          <TooltipTrigger asChild>
-            <span tabIndex={0} className='inline-flex'>
-              <Button size={size} disabled className='pointer-events-none'>
-                {t('publish')}
-              </Button>
-            </span>
-          </TooltipTrigger>
-          <TooltipContent side='bottom'>{commitBlockReason}</TooltipContent>
-        </Tooltip>
-      )}
+      <PermissionGate permission='canPublishStatusPages'>
+        {(permissionDisabled) =>
+          !permissionDisabled && !canCommit && commitBlockReason ? (
+            <Tooltip>
+              {/* Disabled buttons swallow pointer events, so the tooltip hangs off a wrapper. */}
+              <TooltipTrigger asChild>
+                <span tabIndex={0} className='inline-flex'>
+                  <Button size={size} disabled className='pointer-events-none'>
+                    {t('publish')}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side='bottom'>{commitBlockReason}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              size={size}
+              disabled={permissionDisabled || !canCommit}
+              onClick={() => commitMutation.mutate(true)}
+              className='cursor-pointer'
+            >
+              {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
+              {t('publish')}
+            </Button>
+          )
+        }
+      </PermissionGate>
     </>
   );
 

@@ -370,7 +370,7 @@ export function StatusPagesClient({
                         {t('actions.copyUrl')}
                       </DropdownMenuItem>
                     )}
-                    <PermissionGate>
+                    <PermissionGate permission='canPublishStatusPages'>
                       {(disabled) => (
                         <DropdownMenuItem
                           disabled={disabled}
@@ -387,7 +387,7 @@ export function StatusPagesClient({
                       )}
                     </PermissionGate>
                     <DropdownMenuSeparator />
-                    <PermissionGate>
+                    <PermissionGate permission='canDeleteStatusPages'>
                       {(disabled) => (
                         <DropdownMenuItem
                           disabled={disabled}

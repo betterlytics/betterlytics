@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
+import { hasPermission } from '@/lib/permissions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
   StatusPageCreateSchema,
@@ -125,12 +126,17 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
       throw new UserException(t('statusPageDomainTaken'));
     }
 
+    if (payload.isPublished && !hasPermission(ctx.role, 'canPublishStatusPages')) {
+      throw new UserException('You do not have permission to perform this action');
+    }
+
     const created = await addStatusPage(ctx.dashboardId, payload, imageWrites);
 
     // A page published at create is public immediately, so its slug path must revalidate too.
     revalidateStatusPagePaths(ctx.dashboardId, created.isPublished ? created.slug : undefined);
     return created;
   },
+  { permission: 'canManageStatusPages' },
 );
 
 export const updateStatusPageAction = withDashboardMutationAuthContext(
@@ -163,6 +169,7 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
     if (result) revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
     return result?.page ?? null;
   },
+  { permission: 'canManageStatusPages' },
 );
 
 export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
@@ -172,6 +179,7 @@ export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
     revalidateStatusPagePaths(ctx.dashboardId, updated.slug);
     return updated;
   },
+  { permission: 'canPublishStatusPages' },
 );
 
 export const deleteStatusPageAction = withDashboardMutationAuthContext(
@@ -180,6 +188,7 @@ export const deleteStatusPageAction = withDashboardMutationAuthContext(
 
     revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
   },
+  { permission: 'canDeleteStatusPages' },
 );
 
 export const fetchStatusPagePreviewAction = withDashboardAuthContext(
@@ -304,6 +313,7 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
     revalidateStatusPagePaths(ctx.dashboardId, slug);
     return incident;
   },
+  { permission: 'canManageStatusPages' },
 );
 
 export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthContext(
@@ -332,6 +342,7 @@ export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthCont
     if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
     return result?.incident ?? null;
   },
+  { permission: 'canManageStatusPages' },
 );
 
 export const deleteStatusPageIncidentAction = withDashboardMutationAuthContext(
@@ -339,4 +350,5 @@ export const deleteStatusPageIncidentAction = withDashboardMutationAuthContext(
     const slug = await removeStatusPageIncident(ctx.dashboardId, statusPageId, incidentId);
     if (slug) revalidateStatusPagePaths(ctx.dashboardId, slug);
   },
+  { permission: 'canManageStatusPages' },
 );

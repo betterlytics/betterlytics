@@ -373,7 +373,7 @@ export function StatusPageEditor({
           </Button>
 
           {!statusPage.isPublished && (
-            <PermissionGate>
+            <PermissionGate permission='canPublishStatusPages'>
               {(disabled) => (
                 <DisabledTooltip disabled={!disabled && publishBlocked} message={publishBlockedReason}>
                   {() => (
