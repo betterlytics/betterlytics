@@ -14,6 +14,7 @@ import {
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
+import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import { env } from '@/lib/env';
 import {
   deriveOverallUptime,
@@ -200,20 +201,11 @@ async function assembleStatusPage(
       upRatio: bucket.upRatio == null ? null : Math.min(1, Math.max(0, bucket.upRatio)),
     }));
 
-    // Weight by bucket length so partial first/last days don't skew the window
-    let uptimeSeconds = 0;
-    let totalSeconds = 0;
-    for (const bucket of buckets) {
-      if (bucket.upRatio == null || bucket.totalSeconds == null) continue;
-      uptimeSeconds += bucket.upRatio * bucket.totalSeconds;
-      totalSeconds += bucket.totalSeconds;
-    }
-
     return {
       key: String(index),
       publicName: monitor.publicName,
       status: monitorStatuses[index],
-      uptime: totalSeconds > 0 ? (uptimeSeconds / totalSeconds) * 100 : null,
+      uptime: weightedUptimePercent(buckets),
       days: dailyBuckets,
     };
   });
