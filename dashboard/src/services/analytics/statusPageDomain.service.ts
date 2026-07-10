@@ -3,6 +3,7 @@ import 'server-only';
 import { env } from '@/lib/env';
 import { findStatusPageByCustomDomain } from '@/repositories/postgres/statusPage.repository';
 import { canUseStatusPageCustomDomain } from '@/lib/billing/capabilityAccess';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 const OWN_APEX_DOMAINS = ['betterlytics.io', 'betterlytics.com'];
 
@@ -25,6 +26,8 @@ export function isOwnNamespace(domain: string): boolean {
  * at us, so pointing the CNAME is the implicit proof.
  */
 export async function getTlsAuthorization(rawDomain: string): Promise<TlsAuthorization> {
+  if (!isFeatureEnabled('enablePublicStatusPages')) return 'unauthorized';
+
   const domain = normalizeHostname(rawDomain);
   if (!domain) return 'unauthorized';
   if (isOwnNamespace(domain)) return 'forbidden';
