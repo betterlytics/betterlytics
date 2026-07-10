@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -14,42 +14,17 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  ChevronDown,
-  MoreHorizontal,
-  Pencil,
-  Plus,
-  Search,
-  Sparkles,
-  Trash2,
-  TriangleAlert,
-  X,
-} from 'lucide-react';
+import { ArrowDown, ArrowUp, Check, MoreHorizontal, Pencil, Plus, Search, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
-import { useDisplayHour12 } from '@/hooks/use-display-hour12';
+import { formatElapsedTime, formatLocalDateTime } from '@/utils/dateFormatters';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DateTimePicker } from '@/components/ui/date-time-picker';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,39 +34,27 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PaginationControls } from '@/components/PaginationControls';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { ConfirmDialog } from '@/components/dialogs';
-import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   type DetectedOutageSuggestion,
   type StatusPageIncident,
-  type StatusPageIncidentImpact,
-  type StatusPageIncidentStatusValue,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
+import { IMPACT_BADGE, statusBadgeClass } from '@/components/statusPage/incidentToneStyles';
 import {
-  IMPACT_BADGE,
-  IMPACT_DOT,
-  IMPACT_SELECTED,
-  STATUS_TONE_BADGE,
-  statusBadgeClass,
-  statusDotClass,
-  statusDotHollowClass,
-  statusTextClass,
-} from '@/components/statusPage/incidentToneStyles';
-import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
-import { createIncidentEntryFormatter } from '@/components/statusPage/incidentEntryTimestamp';
-import {
-  createStatusPageIncidentAction,
   deleteStatusPageIncidentAction,
   fetchIncidentSuggestionsAction,
-  fetchIncidentTimelineAction,
   fetchStatusPageIncidentsAction,
-  saveStatusPageIncidentChangesAction,
 } from '@/app/actions/analytics/statusPage.actions';
-import { AffectedMonitorsPicker } from './AffectedMonitorsPicker';
+import {
+  IncidentEditorSheet,
+  editorSeedForCreate,
+  editorSeedForIncident,
+  editorSeedForSuggestion,
+  type IncidentEditorSeed,
+  type MonitorOption,
+} from './IncidentEditorSheet';
+import { IncidentSuggestionsPanel } from './IncidentSuggestionsPanel';
 import { MonitorPills } from './MonitorPills';
 import { Section } from './Section';
-
-type MonitorOption = { monitorCheckId: string; publicName: string };
 
 type IncidentsTabProps = {
   dashboardId: string;
@@ -101,9 +64,6 @@ type IncidentsTabProps = {
 
 const PAGE_SIZE = 10;
 
-const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'partial_outage', 'outage'];
-const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified', 'monitoring', 'resolved'];
-
 type StateFilter = 'all' | 'active' | 'resolved';
 
 type IncidentColumnMeta = {
@@ -112,77 +72,20 @@ type IncidentColumnMeta = {
   stopRowClick?: boolean;
 };
 
-// Incident details only — status / resolved state are timeline-derived, never edited here.
-type IncidentForm = {
-  id: string | null;
-  detectedIncidentId: string | null;
-  title: string;
-  impact: StatusPageIncidentImpact;
-  monitorCheckIds: string[];
-};
-
-type Composer = {
-  status: StatusPageIncidentStatusValue;
-  message: string;
-  timeLocal: string;
-};
-
-type PendingUpdate = {
-  tempId: string;
-  status: StatusPageIncidentStatusValue;
-  message: string;
-  timeLocal: string;
-};
-
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
-}
-
-function toLocalInput(date: Date): string {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-function emptyForm(): IncidentForm {
-  return { id: null, detectedIncidentId: null, title: '', impact: 'outage', monitorCheckIds: [] };
-}
-
-function emptyComposer(): Composer {
-  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()) };
-}
-
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
-  const hour12 = useDisplayHour12();
-  const todayLabel = t('timeline.today');
-  const yesterdayLabel = t('timeline.yesterday');
-  const formatIncidentEntry = useMemo(
-    () =>
-      createIncidentEntryFormatter({ locale, hour12, labels: { today: todayLabel, yesterday: yesterdayLabel } }),
-    [locale, hour12, todayLabel, yesterdayLabel],
-  );
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [open, setOpen] = useState(false);
-  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
-  const [form, setForm] = useState<IncidentForm>(emptyForm);
-  const [initialForm, setInitialForm] = useState<IncidentForm>(emptyForm);
-  const [composer, setComposer] = useState<Composer>(emptyComposer);
-  const [pendingUpdates, setPendingUpdates] = useState<PendingUpdate[]>([]);
-  const [initialPendingUpdates, setInitialPendingUpdates] = useState<PendingUpdate[]>([]);
-  const pendingIdRef = useRef(0);
-  // Seeds the header status pill before the timeline loads (edit only).
-  const [incidentStatus, setIncidentStatus] = useState<StatusPageIncidentStatusValue>('investigating');
-  const [editingUpdateId, setEditingUpdateId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState('');
-  const [editedUpdates, setEditedUpdates] = useState<Record<string, string>>({});
-  const [deletedUpdateIds, setDeletedUpdateIds] = useState<string[]>([]);
-  const [titleTouched, setTitleTouched] = useState(false);
-  const titleInputRef = useRef<HTMLInputElement>(null);
-  const [composerError, setComposerError] = useState(false);
-  const composerMessageRef = useRef<HTMLTextAreaElement>(null);
+  // The editor sheet initializes from its seed on mount; a fresh key per open remounts it,
+  // so opening never has to reset stale state field by field.
+  const [editor, setEditor] = useState<{ seed: IncidentEditorSeed; key: number } | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const openEditor = useCallback((seed: IncidentEditorSeed) => {
+    setEditor((prev) => ({ seed, key: (prev?.key ?? 0) + 1 }));
+    setEditorOpen(true);
+  }, []);
 
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
   const [searchInput, setSearchInput] = useState('');
@@ -201,118 +104,13 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     queryKey: suggestionsKey,
     queryFn: () => fetchIncidentSuggestionsAction(dashboardId, statusPageId),
   });
-  const timelineQuery = useQuery({
-    queryKey: ['statusPageIncidentTimeline', statusPageId, form.id],
-    queryFn: () => fetchIncidentTimelineAction(dashboardId, statusPageId, form.id as string),
-    enabled: open && form.id != null,
-  });
 
-  const afterMutation = () => {
-    queryClient.invalidateQueries({ queryKey: incidentsKey });
-    queryClient.invalidateQueries({ queryKey: suggestionsKey });
+  const afterMutation = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['statusPageIncidents', statusPageId] });
+    queryClient.invalidateQueries({ queryKey: ['statusPageIncidentSuggestions', statusPageId] });
     queryClient.invalidateQueries({ queryKey: ['statusPageIncidentTimeline', statusPageId] });
     router.refresh(); // keep the live preview / public page in sync
-  };
-
-  const metadataDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
-  const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(initialPendingUpdates);
-  const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
-  const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty;
-  const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
-
-  const requestClose = () => {
-    if (hasUnsavedWork) setShowDiscardConfirm(true);
-    else setOpen(false);
-  };
-
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      const stagedUpdates = pendingUpdates.map((update) => ({
-        status: update.status,
-        message: update.message.trim(),
-        occurredAt: new Date(update.timeLocal),
-      }));
-
-      if (!form.id) {
-        await createStatusPageIncidentAction(dashboardId, {
-          statusPageId,
-          title: form.title.trim(),
-          message: composer.message.trim(),
-          impact: form.impact,
-          status: composer.status,
-          monitorCheckIds: form.monitorCheckIds,
-          detectedIncidentId: form.detectedIncidentId,
-          startedAt: new Date(composer.timeLocal),
-          updates: stagedUpdates,
-        });
-        return;
-      }
-
-      await saveStatusPageIncidentChangesAction(dashboardId, {
-        incidentId: form.id,
-        statusPageId,
-        metadata: metadataDirty
-          ? { title: form.title.trim(), impact: form.impact, monitorCheckIds: form.monitorCheckIds }
-          : undefined,
-        editedUpdates: Object.entries(editedUpdates).map(([updateId, message]) => ({
-          updateId,
-          message: message.trim(),
-        })),
-        newUpdates: stagedUpdates,
-        deletedUpdateIds,
-      });
-    },
-    onSuccess: () => {
-      setOpen(false);
-      afterMutation();
-      toast.success(t('saved'));
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
-  });
-
-  const stagePendingUpdate = () => {
-    pendingIdRef.current += 1;
-    const staged: PendingUpdate = {
-      tempId: `pending-${pendingIdRef.current}`,
-      status: composer.status,
-      message: composer.message.trim(),
-      timeLocal: composer.timeLocal,
-    };
-    setPendingUpdates((list) => [...list, staged]);
-    setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
-    setComposerError(false);
-  };
-
-  const removePendingUpdate = (tempId: string) =>
-    setPendingUpdates((list) => list.filter((u) => u.tempId !== tempId));
-
-  const commitPendingEdit = (tempId: string) => {
-    setPendingUpdates((list) => list.map((u) => (u.tempId === tempId ? { ...u, message: editDraft.trim() } : u)));
-    setEditingUpdateId(null);
-  };
-
-  const commitSavedEdit = (updateId: string) => {
-    const original = timeline.find((e) => e.id === updateId)?.message ?? '';
-    const next = editDraft.trim();
-    setEditedUpdates((map) => {
-      const copy = { ...map };
-      if (next === original) delete copy[updateId];
-      else copy[updateId] = next;
-      return copy;
-    });
-    setEditingUpdateId(null);
-  };
-
-  const stageDeleteUpdate = (updateId: string) => {
-    setDeletedUpdateIds((ids) => (ids.includes(updateId) ? ids : [...ids, updateId]));
-    setEditedUpdates((map) => {
-      if (!(updateId in map)) return map;
-      const copy = { ...map };
-      delete copy[updateId];
-      return copy;
-    });
-    if (editingUpdateId === updateId) setEditingUpdateId(null);
-  };
+  }, [queryClient, router, statusPageId]);
 
   const deleteMutation = useMutation({
     mutationFn: (incidentId: string) => deleteStatusPageIncidentAction(dashboardId, statusPageId, incidentId),
@@ -322,86 +120,22 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
-  
+  // Destructured so the columns memo can depend on the stable pieces, not the whole mutation object.
   const { mutate: deleteIncident, isPending: isDeletingIncident } = deleteMutation;
 
-  const openWith = useCallback(
-    (
-      next: IncidentForm,
-      nextComposer: Composer,
-      status: StatusPageIncidentStatusValue,
-      pending: PendingUpdate[] = [],
-    ) => {
-      setForm(next);
-      setInitialForm(next);
-      setComposer(nextComposer);
-      setPendingUpdates(pending);
-      setInitialPendingUpdates(pending);
-      setIncidentStatus(status);
-      setEditingUpdateId(null);
-      setEditedUpdates({});
-      setDeletedUpdateIds([]);
-      setTitleTouched(false);
-      setComposerError(false);
-      setOpen(true);
-    },
-    [],
-  );
-
-  const openCreate = () => openWith(emptyForm(), emptyComposer(), 'investigating');
+  const openCreate = () => openEditor(editorSeedForCreate());
 
   const openEdit = useCallback(
-    (incident: StatusPageIncident) =>
-      openWith(
-        {
-          id: incident.id,
-          detectedIncidentId: incident.detectedIncidentId,
-          title: incident.title,
-          impact: incident.impact,
-          monitorCheckIds: incident.monitorCheckIds,
-        },
-        { ...emptyComposer(), status: incident.status },
-        incident.status,
-      ),
-    [openWith],
+    (incident: StatusPageIncident) => openEditor(editorSeedForIncident(incident)),
+    [openEditor],
   );
 
   const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
-    const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
     const title =
       suggestion.monitors.length === 1
         ? t('suggestedTitle', { monitor: suggestion.monitors[0].monitorPublicName })
         : t('suggestedTitleMulti', { count: suggestion.monitors.length });
-    pendingIdRef.current += 1;
-    openWith(
-      {
-        ...emptyForm(),
-        detectedIncidentId: suggestion.detectedIncidentId,
-        title,
-        impact: suggestion.suggestedImpact,
-        monitorCheckIds: suggestion.monitors.map((monitor) => monitor.monitorCheckId),
-      },
-      {
-        ...emptyComposer(),
-        timeLocal: toLocalInput(new Date(suggestion.startedAt)),
-      },
-      'investigating',
-      resolved
-        ? [
-            {
-              tempId: `pending-${pendingIdRef.current}`,
-              status: 'resolved',
-              message: '',
-              timeLocal: toLocalInput(new Date(suggestion.resolvedAt as string)),
-            },
-          ]
-        : [],
-    );
-  };
-
-  const beginEditUpdate = (updateId: string, message: string) => {
-    setEditingUpdateId(updateId);
-    setEditDraft(message);
+    openEditor(editorSeedForSuggestion(suggestion, title));
   };
 
   const incidents = useMemo(() => incidentsQuery.data ?? [], [incidentsQuery.data]);
@@ -650,197 +384,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const columnCount = table.getVisibleLeafColumns().length;
   const hasActiveFilters = globalFilter.trim().length > 0 || stateFilter !== 'all';
 
-  const timeline = useMemo(() => (timelineQuery.data ?? []).slice().reverse(), [timelineQuery.data]);
-  const timelineRows = useMemo(() => {
-    const rows = [
-      ...pendingUpdates.map((u) => ({
-        kind: 'pending' as const,
-        key: u.tempId,
-        id: u.tempId,
-        status: u.status,
-        message: u.message,
-        date: new Date(u.timeLocal),
-      })),
-      ...timeline
-        .filter((e) => !deletedUpdateIds.includes(e.id))
-        .map((e) => ({
-          kind: 'saved' as const,
-          key: e.id,
-          id: e.id,
-          status: e.status,
-          message: editedUpdates[e.id] ?? e.message,
-          date: e.createdAt,
-        })),
-    ];
-    return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
-  }, [pendingUpdates, timeline, editedUpdates, deletedUpdateIds]);
-
-  const latestStatus = timelineRows[0]?.status ?? (form.id != null ? incidentStatus : composer.status);
-  const headerStatus = latestStatus;
-  const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
-  const composerIsNoop = composer.message.trim().length === 0 && composer.status === latestStatus;
-  const showComposerHint = composerError && composerIsNoop;
-
-  const handleAddUpdate = () => {
-    if (composerIsNoop) {
-      setComposerError(true);
-      composerMessageRef.current?.focus();
-      return;
-    }
-    stagePendingUpdate();
-  };
-
-  const titleMissing = form.title.trim().length === 0;
-  const showTitleError = titleTouched && titleMissing;
-
-  const saveCta = form.id != null ? t('form.updatePublic') : t('form.publishCta');
-
-  const handleSaveClick = () => {
-    if (titleMissing) {
-      setTitleTouched(true);
-      titleInputRef.current?.focus();
-      return;
-    }
-    saveMutation.mutate();
-  };
-
   return (
     <div className='space-y-4'>
-      {suggestions.length > 0 && (
-        <div className='overflow-hidden rounded-xl border border-amber-500/40 bg-amber-500/5'>
-          <button
-            type='button'
-            onClick={() => setSuggestionsOpen((prev) => !prev)}
-            aria-expanded={suggestionsOpen}
-            className='flex w-full cursor-pointer items-center gap-3 bg-amber-500/6 px-4 py-3 text-left'
-          >
-            <TriangleAlert className='h-5 w-5 flex-none text-amber-500' />
-            <div className='min-w-0 flex-1'>
-              <div className='text-sm font-semibold'>{t('detectedPanelTitle', { count: suggestions.length })}</div>
-              <div className='text-muted-foreground text-xs'>{t('suggestionsHint')}</div>
-            </div>
-            <ChevronDown
-              className={cn(
-                'text-muted-foreground h-4 w-4 flex-none transition-transform',
-                suggestionsOpen && 'rotate-180',
-              )}
-            />
-          </button>
-          {suggestionsOpen && (
-            <div className='max-h-80 overflow-y-auto'>
-              <table className='w-full'>
-                <thead>
-                  <tr className='text-muted-foreground border-y border-amber-500/20 bg-amber-500/7 text-left text-[11px] tracking-wider uppercase'>
-                    <th className='py-2 pr-3 pl-4 font-semibold'>{t('suggestionsTable.outage')}</th>
-                    <th className='hidden px-3 py-2 font-semibold md:table-cell'>
-                      {t('suggestionsTable.monitors')}
-                    </th>
-                    <th className='hidden px-3 py-2 font-semibold sm:table-cell'>
-                      {t('suggestionsTable.detected')}
-                    </th>
-                    <th className='hidden px-3 py-2 font-semibold lg:table-cell'>
-                      {t('suggestionsTable.duration')}
-                    </th>
-                    <th className='px-3 py-2 font-semibold'>{t('suggestionsTable.status')}</th>
-                    <th className='py-2 pr-4 pl-3' />
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-amber-500/15'>
-                  {suggestions.map((suggestion) => {
-                    const isMulti = suggestion.monitors.length > 1;
-                    const heading = isMulti
-                      ? t('detectedGroupMulti', { count: suggestion.monitors.length })
-                      : suggestion.monitors[0].monitorPublicName;
-                    const detected = suggestion.ongoing
-                      ? formatRelativeTimeFromNow(suggestion.startedAt, locale)
-                      : (formatLocalDateTime(suggestion.startedAt, locale, {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12,
-                        }) ?? '');
-                    // Elapsed for ongoing, full span for resolved (same shifted-start trick as durationLabel).
-                    const durationMs =
-                      (suggestion.ongoing
-                        ? Date.now()
-                        : new Date(suggestion.resolvedAt ?? suggestion.startedAt).getTime()) -
-                      new Date(suggestion.startedAt).getTime();
-                    const duration = formatElapsedTime(new Date(Date.now() - durationMs), locale);
-                    return (
-                      <tr key={suggestion.detectedIncidentId} className='hover:bg-amber-500/6'>
-                        <td className='w-full max-w-0 min-w-[160px] py-2.5 pr-3 pl-4'>
-                          <div className='flex items-center gap-2.5'>
-                            <span className='relative flex h-2 w-2 flex-none'>
-                              {suggestion.ongoing && (
-                                <span
-                                  className={cn(
-                                    'absolute inline-flex h-full w-full rounded-full opacity-60 motion-safe:animate-ping',
-                                    IMPACT_DOT[suggestion.suggestedImpact],
-                                  )}
-                                />
-                              )}
-                              <span
-                                className={cn(
-                                  'relative inline-flex h-2 w-2 rounded-full',
-                                  suggestion.ongoing ? IMPACT_DOT[suggestion.suggestedImpact] : 'bg-emerald-500',
-                                )}
-                              />
-                            </span>
-                            <span className='truncate text-sm font-medium'>{heading}</span>
-                          </div>
-                        </td>
-                        <td className='hidden px-3 py-2.5 md:table-cell'>
-                          <MonitorPills names={suggestion.monitors.map((monitor) => monitor.monitorPublicName)} />
-                        </td>
-                        <td
-                          suppressHydrationWarning
-                          className='text-muted-foreground hidden px-3 py-2.5 text-xs whitespace-nowrap sm:table-cell'
-                        >
-                          {detected}
-                        </td>
-                        <td
-                          suppressHydrationWarning
-                          className='text-muted-foreground hidden px-3 py-2.5 text-xs whitespace-nowrap lg:table-cell'
-                        >
-                          {duration}
-                        </td>
-                        <td className='px-3 py-2.5'>
-                          <Badge
-                            variant='outline'
-                            className={cn(
-                              'whitespace-nowrap',
-                              suggestion.ongoing
-                                ? IMPACT_BADGE[suggestion.suggestedImpact]
-                                : STATUS_TONE_BADGE.green,
-                            )}
-                          >
-                            {suggestion.ongoing ? t('suggestionsTable.ongoing') : t('suggestionsTable.resolved')}
-                          </Badge>
-                        </td>
-                        <td className='py-2.5 pr-4 pl-3 text-right'>
-                          <PermissionGate>
-                            {(disabled) => (
-                              <Button
-                                size='sm'
-                                disabled={disabled}
-                                onClick={() => openFromSuggestion(suggestion)}
-                                className='flex-none cursor-pointer'
-                              >
-                                {t('createFromSuggestion')}
-                              </Button>
-                            )}
-                          </PermissionGate>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+      <IncidentSuggestionsPanel suggestions={suggestions} onCreateIncident={openFromSuggestion} />
 
       <Section
         title={t('title')}
@@ -1000,340 +546,20 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         )}
       </Section>
 
-      <Sheet open={open} onOpenChange={(next) => (next ? setOpen(true) : requestClose())}>
-        <SheetContent side='right' className='flex w-full flex-col gap-0 p-0 sm:max-w-2xl'>
-          <SheetHeader className='flex-row items-start justify-between space-y-0 border-b px-6 py-4 pr-12'>
-            <div className='min-w-0 space-y-1'>
-              <div className='flex flex-wrap items-center gap-2'>
-                <SheetTitle className='text-base'>{form.id ? t('editIncident') : t('newIncident')}</SheetTitle>
-                <Badge variant='outline' className={statusBadgeClass(headerStatus)}>
-                  {t(`status.${headerStatus}`)}
-                </Badge>
-              </div>
-              <SheetDescription className='text-xs'>{t('formHint')}</SheetDescription>
-            </div>
-          </SheetHeader>
-
-          <div className='min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5'>
-            <section className='space-y-5'>
-              <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
-                {t('form.detailsSection')}
-              </div>
-
-              <div className='space-y-1.5'>
-                <Label htmlFor='inc-title'>
-                  {t('form.title')}
-                  <span className='text-destructive ml-0.5'>*</span>
-                </Label>
-                <Input
-                  id='inc-title'
-                  ref={titleInputRef}
-                  value={form.title}
-                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX}
-                  aria-invalid={showTitleError}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  onBlur={() => setTitleTouched(true)}
-                  className={cn(showTitleError && 'border-destructive focus-visible:ring-destructive/30')}
-                />
-                {showTitleError && <p className='text-destructive text-xs'>{t('form.titleRequired')}</p>}
-              </div>
-
-              <div className='space-y-2'>
-                <Label>{t('form.impact')}</Label>
-                <div className='flex flex-wrap gap-2'>
-                  {IMPACTS.map((option) => {
-                    const selected = form.impact === option;
-                    return (
-                      <button
-                        key={option}
-                        type='button'
-                        onClick={() => setForm((f) => ({ ...f, impact: option }))}
-                        className={cn(
-                          'cursor-pointer rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                          selected
-                            ? IMPACT_SELECTED[option]
-                            : 'border-border text-muted-foreground hover:text-foreground',
-                        )}
-                      >
-                        {t(`impact.${option}`)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className='space-y-2'>
-                <Label>{t('form.monitor')}</Label>
-                <p className='text-muted-foreground text-xs'>{t('form.monitorHelp')}</p>
-                <AffectedMonitorsPicker
-                  monitors={monitors}
-                  value={form.monitorCheckIds}
-                  onChange={(ids) => setForm((f) => ({ ...f, monitorCheckIds: ids }))}
-                />
-              </div>
-            </section>
-
-            <div className='bg-border h-px' />
-
-            <section className='space-y-3'>
-              <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
-                {t('composer.section')}
-              </div>
-              <div className='border-border bg-muted/30 space-y-3 rounded-xl border p-3.5'>
-                <div className='flex flex-wrap gap-1.5'>
-                  {STATUSES.map((option) => {
-                    const selected = composer.status === option;
-                    return (
-                      <button
-                        key={option}
-                        type='button'
-                        onClick={() => setComposer((c) => ({ ...c, status: option }))}
-                        className={cn(
-                          'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
-                          selected
-                            ? statusBadgeClass(option)
-                            : 'border-border text-muted-foreground hover:text-foreground',
-                        )}
-                      >
-                        {t(`status.${option}`)}
-                      </button>
-                    );
-                  })}
-                </div>
-                <Textarea
-                  id='inc-message'
-                  ref={composerMessageRef}
-                  rows={3}
-                  placeholder={t('composer.messagePlaceholder')}
-                  value={composer.message}
-                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
-                  onChange={(e) => setComposer((c) => ({ ...c, message: e.target.value }))}
-                />
-                <div className='flex flex-wrap items-center gap-2'>
-                  <DateTimePicker
-                    value={new Date(composer.timeLocal)}
-                    onChange={(date) => setComposer((c) => ({ ...c, timeLocal: toLocalInput(date) }))}
-                    locale={locale}
-                    dateLabel={t('composer.time')}
-                    timeLabel={t('composer.time')}
-                  />
-                  <PermissionGate>
-                    {(disabled) => (
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        onClick={handleAddUpdate}
-                        disabled={disabled || atUpdateCap}
-                        className='ml-auto cursor-pointer'
-                      >
-                        <Plus className='h-3.5 w-3.5' />
-                        {t('timeline.addUpdate')}
-                      </Button>
-                    )}
-                  </PermissionGate>
-                </div>
-                {showComposerHint && <p className='text-destructive text-xs'>{t('composer.noopHint')}</p>}
-              </div>
-            </section>
-
-            {(form.id != null || pendingUpdates.length > 0) && (
-              <section className='space-y-3'>
-                <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
-                  {t('timeline.title')}
-                </div>
-                {timelineQuery.isLoading ? (
-                  <div className='space-y-2'>
-                    {Array.from({ length: 3 }, (_, i) => (
-                      <Skeleton key={i} className='h-16 w-full' />
-                    ))}
-                  </div>
-                ) : timeline.length === 0 && pendingUpdates.length === 0 ? (
-                  <p className='text-muted-foreground text-sm'>{t('timeline.empty')}</p>
-                ) : (
-                  <Timeline>
-                    {timelineRows.map((row, i) => {
-                      const isLast = i === timelineRows.length - 1;
-                      const pending = row.kind === 'pending';
-                      const editing = editingUpdateId === row.id;
-                      return (
-                        <TimelineItem
-                          key={row.key}
-                          isLast={isLast}
-                          headHeightPx={28}
-                          spacingPx={16}
-                          lineClassName='bg-border'
-                          className='group'
-                          dot={
-                            <div
-                              className={cn(
-                                'ring-background h-2.5 w-2.5 rounded-full ring',
-                                pending ? statusDotHollowClass(row.status) : statusDotClass(row.status),
-                              )}
-                            />
-                          }
-                        >
-                          <div className='flex h-7 items-center gap-2'>
-                            <span className={cn('text-[13px] font-semibold', statusTextClass(row.status))}>
-                              {t(`status.${row.status}`)}
-                            </span>
-                            <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
-                              {pending ? (
-                                <>
-                                  <Button
-                                    size='icon'
-                                    variant='ghost'
-                                    aria-label={t('timeline.editMessage')}
-                                    onClick={() => beginEditUpdate(row.id, row.message)}
-                                    className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
-                                  >
-                                    <Pencil className='h-3.5 w-3.5' />
-                                  </Button>
-                                  <Button
-                                    size='icon'
-                                    variant='ghost'
-                                    aria-label={t('timeline.removePending')}
-                                    onClick={() => removePendingUpdate(row.id)}
-                                    className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                  >
-                                    <X className='h-3.5 w-3.5' />
-                                  </Button>
-                                </>
-                              ) : (
-                                <PermissionGate hideWhenDisabled>
-                                  {() => (
-                                    <>
-                                      <Button
-                                        size='icon'
-                                        variant='ghost'
-                                        aria-label={t('timeline.editMessage')}
-                                        onClick={() => beginEditUpdate(row.id, row.message)}
-                                        className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
-                                      >
-                                        <Pencil className='h-3.5 w-3.5' />
-                                      </Button>
-                                      <Button
-                                        size='icon'
-                                        variant='ghost'
-                                        aria-label={t('timeline.deleteUpdate')}
-                                        disabled={timelineRows.length <= 1}
-                                        onClick={() => stageDeleteUpdate(row.id)}
-                                        className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                      >
-                                        <Trash2 className='h-3.5 w-3.5' />
-                                      </Button>
-                                    </>
-                                  )}
-                                </PermissionGate>
-                              )}
-                            </div>
-                          </div>
-
-                          {editing ? (
-                            <div className='mt-2 space-y-2'>
-                              <Textarea
-                                rows={3}
-                                autoFocus
-                                value={editDraft}
-                                maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
-                                onChange={(e) => setEditDraft(e.target.value)}
-                              />
-                              <div className='flex justify-end gap-2'>
-                                <Button
-                                  size='sm'
-                                  variant='outline'
-                                  onClick={() => setEditingUpdateId(null)}
-                                  className='cursor-pointer'
-                                >
-                                  {t('form.cancel')}
-                                </Button>
-                                <Button
-                                  size='sm'
-                                  onClick={() => (pending ? commitPendingEdit(row.id) : commitSavedEdit(row.id))}
-                                  className='cursor-pointer'
-                                >
-                                  {t('timeline.done')}
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            row.message && (
-                              <p className='text-foreground mt-2 text-[13px] leading-relaxed break-words whitespace-pre-line'>
-                                {row.message}
-                              </p>
-                            )
-                          )}
-                          <div
-                            suppressHydrationWarning
-                            className='text-muted-foreground mt-2 text-[12px] whitespace-nowrap tabular-nums'
-                          >
-                            {formatIncidentEntry(row.date, new Date())}
-                          </div>
-                        </TimelineItem>
-                      );
-                    })}
-                  </Timeline>
-                )}
-              </section>
-            )}
-          </div>
-
-          <SheetFooter className='flex-row flex-wrap items-center gap-2 border-t px-6 py-3'>
-            {form.id != null && (
-              <PermissionGate>
-                {(disabled) => (
-                  <Button
-                    variant='ghost'
-                    disabled={disabled || deleteMutation.isPending}
-                    onClick={() => {
-                      deleteMutation.mutate(form.id as string);
-                      setOpen(false);
-                    }}
-                    className='text-destructive hover:text-destructive hidden cursor-pointer sm:inline-flex'
-                  >
-                    <Trash2 className='h-4 w-4' />
-                    {t('form.deleteIncident')}
-                  </Button>
-                )}
-              </PermissionGate>
-            )}
-            <div className='ml-auto flex flex-wrap items-center justify-end gap-2'>
-              {hasChanges && (
-                <span className='text-muted-foreground hidden items-center gap-1.5 text-xs sm:flex'>
-                  <span className='bg-primary h-2 w-2 rounded-full' />
-                  {t('form.unsaved')}
-                </span>
-              )}
-              <Button variant='outline' onClick={requestClose} className='cursor-pointer'>
-                {t('form.cancel')}
-              </Button>
-              <PermissionGate>
-                {(disabled) => (
-                  <Button
-                    disabled={disabled || saveMutation.isPending}
-                    onClick={handleSaveClick}
-                    className='cursor-pointer'
-                  >
-                    {saveCta}
-                  </Button>
-                )}
-              </PermissionGate>
-            </div>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      <ConfirmDialog
-        open={showDiscardConfirm}
-        onOpenChange={setShowDiscardConfirm}
-        title={t('discard.title')}
-        description={t('discard.description')}
-        cancelLabel={t('discard.keep')}
-        confirmLabel={t('discard.confirm')}
-        onConfirm={() => {
-          setShowDiscardConfirm(false);
-          setOpen(false);
-        }}
-      />
+      {editor && (
+        <IncidentEditorSheet
+          key={editor.key}
+          dashboardId={dashboardId}
+          statusPageId={statusPageId}
+          monitors={monitors}
+          seed={editor.seed}
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          onMutated={afterMutation}
+          onDelete={deleteIncident}
+          deleting={isDeletingIncident}
+        />
+      )}
     </div>
   );
 }
