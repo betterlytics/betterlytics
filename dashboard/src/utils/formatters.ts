@@ -33,7 +33,8 @@ export function formatPercentage(
 }
 
 export function formatUptime(num: number, locale?: SupportedLanguages): string {
-  return formatPercentage(num, locale, {
+  const floored = Math.floor(num * 100 + 1e-7) / 100;
+  return formatPercentage(floored, locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
     trimHundred: true,
