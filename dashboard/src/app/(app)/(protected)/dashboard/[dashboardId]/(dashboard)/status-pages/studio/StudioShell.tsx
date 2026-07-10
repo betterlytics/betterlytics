@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
-import { MonitorFormDialog } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/MonitorFormDialog';
+import { CreateMonitorDialog } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/CreateMonitorDialog';
 import { ConfirmDialog } from '@/components/dialogs';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
@@ -107,7 +107,7 @@ export function StudioShell({
         previewEnlargedOpen={previewOpen}
         onPreviewEnlargedOpenChange={setPreviewOpen}
       />
-      <MonitorFormDialog
+      <CreateMonitorDialog
         open={createMonitorOpen}
         onOpenChange={setCreateMonitorOpen}
         dashboardId={dashboardId}

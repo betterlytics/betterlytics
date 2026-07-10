@@ -1,55 +1,66 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRef, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { UpgradeButton } from '@/components/billing/UpgradeButton';
-import { MonitorFormDialog } from './MonitorFormDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
+import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
+import { CreateMonitorForm } from './CreateMonitorForm';
+import { useCreateMonitor } from './shared/hooks/useCreateMonitor';
 
 type CreateMonitorDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   dashboardId: string;
   domain: string;
   existingUrls: string[];
-  disabled?: boolean;
-  monitorCount: number;
-  maxMonitors: number;
-  atLimit: boolean;
+  /** Fired after a successful create; the dialog has already closed and reset itself. */
+  onCreated: (monitor: MonitorCheck) => void;
+  trigger?: ReactNode;
 };
 
 export function CreateMonitorDialog({
+  open,
+  onOpenChange,
   dashboardId,
   domain,
   existingUrls,
-  disabled,
-  monitorCount,
-  maxMonitors,
-  atLimit,
+  onCreated,
+  trigger,
 }: CreateMonitorDialogProps) {
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
   const t = useTranslations('monitoringPage.form');
+  const markPendingRef = useRef<() => void>(() => {});
 
-  if (atLimit) {
-    return <UpgradeButton>{t('upgradeToCreate')}</UpgradeButton>;
-  }
+  const create = useCreateMonitor({
+    dashboardId,
+    domain,
+    existingUrls,
+    onCreated: (monitor) => {
+      markPendingRef.current();
+      onOpenChange(false);
+      onCreated(monitor);
+    },
+  });
+
+  const { markPending, onAnimationEnd } = useOverlayReset(create.reset);
+  markPendingRef.current = markPending;
 
   return (
-    <MonitorFormDialog
-      open={open}
-      onOpenChange={setOpen}
-      dashboardId={dashboardId}
-      domain={domain}
-      existingUrls={existingUrls}
-      onCreated={() => router.refresh()}
-      trigger={
-        <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled}>
-          {t('create')}
-          <span className='ml-1.5 text-xs opacity-70'>
-            ({monitorCount}/{maxMonitors})
-          </span>
-        </Button>
-      }
-    />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl' onAnimationEnd={onAnimationEnd}>
+        <DialogHeader>
+          <DialogTitle>{t('title')}</DialogTitle>
+        </DialogHeader>
+        <CreateMonitorForm
+          create={create}
+          domain={domain}
+          onCancel={() => {
+            markPending();
+            onOpenChange(false);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }

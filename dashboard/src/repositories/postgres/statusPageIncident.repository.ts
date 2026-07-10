@@ -44,17 +44,6 @@ export async function listStatusPageIncidents(
   return rows.map((row) => StatusPageIncidentSchema.parse(row));
 }
 
-export async function getStatusPageIncidentById(
-  dashboardId: string,
-  statusPageId: string,
-  incidentId: string,
-): Promise<StatusPageIncident | null> {
-  const row = await prisma.statusPageIncident.findFirst({
-    where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
-  });
-  return row ? StatusPageIncidentSchema.parse(row) : null;
-}
-
 export async function countStatusPageIncidents(dashboardId: string, statusPageId: string): Promise<number> {
   return prisma.statusPageIncident.count({ where: { statusPageId, dashboardId, deletedAt: null } });
 }

@@ -15,7 +15,6 @@ import {
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
-import { env } from '@/lib/env';
 import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
@@ -39,7 +38,6 @@ import {
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { canRemoveStatusPageBranding } from '@/lib/billing/capabilityAccess';
 import { toDateTimeString } from '@/utils/dateFormatters';
-import { getStatusPageFixture } from './publicStatusPage.fixtures';
 
 function deriveMonitorStatus(
   isEnabled: boolean,
@@ -55,13 +53,12 @@ function deriveMonitorStatus(
 
 export const getPublicStatusPageData = cache(async (slug: string): Promise<PublicStatusPageData | null> => {
   const published = await getPublishedStatusPageBySlug(slug);
-  if (published) {
-    const hideBranding =
-      published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
-    const { data } = await assembleStatusPage(published, { hideBranding });
-    return data;
-  }
-  return env.IS_DEVELOPMENT ? getStatusPageFixture(slug) : null;
+  if (!published) return null;
+
+  const hideBranding =
+    published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
+  const { data } = await assembleStatusPage(published, { hideBranding });
+  return data;
 });
 
 export async function getPublicStatusPageImage(slug: string, kind: StatusPageImageKind) {
