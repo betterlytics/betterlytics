@@ -19,6 +19,8 @@
  * the server action as the authority.
  */
 
+import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const XLINK_NS = 'http://www.w3.org/1999/xlink';
 
@@ -197,6 +199,65 @@ function decodeEntities(raw: string): string {
   return out;
 }
 
+/** Presentation properties a style attribute may set — same spirit as the attribute allowlist. */
+const ALLOWED_STYLE_PROPERTIES = new Set([
+  'fill',
+  'fill-opacity',
+  'fill-rule',
+  'stroke',
+  'stroke-width',
+  'stroke-linecap',
+  'stroke-linejoin',
+  'stroke-miterlimit',
+  'stroke-dasharray',
+  'stroke-dashoffset',
+  'stroke-opacity',
+  'opacity',
+  'color',
+  'stop-color',
+  'stop-opacity',
+  'clip-path',
+  'clip-rule',
+  'mask',
+  'filter',
+  'display',
+  'visibility',
+  'font-family',
+  'font-size',
+  'font-weight',
+  'font-style',
+  'letter-spacing',
+  'text-anchor',
+  'dominant-baseline',
+  'transform',
+  'transform-origin',
+  'mix-blend-mode',
+  'paint-order',
+  'isolation',
+  'enable-background',
+]);
+
+// No `:` (bare URLs), `\` (CSS escapes), `@`, `!`, `;`, markup — just idents, numbers, colors,
+// quoted font names and function calls like translate(...) or url(#ref).
+const STYLE_VALUE_PATTERN = /^[A-Za-z0-9#%.,()'"\s/_-]*$/;
+
+/**
+ * The style attribute is the only free-form CSS we accept, so it gets the same treatment as
+ * markup: allowlisted declarations only, anything else rejects the file. The generic value
+ * checks (local-only url(), no javascript:/data:) still run after this.
+ */
+function validateStyle(value: string): void {
+  for (const declaration of value.split(';')) {
+    if (declaration.trim().length === 0) continue;
+    const colon = declaration.indexOf(':');
+    if (colon === -1) reject();
+    const property = declaration.slice(0, colon).trim().toLowerCase();
+    const propertyValue = declaration.slice(colon + 1).trim();
+    if (!ALLOWED_STYLE_PROPERTIES.has(property)) reject();
+    if (propertyValue.length === 0 || !STYLE_VALUE_PATTERN.test(propertyValue)) reject();
+  }
+}
+
 function validateAttribute(name: string, value: string): void {
   if (!ALLOWED_ATTRIBUTES.has(name)) reject();
   if (CONTROL_CHARS.test(value)) reject();
@@ -214,8 +275,7 @@ function validateAttribute(name: string, value: string): void {
     if (!LOCAL_REF_PATTERN.test(value)) reject();
     return;
   }
-  // style is CSS: no escapes (\), at-rules (@) or markup — those are where CSS smuggling lives.
-  if (name === 'style' && /[\\@<]/.test(value)) reject();
+  if (name === 'style') validateStyle(value);
 
   const lower = value.toLowerCase();
   if (lower.includes('javascript:') || lower.includes('data:')) reject();
@@ -369,6 +429,10 @@ export function looksLikeSvg(bytes: Uint8Array): boolean {
  * file contains anything outside the allowlist (the caller should reject the upload).
  */
 export function sanitizeSvgLogo(bytes: Uint8Array): Uint8Array<ArrayBuffer> | null {
+  // Callers enforce this too, but the parser's node/depth caps assume bounded input —
+  // a security function shouldn't rely on its call sites for that.
+  if (bytes.byteLength === 0 || bytes.byteLength > STATUS_PAGE_LIMITS.IMAGE_MAX_BYTES) return null;
+
   let source: string;
   try {
     source = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
