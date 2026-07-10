@@ -1,33 +1,27 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Maximize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
-import { ConfirmDialog } from '@/components/dialogs';
 import {
   createStatusPageAction,
   fetchStatusPageDraftPreviewAction,
   suggestStatusPageDefaultsAction,
 } from '@/app/actions/analytics/statusPage.actions';
-import { MonitorFormDialog } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/MonitorFormDialog';
 import { FlowOverlay } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlay';
 import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlayHeader';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
-import {
-  newMonitorRow,
-  useStatusPageFormState,
-} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
-import { StatusPageStudio } from './StatusPageStudio';
+import { StudioShell } from './StudioShell';
 
 type StudioDefaults = Awaited<ReturnType<typeof suggestStatusPageDefaultsAction>>;
 
@@ -49,10 +43,6 @@ function StudioForm({
 }: CreateStatusPageStudioProps & { defaults: StudioDefaults }) {
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
-
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [createMonitorOpen, setCreateMonitorOpen] = useState(false);
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const form = useStatusPageFormState({
     name: defaults.name,
@@ -106,16 +96,6 @@ function StudioForm({
     [form.snapshot, form.hasStagedImages],
   );
 
-  const handleClose = useCallback(() => {
-    if (commitMutation.isPending) return;
-    if (showDiscardConfirm) return;
-    if (isDirty) {
-      setShowDiscardConfirm(true);
-    } else {
-      onClose();
-    }
-  }, [commitMutation.isPending, showDiscardConfirm, isDirty, onClose]);
-
   const previewQuery = useQuery({
     queryKey: ['statusPageDraftPreview', dashboardId],
     queryFn: () => fetchStatusPageDraftPreviewAction(dashboardId),
@@ -165,70 +145,29 @@ function StudioForm({
     </>
   );
 
-  const headerActions = (
-    <>
-      <Button
-        type='button'
-        variant='outline'
-        size='sm'
-        onClick={() => setPreviewOpen(true)}
-        disabled={!previewQuery.data}
-        className='cursor-pointer lg:hidden'
-      >
-        <Maximize2 className='mr-1.5 h-3.5 w-3.5' />
-        {t('preview')}
-      </Button>
-      <div className='hidden items-center gap-2 lg:flex'>{commitButtons('sm')}</div>
-    </>
-  );
-
-  const mobileBar = (
-    <div className='border-border flex flex-none items-center justify-end gap-2 border-t p-3 lg:hidden'>
-      {commitButtons('default')}
-    </div>
-  );
-
   return (
-    <>
-      <StatusPageStudio
-        mode='create'
-        form={form}
-        slugStatus={slugStatus}
-        publicHost={publicHost}
-        domain={domain}
-        preview={previewQuery.data ?? null}
-        previewError={previewQuery.isError}
-        headerActions={headerActions}
-        mobileBar={mobileBar}
-        onClose={handleClose}
-        onCreateMonitor={() => setCreateMonitorOpen(true)}
-        previewEnlargedOpen={previewOpen}
-        onPreviewEnlargedOpenChange={setPreviewOpen}
-      />
-      <MonitorFormDialog
-        open={createMonitorOpen}
-        onOpenChange={setCreateMonitorOpen}
-        dashboardId={dashboardId}
-        domain={domain}
-        existingUrls={form.monitorRows.map((row) => row.url)}
-        onCreated={(monitor) => {
-          form.setMonitorRows((rows) => [...rows, newMonitorRow(monitor)]);
-          previewQuery.refetch();
-        }}
-      />
-      <ConfirmDialog
-        open={showDiscardConfirm}
-        onOpenChange={setShowDiscardConfirm}
-        title={t('wizard.confirmDiscard.title')}
-        description={t('wizard.confirmDiscard.description')}
-        cancelLabel={t('wizard.confirmDiscard.keep')}
-        confirmLabel={t('wizard.confirmDiscard.discard')}
-        onConfirm={() => {
-          setShowDiscardConfirm(false);
-          onClose();
-        }}
-      />
-    </>
+    <StudioShell
+      mode='create'
+      dashboardId={dashboardId}
+      publicHost={publicHost}
+      domain={domain}
+      form={form}
+      slugStatus={slugStatus}
+      preview={previewQuery.data ?? null}
+      previewError={previewQuery.isError}
+      previewDisabled={!previewQuery.data}
+      buttons={commitButtons}
+      busy={commitMutation.isPending}
+      isDirty={isDirty}
+      discardLabels={{
+        title: t('wizard.confirmDiscard.title'),
+        description: t('wizard.confirmDiscard.description'),
+        keep: t('wizard.confirmDiscard.keep'),
+        discard: t('wizard.confirmDiscard.discard'),
+      }}
+      onClose={onClose}
+      onMonitorCreated={() => previewQuery.refetch()}
+    />
   );
 }
 
