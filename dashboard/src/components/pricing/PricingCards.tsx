@@ -250,7 +250,7 @@ export function PricingCards({
             <CardDescription className='mt-2 min-h-10'>{plan.description}</CardDescription>
           </CardHeader>
           <CardContent className='flex flex-grow flex-col'>
-            <ul className='mb-6 flex-grow space-y-2'>
+            <ul className='mb-6 flex-grow space-y-3'>
               {plan.features.map((feature, idx) => {
                 if (typeof feature === 'string') {
                   return (
