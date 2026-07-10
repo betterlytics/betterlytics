@@ -52,7 +52,7 @@ export function SettingsTab({
             <SlugField
               id='sp-slug'
               value={form.slug}
-              onChange={form.setSlug}
+              onChange={(slug) => form.patch({ slug })}
               publicHost={publicHost}
               slugStatus={slugStatus}
               hint={t('publicUrlHint')}
@@ -73,7 +73,7 @@ export function SettingsTab({
                   hintPosition='top'
                   placeholder={`status.${dashboardDomain}`}
                   value={form.customDomain}
-                  onChange={form.setCustomDomain}
+                  onChange={(customDomain) => form.patch({ customDomain })}
                   disabled={locked}
                   error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
                 />
@@ -92,7 +92,7 @@ export function SettingsTab({
       </Section>
 
       <Section title={t('visibility.title')}>
-        <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
+        <VisibilityRadioGroup value={form.visibility} onChange={(visibility) => form.patch({ visibility })} />
       </Section>
 
       <Section title={t('dangerZone.title')}>

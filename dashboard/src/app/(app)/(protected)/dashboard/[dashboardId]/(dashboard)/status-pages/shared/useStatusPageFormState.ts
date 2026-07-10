@@ -51,197 +51,152 @@ export type StatusPageFormInitial = {
   monitorRows: MonitorRow[];
 };
 
-type StatusPageFormSnapshot = Omit<StatusPageFormInitial, 'logoUrl' | 'faviconUrl'>;
+export type StatusPageFormValues = {
+  name: string;
+  slug: string;
+  theme: StatusPageTheme;
+  accentColor: string;
+  showPastIncidents: boolean;
+  hideBranding: boolean;
+  visibility: StatusPageVisibility;
+  homepageUrl: string;
+  customDomain: string;
+  monitorRows: MonitorRow[];
+};
+
+function normalizeValues(initial: StatusPageFormInitial): StatusPageFormValues {
+  return {
+    name: initial.name,
+    slug: initial.slug,
+    theme: initial.theme,
+    accentColor: initial.accentColor,
+    showPastIncidents: initial.showPastIncidents,
+    hideBranding: initial.hideBranding ?? false,
+    visibility: initial.visibility,
+    homepageUrl: initial.homepageUrl ?? '',
+    customDomain: initial.customDomain ?? '',
+    monitorRows: initial.monitorRows,
+  };
+}
 
 export function useStatusPageFormState(initial: StatusPageFormInitial) {
-  const [name, setName] = useState(initial.name);
-  const [slug, setSlug] = useState(initial.slug);
-  const [theme, setTheme] = useState<StatusPageTheme>(initial.theme);
-  const [accentColor, setAccentColor] = useState(initial.accentColor);
-  const [showPastIncidents, setShowPastIncidents] = useState(initial.showPastIncidents);
-  const [hideBranding, setHideBranding] = useState(initial.hideBranding ?? false);
-  const [visibility, setVisibility] = useState<StatusPageVisibility>(initial.visibility);
-  const [homepageUrl, setHomepageUrl] = useState(initial.homepageUrl ?? '');
-  const [customDomain, setCustomDomain] = useState(initial.customDomain ?? '');
+  const [values, setValues] = useState<StatusPageFormValues>(() => normalizeValues(initial));
   const logo = useStagedImage(initial.logoUrl ?? null);
   const favicon = useStagedImage(initial.faviconUrl ?? null);
-  const [monitorRows, setMonitorRows] = useState<MonitorRow[]>(initial.monitorRows);
+
+  const patch = useCallback(
+    (partial: Partial<StatusPageFormValues>) => setValues((current) => ({ ...current, ...partial })),
+    [],
+  );
+
+  const setMonitorRows = useCallback(
+    (next: MonitorRow[] | ((rows: MonitorRow[]) => MonitorRow[])) =>
+      setValues((current) => ({
+        ...current,
+        monitorRows: typeof next === 'function' ? next(current.monitorRows) : next,
+      })),
+    [],
+  );
 
   const updateRow = useCallback(
-    (index: number, patch: Partial<MonitorRow>) =>
-      setMonitorRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row))),
+    (index: number, rowPatch: Partial<MonitorRow>) =>
+      setValues((current) => ({
+        ...current,
+        monitorRows: current.monitorRows.map((row, i) => (i === index ? { ...row, ...rowPatch } : row)),
+      })),
     [],
   );
 
   const reset = useCallback(
-    (values: StatusPageFormSnapshot) => {
-      setName(values.name);
-      setSlug(values.slug);
-      setTheme(values.theme);
-      setAccentColor(values.accentColor);
-      setShowPastIncidents(values.showPastIncidents);
-      setHideBranding(values.hideBranding ?? false);
-      setVisibility(values.visibility);
-      setHomepageUrl(values.homepageUrl ?? '');
-      setCustomDomain(values.customDomain ?? '');
-      setMonitorRows(values.monitorRows);
+    (next: StatusPageFormValues) => {
+      setValues(next);
       logo.reset();
       favicon.reset();
     },
     [logo, favicon],
   );
 
-  const includedCount = useMemo(() => monitorRows.filter((row) => row.included).length, [monitorRows]);
+  const includedCount = useMemo(
+    () => values.monitorRows.filter((row) => row.included).length,
+    [values.monitorRows],
+  );
 
   const monitorsPayload = useMemo(
     () =>
-      monitorRows
+      values.monitorRows
         .filter((row) => row.included)
         .map((row) => ({
           monitorCheckId: row.monitorCheckId,
           publicName: row.publicName.trim() || defaultPublicMonitorName(row),
         })),
-    [monitorRows],
+    [values.monitorRows],
   );
 
-  const isNameEmpty = name.trim().length === 0;
-  const isHomepageUrlValid = isValidHomepageUrl(homepageUrl);
-  const isCustomDomainValid = isValidCustomDomain(customDomain);
+  const isNameEmpty = values.name.trim().length === 0;
+  const isHomepageUrlValid = isValidHomepageUrl(values.homepageUrl);
+  const isCustomDomainValid = isValidCustomDomain(values.customDomain);
 
   const input = useMemo(
     () => ({
-      name: name.trim(),
-      slug,
-      theme,
-      accentColor,
-      showPastIncidents,
-      hideBranding,
-      visibility,
-      homepageUrl: homepageUrl.trim() || null,
-      customDomain: customDomain.trim() || null,
+      name: values.name.trim(),
+      slug: values.slug,
+      theme: values.theme,
+      accentColor: values.accentColor,
+      showPastIncidents: values.showPastIncidents,
+      hideBranding: values.hideBranding,
+      visibility: values.visibility,
+      homepageUrl: values.homepageUrl.trim() || null,
+      customDomain: values.customDomain.trim() || null,
       monitors: monitorsPayload,
     }),
-    [
-      name,
-      slug,
-      theme,
-      accentColor,
-      showPastIncidents,
-      hideBranding,
-      visibility,
-      homepageUrl,
-      customDomain,
-      monitorsPayload,
-    ],
-  );
-
-  const snapshot: StatusPageFormSnapshot = useMemo(
-    () => ({
-      name,
-      slug,
-      theme,
-      accentColor,
-      showPastIncidents,
-      hideBranding,
-      visibility,
-      homepageUrl,
-      customDomain,
-      monitorRows,
-    }),
-    [
-      name,
-      slug,
-      theme,
-      accentColor,
-      showPastIncidents,
-      hideBranding,
-      visibility,
-      homepageUrl,
-      customDomain,
-      monitorRows,
-    ],
+    [values, monitorsPayload],
   );
 
   // Stable identity across cosmetic edits so LivePreview's derivation memo only
   // recomputes when the monitor selection itself changes.
   const previewMonitors = useMemo(
     () =>
-      monitorRows.map((row) => ({
+      values.monitorRows.map((row) => ({
         monitorCheckId: row.monitorCheckId,
         included: row.included,
         publicName: row.publicName,
       })),
-    [monitorRows],
+    [values.monitorRows],
   );
 
   const previewDraft: PreviewDraft = useMemo(
     () => ({
-      name,
-      slug,
-      customDomain: customDomain.trim() || null,
-      theme,
-      accentColor,
+      name: values.name,
+      slug: values.slug,
+      customDomain: values.customDomain.trim() || null,
+      theme: values.theme,
+      accentColor: values.accentColor,
       logoUrl: logo.url,
       faviconUrl: favicon.url,
-      showPastIncidents,
-      hideBranding,
+      showPastIncidents: values.showPastIncidents,
+      hideBranding: values.hideBranding,
       monitors: previewMonitors,
     }),
-    [
-      name,
-      slug,
-      customDomain,
-      theme,
-      accentColor,
-      logo.url,
-      favicon.url,
-      showPastIncidents,
-      hideBranding,
-      previewMonitors,
-    ],
+    [values, logo.url, favicon.url, previewMonitors],
   );
 
   return {
-    name,
-    setName,
-    slug,
-    setSlug,
-    theme,
-    setTheme,
-    accentColor,
-    setAccentColor,
-    showPastIncidents,
-    setShowPastIncidents,
-    hideBranding,
-    setHideBranding,
-    visibility,
-    setVisibility,
-    homepageUrl,
-    setHomepageUrl,
-    customDomain,
-    setCustomDomain,
-    logoUrl: logo.url,
-    stageLogo: logo.stage,
-    removeLogo: logo.remove,
-    logoChange: logo.change,
-    commitLogo: logo.commit,
-    faviconUrl: favicon.url,
-    stageFavicon: favicon.stage,
-    removeFavicon: favicon.remove,
-    faviconChange: favicon.change,
-    commitFavicon: favicon.commit,
-    hasStagedImages: logo.dirty || favicon.dirty,
-    monitorRows,
+    ...values,
+    patch,
     setMonitorRows,
     updateRow,
     reset,
+    logo,
+    favicon,
+    hasStagedImages: logo.dirty || favicon.dirty,
     includedCount,
     isNameEmpty,
     isHomepageUrlValid,
     isCustomDomainValid,
     monitorsPayload,
     input,
-    snapshot,
+    /** The current values object; stable per render, so dirty checks can JSON-compare it. */
+    snapshot: values,
     previewDraft,
   };
 }

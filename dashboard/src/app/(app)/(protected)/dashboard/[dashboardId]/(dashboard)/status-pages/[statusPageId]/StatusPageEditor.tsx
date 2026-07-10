@@ -188,8 +188,8 @@ export function StatusPageEditor({
     },
     onSuccess: (page) => {
       if (page) {
-        form.commitLogo(page.logoUrl);
-        form.commitFavicon(page.faviconUrl);
+        form.logo.commit(page.logoUrl);
+        form.favicon.commit(page.faviconUrl);
       }
       markSaved();
       savedSnapshotRef.current = form.snapshot;

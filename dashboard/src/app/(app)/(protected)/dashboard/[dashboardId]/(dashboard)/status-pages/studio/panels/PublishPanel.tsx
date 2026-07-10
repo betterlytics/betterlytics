@@ -28,14 +28,14 @@ export function PublishPanel({ form, slugStatus, publicHost, domain }: PublishPa
       <SlugField
         id='studio-slug'
         value={form.slug}
-        onChange={form.setSlug}
+        onChange={(slug) => form.patch({ slug })}
         publicHost={publicHost}
         slugStatus={slugStatus}
       />
 
       <div className='space-y-2'>
         <Label>{t('visibility.title')}</Label>
-        <VisibilityRadioGroup value={form.visibility} onChange={form.setVisibility} />
+        <VisibilityRadioGroup value={form.visibility} onChange={(visibility) => form.patch({ visibility })} />
       </div>
 
       <div className='border-border bg-muted/40 text-muted-foreground flex items-start gap-2.5 rounded-lg border px-3.5 py-3 text-xs leading-relaxed'>

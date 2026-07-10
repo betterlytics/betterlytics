@@ -9,10 +9,10 @@ async function changeToInput(change: StagedImageChange): Promise<Uint8Array | nu
 }
 
 export async function collectStagedImages(
-  form: Pick<StatusPageFormState, 'logoChange' | 'faviconChange'>,
+  form: Pick<StatusPageFormState, 'logo' | 'favicon'>,
 ): Promise<StatusPageImagesInput> {
   return {
-    logo: await changeToInput(form.logoChange),
-    favicon: await changeToInput(form.faviconChange),
+    logo: await changeToInput(form.logo.change),
+    favicon: await changeToInput(form.favicon.change),
   };
 }

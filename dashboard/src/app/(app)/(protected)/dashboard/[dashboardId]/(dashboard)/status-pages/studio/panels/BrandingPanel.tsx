@@ -33,23 +33,23 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
           value={form.name}
           maxLength={STATUS_PAGE_LIMITS.NAME_MAX}
           aria-invalid={form.isNameEmpty}
-          onChange={(e) => form.setName(e.target.value)}
+          onChange={(e) => form.patch({ name: e.target.value })}
         />
         {form.isNameEmpty && <p className='text-destructive text-xs'>{t('nameRequired')}</p>}
       </div>
 
       <div className='grid grid-cols-2 gap-4'>
-        <ImageUploadField kind='logo' value={form.logoUrl} onSelect={form.stageLogo} onRemove={form.removeLogo} />
+        <ImageUploadField kind='logo' value={form.logo.url} onSelect={form.logo.stage} onRemove={form.logo.remove} />
         <ImageUploadField
           kind='favicon'
-          value={form.faviconUrl}
-          onSelect={form.stageFavicon}
-          onRemove={form.removeFavicon}
+          value={form.favicon.url}
+          onSelect={form.favicon.stage}
+          onRemove={form.favicon.remove}
         />
       </div>
 
-      <AccentColorField value={form.accentColor} onChange={form.setAccentColor} />
-      <ThemeField value={form.theme} onChange={form.setTheme} hint={t('studio.themeHint')} />
+      <AccentColorField value={form.accentColor} onChange={(accentColor) => form.patch({ accentColor })} />
+      <ThemeField value={form.theme} onChange={(theme) => form.patch({ theme })} hint={t('studio.themeHint')} />
 
       <LabeledTextField
         id='studio-homepage'
@@ -59,7 +59,7 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
         type='url'
         hintPosition='top'
         value={form.homepageUrl}
-        onChange={form.setHomepageUrl}
+        onChange={(homepageUrl) => form.patch({ homepageUrl })}
         error={form.isHomepageUrlValid ? null : t('homepageUrlInvalid')}
       />
 
@@ -74,7 +74,7 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
           <Switch
             id='studio-incidents'
             checked={form.showPastIncidents}
-            onCheckedChange={form.setShowPastIncidents}
+            onCheckedChange={(showPastIncidents) => form.patch({ showPastIncidents })}
             className='flex-none'
           />
         </div>
@@ -96,7 +96,7 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
                 checked={form.hideBranding}
                 onCheckedChange={(value) => {
                   if (locked) return;
-                  form.setHideBranding(value);
+                  form.patch({ hideBranding: value });
                 }}
                 disabled={locked}
                 className='flex-none'
