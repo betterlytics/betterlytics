@@ -1,14 +1,14 @@
 'use client';
 
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { ColorSwatchPicker as SharedColorSwatchPicker } from '@/components/ColorSwatchPicker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
-import { DateTimePicker24h } from '@/app/(app)/(protected)/dashboards/DateTimePicker';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { Label } from '@/components/ui/label';
 import {
@@ -85,6 +85,7 @@ const ColorSwatchPicker: React.FC<AnnotationColorSwatchPickerProps> = ({
 const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProps>(
   ({ onAddAnnotation, onUpdateAnnotation, onDeleteAnnotation }, ref) => {
     const t = useTranslations('components.annotations.dialogs');
+    const locale = useLocale();
     const colorPalette = Object.keys(ANNOTATION_COLOR_MAP) as AnnotationColorToken[];
     const defaultColorToken = DEFAULT_ANNOTATION_COLOR_TOKEN;
     const emptyForm: AnnotationFormState = {
@@ -219,9 +220,12 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               </div>
               <div className='grid gap-2'>
                 <Label className='text-sm font-medium'>{t('dateTimeLabel')}</Label>
-                <DateTimePicker24h
+                <DateTimePicker
                   value={createForm.date ?? new Date()}
-                  onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d ?? null }))}
+                  onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d }))}
+                  locale={locale}
+                  dateLabel={t('dateTimeLabel')}
+                  className='w-full'
                 />
               </div>
               <ColorSwatchPicker
@@ -289,9 +293,12 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               </div>
               <div className='grid gap-2'>
                 <Label className='text-sm font-medium'>{t('dateTimeLabel')}</Label>
-                <DateTimePicker24h
+                <DateTimePicker
                   value={editForm.date ?? new Date(selectedAnnotation?.date ?? Date.now())}
-                  onChange={(d) => setEditForm((prev) => ({ ...prev, date: d ?? null }))}
+                  onChange={(d) => setEditForm((prev) => ({ ...prev, date: d }))}
+                  locale={locale}
+                  dateLabel={t('dateTimeLabel')}
+                  className='w-full'
                 />
               </div>
               <ColorSwatchPicker

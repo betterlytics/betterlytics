@@ -4,6 +4,7 @@ import * as React from 'react';
 import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { resolveDateFnsLocale, type SupportedLanguages } from '@/constants/i18n';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -39,6 +40,10 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false);
   const hour12 = useDisplayHour12();
+  const dateFnsLocale = React.useMemo(
+    () => (locale ? resolveDateFnsLocale(locale as SupportedLanguages) : undefined),
+    [locale],
+  );
 
   const meridiem: 'AM' | 'PM' = value.getHours() >= 12 ? 'PM' : 'AM';
   const displayHour = hour12 ? ((value.getHours() + 11) % 12) + 1 : value.getHours();
@@ -110,13 +115,16 @@ export function DateTimePicker({
             onSelect={handleDaySelect}
             defaultMonth={value}
             autoFocus
+            locale={dateFnsLocale}
             className='[&_button]:cursor-pointer'
           />
           <div className='border-border flex flex-col border-t sm:border-t-0 sm:border-l'>
-            <div className='text-muted-foreground border-border border-b px-3 py-2 text-xs font-medium'>
-              {timeLabel}
-            </div>
-            <div className='divide-border flex divide-x'>
+            {timeLabel && (
+              <div className='text-muted-foreground border-border border-b px-3 py-2 text-xs font-medium'>
+                {timeLabel}
+              </div>
+            )}
+            <div className='divide-border flex divide-x max-sm:h-64 sm:h-0 sm:min-h-0 sm:grow'>
               <TimeColumn
                 options={hour12 ? TWELVE_HOURS : HOURS}
                 selected={displayHour}
@@ -160,7 +168,7 @@ function TimeColumn({
   }, [open]);
 
   return (
-    <ScrollArea className='h-64 w-14' aria-label={ariaLabel}>
+    <ScrollArea className='w-14' aria-label={ariaLabel}>
       <div className='flex flex-col gap-1 p-2'>
         {options.map((option) => (
           <Button
