@@ -1,6 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Minus, Monitor, Plus, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -10,16 +9,7 @@ import {
   LivePreview,
   type PreviewDraft,
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
-
-/** Logical page width the preview renders at, per device. Desktop matches the public page's max-w-3xl. */
-const DEVICE_WIDTH = { desktop: 768, mobile: 390 } as const;
-const ZOOM_MIN = 0.4;
-// Grid-aligned: the max must be a multiple of the step or clamping strands the zoom off-grid.
-const ZOOM_MAX = 1.2;
-const ZOOM_STEP = 0.1;
-const FIT_PADDING = 96;
-
-type Device = keyof typeof DEVICE_WIDTH;
+import { useStudioZoom } from './useStudioZoom';
 
 type StudioCanvasProps = {
   draft: PreviewDraft;
@@ -39,77 +29,7 @@ export function StudioCanvas({
   onEnlargedOpenChange,
 }: StudioCanvasProps) {
   const t = useTranslations('statusPagesPage.editor');
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [availableWidth, setAvailableWidth] = useState<number | null>(null);
-  const [device, setDevice] = useState<Device>('desktop');
-  /** null = fit-to-canvas (recomputes on resize); a number = user-pinned zoom. */
-  const [pinnedZoom, setPinnedZoom] = useState<number | null>(null);
-
-  useEffect(() => {
-    const node = containerRef.current;
-    if (!node) return;
-    const observer = new ResizeObserver((entries) => {
-      setAvailableWidth(entries[0]?.contentRect.width ?? null);
-    });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  const fitZoom = useMemo(() => {
-    if (availableWidth == null) return null;
-    const fit = (availableWidth - FIT_PADDING) / DEVICE_WIDTH[device];
-    return Math.min(1, Math.max(ZOOM_MIN, fit));
-  }, [availableWidth, device]);
-
-  // Pinch-to-zoom: trackpad pinches arrive as ctrlKey wheel events. Native non-passive
-  // listener because React's wheel handlers can't preventDefault the browser page-zoom.
-  useEffect(() => {
-    const node = containerRef.current;
-    if (!node) return;
-    const onWheel = (event: WheelEvent) => {
-      if (!event.ctrlKey && !event.metaKey) return;
-      event.preventDefault();
-      // Line-mode deltas (discrete mouse wheels on some browsers) are ~3 per notch vs ~100px.
-      const delta = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * 20 : event.deltaY;
-      setPinnedZoom((current) => {
-        const base = current ?? fitZoom ?? 1;
-        return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, base * Math.exp(-delta * 0.002)));
-      });
-    };
-    node.addEventListener('wheel', onWheel, { passive: false });
-    return () => node.removeEventListener('wheel', onWheel);
-  }, [fitZoom]);
-
-  const zoom = pinnedZoom ?? fitZoom;
-
-  const stepZoom = useCallback(
-    (direction: 1 | -1) => {
-      setPinnedZoom((current) => {
-        const base = current ?? fitZoom ?? 1;
-        // Snap to the 10% grid: stepping from an arbitrary fit value (92% → 100%, not 102%)
-        // always lands on round steps, in either direction. Epsilon guards float division.
-        const gridSteps =
-          direction === 1 ? Math.floor(base / ZOOM_STEP + 1e-6) + 1 : Math.ceil(base / ZOOM_STEP - 1e-6) - 1;
-        const next = Math.round(gridSteps * ZOOM_STEP * 100) / 100;
-        return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next));
-      });
-    },
-    [fitZoom],
-  );
-
-  const switchDevice = (next: Device) => {
-    setDevice(next);
-    // A pinned zoom was chosen for the old width; refit for the new one.
-    setPinnedZoom(null);
-  };
-
-  // Stable object identity: an inline literal would bust PreviewFrame's memo on every
-  // keystroke and re-render the whole page preview synchronously.
-  const frameStyle = useMemo(
-    () => (zoom != null ? { width: Math.round(DEVICE_WIDTH[device] * zoom) } : undefined),
-    [device, zoom],
-  );
+  const { containerRef, device, zoom, frameStyle, stepZoom, switchDevice, resetZoom } = useStudioZoom();
 
   return (
     <div
@@ -160,7 +80,7 @@ export function StudioCanvas({
           </button>
           <button
             type='button'
-            onClick={() => setPinnedZoom(null)}
+            onClick={resetZoom}
             title={t('studio.zoomFit')}
             className='text-foreground hover:bg-accent cursor-pointer rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums transition-colors'
           >

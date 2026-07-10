@@ -1,11 +1,9 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ExternalLink, Maximize2, Pencil } from 'lucide-react';
-import { toast } from 'sonner';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -23,16 +21,11 @@ import {
   useStatusPageFormState,
   type MonitorRow,
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
-import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { CopyButton } from '@/components/CopyButton';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
-import {
-  useDeleteStatusPageMutation,
-  useSetStatusPagePublishedMutation,
-} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageMutations';
-import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
+import { useStatusPageEditor } from './useStatusPageEditor';
 import { SettingsTab } from './tabs/SettingsTab';
 import { EditStatusPageStudio } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/studio/EditStatusPageStudio';
 
@@ -132,7 +125,6 @@ export function StatusPageEditor({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showStudio, setShowStudio] = useState(() => searchParams.get('studio') === '1');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -152,8 +144,6 @@ export function StatusPageEditor({
     excludeStatusPageId: statusPage.id,
     currentSlug: statusPage.slug,
   });
-
-  const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
 
   // 'studio' groups everything edited in the fullscreen studio (design/content);
   // 'settings' is what stays editable on this page (lifecycle settings).
@@ -179,54 +169,17 @@ export function StatusPageEditor({
 
   const { isDirty, dirty, markSaved } = useUnsavedChanges(sections);
 
-  const savedSnapshotRef = useRef(form.snapshot);
-
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      const images = await collectStagedImages(form);
-      return updateStatusPageAction(dashboardId, payload, images);
-    },
-    onSuccess: (page) => {
-      if (page) {
-        form.logo.commit(page.logoUrl);
-        form.favicon.commit(page.faviconUrl);
-      }
-      markSaved();
-      savedSnapshotRef.current = form.snapshot;
-      router.refresh();
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
-  });
-
-  const publishMutation = useSetStatusPagePublishedMutation(dashboardId, { onSuccess: () => router.refresh() });
-
-  const deleteMutation = useDeleteStatusPageMutation(dashboardId, {
-    onSuccess: () => router.push(`/dashboard/${dashboardId}/status-pages`),
-  });
-
-  const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
-
-  const saveNow = () => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) });
-  const studioSaveNow = () =>
-    saveMutation.mutate(undefined, {
-      onSuccess: () => {
-        toast.success(t('saved'));
-        closeStudio();
-      },
-    });
-
-  // Both save entry points share the publish-confirm gate; the ref remembers which one to run.
-  const pendingSaveRef = useRef<() => void>(saveNow);
-  const requestSave = (run: () => void) => {
-    if (statusPage.isPublished) {
-      pendingSaveRef.current = run;
-      setShowPublishConfirm(true);
-    } else {
-      run();
-    }
-  };
-  const handleSave = () => requestSave(saveNow);
-  const handleStudioSave = () => requestSave(studioSaveNow);
+  const {
+    saveMutation,
+    publishMutation,
+    deleteMutation,
+    handleDiscard,
+    handleSave,
+    handleStudioSave,
+    showPublishConfirm,
+    setShowPublishConfirm,
+    confirmPendingSave,
+  } = useStatusPageEditor({ dashboardId, statusPage, form, markSaved, closeStudio });
 
   const effectiveDirty = isDirty || form.hasStagedImages;
 
@@ -486,10 +439,7 @@ export function StatusPageEditor({
         title={t('confirmPublish.title')}
         description={t('confirmPublish.description')}
         confirmLabel={t('confirmPublish.confirm')}
-        onConfirm={() => {
-          setShowPublishConfirm(false);
-          pendingSaveRef.current();
-        }}
+        onConfirm={confirmPendingSave}
       />
 
       {showStudio && (
