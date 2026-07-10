@@ -6,6 +6,7 @@ import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/p
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
 import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlayHeader';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
 import { StudioTabs, type StudioTab } from './StudioTabs';
 import { StudioCanvas } from './StudioCanvas';
 import { MonitorsPanel } from './panels/MonitorsPanel';
@@ -57,12 +58,7 @@ export function StatusPageStudio({
   );
   const [activeTab, setActiveTab] = useState<StudioTab>(initialTab ?? 'monitors');
 
-  const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
-  const issues: Partial<Record<StudioTab, boolean>> = {
-    monitors: form.includedCount === 0,
-    branding: form.isNameEmpty || !form.isHomepageUrlValid,
-    publish: slugBlocked || !form.isCustomDomainValid,
-  };
+  const { tabIssues } = useStatusPageValidation(form, slugStatus);
 
   return (
     <>
@@ -85,7 +81,7 @@ export function StatusPageStudio({
       <div className='flex min-h-0 flex-1 overflow-hidden'>
         <div className='border-border flex w-full min-w-0 flex-col lg:w-[480px] lg:flex-none lg:border-r'>
           <div className='px-5 pt-5 sm:px-6'>
-            <StudioTabs tabs={tabs} active={activeTab} onChange={setActiveTab} issues={issues} />
+            <StudioTabs tabs={tabs} active={activeTab} onChange={setActiveTab} issues={tabIssues} />
           </div>
           <div className='min-h-0 flex-1 overflow-y-auto px-5 pt-8 pb-6 sm:px-6'>
             {activeTab === 'monitors' && <MonitorsPanel form={form} onCreateMonitor={onCreateMonitor} />}

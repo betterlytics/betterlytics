@@ -26,6 +26,7 @@ import {
   useStatusPageFormState,
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
+import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
 import { StatusPageStudio } from './StatusPageStudio';
 
 type StudioDefaults = Awaited<ReturnType<typeof suggestStatusPageDefaultsAction>>;
@@ -92,26 +93,10 @@ function StudioForm({
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
-  const hasMonitors = form.includedCount > 0;
-  const canCommit =
-    hasMonitors &&
-    !form.isNameEmpty &&
-    !slugBlocked &&
-    form.isHomepageUrlValid &&
-    form.isCustomDomainValid &&
-    !commitMutation.isPending;
-  const commitBlockReason = !hasMonitors
-    ? t('wizard.minMonitors')
-    : form.isNameEmpty
-      ? t('nameRequired')
-      : slugBlocked
-        ? t(`slugStatus.${slugStatus}`)
-        : !form.isHomepageUrlValid
-          ? t('homepageUrlInvalid')
-          : !form.isCustomDomainValid
-            ? t('customDomainInvalid')
-            : null;
+  const { pageInvalid, blockedReason: commitBlockReason } = useStatusPageValidation(form, slugStatus, {
+    monitorsMessage: t('wizard.minMonitors'),
+  });
+  const canCommit = !pageInvalid && !commitMutation.isPending;
   const submittingPublish = commitMutation.isPending && commitMutation.variables === true;
   const submittingDraft = commitMutation.isPending && commitMutation.variables === false;
 

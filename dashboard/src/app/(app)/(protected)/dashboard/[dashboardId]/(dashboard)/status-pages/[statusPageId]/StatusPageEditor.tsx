@@ -26,6 +26,7 @@ import {
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
+import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
 import {
   deleteStatusPageAction,
   setStatusPagePublishedAction,
@@ -260,25 +261,10 @@ export function StatusPageEditor({
     { slug: statusPage.slug, customDomain: statusPage.customDomain },
     publicBaseUrl,
   );
-  const noMonitors = form.includedCount === 0;
-  const slugNotSaveable = slugStatus === 'checking' || slugStatus === 'taken' || slugStatus === 'invalid';
-  const pageInvalid =
-    form.isNameEmpty || noMonitors || slugNotSaveable || !form.isHomepageUrlValid || !form.isCustomDomainValid;
+  const { noMonitors, pageInvalid, blockedReason: saveBlockedReason } = useStatusPageValidation(form, slugStatus);
   const saveDisabled = !effectiveDirty || pageInvalid;
   const publishBlocked = effectiveDirty || pageInvalid;
   const publishBlockedReason = effectiveDirty ? t('publishNeedsSave') : t('minMonitorsHint');
-  // First validation failure, for the studio's disabled-Save tooltip (a save persists the whole form).
-  const saveBlockedReason = noMonitors
-    ? t('minMonitorsHint')
-    : form.isNameEmpty
-      ? t('nameRequired')
-      : slugNotSaveable
-        ? t(`slugStatus.${slugStatus}`)
-        : !form.isHomepageUrlValid
-          ? t('homepageUrlInvalid')
-          : !form.isCustomDomainValid
-            ? t('customDomainInvalid')
-            : null;
 
   const copyUrl = () => {
     navigator.clipboard.writeText(publicUrl);
