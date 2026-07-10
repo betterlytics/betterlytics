@@ -537,7 +537,8 @@ model StatusPageIncident {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@index([statusPageId])
+  @@index([statusPageId, startedAt])
+  @@index([dashboardId, status])
 }
 
 // Timeline of an incident's status updates (the first is seeded on create). The parent
