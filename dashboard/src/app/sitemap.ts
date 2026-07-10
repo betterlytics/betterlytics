@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
-import { getCompetitorSlugs } from './[locale]/(public)/vs/[competitor]/config';
+import { getCompetitorSlugs } from './(app)/[locale]/(public)/vs/[competitor]/config';
 
 type PageCfg = {
   path: string;
