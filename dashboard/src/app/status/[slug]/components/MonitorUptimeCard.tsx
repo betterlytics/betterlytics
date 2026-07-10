@@ -35,7 +35,7 @@ export function MonitorUptimeCard({ data }: { data: PublicStatusPageData }) {
   const t = useTranslations('publicStatusPage');
 
   return (
-    <div className='overflow-hidden rounded-xl border border-[var(--sp-card-border)] bg-[var(--sp-card-bg)] [box-shadow:var(--sp-card-shadow)]'>
+    <div>
       {data.monitors.map((monitor) => {
         const StatusIcon = STATUS_ICON[monitor.status];
         return (

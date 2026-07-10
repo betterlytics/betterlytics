@@ -6,8 +6,10 @@ import { useTranslations } from 'next-intl';
 import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { accentForeground } from '@/components/statusPage/StatusPageBrandAvatar';
+import { cn } from '@/lib/utils';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';
+import { BrandHeader } from './BrandHeader';
 import { Incidents } from './Incidents';
 import { MonitorUptimeCard } from './MonitorUptimeCard';
 import { StatusHero } from './StatusHero';
@@ -48,20 +50,33 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
         } as CSSProperties
       }
     >
-      <StatusHero
+      <BrandHeader
         name={data.name}
         logoUrl={data.logoUrl}
         homepageUrl={data.homepageUrl}
-        overallStatus={data.overallStatus}
-        bannerLabel={t(`banner.${data.overallStatus}`)}
-        subTextLabel={subTextLabel}
+        tall={data.monitors.length > 0}
       />
       <main className='mx-auto w-full max-w-3xl px-4 pb-10 @min-[640px]:px-8'>
-        {data.monitors.length > 0 && (
-          <div className='-mt-11'>
-            <MonitorUptimeCard data={data} />
-          </div>
-        )}
+        {/* Overlap sized so the band edge lands inside the first monitor row (the hero
+            above it is ~190px), mirroring the tall pb on the band. */}
+        <div
+          className={cn(
+            'rounded-xl [box-shadow:var(--sp-card-shadow)]',
+            data.monitors.length > 0 ? '-mt-59' : '-mt-11',
+          )}
+        >
+          <StatusHero
+            overallStatus={data.overallStatus}
+            bannerLabel={t(`banner.${data.overallStatus}`)}
+            subTextLabel={subTextLabel}
+            className={cn('rounded-t-xl', data.monitors.length > 0 ? 'border-b-0' : 'rounded-b-xl')}
+          />
+          {data.monitors.length > 0 && (
+            <div className='overflow-hidden rounded-b-xl border border-t-0 border-[var(--sp-card-border)] bg-[var(--sp-card-bg)]'>
+              <MonitorUptimeCard data={data} />
+            </div>
+          )}
+        </div>
         {data.incidents !== null && <Incidents data={data} />}
         {!data.hideBranding && (
           <footer className='mt-8 text-center text-sm text-[var(--sp-muted)]'>

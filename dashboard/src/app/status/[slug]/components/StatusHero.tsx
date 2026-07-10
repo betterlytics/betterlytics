@@ -1,73 +1,46 @@
 import { Check, Minus, TriangleAlert, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { PublicOverallStatus } from '@/entities/analytics/statusPage/publicStatusPage.entities';
+import { cn } from '@/lib/utils';
 
-const STATUS_BAND: Record<PublicOverallStatus, { Icon: LucideIcon; band: string | null; glyph: string }> = {
-  operational: { Icon: Check, band: null, glyph: 'var(--sp-accent)' },
-  degraded: { Icon: TriangleAlert, band: '#d97706', glyph: '#d97706' },
-  partial_outage: { Icon: TriangleAlert, band: '#ea580c', glyph: '#ea580c' },
-  outage: { Icon: X, band: '#dc2626', glyph: '#dc2626' },
-  unknown: { Icon: Minus, band: null, glyph: '#9ca3af' },
+const STATUS_HERO: Record<PublicOverallStatus, { Icon: LucideIcon; color: string }> = {
+  operational: { Icon: Check, color: '#16a34a' },
+  degraded: { Icon: TriangleAlert, color: '#d97706' },
+  partial_outage: { Icon: TriangleAlert, color: '#ea580c' },
+  outage: { Icon: X, color: '#dc2626' },
+  unknown: { Icon: Minus, color: '#6b7280' },
 };
 
 type StatusHeroProps = {
-  name: string;
-  logoUrl: string | null;
-  homepageUrl: string | null;
   overallStatus: PublicOverallStatus;
   bannerLabel: string;
   subTextLabel: string;
+  /** Rounding + border-side tweaks from the combined card (e.g. no bottom border/rounding
+      when the monitor section continues the card below). */
+  className?: string;
 };
 
-export function StatusHero({
-  name,
-  logoUrl,
-  homepageUrl,
-  overallStatus,
-  bannerLabel,
-  subTextLabel,
-}: StatusHeroProps) {
-  const { Icon, band, glyph } = STATUS_BAND[overallStatus];
-  const bandForeground = band ? '#ffffff' : 'var(--sp-accent-foreground)';
-  const disc = band ? '#ffffff' : 'var(--sp-accent-foreground)';
-
-  const brand = logoUrl ? (
-    // eslint-disable-next-line @next/next/no-img-element -- served from our image route, or a client-side blob preview in the editor; already a small resized WebP, so next/image adds nothing
-    <img src={logoUrl} alt={name} className='h-16 w-auto max-w-[60cqw] object-contain @min-[640px]:max-w-xs' />
-  ) : (
-    <span className='truncate text-xl font-bold tracking-tight'>{name}</span>
-  );
+/** Status-colored top section of the combined status card. Carries the incident
+    color so the brand band above never has to change. Its border is a translucent
+    wash of the status color rather than the card border. */
+export function StatusHero({ overallStatus, bannerLabel, subTextLabel, className }: StatusHeroProps) {
+  const { Icon, color } = STATUS_HERO[overallStatus];
 
   return (
-    <header style={{ backgroundColor: band ?? 'var(--sp-accent)', color: bandForeground }}>
-      <div className='mx-auto flex w-full max-w-3xl items-center px-4 pt-7 @min-[640px]:px-8'>
-        {homepageUrl ? (
-          <a
-            href={homepageUrl}
-            className='min-w-0 rounded-sm transition-opacity outline-none hover:opacity-80 focus-visible:opacity-80'
-          >
-            {brand}
-          </a>
-        ) : (
-          brand
-        )}
-      </div>
-      <div className='px-4 pt-10 pb-19 text-center @min-[640px]:px-8'>
-        <span
-          className='inline-flex h-13 w-13 items-center justify-center rounded-full'
-          style={{ backgroundColor: disc, boxShadow: `0 0 0 8px color-mix(in srgb, ${disc} 18%, transparent)` }}
-        >
-          <Icon size={28} strokeWidth={3} style={{ color: glyph }} aria-hidden />
-        </span>
-        <h1 className='mt-5 text-[28px] leading-tight font-bold tracking-tight'>{bannerLabel}</h1>
-        <p
-          suppressHydrationWarning
-          className='mt-2 text-[13px]'
-          style={{ color: `color-mix(in srgb, ${bandForeground} 78%, transparent)` }}
-        >
-          {subTextLabel}
-        </p>
-      </div>
-    </header>
+    <div
+      className={cn('border bg-clip-padding px-4 py-8 text-center text-white @min-[640px]:px-8', className)}
+      style={{ backgroundColor: color, borderColor: `color-mix(in srgb, ${color} 55%, transparent)` }}
+    >
+      <span
+        className='inline-flex h-13 w-13 items-center justify-center rounded-full bg-white'
+        style={{ boxShadow: '0 0 0 8px rgba(255, 255, 255, 0.18)' }}
+      >
+        <Icon size={28} strokeWidth={3} style={{ color }} aria-hidden />
+      </span>
+      <h1 className='mt-4 text-2xl leading-tight font-bold tracking-tight'>{bannerLabel}</h1>
+      <p suppressHydrationWarning className='mt-2 text-[13px] text-white/80'>
+        {subTextLabel}
+      </p>
+    </div>
   );
 }
