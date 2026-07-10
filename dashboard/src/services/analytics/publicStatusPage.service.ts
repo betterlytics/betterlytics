@@ -12,7 +12,7 @@ import {
   type StatusPagePreviewPayload,
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
-import type { MonitorStatus } from '@/entities/analytics/monitoring.entities';
+import type { MonitorCheck, MonitorStatus } from '@/entities/analytics/monitoring.entities';
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import {
   deriveOverallUptime,
@@ -74,6 +74,13 @@ export async function getStatusPagePreviewData(
   ]);
   if (!snapshot) return null;
 
+  return assembleStatusPagePreview(snapshot, allMonitors);
+}
+
+export async function assembleStatusPagePreview(
+  snapshot: PublishedStatusPage,
+  allMonitors: MonitorCheck[],
+): Promise<StatusPagePreviewPayload> {
   const selectionByMonitorId = new Map(snapshot.monitors.map((monitor) => [monitor.monitorCheckId, monitor]));
 
   const previewSnapshot: PublishedStatusPage = {
