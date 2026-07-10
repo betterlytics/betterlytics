@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
 import type { StatusPageTheme } from '@/entities/analytics/statusPage/statusPage.entities';
 import type { PublicDailyUptimeBucket } from '@/entities/analytics/statusPage/publicStatusPage.entities';
@@ -31,33 +32,34 @@ type UptimeBarsProps = {
 export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel, locale, theme }: UptimeBarsProps) {
   const t = useTranslations('publicStatusPage');
 
-  const cells = (buckets: PublicDailyUptimeBucket[]) =>
-    buckets.map((day) => {
-      // date is yyyy-mm-dd, UTC bucketed — format in UTC so it never shifts a day per visitor timezone.
-      const dateLabel =
-        formatLocalDateTime(day.date, locale, { dateStyle: 'medium', timeZone: 'UTC' }) ?? day.date;
-      const description =
-        day.upRatio == null ? t('noData') : t('uptimeValue', { uptime: formatUptime(day.upRatio * 100, locale) });
+  // Cells older than the compact window hide via CSS on narrow widths, so the
+  // tooltip set (one Radix root per day) mounts once instead of full + compact copies.
+  const compactStart = Math.max(0, days.length - UPTIME_BARS_COMPACT_DAYS);
+  const cells = days.map((day, index) => {
+    // date is yyyy-mm-dd, UTC bucketed — format in UTC so it never shifts a day per visitor timezone.
+    const dateLabel = formatLocalDateTime(day.date, locale, { dateStyle: 'medium', timeZone: 'UTC' }) ?? day.date;
+    const description =
+      day.upRatio == null ? t('noData') : t('uptimeValue', { uptime: formatUptime(day.upRatio * 100, locale) });
 
-      return (
-        <UptimeBarTooltip key={day.date} title={dateLabel} description={description} theme={theme}>
-          <span
-            suppressHydrationWarning
-            aria-label={`${dateLabel} · ${description}`}
-            className='h-7 min-w-0 flex-1 rounded-[2px] transition-[filter] hover:brightness-110'
-            style={{ backgroundColor: cellColor(day.upRatio) }}
-          />
-        </UptimeBarTooltip>
-      );
-    });
+    return (
+      <UptimeBarTooltip key={day.date} title={dateLabel} description={description} theme={theme}>
+        <span
+          suppressHydrationWarning
+          aria-label={`${dateLabel} · ${description}`}
+          className={cn(
+            'h-7 min-w-0 flex-1 rounded-[2px] transition-[filter] hover:brightness-110',
+            index < compactStart && 'hidden @min-[640px]:block',
+          )}
+          style={{ backgroundColor: cellColor(day.upRatio) }}
+        />
+      </UptimeBarTooltip>
+    );
+  });
 
   return (
     <>
       {/* 90 cells get too cramped on narrow widths so we collapse to the most recent 45 */}
-      <div className='mt-2 hidden gap-[2px] @min-[640px]:flex'>
-        {cells(days)}
-      </div>
-      <div className='mt-3 flex gap-[2px] @min-[640px]:hidden'>{cells(days.slice(-UPTIME_BARS_COMPACT_DAYS))}</div>
+      <div className='mt-3 flex gap-[2px] @min-[640px]:mt-2'>{cells}</div>
       <div className='mt-2 flex justify-between text-xs text-[var(--sp-muted)]'>
         <span className='hidden @min-[640px]:inline'>{startLabelFull}</span>
         <span className='@min-[640px]:hidden'>{startLabelCompact}</span>

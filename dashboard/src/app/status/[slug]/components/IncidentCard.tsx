@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type {
   PublicStatusPageIncident,
@@ -40,7 +40,7 @@ function scrollToMonitor(key: string) {
   row.classList.add('bl-monitor-flash');
 }
 
-export function IncidentCard({
+export const IncidentCard = memo(function IncidentCard({
   incident,
   monitorKeyByName,
 }: {
@@ -213,4 +213,4 @@ export function IncidentCard({
       ) : null}
     </article>
   );
-}
+});

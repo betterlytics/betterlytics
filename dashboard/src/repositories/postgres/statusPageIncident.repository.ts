@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import prisma from '@/lib/postgres';
 import {
   StatusPageIncidentSchema,
@@ -117,11 +117,18 @@ export async function applyStatusPageIncidentChanges(
     if (metadata) {
       await tx.statusPageIncident.update({ where: { id: incidentId }, data: metadata });
     }
-    for (const edit of editedUpdates) {
-      await tx.statusPageIncidentUpdate.updateMany({
-        where: { id: edit.updateId, incidentId },
-        data: { message: edit.message },
-      });
+    if (editedUpdates.length > 0) {
+      // One UPDATE ... FROM (VALUES ...) instead of a round trip per edited message.
+      // The incidentId guard keeps ids belonging to other incidents inert, like the
+      // per-row updateMany filter it replaces.
+      await tx.$executeRaw`
+        UPDATE "StatusPageIncidentUpdate" AS u
+        SET "message" = v."message"
+        FROM (VALUES ${Prisma.join(
+          editedUpdates.map((edit) => Prisma.sql`(${edit.updateId}::text, ${edit.message}::text)`),
+        )}) AS v("id", "message")
+        WHERE u."id" = v."id" AND u."incidentId" = ${incidentId}
+      `;
     }
     if (newUpdates.length > 0) {
       await tx.statusPageIncidentUpdate.createMany({

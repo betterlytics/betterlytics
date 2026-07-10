@@ -162,6 +162,18 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     ],
   );
 
+  // Stable identity across cosmetic edits so LivePreview's derivation memo only
+  // recomputes when the monitor selection itself changes.
+  const previewMonitors = useMemo(
+    () =>
+      monitorRows.map((row) => ({
+        monitorCheckId: row.monitorCheckId,
+        included: row.included,
+        publicName: row.publicName,
+      })),
+    [monitorRows],
+  );
+
   const previewDraft: PreviewDraft = useMemo(
     () => ({
       name,
@@ -173,11 +185,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       faviconUrl: favicon.url,
       showPastIncidents,
       hideBranding,
-      monitors: monitorRows.map((row) => ({
-        monitorCheckId: row.monitorCheckId,
-        included: row.included,
-        publicName: row.publicName,
-      })),
+      monitors: previewMonitors,
     }),
     [
       name,
@@ -189,7 +197,7 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
       favicon.url,
       showPastIncidents,
       hideBranding,
-      monitorRows,
+      previewMonitors,
     ],
   );
 

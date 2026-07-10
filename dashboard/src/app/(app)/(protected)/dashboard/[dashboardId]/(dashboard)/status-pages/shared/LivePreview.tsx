@@ -142,9 +142,16 @@ export function LivePreview({
   const open = enlargedOpen ?? internalOpen;
   const setOpen = onEnlargedOpenChange ?? setInternalOpen;
 
-  const data = useMemo<PublicStatusPageData>(() => {
-    const indexByCheckId = new Map(payload.monitorCheckIds.map((checkId, index) => [checkId, index]));
-    const includedRows = draft.monitors.filter((row) => row.included);
+  const indexByCheckId = useMemo(
+    () => new Map(payload.monitorCheckIds.map((checkId, index) => [checkId, index])),
+    [payload.monitorCheckIds],
+  );
+
+  // The expensive monitor/incident derivation only depends on the monitor selection,
+  // so cosmetic edits (name, colors, theme) skip it and just re-run the overlay below.
+  const draftMonitors = draft.monitors;
+  const derived = useMemo(() => {
+    const includedRows = draftMonitors.filter((row) => row.included);
 
     const bases = includedRows.map((row) => {
       const index = indexByCheckId.get(row.monitorCheckId);
@@ -192,9 +199,18 @@ export function LivePreview({
       return { ...incident, monitorPublicNames };
     });
 
+    return {
+      monitors,
+      overallStatus,
+      overallUptime: deriveOverallUptime(monitors.map((monitor) => monitor.uptime)),
+      publishedIncidents,
+    };
+  }, [payload, indexByCheckId, draftMonitors]);
+
+  const data = useMemo<PublicStatusPageData>(() => {
     const visibleIncidents = draft.showPastIncidents
-      ? publishedIncidents
-      : publishedIncidents.filter((incident) => incident.resolvedAt == null);
+      ? derived.publishedIncidents
+      : derived.publishedIncidents.filter((incident) => incident.resolvedAt == null);
     const incidents = draft.showPastIncidents || visibleIncidents.length > 0 ? visibleIncidents : null;
 
     return {
@@ -211,12 +227,12 @@ export function LivePreview({
         : payload.data.accentColor,
       hideBranding: draft.hideBranding,
       showPastIncidents: draft.showPastIncidents,
-      overallStatus,
-      overallUptime: deriveOverallUptime(monitors.map((monitor) => monitor.uptime)),
-      monitors,
+      overallStatus: derived.overallStatus,
+      overallUptime: derived.overallUptime,
+      monitors: derived.monitors,
       incidents,
     };
-  }, [payload, draft]);
+  }, [payload, draft, derived]);
 
   const frame = (
     <PreviewFrame

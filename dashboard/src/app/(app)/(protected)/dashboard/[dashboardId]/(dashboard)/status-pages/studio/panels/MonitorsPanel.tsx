@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Plus, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,16 +35,26 @@ export function MonitorsPanel({ form, onCreateMonitor }: MonitorsPanelProps) {
     form.setMonitorRows((rows) => rows.map((row) => ({ ...row, included: checked })));
 
   const normalizedSearch = search.trim().toLowerCase();
-  const filteredRows = normalizedSearch
-    ? form.monitorRows.filter(
-        (row) =>
-          (row.name ?? '').toLowerCase().includes(normalizedSearch) ||
-          row.url.toLowerCase().includes(normalizedSearch),
-      )
-    : form.monitorRows;
+  const filteredRows = useMemo(
+    () =>
+      normalizedSearch
+        ? form.monitorRows.filter(
+            (row) =>
+              (row.name ?? '').toLowerCase().includes(normalizedSearch) ||
+              row.url.toLowerCase().includes(normalizedSearch),
+          )
+        : form.monitorRows,
+    [form.monitorRows, normalizedSearch],
+  );
 
-  const includedRows = form.monitorRows.filter((row) => row.included);
-  const excludedRows = form.monitorRows.filter((row) => !row.included);
+  const { includedRows, excludedRows, indexByCheckId } = useMemo(
+    () => ({
+      includedRows: form.monitorRows.filter((row) => row.included),
+      excludedRows: form.monitorRows.filter((row) => !row.included),
+      indexByCheckId: new Map(form.monitorRows.map((row, index) => [row.monitorCheckId, index])),
+    }),
+    [form.monitorRows],
+  );
 
   if (form.monitorRows.length === 0) {
     return (
@@ -98,7 +108,7 @@ export function MonitorsPanel({ form, onCreateMonitor }: MonitorsPanelProps) {
             </div>
           ) : (
             filteredRows.map((row) => {
-              const index = form.monitorRows.findIndex((r) => r.monitorCheckId === row.monitorCheckId);
+              const index = indexByCheckId.get(row.monitorCheckId) ?? -1;
               const presentation = row.operationalState ? presentMonitorStatus(row.operationalState) : null;
               return (
                 <label
@@ -176,10 +186,7 @@ export function MonitorsPanel({ form, onCreateMonitor }: MonitorsPanelProps) {
                 key={row.monitorCheckId}
                 row={row}
                 onPublicNameChange={(publicName) =>
-                  form.updateRow(
-                    form.monitorRows.findIndex((r) => r.monitorCheckId === row.monitorCheckId),
-                    { publicName },
-                  )
+                  form.updateRow(indexByCheckId.get(row.monitorCheckId) ?? -1, { publicName })
                 }
               />
             ))}

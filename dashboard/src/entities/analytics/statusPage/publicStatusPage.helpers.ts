@@ -70,6 +70,12 @@ function impactToMonitorStatus(impact: StatusPageIncidentImpact): PublicMonitorS
   return impact === 'degraded' ? 'degraded' : 'down';
 }
 
+const IMPACT_TO_OVERALL_STATUS: Record<StatusPageIncidentImpact, PublicOverallStatus> = {
+  degraded: 'degraded',
+  partial_outage: 'partial_outage',
+  outage: 'outage',
+};
+
 function escalateMonitorStatus(
   base: PublicMonitorStatus,
   impact: StatusPageIncidentImpact | undefined,
@@ -84,7 +90,7 @@ function escalateOverallStatus(
   impact: StatusPageIncidentImpact | undefined,
 ): PublicOverallStatus {
   if (impact == null) return base;
-  const fromImpact = impact as PublicOverallStatus;
+  const fromImpact = IMPACT_TO_OVERALL_STATUS[impact];
   return OVERALL_STATUS_SEVERITY[fromImpact] > OVERALL_STATUS_SEVERITY[base] ? fromImpact : base;
 }
 

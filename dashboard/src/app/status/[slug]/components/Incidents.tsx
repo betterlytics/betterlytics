@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import type {
@@ -15,14 +15,20 @@ export function Incidents({ data }: { data: PublicStatusPageData }) {
   const days = STATUS_PAGE_LIMITS.UPTIME_WINDOW_DAYS;
   const [pastExpanded, setPastExpanded] = useState(false);
 
-  const all = data.incidents ?? [];
-  const active = all.filter((incident) => incident.resolvedAt == null);
-  // Newest first from the server, so slicing keeps the most recent ones.
-  const past = all.filter((incident) => incident.resolvedAt != null).slice(0, MAX_PAST_INCIDENTS);
+  const { active, past } = useMemo(() => {
+    const all = data.incidents ?? [];
+    return {
+      active: all.filter((incident) => incident.resolvedAt == null),
+      // Newest first from the server, so slicing keeps the most recent ones.
+      past: all.filter((incident) => incident.resolvedAt != null).slice(0, MAX_PAST_INCIDENTS),
+    };
+  }, [data.incidents]);
 
   // Lets an incident's affected-monitor chip scroll to that monitor's uptime row above.
-  const monitorKeyByName = new Map(
-    data.monitors.map((monitor): [string, string] => [monitor.publicName, monitor.key]),
+  // Memoized so the expand/collapse re-render keeps IncidentCard's memo intact.
+  const monitorKeyByName = useMemo(
+    () => new Map(data.monitors.map((monitor): [string, string] => [monitor.publicName, monitor.key])),
+    [data.monitors],
   );
 
   const renderCards = (incidents: PublicStatusPageIncident[], keyPrefix: string) => (

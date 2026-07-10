@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -370,40 +370,46 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  const openWith = (
-    next: IncidentForm,
-    nextComposer: Composer,
-    status: StatusPageIncidentStatusValue,
-    pending: PendingUpdate[] = [],
-  ) => {
-    setForm(next);
-    setInitialForm(next);
-    setComposer(nextComposer);
-    setPendingUpdates(pending);
-    setInitialPendingUpdates(pending);
-    setIncidentStatus(status);
-    setEditingUpdateId(null);
-    setEditedUpdates({});
-    setDeletedUpdateIds([]);
-    setTitleTouched(false);
-    setComposerError(false);
-    setOpen(true);
-  };
+  const openWith = useCallback(
+    (
+      next: IncidentForm,
+      nextComposer: Composer,
+      status: StatusPageIncidentStatusValue,
+      pending: PendingUpdate[] = [],
+    ) => {
+      setForm(next);
+      setInitialForm(next);
+      setComposer(nextComposer);
+      setPendingUpdates(pending);
+      setInitialPendingUpdates(pending);
+      setIncidentStatus(status);
+      setEditingUpdateId(null);
+      setEditedUpdates({});
+      setDeletedUpdateIds([]);
+      setTitleTouched(false);
+      setComposerError(false);
+      setOpen(true);
+    },
+    [],
+  );
 
   const openCreate = () => openWith(emptyForm(), emptyComposer(), 'investigating');
 
-  const openEdit = (incident: StatusPageIncident) =>
-    openWith(
-      {
-        id: incident.id,
-        detectedIncidentId: incident.detectedIncidentId,
-        title: incident.title,
-        impact: incident.impact,
-        monitorCheckIds: incident.monitorCheckIds,
-      },
-      { ...emptyComposer(), status: incident.status },
-      incident.status,
-    );
+  const openEdit = useCallback(
+    (incident: StatusPageIncident) =>
+      openWith(
+        {
+          id: incident.id,
+          detectedIncidentId: incident.detectedIncidentId,
+          title: incident.title,
+          impact: incident.impact,
+          monitorCheckIds: incident.monitorCheckIds,
+        },
+        { ...emptyComposer(), status: incident.status },
+        incident.status,
+      ),
+    [openWith],
+  );
 
   const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
     const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
@@ -453,28 +459,43 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     [monitors],
   );
 
-  const affectedNames = (incident: StatusPageIncident): string[] =>
-    incident.monitorCheckIds.map((id) => monitorNameById.get(id)).filter((name): name is string => name != null);
+  const affectedNames = useCallback(
+    (incident: StatusPageIncident): string[] =>
+      incident.monitorCheckIds.map((id) => monitorNameById.get(id)).filter((name): name is string => name != null),
+    [monitorNameById],
+  );
 
-  const affectedLabel = (incident: StatusPageIncident): string => {
-    const names = affectedNames(incident);
-    return names.length > 0 ? names.join(', ') : t('unspecified');
-  };
+  const affectedLabel = useCallback(
+    (incident: StatusPageIncident): string => {
+      const names = affectedNames(incident);
+      return names.length > 0 ? names.join(', ') : t('unspecified');
+    },
+    [affectedNames, t],
+  );
 
-  const startedLabel = (incident: StatusPageIncident): string =>
-    formatLocalDateTime(incident.startedAt, locale, { month: 'short', day: 'numeric', year: 'numeric' }) ?? '';
+  const startedLabel = useCallback(
+    (incident: StatusPageIncident): string =>
+      formatLocalDateTime(incident.startedAt, locale, { month: 'short', day: 'numeric', year: 'numeric' }) ?? '',
+    [locale],
+  );
 
-  const durationMsOf = (incident: StatusPageIncident): number =>
-    incident.resolvedAt
-      ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
-      : Date.now() - new Date(incident.startedAt).getTime();
+  const durationMsOf = useCallback(
+    (incident: StatusPageIncident): number =>
+      incident.resolvedAt
+        ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
+        : Date.now() - new Date(incident.startedAt).getTime(),
+    [],
+  );
 
-  const durationLabel = (incident: StatusPageIncident): string => {
-    if (incident.resolvedAt) {
-      return t('lasted', { duration: formatElapsedTime(new Date(Date.now() - durationMsOf(incident)), locale) });
-    }
-    return t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
-  };
+  const durationLabel = useCallback(
+    (incident: StatusPageIncident): string => {
+      if (incident.resolvedAt) {
+        return t('lasted', { duration: formatElapsedTime(new Date(Date.now() - durationMsOf(incident)), locale) });
+      }
+      return t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
+    },
+    [durationMsOf, locale, t],
+  );
 
   const filteredIncidents = useMemo(
     () =>
@@ -680,8 +701,17 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         },
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [t, locale, monitorNameById, deleteMutation.isPending],
+    [
+      t,
+      affectedNames,
+      affectedLabel,
+      startedLabel,
+      durationMsOf,
+      durationLabel,
+      openEdit,
+      deleteMutation.isPending,
+      deleteMutation.mutate,
+    ],
   );
 
   const table = useReactTable({
