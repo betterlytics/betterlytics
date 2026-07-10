@@ -5,7 +5,7 @@
 	order rate_limit before handle
 	local_certs
 	on_demand_tls {
-		ask http://{$STATUS_PAGE_UPSTREAM}/api/status-page/ask
+		ask http://{$STATUS_PAGE_UPSTREAM}/api/status-page/ask?token={$STATUS_PAGE_ASK_SECRET}
 	}
 }
 

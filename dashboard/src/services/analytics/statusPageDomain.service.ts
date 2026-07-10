@@ -12,11 +12,6 @@ export function normalizeHostname(raw: string): string {
   return raw.trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
 }
 
-/** The hostname customers point their custom-domain CNAME at. */
-export function getCnameTarget(): string {
-  return `pages.${env.STATUS_PAGE_DOMAIN}`;
-}
-
 /** Rejects our own status namespace + apex domains so they can never be claimed as a custom domain. */
 export function isOwnNamespace(domain: string): boolean {
   const namespaces = [...OWN_APEX_DOMAINS, env.STATUS_PAGE_DOMAIN];

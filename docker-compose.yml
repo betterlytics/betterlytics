@@ -74,6 +74,7 @@ services:
       ACME_CA: ${ACME_CA:-https://acme-staging-v02.api.letsencrypt.org/directory}
       STATUS_PAGE_DOMAIN: ${STATUS_PAGE_DOMAIN:-status.localhost}
       STATUS_PAGE_UPSTREAM: ${STATUS_PAGE_UPSTREAM:-host.docker.internal:3000}
+      STATUS_PAGE_ASK_SECRET: ${STATUS_PAGE_ASK_SECRET:-}
       DNS_API_TOKEN: ${DNS_API_TOKEN:-}
     extra_hosts:
       - host.docker.internal:host-gateway

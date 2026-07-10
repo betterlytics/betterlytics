@@ -8,9 +8,9 @@ import { getTlsAuthorization, normalizeHostname } from '@/services/analytics/sta
 //   1. a short-lived negative cache, so repeated probes for the same unknown host never
 //      re-hit the DB (the cert path caches authorized hosts in Caddy, so only misses recur);
 //   2. a global ceiling on DB-backed lookups per window, bounding distinct-host enumeration.
-// Both are per-process and reset on restart — deliberately cheap. The durable defenses live at
-// the connection layer (see caddy/ and the ops runbook), which is the only thing that can cap
-// how fast an attacker triggers `ask` in the first place.
+// Both are per-process and reset on restart — deliberately cheap. They only bound the DB cost of
+// asks that reach this code; the endpoint itself is gated by a shared secret (see route.ts) so an
+// unauthenticated caller never spends the budget in the first place.
 
 const NEGATIVE_CACHE_TTL_MS = 30_000;
 const NEGATIVE_CACHE_MAX_ENTRIES = 10_000;

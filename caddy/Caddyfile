@@ -3,7 +3,7 @@
 	email {$ACME_EMAIL}
 	acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
 	on_demand_tls {
-		ask http://{$STATUS_PAGE_UPSTREAM}/api/status-page/ask
+		ask http://{$STATUS_PAGE_UPSTREAM}/api/status-page/ask?token={$STATUS_PAGE_ASK_SECRET}
 	}
 }
 
