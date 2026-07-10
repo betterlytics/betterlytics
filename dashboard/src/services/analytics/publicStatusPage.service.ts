@@ -1,4 +1,3 @@
-import { cache } from 'react';
 import {
   STATUS_PAGE_DEFAULT_ACCENT_COLOR,
   STATUS_PAGE_LIMITS,
@@ -51,7 +50,7 @@ function deriveMonitorStatus(
   return 'operational';
 }
 
-export const getPublicStatusPageData = cache(async (slug: string): Promise<PublicStatusPageData | null> => {
+export async function getPublicStatusPageData(slug: string): Promise<PublicStatusPageData | null> {
   const published = await getPublishedStatusPageBySlug(slug);
   if (!published) return null;
 
@@ -59,7 +58,7 @@ export const getPublicStatusPageData = cache(async (slug: string): Promise<Publi
     published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
   const { data } = await assembleStatusPage(published, { hideBranding });
   return data;
-});
+}
 
 export async function getPublicStatusPageImage(slug: string, kind: StatusPageImageKind) {
   return getStatusPageImageBySlug(slug, kind);
