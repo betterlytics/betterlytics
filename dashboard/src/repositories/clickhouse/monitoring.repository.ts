@@ -22,6 +22,16 @@ import {
   type MonitorIncidentSegment,
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
+import { groupByKey } from '@/utils/collections';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseUptimeBucketRow(row: any): MonitorUptimeBucket {
+  return MonitorUptimeBucketSchema.parse({
+    bucket: toIsoUtc(row.date) ?? row.date,
+    upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
+    totalSeconds: row.total_seconds,
+  });
+}
 
 // Unified uptime bucket calculation supporting hour or day granularity
 export async function getMonitorUptimeBuckets(
@@ -138,13 +148,7 @@ export async function getMonitorUptimeBuckets(
     })
     .toPromise()) as any[];
 
-  return rows.map((row) =>
-    MonitorUptimeBucketSchema.parse({
-      bucket: toIsoUtc(row.date) ?? row.date,
-      upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
-      totalSeconds: row.total_seconds,
-    }),
-  );
+  return rows.map(parseUptimeBucketRow);
 }
 
 /**
@@ -276,21 +280,7 @@ export async function getUptimeBucketsForMonitors(
     })
     .toPromise()) as any[];
 
-  const result = new Map<string, MonitorUptimeBucket[]>();
-  for (const row of rows) {
-    const bucket = MonitorUptimeBucketSchema.parse({
-      bucket: toIsoUtc(row.date) ?? row.date,
-      upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
-      totalSeconds: row.total_seconds,
-    });
-    const existing = result.get(row.check_id);
-    if (existing) {
-      existing.push(bucket);
-    } else {
-      result.set(row.check_id, [bucket]);
-    }
-  }
-  return result;
+  return groupByKey(rows, (row) => row.check_id as string, parseUptimeBucketRow);
 }
 
 // Convenience wrapper for 24h hourly buckets
@@ -542,26 +532,21 @@ export async function getIncidentSegmentsForMonitors(
     })
     .toPromise()) as any[];
 
-  const segments = new Map<string, MonitorIncidentSegment[]>();
-  for (const row of rows) {
-    const segment = MonitorIncidentSegmentSchema.parse({
-      state: row.state,
-      reason: row.reason_code,
-      start: toIsoUtc(row.started_at) ?? row.started_at,
-      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs:
-        row.started_at && (row.resolved_at || row.last_event_at)
-          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
-          : null,
-    });
-    const existing = segments.get(row.check_id);
-    if (existing) {
-      existing.push(segment);
-    } else {
-      segments.set(row.check_id, [segment]);
-    }
-  }
-  return segments;
+  return groupByKey(
+    rows,
+    (row) => row.check_id as string,
+    (row) =>
+      MonitorIncidentSegmentSchema.parse({
+        state: row.state,
+        reason: row.reason_code,
+        start: toIsoUtc(row.started_at) ?? row.started_at,
+        end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+        durationMs:
+          row.started_at && (row.resolved_at || row.last_event_at)
+            ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
+            : null,
+      }),
+  );
 }
 
 export type DetectedOutageRow = {

@@ -10,6 +10,7 @@ import {
   type StatusPageIncidentTimelineEntry,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import { groupByKey } from '@/utils/collections';
 
 async function syncIncidentFromTimeline(tx: Prisma.TransactionClient, incidentId: string) {
   const latest = await tx.statusPageIncidentUpdate.findFirst({
@@ -202,14 +203,10 @@ export async function listPublishedIncidentUpdates(
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
 
-  const byIncident = new Map<string, StatusPageIncidentTimelineEntry[]>();
-  for (const row of rows) {
-    const entry = StatusPageIncidentTimelineEntrySchema.parse(row);
-    const list = byIncident.get(entry.incidentId);
-    if (list) list.push(entry);
-    else byIncident.set(entry.incidentId, [entry]);
-  }
-  return byIncident;
+  return groupByKey(
+    rows.map((row) => StatusPageIncidentTimelineEntrySchema.parse(row)),
+    (entry) => entry.incidentId,
+  );
 }
 
 export async function listPublishedIncidents(

@@ -42,7 +42,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Sheet,
   SheetContent,
@@ -68,7 +67,16 @@ import {
   type StatusPageIncidentImpact,
   type StatusPageIncidentStatusValue,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
-import { INCIDENT_STATUS_TONE, type IncidentStatusTone } from '@/components/statusPage/incidentStatusTone';
+import {
+  IMPACT_BADGE,
+  IMPACT_DOT,
+  IMPACT_SELECTED,
+  STATUS_TONE_BADGE,
+  statusBadgeClass,
+  statusDotClass,
+  statusDotHollowClass,
+  statusTextClass,
+} from '@/components/statusPage/incidentToneStyles';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
 import { createIncidentEntryFormatter } from '@/components/statusPage/incidentEntryTimestamp';
 import {
@@ -80,6 +88,7 @@ import {
   saveStatusPageIncidentChangesAction,
 } from '@/app/actions/analytics/statusPage.actions';
 import { AffectedMonitorsPicker } from './AffectedMonitorsPicker';
+import { MonitorPills } from './MonitorPills';
 import { Section } from './Section';
 
 type MonitorOption = { monitorCheckId: string; publicName: string };
@@ -96,62 +105,6 @@ const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'partial_outage', 'outa
 const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified', 'monitoring', 'resolved'];
 
 type StateFilter = 'all' | 'active' | 'resolved';
-
-const STATUS_TONE_BADGE: Record<IncidentStatusTone, string> = {
-  amber: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  orange: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  blue: 'border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400',
-  green: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-};
-
-const STATUS_TONE_DOT: Record<IncidentStatusTone, string> = {
-  amber: 'bg-amber-500',
-  orange: 'bg-orange-500',
-  blue: 'bg-sky-500',
-  green: 'bg-emerald-500',
-};
-
-const statusBadgeClass = (status: StatusPageIncidentStatusValue) =>
-  STATUS_TONE_BADGE[INCIDENT_STATUS_TONE[status]];
-
-const statusDotClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
-
-const STATUS_TONE_DOT_HOLLOW: Record<IncidentStatusTone, string> = {
-  amber: 'bg-background border-2 border-amber-500',
-  orange: 'bg-background border-2 border-orange-500',
-  blue: 'bg-background border-2 border-sky-500',
-  green: 'bg-background border-2 border-emerald-500',
-};
-
-const statusDotHollowClass = (status: StatusPageIncidentStatusValue) =>
-  STATUS_TONE_DOT_HOLLOW[INCIDENT_STATUS_TONE[status]];
-
-const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
-  amber: 'text-amber-600 dark:text-amber-400',
-  orange: 'text-orange-600 dark:text-orange-400',
-  blue: 'text-sky-600 dark:text-sky-400',
-  green: 'text-emerald-600 dark:text-emerald-400',
-};
-
-const statusTextClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
-
-const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
-  degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  partial_outage: 'border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  outage: 'border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400',
-};
-
-const IMPACT_DOT: Record<StatusPageIncidentImpact, string> = {
-  degraded: 'bg-amber-500',
-  partial_outage: 'bg-orange-500',
-  outage: 'bg-rose-500',
-};
-
-const IMPACT_SELECTED: Record<StatusPageIncidentImpact, string> = {
-  degraded: 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  partial_outage: 'border-orange-500/50 bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  outage: 'border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400',
-};
 
 type IncidentColumnMeta = {
   cellClassName?: string;
@@ -369,6 +322,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
+  
+  const { mutate: deleteIncident, isPending: isDeletingIncident } = deleteMutation;
 
   const openWith = useCallback(
     (
@@ -576,45 +531,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
           if (names.length === 0) {
             return <span className='text-muted-foreground'>{t('unspecified')}</span>;
           }
-
-          const MAX_PILLS = 2;
-          const shown = names.slice(0, MAX_PILLS);
-          const hidden = names.slice(MAX_PILLS);
-          // No wrap: the cell's min width becomes the full pill row, so the greedy
-          // incident column (w-full) gives up space instead of the pills stacking.
-          return (
-            <div className='flex items-center gap-1'>
-              {shown.map((name, i) => (
-                <Badge key={i} variant='secondary' className='border-border max-w-35 font-normal'>
-                  <span className='min-w-0 truncate'>{name}</span>
-                </Badge>
-              ))}
-              {hidden.length > 0 && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge
-                      variant='outline'
-                      className='border-border text-muted-foreground cursor-help font-normal'
-                    >
-                      {t('affectedMore', { count: hidden.length })}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side='top'
-                    className='border-border bg-popover/95 text-popover-foreground pointer-events-none max-w-60 rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
-                  >
-                    <ul className='space-y-0.5 text-xs'>
-                      {hidden.map((name, i) => (
-                        <li key={i} className='truncate'>
-                          {name}
-                        </li>
-                      ))}
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          );
+          return <MonitorPills names={names} />;
         },
       },
       {
@@ -671,7 +588,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     <Button
                       size='icon'
                       variant='ghost'
-                      disabled={deleteMutation.isPending}
+                      disabled={isDeletingIncident}
                       aria-label={t('actions')}
                       className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
                       onClick={(e) => e.stopPropagation()}
@@ -687,7 +604,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant='destructive'
-                      onClick={() => deleteMutation.mutate(incident.id)}
+                      onClick={() => deleteIncident(incident.id)}
                       className='cursor-pointer'
                     >
                       <Trash2 className='h-3.5 w-3.5' />
@@ -709,8 +626,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       durationMsOf,
       durationLabel,
       openEdit,
-      deleteMutation.isPending,
-      deleteMutation.mutate,
+      deleteIncident,
+      isDeletingIncident,
     ],
   );
 
@@ -834,9 +751,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     const heading = isMulti
                       ? t('detectedGroupMulti', { count: suggestion.monitors.length })
                       : suggestion.monitors[0].monitorPublicName;
-                    const MAX_PILLS = 2;
-                    const shown = suggestion.monitors.slice(0, MAX_PILLS);
-                    const hidden = suggestion.monitors.slice(MAX_PILLS);
                     const detected = suggestion.ongoing
                       ? formatRelativeTimeFromNow(suggestion.startedAt, locale)
                       : (formatLocalDateTime(suggestion.startedAt, locale, {
@@ -877,41 +791,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                           </div>
                         </td>
                         <td className='hidden px-3 py-2.5 md:table-cell'>
-                          <div className='flex items-center gap-1'>
-                            {shown.map((monitor) => (
-                              <Badge
-                                key={monitor.monitorCheckId}
-                                variant='secondary'
-                                className='border-border max-w-35 font-normal'
-                              >
-                                <span className='min-w-0 truncate'>{monitor.monitorPublicName}</span>
-                              </Badge>
-                            ))}
-                            {hidden.length > 0 && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Badge
-                                    variant='outline'
-                                    className='border-border text-muted-foreground cursor-help font-normal'
-                                  >
-                                    {t('affectedMore', { count: hidden.length })}
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent
-                                  side='top'
-                                  className='border-border bg-popover/95 text-popover-foreground pointer-events-none max-w-60 rounded-lg border p-2.5 shadow-xl backdrop-blur-sm'
-                                >
-                                  <ul className='space-y-0.5 text-xs'>
-                                    {hidden.map((monitor) => (
-                                      <li key={monitor.monitorCheckId} className='truncate'>
-                                        {monitor.monitorPublicName}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
+                          <MonitorPills names={suggestion.monitors.map((monitor) => monitor.monitorPublicName)} />
                         </td>
                         <td
                           suppressHydrationWarning

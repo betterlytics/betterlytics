@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Check, Copy, ExternalLink, Maximize2, Pencil } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Maximize2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -25,13 +25,14 @@ import {
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { CopyButton } from '@/components/CopyButton';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
 import {
-  deleteStatusPageAction,
-  setStatusPagePublishedAction,
-  updateStatusPageAction,
-} from '@/app/actions/analytics/statusPage.actions';
+  useDeleteStatusPageMutation,
+  useSetStatusPagePublishedMutation,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageMutations';
+import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
 import { SettingsTab } from './tabs/SettingsTab';
 import { EditStatusPageStudio } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/studio/EditStatusPageStudio';
 
@@ -114,7 +115,6 @@ export function StatusPageEditor({
     monitorRows: initialMonitorRows,
   });
 
-  const [copied, setCopied] = useState(false);
   const searchParams = useSearchParams();
   const urlTab = searchParams.get('tab');
   const activeTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
@@ -198,22 +198,10 @@ export function StatusPageEditor({
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  const publishMutation = useMutation({
-    mutationFn: (isPublished: boolean) => setStatusPagePublishedAction(dashboardId, statusPage.id, isPublished),
-    onSuccess: (_result, isPublished) => {
-      toast.success(isPublished ? tActions('publishedToast') : tActions('unpublishedToast'));
-      router.refresh();
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
-  });
+  const publishMutation = useSetStatusPagePublishedMutation(dashboardId, { onSuccess: () => router.refresh() });
 
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteStatusPageAction(dashboardId, statusPage.id),
-    onSuccess: () => {
-      toast.success(t('deleted'));
-      router.push(`/dashboard/${dashboardId}/status-pages`);
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  const deleteMutation = useDeleteStatusPageMutation(dashboardId, {
+    onSuccess: () => router.push(`/dashboard/${dashboardId}/status-pages`),
   });
 
   const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
@@ -265,12 +253,6 @@ export function StatusPageEditor({
   const saveDisabled = !effectiveDirty || pageInvalid;
   const publishBlocked = effectiveDirty || pageInvalid;
   const publishBlockedReason = effectiveDirty ? t('publishNeedsSave') : t('minMonitorsHint');
-
-  const copyUrl = () => {
-    navigator.clipboard.writeText(publicUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1400);
-  };
 
   const livePreview = (
     <LivePreview
@@ -325,14 +307,13 @@ export function StatusPageEditor({
               </span>
             </span>
             <span aria-hidden className='bg-border h-5 w-px flex-none' />
-            <button
-              type='button'
-              onClick={copyUrl}
-              aria-label={t('copyUrl')}
+            <CopyButton
+              text={publicUrl}
+              ariaLabel={t('copyUrl')}
+              copiedLabel={tActions('linkCopied')}
               className='text-muted-foreground hover:text-foreground hover:bg-accent mx-0.5 flex h-7 w-7 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-            >
-              {copied ? <Check className='h-3.5 w-3.5 text-emerald-500' /> : <Copy className='h-3.5 w-3.5' />}
-            </button>
+              iconClassName='h-3.5 w-3.5'
+            />
             {statusPage.isPublished && (
               <a
                 href={savedPublicUrl}
@@ -366,7 +347,7 @@ export function StatusPageEditor({
                     <Button
                       type='button'
                       disabled={disabled || publishBlocked || publishMutation.isPending}
-                      onClick={() => publishMutation.mutate(true)}
+                      onClick={() => publishMutation.mutate({ statusPageId: statusPage.id, isPublished: true })}
                       className='h-9 cursor-pointer'
                     >
                       {publishMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
@@ -534,7 +515,7 @@ export function StatusPageEditor({
         confirmLabel={tActions('unpublish')}
         onConfirm={() => {
           setShowUnpublishConfirm(false);
-          publishMutation.mutate(false);
+          publishMutation.mutate({ statusPageId: statusPage.id, isPublished: false });
         }}
       />
 
@@ -545,7 +526,7 @@ export function StatusPageEditor({
         description={t('deleteConfirmDescription')}
         confirmLabel={t('deleteConfirm')}
         cancelLabel={t('cancel')}
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() => deleteMutation.mutate(statusPage.id)}
         isPending={deleteMutation.isPending}
         showIcon
       />

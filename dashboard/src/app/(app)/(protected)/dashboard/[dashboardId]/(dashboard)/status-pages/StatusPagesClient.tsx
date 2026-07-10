@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
@@ -43,7 +42,10 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { cn } from '@/lib/utils';
-import { deleteStatusPageAction, setStatusPagePublishedAction } from '@/app/actions/analytics/statusPage.actions';
+import {
+  useDeleteStatusPageMutation,
+  useSetStatusPagePublishedMutation,
+} from './shared/useStatusPageMutations';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
 import { statusPagePublicUrl, statusPagePublicUrlLabel } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
@@ -107,26 +109,19 @@ export function StatusPagesClient({
   };
 
   const [deleteTarget, setDeleteTarget] = useState<StatusPageListItem | null>(null);
-  const deleteMutation = useMutation({
-    mutationFn: async (statusPageId: string) => deleteStatusPageAction(dashboardId, statusPageId),
+  const deleteMutation = useDeleteStatusPageMutation(dashboardId, {
     onSuccess: () => {
-      toast.success(t('editor.deleted'));
       setDeleteTarget(null);
       router.refresh();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
   const [publishTarget, setPublishTarget] = useState<StatusPageListItem | null>(null);
-  const publishMutation = useMutation({
-    mutationFn: ({ id, isPublished }: { id: string; isPublished: boolean }) =>
-      setStatusPagePublishedAction(dashboardId, id, isPublished),
-    onSuccess: (_result, { isPublished }) => {
-      toast.success(isPublished ? t('actions.publishedToast') : t('actions.unpublishedToast'));
+  const publishMutation = useSetStatusPagePublishedMutation(dashboardId, {
+    onSuccess: () => {
       setPublishTarget(null);
       router.refresh();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
@@ -445,7 +440,7 @@ export function StatusPagesClient({
               disabled={publishMutation.isPending}
               onClick={() =>
                 publishTarget &&
-                publishMutation.mutate({ id: publishTarget.id, isPublished: !publishTarget.isPublished })
+                publishMutation.mutate({ statusPageId: publishTarget.id, isPublished: !publishTarget.isPublished })
               }
               className='cursor-pointer'
             >
