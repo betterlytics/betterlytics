@@ -52,7 +52,7 @@ import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.e
 import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
-import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';
+import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import { getUserTimezone } from '@/lib/cookies';
 import { UserException } from '@/lib/exceptions';
 
@@ -213,12 +213,6 @@ function slugifyDomain(domain: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-function averageUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
-  const valid = buckets.filter((bucket) => bucket.upRatio != null);
-  if (valid.length === 0) return null;
-  return (valid.reduce((sum, bucket) => sum + (bucket.upRatio ?? 0), 0) / valid.length) * 100;
-}
-
 async function computeStatusPageDefaults(dashboardId: string) {
   const dashboard = await findDashboardById(dashboardId);
 
@@ -246,7 +240,7 @@ export const suggestStatusPageDefaultsAction = withDashboardAuthContext(async (c
       url: monitor.url,
       publicName: defaultPublicMonitorName(monitor),
       operationalState: monitor.operationalState,
-      uptimePercent: averageUptimePercent(monitor.uptimeBuckets),
+      uptimePercent: weightedUptimePercent(monitor.uptimeBuckets),
     })),
   };
 });
