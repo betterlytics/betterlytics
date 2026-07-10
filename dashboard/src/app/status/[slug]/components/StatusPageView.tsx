@@ -5,7 +5,7 @@ import type { CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
-import { accentForeground } from '@/components/statusPage/StatusPageBrandAvatar';
+import { accentForeground } from '@/utils/colorUtils';
 import { cn } from '@/lib/utils';
 import { useDisplayTimeZone } from '@/app/status/[slug]/useDisplayTimeZone';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';

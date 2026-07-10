@@ -1,13 +1,5 @@
 import { cn } from '@/lib/utils';
-
-export function accentForeground(accentHex: string): string {
-  const channel = (offset: number) => {
-    const c = parseInt(accentHex.slice(offset, offset + 2), 16) / 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  };
-  const luminance = 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
-  return luminance > 0.45 ? '#16181c' : '#ffffff';
-}
+import { accentForeground } from '@/utils/colorUtils';
 
 type StatusPageBrandAvatarProps = {
   name: string;

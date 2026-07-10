@@ -17,10 +17,8 @@ import { defaultPublicMonitorName, statusPagePublicUrl } from '@/entities/analyt
 import { cn } from '@/lib/utils';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
-import {
-  useStatusPageFormState,
-  type MonitorRow,
-} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/monitorRow';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
 import { CopyButton } from '@/components/CopyButton';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';

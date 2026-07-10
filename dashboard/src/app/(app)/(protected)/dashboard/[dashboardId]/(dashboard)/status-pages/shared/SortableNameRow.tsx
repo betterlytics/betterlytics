@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
-import type { MonitorRow } from './useStatusPageFormState';
+import type { MonitorRow } from './monitorRow';
 
 type SortableNameRowProps = {
   row: MonitorRow;

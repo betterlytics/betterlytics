@@ -8,10 +8,8 @@ import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/p
 import { MonitorFormDialog } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/MonitorFormDialog';
 import { ConfirmDialog } from '@/components/dialogs';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
-import {
-  newMonitorRow,
-  type StatusPageFormState,
-} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import { newMonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/monitorRow';
 import { StatusPageStudio } from './StatusPageStudio';
 
 type StudioShellProps = {
