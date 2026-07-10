@@ -13,32 +13,25 @@ import { BrandingPanel } from './panels/BrandingPanel';
 import { PublishPanel } from './panels/PublishPanel';
 
 type StatusPageStudioProps = {
-  /** 'create' shows the Publish tab (initial address/visibility/domain); 'edit' is design-only. */
   mode: 'create' | 'edit';
-  /** Owned by the caller — the studio never fetches or persists anything itself. */
   form: StatusPageFormState;
   slugStatus: SlugStatus;
   publicHost: string;
   domain: string;
   preview: { payload: StatusPagePreviewPayload; messages: Record<string, unknown> } | null;
   previewError: boolean;
-  /** Which tab opens first — lets future entry points deep-link (e.g. edit-from-branding). */
   initialTab?: StudioTab;
-  /** Header commit cluster — the caller decides the semantics (Save draft/Publish vs Save/Cancel). */
   headerActions: ReactNode;
-  /** Optional bottom bar for small screens (the panel is full-width there, canvas hidden). */
   mobileBar?: ReactNode;
   onClose: () => void;
   onCreateMonitor: () => void;
-  /** The mobile "Preview" trigger lives in headerActions, so the dialog is controlled from outside. */
   previewEnlargedOpen: boolean;
   onPreviewEnlargedOpenChange: (open: boolean) => void;
 };
 
 /**
- * The status-page studio: a fullscreen preview-centered editor. Left panel holds the
- * configuration tabs, the canvas renders the live page. Purely controlled — data
- * loading, validation gating and persistence belong to the caller.
+ * The status-page studio: a fullscreen preview-centered editor. Purely controlled —
+ * data loading, validation gating and persistence belong to the caller.
  */
 export function StatusPageStudio({
   mode,
@@ -65,7 +58,6 @@ export function StatusPageStudio({
   const [activeTab, setActiveTab] = useState<StudioTab>(initialTab ?? 'monitors');
 
   const slugBlocked = slugStatus === 'taken' || slugStatus === 'invalid';
-  // Attention dots replace the wizard's per-step gating: every tab is reachable, problems stay visible.
   const issues: Partial<Record<StudioTab, boolean>> = {
     monitors: form.includedCount === 0,
     branding: form.isNameEmpty || !form.isHomepageUrlValid,

@@ -100,8 +100,7 @@ type SurvivingOutage = {
   impact: StatusPageIncidentImpact;
 };
 
-// Fold a start-ascending cluster of outages into one suggestion: the earliest is the representative,
-// monitors are deduped, impact is the worst, and the group is ongoing if any member still is.
+// Fold a start-ascending cluster into one suggestion: cluster[0] is the representative, impact is the worst, ongoing if any member still is.
 function buildSuggestion(cluster: SurvivingOutage[]): DetectedOutageSuggestion {
   const monitors = new Map<string, DetectedOutageMonitor>();
   let ongoing = false;

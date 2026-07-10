@@ -16,10 +16,6 @@ function statusPageImageUrl(slug: string, kind: StatusPageImageKind, hash: strin
   return `/status/${slug}/image/${kind}?v=${hash}`;
 }
 
-/**
- * The app consumes a single `logoUrl` string. We derive the uploaded-logo URL here so callers never
- * touch the blob.
- */
 function resolveLogoUrl(row: { slug: string; logoHash: string | null }): string | null {
   return row.logoHash ? statusPageImageUrl(row.slug, 'logo', row.logoHash) : null;
 }
@@ -29,7 +25,6 @@ function resolveFaviconUrl(row: { slug: string; faviconHash: string | null }): s
   return null;
 }
 
-/** Parse a raw status-page row into the domain entity, resolving its derived image URLs. */
 function toStatusPage(
   row: { slug: string; logoHash: string | null; faviconHash: string | null } & Record<string, unknown>,
 ): StatusPage {
@@ -47,10 +42,6 @@ export type StatusPageImageWrites = {
   favicon?: StatusPageImageWrite | null;
 };
 
-/**
- * Translate one kind's change into the page-row hash patch + the StatusPageImage row op to run in the
- * same transaction. Returns `op: null` for "no change" (kept) so the caller can filter it out.
- */
 function imageChange(statusPageId: string, kind: StatusPageImageKind, write: StatusPageImageWrite | null | undefined) {
   if (write === undefined) return { data: {}, op: null };
   if (write === null) {
@@ -104,7 +95,6 @@ export async function getStatusPageById(
   };
 }
 
-/** The check ids of the monitors attached to a page — used to validate an incident's affected monitors. */
 export async function listStatusPageMonitorCheckIds(
   dashboardId: string,
   statusPageId: string,

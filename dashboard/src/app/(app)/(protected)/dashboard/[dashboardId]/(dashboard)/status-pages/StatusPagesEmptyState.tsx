@@ -8,7 +8,6 @@ import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPag
 const TICK_OK = '#10b981';
 const TICK_WARN = '#f5b40a';
 
-/** Tiny status-page vignette built from the public page's actual visual language (accent band + uptime bars). */
 function StatusPageVignette() {
   const rows = [
     [TICK_OK, TICK_OK, TICK_OK, TICK_OK, TICK_OK, TICK_WARN, TICK_OK, TICK_OK, TICK_OK, TICK_OK],

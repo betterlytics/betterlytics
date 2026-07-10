@@ -254,7 +254,7 @@ function parse(source: string): SvgElement {
 
   const parseElement = (depth: number): SvgElement => {
     if (depth > MAX_DEPTH || ++nodeCount > MAX_NODES) reject();
-    pos++; // consume '<'
+    pos++;
     const name = readName();
     if (!ALLOWED_ELEMENTS.has(name)) reject();
 
@@ -320,7 +320,6 @@ function parse(source: string): SvgElement {
     }
   };
 
-  // Optional XML prolog, then optional comments/whitespace around a single root element.
   skipWhitespace();
   if (source.startsWith('<?xml', pos)) {
     const end = source.indexOf('?>', pos);
@@ -357,7 +356,6 @@ function serialize(node: SvgElement): string {
   return `<${node.name}${attrs}>${inner}</${node.name}>`;
 }
 
-/** Cheap sniff: does this byte payload look like an SVG document (vs a raster format)? */
 export function looksLikeSvg(bytes: Uint8Array): boolean {
   const head = new TextDecoder('utf-8', { fatal: false })
     .decode(bytes.slice(0, 1024))

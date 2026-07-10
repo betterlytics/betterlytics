@@ -13,11 +13,6 @@ type DragHandleProps = {
   className?: string;
 };
 
-/**
- * Grip marker that activates dnd-kit dragging for a sortable item. Pass the
- * `attributes`/`listeners` from `useSortable`, and forward `setActivatorNodeRef`
- * as the ref when the handle is separate from the sortable node.
- */
 export const DragHandle = forwardRef<HTMLButtonElement, DragHandleProps>(function DragHandle(
   { attributes, listeners, label, className },
   ref,

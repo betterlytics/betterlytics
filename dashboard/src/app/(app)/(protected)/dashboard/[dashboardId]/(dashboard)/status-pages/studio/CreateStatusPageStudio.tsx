@@ -71,16 +71,12 @@ function StudioForm({
   });
   const slugStatus = useSlugAvailability({ dashboardId, slug: form.slug });
 
-  // Create + publish is ONE action call carrying `isPublished`, committed as a single
-  // insert — a publish can never leave behind an accidentally-unpublished page.
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
       const images = await collectStagedImages(form);
       const page = await createStatusPageAction(dashboardId, { ...form.input, isPublished: publish }, images);
       return { page, publish };
     },
-    // Both commits land on the page's own detail view; the URL/copy/view affordances live in its
-    // header, so publish needs no interstitial — just a live-confirmation toast on top.
     onSuccess: ({ page, publish }) => {
       if (publish) {
         toast.success(t('publishSuccess.title'), {

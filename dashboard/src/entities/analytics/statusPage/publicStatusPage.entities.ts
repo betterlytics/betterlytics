@@ -27,7 +27,7 @@ export type PublicIncidentCause = z.infer<typeof PublicIncidentCauseSchema>;
 export const PublicDailyUptimeBucketSchema = z.object({
   /** ISO date (yyyy-mm-dd), UTC bucketed */
   date: z.string(),
-  /** 0..1, null = no data for that day (e.g. before the monitor existed) */
+  /** null = no data for that day (e.g. before the monitor existed) */
   upRatio: z.number().min(0).max(1).nullable(),
 });
 export type PublicDailyUptimeBucket = z.infer<typeof PublicDailyUptimeBucketSchema>;
@@ -60,7 +60,7 @@ export const PublicStatusPageIncidentSchema = z.object({
   monitorPublicNames: z.array(z.string()).default([]),
   startedAt: z.string(),
   resolvedAt: z.string().nullable(),
-  /** Change timeline, newest first. Falls back to a single body entry if ever empty. */
+  /** Change timeline, newest first. */
   updates: z.array(PublicStatusPageIncidentUpdateSchema).default([]),
 });
 export type PublicStatusPageIncident = z.infer<typeof PublicStatusPageIncidentSchema>;

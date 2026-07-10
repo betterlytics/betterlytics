@@ -11,7 +11,6 @@ import {
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useEffect } from 'react';
 
-/** Shared pointer / touch / keyboard sensors tuned for vertical sortable lists. */
 export function useSortableSensors() {
   return useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
@@ -20,7 +19,6 @@ export function useSortableSensors() {
   );
 }
 
-/** Adds a `dnd-dragging` class to <body> while a drag is active (used for drag-aware styling). */
 export function useDndDraggingClass(isDragging: boolean) {
   useEffect(() => {
     if (!isDragging) return;
@@ -31,7 +29,6 @@ export function useDndDraggingClass(isDragging: boolean) {
   }, [isDragging]);
 }
 
-/** Returns the reordered array for a drag-end event, or null when nothing moved. */
 export function reorderOnDragEnd<T>(items: T[], event: DragEndEvent, getId: (item: T) => string): T[] | null {
   const { active, over } = event;
   if (!over || active.id === over.id) return null;

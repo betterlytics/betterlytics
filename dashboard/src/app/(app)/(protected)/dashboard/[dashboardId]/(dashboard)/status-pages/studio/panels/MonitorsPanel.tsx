@@ -21,10 +21,6 @@ type MonitorsPanelProps = {
   onCreateMonitor: () => void;
 };
 
-/**
- * Monitor selection + public naming/ordering in one place: everything that decides
- * WHAT the page shows. (Branding decides how it looks; Publish decides where it lives.)
- */
 export function MonitorsPanel({ form, onCreateMonitor }: MonitorsPanelProps) {
   const t = useTranslations('statusPagesPage.editor');
   const tStatus = useTranslations('monitoring.status');
@@ -75,8 +71,6 @@ export function MonitorsPanel({ form, onCreateMonitor }: MonitorsPanelProps) {
   }
 
   return (
-    // Two sections live here — pick monitors, then name/order them — so the section gap is
-    // deliberately larger than the in-section rhythm.
     <div className='space-y-9'>
       <div className='space-y-4'>
         <Label>{t('wizard.select.heading')}</Label>

@@ -17,7 +17,6 @@ const ZOOM_MIN = 0.4;
 // Grid-aligned: the max must be a multiple of the step or clamping strands the zoom off-grid.
 const ZOOM_MAX = 1.2;
 const ZOOM_STEP = 0.1;
-/** Breathing room between the frame and the canvas edges when fitting. */
 const FIT_PADDING = 96;
 
 type Device = keyof typeof DEVICE_WIDTH;
@@ -27,15 +26,10 @@ type StudioCanvasProps = {
   preview: { payload: StatusPagePreviewPayload; messages: Record<string, unknown> } | null;
   previewError: boolean;
   publicHost: string;
-  /** The mobile header "Preview" button controls the enlarged dialog from outside. */
   enlargedOpen: boolean;
   onEnlargedOpenChange: (open: boolean) => void;
 };
 
-/**
- * The studio's hero: the live page centered on a dot-grid canvas, with a floating
- * zoom pill (fit-by-default) and a desktop/mobile width toggle.
- */
 export function StudioCanvas({
   draft,
   preview,
@@ -111,7 +105,7 @@ export function StudioCanvas({
   };
 
   // Stable object identity: an inline literal would bust PreviewFrame's memo on every
-  // keystroke and re-render the whole page preview synchronously (the lag the wizard never had).
+  // keystroke and re-render the whole page preview synchronously.
   const frameStyle = useMemo(
     () => (zoom != null ? { width: Math.round(DEVICE_WIDTH[device] * zoom) } : undefined),
     [device, zoom],
@@ -120,8 +114,6 @@ export function StudioCanvas({
   return (
     <div
       ref={containerRef}
-      // Slightly darker than the app chrome so the panel/header read as tools above the work
-      // surface and the page frame gets its elevation back — that contrast is the dot grid's job.
       className='text-muted-foreground relative hidden min-h-0 flex-1 items-center justify-center overflow-hidden bg-black/[0.03] lg:flex dark:bg-black/30'
       style={{
         backgroundImage:

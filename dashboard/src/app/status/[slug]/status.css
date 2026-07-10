@@ -39,7 +39,6 @@
   --sp-neutral: light-dark(#e5e7eb, #24282d);
   --sp-card-shadow: 0 4px 16px rgba(40, 40, 90, 0.08);
 
-  /* Per-monitor status pills */
   --sp-pill-ok-text: light-dark(#059669, #4ade80);
   --sp-pill-ok-bg: light-dark(#ecfdf5, #10231a);
   --sp-pill-ok-border: light-dark(#a7f3d0, #1d3a28);

@@ -301,7 +301,6 @@ export function StatusPageEditor({
 
   return (
     <div className={cn(onSettingsTab && 'pb-24 xl:pb-0')}>
-      {/* Persistent top bar */}
       <Link
         href={backHref}
         onClick={handleBackClick}
@@ -472,10 +471,8 @@ export function StatusPageEditor({
         )}
       </UnderlineTabs>
 
-      {/* Mobile save cluster: the desktop right column (with its save cluster) is hidden on phones.
-          Floats bottom-right to pair with the global sidebar trigger (bottom-left). bottom-[33px] = the
-          trigger's bottom-10 (40px) minus this panel's padding+border (7px), so the buttons line up
-          vertically with the trigger. */}
+      {/* bottom-[33px] = the sidebar trigger's bottom-10 (40px) minus this panel's padding+border
+          (7px), so the buttons line up vertically with the trigger (bottom-left). */}
       {onSettingsTab && (
         <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg xl:hidden'>
           <Button

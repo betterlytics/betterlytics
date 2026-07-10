@@ -14,11 +14,8 @@ type DateTimePickerProps = {
   value: Date;
   onChange: (date: Date) => void;
   disabled?: boolean;
-  /** Locale tag (e.g. 'en', 'da') used to format the trigger label. */
   locale?: string;
-  /** Accessible label for the trigger button. */
   dateLabel?: string;
-  /** Heading shown above the time columns. */
   timeLabel?: string;
   className?: string;
 };
@@ -31,12 +28,6 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const TWELVE_HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
-/**
- * Themed date + time picker built from the shared Calendar/Popover primitives,
- * replacing the unstyled native `datetime-local` control. A single trigger
- * opens one popover holding the calendar alongside inline hour/minute columns,
- * so both the day and the time are picked directly in the same popover.
- */
 export function DateTimePicker({
   value,
   onChange,

@@ -185,7 +185,6 @@ export async function deleteStatusPageIncident(
   return existing.statusPage.slug;
 }
 
-/** Public timeline read: entries for the given incidents, newest first, keyed by incident id. */
 export async function listPublishedIncidentUpdates(
   incidentIds: string[],
 ): Promise<Map<string, StatusPageIncidentTimelineEntry[]>> {

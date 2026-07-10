@@ -14,9 +14,6 @@ type AffectedMonitorsPickerProps = {
   onChange: (ids: string[]) => void;
 };
 
-// A searchable multi-select for an incident's affected monitors. Empty = unspecified (scope not yet
-// stated); every monitor selected = page-wide; a subset = scoped to those. All three are just states
-// of `value` (the selected check ids) — nothing extra is stored.
 export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMonitorsPickerProps) {
   const t = useTranslations('statusPagesPage.editor.incidents.form');
   const [open, setOpen] = useState(false);
@@ -38,7 +35,6 @@ export function AffectedMonitorsPicker({ monitors, value, onChange }: AffectedMo
     return q ? monitors.filter((m) => m.publicName.toLowerCase().includes(q)) : monitors;
   }, [monitors, query]);
 
-  // Collapse a full selection into a single "All monitors" token; otherwise one token per monitor.
   const tokens = allSelected
     ? [{ id: '__all__', label: t('monitorAllToken'), remove: clear }]
     : value.map((id) => ({

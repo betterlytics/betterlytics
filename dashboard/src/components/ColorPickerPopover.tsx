@@ -6,12 +6,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 type ColorPickerPopoverProps = {
   value: string;
   onChange: (hex: string) => void;
-  /** Highlight the trigger as the active choice (e.g. when the value isn't one of the preset swatches) */
   selected?: boolean;
   ariaLabel: string;
 };
 
-/** A "custom color" swatch (rainbow ring) opening a react-colorful hex picker in a popover. */
 export function ColorPickerPopover({ value, onChange, selected = false, ariaLabel }: ColorPickerPopoverProps) {
   return (
     <Popover>

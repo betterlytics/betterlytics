@@ -95,8 +95,6 @@ const PAGE_SIZE = 10;
 const IMPACTS: StatusPageIncidentImpact[] = ['degraded', 'partial_outage', 'outage'];
 const STATUSES: StatusPageIncidentStatusValue[] = ['investigating', 'identified', 'monitoring', 'resolved'];
 
-// "Active" = still ongoing (no resolved timestamp); "Resolved" = has one. These replace the old
-// active/past section split with a single filterable dimension.
 type StateFilter = 'all' | 'active' | 'resolved';
 
 const STATUS_TONE_BADGE: Record<IncidentStatusTone, string> = {
@@ -143,14 +141,12 @@ const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
   outage: 'border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400',
 };
 
-// Suggestion-row dot while the outage is ongoing; resolved rows switch to emerald.
 const IMPACT_DOT: Record<StatusPageIncidentImpact, string> = {
   degraded: 'bg-amber-500',
   partial_outage: 'bg-orange-500',
   outage: 'bg-rose-500',
 };
 
-// Impact selector in the modal: muted by default, tinted when picked.
 const IMPACT_SELECTED: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400',
   partial_outage: 'border-orange-500/50 bg-orange-500/10 text-orange-600 dark:text-orange-400',
@@ -172,14 +168,12 @@ type IncidentForm = {
   monitorCheckIds: string[];
 };
 
-// The "Post an update" box. On create it's the incident's first update; on edit it stages new ones.
 type Composer = {
   status: StatusPageIncidentStatusValue;
   message: string;
   timeLocal: string;
 };
 
-// An update staged in the sheet (edit mode) but not yet published — committed on save.
 type PendingUpdate = {
   tempId: string;
   status: StatusPageIncidentStatusValue;
@@ -219,28 +213,21 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   const [open, setOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
-  // Guards an accidental close (overlay / Esc / Cancel) when there's unsaved work in the sheet.
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(emptyForm);
-  // Snapshot of the details, taken when the sheet opens, to surface an "unsaved changes" hint.
   const [initialForm, setInitialForm] = useState<IncidentForm>(emptyForm);
-  // The "Post an update" box (first update on create, staged updates on edit).
   const [composer, setComposer] = useState<Composer>(emptyComposer);
-  // Updates staged locally (edit mode) — not published until "Update public page".
   const [pendingUpdates, setPendingUpdates] = useState<PendingUpdate[]>([]);
-  // Baseline for the dirty check
   const [initialPendingUpdates, setInitialPendingUpdates] = useState<PendingUpdate[]>([]);
   const pendingIdRef = useRef(0);
   // Seeds the header status pill before the timeline loads (edit only).
   const [incidentStatus, setIncidentStatus] = useState<StatusPageIncidentStatusValue>('investigating');
-  // Inline message edit of a timeline entry.
   const [editingUpdateId, setEditingUpdateId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState('');
   const [editedUpdates, setEditedUpdates] = useState<Record<string, string>>({});
   const [deletedUpdateIds, setDeletedUpdateIds] = useState<string[]>([]);
   const [titleTouched, setTitleTouched] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  // Set when the user tries to post a no-op update (same status, no message); surfaces the reason.
   const [composerError, setComposerError] = useState(false);
   const composerMessageRef = useRef<HTMLTextAreaElement>(null);
 
@@ -261,7 +248,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     queryKey: suggestionsKey,
     queryFn: () => fetchIncidentSuggestionsAction(dashboardId, statusPageId),
   });
-  // Timeline for the incident currently open in the edit modal; skipped while creating.
   const timelineQuery = useQuery({
     queryKey: ['statusPageIncidentTimeline', statusPageId, form.id],
     queryFn: () => fetchIncidentTimelineAction(dashboardId, statusPageId, form.id as string),
@@ -275,23 +261,17 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     router.refresh(); // keep the live preview / public page in sync
   };
 
-  // Only the incident details count as metadata; staged updates are tracked separately.
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
   const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(initialPendingUpdates);
   const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
   const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty;
-  // Anything that would be lost on close: saved-but-unpublished work, a half-typed update, or an
-  // in-progress inline edit. Closing with any of these prompts before discarding.
   const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
 
-  // Intercept close attempts (overlay click, Esc, the X, Cancel) — confirm first if work would be lost.
   const requestClose = () => {
     if (hasUnsavedWork) setShowDiscardConfirm(true);
     else setOpen(false);
   };
 
-  // Save publishes everything at once: incident details, plus any staged updates. On create the
-  // composer is the incident's first update; on edit, staged updates are posted in order.
   const saveMutation = useMutation({
     mutationFn: async () => {
       const stagedUpdates = pendingUpdates.map((update) => ({
@@ -337,7 +317,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  // Stage the composer's update locally (edit mode) — published later by "Update public page".
   const stagePendingUpdate = () => {
     pendingIdRef.current += 1;
     const staged: PendingUpdate = {
@@ -391,7 +370,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
 
-  // Open the sheet, snapshotting the details for the dirty check and resetting the composer.
   const openWith = (
     next: IncidentForm,
     nextComposer: Composer,
@@ -423,7 +401,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
         impact: incident.impact,
         monitorCheckIds: incident.monitorCheckIds,
       },
-      // The composer starts on the incident's current status so a quick post defaults sensibly.
       { ...emptyComposer(), status: incident.status },
       incident.status,
     );
@@ -476,7 +453,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     [monitors],
   );
 
-  // Resolve affected monitors to their public names, dropping any no longer on the page. Empty = page-wide.
   const affectedNames = (incident: StatusPageIncident): string[] =>
     incident.monitorCheckIds.map((id) => monitorNameById.get(id)).filter((name): name is string => name != null);
 
@@ -488,7 +464,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const startedLabel = (incident: StatusPageIncident): string =>
     formatLocalDateTime(incident.startedAt, locale, { month: 'short', day: 'numeric', year: 'numeric' }) ?? '';
 
-  // Compact "2d 14h" / "45m" duration: elapsed-since-start for ongoing, fixed span for resolved.
   const durationMsOf = (incident: StatusPageIncident): number =>
     incident.resolvedAt
       ? new Date(incident.resolvedAt).getTime() - new Date(incident.startedAt).getTime()
@@ -501,7 +476,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     return t('ongoingFor', { duration: formatElapsedTime(new Date(incident.startedAt), locale) });
   };
 
-  // Pre-filter by the State select before the table applies search + sort.
   const filteredIncidents = useMemo(
     () =>
       incidents.filter((incident) => {
@@ -513,7 +487,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     [incidents, stateFilter],
   );
 
-  // Debounce the search box, and reset to the first page whenever it changes.
   useEffect(() => {
     const timeout = setTimeout(() => {
       setGlobalFilter(searchInput);
@@ -583,8 +556,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
             return <span className='text-muted-foreground'>{t('unspecified')}</span>;
           }
 
-          // Capped pill list; monitors beyond the cap collapse into a "+N more" badge
-          // whose tooltip reveals the hidden names.
           const MAX_PILLS = 2;
           const shown = names.slice(0, MAX_PILLS);
           const hidden = names.slice(MAX_PILLS);
@@ -732,7 +703,6 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const columnCount = table.getVisibleLeafColumns().length;
   const hasActiveFilters = globalFilter.trim().length > 0 || stateFilter !== 'all';
 
-  // Newest-first saved timeline for the open incident.
   const timeline = useMemo(() => (timelineQuery.data ?? []).slice().reverse(), [timelineQuery.data]);
   const timelineRows = useMemo(() => {
     const rows = [
