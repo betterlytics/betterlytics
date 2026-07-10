@@ -99,6 +99,56 @@ describe('sanitizeSvgLogo', () => {
       expect(sanitize(svg)).toBeNull();
     });
 
+    it.each([
+      ['animate (SMIL)', WRAP('<circle r="5"><animate attributeName="r" from="0" to="5" dur="1s"/></circle>')],
+      ['set (SMIL)', WRAP('<circle r="5"><set attributeName="r" to="10"/></circle>')],
+      ['animateTransform (SMIL)', WRAP('<g><animateTransform attributeName="transform" type="rotate"/></g>')],
+    ])('rejects %s', (_label, svg) => {
+      expect(sanitize(svg)).toBeNull();
+    });
+
+    it('rejects duplicate attributes', () => {
+      expect(sanitize('<svg viewBox="0 0 1 1" viewBox="0 0 2 2"><path d="M0 0"/></svg>')).toBeNull();
+    });
+
+    it.each([
+      ['NUL', '&#0;'],
+      ['control char', '&#8;'],
+      ['escape char (hex)', '&#x1B;'],
+      ['lone surrogate', '&#xD800;'],
+      ['beyond max code point', '&#x110000;'],
+    ])('rejects numeric entity for %s', (_label, entity) => {
+      expect(sanitize(WRAP(`<title>${entity}</title><path d="M0 0"/>`))).toBeNull();
+    });
+
+    it('accepts valid numeric entities', () => {
+      const out = sanitize(WRAP('<title>&#65;&#x42;</title><path d="M0 0"/>'));
+      expect(out).toContain('<title>AB</title>');
+    });
+
+    it.each([
+      ['unknown property', WRAP(`<rect style="background: image-set('https://evil/x.png' 1x)"/>`)],
+      ['property without value', WRAP('<rect style="fill"/>')],
+      ['empty value', WRAP('<rect style="fill:"/>')],
+      ['!important (outside charset)', WRAP('<rect style="fill: #f00 !important"/>')],
+      ['bare URL in value', WRAP('<rect style="fill: https://evil.example/x.png"/>')],
+    ])('rejects style with %s', (_label, svg) => {
+      expect(sanitize(svg)).toBeNull();
+    });
+
+    it('accepts multiple style declarations with trailing semicolon', () => {
+      expect(sanitize(WRAP('<rect style="fill: #f00; stroke-width: 2;"/>'))).not.toBeNull();
+    });
+
+    it('rejects input over the byte cap regardless of content', () => {
+      const huge = WRAP(`<path d="${'M0 0 '.repeat(30000)}"/>`); // ~180KB of valid markup
+      expect(sanitize(huge)).toBeNull();
+    });
+
+    it('rejects empty input', () => {
+      expect(sanitizeSvgLogo(new Uint8Array(0))).toBeNull();
+    });
+
     it('rejects files with too many nodes', () => {
       expect(sanitize(WRAP('<rect width="1" height="1"/>'.repeat(2100)))).toBeNull();
     });
