@@ -182,8 +182,6 @@ function AddMonitorPicker({
     [availableRows, normalizedQuery],
   );
 
-  const noneAvailable = availableRows.length === 0;
-
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -209,13 +207,12 @@ function AddMonitorPicker({
       <Button
         type='button'
         variant='outline'
-        disabled={noneAvailable}
         aria-expanded={open}
         onClick={() => onOpenChange(!open)}
         className='text-muted-foreground hover:text-foreground hover:bg-muted/40 dark:hover:bg-muted/40 h-9 w-full cursor-pointer border-dashed bg-transparent shadow-none dark:bg-transparent'
       >
         <Plus className='h-4 w-4' />
-        {noneAvailable ? t('wizard.allMonitorsAdded') : t('wizard.addMonitor')}
+        {t('wizard.addMonitor')}
       </Button>
       {open && (
         <div className='border-border bg-card animate-in fade-in slide-in-from-top-2 overflow-hidden rounded-lg border shadow-sm duration-150'>
@@ -231,7 +228,9 @@ function AddMonitorPicker({
           </div>
           <div className='max-h-60 overflow-y-auto p-1'>
             {options.length === 0 ? (
-              <p className='text-muted-foreground px-3 py-5 text-center text-sm'>{t('wizard.noSearchResults')}</p>
+              <p className='text-muted-foreground px-3 py-5 text-center text-sm'>
+                {t(normalizedQuery ? 'wizard.noSearchResults' : 'wizard.allOnPage')}
+              </p>
             ) : (
               options.map((row) => {
                 const isMuted =

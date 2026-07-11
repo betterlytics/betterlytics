@@ -227,14 +227,14 @@
   }
 
   .animate-monitor-row-added {
-    --monitor-row-flash: color-mix(in oklab, var(--primary) 14%, var(--card));
+    --monitor-row-flash: color-mix(in oklab, var(--primary) 9%, var(--card));
     animation:
       monitor-row-in 0.22s ease,
       monitor-row-flash 1.1s ease 0.05s;
   }
 
   .dark .animate-monitor-row-added {
-    --monitor-row-flash: color-mix(in oklab, var(--primary) 28%, var(--card));
+    --monitor-row-flash: color-mix(in oklab, var(--primary) 18%, var(--card));
   }
 
   @media (prefers-reduced-motion: reduce) {
