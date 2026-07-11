@@ -122,26 +122,9 @@ export function StatusPageEditor({
     currentSlug: statusPage.slug,
   });
 
-  // 'studio' groups everything edited in the fullscreen studio (design/content);
-  // 'settings' is what stays editable on this page (lifecycle settings).
   const sections = useMemo(
-    () => ({
-      settings: {
-        slug: form.input.slug,
-        visibility: form.input.visibility,
-        customDomain: form.input.customDomain,
-      },
-      studio: {
-        name: form.input.name,
-        homepageUrl: form.input.homepageUrl,
-        showPastIncidents: form.input.showPastIncidents,
-        theme: form.input.theme,
-        accentColor: form.input.accentColor,
-        hideBranding: form.input.hideBranding,
-        monitors: form.input.monitors,
-      },
-    }),
-    [form.input],
+    () => ({ settings: form.settingsInput, studio: form.studioInput }),
+    [form.settingsInput, form.studioInput],
   );
 
   const { isDirty, dirty, markSaved } = useUnsavedChanges(sections);
@@ -245,6 +228,8 @@ export function StatusPageEditor({
             )}
           </div>
 
+          {/* No unsaved-dot here: studio fields are only editable inside the studio, and closing
+              it forces save-or-discard, so the studio section is always clean on this page. */}
           <Button
             type='button'
             variant='outline'
@@ -253,7 +238,6 @@ export function StatusPageEditor({
           >
             <Pencil className='mr-1.5 h-3.5 w-3.5' />
             {t('editPage')}
-            {dirty.studio && <UnsavedDot label={t('unsavedChanges')} />}
           </Button>
 
           {!statusPage.isPublished && (

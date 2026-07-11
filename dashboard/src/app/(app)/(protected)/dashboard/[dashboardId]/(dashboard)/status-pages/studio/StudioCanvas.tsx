@@ -56,8 +56,6 @@ export function StudioCanvas({
               messages={preview.messages}
               publicHost={publicHost}
               draft={draft}
-              enlargeable
-              hoverEnlarge={false}
               enlargedOpen={enlargedOpen}
               onEnlargedOpenChange={onEnlargedOpenChange}
               zoom={zoom}

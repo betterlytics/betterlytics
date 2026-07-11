@@ -19,7 +19,6 @@ import type {
   StatusPageCreate,
   StatusPageListItem,
   StatusPageUpdate,
-  StatusPageWithMonitors,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 
 export async function getStatusPagesForDashboard(dashboardId: string): Promise<StatusPageListItem[]> {
@@ -32,13 +31,6 @@ export async function getStatusPagesForDashboard(dashboardId: string): Promise<S
     ...page,
     activeIncidentCount: activeIncidentsByPage.get(page.id) ?? 0,
   }));
-}
-
-export async function getStatusPage(
-  dashboardId: string,
-  statusPageId: string,
-): Promise<StatusPageWithMonitors | null> {
-  return getStatusPageById(dashboardId, statusPageId);
 }
 
 export async function getStatusPageEditorData(dashboardId: string, statusPageId: string) {

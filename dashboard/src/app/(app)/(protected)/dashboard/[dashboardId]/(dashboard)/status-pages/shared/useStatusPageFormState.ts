@@ -114,21 +114,29 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
   const isHomepageUrlValid = isValidHomepageUrl(values.homepageUrl);
   const isCustomDomainValid = isValidCustomDomain(values.customDomain);
 
-  const input = useMemo(
+  const settingsInput = useMemo(
+    () => ({
+      slug: values.slug,
+      visibility: values.visibility,
+      customDomain: values.customDomain.trim() || null,
+    }),
+    [values.slug, values.visibility, values.customDomain],
+  );
+
+  const studioInput = useMemo(
     () => ({
       name: values.name.trim(),
-      slug: values.slug,
       theme: values.theme,
       accentColor: values.accentColor,
       showPastIncidents: values.showPastIncidents,
       hideBranding: values.hideBranding,
-      visibility: values.visibility,
       homepageUrl: values.homepageUrl.trim() || null,
-      customDomain: values.customDomain.trim() || null,
       monitors: monitorsPayload,
     }),
     [values, monitorsPayload],
   );
+
+  const input = useMemo(() => ({ ...settingsInput, ...studioInput }), [settingsInput, studioInput]);
 
   // Stable identity across cosmetic edits so LivePreview's derivation memo only
   // recomputes when the monitor selection itself changes.
@@ -172,6 +180,8 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     isHomepageUrlValid,
     isCustomDomainValid,
     monitorsPayload,
+    settingsInput,
+    studioInput,
     input,
     /** The current values object; stable per render, so dirty checks can JSON-compare it. */
     snapshot: values,

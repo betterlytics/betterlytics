@@ -1,8 +1,8 @@
 'use client';
 
-import { memo, useDeferredValue, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { memo, useDeferredValue, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
-import { Maximize2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import { StatusPageView } from '@/app/status/[slug]/components/StatusPageView';
@@ -41,12 +41,9 @@ type LivePreviewProps = {
   messages: Record<string, unknown>;
   publicHost: string;
   draft: PreviewDraft;
-  /** Mount the enlarged-modal machinery (required for any enlarge trigger, external or hover). */
-  enlargeable?: boolean;
-  /** Show the hover "Enlarge" pill. The studio canvas turns it off: its zoom control makes the modal redundant on desktop, while the mobile header button still opens it. */
-  hoverEnlarge?: boolean;
-  enlargedOpen?: boolean;
-  onEnlargedOpenChange?: (open: boolean) => void;
+  /** Controls the enlarged-modal view (opened via the studio's mobile header button). */
+  enlargedOpen: boolean;
+  onEnlargedOpenChange: (open: boolean) => void;
   zoom?: number;
   frameStyle?: CSSProperties;
   className?: string;
@@ -116,18 +113,11 @@ const PreviewFrame = memo(function PreviewFrame({
   );
 });
 
-/**
- * Client-composed live preview: the server assembles uptime/incident data for
- * ALL dashboard monitors once (payload), and every form edit is layered on top
- * here. Status pages always render in English.
- */
 export function LivePreview({
   payload,
   messages,
   publicHost,
   draft: liveDraft,
-  enlargeable = false,
-  hoverEnlarge = true,
   enlargedOpen,
   onEnlargedOpenChange,
   zoom = 0.5,
@@ -137,10 +127,6 @@ export function LivePreview({
   const tEditor = useTranslations('statusPagesPage.editor');
 
   const draft = useDeferredValue(liveDraft);
-
-  const [internalOpen, setInternalOpen] = useState(false);
-  const open = enlargedOpen ?? internalOpen;
-  const setOpen = onEnlargedOpenChange ?? setInternalOpen;
 
   const indexByCheckId = useMemo(
     () => new Map(payload.monitorCheckIds.map((checkId, index) => [checkId, index])),
@@ -249,28 +235,11 @@ export function LivePreview({
     />
   );
 
-  if (!enlargeable) return frame;
-
   return (
     <>
-      {/* The enlarge affordance is a small floating pill, NOT a full-frame cover: a cover
-          swallows wheel events and makes the preview unscrollable. */}
-      <div className='group relative mx-auto flex max-h-full min-h-0'>
-        {frame}
-        {hoverEnlarge && (
-          <button
-            type='button'
-            onClick={() => setOpen(true)}
-            aria-label={tEditor('wizard.enlargePreview')}
-            className='absolute top-10 right-3 flex cursor-pointer items-center gap-1.5 rounded-md bg-black/70 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none'
-          >
-            <Maximize2 className='h-3.5 w-3.5' />
-            {tEditor('wizard.enlargePreview')}
-          </button>
-        )}
-      </div>
+      <div className='mx-auto flex max-h-full min-h-0'>{frame}</div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={enlargedOpen} onOpenChange={onEnlargedOpenChange}>
         <DialogPortal>
           <DialogOverlay />
           <DialogPrimitive.Content

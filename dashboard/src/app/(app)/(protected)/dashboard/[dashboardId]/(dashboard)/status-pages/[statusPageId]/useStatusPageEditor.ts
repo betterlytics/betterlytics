@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -32,15 +32,16 @@ export function useStatusPageEditor({
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
 
-  const payload = useMemo(() => ({ id: statusPage.id, ...form.input }), [statusPage.id, form.input]);
-
   const savedSnapshotRef = useRef(form.snapshot);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
 
   const saveMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (section: 'settings' | 'studio') => {
+      if (section === 'settings') {
+        return updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.settingsInput });
+      }
       const images = await collectStagedImages(form);
-      return updateStatusPageAction(dashboardId, payload, images);
+      return updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.studioInput }, images);
     },
     onSuccess: (page) => {
       if (page) {
@@ -62,9 +63,9 @@ export function useStatusPageEditor({
 
   const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
 
-  const saveNow = () => saveMutation.mutate(undefined, { onSuccess: () => toast.success(t('saved')) });
+  const saveNow = () => saveMutation.mutate('settings', { onSuccess: () => toast.success(t('saved')) });
   const studioSaveNow = () =>
-    saveMutation.mutate(undefined, {
+    saveMutation.mutate('studio', {
       onSuccess: () => {
         toast.success(t('saved'));
         closeStudio();
