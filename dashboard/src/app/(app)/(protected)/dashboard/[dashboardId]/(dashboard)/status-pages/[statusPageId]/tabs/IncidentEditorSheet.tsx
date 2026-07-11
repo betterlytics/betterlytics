@@ -215,16 +215,24 @@ export function IncidentEditorSheet({
       }));
 
       if (!form.id) {
+        const composerEntry = {
+          status: composer.status,
+          message: composer.message.trim(),
+          occurredAt: new Date(composer.timeLocal),
+        };
+        const [opening, ...rest] = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
+          (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
+        );
         await createStatusPageIncidentAction(dashboardId, {
           statusPageId,
           title: form.title.trim(),
-          message: composer.message.trim(),
+          message: opening.message,
           impact: form.impact,
-          status: composer.status,
+          status: opening.status,
           monitorCheckIds: form.monitorCheckIds,
           detectedIncidentId: form.detectedIncidentId,
-          startedAt: new Date(composer.timeLocal),
-          updates: stagedUpdates,
+          startedAt: opening.occurredAt,
+          updates: rest,
         });
         return;
       }
@@ -327,7 +335,8 @@ export function IncidentEditorSheet({
 
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : composer.status);
   const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
-  const composerIsNoop = composer.message.trim().length === 0 && composer.status === latestStatus;
+  const previousStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : null);
+  const composerIsNoop = composer.message.trim().length === 0 && composer.status === previousStatus;
   const showComposerHint = composerError && composerIsNoop;
 
   const handleAddUpdate = () => {
