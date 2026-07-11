@@ -45,6 +45,7 @@ import {
   saveStatusPageIncidentChanges,
 } from '@/services/analytics/statusPageIncident.service';
 import {
+  getStatusPageLivePreviewData,
   getStatusPagePreviewDataForDashboard,
   getStatusPageStudioData,
 } from '@/services/analytics/publicStatusPage.service';
@@ -79,6 +80,17 @@ export const fetchStatusPageStudioDataAction = withDashboardAuthContext(
     ]);
     if (!data) return null;
     return { ...data, messages: messages.publicStatusPage as Record<string, unknown> };
+  },
+);
+
+export const fetchStatusPageLivePreviewAction = withDashboardAuthContext(
+  async (ctx: AuthContext, statusPageId: string) => {
+    const [payload, messages] = await Promise.all([
+      getStatusPageLivePreviewData(ctx.dashboardId, statusPageId),
+      getMessages({ locale: 'en' }),
+    ]);
+    if (!payload) return null;
+    return { payload, messages: messages.publicStatusPage as Record<string, unknown> };
   },
 );
 

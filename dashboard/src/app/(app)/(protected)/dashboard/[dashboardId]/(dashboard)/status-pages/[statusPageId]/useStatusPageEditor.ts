@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
@@ -32,6 +32,7 @@ export function useStatusPageEditor({
 }: UseStatusPageEditorArgs) {
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { resolveHref } = useDashboardNavigation();
 
   const savedSnapshotRef = useRef(form.snapshot);
@@ -52,6 +53,7 @@ export function useStatusPageEditor({
       }
       markSaved();
       savedSnapshotRef.current = form.snapshot;
+      queryClient.invalidateQueries({ queryKey: ['statusPageLivePreview', dashboardId, statusPage.id] });
       router.refresh();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),

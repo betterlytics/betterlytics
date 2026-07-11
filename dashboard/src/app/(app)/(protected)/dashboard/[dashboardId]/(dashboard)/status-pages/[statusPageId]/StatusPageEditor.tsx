@@ -3,7 +3,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, ExternalLink, Pencil } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, ExternalLink, Maximize2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -17,6 +18,8 @@ import { cn } from '@/lib/utils';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { IncidentsTab } from './tabs/IncidentsTab';
+import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
+import { fetchStatusPageLivePreviewAction } from '@/app/actions/analytics/statusPage.actions';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/monitorRow';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
@@ -93,8 +96,6 @@ export function StatusPageEditor({
   const searchParams = useSearchParams();
   const urlTab = searchParams.get('tab');
   const requestedTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
-  // Settings is management-only. A viewer landing on ?tab=settings (or hand-editing the URL to bypass the
-  // disabled tab) is sent back to incidents rather than shown the settings form.
   const activeTab: TabKey = requestedTab === 'settings' && !canManageStatusPages ? 'incidents' : requestedTab;
   const onSettingsTab = activeTab === 'settings';
 
@@ -107,10 +108,17 @@ export function StatusPageEditor({
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }, []);
 
-  // Same guard as the Edit button, so viewers can't open the studio via the ?studio=1 deep-link.
   const [showStudio, setShowStudio] = useState(
     () => canManageStatusPages && searchParams.get('studio') === '1',
   );
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const livePreviewQuery = useQuery({
+    queryKey: ['statusPageLivePreview', dashboardId, statusPage.id],
+    queryFn: () => fetchStatusPageLivePreviewAction(dashboardId, statusPage.id),
+    enabled: onSettingsTab,
+    staleTime: Infinity,
+  });
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -179,7 +187,7 @@ export function StatusPageEditor({
   const publishBlockedReason = effectiveDirty ? t('publishNeedsSave') : t('minMonitorsHint');
 
   return (
-    <div className={cn(onSettingsTab && 'pb-24')}>
+    <div className={cn(onSettingsTab && 'pb-24 xl:pb-0')}>
       <Link
         href={backHref}
         onClick={handleBackClick}
@@ -276,6 +284,17 @@ export function StatusPageEditor({
             </PermissionGate>
           )}
 
+          {onSettingsTab && (
+            <button
+              type='button'
+              onClick={() => setPreviewOpen(true)}
+              disabled={!livePreviewQuery.data}
+              className='border-border bg-card text-foreground hover:bg-accent inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border px-3 text-sm transition-colors disabled:cursor-default disabled:opacity-50 xl:hidden'
+            >
+              <Maximize2 className='h-3.5 w-3.5' />
+              {t('preview')}
+            </button>
+          )}
         </div>
       </div>
 
@@ -299,26 +318,78 @@ export function StatusPageEditor({
             <IncidentsTab dashboardId={dashboardId} statusPageId={statusPage.id} monitors={form.monitorsPayload} />
           </div>
         ) : (
-          <div className='mt-6 max-w-3xl space-y-12'>
-            <SettingsTab
-              form={form}
-              slugStatus={slugStatus}
-              publicHost={publicHost}
-              dashboardDomain={dashboardDomain}
-              isPublished={statusPage.isPublished}
-              onUnpublish={() => setShowUnpublishConfirm(true)}
-              isUnpublishing={publishMutation.isPending}
-              onDelete={() => setShowDeleteConfirm(true)}
-              isDeleting={deleteMutation.isPending}
-            />
+          <div className='mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,440px)] xl:items-start'>
+            <div className='space-y-12'>
+              <SettingsTab
+                form={form}
+                slugStatus={slugStatus}
+                publicHost={publicHost}
+                dashboardDomain={dashboardDomain}
+                isPublished={statusPage.isPublished}
+                onUnpublish={() => setShowUnpublishConfirm(true)}
+                isUnpublishing={publishMutation.isPending}
+                onDelete={() => setShowDeleteConfirm(true)}
+                isDeleting={deleteMutation.isPending}
+              />
+            </div>
+
+            <div className='hidden xl:block'>
+              <div className='mb-3 flex h-8 items-end justify-end gap-2'>
+                {effectiveDirty && (
+                  <Button
+                    type='button'
+                    variant='ghost'
+                    size='sm'
+                    disabled={saveMutation.isPending}
+                    onClick={handleDiscard}
+                    className='cursor-pointer'
+                  >
+                    {t('discard')}
+                  </Button>
+                )}
+                <PermissionGate>
+                  {(disabled) => (
+                    <Button
+                      size='sm'
+                      disabled={disabled || saveDisabled || saveMutation.isPending}
+                      title={!disabled && noMonitors ? t('minMonitorsHint') : undefined}
+                      onClick={handleSave}
+                      className='cursor-pointer'
+                    >
+                      {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {t('save')}
+                    </Button>
+                  )}
+                </PermissionGate>
+              </div>
+              <div className='xl:sticky xl:top-4'>
+                {livePreviewQuery.data ? (
+                  <LivePreview
+                    payload={livePreviewQuery.data.payload}
+                    messages={livePreviewQuery.data.messages}
+                    publicHost={publicHost}
+                    draft={form.previewDraft}
+                    enlargedOpen={previewOpen}
+                    onEnlargedOpenChange={setPreviewOpen}
+                    className='w-full'
+                  />
+                ) : (
+                  <div className='bg-card border-border flex h-72 items-center justify-center rounded-xl border'>
+                    {livePreviewQuery.isPending ? (
+                      <Spinner size='sm' />
+                    ) : (
+                      <p className='text-muted-foreground text-sm'>{t('error')}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </UnderlineTabs>
 
-      {/* bottom-[33px] = the sidebar trigger's bottom-10 (40px) minus this panel's padding+border
-          (7px), so the buttons line up vertically with the trigger (bottom-left). */}
       {onSettingsTab && (
-        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg'>
+        <div className='bg-background border-border fixed right-6 bottom-[33px] z-49 flex h-fit w-fit items-center gap-2 rounded-lg border p-1.5 shadow-lg xl:hidden'>
           <Button
             type='button'
             variant='outline'

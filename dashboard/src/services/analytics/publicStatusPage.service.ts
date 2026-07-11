@@ -61,6 +61,16 @@ export async function getPublicStatusPageImage(slug: string, kind: StatusPageIma
   return getStatusPageImageBySlug(slug, kind);
 }
 
+export async function getStatusPageLivePreviewData(
+  dashboardId: string,
+  statusPageId: string,
+): Promise<StatusPagePreviewPayload | null> {
+  const snapshot = await getStatusPageSnapshotById(dashboardId, statusPageId);
+  if (!snapshot) return null;
+
+  return assembleStatusPage(snapshot, { hideBranding: snapshot.page.hideBranding });
+}
+
 export async function getStatusPageStudioData(dashboardId: string, statusPageId: string) {
   const [snapshot, allMonitors] = await Promise.all([
     getStatusPageSnapshotById(dashboardId, statusPageId),
