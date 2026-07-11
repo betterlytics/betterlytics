@@ -14,6 +14,8 @@ import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
 import { statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/monitorRow';
@@ -69,6 +71,8 @@ export function StatusPageEditor({
   const t = useTranslations('statusPagesPage.editor');
   const tActions = useTranslations('statusPagesPage.actions');
   const router = useRouter();
+  const { hasPermission } = useDashboardAuth();
+  const canManageStatusPages = hasPermission('canManageStatusPages');
 
   const initialMonitorRows = useMemo(() => buildMonitorRows(statusPage), [statusPage]);
   const form = useStatusPageFormState({
@@ -88,7 +92,10 @@ export function StatusPageEditor({
 
   const searchParams = useSearchParams();
   const urlTab = searchParams.get('tab');
-  const activeTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
+  const requestedTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
+  // Settings is management-only. A viewer landing on ?tab=settings (or hand-editing the URL to bypass the
+  // disabled tab) is sent back to incidents rather than shown the settings form.
+  const activeTab: TabKey = requestedTab === 'settings' && !canManageStatusPages ? 'incidents' : requestedTab;
   const onSettingsTab = activeTab === 'settings';
 
   const setActiveTab = useCallback((tab: TabKey) => {
@@ -100,7 +107,10 @@ export function StatusPageEditor({
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }, []);
 
-  const [showStudio, setShowStudio] = useState(() => searchParams.get('studio') === '1');
+  // Same guard as the Edit button, so viewers can't open the studio via the ?studio=1 deep-link.
+  const [showStudio, setShowStudio] = useState(
+    () => canManageStatusPages && searchParams.get('studio') === '1',
+  );
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -128,6 +138,7 @@ export function StatusPageEditor({
   );
 
   const { isDirty, dirty, markSaved } = useUnsavedChanges(sections);
+  const { resolveHref } = useDashboardNavigation();
 
   const {
     saveMutation,
@@ -153,7 +164,7 @@ export function StatusPageEditor({
     [effectiveDirty],
   );
 
-  const backHref = `/dashboard/${dashboardId}/status-pages`;
+  const backHref = resolveHref('status-pages');
 
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const liveCustomDomain = form.input.customDomain;
@@ -230,15 +241,20 @@ export function StatusPageEditor({
 
           {/* No unsaved-dot here: studio fields are only editable inside the studio, and closing
               it forces save-or-discard, so the studio section is always clean on this page. */}
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => setShowStudio(true)}
-            className='h-9 cursor-pointer'
-          >
-            <Pencil className='mr-1.5 h-3.5 w-3.5' />
-            {t('editPage')}
-          </Button>
+          <PermissionGate permission='canManageStatusPages'>
+            {(disabled) => (
+              <Button
+                type='button'
+                variant='outline'
+                disabled={disabled}
+                onClick={() => setShowStudio(true)}
+                className='h-9 cursor-pointer'
+              >
+                <Pencil className='mr-1.5 h-3.5 w-3.5' />
+                {t('editPage')}
+              </Button>
+            )}
+          </PermissionGate>
 
           {!statusPage.isPublished && (
             <PermissionGate permission='canPublishStatusPages'>
@@ -267,10 +283,14 @@ export function StatusPageEditor({
         <div className='border-border overflow-x-auto border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='settings'>
-              {t('tabs.settings')}
-              {dirty.settings && <UnsavedDot label={t('unsavedChanges')} />}
-            </UnderlineTabsTrigger>
+            <PermissionGate permission='canManageStatusPages'>
+              {(disabled) => (
+                <UnderlineTabsTrigger value='settings' disabled={disabled}>
+                  {t('tabs.settings')}
+                  {dirty.settings && <UnsavedDot label={t('unsavedChanges')} />}
+                </UnderlineTabsTrigger>
+              )}
+            </PermissionGate>
           </UnderlineTabsList>
         </div>
 

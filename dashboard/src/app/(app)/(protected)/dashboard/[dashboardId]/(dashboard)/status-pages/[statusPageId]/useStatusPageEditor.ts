@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import {
@@ -31,6 +32,7 @@ export function useStatusPageEditor({
 }: UseStatusPageEditorArgs) {
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
+  const { resolveHref } = useDashboardNavigation();
 
   const savedSnapshotRef = useRef(form.snapshot);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
@@ -58,7 +60,7 @@ export function useStatusPageEditor({
   const publishMutation = useSetStatusPagePublishedMutation(dashboardId, { onSuccess: () => router.refresh() });
 
   const deleteMutation = useDeleteStatusPageMutation(dashboardId, {
-    onSuccess: () => router.push(`/dashboard/${dashboardId}/status-pages`),
+    onSuccess: () => router.push(resolveHref('status-pages')),
   });
 
   const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);

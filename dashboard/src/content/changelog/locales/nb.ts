@@ -1,51 +1,63 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v143ChangelogEntryNb: ChangelogEntryData = {
+const v144ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.3',
-    releasedAt: '2026-05-24',
-    title: 'Oppdaterte kontoinnstillinger og styrket sikkerhet',
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Trakter med flere kriterier, enklere betaling og styrket personvern',
     summary:
-      'En redesignet dialog for brukerinnstillinger, nye muligheter for å administrere aktive økter, styrkede kontroller rundt tofaktorautentisering, samt en håndfull rettelser og finpussinger.',
+      'Bygg mer presise trakter med flere kriterier per trinn, nå også på mobil. Administrer abonnementet og fakturaene dine uten å forlate appen, og få enda bedre personvern for de besøkende.',
   },
   sections: [
     {
-      id: 'v143-security',
-      title: 'Sikkerhet',
+      id: 'v144-new-features',
+      title: 'Nye funksjoner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Du kan nå logge ut av alle andre aktive økter direkte fra kontoinnstillingene dine.',
-            'Deaktivering av tofaktorautentisering krever nå en gyldig TOTP-kode, noe som gir ekstra beskyttelse mot uautoriserte endringer.',
-            'Tofaktorautentisering tilbys ikke lenger for kontoer som logger inn via Google eller GitHub, siden leverandøren allerede håndterer det.',
+            'Trakttrinn støtter nå flere kriterier. Hvert trinn kan kombinere flere filtre, for eksempel en bestemt side og en referrer, slik at du kan definere langt mer presise konverteringsstier.',
+            'Du kan nå opprette og redigere trakter på mobil, slik at det fungerer problemfritt på både telefoner og nettbrett.',
+            'Administrer abonnementet ditt uten å forlate Betterlytics. Du kan nå oppgradere, nedgradere eller bytte abonnement direkte i appen, med en tydelig oversikt over eventuelle forholdsmessige beløp eller tilgodebeløp før du bekrefter. Betalingen skjer også trygt i appen, uten omdirigering til en ekstern side.',
+            'Se og åpne tidligere fakturaer direkte fra kontoinnstillingene dine.',
           ],
         },
       ],
     },
     {
-      id: 'v143-improvements',
+      id: 'v144-privacy-security',
+      title: 'Personvern og sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har ytterligere styrket anonymiseringen av besøksdata, noe som understreker vårt engasjement for å sette personvern først: analyser kan aldri spores tilbake til enkeltpersoner.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Dialogen for brukerinnstillinger er redesignet med et mer moderne og ryddig oppsett.',
-            'Favicons for dashboard-domener hentes nå mer pålitelig for flere nettsteder.',
-            'Mindre UI-finpussinger på tvers av dashbordet.',
+            'Tilgodehavende for ubrukt abonnementstid vises nå i faktureringsinnstillingene dine og trekkes automatisk fra fremtidige fakturaer.',
+            'Betalingsproblemer er nå tydeligere, med et varsel når en betaling er forfalt, og mulighet for å oppdatere betalingsmåten din med ett klikk.',
+            'Prissiden er fornyet med et forslag til antall hendelser basert på estimert trafikk og en tydeligere oversikt over hva hvert abonnement inneholder.',
           ],
         },
       ],
     },
     {
-      id: 'v143-fixes',
+      id: 'v144-fixes',
       title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Rettet et problem der brukere uten et navn på kontoen sin ikke kunne oppdatere innstillingene sine.',
-            'Rettet et problem der det viste temaet ikke lenger samsvarte med den lagrede innstillingen hvis man avbrøt et temaskifte.',
+            'Rettet et kortvarig visuelt flimmer som kunne oppstå når dialoger ble lukket på tvers av appen.',
           ],
         },
       ],
@@ -53,10 +65,62 @@ const v143ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v143ChangelogEntryNb;
+export const latestChangelogModalNb = v144ChangelogEntryNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
-  v143ChangelogEntryNb,
+  v144ChangelogEntryNb,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Oppdaterte kontoinnstillinger og styrket sikkerhet',
+      summary:
+        'En redesignet dialog for brukerinnstillinger, nye muligheter for å administrere aktive økter, styrkede kontroller rundt tofaktorautentisering, samt en håndfull rettelser og finpussinger.',
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Sikkerhet',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Du kan nå logge ut av alle andre aktive økter direkte fra kontoinnstillingene dine.',
+              'Deaktivering av tofaktorautentisering krever nå en gyldig TOTP-kode, noe som gir ekstra beskyttelse mot uautoriserte endringer.',
+              'Tofaktorautentisering tilbys ikke lenger for kontoer som logger inn via Google eller GitHub, siden leverandøren allerede håndterer det.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dialogen for brukerinnstillinger er redesignet med et mer moderne og ryddig oppsett.',
+              'Favicons for dashboard-domener hentes nå mer pålitelig for flere nettsteder.',
+              'Mindre UI-finpussinger på tvers av dashbordet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem der brukere uten et navn på kontoen sin ikke kunne oppdatere innstillingene sine.',
+              'Rettet et problem der det viste temaet ikke lenger samsvarte med den lagrede innstillingen hvis man avbrøt et temaskifte.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.2',

@@ -41,6 +41,7 @@ import { StatusPageBrandAvatar } from '@/components/statusPage/StatusPageBrandAv
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { cn } from '@/lib/utils';
 import {
   useDeleteStatusPageMutation,
@@ -99,6 +100,7 @@ export function StatusPagesClient({
   const tStatus = useTranslations('monitoring.status');
   const router = useRouter();
   const { caps } = useCapabilities();
+  const { resolveHref } = useDashboardNavigation();
   const atStatusPageLimit = statusPages.length >= caps.statusPages.maxStatusPages;
 
   const [showCreateStudio, setShowCreateStudio] = useState(false);
@@ -180,7 +182,7 @@ export function StatusPagesClient({
                 {incidentPages.map((page, index) => (
                   <span key={page.id}>
                     <Link
-                      href={`/dashboard/${dashboardId}/status-pages/${page.id}`}
+                      href={resolveHref(`status-pages/${page.id}`)}
                       className='font-medium text-amber-600 hover:underline dark:text-amber-400'
                     >
                       {page.name}
@@ -193,7 +195,7 @@ export function StatusPagesClient({
           </div>
           {incidentPages.length === 1 && (
             <Button asChild variant='outline' size='sm' className='shrink-0'>
-              <Link href={`/dashboard/${dashboardId}/status-pages/${incidentPages[0].id}`}>
+              <Link href={resolveHref(`status-pages/${incidentPages[0].id}`)}>
                 {t('banner.viewIncidents')}
               </Link>
             </Button>
@@ -217,7 +219,7 @@ export function StatusPagesClient({
 
         {statusPages.map((page) => {
           const isIncident = page.activeIncidentCount > 0;
-          const editorHref = `/dashboard/${dashboardId}/status-pages/${page.id}`;
+          const editorHref = resolveHref(`status-pages/${page.id}`);
           const publicUrl = statusPagePublicUrl(page, publicBaseUrl);
           const monitorStates = page.monitors.map(
             (monitor) => monitorStatuses[monitor.monitorCheckId] ?? 'preparing',
@@ -330,16 +332,21 @@ export function StatusPagesClient({
                   </Button>
                 )}
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer'
-                      aria-label={t('actions.more')}
-                    >
-                      <MoreHorizontal className='h-4 w-4' />
-                    </Button>
-                  </DropdownMenuTrigger>
+                  <PermissionGate>
+                    {(disabled) => (
+                      <DropdownMenuTrigger asChild disabled={disabled}>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          disabled={disabled}
+                          className='text-muted-foreground hover:text-foreground h-8 w-8 cursor-pointer'
+                          aria-label={t('actions.more')}
+                        >
+                          <MoreHorizontal className='h-4 w-4' />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    )}
+                  </PermissionGate>
                   <DropdownMenuContent align='end' className='w-48'>
                     <DropdownMenuItem asChild className='cursor-pointer'>
                       <Link href={`${editorHref}?studio=1`}>

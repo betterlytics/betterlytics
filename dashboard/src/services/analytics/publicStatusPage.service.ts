@@ -35,7 +35,6 @@ import {
   listPublishedIncidentUpdates,
 } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
-import { canRemoveStatusPageBranding } from '@/lib/billing/capabilityAccess';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
 function deriveMonitorStatus(
@@ -54,9 +53,7 @@ export async function getPublicStatusPageData(slug: string): Promise<PublicStatu
   const published = await getPublishedStatusPageBySlug(slug);
   if (!published) return null;
 
-  const hideBranding =
-    published.page.hideBranding && (await canRemoveStatusPageBranding(published.page.dashboardId));
-  const { data } = await assembleStatusPage(published, { hideBranding });
+  const { data } = await assembleStatusPage(published, { hideBranding: published.page.hideBranding });
   return data;
 }
 

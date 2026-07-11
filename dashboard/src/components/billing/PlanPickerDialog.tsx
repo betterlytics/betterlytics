@@ -45,7 +45,7 @@ export function PlanPickerDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className='flex h-[97dvh] max-h-[930px] w-[95vw] max-w-[1200px] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:min-h-[740px] sm:max-w-[1200px] [&>button]:z-50'
+        className='flex h-[97dvh] max-h-[980px] w-[95vw] max-w-[1200px] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:min-h-[740px] sm:max-w-[1200px] [&>button]:z-50'
         overlayClassName='bg-white/90 dark:bg-black/95 backdrop-blur-xs'
       >
         <ScrollArea className='min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]>div]:!block [&>[data-slot=scroll-area-scrollbar]]:z-40'>
@@ -66,7 +66,7 @@ export function PlanPickerDialog({
               stickyControls
             />
 
-            <Collapsible open={comparisonOpen} onOpenChange={setComparisonOpen} className='group/comparison mt-14'>
+            <Collapsible open={comparisonOpen} onOpenChange={setComparisonOpen} className='group/comparison mt-10'>
               <CollapsibleTrigger
                 ref={comparisonTriggerRef}
                 className='text-muted-foreground hover:text-foreground mx-auto flex cursor-pointer scroll-mt-4 items-center gap-1.5 text-sm transition-colors'

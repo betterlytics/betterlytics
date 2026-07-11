@@ -6,6 +6,7 @@ import { ReactNode, forwardRef, useMemo } from 'react';
 import { usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 
 interface FilterPreservingLinkProps extends Omit<LinkProps, 'href'> {
   href: string;
@@ -29,7 +30,7 @@ export const FilterPreservingLink = forwardRef<HTMLAnchorElement, FilterPreservi
     const hrefWithFilters = getHrefWithFilters(resolvedHref);
 
     const pathname = usePathname();
-    const isOnPage = highlightOnPage && stripQueryAndHash(resolvedHref) === stripQueryAndHash(pathname);
+    const isOnPage = highlightOnPage && toComparablePath(resolvedHref) === toComparablePath(pathname);
 
     return (
       <Link
@@ -47,7 +48,21 @@ export const FilterPreservingLink = forwardRef<HTMLAnchorElement, FilterPreservi
 
 FilterPreservingLink.displayName = 'FilterPreservingLink';
 
-function stripQueryAndHash(value: string): string {
+/**
+ * Normalizes a path for active-link comparison: strips the query/hash and any
+ * leading locale segment. The demo dashboard's basePath bakes in the locale
+ * (e.g. `/en/share/...`), but next-intl's usePathname returns a locale-stripped
+ * path (e.g. `/share/...`), so both sides must be locale-normalized to match.
+ */
+function toComparablePath(value: string): string {
   const url = new URL(value, 'http://placeholder');
-  return url.pathname;
+  return stripLeadingLocale(url.pathname);
+}
+
+function stripLeadingLocale(pathname: string): string {
+  const [firstSegment, ...rest] = pathname.split('/').filter(Boolean);
+  if (firstSegment && (SUPPORTED_LANGUAGES as readonly string[]).includes(firstSegment)) {
+    return `/${rest.join('/')}`;
+  }
+  return pathname;
 }

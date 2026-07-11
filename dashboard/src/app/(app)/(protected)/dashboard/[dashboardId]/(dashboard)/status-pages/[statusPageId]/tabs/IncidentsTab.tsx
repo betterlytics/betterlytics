@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { PaginationControls } from '@/components/PaginationControls';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import {
   type DetectedOutageSuggestion,
   type StatusPageIncident,
@@ -77,6 +78,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const locale = useLocale() as SupportedLanguages;
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { canMutate } = useDashboardAuth();
 
   // The editor sheet initializes from its seed on mount; a fresh key per open remounts it,
   // so opening never has to reset stale state field by field.
@@ -507,15 +509,23 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                     visibleRows.map((row) => (
                       <TableRow
                         key={row.id}
-                        tabIndex={0}
-                        className='hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring group cursor-pointer focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none'
-                        onClick={() => openEdit(row.original)}
-                        onKeyDown={(e) => {
-                          if (e.target !== e.currentTarget) return;
-                          if (e.key !== 'Enter' && e.key !== ' ') return;
-                          e.preventDefault();
-                          openEdit(row.original);
-                        }}
+                        tabIndex={canMutate ? 0 : undefined}
+                        className={cn(
+                          'group',
+                          canMutate &&
+                            'hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none',
+                        )}
+                        onClick={canMutate ? () => openEdit(row.original) : undefined}
+                        onKeyDown={
+                          canMutate
+                            ? (e) => {
+                                if (e.target !== e.currentTarget) return;
+                                if (e.key !== 'Enter' && e.key !== ' ') return;
+                                e.preventDefault();
+                                openEdit(row.original);
+                              }
+                            : undefined
+                        }
                       >
                         {row.getVisibleCells().map((cell) => {
                           const meta = cell.column.columnDef.meta as IncidentColumnMeta | undefined;

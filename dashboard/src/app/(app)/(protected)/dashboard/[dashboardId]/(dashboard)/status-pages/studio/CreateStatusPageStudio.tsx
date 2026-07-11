@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import {
   createStatusPageAction,
   fetchStatusPageDraftPreviewAction,
@@ -43,6 +44,7 @@ function StudioForm({
 }: CreateStatusPageStudioProps & { defaults: StudioDefaults }) {
   const t = useTranslations('statusPagesPage.editor');
   const router = useRouter();
+  const { resolveHref } = useDashboardNavigation();
 
   const form = useStatusPageFormState({
     name: defaults.name,
@@ -78,7 +80,7 @@ function StudioForm({
           },
         });
       }
-      router.push(`/dashboard/${dashboardId}/status-pages/${page.id}`);
+      router.push(resolveHref(`status-pages/${page.id}`));
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
   });
