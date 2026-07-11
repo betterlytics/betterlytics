@@ -4088,7 +4088,7 @@
       "hideBranding": "Skjul Betterlytics-merking",
       "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-bunnteksten fra den offentlige siden.",
       "visibility": {
-        "title": "Synlighet",
+        "title": "Synlighet i søkemotorer",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
         "unlisted": "Ikke oppført",
@@ -4141,7 +4141,7 @@
         "zoomFit": "Tilpass til skjermen",
         "desktopPreview": "Forhåndsvisning for datamaskin",
         "mobilePreview": "Forhåndsvisning for mobil",
-        "customDomainLater": "Vil du bruke ditt eget domene som status.{domain}? Koble det til fra sidens innstillinger når siden er opprettet.",
+        "customDomainLater": "Vil du hoste siden på ditt eget domene, som status.{domain}? Koble det til fra sidens innstillinger når siden er opprettet.",
         "discardEdits": {
           "title": "Forkast endringene dine?",
           "description": "Endringer gjort i editoren tilbakestilles til sist lagrede tilstand.",

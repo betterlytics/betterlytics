@@ -4086,7 +4086,7 @@
         "propagation": "DNS changes can take up to a few hours to take effect."
       },
       "visibility": {
-        "title": "Visibility",
+        "title": "Search engine visibility",
         "public": "Public",
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
         "unlisted": "Unlisted",
@@ -4139,7 +4139,7 @@
         "zoomFit": "Fit to screen",
         "desktopPreview": "Desktop preview",
         "mobilePreview": "Mobile preview",
-        "customDomainLater": "Want your own domain like status.{domain}? Connect it from your page settings once the page is created.",
+        "customDomainLater": "Want to host this page on your own domain, like status.{domain}? Connect it from your page settings once the page is created.",
         "discardEdits": {
           "title": "Discard your edits?",
           "description": "Changes made in the editor will be reverted to the last saved state.",

@@ -4088,7 +4088,7 @@
       "hideBranding": "Nascondi il branding Betterlytics",
       "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
       "visibility": {
-        "title": "Visibilità",
+        "title": "Visibilità sui motori di ricerca",
         "public": "Pubblica",
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
         "unlisted": "Non in elenco",
@@ -4141,7 +4141,7 @@
         "zoomFit": "Adatta allo schermo",
         "desktopPreview": "Anteprima desktop",
         "mobilePreview": "Anteprima mobile",
-        "customDomainLater": "Vuoi usare il tuo dominio come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata.",
+        "customDomainLater": "Vuoi ospitare la pagina sul tuo dominio, come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata.",
         "discardEdits": {
           "title": "Annullare le modifiche?",
           "description": "Le modifiche apportate nell'editor verranno riportate all'ultimo stato salvato.",
