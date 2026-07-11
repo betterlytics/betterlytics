@@ -2,7 +2,7 @@
 
 import { memo, useDeferredValue, useMemo, type CSSProperties, type ReactNode } from 'react';
 import { NextIntlClientProvider, useTranslations } from 'next-intl';
-import { X } from 'lucide-react';
+import { Maximize2, X } from 'lucide-react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Dialog, DialogClose, DialogOverlay, DialogPortal, DialogTitle } from '@/components/ui/dialog';
 import { StatusPageView } from '@/app/status/[slug]/components/StatusPageView';
@@ -44,6 +44,9 @@ type LivePreviewProps = {
   /** Controls the enlarged-modal view (opened via the studio's mobile header button). */
   enlargedOpen: boolean;
   onEnlargedOpenChange: (open: boolean) => void;
+  showEnlargeButton?: boolean;
+  /** Stretch the inline frame's URL pill over the free width (for compact previews). */
+  fillUrlBar?: boolean;
   zoom?: number;
   frameStyle?: CSSProperties;
   className?: string;
@@ -59,6 +62,7 @@ const PreviewFrame = memo(function PreviewFrame({
   label,
   zoom,
   chromeRight,
+  fillUrlBar = false,
   className,
   style,
 }: {
@@ -71,6 +75,7 @@ const PreviewFrame = memo(function PreviewFrame({
   label: string;
   zoom: number;
   chromeRight?: ReactNode;
+  fillUrlBar?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -80,12 +85,17 @@ const PreviewFrame = memo(function PreviewFrame({
       style={style}
     >
       <div className='border-border flex flex-none items-center gap-1.5 border-b px-3 py-2'>
-        <div className='flex flex-1 items-center gap-1.5'>
+        <div className={cn('flex items-center gap-1.5', fillUrlBar ? 'flex-none' : 'flex-1')}>
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
           <span className='bg-muted-foreground/30 h-2 w-2 flex-none rounded-full' />
         </div>
-        <span className='bg-muted text-muted-foreground flex max-w-[60%] min-w-0 items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs'>
+        <span
+          className={cn(
+            'bg-muted text-muted-foreground flex min-w-0 items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs',
+            fillUrlBar ? 'flex-1' : 'max-w-[60%]',
+          )}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element -- owner-provided image (or staged blob / data URI), not optimizable via next/image */}
           <img
             src={faviconUrl ?? statusDotFavicon(data.overallStatus)}
@@ -95,7 +105,7 @@ const PreviewFrame = memo(function PreviewFrame({
 
           <span className='truncate'>{customDomain ? customDomain : `${publicHost}/status/${slug}`}</span>
         </span>
-        <div className='flex flex-1 items-center justify-end gap-1.5'>
+        <div className={cn('flex items-center gap-1.5', fillUrlBar ? 'flex-none' : 'flex-1 justify-end')}>
           <span className='text-muted-foreground flex-none text-xs'>{label}</span>
           {chromeRight}
         </div>
@@ -120,6 +130,8 @@ export function LivePreview({
   draft: liveDraft,
   enlargedOpen,
   onEnlargedOpenChange,
+  showEnlargeButton = false,
+  fillUrlBar = false,
   zoom = 0.5,
   frameStyle,
   className,
@@ -232,6 +244,20 @@ export function LivePreview({
       zoom={zoom}
       style={frameStyle}
       className={className}
+      fillUrlBar={fillUrlBar}
+      chromeRight={
+        showEnlargeButton ? (
+          <button
+            type='button'
+            title={tEditor('enlargePreview')}
+            aria-label={tEditor('enlargePreview')}
+            onClick={() => onEnlargedOpenChange(true)}
+            className='text-muted-foreground hover:text-foreground hover:bg-muted -mr-1 flex h-5 w-5 flex-none cursor-pointer items-center justify-center rounded transition-colors'
+          >
+            <Maximize2 className='h-3.5 w-3.5' />
+          </button>
+        ) : undefined
+      }
     />
   );
 

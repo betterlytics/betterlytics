@@ -4120,6 +4120,7 @@
       "publicNamePlaceholder": "Offentligt visningsnavn",
       "reorderMonitor": "Omarranger monitor",
       "preview": "Live forhåndsvisning",
+      "enlargePreview": "Forstør forhåndsvisning",
       "loadingPreview": "Indlæser forhåndsvisning…",
       "tabs": {
         "incidents": "Hændelser",

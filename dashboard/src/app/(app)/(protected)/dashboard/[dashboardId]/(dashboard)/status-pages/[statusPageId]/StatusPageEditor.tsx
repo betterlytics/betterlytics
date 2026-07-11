@@ -371,6 +371,8 @@ export function StatusPageEditor({
                     draft={form.previewDraft}
                     enlargedOpen={previewOpen}
                     onEnlargedOpenChange={setPreviewOpen}
+                    showEnlargeButton
+                    fillUrlBar
                     className='w-full'
                   />
                 ) : (

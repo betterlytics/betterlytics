@@ -4120,6 +4120,7 @@
       "publicNamePlaceholder": "Nome visualizzato pubblico",
       "reorderMonitor": "Riordina monitor",
       "preview": "Anteprima live",
+      "enlargePreview": "Ingrandisci anteprima",
       "loadingPreview": "Caricamento anteprima…",
       "tabs": {
         "incidents": "Incidenti",

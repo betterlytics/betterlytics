@@ -4118,6 +4118,7 @@
       "publicNamePlaceholder": "Public display name",
       "reorderMonitor": "Reorder monitor",
       "preview": "Live preview",
+      "enlargePreview": "Enlarge preview",
       "loadingPreview": "Loading preview…",
       "tabs": {
         "incidents": "Incidents",
