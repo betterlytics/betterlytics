@@ -15,7 +15,11 @@ type BrandHeaderProps = {
 export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderProps) {
   const brand = logoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element -- served from our image route, or a client-side blob preview in the editor; already a small resized WebP, so next/image adds nothing
-    <img src={logoUrl} alt={name} className='h-16 w-auto max-w-[60cqw] object-contain @min-[640px]:max-w-xs' />
+    <img
+      src={logoUrl}
+      alt={name}
+      className='h-11 w-auto max-w-[60cqw] object-contain @min-[640px]:h-14 @min-[640px]:max-w-xs'
+    />
   ) : (
     <span className='truncate text-xl font-bold tracking-tight'>{name}</span>
   );
