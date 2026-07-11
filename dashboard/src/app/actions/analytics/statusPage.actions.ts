@@ -74,8 +74,9 @@ export const fetchStatusPageEditorDataAction = withDashboardAuthContext(
 
 export const fetchStatusPageStudioDataAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => {
+    const timezone = await getUserTimezone();
     const [data, messages] = await Promise.all([
-      getStatusPageStudioData(ctx.dashboardId, statusPageId),
+      getStatusPageStudioData(ctx.dashboardId, statusPageId, ctx.siteId, timezone),
       getMessages({ locale: 'en' }),
     ]);
     if (!data) return null;

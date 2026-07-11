@@ -1,3 +1,4 @@
+import { safeHostname } from '@/utils/domainValidation';
 import {
   STATUS_PAGE_LIMITS,
   StatusPageCustomDomainSchema,
@@ -23,9 +24,9 @@ export function statusPagePublicUrlLabel(page: StatusPageUrlParts): string {
 }
 
 export function defaultPublicMonitorName(monitor: { name?: string | null; url: string }): string {
-  return (monitor.name ?? new URL(monitor.url).hostname).slice(0, STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX);
+  return monitorRowLabel(monitor).slice(0, STATUS_PAGE_LIMITS.PUBLIC_NAME_MAX);
 }
 
 export function monitorRowLabel(monitor: { name?: string | null; url: string }): string {
-  return monitor.name ?? monitor.url;
+  return (monitor.name || '').trim() || safeHostname(monitor.url);
 }

@@ -209,4 +209,37 @@
       animation: none;
     }
   }
+
+  @keyframes monitor-row-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes monitor-row-flash {
+    0% {
+      background-color: var(--monitor-row-flash);
+    }
+    100% {
+      background-color: var(--card);
+    }
+  }
+
+  .animate-monitor-row-added {
+    --monitor-row-flash: color-mix(in oklab, var(--primary) 14%, var(--card));
+    animation:
+      monitor-row-in 0.22s ease,
+      monitor-row-flash 1.1s ease 0.05s;
+  }
+
+  .dark .animate-monitor-row-added {
+    --monitor-row-flash: color-mix(in oklab, var(--primary) 28%, var(--card));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-monitor-row-added {
+      animation: none;
+    }
+  }
 }

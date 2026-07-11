@@ -36,7 +36,17 @@ function mergeMonitorRows(rows: MonitorRow[], monitors: StudioData['monitors']):
 
   const existing = rows.flatMap((row) => {
     const monitor = byId.get(row.monitorCheckId);
-    return monitor ? [{ ...row, name: monitor.name, url: monitor.url }] : [];
+    return monitor
+      ? [
+          {
+            ...row,
+            name: monitor.name,
+            url: monitor.url,
+            operationalState: monitor.operationalState,
+            uptimePercent: monitor.uptimePercent,
+          },
+        ]
+      : [];
   });
   const seen = new Set(rows.map((row) => row.monitorCheckId));
   const added = monitors
@@ -47,6 +57,8 @@ function mergeMonitorRows(rows: MonitorRow[], monitors: StudioData['monitors']):
       url: monitor.url,
       included: false,
       publicName: defaultPublicMonitorName(monitor),
+      operationalState: monitor.operationalState,
+      uptimePercent: monitor.uptimePercent,
     }));
 
   return [...existing, ...added];

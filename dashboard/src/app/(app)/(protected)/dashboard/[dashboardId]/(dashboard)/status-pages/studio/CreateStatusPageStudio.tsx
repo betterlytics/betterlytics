@@ -57,7 +57,7 @@ function StudioForm({
       monitorCheckId: monitor.monitorCheckId,
       name: monitor.name,
       url: monitor.url,
-      included: true,
+      included: false,
       publicName: monitor.publicName,
       operationalState: monitor.operationalState,
       uptimePercent: monitor.uptimePercent,

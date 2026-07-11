@@ -76,15 +76,6 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     [],
   );
 
-  const updateRow = useCallback(
-    (index: number, rowPatch: Partial<MonitorRow>) =>
-      setValues((current) => ({
-        ...current,
-        monitorRows: current.monitorRows.map((row, i) => (i === index ? { ...row, ...rowPatch } : row)),
-      })),
-    [],
-  );
-
   const reset = useCallback(
     (next: StatusPageFormValues) => {
       setValues(next);
@@ -170,7 +161,6 @@ export function useStatusPageFormState(initial: StatusPageFormInitial) {
     ...values,
     patch,
     setMonitorRows,
-    updateRow,
     reset,
     logo,
     favicon,

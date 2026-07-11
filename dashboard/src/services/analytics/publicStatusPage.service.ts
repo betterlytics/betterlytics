@@ -35,6 +35,7 @@ import {
   listPublishedIncidentUpdates,
 } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
+import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
 function deriveMonitorStatus(
@@ -71,16 +72,27 @@ export async function getStatusPageLivePreviewData(
   return assembleStatusPage(snapshot, { hideBranding: snapshot.page.hideBranding });
 }
 
-export async function getStatusPageStudioData(dashboardId: string, statusPageId: string) {
+export async function getStatusPageStudioData(
+  dashboardId: string,
+  statusPageId: string,
+  siteId: string,
+  timezone: string,
+) {
   const [snapshot, allMonitors] = await Promise.all([
     getStatusPageSnapshotById(dashboardId, statusPageId),
-    listMonitorChecks(dashboardId),
+    getMonitorChecksWithStatus(dashboardId, siteId, timezone),
   ]);
   if (!snapshot) return null;
 
   return {
     payload: await assembleStatusPagePreview(snapshot, allMonitors),
-    monitors: allMonitors.map((monitor) => ({ id: monitor.id, name: monitor.name ?? null, url: monitor.url })),
+    monitors: allMonitors.map((monitor) => ({
+      id: monitor.id,
+      name: monitor.name ?? null,
+      url: monitor.url,
+      operationalState: monitor.operationalState,
+      uptimePercent: weightedUptimePercent(monitor.uptimeBuckets),
+    })),
   };
 }
 
