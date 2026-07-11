@@ -16,6 +16,7 @@ import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/p
 import { defaultPublicMonitorName, statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
@@ -90,6 +91,8 @@ export function StatusPageEditor({
   const t = useTranslations('statusPagesPage.editor');
   const tActions = useTranslations('statusPagesPage.actions');
   const router = useRouter();
+  const { hasPermission } = useDashboardAuth();
+  const canManageStatusPages = hasPermission('canManageStatusPages');
 
   const initialMonitorRows = useMemo(() => buildMonitorRows(statusPage, monitors), [statusPage, monitors]);
   const form = useStatusPageFormState({
@@ -109,7 +112,10 @@ export function StatusPageEditor({
 
   const searchParams = useSearchParams();
   const urlTab = searchParams.get('tab');
-  const activeTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
+  const requestedTab: TabKey = isTabKey(urlTab) ? urlTab : 'incidents';
+  // Settings is management-only. A viewer landing on ?tab=settings (or hand-editing the URL to bypass the
+  // disabled tab) is sent back to incidents rather than shown the settings form.
+  const activeTab: TabKey = requestedTab === 'settings' && !canManageStatusPages ? 'incidents' : requestedTab;
   const onSettingsTab = activeTab === 'settings';
 
   const setActiveTab = useCallback((tab: TabKey) => {
@@ -122,7 +128,10 @@ export function StatusPageEditor({
   }, []);
 
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [showStudio, setShowStudio] = useState(() => searchParams.get('studio') === '1');
+  // Same guard as the Edit button, so viewers can't open the studio via the ?studio=1 deep-link.
+  const [showStudio, setShowStudio] = useState(
+    () => canManageStatusPages && searchParams.get('studio') === '1',
+  );
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -334,10 +343,14 @@ export function StatusPageEditor({
         <div className='border-border overflow-x-auto border-b'>
           <UnderlineTabsList className='border-b-0'>
             <UnderlineTabsTrigger value='incidents'>{t('tabs.incidents')}</UnderlineTabsTrigger>
-            <UnderlineTabsTrigger value='settings'>
-              {t('tabs.settings')}
-              {dirty.settings && <UnsavedDot label={t('unsavedChanges')} />}
-            </UnderlineTabsTrigger>
+            <PermissionGate permission='canManageStatusPages'>
+              {(disabled) => (
+                <UnderlineTabsTrigger value='settings' disabled={disabled}>
+                  {t('tabs.settings')}
+                  {dirty.settings && <UnsavedDot label={t('unsavedChanges')} />}
+                </UnderlineTabsTrigger>
+              )}
+            </PermissionGate>
           </UnderlineTabsList>
         </div>
 
