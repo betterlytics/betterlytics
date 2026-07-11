@@ -15,6 +15,7 @@ import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/sta
 import { type StatusPagePreviewPayload } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName, statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { cn } from '@/lib/utils';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { IncidentsTab } from './tabs/IncidentsTab';
 import { LivePreview } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LivePreview';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
@@ -166,6 +167,7 @@ export function StatusPageEditor({
   );
 
   const { isDirty, dirty, markSaved } = useUnsavedChanges(sections);
+  const { resolveHref } = useDashboardNavigation();
 
   const {
     saveMutation,
@@ -191,7 +193,7 @@ export function StatusPageEditor({
     [effectiveDirty],
   );
 
-  const backHref = `/dashboard/${dashboardId}/status-pages`;
+  const backHref = resolveHref('status-pages');
 
   const publicHost = publicBaseUrl.replace(/^https?:\/\//, '');
   const liveCustomDomain = form.input.customDomain;
@@ -279,16 +281,21 @@ export function StatusPageEditor({
             )}
           </div>
 
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => setShowStudio(true)}
-            className='h-9 cursor-pointer'
-          >
-            <Pencil className='mr-1.5 h-3.5 w-3.5' />
-            {t('editPage')}
-            {dirty.studio && <UnsavedDot label={t('unsavedChanges')} />}
-          </Button>
+          <PermissionGate permission='canManageStatusPages'>
+            {(disabled) => (
+              <Button
+                type='button'
+                variant='outline'
+                disabled={disabled}
+                onClick={() => setShowStudio(true)}
+                className='h-9 cursor-pointer'
+              >
+                <Pencil className='mr-1.5 h-3.5 w-3.5' />
+                {t('editPage')}
+                {dirty.studio && <UnsavedDot label={t('unsavedChanges')} />}
+              </Button>
+            )}
+          </PermissionGate>
 
           {!statusPage.isPublished && (
             <PermissionGate permission='canPublishStatusPages'>
