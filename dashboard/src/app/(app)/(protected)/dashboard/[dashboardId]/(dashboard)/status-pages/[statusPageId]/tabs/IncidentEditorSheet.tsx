@@ -71,7 +71,7 @@ type PendingUpdate = {
   tempId: string;
   status: StatusPageIncidentStatusValue;
   message: string;
-  timeLocal: string;
+  occurredAtIso: string;
 };
 
 export type IncidentEditorSeed = {
@@ -134,7 +134,7 @@ export function editorSeedForSuggestion(suggestion: DetectedOutageSuggestion, ti
             tempId: 'seed-resolved',
             status: 'resolved',
             message: '',
-            timeLocal: toLocalInput(new Date(suggestion.resolvedAt as string)),
+            occurredAtIso: new Date(suggestion.resolvedAt as string).toISOString(),
           },
         ]
       : [],
@@ -211,14 +211,14 @@ export function IncidentEditorSheet({
       const stagedUpdates = pendingUpdates.map((update) => ({
         status: update.status,
         message: update.message.trim(),
-        occurredAt: new Date(update.timeLocal),
+        occurredAt: new Date(update.occurredAtIso),
       }));
 
       if (!form.id) {
         const composerEntry = {
           status: composer.status,
           message: composer.message.trim(),
-          occurredAt: new Date(composer.timeLocal),
+          occurredAt: withEntrySeconds(composer.timeLocal),
         };
         const [opening, ...rest] = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
           (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
@@ -265,7 +265,7 @@ export function IncidentEditorSheet({
       tempId: `pending-${pendingIdRef.current}`,
       status: composer.status,
       message: composer.message.trim(),
-      timeLocal: composer.timeLocal,
+      occurredAtIso: withEntrySeconds(composer.timeLocal).toISOString(),
     };
     setPendingUpdates((list) => [...list, staged]);
     setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
@@ -317,7 +317,7 @@ export function IncidentEditorSheet({
         id: u.tempId,
         status: u.status,
         message: u.message,
-        date: new Date(u.timeLocal),
+        date: new Date(u.occurredAtIso),
       })),
       ...timeline
         .filter((e) => !deletedUpdateIds.includes(e.id))
@@ -332,6 +332,19 @@ export function IncidentEditorSheet({
     ];
     return rows.sort((a, b) => b.date.getTime() - a.date.getTime());
   }, [pendingUpdates, timeline, editedUpdates, deletedUpdateIds]);
+
+  // The picker is minute-granular, so entries in the same minute would tie and sort
+  // arbitrarily; bump the hidden seconds past any same-minute row so insertion order
+  // survives sorting here, in the DB, and on the public page.
+  const withEntrySeconds = (minuteLocal: string): Date => {
+    const date = new Date(minuteLocal);
+    const minute = Math.floor(date.getTime() / 60_000);
+    const takenSeconds = timelineRows
+      .filter((row) => Math.floor(row.date.getTime() / 60_000) === minute)
+      .map((row) => row.date.getSeconds());
+    date.setSeconds(Math.min(59, Math.max(-1, ...takenSeconds) + 1));
+    return date;
+  };
 
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : composer.status);
   const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
