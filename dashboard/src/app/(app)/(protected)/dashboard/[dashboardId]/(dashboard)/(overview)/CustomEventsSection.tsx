@@ -1,20 +1,19 @@
 'use client';
 
-import MultiProgressTable from '@/components/MultiProgressTable';
+import MultiProgressTable, { type ProgressBarData } from '@/components/MultiProgressTable';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
-import { useFilterClick } from '@/hooks/use-filter-click';
+import { useProgressTableFilterClick } from '@/hooks/use-progress-table-filter-click';
 import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useQueryState } from '@/hooks/use-query-state';
-import { isFilterColumn } from '@/entities/analytics/filter.entities';
 
 export default function CustomEventsSection() {
   const [activeTab, setActiveTab] = useState('events');
   const { input, options } = useBAQueryParams();
-  const { applyFilter } = useFilterClick({ behavior: 'replace-same-column' });
+  const { onItemClick, isItemInteractive } = useProgressTableFilterClick();
   const t = useTranslations('dashboard');
 
   const eventsQuery = trpc.events.customEventsOverview.useQuery(input, {
@@ -30,22 +29,6 @@ export default function CustomEventsSection() {
   const propertiesState = useQueryState(propertiesQuery, activeTab === 'properties');
   const activeState = { events: eventsState, properties: propertiesState }[activeTab as 'events' | 'properties'];
 
-  const onItemClick = (
-    tabKey: string,
-    item: { label: string; key?: string; children?: unknown[]; filterValue?: string; filterColumn?: string },
-  ) => {
-    if (tabKey === 'events') {
-      return applyFilter('custom_event_name', item.label);
-    }
-
-    if (tabKey === 'properties' && item.filterColumn) {
-      const filterColumn = item.filterColumn;
-      if (isFilterColumn(filterColumn)) {
-        return applyFilter(filterColumn, item.filterValue ?? '*');
-      }
-    }
-  };
-
   return (
     <MultiProgressTable
       title={t('sections.events')}
@@ -53,24 +36,28 @@ export default function CustomEventsSection() {
       defaultTab='events'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
+      isItemInteractive={isItemInteractive}
       tabs={[
         {
           key: 'events',
           label: t('tabs.events'),
           loading: eventsState.loading,
-          data: (eventsQuery.data ?? []).map((event) => ({
-            label: event.event_name,
-            value: event.current.count,
-            trendPercentage: event.change?.count,
-            comparisonValue: event.compare?.count,
-          })),
+          data: (eventsQuery.data ?? []).map(
+            (event): ProgressBarData => ({
+              label: event.event_name,
+              value: event.current.count,
+              trendPercentage: event.change?.count,
+              comparisonValue: event.compare?.count,
+              filterColumn: 'custom_event_name',
+            }),
+          ),
         },
         {
           key: 'properties',
           label: t('tabs.topProperties'),
           loading: propertiesState.loading,
-          data: (propertiesQuery.data ?? []).map((prop) => {
-            const filterKey = `gp.${prop.property_key}`;
+          data: (propertiesQuery.data ?? []).map((prop): ProgressBarData => {
+            const filterKey = `gp.${prop.property_key}` as const;
             return {
               key: filterKey,
               label: prop.property_key,
@@ -78,14 +65,16 @@ export default function CustomEventsSection() {
               trendPercentage: prop.change?.percentage,
               comparisonValue: prop.compare?.visitors,
               filterColumn: filterKey,
-              children: prop.children.map((v) => ({
-                filterValue: v.value,
-                filterColumn: filterKey,
-                label: v.value,
-                value: v.current.visitors,
-                trendPercentage: v.change?.percentage,
-                comparisonValue: v.compare?.visitors,
-              })),
+              filterValue: '*',
+              children: prop.children.map(
+                (v): ProgressBarData => ({
+                  filterColumn: filterKey,
+                  label: v.value,
+                  value: v.current.visitors,
+                  trendPercentage: v.change?.percentage,
+                  comparisonValue: v.compare?.visitors,
+                }),
+              ),
             };
           }),
         },
