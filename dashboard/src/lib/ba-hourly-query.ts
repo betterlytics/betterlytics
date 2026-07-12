@@ -65,6 +65,12 @@ function buildHourlyMvFilters(
 
   return applicable.map((filter, i) => {
     const col = SQL.Unsafe(filter.column);
+    // a lone literal % is indistinguishable from * in the builders that transform before checking
+    const isMatchAnyValue = filter.values.length === 1 && (filter.values[0] === '*' || filter.values[0] === '%');
+    if (isMatchAnyValue) {
+      return filter.operator === '=' ? safeSql`${col} != ''` : safeSql`${col} = ''`;
+    }
+
     const hasWildcard = filter.values.some((v) => v.includes('*'));
 
     if (!hasWildcard) {
