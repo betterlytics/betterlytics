@@ -68,7 +68,8 @@ export function DataTable<TData, TValue>({
 
   const handleRowClick = useCallback(
     (event: MouseEvent<HTMLTableRowElement>, row: Row<TData>) => {
-      if ((event.target as Element).closest(INTERACTIVE_ELEMENT_SELECTOR)) return;
+      const interactiveAncestor = (event.target as Element).closest(INTERACTIVE_ELEMENT_SELECTOR);
+      if (interactiveAncestor && event.currentTarget.contains(interactiveAncestor)) return;
       if (window.getSelection()?.toString()) return;
       onRowClick?.(row);
     },
