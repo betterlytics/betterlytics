@@ -21,7 +21,7 @@ export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderPro
       className='h-11 w-auto max-w-[60cqw] object-contain @min-[640px]:h-14 @min-[640px]:max-w-xs'
     />
   ) : (
-    <span className='truncate text-xl font-bold tracking-tight'>{name}</span>
+    <span className='truncate text-2xl font-bold tracking-tight @min-[640px]:text-3xl'>{name}</span>
   );
 
   return (
