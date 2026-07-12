@@ -1,6 +1,6 @@
 'use client';
 
-import { type RefObject, useEffect, useState } from 'react';
+import { type MouseEvent, type RefObject, useCallback, useEffect, useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -17,8 +17,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import DataEmptyComponent from './DataEmptyComponent';
+import { cn } from '@/lib/utils';
 
 const SKELETON_ROWS = 10;
+const INTERACTIVE_ELEMENT_SELECTOR = 'a, button, input, select, textarea';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,8 +66,17 @@ export function DataTable<TData, TValue>({
     }
   }, []);
 
+  const handleRowClick = useCallback(
+    (event: MouseEvent<HTMLTableRowElement>, row: Row<TData>) => {
+      if ((event.target as Element).closest(INTERACTIVE_ELEMENT_SELECTOR)) return;
+      if (window.getSelection()?.toString()) return;
+      onRowClick?.(row);
+    },
+    [onRowClick],
+  );
+
   return (
-    <div className={`rounded-lg ${className || ''} border-border overflow-hidden border`}>
+    <div className={cn('border-border overflow-hidden rounded-lg border', className)}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -113,8 +124,8 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className={`hover:bg-accent dark:hover:bg-primary/10 ${onRowClick ? 'cursor-pointer' : ''}`}
-                onClick={() => onRowClick && onRowClick(row)}
+                className={cn('hover:bg-accent dark:hover:bg-primary/10', onRowClick && 'cursor-pointer')}
+                onClick={(e) => handleRowClick(e, row)}
                 title={rowTitle?.(row)}
               >
                 {row.getVisibleCells().map((cell) => (

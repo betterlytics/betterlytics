@@ -41,7 +41,7 @@ export default function OutboundLinksTableSection() {
               href={`https://${row.original.current.outbound_link_url}`}
               target='_blank'
               rel='noopener noreferrer'
-              onClick={(e) => e.stopPropagation()}
+              title={t('goToUrl', { url: row.original.current.outbound_link_url })}
               className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
             >
               <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
