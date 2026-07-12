@@ -26,6 +26,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   className?: string;
   onRowClick?: (row: Row<TData>) => void;
+  rowTitle?: (row: Row<TData>) => string | undefined;
   tableRef?: RefObject<ReturnType<typeof useReactTable<TData>> | null>;
   loading?: boolean;
 }
@@ -36,6 +37,7 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   className,
   onRowClick,
+  rowTitle,
   tableRef,
   loading = false,
 }: DataTableProps<TData, TValue>) {
@@ -113,6 +115,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 className={`hover:bg-accent dark:hover:bg-primary/10 ${onRowClick ? 'cursor-pointer' : ''}`}
                 onClick={() => onRowClick && onRowClick(row)}
+                title={rowTitle?.(row)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
