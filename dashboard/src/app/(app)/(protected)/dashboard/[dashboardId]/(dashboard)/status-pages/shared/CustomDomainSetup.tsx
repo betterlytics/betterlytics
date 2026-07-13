@@ -2,29 +2,11 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Copy, HelpCircle, Info } from 'lucide-react';
+import { Check, Copy, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-export const CUSTOM_DOMAIN_DOCS_URL = 'https://betterlytics.io/docs/integration/custom-status-page-domain';
 
 export function statusPageCnameTarget(slug: string, publicHost: string): string {
   return `${slug}.status.${publicHost}`;
-}
-
-export function CustomDomainHelpLink() {
-  const t = useTranslations('statusPagesPage.editor');
-  return (
-    <a
-      href={CUSTOM_DOMAIN_DOCS_URL}
-      target='_blank'
-      rel='noopener noreferrer'
-      aria-label={t('customDomainSetup.helpLabel')}
-      title={t('customDomainSetup.helpLabel')}
-      className='text-muted-foreground hover:text-foreground inline-flex'
-    >
-      <HelpCircle className='h-3.5 w-3.5' />
-    </a>
-  );
 }
 
 type CustomDomainSetupProps = {

@@ -4076,7 +4076,6 @@
       "homepageUrlInvalid": "Skriv inn en gyldig URL som starter med http:// eller https://.",
       "customDomainInvalid": "Skriv inn et underdomene, f.eks. status.example.com.",
       "customDomainSetup": {
-        "helpLabel": "Hjelp til oppsett av eget domene",
         "intro": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot Betterlytics.",
         "recordType": "Type",
         "recordName": "Navn",

@@ -11,10 +11,7 @@ import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[das
 import { SlugField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SlugField';
 import { LabeledTextField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/LabeledTextField';
 import { VisibilityRadioGroup } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/VisibilityRadioGroup';
-import {
-  CustomDomainSetup,
-  CustomDomainHelpLink,
-} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
+import { CustomDomainSetup } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/CustomDomainSetup';
 import { Section } from './Section';
 
 type SettingsTabProps = {
@@ -63,12 +60,7 @@ export function SettingsTab({
                 <LabeledTextField
                   id='sp-domain'
                   label={t('customDomain')}
-                  labelAdornment={
-                    <>
-                      {locked && <ProBadge />}
-                      <CustomDomainHelpLink />
-                    </>
-                  }
+                  labelAdornment={locked && <ProBadge />}
                   hint={t('customDomainHint')}
                   hintPosition='top'
                   placeholder={`status.${dashboardDomain}`}

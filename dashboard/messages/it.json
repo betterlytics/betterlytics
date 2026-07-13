@@ -4076,7 +4076,6 @@
       "homepageUrlInvalid": "Inserisci un URL valido che inizia con http:// o https://.",
       "customDomainInvalid": "Inserisci un sottodominio, es. status.example.com.",
       "customDomainSetup": {
-        "helpLabel": "Aiuto per la configurazione del dominio personalizzato",
         "intro": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a Betterlytics.",
         "recordType": "Tipo",
         "recordName": "Nome",
