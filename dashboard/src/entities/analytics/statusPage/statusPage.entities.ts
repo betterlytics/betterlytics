@@ -48,7 +48,7 @@ export const STATUS_PAGE_IMAGE_CONFIG: Record<StatusPageImageKind, { maxDimensio
   favicon: { maxDimension: 64, square: true },
 };
 
-export const STATUS_PAGE_DEFAULT_ACCENT_COLOR = '#4845d8';
+export const STATUS_PAGE_DEFAULT_ACCENT_COLOR = '#304870';
 
 export const STATUS_PAGE_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
