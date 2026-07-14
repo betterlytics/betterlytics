@@ -307,6 +307,7 @@ function FunnelStepAccordionItemComponent({
             filters={step.filters}
             onChange={handleFiltersChange}
             globalPropertyKeys={globalPropertyKeys}
+            showEmptyValueErrors={showFilterEmptyError}
           />
         </AccordionContent>
       </AccordionItem>

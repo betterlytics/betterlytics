@@ -56,6 +56,10 @@ export function createEmptyQueryFilter(): QueryFilter {
   return { id: generateTempId(), column: 'url', operator: '=', values: [] };
 }
 
+export function isNonEmptyValue(value: string): boolean {
+  return value !== '';
+}
+
 /**
  * A filter is usable in a query once it has a column, an operator, and at least
  * one non-empty value. Incomplete filters are skipped.
