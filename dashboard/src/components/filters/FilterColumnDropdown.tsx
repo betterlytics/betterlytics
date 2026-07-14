@@ -59,7 +59,7 @@ export function FilterColumnDropdown<TEntity>({
   return (
     <div className={cn('flex flex-col', className)}>
       <BADropdownMenu modal>
-        <BADropdownMenuTrigger asChild>
+        <BADropdownMenuTrigger asChild disabled={disabled}>
           <button
             disabled={disabled}
             className={cn(
