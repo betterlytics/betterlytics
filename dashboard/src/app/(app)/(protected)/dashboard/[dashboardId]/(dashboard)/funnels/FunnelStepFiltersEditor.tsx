@@ -11,7 +11,7 @@ import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { createEmptyQueryFilter, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { createEmptyQueryFilter, isNonEmptyValue, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
@@ -22,6 +22,7 @@ type FunnelStepFiltersEditorProps = {
   filters: QueryFilter[];
   onChange: (next: QueryFilter[]) => void;
   propertyKeys?: PropertyKeysBySource;
+  showEmptyValueErrors?: boolean;
 };
 
 const INTERACTIVE_ELEMENT_SELECTOR =
@@ -31,6 +32,7 @@ function FunnelStepFiltersEditorComponent({
   filters,
   onChange,
   propertyKeys,
+  showEmptyValueErrors,
 }: FunnelStepFiltersEditorProps) {
   const t = useTranslations('components.filters');
   const isMobile = useIsMobile();
@@ -100,6 +102,7 @@ function FunnelStepFiltersEditorComponent({
                 onFilterUpdate={handleUpdate}
                 requestRemoval={handleRemove}
                 propertyKeys={propertyKeys}
+                valueError={Boolean(showEmptyValueErrors) && !filter.values.some(isNonEmptyValue)}
                 hideClearAllButton
                 useExtendedRange
                 formatLength={isMobile ? 20 : 35}
