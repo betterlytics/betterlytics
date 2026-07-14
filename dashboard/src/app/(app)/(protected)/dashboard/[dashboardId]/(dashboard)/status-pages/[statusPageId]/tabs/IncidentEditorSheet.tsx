@@ -90,7 +90,7 @@ function toLocalInput(date: Date): string {
 }
 
 function emptyForm(): IncidentForm {
-  return { id: null, detectedIncidentId: null, title: '', impact: 'outage', monitorCheckIds: [] };
+  return { id: null, detectedIncidentId: null, title: '', impact: 'degraded', monitorCheckIds: [] };
 }
 
 function emptyComposer(): Composer {
@@ -195,12 +195,6 @@ export function IncidentEditorSheet({
     enabled: open && form.id != null,
   });
 
-  const metadataDirty = JSON.stringify(form) !== JSON.stringify(seed.form);
-  const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(seed.pending);
-  const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
-  const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty;
-  const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
-
   const requestClose = () => {
     if (hasUnsavedWork) setShowDiscardConfirm(true);
     else onOpenChange(false);
@@ -208,21 +202,28 @@ export function IncidentEditorSheet({
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      const impact = form.impact;
+      if (impact == null) return;
+
       const stagedUpdates = pendingUpdates.map((update) => ({
         status: update.status,
         message: update.message.trim(),
         occurredAt: new Date(update.occurredAtIso),
       }));
+      // Fold the live composer into the updates being saved, so a status or message left in the box
+      // is posted on save without a separate "Add update" click. "Add update" only queues extra
+      // entries for the rare multi-update save; the common case is compose once and save.
+      const composerEntry = {
+        status: composer.status,
+        message: composer.message.trim(),
+        occurredAt: withEntrySeconds(composer.timeLocal),
+      };
+      const newUpdates = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
+        (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
+      );
 
       if (!form.id) {
-        const composerEntry = {
-          status: composer.status,
-          message: composer.message.trim(),
-          occurredAt: withEntrySeconds(composer.timeLocal),
-        };
-        const [opening, ...rest] = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
-          (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
-        );
+        const [opening, ...rest] = newUpdates;
         await createStatusPageIncidentAction(dashboardId, {
           statusPageId,
           title: form.title.trim(),
@@ -247,7 +248,7 @@ export function IncidentEditorSheet({
           updateId,
           message: message.trim(),
         })),
-        newUpdates: stagedUpdates,
+        newUpdates,
         deletedUpdateIds,
       });
     },
@@ -351,6 +352,17 @@ export function IncidentEditorSheet({
   const previousStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : null);
   const composerIsNoop = composer.message.trim().length === 0 && composer.status === previousStatus;
   const showComposerHint = composerError && composerIsNoop;
+
+  const metadataDirty = JSON.stringify(form) !== JSON.stringify(seed.form);
+  const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(seed.pending);
+  const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
+  // On an existing incident, an un-staged composer edit (a new message or a changed status) is
+  // posted on save, so it counts as a pending change. On create the composer is the incident's
+  // opening content, not a "change", so we don't let its default status light up the indicator.
+  const composerDirty = form.id != null && !composerIsNoop;
+  const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty || composerDirty;
+  const composerHasContent = form.id != null ? !composerIsNoop : composer.message.trim().length > 0;
+  const hasUnsavedWork = hasChanges || composerHasContent || editingUpdateId != null;
 
   const handleAddUpdate = () => {
     if (composerIsNoop) {
