@@ -69,7 +69,7 @@ export function FilterColumnDropdown<TEntity>({
               'data-[placeholder]:text-muted-foreground',
               '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4',
               'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring',
-              'disabled:cursor-not-allowed disabled:opacity-50',
+              'disabled:cursor-default disabled:opacity-50',
             )}
           >
             <FilterColumnLabel column={filter.column} className='min-w-0 gap-2' />

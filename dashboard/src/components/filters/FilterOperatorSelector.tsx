@@ -35,7 +35,7 @@ export function FilterOperatorSelector<TEntity>({
       disabled={disabled}
       onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
     >
-      <SelectTrigger className={cn('w-full cursor-pointer', className)}>
+      <SelectTrigger className={cn('w-full cursor-pointer disabled:cursor-default', className)}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent align='start' position='popper'>
