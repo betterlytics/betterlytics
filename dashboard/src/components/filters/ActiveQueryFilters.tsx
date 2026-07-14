@@ -28,16 +28,14 @@ export function ActiveQueryFilters() {
             key={filter.id}
             variant='outline'
             className={cn(
-              'gap-1.5 border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 p-1 px-1.5',
+              'border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 gap-1.5 p-1 px-1.5',
               status.disabled && 'opacity-50',
             )}
           >
             {disabledMessage ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span>
-                    <FilterDescription filter={filter} />
-                  </span>
+                  <FilterDescription filter={filter} />
                 </TooltipTrigger>
                 <TooltipContent>{disabledMessage}</TooltipContent>
               </Tooltip>
@@ -49,7 +47,7 @@ export function ActiveQueryFilters() {
                 <Button
                   variant='ghost'
                   aria-label={t('removeFilter')}
-                  className='text-muted-foreground/80 size-6 cursor-pointer hover:text-foreground focus-visible:text-foreground -mx-0.5'
+                  className='text-muted-foreground/80 hover:text-foreground focus-visible:text-foreground -mx-0.5 size-6 cursor-pointer'
                   onClick={() => removeQueryFilter(filter.id)}
                 >
                   <XIcon className='size-3.5' />
