@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Monitoraggio uptime",
-          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche ospitate sul tuo dominio.",
           "alertDown": "{site} è offline",
           "alertSent": "Avviso inviato a {email}",
           "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
@@ -1136,6 +1136,8 @@
           "Funnel Conversione",
           "Replay Sessioni",
           "Eventi Personalizzati",
+          "Monitoraggio Uptime",
+          "Pagine di Stato Pubbliche",
           "Funzionalità Web Analytics"
         ]
       },
@@ -1250,6 +1252,10 @@
         "sslMonitoring": {
           "title": "Monitoraggio Certificati SSL",
           "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
+        },
+        "statusPages": {
+          "title": "Pagine di Stato Pubbliche",
+          "description": "Condividi uptime e cronologia degli incidenti con i tuoi utenti su una pagina di stato personalizzata, ospitata sul tuo dominio."
         },
         "notificationIntegrations": {
           "title": "Integrazioni di Notifica",
@@ -1553,6 +1559,20 @@
       },
       "notificationIntegrations": {
         "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
+      },
+      "statusPages": {
+        "name": "Pagine di stato pubbliche",
+        "values": {
+          "1": "1 pagina di stato",
+          "3": "3 pagine di stato",
+          "unlimited": "Pagine di stato illimitate"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Dominio personalizzato per la pagina di stato"
+      },
+      "statusPageWhiteLabel": {
+        "name": "Pagine di stato white-label"
       },
       "emailSupport": {
         "name": "Supporto email"
