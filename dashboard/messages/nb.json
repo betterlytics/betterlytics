@@ -4264,6 +4264,13 @@
         },
         "composer": {
           "section": "Publiser en oppdatering",
+          "sectionCreate": "Opening update",
+          "statusLabel": "Status",
+          "statusHelpCreate": "Pick the status this incident starts in.",
+          "statusHelpKeep": "Keep <hl>{statusName}</hl> to post a progress note, or pick a new status to change the incident.",
+          "statusHelpChange": "This update changes the incident from <from>{fromName}</from> to <to>{toName}</to>.",
+          "statusHelpBackdated": "Added earlier in the timeline, so the incident stays <hl>{statusName}</hl>.",
+          "addAnother": "Add another",
           "messagePlaceholder": "Legg til en melding (valgfritt)",
           "noopHint": "Legg til en melding eller endre statusen for å publisere en oppdatering.",
           "time": "Oppdateringstidspunkt"
@@ -4272,7 +4279,6 @@
           "title": "Tidslinje",
           "today": "I dag",
           "yesterday": "I går",
-          "addUpdate": "Legg til oppdatering",
           "empty": "Ingen tidslinjeoppføringer ennå.",
           "editMessage": "Rediger melding",
           "deleteUpdate": "Slett oppdatering",

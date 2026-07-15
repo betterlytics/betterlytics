@@ -4264,6 +4264,13 @@
         },
         "composer": {
           "section": "Pubblica un aggiornamento",
+          "sectionCreate": "Opening update",
+          "statusLabel": "Status",
+          "statusHelpCreate": "Pick the status this incident starts in.",
+          "statusHelpKeep": "Keep <hl>{statusName}</hl> to post a progress note, or pick a new status to change the incident.",
+          "statusHelpChange": "This update changes the incident from <from>{fromName}</from> to <to>{toName}</to>.",
+          "statusHelpBackdated": "Added earlier in the timeline, so the incident stays <hl>{statusName}</hl>.",
+          "addAnother": "Add another",
           "messagePlaceholder": "Aggiungi un messaggio (facoltativo)",
           "noopHint": "Aggiungi un messaggio o cambia lo stato per pubblicare un aggiornamento.",
           "time": "Orario dell’aggiornamento"
@@ -4272,7 +4279,6 @@
           "title": "Cronologia",
           "today": "Oggi",
           "yesterday": "Ieri",
-          "addUpdate": "Aggiungi aggiornamento",
           "empty": "Nessuna voce nella cronologia.",
           "editMessage": "Modifica messaggio",
           "deleteUpdate": "Elimina aggiornamento",
