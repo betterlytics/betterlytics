@@ -27,6 +27,11 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/betterlytics-selfhost
+          # Do not move :latest — the selfhost compose file pins a version tag,
+          # and legacy checkouts pulling :latest must not receive images their
+          # mounted config cannot boot.
+          flavor: |
+            latest=false
 
       - name: Building selfhost image
         uses: docker/build-push-action@v6
