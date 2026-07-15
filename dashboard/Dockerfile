@@ -6,7 +6,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Setup pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 RUN apt-get update -y && apt-get install -y openssl wget
 
