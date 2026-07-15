@@ -204,18 +204,16 @@ When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both 
 
 ## Updating
 
-Updates are delivered through the `betterlytics-selfhost` repository — the compose file pins the image version that matches its configuration. To update your self-hosted instance:
+Updates are delivered through the `betterlytics-selfhost` repository — the compose file pins the image version that matches its configuration. To update your self-hosted instance, run the update script from the repository root:
 
 ```bash
-git pull
-docker compose pull
-docker compose up -d
+./update.sh
 ```
 
 <Callout type="warning">
-Always run `git pull` first. New images can require configuration that only
-exists in updated repository files, and pulling images alone will not update
-your instance.
+If you update manually instead, always run `git pull` before pulling images.
+New images can require configuration that only exists in updated repository
+files, and pulling images alone will not update your instance.
 </Callout>
 
 <Callout type="info">
