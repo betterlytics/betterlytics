@@ -4262,13 +4262,6 @@
         },
         "composer": {
           "section": "Post an update",
-          "sectionCreate": "Opening update",
-          "statusLabel": "Status",
-          "statusHelpCreate": "Pick the status this incident starts in.",
-          "statusHelpKeep": "Keep <hl>{statusName}</hl> to post a progress note, or pick a new status to change the incident.",
-          "statusHelpChange": "This update changes the incident from <from>{fromName}</from> to <to>{toName}</to>.",
-          "statusHelpBackdated": "Added earlier in the timeline, so the incident stays <hl>{statusName}</hl>.",
-          "addAnother": "Add another",
           "messagePlaceholder": "Add a message (optional)",
           "noopHint": "Add a message or change the status to post an update.",
           "time": "Update time"
@@ -4277,6 +4270,7 @@
           "title": "Timeline",
           "today": "Today",
           "yesterday": "Yesterday",
+          "addUpdate": "Add update",
           "empty": "No timeline entries yet.",
           "editMessage": "Edit message",
           "deleteUpdate": "Delete update",

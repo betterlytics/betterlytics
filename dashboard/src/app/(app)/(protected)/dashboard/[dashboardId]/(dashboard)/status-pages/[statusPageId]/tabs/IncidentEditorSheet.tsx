@@ -40,7 +40,6 @@ import {
   statusTextClass,
 } from '@/components/statusPage/incidentToneStyles';
 import { Timeline, TimelineItem } from '@/components/statusPage/Timeline';
-import { resolveComposerPlacement } from '@/components/statusPage/incidentComposerPlacement';
 import { createIncidentEntryFormatter } from '@/components/statusPage/incidentEntryTimestamp';
 import {
   createStatusPageIncidentAction,
@@ -196,6 +195,12 @@ export function IncidentEditorSheet({
     enabled: open && form.id != null,
   });
 
+  const metadataDirty = JSON.stringify(form) !== JSON.stringify(seed.form);
+  const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(seed.pending);
+  const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
+  const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty;
+  const hasUnsavedWork = hasChanges || composer.message.trim().length > 0 || editingUpdateId != null;
+
   const requestClose = () => {
     if (hasUnsavedWork) setShowDiscardConfirm(true);
     else onOpenChange(false);
@@ -203,28 +208,21 @@ export function IncidentEditorSheet({
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const impact = form.impact;
-      if (impact == null) return;
-
       const stagedUpdates = pendingUpdates.map((update) => ({
         status: update.status,
         message: update.message.trim(),
         occurredAt: new Date(update.occurredAtIso),
       }));
-      // Fold the live composer into the updates being saved, so a status or message left in the box
-      // is posted on save without a separate "Add update" click. "Add update" only queues extra
-      // entries for the rare multi-update save; the common case is compose once and save.
-      const composerEntry = {
-        status: composer.status,
-        message: composer.message.trim(),
-        occurredAt: withEntrySeconds(composer.timeLocal),
-      };
-      const newUpdates = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
-        (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
-      );
 
       if (!form.id) {
-        const [opening, ...rest] = newUpdates;
+        const composerEntry = {
+          status: composer.status,
+          message: composer.message.trim(),
+          occurredAt: withEntrySeconds(composer.timeLocal),
+        };
+        const [opening, ...rest] = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
+          (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
+        );
         await createStatusPageIncidentAction(dashboardId, {
           statusPageId,
           title: form.title.trim(),
@@ -249,7 +247,7 @@ export function IncidentEditorSheet({
           updateId,
           message: message.trim(),
         })),
-        newUpdates,
+        newUpdates: stagedUpdates,
         deletedUpdateIds,
       });
     },
@@ -350,71 +348,9 @@ export function IncidentEditorSheet({
 
   const latestStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : composer.status);
   const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
-
-  const composerDate = withEntrySeconds(composer.timeLocal);
-  const {
-    previousStatus,
-    isLatestEntry,
-    isNoop: composerIsNoop,
-  } = resolveComposerPlacement({
-    rows: timelineRows,
-    entryDate: composerDate,
-    status: composer.status,
-    message: composer.message,
-    fallbackStatus: form.id != null ? seed.status : null,
-  });
+  const previousStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : null);
+  const composerIsNoop = composer.message.trim().length === 0 && composer.status === previousStatus;
   const showComposerHint = composerError && composerIsNoop;
-
-  // Preview of the entry the composer would post, shown in the timeline so the save behaviour is
-  // visible: it appears exactly when saving would post something. Render-only — it must stay out of
-  // timelineRows, which feeds previousStatus, withEntrySeconds and atUpdateCap above, or it would
-  // fold back into its own inputs.
-  const draftRow = composerIsNoop
-    ? null
-    : {
-        kind: 'draft' as const,
-        key: 'composer-draft',
-        id: 'composer-draft',
-        status: composer.status,
-        message: composer.message.trim(),
-        date: composerDate,
-      };
-  const displayRows = draftRow
-    ? [...timelineRows, draftRow].sort((a, b) => b.date.getTime() - a.date.getTime())
-    : timelineRows;
-
-  const statusHelp = (() => {
-    if (form.id == null) return t('composer.statusHelpCreate');
-    if (!isLatestEntry) {
-      return t.rich('composer.statusHelpBackdated', {
-        statusName: t(`status.${latestStatus}`),
-        hl: (chunks) => <span className={statusTextClass(latestStatus)}>{chunks}</span>,
-      });
-    }
-    if (previousStatus == null || composer.status === previousStatus) {
-      return t.rich('composer.statusHelpKeep', {
-        statusName: t(`status.${composer.status}`),
-        hl: (chunks) => <span className={statusTextClass(composer.status)}>{chunks}</span>,
-      });
-    }
-    return t.rich('composer.statusHelpChange', {
-      fromName: t(`status.${previousStatus}`),
-      toName: t(`status.${composer.status}`),
-      from: (chunks) => <span className={statusTextClass(previousStatus)}>{chunks}</span>,
-      to: (chunks) => <span className={statusTextClass(composer.status)}>{chunks}</span>,
-    });
-  })();
-
-  const metadataDirty = JSON.stringify(form) !== JSON.stringify(seed.form);
-  const pendingDirty = JSON.stringify(pendingUpdates) !== JSON.stringify(seed.pending);
-  const timelineEditsDirty = Object.keys(editedUpdates).length > 0 || deletedUpdateIds.length > 0;
-  // On an existing incident, an un-staged composer edit (a new message or a changed status) is
-  // posted on save, so it counts as a pending change. On create the composer is the incident's
-  // opening content, not a "change", so we don't let its default status light up the indicator.
-  const composerDirty = form.id != null && !composerIsNoop;
-  const hasChanges = metadataDirty || pendingDirty || timelineEditsDirty || composerDirty;
-  const composerHasContent = form.id != null ? !composerIsNoop : composer.message.trim().length > 0;
-  const hasUnsavedWork = hasChanges || composerHasContent || editingUpdateId != null;
 
   const handleAddUpdate = () => {
     if (composerIsNoop) {
@@ -518,35 +454,28 @@ export function IncidentEditorSheet({
 
             <section className='space-y-3'>
               <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
-                {form.id != null ? t('composer.section') : t('composer.sectionCreate')}
+                {t('composer.section')}
               </div>
               <div className='border-border bg-muted/30 space-y-3 rounded-xl border p-3.5'>
-                <div className='space-y-1.5'>
-                  <div id='inc-status-label' className='text-xs font-medium'>
-                    {t('composer.statusLabel')}
-                  </div>
-                  <div role='group' aria-labelledby='inc-status-label' className='flex flex-wrap gap-1.5'>
-                    {STATUSES.map((option) => {
-                      const selected = composer.status === option;
-                      return (
-                        <button
-                          key={option}
-                          type='button'
-                          aria-pressed={selected}
-                          onClick={() => setComposer((c) => ({ ...c, status: option }))}
-                          className={cn(
-                            'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
-                            selected
-                              ? statusBadgeClass(option)
-                              : 'border-border text-muted-foreground hover:text-foreground',
-                          )}
-                        >
-                          {t(`status.${option}`)}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className='text-muted-foreground text-xs'>{statusHelp}</p>
+                <div className='flex flex-wrap gap-1.5'>
+                  {STATUSES.map((option) => {
+                    const selected = composer.status === option;
+                    return (
+                      <button
+                        key={option}
+                        type='button'
+                        onClick={() => setComposer((c) => ({ ...c, status: option }))}
+                        className={cn(
+                          'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
+                          selected
+                            ? statusBadgeClass(option)
+                            : 'border-border text-muted-foreground hover:text-foreground',
+                        )}
+                      >
+                        {t(`status.${option}`)}
+                      </button>
+                    );
+                  })}
                 </div>
                 <Textarea
                   id='inc-message'
@@ -575,7 +504,7 @@ export function IncidentEditorSheet({
                         className='ml-auto cursor-pointer'
                       >
                         <Plus className='h-3.5 w-3.5' />
-                        {t('composer.addAnother')}
+                        {t('timeline.addUpdate')}
                       </Button>
                     )}
                   </PermissionGate>
@@ -595,13 +524,12 @@ export function IncidentEditorSheet({
                       <Skeleton key={i} className='h-16 w-full' />
                     ))}
                   </div>
-                ) : displayRows.length === 0 ? (
+                ) : timeline.length === 0 && pendingUpdates.length === 0 ? (
                   <p className='text-muted-foreground text-sm'>{t('timeline.empty')}</p>
                 ) : (
                   <Timeline>
-                    {displayRows.map((row, i) => {
-                      const isLast = i === displayRows.length - 1;
-                      const draft = row.kind === 'draft';
+                    {timelineRows.map((row, i) => {
+                      const isLast = i === timelineRows.length - 1;
                       const pending = row.kind === 'pending';
                       const editing = editingUpdateId === row.id;
                       return (
@@ -616,7 +544,7 @@ export function IncidentEditorSheet({
                             <div
                               className={cn(
                                 'ring-background h-2.5 w-2.5 rounded-full ring',
-                                pending || draft ? statusDotHollowClass(row.status) : statusDotClass(row.status),
+                                pending ? statusDotHollowClass(row.status) : statusDotClass(row.status),
                               )}
                             />
                           }
@@ -626,8 +554,7 @@ export function IncidentEditorSheet({
                               {t(`status.${row.status}`)}
                             </span>
                             <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
-                              {/* The draft is edited live in the composer, so it gets no row actions. */}
-                              {draft ? null : pending ? (
+                              {pending ? (
                                 <>
                                   <Button
                                     size='icon'
