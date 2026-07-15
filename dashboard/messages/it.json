@@ -4264,8 +4264,9 @@
         },
         "composer": {
           "section": "Pubblica un aggiornamento",
+          "sectionHelp": "Each update is added to your public timeline. The newest one sets the incident's status.",
+          "statusLabel": "Status",
           "messagePlaceholder": "Aggiungi un messaggio (facoltativo)",
-          "noopHint": "Aggiungi un messaggio o cambia lo stato per pubblicare un aggiornamento.",
           "time": "Orario dell’aggiornamento"
         },
         "timeline": {
@@ -4273,6 +4274,7 @@
           "today": "Oggi",
           "yesterday": "Ieri",
           "addUpdate": "Aggiungi aggiornamento",
+          "pendingLabel": "Not saved yet",
           "empty": "Nessuna voce nella cronologia.",
           "editMessage": "Modifica messaggio",
           "deleteUpdate": "Elimina aggiornamento",

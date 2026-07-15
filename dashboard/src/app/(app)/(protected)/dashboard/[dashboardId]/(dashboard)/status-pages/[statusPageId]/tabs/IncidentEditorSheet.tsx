@@ -184,10 +184,8 @@ export function IncidentEditorSheet({
   const [editedUpdates, setEditedUpdates] = useState<Record<string, string>>({});
   const [deletedUpdateIds, setDeletedUpdateIds] = useState<string[]>([]);
   const [titleTouched, setTitleTouched] = useState(false);
-  const [composerError, setComposerError] = useState(false);
   const pendingIdRef = useRef(0);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const composerMessageRef = useRef<HTMLTextAreaElement>(null);
 
   const timelineQuery = useQuery({
     queryKey: ['statusPageIncidentTimeline', statusPageId, form.id],
@@ -269,7 +267,6 @@ export function IncidentEditorSheet({
     };
     setPendingUpdates((list) => [...list, staged]);
     setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
-    setComposerError(false);
   };
 
   const removePendingUpdate = (tempId: string) =>
@@ -350,16 +347,6 @@ export function IncidentEditorSheet({
   const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
   const previousStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : null);
   const composerIsNoop = composer.message.trim().length === 0 && composer.status === previousStatus;
-  const showComposerHint = composerError && composerIsNoop;
-
-  const handleAddUpdate = () => {
-    if (composerIsNoop) {
-      setComposerError(true);
-      composerMessageRef.current?.focus();
-      return;
-    }
-    stagePendingUpdate();
-  };
 
   const titleMissing = form.title.trim().length === 0;
   const showTitleError = titleTouched && titleMissing;
@@ -453,54 +440,64 @@ export function IncidentEditorSheet({
             <div className='bg-border h-px' />
 
             <section className='space-y-3'>
-              <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
-                {t('composer.section')}
+              <div className='space-y-1'>
+                <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
+                  {t('composer.section')}
+                </div>
+                <p className='text-muted-foreground text-xs'>{t('composer.sectionHelp')}</p>
               </div>
               <div className='border-border bg-muted/30 space-y-3 rounded-xl border p-3.5'>
-                <div className='flex flex-wrap gap-1.5'>
-                  {STATUSES.map((option) => {
-                    const selected = composer.status === option;
-                    return (
-                      <button
-                        key={option}
-                        type='button'
-                        onClick={() => setComposer((c) => ({ ...c, status: option }))}
-                        className={cn(
-                          'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
-                          selected
-                            ? statusBadgeClass(option)
-                            : 'border-border text-muted-foreground hover:text-foreground',
-                        )}
-                      >
-                        {t(`status.${option}`)}
-                      </button>
-                    );
-                  })}
+                <div className='space-y-1.5'>
+                  <div id='inc-status-label' className='text-xs font-medium'>
+                    {t('composer.statusLabel')}
+                  </div>
+                  <div role='group' aria-labelledby='inc-status-label' className='flex flex-wrap gap-1.5'>
+                    {STATUSES.map((option) => {
+                      const selected = composer.status === option;
+                      return (
+                        <button
+                          key={option}
+                          type='button'
+                          aria-pressed={selected}
+                          onClick={() => setComposer((c) => ({ ...c, status: option }))}
+                          className={cn(
+                            'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
+                            selected
+                              ? statusBadgeClass(option)
+                              : 'border-border text-muted-foreground hover:text-foreground',
+                          )}
+                        >
+                          {t(`status.${option}`)}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
                 <Textarea
                   id='inc-message'
-                  ref={composerMessageRef}
                   rows={3}
                   placeholder={t('composer.messagePlaceholder')}
                   value={composer.message}
                   maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
                   onChange={(e) => setComposer((c) => ({ ...c, message: e.target.value }))}
                 />
-                <div className='flex flex-wrap items-center gap-2'>
-                  <DateTimePicker
-                    value={new Date(composer.timeLocal)}
-                    onChange={(date) => setComposer((c) => ({ ...c, timeLocal: toLocalInput(date) }))}
-                    locale={locale}
-                    dateLabel={t('composer.time')}
-                    timeLabel={t('composer.time')}
-                  />
+                <div className='flex flex-wrap items-end gap-2'>
+                  <div className='space-y-1.5'>
+                    <div className='text-xs font-medium'>{t('composer.time')}</div>
+                    <DateTimePicker
+                      value={new Date(composer.timeLocal)}
+                      onChange={(date) => setComposer((c) => ({ ...c, timeLocal: toLocalInput(date) }))}
+                      locale={locale}
+                      dateLabel={t('composer.time')}
+                      timeLabel={t('composer.time')}
+                    />
+                  </div>
                   <PermissionGate>
                     {(disabled) => (
                       <Button
                         size='sm'
-                        variant='outline'
-                        onClick={handleAddUpdate}
-                        disabled={disabled || atUpdateCap}
+                        onClick={stagePendingUpdate}
+                        disabled={disabled || atUpdateCap || composerIsNoop}
                         className='ml-auto cursor-pointer'
                       >
                         <Plus className='h-3.5 w-3.5' />
@@ -509,7 +506,6 @@ export function IncidentEditorSheet({
                     )}
                   </PermissionGate>
                 </div>
-                {showComposerHint && <p className='text-destructive text-xs'>{t('composer.noopHint')}</p>}
               </div>
             </section>
 
@@ -553,6 +549,11 @@ export function IncidentEditorSheet({
                             <span className={cn('text-[13px] font-semibold', statusTextClass(row.status))}>
                               {t(`status.${row.status}`)}
                             </span>
+                            {pending && (
+                              <span className='text-muted-foreground text-[11px]'>
+                                {t('timeline.pendingLabel')}
+                              </span>
+                            )}
                             <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
                               {pending ? (
                                 <>

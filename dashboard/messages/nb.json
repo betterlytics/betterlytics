@@ -4264,8 +4264,9 @@
         },
         "composer": {
           "section": "Publiser en oppdatering",
+          "sectionHelp": "Each update is added to your public timeline. The newest one sets the incident's status.",
+          "statusLabel": "Status",
           "messagePlaceholder": "Legg til en melding (valgfritt)",
-          "noopHint": "Legg til en melding eller endre statusen for å publisere en oppdatering.",
           "time": "Oppdateringstidspunkt"
         },
         "timeline": {
@@ -4273,6 +4274,7 @@
           "today": "I dag",
           "yesterday": "I går",
           "addUpdate": "Legg til oppdatering",
+          "pendingLabel": "Not saved yet",
           "empty": "Ingen tidslinjeoppføringer ennå.",
           "editMessage": "Rediger melding",
           "deleteUpdate": "Slett oppdatering",

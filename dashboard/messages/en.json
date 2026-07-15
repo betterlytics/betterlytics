@@ -4262,8 +4262,9 @@
         },
         "composer": {
           "section": "Post an update",
+          "sectionHelp": "Each update is added to your public timeline. The newest one sets the incident's status.",
+          "statusLabel": "Status",
           "messagePlaceholder": "Add a message (optional)",
-          "noopHint": "Add a message or change the status to post an update.",
           "time": "Update time"
         },
         "timeline": {
@@ -4271,6 +4272,7 @@
           "today": "Today",
           "yesterday": "Yesterday",
           "addUpdate": "Add update",
+          "pendingLabel": "Not saved yet",
           "empty": "No timeline entries yet.",
           "editMessage": "Edit message",
           "deleteUpdate": "Delete update",
