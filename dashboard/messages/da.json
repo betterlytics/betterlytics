@@ -3985,7 +3985,14 @@
       "hours": "{count, plural, one {# time} other {# timer}}",
       "days": "{count, plural, one {# dag} other {# dage}}"
     },
-    "poweredBy": "Drevet af"
+    "poweredBy": "Drevet af",
+    "notFound": {
+      "title": "Fejl",
+      "code": "404",
+      "description": "Denne statusside kunne ikke findes — den findes ikke eller er blevet fjernet. Tjek linket, eller kontakt ejeren af siden, der delte det med dig.",
+      "goHome": "Gå til Betterlytics",
+      "viewDocs": "Se dokumentation"
+    }
   },
   "statusPagesPage": {
     "title": "Statussider",
