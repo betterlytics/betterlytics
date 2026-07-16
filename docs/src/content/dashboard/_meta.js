@@ -15,6 +15,7 @@ const meta = {
   "web-vitals": "Web Vitals",
   errors: "Error Tracking",
   monitoring: "Uptime Monitoring",
+  "status-pages": "Status Pages",
   integrations: "Notifications",
   "tools-separator": { type: "separator", title: "Tools & Reference" },
   "email-reports": "Email Reports",

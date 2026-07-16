@@ -1,0 +1,76 @@
+---
+title: "Custom Status Page Domain - Betterlytics"
+description: "Host your Betterlytics status page on your own domain, like status.example.com, with a single CNAME record and automatic SSL."
+---
+
+import { Callout } from "nextra/components";
+
+# Custom Status Page Domain
+
+By default, your status page lives at `betterlytics.io/status/{your-slug}`. With a custom domain, you can serve the exact same page from your own domain instead, typically something like `status.example.com`. SSL certificates are issued and renewed automatically; all you need is one DNS record.
+
+<Callout type="info">
+Custom domains are available on **Professional** and **Enterprise** plans.
+</Callout>
+
+## Requirements
+
+- A [status page](/dashboard/status-pages) that is **published**, since certificates are only issued for live pages
+- A **subdomain** you control, such as `status.example.com` or `health.api.example.com`. Root domains (`example.com`) are not supported
+- Access to your domain's DNS settings
+
+## Setup
+
+### 1. Set the custom domain in Betterlytics
+
+1. Navigate to **Dashboard > Status Pages** and open your status page
+2. Go to the **Settings** tab
+3. Enter your domain (e.g. `status.example.com`) in the **Custom domain** field and save
+
+The editor shows you the exact DNS record to create.
+
+### 2. Create the CNAME record
+
+In your DNS provider, add a CNAME record pointing your subdomain at your status page's Betterlytics address:
+
+| Type  | Name (host)         | Value (target)                     |
+|-------|---------------------|------------------------------------|
+| CNAME | `status`            | `{your-slug}.status.betterlytics.io` |
+
+For example, if your page's slug is `acme` and you want it at `status.example.com`, create a CNAME for `status` pointing to `acme.status.betterlytics.io`.
+
+<Callout type="info">
+DNS providers differ in what the name/host field expects: most want just the subdomain part (`status`) and append your domain automatically, while some want the full domain (`status.example.com`). If your provider shows a preview of the resulting record, check that it reads `status.example.com` and not `status.example.com.example.com`.
+</Callout>
+
+### 3. Wait for DNS and SSL
+
+DNS changes usually take effect within minutes but can take up to 24–48 hours to propagate, depending on your provider and the record's TTL. The first time someone visits your custom domain after the CNAME resolves, an SSL certificate is issued automatically. No configuration is needed on your end.
+
+Once live, your status page is served from your domain with a valid HTTPS certificate, and the page's canonical URL switches to your custom domain.
+
+## Troubleshooting
+
+### The domain shows a certificate error or won't load
+
+- Verify the CNAME record exists and points to `{your-slug}.status.betterlytics.io`. You can check with `nslookup status.example.com` or an online DNS lookup tool
+- If the lookup finds nothing, check the record's name/host field in your DNS provider. Entering the full domain where your provider expects only the subdomain part creates a record for the wrong name (e.g. `status.example.com.example.com`)
+- Confirm the status page is **published**. Certificates are not issued for drafts or unpublished pages
+- Confirm your plan includes custom domains (Professional or Enterprise)
+- If you only just created the record, give DNS propagation more time
+
+### I'm using Cloudflare and get a redirect loop or SSL error
+
+If your DNS is managed by Cloudflare, set the CNAME record to **DNS only** (gray cloud) instead of **Proxied** (orange cloud). Proxying the record through Cloudflare prevents our servers from issuing the SSL certificate for your domain and commonly causes redirect loops with Cloudflare's "Flexible" SSL mode.
+
+### Can I use my root domain (example.com)?
+
+No, custom domains must be a subdomain, since the setup relies on a CNAME record. `status.example.com` is the conventional choice.
+
+### What happens to the original URL?
+
+The page remains reachable at `betterlytics.io/status/{your-slug}` as well. With a custom domain configured, the custom domain is treated as the page's canonical address.
+
+---
+
+**Related**: Learn how to create and customize your page in the [Public Status Pages guide](/dashboard/status-pages).
