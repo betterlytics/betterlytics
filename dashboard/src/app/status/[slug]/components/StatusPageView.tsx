@@ -42,7 +42,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
   return (
     <div
       data-sp-theme={data.theme}
-      className='bl-status-page @container min-h-screen bg-[var(--sp-page-bg)] font-sans antialiased'
+      className='bl-status-page @container isolate min-h-screen bg-[var(--sp-page-bg)] font-sans antialiased'
       style={
         {
           '--sp-accent': data.accentColor,
@@ -61,8 +61,14 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
             above it is ~190px), mirroring the tall pb on the band. */}
         <div
           className={cn(
-            'rounded-xl [box-shadow:var(--sp-card-shadow)]',
-            data.monitors.length > 0 ? '-mt-59' : '-mt-11',
+            // Card elevation, split by element so each piece tunes independently and the
+            // brand seam never shifts on a theme flip. The multiply cast lives on the
+            // StatusHero (--sp-card-cast, theme-independent), so it only touches the brand
+            // band. The theme-varying --sp-card-shadow drop shadow lifts whatever sits on the
+            // page background — the monitor block when present, else this wrapper. `isolate`
+            // on the root scopes the blends to the band + page bg.
+            'relative z-0 rounded-xl',
+            data.monitors.length > 0 ? '-mt-59' : '-mt-11 [box-shadow:var(--sp-card-shadow)]',
           )}
         >
           <StatusHero
@@ -72,7 +78,7 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
             className={cn('rounded-t-xl', data.monitors.length > 0 ? 'border-b-0' : 'rounded-b-xl')}
           />
           {data.monitors.length > 0 && (
-            <div className='overflow-hidden rounded-b-xl border border-t-0 border-[var(--sp-card-border)] bg-[var(--sp-card-bg)]'>
+            <div className='relative z-0 overflow-hidden rounded-b-xl border border-t-0 border-[var(--sp-card-border)] bg-[var(--sp-card-bg)] [box-shadow:var(--sp-card-shadow)]'>
               <MonitorUptimeCard data={data} />
             </div>
           )}

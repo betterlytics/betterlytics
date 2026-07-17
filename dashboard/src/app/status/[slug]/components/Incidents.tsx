@@ -90,7 +90,7 @@ export function Incidents({ data }: { data: PublicStatusPageData }) {
               onClick={() => setPastExpanded((value) => !value)}
               aria-expanded={pastExpanded}
               aria-controls='sp-past-incidents'
-              className='inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-[var(--sp-card-border)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--sp-muted-strong)] transition-colors hover:bg-[var(--sp-pill-neutral-bg)] hover:text-[var(--sp-text)]'
+              className='inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-[var(--sp-card-border)] bg-[var(--sp-button-bg)] px-3.5 py-1.5 [box-shadow:var(--sp-button-shadow)] text-[13px] font-medium text-[var(--sp-muted-strong)] transition-colors hover:bg-[var(--sp-pill-neutral-bg)] hover:text-[var(--sp-text)]'
             >
               <svg
                 className={cn('h-3.5 w-3.5 transition-transform', pastExpanded && 'rotate-180')}

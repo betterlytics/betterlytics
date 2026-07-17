@@ -3985,7 +3985,14 @@
       "hours": "{count, plural, one {# time} other {# timer}}",
       "days": "{count, plural, one {# dag} other {# dage}}"
     },
-    "poweredBy": "Drevet af"
+    "poweredBy": "Drevet af",
+    "notFound": {
+      "title": "Fejl",
+      "code": "404",
+      "description": "Denne statusside kunne ikke findes — den findes ikke eller er blevet fjernet. Tjek linket, eller kontakt ejeren af siden, der delte det med dig.",
+      "goHome": "Gå til Betterlytics",
+      "viewDocs": "Se dokumentation"
+    }
   },
   "statusPagesPage": {
     "title": "Statussider",
@@ -4076,7 +4083,6 @@
       "homepageUrlInvalid": "Indtast en gyldig URL, der starter med http:// eller https://.",
       "customDomainInvalid": "Indtast et underdomæne, f.eks. status.example.com.",
       "customDomainSetup": {
-        "helpLabel": "Hjælp til opsætning af eget domæne",
         "intro": "Tilføj denne DNS-post hos din domæneudbyder for at pege <strong>{domain}</strong> mod Betterlytics.",
         "recordType": "Type",
         "recordName": "Navn",
@@ -4266,8 +4272,9 @@
         },
         "composer": {
           "section": "Post en opdatering",
+          "sectionHelp": "Each update is added to your public timeline. The newest one sets the incident's status.",
+          "statusLabel": "Status",
           "messagePlaceholder": "Tilføj en besked (valgfrit)",
-          "noopHint": "Tilføj en besked eller skift status for at poste en opdatering.",
           "time": "Opdateringstidspunkt"
         },
         "timeline": {
@@ -4275,6 +4282,7 @@
           "today": "I dag",
           "yesterday": "I går",
           "addUpdate": "Tilføj opdatering",
+          "pendingLabel": "Not saved yet",
           "empty": "Ingen tidslinjeposter endnu.",
           "editMessage": "Rediger besked",
           "deleteUpdate": "Slet opdatering",

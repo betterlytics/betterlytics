@@ -18,10 +18,10 @@ export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderPro
     <img
       src={logoUrl}
       alt={name}
-      className='h-11 w-auto max-w-[60cqw] object-contain @min-[640px]:h-14 @min-[640px]:max-w-xs'
+      className='h-11 w-auto max-w-[60cqw] object-contain @min-[640px]:h-12 @min-[640px]:max-w-xs'
     />
   ) : (
-    <span className='truncate text-xl font-bold tracking-tight'>{name}</span>
+    <span className='truncate text-2xl font-bold tracking-tight @min-[640px]:text-3xl'>{name}</span>
   );
 
   return (
@@ -29,7 +29,7 @@ export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderPro
       <div
         className={cn(
           'mx-auto flex w-full max-w-3xl items-center px-4 pt-7 @min-[640px]:px-8',
-          tall ? 'pb-64' : 'pb-16',
+          tall ? 'pb-66' : 'pb-16',
         )}
       >
         {homepageUrl ? (

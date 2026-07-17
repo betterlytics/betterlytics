@@ -18,7 +18,7 @@
 
   --sp-page-bg: light-dark(#f8f8fb, #0b0d0f);
   --sp-card-bg: light-dark(#ffffff, #14171a);
-  --sp-card-border: light-dark(#e4e4ec, #2a2f35);
+  --sp-card-border: light-dark(#d4d4dc, #2a2f35);
   --sp-card-divider: light-dark(#f1f2f4, #1d2126);
   --sp-card-footer-bg: light-dark(#fafafa, #101316);
   --sp-heading: light-dark(#16181c, #e7eaee);
@@ -37,7 +37,26 @@
   --sp-info: light-dark(#0ea5e9, #38bdf8);
   --sp-info-text: light-dark(#0284c7, #7dd3fc);
   --sp-neutral: light-dark(#e5e7eb, #24282d);
-  --sp-card-shadow: 0 4px 16px rgba(40, 40, 90, 0.08);
+  /* Card elevation is split in two so the shadow ON THE BRAND BAND stays identical
+     across themes (the band color is theme-independent — injected per page, not
+     light-dark). --sp-card-shadow is the normal drop shadow, biased downward (offset
+     >= blur + |spread|) so it lifts the card off the page bg WITHOUT haloing up onto the
+     band; only its alpha changes per theme, to match each page background. */
+  --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.09);
+  /* --sp-card-cast owns everything that touches the brand: a multiply ::before, so it
+     darkens the band's actual color instead of greying it. Multiply against the same
+     band color yields the same result in both themes, so this is theme-independent and
+     the seam never shifts when the owner flips light/dark. On the page bg it fades to a
+     plain soft shadow (light) or to nothing against near-black (dark, where the drop
+     shadow above does the lifting). */
+  --sp-card-cast: 0 0px 16px 2px rgba(0, 0, 0, 0.17);
+
+  /* "Show past incidents" toggle: a raised white surface in light mode; in dark it
+     drops back to the plain transparent, shadow-less button. Geometry is constant, so
+     unlike --sp-card-shadow the on/off fits in light-dark() via a transparent shadow
+     color (which renders as no shadow). Light value equals Tailwind's shadow-xs. */
+  --sp-button-bg: light-dark(#ffffff, transparent);
+  --sp-button-shadow: 0 1px 2px 0 light-dark(rgba(0, 0, 0, 0.05), transparent);
 
   --sp-pill-ok-text: light-dark(#059669, #4ade80);
   --sp-pill-ok-bg: light-dark(#ecfdf5, #10231a);
@@ -93,12 +112,14 @@
 
 .bl-status-page[data-sp-theme='dark'] {
   color-scheme: dark;
-  --sp-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  /* Same downward geometry as light; only the alpha rises to read on the near-black
+     page. The brand-touching shadow is unchanged (it comes from --sp-card-cast). */
+  --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.5);
 }
 
 /* box-shadow mixes geometry with color, so light-dark() can't express it */
 @media (prefers-color-scheme: dark) {
   .bl-status-page[data-sp-theme='system'] {
-    --sp-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.5);
   }
 }

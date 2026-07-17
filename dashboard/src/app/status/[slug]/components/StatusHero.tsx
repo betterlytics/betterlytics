@@ -28,7 +28,14 @@ export function StatusHero({ overallStatus, bannerLabel, subTextLabel, className
 
   return (
     <div
-      className={cn('border bg-clip-padding px-4 py-8 text-center text-white @min-[640px]:px-8', className)}
+      className={cn(
+        // Multiply ::before casts the card's brand-side shadow. Living on the hero (not the
+        // whole-card wrapper) scopes it to the top, so --sp-card-cast tunes only the brand
+        // seam; its downward bleed tucks behind the monitor block. rounded-[inherit] follows
+        // whichever corners this hero has (top-only with monitors, all four without).
+        "relative z-0 border bg-clip-padding px-4 py-8 text-center text-white @min-[640px]:px-8 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:[box-shadow:var(--sp-card-cast)] before:mix-blend-multiply before:content-['']",
+        className,
+      )}
       style={{ backgroundColor: color, borderColor: `color-mix(in srgb, ${color} 55%, transparent)` }}
     >
       <span

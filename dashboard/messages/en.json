@@ -3982,7 +3982,14 @@
       "hours": "{count, plural, one {# hour} other {# hours}}",
       "days": "{count, plural, one {# day} other {# days}}"
     },
-    "poweredBy": "Powered by"
+    "poweredBy": "Powered by",
+    "notFound": {
+      "title": "Error",
+      "code": "404",
+      "description": "This status page could not be found — it doesn't exist or has been removed. Check the link, or contact the site owner who shared it with you.",
+      "goHome": "Go to Betterlytics",
+      "viewDocs": "View documentation"
+    }
   },
   "statusPagesPage": {
     "title": "Status Pages",
@@ -4076,7 +4083,6 @@
       "homepageUrlInvalid": "Enter a valid URL starting with http:// or https://.",
       "customDomainInvalid": "Enter a subdomain, e.g. status.example.com.",
       "customDomainSetup": {
-        "helpLabel": "Custom domain setup help",
         "intro": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at Betterlytics.",
         "recordType": "Type",
         "recordName": "Name",
@@ -4264,8 +4270,9 @@
         },
         "composer": {
           "section": "Post an update",
+          "sectionHelp": "Each update is added to your public timeline. The newest one sets the incident's status.",
+          "statusLabel": "Status",
           "messagePlaceholder": "Add a message (optional)",
-          "noopHint": "Add a message or change the status to post an update.",
           "time": "Update time"
         },
         "timeline": {
@@ -4273,6 +4280,7 @@
           "today": "Today",
           "yesterday": "Yesterday",
           "addUpdate": "Add update",
+          "pendingLabel": "Not saved yet",
           "empty": "No timeline entries yet.",
           "editMessage": "Edit message",
           "deleteUpdate": "Delete update",
