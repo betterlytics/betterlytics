@@ -68,6 +68,7 @@ export function Incidents({ data }: { data: PublicStatusPageData }) {
                 pastExpanded ? 'opacity-100' : 'opacity-0',
               )}
               aria-hidden={!pastExpanded}
+              inert={!pastExpanded}
             >
               {/* Bottom gap lives on this child (not the clipped grid item), so the collapsed
                   0fr row is truly 0px tall — item padding would keep contributing height. */}
