@@ -4250,6 +4250,9 @@
         "form": {
           "title": "Titolo",
           "titleRequired": "Il titolo è obbligatorio",
+          "description": "Descrizione",
+          "descriptionPlaceholder": "Cosa sta succedendo? Mostrato in cima all'incidente (facoltativo)",
+          "timelineRequired": "Aggiungi almeno una voce alla cronologia",
           "detailsSection": "Dettagli incidente",
           "impact": "Impatto",
           "monitor": "Monitor interessati",

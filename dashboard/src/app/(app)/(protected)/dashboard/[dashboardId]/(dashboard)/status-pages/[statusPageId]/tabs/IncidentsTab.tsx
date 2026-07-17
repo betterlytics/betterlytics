@@ -215,7 +215,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     () => [
       {
         id: 'incident',
-        accessorFn: (row) => `${row.title} ${row.body}`,
+        accessorFn: (row) => `${row.title} ${row.description ?? ''} ${row.body}`,
         header: t('table.incident'),
         enableSorting: false,
         meta: { cellClassName: 'w-full max-w-0 min-w-[140px] sm:min-w-[200px]' } satisfies IncidentColumnMeta,
@@ -232,7 +232,11 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                   </span>
                 )}
               </div>
-              {incident.body && <div className='text-muted-foreground truncate text-xs'>{incident.body}</div>}
+              {(incident.description || incident.body) && (
+                <div className='text-muted-foreground truncate text-xs'>
+                  {incident.description || incident.body}
+                </div>
+              )}
             </div>
           );
         },

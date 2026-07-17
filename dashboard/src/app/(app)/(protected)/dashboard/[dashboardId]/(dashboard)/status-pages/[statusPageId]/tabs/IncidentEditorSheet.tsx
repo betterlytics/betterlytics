@@ -57,6 +57,7 @@ type IncidentForm = {
   id: string | null;
   detectedIncidentId: string | null;
   title: string;
+  description: string;
   impact: StatusPageIncidentImpact;
   monitorCheckIds: string[];
 };
@@ -90,7 +91,7 @@ function toLocalInput(date: Date): string {
 }
 
 function emptyForm(): IncidentForm {
-  return { id: null, detectedIncidentId: null, title: '', impact: 'degraded', monitorCheckIds: [] };
+  return { id: null, detectedIncidentId: null, title: '', description: '', impact: 'degraded', monitorCheckIds: [] };
 }
 
 function emptyComposer(): Composer {
@@ -98,7 +99,14 @@ function emptyComposer(): Composer {
 }
 
 export function editorSeedForCreate(): IncidentEditorSeed {
-  return { form: emptyForm(), composer: emptyComposer(), status: 'investigating', pending: [] };
+  return {
+    form: emptyForm(),
+    composer: emptyComposer(),
+    status: 'investigating',
+    pending: [
+      { tempId: 'seed-opening', status: 'investigating', message: '', occurredAtIso: new Date().toISOString() },
+    ],
+  };
 }
 
 export function editorSeedForIncident(incident: StatusPageIncident): IncidentEditorSeed {
@@ -107,6 +115,7 @@ export function editorSeedForIncident(incident: StatusPageIncident): IncidentEdi
       id: incident.id,
       detectedIncidentId: incident.detectedIncidentId,
       title: incident.title,
+      description: incident.description ?? '',
       impact: incident.impact,
       monitorCheckIds: incident.monitorCheckIds,
     },
@@ -126,18 +135,26 @@ export function editorSeedForSuggestion(suggestion: DetectedOutageSuggestion, ti
       impact: suggestion.suggestedImpact,
       monitorCheckIds: suggestion.monitors.map((monitor) => monitor.monitorCheckId),
     },
-    composer: { ...emptyComposer(), timeLocal: toLocalInput(new Date(suggestion.startedAt)) },
+    composer: emptyComposer(),
     status: 'investigating',
-    pending: resolved
-      ? [
-          {
-            tempId: 'seed-resolved',
-            status: 'resolved',
-            message: '',
-            occurredAtIso: new Date(suggestion.resolvedAt as string).toISOString(),
-          },
-        ]
-      : [],
+    pending: [
+      {
+        tempId: 'seed-opening',
+        status: 'investigating',
+        message: '',
+        occurredAtIso: new Date(suggestion.startedAt).toISOString(),
+      },
+      ...(resolved
+        ? [
+            {
+              tempId: 'seed-resolved',
+              status: 'resolved' as const,
+              message: '',
+              occurredAtIso: new Date(suggestion.resolvedAt as string).toISOString(),
+            },
+          ]
+        : []),
+    ],
   };
 }
 
@@ -184,6 +201,7 @@ export function IncidentEditorSheet({
   const [editedUpdates, setEditedUpdates] = useState<Record<string, string>>({});
   const [deletedUpdateIds, setDeletedUpdateIds] = useState<string[]>([]);
   const [titleTouched, setTitleTouched] = useState(false);
+  const [timelineTouched, setTimelineTouched] = useState(false);
   const pendingIdRef = useRef(0);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -213,24 +231,14 @@ export function IncidentEditorSheet({
       }));
 
       if (!form.id) {
-        const composerEntry = {
-          status: composer.status,
-          message: composer.message.trim(),
-          occurredAt: withEntrySeconds(composer.timeLocal),
-        };
-        const [opening, ...rest] = [...stagedUpdates, ...(composerIsNoop ? [] : [composerEntry])].sort(
-          (a, b) => a.occurredAt.getTime() - b.occurredAt.getTime(),
-        );
         await createStatusPageIncidentAction(dashboardId, {
           statusPageId,
           title: form.title.trim(),
-          message: opening.message,
+          description: form.description.trim(),
           impact: form.impact,
-          status: opening.status,
           monitorCheckIds: form.monitorCheckIds,
           detectedIncidentId: form.detectedIncidentId,
-          startedAt: opening.occurredAt,
-          updates: rest,
+          updates: stagedUpdates,
         });
         return;
       }
@@ -239,7 +247,12 @@ export function IncidentEditorSheet({
         incidentId: form.id,
         statusPageId,
         metadata: metadataDirty
-          ? { title: form.title.trim(), impact: form.impact, monitorCheckIds: form.monitorCheckIds }
+          ? {
+              title: form.title.trim(),
+              description: form.description.trim(),
+              impact: form.impact,
+              monitorCheckIds: form.monitorCheckIds,
+            }
           : undefined,
         editedUpdates: Object.entries(editedUpdates).map(([updateId, message]) => ({
           updateId,
@@ -343,20 +356,23 @@ export function IncidentEditorSheet({
     return date;
   };
 
-  const latestStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : composer.status);
+  const latestStatus = timelineRows[0]?.status ?? seed.status;
   const atUpdateCap = timelineRows.length >= STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX;
   const previousStatus = timelineRows[0]?.status ?? (form.id != null ? seed.status : null);
   const composerIsNoop = composer.message.trim().length === 0 && composer.status === previousStatus;
 
   const titleMissing = form.title.trim().length === 0;
   const showTitleError = titleTouched && titleMissing;
+  const timelineMissing = form.id == null && pendingUpdates.length === 0;
+  const showTimelineError = timelineTouched && timelineMissing;
 
   const saveCta = form.id != null ? t('form.updatePublic') : t('form.publishCta');
 
   const handleSaveClick = () => {
-    if (titleMissing) {
+    if (titleMissing || timelineMissing) {
       setTitleTouched(true);
-      titleInputRef.current?.focus();
+      setTimelineTouched(true);
+      if (titleMissing) titleInputRef.current?.focus();
       return;
     }
     saveMutation.mutate();
@@ -400,6 +416,18 @@ export function IncidentEditorSheet({
                   className={cn(showTitleError && 'border-destructive focus-visible:ring-destructive/30')}
                 />
                 {showTitleError && <p className='text-destructive text-xs'>{t('form.titleRequired')}</p>}
+              </div>
+
+              <div className='space-y-1.5'>
+                <Label htmlFor='inc-description'>{t('form.description')}</Label>
+                <Textarea
+                  id='inc-description'
+                  rows={3}
+                  placeholder={t('form.descriptionPlaceholder')}
+                  value={form.description}
+                  maxLength={STATUS_PAGE_LIMITS.INCIDENT_DESCRIPTION_MAX}
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                />
               </div>
 
               <div className='space-y-2'>
@@ -509,8 +537,7 @@ export function IncidentEditorSheet({
               </div>
             </section>
 
-            {(form.id != null || pendingUpdates.length > 0) && (
-              <section className='space-y-3'>
+            <section className='space-y-3'>
                 <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
                   {t('timeline.title')}
                 </div>
@@ -520,8 +547,10 @@ export function IncidentEditorSheet({
                       <Skeleton key={i} className='h-16 w-full' />
                     ))}
                   </div>
-                ) : timeline.length === 0 && pendingUpdates.length === 0 ? (
-                  <p className='text-muted-foreground text-sm'>{t('timeline.empty')}</p>
+                ) : timelineRows.length === 0 ? (
+                  <p className={cn('text-sm', showTimelineError ? 'text-destructive' : 'text-muted-foreground')}>
+                    {showTimelineError ? t('form.timelineRequired') : t('timeline.empty')}
+                  </p>
                 ) : (
                   <Timeline>
                     {timelineRows.map((row, i) => {
@@ -651,8 +680,7 @@ export function IncidentEditorSheet({
                     })}
                   </Timeline>
                 )}
-              </section>
-            )}
+            </section>
           </div>
 
           <SheetFooter className='flex-row flex-wrap items-center gap-2 border-t px-6 py-3'>

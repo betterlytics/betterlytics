@@ -155,6 +155,12 @@ export const IncidentCard = memo(function IncidentCard({
         </span>
       </div>
 
+      {incident.description ? (
+        <p className='mt-3 text-[13px] leading-relaxed break-words whitespace-pre-line text-[var(--sp-text)]'>
+          {incident.description}
+        </p>
+      ) : null}
+
       {incident.monitorPublicNames.length > 0 ? (
         <div className='mt-3.5 flex flex-wrap gap-1.5'>
           {incident.monitorPublicNames.map((name) => {

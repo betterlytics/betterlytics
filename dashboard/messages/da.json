@@ -4250,6 +4250,9 @@
         "form": {
           "title": "Titel",
           "titleRequired": "Titel er påkrævet",
+          "description": "Beskrivelse",
+          "descriptionPlaceholder": "Hvad sker der? Vises øverst på hændelsen (valgfrit)",
+          "timelineRequired": "Tilføj mindst én tidslinjepost",
           "detailsSection": "Hændelsesdetaljer",
           "impact": "Påvirkning",
           "monitor": "Påvirkede monitorer",

@@ -515,6 +515,7 @@ model StatusPageIncident {
 
   title  String
   body   String                                            // denormalized mirror of the latest update's message; set via posted updates, never edited directly
+  description String?
   impact StatusPageIncidentImpact @default(outage)
   status StatusPageIncidentStatus @default(investigating)
 
@@ -541,7 +542,7 @@ model StatusPageIncident {
   @@index([dashboardId, status])
 }
 
-// Timeline of an incident's status updates (the first is seeded on create). The parent
+// Timeline of an incident's status updates. The parent
 // StatusPageIncident row caches the current state, derived from this timeline: status/resolvedAt
 // from the latest entry, body from the latest entry with a message. An entry's message (text body)
 // can be edited and entries can be removed, but their status and time are fixed once posted.

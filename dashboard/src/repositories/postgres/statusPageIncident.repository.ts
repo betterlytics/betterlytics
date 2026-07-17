@@ -61,28 +61,39 @@ export async function createStatusPageIncident(
   createdById: string,
   data: StatusPageIncidentCreate,
 ): Promise<IncidentWithSlug> {
-  const { statusPageId, message, startedAt, updates, ...fields } = data;
-  const occurredAt = startedAt ?? new Date();
+  const { statusPageId, description, updates, ...fields } = data;
+  const entries = updates.map((update) => ({
+    status: update.status,
+    message: update.message,
+    occurredAt: update.occurredAt ?? new Date(),
+  }));
+  const startedAt = entries.reduce(
+    (min, entry) => (entry.occurredAt < min ? entry.occurredAt : min),
+    entries[0].occurredAt,
+  );
   const created = await prisma.$transaction(async (tx) => {
     const incident = await tx.statusPageIncident.create({
-      data: { statusPageId, dashboardId, createdById, body: message, startedAt: occurredAt, ...fields },
+      data: {
+        statusPageId,
+        dashboardId,
+        createdById,
+        body: '',
+        description: description || null,
+        startedAt,
+        ...fields,
+      },
       select: { id: true, statusPage: { select: { slug: true } } },
     });
 
-    await tx.statusPageIncidentUpdate.create({
-      data: { incidentId: incident.id, status: fields.status, message, createdById, createdAt: occurredAt },
+    await tx.statusPageIncidentUpdate.createMany({
+      data: entries.map((entry) => ({
+        incidentId: incident.id,
+        status: entry.status,
+        message: entry.message,
+        createdById,
+        createdAt: entry.occurredAt,
+      })),
     });
-    if (updates.length > 0) {
-      await tx.statusPageIncidentUpdate.createMany({
-        data: updates.map((update) => ({
-          incidentId: incident.id,
-          status: update.status,
-          message: update.message,
-          createdById,
-          createdAt: update.occurredAt ?? new Date(),
-        })),
-      });
-    }
 
     const synced = await syncIncidentFromTimeline(tx, incident.id);
     return { incident: synced, slug: incident.statusPage.slug };
@@ -104,7 +115,10 @@ export async function applyStatusPageIncidentChanges(
     if (!existing) return null;
 
     if (metadata) {
-      await tx.statusPageIncident.update({ where: { id: incidentId }, data: metadata });
+      await tx.statusPageIncident.update({
+        where: { id: incidentId },
+        data: { ...metadata, description: metadata.description || null },
+      });
     }
     if (editedUpdates.length > 0) {
       // One UPDATE ... FROM (VALUES ...) instead of a round trip per edited message.

@@ -54,6 +54,7 @@ export type PublicStatusPageIncidentUpdate = z.infer<typeof PublicStatusPageInci
 export const PublicStatusPageIncidentSchema = z.object({
   title: z.string(),
   body: z.string(),
+  description: z.string().nullable().default(null),
   impact: StatusPageIncidentImpactSchema,
   status: StatusPageIncidentStatusSchema,
   /** Affected monitors' public names; empty for a page-wide incident. */

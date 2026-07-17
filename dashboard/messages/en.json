@@ -4248,6 +4248,9 @@
         "form": {
           "title": "Title",
           "titleRequired": "Title is required",
+          "description": "Description",
+          "descriptionPlaceholder": "What's happening? Shown at the top of the incident (optional)",
+          "timelineRequired": "Add at least one timeline entry",
           "detailsSection": "Incident details",
           "impact": "Impact",
           "monitor": "Affected monitors",

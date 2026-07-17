@@ -58,6 +58,7 @@ CREATE TABLE "StatusPageIncident" (
     "dashboardId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "body" TEXT NOT NULL,
+    "description" TEXT,
     "impact" "StatusPageIncidentImpact" NOT NULL DEFAULT 'outage',
     "status" "StatusPageIncidentStatus" NOT NULL DEFAULT 'investigating',
     "startedAt" TIMESTAMP(3) NOT NULL,

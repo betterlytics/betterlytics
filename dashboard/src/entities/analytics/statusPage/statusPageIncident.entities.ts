@@ -12,6 +12,7 @@ export const StatusPageIncidentSchema = z.object({
   statusPageId: z.string(),
   title: z.string(),
   body: z.string(),
+  description: z.string().nullable(),
   impact: StatusPageIncidentImpactSchema,
   status: StatusPageIncidentStatusSchema,
   startedAt: z.date(),
@@ -43,7 +44,7 @@ export const PublishedIncidentTimelineEntrySchema = StatusPageIncidentTimelineEn
 export type PublishedIncidentTimelineEntry = z.infer<typeof PublishedIncidentTimelineEntrySchema>;
 
 const incidentTitle = z.string().trim().min(1).max(STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX);
-// Update messages are optional — a status-only update (e.g. "Monitoring", no text) is allowed.
+const incidentDescription = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_DESCRIPTION_MAX);
 const incidentMessage = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX);
 
 const incidentUpdateInput = z.object({
@@ -52,18 +53,15 @@ const incidentUpdateInput = z.object({
   occurredAt: z.coerce.date().optional(),
 });
 
-// status/body/resolvedAt are timeline-derived, never direct inputs.
 export const StatusPageIncidentCreateSchema = z.object({
   statusPageId: z.string().min(1),
   title: incidentTitle,
-  message: incidentMessage.default(''),
+  description: incidentDescription.default(''),
   impact: StatusPageIncidentImpactSchema.default('outage'),
-  status: StatusPageIncidentStatusSchema.default('investigating'),
-  startedAt: z.coerce.date().optional(),
   updates: z
     .array(incidentUpdateInput)
-    .max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX - 1)
-    .default([]),
+    .min(1, 'An incident needs at least one timeline entry')
+    .max(STATUS_PAGE_LIMITS.INCIDENT_UPDATES_MAX),
   monitorCheckIds: z.array(z.string().min(1)).default([]),
   detectedIncidentId: z.string().min(1).nullable().default(null),
 });
@@ -76,6 +74,7 @@ export const StatusPageIncidentBatchSaveSchema = z.object({
   metadata: z
     .object({
       title: incidentTitle,
+      description: incidentDescription.default(''),
       impact: StatusPageIncidentImpactSchema,
       monitorCheckIds: z.array(z.string().min(1)),
     })

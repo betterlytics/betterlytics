@@ -148,6 +148,7 @@ export function toPublicIncident(
   return {
     title: incident.title,
     body: incident.body,
+    description: incident.description,
     impact: incident.impact,
     status: incident.status,
     monitorPublicNames,
