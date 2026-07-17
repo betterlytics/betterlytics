@@ -28,7 +28,7 @@ import { groupByKey } from '@/utils/collections';
 function parseUptimeBucketRow(row: any): MonitorUptimeBucket {
   return MonitorUptimeBucketSchema.parse({
     bucket: toIsoUtc(row.date) ?? row.date,
-    upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
+    upRatio: row.uptime_seconds != null && row.total_seconds > 0 ? row.uptime_seconds / row.total_seconds : null,
     totalSeconds: row.total_seconds,
   });
 }
