@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, Copy, HelpCircle, Info } from 'lucide-react';
+import { HelpCircle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CopyButton } from '@/components/CopyButton';
 
 export const CUSTOM_DOMAIN_DOCS_URL = 'https://betterlytics.io/docs/integration/custom-status-page-domain';
 
@@ -36,7 +36,6 @@ type CustomDomainSetupProps = {
 
 export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: CustomDomainSetupProps) {
   const t = useTranslations('statusPagesPage.editor');
-  const [copied, setCopied] = useState(false);
 
   const domain = customDomain.trim();
   if (!domain || !isValid || !slug.trim()) return null;
@@ -45,12 +44,6 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
   // Many providers (Namecheap, Cloudflare, GoDaddy…) auto-append the domain, so the Name field wants
   // just the subdomain label.
   const hostLabel = domain.split('.')[0];
-
-  const copyTarget = () => {
-    navigator.clipboard.writeText(target);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1400);
-  };
 
   return (
     <div className='space-y-3 rounded-lg border border-blue-500/30 bg-blue-500/5 p-4'>
@@ -73,15 +66,13 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
         <DnsField label={t('customDomainSetup.recordValue')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:pl-6'>
           <div className='flex items-center gap-2'>
             <span className='font-mono text-sm break-all'>{target}</span>
-            <button
-              type='button'
-              onClick={copyTarget}
-              aria-label={t('customDomainSetup.copy')}
-              title={t('customDomainSetup.copy')}
+            <CopyButton
+              text={target}
+              ariaLabel={t('customDomainSetup.copy')}
+              copiedLabel={t('customDomainSetup.copied')}
               className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-            >
-              {copied ? <Check className='h-3.5 w-3.5 text-emerald-500' /> : <Copy className='h-3.5 w-3.5' />}
-            </button>
+              iconClassName='h-3.5 w-3.5'
+            />
           </div>
         </DnsField>
       </div>

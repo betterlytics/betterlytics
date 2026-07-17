@@ -36,6 +36,12 @@ export const StatusPageIncidentTimelineEntrySchema = z.object({
 });
 export type StatusPageIncidentTimelineEntry = z.infer<typeof StatusPageIncidentTimelineEntrySchema>;
 
+export const PublishedIncidentTimelineEntrySchema = StatusPageIncidentTimelineEntrySchema.omit({
+  id: true,
+  createdById: true,
+});
+export type PublishedIncidentTimelineEntry = z.infer<typeof PublishedIncidentTimelineEntrySchema>;
+
 const incidentTitle = z.string().trim().min(1).max(STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX);
 // Update messages are optional — a status-only update (e.g. "Monitoring", no text) is allowed.
 const incidentMessage = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX);

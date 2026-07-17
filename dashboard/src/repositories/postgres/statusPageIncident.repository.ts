@@ -1,9 +1,11 @@
 import { Prisma } from '@prisma/client';
 import prisma from '@/lib/postgres';
 import {
+  PublishedIncidentTimelineEntrySchema,
   StatusPageIncidentSchema,
   StatusPageIncidentTimelineEntrySchema,
   type IncidentWithSlug,
+  type PublishedIncidentTimelineEntry,
   type StatusPageIncident,
   type StatusPageIncidentBatchSave,
   type StatusPageIncidentCreate,
@@ -13,16 +15,13 @@ import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.e
 import { groupByKey } from '@/utils/collections';
 
 async function syncIncidentFromTimeline(tx: Prisma.TransactionClient, incidentId: string) {
-  const latest = await tx.statusPageIncidentUpdate.findFirst({
+  const updates = await tx.statusPageIncidentUpdate.findMany({
     where: { incidentId },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-    select: { status: true, createdAt: true },
+    select: { status: true, createdAt: true, message: true },
   });
-  const latestWithMessage = await tx.statusPageIncidentUpdate.findFirst({
-    where: { incidentId, message: { not: '' } },
-    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-    select: { message: true },
-  });
+  const latest = updates[0];
+  const latestWithMessage = updates.find((update) => update.message !== '');
   return tx.statusPageIncident.update({
     where: { id: incidentId },
     data: {
@@ -184,16 +183,17 @@ export async function deleteStatusPageIncident(
 
 export async function listPublishedIncidentUpdates(
   incidentIds: string[],
-): Promise<Map<string, StatusPageIncidentTimelineEntry[]>> {
+): Promise<Map<string, PublishedIncidentTimelineEntry[]>> {
   if (incidentIds.length === 0) return new Map();
 
   const rows = await prisma.statusPageIncidentUpdate.findMany({
     where: { incidentId: { in: incidentIds } },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { incidentId: true, status: true, message: true, createdAt: true },
   });
 
   return groupByKey(
-    rows.map((row) => StatusPageIncidentTimelineEntrySchema.parse(row)),
+    rows.map((row) => PublishedIncidentTimelineEntrySchema.parse(row)),
     (entry) => entry.incidentId,
   );
 }

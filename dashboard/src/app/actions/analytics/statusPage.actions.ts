@@ -6,6 +6,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { hasPermission } from '@/lib/permissions';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import {
   StatusPageCreateSchema,
@@ -35,7 +36,7 @@ import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { statusPageValidator } from '@/lib/billing/validators';
 import {
   addStatusPageIncident,
-  countActiveStatusPageIncidents,
+  countIncidentsForStatusPage,
   countIncidentUpdates,
   getIncidentsForStatusPage,
   getIncidentSuggestions,
@@ -56,6 +57,12 @@ import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.serv
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import { getUserTimezone } from '@/lib/cookies';
 import { UserException } from '@/lib/exceptions';
+
+function assertStatusPagesEnabled() {
+  if (!isFeatureEnabled('enablePublicStatusPages')) {
+    throw new UserException('Status pages are not enabled');
+  }
+}
 
 function revalidateStatusPagePaths(dashboardId: string, ...slugs: Array<string | undefined>) {
   revalidatePath(`/dashboard/${dashboardId}/status-pages`);
@@ -124,6 +131,7 @@ async function prepareImageWrites(images?: StatusPageImagesInput): Promise<Statu
 
 export const createStatusPageAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageCreateSchema>, images?: StatusPageImagesInput) => {
+    assertStatusPagesEnabled();
     const t = await getTranslations('validation');
     const payload = StatusPageCreateSchema.parse(input);
     const imageWrites = await prepareImageWrites(images);
@@ -165,6 +173,7 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
 
 export const updateStatusPageAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageUpdateSchema>, images?: StatusPageImagesInput) => {
+    assertStatusPagesEnabled();
     const t = await getTranslations('validation');
     const payload = StatusPageUpdateSchema.parse(input);
     const imageWrites = await prepareImageWrites(images);
@@ -198,6 +207,7 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
 
 export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, statusPageId: string, isPublished: boolean) => {
+    assertStatusPagesEnabled();
     const updated = await publishStatusPage(ctx.dashboardId, statusPageId, isPublished);
 
     revalidateStatusPagePaths(ctx.dashboardId, updated.slug);
@@ -208,6 +218,7 @@ export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
 
 export const deleteStatusPageAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, statusPageId: string) => {
+    assertStatusPagesEnabled();
     const deletedSlug = await removeStatusPage(ctx.dashboardId, statusPageId);
 
     revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
@@ -309,6 +320,7 @@ async function validateAffectedMonitors(
 
 export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentCreateSchema>) => {
+    assertStatusPagesEnabled();
     const payload = StatusPageIncidentCreateSchema.parse(input);
     payload.monitorCheckIds = await validateAffectedMonitors(
       ctx.dashboardId,
@@ -317,7 +329,7 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
     );
 
     if (
-      (await countActiveStatusPageIncidents(ctx.dashboardId, payload.statusPageId)) >=
+      (await countIncidentsForStatusPage(ctx.dashboardId, payload.statusPageId)) >=
       STATUS_PAGE_LIMITS.INCIDENTS_MAX
     ) {
       throw new UserException((await getTranslations('validation'))('statusPageIncidentLimit'));
@@ -332,6 +344,7 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
 
 export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof StatusPageIncidentBatchSaveSchema>) => {
+    assertStatusPagesEnabled();
     const payload = StatusPageIncidentBatchSaveSchema.parse(input);
     if (payload.metadata) {
       payload.metadata.monitorCheckIds = await validateAffectedMonitors(
@@ -361,6 +374,7 @@ export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthCont
 
 export const deleteStatusPageIncidentAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, statusPageId: string, incidentId: string) => {
+    assertStatusPagesEnabled();
     const slug = await removeStatusPageIncident(ctx.dashboardId, statusPageId, incidentId);
     if (slug) revalidateStatusPagePaths(ctx.dashboardId, slug);
   },

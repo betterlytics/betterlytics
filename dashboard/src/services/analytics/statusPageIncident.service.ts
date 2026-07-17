@@ -68,7 +68,7 @@ export function removeStatusPageIncident(
   return deleteStatusPageIncident(dashboardId, statusPageId, incidentId);
 }
 
-export function countActiveStatusPageIncidents(dashboardId: string, statusPageId: string): Promise<number> {
+export function countIncidentsForStatusPage(dashboardId: string, statusPageId: string): Promise<number> {
   return countStatusPageIncidents(dashboardId, statusPageId);
 }
 

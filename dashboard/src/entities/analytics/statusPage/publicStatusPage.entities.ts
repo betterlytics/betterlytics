@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { StatusPageThemeSchema } from './statusPage.entities';
+import { StatusPageAccentColorSchema, StatusPageThemeSchema } from './statusPage.entities';
 import { StatusPageIncidentImpactSchema, StatusPageIncidentStatusSchema } from './statusPageIncident.entities';
 
 export const PublicOverallStatusSchema = z.enum([
@@ -73,7 +73,7 @@ export const PublicStatusPageDataSchema = z.object({
   faviconUrl: z.string().nullable().default(null),
   homepageUrl: z.string().nullable().default(null),
   noindex: z.boolean().default(false),
-  accentColor: z.string(),
+  accentColor: StatusPageAccentColorSchema,
   theme: StatusPageThemeSchema,
   overallStatus: PublicOverallStatusSchema,
   lastUpdatedAt: z.string(),

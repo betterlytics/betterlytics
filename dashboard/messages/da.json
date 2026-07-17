@@ -4082,6 +4082,7 @@
         "recordName": "Navn",
         "recordValue": "Værdi",
         "copy": "Kopiér værdi",
+        "copied": "Værdi kopieret",
         "nameHint": "Nogle udbydere tilføjer automatisk dit domæne. Hvis det er tilfældet, skal du kun indtaste <mono>{label}</mono> som Navn i stedet for hele <monoBreak>{domain}</monoBreak>.",
         "propagation": "DNS-ændringer kan tage op til nogle timer at træde i kraft."
       },

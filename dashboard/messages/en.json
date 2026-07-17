@@ -4082,6 +4082,7 @@
         "recordName": "Name",
         "recordValue": "Value",
         "copy": "Copy value",
+        "copied": "Value copied",
         "nameHint": "Some providers add your domain automatically. If so, enter just <mono>{label}</mono> as the Name instead of the full <monoBreak>{domain}</monoBreak>.",
         "propagation": "DNS changes can take up to a few hours to take effect."
       },

@@ -20,16 +20,37 @@ import {
   type MonitorLatencyPoint,
   MonitorIncidentSegmentSchema,
   type MonitorIncidentSegment,
+  DetectedOutageRowSchema,
+  type DetectedOutageRow,
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
 import { groupByKey } from '@/utils/collections';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseUptimeBucketRow(row: any): MonitorUptimeBucket {
+type UptimeBucketRow = { date: string; uptime_seconds: number | null; total_seconds: number };
+type IncidentSegmentRow = {
+  state: string;
+  reason_code: string | null;
+  started_at: string;
+  resolved_at: string | null;
+  last_event_at: string | null;
+};
+
+function parseUptimeBucketRow(row: UptimeBucketRow): MonitorUptimeBucket {
   return MonitorUptimeBucketSchema.parse({
     bucket: toIsoUtc(row.date) ?? row.date,
     upRatio: row.uptime_seconds != null && row.total_seconds > 0 ? row.uptime_seconds / row.total_seconds : null,
     totalSeconds: row.total_seconds,
+  });
+}
+
+function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegment {
+  const end = row.resolved_at ?? row.last_event_at;
+  return MonitorIncidentSegmentSchema.parse({
+    state: row.state,
+    reason: row.reason_code,
+    start: toIsoUtc(row.started_at) ?? row.started_at,
+    end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+    durationMs: row.started_at && end ? new Date(end).getTime() - new Date(row.started_at).getTime() : null,
   });
 }
 
@@ -146,7 +167,7 @@ export async function getMonitorUptimeBuckets(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId, timezone, buckets },
     })
-    .toPromise()) as any[];
+    .toPromise()) as UptimeBucketRow[];
 
   return rows.map(parseUptimeBucketRow);
 }
@@ -278,9 +299,9 @@ export async function getUptimeBucketsForMonitors(
         buckets,
       },
     })
-    .toPromise()) as any[];
+    .toPromise()) as (UptimeBucketRow & { check_id: string })[];
 
-  return groupByKey(rows, (row) => row.check_id as string, parseUptimeBucketRow);
+  return groupByKey(rows, (row) => row.check_id, parseUptimeBucketRow);
 }
 
 // Convenience wrapper for 24h hourly buckets
@@ -365,7 +386,7 @@ export async function getUptime24h(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { total_seconds: number; downtime_seconds: number }[];
 
   const totalSeconds = row?.total_seconds ?? 0;
   const downtimeSeconds = row?.downtime_seconds ?? 0;
@@ -404,7 +425,13 @@ export async function getRecentMonitorResults(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId, limit },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    ts: string;
+    status: string;
+    latency_ms: number | null;
+    status_code: number | null;
+    reason_code: string | null;
+  }[];
 
   return rows.map((row) =>
     MonitorResultSchema.parse({
@@ -442,7 +469,13 @@ export async function getLatestTlsResultsForMonitors(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    check_id: string;
+    ts: string;
+    status: string;
+    reason_code: string | null;
+    tls_not_after: string | null;
+  }[];
 
   return rows.reduce<Record<string, MonitorTlsResult>>((acc, row) => {
     acc[row.check_id] = MonitorTlsResultSchema.parse({
@@ -480,20 +513,9 @@ export async function getMonitorIncidentSegments(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId, days, limit },
     })
-    .toPromise()) as any[];
+    .toPromise()) as IncidentSegmentRow[];
 
-  return rows.map((row) =>
-    MonitorIncidentSegmentSchema.parse({
-      state: row.state,
-      reason: row.reason_code,
-      start: toIsoUtc(row.started_at) ?? row.started_at,
-      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs:
-        row.started_at && (row.resolved_at || row.last_event_at)
-          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
-          : null,
-    }),
-  );
+  return rows.map(parseIncidentSegmentRow);
 }
 
 /**
@@ -530,34 +552,11 @@ export async function getIncidentSegmentsForMonitors(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, days, limit: limitPerMonitor },
     })
-    .toPromise()) as any[];
+    .toPromise()) as (IncidentSegmentRow & { check_id: string })[];
 
-  return groupByKey(
-    rows,
-    (row) => row.check_id as string,
-    (row) =>
-      MonitorIncidentSegmentSchema.parse({
-        state: row.state,
-        reason: row.reason_code,
-        start: toIsoUtc(row.started_at) ?? row.started_at,
-        end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-        durationMs:
-          row.started_at && (row.resolved_at || row.last_event_at)
-            ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
-            : null,
-      }),
-  );
+  return groupByKey(rows, (row) => row.check_id, parseIncidentSegmentRow);
 }
 
-export type DetectedOutageRow = {
-  detectedIncidentId: string;
-  monitorCheckId: string;
-  reasonCode: string;
-  ongoing: boolean;
-  startedAt: string;
-  resolvedAt: string | null;
-  severity: string;
-};
 
 /**
  * Detected outages to suggest as incidents: ongoing ones, plus recently-recovered ones (within
@@ -603,17 +602,27 @@ export async function getDetectedOutagesForMonitors(
         limit,
       },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    incident_id: string;
+    check_id: string;
+    state: string;
+    severity: string;
+    reason_code: string;
+    started_at: string;
+    resolved_at: string | null;
+  }[];
 
-  return rows.map((row) => ({
-    detectedIncidentId: row.incident_id,
-    monitorCheckId: row.check_id,
-    reasonCode: row.reason_code,
-    ongoing: row.state === 'ongoing',
-    startedAt: toIsoUtc(row.started_at) ?? row.started_at,
-    resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-    severity: row.severity,
-  }));
+  return rows.map((row) =>
+    DetectedOutageRowSchema.parse({
+      detectedIncidentId: row.incident_id,
+      monitorCheckId: row.check_id,
+      reasonCode: row.reason_code,
+      ongoing: row.state === 'ongoing',
+      startedAt: toIsoUtc(row.started_at) ?? row.started_at,
+      resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+      severity: row.severity,
+    }),
+  );
 }
 
 export async function getOpenIncidentsForMonitors(
@@ -712,7 +721,13 @@ export async function getLatestCheckInfoForMonitors(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    check_id: string;
+    ts: string;
+    status: string;
+    effective_interval_seconds: number | null;
+    backoff_level: number | null;
+  }[];
 
   return rows.reduce<Record<string, LatestCheckInfo>>((acc, row) => {
     acc[row.check_id] = LatestCheckInfoSchema.parse({
@@ -743,7 +758,7 @@ export async function getLatency24h(checkId: string, siteId: string): Promise<Mo
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { avg_ms: number | null; min_ms: number | null; max_ms: number | null }[];
 
   return MonitorLatencyStatsSchema.parse({
     avgMs: row?.avg_ms ?? null,
@@ -773,7 +788,7 @@ export async function getLatencySeries24h(checkId: string, siteId: string): Prom
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null }[];
 
   return rows.map((row) =>
     MonitorLatencyPointSchema.parse({
@@ -798,7 +813,7 @@ export async function getIncidentCount24h(checkId: string, siteId: string): Prom
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { count: number }[];
 
   return row?.count ?? 0;
 }
@@ -823,18 +838,7 @@ export async function getIncidentSegments24h(checkId: string, siteId: string): P
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as IncidentSegmentRow[];
 
-  return rows.map((row) =>
-    MonitorIncidentSegmentSchema.parse({
-      state: row.state,
-      reason: row.reason_code,
-      start: toIsoUtc(row.started_at) ?? row.started_at,
-      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs:
-        row.started_at && (row.resolved_at || row.last_event_at)
-          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
-          : null,
-    }),
-  );
+  return rows.map(parseIncidentSegmentRow);
 }

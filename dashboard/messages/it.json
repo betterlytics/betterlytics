@@ -4082,6 +4082,7 @@
         "recordName": "Nome",
         "recordValue": "Valore",
         "copy": "Copia valore",
+        "copied": "Valore copiato",
         "nameHint": "Alcuni provider aggiungono automaticamente il tuo dominio. In tal caso, inserisci solo <mono>{label}</mono> come Nome invece del <monoBreak>{domain}</monoBreak> completo.",
         "propagation": "Le modifiche al DNS possono richiedere fino a qualche ora per avere effetto."
       },

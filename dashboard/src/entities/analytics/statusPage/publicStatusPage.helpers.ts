@@ -4,9 +4,9 @@ import type {
   PublicStatusPageIncident,
 } from './publicStatusPage.entities';
 import type {
+  PublishedIncidentTimelineEntry,
   StatusPageIncident,
   StatusPageIncidentImpact,
-  StatusPageIncidentTimelineEntry,
 } from './statusPageIncident.entities';
 
 const FAVICON_DOT_COLOR: Record<PublicOverallStatus, string> = {
@@ -143,7 +143,7 @@ export function deriveOverallUptime(uptimes: Array<number | null>): number | nul
 export function toPublicIncident(
   incident: StatusPageIncident,
   monitorPublicNames: string[],
-  updates: StatusPageIncidentTimelineEntry[],
+  updates: PublishedIncidentTimelineEntry[],
 ): PublicStatusPageIncident {
   return {
     title: incident.title,
