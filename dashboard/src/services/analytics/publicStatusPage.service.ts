@@ -26,6 +26,7 @@ import {
   getUptimeBucketsForMonitors,
 } from '@/repositories/clickhouse/monitoring.repository';
 import {
+  findStatusPageByCustomDomain,
   getPublishedStatusPageBySlug,
   getStatusPageImageBySlug,
   getStatusPageSnapshotById,
@@ -56,6 +57,18 @@ export async function getPublicStatusPageData(slug: string): Promise<PublicStatu
 
   const { data } = await assembleStatusPage(published, { hideBranding: published.page.hideBranding });
   return data;
+}
+
+/**
+ * Resolve a published status page by its verified custom domain, then reuse the slug-keyed loader.
+ * Backs the `/status/domain/[domain]` route that Caddy rewrites tier-2 custom-domain hosts to.
+ */
+export async function getPublicStatusPageDataByDomain(
+  customDomain: string,
+): Promise<PublicStatusPageData | null> {
+  const page = await findStatusPageByCustomDomain(customDomain);
+  if (!page || !page.isPublished) return null;
+  return getPublicStatusPageData(page.slug);
 }
 
 export async function getPublicStatusPageImage(slug: string, kind: StatusPageImageKind) {
