@@ -61,7 +61,7 @@ export async function getPublicStatusPageData(slug: string): Promise<PublicStatu
 
 /**
  * Resolve a published status page by its verified custom domain, then reuse the slug-keyed loader.
- * Backs the `/status/domain/[domain]` route that Caddy rewrites tier-2 custom-domain hosts to.
+ * Backs the `/status` route, which reads the tier-2 custom domain from the Host header Caddy forwards.
  */
 export async function getPublicStatusPageDataByDomain(
   customDomain: string,

@@ -52,8 +52,9 @@
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 
+	# Custom domain is not slug-bearing, so the app resolves it from the Host header at /status.
 	handle / {
-		rewrite * /status/domain/{host}
+		rewrite * /status
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 
