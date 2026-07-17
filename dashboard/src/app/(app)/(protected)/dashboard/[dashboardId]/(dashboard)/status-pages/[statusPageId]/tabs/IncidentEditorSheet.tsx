@@ -419,7 +419,10 @@ export function IncidentEditorSheet({
               </div>
 
               <div className='space-y-1.5'>
-                <Label htmlFor='inc-description'>{t('form.description')}</Label>
+                <Label htmlFor='inc-description'>
+                  {t('form.description')}
+                  <span className='text-muted-foreground ml-1 font-normal'>{t('form.optional')}</span>
+                </Label>
                 <Textarea
                   id='inc-description'
                   rows={3}
@@ -456,7 +459,6 @@ export function IncidentEditorSheet({
 
               <div className='space-y-2'>
                 <Label>{t('form.monitor')}</Label>
-                <p className='text-muted-foreground text-xs'>{t('form.monitorHelp')}</p>
                 <AffectedMonitorsPicker
                   monitors={monitors}
                   value={form.monitorCheckIds}
