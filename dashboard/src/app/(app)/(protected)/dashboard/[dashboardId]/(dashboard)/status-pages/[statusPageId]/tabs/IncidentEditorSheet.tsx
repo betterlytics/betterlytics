@@ -363,7 +363,7 @@ export function IncidentEditorSheet({
 
   const titleMissing = form.title.trim().length === 0;
   const showTitleError = titleTouched && titleMissing;
-  const timelineMissing = form.id == null && pendingUpdates.length === 0;
+  const timelineMissing = timelineRows.length === 0 && !timelineQuery.isLoading;
   const showTimelineError = timelineTouched && timelineMissing;
 
   const saveCta = form.id != null ? t('form.updatePublic') : t('form.publishCta');
@@ -624,7 +624,6 @@ export function IncidentEditorSheet({
                                         size='icon'
                                         variant='ghost'
                                         aria-label={t('timeline.deleteUpdate')}
-                                        disabled={timelineRows.length <= 1}
                                         onClick={() => stageDeleteUpdate(row.id)}
                                         className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
                                       >
