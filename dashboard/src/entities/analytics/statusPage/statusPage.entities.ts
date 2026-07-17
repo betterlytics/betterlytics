@@ -149,9 +149,8 @@ export const StatusPageCreateSchema = z.object({
 });
 export type StatusPageCreate = z.infer<typeof StatusPageCreateSchema>;
 
-export const StatusPageUpdateSchema = StatusPageCreateSchema.partial().extend({
+export const StatusPageUpdateSchema = StatusPageCreateSchema.omit({ isPublished: true }).partial().extend({
   id: z.string().min(1),
-  isPublished: z.boolean().optional(),
 });
 export type StatusPageUpdate = z.infer<typeof StatusPageUpdateSchema>;
 
