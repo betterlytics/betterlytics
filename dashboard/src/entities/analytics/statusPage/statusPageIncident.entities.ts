@@ -44,7 +44,14 @@ export const PublishedIncidentTimelineEntrySchema = StatusPageIncidentTimelineEn
 export type PublishedIncidentTimelineEntry = z.infer<typeof PublishedIncidentTimelineEntrySchema>;
 
 const incidentTitle = z.string().trim().min(1).max(STATUS_PAGE_LIMITS.INCIDENT_TITLE_MAX);
-const incidentDescription = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_DESCRIPTION_MAX);
+
+const incidentDescription = z
+  .string()
+  .trim()
+  .max(STATUS_PAGE_LIMITS.INCIDENT_DESCRIPTION_MAX)
+  // Collapse runs of blank lines so a description can't bloat the card with vertical whitespace.
+  .transform((value) => value.replace(/\n{3,}/g, '\n\n'));
+
 const incidentMessage = z.string().trim().max(STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX);
 
 const incidentUpdateInput = z.object({

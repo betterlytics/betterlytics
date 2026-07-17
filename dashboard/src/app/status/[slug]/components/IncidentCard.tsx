@@ -51,6 +51,10 @@ export const IncidentCard = memo(function IncidentCard({
   const timeZone = useDisplayTimeZone();
   const hour12 = useDisplayHour12();
   const [expanded, setExpanded] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  const description = incident.description ?? '';
+  const descriptionIsLong = description.length > 260 || description.split('\n').length > 4;
 
   const todayLabel = t('incident.today');
   const yesterdayLabel = t('incident.yesterday');
@@ -155,10 +159,27 @@ export const IncidentCard = memo(function IncidentCard({
         </span>
       </div>
 
-      {incident.description ? (
-        <p className='mt-3 text-[13px] leading-relaxed break-words whitespace-pre-line text-[var(--sp-text)]'>
-          {incident.description}
-        </p>
+      {description ? (
+        <div className='mt-3'>
+          <p
+            className={cn(
+              'text-[13px] leading-relaxed break-words whitespace-pre-line text-[var(--sp-text)]',
+              descriptionIsLong && !descExpanded && 'line-clamp-4',
+            )}
+          >
+            {description}
+          </p>
+          {descriptionIsLong ? (
+            <button
+              type='button'
+              onClick={() => setDescExpanded((value) => !value)}
+              aria-expanded={descExpanded}
+              className='mt-1 cursor-pointer text-[12px] font-medium text-[var(--sp-muted)] transition-colors hover:text-[var(--sp-text)]'
+            >
+              {descExpanded ? t('incident.descriptionLess') : t('incident.descriptionMore')}
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {incident.monitorPublicNames.length > 0 ? (

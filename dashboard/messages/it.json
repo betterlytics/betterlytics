@@ -3966,6 +3966,8 @@
       "ongoing": "In corso da {duration}, dal {time}",
       "showMore": "Mostra {count} {count, plural, one {aggiornamento precedente} other {aggiornamenti precedenti}}",
       "showLess": "Nascondi aggiornamenti precedenti",
+      "descriptionMore": "Leggi di più",
+      "descriptionLess": "Mostra meno",
       "today": "Oggi",
       "yesterday": "Ieri",
       "impact": {

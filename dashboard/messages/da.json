@@ -3966,6 +3966,8 @@
       "ongoing": "Igangværende i {duration}, siden {time}",
       "showMore": "Vis {count} tidligere {count, plural, one {opdatering} other {opdateringer}}",
       "showLess": "Skjul tidligere opdateringer",
+      "descriptionMore": "Læs mere",
+      "descriptionLess": "Vis mindre",
       "today": "I dag",
       "yesterday": "I går",
       "impact": {
