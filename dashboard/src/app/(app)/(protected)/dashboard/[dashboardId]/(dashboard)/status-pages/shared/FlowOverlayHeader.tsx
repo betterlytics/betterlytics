@@ -13,7 +13,7 @@ type FlowOverlayHeaderProps = {
 export function FlowOverlayHeader({ title, closeAriaLabel, onClose, actions }: FlowOverlayHeaderProps) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape' && !event.defaultPrevented) onClose();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);

@@ -23,6 +23,7 @@ import { fetchStatusPageLivePreviewAction } from '@/app/actions/analytics/status
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { type MonitorRow } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/monitorRow';
 import { useUnsavedChanges } from '@/hooks/use-unsaved-changes';
+import { useNavigationGuard } from '@/hooks/use-navigation-guard';
 import { CopyButton } from '@/components/CopyButton';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
 import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
@@ -162,15 +163,12 @@ export function StatusPageEditor({
 
   const effectiveDirty = isDirty || form.hasStagedImages;
 
-  const handleBackClick = useCallback(
-    (event: React.MouseEvent) => {
-      if (!effectiveDirty) return;
-      event.preventDefault();
-      event.stopPropagation();
-      setShowLeaveConfirm(true);
-    },
-    [effectiveDirty],
-  );
+  const [pendingLeaveHref, setPendingLeaveHref] = useState<string | null>(null);
+  const requestLeave = useCallback((href: string) => {
+    setPendingLeaveHref(href);
+    setShowLeaveConfirm(true);
+  }, []);
+  useNavigationGuard(effectiveDirty, requestLeave);
 
   const backHref = resolveHref('status-pages');
 
@@ -190,7 +188,6 @@ export function StatusPageEditor({
     <div className={cn(onSettingsTab && 'pb-24 xl:pb-0')}>
       <Link
         href={backHref}
-        onClick={handleBackClick}
         className='text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm'
       >
         <ArrowLeft className='h-3.5 w-3.5' />
@@ -426,7 +423,7 @@ export function StatusPageEditor({
         confirmLabel={t('confirmLeave.leave')}
         onConfirm={() => {
           setShowLeaveConfirm(false);
-          router.push(backHref);
+          router.push(pendingLeaveHref ?? backHref);
         }}
       />
 
