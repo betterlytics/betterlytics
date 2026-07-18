@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { createSlidingWindowLimiter } from '@/lib/rate-limit';
 import { getTlsAuthorization, normalizeHostname } from '@/services/analytics/statusPageDomain.service';
 
 // Hardening for the Caddy on-demand-TLS `ask` endpoint. Caddy calls it during the TLS
@@ -18,27 +19,13 @@ const NEGATIVE_CACHE_MAX_ENTRIES = 10_000;
 const GLOBAL_WINDOW_MS = 60_000;
 const GLOBAL_MAX_LOOKUPS = 600;
 
-const SWEEP_INTERVAL_MS = 5 * 60_000;
+// The ceiling is global, not per-caller, so every check shares one key.
+const checkGlobalLookupLimit = createSlidingWindowLimiter(GLOBAL_WINDOW_MS, GLOBAL_MAX_LOOKUPS);
+const GLOBAL_KEY = 'global';
 
-// normalized hostname -> epoch ms after which the cached "unauthorized" result expires
+// normalized hostname -> epoch ms after which the cached "unauthorized" result expires.
+// Expiry is lazy (checked on access) and the size cap evicts oldest-inserted — no sweep needed.
 const negativeCache = new Map<string, number>();
-// timestamps of DB-backed lookups still inside the current global window
-const lookupTimestamps: number[] = [];
-
-function pruneWindow(now: number): void {
-  const cutoff = now - GLOBAL_WINDOW_MS;
-  while (lookupTimestamps.length > 0 && lookupTimestamps[0]! <= cutoff) {
-    lookupTimestamps.shift();
-  }
-}
-
-/** Records a DB-backed lookup; returns false once the per-window ceiling is reached. */
-function withinGlobalLimit(now: number): boolean {
-  pruneWindow(now);
-  if (lookupTimestamps.length >= GLOBAL_MAX_LOOKUPS) return false;
-  lookupTimestamps.push(now);
-  return true;
-}
 
 function rememberUnauthorized(domain: string, now: number): void {
   if (negativeCache.size >= NEGATIVE_CACHE_MAX_ENTRIES) {
@@ -66,7 +53,7 @@ export async function resolveAskStatus(rawDomain: string): Promise<number> {
     negativeCache.delete(domain);
   }
 
-  if (!withinGlobalLimit(now)) return 429;
+  if (!checkGlobalLookupLimit(GLOBAL_KEY).allowed) return 429;
 
   const authorization = await getTlsAuthorization(domain);
   // Only the DB-backed miss is worth caching; `forbidden` (own namespace) is already DB-free.
@@ -74,11 +61,3 @@ export async function resolveAskStatus(rawDomain: string): Promise<number> {
 
   return authorization === 'authorized' ? 200 : authorization === 'forbidden' ? 403 : 404;
 }
-
-setInterval(() => {
-  const now = Date.now();
-  for (const [domain, expiry] of negativeCache) {
-    if (expiry <= now) negativeCache.delete(domain);
-  }
-  pruneWindow(now);
-}, SWEEP_INTERVAL_MS).unref();
