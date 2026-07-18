@@ -52,7 +52,9 @@ function deriveMonitorStatus(
 }
 
 export async function getPublicStatusPageData(slug: string): Promise<PublicStatusPageData | null> {
-  const published = await getPublishedStatusPageBySlug(slug);
+  // Slugs are stored lowercase, but the tier-1 slug arrives from Caddy's Host-header capture and
+  // hostnames are case-insensitive — normalize before the lookup.
+  const published = await getPublishedStatusPageBySlug(slug.toLowerCase());
   if (!published) return null;
 
   const { data } = await assembleStatusPage(published, { hideBranding: published.page.hideBranding });

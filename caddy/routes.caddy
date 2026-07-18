@@ -23,10 +23,12 @@
     reverse_proxy {$STATUS_PAGE_UPSTREAM}
   }
 
-	# Slug = leftmost host label; regex must mirror app-side slug validation
+	# Slug = leftmost host label; regex must mirror app-side slug validation. Hostnames are
+	# case-insensitive (and Caddy passes req.Host through unnormalized), so match (?i) and let the
+	# app lowercase the captured label before the lookup.
 	@root {
 		path /
-		header_regexp slug Host ^([a-z0-9-]+)\.
+		header_regexp slug Host (?i)^([a-z0-9-]+)\.
 	}
 	handle @root {
 		rewrite * /status/{re.slug.1}
