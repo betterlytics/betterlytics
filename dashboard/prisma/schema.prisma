@@ -444,11 +444,10 @@ model StatusPage {
   // 'public' | 'unlisted'. Unlisted pages render normally but are excluded from search engines (noindex).
   visibility String @default("public")
 
-  // Where the page's logo and title link to (owner's marketing site). null = not set.
+  // Where the page's logo and title link to (owner's marketing site).
   homepageUrl String?
 
-  // Owner's own domain to host the page on (e.g. status.acme.com). Stored here; the routing,
-  // ownership verification and TLS provisioning are not wired up yet.
+  // Owner's own domain to host the page on (e.g. status.acme.com).
   customDomain String?
 
   // Branding (structured only — no custom CSS)
@@ -461,9 +460,7 @@ model StatusPage {
 
   showPastIncidents Boolean @default(true)
 
-  // Owner toggle to hide the "Powered by Betterlytics" footer. Gated to the plan's removeBranding
-  // capability on write; the public render also re-checks the owner's current entitlement, so a
-  // downgrade restores the badge regardless of this stored flag.
+  // Owner toggle to hide the "Powered by Betterlytics" footer.
   hideBranding Boolean @default(false)
 
   createdAt DateTime @default(now())
@@ -526,7 +523,7 @@ model StatusPageIncident {
   // (scope not stated); every monitor selected reads as page-wide. Both are just states of this list.
   monitorCheckIds String[] @default([])
   // Stable id of the detected ClickHouse incident (analytics.monitor_incidents.incident_id) this was
-  // seeded from; enables opt-in auto-resolve later. Null for manually authored incidents.
+  // seeded from. Null for manually authored incidents.
   detectedIncidentId String?
 
   createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
