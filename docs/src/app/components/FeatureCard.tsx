@@ -11,8 +11,6 @@ export function FeatureCard({ title, href, children }: FeatureCardProps) {
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--card)] p-5 transition-all duration-200 hover:border-[color:var(--primary)]">
       <h3 className="text-base font-semibold">
-        {/* Stretched link: makes the whole card navigate to href, while the
-            z-raised links in the body stay individually clickable. */}
         <Link
           href={href}
           className="text-[color:var(--foreground)] transition-colors group-hover:text-[color:var(--primary)] after:absolute after:inset-0 after:content-['']"
