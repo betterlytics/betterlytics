@@ -70,14 +70,13 @@ export const RESERVED_STATUS_PAGE_SLUGS = new Set([
   'signup',
   'status',
   'www',
-  // Reserved for status-page DNS / serving infra. `pages` is load-bearing: it is the tier-2
-  // custom-domain CNAME target (pages.<STATUS_PAGE_DOMAIN>) and lives inside the tier-1 namespace.
   'pages',
   'mail',
   'ns1',
   'ns2',
   'dev',
   'staging',
+  'domain',
 ]);
 
 export const RESERVED_STATUS_PAGE_SLUG_PREFIX = /^demo(-|$)/;
@@ -158,9 +157,11 @@ export const StatusPageCreateSchema = z.object({
 });
 export type StatusPageCreate = z.infer<typeof StatusPageCreateSchema>;
 
-export const StatusPageUpdateSchema = StatusPageCreateSchema.omit({ isPublished: true }).partial().extend({
-  id: z.string().min(1),
-});
+export const StatusPageUpdateSchema = StatusPageCreateSchema.omit({ isPublished: true })
+  .partial()
+  .extend({
+    id: z.string().min(1),
+  });
 export type StatusPageUpdate = z.infer<typeof StatusPageUpdateSchema>;
 
 export const StatusPageSchema = z.object({
