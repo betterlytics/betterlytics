@@ -273,6 +273,17 @@ export async function getPublishedStatusPageBySlug(slug: string): Promise<Publis
   return row ? toPublishedStatusPage(row) : null;
 }
 
+/** Custom-domain twin of getPublishedStatusPageBySlug — customDomain is partial-unique among live pages. */
+export async function getPublishedStatusPageByCustomDomain(
+  customDomain: string,
+): Promise<PublishedStatusPage | null> {
+  const row = await prisma.statusPage.findFirst({
+    where: { customDomain, isPublished: true, deletedAt: null },
+    include: statusPageSnapshotInclude,
+  });
+  return row ? toPublishedStatusPage(row) : null;
+}
+
 export async function getStatusPageSnapshotById(
   dashboardId: string,
   statusPageId: string,
