@@ -130,7 +130,6 @@ export default async function RootLayout({
         )}
         <Layout
           navbar={navbar}
-          sidebar={{ autoCollapse: true }}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/betterlytics/betterlytics/tree/main/docs"
           editLink={null}
