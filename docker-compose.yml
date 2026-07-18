@@ -76,6 +76,8 @@ services:
       STATUS_PAGE_UPSTREAM: ${STATUS_PAGE_UPSTREAM:-host.docker.internal:3000}
       STATUS_PAGE_ASK_SECRET: ${STATUS_PAGE_ASK_SECRET:-}
       DNS_API_TOKEN: ${DNS_API_TOKEN:-}
+      DNS_API_USER: ${DNS_API_USER:-}
+      DNS_CLIENT_IP: ${DNS_CLIENT_IP:-}
     extra_hosts:
       - host.docker.internal:host-gateway
     volumes:
