@@ -18,7 +18,7 @@ export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderPro
     <img
       src={logoUrl}
       alt={name}
-      className='h-11 w-auto max-w-[60cqw] object-contain @min-[640px]:h-12 @min-[640px]:max-w-xs'
+      className='h-8 w-auto max-w-[60cqw] object-contain @min-[640px]:h-9 @min-[640px]:max-w-xs'
     />
   ) : (
     <span className='truncate text-2xl font-bold tracking-tight @min-[640px]:text-3xl'>{name}</span>
