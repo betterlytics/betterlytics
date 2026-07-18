@@ -6,7 +6,7 @@ import { useBARouter } from '@/hooks/use-ba-router';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 
 // Params that are page-specific and should NOT be persisted across navigations
-const EXCLUDED_PARAMS = ['occurrence'];
+const EXCLUDED_PARAMS = ['occurrence', 'tab'];
 
 /**
  * Hook for navigation that preserves current search parameters (filters)

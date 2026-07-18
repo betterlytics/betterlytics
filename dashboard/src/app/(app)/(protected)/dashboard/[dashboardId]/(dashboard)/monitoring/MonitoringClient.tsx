@@ -7,7 +7,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type MonitorOperationalState, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
-import { CreateMonitorDialog } from './CreateMonitorDialog';
+import { CreateMonitorButton } from './CreateMonitorButton';
 import { MonitorList } from './MonitorList';
 import { FilterSelectValue } from './components';
 import { MonitoringEmptyState } from './MonitoringEmptyState';
@@ -254,7 +254,7 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
           </div>
           <PermissionGate>
             {(disabled) => (
-              <CreateMonitorDialog
+              <CreateMonitorButton
                 dashboardId={dashboardId}
                 domain={domain}
                 existingUrls={monitors.map((m) => m.url)}

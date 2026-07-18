@@ -4,12 +4,7 @@ import {
   AutoScrollActivator,
   closestCenter,
   DndContext,
-  KeyboardSensor,
   MeasuringStrategy,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
   type ClientRect,
   type DragEndEvent,
   type DragStartEvent,
@@ -17,15 +12,11 @@ import {
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import type { Transform } from '@dnd-kit/utilities';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { PlusIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type Ref } from 'react';
 
+import { reorderOnDragEnd, useDndDraggingClass, useSortableSensors } from '@/components/dnd/sortable';
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { createEmptyQueryFilter } from '@/entities/analytics/filter.entities';
@@ -121,11 +112,7 @@ export function FunnelStepAccordion({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => releaseDraggedObserver(), []);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
+  const sensors = useSortableSensors();
 
   useEffect(() => {
     const currentIds = steps.map((s) => s.id);
@@ -143,13 +130,7 @@ export function FunnelStepAccordion({
     prevIdsRef.current = currentIds;
   }, [steps]);
 
-  useEffect(() => {
-    if (!isDragging) return;
-    document.body.classList.add('dnd-dragging');
-    return () => {
-      document.body.classList.remove('dnd-dragging');
-    };
-  }, [isDragging]);
+  useDndDraggingClass(isDragging);
 
   const handleRequestRemoval = useCallback(
     (id: string) => {
@@ -205,18 +186,8 @@ export function FunnelStepAccordion({
       releaseDraggedObserver();
       const snapshot = draggedStepsRef.current ?? steps;
       draggedStepsRef.current = null;
-      const { active, over } = event;
-      if (!over || active.id === over.id) {
-        restoreDraggedOpenState();
-        return;
-      }
-      const oldIndex = snapshot.findIndex((s) => s.id === active.id);
-      const newIndex = snapshot.findIndex((s) => s.id === over.id);
-      if (oldIndex < 0 || newIndex < 0) {
-        restoreDraggedOpenState();
-        return;
-      }
-      onReorder(arrayMove(snapshot, oldIndex, newIndex));
+      const next = reorderOnDragEnd(snapshot, event, (s) => s.id);
+      if (next) onReorder(next);
       restoreDraggedOpenState();
     },
     [steps, onReorder, restoreDraggedOpenState, releaseDraggedObserver],

@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { formatPercentage } from '@/utils/formatters';
+import { formatUptime } from '@/utils/formatters';
 import { defaultDateLabelFormatter } from '@/utils/chartUtils';
 import { MONITOR_TONE, presentUptimeTone } from '../styles';
 import { MonitoringTooltip } from '../[monitorId]/MonitoringTooltip';
@@ -24,7 +24,7 @@ export function PillBar({ data, variant = 'default' }: PillBarProps) {
 
   const getLabel = (upRatio: number | null) => {
     if (upRatio == null) return t('noData');
-    return `${formatPercentage(upRatio * 100, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true })} ${t('uptimeSuffix')}`;
+    return `${formatUptime(upRatio * 100, locale)} ${t('uptimeSuffix')}`;
   };
 
   const getToneClass = (upRatio: number | null) => {
