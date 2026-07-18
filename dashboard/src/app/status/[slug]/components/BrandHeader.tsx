@@ -29,7 +29,7 @@ export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderPro
       <div
         className={cn(
           'mx-auto flex w-full max-w-3xl items-center px-4 pt-7 @min-[640px]:px-8',
-          tall ? 'pb-66' : 'pb-16',
+          tall ? 'pb-69' : 'pb-21',
         )}
       >
         {homepageUrl ? (
