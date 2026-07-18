@@ -4162,6 +4162,7 @@
       "wizard": {
         "title": "Ny statusside",
         "close": "Luk",
+        "loading": "Indlæser editor…",
         "saveDraft": "Gem som kladde",
         "monitorsHeading": "Monitorer på denne side",
         "searchMonitors": "Søg efter monitorer",

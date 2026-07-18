@@ -170,7 +170,10 @@ export function EditStatusPageStudio(props: EditStatusPageStudioProps) {
           />
           <div className='flex flex-1 items-center justify-center py-20'>
             {studioQuery.isPending || studioQuery.data ? (
-              <Spinner />
+              <div className='text-muted-foreground flex flex-col items-center gap-3'>
+                <Spinner />
+                <span className='text-sm'>{t('wizard.loading')}</span>
+              </div>
             ) : (
               <p className='text-muted-foreground text-sm'>{t('error')}</p>
             )}

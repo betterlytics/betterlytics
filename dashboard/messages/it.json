@@ -4162,6 +4162,7 @@
       "wizard": {
         "title": "Nuova pagina di stato",
         "close": "Chiudi",
+        "loading": "Caricamento editor…",
         "saveDraft": "Salva come bozza",
         "monitorsHeading": "Monitor su questa pagina",
         "searchMonitors": "Cerca monitor",

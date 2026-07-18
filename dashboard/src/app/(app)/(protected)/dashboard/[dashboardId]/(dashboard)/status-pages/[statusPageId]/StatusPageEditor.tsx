@@ -375,7 +375,10 @@ export function StatusPageEditor({
                 ) : (
                   <div className='bg-card border-border flex h-72 items-center justify-center rounded-xl border'>
                     {livePreviewQuery.isPending ? (
-                      <Spinner size='sm' />
+                      <div className='text-muted-foreground flex flex-col items-center gap-3'>
+                        <Spinner size='sm' />
+                        <span className='text-sm'>{t('loadingPreview')}</span>
+                      </div>
                     ) : (
                       <p className='text-muted-foreground text-sm'>{t('error')}</p>
                     )}
