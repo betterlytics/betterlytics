@@ -19,6 +19,10 @@
 		reverse_proxy {$STATUS_PAGE_UPSTREAM}
 	}
 
+  handle /status/*/image/* {
+    reverse_proxy {$STATUS_PAGE_UPSTREAM}
+  }
+
 	# Slug = leftmost host label; regex must mirror app-side slug validation
 	@root {
 		path /
