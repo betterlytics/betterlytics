@@ -5,7 +5,7 @@ import { findStatusPageByCustomDomain } from '@/repositories/postgres/statusPage
 import { canUseStatusPageCustomDomain } from '@/lib/billing/capabilityAccess';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
-const OWN_APEX_DOMAINS = ['betterlytics.io', 'betterlytics.com'];
+const OWN_APEX_DOMAINS = ['betterlytics.io'];
 
 export type TlsAuthorization = 'authorized' | 'forbidden' | 'unauthorized';
 
