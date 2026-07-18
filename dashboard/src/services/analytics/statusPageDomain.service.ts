@@ -21,7 +21,7 @@ export function isOwnNamespace(domain: string): boolean {
 
 /**
  * Authorizes Caddy on-demand TLS for a hostname (called by the `ask` endpoint before issuance).
- * Option A — no ownership-verification step: a published status page must own the domain and the
+ * No ownership-verification step: a published status page must own the domain and the
  * dashboard's plan must include custom domains. ACME itself only issues for a host already pointed
  * at us, so pointing the CNAME is the implicit proof.
  */
