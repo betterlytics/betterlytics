@@ -203,7 +203,14 @@ export function CreateStatusPageStudio({
         <>
           <FlowOverlayHeader title={t('wizard.title')} closeAriaLabel={t('wizard.close')} onClose={onClose} />
           <div className='flex flex-1 items-center justify-center py-20'>
-            {defaultsQuery.isError ? <p className='text-muted-foreground text-sm'>{t('error')}</p> : <Spinner />}
+            {defaultsQuery.isError ? (
+              <p className='text-muted-foreground text-sm'>{t('error')}</p>
+            ) : (
+              <div className='text-muted-foreground flex flex-col items-center gap-3'>
+                <Spinner />
+                <span className='text-sm'>{t('wizard.loading')}</span>
+              </div>
+            )}
           </div>
         </>
       )}

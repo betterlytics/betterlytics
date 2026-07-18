@@ -4162,6 +4162,7 @@
       "wizard": {
         "title": "Ny statusside",
         "close": "Lukk",
+        "loading": "Laster editor…",
         "saveDraft": "Lagre som utkast",
         "monitorsHeading": "Overvåkere på denne siden",
         "searchMonitors": "Søk etter overvåkere",
