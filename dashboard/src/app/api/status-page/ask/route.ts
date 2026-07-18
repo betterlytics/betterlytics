@@ -12,7 +12,8 @@ import { resolveAskStatus } from './askGuard';
 // on-demand `ask` cannot set custom headers, but preserves existing query params — see
 // caddy/Caddyfile). Unauthenticated callers are rejected before any DB lookup or guard-budget
 // spend, closing the enumeration-oracle and lookup-exhaustion vectors. When STATUS_PAGE_ASK_SECRET
-// is unset (local dev), the check is skipped.
+// is unset the check is skipped — env.ts rejects that combination outside development whenever
+// public status pages are enabled, so the open mode is reachable in local dev only.
 function isCaddyAuthorized(request: NextRequest): boolean {
   const expected = env.STATUS_PAGE_ASK_SECRET;
   if (!expected) return true;
