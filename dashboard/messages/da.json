@@ -4258,7 +4258,7 @@
           "timelineRequired": "Tilføj mindst én tidslinjepost",
           "detailsSection": "Hændelsesdetaljer",
           "impact": "Påvirkning",
-          "monitor": "Påvirkede monitorer",
+          "monitor": "Påvirkede monitorer",
           "monitorNotSpecified": "Hele siden (ingen bestemte monitorer)",
           "monitorAllToken": "Alle monitorer",
           "monitorSearchPlaceholder": "Søg monitorer",

@@ -4256,7 +4256,7 @@
           "timelineRequired": "Add at least one timeline entry",
           "detailsSection": "Incident details",
           "impact": "Impact",
-          "monitor": "Affected monitors",
+          "monitor": "Affected monitors",
           "monitorNotSpecified": "Page-wide (no specific monitors)",
           "monitorAllToken": "All monitors",
           "monitorSearchPlaceholder": "Search monitors",

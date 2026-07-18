@@ -4258,7 +4258,7 @@
           "timelineRequired": "Legg til minst én tidslinjeoppføring",
           "detailsSection": "Hendelsesdetaljer",
           "impact": "Påvirkning",
-          "monitor": "Berørte monitorer",
+          "monitor": "Berørte monitorer",
           "monitorNotSpecified": "Hele siden (ingen bestemte monitorer)",
           "monitorAllToken": "Alle monitorer",
           "monitorSearchPlaceholder": "Søk i monitorer",

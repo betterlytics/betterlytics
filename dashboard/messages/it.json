@@ -4258,7 +4258,7 @@
           "timelineRequired": "Aggiungi almeno una voce alla cronologia",
           "detailsSection": "Dettagli incidente",
           "impact": "Impatto",
-          "monitor": "Monitor interessati",
+          "monitor": "Monitor interessati",
           "monitorNotSpecified": "Intera pagina (nessun monitor specifico)",
           "monitorAllToken": "Tutti i monitor",
           "monitorSearchPlaceholder": "Cerca monitor",
