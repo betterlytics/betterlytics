@@ -201,7 +201,12 @@ function AddMonitorPicker({
       ref={containerRef}
       className='space-y-2'
       onKeyDown={(e) => {
-        if (e.key === 'Escape') onOpenChange(false);
+        // Claim the Escape so the overlay's document listener (which skips
+        // defaultPrevented events) doesn't also close the whole studio.
+        if (e.key === 'Escape' && open) {
+          e.preventDefault();
+          onOpenChange(false);
+        }
       }}
     >
       <Button
