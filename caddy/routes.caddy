@@ -7,7 +7,7 @@
   rate_limit {
 		zone status_wildcard {
 			match {
-				path /
+				path / /status/*/image/*
 			}
 			key {remote_host}
 			events 120
@@ -46,7 +46,7 @@
   rate_limit {
 		zone status_domain {
 			match {
-				path /
+				path / /status/*/image/*
 			}
 			key {remote_host}
 			events 120
