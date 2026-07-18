@@ -1,13 +1,19 @@
 ---
 title: "Installation Overview"
-description: "Choose the best installation method for your needs - cloud hosting or self-hosting - with a full feature comparison."
+description: "Get started with Betterlytics in minutes on our managed cloud, or self-host on your own infrastructure. Includes a full cloud vs self-hosted feature comparison."
 ---
 
 # Installation Overview
 
-Betterlytics can be deployed as a managed cloud service or self-hosted on your own infrastructure. Both options provide the same privacy-first, cookieless analytics experience.
+The fastest way to get started is **Betterlytics Cloud**: create an account, add one script tag, and see your first data within minutes. No servers to run, no updates to manage, and always the latest features.
+
+[**Get started in under a minute →**](/installation/cloud-hosting)
+
+Prefer to run everything on your own infrastructure? Betterlytics is open source and can be [self-hosted with Docker](/installation/self-hosting).
 
 ## Cloud vs Self-Hosted
+
+Both options provide the same privacy-first, cookieless analytics experience. Cloud is fully managed and always up to date, while self-hosting gives you full control over your data and infrastructure.
 
 <HostingComparisonTable />
 
@@ -16,12 +22,12 @@ Betterlytics can be deployed as a managed cloud service or self-hosted on your o
 - **Configurable** - Included in the self-hosted image, but requires configuration on your side (for example SMTP credentials for email features).
 - A cross in the self-hosted column does not mean never. Most features are planned for self-hosting and arrive with later image updates, while some depend on additional infrastructure first (for example, session replays require S3-compatible object storage).
 
-## How Self-Hosted Releases Work
+New features launch on Betterlytics Cloud first and reach the self-hosted image with periodic updates. See [feature availability for self-hosting](/installation/self-hosting#feature-availability) for how this works.
 
-Betterlytics Cloud always runs the latest version, and new features launch there first. The self-hosted image is updated periodically from our stable releases, similar to how other open-source analytics projects handle self-hosting. This means a recently launched feature can be available on Cloud before it reaches the self-hosted image.
+## Next Steps
 
-[Updating](/installation/self-hosting#updating) your instance is a single `docker compose pull`, and you can follow new releases on [GitHub](https://github.com/betterlytics/betterlytics/releases).
-
-[**Get started with Cloud**](/installation/cloud-hosting) · [**Get started with Self-Hosting**](/installation/self-hosting)
+- [**Cloud Quick Start**](/installation/cloud-hosting) - Create an account and install the tracking script
+- [**Self-Hosting Setup**](/installation/self-hosting) - Deploy with Docker on your own server
+- [**Integration Overview**](/integration) - Enable custom events, error tracking, session replay, and more
 
 Need help deciding? Join our [Discord community](https://discord.gg/vwqSvPn6sP).

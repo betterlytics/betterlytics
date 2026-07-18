@@ -23,6 +23,11 @@ const INFO_ROWS: FeatureRow[] = [
     cloud: "EU cloud infrastructure",
     selfHosted: "Your servers",
   },
+  {
+    name: "Data retention",
+    cloud: "1-5+ years by plan",
+    selfHosted: "Unlimited",
+  },
 ];
 
 const FEATURE_CATEGORIES: FeatureCategory[] = [
@@ -42,11 +47,10 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { name: "Custom events", cloud: true, selfHosted: true },
       { name: "Funnels", cloud: true, selfHosted: true },
       { name: "User journeys", cloud: true, selfHosted: true },
-      { name: "Retention", cloud: true, selfHosted: true },
       { name: "Geographic insights", cloud: true, selfHosted: true },
       { name: "Campaign tracking (UTM)", cloud: true, selfHosted: true },
       { name: "Outbound link tracking", cloud: true, selfHosted: true },
-      { name: "Annotations", cloud: true, selfHosted: true },
+      { name: "Chart annotations", cloud: true, selfHosted: true },
     ],
   },
   {

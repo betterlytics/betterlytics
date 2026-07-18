@@ -14,12 +14,12 @@ All self-hosting files and configuration live in the [betterlytics-selfhost](htt
 
 ## Feature Availability
 
-The self-hosted image is built from our stable releases, while Betterlytics Cloud always runs the latest version. New features launch on Cloud first and are included in self-hosted with a later image update, so the self-hosted image can temporarily lag behind what you see in the Cloud dashboard or elsewhere in these docs.
+Betterlytics Cloud always runs the latest version, and new features launch there first. The self-hosted image is updated periodically from our stable releases, so it can temporarily lag behind what you see on Cloud or elsewhere in these docs.
 
 A few features also depend on additional infrastructure and are not yet supported when self-hosting. For example, Session Replay requires S3-compatible object storage.
 
 <Callout type="info">
-Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status.
+Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status. Getting the newest features is as simple as [updating your instance](#updating) when a new image is released.
 </Callout>
 
 ## Requirements
@@ -209,6 +209,8 @@ To update your self-hosted instance to the latest version:
 docker compose pull
 docker compose up -d
 ```
+
+You can follow new releases on [GitHub](https://github.com/betterlytics/betterlytics/releases).
 
 ## Troubleshooting
 

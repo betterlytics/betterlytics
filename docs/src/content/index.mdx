@@ -13,27 +13,35 @@ You can use Betterlytics as a [managed cloud service](/installation/cloud-hostin
 
 ## One Platform, Every Signal
 
-### Web Analytics
+<FeatureGrid>
 
-Understand your traffic and audience: visitors, pageviews, bounce rate, scroll depth, visit duration, [referrers and channels](/dashboard/referrers), [UTM campaigns](/dashboard/campaigns), [geography](/dashboard/geography), and [device breakdown](/dashboard/devices). Go deeper with [user journeys](/dashboard/user-journey), [conversion funnels](/dashboard/funnels), [custom events](/integration/custom-events), and [outbound link tracking](/dashboard/outbound-links).
+<FeatureCard title="Web Analytics" href="/dashboard">
+Visitors, pageviews, bounce rate, [referrers and channels](/dashboard/referrers), [UTM campaigns](/dashboard/campaigns), [geography](/dashboard/geography), and [devices](/dashboard/devices). Go deeper with [user journeys](/dashboard/user-journey), [funnels](/dashboard/funnels), [custom events](/integration/custom-events), and [outbound links](/dashboard/outbound-links).
+</FeatureCard>
 
-### Error Tracking
+<FeatureCard title="Error Tracking" href="/dashboard/errors">
+Catch client-side JavaScript errors as they happen. Identical errors are [grouped automatically](/dashboard/errors) so you can see which issues affect the most users, inspect stack traces, and follow the session trail that led to the problem.
+</FeatureCard>
 
-Catch client-side JavaScript errors as they happen. Identical errors are [grouped automatically](/dashboard/errors) so you can see which issues affect the most users, inspect stack traces, and follow the session trail that led to the problem. No separate error tracking service needed.
-
-### Session Replay
-
+<FeatureCard title="Session Replay" href="/dashboard/session-replay">
 [Replay real visitor sessions](/dashboard/session-replay) with event timelines and privacy-first masking: all text and inputs are masked by default. Jump from an error straight to the replay of the moment it happened.
+</FeatureCard>
 
-### Uptime Monitoring
+<FeatureCard title="Uptime Monitoring" href="/dashboard/monitoring">
+[Monitor availability](/dashboard/monitoring), response times, and SSL certificates with automated checks and incident tracking. Get alerted by email or via [Slack, Discord, Teams, Pushover, or webhooks](/dashboard/integrations).
+</FeatureCard>
 
-[Monitor your website's availability](/dashboard/monitoring), response times, and SSL certificates with automated checks and incident tracking. Get alerted by email or via [Slack, Discord, Teams, Pushover, or webhooks](/dashboard/integrations) when something goes wrong.
+<FeatureCard title="Web Performance" href="/dashboard/web-vitals">
+Track [Core Web Vitals](/dashboard/web-vitals) (LCP, INP, CLS, TTFB) from real users to see how your site actually performs for your visitors, not just in lab tests.
+</FeatureCard>
 
-### Performance
+<FeatureCard title="Reports & AI" href="/dashboard/mcp">
+Receive [scheduled email reports](/dashboard/email-reports) summarizing your key analytics, and query everything from your AI assistant via the built-in [MCP server](/dashboard/mcp).
+</FeatureCard>
 
-Track [Core Web Vitals](/dashboard/web-vitals) (LCP, INP, CLS, TTFB) from real users to see how your site actually performs for your visitors.
+</FeatureGrid>
 
-All data is available in real time through the [dashboard](/dashboard), with [filtering](/dashboard/filtering) across any dimension. You can also receive [scheduled email reports](/dashboard/email-reports) summarizing your key analytics, and query everything from your AI assistant via the built-in [MCP server](/dashboard/mcp).
+All data is available in real time through the [dashboard](/dashboard), with [filtering](/dashboard/filtering) across any dimension.
 
 ## Privacy Without Compromise
 
@@ -47,8 +55,8 @@ Betterlytics collects no personal data and uses no cookies, so there is nothing 
 
 ## Using These Docs
 
-- **[Installation & Setup](/installation)** - Cloud hosting and self-hosting guides, with a side-by-side comparison to help you decide
-- **[Integration](/integration/custom-events)** - Custom events, error tracking, session replay, outbound links, dynamic URLs, and Web Vitals setup
+- **[Installation & Setup](/installation)** - Cloud and self-hosting guides, with a side-by-side comparison to help you decide
+- **[Integration](/integration)** - Custom events, error tracking, session replay, outbound links, dynamic URLs, and Web Vitals setup
 - **[Dashboard Features](/dashboard)** - Guides for every dashboard section
 - **[Pricing & Billing](/pricing)** - Plans, billing cycles, and subscription management
 - **[FAQ](/faq)** - Common questions about privacy, compliance, performance, and data retention

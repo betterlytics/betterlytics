@@ -3,6 +3,106 @@ title: "Frequently Asked Questions"
 description: "Answers to common questions about Betterlytics: what it is, privacy, insights, integration, who it's for, free plan, performance, and data retention."
 ---
 
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What is Betterlytics?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Betterlytics is a privacy-first, cookieless platform that combines web analytics, client-side error tracking, session replay, and uptime monitoring in a single tool. Instead of paying for and integrating separate services, you get all of them with one lightweight script and one dashboard, without compromising user privacy. You can use the hosted service or deploy it yourself.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is Betterlytics compliant with privacy regulations?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. Betterlytics is compliant with GDPR, CCPA and PECR out of the box. Data on the hosted service is processed on EU infrastructure, visitor IPs are anonymized, no personal data is collected, and each website's data is isolated to prevent cross-site tracking. Session Replay is optional, requires consent where applicable, and masks all text and inputs by default.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How does Betterlytics ensure privacy?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Privacy is built in by design. Betterlytics does not use cookies and does not collect personally identifiable information. Visitor IP addresses are anonymized (hashed) and each website's data is isolated to prevent cross-site tracking. Session Replay is opt-in and masks text and inputs by default.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What insights can I get?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "The overview shows unique visitors, pageviews, bounce rate, scroll depth, and visit duration with interactive charts. You can dive deeper into referrers and channels, geography, devices and browsers, custom events, funnels, user journeys, outbound links, and Core Web Vitals. Beyond analytics, you can track client-side JavaScript errors with stack traces, watch session replays, and monitor uptime and SSL certificates with alerts in Slack, Discord, Teams, or via webhooks.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How do I integrate Betterlytics?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Most sites can add a single async script tag with a Site ID and start seeing data in minutes. For React and modern frameworks, the @betterlytics/tracker npm package provides a typed API and easier SPA handling. Optional features such as session replay, error tracking, dynamic URLs, outbound links and Web Vitals are enabled via script attributes or package options.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I query my analytics with AI?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. Betterlytics has a built-in MCP server (Model Context Protocol), so you can connect AI assistants and coding agents like Claude, Cursor, or Codex directly to your analytics data. Ask questions in natural language, run ad-hoc funnel analyses, or let your coding agent use real traffic data to inform UI and code changes.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Who is Betterlytics for?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Teams of all sizes that want actionable insights without cookie banners or invasive tracking: anyone who would rather run one tool than juggle separate analytics, error tracking, and uptime monitoring services, marketers who need clear acquisition insights, product and engineering teams optimizing UX and performance, and privacy-conscious organizations that value data ownership.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Do Betterlytics Cloud and self-hosted have the same features?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Mostly, but not always at the same time. New features launch on Betterlytics Cloud first, and the self-hosted image is updated periodically from stable releases, so a recently launched feature may be live on Cloud before it reaches the self-hosted image. A few features also depend on additional infrastructure and are not yet supported when self-hosting, such as Session Replay, which requires S3-compatible object storage.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is there a free plan?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. The Growth plan is free up to 10,000 events per month and includes the core analytics features. As you grow, you can upgrade to plans with higher limits and longer data retention.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "What is the performance impact of the tracking script?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "The script loads asynchronously and is lightweight (under 2KB), designed not to block rendering or degrade page performance. Optional add-ons such as Core Web Vitals collection and Session Replay are disabled by default and only load when you opt in.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "For how long is my data stored?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Data retention on Betterlytics Cloud depends on your plan: Growth retains data for 1+ year, Professional for 3+ years, and Enterprise for 5+ years. Session Replay recordings are retained for 60 days. If you self-host, your analytics data lives in your own database, so retention is entirely under your control.",
+          },
+        },
+      ],
+    }).replace(/</g, "\\u003c"),
+  }}
+/>
+
 # Frequently Asked Questions
 
 ## What is Betterlytics?
@@ -18,7 +118,10 @@ Privacy is built in by design. We do not use cookies and we do not collect perso
 The overview shows unique visitors, pageviews, bounce rate, scroll depth, and visit duration with interactive charts. You can dive deeper into referrers and channels, geography, devices and browsers, custom events, funnels, user journeys, outbound links, and Core Web Vitals. Beyond analytics, you can track [client‑side JavaScript errors](/dashboard/errors) with stack traces and session trails, [watch session replays](/dashboard/session-replay), and [monitor uptime and SSL certificates](/dashboard/monitoring) with alerts in Slack, Discord, Teams, or via webhooks. Everything respects your time range and query filters. Browse the feature guides under [Dashboard](/dashboard).
 
 ## How do I integrate it?
-Most sites can add a single async script tag with your Site ID and start seeing data in minutes; follow the hosted quick start in [Cloud Hosting → Step 3](/installation/cloud-hosting#step-3-install-your-tracking-script). For React and modern frameworks, we recommend using the `@betterlytics/tracker` NPM package for a typed API and easier SPA handling; see [Custom Events](/integration/custom-events). You can also enable optional features such as [Session Replay](/integration/session-replay), [Dynamic URLs](/integration/dynamic-urls), [Outbound Links](/integration/outbound-links) and [Web Vitals](/integration/web-vitals) via script attributes or package options.
+Most sites can add a single async script tag with your Site ID and start seeing data in minutes; follow the [Cloud Quick Start](/installation/cloud-hosting#step-3-install-your-tracking-script). For React and modern frameworks, we recommend using the `@betterlytics/tracker` NPM package for a typed API and easier SPA handling; see [Custom Events](/integration/custom-events). You can also enable optional features such as [Session Replay](/integration/session-replay), [Dynamic URLs](/integration/dynamic-urls), [Outbound Links](/integration/outbound-links) and [Web Vitals](/integration/web-vitals) via script attributes or package options.
+
+## Can I query my analytics with AI?
+Yes. Betterlytics has a built‑in [MCP server](/dashboard/mcp) (Model Context Protocol), so you can connect AI assistants and coding agents like Claude, Cursor, or Codex directly to your analytics data. Ask questions in natural language ("which pages have the highest bounce rate?", "what errors are affecting the most users?"), run ad‑hoc funnel analyses, or let your coding agent use real traffic data to inform UI and code changes, all without leaving your editor. See the [MCP Server guide](/dashboard/mcp) for setup instructions for each tool.
 
 ## Who is Betterlytics for?
 Teams of all sizes that want actionable insights without cookie banners or invasive tracking: anyone who would rather run one tool than juggle separate analytics, error tracking, and uptime monitoring services, marketers who need clear acquisition and content insights, product and engineering teams optimizing UX and performance, and privacy‑conscious organizations that value data ownership. Choose the hosted service for the fastest setup and managed operations, or self‑host for maximum control over your data and infrastructure.
@@ -30,7 +133,7 @@ Mostly, but not always at the same time. New features launch on Betterlytics Clo
 Yes. The Growth plan is free up to 10,000 events per month and includes the core analytics features. As you grow, you can upgrade to plans with higher limits and longer data retention. See the full details on [Pricing & Billing](/pricing) and the guides for [Upgrading](/pricing/upgrading), [Changing Plans](/pricing/changing-plans) and [Managing Subscription](/pricing/managing-subscription).
 
 ## What’s the performance impact of the tracking script?
-The script loads asynchronously and is lightweight (under 2KB), designed not to block rendering or degrade page performance. Optional add‑ons such as Core Web Vitals collection and Session Replay are disabled by default and only load when you opt in, so you stay in control of any additional overhead. See the [Cloud Hosting Setup](/installation/cloud-hosting) for the script tag and the [Web Vitals](/integration/web-vitals) and [Session Replay](/integration/session-replay) guides for details.
+The script loads asynchronously and is lightweight (under 2KB), designed not to block rendering or degrade page performance. Optional add‑ons such as Core Web Vitals collection and Session Replay are disabled by default and only load when you opt in, so you stay in control of any additional overhead. See the [Cloud Quick Start](/installation/cloud-hosting) for the script tag and the [Web Vitals](/integration/web-vitals) and [Session Replay](/integration/session-replay) guides for details.
 
 ## How does Betterlytics compare to other analytics tools?
 We have detailed comparison pages that cover features, privacy, performance, and pricing side by side:
@@ -43,7 +146,7 @@ We have detailed comparison pages that cover features, privacy, performance, and
 - [Betterlytics vs Umami](https://betterlytics.io/vs/umami)
 
 ## For how long is my data stored?
-Data retention depends on your plan: Growth retains data for 1+ year, Professional for 3+ years, and Enterprise for 5+ years. Session Replay recordings have a shorter retention period of 60 days to balance usefulness with privacy and storage considerations. You can review the plan‑specific policies on [Pricing & Billing](/pricing) and replay retention under [Session Replay → Storage and Security](/integration/session-replay#storage-and-security). For definitions of metrics and how we calculate them, see the [Metrics Glossary](/dashboard/metrics-glossary).
+Data retention on Betterlytics Cloud depends on your plan: Growth retains data for 1+ year, Professional for 3+ years, and Enterprise for 5+ years. Session Replay recordings have a shorter retention period of 60 days to balance usefulness with privacy and storage considerations. If you self‑host, your analytics data lives in your own database, so retention is entirely under your control. You can review the plan‑specific policies on [Pricing & Billing](/pricing) and replay retention under [Session Replay → Storage and Security](/integration/session-replay#storage-and-security). For definitions of metrics and how we calculate them, see the [Metrics Glossary](/dashboard/metrics-glossary).
 
 
 ---

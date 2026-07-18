@@ -156,3 +156,15 @@
     top: var(--nextra-navbar-height) !important;
   }
 }
+
+.nextra-sidebar li[class*="mt-5"] {
+  margin-top: 0.5rem !important;
+  padding-top: 0.125rem !important;
+  padding-bottom: 0.125rem !important;
+  margin-bottom: 0 !important;
+}
+
+.nextra-sidebar li[class*="my-4"] {
+  margin-top: 0.625rem !important;
+  margin-bottom: 0.625rem !important;
+}
