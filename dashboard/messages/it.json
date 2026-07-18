@@ -3243,6 +3243,7 @@
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
     "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
+    "statusPageDomainReserved": "Questo dominio è riservato",
     "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
     "statusPageIncidentUpdateLimit": "Questo incidente ha raggiunto il limite di aggiornamenti",
     "statusPageIncidentUpdateLast": "Un incidente deve mantenere almeno un aggiornamento",

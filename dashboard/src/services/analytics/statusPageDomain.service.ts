@@ -1,11 +1,10 @@
 import 'server-only';
 
 import { env } from '@/lib/env';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { findStatusPageByCustomDomain } from '@/repositories/postgres/statusPage.repository';
 import { canUseStatusPageCustomDomain } from '@/lib/billing/capabilityAccess';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-
-const OWN_APEX_DOMAINS = ['betterlytics.io'];
 
 export type TlsAuthorization = 'authorized' | 'forbidden' | 'unauthorized';
 
@@ -13,10 +12,21 @@ export function normalizeHostname(raw: string): string {
   return raw.trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
 }
 
-/** Rejects our own status namespace + apex domains so they can never be claimed as a custom domain. */
+function publicBaseUrlHost(): string {
+  try {
+    return new URL(sharedEmailEnv.publicBaseUrl).hostname;
+  } catch {
+    return sharedEmailEnv.publicBaseUrl; // tolerate a bare hostname without scheme
+  }
+}
+
+// Hosts this install serves itself: the app origin and the tier-1 status namespace. Derived from
+// config rather than hardcoded so self-host deployments are protected too.
+const OWN_NAMESPACES = [publicBaseUrlHost(), env.STATUS_PAGE_DOMAIN].map(normalizeHostname).filter(Boolean);
+
+/** Rejects our own hosts + status namespace so they can never be claimed as a custom domain. */
 export function isOwnNamespace(domain: string): boolean {
-  const namespaces = [...OWN_APEX_DOMAINS, env.STATUS_PAGE_DOMAIN];
-  return namespaces.some((ns) => domain === ns || domain.endsWith(`.${ns}`));
+  return OWN_NAMESPACES.some((ns) => domain === ns || domain.endsWith(`.${ns}`));
 }
 
 /**

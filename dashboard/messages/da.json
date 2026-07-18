@@ -3243,6 +3243,7 @@
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
     "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
+    "statusPageDomainReserved": "Dette domæne er reserveret",
     "statusPageIncidentLimit": "Denne statusside har nået sin grænse for hændelser",
     "statusPageIncidentUpdateLimit": "Denne hændelse har nået sin grænse for opdateringer",
     "statusPageIncidentUpdateLast": "En hændelse skal have mindst én opdatering",

@@ -50,6 +50,7 @@ import {
   getStatusPagePreviewDataForDashboard,
   getStatusPageStudioData,
 } from '@/services/analytics/publicStatusPage.service';
+import { isOwnNamespace } from '@/services/analytics/statusPageDomain.service';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
@@ -134,6 +135,9 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
     assertStatusPagesEnabled();
     const t = await getTranslations('validation');
     const payload = StatusPageCreateSchema.parse(input);
+    if (payload.customDomain != null && isOwnNamespace(payload.customDomain)) {
+      throw new UserException(t('statusPageDomainReserved'));
+    }
     const imageWrites = await prepareImageWrites(images);
 
     const [caps, slugAvailable, domainAvailable] = await Promise.all([
@@ -176,6 +180,9 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
     assertStatusPagesEnabled();
     const t = await getTranslations('validation');
     const payload = StatusPageUpdateSchema.parse(input);
+    if (payload.customDomain != null && isOwnNamespace(payload.customDomain)) {
+      throw new UserException(t('statusPageDomainReserved'));
+    }
     const imageWrites = await prepareImageWrites(images);
 
     const [caps, slugAvailable, domainAvailable] = await Promise.all([

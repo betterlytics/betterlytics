@@ -3240,6 +3240,7 @@
     "monitorAlreadyExists": "A monitor for this URL already exists",
     "statusPageSlugTaken": "This URL slug is already in use",
     "statusPageDomainTaken": "This domain is already in use on another status page",
+    "statusPageDomainReserved": "This domain is reserved",
     "statusPageIncidentLimit": "This status page has reached its incident limit",
     "statusPageIncidentUpdateLimit": "This incident has reached its update limit",
     "statusPageIncidentUpdateLast": "An incident must keep at least one update",
