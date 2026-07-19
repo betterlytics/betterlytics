@@ -1,0 +1,59 @@
+---
+title: "Integration Overview"
+description: "Everything the Betterlytics tracking script can do: pageviews out of the box, plus opt-in custom events, error tracking, session replay, Web Vitals, and outbound link tracking."
+---
+
+import { Callout } from "nextra/components";
+
+# Integration Overview
+
+The Betterlytics tracking script collects pageviews out of the box, with no configuration needed. Everything else is opt-in: each capability is enabled with an attribute on the script tag, or an option in the [`@betterlytics/tracker`](https://www.npmjs.com/package/@betterlytics/tracker) npm package. You only load what you use, so the script stays lightweight.
+
+Haven't installed the script yet? Start with the [Cloud Quick Start](/installation/cloud-hosting).
+
+## Capabilities
+
+| Capability | Enable with | Guide |
+| --- | --- | --- |
+| Custom events | `betterlytics.event()` | [Custom Events](/integration/custom-events) |
+| Global properties | `data-global-properties` or `setGlobalProperties()` | [Global Properties](/integration/global-properties) |
+| Dynamic URL normalization | `data-dynamic-urls` | [Dynamic URLs](/integration/dynamic-urls) |
+| Outbound link tracking | `data-outbound-links` | [Outbound Links](/integration/outbound-links) |
+| Core Web Vitals | `data-web-vitals` | [Web Vitals](/integration/web-vitals) |
+| Error tracking | `data-track-errors` | [Error Tracking](/integration/errors) |
+| Session replay | `data-replay` | [Session Replay](/integration/session-replay) |
+
+<Callout type="info">
+Self-hosting? A few capabilities, like Error Tracking and Session Replay, are not in the self-hosted image yet. Check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for the current status.
+</Callout>
+
+## A Complete Example
+
+A script tag with outbound links, Web Vitals, error tracking, and dynamic URL normalization enabled looks like this:
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-site-id"
+  data-outbound-links="full"
+  data-web-vitals="true"
+  data-track-errors="true"
+  data-dynamic-urls="/product/**,/user/*/settings"
+></script>
+```
+
+Session Replay is not included in this example because it involves consent handling, sampling, and masking decisions that deserve more than a copy-paste. The [Session Replay guide](/integration/session-replay) walks through them.
+
+Each guide covers the full configuration reference for its capability, including additional attributes for fine-tuning behavior.
+
+## Script Tag or NPM Package?
+
+- **Script tag**: Best for plain HTML sites, CMS platforms (WordPress, Shopify, Webflow), and no-code setups. Add it to your site's `<head>` and configure with `data-` attributes.
+- **NPM package**: Recommended for React, Next.js, Vue, and other modern frameworks. It provides a typed API, cleaner SPA support, and the same capabilities as options passed to `betterlytics.init()`.
+
+The integration panel in your dashboard shows the recommended setup for your specific framework, along with a real-time verification tool.
+
+## Troubleshooting
+
+If data isn't showing up after integration, the [Troubleshooting guide](/troubleshooting) walks through the most common causes, from caching and CSP headers to framework-specific gotchas.

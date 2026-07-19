@@ -78,6 +78,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: 'Con add-on' },
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Pagine di stato pubbliche', betterlytics: true, competitor: false },
           { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: 'Con plugin' },
         ],
       },

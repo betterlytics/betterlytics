@@ -1,5 +1,59 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v145ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Offentlige statussider',
+    summary:
+      'Del din oppetid med omverdenen. Byg en offentlig statusside med dit eget brand oven på dine uptime-monitorer — med oppetidshistorik, kommunikation om hændelser og mulighed for at bruge dit eget domæne.',
+  },
+  sections: [
+    {
+      id: 'v145-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Du kan nu oprette offentlige statussider. En statusside bygger direkte oven på dine uptime-monitorer og giver dine brugere et løbende opdateret overblik over dine tjenester: aktuel status, oppetidshistorik for hver monitor og en tidslinje over hændelser.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Design din side med live forhåndsvisning: vælg hvilke monitorer der skal vises og i hvilken rækkefølge, og giv dem offentlige visningsnavne.',
+            'Tilpas siden med dit logo, favicon, accentfarve og tema.',
+            'Udgiv siden på en Betterlytics-URL, du selv vælger, eller på dit eget domæne.',
+            'Hold dine brugere orienteret under nedetid med hændelsesopdateringer, og få forslag til hændelser, når dine monitorer registrerer et nedbrud.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel-trin fremhæver nu filtre med tomme værdier, så ufuldstændige trin er nemmere at få øje på og rette.',
+            'Dokumentationen er blevet opdateret med en ny struktur, en udvidet FAQ og nye guides til statussider og eget domæne.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ["Rettet ødelagte links til dokumentationen på fejlsiden og i FAQ'en."],
+        },
+      ],
+    },
+  ],
+};
+
 const v144ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
@@ -65,9 +119,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v144ChangelogEntryDa;
+export const latestChangelogModalDa = v145ChangelogEntryDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v145ChangelogEntryDa,
   v144ChangelogEntryDa,
   {
     metadata: {

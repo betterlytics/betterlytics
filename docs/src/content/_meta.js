@@ -1,4 +1,4 @@
-export default {
+const meta = {
   index: "Introduction",
   installation: "Installation & Setup",
   integration: "Integration",
@@ -7,3 +7,5 @@ export default {
   troubleshooting: "Troubleshooting",
   faq: "Frequently Asked Questions",
 };
+
+export default meta;

@@ -8,6 +8,9 @@ export const ROLE_PERMISSIONS = {
   canRemoveMembers: ['owner', 'admin'],
   canDeleteDashboard: ['owner'],
   canManageSettings: ['owner', 'admin'],
+  canManageStatusPages: ['owner', 'admin', 'editor'],
+  canPublishStatusPages: ['owner', 'admin'],
+  canDeleteStatusPages: ['owner', 'admin'],
 } satisfies Record<string, readonly DashboardRole[]>;
 
 export type Permission = keyof typeof ROLE_PERMISSIONS;

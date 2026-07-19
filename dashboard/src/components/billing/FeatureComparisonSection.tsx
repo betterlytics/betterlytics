@@ -54,6 +54,9 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'customRequestHeaders', growth: false, professional: true, enterprise: true },
       { key: 'customStatusCodes', growth: false, professional: true, enterprise: true },
       { key: 'notificationIntegrations', growth: true, professional: true, enterprise: true },
+      { key: 'statusPages', growth: '1', professional: '3', enterprise: 'unlimited' },
+      { key: 'statusPageCustomDomain', growth: false, professional: true, enterprise: true },
+      { key: 'statusPageWhiteLabel', growth: false, professional: true, enterprise: true },
     ],
   },
   {

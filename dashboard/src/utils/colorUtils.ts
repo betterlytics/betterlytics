@@ -144,3 +144,16 @@ export function getColorForValue(value: string, options: ColorGenerationOptions 
 export function createColorGetter(options: ColorGenerationOptions = {}) {
   return (value: string): string => getColorForValue(value, options);
 }
+
+/**
+ * Black or white foreground for the given hex background, picked by WCAG relative
+ * luminance so text stays readable on any user-chosen accent color.
+ */
+export function accentForeground(accentHex: string): string {
+  const channel = (offset: number) => {
+    const c = parseInt(accentHex.slice(offset, offset + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  const luminance = 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
+  return luminance > 0.45 ? '#16181c' : '#ffffff';
+}

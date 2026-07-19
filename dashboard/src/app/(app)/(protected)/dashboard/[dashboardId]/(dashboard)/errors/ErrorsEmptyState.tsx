@@ -147,7 +147,7 @@ export function ErrorsEmptyState() {
             </div>
             <Button asChild>
               <ExternalLink
-                href='https://betterlytics.io/docs/dashboard/error-tracking'
+                href='https://betterlytics.io/docs/dashboard/errors'
                 target='_blank'
                 rel='noopener noreferrer'
               >

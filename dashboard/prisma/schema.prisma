@@ -75,6 +75,19 @@ enum GithubStarPromptState {
   starred
 }
 
+enum StatusPageIncidentImpact {
+  degraded
+  partial_outage
+  outage
+}
+
+enum StatusPageIncidentStatus {
+  investigating
+  identified
+  monitoring
+  resolved
+}
+
 model Account {
   id                 String    @id @default(cuid())
   userId             String
@@ -137,6 +150,7 @@ model User {
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
+  statusPageIncidents StatusPageIncident[]
 
   deletedAt DateTime?
 }
@@ -187,6 +201,7 @@ model Dashboard {
   bugReports BugReport[]
   annotations Annotation[]
   monitorChecks MonitorCheck[]
+  statusPages StatusPage[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
   mcpTokens McpToken[]
@@ -407,8 +422,142 @@ model MonitorCheck {
 
   deletedAt             DateTime?
 
+  statusPageMonitors    StatusPageMonitor[]
+
   @@index([dashboardId])
   @@unique([id, dashboardId])
+}
+
+model StatusPage {
+  id          String    @id @default(cuid())
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+
+  // Uniqueness is enforced by a partial unique index (slug WHERE deletedAt IS NULL) created
+  // in the migration. Prisma can't express partial indexes, so there is no @unique here; never use findUnique({ where: { slug } }).
+  slug        String  // global among live pages, lowercase, [a-z0-9-]; reserved names enforced in entities
+  name        String
+  description String?
+
+  isPublished Boolean @default(false) // enforced on every public read
+
+  // 'public' | 'unlisted'. Unlisted pages render normally but are excluded from search engines (noindex).
+  visibility String @default("public")
+
+  // Where the page's logo and title link to (owner's marketing site).
+  homepageUrl String?
+
+  // Owner's own domain to host the page on (e.g. status.acme.com).
+  customDomain String?
+
+  // Branding (structured only — no custom CSS)
+  theme       String  @default("system") // 'light' | 'dark' | 'system'
+  accentColor String  @default("#4845d8")
+  // Present iff an uploaded logo/favicon exists. sha256 prefix of the bytes: doubles as the "has image" flag
+  // and as a cache-bust token.
+  logoHash    String?
+  faviconHash String?
+
+  showPastIncidents Boolean @default(true)
+
+  // Owner toggle to hide the "Powered by Betterlytics" footer.
+  hideBranding Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  monitors StatusPageMonitor[]
+  incidents StatusPageIncident[]
+  images   StatusPageImage[]
+
+  @@index([dashboardId])
+  @@unique([id, dashboardId])
+}
+
+model StatusPageImage {
+  statusPageId String
+  kind         String // 'logo' | 'favicon'
+  statusPage   StatusPage @relation(fields: [statusPageId], references: [id], onDelete: Cascade)
+
+  data      Bytes
+  mimeType  String
+  updatedAt DateTime @updatedAt
+
+  @@id([statusPageId, kind])
+}
+
+model StatusPageMonitor {
+  id             String @id @default(cuid())
+  statusPageId   String
+  monitorCheckId String
+  dashboardId    String // shared by both composite FKs, so a page can only reference monitors of its own dashboard
+
+  statusPage   StatusPage   @relation(fields: [statusPageId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+  monitorCheck MonitorCheck @relation(fields: [monitorCheckId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+
+  publicName String // always stored explicitly; the public page never falls back to internal monitor fields
+  position   Int    @default(0)
+
+  @@unique([statusPageId, monitorCheckId])
+  @@index([statusPageId])
+}
+
+model StatusPageIncident {
+  id           String @id @default(cuid())
+  statusPageId String
+  dashboardId  String // shared with the StatusPage composite FK, so an incident stays within its dashboard
+
+  statusPage StatusPage @relation(fields: [statusPageId, dashboardId], references: [id, dashboardId], onDelete: Cascade)
+
+  title  String
+  body   String                                            // denormalized mirror of the latest update's message; set via posted updates, never edited directly
+  description String?
+  impact StatusPageIncidentImpact @default(outage)
+  status StatusPageIncidentStatus @default(investigating)
+
+  startedAt  DateTime
+  resolvedAt DateTime?
+
+  // Affected monitors; display reference only (validated in the action layer), so no FK. Empty = unspecified
+  // (scope not stated); every monitor selected reads as page-wide. Both are just states of this list.
+  monitorCheckIds String[] @default([])
+  // Stable id of the detected ClickHouse incident (analytics.monitor_incidents.incident_id) this was
+  // seeded from. Null for manually authored incidents.
+  detectedIncidentId String?
+
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String?  // audit; nulled (not cascaded) if the author is removed so the page keeps its incidents
+
+  updates StatusPageIncidentUpdate[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([statusPageId, startedAt])
+  @@index([dashboardId, status])
+}
+
+// Timeline of an incident's status updates. The parent
+// StatusPageIncident row caches the current state, derived from this timeline: status/resolvedAt
+// from the latest entry, body from the latest entry with a message. An entry's message (text body)
+// can be edited and entries can be removed, but their status and time are fixed once posted.
+model StatusPageIncidentUpdate {
+  id         String             @id @default(cuid())
+  incidentId String
+  incident   StatusPageIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  status  StatusPageIncidentStatus // status posted with this update — drives the public timeline
+  message String                   // the update's public message (editable; may be empty for status-only)
+
+  // Acting user. Stored as a plain id (no FK) to mirror SuperAdminAuditLog and keep this log table
+  // decoupled from the User lifecycle; null for system-authored entries.
+  createdById String?
+
+  createdAt DateTime @default(now())
+
+  @@index([incidentId, createdAt])
 }
 
 model Subscription {

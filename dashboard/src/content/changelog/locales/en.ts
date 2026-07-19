@@ -1,5 +1,59 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v145ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Public Status Pages',
+    summary:
+      'Share your uptime with the world. Build a branded public status page on top of your uptime monitors, complete with uptime history, incident communication, and support for your own custom domain.',
+  },
+  sections: [
+    {
+      id: 'v145-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'text',
+          body: 'You can now create public status pages. Built directly on top of your uptime monitors, a status page gives your users an always-up-to-date view of your services: current status, uptime history per monitor, and a timeline of incidents.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Design your page in a studio with a live preview: choose which monitors to show and in what order, and give them public display names.',
+            'Brand it with your logo, favicon, accent color, and theme.',
+            'Publish on a Betterlytics URL of your choice, or serve the page from your own custom domain.',
+            'Keep your users informed during downtime with incident updates, and get suggested incidents when your monitors detect an outage.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel steps now highlight filters with empty values, making incomplete steps easier to spot and fix.',
+            'The documentation has been refreshed with a reorganized structure, an expanded FAQ, and new guides for status pages and custom domains.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Fixed broken documentation links on the errors page and in the FAQ.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v144ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
@@ -63,9 +117,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v144ChangelogEntryEn;
+export const latestChangelogModalEn = v145ChangelogEntryEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v145ChangelogEntryEn,
   v144ChangelogEntryEn,
   {
     metadata: {

@@ -23,7 +23,11 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
 
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
-      <MonitoringClient dashboardId={dashboardId} monitors={monitors} domain={dashboard.domain} />
+      <MonitoringClient
+        dashboardId={dashboardId}
+        monitors={monitors}
+        domain={dashboard.domain}
+      />
     </div>
   );
 }

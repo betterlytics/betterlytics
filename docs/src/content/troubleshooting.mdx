@@ -255,6 +255,17 @@ If `POST /event` returns `200 OK` in the Network tab but the in-app verify butto
 
 ---
 
+## Self-hosted instances
+
+If you're running a self-hosted instance and data isn't arriving:
+
+- Confirm the containers are running and healthy: `docker compose ps` and `docker compose logs`.
+- Verify the `/event` endpoint on **your** domain is reachable from the browser. The Network tab should show the `POST` going to your instance, not to `betterlytics.io`.
+- If a specific feature seems missing rather than broken, check its current self-hosted status in the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted). New features reach the self-hosted image with periodic updates, and [updating](/installation/self-hosting#updating) may be all you need.
+- See the [self-hosting troubleshooting section](/installation/self-hosting#troubleshooting) for container, HTTPS, and certificate issues, or open an issue on [GitHub](https://github.com/betterlytics/betterlytics-selfhost/issues).
+
+---
+
 ## Still stuck?
 
 If none of the above helps, we'd like to take a look:
