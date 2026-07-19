@@ -32,6 +32,7 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/installation', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/installation/cloud-hosting', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/installation/self-hosting', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/docs/integration', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/custom-events', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/global-properties', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/dynamic-urls', changeFrequency: 'monthly', priority: 0.8, localized: false },
