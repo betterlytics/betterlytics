@@ -33,7 +33,7 @@ RUN echo "Building dashboard..."
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
@@ -61,7 +61,7 @@ FROM node:24-slim AS initializer-builder
 RUN echo "Building initializer..."
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 WORKDIR /app
 
