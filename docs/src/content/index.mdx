@@ -1,24 +1,51 @@
 ---
 title: "Introduction"
-description: "Welcome to the Betterlytics documentation. Learn how to set up and use the privacy-first, cookieless analytics platform."
+description: "Betterlytics combines privacy-first web analytics, error tracking, session replay, and uptime monitoring in one cookieless, GDPR-ready platform."
 ---
 
 # Introduction
 
-**Betterlytics** is a cookieless, privacy-first analytics platform. It tracks website traffic without cookies, personal data, or cross-site tracking, and is designed to be GDPR, CCPA, and PECR ready out of the box. The tracking script is under 2KB and loads asynchronously to avoid impacting page performance.
+**Betterlytics** is a privacy-first platform that combines **web analytics**, **error tracking**, **session replay**, and **uptime monitoring** in a single dashboard. Instead of running one tool for analytics, another for error tracking, a third for session replay, and a fourth for uptime monitoring, you get all of them with one lightweight script and one dashboard.
 
-You can run Betterlytics as a [managed cloud service](/installation/cloud-hosting) or [self-host](/installation/self-hosting) it on your own infrastructure. See the [Installation Overview](/installation) for a full comparison.
+Everything is cookieless by design and ready for GDPR, CCPA, and PECR out of the box, with no cookie banner required. The core tracking script is under 2KB, loads asynchronously, and optional features only load when you enable them.
 
-## What You Can Track
+You can use Betterlytics as a [managed cloud service](/installation/cloud-hosting) or [self-host](/installation/self-hosting) it on your own infrastructure. See the [Installation Overview](/installation) for a full comparison.
 
-Betterlytics covers core web analytics and performance monitoring in a single platform:
+## One Platform, Every Signal
 
-- **Traffic and audience** - Visitors, pageviews, bounce rate, scroll depth, visit duration, referrers, UTM campaigns, geography, and device breakdown
-- **Behavior and conversions** - User journeys, conversion funnels, custom events, and outbound link tracking
-- **Performance monitoring** - Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate checks, and scheduled email reports
-- **Session replay** - Replay visitor sessions with event timelines and privacy-first masking (cloud only)
+<FeatureGrid>
 
-All data is available in real time through the [dashboard](/dashboard), with support for filtering across any dimension.
+<FeatureCard title="Web Analytics" href="/dashboard">
+Visitors, pageviews, bounce rate, [referrers and channels](/dashboard/referrers), [UTM campaigns](/dashboard/campaigns), [geography](/dashboard/geography), and [devices](/dashboard/devices). Go deeper with [user journeys](/dashboard/user-journey), [funnels](/dashboard/funnels), [custom events](/integration/custom-events), and [outbound links](/dashboard/outbound-links).
+</FeatureCard>
+
+<FeatureCard title="Error Tracking" href="/dashboard/errors">
+Catch client-side JavaScript errors as they happen. Identical errors are [grouped automatically](/dashboard/errors) so you can see which issues affect the most users, inspect stack traces, and follow the session trail that led to the problem.
+</FeatureCard>
+
+<FeatureCard title="Session Replay" href="/dashboard/session-replay">
+[Replay real visitor sessions](/dashboard/session-replay) with event timelines and privacy-first masking: all text and inputs are masked by default. Jump from an error straight to the replay of the moment it happened.
+</FeatureCard>
+
+<FeatureCard title="Uptime Monitoring" href="/dashboard/monitoring">
+[Monitor availability](/dashboard/monitoring), response times, and SSL certificates with automated checks and incident tracking. Get alerted by email or via [Slack, Discord, Teams, Pushover, or webhooks](/dashboard/integrations).
+</FeatureCard>
+
+<FeatureCard title="Web Performance" href="/dashboard/web-vitals">
+Track [Core Web Vitals](/dashboard/web-vitals) (LCP, INP, CLS, TTFB) from real users to see how your site actually performs for your visitors, not just in lab tests.
+</FeatureCard>
+
+<FeatureCard title="Reports & AI" href="/dashboard/mcp">
+Receive [scheduled email reports](/dashboard/email-reports) summarizing your key analytics, and query everything from your AI assistant via the built-in [MCP server](/dashboard/mcp).
+</FeatureCard>
+
+</FeatureGrid>
+
+All data is available in real time through the [dashboard](/dashboard), with [filtering](/dashboard/filtering) across any dimension.
+
+## Privacy Without Compromise
+
+Betterlytics collects no personal data and uses no cookies, so there is nothing to consent to for core analytics. Visitor IP addresses are never stored, and each website's data is isolated to prevent cross-site tracking. Optional features that could touch personal data, like Session Replay, are disabled by default, mask everything out of the box, and support explicit consent flows. See the [FAQ](/faq) for details on compliance.
 
 ## Getting Started
 
@@ -28,8 +55,8 @@ All data is available in real time through the [dashboard](/dashboard), with sup
 
 ## Using These Docs
 
-- **[Installation & Setup](/installation)** - Cloud hosting and self-hosting guides, with a side-by-side comparison to help you decide
-- **[Integration](/integration/custom-events)** - Custom events, session replay, outbound links, dynamic URLs, and Web Vitals setup
+- **[Installation & Setup](/installation)** - Cloud and self-hosting guides, with a side-by-side comparison to help you decide
+- **[Integration](/integration)** - Custom events, error tracking, session replay, outbound links, dynamic URLs, and Web Vitals setup
 - **[Dashboard Features](/dashboard)** - Guides for every dashboard section
 - **[Pricing & Billing](/pricing)** - Plans, billing cycles, and subscription management
 - **[FAQ](/faq)** - Common questions about privacy, compliance, performance, and data retention
