@@ -3264,6 +3264,7 @@
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
     "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
+    "statusPageDomainReserved": "Questo dominio è riservato",
     "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
     "statusPageIncidentUpdateLimit": "Questo incidente ha raggiunto il limite di aggiornamenti",
     "statusPageIncidentUpdateLast": "Un incidente deve mantenere almeno un aggiornamento",
@@ -4008,14 +4009,7 @@
       "hours": "{count, plural, one {# ora} other {# ore}}",
       "days": "{count, plural, one {# giorno} other {# giorni}}"
     },
-    "poweredBy": "Realizzato con",
-    "notFound": {
-      "title": "Errore",
-      "code": "404",
-      "description": "Impossibile trovare questa pagina di stato — non esiste o è stata rimossa. Controlla il link o contatta il proprietario del sito che te l'ha condiviso.",
-      "goHome": "Vai a Betterlytics",
-      "viewDocs": "Vedi la documentazione"
-    }
+    "poweredBy": "Realizzato con"
   },
   "statusPagesPage": {
     "title": "Pagine di stato",

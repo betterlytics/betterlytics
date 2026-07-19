@@ -70,6 +70,13 @@ export const RESERVED_STATUS_PAGE_SLUGS = new Set([
   'signup',
   'status',
   'www',
+  'pages',
+  'mail',
+  'ns1',
+  'ns2',
+  'dev',
+  'staging',
+  'domain',
 ]);
 
 export const RESERVED_STATUS_PAGE_SLUG_PREFIX = /^demo(-|$)/;
@@ -102,12 +109,6 @@ export const StatusPageHomepageUrlSchema = z
 
 const CUSTOM_DOMAIN_REGEX = /^(?=.{1,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
-export const RESERVED_STATUS_PAGE_DOMAIN_LABELS = new Set(['betterlytics']);
-
-function isReservedStatusPageDomain(domain: string): boolean {
-  return domain.split('.').some((label) => RESERVED_STATUS_PAGE_DOMAIN_LABELS.has(label));
-}
-
 /**
  * A CNAME can't live on the zone apex, so the custom domain must be a subdomain. Without a public
  * suffix list we approximate "has a subdomain" as "at least three labels" (sub.domain.tld) — this
@@ -117,13 +118,14 @@ function isStatusPageSubdomain(domain: string): boolean {
   return domain.split('.').length >= 3;
 }
 
+// Syntactic validation only — whether the domain is inside our own namespace is a server-side
+// concern (isOwnNamespace, derived from env), enforced in the create/update actions.
 export const StatusPageCustomDomainSchema = z
   .string()
   .trim()
   .toLowerCase()
   .regex(CUSTOM_DOMAIN_REGEX, 'Enter a valid domain, e.g. status.example.com')
-  .refine(isStatusPageSubdomain, 'Use a subdomain like status.example.com, not the root domain')
-  .refine((domain) => !isReservedStatusPageDomain(domain), 'This domain is reserved');
+  .refine(isStatusPageSubdomain, 'Use a subdomain like status.example.com, not the root domain');
 
 export const StatusPageMonitorSelectionSchema = z.object({
   monitorCheckId: z.string().min(1),
@@ -150,9 +152,11 @@ export const StatusPageCreateSchema = z.object({
 });
 export type StatusPageCreate = z.infer<typeof StatusPageCreateSchema>;
 
-export const StatusPageUpdateSchema = StatusPageCreateSchema.omit({ isPublished: true }).partial().extend({
-  id: z.string().min(1),
-});
+export const StatusPageUpdateSchema = StatusPageCreateSchema.omit({ isPublished: true })
+  .partial()
+  .extend({
+    id: z.string().min(1),
+  });
 export type StatusPageUpdate = z.infer<typeof StatusPageUpdateSchema>;
 
 export const StatusPageSchema = z.object({

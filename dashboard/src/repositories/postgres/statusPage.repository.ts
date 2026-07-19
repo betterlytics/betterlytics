@@ -42,7 +42,11 @@ export type StatusPageImageWrites = {
   favicon?: StatusPageImageWrite | null;
 };
 
-function imageChange(statusPageId: string, kind: StatusPageImageKind, write: StatusPageImageWrite | null | undefined) {
+function imageChange(
+  statusPageId: string,
+  kind: StatusPageImageKind,
+  write: StatusPageImageWrite | null | undefined,
+) {
   if (write === undefined) return { data: {}, op: null };
   if (write === null) {
     const data = kind === 'logo' ? { logoHash: null } : { faviconHash: null };
@@ -95,10 +99,7 @@ export async function getStatusPageById(
   };
 }
 
-export async function listStatusPageMonitorCheckIds(
-  dashboardId: string,
-  statusPageId: string,
-): Promise<string[]> {
+export async function listStatusPageMonitorCheckIds(dashboardId: string, statusPageId: string): Promise<string[]> {
   const rows = await prisma.statusPageMonitor.findMany({
     where: { statusPageId, dashboardId },
     select: { monitorCheckId: true },
@@ -272,6 +273,17 @@ export async function getPublishedStatusPageBySlug(slug: string): Promise<Publis
   return row ? toPublishedStatusPage(row) : null;
 }
 
+/** Custom-domain twin of getPublishedStatusPageBySlug — customDomain is partial-unique among live pages. */
+export async function getPublishedStatusPageByCustomDomain(
+  customDomain: string,
+): Promise<PublishedStatusPage | null> {
+  const row = await prisma.statusPage.findFirst({
+    where: { customDomain, isPublished: true, deletedAt: null },
+    include: statusPageSnapshotInclude,
+  });
+  return row ? toPublishedStatusPage(row) : null;
+}
+
 export async function getStatusPageSnapshotById(
   dashboardId: string,
   statusPageId: string,
@@ -281,4 +293,18 @@ export async function getStatusPageSnapshotById(
     include: statusPageSnapshotInclude,
   });
   return row ? toPublishedStatusPage(row) : null;
+}
+
+/**
+ * Resolve a custom domain to its live status page. Used by the TLS-authorization (`ask`) endpoint
+ * and the custom-domain public route. `findFirst` because customDomain is partial-unique (one live
+ * page per domain) — never `findUnique`.
+ */
+export async function findStatusPageByCustomDomain(
+  customDomain: string,
+): Promise<{ id: string; dashboardId: string; slug: string; isPublished: boolean } | null> {
+  return prisma.statusPage.findFirst({
+    where: { customDomain, deletedAt: null },
+    select: { id: true, dashboardId: true, slug: true, isPublished: true },
+  });
 }

@@ -3261,6 +3261,7 @@
     "monitorAlreadyExists": "A monitor for this URL already exists",
     "statusPageSlugTaken": "This URL slug is already in use",
     "statusPageDomainTaken": "This domain is already in use on another status page",
+    "statusPageDomainReserved": "This domain is reserved",
     "statusPageIncidentLimit": "This status page has reached its incident limit",
     "statusPageIncidentUpdateLimit": "This incident has reached its update limit",
     "statusPageIncidentUpdateLast": "An incident must keep at least one update",
@@ -4005,14 +4006,7 @@
       "hours": "{count, plural, one {# hour} other {# hours}}",
       "days": "{count, plural, one {# day} other {# days}}"
     },
-    "poweredBy": "Powered by",
-    "notFound": {
-      "title": "Error",
-      "code": "404",
-      "description": "This status page could not be found — it doesn't exist or has been removed. Check the link, or contact the site owner who shared it with you.",
-      "goHome": "Go to Betterlytics",
-      "viewDocs": "View documentation"
-    }
+    "poweredBy": "Powered by"
   },
   "statusPagesPage": {
     "title": "Status Pages",

@@ -55,3 +55,12 @@ export async function canDashboardReceiveReports(dashboardId: string): Promise<b
     return false;
   }
 }
+
+export async function canUseStatusPageCustomDomain(dashboardId: string): Promise<boolean> {
+  try {
+    const capabilities = await getDashboardCapabilities(dashboardId);
+    return capabilities.statusPages.customDomain;
+  } catch {
+    return false;
+  }
+}

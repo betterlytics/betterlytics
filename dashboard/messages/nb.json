@@ -3264,6 +3264,7 @@
     "monitorAlreadyExists": "En monitor for denne URL-en finnes allerede",
     "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
     "statusPageDomainTaken": "Dette domenet er allerede i bruk på en annen statusside",
+    "statusPageDomainReserved": "Dette domenet er reservert",
     "statusPageIncidentLimit": "Denne statussiden har nådd grensen for hendelser",
     "statusPageIncidentUpdateLimit": "Denne hendelsen har nådd grensen for oppdateringer",
     "statusPageIncidentUpdateLast": "En hendelse må ha minst én oppdatering",
@@ -4008,14 +4009,7 @@
       "hours": "{count, plural, one {# time} other {# timer}}",
       "days": "{count, plural, one {# dag} other {# dager}}"
     },
-    "poweredBy": "Levert av",
-    "notFound": {
-      "title": "Feil",
-      "code": "404",
-      "description": "Denne statussiden ble ikke funnet — den finnes ikke eller har blitt fjernet. Sjekk lenken, eller kontakt eieren av nettstedet som delte den med deg.",
-      "goHome": "Gå til Betterlytics",
-      "viewDocs": "Se dokumentasjon"
-    }
+    "poweredBy": "Levert av"
   },
   "statusPagesPage": {
     "title": "Statussider",
