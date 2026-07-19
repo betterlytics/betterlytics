@@ -1,7 +1,9 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { type TableFilterColumn } from '@/entities/analytics/filter.entities';
+import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { filterColumnSql } from '@/lib/filter-sql';
+import { PROPERTY_SQL } from '@/lib/property-source-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -40,13 +42,15 @@ export async function getFilterDistinctValues(
   return rows.map((r) => r.value);
 }
 
-export async function getGlobalPropertyKeys(
+export async function getPropertyKeys(
   siteQuery: BASiteQuery,
+  source: PropertySourceKind,
   search?: string,
   limit: number = 50,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+  const { keysSelectExpr, hasAnyKey, eventScopeClause } = PROPERTY_SQL[source].discovery;
 
   const searchClause =
     search && search.trim()
@@ -54,11 +58,12 @@ export async function getGlobalPropertyKeys(
       : safeSql``;
 
   const query = safeSql`
-    SELECT arrayJoin(global_properties_keys) AS key
+    SELECT ${keysSelectExpr} AS key
     FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND notEmpty(global_properties_keys)
+      AND ${hasAnyKey}
+      ${eventScopeClause}
     GROUP BY key
     ${searchClause}
     ORDER BY key
@@ -74,13 +79,22 @@ export async function getGlobalPropertyKeys(
   return rows.map((r) => r.key);
 }
 
-export async function getGlobalPropertyValues(
+export async function getPropertyValues(
   siteQuery: BASiteQuery,
+  source: PropertySourceKind,
   propertyKey: string,
   search?: string,
   limit: number = 50,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
+  const { sql, discovery } = PROPERTY_SQL[source];
+
+  const sample = discovery.sampleValues
+    ? (await BAQuery.getSampling(siteId, startDateTime, endDateTime)).sample
+    : safeSql``;
+
+  const valueExpr = sql.extractValue(SQL.String({ prop_key: propertyKey }));
+  const hasKeyExpr = sql.hasKey(SQL.String({ prop_key_filter: propertyKey }));
 
   const searchClause =
     search && search.trim()
@@ -88,11 +102,12 @@ export async function getGlobalPropertyValues(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT global_properties_values[indexOf(global_properties_keys, ${SQL.String({ prop_key: propertyKey })})] AS value
-    FROM analytics.events
+    SELECT DISTINCT ${valueExpr} AS value
+    FROM analytics.events ${sample}
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-      AND has(global_properties_keys, ${SQL.String({ prop_key_filter: propertyKey })})
+      AND ${hasKeyExpr}
+      ${discovery.eventScopeClause}
       AND value != ''
       ${searchClause}
     LIMIT {limit:UInt32}

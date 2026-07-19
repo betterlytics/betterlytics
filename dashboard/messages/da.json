@@ -2461,6 +2461,8 @@
       "is": "er",
       "isNot": "er ikke",
       "globalProperties": "{count, plural, one {Global egenskab} other {Globale egenskaber}}",
+      "properties": "Egenskaber",
+      "customEventProperties": "{count, plural, one {Egenskab for brugerdefineret hændelse} other {Egenskaber for brugerdefinerede hændelser}}",
       "selectProperty": "Vælg egenskab",
       "noProperties": "Ingen egenskaber fundet",
       "namePlaceholder": "Angiv trinnavn",

@@ -1,4 +1,4 @@
-import { TagsIcon } from 'lucide-react';
+import { Braces as BracesIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import { type FilterColumn } from '@/entities/analytics/filter.entities';
@@ -13,11 +13,13 @@ type FilterColumnLabelProps = {
 export function FilterColumnLabel({ column, className }: FilterColumnLabelProps) {
   const t = useTranslations('components.filters');
   const strategy = getFilterStrategy(column);
-  const isGlobalProperty = strategy.type === 'json_property';
-  const icon = isGlobalProperty
-    ? <TagsIcon />
-    : FILTER_COLUMN_SELECT_OPTIONS.find((opt) => opt.value === strategy.key)?.icon;
-  const label = isGlobalProperty ? strategy.key : t(`columns.${strategy.key}`);
+  const icon =
+    strategy.type === 'json_property'
+      ? strategy.source === 'cep'
+        ? <BracesIcon />
+        : <TagsIcon />
+      : FILTER_COLUMN_SELECT_OPTIONS.find((opt) => opt.value === strategy.key)?.icon;
+  const label = strategy.type === 'json_property' ? strategy.key : t(`columns.${strategy.key}`);
 
   return (
     <span

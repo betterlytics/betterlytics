@@ -8,7 +8,8 @@ import {
 } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
-import { safeSql, SQL } from './safe-sql';
+import { safeSql, SQL, type SQLTaggedExpression } from './safe-sql';
+import { buildPropertyFilterSql } from './property-source-sql';
 import { DateTimeString } from '@/types/dates';
 import { filterColumnSql, filterColumnSqlForSession } from './filter-sql';
 
@@ -128,6 +129,7 @@ function getSessionTableSubQuery(
 type TransformedFilter = z.infer<typeof TransformQueryFilterSchema>;
 type StandardFilter = TransformedFilter & { col: TableFilterColumn };
 type GpFilter = TransformedFilter & { gpKey: string };
+type CepFilter = TransformedFilter & { cepKey: string };
 
 /**
  * Build query filters using `safeSql`
@@ -151,15 +153,18 @@ function getSessionFilterQuery(
 
   const stdFilters: StandardFilter[] = [];
   const gpFilters: GpFilter[] = [];
+  const cepFilters: CepFilter[] = [];
   for (const filter of transformed) {
     const parsed = parseFilterColumn(filter.column);
-    switch (parsed.kind) {
-      case 'standard':
-        stdFilters.push({ ...filter, col: parsed.col });
-        break;
-      case 'gp':
-        gpFilters.push({ ...filter, gpKey: parsed.key });
-        break;
+    if (parsed.kind === 'standard') {
+      stdFilters.push({ ...filter, col: parsed.col });
+    } else if (parsed.source === 'gp') {
+      gpFilters.push({ ...filter, gpKey: parsed.key });
+    } else if (parsed.source === 'cep') {
+      cepFilters.push({ ...filter, cepKey: parsed.key });
+    } else {
+      parsed.source satisfies never;
+      throw new Error(`Unhandled property source: ${parsed.source}`);
     }
   }
 
@@ -171,7 +176,9 @@ function getSessionFilterQuery(
     .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.col))
     .map((filter) => buildSessionFilterQuery(filter));
 
-  const baseWhere = [...gpWhere, ...sessionWhere];
+  const cepWhere = buildCustomEventPropertySessionFilters(cepFilters, siteId, startDate, endDate);
+
+  const baseWhere = [...gpWhere, ...sessionWhere, ...cepWhere];
   const WHERE = baseWhere.length > 0 ? baseWhere : [safeSql`1=1`];
 
   if (hasEventsFilters) {
@@ -220,6 +227,52 @@ function buildGlobalPropertyFilterQuery(filter: GpFilter) {
   const values = SQL.StringArray({ [`gp_vals_${filterHash}`]: filter.values });
   const anyValueMatches = safeSql`arrayExists(t -> t.1 = ${key} AND arrayExists(v -> t.2 ILIKE v, ${values}), all_props)`;
   return isEquals ? anyValueMatches : safeSql`NOT ${anyValueMatches}`;
+}
+
+/* Each `!=` is its own NOT IN of the equals-form so it excludes sessions rather than no-opping on pageview rows; positives collapse into one IN. */
+function buildCustomEventPropertySessionFilters(
+  cepFilters: CepFilter[],
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const positives = cepFilters.filter((filter) => filter.rawOperator === '=');
+  const negatives = cepFilters.filter((filter) => filter.rawOperator === '!=');
+
+  const positiveMemberships =
+    positives.length > 0
+      ? [customEventSessionMembership(positives.map(buildCustomEventPropertyMatch), true, siteId, startDate, endDate)]
+      : [];
+
+  const negativeMemberships = negatives.map((filter) =>
+    customEventSessionMembership([buildCustomEventPropertyMatch(filter)], false, siteId, startDate, endDate),
+  );
+
+  return [...positiveMemberships, ...negativeMemberships];
+}
+
+function buildCustomEventPropertyMatch(filter: CepFilter) {
+  const filterHash = hashFilterQuery(filter);
+  const keySql = SQL.String({ [`cep_key_${filterHash}`]: filter.cepKey });
+  const valuesSql = SQL.StringArray({ [`cep_vals_${filterHash}`]: filter.values });
+  return buildPropertyFilterSql('cep', {
+    keySql,
+    valuesSql,
+    values: filter.values,
+    operator: INTERNAL_FILTER_OPERATORS['='],
+    rawOperator: '=',
+  });
+}
+
+function customEventSessionMembership(
+  matches: SQLTaggedExpression[],
+  include: boolean,
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const subquery = safeSql`SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND event_type = 'custom' AND ${SQL.AND(matches)}`;
+  return include ? safeSql`session_id IN ( ${subquery} )` : safeSql`session_id NOT IN ( ${subquery} )`;
 }
 
 function buildSessionFilterQuery(filter: StandardFilter) {

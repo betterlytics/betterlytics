@@ -1,6 +1,7 @@
-import { FILTER_COLUMNS, type FilterColumn, GP_PREFIX } from '@/entities/analytics/filter.entities';
+import { type FilterColumn, type TableFilterColumn, parseFilterColumn } from '@/entities/analytics/filter.entities';
+import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 
-const STANDARD_COLUMN_DESCRIPTIONS: Record<(typeof FILTER_COLUMNS)[number], string> = {
+const STANDARD_COLUMN_DESCRIPTIONS: Record<TableFilterColumn, string> = {
   url: 'Page URL path',
   domain: 'Site domain',
   device_type: 'Device type (desktop, mobile, tablet)',
@@ -23,9 +24,15 @@ const STANDARD_COLUMN_DESCRIPTIONS: Record<(typeof FILTER_COLUMNS)[number], stri
   outbound_link_url: 'URL clicked when leaving the site via an outbound link',
 };
 
+const PROPERTY_SOURCE_DESCRIPTIONS: Record<PropertySourceKind, string> = {
+  gp: 'Global property',
+  cep: 'Custom event property',
+};
+
 export function getFilterColumnDescription(column: FilterColumn): string {
-  if (column.startsWith(GP_PREFIX)) {
-    return `Global property: ${column.slice(GP_PREFIX.length)}`;
+  const parsed = parseFilterColumn(column);
+  if (parsed.kind === 'property') {
+    return `${PROPERTY_SOURCE_DESCRIPTIONS[parsed.source]}: ${parsed.key}`;
   }
-  return STANDARD_COLUMN_DESCRIPTIONS[column as (typeof FILTER_COLUMNS)[number]] ?? column;
+  return STANDARD_COLUMN_DESCRIPTIONS[parsed.col];
 }

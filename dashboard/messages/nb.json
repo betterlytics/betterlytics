@@ -2461,6 +2461,8 @@
       "is": "er",
       "isNot": "er ikke",
       "globalProperties": "{count, plural, one {Global egenskap} other {Globale egenskaper}}",
+      "properties": "Egenskaper",
+      "customEventProperties": "{count, plural, one {Egenskap for tilpasset hendelse} other {Egenskaper for tilpassede hendelser}}",
       "selectProperty": "Velg egenskap",
       "noProperties": "Ingen egenskaper funnet",
       "namePlaceholder": "Angi trinnnavn",

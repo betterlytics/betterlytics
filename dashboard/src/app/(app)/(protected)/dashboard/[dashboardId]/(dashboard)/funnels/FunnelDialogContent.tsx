@@ -9,12 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import type { useFunnelDialog } from '@/hooks/use-funnel-dialog';
-import { useQueryState } from '@/hooks/use-query-state';
 import { cn } from '@/lib/utils';
-import { trpc } from '@/trpc/client';
-import { useBAQueryParams } from '@/trpc/hooks';
+import { usePropertyKeys } from '@/hooks/use-property-keys';
 import { FunnelStepAccordion } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/funnels/FunnelStepAccordion';
 
 type FunnelDialogContentProps = {
@@ -63,11 +60,7 @@ export function FunnelDialogContent({
     });
   }, [addEmptyFunnelStep]);
 
-  const { input, options } = useBAQueryParams();
-  const { isDemo } = useDashboardAuth();
-  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, { ...options, enabled: !isDemo });
-  const { data, loading } = useQueryState(gpQuery, !isDemo);
-  const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
+  const propertyKeys = usePropertyKeys();
 
   return (
     <div className='flex min-h-0 flex-1 flex-col gap-4'>
@@ -111,7 +104,7 @@ export function FunnelDialogContent({
           onReorder={setFunnelSteps}
           onUpdateStep={updateFunnelStep}
           onRemoveStep={removeFunnelStep}
-          globalPropertyKeys={globalPropertyKeys}
+          propertyKeys={propertyKeys}
           hasAttemptedSubmit={hasAttemptedSubmit}
           onAddStep={handleAddStep}
           addStepLabel={labels.addStep}
