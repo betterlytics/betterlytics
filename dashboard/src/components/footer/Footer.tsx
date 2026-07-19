@@ -82,6 +82,15 @@ export async function Footer() {
                   {t('pricing')}
                 </Link>
               </li>
+              <li>
+                <ExternalLink
+                  href='https://status.betterlytics.io'
+                  title={t('status')}
+                  className='hover:text-foreground transition-colors'
+                >
+                  {t('status')}
+                </ExternalLink>
+              </li>
             </ul>
           </div>
           <div>
