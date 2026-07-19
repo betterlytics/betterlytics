@@ -30,7 +30,7 @@ Betterlytics is a high-performance analytics platform that puts you in control o
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **Core Analytics**         | Page views, visitors, bounce rate, traffic sources, geographic insights, device analytics, real-time data, custom events |
 | **Advanced Analytics**     | Session replay, user journeys, funnels, time period comparisons, annotations, outbound link tracking                     |
-| **Performance Monitoring** | Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate monitoring, public status pages on your own domain |
+| **Performance Monitoring** | Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate monitoring, public status pages with custom domain support |
 | **Privacy & Compliance**   | Cookieless tracking, GDPR/CCPA/PECR ready, EU hosting, data anonymization, open source                                   |
 | **Access & Security**      | Role-based access control, two-factor authentication, OAuth (Google, GitHub)                                             |
 | **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, <2KB payload                                    |

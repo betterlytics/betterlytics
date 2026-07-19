@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Monitoraggio uptime",
-          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche ospitate sul tuo dominio.",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche che puoi ospitare sul tuo dominio.",
           "alertDown": "{site} è offline",
           "alertSent": "Avviso inviato a {email}",
           "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
@@ -1255,7 +1255,7 @@
         },
         "statusPages": {
           "title": "Pagine di Stato Pubbliche",
-          "description": "Condividi uptime e cronologia degli incidenti con i tuoi utenti su una pagina di stato personalizzata, ospitata sul tuo dominio."
+          "description": "Condividi uptime e cronologia degli incidenti con i tuoi utenti su una pagina di stato personalizzata che puoi ospitare sul tuo dominio."
         },
         "notificationIntegrations": {
           "title": "Integrazioni di Notifica",

@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Oppetidsovervåking",
-          "description": "Få varsler når nettstedet ditt går ned, med SSL-sertifikatovervåking og offentlige statussider på ditt eget domene.",
+          "description": "Få varsler når nettstedet ditt går ned, med SSL-sertifikatovervåking og offentlige statussider du kan hoste på ditt eget domene.",
           "alertDown": "{site} er nede",
           "alertSent": "Advarsel sendt til {email}",
           "incidentDetected": "{count, plural, one {{count} hendelse oppdaget} other {{count} hendelser oppdaget}}",
@@ -1255,7 +1255,7 @@
         },
         "statusPages": {
           "title": "Offentlige statussider",
-          "description": "Del oppetid og hendelseshistorikk med brukerne dine på en statusside med din egen merkevare, på ditt eget domene."
+          "description": "Del oppetid og hendelseshistorikk med brukerne dine på en statusside med din egen merkevare, som du kan hoste på ditt eget domene."
         },
         "notificationIntegrations": {
           "title": "Varslingsintegrasjoner",

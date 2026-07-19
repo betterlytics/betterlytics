@@ -1255,7 +1255,7 @@
         },
         "statusPages": {
           "title": "Public Status Pages",
-          "description": "Share live uptime and incident history with your users on a branded status page, hosted on your own domain."
+          "description": "Share live uptime and incident history with your users on a branded status page you can host on your own domain."
         },
         "notificationIntegrations": {
           "title": "Notification Integrations",
