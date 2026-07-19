@@ -1,5 +1,59 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v145ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Offentlige statussider',
+    summary:
+      'Del oppetiden din med omverdenen. Bygg en offentlig statusside med din egen merkevare oppå oppetidsmonitorene dine — med oppetidshistorikk, kommunikasjon om hendelser og støtte for ditt eget domene.',
+  },
+  sections: [
+    {
+      id: 'v145-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Du kan nå opprette offentlige statussider. En statusside bygger direkte på oppetidsmonitorene dine og gir brukerne dine en alltid oppdatert oversikt over tjenestene dine: gjeldende status, oppetidshistorikk per monitor og en tidslinje over hendelser.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Design siden din med live forhåndsvisning: velg hvilke monitorer som skal vises og i hvilken rekkefølge, og gi dem offentlige visningsnavn.',
+            'Tilpass siden med din egen logo, favicon, aksentfarge og tema.',
+            'Publiser siden på en Betterlytics-URL du selv velger, eller på ditt eget domene.',
+            'Hold brukerne dine orientert under nedetid med hendelsesoppdateringer, og få forslag til hendelser når monitorene dine oppdager et avbrudd.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Trakttrinn fremhever nå filtre med tomme verdier, slik at ufullstendige trinn er enklere å oppdage og rette.',
+            'Dokumentasjonen er oppdatert med ny struktur, en utvidet FAQ og nye guider for statussider og eget domene.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Rettet ødelagte lenker til dokumentasjonen på feilsiden og i FAQ-en.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v144ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
@@ -65,9 +119,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v144ChangelogEntryNb;
+export const latestChangelogModalNb = v145ChangelogEntryNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v145ChangelogEntryNb,
   v144ChangelogEntryNb,
   {
     metadata: {
@@ -739,7 +794,9 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
         blocks: [
           {
             type: 'list',
-            items: ['Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.'],
+            items: [
+              'Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.',
+            ],
           },
         ],
       },
@@ -917,7 +974,9 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
         blocks: [
           {
             type: 'list',
-            items: ['La til manglende oversettelser slik at brukere over hele verden får en smidigere opplevelse.'],
+            items: [
+              'La til manglende oversettelser slik at brukere over hele verden får en smidigere opplevelse.',
+            ],
           },
         ],
       },
@@ -941,7 +1000,8 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
       version: 'v1.2.5',
       releasedAt: '2025-11-24',
       title: 'Mer presise data, mer kontroll',
-      summary: 'Forbedret dataintegritet, strengere kontroll av innkommende trafikk og en rekke stabilitetsrettinger.',
+      summary:
+        'Forbedret dataintegritet, strengere kontroll av innkommende trafikk og en rekke stabilitetsrettinger.',
     },
     sections: [
       {
