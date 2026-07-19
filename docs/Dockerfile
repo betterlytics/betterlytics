@@ -13,6 +13,8 @@ FROM base as builder
 WORKDIR /app
 
 COPY package*.json .
+# zod >= 4.4 breaks nextra's MDX prerender.
+RUN npm pkg set pnpm.overrides.zod=4.3.2
 RUN pnpm install
 
 COPY . .
