@@ -8,7 +8,7 @@ import {
 } from '@/app/actions/analytics/monitoring.actions';
 import { MonitorDetailClient } from './MonitorDetailClient';
 import { notFound } from 'next/navigation';
-import { safeHostname } from '../utils';
+import { safeHostname } from '@/utils/domainValidation';
 import { getUserTimezone } from '@/lib/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 

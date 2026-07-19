@@ -217,3 +217,14 @@ export type MonitorResult = z.infer<typeof MonitorResultSchema>;
 export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;
 export type MonitorIncidentSegment = z.infer<typeof MonitorIncidentSegmentSchema>;
 export type MonitorDailyUptime = z.infer<typeof MonitorDailyUptimeSchema>;
+
+export const DetectedOutageRowSchema = z.object({
+  detectedIncidentId: z.string(),
+  monitorCheckId: z.string(),
+  reasonCode: z.string(),
+  ongoing: z.boolean(),
+  startedAt: z.string(),
+  resolvedAt: z.string().nullable(),
+  severity: z.string(),
+});
+export type DetectedOutageRow = z.infer<typeof DetectedOutageRowSchema>;

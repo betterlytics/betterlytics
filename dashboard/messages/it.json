@@ -532,7 +532,7 @@
       "lastUpdated": "Ultimo aggiornamento:",
       "scope": {
         "title": "Ambito di Questo DPA",
-        "body": "Questo Accordo sul Trattamento dei Dati (\u201cDPA\u201d) fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il servizio cloud ospitato Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Questo DPA non si applica alle installazioni self-hosted del nostro software open source; se esegui il self-hosting di Betterlytics, sei responsabile dei tuoi accordi sul trattamento dei dati e della conformità alle leggi applicabili.",
+        "body": "Questo Accordo sul Trattamento dei Dati (“DPA”) fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il servizio cloud ospitato Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Questo DPA non si applica alle installazioni self-hosted del nostro software open source; se esegui il self-hosting di Betterlytics, sei responsabile dei tuoi accordi sul trattamento dei dati e della conformità alle leggi applicabili.",
         "appliesTo": "Questo DPA si applica al trattamento dei dati dei visitatori del sito web raccolti tramite gli script di analisi Betterlytics, includendo sia:",
         "li1": "Dati anonimi (analitiche predefinite e anonimizzate), e",
         "li2": "Dati personali o pseudo-anonimi (funzionalità opzionali o qualsiasi inclusione accidentale di dati personali o pseudo-anonimi in URL, parametri di query o payload degli eventi), ad es. session replay, identificatori personalizzati o eventi personalizzati."
@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Monitoraggio uptime",
-          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche che puoi ospitare sul tuo dominio.",
           "alertDown": "{site} è offline",
           "alertSent": "Avviso inviato a {email}",
           "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
@@ -1136,6 +1136,8 @@
           "Funnel Conversione",
           "Replay Sessioni",
           "Eventi Personalizzati",
+          "Monitoraggio Uptime",
+          "Pagine di Stato Pubbliche",
           "Funzionalità Web Analytics"
         ]
       },
@@ -1251,6 +1253,10 @@
           "title": "Monitoraggio Certificati SSL",
           "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
         },
+        "statusPages": {
+          "title": "Pagine di Stato Pubbliche",
+          "description": "Condividi uptime e cronologia degli incidenti con i tuoi utenti su una pagina di stato personalizzata che puoi ospitare sul tuo dominio."
+        },
         "notificationIntegrations": {
           "title": "Integrazioni di Notifica",
           "description": "Ricevi avvisi tramite Slack, Discord, Microsoft Teams, webhook e altro quando qualcosa richiede la tua attenzione."
@@ -1360,6 +1366,7 @@
       "documentation": "Documentazione",
       "changelog": "Changelog",
       "pricing": "Prezzi",
+      "status": "Stato",
       "features": "Funzionalità",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1426,11 +1433,11 @@
       "funnelsJourneys": "Funnel e percorsi utente",
       "sessionReplay": "Session replay",
       "errorTracking": "Tracciamento errori",
-      "uptime1": "1 monitor uptime",
+      "uptime1": "1 monitor uptime e pagina di stato pubblica",
       "uptime50": "50 monitor uptime con controlli ogni minuto",
-      "uptimeUnlimited": "Monitor uptime illimitati",
+      "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
+      "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
       "emailReports": "Report email pianificati",
-      "customHttp": "Controlli uptime avanzati (metodi HTTP, header e codici di stato personalizzati)",
       "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
       "everythingInStarter": "Tutto in Growth, più:",
@@ -1554,6 +1561,20 @@
       "notificationIntegrations": {
         "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
       },
+      "statusPages": {
+        "name": "Pagine di stato pubbliche",
+        "values": {
+          "1": "1 pagina di stato",
+          "3": "3 pagine di stato",
+          "unlimited": "Pagine di stato illimitate"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Dominio personalizzato per la pagina di stato"
+      },
+      "statusPageWhiteLabel": {
+        "name": "Pagine di stato white-label"
+      },
       "emailSupport": {
         "name": "Supporto email"
       },
@@ -1605,6 +1626,7 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Replay sessioni",
       "monitoring": "Monitoraggio",
+      "statusPages": "Pagine di stato",
       "categories": {
         "analytics": "Analisi",
         "behavior": "Comportamento",
@@ -1833,14 +1855,14 @@
         "title": "Tempi e Sensibilità",
         "interval": {
           "label": "Intervallo di monitoraggio",
-          "description": "Il tuo sito verr\u00e0 controllato ogni {value}"
+          "description": "Il tuo sito verrà controllato ogni {value}"
         },
         "timeout": {
           "label": "Timeout richiesta",
-          "description": "Troppo breve pu\u00f2 causare falsi positivi"
+          "description": "Troppo breve può causare falsi positivi"
         },
         "sensitivity": {
-          "label": "Sensibilit\u00e0 incidenti",
+          "label": "Sensibilità incidenti",
           "description": "Numero di errori consecutivi prima che venga attivato un incidente",
           "valueOne": "1 errore",
           "valueOther": "{count} errori",
@@ -3241,6 +3263,17 @@
     "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
+    "statusPageSlugTaken": "Questo slug URL è già in uso",
+    "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
+    "statusPageDomainReserved": "Questo dominio è riservato",
+    "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
+    "statusPageIncidentUpdateLimit": "Questo incidente ha raggiunto il limite di aggiornamenti",
+    "statusPageIncidentUpdateLast": "Un incidente deve mantenere almeno un aggiornamento",
+    "statusPageIncidentInvalidMonitor": "Uno dei monitor interessati non è in questa pagina di stato",
+    "statusPageImageInvalid": "Impossibile leggere il file come immagine",
+    "statusPageImageTooLarge": "L'immagine è troppo grande",
+    "statusPageImageBadType": "L'immagine deve essere un file PNG, JPEG o WebP",
+    "statusPageImageSvgUnsafe": "Il file SVG contiene contenuti non supportati o non sicuri",
     "capabilities": {
       "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
       "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
@@ -3248,7 +3281,10 @@
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
       "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional",
-      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional"
+      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional",
+      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
+      "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
+      "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
@@ -3739,10 +3775,10 @@
       "userKeyPlaceholder": "La tua user key Pushover",
       "priorityLabel": "Priorità notifica",
       "priorities": {
-        "-2": "Minima: Nessuna notifica",
-        "-1": "Bassa: Nessun suono o vibrazione",
         "0": "Normale (consigliato)",
-        "1": "Alta: Ignora le ore silenziose"
+        "1": "Alta: Ignora le ore silenziose",
+        "-2": "Minima: Nessuna notifica",
+        "-1": "Bassa: Nessun suono o vibrazione"
       },
       "credentialsHint": "Trova la tua user key su <link>pushover.net</link>",
       "priorityHint": "Scopri di più sui livelli di priorità <link>qui</link>.",
@@ -3913,5 +3949,393 @@
         "errorCount": "{count, plural, one {# errore} other {# errori}}"
       }
     }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "Tutti i sistemi sono operativi",
+      "degraded": "Prestazioni ridotte",
+      "partial_outage": "Alcuni sistemi sono fuori servizio",
+      "outage": "Interruzione grave",
+      "unknown": "Stato non disponibile"
+    },
+    "meta": {
+      "description": "Ultimo stato di uptime per {name}"
+    },
+    "statusNote": {
+      "degraded": "Alcuni servizi sono più lenti del solito"
+    },
+    "lastUpdated": "Ultimo aggiornamento: {date}",
+    "lastUpdatedInline": "ultimo aggiornamento: {date}",
+    "uptimeValue": "{uptime} di uptime",
+    "noData": "Nessun dato",
+    "monitorStatus": {
+      "operational": "Operativo",
+      "degraded": "Ridotto",
+      "down": "Fuori servizio",
+      "unknown": "Nessun dato"
+    },
+    "uptimeWindow": {
+      "start": "{days} giorni fa",
+      "today": "Oggi"
+    },
+    "overallUptime": "Uptime complessivo <value>{uptime}</value> · ultimi {days} giorni",
+    "activeIncidents": "Incidenti attivi",
+    "pastIncidents": "Incidenti passati",
+    "showPastIncidents": "Mostra incidenti passati",
+    "hidePastIncidents": "Nascondi incidenti passati",
+    "noPastIncidents": "Nessun incidente passato negli ultimi {days} giorni.",
+    "incident": {
+      "resolved": "Risolto dopo {duration}",
+      "ongoing": "In corso da {duration}, dal {time}",
+      "showMore": "Mostra {count} {count, plural, one {aggiornamento precedente} other {aggiornamenti precedenti}}",
+      "showLess": "Nascondi aggiornamenti precedenti",
+      "descriptionMore": "Leggi di più",
+      "descriptionLess": "Mostra meno",
+      "today": "Oggi",
+      "yesterday": "Ieri",
+      "impact": {
+        "degraded": "Degradato",
+        "partial_outage": "Interruzione parziale",
+        "outage": "Interruzione totale"
+      },
+      "status": {
+        "investigating": "In esame",
+        "identified": "Identificato",
+        "monitoring": "Monitoraggio",
+        "resolved": "Risolto"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minuto} other {# minuti}}",
+      "hours": "{count, plural, one {# ora} other {# ore}}",
+      "days": "{count, plural, one {# giorno} other {# giorni}}"
+    },
+    "poweredBy": "Realizzato con"
+  },
+  "statusPagesPage": {
+    "title": "Pagine di stato",
+    "newStatusPage": "Nuova pagina di stato",
+    "upgradeToCreate": "Upgrade per altri",
+    "error": "Qualcosa è andato storto",
+    "empty": {
+      "title": "Nessuna pagina di stato",
+      "description": "Scegli quali monitor mostrare, aggiungi il tuo logo e i tuoi colori, e condividi una pagina pubblica che i tuoi utenti possono consultare durante gli incidenti.",
+      "cta": "Crea la tua prima pagina di stato"
+    },
+    "badge": {
+      "public": "Pubblica",
+      "draft": "Bozza"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitor}}",
+    "actions": {
+      "copyLink": "Copia link",
+      "viewPage": "Vedi pagina",
+      "more": "Altre azioni",
+      "linkCopied": "Link copiato negli appunti",
+      "openPublicPage": "Apri pagina pubblica",
+      "editPage": "Modifica pagina",
+      "manageIncidents": "Gestisci incidenti",
+      "settings": "Impostazioni",
+      "copyUrl": "Copia URL pubblico",
+      "publish": "Pubblica",
+      "unpublish": "Annulla pubblicazione",
+      "publishedToast": "Pagina di stato pubblicata",
+      "unpublishedToast": "Pagina di stato messa offline",
+      "publishConfirmTitle": "Pubblicare la pagina di stato?",
+      "publishConfirmDescription": "Diventerà accessibile pubblicamente al suo URL.",
+      "unpublishConfirmTitle": "Annullare la pubblicazione della pagina di stato?",
+      "unpublishConfirmDescription": "Verrà messa offline e i visitatori non potranno più accedervi."
+    },
+    "editor": {
+      "back": "Pagine di stato",
+      "save": "Salva modifiche",
+      "discard": "Annulla modifiche",
+      "confirmLeave": {
+        "title": "Uscire con modifiche non salvate?",
+        "description": "Hai apportato modifiche che non sono state salvate. Se esci ora, andranno perse.",
+        "stay": "Continua a modificare",
+        "leave": "Esci"
+      },
+      "statusPublished": "Pubblicato",
+      "statusDraft": "Bozza",
+      "viewPage": "Vedi pagina",
+      "copyUrl": "Copia URL",
+      "publish": "Pubblica pagina di stato",
+      "unpublish": "Annulla pubblicazione",
+      "saved": "Pagina di stato salvata",
+      "unpublished": "Pubblicazione annullata",
+      "publishSuccess": {
+        "title": "La tua pagina di stato è online",
+        "copy": "Copia link",
+        "copied": "Link copiato negli appunti",
+        "view": "Vedi pagina"
+      },
+      "deleted": "Pagina di stato eliminata",
+      "error": "Qualcosa è andato storto",
+      "delete": "Elimina pagina di stato",
+      "deleteConfirmTitle": "Eliminare questa pagina di stato?",
+      "deleteConfirmDescription": "La pagina pubblica smetterà di funzionare immediatamente. Questa azione non può essere annullata.",
+      "deleteConfirm": "Elimina",
+      "cancel": "Annulla",
+      "pageName": "Nome pagina",
+      "nameRequired": "Il nome della pagina è obbligatorio.",
+      "unsavedChanges": "Modifiche non salvate",
+      "publishNeedsSave": "Salva le modifiche prima di pubblicare.",
+      "confirmPublish": {
+        "title": "Pubblicare queste modifiche?",
+        "description": "Le tue modifiche appariranno subito sulla pagina di stato pubblica.",
+        "confirm": "Pubblica modifiche"
+      },
+      "publicUrl": "URL pubblico",
+      "publicUrlHint": "L'indirizzo web dove viene pubblicata la tua pagina di stato.",
+      "slugStatus": {
+        "checking": "Verifica in corso…",
+        "available": "Disponibile",
+        "taken": "Già in uso",
+        "invalid": "Slug non valido"
+      },
+      "homepageUrl": "URL della homepage",
+      "homepageUrlHint": "Dove rimandano il logo e il titolo della pagina.",
+      "customDomain": "Dominio personalizzato",
+      "customDomainHint": "Ospita la pagina sul tuo dominio.",
+      "homepageUrlInvalid": "Inserisci un URL valido che inizia con http:// o https://.",
+      "customDomainInvalid": "Inserisci un sottodominio, es. status.example.com.",
+      "customDomainSetup": {
+        "intro": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a Betterlytics.",
+        "recordType": "Tipo",
+        "recordName": "Nome",
+        "recordValue": "Valore",
+        "copy": "Copia valore",
+        "copied": "Valore copiato",
+        "nameHint": "Alcuni provider aggiungono automaticamente il tuo dominio. In tal caso, inserisci solo <mono>{label}</mono> come Nome invece del <monoBreak>{domain}</monoBreak> completo.",
+        "propagation": "Le modifiche al DNS possono richiedere fino a qualche ora per avere effetto."
+      },
+      "hideBranding": "Nascondi il branding Betterlytics",
+      "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
+      "visibility": {
+        "title": "Visibilità sui motori di ricerca",
+        "public": "Pubblica",
+        "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
+        "unlisted": "Non in elenco",
+        "unlistedHint": "Chiunque abbia il link può vederla, ma è nascosta ai motori di ricerca."
+      },
+      "dangerZone": {
+        "title": "Zona pericolosa",
+        "unpublishDescription": "Metti la pagina offline. I visitatori non potranno raggiungerla, ma puoi pubblicarla di nuovo in qualsiasi momento.",
+        "deleteDescription": "Elimina definitivamente questa pagina di stato e la sua cronologia degli incidenti. Questa azione non può essere annullata."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Carica logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Carica favicon",
+      "replaceImage": "Sostituisci",
+      "removeImage": "Rimuovi",
+      "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
+      "svgUnsafe": "L'SVG contiene contenuti non supportati o non sicuri. Prova un'esportazione vettoriale semplice.",
+      "accentColor": "Colore principale",
+      "theme": "Tema",
+      "themes": {
+        "light": "Chiaro",
+        "dark": "Scuro",
+        "system": "Sistema"
+      },
+      "showPastIncidents": "Mostra incidenti passati",
+      "showPastIncidentsHint": "Mostra una cronologia degli incidenti risolti sulla tua pagina pubblica.",
+      "minMonitorsHint": "Aggiungi almeno un monitor per salvare le modifiche.",
+      "publicNamePlaceholder": "Nome visualizzato pubblico",
+      "reorderMonitor": "Riordina monitor",
+      "preview": "Anteprima live",
+      "enlargePreview": "Ingrandisci anteprima",
+      "loadingPreview": "Caricamento anteprima…",
+      "tabs": {
+        "incidents": "Incidenti",
+        "settings": "Impostazioni"
+      },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitor",
+          "branding": "Branding",
+          "publish": "Pubblica"
+        },
+        "tabIssue": "Richiede attenzione",
+        "draft": "Bozza",
+        "publicNamesHint": "Rinominare qui cambia solo ciò che vedono i visitatori. Il monitor mantiene il suo nome interno.",
+        "pageNameHint": "Usato nella scheda del browser e nelle anteprime dei link. Un logo lo sostituisce nell'intestazione della pagina.",
+        "themeHint": "Il tema che vedono i visitatori. Sistema segue l'impostazione del dispositivo di ciascun visitatore.",
+        "zoomIn": "Aumenta zoom",
+        "zoomOut": "Riduci zoom",
+        "zoomFit": "Adatta allo schermo",
+        "desktopPreview": "Anteprima desktop",
+        "mobilePreview": "Anteprima mobile",
+        "customDomainLater": "Vuoi ospitare la pagina sul tuo dominio, come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata.",
+        "discardEdits": {
+          "title": "Annullare le modifiche?",
+          "description": "Le modifiche apportate nell'editor verranno riportate all'ultimo stato salvato.",
+          "keep": "Continua a modificare",
+          "discard": "Scarta"
+        }
+      },
+      "wizard": {
+        "title": "Nuova pagina di stato",
+        "close": "Chiudi",
+        "loading": "Caricamento editor…",
+        "saveDraft": "Salva come bozza",
+        "monitorsHeading": "Monitor su questa pagina",
+        "searchMonitors": "Cerca monitor",
+        "noSearchResults": "Nessun monitor corrisponde alla ricerca.",
+        "noMonitorsTitle": "Ancora nessun monitor",
+        "noMonitors": "Crea il tuo primo monitor per iniziare a tracciare l'uptime, poi aggiungilo a questa pagina.",
+        "noMonitorYet": "Non lo vedi?",
+        "createMonitor": "Crea un monitor",
+        "addMonitor": "Aggiungi monitor",
+        "allOnPage": "Tutti i monitor sono sulla pagina.",
+        "addAll": "Aggiungi tutti ({count})",
+        "removeFromPage": "Rimuovi dalla pagina",
+        "shownCount": "{selected} di {total} mostrati",
+        "minMonitors": "Aggiungi almeno un monitor per continuare.",
+        "emptyPageTitle": "Aggiungi monitor a questa pagina di stato",
+        "emptyPageHint": "Il loro stato e uptime appariranno sulla tua pagina pubblica.",
+        "confirmDiscard": {
+          "title": "Vuoi annullare questa pagina di stato?",
+          "description": "Hai apportato modifiche che andranno perse se chiudi ora. Non è stato salvato nulla.",
+          "keep": "Continua a modificare",
+          "discard": "Annulla modifiche"
+        }
+      },
+      "incidents": {
+        "title": "Incidenti",
+        "activeIncidents": "Incidenti attivi",
+        "pastIncidents": "Incidenti passati",
+        "filters": {
+          "search": "Cerca incidenti",
+          "state": "Stato",
+          "stateAll": "Tutti gli stati",
+          "stateActive": "Attivi",
+          "stateResolved": "Risolti",
+          "noMatch": "Nessun incidente corrisponde ai filtri."
+        },
+        "autoDetected": "Rilevato automaticamente",
+        "affectedMore": "+{count} altri",
+        "detectedPanelTitle": "{count, plural, one {# interruzione rilevata da esaminare} other {# interruzioni rilevate da esaminare}}",
+        "detectedGroupMulti": "Interruzione su {count} monitor",
+        "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto. Nulla diventa pubblico finché non lo pubblichi.",
+        "newIncident": "Nuovo incidente",
+        "editIncident": "Modifica incidente",
+        "formHint": "I visitatori lo vedranno sulla tua pagina di stato pubblica una volta pubblicato.",
+        "createFromSuggestion": "Crea incidente",
+        "suggestedTitle": "Interruzione di {monitor}",
+        "suggestedTitleMulti": "Interruzione che coinvolge {count} servizi",
+        "noIncidents": "Ancora nessun incidente.",
+        "emptyHint": "Quando qualcosa si rompe, pubblica un incidente qui per tenere informati i tuoi visitatori.",
+        "suggestionsHint": "Rilevati automaticamente dai tuoi monitor: esamina e pubblica per renderli pubblici.",
+        "unspecified": "Non specificato",
+        "ongoingFor": "In corso da {duration}",
+        "lasted": "Durata {duration}",
+        "draft": "Bozza",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "actions": "Azioni",
+        "table": {
+          "incident": "Incidente",
+          "status": "Stato",
+          "impact": "Impatto",
+          "affected": "Interessato",
+          "started": "Iniziato",
+          "duration": "Durata"
+        },
+        "suggestionsTable": {
+          "outage": "Interruzione",
+          "monitors": "Monitor",
+          "detected": "Rilevata",
+          "duration": "Durata",
+          "status": "Stato",
+          "ongoing": "In corso",
+          "resolved": "Risolta"
+        },
+        "saved": "Incidente salvato",
+        "deleted": "Incidente eliminato",
+        "error": "Qualcosa è andato storto",
+        "impact": {
+          "degraded": "Degradato",
+          "partial_outage": "Interruzione parziale",
+          "outage": "Interruzione totale"
+        },
+        "status": {
+          "investigating": "In esame",
+          "identified": "Identificato",
+          "monitoring": "Monitoraggio",
+          "resolved": "Risolto"
+        },
+        "form": {
+          "title": "Titolo",
+          "titleRequired": "Il titolo è obbligatorio",
+          "description": "Descrizione",
+          "descriptionPlaceholder": "es. Alcuni utenti potrebbero riscontrare errori al checkout — stiamo indagando",
+          "optional": "(facoltativo)",
+          "timelineRequired": "Aggiungi almeno una voce alla cronologia",
+          "detailsSection": "Dettagli incidente",
+          "impact": "Impatto",
+          "monitor": "Monitor interessati",
+          "monitorNotSpecified": "Intera pagina (nessun monitor specifico)",
+          "monitorAllToken": "Tutti i monitor",
+          "monitorSearchPlaceholder": "Cerca monitor",
+          "monitorNoMatch": "Nessun monitor trovato",
+          "monitorRemove": "Rimuovi {monitor}",
+          "monitorCountSelected": "{selected} di {total} selezionati",
+          "monitorSelectAll": "Seleziona tutti",
+          "monitorClear": "Cancella",
+          "monitorSummaryPageWide": "Intera pagina, tutti i {count} monitor",
+          "monitorSummaryScoped": "{count} di {total} monitor interessati",
+          "cancel": "Annulla",
+          "publishCta": "Pubblica",
+          "updatePublic": "Aggiorna pagina pubblica",
+          "unsaved": "Modifiche non salvate",
+          "deleteIncident": "Elimina incidente"
+        },
+        "composer": {
+          "section": "Aggiungi una voce alla cronologia",
+          "sectionHelp": "La voce più recente imposta lo stato dell’incidente.",
+          "statusLabel": "Status",
+          "messagePlaceholder": "Quali novità? (facoltativo)",
+          "time": "Ora"
+        },
+        "timeline": {
+          "title": "Cronologia",
+          "today": "Oggi",
+          "yesterday": "Ieri",
+          "addUpdate": "Aggiungi",
+          "pendingLabel": "Not saved yet",
+          "empty": "Nessuna voce nella cronologia.",
+          "editMessage": "Modifica messaggio",
+          "deleteUpdate": "Elimina aggiornamento",
+          "done": "Fatto",
+          "removePending": "Rimuovi aggiornamento"
+        },
+        "discard": {
+          "title": "Ignorare le modifiche?",
+          "description": "Hai modifiche non salvate. Se chiudi ora, andranno perse.",
+          "keep": "Continua a modificare",
+          "confirm": "Ignora"
+        }
+      },
+      "editPage": "Modifica pagina",
+      "publicAddress": "Indirizzo pubblico"
+    },
+    "table": {
+      "statusPage": "Pagina di stato",
+      "visibility": "Visibilità",
+      "monitors": "Monitor",
+      "status": "Stato"
+    },
+    "status": {
+      "operational": "Operativo",
+      "ongoingIncident": "Incidente in corso"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# pagina di stato ha un incidente attivo} other {# pagine di stato hanno incidenti attivi}}",
+      "viewIncidents": "Vedi incidenti"
+    },
+    "monitorsEmpty": "Nessun monitor",
+    "monitorsUp": "attivi"
   }
 }

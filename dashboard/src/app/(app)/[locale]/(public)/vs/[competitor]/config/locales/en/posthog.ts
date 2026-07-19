@@ -78,6 +78,7 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'Client-side error tracking', betterlytics: true, competitor: true },
           { name: 'Core Web Vitals', betterlytics: true, competitor: true },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Public status pages', betterlytics: true, competitor: false },
           { name: 'Feature flags', betterlytics: false, competitor: true },
           { name: 'A/B testing', betterlytics: false, competitor: true },
           { name: 'Surveys (NPS/CSAT)', betterlytics: false, competitor: true },

@@ -20,8 +20,39 @@ import {
   type MonitorLatencyPoint,
   MonitorIncidentSegmentSchema,
   type MonitorIncidentSegment,
+  DetectedOutageRowSchema,
+  type DetectedOutageRow,
 } from '@/entities/analytics/monitoring.entities';
 import { toIsoUtc } from '@/utils/dateHelpers';
+import { groupByKey } from '@/utils/collections';
+
+type UptimeBucketRow = { date: string; uptime_seconds: number | null; total_seconds: number };
+type IncidentSegmentRow = {
+  state: string;
+  reason_code: string | null;
+  started_at: string;
+  resolved_at: string | null;
+  last_event_at: string | null;
+};
+
+function parseUptimeBucketRow(row: UptimeBucketRow): MonitorUptimeBucket {
+  return MonitorUptimeBucketSchema.parse({
+    bucket: toIsoUtc(row.date) ?? row.date,
+    upRatio: row.uptime_seconds != null && row.total_seconds > 0 ? row.uptime_seconds / row.total_seconds : null,
+    totalSeconds: row.total_seconds,
+  });
+}
+
+function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegment {
+  const end = row.resolved_at ?? row.last_event_at;
+  return MonitorIncidentSegmentSchema.parse({
+    state: row.state,
+    reason: row.reason_code,
+    start: toIsoUtc(row.started_at) ?? row.started_at,
+    end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+    durationMs: row.started_at && end ? new Date(end).getTime() - new Date(row.started_at).getTime() : null,
+  });
+}
 
 // Unified uptime bucket calculation supporting hour or day granularity
 export async function getMonitorUptimeBuckets(
@@ -136,15 +167,141 @@ export async function getMonitorUptimeBuckets(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId, timezone, buckets },
     })
-    .toPromise()) as any[];
+    .toPromise()) as UptimeBucketRow[];
 
-  return rows.map((row) =>
-    MonitorUptimeBucketSchema.parse({
-      bucket: toIsoUtc(row.date) ?? row.date,
-      upRatio: row.uptime_seconds != null ? row.uptime_seconds / row.total_seconds : null,
-      totalSeconds: row.total_seconds,
-    }),
-  );
+  return rows.map(parseUptimeBucketRow);
+}
+
+/**
+ * Batched variant of {@link getMonitorUptimeBuckets} for the public status page: computes the daily
+ * uptime buckets for ALL monitors of a page in a single ClickHouse query instead of one query per
+ * monitor (the page can show up to {@link STATUS_PAGE_LIMITS.MONITORS_MAX} monitors). Each monitor's
+ * `createdAt` is zipped in and looked up per row, so the per-bucket math is identical to the
+ * single-monitor version. Day granularity only. Returns a map keyed by check_id; each monitor's
+ * buckets are oldest-first. Monitors with no data still get a full set of null-uptime buckets.
+ */
+export async function getUptimeBucketsForMonitors(
+  monitors: Array<{ checkId: string; createdAt: Date }>,
+  siteId: string,
+  timezone: string,
+  rangeStart: string,
+  rangeEnd: string,
+  buckets: number,
+): Promise<Map<string, MonitorUptimeBucket[]>> {
+  if (!monitors.length) return new Map();
+
+  const checkIds = monitors.map((monitor) => monitor.checkId);
+  const createdAts = monitors.map((monitor) => toDateTimeString(monitor.createdAt));
+
+  const bucketSizeSeconds = safeSql`
+    least(
+      abs(dateDiff('second', grid.bucket_start, grid.bucket_start + INTERVAL 1 DAY)),
+      abs(dateDiff('second', grid.bucket_start, now())),
+      abs(dateDiff('second', grid.created_at, now()))
+    )
+  `;
+
+  const query = safeSql`
+    WITH
+      monitors AS (
+        SELECT
+          tupleElement(pair, 1) AS check_id,
+          tupleElement(pair, 2) AS created_at
+        FROM (
+          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ats:Array(DateTime)})) AS pair
+        )
+      ),
+      incident_buckets AS (
+        SELECT
+          check_id,
+          started_at,
+          coalesce(resolved_at, now() + INTERVAL 1 DAY) AS effective_resolved_at,
+          arrayJoin(
+            arrayMap(
+              i -> toStartOfDay(started_at, {timezone:String}) + INTERVAL i DAY,
+              range(
+                0,
+                toUInt32(dateDiff('day', toStartOfDay(started_at, {timezone:String}), coalesce(resolved_at, now() + INTERVAL 1 DAY), {timezone:String})) + 1
+              )
+            )
+          ) AS bucket_key
+        FROM analytics.monitor_incidents FINAL
+        WHERE check_id IN ({check_ids:Array(String)})
+          AND site_id = {site_id:String}
+          AND kind != 'tls'
+          AND started_at < ${SQL.DateTime({ rangeEnd })}
+          AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
+      ),
+      monitor_presence AS (
+        SELECT
+          check_id,
+          toStartOfDay(ts, {timezone:String}) AS mp_bucket_start,
+          1 AS has_data
+        FROM analytics.monitor_results
+        WHERE check_id IN ({check_ids:Array(String)})
+          AND site_id = {site_id:String}
+          AND kind != 'tls'
+          AND ts >= ${SQL.DateTime({ rangeStart })}
+          AND ts < ${SQL.DateTime({ rangeEnd })}
+        GROUP BY check_id, mp_bucket_start
+      )
+    SELECT
+      grid.check_id AS check_id,
+      grid.bucket_start AS date,
+      IF(
+        mp.has_data = 0,
+        NULL,
+        IF(
+          grid.created_at >= grid.bucket_start + INTERVAL 1 DAY,
+          NULL,
+          ${bucketSizeSeconds} - sum(
+            greatest(
+              0,
+              dateDiff(
+                'second',
+                greatest(ib.started_at, grid.bucket_start),
+                least(ib.effective_resolved_at, grid.bucket_start + INTERVAL 1 DAY, now())
+              )
+            )
+          )
+        )
+      ) AS uptime_seconds,
+      ${bucketSizeSeconds} AS total_seconds
+    FROM (
+      SELECT
+        m.check_id AS check_id,
+        m.created_at AS created_at,
+        b.bucket_start AS bucket_start
+      FROM monitors AS m
+      CROSS JOIN (
+        SELECT arrayJoin(
+          arrayMap(
+            i -> toStartOfDay(${SQL.DateTime({ rangeStart })}, {timezone:String}) + INTERVAL i DAY,
+            range(0, {buckets:UInt32})
+          )
+        ) AS bucket_start
+      ) AS b
+    ) AS grid
+    LEFT JOIN incident_buckets ib ON ib.check_id = grid.check_id AND ib.bucket_key = grid.bucket_start
+    LEFT JOIN monitor_presence mp ON mp.check_id = grid.check_id AND mp.mp_bucket_start = grid.bucket_start
+    GROUP BY grid.check_id, grid.created_at, grid.bucket_start, mp.has_data
+    ORDER BY grid.check_id, grid.bucket_start
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        check_ids: checkIds,
+        created_ats: createdAts,
+        site_id: siteId,
+        timezone,
+        buckets,
+      },
+    })
+    .toPromise()) as (UptimeBucketRow & { check_id: string })[];
+
+  return groupByKey(rows, (row) => row.check_id, parseUptimeBucketRow);
 }
 
 // Convenience wrapper for 24h hourly buckets
@@ -229,7 +386,7 @@ export async function getUptime24h(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { total_seconds: number; downtime_seconds: number }[];
 
   const totalSeconds = row?.total_seconds ?? 0;
   const downtimeSeconds = row?.downtime_seconds ?? 0;
@@ -268,7 +425,13 @@ export async function getRecentMonitorResults(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId, limit },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    ts: string;
+    status: string;
+    latency_ms: number | null;
+    status_code: number | null;
+    reason_code: string | null;
+  }[];
 
   return rows.map((row) =>
     MonitorResultSchema.parse({
@@ -306,7 +469,13 @@ export async function getLatestTlsResultsForMonitors(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    check_id: string;
+    ts: string;
+    status: string;
+    reason_code: string | null;
+    tls_not_after: string | null;
+  }[];
 
   return rows.reduce<Record<string, MonitorTlsResult>>((acc, row) => {
     acc[row.check_id] = MonitorTlsResultSchema.parse({
@@ -344,18 +513,114 @@ export async function getMonitorIncidentSegments(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId, days, limit },
     })
-    .toPromise()) as any[];
+    .toPromise()) as IncidentSegmentRow[];
+
+  return rows.map(parseIncidentSegmentRow);
+}
+
+/**
+ * Batched variant of getMonitorIncidentSegments for the public status page:
+ * one query for all monitors of a page (newest-first per monitor). TLS
+ * incidents are excluded as cert expiry is not downtime.
+ */
+export async function getIncidentSegmentsForMonitors(
+  checkIds: string[],
+  siteId: string,
+  days: number,
+  limitPerMonitor: number,
+): Promise<Map<string, MonitorIncidentSegment[]>> {
+  if (!checkIds.length) return new Map();
+
+  const query = safeSql`
+    SELECT
+      check_id,
+      state,
+      reason_code,
+      started_at,
+      resolved_at,
+      last_event_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND started_at >= now() - INTERVAL {days:Int32} DAY
+    ORDER BY check_id, started_at DESC
+    LIMIT {limit:UInt32} BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, days, limit: limitPerMonitor },
+    })
+    .toPromise()) as (IncidentSegmentRow & { check_id: string })[];
+
+  return groupByKey(rows, (row) => row.check_id, parseIncidentSegmentRow);
+}
+
+
+/**
+ * Detected outages to suggest as incidents: ongoing ones, plus recently-recovered ones (within
+ * `resolvedMaxAgeDays`) so a finished outage can still be documented after the fact. TLS incidents
+ * are excluded (cert expiry is not downtime).
+ */
+export async function getDetectedOutagesForMonitors(
+  checkIds: string[],
+  siteId: string,
+  days: number,
+  resolvedMaxAgeDays: number,
+  limit: number,
+): Promise<DetectedOutageRow[]> {
+  if (!checkIds.length) return [];
+
+  const query = safeSql`
+    SELECT
+      toString(incident_id) AS incident_id,
+      check_id,
+      state,
+      severity,
+      reason_code,
+      started_at,
+      resolved_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND (state = 'ongoing' OR resolved_at >= now() - INTERVAL {resolved_max_age_days:Int32} DAY)
+      AND started_at >= now() - INTERVAL {days:Int32} DAY
+    ORDER BY started_at DESC
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        check_ids: checkIds,
+        site_id: siteId,
+        days,
+        resolved_max_age_days: resolvedMaxAgeDays,
+        limit,
+      },
+    })
+    .toPromise()) as {
+    incident_id: string;
+    check_id: string;
+    state: string;
+    severity: string;
+    reason_code: string;
+    started_at: string;
+    resolved_at: string | null;
+  }[];
 
   return rows.map((row) =>
-    MonitorIncidentSegmentSchema.parse({
-      state: row.state,
-      reason: row.reason_code,
-      start: toIsoUtc(row.started_at) ?? row.started_at,
-      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs:
-        row.started_at && (row.resolved_at || row.last_event_at)
-          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
-          : null,
+    DetectedOutageRowSchema.parse({
+      detectedIncidentId: row.incident_id,
+      monitorCheckId: row.check_id,
+      reasonCode: row.reason_code,
+      ongoing: row.state === 'ongoing',
+      startedAt: toIsoUtc(row.started_at) ?? row.started_at,
+      resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+      severity: row.severity,
     }),
   );
 }
@@ -456,7 +721,13 @@ export async function getLatestCheckInfoForMonitors(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as {
+    check_id: string;
+    ts: string;
+    status: string;
+    effective_interval_seconds: number | null;
+    backoff_level: number | null;
+  }[];
 
   return rows.reduce<Record<string, LatestCheckInfo>>((acc, row) => {
     acc[row.check_id] = LatestCheckInfoSchema.parse({
@@ -487,7 +758,7 @@ export async function getLatency24h(checkId: string, siteId: string): Promise<Mo
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { avg_ms: number | null; min_ms: number | null; max_ms: number | null }[];
 
   return MonitorLatencyStatsSchema.parse({
     avgMs: row?.avg_ms ?? null,
@@ -517,7 +788,7 @@ export async function getLatencySeries24h(checkId: string, siteId: string): Prom
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { bucket: string; p50_ms: number | null; p95_ms: number | null; avg_ms: number | null }[];
 
   return rows.map((row) =>
     MonitorLatencyPointSchema.parse({
@@ -542,7 +813,7 @@ export async function getIncidentCount24h(checkId: string, siteId: string): Prom
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as { count: number }[];
 
   return row?.count ?? 0;
 }
@@ -567,18 +838,7 @@ export async function getIncidentSegments24h(checkId: string, siteId: string): P
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as any[];
+    .toPromise()) as IncidentSegmentRow[];
 
-  return rows.map((row) =>
-    MonitorIncidentSegmentSchema.parse({
-      state: row.state,
-      reason: row.reason_code,
-      start: toIsoUtc(row.started_at) ?? row.started_at,
-      end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs:
-        row.started_at && (row.resolved_at || row.last_event_at)
-          ? new Date(row.resolved_at ?? row.last_event_at).getTime() - new Date(row.started_at).getTime()
-          : null,
-    }),
-  );
+  return rows.map(parseIncidentSegmentRow);
 }

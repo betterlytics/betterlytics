@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
-import { CreateMonitorDialog } from './CreateMonitorDialog';
+import { CreateMonitorButton } from './CreateMonitorButton';
 import { Card } from '@/components/ui/card';
 import { LiveIndicator } from '@/components/live-indicator';
 import { RefreshCcw } from 'lucide-react';
@@ -107,7 +107,7 @@ export function MonitoringEmptyState({ dashboardId, domain }: MonitoringEmptySta
         <div className='flex justify-center'>
           <PermissionGate>
             {(disabled) => (
-              <CreateMonitorDialog
+              <CreateMonitorButton
                 dashboardId={dashboardId}
                 domain={domain}
                 disabled={disabled}
