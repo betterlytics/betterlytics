@@ -84,8 +84,8 @@ const CATEGORIES = [
     features: [
       { id: 'coreWebVitals', icon: Gauge },
       { id: 'uptimeMonitoring', icon: MonitorCheck },
-      { id: 'sslMonitoring', icon: ShieldCheck },
       { id: 'statusPages', icon: Radio },
+      { id: 'sslMonitoring', icon: ShieldCheck },
       { id: 'notificationIntegrations', icon: Bell },
     ],
   },
