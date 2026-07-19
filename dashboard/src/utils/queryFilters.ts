@@ -1,4 +1,4 @@
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { isNonEmptyValue, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { stableStringify } from './stableStringify';
 
 /**
@@ -12,5 +12,5 @@ export function isQueryFiltersEqual(a: QueryFilter, b: QueryFilter) {
  * Filters out empty query filters
  */
 export function filterEmptyQueryFilters(filters: QueryFilter[]) {
-  return filters.filter((filter) => filter.values.filter((value) => value !== '').length > 0);
+  return filters.filter((filter) => filter.values.some(isNonEmptyValue));
 }

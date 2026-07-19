@@ -12,6 +12,16 @@ This guide walks you through deploying Betterlytics on your own infrastructure u
 
 All self-hosting files and configuration live in the [betterlytics-selfhost](https://github.com/betterlytics/betterlytics-selfhost) repository.
 
+## Feature Availability
+
+Betterlytics Cloud always runs the latest version, and new features launch there first. The self-hosted image is updated periodically from our stable releases, so it can temporarily lag behind what you see on Cloud or elsewhere in these docs.
+
+A few features also depend on additional infrastructure and are not yet supported when self-hosting. For example, Session Replay requires S3-compatible object storage.
+
+<Callout type="info">
+Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status. Getting the newest features is as simple as [updating your instance](#updating) when a new image is released.
+</Callout>
+
 ## Requirements
 
 - **Docker** and **Docker Compose** installed on your server
@@ -170,7 +180,7 @@ Your Account ID is displayed at the top of the MaxMind account portal.
 | Variable | Default | Behavior |
 |----------|---------|----------|
 | `ENABLE_GEOLOCATION` | `false` | Master switch for geolocation. When disabled, no geo data is collected |
-| `GEOLOCATION_MODE` | `country` | `country` — country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
+| `GEOLOCATION_MODE` | `country` | `country`: country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
 
 ### 4. Restart
 
@@ -184,7 +194,7 @@ When geolocation is enabled, the GeoLite2 database is downloaded automatically a
 
 ### City & Subdivision Data
 
-When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both subdivision (state/province/region) and city data are extracted from the MaxMind GeoLite2-City database — the same database used for country lookups, just a larger version (~61 MB vs ~9 MB).
+When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both subdivision (state/province/region) and city data are extracted from the MaxMind GeoLite2-City database. This is the same database used for country lookups, just a larger version (~61 MB vs ~9 MB).
 
 <Callout type="warning">
 **Forward-only data:** Enabling subdivisions mode only populates city and subdivision data for **new events** going forward. Existing events recorded before enabling this mode will only have country-level data. There is no way to backfill since IP addresses are never stored.
@@ -199,6 +209,8 @@ To update your self-hosted instance to the latest version:
 docker compose pull
 docker compose up -d
 ```
+
+You can follow new releases on [GitHub](https://github.com/betterlytics/betterlytics/releases).
 
 ## Troubleshooting
 

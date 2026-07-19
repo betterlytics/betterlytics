@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { QueryFilterSchema } from './filter.entities';
+import { isNonEmptyValue, QueryFilterSchema } from './filter.entities';
 
 export const FunnelStepSchema = z.object({
   id: z.string(),
@@ -39,7 +39,7 @@ export const CreateFunnelSchema = z.object({
           .array(CreateFunnelFilterSchema)
           .transform((filters) =>
             filters
-              .map((filter) => ({ ...filter, values: filter.values.filter(Boolean) }))
+              .map((filter) => ({ ...filter, values: filter.values.filter(isNonEmptyValue) }))
               .filter((filter) => filter.values.length > 0),
           )
           .pipe(z.array(CreateFunnelFilterSchema).min(1, 'At least one filter with a value is required')),

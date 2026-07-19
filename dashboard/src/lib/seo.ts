@@ -166,6 +166,8 @@ export async function generateStructuredData(config: SEOConfig) {
           'Privacy-First Analytics',
           'GDPR Compliance',
           'Cookieless Tracking',
+          'Uptime Monitoring',
+          'Status Pages',
           'Open Source Software',
         ],
       };

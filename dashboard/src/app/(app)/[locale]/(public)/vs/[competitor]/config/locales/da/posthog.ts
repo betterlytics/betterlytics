@@ -77,6 +77,7 @@ export const posthog: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: true },
           { name: 'Core Web Vitals', betterlytics: true, competitor: true },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Offentlige statussider', betterlytics: true, competitor: false },
           { name: 'Feature flags', betterlytics: false, competitor: true },
           { name: 'A/B testing', betterlytics: false, competitor: true },
           { name: 'Surveys (NPS/CSAT)', betterlytics: false, competitor: true },

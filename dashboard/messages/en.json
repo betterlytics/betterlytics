@@ -935,7 +935,6 @@
           "Betterlytics"
         ]
       },
-
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
         "description": "Simple, powerful analytics that respect privacy. <br></br>Cookieless, GDPR-ready, and no cookie banners required.",
@@ -1006,17 +1005,29 @@
           "script": {
             "title": "Simple Script Tag",
             "description": "Add one line to your HTML and start tracking immediately. Works with any website or CMS.",
-            "features": { "f1": "One-line installation", "f2": "Works anywhere", "f3": "No build process needed" }
+            "features": {
+              "f1": "One-line installation",
+              "f2": "Works anywhere",
+              "f3": "No build process needed"
+            }
           },
           "framework": {
             "title": "Framework Ready",
             "description": "Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework components", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework components",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-Hosted Option",
             "description": "Deploy on your own infrastructure with Docker for complete data ownership and control.",
-            "features": { "f1": "Docker deployment", "f2": "Complete control", "f3": "GDPR compliant" }
+            "features": {
+              "f1": "Docker deployment",
+              "f2": "Complete control",
+              "f3": "GDPR compliant"
+            }
           }
         },
         "guideButton": "View Integration Guide",
@@ -1103,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Uptime Monitoring",
-          "description": "Get alerts when your site goes down, plus automatic SSL certificate monitoring.",
+          "description": "Get alerts when your site goes down, with SSL certificate monitoring and public status pages you can host on your own domain.",
           "alertDown": "{site} is down",
           "alertSent": "Alert sent to {email}",
           "incidentDetected": "{count, plural, one {{count} incident detected} other {{count} incidents detected}}",
@@ -1125,6 +1136,8 @@
           "Conversion Funnels",
           "Session Replay",
           "Custom Events",
+          "Uptime Monitoring",
+          "Public Status Pages",
           "Web Analytics Features"
         ]
       },
@@ -1240,6 +1253,10 @@
           "title": "SSL Certificate Monitoring",
           "description": "Monitor SSL certificate status to avoid expired or insecure connections."
         },
+        "statusPages": {
+          "title": "Public Status Pages",
+          "description": "Share live uptime and incident history with your users on a branded status page you can host on your own domain."
+        },
         "notificationIntegrations": {
           "title": "Notification Integrations",
           "description": "Get alerted via Slack, Discord, Microsoft Teams, webhooks, and more when something needs your attention."
@@ -1349,6 +1366,7 @@
       "documentation": "Documentation",
       "changelog": "Changelog",
       "pricing": "Pricing",
+      "status": "Status",
       "features": "Features",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1415,11 +1433,11 @@
       "funnelsJourneys": "Funnels & user journeys",
       "sessionReplay": "Session replay",
       "errorTracking": "Error tracking",
-      "uptime1": "1 uptime monitor",
+      "uptime1": "1 uptime monitor & public status page",
       "uptime50": "50 uptime monitors with 1-minute checks",
-      "uptimeUnlimited": "Unlimited uptime monitors",
+      "uptimeUnlimited": "Unlimited uptime monitors & status pages",
+      "statusPagesPro": "White-label status pages on your own domain",
       "emailReports": "Scheduled email reports",
-      "customHttp": "Advanced uptime checks (custom HTTP methods, headers & status codes)",
       "dedicatedSupport": "Dedicated support",
       "slaGuarantee": "SLA guarantee",
       "everythingInStarter": "Everything in Growth, plus:",
@@ -1543,6 +1561,20 @@
       "notificationIntegrations": {
         "name": "Notification integrations (Slack, Discord, etc.)"
       },
+      "statusPages": {
+        "name": "Public status pages",
+        "values": {
+          "1": "1 status page",
+          "3": "3 status pages",
+          "unlimited": "Unlimited status pages"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Status page custom domain"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label status pages"
+      },
       "emailSupport": {
         "name": "Email support"
       },
@@ -1594,6 +1626,7 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Session Replay",
       "monitoring": "Monitoring",
+      "statusPages": "Status Pages",
       "categories": {
         "analytics": "Analytics",
         "behavior": "Behavior",
@@ -3226,6 +3259,17 @@
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
+    "statusPageSlugTaken": "This URL slug is already in use",
+    "statusPageDomainTaken": "This domain is already in use on another status page",
+    "statusPageDomainReserved": "This domain is reserved",
+    "statusPageIncidentLimit": "This status page has reached its incident limit",
+    "statusPageIncidentUpdateLimit": "This incident has reached its update limit",
+    "statusPageIncidentUpdateLast": "An incident must keep at least one update",
+    "statusPageIncidentInvalidMonitor": "One of the affected monitors isn't on this status page",
+    "statusPageImageInvalid": "That file could not be read as an image",
+    "statusPageImageTooLarge": "The image is too large",
+    "statusPageImageBadType": "The image must be a PNG, JPEG or WebP image",
+    "statusPageImageSvgUnsafe": "The SVG file contains unsupported or unsafe content",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
@@ -3233,7 +3277,10 @@
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
       "customHeaders": "Custom request headers require a Professional plan",
-      "keywordValidation": "Keyword validation requires a Professional plan"
+      "keywordValidation": "Keyword validation requires a Professional plan",
+      "statusPageLimit": "You have reached your status page limit. Upgrade to Pro to create more status pages.",
+      "statusPageCustomDomain": "Custom domains require a Professional plan",
+      "statusPageBranding": "Removing Betterlytics branding requires a Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
@@ -3724,10 +3771,10 @@
       "userKeyPlaceholder": "Your Pushover user key",
       "priorityLabel": "Notification Priority",
       "priorities": {
-        "-2": "Lowest: No notification",
-        "-1": "Low: No sound or vibration",
         "0": "Normal (Recommended)",
-        "1": "High: Bypass quiet hours"
+        "1": "High: Bypass quiet hours",
+        "-2": "Lowest: No notification",
+        "-1": "Low: No sound or vibration"
       },
       "credentialsHint": "Find your user key at <link>pushover.net</link>",
       "priorityHint": "Learn more about priority levels <link>here</link>.",
@@ -3898,5 +3945,393 @@
         "errorCount": "{count, plural, one {# error} other {# errors}}"
       }
     }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "All systems operational",
+      "degraded": "Degraded performance",
+      "partial_outage": "Some systems are down",
+      "outage": "Major outage",
+      "unknown": "Status unavailable"
+    },
+    "meta": {
+      "description": "Latest uptime status for {name}"
+    },
+    "statusNote": {
+      "degraded": "Some services are slower than usual"
+    },
+    "lastUpdated": "Last updated on {date}",
+    "lastUpdatedInline": "last updated on {date}",
+    "uptimeValue": "{uptime} uptime",
+    "noData": "No data",
+    "monitorStatus": {
+      "operational": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "No data"
+    },
+    "uptimeWindow": {
+      "start": "{days} days ago",
+      "today": "Today"
+    },
+    "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
+    "activeIncidents": "Active incidents",
+    "pastIncidents": "Past incidents",
+    "showPastIncidents": "Show past incidents",
+    "hidePastIncidents": "Hide past incidents",
+    "noPastIncidents": "No past incidents in the last {days} days.",
+    "incident": {
+      "resolved": "Resolved after {duration}",
+      "ongoing": "Ongoing for {duration}, since {time}",
+      "showMore": "Show {count} earlier {count, plural, one {update} other {updates}}",
+      "showLess": "Hide earlier updates",
+      "descriptionMore": "Read more",
+      "descriptionLess": "Show less",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "impact": {
+        "degraded": "Degraded",
+        "partial_outage": "Partial Outage",
+        "outage": "Major Outage"
+      },
+      "status": {
+        "investigating": "Investigating",
+        "identified": "Identified",
+        "monitoring": "Monitoring",
+        "resolved": "Resolved"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minute} other {# minutes}}",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "days": "{count, plural, one {# day} other {# days}}"
+    },
+    "poweredBy": "Powered by"
+  },
+  "statusPagesPage": {
+    "title": "Status Pages",
+    "newStatusPage": "New status page",
+    "upgradeToCreate": "Upgrade to add more",
+    "error": "Something went wrong",
+    "empty": {
+      "title": "No status pages yet",
+      "description": "Pick which monitors to show, add your logo and colors, and share a public page your users can check during incidents.",
+      "cta": "Create your first status page"
+    },
+    "badge": {
+      "public": "Public",
+      "draft": "Draft"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitors}}",
+    "actions": {
+      "copyLink": "Copy link",
+      "viewPage": "View page",
+      "more": "More actions",
+      "linkCopied": "Link copied to clipboard",
+      "openPublicPage": "Open public page",
+      "editPage": "Edit page",
+      "manageIncidents": "Manage incidents",
+      "settings": "Settings",
+      "copyUrl": "Copy public URL",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "publishedToast": "Status page published",
+      "unpublishedToast": "Status page taken offline",
+      "publishConfirmTitle": "Publish status page?",
+      "publishConfirmDescription": "It will become publicly accessible at its URL.",
+      "unpublishConfirmTitle": "Unpublish status page?",
+      "unpublishConfirmDescription": "It will be taken offline and visitors will no longer be able to access it."
+    },
+    "editor": {
+      "back": "Status Pages",
+      "save": "Save changes",
+      "discard": "Discard changes",
+      "confirmLeave": {
+        "title": "Leave with unsaved changes?",
+        "description": "You've made changes that haven't been saved. If you leave now, they'll be lost.",
+        "stay": "Keep editing",
+        "leave": "Leave"
+      },
+      "statusPublished": "Published",
+      "statusDraft": "Draft",
+      "viewPage": "View page",
+      "copyUrl": "Copy URL",
+      "publish": "Publish status page",
+      "unpublish": "Unpublish",
+      "saved": "Status page saved",
+      "unpublished": "Status page unpublished",
+      "publishSuccess": {
+        "title": "Your status page is live",
+        "copy": "Copy link",
+        "copied": "Link copied to clipboard",
+        "view": "View page"
+      },
+      "deleted": "Status page deleted",
+      "error": "Something went wrong",
+      "delete": "Delete status page",
+      "deleteConfirmTitle": "Delete this status page?",
+      "deleteConfirmDescription": "The public page stops working immediately. This cannot be undone.",
+      "deleteConfirm": "Delete",
+      "cancel": "Cancel",
+      "pageName": "Page name",
+      "nameRequired": "Page name is required.",
+      "editPage": "Edit page",
+      "unsavedChanges": "Unsaved changes",
+      "publishNeedsSave": "Save your changes before publishing.",
+      "confirmPublish": {
+        "title": "Publish these changes?",
+        "description": "Your edits will appear on the public status page right away.",
+        "confirm": "Publish changes"
+      },
+      "publicUrl": "Public URL",
+      "publicUrlHint": "The web address where your status page is published.",
+      "slugStatus": {
+        "checking": "Checking…",
+        "available": "Available",
+        "taken": "Already taken",
+        "invalid": "Invalid slug"
+      },
+      "homepageUrl": "Homepage URL",
+      "homepageUrlHint": "Where the logo and page title link to.",
+      "customDomain": "Custom domain",
+      "customDomainHint": "Host the page on your own domain.",
+      "hideBranding": "Hide Betterlytics branding",
+      "hideBrandingHint": "Remove the \"Powered by Betterlytics\" footer from your public page.",
+      "homepageUrlInvalid": "Enter a valid URL starting with http:// or https://.",
+      "customDomainInvalid": "Enter a subdomain, e.g. status.example.com.",
+      "customDomainSetup": {
+        "intro": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at Betterlytics.",
+        "recordType": "Type",
+        "recordName": "Name",
+        "recordValue": "Value",
+        "copy": "Copy value",
+        "copied": "Value copied",
+        "nameHint": "Some providers add your domain automatically. If so, enter just <mono>{label}</mono> as the Name instead of the full <monoBreak>{domain}</monoBreak>.",
+        "propagation": "DNS changes can take up to a few hours to take effect."
+      },
+      "visibility": {
+        "title": "Search engine visibility",
+        "public": "Public",
+        "publicHint": "Anyone with the link can view. Indexed by search engines.",
+        "unlisted": "Unlisted",
+        "unlistedHint": "Anyone with the link can view, but hidden from search engines."
+      },
+      "dangerZone": {
+        "title": "Danger zone",
+        "unpublishDescription": "Take the page offline. Visitors won't be able to reach it, but you can publish again anytime.",
+        "deleteDescription": "Permanently delete this status page and its incident history. This can't be undone."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Upload logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Upload favicon",
+      "replaceImage": "Replace",
+      "removeImage": "Remove",
+      "imageTooLarge": "That image is too large. Please choose a smaller file.",
+      "svgUnsafe": "That SVG contains unsupported or unsafe content. Try a plain vector export.",
+      "accentColor": "Accent color",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "showPastIncidents": "Show past incidents",
+      "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
+      "minMonitorsHint": "Add at least one monitor to save changes.",
+      "publicNamePlaceholder": "Public display name",
+      "reorderMonitor": "Reorder monitor",
+      "preview": "Live preview",
+      "enlargePreview": "Enlarge preview",
+      "loadingPreview": "Loading preview…",
+      "tabs": {
+        "incidents": "Incidents",
+        "settings": "Settings"
+      },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitors",
+          "branding": "Branding",
+          "publish": "Publish"
+        },
+        "tabIssue": "Needs attention",
+        "draft": "Draft",
+        "publicNamesHint": "Renaming here only changes what visitors see. Your monitor keeps its internal name.",
+        "pageNameHint": "Used in the browser tab and link previews. A logo replaces it in the page header.",
+        "themeHint": "The theme visitors see. System follows each visitor's device setting.",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomFit": "Fit to screen",
+        "desktopPreview": "Desktop preview",
+        "mobilePreview": "Mobile preview",
+        "customDomainLater": "Want to host this page on your own domain, like status.{domain}? Connect it from your page settings once the page is created.",
+        "discardEdits": {
+          "title": "Discard your edits?",
+          "description": "Changes made in the editor will be reverted to the last saved state.",
+          "keep": "Keep editing",
+          "discard": "Discard"
+        }
+      },
+      "wizard": {
+        "title": "New status page",
+        "close": "Close",
+        "loading": "Loading editor…",
+        "saveDraft": "Save as draft",
+        "monitorsHeading": "Monitors on this page",
+        "searchMonitors": "Search monitors",
+        "noSearchResults": "No monitors match your search.",
+        "noMonitorsTitle": "No monitors yet",
+        "noMonitors": "Create your first monitor to start tracking uptime, then add it to this page.",
+        "noMonitorYet": "Don't see one?",
+        "createMonitor": "Create a monitor",
+        "addMonitor": "Add monitor",
+        "allOnPage": "All monitors are on the page.",
+        "addAll": "Add all ({count})",
+        "removeFromPage": "Remove from page",
+        "shownCount": "{selected} of {total} shown",
+        "minMonitors": "Add at least one monitor to continue.",
+        "emptyPageTitle": "Add monitors to this status page",
+        "emptyPageHint": "Their status and uptime will appear on your public page.",
+        "confirmDiscard": {
+          "title": "Discard this status page?",
+          "description": "You've made changes that will be lost if you close now. Nothing has been saved yet.",
+          "keep": "Keep editing",
+          "discard": "Discard"
+        }
+      },
+      "incidents": {
+        "title": "Incidents",
+        "activeIncidents": "Active incidents",
+        "pastIncidents": "Past incidents",
+        "filters": {
+          "search": "Search incidents",
+          "state": "State",
+          "stateAll": "All states",
+          "stateActive": "Active",
+          "stateResolved": "Resolved",
+          "noMatch": "No incidents match your filters."
+        },
+        "autoDetected": "Auto-detected",
+        "affectedMore": "+{count} more",
+        "detectedPanelTitle": "{count, plural, one {# detected outage to review} other {# detected outages to review}}",
+        "detectedGroupMulti": "Outage across {count} monitors",
+        "hint": "Write and publish incidents. Detected outages are suggested below. Nothing goes public until you publish it.",
+        "newIncident": "New incident",
+        "editIncident": "Edit incident",
+        "formHint": "Visitors see this on your public status page once published.",
+        "createFromSuggestion": "Create incident",
+        "suggestedTitle": "{monitor} outage",
+        "suggestedTitleMulti": "Outage affecting {count} services",
+        "noIncidents": "No incidents yet.",
+        "emptyHint": "When something breaks, post an incident here to keep your visitors in the loop.",
+        "suggestionsHint": "Auto-detected from your monitors. Review and publish to make them public.",
+        "unspecified": "Unspecified",
+        "ongoingFor": "Ongoing for {duration}",
+        "lasted": "Lasted {duration}",
+        "draft": "Draft",
+        "edit": "Edit",
+        "delete": "Delete",
+        "actions": "Actions",
+        "table": {
+          "incident": "Incident",
+          "status": "Status",
+          "impact": "Impact",
+          "affected": "Affected",
+          "started": "Started",
+          "duration": "Duration"
+        },
+        "suggestionsTable": {
+          "outage": "Outage",
+          "monitors": "Monitors",
+          "detected": "Detected",
+          "duration": "Duration",
+          "status": "Status",
+          "ongoing": "Ongoing",
+          "resolved": "Resolved"
+        },
+        "saved": "Incident saved",
+        "deleted": "Incident deleted",
+        "error": "Something went wrong",
+        "impact": {
+          "degraded": "Degraded",
+          "partial_outage": "Partial Outage",
+          "outage": "Major Outage"
+        },
+        "status": {
+          "investigating": "Investigating",
+          "identified": "Identified",
+          "monitoring": "Monitoring",
+          "resolved": "Resolved"
+        },
+        "form": {
+          "title": "Title",
+          "titleRequired": "Title is required",
+          "description": "Description",
+          "descriptionPlaceholder": "e.g. Some users may see errors at checkout — we’re investigating",
+          "optional": "(optional)",
+          "timelineRequired": "Add at least one timeline entry",
+          "detailsSection": "Incident details",
+          "impact": "Impact",
+          "monitor": "Affected monitors",
+          "monitorNotSpecified": "Page-wide (no specific monitors)",
+          "monitorAllToken": "All monitors",
+          "monitorSearchPlaceholder": "Search monitors",
+          "monitorNoMatch": "No monitors found",
+          "monitorRemove": "Remove {monitor}",
+          "monitorCountSelected": "{selected} of {total} selected",
+          "monitorSelectAll": "Select all",
+          "monitorClear": "Clear",
+          "monitorSummaryPageWide": "Page-wide, all {count, plural, one {# monitor} other {# monitors}}",
+          "monitorSummaryScoped": "{count} of {total} monitors affected",
+          "cancel": "Cancel",
+          "publishCta": "Publish",
+          "updatePublic": "Update public page",
+          "unsaved": "Unsaved changes",
+          "deleteIncident": "Delete incident"
+        },
+        "composer": {
+          "section": "Add a timeline entry",
+          "sectionHelp": "The most recent entry sets the incident’s status.",
+          "statusLabel": "Status",
+          "messagePlaceholder": "What’s the latest? (optional)",
+          "time": "Time"
+        },
+        "timeline": {
+          "title": "Timeline",
+          "today": "Today",
+          "yesterday": "Yesterday",
+          "addUpdate": "Add",
+          "pendingLabel": "Not saved yet",
+          "empty": "No timeline entries yet.",
+          "editMessage": "Edit message",
+          "deleteUpdate": "Delete update",
+          "done": "Done",
+          "removePending": "Remove update"
+        },
+        "discard": {
+          "title": "Discard changes?",
+          "description": "You have unsaved changes. If you close now, they will be lost.",
+          "keep": "Keep editing",
+          "confirm": "Discard"
+        }
+      },
+      "publicAddress": "Public address"
+    },
+    "table": {
+      "statusPage": "Status page",
+      "visibility": "Visibility",
+      "monitors": "Monitors",
+      "status": "Status"
+    },
+    "status": {
+      "operational": "Operational",
+      "ongoingIncident": "Ongoing incident"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# status page has an active incident} other {# status pages have active incidents}}",
+      "viewIncidents": "View incidents"
+    },
+    "monitorsEmpty": "No monitors",
+    "monitorsUp": "up"
   }
 }

@@ -1,5 +1,61 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v145ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Pagine di stato pubbliche',
+    summary:
+      "Condividi il tuo uptime con il mondo. Crea una pagina di stato pubblica con il tuo brand, basata sui tuoi monitor uptime, con storico dell'uptime, comunicazione degli incidenti e supporto per il tuo dominio personalizzato.",
+  },
+  sections: [
+    {
+      id: 'v145-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'text',
+          body: "Ora puoi creare pagine di stato pubbliche. Costruita direttamente sui tuoi monitor uptime, una pagina di stato offre ai tuoi utenti una vista sempre aggiornata dei tuoi servizi: stato attuale, storico dell'uptime per ogni monitor e cronologia degli incidenti.",
+        },
+        {
+          type: 'list',
+          items: [
+            "Progetta la tua pagina con un'anteprima live: scegli quali monitor mostrare e in che ordine, e assegna a ciascuno un nome pubblico.",
+            'Personalizzala con il tuo logo, la favicon, il colore principale e il tema.',
+            'Pubblicala su un URL Betterlytics a tua scelta o direttamente sul tuo dominio personalizzato.',
+            "Tieni informati i tuoi utenti durante i disservizi con aggiornamenti sugli incidenti e ricevi proposte di incidente quando i tuoi monitor rilevano un'interruzione.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I passaggi dei funnel ora evidenziano i filtri con valori vuoti, rendendo più facile individuare e correggere i passaggi incompleti.',
+            'La documentazione è stata rinnovata con una struttura riorganizzata, una FAQ ampliata e nuove guide per le pagine di stato e i domini personalizzati.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v145-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Corretti alcuni link non funzionanti alla documentazione nella pagina degli errori e nelle FAQ.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v144ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.4',
@@ -65,9 +121,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v144ChangelogEntryIt;
+export const latestChangelogModalIt = v145ChangelogEntryIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v145ChangelogEntryIt,
   v144ChangelogEntryIt,
   {
     metadata: {
@@ -213,7 +270,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Il tempo sulla pagina ora si basa sul tempo attivo invece che sul tempo cronologico, così le metriche di durata riflettono meglio quanto a lungo i visitatori hanno davvero interagito con una pagina.',
-              'L\'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all\'altra.',
+              "L'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all'altra.",
               'I report Pagine di ingresso e Pagine di uscita ora si concentrano sulle metriche più adatte a quelle viste. La profondità di scorrimento è stata rimossa da entrambe le schede, e la frequenza di rimbalzo è stata rimossa anche da Pagine di uscita.',
             ],
           },
@@ -264,7 +321,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Le dashboard ora si caricano in modo significativamente più rapido, con i miglioramenti più evidenti sui siti ad alto traffico e sugli intervalli di tempo più lunghi.',
-              'Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell\'intera pagina.',
+              "Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell'intera pagina.",
             ],
           },
         ],
@@ -299,8 +356,8 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
           {
             type: 'list',
             items: [
-              'L\'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.',
-              'Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l\'utente prima dell\'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.',
+              "L'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.",
+              "Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l'utente prima dell'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.",
               'Gli errori sono completamente accessibili tramite il server MCP, così i tuoi assistenti AI possono interrogare i dati sugli errori e aiutarti a capire e risolvere la causa di ciascun errore.',
             ],
           },
@@ -385,7 +442,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Le sorgenti referrer nella tabella panoramica sono ora espandibili, permettendoti di vedere subito il dettaglio dietro ogni fonte di traffico.',
-              'Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un\'unica fonte.',
+              "Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un'unica fonte.",
               'I numeri in tutta la dashboard sono ora formattati in modo coerente in base alla tua lingua e regione.',
             ],
           },

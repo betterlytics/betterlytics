@@ -13,7 +13,10 @@ import { docsTrackingEnabled, env } from "@/lib/env";
 import Logo from "./components/logo";
 
 export const metadata: Metadata = {
-  title: "Betterlytics Docs",
+  title: {
+    default: "Betterlytics Docs",
+    template: "%s - Betterlytics Docs",
+  },
   description:
     "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
   metadataBase: new URL("https://betterlytics.io"),
@@ -127,7 +130,6 @@ export default async function RootLayout({
         )}
         <Layout
           navbar={navbar}
-          sidebar={{ autoCollapse: true }}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/betterlytics/betterlytics/tree/main/docs"
           editLink={null}

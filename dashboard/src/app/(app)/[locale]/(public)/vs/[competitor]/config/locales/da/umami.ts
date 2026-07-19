@@ -79,6 +79,7 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performanceovervågning', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervågning', betterlytics: true, competitor: false },
+          { name: 'Offentlige statussider', betterlytics: true, competitor: false },
           { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },

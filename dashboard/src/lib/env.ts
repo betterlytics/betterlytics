@@ -30,10 +30,13 @@ const appEnvSchema = z.object({
   TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_UPTIME_MONITORING: zStringBoolean,
+  ENABLE_PUBLIC_STATUS_PAGES: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,
   DEMO_DASHBOARD_ID: z.string().optional(),
+  STATUS_PAGE_DOMAIN: z.string().optional().default('status.betterlytics.io'),
+  STATUS_PAGE_ASK_SECRET: z.string().optional().default(''),
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()
@@ -65,10 +68,32 @@ const appEnvSchema = z.object({
     .string()
     .optional()
     .default('')
-    .transform((val) => new Set(val.split(',').map((id) => id.trim()).filter(Boolean))),
+    .transform(
+      (val) =>
+        new Set(
+          val
+            .split(',')
+            .map((id) => id.trim())
+            .filter(Boolean),
+        ),
+    ),
 });
 
-const envSchema = sharedEmailEnvSchema.merge(appEnvSchema);
+const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx) => {
+  // Validate Caddy ask secret for on-demand-TLS ask endpoint if status page is enabled
+  if (
+    !env.IS_DEVELOPMENT &&
+    env.ENABLE_UPTIME_MONITORING &&
+    env.ENABLE_PUBLIC_STATUS_PAGES &&
+    !env.STATUS_PAGE_ASK_SECRET
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'ENABLE_PUBLIC_STATUS_PAGES=true requires STATUS_PAGE_ASK_SECRET to be set in production',
+      path: ['STATUS_PAGE_ASK_SECRET'],
+    });
+  }
+});
 
 export const env = envSchema.parse(process.env);
 

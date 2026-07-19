@@ -77,6 +77,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: 'Med tillegg' },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
+          { name: 'Offentlige statussider', betterlytics: true, competitor: false },
           { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: 'Med plugins' },
         ],
       },

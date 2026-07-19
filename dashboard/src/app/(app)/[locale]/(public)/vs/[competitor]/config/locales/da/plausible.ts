@@ -76,6 +76,7 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Offentlige statussider', betterlytics: true, competitor: false },
           { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: false },
         ],
       },

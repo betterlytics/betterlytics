@@ -13,6 +13,7 @@ import {
   Video,
   Activity,
   AlertTriangle,
+  Radio,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -119,6 +120,13 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       icon: <Activity size={ICON_SIZE} />,
       hidden: !isFeatureEnabled('enableUptimeMonitoring'),
     },
+    {
+      name: t('statusPages'),
+      key: 'statusPages',
+      href: '/status-pages',
+      icon: <Radio size={ICON_SIZE} />,
+      hidden: !isFeatureEnabled('enablePublicStatusPages'),
+    },
   ];
 
   return (
@@ -209,7 +217,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'errors' && <Badge variant='outline'>Beta</Badge>}
+                      {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

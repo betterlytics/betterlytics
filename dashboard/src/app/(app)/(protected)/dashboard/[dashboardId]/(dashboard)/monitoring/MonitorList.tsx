@@ -6,11 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useLocale, useTranslations } from 'next-intl';
-import { formatIntervalLabel, formatSslTimeRemaining, safeHostname } from './utils';
+import { formatIntervalLabel, formatSslTimeRemaining } from './utils';
+import { safeHostname } from '@/utils/domainValidation';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { type MonitorUptimeBucket, type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
+import { type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
+import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import {
   presentMonitorStatus,
   presentUptimeTone,
@@ -69,7 +71,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
             : null;
 
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
-        const uptimePercent = hasData ? calculateUptimePercent(monitor.uptimeBuckets ?? []) : null;
+        const uptimePercent = hasData ? weightedUptimePercent(monitor.uptimeBuckets ?? []) : null;
         const percentLabel =
           uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
         const { theme } = presentUptimeTone(uptimePercent ?? null);
@@ -201,13 +203,6 @@ function SslStatusPill({
       <TooltipContent side='top'>{tooltipLabel}</TooltipContent>
     </Tooltip>
   );
-}
-
-function calculateUptimePercent(buckets: MonitorUptimeBucket[]): number | null {
-  const valid = buckets.filter((b) => b.upRatio != null);
-  if (valid.length === 0) return null;
-  const avg = valid.reduce((sum, b) => sum + (b.upRatio ?? 0), 0) / valid.length;
-  return avg * 100;
 }
 
 function IntervalDisplay({

@@ -42,3 +42,14 @@ export function normalizeUrl(url: string): string | null {
     return null;
   }
 }
+
+/**
+ * Compact display form of a monitor URL: normalized hostname + path without
+ * the protocol (e.g. "api.example.com/health"). Falls back to the raw input
+ * if the URL cannot be parsed.
+ */
+export function safeHostname(url: string): string {
+  const normalized = normalizeUrl(url);
+  if (!normalized) return url;
+  return normalized.replace(/^https?:\/\//, '').replace(/\/$/, '');
+}

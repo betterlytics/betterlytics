@@ -1014,12 +1014,20 @@
           "framework": {
             "title": "Klar til frameworks",
             "description": "Native support til React, Next.js, Vue og andre moderne frameworks med TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework-komponenter", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework-komponenter",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-hosted mulighed",
             "description": "Udrul på din egen infrastruktur med Docker for fuldt dataejerskab og kontrol.",
-            "features": { "f1": "Docker-udrulning", "f2": "Fuld kontrol", "f3": "GDPR-kompatibel" }
+            "features": {
+              "f1": "Docker-udrulning",
+              "f2": "Fuld kontrol",
+              "f3": "GDPR-kompatibel"
+            }
           }
         },
         "guideButton": "Se integrationsguide",
@@ -1106,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Oppetidsovervågning",
-          "description": "Få advarsler når dit site går ned, plus automatisk SSL-certifikatovervågning.",
+          "description": "Få advarsler når dit site går ned, med SSL-certifikatovervågning og offentlige statussider, som du kan hoste på dit eget domæne.",
           "alertDown": "{site} er nede",
           "alertSent": "Advarsel sendt til {email}",
           "incidentDetected": "{count, plural, one {{count} hændelse opdaget} other {{count} hændelser opdaget}}",
@@ -1128,6 +1136,8 @@
           "Konverteringsfunnels",
           "Session Replay",
           "Brugerdefinerede Events",
+          "Oppetidsovervågning",
+          "Offentlige Statussider",
           "Webanalysefunktioner"
         ]
       },
@@ -1243,6 +1253,10 @@
           "title": "SSL-certifikatovervågning",
           "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
         },
+        "statusPages": {
+          "title": "Offentlige statussider",
+          "description": "Del live oppetid og hændelseshistorik med dine brugere på en statusside med dit eget brand, som du kan hoste på dit eget domæne."
+        },
         "notificationIntegrations": {
           "title": "Notifikationsintegrationer",
           "description": "Bliv advaret via Slack, Discord, Microsoft Teams, webhooks og mere, når noget kræver din opmærksomhed."
@@ -1352,6 +1366,7 @@
       "documentation": "Dokumentation",
       "changelog": "Ændringslog",
       "pricing": "Priser",
+      "status": "Status",
       "features": "Funktioner",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1418,11 +1433,11 @@
       "funnelsJourneys": "Funnels og brugerrejser",
       "sessionReplay": "Session replay",
       "errorTracking": "Fejlsporing",
-      "uptime1": "1 uptime-monitor",
+      "uptime1": "1 uptime-monitor og offentlig statusside",
       "uptime50": "50 uptime-monitorer med 1-minuts tjek",
-      "uptimeUnlimited": "Ubegrænset antal uptime-monitorer",
+      "uptimeUnlimited": "Ubegrænset antal uptime-monitorer og statussider",
+      "statusPagesPro": "White-label statussider på dit eget domæne",
       "emailReports": "Planlagte e-mailrapporter",
-      "customHttp": "Avancerede uptime-tjek (tilpassede HTTP-metoder, headers og statuskoder)",
       "dedicatedSupport": "Dedikeret support",
       "slaGuarantee": "SLA-garanti",
       "everythingInStarter": "Alt i Growth, plus:",
@@ -1546,6 +1561,20 @@
       "notificationIntegrations": {
         "name": "Notifikationsintegrationer (Slack, Discord osv.)"
       },
+      "statusPages": {
+        "name": "Offentlige statussider",
+        "values": {
+          "1": "1 statusside",
+          "3": "3 statussider",
+          "unlimited": "Ubegrænsede statussider"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Eget domæne til statusside"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label statussider"
+      },
       "emailSupport": {
         "name": "E-mail support"
       },
@@ -1597,6 +1626,7 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Sessionsafspilninger",
       "monitoring": "Overvågning",
+      "statusPages": "Statussider",
       "categories": {
         "analytics": "Analyse",
         "behavior": "Adfærd",
@@ -3232,6 +3262,17 @@
     "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
+    "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
+    "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
+    "statusPageDomainReserved": "Dette domæne er reserveret",
+    "statusPageIncidentLimit": "Denne statusside har nået sin grænse for hændelser",
+    "statusPageIncidentUpdateLimit": "Denne hændelse har nået sin grænse for opdateringer",
+    "statusPageIncidentUpdateLast": "En hændelse skal have mindst én opdatering",
+    "statusPageIncidentInvalidMonitor": "En af de påvirkede monitorer er ikke på denne statusside",
+    "statusPageImageInvalid": "Filen kunne ikke læses som et billede",
+    "statusPageImageTooLarge": "Billedet er for stort",
+    "statusPageImageBadType": "Billedet skal være et PNG-, JPEG- eller WebP-billede",
+    "statusPageImageSvgUnsafe": "SVG-filen indeholder indhold, der ikke understøttes eller er usikkert",
     "capabilities": {
       "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til Pro for at oprette flere dashboards.",
       "monitorLimit": "Du har nået din monitor-grænse. Opgrader til Pro for at oprette flere monitorer.",
@@ -3239,7 +3280,10 @@
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
       "customHeaders": "Brugerdefinerede request headers kræver en Professional plan",
-      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan"
+      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan",
+      "statusPageLimit": "Du har nået din grænse for statussider. Opgrader til Pro for at oprette flere statussider.",
+      "statusPageCustomDomain": "Eget domæne kræver en Professional plan",
+      "statusPageBranding": "Fjernelse af Betterlytics-branding kræver en Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
@@ -3730,10 +3774,10 @@
       "userKeyPlaceholder": "Din Pushover user key",
       "priorityLabel": "Notifikationsprioritet",
       "priorities": {
-        "-2": "Lavest: Ingen notifikation",
-        "-1": "Lav: Ingen lyd eller vibration",
         "0": "Normal (anbefalet)",
-        "1": "Høj: Ignorer stille timer"
+        "1": "Høj: Ignorer stille timer",
+        "-2": "Lavest: Ingen notifikation",
+        "-1": "Lav: Ingen lyd eller vibration"
       },
       "credentialsHint": "Find din user key på <link>pushover.net</link>",
       "priorityHint": "Læs mere om prioritetsniveauer <link>her</link>.",
@@ -3904,5 +3948,393 @@
         "errorCount": "{count, plural, one {# fejl} other {# fejl}}"
       }
     }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "Alle systemer kører normalt",
+      "degraded": "Nedsat ydeevne",
+      "partial_outage": "Nogle systemer er nede",
+      "outage": "Større nedbrud",
+      "unknown": "Status utilgængelig"
+    },
+    "meta": {
+      "description": "Seneste driftsstatus for {name}"
+    },
+    "statusNote": {
+      "degraded": "Nogle tjenester er langsommere end normalt"
+    },
+    "lastUpdated": "Senest opdateret {date}",
+    "lastUpdatedInline": "senest opdateret {date}",
+    "uptimeValue": "{uptime} oppetid",
+    "noData": "Ingen data",
+    "monitorStatus": {
+      "operational": "Operationel",
+      "degraded": "Nedsat",
+      "down": "Nede",
+      "unknown": "Ingen data"
+    },
+    "uptimeWindow": {
+      "start": "{days} dage siden",
+      "today": "I dag"
+    },
+    "overallUptime": "Samlet oppetid <value>{uptime}</value> · seneste {days} dage",
+    "activeIncidents": "Aktive hændelser",
+    "pastIncidents": "Tidligere hændelser",
+    "showPastIncidents": "Vis tidligere hændelser",
+    "hidePastIncidents": "Skjul tidligere hændelser",
+    "noPastIncidents": "Ingen tidligere hændelser i de seneste {days} dage.",
+    "incident": {
+      "resolved": "Løst efter {duration}",
+      "ongoing": "Igangværende i {duration}, siden {time}",
+      "showMore": "Vis {count} tidligere {count, plural, one {opdatering} other {opdateringer}}",
+      "showLess": "Skjul tidligere opdateringer",
+      "descriptionMore": "Læs mere",
+      "descriptionLess": "Vis mindre",
+      "today": "I dag",
+      "yesterday": "I går",
+      "impact": {
+        "degraded": "Forringet",
+        "partial_outage": "Delvist nedbrud",
+        "outage": "Større nedbrud"
+      },
+      "status": {
+        "investigating": "Undersøger",
+        "identified": "Identificeret",
+        "monitoring": "Overvåger",
+        "resolved": "Løst"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minut} other {# minutter}}",
+      "hours": "{count, plural, one {# time} other {# timer}}",
+      "days": "{count, plural, one {# dag} other {# dage}}"
+    },
+    "poweredBy": "Drevet af"
+  },
+  "statusPagesPage": {
+    "title": "Statussider",
+    "newStatusPage": "Ny statusside",
+    "upgradeToCreate": "Opgrader for flere",
+    "error": "Noget gik galt",
+    "empty": {
+      "title": "Ingen statussider endnu",
+      "description": "Vælg hvilke monitorer der skal vises, tilføj dit logo og dine farver, og del en offentlig side dine brugere kan tjekke under hændelser.",
+      "cta": "Opret din første statusside"
+    },
+    "badge": {
+      "public": "Offentlig",
+      "draft": "Kladde"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitorer}}",
+    "actions": {
+      "copyLink": "Kopiér link",
+      "viewPage": "Vis side",
+      "more": "Flere handlinger",
+      "linkCopied": "Link kopieret til udklipsholderen",
+      "openPublicPage": "Åbn offentlig side",
+      "editPage": "Rediger side",
+      "manageIncidents": "Administrer hændelser",
+      "settings": "Indstillinger",
+      "copyUrl": "Kopiér offentlig URL",
+      "publish": "Udgiv",
+      "unpublish": "Fjern udgivelse",
+      "publishedToast": "Statusside udgivet",
+      "unpublishedToast": "Statusside taget offline",
+      "publishConfirmTitle": "Udgiv statusside?",
+      "publishConfirmDescription": "Den bliver offentligt tilgængelig på sin URL.",
+      "unpublishConfirmTitle": "Fjern udgivelse af statusside?",
+      "unpublishConfirmDescription": "Den tages offline, og besøgende kan ikke længere få adgang til den."
+    },
+    "editor": {
+      "back": "Statussider",
+      "save": "Gem ændringer",
+      "discard": "Kassér ændringer",
+      "confirmLeave": {
+        "title": "Forlad med ugemte ændringer?",
+        "description": "Du har lavet ændringer, der ikke er gemt. Hvis du forlader siden nu, går de tabt.",
+        "stay": "Fortsæt redigering",
+        "leave": "Forlad"
+      },
+      "statusPublished": "Udgivet",
+      "statusDraft": "Kladde",
+      "viewPage": "Vis side",
+      "copyUrl": "Kopiér URL",
+      "publish": "Udgiv statusside",
+      "unpublish": "Afpublicér",
+      "saved": "Statusside gemt",
+      "unpublished": "Statusside afpubliceret",
+      "publishSuccess": {
+        "title": "Din statusside er live",
+        "copy": "Kopiér link",
+        "copied": "Link kopieret til udklipsholderen",
+        "view": "Vis side"
+      },
+      "deleted": "Statusside slettet",
+      "error": "Noget gik galt",
+      "delete": "Slet statusside",
+      "deleteConfirmTitle": "Slet denne statusside?",
+      "deleteConfirmDescription": "Den offentlige side holder op med at virke med det samme. Dette kan ikke fortrydes.",
+      "deleteConfirm": "Slet",
+      "cancel": "Annuller",
+      "pageName": "Sidenavn",
+      "nameRequired": "Sidenavn er påkrævet.",
+      "unsavedChanges": "Ugemte ændringer",
+      "publishNeedsSave": "Gem dine ændringer før du udgiver.",
+      "confirmPublish": {
+        "title": "Offentliggør disse ændringer?",
+        "description": "Dine ændringer vises på den offentlige statusside med det samme.",
+        "confirm": "Offentliggør ændringer"
+      },
+      "publicUrl": "Offentlig URL",
+      "publicUrlHint": "Webadressen hvor din statusside er offentliggjort.",
+      "slugStatus": {
+        "checking": "Tjekker…",
+        "available": "Ledig",
+        "taken": "Allerede i brug",
+        "invalid": "Ugyldig slug"
+      },
+      "homepageUrl": "Hjemmeside-URL",
+      "homepageUrlHint": "Hvor logoet og sidetitlen linker hen.",
+      "customDomain": "Eget domæne",
+      "customDomainHint": "Host siden på dit eget domæne.",
+      "homepageUrlInvalid": "Indtast en gyldig URL, der starter med http:// eller https://.",
+      "customDomainInvalid": "Indtast et underdomæne, f.eks. status.example.com.",
+      "customDomainSetup": {
+        "intro": "Tilføj denne DNS-post hos din domæneudbyder for at pege <strong>{domain}</strong> mod Betterlytics.",
+        "recordType": "Type",
+        "recordName": "Navn",
+        "recordValue": "Værdi",
+        "copy": "Kopiér værdi",
+        "copied": "Værdi kopieret",
+        "nameHint": "Nogle udbydere tilføjer automatisk dit domæne. Hvis det er tilfældet, skal du kun indtaste <mono>{label}</mono> som Navn i stedet for hele <monoBreak>{domain}</monoBreak>.",
+        "propagation": "DNS-ændringer kan tage op til nogle timer at træde i kraft."
+      },
+      "hideBranding": "Skjul Betterlytics-branding",
+      "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-foden fra din offentlige side.",
+      "visibility": {
+        "title": "Synlighed i søgemaskiner",
+        "public": "Offentlig",
+        "publicHint": "Alle med linket kan se siden. Indekseres af søgemaskiner.",
+        "unlisted": "Ikke listet",
+        "unlistedHint": "Alle med linket kan se siden, men den skjules for søgemaskiner."
+      },
+      "dangerZone": {
+        "title": "Farezone",
+        "unpublishDescription": "Tag siden offline. Besøgende vil ikke kunne tilgå den, men du kan udgive igen når som helst.",
+        "deleteDescription": "Slet denne statusside og dens hændelseshistorik permanent. Dette kan ikke fortrydes."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Upload logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Upload favicon",
+      "replaceImage": "Erstat",
+      "removeImage": "Fjern",
+      "imageTooLarge": "Billedet er for stort. Vælg en mindre fil.",
+      "svgUnsafe": "SVG'en indeholder indhold, der ikke understøttes eller er usikkert. Prøv en enkel vektoreksport.",
+      "accentColor": "Accentfarve",
+      "theme": "Tema",
+      "themes": {
+        "light": "Lys",
+        "dark": "Mørk",
+        "system": "System"
+      },
+      "showPastIncidents": "Vis tidligere hændelser",
+      "showPastIncidentsHint": "Vis en historik over løste hændelser på din offentlige side.",
+      "minMonitorsHint": "Tilføj mindst én monitor for at gemme ændringer.",
+      "publicNamePlaceholder": "Offentligt visningsnavn",
+      "reorderMonitor": "Omarranger monitor",
+      "preview": "Live forhåndsvisning",
+      "enlargePreview": "Forstør forhåndsvisning",
+      "loadingPreview": "Indlæser forhåndsvisning…",
+      "tabs": {
+        "incidents": "Hændelser",
+        "settings": "Indstillinger"
+      },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitorer",
+          "branding": "Branding",
+          "publish": "Udgiv"
+        },
+        "tabIssue": "Kræver opmærksomhed",
+        "draft": "Kladde",
+        "publicNamesHint": "Omdøbning her ændrer kun, hvad besøgende ser. Din monitor beholder sit interne navn.",
+        "pageNameHint": "Bruges i browserfanen og linkforhåndsvisninger. Et logo erstatter det i sidens header.",
+        "themeHint": "Temaet besøgende ser. System følger den besøgendes enhedsindstilling.",
+        "zoomIn": "Zoom ind",
+        "zoomOut": "Zoom ud",
+        "zoomFit": "Tilpas til skærmen",
+        "desktopPreview": "Desktop-forhåndsvisning",
+        "mobilePreview": "Mobil-forhåndsvisning",
+        "customDomainLater": "Vil du hoste siden på dit eget domæne, som status.{domain}? Forbind det fra sidens indstillinger, når siden er oprettet.",
+        "discardEdits": {
+          "title": "Kassér dine ændringer?",
+          "description": "Ændringer foretaget i editoren rulles tilbage til den senest gemte tilstand.",
+          "keep": "Fortsæt redigering",
+          "discard": "Kassér"
+        }
+      },
+      "wizard": {
+        "title": "Ny statusside",
+        "close": "Luk",
+        "loading": "Indlæser editor…",
+        "saveDraft": "Gem som kladde",
+        "monitorsHeading": "Monitorer på denne side",
+        "searchMonitors": "Søg efter monitorer",
+        "noSearchResults": "Ingen monitorer matcher din søgning.",
+        "noMonitorsTitle": "Ingen monitorer endnu",
+        "noMonitors": "Opret din første monitor for at begynde at spore oppetid, og tilføj den så til denne side.",
+        "noMonitorYet": "Kan du ikke se den?",
+        "createMonitor": "Opret en monitor",
+        "addMonitor": "Tilføj monitor",
+        "allOnPage": "Alle monitorer er på siden.",
+        "addAll": "Tilføj alle ({count})",
+        "removeFromPage": "Fjern fra siden",
+        "shownCount": "{selected} af {total} vist",
+        "minMonitors": "Tilføj mindst én monitor for at fortsætte.",
+        "emptyPageTitle": "Tilføj monitorer til denne statusside",
+        "emptyPageHint": "Deres status og oppetid vises på din offentlige side.",
+        "confirmDiscard": {
+          "title": "Vil du kassere denne statusside?",
+          "description": "Du har lavet ændringer, der går tabt, hvis du lukker nu. Intet er gemt endnu.",
+          "keep": "Fortsæt redigering",
+          "discard": "Kasser"
+        }
+      },
+      "incidents": {
+        "title": "Hændelser",
+        "activeIncidents": "Aktive hændelser",
+        "pastIncidents": "Tidligere hændelser",
+        "filters": {
+          "search": "Søg hændelser",
+          "state": "Tilstand",
+          "stateAll": "Alle tilstande",
+          "stateActive": "Aktive",
+          "stateResolved": "Løst",
+          "noMatch": "Ingen hændelser matcher dine filtre."
+        },
+        "autoDetected": "Automatisk registreret",
+        "affectedMore": "+{count} flere",
+        "detectedPanelTitle": "{count, plural, one {# registreret nedbrud at gennemgå} other {# registrerede nedbrud at gennemgå}}",
+        "detectedGroupMulti": "Nedbrud på tværs af {count} monitorer",
+        "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor. Intet bliver offentligt, før du udgiver det.",
+        "newIncident": "Ny hændelse",
+        "editIncident": "Rediger hændelse",
+        "formHint": "Besøgende ser dette på din offentlige statusside, når den er udgivet.",
+        "createFromSuggestion": "Opret hændelse",
+        "suggestedTitle": "{monitor} nedbrud",
+        "suggestedTitleMulti": "Nedbrud der påvirker {count} tjenester",
+        "noIncidents": "Ingen hændelser endnu.",
+        "emptyHint": "Når noget går galt, så opret en hændelse her, så dine besøgende holdes opdateret.",
+        "suggestionsHint": "Automatisk registreret fra dine monitorer. Gennemse og udgiv for at gøre dem offentlige.",
+        "unspecified": "Ikke angivet",
+        "ongoingFor": "I gang i {duration}",
+        "lasted": "Varede {duration}",
+        "draft": "Kladde",
+        "edit": "Rediger",
+        "delete": "Slet",
+        "actions": "Handlinger",
+        "table": {
+          "incident": "Hændelse",
+          "status": "Status",
+          "impact": "Påvirkning",
+          "affected": "Påvirket",
+          "started": "Startet",
+          "duration": "Varighed"
+        },
+        "suggestionsTable": {
+          "outage": "Nedbrud",
+          "monitors": "Monitorer",
+          "detected": "Registreret",
+          "duration": "Varighed",
+          "status": "Status",
+          "ongoing": "I gang",
+          "resolved": "Løst"
+        },
+        "saved": "Hændelse gemt",
+        "deleted": "Hændelse slettet",
+        "error": "Noget gik galt",
+        "impact": {
+          "degraded": "Forringet",
+          "partial_outage": "Delvist nedbrud",
+          "outage": "Større nedbrud"
+        },
+        "status": {
+          "investigating": "Undersøger",
+          "identified": "Identificeret",
+          "monitoring": "Overvåger",
+          "resolved": "Løst"
+        },
+        "form": {
+          "title": "Titel",
+          "titleRequired": "Titel er påkrævet",
+          "description": "Beskrivelse",
+          "descriptionPlaceholder": "f.eks. Nogle brugere kan opleve fejl ved checkout — vi undersøger det",
+          "optional": "(valgfrit)",
+          "timelineRequired": "Tilføj mindst én tidslinjepost",
+          "detailsSection": "Hændelsesdetaljer",
+          "impact": "Påvirkning",
+          "monitor": "Påvirkede monitorer",
+          "monitorNotSpecified": "Hele siden (ingen bestemte monitorer)",
+          "monitorAllToken": "Alle monitorer",
+          "monitorSearchPlaceholder": "Søg monitorer",
+          "monitorNoMatch": "Ingen monitorer fundet",
+          "monitorRemove": "Fjern {monitor}",
+          "monitorCountSelected": "{selected} af {total} valgt",
+          "monitorSelectAll": "Vælg alle",
+          "monitorClear": "Ryd",
+          "monitorSummaryPageWide": "Hele siden, alle {count, plural, one {# monitor} other {# monitorer}}",
+          "monitorSummaryScoped": "{count} af {total} monitorer påvirket",
+          "cancel": "Annuller",
+          "publishCta": "Udgiv",
+          "updatePublic": "Opdatér offentlig side",
+          "unsaved": "Ugemte ændringer",
+          "deleteIncident": "Slet hændelse"
+        },
+        "composer": {
+          "section": "Tilføj en tidslinjepost",
+          "sectionHelp": "Den nyeste post angiver hændelsens status.",
+          "statusLabel": "Status",
+          "messagePlaceholder": "Hvad er der nyt? (valgfrit)",
+          "time": "Tidspunkt"
+        },
+        "timeline": {
+          "title": "Tidslinje",
+          "today": "I dag",
+          "yesterday": "I går",
+          "addUpdate": "Tilføj",
+          "pendingLabel": "Not saved yet",
+          "empty": "Ingen tidslinjeposter endnu.",
+          "editMessage": "Rediger besked",
+          "deleteUpdate": "Slet opdatering",
+          "done": "Færdig",
+          "removePending": "Fjern opdatering"
+        },
+        "discard": {
+          "title": "Kassér ændringer?",
+          "description": "Du har ugemte ændringer. Hvis du lukker nu, går de tabt.",
+          "keep": "Fortsæt redigering",
+          "confirm": "Kassér"
+        }
+      },
+      "editPage": "Rediger side",
+      "publicAddress": "Offentlig adresse"
+    },
+    "table": {
+      "statusPage": "Statusside",
+      "visibility": "Synlighed",
+      "monitors": "Monitorer",
+      "status": "Status"
+    },
+    "status": {
+      "operational": "Operationel",
+      "ongoingIncident": "Igangværende hændelse"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# statusside har en aktiv hændelse} other {# statussider har aktive hændelser}}",
+      "viewIncidents": "Se hændelser"
+    },
+    "monitorsEmpty": "Ingen monitorer",
+    "monitorsUp": "oppe"
   }
 }
