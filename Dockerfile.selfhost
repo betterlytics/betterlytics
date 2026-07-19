@@ -33,8 +33,7 @@ RUN echo "Building dashboard..."
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
+RUN corepack enable
 
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
