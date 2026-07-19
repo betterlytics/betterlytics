@@ -91,7 +91,7 @@ export function PricingCards({
           t('features.upTo50TeamMembers'),
           t('features.retention3PlusYears'),
           t('features.uptime50'),
-          t('features.customHttp'),
+          t('features.statusPagesPro'),
           t('features.emailReports'),
         ],
         cta: isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
