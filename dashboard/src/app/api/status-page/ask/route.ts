@@ -9,8 +9,8 @@ import { resolveAskStatus } from './askGuard';
 //
 // The endpoint is reachable on the public app origin (middleware excludes /api), so it is
 // authenticated with a shared secret that Caddy carries in the `token` query param (Caddy's
-// on-demand `ask` cannot set custom headers, but preserves existing query params — see
-// caddy/Caddyfile). Unauthenticated callers are rejected before any DB lookup or guard-budget
+// on-demand `ask` cannot set custom headers, but preserves existing query params).
+// Unauthenticated callers are rejected before any DB lookup or guard-budget
 // spend, closing the enumeration-oracle and lookup-exhaustion vectors. When STATUS_PAGE_ASK_SECRET
 // is unset the check is skipped — env.ts rejects that combination outside development whenever
 // public status pages are enabled, so the open mode is reachable in local dev only.
