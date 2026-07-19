@@ -6,6 +6,8 @@ settings:
 
 overrides:
   qs@<6.14.1: '>=6.14.1'
+  nextra>zod: 4.3.2
+  nextra-theme-docs>zod: 4.3.2
 
 importers:
 
