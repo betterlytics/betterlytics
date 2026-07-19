@@ -78,6 +78,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Client-side error tracking', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
+          { name: 'Public status pages', betterlytics: true, competitor: false },
           { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: 'With plugins' },
         ],
       },

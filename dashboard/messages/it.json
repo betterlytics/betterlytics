@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Monitoraggio uptime",
-          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche che puoi ospitare sul tuo dominio.",
           "alertDown": "{site} è offline",
           "alertSent": "Avviso inviato a {email}",
           "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
@@ -1136,6 +1136,8 @@
           "Funnel Conversione",
           "Replay Sessioni",
           "Eventi Personalizzati",
+          "Monitoraggio Uptime",
+          "Pagine di Stato Pubbliche",
           "Funzionalità Web Analytics"
         ]
       },
@@ -1251,6 +1253,10 @@
           "title": "Monitoraggio Certificati SSL",
           "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
         },
+        "statusPages": {
+          "title": "Pagine di Stato Pubbliche",
+          "description": "Condividi uptime e cronologia degli incidenti con i tuoi utenti su una pagina di stato personalizzata che puoi ospitare sul tuo dominio."
+        },
         "notificationIntegrations": {
           "title": "Integrazioni di Notifica",
           "description": "Ricevi avvisi tramite Slack, Discord, Microsoft Teams, webhook e altro quando qualcosa richiede la tua attenzione."
@@ -1360,6 +1366,7 @@
       "documentation": "Documentazione",
       "changelog": "Changelog",
       "pricing": "Prezzi",
+      "status": "Stato",
       "features": "Funzionalità",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1426,11 +1433,11 @@
       "funnelsJourneys": "Funnel e percorsi utente",
       "sessionReplay": "Session replay",
       "errorTracking": "Tracciamento errori",
-      "uptime1": "1 monitor uptime",
+      "uptime1": "1 monitor uptime e pagina di stato pubblica",
       "uptime50": "50 monitor uptime con controlli ogni minuto",
-      "uptimeUnlimited": "Monitor uptime illimitati",
+      "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
+      "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
       "emailReports": "Report email pianificati",
-      "customHttp": "Controlli uptime avanzati (metodi HTTP, header e codici di stato personalizzati)",
       "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
       "everythingInStarter": "Tutto in Growth, più:",
@@ -1553,6 +1560,20 @@
       },
       "notificationIntegrations": {
         "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
+      },
+      "statusPages": {
+        "name": "Pagine di stato pubbliche",
+        "values": {
+          "1": "1 pagina di stato",
+          "3": "3 pagine di stato",
+          "unlimited": "Pagine di stato illimitate"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Dominio personalizzato per la pagina di stato"
+      },
+      "statusPageWhiteLabel": {
+        "name": "Pagine di stato white-label"
       },
       "emailSupport": {
         "name": "Supporto email"

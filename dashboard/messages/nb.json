@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Oppetidsovervåking",
-          "description": "Få varsler når nettstedet ditt går ned, pluss automatisk SSL-sertifikatovervåking.",
+          "description": "Få varsler når nettstedet ditt går ned, med SSL-sertifikatovervåking og offentlige statussider du kan hoste på ditt eget domene.",
           "alertDown": "{site} er nede",
           "alertSent": "Advarsel sendt til {email}",
           "incidentDetected": "{count, plural, one {{count} hendelse oppdaget} other {{count} hendelser oppdaget}}",
@@ -1136,6 +1136,8 @@
           "Konverteringstrakter",
           "Sesjonsavspilling",
           "Egendefinerte hendelser",
+          "Oppetidsovervåking",
+          "Offentlige statussider",
           "Funksjoner for nettanalyse"
         ]
       },
@@ -1251,6 +1253,10 @@
           "title": "Overvåking av SSL-sertifikat",
           "description": "Overvåk SSL-sertifikatstatus for å unngå utløpte eller usikre forbindelser."
         },
+        "statusPages": {
+          "title": "Offentlige statussider",
+          "description": "Del oppetid og hendelseshistorikk med brukerne dine på en statusside med din egen merkevare, som du kan hoste på ditt eget domene."
+        },
         "notificationIntegrations": {
           "title": "Varslingsintegrasjoner",
           "description": "Bli varslet via Slack, Discord, Microsoft Teams, webhooks og mer når noe krever din oppmerksomhet."
@@ -1360,6 +1366,7 @@
       "documentation": "Dokumentasjon",
       "changelog": "Endringslogg",
       "pricing": "Priser",
+      "status": "Status",
       "features": "Funksjoner",
       "github": "GitHub-side",
       "bluesky": "Bluesky-kanal",
@@ -1426,11 +1433,11 @@
       "funnelsJourneys": "Funnels og brukerreiser",
       "sessionReplay": "Session replay",
       "errorTracking": "Feilsporing",
-      "uptime1": "1 oppetidsmonitor",
+      "uptime1": "1 oppetidsmonitor og offentlig statusside",
       "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
-      "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer",
+      "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer og statussider",
+      "statusPagesPro": "White-label statussider på ditt eget domene",
       "emailReports": "Planlagte e-postrapporter",
-      "customHttp": "Avanserte oppetidssjekker (tilpassede HTTP-metoder, headere og statuskoder)",
       "dedicatedSupport": "Dedikert support",
       "slaGuarantee": "SLA-garanti",
       "everythingInStarter": "Alt i Vekst, pluss:",
@@ -1553,6 +1560,20 @@
       },
       "notificationIntegrations": {
         "name": "Varslingsintegrasjoner (Slack, Discord osv.)"
+      },
+      "statusPages": {
+        "name": "Offentlige statussider",
+        "values": {
+          "1": "1 statusside",
+          "3": "3 statussider",
+          "unlimited": "Ubegrenset antall statussider"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Eget domene for statusside"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label statussider"
       },
       "emailSupport": {
         "name": "E-postsupport"

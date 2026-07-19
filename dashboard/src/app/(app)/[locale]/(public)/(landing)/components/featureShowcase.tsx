@@ -50,7 +50,7 @@ export async function FeatureShowcase() {
       title: t('categories.performance'),
       cards: [
         { id: 'error-tracking', element: <ErrorTrackingCard /> },
-        { id: 'outbound-links', element: <UptimeMonitoringCard /> },
+        { id: 'uptime-monitoring', element: <UptimeMonitoringCard /> },
         { id: 'core-web-vitals', element: <CoreWebVitalsCard /> },
       ],
     },

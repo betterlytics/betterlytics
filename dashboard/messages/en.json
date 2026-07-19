@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Uptime Monitoring",
-          "description": "Get alerts when your site goes down, plus automatic SSL certificate monitoring.",
+          "description": "Get alerts when your site goes down, with SSL certificate monitoring and public status pages you can host on your own domain.",
           "alertDown": "{site} is down",
           "alertSent": "Alert sent to {email}",
           "incidentDetected": "{count, plural, one {{count} incident detected} other {{count} incidents detected}}",
@@ -1136,6 +1136,8 @@
           "Conversion Funnels",
           "Session Replay",
           "Custom Events",
+          "Uptime Monitoring",
+          "Public Status Pages",
           "Web Analytics Features"
         ]
       },
@@ -1251,6 +1253,10 @@
           "title": "SSL Certificate Monitoring",
           "description": "Monitor SSL certificate status to avoid expired or insecure connections."
         },
+        "statusPages": {
+          "title": "Public Status Pages",
+          "description": "Share live uptime and incident history with your users on a branded status page you can host on your own domain."
+        },
         "notificationIntegrations": {
           "title": "Notification Integrations",
           "description": "Get alerted via Slack, Discord, Microsoft Teams, webhooks, and more when something needs your attention."
@@ -1360,6 +1366,7 @@
       "documentation": "Documentation",
       "changelog": "Changelog",
       "pricing": "Pricing",
+      "status": "Status",
       "features": "Features",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1426,11 +1433,11 @@
       "funnelsJourneys": "Funnels & user journeys",
       "sessionReplay": "Session replay",
       "errorTracking": "Error tracking",
-      "uptime1": "1 uptime monitor",
+      "uptime1": "1 uptime monitor & public status page",
       "uptime50": "50 uptime monitors with 1-minute checks",
-      "uptimeUnlimited": "Unlimited uptime monitors",
+      "uptimeUnlimited": "Unlimited uptime monitors & status pages",
+      "statusPagesPro": "White-label status pages on your own domain",
       "emailReports": "Scheduled email reports",
-      "customHttp": "Advanced uptime checks (custom HTTP methods, headers & status codes)",
       "dedicatedSupport": "Dedicated support",
       "slaGuarantee": "SLA guarantee",
       "everythingInStarter": "Everything in Growth, plus:",
@@ -1553,6 +1560,20 @@
       },
       "notificationIntegrations": {
         "name": "Notification integrations (Slack, Discord, etc.)"
+      },
+      "statusPages": {
+        "name": "Public status pages",
+        "values": {
+          "1": "1 status page",
+          "3": "3 status pages",
+          "unlimited": "Unlimited status pages"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Status page custom domain"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label status pages"
       },
       "emailSupport": {
         "name": "Email support"

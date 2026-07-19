@@ -1114,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Oppetidsovervågning",
-          "description": "Få advarsler når dit site går ned, plus automatisk SSL-certifikatovervågning.",
+          "description": "Få advarsler når dit site går ned, med SSL-certifikatovervågning og offentlige statussider, som du kan hoste på dit eget domæne.",
           "alertDown": "{site} er nede",
           "alertSent": "Advarsel sendt til {email}",
           "incidentDetected": "{count, plural, one {{count} hændelse opdaget} other {{count} hændelser opdaget}}",
@@ -1136,6 +1136,8 @@
           "Konverteringsfunnels",
           "Session Replay",
           "Brugerdefinerede Events",
+          "Oppetidsovervågning",
+          "Offentlige Statussider",
           "Webanalysefunktioner"
         ]
       },
@@ -1251,6 +1253,10 @@
           "title": "SSL-certifikatovervågning",
           "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
         },
+        "statusPages": {
+          "title": "Offentlige statussider",
+          "description": "Del live oppetid og hændelseshistorik med dine brugere på en statusside med dit eget brand, som du kan hoste på dit eget domæne."
+        },
         "notificationIntegrations": {
           "title": "Notifikationsintegrationer",
           "description": "Bliv advaret via Slack, Discord, Microsoft Teams, webhooks og mere, når noget kræver din opmærksomhed."
@@ -1360,6 +1366,7 @@
       "documentation": "Dokumentation",
       "changelog": "Ændringslog",
       "pricing": "Priser",
+      "status": "Status",
       "features": "Funktioner",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1426,11 +1433,11 @@
       "funnelsJourneys": "Funnels og brugerrejser",
       "sessionReplay": "Session replay",
       "errorTracking": "Fejlsporing",
-      "uptime1": "1 uptime-monitor",
+      "uptime1": "1 uptime-monitor og offentlig statusside",
       "uptime50": "50 uptime-monitorer med 1-minuts tjek",
-      "uptimeUnlimited": "Ubegrænset antal uptime-monitorer",
+      "uptimeUnlimited": "Ubegrænset antal uptime-monitorer og statussider",
+      "statusPagesPro": "White-label statussider på dit eget domæne",
       "emailReports": "Planlagte e-mailrapporter",
-      "customHttp": "Avancerede uptime-tjek (tilpassede HTTP-metoder, headers og statuskoder)",
       "dedicatedSupport": "Dedikeret support",
       "slaGuarantee": "SLA-garanti",
       "everythingInStarter": "Alt i Growth, plus:",
@@ -1553,6 +1560,20 @@
       },
       "notificationIntegrations": {
         "name": "Notifikationsintegrationer (Slack, Discord osv.)"
+      },
+      "statusPages": {
+        "name": "Offentlige statussider",
+        "values": {
+          "1": "1 statusside",
+          "3": "3 statussider",
+          "unlimited": "Ubegrænsede statussider"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Eget domæne til statusside"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label statussider"
       },
       "emailSupport": {
         "name": "E-mail support"

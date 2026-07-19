@@ -42,6 +42,7 @@ import {
   Blocks,
   Send,
   Tag,
+  Radio,
 } from 'lucide-react';
 
 import { MCPIcon } from '@/components/icons';
@@ -83,6 +84,7 @@ const CATEGORIES = [
     features: [
       { id: 'coreWebVitals', icon: Gauge },
       { id: 'uptimeMonitoring', icon: MonitorCheck },
+      { id: 'statusPages', icon: Radio },
       { id: 'sslMonitoring', icon: ShieldCheck },
       { id: 'notificationIntegrations', icon: Bell },
     ],
