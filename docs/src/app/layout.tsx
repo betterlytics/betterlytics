@@ -7,6 +7,12 @@ import Script from "next/script";
 import { docsTrackingEnabled, env } from "@/lib/env";
 
 export const metadata: Metadata = {
+  title: {
+    default: "Betterlytics Docs",
+    template: "%s - Betterlytics Docs",
+  },
+  description:
+    "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
   metadataBase: new URL("https://betterlytics.io"),
 };
 

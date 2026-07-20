@@ -14,6 +14,7 @@ type QueryFilterInputRowProps<TEntity> = {
   useExtendedRange?: boolean;
   formatLength?: number;
   valueError?: boolean;
+  hideClearAllButton?: boolean;
   className?: string;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   requestRemoval?: (id: QueryFilter['id']) => void;
@@ -28,6 +29,7 @@ export function QueryFilterInputRow<TEntity>({
   useExtendedRange,
   formatLength,
   valueError,
+  hideClearAllButton,
   className,
 }: QueryFilterInputRowProps<TEntity>) {
   return (
@@ -58,10 +60,12 @@ export function QueryFilterInputRow<TEntity>({
         useExtendedRange={useExtendedRange}
         formatLength={formatLength}
         valueError={valueError}
+        hideClearAllButton={hideClearAllButton}
       />
       <Button
         variant='ghost'
-        className='[grid-area:delete] cursor-pointer'
+        size='icon'
+        className='[grid-area:delete] size-8 cursor-pointer justify-self-end text-muted-foreground hover:text-foreground'
         onClick={() => requestRemoval?.(filter.id)}
         disabled={disableDeletion}
       >

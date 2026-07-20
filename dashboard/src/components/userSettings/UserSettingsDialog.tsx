@@ -2,16 +2,29 @@
 
 import { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowUpRight, Bug, BookOpen, CreditCard, HelpCircle, Mail, Settings, User } from 'lucide-react';
+import {
+  ArrowUpCircle,
+  ArrowUpRight,
+  Bug,
+  BookOpen,
+  CreditCard,
+  HelpCircle,
+  Mail,
+  Settings,
+  User,
+} from 'lucide-react';
 import UserAccountSettings from '@/components/userSettings/account/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/preferences/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/billing/UserBillingSettings';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import ExternalLink from '@/components/ExternalLink';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
+import { useBillingData } from '@/hooks/useBillingData';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -106,11 +119,15 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
     >
       {/* Desktop sidebar */}
       <div className='bg-muted/30 hidden h-full w-56 flex-shrink-0 flex-col border-r md:flex'>
-        <TabsList className='flex w-full flex-1 flex-col items-stretch justify-start gap-1 overflow-y-auto rounded-none bg-transparent px-2 py-4'>
-          {availableTabs.map((tab) => (
-            <TabTriggerItem key={tab.id} tab={tab} className={DESKTOP_TAB_CLASSES} />
-          ))}
-        </TabsList>
+        <div className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+          <TabsList className='flex h-auto w-full flex-col items-stretch justify-start gap-1 rounded-none bg-transparent px-2 pt-4 pb-2'>
+            {availableTabs.map((tab) => (
+              <TabTriggerItem key={tab.id} tab={tab} className={DESKTOP_TAB_CLASSES} />
+            ))}
+          </TabsList>
+
+          {isFeatureFlagEnabled('enableBilling') && <SidebarUpgradeLink closeDialog={closeDialog} />}
+        </div>
 
         {PUBLIC_IS_CLOUD && <SidebarHelpPopover />}
       </div>
@@ -153,6 +170,34 @@ function TabTriggerItem({ tab, className }: TabTriggerItemProps) {
       <Icon className='h-4 w-4 flex-shrink-0' />
       <span>{tab.label}</span>
     </TabsTrigger>
+  );
+}
+
+function SidebarUpgradeLink({ closeDialog }: { closeDialog: () => void }) {
+  const tDialog = useTranslations('components.userSettings.dialog');
+  const { openPlanPicker } = useBillingFlow();
+  const { billingData } = useBillingData();
+
+  if (!billingData || billingData.isExistingPaidSubscriber) {
+    return null;
+  }
+
+  const handleUpgrade = () => {
+    closeDialog();
+    openPlanPicker();
+  };
+
+  return (
+    <div className='border-border border-t px-2 pt-2'>
+      <Button
+        variant='ghost'
+        onClick={handleUpgrade}
+        className='text-blue-600 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400 hover:bg-blue-500/10 w-full cursor-pointer justify-start gap-2 font-medium'
+      >
+        <ArrowUpCircle className='h-4 w-4 flex-shrink-0' />
+        <span>{tDialog('upgradePlan')}</span>
+      </Button>
+    </div>
   );
 }
 

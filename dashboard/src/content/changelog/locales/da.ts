@@ -1,51 +1,117 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v143ChangelogEntryDa: ChangelogEntryData = {
+const v145ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.3',
-    releasedAt: '2026-05-24',
-    title: 'Opdaterede kontoindstillinger og styrket sikkerhed',
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Offentlige statussider',
     summary:
-      'En redesignet dialog for brugerindstillinger, nye muligheder for at administrere aktive sessioner, styrkede kontroller omkring tofaktorgodkendelse samt en håndfuld rettelser og finpudsninger.',
+      'Del din oppetid med omverdenen. Byg en offentlig statusside med dit eget brand oven på dine uptime-monitorer — med oppetidshistorik, kommunikation om hændelser og mulighed for at bruge dit eget domæne.',
   },
   sections: [
     {
-      id: 'v143-security',
-      title: 'Sikkerhed',
+      id: 'v145-new-features',
+      title: 'Nye funktioner',
       blocks: [
+        {
+          type: 'text',
+          body: 'Du kan nu oprette offentlige statussider. En statusside bygger direkte oven på dine uptime-monitorer og giver dine brugere et løbende opdateret overblik over dine tjenester: aktuel status, oppetidshistorik for hver monitor og en tidslinje over hændelser.',
+        },
         {
           type: 'list',
           items: [
-            'Du kan nu logge ud af alle andre aktive sessioner direkte fra dine kontoindstillinger.',
-            'Deaktivering af tofaktorgodkendelse kræver nu en gyldig TOTP-kode, hvilket giver ekstra beskyttelse mod uautoriserede ændringer.',
-            'Tofaktorgodkendelse tilbydes ikke længere for konti, der logger ind via Google eller GitHub, da udbyderen allerede håndterer det.',
+            'Design din side med live forhåndsvisning: vælg hvilke monitorer der skal vises og i hvilken rækkefølge, og giv dem offentlige visningsnavne.',
+            'Tilpas siden med dit logo, favicon, accentfarve og tema.',
+            'Udgiv siden på en Betterlytics-URL, du selv vælger, eller på dit eget domæne.',
+            'Hold dine brugere orienteret under nedetid med hændelsesopdateringer, og få forslag til hændelser, når dine monitorer registrerer et nedbrud.',
           ],
         },
       ],
     },
     {
-      id: 'v143-improvements',
+      id: 'v145-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Dialogen for brugerindstillinger er blevet redesignet med et mere moderne og overskueligt layout.',
-            'Favicons for dashboard-domæner hentes nu mere pålideligt for flere websteder.',
-            'Mindre UI-finpudsninger på tværs af dashboardet.',
+            'Funnel-trin fremhæver nu filtre med tomme værdier, så ufuldstændige trin er nemmere at få øje på og rette.',
+            'Dokumentationen er blevet opdateret med en ny struktur, en udvidet FAQ og nye guides til statussider og eget domæne.',
           ],
         },
       ],
     },
     {
-      id: 'v143-fixes',
+      id: 'v145-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ["Rettet ødelagte links til dokumentationen på fejlsiden og i FAQ'en."],
+        },
+      ],
+    },
+  ],
+};
+
+const v144ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Funnels med flere kriterier, nemmere betaling og styrket privatliv',
+    summary:
+      'Byg mere præcise funnels med flere kriterier for hvert trin, nu også på mobil. Administrer dit abonnement og dine fakturaer uden at forlade appen, og få endnu bedre beskyttelse af besøgendes privatliv.',
+  },
+  sections: [
+    {
+      id: 'v144-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel-trin understøtter nu flere kriterier. Hvert trin kan kombinere flere filtre, for eksempel en bestemt side og en referrer, så du kan definere langt mere præcise konverteringsstier.',
+            'Du kan nu oprette og redigere funnels på mobil, så det fungerer problemfrit på både telefoner og tablets.',
+            'Administrer dit abonnement uden at forlade Betterlytics. Du kan nu opgradere, nedgradere eller skifte abonnement direkte i appen, med et tydeligt overblik over eventuelle forholdsmæssige beløb eller tilgodehavender, før du bekræfter. Betalingen gennemføres også sikkert i appen, uden omdirigering til en ekstern side.',
+            'Se og åbn dine tidligere fakturaer direkte fra dine kontoindstillinger.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-privacy-security',
+      title: 'Privatliv og sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har yderligere styrket anonymiseringen af besøgendes data, hvilket understreger vores engagement i at sætte privatliv først: analyser kan aldrig føres tilbage til enkeltpersoner.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tilgodehavende for ubrugt abonnementstid vises nu i dine faktureringsindstillinger og trækkes automatisk fra fremtidige fakturaer.',
+            'Betalingsproblemer er nu tydeligere, med en besked, når en betaling er forfalden, og mulighed for at opdatere din betalingsmetode med ét klik.',
+            'Prissiden er blevet fornyet med et foreslået antal events baseret på din anslåede trafik og et tydeligere overblik over, hvad hver plan indeholder.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-fixes',
       title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Rettet et problem, hvor brugere uden et navn på deres konto ikke kunne opdatere deres indstillinger.',
-            'Rettet et problem, hvor det viste tema ikke længere stemte overens med den gemte indstilling, hvis man annullerede et temaskifte.',
+            'Rettet et kortvarigt visuelt flimmer, der kunne opstå, når dialoger blev lukket på tværs af appen.',
           ],
         },
       ],
@@ -53,10 +119,63 @@ const v143ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v143ChangelogEntryDa;
+export const latestChangelogModalDa = v145ChangelogEntryDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
-  v143ChangelogEntryDa,
+  v145ChangelogEntryDa,
+  v144ChangelogEntryDa,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Opdaterede kontoindstillinger og styrket sikkerhed',
+      summary:
+        'En redesignet dialog for brugerindstillinger, nye muligheder for at administrere aktive sessioner, styrkede kontroller omkring tofaktorgodkendelse samt en håndfuld rettelser og finpudsninger.',
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Du kan nu logge ud af alle andre aktive sessioner direkte fra dine kontoindstillinger.',
+              'Deaktivering af tofaktorgodkendelse kræver nu en gyldig TOTP-kode, hvilket giver ekstra beskyttelse mod uautoriserede ændringer.',
+              'Tofaktorgodkendelse tilbydes ikke længere for konti, der logger ind via Google eller GitHub, da udbyderen allerede håndterer det.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dialogen for brugerindstillinger er blevet redesignet med et mere moderne og overskueligt layout.',
+              'Favicons for dashboard-domæner hentes nu mere pålideligt for flere websteder.',
+              'Mindre UI-finpudsninger på tværs af dashboardet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor brugere uden et navn på deres konto ikke kunne opdatere deres indstillinger.',
+              'Rettet et problem, hvor det viste tema ikke længere stemte overens med den gemte indstilling, hvis man annullerede et temaskifte.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.2',

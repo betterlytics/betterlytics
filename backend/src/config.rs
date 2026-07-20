@@ -47,6 +47,8 @@ pub struct Config {
     pub monitor_incidents_table: String,
     // Session replay configuration
     pub enable_session_replay: bool,
+    // Warm the in-memory session cache from ClickHouse on boot (so sessions survive restarts)
+    pub session_cache_warm_enabled: bool,
     // S3 session replay storage configuration
     pub s3_enabled: bool,
     pub s3_region: Option<String>,
@@ -58,6 +60,8 @@ pub struct Config {
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
+    // Salt database (read-write) - stores the secret rotating fingerprint salts
+    pub salts_database_url: String,
     // Development mode - allows localhost monitoring targets
     pub is_development: bool,
     // Public-facing base URL (used for dashboard links in emails, etc.)
@@ -155,6 +159,10 @@ impl Config {
             enable_session_replay: env::var("SESSION_REPLAYS_ENABLED")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
+            // On by default; can be used to disable session warming if it catches a bad query plan
+            session_cache_warm_enabled: env::var("ENABLE_SESSION_CACHE_WARM")
+                .map(|val| val.to_lowercase() != "false")
+                .unwrap_or(true),
             // S3 configuration (optional; defaults to disabled)
             s3_enabled: env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_region: env::var("S3_REGION").ok(),
@@ -166,6 +174,8 @@ impl Config {
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
+            salts_database_url: env::var("SALTS_DATABASE_URL")
+                .expect("SALTS_DATABASE_URL must be set to a valid read-write Postgres URL for the fingerprint salts table"),
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),

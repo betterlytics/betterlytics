@@ -1,62 +1,179 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v143ChangelogEntryEn: ChangelogEntryData = {
+const v145ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.3',
-    releasedAt: '2026-05-24',
-    title: 'Refreshed Account Settings & Stronger Security',
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Public Status Pages',
     summary:
-      'A redesigned user settings dialog, new options to manage active sessions, stronger controls around two-factor authentication, plus a handful of fixes and polish.',
+      'Share your uptime with the world. Build a branded public status page on top of your uptime monitors, complete with uptime history, incident communication, and support for your own custom domain.',
   },
   sections: [
     {
-      id: 'v143-security',
-      title: 'Security',
+      id: 'v145-new-features',
+      title: 'New Features',
       blocks: [
+        {
+          type: 'text',
+          body: 'You can now create public status pages. Built directly on top of your uptime monitors, a status page gives your users an always-up-to-date view of your services: current status, uptime history per monitor, and a timeline of incidents.',
+        },
         {
           type: 'list',
           items: [
-            'You can now sign out of all other active sessions from your account settings.',
-            'Disabling two-factor authentication now requires a valid TOTP code, adding an extra layer of protection against unauthorized changes.',
-            'Two-factor authentication is no longer offered for accounts signed in through Google or GitHub, since the provider already handles it.',
+            'Design your page in a studio with a live preview: choose which monitors to show and in what order, and give them public display names.',
+            'Brand it with your logo, favicon, accent color, and theme.',
+            'Publish on a Betterlytics URL of your choice, or serve the page from your own custom domain.',
+            'Keep your users informed during downtime with incident updates, and get suggested incidents when your monitors detect an outage.',
           ],
         },
       ],
     },
     {
-      id: 'v143-improvements',
+      id: 'v145-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'The user settings dialog has been redesigned with a cleaner, more organized layout.',
-            'Favicons for dashboard domains now resolve more reliably for more sites.',
-            'Various small UI polish across the dashboard.',
+            'Funnel steps now highlight filters with empty values, making incomplete steps easier to spot and fix.',
+            'The documentation has been refreshed with a reorganized structure, an expanded FAQ, and new guides for status pages and custom domains.',
           ],
         },
       ],
     },
     {
-      id: 'v143-fixes',
+      id: 'v145-fixes',
       title: 'Fixes',
       blocks: [
         {
           type: 'list',
-          items: [
-            'Fixed an issue where users without a name set on their account could not update their settings.',
-            'Fixed an issue where canceling a theme change could leave the displayed theme out of sync with the saved setting.',
-          ],
+          items: ['Fixed broken documentation links on the errors page and in the FAQ.'],
         },
       ],
     },
   ],
 };
 
-export const latestChangelogModalEn = v143ChangelogEntryEn;
+const v144ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Multi-Condition Funnels, Smoother Billing & Stronger Privacy',
+    summary:
+      'Build more precise funnels with multiple conditions per step, now fully usable on mobile. Manage your subscription and invoices without leaving the app, and benefit from even stronger visitor privacy.',
+  },
+  sections: [
+    {
+      id: 'v144-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel steps now support multiple conditions. Each step can combine several filters, for example a specific page and a referrer, so you can define much more precise conversion paths.',
+            'You can now create and edit funnels on mobile, with a builder that works smoothly on phones and tablets.',
+            'Manage your subscription without leaving Betterlytics. You can now upgrade, downgrade, or change your plan directly in the app, with a clear preview of any prorated charges or credits before you confirm. Checkout also happens securely in the app, with no redirect to an external page.',
+            'View and open your past invoices directly from your account settings.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-privacy-security',
+      title: 'Privacy & Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "We've further hardened how visitor data is anonymized, reinforcing our privacy-first commitment that analytics can never be tied back to individual people.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Account credit for unused subscription time is now shown in your billing settings and applied automatically to future invoices.',
+            'Payment issues are now clearer, with a notice when a payment is past due and a one-click way to update your payment method.',
+            'The pricing page has been refreshed with a suggested event volume based on your estimated traffic and a clearer breakdown of what each plan includes.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Fixed a brief visual flicker that could appear when closing dialogs across the app.'],
+        },
+      ],
+    },
+  ],
+};
+
+export const latestChangelogModalEn = v145ChangelogEntryEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
-  v143ChangelogEntryEn,
+  v145ChangelogEntryEn,
+  v144ChangelogEntryEn,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Refreshed Account Settings & Stronger Security',
+      summary:
+        'A redesigned user settings dialog, new options to manage active sessions, stronger controls around two-factor authentication, plus a handful of fixes and polish.',
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'You can now sign out of all other active sessions from your account settings.',
+              'Disabling two-factor authentication now requires a valid TOTP code, adding an extra layer of protection against unauthorized changes.',
+              'Two-factor authentication is no longer offered for accounts signed in through Google or GitHub, since the provider already handles it.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The user settings dialog has been redesigned with a cleaner, more organized layout.',
+              'Favicons for dashboard domains now resolve more reliably for more sites.',
+              'Various small UI polish across the dashboard.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where users without a name set on their account could not update their settings.',
+              'Fixed an issue where canceling a theme change could leave the displayed theme out of sync with the saved setting.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.2',

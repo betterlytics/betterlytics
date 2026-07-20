@@ -2,7 +2,7 @@ FROM node:20-slim
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends openssl
 
@@ -20,4 +20,4 @@ COPY ./scripts ./scripts
 COPY ./migrations ./migrations
 COPY ./prisma ./prisma
 
-CMD pnpm run migrate-clickhouse && node scripts/post_migrate_clickhouse.js && prisma migrate deploy --schema ./prisma/schema.prisma && node scripts/post_migrate_siteconfig_ro.js && node scripts/post_migrate_monitoring_ro.js
+CMD pnpm run migrate-clickhouse && node scripts/post_migrate_clickhouse.js && prisma migrate deploy --schema ./prisma/schema.prisma && node scripts/provision_roles.js

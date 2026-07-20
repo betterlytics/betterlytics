@@ -1,9 +1,9 @@
 use anyhow::Result;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
-use crate::analytics::{AnalyticsEvent, generate_fingerprint};
+use crate::analytics::{AnalyticsEvent, VisitorAttrs};
 use crate::geoip::GeoIpService;
-use crate::session;
+use crate::visitor;
 use crate::bot_detection;
 use crate::referrer::{ReferrerInfo, parse_referrer};
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
@@ -165,32 +165,22 @@ impl EventProcessor {
         }
 
         let root_domain = processed.domain.as_ref().and_then(|d| extract_root_domain(d));
-        
-        processed.visitor_fingerprint = generate_fingerprint(
-            &processed.event.ip_address,
-            processed.device_type.as_deref(),
-            processed.browser.as_deref(),
-            processed.browser_version.as_deref(),
-            processed.os.as_deref(),
-            root_domain.as_deref(),
-        );
 
-        let session_id_result = session::get_or_create_session_id(
-            &site_id,
-            processed.visitor_fingerprint,
-            timestamp,
-        );
-
-        match session_id_result {
-            Ok((id, created_at)) => {
-                processed.session_id = id;
-                processed.session_created_at = created_at;
-            }
-            Err(e) => {
-                error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
-                return Ok(());
-            }
+        let identity = {
+            let attrs = VisitorAttrs {
+                ip: &processed.event.ip_address,
+                device_type: processed.device_type.as_deref(),
+                browser: processed.browser.as_deref(),
+                browser_version: processed.browser_version.as_deref(),
+                os: processed.os.as_deref(),
+                root_domain: root_domain.as_deref(),
+            };
+            visitor::identify(&site_id, &attrs, timestamp)
         };
+
+        processed.visitor_fingerprint = identity.fingerprint;
+        processed.session_id = identity.session_id;
+        processed.session_created_at = identity.session_created_at;
 
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);

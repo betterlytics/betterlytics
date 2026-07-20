@@ -1,4 +1,4 @@
-'server-only';
+import 'server-only';
 
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { getOwnedSiteIds, findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
@@ -31,8 +31,7 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
       },
     };
 
-    const isExistingPaidSubscriber =
-      (subscription.tier !== 'growth' || subscription.pricePerMonth > 0) && subscription.status === 'active';
+    const isExistingPaidSubscriber = subscription.paymentSubscriptionId !== null;
     const isFreePlanUser = subscription.tier === 'growth' && subscription.pricePerMonth === 0;
 
     return UserBillingDataSchema.parse({

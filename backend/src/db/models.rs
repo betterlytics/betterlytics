@@ -56,6 +56,17 @@ pub struct EventRow {
     pub page_duration_seconds: u32,
 }
 
+/// One active session recovered from `analytics.sessions`, used to warm the in-memory
+/// session cache on boot. Field order must match the `SELECT` in `fetch_active_sessions`.
+#[derive(clickhouse::Row, Deserialize)]
+pub struct ActiveSessionRow {
+    pub site_id: String,
+    pub visitor_id: u64,
+    pub session_id: u64,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub session_created_at: DateTime<Utc>,
+}
+
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
 pub struct SessionReplayRow {
     pub site_id: String,

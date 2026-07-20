@@ -1,51 +1,117 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v143ChangelogEntryNb: ChangelogEntryData = {
+const v145ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.3',
-    releasedAt: '2026-05-24',
-    title: 'Oppdaterte kontoinnstillinger og styrket sikkerhet',
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Offentlige statussider',
     summary:
-      'En redesignet dialog for brukerinnstillinger, nye muligheter for å administrere aktive økter, styrkede kontroller rundt tofaktorautentisering, samt en håndfull rettelser og finpussinger.',
+      'Del oppetiden din med omverdenen. Bygg en offentlig statusside med din egen merkevare oppå oppetidsmonitorene dine — med oppetidshistorikk, kommunikasjon om hendelser og støtte for ditt eget domene.',
   },
   sections: [
     {
-      id: 'v143-security',
-      title: 'Sikkerhet',
+      id: 'v145-new-features',
+      title: 'Nye funksjoner',
       blocks: [
+        {
+          type: 'text',
+          body: 'Du kan nå opprette offentlige statussider. En statusside bygger direkte på oppetidsmonitorene dine og gir brukerne dine en alltid oppdatert oversikt over tjenestene dine: gjeldende status, oppetidshistorikk per monitor og en tidslinje over hendelser.',
+        },
         {
           type: 'list',
           items: [
-            'Du kan nå logge ut av alle andre aktive økter direkte fra kontoinnstillingene dine.',
-            'Deaktivering av tofaktorautentisering krever nå en gyldig TOTP-kode, noe som gir ekstra beskyttelse mot uautoriserte endringer.',
-            'Tofaktorautentisering tilbys ikke lenger for kontoer som logger inn via Google eller GitHub, siden leverandøren allerede håndterer det.',
+            'Design siden din med live forhåndsvisning: velg hvilke monitorer som skal vises og i hvilken rekkefølge, og gi dem offentlige visningsnavn.',
+            'Tilpass siden med din egen logo, favicon, aksentfarge og tema.',
+            'Publiser siden på en Betterlytics-URL du selv velger, eller på ditt eget domene.',
+            'Hold brukerne dine orientert under nedetid med hendelsesoppdateringer, og få forslag til hendelser når monitorene dine oppdager et avbrudd.',
           ],
         },
       ],
     },
     {
-      id: 'v143-improvements',
+      id: 'v145-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Dialogen for brukerinnstillinger er redesignet med et mer moderne og ryddig oppsett.',
-            'Favicons for dashboard-domener hentes nå mer pålitelig for flere nettsteder.',
-            'Mindre UI-finpussinger på tvers av dashbordet.',
+            'Trakttrinn fremhever nå filtre med tomme verdier, slik at ufullstendige trinn er enklere å oppdage og rette.',
+            'Dokumentasjonen er oppdatert med ny struktur, en utvidet FAQ og nye guider for statussider og eget domene.',
           ],
         },
       ],
     },
     {
-      id: 'v143-fixes',
+      id: 'v145-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Rettet ødelagte lenker til dokumentasjonen på feilsiden og i FAQ-en.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v144ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Trakter med flere kriterier, enklere betaling og styrket personvern',
+    summary:
+      'Bygg mer presise trakter med flere kriterier per trinn, nå også på mobil. Administrer abonnementet og fakturaene dine uten å forlate appen, og få enda bedre personvern for de besøkende.',
+  },
+  sections: [
+    {
+      id: 'v144-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Trakttrinn støtter nå flere kriterier. Hvert trinn kan kombinere flere filtre, for eksempel en bestemt side og en referrer, slik at du kan definere langt mer presise konverteringsstier.',
+            'Du kan nå opprette og redigere trakter på mobil, slik at det fungerer problemfritt på både telefoner og nettbrett.',
+            'Administrer abonnementet ditt uten å forlate Betterlytics. Du kan nå oppgradere, nedgradere eller bytte abonnement direkte i appen, med en tydelig oversikt over eventuelle forholdsmessige beløp eller tilgodebeløp før du bekrefter. Betalingen skjer også trygt i appen, uten omdirigering til en ekstern side.',
+            'Se og åpne tidligere fakturaer direkte fra kontoinnstillingene dine.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-privacy-security',
+      title: 'Personvern og sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har ytterligere styrket anonymiseringen av besøksdata, noe som understreker vårt engasjement for å sette personvern først: analyser kan aldri spores tilbake til enkeltpersoner.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tilgodehavende for ubrukt abonnementstid vises nå i faktureringsinnstillingene dine og trekkes automatisk fra fremtidige fakturaer.',
+            'Betalingsproblemer er nå tydeligere, med et varsel når en betaling er forfalt, og mulighet for å oppdatere betalingsmåten din med ett klikk.',
+            'Prissiden er fornyet med et forslag til antall hendelser basert på estimert trafikk og en tydeligere oversikt over hva hvert abonnement inneholder.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-fixes',
       title: 'Rettelser',
       blocks: [
         {
           type: 'list',
           items: [
-            'Rettet et problem der brukere uten et navn på kontoen sin ikke kunne oppdatere innstillingene sine.',
-            'Rettet et problem der det viste temaet ikke lenger samsvarte med den lagrede innstillingen hvis man avbrøt et temaskifte.',
+            'Rettet et kortvarig visuelt flimmer som kunne oppstå når dialoger ble lukket på tvers av appen.',
           ],
         },
       ],
@@ -53,10 +119,63 @@ const v143ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v143ChangelogEntryNb;
+export const latestChangelogModalNb = v145ChangelogEntryNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
-  v143ChangelogEntryNb,
+  v145ChangelogEntryNb,
+  v144ChangelogEntryNb,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Oppdaterte kontoinnstillinger og styrket sikkerhet',
+      summary:
+        'En redesignet dialog for brukerinnstillinger, nye muligheter for å administrere aktive økter, styrkede kontroller rundt tofaktorautentisering, samt en håndfull rettelser og finpussinger.',
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Sikkerhet',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Du kan nå logge ut av alle andre aktive økter direkte fra kontoinnstillingene dine.',
+              'Deaktivering av tofaktorautentisering krever nå en gyldig TOTP-kode, noe som gir ekstra beskyttelse mot uautoriserte endringer.',
+              'Tofaktorautentisering tilbys ikke lenger for kontoer som logger inn via Google eller GitHub, siden leverandøren allerede håndterer det.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dialogen for brukerinnstillinger er redesignet med et mer moderne og ryddig oppsett.',
+              'Favicons for dashboard-domener hentes nå mer pålitelig for flere nettsteder.',
+              'Mindre UI-finpussinger på tvers av dashbordet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem der brukere uten et navn på kontoen sin ikke kunne oppdatere innstillingene sine.',
+              'Rettet et problem der det viste temaet ikke lenger samsvarte med den lagrede innstillingen hvis man avbrøt et temaskifte.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.2',
@@ -675,7 +794,9 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
         blocks: [
           {
             type: 'list',
-            items: ['Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.'],
+            items: [
+              'Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.',
+            ],
           },
         ],
       },
@@ -853,7 +974,9 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
         blocks: [
           {
             type: 'list',
-            items: ['La til manglende oversettelser slik at brukere over hele verden får en smidigere opplevelse.'],
+            items: [
+              'La til manglende oversettelser slik at brukere over hele verden får en smidigere opplevelse.',
+            ],
           },
         ],
       },
@@ -877,7 +1000,8 @@ export const changelogEntriesNb: readonly ChangelogEntryData[] = [
       version: 'v1.2.5',
       releasedAt: '2025-11-24',
       title: 'Mer presise data, mer kontroll',
-      summary: 'Forbedret dataintegritet, strengere kontroll av innkommende trafikk og en rekke stabilitetsrettinger.',
+      summary:
+        'Forbedret dataintegritet, strengere kontroll av innkommende trafikk og en rekke stabilitetsrettinger.',
     },
     sections: [
       {

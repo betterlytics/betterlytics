@@ -1,8 +1,10 @@
 import { z } from 'zod';
-import { QueryFilterSchema } from './filter.entities';
+import { isNonEmptyValue, QueryFilterSchema } from './filter.entities';
 
-export const FunnelStepSchema = QueryFilterSchema.extend({
+export const FunnelStepSchema = z.object({
+  id: z.string(),
   name: z.string(),
+  filters: z.array(QueryFilterSchema),
 });
 
 export const FunnelSchema = z.object({
@@ -23,15 +25,25 @@ export const FunnelPreviewSchema = z.object({
   isStrict: z.boolean(),
 });
 
+const CreateFunnelFilterSchema = QueryFilterSchema.omit({ id: true });
+
 export const CreateFunnelSchema = z.object({
   name: z.string().min(1, 'Funnel name is required'),
   dashboardId: z.string().cuid('Valid Dashboard ID is required'),
   isStrict: z.boolean(),
   funnelSteps: z
     .array(
-      FunnelStepSchema.extend({
+      z.object({
         name: z.string().min(1, 'Name is required'),
-      }).omit({ id: true }),
+        filters: z
+          .array(CreateFunnelFilterSchema)
+          .transform((filters) =>
+            filters
+              .map((filter) => ({ ...filter, values: filter.values.filter(isNonEmptyValue) }))
+              .filter((filter) => filter.values.length > 0),
+          )
+          .pipe(z.array(CreateFunnelFilterSchema).min(1, 'At least one filter with a value is required')),
+      }),
     )
     .min(2),
 });

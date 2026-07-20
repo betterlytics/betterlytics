@@ -1,0 +1,125 @@
+/*
+ * Public status page theming.
+ *
+ * The page's appearance is the page OWNER's choice (light/dark/system), fully
+ * independent of the dashboard's next-themes preference, which toggles a global
+ * `.dark` class on <html> per visitor. So the status page never uses `dark:`
+ * variants; every surface reads from these scoped variables instead.
+ *
+ * Each variable declares its light and dark value once via light-dark()
+ * (Baseline 2024); the owner's theme just sets color-scheme, with `system`
+ * (`light dark`) resolved by the visitor's OS preference.
+ *
+ * --sp-accent and --sp-accent-foreground are injected inline per page.
+ */
+
+.bl-status-page {
+  color-scheme: light dark; /* theme 'system' */
+
+  --sp-page-bg: light-dark(#f8f8fb, #0b0d0f);
+  --sp-card-bg: light-dark(#ffffff, #14171a);
+  --sp-card-border: light-dark(#d4d4dc, #2a2f35);
+  --sp-card-divider: light-dark(#f1f2f4, #1d2126);
+  --sp-card-footer-bg: light-dark(#fafafa, #101316);
+  --sp-heading: light-dark(#16181c, #e7eaee);
+  --sp-text: light-dark(#1a1d21, #e7eaee);
+  --sp-muted: light-dark(#6b7280, #8a929c);
+  --sp-muted-strong: light-dark(#52575f, #9fa6b0);
+  --sp-faint: light-dark(#9ca3af, #5c6570);
+  --sp-ok: light-dark(#10b981, #22c55e);
+  --sp-ok-text: light-dark(#059669, #4ade80);
+  --sp-warn: light-dark(#f5b40a, #f0b429);
+  --sp-warn-text: light-dark(#b45309, #fbd34d);
+  --sp-partial: light-dark(#f97316, #fb923c);
+  --sp-partial-text: light-dark(#ea580c, #fdba74);
+  --sp-down: light-dark(#ef4444, #f43f5e);
+  --sp-down-text: light-dark(#dc2626, #fb7185);
+  --sp-info: light-dark(#0ea5e9, #38bdf8);
+  --sp-info-text: light-dark(#0284c7, #7dd3fc);
+  --sp-neutral: light-dark(#e5e7eb, #24282d);
+  /* Card elevation is split in two so the shadow ON THE BRAND BAND stays identical
+     across themes (the band color is theme-independent — injected per page, not
+     light-dark). --sp-card-shadow is the normal drop shadow, biased downward (offset
+     >= blur + |spread|) so it lifts the card off the page bg WITHOUT haloing up onto the
+     band; only its alpha changes per theme, to match each page background. */
+  --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.09);
+  /* --sp-card-cast owns everything that touches the brand: a multiply ::before, so it
+     darkens the band's actual color instead of greying it. Multiply against the same
+     band color yields the same result in both themes, so this is theme-independent and
+     the seam never shifts when the owner flips light/dark. On the page bg it fades to a
+     plain soft shadow (light) or to nothing against near-black (dark, where the drop
+     shadow above does the lifting). */
+  --sp-card-cast: 0 0px 16px 2px rgba(0, 0, 0, 0.17);
+
+  /* "Show past incidents" toggle: a raised white surface in light mode; in dark it
+     drops back to the plain transparent, shadow-less button. Geometry is constant, so
+     unlike --sp-card-shadow the on/off fits in light-dark() via a transparent shadow
+     color (which renders as no shadow). Light value equals Tailwind's shadow-xs. */
+  --sp-button-bg: light-dark(#ffffff, transparent);
+  --sp-button-shadow: 0 1px 2px 0 light-dark(rgba(0, 0, 0, 0.05), transparent);
+
+  --sp-pill-ok-text: light-dark(#059669, #4ade80);
+  --sp-pill-ok-bg: light-dark(#ecfdf5, #10231a);
+  --sp-pill-ok-border: light-dark(#a7f3d0, #1d3a28);
+  --sp-pill-warn-text: light-dark(#b45309, #fbd34d);
+  --sp-pill-warn-bg: light-dark(#fffbeb, #2a2107);
+  --sp-pill-warn-border: light-dark(#fde68a, #6b5310);
+  --sp-pill-down-text: light-dark(#b91c1c, #fb7185);
+  --sp-pill-down-bg: light-dark(#fef2f2, #2a1014);
+  --sp-pill-down-border: light-dark(#fecaca, #5c1b24);
+  --sp-pill-partial-text: light-dark(#c2410c, #fdba74);
+  --sp-pill-partial-bg: light-dark(#fff7ed, #2a1709);
+  --sp-pill-partial-border: light-dark(#fed7aa, #6b3a10);
+  --sp-pill-neutral-text: light-dark(#6b7280, #8a929c);
+  --sp-pill-neutral-bg: light-dark(#f9fafb, #171a1e);
+  --sp-pill-neutral-border: light-dark(#e5e7eb, #2a2f35);
+}
+
+/* Brief highlight when an incident's affected-monitor chip scrolls to its uptime
+   row, so the eye lands on the right monitor. Tinted with the page's brand accent. */
+.bl-status-page .bl-monitor-flash {
+  animation: blMonitorFlash 1.5s ease-out;
+}
+@keyframes blMonitorFlash {
+  0%,
+  12% {
+    background-color: color-mix(in srgb, var(--sp-accent) 20%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bl-status-page .bl-monitor-flash {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* Betterlytics mark for the powered-by footer: the SVG silhouette masked and
+   filled with currentColor, so it follows the theme like the adjacent text.
+   Referenced relatively (not as a bare `/…` public path) so the bundler emits it under
+   `/_next/static/media/…` — the status subdomain/custom-domain proxy forwards `/_next/static/*`
+   but 404s bare root paths, so an absolute public URL would fail to load there. */
+.bl-status-logo {
+  display: inline-block;
+  background-color: currentColor;
+  mask: url('./betterlytics-mark.svg') no-repeat center / contain;
+}
+
+.bl-status-page[data-sp-theme='light'] {
+  color-scheme: light;
+}
+
+.bl-status-page[data-sp-theme='dark'] {
+  color-scheme: dark;
+  /* Same downward geometry as light; only the alpha rises to read on the near-black
+     page. The brand-touching shadow is unchanged (it comes from --sp-card-cast). */
+  --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.5);
+}
+
+/* box-shadow mixes geometry with color, so light-dark() can't express it */
+@media (prefers-color-scheme: dark) {
+  .bl-status-page[data-sp-theme='system'] {
+    --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.5);
+  }
+}

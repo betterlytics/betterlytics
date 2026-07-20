@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useTranslations } from 'next-intl';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { MAX_FILTER_ROWS, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { SaveQueryFilterDialog } from '@/components/filters/SaveQueryFilterDialog';
 import { SavedFiltersSection } from '@/components/filters/SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
@@ -94,23 +94,29 @@ export function QueryFiltersSelectorContent({
 
   const { data: isSavedFiltersLimitReached } = useSavedFiltersLimitReached();
 
+  const atCap = queryFilters.length >= MAX_FILTER_ROWS;
+
   const ActionsRow = (
     <div className='flex flex-col gap-2 md:flex-row md:items-center md:justify-between'>
-      <PermissionGate allowViewer when={queryFilters.length >= 1}>
-        {(isDisabled) => (
-          <Button
-            className='h-8 w-full cursor-pointer md:w-28'
-            onClick={() => {
-              if (isDisabled) return;
-              handleAddFilter();
-            }}
-            variant='outline'
-            disabled={isDisabled}
-          >
-            {t('selector.addFilter')}
-          </Button>
+      <DisabledTooltip disabled={atCap} message={t('selector.maxFiltersReached', { max: MAX_FILTER_ROWS })}>
+        {(isCapDisabled) => (
+          <PermissionGate allowViewer when={queryFilters.length >= 1}>
+            {(isPermDisabled) => (
+              <Button
+                className='h-8 w-full cursor-pointer md:w-28'
+                onClick={() => {
+                  if (isPermDisabled || isCapDisabled) return;
+                  handleAddFilter();
+                }}
+                variant='outline'
+                disabled={isPermDisabled || isCapDisabled}
+              >
+                {t('selector.addFilter')}
+              </Button>
+            )}
+          </PermissionGate>
         )}
-      </PermissionGate>
+      </DisabledTooltip>
       <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-2'>
         <PermissionGate>
           {(disabled) => (

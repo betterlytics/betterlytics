@@ -5,6 +5,7 @@ import { getCapabilitiesForTier, PlanCapabilities } from './capabilities';
 import { UserException } from '@/lib/exceptions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { PLAN_CAPABILITIES } from './capabilities';
+import { resolveEntitledTier } from './subscription-status';
 import { findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 
@@ -19,7 +20,7 @@ export async function getUserCapabilities(): Promise<PlanCapabilities> {
     throw new Error('Unable to verify subscription status');
   }
 
-  return getCapabilitiesForTier(billing.data.subscription.tier);
+  return getCapabilitiesForTier(resolveEntitledTier(billing.data.subscription));
 }
 
 export async function getDashboardCapabilities(dashboardId: string): Promise<PlanCapabilities> {
@@ -37,7 +38,7 @@ export async function getDashboardCapabilities(dashboardId: string): Promise<Pla
     throw new Error('Unable to verify subscription status');
   }
 
-  return getCapabilitiesForTier(subscription.tier);
+  return getCapabilitiesForTier(resolveEntitledTier(subscription));
 }
 
 export function requireCapability(allowed: boolean, message: string): void {
@@ -50,6 +51,15 @@ export async function canDashboardReceiveReports(dashboardId: string): Promise<b
   try {
     const capabilities = await getDashboardCapabilities(dashboardId);
     return capabilities.emailReports.emailReportsEnabled;
+  } catch {
+    return false;
+  }
+}
+
+export async function canUseStatusPageCustomDomain(dashboardId: string): Promise<boolean> {
+  try {
+    const capabilities = await getDashboardCapabilities(dashboardId);
+    return capabilities.statusPages.customDomain;
   } catch {
     return false;
   }

@@ -1,0 +1,89 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+import { Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { CopyButton } from '@/components/CopyButton';
+
+export function statusPageCnameTarget(slug: string, publicHost: string): string {
+  return `${slug}.status.${publicHost}`;
+}
+
+type CustomDomainSetupProps = {
+  customDomain: string;
+  slug: string;
+  publicHost: string;
+  isValid: boolean;
+};
+
+export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: CustomDomainSetupProps) {
+  const t = useTranslations('statusPagesPage.editor');
+
+  const domain = customDomain.trim();
+  if (!domain || !isValid || !slug.trim()) return null;
+
+  const target = statusPageCnameTarget(slug, publicHost);
+  // Many providers (Namecheap, Cloudflare, GoDaddy…) auto-append the domain, so the Name field wants
+  // just the subdomain label.
+  const hostLabel = domain.split('.')[0];
+
+  return (
+    <div className='space-y-3 rounded-lg border border-blue-500/30 bg-blue-500/5 p-4'>
+      <div className='flex items-center gap-2'>
+        <Info className='h-4 w-4 flex-none text-blue-600 dark:text-blue-400' />
+        <p className='text-muted-foreground text-xs'>
+          {t.rich('customDomainSetup.intro', {
+            domain,
+            strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
+          })}
+        </p>
+      </div>
+      <div className='border-border bg-card divide-border grid rounded-md border max-2xl:divide-y max-2xl:px-3 2xl:grid-cols-[auto_fit-content(40%)_minmax(0,1fr)] 2xl:px-4 2xl:py-2.5'>
+        <DnsField label={t('customDomainSetup.recordType')} className='max-2xl:py-3 2xl:pr-6'>
+          <span className='font-mono text-sm'>CNAME</span>
+        </DnsField>
+        <DnsField label={t('customDomainSetup.recordName')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:px-6'>
+          <span className='font-mono text-sm break-all'>{domain}</span>
+        </DnsField>
+        <DnsField label={t('customDomainSetup.recordValue')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:pl-6'>
+          <div className='flex items-center gap-2'>
+            <span className='font-mono text-sm break-all'>{target}</span>
+            <CopyButton
+              text={target}
+              ariaLabel={t('customDomainSetup.copy')}
+              copiedLabel={t('customDomainSetup.copied')}
+              className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
+              iconClassName='h-3.5 w-3.5'
+            />
+          </div>
+        </DnsField>
+      </div>
+      <p className='text-muted-foreground text-xs'>
+        {t.rich('customDomainSetup.nameHint', {
+          label: hostLabel,
+          domain,
+          mono: (chunks) => <span className='text-foreground font-mono font-medium'>{chunks}</span>,
+          monoBreak: (chunks) => <span className='text-foreground font-mono font-medium break-all'>{chunks}</span>,
+        })}
+      </p>
+      <p className='text-muted-foreground text-xs'>{t('customDomainSetup.propagation')}</p>
+    </div>
+  );
+}
+
+function DnsField({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn('space-y-1', className)}>
+      <div className='text-muted-foreground text-[11px] font-medium tracking-wide uppercase'>{label}</div>
+      {children}
+    </div>
+  );
+}

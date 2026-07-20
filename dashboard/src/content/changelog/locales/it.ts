@@ -1,51 +1,54 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-const v143ChangelogEntryIt: ChangelogEntryData = {
+const v145ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
-    version: 'v1.4.3',
-    releasedAt: '2026-05-24',
-    title: 'Impostazioni account rinnovate e maggiore sicurezza',
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Pagine di stato pubbliche',
     summary:
-      'Una finestra delle impostazioni utente ridisegnata, nuove opzioni per gestire le sessioni attive, controlli più rigorosi sull\'autenticazione a due fattori, oltre a una manciata di correzioni e rifiniture.',
+      "Condividi il tuo uptime con il mondo. Crea una pagina di stato pubblica con il tuo brand, basata sui tuoi monitor uptime, con storico dell'uptime, comunicazione degli incidenti e supporto per il tuo dominio personalizzato.",
   },
   sections: [
     {
-      id: 'v143-security',
-      title: 'Sicurezza',
+      id: 'v145-new-features',
+      title: 'Nuove funzionalità',
       blocks: [
+        {
+          type: 'text',
+          body: "Ora puoi creare pagine di stato pubbliche. Costruita direttamente sui tuoi monitor uptime, una pagina di stato offre ai tuoi utenti una vista sempre aggiornata dei tuoi servizi: stato attuale, storico dell'uptime per ogni monitor e cronologia degli incidenti.",
+        },
         {
           type: 'list',
           items: [
-            'Ora puoi disconnetterti da tutte le altre sessioni attive direttamente dalle impostazioni del tuo account.',
-            'Per disattivare l\'autenticazione a due fattori è ora necessario un codice TOTP valido, per una protezione aggiuntiva contro modifiche non autorizzate.',
-            'L\'autenticazione a due fattori non è più disponibile per gli account che accedono tramite Google o GitHub, dato che il provider la gestisce già.',
+            "Progetta la tua pagina con un'anteprima live: scegli quali monitor mostrare e in che ordine, e assegna a ciascuno un nome pubblico.",
+            'Personalizzala con il tuo logo, la favicon, il colore principale e il tema.',
+            'Pubblicala su un URL Betterlytics a tua scelta o direttamente sul tuo dominio personalizzato.',
+            "Tieni informati i tuoi utenti durante i disservizi con aggiornamenti sugli incidenti e ricevi proposte di incidente quando i tuoi monitor rilevano un'interruzione.",
           ],
         },
       ],
     },
     {
-      id: 'v143-improvements',
+      id: 'v145-improvements',
       title: 'Miglioramenti',
       blocks: [
         {
           type: 'list',
           items: [
-            'La finestra delle impostazioni utente è stata ridisegnata con un layout più pulito e ordinato.',
-            'Le favicon dei domini delle dashboard vengono caricate in modo più affidabile per un numero maggiore di siti.',
-            'Piccole rifiniture all\'interfaccia in tutta la dashboard.',
+            'I passaggi dei funnel ora evidenziano i filtri con valori vuoti, rendendo più facile individuare e correggere i passaggi incompleti.',
+            'La documentazione è stata rinnovata con una struttura riorganizzata, una FAQ ampliata e nuove guide per le pagine di stato e i domini personalizzati.',
           ],
         },
       ],
     },
     {
-      id: 'v143-fixes',
+      id: 'v145-fixes',
       title: 'Correzioni',
       blocks: [
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui gli utenti senza un nome impostato sull\'account non riuscivano ad aggiornare le proprie impostazioni.',
-            'Risolto un problema per cui annullare un cambio di tema poteva lasciare il tema visualizzato non allineato con l\'impostazione salvata.',
+            'Corretti alcuni link non funzionanti alla documentazione nella pagina degli errori e nelle FAQ.',
           ],
         },
       ],
@@ -53,10 +56,128 @@ const v143ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v143ChangelogEntryIt;
+const v144ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Funnel con più criteri, fatturazione più fluida e maggiore privacy',
+    summary:
+      "Crea funnel più precisi con più criteri per ogni passaggio, ora utilizzabili anche da dispositivi mobili. Gestisci il tuo abbonamento e le tue fatture senza uscire dall'app e offri ai tuoi visitatori una privacy ancora più forte.",
+  },
+  sections: [
+    {
+      id: 'v144-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I passaggi dei funnel ora supportano più criteri. Ogni passaggio può combinare più filtri, ad esempio una pagina specifica e un referrer, così puoi definire percorsi di conversione molto più precisi.',
+            "Ora puoi creare e modificare i funnel da dispositivi mobili, con un'esperienza fluida su smartphone e tablet.",
+            "Gestisci il tuo abbonamento senza uscire da Betterlytics. Ora puoi passare a un piano superiore o inferiore direttamente nell'app, con un'anteprima chiara di eventuali addebiti o crediti proporzionali prima di confermare. Anche il pagamento avviene in modo sicuro nell'app, senza reindirizzamenti a una pagina esterna.",
+            'Visualizza e apri le tue fatture passate direttamente dalle impostazioni del tuo account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-privacy-security',
+      title: 'Privacy e sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Abbiamo ulteriormente rafforzato l'anonimizzazione dei dati dei visitatori, a conferma del nostro impegno per la privacy: le analisi non possono mai essere ricondotte a singole persone.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il credito per il tempo di abbonamento non utilizzato viene ora mostrato nelle impostazioni di fatturazione e applicato automaticamente alle fatture future.',
+            'I problemi di pagamento sono ora più chiari, con un avviso quando un pagamento è scaduto e la possibilità di aggiornare il metodo di pagamento con un solo clic.',
+            'La pagina dei prezzi è stata rinnovata con un volume di eventi suggerito in base al traffico stimato e una panoramica più chiara di ciò che include ogni piano.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Risolto un breve sfarfallio visivo che poteva comparire alla chiusura delle finestre di dialogo in tutta l'app.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+export const latestChangelogModalIt = v145ChangelogEntryIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
-  v143ChangelogEntryIt,
+  v145ChangelogEntryIt,
+  v144ChangelogEntryIt,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Impostazioni account rinnovate e maggiore sicurezza',
+      summary:
+        "Una finestra delle impostazioni utente ridisegnata, nuove opzioni per gestire le sessioni attive, controlli più rigorosi sull'autenticazione a due fattori, oltre a una manciata di correzioni e rifiniture.",
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Sicurezza',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Ora puoi disconnetterti da tutte le altre sessioni attive direttamente dalle impostazioni del tuo account.',
+              "Per disattivare l'autenticazione a due fattori è ora necessario un codice TOTP valido, per una protezione aggiuntiva contro modifiche non autorizzate.",
+              "L'autenticazione a due fattori non è più disponibile per gli account che accedono tramite Google o GitHub, dato che il provider la gestisce già.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Miglioramenti',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'La finestra delle impostazioni utente è stata ridisegnata con un layout più pulito e ordinato.',
+              'Le favicon dei domini delle dashboard vengono caricate in modo più affidabile per un numero maggiore di siti.',
+              "Piccole rifiniture all'interfaccia in tutta la dashboard.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Correzioni',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "Risolto un problema per cui gli utenti senza un nome impostato sull'account non riuscivano ad aggiornare le proprie impostazioni.",
+              "Risolto un problema per cui annullare un cambio di tema poteva lasciare il tema visualizzato non allineato con l'impostazione salvata.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.4.2',
@@ -149,7 +270,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Il tempo sulla pagina ora si basa sul tempo attivo invece che sul tempo cronologico, così le metriche di durata riflettono meglio quanto a lungo i visitatori hanno davvero interagito con una pagina.',
-              'L\'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all\'altra.',
+              "L'intervallo di tempo selezionato ora viene mantenuto quando passi da una dashboard all'altra.",
               'I report Pagine di ingresso e Pagine di uscita ora si concentrano sulle metriche più adatte a quelle viste. La profondità di scorrimento è stata rimossa da entrambe le schede, e la frequenza di rimbalzo è stata rimossa anche da Pagine di uscita.',
             ],
           },
@@ -200,7 +321,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Le dashboard ora si caricano in modo significativamente più rapido, con i miglioramenti più evidenti sui siti ad alto traffico e sugli intervalli di tempo più lunghi.',
-              'Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell\'intera pagina.',
+              "Grafici e tabelle ora si caricano man mano che scorri fino ad essi, così i dati in cima alla pagina appaiono prima, invece di dover attendere il completamento dell'intera pagina.",
             ],
           },
         ],
@@ -235,8 +356,8 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
           {
             type: 'list',
             items: [
-              'L\'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.',
-              'Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l\'utente prima dell\'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.',
+              "L'error tracking client-side è arrivato. Errori e chiamate console.error possono ora essere catturati e raggruppati per fingerprint, così puoi vedere quali errori colpiscono più utenti e con quale frequenza si verificano.",
+              "Ogni errore include uno stack trace e un breadcrumb trail che mostra cosa ha fatto l'utente prima dell'errore. Attiva il session replay on error per catturare anche una riproduzione completa della sessione.",
               'Gli errori sono completamente accessibili tramite il server MCP, così i tuoi assistenti AI possono interrogare i dati sugli errori e aiutarti a capire e risolvere la causa di ciascun errore.',
             ],
           },
@@ -321,7 +442,7 @@ export const changelogEntriesIt: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Le sorgenti referrer nella tabella panoramica sono ora espandibili, permettendoti di vedere subito il dettaglio dietro ogni fonte di traffico.',
-              'Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un\'unica fonte.',
+              "Il raggruppamento dei referrer è stato migliorato in modo che il traffico proveniente da diversi sottodomini dello stesso sito venga correttamente unito sotto un'unica fonte.",
               'I numeri in tutta la dashboard sono ora formattati in modo coerente in base alla tua lingua e regione.',
             ],
           },

@@ -11,7 +11,11 @@ import {
   findPendingInvitationsByEmail,
   deleteInvitation,
 } from '@/repositories/postgres/invitation.repository';
-import { findUserDashboardOrNull, addDashboardMember } from '@/repositories/postgres/dashboard.repository';
+import {
+  findUserDashboardOrNull,
+  addDashboardMember,
+  findDashboardMembers,
+} from '@/repositories/postgres/dashboard.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createEmailRecipientKey, createUserRecipientKey } from '@/services/email/recipient-key.service';
@@ -19,6 +23,7 @@ import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
+import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 
 export async function inviteUserToDashboard(
   dashboardId: string,
@@ -54,6 +59,16 @@ export async function inviteUserToDashboard(
 
   if (existingInvitation) {
     throw new UserException(t('invitationAlreadySent'));
+  }
+
+  const capabilities = await getDashboardCapabilities(dashboardId);
+  const [currentMembers, pendingInvitations] = await Promise.all([
+    findDashboardMembers(dashboardId),
+    findPendingInvitationsByDashboard(dashboardId),
+  ]);
+
+  if (currentMembers.length + pendingInvitations.length >= capabilities.dashboards.maxMembers) {
+    throw new UserException(t('memberLimitReached', { limit: capabilities.dashboards.maxMembers }));
   }
 
   const invitation = await createInvitation({
