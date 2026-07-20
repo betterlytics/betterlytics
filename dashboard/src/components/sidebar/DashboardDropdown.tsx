@@ -17,7 +17,6 @@ import { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { useTranslations } from 'next-intl';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
-import { useIsEmbedded } from '@/hooks/use-is-embedded';
 import { PermissionGate } from '../tooltip/PermissionGate';
 
 interface DashboardDropdownProps {
@@ -31,7 +30,6 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations('components.sidebar.dashboardDropdown');
   const { getSwappedDashboardHref } = useDashboardNavigation();
-  const isEmbedded = useIsEmbedded();
 
   const currentDashboard = use(currentDashboardPromise);
   const allDashboards = use(allDashboardsPromise);
@@ -45,26 +43,31 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant='ghost'
-          className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-0'
-        >
-          <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden group-data-[collapsible=icon]:flex-none'>
-            <div className='group-data-[collapsible=icon]:border-border flex items-center group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:border group-data-[collapsible=icon]:p-1'>
-              <DomainFavicon
-                domain={currentDashboard.domain}
-                size={20}
-                className='h-5 w-5 group-data-[collapsible=icon]:h-4 group-data-[collapsible=icon]:w-4'
-              />
-            </div>
-            <span className='truncate text-left group-data-[collapsible=icon]:hidden'>
-              {currentDashboard.domain}
-            </span>
-          </div>
-          <ChevronDown className='text-muted-foreground h-3 w-3 flex-shrink-0 group-data-[collapsible=icon]:hidden' />
-        </Button>
-      </DropdownMenuTrigger>
+      <PermissionGate allowViewer wrapperClassName='block w-full'>
+        {(disabled) => (
+          <DropdownMenuTrigger asChild disabled={disabled}>
+            <Button
+              variant='ghost'
+              disabled={disabled}
+              className='h-auto w-full min-w-0 cursor-pointer justify-between border px-2.5 py-1.5 text-sm font-medium group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-0'
+            >
+              <div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden group-data-[collapsible=icon]:flex-none'>
+                <div className='group-data-[collapsible=icon]:border-border flex items-center group-data-[collapsible=icon]:rounded-full group-data-[collapsible=icon]:border group-data-[collapsible=icon]:p-1'>
+                  <DomainFavicon
+                    domain={currentDashboard.domain}
+                    size={20}
+                    className='h-5 w-5 group-data-[collapsible=icon]:h-4 group-data-[collapsible=icon]:w-4'
+                  />
+                </div>
+                <span className='truncate text-left group-data-[collapsible=icon]:hidden'>
+                  {currentDashboard.domain}
+                </span>
+              </div>
+              <ChevronDown className='text-muted-foreground h-3 w-3 flex-shrink-0 group-data-[collapsible=icon]:hidden' />
+            </Button>
+          </DropdownMenuTrigger>
+        )}
+      </PermissionGate>
 
       <DropdownMenuContent align='start' className='w-56'>
         <div className='px-2 py-1.5'>
@@ -90,20 +93,12 @@ export function DashboardDropdown({ currentDashboardPromise, allDashboardsPromis
 
         <DropdownMenuSeparator />
 
-        <PermissionGate allowViewer when={!isEmbedded}>
-          {(disabled) => (
-            <DropdownMenuItem
-              onClick={() => router.push('/dashboards')}
-              className='cursor-pointer'
-              disabled={disabled}
-            >
-              <div className='flex w-full items-center gap-2'>
-                <List className='text-muted-foreground h-4 w-4' />
-                <span>{t('viewAll')}</span>
-              </div>
-            </DropdownMenuItem>
-          )}
-        </PermissionGate>
+        <DropdownMenuItem onClick={() => router.push('/dashboards')} className='cursor-pointer'>
+          <div className='flex w-full items-center gap-2'>
+            <List className='text-muted-foreground h-4 w-4' />
+            <span>{t('viewAll')}</span>
+          </div>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
