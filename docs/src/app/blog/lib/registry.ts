@@ -37,6 +37,10 @@ function readingTime(raw: string): number {
   return Math.max(1, Math.ceil(words / 220));
 }
 
+function warnSkipped(fileSlug: string, reason: string): void {
+  console.warn(`[blog] skipping content/blog/${fileSlug}.mdx — ${reason}`);
+}
+
 let cached: BlogPost[] | null = null;
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
@@ -46,28 +50,39 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   const posts: BlogPost[] = [];
 
   for (const fileSlug of slugs) {
-    const page = await importPage(["blog", fileSlug]);
-    const fm = page.metadata as Record<string, unknown> | undefined;
-    if (!fm) continue;
+    // A single broken post is skipped with a warning rather than taking the
+    // whole blog down — the build stays green and the other posts still render.
+    try {
+      const page = await importPage(["blog", fileSlug]);
+      const fm = page.metadata as Record<string, unknown> | undefined;
+      if (!fm) {
+        warnSkipped(fileSlug, "no frontmatter exported");
+        continue;
+      }
 
-    const parsed = blogFrontmatterSchema.safeParse(fm);
-    if (!parsed.success) {
-      throw new Error(
-        `Invalid frontmatter in content/blog/${fileSlug}.mdx:\n${parsed.error.message}`,
+      const parsed = blogFrontmatterSchema.safeParse(fm);
+      if (!parsed.success) {
+        warnSkipped(fileSlug, `invalid frontmatter\n${parsed.error.message}`);
+        continue;
+      }
+      const frontmatter = parsed.data;
+      if (frontmatter.draft && !SHOW_DRAFTS) continue;
+
+      const slug = frontmatter.slug || fileSlug;
+      const raw = readFileSync(
+        join(BLOG_CONTENT_DIR, `${fileSlug}.mdx`),
+        "utf8",
       );
+
+      posts.push({
+        frontmatter,
+        slug,
+        readingTimeMinutes: readingTime(raw),
+        url: `/blog/${slug}`,
+      });
+    } catch (error) {
+      warnSkipped(fileSlug, error instanceof Error ? error.message : `${error}`);
     }
-    const frontmatter = parsed.data;
-    if (frontmatter.draft && !SHOW_DRAFTS) continue;
-
-    const slug = frontmatter.slug || fileSlug;
-    const raw = readFileSync(join(BLOG_CONTENT_DIR, `${fileSlug}.mdx`), "utf8");
-
-    posts.push({
-      frontmatter,
-      slug,
-      readingTimeMinutes: readingTime(raw),
-      url: `/blog/${slug}`,
-    });
   }
 
   posts.sort(
