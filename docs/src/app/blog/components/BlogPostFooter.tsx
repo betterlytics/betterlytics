@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { type BlogPost } from "../lib/registry";
 import { GitHubIcon } from "../../components/SocialIcons";
 
@@ -7,63 +8,6 @@ type Props = {
   previous?: BlogPost;
   next?: BlogPost;
 };
-
-function ArrowRightIcon() {
-  return (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
-
-function ArrowLeftIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
-
-function NextArrowIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
 
 export function BlogPostFooter({ post, previous, next }: Props) {
   const { citations, tags } = post.frontmatter;
@@ -107,7 +51,7 @@ export function BlogPostFooter({ post, previous, next }: Props) {
             className="btn btn-primary"
             href="https://betterlytics.io/signup"
           >
-            Get started free <ArrowRightIcon />
+            Get started free <ArrowRight size={13} aria-hidden="true" />
           </a>
           <a
             className="btn btn-outline"
@@ -125,7 +69,7 @@ export function BlogPostFooter({ post, previous, next }: Props) {
           {previous ? (
             <Link className="next-card" href={previous.url}>
               <span className="dir">
-                <ArrowLeftIcon /> Previous
+                <ArrowLeft size={12} aria-hidden="true" /> Previous
               </span>
               <span className="ttl">{previous.frontmatter.title}</span>
             </Link>
@@ -135,7 +79,7 @@ export function BlogPostFooter({ post, previous, next }: Props) {
           {next ? (
             <Link className="next-card right" href={next.url}>
               <span className="dir">
-                Next <NextArrowIcon />
+                Next <ArrowRight size={12} aria-hidden="true" />
               </span>
               <span className="ttl">{next.frontmatter.title}</span>
             </Link>

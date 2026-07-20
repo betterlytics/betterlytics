@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft, Clock } from "lucide-react";
 import { type BlogPost } from "../lib/registry";
 import { resolveCover } from "../lib/cover";
 import { getAuthor } from "../lib/authors";
@@ -14,44 +15,6 @@ function formatDate(iso: string): string {
     month: "long",
     day: "numeric",
   });
-}
-
-function ArrowLeftIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
-
-function ClockIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
 }
 
 function authorInitials(name: string): string {
@@ -71,7 +34,7 @@ export function BlogPostHeader({ post }: Props) {
   return (
     <header>
       <Link className="post-back" href="/blog">
-        <ArrowLeftIcon /> All posts
+        <ArrowLeft size={12} aria-hidden="true" /> All posts
       </Link>
 
       <div className="post-eyebrow">
@@ -82,7 +45,8 @@ export function BlogPostHeader({ post }: Props) {
         </time>
         <span className="sep">·</span>
         <span className="time">
-          <ClockIcon /> {post.readingTimeMinutes} min read
+          <Clock size={12} aria-hidden="true" /> {post.readingTimeMinutes} min
+          read
         </span>
       </div>
 
