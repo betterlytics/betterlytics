@@ -4,7 +4,7 @@ import { type BlogPost } from "./registry";
 // =============================================================================
 // Cover resolution — decides what image a post's card/header shows:
 //   • a real photo (frontmatter `coverImage`), or
-//   • a deterministic procedural cover from /api/blog/cover.
+//   • a deterministic procedural cover from /docs-static/api/blog/cover.
 // Pure (no fs) so it's safe to call from any component.
 // =============================================================================
 
@@ -51,7 +51,7 @@ export function resolveCover(post: BlogPost): ResolvedCover {
     return { ...fm.coverImage, generated: false };
   }
   return {
-    src: `/api/blog/cover/${encodeURIComponent(post.slug)}?v=${coverVersion(post)}`,
+    src: `/docs-static/api/blog/cover/${encodeURIComponent(post.slug)}?v=${coverVersion(post)}`,
     alt: fm.title,
     width: 1200,
     height: 630,

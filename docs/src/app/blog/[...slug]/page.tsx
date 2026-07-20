@@ -48,7 +48,7 @@ export async function generateMetadata(props: {
     ? post.frontmatter.ogImage.startsWith("http")
       ? post.frontmatter.ogImage
       : `${SITE_URL}${post.frontmatter.ogImage}`
-    : `${SITE_URL}/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
+    : `${SITE_URL}/docs-static/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
 
   return {
     title: `${post.frontmatter.title} | Betterlytics Blog`,
@@ -64,8 +64,7 @@ export async function generateMetadata(props: {
       title: post.frontmatter.title,
       description: post.frontmatter.description,
       publishedTime: post.frontmatter.publishedAt,
-      modifiedTime:
-        post.frontmatter.updatedAt ?? post.frontmatter.publishedAt,
+      modifiedTime: post.frontmatter.updatedAt ?? post.frontmatter.publishedAt,
       authors: [author.name],
       tags: post.frontmatter.tags,
       images: [
@@ -86,9 +85,7 @@ export async function generateMetadata(props: {
   };
 }
 
-export default async function BlogPostPage(props: {
-  params: Promise<Params>;
-}) {
+export default async function BlogPostPage(props: { params: Promise<Params> }) {
   const params = await props.params;
   const slug = resolveSlug(params);
   if (!slug) notFound();

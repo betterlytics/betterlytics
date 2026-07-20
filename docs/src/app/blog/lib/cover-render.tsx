@@ -18,8 +18,8 @@ import { type BlogPost } from "./registry";
 // Cover render core — turns resolved options into the finished 1200×630 PNG
 // (procedural texture background + composited chrome via Satori).
 //
-// Shared by the static per-post route (`/api/blog/cover/[slug]`, prerendered at
-// build) and the dynamic tuning playground (`/api/blog/cover?…`). Output is
+// Shared by the static per-post route (`/docs-static/api/blog/cover/[slug]`, prerendered at
+// build) and the dynamic tuning playground (`/docs-static/api/blog/cover?…`). Output is
 // deterministic given (texture, seed, params), so it's cached immutably.
 // =============================================================================
 

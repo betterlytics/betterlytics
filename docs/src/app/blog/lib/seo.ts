@@ -19,7 +19,7 @@ export function buildArticleJsonLd(post: BlogPost) {
   const image =
     post.frontmatter.ogImage ??
     post.frontmatter.coverImage?.src ??
-    `/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
+    `/docs-static/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
   const absoluteImage = image.startsWith("http")
     ? image
     : `${SITE_URL}${image}`;
