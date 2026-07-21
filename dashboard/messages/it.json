@@ -2448,8 +2448,16 @@
       },
       "expandedEventContent": {
         "loading": "Caricamento proprietà...",
-        "noProperties": "Nessuna proprietà",
-        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate."
+        "noPropertiesTitle": "Nessuna proprietà",
+        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate.",
+        "eventProperties": "Proprietà dell'evento",
+        "globalProperties": "Proprietà globali",
+        "eventPropertiesInline": "proprietà dell'evento",
+        "globalPropertiesInline": "proprietà globale",
+        "noProperties": "Nessuna {propertyName} per questi eventi.",
+        "noEventOrGlobalProperties": "Nessuna proprietà dell'evento o globale registrata per questi eventi.",
+        "valueCount": "{count, plural, one {{count} valore} other {{count} valori}}",
+        "moreValues": "{count, plural, one {+{count} altro} other {+{count} altri}}"
       }
     },
     "tabbedTable": {

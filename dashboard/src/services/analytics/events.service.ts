@@ -13,6 +13,8 @@ import {
 } from '@/entities/analytics/events.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { getGlobalPropertiesForEvent } from '@/services/analytics/globalProperties.service';
+import { toEventPropertyAnalyticsFromGlobalEvent } from '@/presenters/toEventPropertyAnalyticsFromGlobalEvent';
 
 const MAX_TOP_VALUES = 10;
 
@@ -31,16 +33,23 @@ export async function getTotalEventCountForSite(siteQuery: BASiteQuery) {
 export async function getEventPropertiesAnalyticsForSite(
   siteQuery: BASiteQuery,
   eventName: string,
+  globalPropertiesKeyLimit: number,
+  globalPropertiesValueLimit: number,
 ): Promise<EventPropertiesOverview> {
-  const rawPropertyData = await getEventPropertyData(siteQuery, eventName);
+  const [rawPropertyData, globalAggregate] = await Promise.all([
+    getEventPropertyData(siteQuery, eventName),
+    getGlobalPropertiesForEvent(siteQuery, eventName, globalPropertiesKeyLimit, globalPropertiesValueLimit),
+  ]);
 
   const totalEvents = rawPropertyData.length;
   const properties = processPropertyData(rawPropertyData);
+  const globalProperties = toEventPropertyAnalyticsFromGlobalEvent(globalAggregate);
 
   return {
     eventName,
     totalEvents,
     properties,
+    globalProperties,
   };
 }
 
