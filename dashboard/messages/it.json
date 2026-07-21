@@ -2671,7 +2671,8 @@
         "destinationUrl": "URL di destinazione",
         "uniqueClicks": "Clic unici",
         "topReferrerPage": "Pagina referrer principale",
-        "sourcePages": "Pagine sorgente"
+        "sourcePages": "Pagine sorgente",
+        "goToUrl": "Vai a {url}"
       },
       "chart": {
         "title": "Clic in uscita unici nel tempo",

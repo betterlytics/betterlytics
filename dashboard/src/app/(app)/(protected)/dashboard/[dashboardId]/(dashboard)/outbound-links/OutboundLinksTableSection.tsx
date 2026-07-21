@@ -12,6 +12,7 @@ import { formatNumber, formatString } from '@/utils/formatters';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useQueryState } from '@/hooks/use-query-state';
+import { useFilterClick } from '@/hooks/use-filter-click';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import type { inferRouterOutputs } from '@trpc/server';
@@ -24,6 +25,8 @@ export default function OutboundLinksTableSection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.outboundLinks.analytics.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.table');
+  const tFilters = useTranslations('components.filters');
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const { data, loading, refetching } = useQueryState(query);
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(
@@ -34,13 +37,14 @@ export default function OutboundLinksTableSection() {
         minSize: 200,
         cell: ({ row }) => (
           <div className='flex items-center gap-2'>
-            <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
             <ExternalLink
               href={`https://${row.original.current.outbound_link_url}`}
               target='_blank'
               rel='noopener noreferrer'
+              title={t('goToUrl', { url: row.original.current.outbound_link_url })}
               className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
             >
+              <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
               {formatString(row.original.current.outbound_link_url)}
             </ExternalLink>
           </div>
@@ -86,7 +90,13 @@ export default function OutboundLinksTableSection() {
             </div>
           )}
           <div className={cn(refetching && 'pointer-events-none opacity-60')}>
-            <DataTable data={data ?? []} columns={columns} loading={loading} />
+            <DataTable
+              data={data ?? []}
+              columns={columns}
+              loading={loading}
+              onRowClick={(row) => makeFilterClick('outbound_link_url')(row.original.current.outbound_link_url)}
+              rowTitle={(row) => tFilters('filterBy', { label: row.original.current.outbound_link_url })}
+            />
           </div>
         </div>
       </CardContent>

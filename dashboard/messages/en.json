@@ -2671,7 +2671,8 @@
         "destinationUrl": "Destination URL",
         "uniqueClicks": "Unique Clicks",
         "topReferrerPage": "Top Referrer Page",
-        "sourcePages": "Source Pages"
+        "sourcePages": "Source Pages",
+        "goToUrl": "Go to {url}"
       },
       "chart": {
         "title": "Unique Outbound Clicks Over Time",

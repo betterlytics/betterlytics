@@ -1,6 +1,6 @@
 'use client';
 
-import { type RefObject, useEffect, useState } from 'react';
+import { type MouseEvent, type RefObject, useCallback, useEffect, useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -17,8 +17,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import DataEmptyComponent from './DataEmptyComponent';
+import { cn } from '@/lib/utils';
 
 const SKELETON_ROWS = 10;
+const INTERACTIVE_ELEMENT_SELECTOR = 'a, button, input, select, textarea';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -26,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   className?: string;
   onRowClick?: (row: Row<TData>) => void;
+  rowTitle?: (row: Row<TData>) => string | undefined;
   tableRef?: RefObject<ReturnType<typeof useReactTable<TData>> | null>;
   loading?: boolean;
 }
@@ -36,6 +39,7 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   className,
   onRowClick,
+  rowTitle,
   tableRef,
   loading = false,
 }: DataTableProps<TData, TValue>) {
@@ -62,8 +66,18 @@ export function DataTable<TData, TValue>({
     }
   }, []);
 
+  const handleRowClick = useCallback(
+    (event: MouseEvent<HTMLTableRowElement>, row: Row<TData>) => {
+      const interactiveAncestor = (event.target as Element).closest(INTERACTIVE_ELEMENT_SELECTOR);
+      if (interactiveAncestor && event.currentTarget.contains(interactiveAncestor)) return;
+      if (window.getSelection()?.toString()) return;
+      onRowClick?.(row);
+    },
+    [onRowClick],
+  );
+
   return (
-    <div className={`rounded-lg ${className || ''} border-border overflow-hidden border`}>
+    <div className={cn('border-border overflow-hidden rounded-lg border', className)}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -111,8 +125,9 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className={`hover:bg-accent dark:hover:bg-primary/10 ${onRowClick ? 'cursor-pointer' : ''}`}
-                onClick={() => onRowClick && onRowClick(row)}
+                className={cn('hover:bg-accent dark:hover:bg-primary/10', onRowClick && 'cursor-pointer')}
+                onClick={(e) => handleRowClick(e, row)}
+                title={rowTitle?.(row)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
