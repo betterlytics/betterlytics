@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY package*.json .
 # zod >= 4.4 breaks nextra's MDX prerender.
-RUN npm pkg set pnpm.overrides.zod=4.3.2
+RUN npm pkg set "pnpm.overrides[nextra>zod]=4.3.2" "pnpm.overrides[nextra-theme-docs>zod]=4.3.2"
 RUN pnpm install
 
 COPY . .
