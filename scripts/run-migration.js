@@ -1,7 +1,5 @@
 if (process.env.SECRET_BASE && !process.env.SALTS_DATABASE_URL) {
-  // SECRET_BASE only exists on selfhost deployments; SALTS_DATABASE_URL is
-  // derived by an up-to-date selfhost entrypoint. This combination means an
-  // outdated betterlytics-selfhost checkout is driving a newer image.
+  // SECRET_BASE without SALTS_DATABASE_URL means an outdated selfhost checkout is driving a newer image
   console.error(
     "Your betterlytics-selfhost checkout is outdated for this image.\n" +
       "Run 'git pull' in your betterlytics-selfhost directory, then 'docker compose up -d' again.\n" +
