@@ -50,7 +50,8 @@ export default function TrafficSourcesSection() {
               value: item.current.visitors,
               trendPercentage: item.change?.visitors,
               comparisonValue: item.compare?.visitors,
-              filterColumn: 'referrer_source_name',
+              filterColumn: item.stored_source_name ? 'referrer_source_name' : undefined,
+              filterValue: item.stored_source_name ?? undefined,
               children: item.children?.map(
                 (child): ProgressBarData => ({
                   label: child.referrer_url,

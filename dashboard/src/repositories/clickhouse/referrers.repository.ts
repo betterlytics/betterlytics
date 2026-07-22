@@ -176,6 +176,7 @@ export async function getReferrerUrlRollup(
       SELECT
         cutToFirstSignificantSubdomain(concat('http://', referrer_url)) as source_name,
         referrer_url,
+        referrer_source_name,
         session_id,
         _sample_factor
       FROM analytics.events ${sample}
@@ -198,6 +199,7 @@ export async function getReferrerUrlRollup(
       source_name,
       referrer_url,
       uniq(session_id) * any(_sample_factor) as visitors,
+      any(nullIf(referrer_source_name, '')) as stored_source_name,
       grouping(referrer_url) as is_rollup
     FROM enriched
     WHERE source_name IN (SELECT source_name FROM top_parents)
