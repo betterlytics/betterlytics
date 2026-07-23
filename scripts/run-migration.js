@@ -1,3 +1,13 @@
+if (process.env.SECRET_BASE && !process.env.SALTS_DATABASE_URL) {
+  // SECRET_BASE without SALTS_DATABASE_URL means an outdated selfhost checkout is driving a newer image
+  console.error(
+    "Your betterlytics-selfhost checkout is outdated for this image.\n" +
+      "Run 'git pull' in your betterlytics-selfhost directory, then 'docker compose up -d' again.\n" +
+      "No migrations have been run."
+  );
+  process.exit(1);
+}
+
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }

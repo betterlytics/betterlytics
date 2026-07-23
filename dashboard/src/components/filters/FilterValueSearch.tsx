@@ -15,6 +15,7 @@ type FilterValueSearchProps<TEntity> = {
   formatLength?: number;
   valueError?: boolean;
   hideClearAllButton?: boolean;
+  disabled?: boolean;
 };
 
 export function FilterValueSearch<TEntity>({
@@ -25,6 +26,7 @@ export function FilterValueSearch<TEntity>({
   formatLength = 25,
   valueError,
   hideClearAllButton,
+  disabled,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
@@ -33,6 +35,7 @@ export function FilterValueSearch<TEntity>({
 
   const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,
+    disabled,
   });
 
   const formatLabel = (value: string) => formatString(strategy.formatValue(value, locale), formatLength);
@@ -56,6 +59,7 @@ export function FilterValueSearch<TEntity>({
   return (
     <MultiSelect
       options={multiSelectOptions}
+      disabled={disabled}
       inputValue={search}
       onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
